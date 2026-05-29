@@ -130,6 +130,18 @@ BAR_DATA = {
     "Runite bar": {"level": 85, "exp": 50.0, "ore_required": {"Runite ore": 1, "Coal": 8}},
 }
 
+FLETCHING_DATA = {
+    "Arrow shafts": {"level": 1, "exp": 5.0, "requirements": {"Tree": 1}, "output_item": "Arrow shafts", "output_qty": 15},
+    "Shortbow (u)": {"level": 5, "exp": 5.0, "requirements": {"Tree": 1}, "output_item": "Shortbow (u)", "output_qty": 1},
+    "Oak shortbow (u)": {"level": 20, "exp": 16.5, "requirements": {"Oak": 1}, "output_item": "Oak shortbow (u)", "output_qty": 1},
+    "Willow shortbow (u)": {"level": 35, "exp": 33.3, "requirements": {"Willow": 1}, "output_item": "Willow shortbow (u)", "output_qty": 1},
+    "Maple shortbow (u)": {"level": 50, "exp": 50.0, "requirements": {"Maple": 1}, "output_item": "Maple shortbow (u)", "output_qty": 1},
+    "Yew shortbow (u)": {"level": 65, "exp": 67.5, "requirements": {"Yew": 1}, "output_item": "Yew shortbow (u)", "output_qty": 1},
+    "Magic shortbow (u)": {"level": 80, "exp": 83.3, "requirements": {"Magic": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
+}
+
+FLETCHED_ITEM_IMAGES = {}
+
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,
     ORE_IMAGES,
@@ -141,6 +153,8 @@ ITEM_DEFINITIONS = build_item_definitions(
     BAR_IMAGES,
     CRAFTING_DATA,
     CRAFTED_ITEM_IMAGES,
+    FLETCHING_DATA,
+    FLETCHED_ITEM_IMAGES,
 )
 
 # Experience table

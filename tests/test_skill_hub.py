@@ -22,7 +22,7 @@ class TestSkillHubViewModel(unittest.TestCase):
         )
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
-            ["Smithing", "Crafting"],
+            ["Smithing", "Crafting", "Fletching"],
         )
         for cat in hub:
             for card in cat.skills:
@@ -39,10 +39,16 @@ class TestSkillHubViewModel(unittest.TestCase):
         hub = build_skill_hub(include_planned=True)
         cards = {card.skill_id: card for cat in hub for card in cat.skills}
 
-        # Planned proof-point skill is visible but not trainable.
+        # Fletching's frontend target panel has landed, so it is now a fully
+        # playable, selectable hub skill rather than a hidden backend pilot.
         self.assertIn("fletching", cards)
-        self.assertFalse(cards["fletching"].implemented)
-        self.assertFalse(cards["fletching"].selectable_for_review)
+        self.assertTrue(cards["fletching"].implemented)
+        self.assertTrue(cards["fletching"].selectable_for_review)
+
+        # A genuinely unimplemented skill stays visible-but-unselectable here.
+        self.assertIn("slayer", cards)
+        self.assertFalse(cards["slayer"].implemented)
+        self.assertFalse(cards["slayer"].selectable_for_review)
 
         # Implemented skills remain trainable in developer mode.
         self.assertTrue(cards["mining"].selectable_for_review)

@@ -28,6 +28,8 @@ class SkillDefinition:
     exp_key: str
     current_target_key: Optional[str] = None
     default_target: Optional[str] = None
+    review_handler_key: Optional[str] = None
+    visible_in_skill_hub: bool = True
 
 
 CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
@@ -42,6 +44,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         exp_key="mining_exp",
         current_target_key="current_ore",
         default_target="Rune essence",
+        review_handler_key="mining",
     ),
     SkillDefinition(
         id="woodcutting",
@@ -54,6 +57,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         exp_key="woodcutting_exp",
         current_target_key="current_tree",
         default_target="Tree",
+        review_handler_key="woodcutting",
     ),
     SkillDefinition(
         id="smithing",
@@ -66,6 +70,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         exp_key="smithing_exp",
         current_target_key="current_bar",
         default_target="Bronze bar",
+        review_handler_key="smithing",
     ),
     SkillDefinition(
         id="crafting",
@@ -78,6 +83,21 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         exp_key="crafting_exp",
         current_target_key="current_craft",
         default_target="",
+        review_handler_key="crafting",
+    ),
+    SkillDefinition(
+        id="fletching",
+        display_name="Fletching",
+        category="artisan",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="process",
+        level_key="fletching_level",
+        exp_key="fletching_exp",
+        current_target_key="current_fletch",
+        default_target="Arrow shafts",
+        review_handler_key="fletching",
+        visible_in_skill_hub=True,
     ),
 )
 
@@ -94,7 +114,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
     SkillDefinition("cooking", "Cooking", "artisan", False, False, "process", "cooking_level", "cooking_exp"),
     SkillDefinition("firemaking", "Firemaking", "artisan", False, False, "process", "firemaking_level", "firemaking_exp"),
-    SkillDefinition("fletching", "Fletching", "artisan", False, False, "process", "fletching_level", "fletching_exp"),
     SkillDefinition("herblore", "Herblore", "artisan", False, False, "process", "herblore_level", "herblore_exp"),
     SkillDefinition("runecrafting", "Runecrafting", "artisan", False, False, "process", "runecrafting_level", "runecrafting_exp"),
     SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp"),
@@ -142,6 +161,18 @@ def planned_skill_definitions() -> Tuple[SkillDefinition, ...]:
 def is_review_skill(identifier: str) -> bool:
     skill = get_skill(identifier)
     return bool(skill and skill.implemented and skill.participates_in_review)
+
+
+def is_skill_hub_visible(identifier: str) -> bool:
+    skill = get_skill(identifier)
+    return bool(skill and skill.visible_in_skill_hub)
+
+
+def review_handler_key(identifier: str) -> Optional[str]:
+    skill = get_skill(identifier)
+    if skill is None or not skill.implemented or not skill.participates_in_review:
+        return None
+    return skill.review_handler_key
 
 
 def skill_level_exp_keys(identifier: str) -> Optional[Tuple[str, str]]:

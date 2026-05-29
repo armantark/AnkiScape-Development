@@ -3,11 +3,12 @@
 from __future__ import annotations
 
 import os
+import re
 from dataclasses import dataclass
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple
 
 
-ItemCategory = Literal["ore", "log", "gem", "bar", "crafted"]
+ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched"]
 
 
 @dataclass(frozen=True)
@@ -25,8 +26,7 @@ class ItemDefinition:
 
 
 def slugify_item_id(category: ItemCategory, display_name: str) -> str:
-    normalized = display_name.strip().lower().replace("/", " ")
-    parts = [part for part in normalized.replace("-", " ").split() if part]
+    parts = re.findall(r"[a-z0-9]+", display_name.lower())
     return f"{category}_{'_'.join(parts)}"
 
 
@@ -78,6 +78,8 @@ def build_item_definitions(
     bar_images: Mapping[str, str],
     crafting_data: Mapping[str, Mapping[str, object]],
     crafted_item_images: Mapping[str, str],
+    fletching_data: Optional[Mapping[str, Mapping[str, object]]] = None,
+    fletched_item_images: Optional[Mapping[str, str]] = None,
 ) -> Tuple[ItemDefinition, ...]:
     definitions = []
     for name in ore_data:
@@ -90,6 +92,15 @@ def build_item_definitions(
         definitions.append(_definition(name, "bar", "Smithing", bar_data, bar_images))
     for name in crafting_data:
         definitions.append(_definition(name, "crafted", "Crafting", crafting_data, crafted_item_images))
+    if fletching_data is not None:
+        image_map = fletched_item_images or {}
+        seen_outputs = set()
+        for target_name, spec in fletching_data.items():
+            output_name = spec.get("output_item", target_name)
+            if not isinstance(output_name, str) or output_name in seen_outputs:
+                continue
+            seen_outputs.add(output_name)
+            definitions.append(_definition(output_name, "fletched", "Fletching", {output_name: spec}, image_map))
     return tuple(definitions)
 
 

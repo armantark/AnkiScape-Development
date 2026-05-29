@@ -8,7 +8,7 @@ except ImportError:
     from item_registry import ItemDefinition
     from skill_registry import default_skill_state, default_target_state
 
-CURRENT_CONFIG_VERSION = 3
+CURRENT_CONFIG_VERSION = 4
 
 
 def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, int]:

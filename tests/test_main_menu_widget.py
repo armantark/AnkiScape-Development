@@ -45,7 +45,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Smithing|Crafting)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Smithing|Crafting|Fletching)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -71,6 +71,13 @@ def _find_artisan_skill_list(dialog: "QDialog") -> "QListWidget":
         if "Smithing" in texts and "Crafting" in texts:
             return lw
     raise AssertionError("artisan skill list widget not found")
+
+
+def _find_list_with_item_prefix(dialog: "QDialog", prefix: str) -> "QListWidget":
+    for lw in dialog.findChildren(QListWidget):
+        if any(lw.item(i).text().startswith(prefix) for i in range(lw.count())):
+            return lw
+    raise AssertionError(f"no list widget with an item starting {prefix!r}")
 
 
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
@@ -159,6 +166,30 @@ class MainMenuWidgetTest(unittest.TestCase):
             title.startswith("Crafting"),
             f"panel did not switch to Crafting; still shows {title!r}",
         )
+
+    def test_fletching_is_selectable_and_shows_its_target_list(self) -> None:
+        # Fletching's frontend handoff: it must appear under Artisan, switch the
+        # panel, and render its fletch targets (e.g. Arrow shafts).
+        artisan = next(
+            b for b in self.dialog.findChildren(QPushButton) if b.text() == "Artisan"
+        )
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(self.dialog)
+        fletch_row = next(
+            (i for i in range(skill_list.count()) if skill_list.item(i).text() == "Fletching"),
+            None,
+        )
+        self.assertIsNotNone(fletch_row, "Fletching is missing from the Artisan skill list")
+        skill_list.setCurrentRow(fletch_row)
+        QApplication.processEvents()
+        title = _panel_title(self.dialog)
+        self.assertTrue(
+            title.startswith("Fletching"),
+            f"panel did not switch to Fletching; still shows {title!r}",
+        )
+        target_list = _find_list_with_item_prefix(self.dialog, "Arrow shafts")
+        self.assertIsNotNone(target_list)
 
 
 if __name__ == "__main__":

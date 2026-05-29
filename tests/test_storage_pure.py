@@ -5,7 +5,7 @@ from storage_pure import (
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
-from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA
+from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA
 
 
 class TestStoragePure(unittest.TestCase):
@@ -18,11 +18,14 @@ class TestStoragePure(unittest.TestCase):
             "woodcutting_level",
             "smithing_level",
             "crafting_level",
+            "fletching_level",
             "mining_exp",
             "woodcutting_exp",
             "smithing_exp",
             "crafting_exp",
+            "fletching_exp",
             "current_craft",
+            "current_fletch",
             "current_ore",
             "current_tree",
             "current_bar",
@@ -38,7 +41,8 @@ class TestStoragePure(unittest.TestCase):
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        for item_name in list(ORE_DATA) + list(TREE_DATA) + list(BAR_DATA) + list(GEM_DATA) + list(CRAFTING_DATA):
+        fletching_outputs = [spec["output_item"] for spec in FLETCHING_DATA.values()]
+        for item_name in list(ORE_DATA) + list(TREE_DATA) + list(BAR_DATA) + list(GEM_DATA) + list(CRAFTING_DATA) + fletching_outputs:
             self.assertIn(item_name, data["inventory"])
             self.assertEqual(data["inventory"][item_name], 0)
 
@@ -76,6 +80,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["inventory"]["Oak"], 3)
         self.assertIn("Bronze bar", migrated["inventory"])
         self.assertIn("Uncut sapphire", migrated["inventory"])
+        self.assertIn("Arrow shafts", migrated["inventory"])
 
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}

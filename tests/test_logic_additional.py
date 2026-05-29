@@ -2,16 +2,17 @@ import unittest
 
 from logic_pure import (
     calculate_new_level,
-    calculate_probability_with_level,
     apply_woodcutting_pure,
     apply_mining_pure,
     apply_smelt_pure,
     can_smelt_any_bar_pure,
     create_soft_clay_pure,
     has_crafting_materials_pure,
+    apply_fletching_pure,
     can_mine_ore_pure,
     can_cut_tree_pure,
     can_craft_item_pure,
+    can_fletch_item_pure,
 )
 from constants import EXP_TABLE as EXP_TABLE_LIST
 
@@ -43,7 +44,7 @@ class TestLogicAdditional(unittest.TestCase):
         }
         inv = {}
         # Force success, but r_gem_chance == gem_drop_chance => no gem (strict <)
-        new_inv, exp, ok, gem = apply_mining_pure(
+        new_inv, _exp, ok, _gem = apply_mining_pure(
             "Iron ore",
             inv,
             ore_data,
@@ -55,9 +56,9 @@ class TestLogicAdditional(unittest.TestCase):
             gem_drop_chance=1.0 / 256,
         )
         self.assertTrue(ok)
-        self.assertIsNone(gem)
+        self.assertIsNone(_gem)
         self.assertEqual(new_inv.get("Iron ore"), 1)
-        self.assertAlmostEqual(exp, 35)
+        self.assertAlmostEqual(_exp, 35)
 
     def test_apply_mining_success_probability_extremes(self):
         ore_data = {"Iron ore": {"exp": 35}}
@@ -69,7 +70,7 @@ class TestLogicAdditional(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(new_inv.get("Iron ore"), 1)
         # p=0.0 should always fail
-        new_inv2, exp2, ok2, gem2 = apply_mining_pure(
+        new_inv2, exp2, ok2, _gem2 = apply_mining_pure(
             "Iron ore", inv, ore_data, {}, r_action=0.0, success_probability=0.0
         )
         self.assertFalse(ok2)
@@ -90,7 +91,6 @@ class TestLogicAdditional(unittest.TestCase):
         self.assertFalse(can_smelt_any_bar_pure({}, 99, bar_data))
 
     def test_apply_smelt_pure_unknown_bar(self):
-        bar_data = {"Bronze bar": {"level": 1, "exp": 6.2, "ore_required": {"Copper ore": 1, "Tin ore": 1}}}
         inv = {"Copper ore": 1, "Tin ore": 1}
         new_inv, exp, ok = apply_smelt_pure("Unknown", inv, bar_data={})
         self.assertFalse(ok)
@@ -122,6 +122,15 @@ class TestLogicAdditional(unittest.TestCase):
 
     def test_can_craft_item_pure_missing_item(self):
         self.assertFalse(can_craft_item_pure(99, {}, "Missing", {"Soft clay": {"level": 1, "requirements": {}}}))
+
+    def test_fletching_unknown_target_and_missing_materials(self):
+        fletching_data = {"Arrow shafts": {"level": 1, "requirements": {"Tree": 1}, "output_qty": 15}}
+        self.assertFalse(can_fletch_item_pure(99, {"Tree": 1}, "Missing", fletching_data))
+        self.assertFalse(can_fletch_item_pure(1, {}, "Arrow shafts", fletching_data))
+        new_inv, exp, ok = apply_fletching_pure("Missing", {"Tree": 1}, fletching_data)
+        self.assertFalse(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(new_inv, {"Tree": 1})
 
     def test_calculate_new_level_caps_at_99_with_list(self):
         # Very high exp should cap at 99

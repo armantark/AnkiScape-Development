@@ -9,12 +9,14 @@ from logic_pure import (
     create_soft_clay_pure,
     has_crafting_materials_pure,
     apply_crafting_pure,
+    apply_fletching_pure,
     apply_smelt_pure,
     apply_woodcutting_pure,
     apply_mining_pure,
     can_mine_ore_pure,
     can_cut_tree_pure,
     can_craft_item_pure,
+    can_fletch_item_pure,
 )
 
 class TestLogic(unittest.TestCase):
@@ -239,6 +241,39 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(can_craft_item_pure(5, inv, "Gold ring", crafting_data))
         self.assertTrue(can_craft_item_pure(1, inv, "Soft clay", crafting_data))
         self.assertFalse(can_craft_item_pure(1, {}, "Soft clay", crafting_data))  # missing material
+
+    def test_apply_fletching_pure(self):
+        fletching_data = {
+            "Arrow shafts": {
+                "level": 1,
+                "exp": 5.0,
+                "requirements": {"Tree": 1},
+                "output_item": "Arrow shafts",
+                "output_qty": 15,
+            },
+            "Oak shortbow (u)": {
+                "level": 20,
+                "exp": 16.5,
+                "requirements": {"Oak": 1},
+                "output_item": "Oak shortbow (u)",
+                "output_qty": 1,
+            },
+        }
+        inv = {"Tree": 2}
+        self.assertTrue(can_fletch_item_pure(1, inv, "Arrow shafts", fletching_data))
+
+        new_inv, exp, ok = apply_fletching_pure("Arrow shafts", inv, fletching_data)
+        self.assertTrue(ok)
+        self.assertAlmostEqual(exp, 5.0)
+        self.assertEqual(new_inv["Tree"], 1)
+        self.assertEqual(new_inv["Arrow shafts"], 15)
+        self.assertEqual(inv["Tree"], 2)
+
+        self.assertFalse(can_fletch_item_pure(1, {"Oak": 1}, "Oak shortbow (u)", fletching_data))
+        new_inv2, exp2, ok2 = apply_fletching_pure("Oak shortbow (u)", {}, fletching_data)
+        self.assertFalse(ok2)
+        self.assertEqual(exp2, 0)
+        self.assertEqual(new_inv2, {})
 
 if __name__ == "__main__":
     unittest.main()

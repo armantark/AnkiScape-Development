@@ -61,8 +61,8 @@ def _card_from_definition(skill: SkillDefinition) -> SkillCardView:
         skill_id=skill.id,
         display_name=skill.display_name,
         category=skill.category,
-        implemented=skill.implemented,
-        selectable_for_review=bool(skill.implemented and skill.participates_in_review),
+        implemented=bool(skill.implemented and skill.visible_in_skill_hub),
+        selectable_for_review=bool(skill.implemented and skill.visible_in_skill_hub and skill.participates_in_review),
     )
 
 
@@ -79,7 +79,7 @@ def build_skill_hub(*, include_planned: bool) -> Tuple[CategoryView, ...]:
         cards = tuple(
             _card_from_definition(skill)
             for skill in ALL_SKILLS
-            if skill.category == category_id and (include_planned or skill.implemented)
+            if skill.category == category_id and (include_planned or (skill.implemented and skill.visible_in_skill_hub))
         )
         if not cards:
             continue

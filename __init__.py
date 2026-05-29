@@ -6,6 +6,7 @@ from .constants import (
     BAR_DATA,
     GEM_DATA,
     CRAFTING_DATA,
+    FLETCHING_DATA,
     ORE_IMAGES,
     TREE_IMAGES,
     BAR_IMAGES,
@@ -28,6 +29,7 @@ from .logic_pure import (
     can_craft_item_pure,
     apply_crafting_pure,
     apply_smelt_pure,
+    apply_fletching_pure,
     apply_woodcutting_pure,
     apply_mining_pure,
     can_mine_ore_pure,
@@ -54,7 +56,7 @@ from .injectors import inject_overview_floating_button as _inject_overview_float
 from .injectors import register_deck_browser_button as _register_deck_browser_button
 from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
-from .skill_registry import is_review_skill
+from .skill_registry import is_review_skill, review_handler_key
 
 global card_turned, exp_awarded, answer_shown
 
@@ -243,6 +245,31 @@ def on_crafting_answer():
     _refresh_skill_availability()
     _show_exp(exp_gained)
 
+
+def on_fletching_answer():
+    target = player_data.get("current_fletch", "Arrow shafts")
+    spec = FLETCHING_DATA[target]
+    player_level = player_data.get("fletching_level", 1)
+
+    if player_level < spec["level"]:
+        show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {target}.")
+        return
+
+    new_inv, exp_gained, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
+    if not ok:
+        for material, amount in spec.get("requirements", {}).items():
+            if player_data["inventory"].get(material, 0) < amount:
+                show_error_message("Insufficient materials", f"You need {amount} {material} to make {target}.")
+                break
+        return
+
+    player_data["inventory"] = new_inv
+    player_data["fletching_exp"] += exp_gained
+    level_up_check("Fletching", player_data)
+    check_achievements(player_data)
+    save_player_data()
+    _show_exp(exp_gained)
+
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
         current_bar=player_data.get("current_bar", "Bronze bar"),
@@ -320,6 +347,7 @@ def _on_main_menu():
         on_set_tree=lambda tree: _set_value("current_tree", tree),
         on_set_bar=lambda bar: _set_value("current_bar", bar),
         on_set_craft=lambda item: _set_value("current_craft", item),
+        on_set_fletch=lambda target: _set_value("current_fletch", target),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
     )
@@ -439,13 +467,20 @@ def on_mining_answer():
         _show_exp(exp_gained)
 
 
+_REVIEW_HANDLERS = {
+    "mining": on_mining_answer,
+    "woodcutting": on_woodcutting_answer,
+    "smithing": on_smithing_answer,
+    "crafting": on_crafting_answer,
+    "fletching": on_fletching_answer,
+}
+
+
 def _registered_answer_handler(skill):
-    return {
-        "Mining": on_mining_answer,
-        "Woodcutting": on_woodcutting_answer,
-        "Smithing": on_smithing_answer,
-        "Crafting": on_crafting_answer,
-    }.get(skill)
+    handler_key = review_handler_key(skill)
+    if handler_key is None:
+        return None
+    return _REVIEW_HANDLERS.get(handler_key)
 
 
 def on_good_answer():

@@ -133,14 +133,17 @@ class TestIntegrationSmoke(unittest.TestCase):
             "woodcutting_level": 1,
             "smithing_level": 1,
             "crafting_level": 1,
+            "fletching_level": 1,
             "mining_exp": 0,
             "woodcutting_exp": 0,
             "smithing_exp": 0,
             "crafting_exp": 0,
+            "fletching_exp": 0,
             "current_ore": "Rune essence",
             "current_tree": "",
             "current_bar": "Bronze bar",
             "current_craft": "",
+            "current_fletch": "Arrow shafts",
         }
         addon.current_skill = "Mining"
 
@@ -149,7 +152,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             calls["good_answer"] += 1
         addon.on_good_answer = fake_good_answer
 
-        addon.current_skill = "Fletching"
+        addon.current_skill = "Thieving"
         addon.card_turned = True
         addon.answer_shown = True
         addon.exp_awarded = False
@@ -157,7 +160,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(result, "answered")
         self.assertEqual(calls["good_answer"], 0)
 
-        addon.current_skill = "Mining"
+        addon.current_skill = "Fletching"
         addon.card_turned = True
         addon.answer_shown = True
         addon.exp_awarded = False
@@ -190,6 +193,32 @@ class TestIntegrationSmoke(unittest.TestCase):
         # Navigating away hides HUD regardless of setting
         addon._on_overview_did_refresh(overview=None)
         self.assertGreaterEqual(calls["hide"], 1)
+
+    def test_fletching_answer_updates_inventory_and_exp(self):
+        addon = _load_addon_as_package("ankiscape_fletching_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Tree": 1},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "Arrow shafts",
+            "completed_achievements": [],
+        }
+
+        addon.on_fletching_answer()
+
+        self.assertEqual(addon.player_data["inventory"]["Tree"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["xp"], [5.0])
 
 
 if __name__ == "__main__":

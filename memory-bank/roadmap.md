@@ -35,6 +35,8 @@ First proof point:
 
 Do not include flax, bowstrings, strung bows, arrows, Ranged, or combat dependencies in the first Fletching slice. Use this slice to prove that adding a skill is mostly registry data plus a small action handler.
 
+Backend status: Fletching slice 1 is implemented behind the registry and hidden from normal Skills-hub mode until frontend target selection is added.
+
 Candidate follow-ups:
 - Utility/Activities: visible material-only actions such as flax or wool gathering with no skill XP.
 - Firemaking: consumes logs for XP.

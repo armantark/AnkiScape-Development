@@ -217,3 +217,45 @@ def can_craft_item_pure(crafting_level, inventory, item, crafting_data):
     if crafting_level < spec.get("level", 1):
         return False
     return has_crafting_materials_pure(item, inventory, crafting_data)
+
+
+def has_fletching_materials_pure(target, inventory, fletching_data):
+    """Return True when inventory satisfies a Fletching target's material needs."""
+    spec = fletching_data.get(target)
+    if not spec:
+        return False
+    for material, amount in spec.get("requirements", {}).items():
+        if inventory.get(material, 0) < amount:
+            return False
+    return True
+
+
+def can_fletch_item_pure(fletching_level, inventory, target, fletching_data):
+    """Return True if level and materials allow the Fletching target."""
+    spec = fletching_data.get(target)
+    if not spec:
+        return False
+    if fletching_level < spec.get("level", 1):
+        return False
+    return has_fletching_materials_pure(target, inventory, fletching_data)
+
+
+def apply_fletching_pure(target, inventory, fletching_data):
+    """Consume logs and produce the selected Fletching output.
+
+    Fletching is intentionally modeled as a processing skill like Crafting:
+    the caller handles level checks so UI/runtime code can report a precise
+    locked reason, while this pure function owns inventory mutation safety.
+    """
+    spec = fletching_data.get(target)
+    if not spec or not has_fletching_materials_pure(target, inventory, fletching_data):
+        return inventory, 0, False
+
+    new_inv = dict(inventory)
+    for material, amount in spec.get("requirements", {}).items():
+        new_inv[material] = new_inv.get(material, 0) - amount
+
+    output_item = spec.get("output_item", target)
+    output_qty = spec.get("output_qty", 1)
+    new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+    return new_inv, spec.get("exp", 0), True

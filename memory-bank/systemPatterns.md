@@ -29,6 +29,8 @@ The add-on is a small Python package loaded by Anki. It separates some pure game
 - Inventory is a single dictionary shared across ores, logs, gems, bars, and crafted items.
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
+- Review dispatch now resolves a registry `review_handler_key` before calling the runtime handler map. This keeps display names, save keys, and handler identity connected without requiring a large action-engine rewrite.
+- Fletching is the first backend-only pilot for staged rollout: `implemented=True` and `participates_in_review=True`, but `visible_in_skill_hub=False` until frontend target selection lands.
 
 ## Architectural Pressure
 Adding many skills by copying the current pattern would increase duplication in:
@@ -40,7 +42,7 @@ Adding many skills by copying the current pattern would increase duplication in:
 - icon/image registration
 - tests
 
-The next major refactor should continue moving action behavior behind registry metadata. Skill and item identity now exist in pure backend modules; UI, achievements, and the remaining runtime dispatch map are still transitional.
+The next major refactor should continue moving target-list metadata and action behavior behind registry metadata. Skill and item identity now exist in pure backend modules; UI, achievements, and the remaining runtime dispatch internals are still transitional.
 
 ## Compatibility Pattern
 Persisted Anki config is the stable boundary. Schema changes should go through `storage_pure.py` migrations and keep existing user data intact.

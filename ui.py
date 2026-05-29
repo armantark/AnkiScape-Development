@@ -53,11 +53,13 @@ try:
         BAR_DATA,
         GEM_DATA,
         CRAFTING_DATA,
+        FLETCHING_DATA,
         ORE_IMAGES,
         TREE_IMAGES,
         BAR_IMAGES,
         GEM_IMAGES,
         CRAFTED_ITEM_IMAGES,
+        FLETCHED_ITEM_IMAGES,
         ACHIEVEMENTS,
         current_dir,
     )
@@ -70,18 +72,20 @@ except Exception:
         BAR_DATA,
         GEM_DATA,
         CRAFTING_DATA,
+        FLETCHING_DATA,
         ORE_IMAGES,
         TREE_IMAGES,
         BAR_IMAGES,
         GEM_IMAGES,
         CRAFTED_ITEM_IMAGES,
+        FLETCHED_ITEM_IMAGES,
         ACHIEVEMENTS,
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -99,7 +103,7 @@ except Exception:
             pass
 
 # Lightweight context for the open Main Menu to allow dynamic UI refreshes
-_MAIN_MENU_CTX = {"dialog": None, "smith_btn": None, "craft_btn": None, "warn_label": None}
+_MAIN_MENU_CTX = {"dialog": None, "smith_btn": None, "craft_btn": None, "fletch_btn": None, "warn_label": None}
 
 def get_config_bool(key: str, default: bool = True) -> bool:
     """Safely read a boolean config from Anki's profile; fallback to default when unavailable.
@@ -165,9 +169,12 @@ def focus_main_menu_if_open() -> bool:
         pass
     return False
 
-def refresh_skill_availability(can_smelt_any_bar: bool, can_craft_any_item: bool):
-    """Auto-enable Smithing/Crafting buttons when they become available while the menu is open.
+def refresh_skill_availability(can_smelt_any_bar: bool, can_craft_any_item: bool, can_fletch_any_item: bool = False):
+    """Auto-enable processing-skill buttons when they become available while the menu is open.
     Never auto-selects the skill; users must choose it explicitly. Only enables; does not disable.
+
+    ``can_fletch_any_item`` defaults to False so existing two-argument callers
+    (the runtime review hook) keep working until they also pass Fletching.
     """
     try:
         # Smithing
@@ -180,8 +187,17 @@ def refresh_skill_availability(can_smelt_any_bar: bool, can_craft_any_item: bool
         if c_btn is not None and can_craft_any_item and not c_btn.isEnabled():
             c_btn.setEnabled(True)
             c_btn.setToolTip("Crafting")
-        # Clear warning text if either became available
-        if (s_btn is not None and s_btn.isEnabled()) or (c_btn is not None and c_btn.isEnabled()):
+        # Fletching
+        f_btn = _MAIN_MENU_CTX.get("fletch_btn")
+        if f_btn is not None and can_fletch_any_item and not f_btn.isEnabled():
+            f_btn.setEnabled(True)
+            f_btn.setToolTip("Fletching")
+        # Clear warning text if any became available
+        if (
+            (s_btn is not None and s_btn.isEnabled())
+            or (c_btn is not None and c_btn.isEnabled())
+            or (f_btn is not None and f_btn.isEnabled())
+        ):
             warn = _MAIN_MENU_CTX.get("warn_label")
             if warn is not None and hasattr(warn, "setText"):
                 warn.setText("")
@@ -707,6 +723,7 @@ def show_main_menu(
     on_set_tree,
     on_set_bar,
     on_set_craft,
+    on_set_fletch=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
 ):
@@ -772,7 +789,7 @@ def show_main_menu(
     state = {
         "category": first_category_id(hub),
         "skill": "",
-        "active": current_skill if current_skill in ("Mining", "Woodcutting", "Smithing", "Crafting") else "None",
+        "active": current_skill if current_skill in ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching") else "None",
     }
 
     # ---- availability + active-skill helpers ----
@@ -784,11 +801,21 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _fletch_available() -> bool:
+        try:
+            level = player_data.get("fletching_level", 1)
+            inv = player_data.get("inventory", {})
+            return any(can_fletch_item_pure(level, inv, n, FLETCHING_DATA) for n in FLETCHING_DATA)
+        except Exception:
+            return False
+
     def _skill_available(display_name: str) -> bool:
         if display_name == "Smithing":
             return bool(can_smelt_any_bar)
         if display_name == "Crafting":
             return _craft_available()
+        if display_name == "Fletching":
+            return _fletch_available()
         return True
 
     def _refresh_active_label() -> None:
@@ -808,6 +835,9 @@ def show_main_menu(
             return
         if display_name == "Crafting" and not _craft_available():
             warn.setText("You can't craft anything yet. Gather materials or level up first!")
+            return
+        if display_name == "Fletching" and not _fletch_available():
+            warn.setText("You can't fletch anything yet. Cut some logs or level up first!")
             return
         warn.setText("")
         state["active"] = display_name
@@ -952,17 +982,65 @@ def show_main_menu(
         craft_list.itemActivated.connect(_on_craft_selected)
         return craft_list
 
+    def _build_fletch_list() -> QListWidget:
+        # Fletching is a processing skill like Crafting: it consumes logs and
+        # produces fletched items, so the row gating mirrors the craft list.
+        fletch_list = QListWidget()
+        fletch_list.setIconSize(QSize(28, 28))
+        fletch_list.setAlternatingRowColors(True)
+        for target_name, spec in FLETCHING_DATA.items():
+            item = QListWidgetItem(f"{target_name} (Lvl {spec['level']})")
+            item.setData(Qt.ItemDataRole.UserRole, target_name)
+            f_icon = FLETCHED_ITEM_IMAGES.get(target_name)
+            if f_icon and os.path.exists(f_icon):
+                item.setIcon(QIcon(f_icon))
+            lvl_req = spec.get('level', 1)
+            lvl_have = player_data.get("fletching_level", 1)
+            inv = player_data.get('inventory', {})
+            reqs = spec.get('requirements', {})
+            materials_ok = True
+            mat_lines = []
+            for mat, amt in reqs.items():
+                have = inv.get(mat, 0)
+                if have < amt:
+                    materials_ok = False
+                mat_lines.append(f"{mat} x{amt} (you have {have})")
+            mat_text = "\n".join(mat_lines) if mat_lines else "No materials required"
+            tooltip = f"Requires Fletching level {lvl_req}. You have {lvl_have}.\nMaterials:\n{mat_text}"
+            if not can_fletch_item_pure(lvl_have, inv, target_name, FLETCHING_DATA):
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if not materials_ok:
+                    reason.append("materials")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            item.setToolTip(tooltip)
+            fletch_list.addItem(item)
+            if target_name == player_data.get("current_fletch"):
+                fletch_list.setCurrentItem(item)
+
+        def _on_fletch_selected(item: QListWidgetItem):
+            if item and on_set_fletch is not None:
+                on_set_fletch(item.data(Qt.ItemDataRole.UserRole))
+        fletch_list.itemClicked.connect(_on_fletch_selected)
+        fletch_list.itemActivated.connect(_on_fletch_selected)
+        return fletch_list
+
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
         "Woodcutting": _build_tree_list,
         "Smithing": _build_bar_list,
         "Crafting": _build_craft_list,
+        "Fletching": _build_fletch_list,
     }
     _TARGET_PROMPTS = {
         "Mining": "Select Ore to Mine",
         "Woodcutting": "Select Tree to Cut",
         "Smithing": "Select Bar to Smelt",
         "Crafting": "Select Item to Craft",
+        "Fletching": "Select Item to Fletch",
     }
 
     def _skill_icon_path(display_name: str) -> str:
@@ -971,6 +1049,7 @@ def show_main_menu(
             "Woodcutting": "woodcutting_icon.png",
             "Smithing": "smithing_icon.png",
             "Crafting": "crafting_icon.png",
+            "Fletching": "fletching_icon.png",
         }
         return os.path.join(current_dir, "icon", icon_files.get(display_name, "achievement_icon.png"))
 
@@ -1097,6 +1176,7 @@ def show_main_menu(
         # is the visible panel so the live availability hook can re-enable them.
         _MAIN_MENU_CTX["smith_btn"] = None
         _MAIN_MENU_CTX["craft_btn"] = None
+        _MAIN_MENU_CTX["fletch_btn"] = None
         name = state["skill"]
         _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
@@ -1144,12 +1224,16 @@ def show_main_menu(
                         train_btn.setToolTip("Mine ores until you can smelt a bar.")
                     elif name == "Crafting":
                         train_btn.setToolTip("Gather materials or level up to craft an item.")
+                    elif name == "Fletching":
+                        train_btn.setToolTip("Cut logs or level up to fletch an item.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
             if name == "Smithing":
                 _MAIN_MENU_CTX["smith_btn"] = train_btn
             elif name == "Crafting":
                 _MAIN_MENU_CTX["craft_btn"] = train_btn
+            elif name == "Fletching":
+                _MAIN_MENU_CTX["fletch_btn"] = train_btn
         panel_layout.addWidget(header)
 
         if not card.implemented:
@@ -1211,7 +1295,7 @@ def show_main_menu(
     try:
         dialog.finished.connect(
             lambda _=None: _MAIN_MENU_CTX.update(
-                {"dialog": None, "smith_btn": None, "craft_btn": None, "warn_label": None}
+                {"dialog": None, "smith_btn": None, "craft_btn": None, "fletch_btn": None, "warn_label": None}
             )
         )
     except Exception:

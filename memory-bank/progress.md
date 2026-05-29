@@ -15,10 +15,11 @@
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for the current four skills.
 - `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
+- Fletching exists as the first backend pilot skill: registry metadata, save defaults/migration keys, item manifest outputs, pure processing logic, and runtime review dispatch are in place.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
-- Playable skills beyond the current four.
+- Frontend-visible playable skills beyond the current four.
 - Combat.
 - Registry-driven Stats/Bank/HUD surfaces (still hardcoded to the four skills).
 - Formal balancing pass for long-term progression.
@@ -38,7 +39,7 @@
 - `__init__.py` owns too much runtime orchestration and skill dispatch.
 - `ui.py` is large and mixes many dialogs/surfaces.
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
-- The runtime answer handler map is smaller but not yet a fully data-driven action engine.
+- The runtime answer handler map now uses registry handler keys, but target-list metadata and handler internals are still partly hardcoded.
 
 ## Current Status
 Documentation seed completed as of 2026-05-27. The working copy has been moved to `addons21/ankiscape_fork` to avoid AnkiWeb update overwrites against the numeric upstream folder.
@@ -49,7 +50,11 @@ Frontend Skills-hub conversion completed on 2026-05-29: the per-skill top tabs c
 
 Asset scraper CLI completed on 2026-05-29. Suite now passes with 92 tests, including mocked OSRS hit, OSRS miss/RS3 fallback, key/path resolution, skip-if-present, and dry-run coverage.
 
+Fletching frontend slice completed on 2026-05-29. The backend pilot's `visible_in_skill_hub` gate is now open: Fletching appears under Artisan with its own target panel (`_build_fletch_list`), level/material gating via `can_fletch_item_pure`, active-skill gating + warning, an `on_set_fletch` callback wired through `__init__`, and a live-availability slot (`fletch_btn`, optional 3rd arg to `refresh_skill_availability`). Skill icon fetched from the OSRS wiki `(detail)` variant via `tools/fetch_assets.py`. Covered by a new offscreen Qt test. NOTE: backend data gap — per-tier arrow-shaft yields (oak 30, willow 45, ... redwood 105) and the feather/arrowtip chain are not modeled yet; shortbow (u) recipes are accurate.
+
 Skills-hub click bug fixed on 2026-05-29. Introduced an offscreen Qt behavior-test loop (`.venv-qt` with `aqt`, `QT_QPA_PLATFORM=offscreen`) that builds the real dialog and drives the widgets — no Anki restart needed. `tests/test_main_menu_widget.py` asserts that selecting Woodcutting and Artisan -> Crafting updates the panel. The core `run_tests.py` suite (95 tests) skips these when `aqt` is absent.
 
+Fletching backend pilot completed on 2026-05-29. Fletching is backend-playable but hidden from normal Skills-hub mode pending frontend target-list work. Suite passes with 99 tests, including pure Fletching logic, storage defaults/migration, registry visibility/dispatch metadata, item manifest coverage, integration review handling, and offscreen Qt menu behavior.
+
 ## Next Milestone
-Harden the backend action contract, then add Fletching as the first new proof-point skill while preserving the current UI/UX.
+Frontend handoff for Fletching: add the target-list panel, make it visible in the Skills hub, then make Stats/Bank/HUD registry-driven enough for new skills to appear cleanly.

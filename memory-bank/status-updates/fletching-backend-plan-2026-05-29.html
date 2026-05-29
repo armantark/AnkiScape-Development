@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fletching Backend Pilot Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 18% 16%, rgba(74,222,128,.16), transparent 30rem), radial-gradient(circle at 85% 18%, rgba(79,140,255,.18), transparent 28rem), var(--bg); color:var(--text); font-family:Outfit,sans-serif; padding:40px 24px; }
+    main { max-width:1180px; margin:0 auto; }
+    .badge { display:inline-flex; padding:7px 11px; border:1px solid rgba(74,222,128,.35); border-radius:999px; background:rgba(74,222,128,.12); color:#c7f9d8; font:600 .75rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:20px 0 12px; font-size:clamp(2.1rem,5vw,4.25rem); line-height:.94; }
+    .subtitle { max-width:780px; color:var(--text-dim); font-size:1.05rem; line-height:1.6; margin:0 0 26px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .card { border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--surface); box-shadow:0 20px 60px rgba(0,0,0,.18); padding:20px; }
+    .label { font:600 .68rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--green); }
+    .label.amber { color:var(--amber); } .label.purple { color:var(--purple); }
+    h2 { margin:8px 0 12px; font-size:1.25rem; }
+    p { margin:0; color:var(--text-dim); line-height:1.55; }
+    .steps { display:grid; gap:12px; margin-top:14px; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start; padding:10px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+    .num { width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:var(--accent); color:white; font:600 .78rem/1 JetBrains Mono,monospace; }
+    .mock { margin-top:14px; display:grid; gap:10px; }
+    .row { display:grid; grid-template-columns:42px 1fr auto; gap:12px; align-items:center; padding:10px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+    .icon { width:42px; height:42px; border-radius:10px; background:linear-gradient(135deg,#6b4b25,#d8a35a); }
+    .row:nth-child(2) .icon { background:linear-gradient(135deg,#31422a,#8ecf5b); }
+    .pill { padding:6px 8px; border-radius:8px; background:rgba(79,140,255,.16); color:#c9d9ff; font:600 .7rem/1 JetBrains Mono,monospace; }
+    .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .tag { padding:6px 8px; border-radius:8px; background:var(--surface-2); color:var(--text); font:400 .72rem/1 JetBrains Mono,monospace; }
+    @media (max-width:900px){ .grid{grid-template-columns:1fr;} body{padding:28px 14px;} }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Pre-Implementation · Backend Pilot</span>
+  <h1>Fletching proves whether the registry is real.</h1>
+  <p class="subtitle">This pass adds a backend action contract and the first new Artisan skill without asking the frontend to redesign anything. The target slice is intentionally small: logs become arrow shafts or unstrung bows.</p>
+  <section class="grid">
+    <article class="card">
+      <span class="label">Backend Moves</span>
+      <h2>Action metadata before content sprawl</h2>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><div><strong>Action contract</strong><p>Codify review handlers and target keys so new skills stop extending ad hoc branches.</p></div></div>
+        <div class="step"><div class="num">2</div><div><strong>Fletching state</strong><p>Add safe flat save keys: level, XP, and current selected fletching target.</p></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Pure logic</strong><p>Consume logs, produce shafts or unstrung bows, return XP, and preserve inventory immutability.</p></div></div>
+        <div class="step"><div class="num">4</div><div><strong>Tests</strong><p>Cover unit logic, storage migration, review dispatch, and integration smoke paths.</p></div></div>
+      </div>
+      <div class="tags"><span class="tag">skill_registry.py</span><span class="tag">logic_pure.py</span><span class="tag">__init__.py</span><span class="tag">storage_pure.py</span></div>
+    </article>
+    <article class="card">
+      <span class="label purple">Pilot Content</span>
+      <h2>Small chain, real dependencies</h2>
+      <p>Fletching uses existing Woodcutting outputs, making logs matter without pulling in bowstrings, Ranged, shops, or combat.</p>
+      <div class="mock">
+        <div class="row"><div class="icon"></div><div><strong>Tree logs</strong><p>Input from Woodcutting</p></div><span class="pill">existing</span></div>
+        <div class="row"><div class="icon"></div><div><strong>Arrow shafts</strong><p>Early Fletching output</p></div><span class="pill">new</span></div>
+        <div class="row"><div class="icon"></div><div><strong>Unstrung bows</strong><p>No bowstring dependency yet</p></div><span class="pill">new</span></div>
+      </div>
+    </article>
+  </section>
+</main>
+</body>
+</html>
