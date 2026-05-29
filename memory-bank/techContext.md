@@ -14,6 +14,19 @@
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.
 
+### Fast Qt UI loop (no Anki restart)
+- A dedicated `uv` venv at `.venv-qt` (git-ignored) has `aqt` installed, which bundles PyQt6.
+- This lets us build the *real* dialogs headlessly instead of iterating by restarting Anki.
+- Pattern (see `tests/test_main_menu_widget.py`):
+  - `QT_QPA_PLATFORM=offscreen` so Qt runs without a display.
+  - Monkeypatch `QDialog.exec` to capture the live dialog and return immediately (otherwise `exec()` blocks).
+  - Monkeypatch `ui.get_config_bool` to control flags like developer mode.
+  - Drive the actual widgets (`setCurrentRow`, `.click()`, `processEvents()`) and assert on the resulting widget tree (panel header text, etc.).
+- Run it with:
+  - `source .venv-qt/bin/activate && QT_QPA_PLATFORM=offscreen python tests/test_main_menu_widget.py`
+- These tests are skipped automatically under the plain `run_tests.py` env (no `aqt`), so the core suite stays Qt-free.
+- This loop caught the Skills-hub `_select_skill` closure-shadow bug in under a second; prefer it over manual Anki restarts for UI-behavior regressions.
+
 ## Testing Coverage
 Existing tests cover:
 - core game logic and level/XP math
@@ -27,8 +40,9 @@ Existing tests cover:
 ## Debugging
 - Debug logging is centralized in `debug.py`.
 - Logging is disabled by default.
-- `ANKISCAPE_DEBUG=1` enables logs for local debugging.
+- `ANKISCAPE_DEBUG=1` enables logs for local debugging (Developer Mode also enables it in-app).
 - Logs are written near the package as `ankiscape_debug.log` and rotate automatically.
+- The Skills hub emits `hub.*` trace lines (`hub.select_category`, `hub.skill_row`, `hub.select_skill`, `hub.render_panel`). A fired `hub.skill_row` with no following `hub.select_skill`/`hub.render_panel` means a click was misrouted rather than a Qt/signal failure — that gap is exactly how the closure-shadow bug was found.
 
 ## Constraints
 - Code must remain importable outside Anki/Qt for tests.
