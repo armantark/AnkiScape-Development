@@ -735,11 +735,6 @@ def show_main_menu(
     # this single tab as category filter -> skill list -> target list. Normal
     # mode shows playable skills only; developer mode also surfaces the planned
     # 2011-era catalog so future skills can be inspected before they are coded.
-    try:
-        from aqt.qt import QToolButton  # type: ignore
-    except Exception:
-        QToolButton = QPushButton
-
     skills_tab = QWidget()
     s_layout = QVBoxLayout(skills_tab)
     s_layout.setContentsMargins(12, 12, 12, 12)
@@ -1016,23 +1011,6 @@ def show_main_menu(
     cat_col.setFixedWidth(170)
     panes_layout.addWidget(cat_col)
 
-    _SKILL_STYLE = (
-        "QToolButton { text-align: left; padding: 6px;"
-        " border: 1px solid palette(mid); border-radius: 8px;"
-        " color: palette(text); background: palette(base); }"
-        " QToolButton:hover { border-color: palette(dark); }"
-    )
-    _SKILL_STYLE_SEL = (
-        "QToolButton { text-align: left; padding: 6px;"
-        " border: 2px solid #4CAF50; border-radius: 8px;"
-        " color: #d6ffe5; background: rgba(76,175,80,0.18); }"
-    )
-    _SKILL_STYLE_DISABLED = (
-        "QToolButton { text-align: left; padding: 6px;"
-        " border: 1px solid palette(mid); border-radius: 8px;"
-        " color: palette(mid); background: palette(base); }"
-    )
-
     skill_col = QWidget()
     skill_col_layout = QVBoxLayout(skill_col)
     skill_col_layout.setContentsMargins(0, 0, 0, 0)
@@ -1040,16 +1018,24 @@ def show_main_menu(
     lbl2 = QLabel("Skills")
     lbl2.setStyleSheet("font-weight: 600; color: palette(text);")
     skill_col_layout.addWidget(lbl2)
-    skill_list_holder = QWidget()
-    skill_list_layout = QVBoxLayout(skill_list_holder)
-    skill_list_layout.setContentsMargins(0, 0, 0, 0)
-    skill_list_layout.setSpacing(6)
-    skill_col_layout.addWidget(skill_list_holder)
-    skill_col_layout.addStretch(1)
+    # A QListWidget handles clicking, keyboard nav, selection highlight, and
+    # disabled rows natively. Earlier hand-rolled QToolButtons were unreliable
+    # (stale signals / overlay hit-testing), so we lean on the proven pattern
+    # already used by the target lists below.
+    skill_list_widget = QListWidget()
+    skill_list_widget.setIconSize(QSize(28, 28))
+    skill_list_widget.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 4px; }"
+        " QListWidget::item { padding: 6px; border-radius: 6px; }"
+        " QListWidget::item:selected { background: rgba(76,175,80,0.30);"
+        " color: palette(text); }"
+    )
+    skill_col_layout.addWidget(skill_list_widget, 1)
     skill_col.setFixedWidth(190)
     panes_layout.addWidget(skill_col)
-    # Keep references to skill buttons so _select_skill can manage checked style.
-    _skill_btns: list = []
+    # Guard so programmatic selection (on category switch) does not recurse.
+    _skill_guard = {"on": False}
 
     panel_holder = QWidget()
     panel_layout = QVBoxLayout(panel_holder)
@@ -1076,34 +1062,32 @@ def show_main_menu(
             child = target_layout.takeAt(0)
 
     def _render_skill_list() -> None:
-        _clear_layout(skill_list_layout)
-        _skill_btns.clear()
+        _skill_guard["on"] = True
+        skill_list_widget.clear()
         cards = _cards_for(state["category"])
         for card in cards:
-            btn = QToolButton()
-            btn.setText(card.display_name)
-            btn.setCursor(Qt.CursorShape.PointingHandCursor)
+            it = QListWidgetItem(card.display_name)
+            it.setData(Qt.ItemDataRole.UserRole, card.display_name)
             ip = _skill_icon_path(card.display_name)
             if os.path.exists(ip):
-                btn.setIcon(QIcon(ip))
-            btn.setIconSize(QSize(32, 32))
-            if hasattr(btn, "setToolButtonStyle"):
-                try:
-                    btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)  # type: ignore[attr-defined]
-                except Exception:
-                    pass
+                it.setIcon(QIcon(ip))
             if not card.implemented:
-                btn.setEnabled(False)
-                btn.setStyleSheet(_SKILL_STYLE_DISABLED)
-                btn.setToolTip("Planned skill — not yet playable (shown because Developer Mode is on)")
-            elif card.display_name == state["skill"]:
-                btn.setStyleSheet(_SKILL_STYLE_SEL)
-            else:
-                btn.setStyleSheet(_SKILL_STYLE)
-            skill_list_layout.addWidget(btn)
-            _skill_btns.append((card.display_name, btn))
-            if card.implemented:
-                btn.clicked.connect(lambda _=False, n=card.display_name: _select_skill(n))
+                it.setFlags(it.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                it.setToolTip("Planned skill — not yet playable (shown because Developer Mode is on)")
+            skill_list_widget.addItem(it)
+            if card.display_name == state["skill"]:
+                skill_list_widget.setCurrentItem(it)
+        _skill_guard["on"] = False
+
+    def _on_skill_row(current, _previous) -> None:
+        if _skill_guard["on"] or current is None:
+            return
+        name = current.data(Qt.ItemDataRole.UserRole)
+        if name and name != state["skill"]:
+            _select_skill(name)
+
+    skill_list_widget.currentItemChanged.connect(_on_skill_row)
+    skill_list_widget.itemClicked.connect(lambda it: _on_skill_row(it, None))
 
     def _render_panel() -> None:
         _clear_layout(panel_layout)
@@ -1183,19 +1167,12 @@ def show_main_menu(
             panel_layout.addWidget(QLabel("No targets available yet."))
             panel_layout.addStretch(1)
 
-    def _update_skill_btn_styles() -> None:
-        for sname, sbtn in _skill_btns:
-            if not sbtn.isEnabled():
-                continue
-            sbtn.setStyleSheet(_SKILL_STYLE_SEL if sname == state["skill"] else _SKILL_STYLE)
-
     def _update_cat_btn_styles() -> None:
         for cid, cbtn in cat_buttons.items():
             cbtn.setStyleSheet(_CAT_STYLE_SEL if cid == state["category"] else _CAT_STYLE)
 
     def _select_skill(name: str) -> None:
         state["skill"] = name
-        _update_skill_btn_styles()
         _render_panel()
 
     def _select_category(category_id: str) -> None:
