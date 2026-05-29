@@ -10,6 +10,8 @@ The add-on folder has been renamed from the AnkiWeb ID `1808450369` to `ankiscap
 
 Backend registry implementation has started on `main` in a local git repository. The first backend pass adds pure skill and item registry modules, keeps existing flat save keys for safety, and wires review eligibility/level-up/storage defaults through registry metadata without changing the visible UI.
 
+Asset-fetch tooling now exists as a standalone developer CLI at `tools/fetch_assets.py`. It is not imported by the add-on runtime. It resolves one item icon at a time from the official RuneScape wikis, prefers OSRS with RS3 fallback, supports registry-key path resolution, normalizes PNG output when fetching, and records provenance.
+
 ## Key Product Decision
 The project can borrow broad inspiration from idle-RPG progression, including Melvor Idle-like long-term loops, but should not copy Melvor's concrete content, balancing, UI, or structure (because it is inferior to RuneScape, but combat is an interesting carryover). The Anki review loop remains the core mechanic.
 
@@ -23,6 +25,7 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 - Running both the upstream `1808450369` copy and the local `ankiscape_fork` copy at the same time could double-register menus/hooks.
 - The backend registry is only the first layer; the Qt menu is still per-skill/top-tab oriented and will overload once many skills become playable.
 - Utility/Activities are intentionally no-XP, so the UI must make that tradeoff obvious before exposing them broadly.
+- The asset scraper records provenance, but existing asset provenance is still unaudited until icons are re-fetched or manually cataloged.
 
 ## Next Recommended Work
 1. Finish backend registry hardening around action handler metadata and any remaining hardcoded dispatch.

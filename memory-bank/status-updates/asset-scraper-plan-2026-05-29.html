@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Asset Scraper Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 15%, rgba(251,191,36,.16), transparent 30rem), radial-gradient(circle at 85% 10%, rgba(79,140,255,.16), transparent 28rem), var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 40px 24px;
+    }
+    main { max-width: 1120px; margin: 0 auto; }
+    .badge { display:inline-flex; padding:7px 11px; border:1px solid rgba(251,191,36,.38); border-radius:999px; background:rgba(251,191,36,.1); color:#ffe29a; font:600 .75rem/1 JetBrains Mono, monospace; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:20px 0 12px; font-size:clamp(2.2rem,5vw,4.2rem); line-height:.95; }
+    .subtitle { max-width:780px; color:var(--text-dim); font-size:1.05rem; line-height:1.6; margin:0 0 26px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .card { border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--surface); padding:20px; box-shadow:0 20px 60px rgba(0,0,0,.18); }
+    .label { color:var(--amber); font:600 .68rem/1 JetBrains Mono, monospace; letter-spacing:.08em; text-transform:uppercase; }
+    .label.green { color:var(--green); }
+    .label.purple { color:var(--purple); }
+    h2 { margin:8px 0 10px; font-size:1.25rem; }
+    p { color:var(--text-dim); line-height:1.55; margin:0; }
+    .flow { display:grid; gap:10px; margin-top:14px; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start; padding:10px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+    .num { width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:var(--accent); color:white; font:600 .78rem/1 JetBrains Mono, monospace; }
+    .mock { margin-top:14px; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:#11151c; }
+    .mockbar { padding:10px 12px; background:#202632; border-bottom:1px solid var(--border); font:600 .72rem/1 JetBrains Mono, monospace; color:#b9d0ff; }
+    .terminal { padding:14px; font:400 .78rem/1.8 JetBrains Mono, monospace; color:#d7e4ff; }
+    .ok { color:var(--green); }
+    .warn { color:var(--amber); }
+    .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .tag { padding:6px 8px; border-radius:8px; background:var(--surface-2); font:400 .72rem/1 JetBrains Mono, monospace; color:var(--text); }
+    @media (max-width:900px){ .grid{grid-template-columns:1fr;} body{padding:28px 14px;} }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Pre-Implementation · Tooling Only</span>
+  <h1>One icon at a time, with receipts.</h1>
+  <p class="subtitle">This pass adds a standalone asset-fetch CLI that is never imported by AnkiScape runtime. It resolves a single wiki file, downloads safely, normalizes if requested, and records provenance for future cleanup.</p>
+  <section class="grid">
+    <article class="card">
+      <span class="label">Fetch Path</span>
+      <h2>OSRS first, RS3 fallback</h2>
+      <div class="flow">
+        <div class="step"><div class="num">1</div><div><strong>Name mapping</strong><p>Storage keys and display names resolve to wiki file titles, with explicit overrides when needed.</p></div></div>
+        <div class="step"><div class="num">2</div><div><strong>MediaWiki API</strong><p>Query imageinfo metadata with a descriptive User-Agent and retry/backoff.</p></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Safe write</strong><p>Skip existing files unless forced; dry-run prints the source and target without touching assets.</p></div></div>
+        <div class="step"><div class="num">4</div><div><strong>Provenance</strong><p>Record wiki, file page, image URL, sha1, timestamp, and license note per output path.</p></div></div>
+      </div>
+    </article>
+    <article class="card">
+      <span class="label purple">CLI Shape</span>
+      <h2>Developer tool, not addon code</h2>
+      <div class="mock">
+        <div class="mockbar">uv run tools/fetch_assets.py</div>
+        <div class="terminal">
+          <span class="ok">$</span> uv run tools/fetch_assets.py "Magic logs" --out trees/Magic.png --size 32 --dry-run<br>
+          <span class="warn">wiki</span> oldschool.runescape.wiki<br>
+          <span class="warn">file</span> File:Magic logs.png<br>
+          <span class="warn">target</span> trees/Magic.png
+        </div>
+      </div>
+      <div class="tags"><span class="tag">tools/fetch_assets.py</span><span class="tag">tests/test_fetch_assets.py</span><span class="tag">assets_provenance.json</span></div>
+    </article>
+  </section>
+</main>
+</body>
+</html>

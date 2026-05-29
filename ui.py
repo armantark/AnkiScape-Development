@@ -752,9 +752,16 @@ def show_main_menu(
     status_layout.setContentsMargins(0, 0, 0, 0)
     status_layout.setSpacing(8)
     active_label = QLabel("")
-    active_label.setStyleSheet("font-weight: 600;")
+    active_label.setStyleSheet("font-weight: 600; color: palette(text);")
     stop_btn = QPushButton("Stop training")
     stop_btn.setToolTip("Stop training (no skill earns progress during reviews)")
+    stop_btn.setStyleSheet(
+        "QPushButton { padding: 5px 12px; border: 1px solid #ff5c5c;"
+        " border-radius: 6px; color: #ff8a8a; background: rgba(255,92,92,0.12); }"
+        " QPushButton:hover { background: rgba(255,92,92,0.22); }"
+        " QPushButton:disabled { color: palette(mid); border-color: palette(mid);"
+        " background: transparent; }"
+    )
     status_layout.addWidget(active_label)
     status_layout.addStretch(1)
     status_layout.addWidget(stop_btn)
@@ -978,24 +985,30 @@ def show_main_menu(
     panes_layout.setContentsMargins(0, 0, 0, 0)
     panes_layout.setSpacing(12)
 
+    _CAT_STYLE = (
+        "QPushButton { text-align: left; padding: 8px 10px;"
+        " border: 1px solid palette(mid); border-radius: 8px;"
+        " color: palette(text); background: palette(base); }"
+        " QPushButton:hover { border-color: palette(dark); }"
+    )
+    _CAT_STYLE_SEL = (
+        "QPushButton { text-align: left; padding: 8px 10px;"
+        " border: 2px solid #4CAF50; border-radius: 8px;"
+        " font-weight: 600; color: #d6ffe5; background: rgba(76,175,80,0.18); }"
+    )
+
     cat_col = QWidget()
     cat_layout = QVBoxLayout(cat_col)
     cat_layout.setContentsMargins(0, 0, 0, 0)
     cat_layout.setSpacing(6)
-    cat_layout.addWidget(QLabel("Categories"))
-    cat_group = QButtonGroup(cat_col)
-    cat_group.setExclusive(True)
-    cat_buttons = {}
+    lbl = QLabel("Categories")
+    lbl.setStyleSheet("font-weight: 600; color: palette(text);")
+    cat_layout.addWidget(lbl)
+    cat_buttons: dict = {}
     for cat in hub:
         cb = QPushButton(cat.display_name)
-        cb.setCheckable(True)
-        cb.setStyleSheet(
-            """
-            QPushButton { text-align: left; padding: 8px 10px; border: 1px solid #cccccc; border-radius: 8px; }
-            QPushButton:checked { border: 2px solid #4CAF50; background-color: #e8f5e9; font-weight: 600; }
-            """
-        )
-        cat_group.addButton(cb)
+        cb.setStyleSheet(_CAT_STYLE)
+        cb.setCursor(Qt.CursorShape.PointingHandCursor)
         cat_layout.addWidget(cb)
         cat_buttons[cat.category_id] = cb
         cb.clicked.connect(lambda _=False, c=cat.category_id: _select_category(c))
@@ -1003,11 +1016,30 @@ def show_main_menu(
     cat_col.setFixedWidth(170)
     panes_layout.addWidget(cat_col)
 
+    _SKILL_STYLE = (
+        "QToolButton { text-align: left; padding: 6px;"
+        " border: 1px solid palette(mid); border-radius: 8px;"
+        " color: palette(text); background: palette(base); }"
+        " QToolButton:hover { border-color: palette(dark); }"
+    )
+    _SKILL_STYLE_SEL = (
+        "QToolButton { text-align: left; padding: 6px;"
+        " border: 2px solid #4CAF50; border-radius: 8px;"
+        " color: #d6ffe5; background: rgba(76,175,80,0.18); }"
+    )
+    _SKILL_STYLE_DISABLED = (
+        "QToolButton { text-align: left; padding: 6px;"
+        " border: 1px solid palette(mid); border-radius: 8px;"
+        " color: palette(mid); background: palette(base); }"
+    )
+
     skill_col = QWidget()
     skill_col_layout = QVBoxLayout(skill_col)
     skill_col_layout.setContentsMargins(0, 0, 0, 0)
     skill_col_layout.setSpacing(6)
-    skill_col_layout.addWidget(QLabel("Skills"))
+    lbl2 = QLabel("Skills")
+    lbl2.setStyleSheet("font-weight: 600; color: palette(text);")
+    skill_col_layout.addWidget(lbl2)
     skill_list_holder = QWidget()
     skill_list_layout = QVBoxLayout(skill_list_holder)
     skill_list_layout.setContentsMargins(0, 0, 0, 0)
@@ -1016,6 +1048,8 @@ def show_main_menu(
     skill_col_layout.addStretch(1)
     skill_col.setFixedWidth(190)
     panes_layout.addWidget(skill_col)
+    # Keep references to skill buttons so _select_skill can manage checked style.
+    _skill_btns: list = []
 
     panel_holder = QWidget()
     panel_layout = QVBoxLayout(panel_holder)
@@ -1041,13 +1075,12 @@ def show_main_menu(
 
     def _render_skill_list() -> None:
         _clear_layout(skill_list_layout)
+        _skill_btns.clear()
         cards = _cards_for(state["category"])
-        group = QButtonGroup(skill_list_holder)
-        group.setExclusive(True)
         for card in cards:
             btn = QToolButton()
-            btn.setCheckable(True)
             btn.setText(card.display_name)
+            btn.setCursor(Qt.CursorShape.PointingHandCursor)
             ip = _skill_icon_path(card.display_name)
             if os.path.exists(ip):
                 btn.setIcon(QIcon(ip))
@@ -1057,21 +1090,18 @@ def show_main_menu(
                     btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)  # type: ignore[attr-defined]
                 except Exception:
                     pass
-            btn.setStyleSheet(
-                """
-                QToolButton { text-align: left; padding: 6px; border: 1px solid #cccccc; border-radius: 8px; }
-                QToolButton:checked { border: 2px solid #4CAF50; background-color: #e8f5e9; }
-                QToolButton:disabled { color: #999999; }
-                """
-            )
             if not card.implemented:
                 btn.setEnabled(False)
+                btn.setStyleSheet(_SKILL_STYLE_DISABLED)
                 btn.setToolTip("Planned skill — not yet playable (shown because Developer Mode is on)")
-            group.addButton(btn)
+            elif card.display_name == state["skill"]:
+                btn.setStyleSheet(_SKILL_STYLE_SEL)
+            else:
+                btn.setStyleSheet(_SKILL_STYLE)
             skill_list_layout.addWidget(btn)
-            btn.clicked.connect(lambda _=False, n=card.display_name: _select_skill(n))
-            if card.display_name == state["skill"]:
-                btn.setChecked(True)
+            _skill_btns.append((card.display_name, btn))
+            if card.implemented:
+                btn.clicked.connect(lambda _=False, n=card.display_name: _select_skill(n))
 
     def _render_panel() -> None:
         _clear_layout(panel_layout)
@@ -1082,7 +1112,9 @@ def show_main_menu(
         name = state["skill"]
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
         if card is None:
-            panel_layout.addWidget(QLabel("Select a skill to begin."))
+            hint = QLabel("Select a skill to begin.")
+            hint.setStyleSheet("color: palette(mid);")
+            panel_layout.addWidget(hint)
             panel_layout.addStretch(1)
             return
 
@@ -1095,7 +1127,7 @@ def show_main_menu(
             title = QLabel(f"{name} — Lv {level}")
         else:
             title = QLabel(name)
-        title.setStyleSheet("font-size: 14px; font-weight: 700;")
+        title.setStyleSheet("font-size: 14px; font-weight: 700; color: palette(text);")
         hl.addWidget(title)
         hl.addStretch(1)
 
@@ -1104,10 +1136,20 @@ def show_main_menu(
             if state["active"] == name:
                 train_btn.setText("Currently training")
                 train_btn.setEnabled(False)
+                train_btn.setStyleSheet(
+                    "QPushButton { padding: 6px 12px; border: 1px solid #4CAF50;"
+                    " border-radius: 6px; color: #4CAF50; background: rgba(76,175,80,0.12); }"
+                )
             else:
                 available = _skill_available(name)
                 train_btn.setText("Train this skill")
                 train_btn.setEnabled(available)
+                train_btn.setStyleSheet(
+                    "QPushButton { padding: 6px 12px; border: 1px solid palette(mid);"
+                    " border-radius: 6px; color: palette(text); background: palette(button); }"
+                    " QPushButton:hover { border-color: #4CAF50; }"
+                    " QPushButton:disabled { color: palette(mid); }"
+                )
                 if not available:
                     if name == "Smithing":
                         train_btn.setToolTip("Mine ores until you can smelt a bar.")
@@ -1124,25 +1166,39 @@ def show_main_menu(
         if not card.implemented:
             note = QLabel("This skill is planned but not yet playable.")
             note.setWordWrap(True)
-            note.setStyleSheet("color: #888888;")
+            note.setStyleSheet("color: palette(mid);")
             panel_layout.addWidget(note)
             panel_layout.addStretch(1)
             return
 
         builder = _TARGET_BUILDERS.get(name)
         if builder is not None:
-            panel_layout.addWidget(QLabel(_TARGET_PROMPTS.get(name, "Select a target")))
+            prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
+            prompt_lbl.setStyleSheet("color: palette(text);")
+            panel_layout.addWidget(prompt_lbl)
             panel_layout.addWidget(builder(), 1)
         else:
             panel_layout.addWidget(QLabel("No targets available yet."))
             panel_layout.addStretch(1)
 
+    def _update_skill_btn_styles() -> None:
+        for sname, sbtn in _skill_btns:
+            if not sbtn.isEnabled():
+                continue
+            sbtn.setStyleSheet(_SKILL_STYLE_SEL if sname == state["skill"] else _SKILL_STYLE)
+
+    def _update_cat_btn_styles() -> None:
+        for cid, cbtn in cat_buttons.items():
+            cbtn.setStyleSheet(_CAT_STYLE_SEL if cid == state["category"] else _CAT_STYLE)
+
     def _select_skill(name: str) -> None:
         state["skill"] = name
+        _update_skill_btn_styles()
         _render_panel()
 
     def _select_category(category_id: str) -> None:
         state["category"] = category_id
+        _update_cat_btn_styles()
         cards = _cards_for(category_id)
         first = next(
             (c.display_name for c in cards if c.implemented),
@@ -1176,8 +1232,6 @@ def show_main_menu(
     _refresh_active_label()
     if hub:
         init_cat = _initial_category()
-        if init_cat in cat_buttons:
-            cat_buttons[init_cat].setChecked(True)
         _select_category(init_cat)
     else:
         panel_layout.addWidget(QLabel("No skills available."))

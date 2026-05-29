@@ -14,6 +14,7 @@
 - A backend item manifest exists for current ores, logs, gems, bars, and crafted items.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for the current four skills.
+- `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
@@ -22,6 +23,7 @@
 - Registry-driven Stats/Bank/HUD surfaces (still hardcoded to the four skills).
 - Formal balancing pass for long-term progression.
 - A release-quality expansion spec.
+- Backfilled provenance for the existing bundled assets.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -43,6 +45,8 @@ Documentation seed completed as of 2026-05-27. The working copy has been moved t
 Backend registry foundation completed as an initial pass on 2026-05-29. The full unit/integration suite passes with 81 tests.
 
 Frontend Skills-hub conversion completed on 2026-05-29: the per-skill top tabs collapsed into one registry-driven Skills hub, leaving the top bar for global sections only. Suite now passes with 87 tests (6 new `skill_hub` view-model tests).
+
+Asset scraper CLI completed on 2026-05-29. Suite now passes with 92 tests, including mocked OSRS hit, OSRS miss/RS3 fallback, key/path resolution, skip-if-present, and dry-run coverage.
 
 ## Next Milestone
 Harden the backend action contract, then add Fletching as the first new proof-point skill while preserving the current UI/UX.

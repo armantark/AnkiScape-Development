@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Asset Scraper Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 18% 18%, rgba(74,222,128,.14), transparent 30rem), radial-gradient(circle at 82% 12%, rgba(167,139,250,.16), transparent 28rem), var(--bg); color:var(--text); font-family:Outfit, sans-serif; padding:40px 24px; }
+    main { max-width:1120px; margin:0 auto; }
+    .badge { display:inline-flex; padding:7px 11px; border:1px solid rgba(74,222,128,.35); border-radius:999px; background:rgba(74,222,128,.1); color:#c6f7d6; font:600 .75rem/1 JetBrains Mono, monospace; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:20px 0 12px; font-size:clamp(2.2rem,5vw,4.25rem); line-height:.95; }
+    .subtitle { max-width:790px; color:var(--text-dim); font-size:1.05rem; line-height:1.6; margin:0 0 26px; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:18px; }
+    .metric, .card { border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--surface); box-shadow:0 20px 60px rgba(0,0,0,.18); }
+    .metric { padding:18px; }
+    .metric strong { display:block; font-size:2rem; line-height:1; }
+    .metric span { color:var(--text-dim); font:400 .72rem/1.4 JetBrains Mono, monospace; text-transform:uppercase; letter-spacing:.06em; }
+    .grid { display:grid; grid-template-columns:1.1fr .9fr; gap:18px; }
+    .card { padding:20px; }
+    .label { color:var(--green); font:600 .68rem/1 JetBrains Mono, monospace; letter-spacing:.08em; text-transform:uppercase; }
+    .label.purple { color:var(--purple); }
+    h2 { margin:8px 0 12px; font-size:1.25rem; }
+    p { color:var(--text-dim); line-height:1.55; margin:0; }
+    .steps { display:grid; gap:12px; margin-top:14px; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start; padding:10px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+    .num { width:34px; height:34px; display:grid; place-items:center; border-radius:10px; background:var(--accent); color:white; font:600 .78rem/1 JetBrains Mono, monospace; }
+    .cmd { margin-top:14px; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:#10141b; }
+    .cmdtop { padding:10px 12px; background:#202632; border-bottom:1px solid var(--border); color:#b9d0ff; font:600 .72rem/1 JetBrains Mono, monospace; }
+    .terminal { padding:14px; color:#dce7ff; font:400 .78rem/1.8 JetBrains Mono, monospace; }
+    .green { color:var(--green); }
+    @media (max-width:900px){ .metrics,.grid{grid-template-columns:1fr;} body{padding:28px 14px;} }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Completed · Asset Tooling</span>
+  <h1>Asset fetcher is ready for one-off icon pulls.</h1>
+  <p class="subtitle">The add-on runtime stays clean. The new CLI lives under tools, uses uv inline metadata for Pillow normalization, and the tests mock the network so CI remains deterministic.</p>
+  <section class="metrics">
+    <div class="metric"><strong>1</strong><span>standalone CLI</span></div>
+    <div class="metric"><strong>2</strong><span>wiki sources</span></div>
+    <div class="metric"><strong>5</strong><span>new tests</span></div>
+    <div class="metric"><strong>92</strong><span>tests passing</span></div>
+  </section>
+  <section class="grid">
+    <article class="card">
+      <span class="label">Implemented</span>
+      <h2>Safe, polite, provenance-first</h2>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><div><strong>Resolution</strong><p>Maps display names and registry keys to wiki file titles and target paths.</p></div></div>
+        <div class="step"><div class="num">2</div><div><strong>Fetching</strong><p>Queries OSRS first, falls back to RS3, sends a descriptive User-Agent, and retries with backoff.</p></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Writing</strong><p>Skips existing files unless forced, writes atomically, and can pad/resize to square transparent PNGs.</p></div></div>
+        <div class="step"><div class="num">4</div><div><strong>Provenance</strong><p>Records source wiki, file page, image URL, sha1, timestamp, and license note per output path.</p></div></div>
+      </div>
+    </article>
+    <aside class="card">
+      <span class="label purple">How To Run</span>
+      <h2>One asset at a time</h2>
+      <div class="cmd">
+        <div class="cmdtop">examples</div>
+        <div class="terminal">
+          <span class="green">$</span> uv run tools/fetch_assets.py "Yew logs" --out trees/Yew.png --dry-run<br>
+          <span class="green">$</span> uv run tools/fetch_assets.py --key rune_essence --dry-run<br>
+          <span class="green">$</span> uv run tools/fetch_assets.py "Magic logs" --out trees/Magic.png --size 32 --force
+        </div>
+      </div>
+    </aside>
+  </section>
+</main>
+</body>
+</html>
