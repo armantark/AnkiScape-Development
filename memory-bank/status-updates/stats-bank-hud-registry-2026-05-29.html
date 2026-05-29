@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stats / Bank / HUD Registry Pass — AnkiScape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:radial-gradient(circle at 16% 8%,rgba(79,140,255,.10),transparent 26rem),var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:46px 24px;max-width:1140px;margin:0 auto;}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);padding:5px 12px;border-radius:999px;margin-bottom:18px;}
+h1{font-weight:700;font-size:2.05rem;letter-spacing:-.02em;margin-bottom:8px;}
+.sub{color:var(--text-dim);font-size:.97rem;max-width:66ch;}
+.mono{font-family:'JetBrains Mono',monospace;}
+section{margin-top:34px;}
+.sec-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px;}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:900px){.cards{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.card h3{font-weight:500;font-size:1.05rem;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.card p{color:var(--text-dim);font-size:.86rem;}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:var(--green);}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.63rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:6px;margin:6px 4px 0 0;}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media(max-width:900px){.split{grid-template-columns:1fr;}}
+.shot{width:100%;border:1px solid var(--border);border-radius:10px;display:block;background:#fff;}
+.cap{color:var(--text-dim);font-size:.78rem;margin-top:8px;font-family:'JetBrains Mono',monospace;}
+.before-after{display:flex;gap:10px;font-family:'JetBrains Mono',monospace;font-size:.74rem;margin-top:10px;}
+.ba{flex:1;border:1px solid var(--border);border-radius:8px;padding:10px;background:#0a0c10;}
+.ba .h{font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.ba.bad .h{color:var(--red);} .ba.good .h{color:var(--green);}
+.ba code{color:#cdd6e8;display:block;line-height:1.6;white-space:pre-wrap;}
+.metrics{display:flex;gap:12px;flex-wrap:wrap;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;flex:1;min-width:120px;}
+.metric .n{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600;color:var(--accent);}
+.metric .l{color:var(--text-dim);font-size:.75rem;margin-top:2px;}
+.note{border:1px solid rgba(79,140,255,.3);background:var(--accent-glow);border-radius:var(--radius);padding:16px;font-size:.88rem;color:var(--text-dim);}
+.note b{color:var(--text);font-weight:500;}
+</style>
+</head>
+<body>
+  <span class="badge">● Frontend Pass Complete</span>
+  <h1>Fletching now feels integrated everywhere</h1>
+  <p class="sub">Stats, Bank, and the review HUD were still wired to the original four skills. They're now driven by the skill registry and item manifest, so Fletching — and any future registered skill — shows up automatically. No backend, asset, or gameplay changes; flat save keys untouched.</p>
+
+  <section>
+    <div class="sec-title">Three surfaces, one source of truth</div>
+    <div class="cards">
+      <div class="card">
+        <h3><span class="dot"></span>Stats</h3>
+        <p>Selectors come from <span class="mono">implemented_review_skill_names()</span>; icons resolve via <span class="mono">skill_icon_path_for()</span>. Also fixed the detail switcher to hide+unparent before <span class="mono">deleteLater</span> so blocks stop ghost-overlapping.</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>Bank</h3>
+        <p>Inventory is grouped by item-registry category via <span class="mono">grouped_inventory()</span> — Ores → Logs → Gems → Bars → Crafted → Fletched → Materials — with icons from each <span class="mono">ItemDefinition.asset_path</span> (legacy image-map fallback).</p>
+      </div>
+      <div class="card">
+        <h3><span class="dot"></span>HUD</h3>
+        <p>Active-skill recognition and icon lookup are registry-driven instead of a fixed four-skill tuple, so training Fletching shows "Fletching — Lv N" with its icon instead of the "no skill" placeholder. Level-up dialog too.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Rendered offscreen (Lv 50, sample inventory)</div>
+    <div class="split">
+      <div>
+        <img class="shot" src="bank_grouped_preview.png" alt="Bank grouped by category" />
+        <div class="cap">Bank: category headers + per-item icons, incl. Fletched &amp; Materials.</div>
+      </div>
+      <div>
+        <img class="shot" src="stats_fletching_preview.png" alt="Stats with Fletching" />
+        <div class="cap">Stats: five registry-driven selectors; Fletching panel clean (no ghost).</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">How it stays generic</div>
+    <div class="split">
+      <div class="ba bad">
+        <div class="h">Before — hardcoded</div>
+        <code>skills_info = [
+  ("Mining", ...),
+  ("Woodcutting", ...),
+  ("Smithing", ...),
+  ("Crafting", ...),
+]
+if skill not in (
+  "Mining","Woodcutting",
+  "Smithing","Crafting"): ...</code>
+      </div>
+      <div class="ba good">
+        <div class="h">After — registry</div>
+        <code>skills_info = [
+  (n, skill_icon_path_for(n) or fallback)
+  for n in playable_review_skill_names()
+]
+
+if skill not in
+   playable_review_skill_names(): ...</code>
+      </div>
+    </div>
+    <div style="margin-top:12px">
+      <span class="tag">ui.py</span><span class="tag">skill_registry.py (read)</span><span class="tag">item_registry.py (read)</span><span class="tag">tests/test_main_menu_widget.py</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Tests</div>
+    <div class="metrics">
+      <div class="metric"><div class="n">103</div><div class="l">core suite</div></div>
+      <div class="metric"><div class="n">103</div><div class="l">offscreen Qt suite</div></div>
+      <div class="metric"><div class="n">+3</div><div class="l">new surface tests</div></div>
+      <div class="metric"><div class="n">0</div><div class="l">backend files changed</div></div>
+    </div>
+    <p class="sub" style="margin-top:12px">New offscreen tests: Stats shows a Fletching panel; Bank renders Fletched/Materials headers with icons; HUD recognizes Fletching as active. Run: <span class="mono">QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</span></p>
+  </section>
+
+  <section>
+    <div class="sec-title">Heads-up</div>
+    <div class="note">
+      <b>Backend work is mid-flight in the shared tree.</b> The Fletching data reshape (<span class="mono">constants.py</span>), registries, and storage are present but <b>uncommitted</b> by the backend agent. My commit contains only <span class="mono">ui.py</span> + tests (and the already-staged fletched-item PNGs). Everything is consistent in the working tree, but make sure the backend agent commits its <span class="mono">.py</span> changes so <span class="mono">main</span> stays coherent.
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Verify in Anki</div>
+    <p class="sub">Stats tab → click Fletching (level/XP/progress). Bank tab → fletched items and materials grouped with icons. Train Fletching → the review HUD shows the Fletching icon + level.</p>
+  </section>
+</body>
+</html>
