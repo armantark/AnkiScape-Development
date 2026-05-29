@@ -160,6 +160,40 @@ def playable_review_skill_names() -> tuple:
     return tuple(implemented_review_skill_names())
 
 
+def icon_filled_to_box(path: str):
+    """Build a QIcon whose visible sprite fills the list's icon box.
+
+    The fletched-item sprites ship as 64x64 PNGs with large transparent
+    margins, so at the shared 28px icon size they rendered much smaller than the
+    legacy edge-to-edge artwork. Cropping to the opaque bounding box before Qt
+    downscales makes new items match the old ones. Returns None on any failure
+    so callers can fall back to a plain QIcon(path).
+    """
+    try:
+        from aqt.qt import QImage, QRect  # type: ignore
+    except Exception:
+        return None
+    try:
+        img = QImage(path)
+        if img.isNull():
+            return None
+        if img.hasAlphaChannel():
+            w, h = img.width(), img.height()
+            min_x, min_y, max_x, max_y = w, h, -1, -1
+            for y in range(h):
+                for x in range(w):
+                    if img.pixelColor(x, y).alpha() > 8:
+                        min_x = min(min_x, x)
+                        min_y = min(min_y, y)
+                        max_x = max(max_x, x)
+                        max_y = max(max_y, y)
+            if max_x >= min_x and max_y >= min_y:
+                img = img.copy(QRect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1))
+        return QIcon(QPixmap.fromImage(img))
+    except Exception:
+        return None
+
+
 def _item_def_for(storage_key: str) -> Optional["ItemDefinition"]:
     return _ITEM_DEFS_BY_KEY.get(storage_key)
 
@@ -1071,7 +1105,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, target_key)
             f_icon = FLETCHED_ITEM_IMAGES.get(output_item)
             if f_icon and os.path.exists(f_icon):
-                item.setIcon(QIcon(f_icon))
+                item.setIcon(icon_filled_to_box(f_icon) or QIcon(f_icon))
             lvl_req = spec.get('level', 1)
             lvl_have = player_data.get("fletching_level", 1)
             inv = player_data.get('inventory', {})
@@ -1569,7 +1603,12 @@ def show_main_menu(
             li = QListWidgetItem(f"{item_name} x{amount}")
             icon_path = _bank_icon_path(item_name, asset_path)
             if icon_path:
-                li.setIcon(QIcon(icon_path))
+                # Fletched-item sprites have transparent padding; crop them so
+                # they fill the icon box like the legacy edge-to-edge artwork.
+                if "fletcheditems" in icon_path:
+                    li.setIcon(icon_filled_to_box(icon_path) or QIcon(icon_path))
+                else:
+                    li.setIcon(QIcon(icon_path))
             bank_list.addItem(li)
     bk_layout.addWidget(bank_list)
     tabs.addTab(bank_tab, "Bank")
