@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Skills Hub Click Fix — AnkiScape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300;
+  line-height:1.55; padding:48px 24px; max-width:1080px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--green);
+  background:rgba(74,222,128,.1); border:1px solid rgba(74,222,128,.3);
+  padding:5px 12px; border-radius:999px; margin-bottom:18px; }
+h1 { font-weight:700; font-size:2rem; letter-spacing:-.02em; margin-bottom:8px; }
+.sub { color:var(--text-dim); font-size:.97rem; max-width:62ch; }
+.mono { font-family:'JetBrains Mono',monospace; }
+section { margin-top:36px; }
+.sec-title { font-family:'JetBrains Mono',monospace; font-size:.72rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--text-dim); margin-bottom:14px; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+@media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:18px 18px 16px; transition:transform .15s, box-shadow .15s; }
+.card:hover { transform:translateY(-2px); box-shadow:0 12px 30px rgba(0,0,0,.35); }
+.card h3 { font-weight:500; font-size:1.05rem; margin-bottom:6px; display:flex; align-items:center; gap:8px; }
+.card p { color:var(--text-dim); font-size:.88rem; }
+.tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.65rem;
+  background:var(--surface-2); border:1px solid var(--border); color:var(--text-dim);
+  padding:2px 7px; border-radius:6px; margin:3px 4px 0 0; }
+.dot { width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+.code { background:#0a0c10; border:1px solid var(--border); border-radius:10px; padding:14px 16px;
+  font-family:'JetBrains Mono',monospace; font-size:.78rem; color:#cdd6e8; overflow-x:auto; line-height:1.7; }
+.code .k{color:var(--purple);} .code .s{color:var(--green);} .code .c{color:var(--text-dim);} .code .bad{color:var(--red);} .code .good{color:var(--green);}
+/* trace */
+.trace { background:#0a0c10; border:1px solid var(--border); border-radius:10px; overflow:hidden; }
+.trace .row { display:flex; gap:10px; padding:7px 14px; font-family:'JetBrains Mono',monospace;
+  font-size:.74rem; border-bottom:1px solid rgba(42,48,64,.5); }
+.trace .row:last-child{border-bottom:none;}
+.trace .t { color:#5d6680; flex:0 0 70px; }
+.trace .miss { color:var(--red); background:rgba(255,92,92,.07); }
+.trace .ok { color:var(--green); }
+/* mockup */
+.mock { background:#11141a; border:1px solid var(--border); border-radius:10px; padding:12px; font-size:.72rem; }
+.mocklabel { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+.row2 { display:flex; gap:8px; }
+.col { flex:1; }
+.pill { padding:6px 9px; border-radius:7px; margin-bottom:5px; border:1px solid var(--border); background:var(--surface-2); }
+.pill.sel { border-color:var(--green); background:rgba(74,222,128,.16); color:#d6ffe5; }
+.panelhead.bad { color:var(--red); font-weight:600; }
+.panelhead.good { color:var(--green); font-weight:600; }
+.metrics { display:flex; gap:12px; flex-wrap:wrap; }
+.metric { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px 20px; flex:1; min-width:150px; }
+.metric .n { font-family:'JetBrains Mono',monospace; font-size:1.7rem; font-weight:600; color:var(--accent); }
+.metric .l { color:var(--text-dim); font-size:.78rem; margin-top:2px; }
+.steps { counter-reset:s; }
+.step { display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--border); }
+.step:last-child{border-bottom:none;}
+.step .num { counter-increment:s; font-family:'JetBrains Mono',monospace; font-weight:600; font-size:.8rem;
+  width:26px; height:26px; flex:0 0 auto; border-radius:7px; background:var(--accent-glow);
+  color:var(--accent); display:flex; align-items:center; justify-content:center; }
+.step .num::before{ content:counter(s); }
+.step .d { font-size:.9rem; }
+.step .d small { color:var(--text-dim); }
+.cmd { display:flex; align-items:center; gap:10px; background:#0a0c10; border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono',monospace; font-size:.8rem; color:#cdd6e8; }
+.cmd button { margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:.7rem; cursor:pointer;
+  background:var(--accent); color:#fff; border:none; padding:6px 12px; border-radius:7px; }
+.cmd button:active{ transform:scale(.97); }
+</style>
+</head>
+<body>
+  <span class="badge">● Bug Fixed · Verified Headless</span>
+  <h1>Skills Hub: clicks now move the panel</h1>
+  <p class="sub">Clicking Woodcutting or Crafting left the target panel stuck on Mining. Root cause was a closure name collision, not the Qt widgets. Found and fixed with a new offscreen test — no Anki restart needed.</p>
+
+  <section>
+    <div class="sec-title">Root Cause — one variable, two definitions</div>
+    <div class="grid">
+      <div class="card">
+        <h3><span class="dot" style="background:var(--red)"></span>The shadow</h3>
+        <p>Both the hub and the Stats tab defined <span class="mono">_select_skill</span> as locals of the same <span class="mono">show_main_menu</span> function. Python keeps one binding per name per scope, so the later Stats-tab definition <strong>silently overwrote</strong> the hub's. Skill clicks were routed into the Stats selector, which never touches the hub panel.</p>
+        <div style="margin-top:10px">
+          <span class="tag">ui.py:1177 — hub</span>
+          <span class="tag">ui.py:1326 — stats</span>
+        </div>
+      </div>
+      <div class="card">
+        <h3><span class="dot" style="background:var(--green)"></span>The fix</h3>
+        <div class="code"><span class="c"># before — shadowed by stats tab</span><br><span class="k">def</span> <span class="bad">_select_skill</span>(name):<br>&nbsp;&nbsp;state[<span class="s">"skill"</span>] = name<br>&nbsp;&nbsp;_render_panel()<br><br><span class="c"># after — unique name</span><br><span class="k">def</span> <span class="good">_select_hub_skill</span>(name):<br>&nbsp;&nbsp;state[<span class="s">"skill"</span>] = name<br>&nbsp;&nbsp;_render_panel()</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">The trace that cracked it</div>
+    <div class="trace">
+      <div class="row"><span class="t">12:30:12</span><span>hub.select_category: 'gathering'</span></div>
+      <div class="row"><span class="t">12:30:12</span><span>hub.render_panel: skill='Mining'</span></div>
+      <div class="row ok"><span class="t">12:30:12</span><span>hub.skill_row: name='Woodcutting' guard=False state_skill='Mining'&nbsp;&nbsp;← handler fired correctly</span></div>
+      <div class="row miss"><span class="t">—</span><span>hub.select_skill: 'Woodcutting'&nbsp;&nbsp;← NEVER LOGGED (call went to the wrong function)</span></div>
+      <div class="row miss"><span class="t">—</span><span>hub.render_panel: skill='Woodcutting'&nbsp;&nbsp;← so the panel stayed on Mining</span></div>
+    </div>
+    <p class="sub" style="margin-top:10px">The handler clearly fired with the right name and a true condition, yet no <span class="mono">select_skill</span> line followed. That gap pointed straight at a misrouted call rather than a Qt/signal problem.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">Before / After</div>
+    <div class="grid">
+      <div class="mock">
+        <div class="mocklabel">Before — click Woodcutting</div>
+        <div class="row2">
+          <div class="col" style="flex:0 0 96px">
+            <div class="pill">Mining</div>
+            <div class="pill sel">Woodcutting</div>
+          </div>
+          <div class="col">
+            <div class="panelhead bad">Mining — Lv 33 ✗</div>
+            <div style="color:var(--text-dim);margin-top:6px">Select Ore to Mine…</div>
+          </div>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="mocklabel">After — click Woodcutting</div>
+        <div class="row2">
+          <div class="col" style="flex:0 0 96px">
+            <div class="pill">Mining</div>
+            <div class="pill sel">Woodcutting</div>
+          </div>
+          <div class="col">
+            <div class="panelhead good">Woodcutting — Lv 33 ✓</div>
+            <div style="color:var(--text-dim);margin-top:6px">Select Tree to chop…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">The tighter loop you asked for</div>
+    <div class="metrics">
+      <div class="metric"><div class="n">~0.9s</div><div class="l">full hub test run</div></div>
+      <div class="metric"><div class="n">0</div><div class="l">Anki restarts needed</div></div>
+      <div class="metric"><div class="n">3 / 3</div><div class="l">widget tests pass</div></div>
+      <div class="metric"><div class="n">95</div><div class="l">core tests still green</div></div>
+    </div>
+    <p class="sub" style="margin-top:14px">A pip-installed <span class="mono">aqt</span> in <span class="mono">.venv-qt</span> lets us build the <em>real</em> dialog headlessly (<span class="mono">QT_QPA_PLATFORM=offscreen</span>), patch <span class="mono">QDialog.exec</span> to capture it, and drive the actual widgets. The test selects Woodcutting / Crafting and asserts the panel header changed — catching this exact regression class in under a second.</p>
+    <div class="cmd" style="margin-top:14px">
+      <span id="cmd">source .venv-qt/bin/activate &amp;&amp; QT_QPA_PLATFORM=offscreen python tests/test_main_menu_widget.py</span>
+      <button onclick="navigator.clipboard.writeText(document.getElementById('cmd').textContent).then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy',1200)})">copy</button>
+    </div>
+    <p class="sub" style="margin-top:10px">Live in-Anki debugging is also on now: set <span class="mono">ANKISCAPE_DEBUG=1</span> (or Developer Mode) and tail <span class="mono">ankiscape_debug.log</span> to see the <span class="mono">hub.*</span> navigation trace as you click.</p>
+  </section>
+
+  <section>
+    <div class="sec-title">What landed</div>
+    <div class="steps">
+      <div class="step"><span class="num"></span><div class="d">Renamed hub handler to <span class="mono">_select_hub_skill</span> + comment explaining the shadow trap <small><br><span class="tag">ui.py</span></small></div></div>
+      <div class="step"><span class="num"></span><div class="d">Added <span class="mono">hub.*</span> debug logging across category/skill/panel navigation <small><br><span class="tag">ui.py</span> <span class="tag">debug.py</span></small></div></div>
+      <div class="step"><span class="num"></span><div class="d">New offscreen Qt behavior test (Woodcutting + cross-category Crafting) <small><br><span class="tag">tests/test_main_menu_widget.py</span></small></div></div>
+      <div class="step"><span class="num"></span><div class="d">Ignored <span class="mono">.venv-qt/</span>; committed to <span class="mono">main</span> <small><br><span class="tag">.gitignore</span></small></div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Verify in your live Anki (30s)</div>
+    <p class="sub">Restart Anki → open the AnkiScape menu → Skills tab → click <strong>Woodcutting</strong> (panel should switch to a tree list) → click <strong>Artisan → Crafting</strong> (panel should switch to the craft list). If anything sticks, set <span class="mono">ANKISCAPE_DEBUG=1</span> and send me the <span class="mono">hub.*</span> lines.</p>
+  </section>
+</body>
+</html>
