@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fletching Frontend Complete — AnkiScape</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:radial-gradient(circle at 84% 8%,rgba(74,222,128,.10),transparent 26rem),var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:46px 24px;max-width:1120px;margin:0 auto;}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--green);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);padding:5px 12px;border-radius:999px;margin-bottom:18px;}
+h1{font-weight:700;font-size:2.1rem;letter-spacing:-.02em;margin-bottom:8px;}
+.sub{color:var(--text-dim);font-size:.97rem;max-width:64ch;}
+.mono{font-family:'JetBrains Mono',monospace;}
+section{margin-top:34px;}
+.sec-title{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px;}
+.split{display:grid;grid-template-columns:1.15fr .85fr;gap:18px;}
+@media(max-width:900px){.split{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
+.card h3{font-weight:500;font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;}
+.shot{width:100%;border:1px solid var(--border);border-radius:10px;display:block;}
+.cap{color:var(--text-dim);font-size:.78rem;margin-top:8px;font-family:'JetBrains Mono',monospace;}
+.steps{display:grid;gap:9px;}
+.step{display:flex;gap:11px;align-items:flex-start;font-size:.9rem;}
+.step .ic{flex:0 0 auto;width:20px;height:20px;border-radius:6px;background:var(--accent-glow);color:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;margin-top:1px;}
+.step small{color:var(--text-dim);}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.64rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:6px;margin:4px 4px 0 0;}
+.metrics{display:flex;gap:12px;flex-wrap:wrap;}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;flex:1;min-width:120px;}
+.metric .n{font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:600;color:var(--accent);}
+.metric .l{color:var(--text-dim);font-size:.75rem;margin-top:2px;}
+table{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:4px;}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+th{color:var(--text-dim);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;font-weight:600;}
+td.have{color:var(--green);} td.miss{color:var(--amber);}
+.handoff{border:1px solid rgba(251,191,36,.35);background:rgba(251,191,36,.06);border-radius:var(--radius);padding:18px;}
+.handoff h3{color:var(--amber);}
+.pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.66rem;padding:3px 9px;border-radius:999px;background:rgba(167,139,250,.14);color:#cdbcff;border:1px solid rgba(167,139,250,.3);}
+.prompt{background:#0a0c10;border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:.78rem;color:#cdd6e8;display:flex;align-items:flex-start;gap:10px;}
+.prompt button{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.68rem;cursor:pointer;background:var(--accent);color:#fff;border:none;padding:6px 12px;border-radius:7px;flex:0 0 auto;}
+</style>
+</head>
+<body>
+  <span class="badge">● Frontend Complete · Backend Handoff Inside</span>
+  <h1>Fletching is now playable in the Skills hub</h1>
+  <p class="sub">The backend pilot was gated behind <span class="mono">visible_in_skill_hub=False</span>. That gate is open: Fletching now has a real target panel, level/material gating, active-skill selection, the OSRS icon, and an offscreen test. Verified visually below — no Anki restart used.</p>
+
+  <section class="split">
+    <div>
+      <div class="sec-title">Rendered offscreen (developer mode, Lv 40)</div>
+      <img class="shot" src="fletching_panel_preview.png" alt="Fletching panel" />
+      <div class="cap">Artisan → Fletching → target list. Oak shortbow enabled at Lv 40; higher tiers greyed by level gate.</div>
+    </div>
+    <div class="card">
+      <h3><span class="dot" style="background:var(--green)"></span>What landed (frontend)</h3>
+      <div class="steps">
+        <div class="step"><span class="ic">1</span><div><span class="mono">_build_fletch_list</span> target panel, level + material gating via <span class="mono">can_fletch_item_pure</span></div></div>
+        <div class="step"><span class="ic">2</span><div>Active-skill select/stop + "can't fletch yet" warning, mirroring Smithing/Crafting</div></div>
+        <div class="step"><span class="ic">3</span><div><span class="mono">on_set_fletch</span> callback wired through <span class="mono">__init__</span> to persist <span class="mono">current_fletch</span></div></div>
+        <div class="step"><span class="ic">4</span><div>Live-availability slot <span class="mono">fletch_btn</span> (optional 3rd arg keeps 2-arg callers working)</div></div>
+        <div class="step"><span class="ic">5</span><div>OSRS <span class="mono">Fletching icon (detail).png</span> via the scraper, provenance recorded</div></div>
+      </div>
+      <div style="margin-top:12px">
+        <span class="tag">ui.py</span><span class="tag">__init__.py</span><span class="tag">skill_registry.py</span><span class="tag">icon/fletching_icon.png</span><span class="tag">tests/test_main_menu_widget.py</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Test status</div>
+    <div class="metrics">
+      <div class="metric"><div class="n">100</div><div class="l">core suite (run_tests.py)</div></div>
+      <div class="metric"><div class="n">4</div><div class="l">offscreen Qt tests</div></div>
+      <div class="metric"><div class="n">7</div><div class="l">fletch targets listed</div></div>
+      <div class="metric"><div class="n">0</div><div class="l">Anki restarts</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Data accuracy check — you were right about arrow shafts</div>
+    <div class="card">
+      <p class="sub" style="margin-bottom:10px">OSRS wiki confirms: <em>"Fletching higher tier logs will now give a greater number of arrow shafts."</em> Our current data models <strong>only normal logs → 15 shafts</strong> (plus shortbow recipes, which are accurate). The per-tier shaft yields are missing:</p>
+      <table>
+        <tr><th>Log</th><th>Level</th><th>XP</th><th>Shafts</th><th>In data?</th></tr>
+        <tr><td>Normal</td><td>1</td><td>5</td><td>15</td><td class="have">yes</td></tr>
+        <tr><td>Oak</td><td>15</td><td>10</td><td>30</td><td class="miss">missing</td></tr>
+        <tr><td>Willow</td><td>30</td><td>15</td><td>45</td><td class="miss">missing</td></tr>
+        <tr><td>Maple</td><td>45</td><td>20</td><td>60</td><td class="miss">missing</td></tr>
+        <tr><td>Yew</td><td>60</td><td>25</td><td>75</td><td class="miss">missing</td></tr>
+        <tr><td>Magic</td><td>75</td><td>30</td><td>90</td><td class="miss">missing</td></tr>
+        <tr><td>Redwood</td><td>90</td><td>35</td><td>105</td><td class="miss">missing</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Backend handoff (GPT)</div>
+    <div class="handoff">
+      <h3>Two data tasks remain — backend only</h3>
+      <div class="steps" style="margin-bottom:14px">
+        <div class="step"><span class="ic">A</span><div><strong>Per-tier arrow shafts</strong> in <span class="mono">constants.py FLETCHING_DATA</span>. Needs disambiguated target keys (every tier outputs the same <span class="mono">Arrow shaft</span> item at different qty), e.g. <span class="mono">"Arrow shafts (oak)"</span>. Frontend will list them automatically. <small>The shortbow (u) recipes already in the table are correct — leave them.</small></div></div>
+        <div class="step"><span class="ic">B</span><div><strong>Feather + arrowtip chain</strong> <span class="pill">later</span> headless arrows (shaft + feather) → arrows (headless + arrowtip). New items + recipes + storage keys.</div></div>
+        <div class="step"><span class="ic">C</span><div><em>Optional:</em> pass <span class="mono">can_fletch_any_item</span> as the 3rd arg to <span class="mono">refresh_skill_availability</span> from the review hook so Fletching auto-enables mid-review. The frontend slot is already in place.</div></div>
+      </div>
+      <div class="prompt">
+        <span id="p">Backend: add per-tier arrow-shaft Fletching recipes to constants.py FLETCHING_DATA using OSRS wiki values (normal 15 / oak 30 / willow 45 / maple 60 / yew 75 / magic 90 / redwood 105; levels 1/15/30/45/60/75/90; XP 5/10/15/20/25/30/35). Use disambiguated target keys since all tiers output the same "Arrow shaft" item. Keep existing shortbow (u) recipes. Add unit tests. Do not touch ui.py.</span>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('p').textContent).then(()=>{this.textContent='copied';setTimeout(()=>this.textContent='copy as prompt',1400)})">copy as prompt</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-title">Verify in Anki (when you restart)</div>
+    <p class="sub">Skills tab → Artisan → Fletching. You should see the new icon, "Select Item to Fletch", and rows gated by your Fletching level / log inventory. Cut some logs first, then "Train this skill".</p>
+  </section>
+</body>
+</html>
