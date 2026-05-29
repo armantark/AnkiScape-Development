@@ -4,6 +4,7 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .venv/
+.venv-qt/
 venv/
 ankiscape_debug.log*
 .DS_Store

@@ -1080,11 +1080,13 @@ def show_main_menu(
         _skill_guard["on"] = False
 
     def _on_skill_row(current, _previous) -> None:
-        if _skill_guard["on"] or current is None:
+        guard = _skill_guard["on"]
+        name = current.data(Qt.ItemDataRole.UserRole) if current is not None else None
+        _debug_log(f"hub.skill_row: name={name!r} guard={guard} state_skill={state['skill']!r}")
+        if guard or current is None:
             return
-        name = current.data(Qt.ItemDataRole.UserRole)
         if name and name != state["skill"]:
-            _select_skill(name)
+            _select_hub_skill(name)
 
     skill_list_widget.currentItemChanged.connect(_on_skill_row)
     skill_list_widget.itemClicked.connect(lambda it: _on_skill_row(it, None))
@@ -1096,6 +1098,7 @@ def show_main_menu(
         _MAIN_MENU_CTX["smith_btn"] = None
         _MAIN_MENU_CTX["craft_btn"] = None
         name = state["skill"]
+        _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
         if card is None:
             hint = QLabel("Select a skill to begin.")
@@ -1171,11 +1174,17 @@ def show_main_menu(
         for cid, cbtn in cat_buttons.items():
             cbtn.setStyleSheet(_CAT_STYLE_SEL if cid == state["category"] else _CAT_STYLE)
 
-    def _select_skill(name: str) -> None:
+    def _select_hub_skill(name: str) -> None:
+        # NOTE: must not be named ``_select_skill`` — the Stats tab defines its
+        # own ``_select_skill`` later in this same function scope, and the later
+        # binding would shadow this one, silently routing hub clicks into the
+        # Stats selector and leaving the hub panel stale.
+        _debug_log(f"hub.select_skill: {name!r}")
         state["skill"] = name
         _render_panel()
 
     def _select_category(category_id: str) -> None:
+        _debug_log(f"hub.select_category: {category_id!r}")
         state["category"] = category_id
         _update_cat_btn_styles()
         cards = _cards_for(category_id)
