@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton
+    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QToolButton, Qt
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -80,6 +80,22 @@ def _find_list_with_item_prefix(dialog: "QDialog", prefix: str) -> "QListWidget"
     raise AssertionError(f"no list widget with an item starting {prefix!r}")
 
 
+def _find_tool_button(dialog: "QDialog", text: str) -> "QToolButton":
+    for btn in dialog.findChildren(QToolButton):
+        if btn.text() == text:
+            return btn
+    raise AssertionError(f"no tool button labeled {text!r}")
+
+
+def _find_bank_list(dialog: "QDialog") -> "QListWidget":
+    """The bank list is the one whose rows carry category headers."""
+    for lw in dialog.findChildren(QListWidget):
+        for i in range(lw.count()):
+            if lw.item(i).data(Qt.ItemDataRole.UserRole) == "__header__":
+                return lw
+    raise AssertionError("bank list (with category headers) not found")
+
+
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(unittest.TestCase):
     app: "QApplication"
@@ -92,11 +108,11 @@ class MainMenuWidgetTest(unittest.TestCase):
     def setUp(self) -> None:
         import ui
 
-        captured: list = []
+        self._captured: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
-            captured.append(self_dialog)
+            self._captured.append(self_dialog)
             return 0
 
         self._orig_exec = QDialog.exec
@@ -108,20 +124,23 @@ class MainMenuWidgetTest(unittest.TestCase):
             True if key == "ankiscape_developer_mode" else default
         )
 
-        self._noop_calls: list = []
-        ui.show_main_menu(
-            player_data=_make_player_data(),
-            current_skill="Mining",
+        self._ui = ui
+        self.dialog = self._open(_make_player_data(), current_skill="Mining")
+
+    def _open(self, player_data: dict, current_skill: str = "Mining") -> "QDialog":
+        self._ui.show_main_menu(
+            player_data=player_data,
+            current_skill=current_skill,
             can_smelt_any_bar=True,
-            on_save_skill=lambda *a: self._noop_calls.append(("save", a)),
+            on_save_skill=lambda *a: None,
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
             on_set_bar=lambda *a: None,
             on_set_craft=lambda *a: None,
+            on_set_fletch=lambda *a: None,
         )
-        self.assertTrue(captured, "show_main_menu did not call dialog.exec()")
-        self.dialog = captured[-1]
-        self._ui = ui
+        self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
+        return self._captured[-1]
 
     def tearDown(self) -> None:
         QDialog.exec = self._orig_exec  # type: ignore[assignment,method-assign]
@@ -190,6 +209,47 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         target_list = _find_list_with_item_prefix(self.dialog, "Arrow shafts")
         self.assertIsNotNone(target_list)
+
+    # ---- Stats / Bank / HUD registry-driven surfaces ----------------------
+    def test_stats_tab_has_fletching_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Fletching")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Fletching Stats", labels)
+        self.assertIn("Fletching Level:", labels)
+
+    def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Tree": 5,
+            "Bronze bar": 2,
+            "Arrow shafts": 30,
+            "Feather": 50,
+            "Bronze arrowtips": 15,
+        }
+        dialog = self._open(pd)
+        bank = _find_bank_list(dialog)
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        for header in ("Logs", "Bars", "Fletched", "Materials"):
+            self.assertIn(header, texts, f"missing bank category header {header!r}")
+        self.assertTrue(any(t.startswith("Arrow shafts x30") for t in texts))
+        self.assertTrue(any(t.startswith("Feather x50") for t in texts))
+        # Registered fletched item should carry an icon from its ItemDefinition.
+        arrow_row = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Arrow shafts x")
+        )
+        self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
+
+    def test_hud_recognizes_fletching_as_active_skill(self) -> None:
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(_make_player_data(), "Fletching")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Fletching"),
+            f"HUD did not recognize Fletching; shows {hud.title_lbl.text()!r}",
+        )
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fletching icon")
 
 
 if __name__ == "__main__":

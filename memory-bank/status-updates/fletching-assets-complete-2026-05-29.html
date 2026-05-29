@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fletching Assets Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(74, 222, 128, 0.13), transparent 32rem),
+        radial-gradient(circle at 88% 16%, rgba(79, 140, 255, 0.16), transparent 30rem),
+        linear-gradient(145deg, #0c0e12, #10141b 54%, #0c0e12);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      min-height: 100vh;
+      padding: 44px;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      background: rgba(74, 222, 128, 0.1);
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 8px 12px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2.2rem, 6vw, 4.7rem);
+      line-height: 0.93;
+      letter-spacing: -0.06em;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      line-height: 1.65;
+      margin: 0 0 28px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 24px 0 28px;
+    }
+
+    .metric, .card {
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.83);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+    }
+
+    .metric {
+      padding: 18px;
+      min-height: 122px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 2.2rem;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      margin-top: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .card {
+      padding: 22px;
+      overflow: hidden;
+    }
+
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .rail {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .step {
+      position: relative;
+      min-height: 170px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 14px;
+    }
+
+    .step::before {
+      content: attr(data-label);
+      display: inline-flex;
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .token-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .token {
+      border: 1px solid var(--border);
+      background: #10141b;
+      border-radius: 999px;
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      padding: 7px 9px;
+    }
+
+    .ladder {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 86px 1fr 54px;
+      gap: 10px;
+      align-items: center;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+    }
+
+    .track {
+      height: 10px;
+      border-radius: 999px;
+      background: #0f131a;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .fill {
+      height: 100%;
+      width: var(--w);
+      background: linear-gradient(90deg, var(--green), var(--accent));
+      box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .node {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.74rem;
+      font-weight: 600;
+    }
+
+    .node strong { display: block; }
+    .node small {
+      display: block;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+    }
+
+    .status {
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .file {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.66rem;
+      padding: 7px 9px;
+    }
+
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .metrics, .grid, .rail { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 76px 1fr 48px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed · Fletching Asset Pass</span>
+    <h1>Icons scraped, recipes disambiguated, chain unlocked.</h1>
+    <p class="subtitle">
+      Fletching is no longer a tiny log-to-bow slice. The backend now has stable target IDs for duplicate-output recipes, a larger arrow pipeline, manifest entries for materials, and normalized OSRS-sourced PNGs with provenance.
+    </p>
+
+    <section class="metrics" aria-label="Completion metrics">
+      <div class="metric"><strong>21</strong><span>new PNG assets</span></div>
+      <div class="metric"><strong>100</strong><span>tests passing</span></div>
+      <div class="metric"><strong>7</strong><span>shaft tiers</span></div>
+      <div class="metric"><strong>6</strong><span>metal arrow tiers</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Recipe Shape</h2>
+        <div class="rail">
+          <div class="step" data-label="Before">
+            <p>Display names were doing double duty as target keys. That broke down as soon as several log tiers needed to produce the same inventory item.</p>
+            <div class="token-row">
+              <span class="token">Arrow shafts</span>
+              <span class="token">Shortbow (u)</span>
+            </div>
+          </div>
+          <div class="step" data-label="Now">
+            <p>Target keys are stable, labels are display-only, and duplicate outputs are intentional rather than ambiguous.</p>
+            <div class="token-row">
+              <span class="token">oak_arrow_shafts</span>
+              <span class="token">rune_arrows</span>
+              <span class="token">magic_shortbow_u</span>
+            </div>
+          </div>
+          <div class="step" data-label="Next">
+            <p>Stats, Bank, and HUD should read the registry/manifest instead of assuming the original four skills.</p>
+            <div class="token-row">
+              <span class="token">Stats</span>
+              <span class="token">Bank</span>
+              <span class="token">HUD</span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Arrow-Shaft Ladder</h2>
+        <div class="ladder">
+          <div class="bar"><span>Tree</span><div class="track"><div class="fill" style="--w: 14%"></div></div><span>15</span></div>
+          <div class="bar"><span>Oak</span><div class="track"><div class="fill" style="--w: 29%"></div></div><span>30</span></div>
+          <div class="bar"><span>Willow</span><div class="track"><div class="fill" style="--w: 43%"></div></div><span>45</span></div>
+          <div class="bar"><span>Maple</span><div class="track"><div class="fill" style="--w: 57%"></div></div><span>60</span></div>
+          <div class="bar"><span>Yew</span><div class="track"><div class="fill" style="--w: 71%"></div></div><span>75</span></div>
+          <div class="bar"><span>Magic</span><div class="track"><div class="fill" style="--w: 86%"></div></div><span>90</span></div>
+          <div class="bar"><span>Redwood</span><div class="track"><div class="fill" style="--w: 100%"></div></div><span>105</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid" style="margin-top:18px">
+      <article class="card">
+        <h2>Asset Pipeline</h2>
+        <div class="flow">
+          <div class="node"><span class="dot">1</span><div><strong>Resolve registry key</strong><small>Uses `ITEM_DEFINITIONS` asset paths for Fletching outputs/materials.</small></div><span class="status">done</span></div>
+          <div class="node"><span class="dot">2</span><div><strong>Fetch OSRS image</strong><small>Explicit wiki-title overrides avoid plural/singular item naming traps.</small></div><span class="status">done</span></div>
+          <div class="node"><span class="dot">3</span><div><strong>Normalize to 64px PNG</strong><small>Transparent padded icons are written under `fletcheditems/`.</small></div><span class="status">done</span></div>
+          <div class="node"><span class="dot">4</span><div><strong>Record provenance</strong><small>`assets_provenance.json` tracks source file, URL, sha1, and license metadata.</small></div><span class="status">done</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Verification</h2>
+        <div class="flow">
+          <div class="node"><span class="dot">UT</span><div><strong>Focused backend unittest</strong><small>54 tests across logic, registry, storage, integration, and asset tooling.</small></div><span class="status">pass</span></div>
+          <div class="node"><span class="dot">QT</span><div><strong>Offscreen menu behavior</strong><small>Fletching target panel still renders and selects after target-key migration.</small></div><span class="status">pass</span></div>
+          <div class="node"><span class="dot">ALL</span><div><strong>Full unittest discovery</strong><small>100 tests via `.venv-qt` with `QT_QPA_PLATFORM=offscreen`.</small></div><span class="status">pass</span></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer" aria-label="Touched files">
+      <span class="file">constants.py</span>
+      <span class="file">item_registry.py</span>
+      <span class="file">storage_pure.py</span>
+      <span class="file">ui.py</span>
+      <span class="file">__init__.py</span>
+      <span class="file">fletcheditems/*.png</span>
+      <span class="file">assets_provenance.json</span>
+    </div>
+  </main>
+</body>
+</html>

@@ -92,6 +92,18 @@ try:
 except Exception:
     from skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id  # type: ignore
 
+try:
+    from .skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill
+except Exception:
+    from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill  # type: ignore
+
+try:
+    from .constants import ITEM_DEFINITIONS
+    from .item_registry import ItemDefinition, item_definitions_by_storage_key
+except Exception:
+    from constants import ITEM_DEFINITIONS  # type: ignore
+    from item_registry import ItemDefinition, item_definitions_by_storage_key  # type: ignore
+
 # Central debug logger (support both package and flat import in tests)
 try:
     from .debug import debug_log as _debug_log  # type: ignore
@@ -104,6 +116,85 @@ except Exception:
 
 # Lightweight context for the open Main Menu to allow dynamic UI refreshes
 _MAIN_MENU_CTX = {"dialog": None, "smith_btn": None, "craft_btn": None, "fletch_btn": None, "warn_label": None}
+
+
+# ---- registry-driven UI helpers -------------------------------------------
+# These keep Stats/Bank/HUD in sync with the skill + item registries so a new
+# playable skill (e.g. Fletching) surfaces everywhere without another hardcoded
+# four-skill branch. Icons follow the existing convention: icon/<skill_id>_icon.png.
+
+# Bank grouping order + labels. Categories come from item_registry.ItemCategory.
+_ITEM_CATEGORY_ORDER = ("ore", "log", "gem", "bar", "crafted", "fletched", "material")
+_ITEM_CATEGORY_LABELS = {
+    "ore": "Ores",
+    "log": "Logs",
+    "gem": "Gems",
+    "bar": "Bars",
+    "crafted": "Crafted",
+    "fletched": "Fletched",
+    "material": "Materials",
+}
+
+
+def skill_icon_path_for(display_name: str) -> Optional[str]:
+    """Resolve a skill's icon by registry id (icon/<id>_icon.png), else None.
+
+    Falls back to the lowercased display name so skills added before their id is
+    wired still find a matching file. Returns None when no asset exists, letting
+    callers degrade gracefully instead of showing a broken image.
+    """
+    candidates = []
+    skill = get_skill(display_name)
+    if skill is not None:
+        candidates.append(f"{skill.id}_icon.png")
+    candidates.append(f"{display_name.lower()}_icon.png")
+    for fname in candidates:
+        path = os.path.join(current_dir, "icon", fname)
+        if os.path.exists(path):
+            return path
+    return None
+
+
+def playable_review_skill_names() -> tuple:
+    """Display names of skills that earn XP during review, straight from the registry."""
+    return tuple(implemented_review_skill_names())
+
+
+def _item_def_for(storage_key: str) -> Optional["ItemDefinition"]:
+    return _ITEM_DEFS_BY_KEY.get(storage_key)
+
+
+def grouped_inventory(inventory: dict) -> list:
+    """Group owned items by registry category in display order.
+
+    Returns a list of (category_label, [(item_name, amount, asset_path), ...]).
+    Items the registry doesn't know about fall into a trailing "Other" group so
+    nothing silently disappears from the bank.
+    """
+    buckets: dict = {cat: [] for cat in _ITEM_CATEGORY_ORDER}
+    other: list = []
+    for name in sorted(inventory.keys()):
+        amount = inventory.get(name, 0) or 0
+        if amount <= 0:
+            continue
+        definition = _item_def_for(name)
+        asset_path = definition.asset_path if definition is not None else None
+        row = (name, amount, asset_path)
+        if definition is not None and definition.category in buckets:
+            buckets[definition.category].append(row)
+        else:
+            other.append(row)
+    groups: list = []
+    for cat in _ITEM_CATEGORY_ORDER:
+        if buckets[cat]:
+            groups.append((_ITEM_CATEGORY_LABELS[cat], buckets[cat]))
+    if other:
+        groups.append(("Other", other))
+    return groups
+
+
+# Built once: storage_key -> ItemDefinition (category + asset_path lookups).
+_ITEM_DEFS_BY_KEY = item_definitions_by_storage_key(ITEM_DEFINITIONS)
 
 def get_config_bool(key: str, default: bool = True) -> bool:
     """Safely read a boolean config from Anki's profile; fallback to default when unavailable.
@@ -348,17 +439,9 @@ if HAS_QT:
             self.hide()
 
         def _skill_icon_path(self, skill: str) -> Optional[str]:
-            icon_map = {
-                "Mining": "mining_icon.png",
-                "Woodcutting": "woodcutting_icon.png",
-                "Smithing": "smithing_icon.png",
-                "Crafting": "crafting_icon.png",
-            }
-            fname = icon_map.get(skill)
-            if not fname:
-                return None
-            p = os.path.join(current_dir, "icon", fname)
-            return p if os.path.exists(p) else None
+            # Registry-driven: resolves icon/<skill_id>_icon.png for any playable
+            # skill (Fletching included) instead of a fixed four-skill map.
+            return skill_icon_path_for(skill)
 
         def _placeholder_icon_path(self) -> Optional[str]:
             p = os.path.join(current_dir, "crafteditems", "None.png")
@@ -367,7 +450,7 @@ if HAS_QT:
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
-            if skill not in ("Mining", "Woodcutting", "Smithing", "Crafting"):
+            if skill not in playable_review_skill_names():
                 # No skill selected: show placeholder state
                 ip = self._placeholder_icon_path()
                 if ip:
@@ -639,21 +722,13 @@ def show_level_up_dialog(skill: str):
     dialog.setFixedSize(380, 200)
     layout = QVBoxLayout()
 
-    # Icon row
-    icon_map = {
-        "Mining": "mining_icon.png",
-        "Woodcutting": "woodcutting_icon.png",
-        "Smithing": "smithing_icon.png",
-        "Crafting": "crafting_icon.png",
-    }
-    icon_file = icon_map.get(skill)
-    if icon_file:
-        icon_path = os.path.join(current_dir, "icon", icon_file)
-        if os.path.exists(icon_path):
-            icon_label = QLabel()
-            pixmap = QPixmap(icon_path)
-            icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-            layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
+    # Icon row (registry-driven so new skills like Fletching show their icon)
+    icon_path = skill_icon_path_for(skill)
+    if icon_path:
+        icon_label = QLabel()
+        pixmap = QPixmap(icon_path)
+        icon_label.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+        layout.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
     msg = QLabel(f"Congratulations! You've advanced a {skill} level!")
     msg.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -988,10 +1063,13 @@ def show_main_menu(
         fletch_list = QListWidget()
         fletch_list.setIconSize(QSize(28, 28))
         fletch_list.setAlternatingRowColors(True)
-        for target_name, spec in FLETCHING_DATA.items():
-            item = QListWidgetItem(f"{target_name} (Lvl {spec['level']})")
-            item.setData(Qt.ItemDataRole.UserRole, target_name)
-            f_icon = FLETCHED_ITEM_IMAGES.get(target_name)
+        for target_key, spec in FLETCHING_DATA.items():
+            display_name = spec.get("display_name", target_key)
+            output_item = spec.get("output_item", display_name)
+            output_qty = spec.get("output_qty", 1)
+            item = QListWidgetItem(f"{display_name} (Lvl {spec['level']})")
+            item.setData(Qt.ItemDataRole.UserRole, target_key)
+            f_icon = FLETCHED_ITEM_IMAGES.get(output_item)
             if f_icon and os.path.exists(f_icon):
                 item.setIcon(QIcon(f_icon))
             lvl_req = spec.get('level', 1)
@@ -1006,8 +1084,11 @@ def show_main_menu(
                     materials_ok = False
                 mat_lines.append(f"{mat} x{amt} (you have {have})")
             mat_text = "\n".join(mat_lines) if mat_lines else "No materials required"
-            tooltip = f"Requires Fletching level {lvl_req}. You have {lvl_have}.\nMaterials:\n{mat_text}"
-            if not can_fletch_item_pure(lvl_have, inv, target_name, FLETCHING_DATA):
+            tooltip = (
+                f"Requires Fletching level {lvl_req}. You have {lvl_have}.\n"
+                f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
+            )
+            if not can_fletch_item_pure(lvl_have, inv, target_key, FLETCHING_DATA):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
                 reason = []
                 if lvl_have < lvl_req:
@@ -1018,7 +1099,7 @@ def show_main_menu(
                     tooltip += "\nLocked due to: " + ", ".join(reason)
             item.setToolTip(tooltip)
             fletch_list.addItem(item)
-            if target_name == player_data.get("current_fletch"):
+            if target_key == player_data.get("current_fletch"):
                 fletch_list.setCurrentItem(item)
 
         def _on_fletch_selected(item: QListWidgetItem):
@@ -1359,12 +1440,13 @@ def show_main_menu(
     details_layout = QVBoxLayout(details_container)
     details_layout.setContentsMargins(0, 0, 0, 0)
 
-    # Create skill icon buttons
+    # Skill selectors come from the registry so every playable skill (Fletching
+    # and any future skill) gets a Stats panel automatically. Icons resolve by
+    # convention; the achievement icon is a safe fallback for skills lacking art.
+    _ach_fallback = os.path.join(current_dir, "icon", "achievement_icon.png")
     skills_info = [
-        ("Mining", os.path.join(current_dir, "icon", "mining_icon.png")),
-        ("Woodcutting", os.path.join(current_dir, "icon", "woodcutting_icon.png")),
-        ("Smithing", os.path.join(current_dir, "icon", "smithing_icon.png")),
-        ("Crafting", os.path.join(current_dir, "icon", "crafting_icon.png")),
+        (name, skill_icon_path_for(name) or _ach_fallback)
+        for name in playable_review_skill_names()
     ]
 
     # Import here to keep headless safety for static analyzers
@@ -1412,11 +1494,16 @@ def show_main_menu(
 
     # Update details when a skill is selected
     def _select_skill(skill_name: str):
-        # Clear previous content
+        # Clear previous content. hide()+setParent(None) before deleteLater so
+        # the old details block is removed from view immediately; deleteLater
+        # alone is async and would briefly overlap the new block.
         child = details_layout.takeAt(0)
         while child:
-            if child.widget():
-                child.widget().deleteLater()
+            w = child.widget()
+            if w is not None:
+                w.hide()
+                w.setParent(None)
+                w.deleteLater()
             child = details_layout.takeAt(0)
         # Add new details
         details_layout.addWidget(_mk_skill_details(skill_name))
@@ -1449,21 +1536,39 @@ def show_main_menu(
     bank_list = QListWidget()
     bank_list.setIconSize(QSize(28, 28))
     bank_list.setAlternatingRowColors(True)
-    # Only show items with quantity > 0
+    # Inventory is grouped by item-registry category (Ores, Logs, ..., Fletched,
+    # Materials) so newly registered items appear cleanly without per-skill
+    # branches. Each item's icon comes from its ItemDefinition.asset_path, with a
+    # legacy image-map fallback for anything predating the manifest.
     inv = player_data.get("inventory", {})
-    for item_name in sorted(inv.keys()):
-        amount = inv.get(item_name, 0)
-        if amount and amount > 0:
-            text = f"{item_name} x{amount}"
-            li = QListWidgetItem(text)
-            icon_path = (
-                ORE_IMAGES.get(item_name)
-                or TREE_IMAGES.get(item_name)
-                or BAR_IMAGES.get(item_name)
-                or GEM_IMAGES.get(item_name)
-                or CRAFTED_ITEM_IMAGES.get(item_name)
-            )
-            if icon_path and os.path.exists(icon_path):
+    _legacy_icon_maps = (ORE_IMAGES, TREE_IMAGES, BAR_IMAGES, GEM_IMAGES, CRAFTED_ITEM_IMAGES, FLETCHED_ITEM_IMAGES)
+
+    def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
+        if asset_path and os.path.exists(asset_path):
+            return asset_path
+        for image_map in _legacy_icon_maps:
+            candidate = image_map.get(item_name)
+            if candidate and os.path.exists(candidate):
+                return candidate
+        return None
+
+    groups = grouped_inventory(inv)
+    if not groups:
+        empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
+        empty.setFlags(Qt.ItemFlag.NoItemFlags)
+        bank_list.addItem(empty)
+    for category_label, rows in groups:
+        header = QListWidgetItem(category_label)
+        header.setFlags(Qt.ItemFlag.NoItemFlags)
+        header_font = header.font()
+        header_font.setBold(True)
+        header.setFont(header_font)
+        header.setData(Qt.ItemDataRole.UserRole, "__header__")
+        bank_list.addItem(header)
+        for item_name, amount, asset_path in rows:
+            li = QListWidgetItem(f"{item_name} x{amount}")
+            icon_path = _bank_icon_path(item_name, asset_path)
+            if icon_path:
                 li.setIcon(QIcon(icon_path))
             bank_list.addItem(li)
     bk_layout.addWidget(bank_list)
