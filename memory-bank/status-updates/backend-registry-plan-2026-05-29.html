@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Backend Registry Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(79, 140, 255, 0.18), transparent 32rem),
+        radial-gradient(circle at 80% 25%, rgba(167, 139, 250, 0.12), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 40px 24px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #b9d0ff;
+      font: 600 0.75rem/1 JetBrains Mono, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 4.25rem); line-height: 0.92; margin: 20px 0 14px; }
+    .subtitle { max-width: 760px; color: var(--text-dim); font-size: 1.05rem; line-height: 1.6; margin-bottom: 28px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent), var(--surface);
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    .card h2 { margin: 8px 0 10px; font-size: 1.25rem; }
+    .label { font: 600 0.68rem/1 JetBrains Mono, monospace; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); }
+    .label.amber { color: var(--amber); }
+    .label.purple { color: var(--purple); }
+    .label.red { color: var(--red); }
+    p { color: var(--text-dim); line-height: 1.55; margin: 0; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+    .chip { padding: 6px 8px; border-radius: 8px; background: var(--surface-2); color: var(--text); font: 400 0.72rem/1 JetBrains Mono, monospace; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+    .node { min-height: 78px; border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--surface-2); }
+    .node strong { display: block; margin-bottom: 8px; }
+    .node span { color: var(--text-dim); font-size: 0.85rem; line-height: 1.35; }
+    .mock {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: #11151c;
+    }
+    .mock-top { display: flex; gap: 2px; border-bottom: 1px solid var(--border); background: #242a34; padding: 8px; }
+    .tab { flex: 1; min-width: 0; border: 1px solid #3a4150; border-radius: 7px; padding: 8px; text-align: center; color: var(--text-dim); font-size: 0.78rem; }
+    .tab.active { color: white; border-color: rgba(79, 140, 255, 0.7); background: rgba(79, 140, 255, 0.18); }
+    .mock-body { padding: 14px; display: grid; gap: 10px; }
+    .row { display: grid; grid-template-columns: 42px 1fr auto; gap: 12px; align-items: center; padding: 10px; border-radius: 10px; background: rgba(255,255,255,0.035); }
+    .icon { width: 42px; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #7c4f24, #e0b369); }
+    .row:nth-child(2) .icon { background: linear-gradient(135deg, #536b2f, #acd46b); }
+    .small { color: var(--text-dim); font-size: 0.82rem; }
+    .status { font: 600 0.7rem/1 JetBrains Mono, monospace; color: var(--green); }
+    .status.muted { color: var(--text-dim); }
+    .steps { display: grid; gap: 12px; margin-top: 16px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+    .num { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; background: var(--accent); color: white; font: 600 0.8rem/1 JetBrains Mono, monospace; }
+    .step strong { display: block; margin-bottom: 4px; }
+    .riskbar { height: 10px; border-radius: 99px; background: var(--surface-2); overflow: hidden; margin-top: 12px; }
+    .riskbar span { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--amber)); width: 72%; }
+    @media (max-width: 900px) {
+      .grid, .flow { grid-template-columns: 1fr; }
+      body { padding: 28px 14px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Pre-Implementation Plan · Backend Only</span>
+  <h1>Registry foundation without save-data roulette.</h1>
+  <p class="subtitle">The backend pass keeps the current selected-skill gameplay intact while replacing scattered identity and item metadata with typed registries. The UI can keep looking familiar until the frontend handoff.</p>
+
+  <section class="grid">
+    <article class="card">
+      <span class="label amber">Main Move</span>
+      <h2>Skill identity becomes data</h2>
+      <p>Mining, Woodcutting, Smithing, and Crafting stay behaviorally identical, but their level keys, XP keys, selector keys, categories, and implementation status move behind stable IDs.</p>
+      <div class="flow">
+        <div class="node"><strong>Skill ID</strong><span><code>woodcutting</code>, <code>smithing</code></span></div>
+        <div class="node"><strong>Action Kind</strong><span>gather, process, utility, future combat</span></div>
+        <div class="node"><strong>Save Keys</strong><span>flat keys preserved for migration safety</span></div>
+        <div class="node"><strong>Dispatch</strong><span>current branches shrink behind registry lookup</span></div>
+      </div>
+      <div class="chips"><span class="chip">skill_registry.py</span><span class="chip">__init__.py</span><span class="chip">storage_pure.py</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label purple">Item Economy</span>
+      <h2>Item manifest before Fletching</h2>
+      <p>Existing ores, logs, bars, gems, and crafted outputs become first-class item definitions with explicit categories and asset paths. This prevents Fletching from adding another island of hardcoded items.</p>
+      <div class="mock">
+        <div class="mock-top">
+          <div class="tab active">Gathering</div><div class="tab">Artisan</div><div class="tab">Utility</div>
+        </div>
+        <div class="mock-body">
+          <div class="row"><div class="icon"></div><div><strong>Oak logs</strong><div class="small">item: oak_logs · source: Woodcutting</div></div><div class="status">asset ok</div></div>
+          <div class="row"><div class="icon"></div><div><strong>Unstrung bow</strong><div class="small">future: Fletching output</div></div><div class="status muted">planned</div></div>
+        </div>
+      </div>
+      <div class="chips"><span class="chip">item_registry.py</span><span class="chip">constants.py</span><span class="chip">asset tests</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label green">Safety</span>
+      <h2>No save migration drama</h2>
+      <p>The implementation keeps existing flat fields like <code>mining_exp</code> and <code>current_ore</code>. Registry metadata describes them, and migrations only add missing safe defaults.</p>
+      <div class="riskbar"><span></span></div>
+      <p class="small" style="margin-top:10px;">Risk reduction comes from idempotent storage tests and behavior parity tests around the current four skills.</p>
+      <div class="chips"><span class="chip">test_storage_pure.py</span><span class="chip">test_registry.py</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label red">Not This Pass</span>
+      <h2>Frontend redesign waits</h2>
+      <p>The top-bar/Skills-hub decision is recorded, but this backend pass should not rebuild Qt screens. The only UI-facing output is metadata the frontend can consume later.</p>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><div><strong>Registry modules</strong><p>Typed backend definitions for skills, items, actions, and planned catalog entries.</p></div></div>
+        <div class="step"><div class="num">2</div><div><strong>Dispatch parity</strong><p>Current answer flow uses registry-backed handlers without changing visible rewards.</p></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Tests</strong><p>Unit, integration, and storage coverage prove existing data survives.</p></div></div>
+      </div>
+    </article>
+  </section>
+</main>
+</body>
+</html>

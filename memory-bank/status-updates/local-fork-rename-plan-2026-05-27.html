@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Local Fork Rename Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(251, 191, 36, 0.16), transparent 28rem),
+        radial-gradient(circle at 80% 30%, rgba(79, 140, 255, 0.16), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1080px; margin: 0 auto; }
+    .badge, .tag, .path { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      border-radius: 999px;
+      background: rgba(251, 191, 36, 0.12);
+      color: #ffe4a6;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 5vw, 3.7rem); line-height: 0.96; }
+    p { color: var(--text-dim); line-height: 1.65; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 28px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 22px 70px rgba(0,0,0,0.24);
+    }
+    .swap {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .path {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 14px;
+      font-size: 0.82rem;
+      color: #cbd5e1;
+      min-height: 70px;
+    }
+    .arrow {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.4);
+      color: #cfe0ff;
+    }
+    .tag {
+      display: inline-block;
+      margin: 8px 6px 0 0;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: #c1cbda;
+      font-size: 0.72rem;
+    }
+    .steps { display: grid; gap: 10px; margin-top: 12px; }
+    .step { border-left: 3px solid var(--amber); padding: 8px 0 8px 12px; color: var(--text-dim); }
+    @media (max-width: 860px) {
+      body { padding: 24px; }
+      .grid, .swap { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-RENAME CHORE</span>
+    <h1>Move the add-on out of AnkiWeb’s update target</h1>
+    <p>The numeric AnkiWeb folder is the risky surface. Renaming it makes this copy a local fork so AnkiWeb updates create or update the upstream folder separately.</p>
+    <section class="card">
+      <div class="swap">
+        <div class="path">addons21/1808450369<br><span style="color:var(--text-dim)">AnkiWeb-managed ID</span></div>
+        <div class="arrow">→</div>
+        <div class="path">addons21/ankiscape_fork<br><span style="color:var(--text-dim)">local development fork</span></div>
+      </div>
+    </section>
+    <section class="grid">
+      <article class="card">
+        <h2>Why This Is Safe</h2>
+        <p>Anki’s updater targets the add-on ID folder. The renamed local folder should not be overwritten by future AnkiWeb package refreshes.</p>
+        <span class="tag">protect local docs</span><span class="tag">protect future code</span><span class="tag">manual upstream merge</span>
+      </article>
+      <article class="card">
+        <h2>Order Of Operations</h2>
+        <div class="steps">
+          <div class="step">Record the workflow in the memory bank.</div>
+          <div class="step">Rename the folder from the parent add-ons directory.</div>
+          <div class="step">Open the completion artifact from the new path.</div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

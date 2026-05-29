@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Memory Bank Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(74, 222, 128, 0.12), transparent 30%),
+        radial-gradient(circle at 75% 20%, rgba(79, 140, 255, 0.18), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1160px; margin: 0 auto; }
+    .badge, .tag, .mini, button { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      border-radius: 999px;
+      background: rgba(74, 222, 128, 0.12);
+      color: #b9f8ce;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 4rem); margin: 18px 0 10px; line-height: 0.95; }
+    p { color: var(--text-dim); line-height: 1.65; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-top: 28px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    }
+    .files {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .file {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    .file strong { display: block; margin-bottom: 6px; }
+    .mini { color: var(--text-dim); font-size: 0.72rem; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 6px 6px 0 0;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: #c1cbda;
+      font-size: 0.72rem;
+    }
+    .tag::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--green);
+    }
+    .pipeline {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .lane {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
+    }
+    .bar {
+      height: 16px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--accent));
+    }
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151c;
+      padding: 14px;
+      min-height: 170px;
+    }
+    .pane h3 { margin: 0 0 10px; font-size: 0.78rem; color: var(--text-dim); font-family: "JetBrains Mono", monospace; letter-spacing: 0.08em; }
+    .branch {
+      border-left: 2px solid var(--accent);
+      padding-left: 10px;
+      margin: 10px 0;
+    }
+    button {
+      margin-top: 16px;
+      border: 1px solid rgba(79, 140, 255, 0.5);
+      background: var(--accent-glow);
+      color: #d8e6ff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+    button:focus { outline: 2px solid var(--accent); outline-offset: 2px; }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .grid, .split, .files, .lane { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETED</span>
+    <h1>Memory bank is seeded</h1>
+    <p>The project now has the full /cline-rules memory bank plus a roadmap that captures the expansion direction without turning Melvor Idle into a spec.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Created Files</h2>
+        <div class="files">
+          <div class="file"><strong>projectbrief.md</strong><span class="mini">scope, goals, non-goals</span></div>
+          <div class="file"><strong>productContext.md</strong><span class="mini">why, UX, Melvor boundary</span></div>
+          <div class="file"><strong>systemPatterns.md</strong><span class="mini">module map, skill flow, pressure</span></div>
+          <div class="file"><strong>techContext.md</strong><span class="mini">runtime, tests, constraints</span></div>
+          <div class="file"><strong>activeContext.md</strong><span class="mini">current decisions, next work</span></div>
+          <div class="file"><strong>progress.md</strong><span class="mini">what works, debt, milestone</span></div>
+          <div class="file"><strong>roadmap.md</strong><span class="mini">phased expansion plan</span></div>
+          <div class="file"><strong>status-updates/*.html</strong><span class="mini">visual start and finish notes</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Coverage Map</h2>
+        <div class="pipeline">
+          <div class="lane"><span class="mini">Memory bank</span><div class="bar"><span style="width:100%"></span></div></div>
+          <div class="lane"><span class="mini">Architecture</span><div class="bar"><span style="width:86%"></span></div></div>
+          <div class="lane"><span class="mini">Roadmap</span><div class="bar"><span style="width:78%"></span></div></div>
+          <div class="lane"><span class="mini">Implementation</span><div class="bar"><span style="width:0%"></span></div></div>
+        </div>
+        <div>
+          <span class="tag">augment over rebuild</span>
+          <span class="tag">registry first</span>
+          <span class="tag">noncombat before combat</span>
+          <span class="tag">inspiration, not clone</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <h2>Before / After</h2>
+      <div class="split">
+        <div class="pane">
+          <h3>BEFORE</h3>
+          <div class="branch">Scattered mental context from chat.</div>
+          <div class="branch">Existing add-on known to have four hardcoded skills.</div>
+          <div class="branch">Expansion idea not preserved for future sessions.</div>
+        </div>
+        <div class="pane">
+          <h3>AFTER</h3>
+          <div class="branch">Canonical memory bank records current state and direction.</div>
+          <div class="branch">Roadmap names backend/frontend split for future pass-off.</div>
+          <div class="branch">Melvor overlap is framed as conceptual only.</div>
+        </div>
+      </div>
+      <button type="button" onclick="copyNext()">Copy Next Prompt</button>
+    </section>
+  </main>
+  <script>
+    function copyNext() {
+      const text = "Use the memory bank, then plan the backend/frontend split for Phase 1: registry-backed versions of Mining, Woodcutting, Smithing, and Crafting with behavior parity.";
+      navigator.clipboard.writeText(text);
+    }
+  </script>
+</body>
+</html>

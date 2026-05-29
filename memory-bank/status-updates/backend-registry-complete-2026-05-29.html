@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Backend Registry Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(120deg, rgba(74, 222, 128, 0.10), transparent 36%),
+        radial-gradient(circle at 80% 10%, rgba(79, 140, 255, 0.18), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 40px 24px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      padding: 7px 11px;
+      border: 1px solid rgba(74, 222, 128, 0.35);
+      border-radius: 999px;
+      background: rgba(74, 222, 128, 0.12);
+      color: #bdf7d2;
+      font: 600 0.75rem/1 JetBrains Mono, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 20px 0 12px; font-size: clamp(2.3rem, 5vw, 4.5rem); line-height: 0.95; }
+    .subtitle { max-width: 790px; color: var(--text-dim); font-size: 1.05rem; line-height: 1.6; margin: 0 0 28px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+    .metric, .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent), var(--surface);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 2rem; line-height: 1; }
+    .metric span { color: var(--text-dim); font: 400 0.75rem/1.4 JetBrains Mono, monospace; text-transform: uppercase; letter-spacing: 0.06em; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .card { padding: 20px; }
+    h2 { margin: 6px 0 12px; font-size: 1.25rem; }
+    .label { color: var(--green); font: 600 0.68rem/1 JetBrains Mono, monospace; text-transform: uppercase; letter-spacing: 0.08em; }
+    .label.amber { color: var(--amber); }
+    .label.purple { color: var(--purple); }
+    p { margin: 0; color: var(--text-dim); line-height: 1.55; }
+    .timeline { display: grid; gap: 12px; margin-top: 14px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+    .dot { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: white; background: var(--accent); font: 600 0.78rem/1 JetBrains Mono, monospace; }
+    .step strong { display: block; margin-bottom: 4px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag { padding: 6px 8px; border-radius: 8px; background: var(--surface-2); font: 400 0.72rem/1 JetBrains Mono, monospace; color: var(--text); }
+    .testbox { margin-top: 14px; border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 12px; overflow: hidden; background: #101711; }
+    .testbar { height: 12px; background: linear-gradient(90deg, var(--green), #86efac); width: 100%; }
+    .testbody { padding: 16px; display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+    .mono { font-family: JetBrains Mono, monospace; }
+    .schema { display: grid; gap: 10px; margin-top: 14px; }
+    .schema-row { display: grid; grid-template-columns: 130px 1fr; gap: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: var(--surface-2); }
+    .schema-row span:first-child { color: var(--purple); font-family: JetBrains Mono, monospace; }
+    @media (max-width: 900px) {
+      .metrics, .grid { grid-template-columns: 1fr; }
+      body { padding: 28px 14px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Completed · Backend Foundation</span>
+  <h1>Registry backbone landed, UI left intact.</h1>
+  <p class="subtitle">The backend now has pure registries for skills and items, safe registry-backed storage defaults, review eligibility tied to playable skills, and tests proving current behavior still loads cleanly.</p>
+
+  <section class="metrics">
+    <div class="metric"><strong>25</strong><span>cataloged skills</span></div>
+    <div class="metric"><strong>55</strong><span>current item definitions</span></div>
+    <div class="metric"><strong>81</strong><span>tests passing</span></div>
+    <div class="metric"><strong>0</strong><span>save-key rewrites</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="label">What Changed</span>
+      <h2>Backend now has a real catalog</h2>
+      <div class="timeline">
+        <div class="step"><div class="dot">1</div><div><strong>Skill registry</strong><p>Current four skills plus planned 2011-era Combat, Gathering, Artisan, and Support catalog entries.</p><div class="tags"><span class="tag">skill_registry.py</span></div></div></div>
+        <div class="step"><div class="dot">2</div><div><strong>Item manifest</strong><p>Existing ores, logs, gems, bars, and crafting outputs are now manifest entries with stable IDs and asset paths.</p><div class="tags"><span class="tag">item_registry.py</span><span class="tag">constants.py</span></div></div></div>
+        <div class="step"><div class="dot">3</div><div><strong>Safe migration</strong><p>Flat save keys stay intact; migrations can seed registered item keys while preserving custom inventory entries.</p><div class="tags"><span class="tag">storage_pure.py</span><span class="tag">storage.py</span></div></div></div>
+        <div class="step"><div class="dot">4</div><div><strong>Dispatch gating</strong><p>Review eligibility uses registry metadata, so planned skills do not accidentally award progress.</p><div class="tags"><span class="tag">__init__.py</span><span class="tag">logic.py</span></div></div></div>
+      </div>
+    </article>
+
+    <aside class="card">
+      <span class="label purple">Shape Of The Data</span>
+      <h2>Still compatible with today’s saves</h2>
+      <div class="schema">
+        <div class="schema-row"><span>skill.id</span><p>Stable backend identity like <code>woodcutting</code> or <code>fletching</code>.</p></div>
+        <div class="schema-row"><span>save keys</span><p>Current fields remain: <code>woodcutting_level</code>, <code>woodcutting_exp</code>, <code>current_tree</code>.</p></div>
+        <div class="schema-row"><span>item.key</span><p>Inventory storage names stay the same so existing bank contents survive.</p></div>
+        <div class="schema-row"><span>planned</span><p>Future skills are cataloged but not playable until handlers exist.</p></div>
+      </div>
+      <div class="testbox">
+        <div class="testbar"></div>
+        <div class="testbody">
+          <div><strong>Verification</strong><p class="mono">python3 run_tests.py</p></div>
+          <strong style="color:var(--green)">OK</strong>
+        </div>
+      </div>
+    </aside>
+  </section>
+</main>
+</body>
+</html>

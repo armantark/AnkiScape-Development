@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Memory Bank Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(79, 140, 255, 0.18), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(167, 139, 250, 0.14), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1120px; margin: 0 auto; }
+    .badge, .tag, .step-num { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #a9c7ff;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 4rem); margin: 18px 0 10px; line-height: 0.95; }
+    p { color: var(--text-dim); line-height: 1.65; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 28px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.22);
+    }
+    .card h2 { margin: 6px 0 8px; font-size: 1.22rem; }
+    .label { font-family: "JetBrains Mono", monospace; font-size: 0.68rem; letter-spacing: 0.08em; }
+    .major { color: var(--amber); }
+    .medium { color: var(--green); }
+    .polish { color: var(--purple); }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .node {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 82px;
+    }
+    .node strong { display: block; margin-bottom: 6px; }
+    .steps { display: grid; gap: 12px; margin-top: 12px; }
+    .step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(30, 35, 44, 0.65);
+    }
+    .step-num {
+      display: grid;
+      place-items: center;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .tag {
+      display: inline-block;
+      margin: 8px 6px 0 0;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: #b9c2d3;
+      font-size: 0.7rem;
+    }
+    .meter { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 12px; }
+    .meter span { display: block; height: 100%; width: 18%; background: linear-gradient(90deg, var(--accent), var(--purple)); }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .grid, .flow { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-DOCS ARTIFACT</span>
+    <h1>Memory bank seed pass</h1>
+    <p>This pass captures the current AnkiScape architecture and the expansion direction before the idea gets fuzzy: augment the public add-on, do not rebuild first, and avoid copying Melvor Idle beyond broad idle-game inspiration.</p>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label major">CORE DELIVERABLE</div>
+        <h2>Full /cline-rules memory bank</h2>
+        <p>Six short Markdown files will document product purpose, architecture, tech constraints, active decisions, and progress.</p>
+        <div>
+          <span class="tag">projectbrief.md</span>
+          <span class="tag">productContext.md</span>
+          <span class="tag">systemPatterns.md</span>
+          <span class="tag">techContext.md</span>
+          <span class="tag">activeContext.md</span>
+          <span class="tag">progress.md</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label medium">EXPANSION FRAME</div>
+        <h2>Roadmap, not a clone spec</h2>
+        <p>The roadmap will note conceptual overlap with idle RPGs like Melvor while keeping AnkiScape centered on card-review actions, small rewards, and low-friction Anki UX.</p>
+        <div class="meter" aria-label="memory bank completion"><span></span></div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="label polish">PLANNED SHAPE</div>
+      <div class="flow">
+        <div class="node"><strong>Keep</strong><span>Current review hook, HUD, XP popup, menu, bank, and tests.</span></div>
+        <div class="node"><strong>Refactor</strong><span>Move hardcoded skills toward a registry before new content.</span></div>
+        <div class="node"><strong>Add</strong><span>Noncombat skills first, then combat once the action engine exists.</span></div>
+        <div class="node"><strong>Guard</strong><span>Preserve Anki speed and avoid a heavy standalone game rewrite.</span></div>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:18px;">
+      <div class="label major">IMPLEMENTATION STEPS</div>
+      <div class="steps">
+        <div class="step"><span class="step-num">1</span><div>Seed the six canonical memory-bank files with concise current-state context.</div></div>
+        <div class="step"><span class="step-num">2</span><div>Add a roadmap file that records milestones and the Melvor/MUD/OSRS-inspired boundary.</div></div>
+        <div class="step"><span class="step-num">3</span><div>Open the completed artifact so the docs work is easy to review visually.</div></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
