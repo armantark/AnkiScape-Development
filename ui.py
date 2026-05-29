@@ -1070,6 +1070,8 @@ def show_main_menu(
         while child:
             w = child.widget()
             if w is not None:
+                w.hide()
+                w.setParent(None)
                 w.deleteLater()
             child = target_layout.takeAt(0)
 
