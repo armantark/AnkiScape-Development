@@ -56,5 +56,11 @@ There is no separate package manager requirement in the current add-on. If Pytho
 
 Developer-only scripts can use `uv run` inline script metadata when optional tooling dependencies should not become add-on runtime dependencies. `tools/fetch_assets.py` uses this pattern for Pillow-based PNG normalization.
 
+## Asset Scraping (icons)
+`tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
+
+- **Skill icons: prefer the `(detail)` variant.** The OSRS wiki ships both a small interface icon (e.g. `File:Fletching_icon.png`) and a higher-resolution `File:Fletching_icon_(detail).png`. The four original AnkiScape skill icons use the detail resolution, so fetch the `(detail)` file for new skills to match — the plain icon looks blurry/undersized next to them.
+- **Item sprites render small unless they fill the frame.** Wiki item sprites are tightly cropped (e.g. an arrow is a thin diagonal), and `--size N` normalizes by `thumbnail((N,N))` then centering on a transparent NxN canvas. That leaves transparent margins, so at a fixed list icon box (28px) the visible sprite is much smaller than the legacy bundled icons, which are full-frame photos with no alpha and fill the box edge-to-edge. We compensate at runtime with `ui.icon_filled_to_box()`, which crops to the opaque bounding box before Qt downscales (no-op for images without alpha, so legacy icons are untouched). If the scraper ever gains an autocrop/trim step before padding, the runtime crop becomes redundant — but until then, new alpha-padded item icons must go through `icon_filled_to_box()` to look the right size.
+
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.

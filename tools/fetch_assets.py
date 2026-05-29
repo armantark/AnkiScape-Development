@@ -7,6 +7,14 @@
 
 This is a developer tool only. It is intentionally outside the add-on runtime
 path so Anki never performs network calls or imports optional image tooling.
+
+Two conventions worth knowing (see memory-bank/techContext.md "Asset Scraping"):
+- Skill icons: fetch the higher-res ``File:<Skill>_icon_(detail).png`` variant so
+  new skills match the original four; the plain interface icon looks undersized.
+- Item icons: ``--size N`` thumbnails then centers on a transparent NxN canvas, so
+  tightly-cropped sprites keep transparent margins and render smaller than the
+  legacy full-frame icons. ``ui.icon_filled_to_box()`` crops that padding at
+  runtime, so alpha-padded item icons must flow through it to look the right size.
 """
 
 from __future__ import annotations
@@ -388,7 +396,15 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--out", type=Path, help="Output path for the normalized PNG.")
     parser.add_argument("--key", help="Resolve item name/path from item_registry/constants.")
     parser.add_argument("--wiki-title", help="Override the wiki File title. 'File:' prefix and .png are optional.")
-    parser.add_argument("--size", type=int, help="Pad/resize to an NxN transparent PNG.")
+    parser.add_argument(
+        "--size",
+        type=int,
+        help=(
+            "Pad/resize to an NxN transparent PNG (thumbnail then center). "
+            "Tightly-cropped sprites keep margins; ui.icon_filled_to_box() crops "
+            "them at runtime so they match legacy full-frame icons."
+        ),
+    )
     parser.add_argument("--dry-run", action="store_true", help="Resolve and print source/target without downloading.")
     parser.add_argument("--force", action="store_true", help="Overwrite an existing output file.")
     parser.add_argument("--provenance", type=Path, default=Path("assets_provenance.json"))

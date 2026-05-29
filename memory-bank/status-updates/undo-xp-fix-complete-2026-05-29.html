@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Undo XP Fix Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(74, 222, 128, 0.16), transparent 30rem),
+        radial-gradient(circle at 88% 12%, rgba(167, 139, 250, 0.14), transparent 28rem),
+        linear-gradient(145deg, #0c0e12, #111722 60%, #0c0e12);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1120px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(74, 222, 128, 0.36);
+      background: rgba(74, 222, 128, 0.1);
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2.2rem, 6vw, 4.7rem);
+      line-height: 0.94;
+      letter-spacing: -0.06em;
+    }
+    .sub {
+      max-width: 780px;
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      line-height: 1.62;
+      margin: 0 0 28px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .metric, .card {
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.86);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 80px rgba(0, 0, 0, 0.22);
+    }
+    .metric { padding: 18px; }
+    .metric strong {
+      display: block;
+      font-size: 2.2rem;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    .metric span {
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+    .card { padding: 22px; }
+    .card h2 { margin: 0 0 14px; font-size: 1.15rem; }
+    .flow { display: grid; gap: 10px; }
+    .node {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 13px;
+    }
+    .dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-glow);
+      color: var(--accent);
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .node strong { display: block; }
+    .node small {
+      display: block;
+      margin-top: 2px;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+    }
+    .ok {
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .terminal {
+      border: 1px solid var(--border);
+      background: #090b10;
+      border-radius: 14px;
+      padding: 16px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: var(--text-dim);
+    }
+    .terminal b { color: var(--green); font-weight: 600; }
+    .files {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .file {
+      padding: 7px 9px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.66rem;
+    }
+    @media (max-width: 850px) {
+      body { padding: 24px; }
+      .metrics, .grid { grid-template-columns: 1fr; }
+      .node { grid-template-columns: 36px 1fr; }
+      .ok { grid-column: 2; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed · Command-Z Rollback</span>
+    <h1>Undoing a card now undoes the reward.</h1>
+    <p class="sub">The add-on now pairs review-awarded XP/items with Anki's backend undo hook. When Anki reverses the answered card, AnkiScape restores the exact `player_data` keys that changed for that reward and saves the config again.</p>
+    <section class="metrics" aria-label="Fix metrics">
+      <div class="metric"><strong>105</strong><span>tests passing</span></div>
+      <div class="metric"><strong>2</strong><span>new undo tests</span></div>
+      <div class="metric"><strong>50</strong><span>snapshot cap</span></div>
+      <div class="metric"><strong>0</strong><span>keyboard sniffing</span></div>
+    </section>
+    <section class="grid">
+      <article class="card">
+        <h2>Runtime Contract</h2>
+        <div class="flow">
+          <div class="node"><span class="dot">1</span><div><strong>Eligible answer earns progress</strong><small>Reward handlers mutate inventory, XP, levels, achievements, or counters.</small></div><span class="ok">kept</span></div>
+          <div class="node"><span class="dot">2</span><div><strong>Changed keys are recorded</strong><small>Only the original values for changed `player_data` keys go onto the undo stack.</small></div><span class="ok">new</span></div>
+          <div class="node"><span class="dot">3</span><div><strong>Anki emits `state_did_undo`</strong><small>The hook filters for answer/review/card-like undo events.</small></div><span class="ok">new</span></div>
+          <div class="node"><span class="dot">4</span><div><strong>Reward state is restored</strong><small>Config is saved and HUD/menu availability can refresh from the restored state.</small></div><span class="ok">fixed</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Verification</h2>
+        <div class="terminal">
+          $ python3 run_tests.py<br>
+          <b>Ran 105 tests in 1.394s</b><br>
+          <b>OK</b><br><br>
+          Focused Qt-capable loop also passed:<br>
+          tests.test_integration_smoke<br>
+          tests.test_hooks_registration<br>
+          tests.test_main_menu_widget
+        </div>
+      </article>
+    </section>
+    <div class="files">
+      <span class="file">__init__.py</span>
+      <span class="file">hooks.py</span>
+      <span class="file">tests/test_integration_smoke.py</span>
+      <span class="file">tests/test_hooks_registration.py</span>
+      <span class="file">memory-bank/systemPatterns.md</span>
+    </div>
+  </main>
+</body>
+</html>
