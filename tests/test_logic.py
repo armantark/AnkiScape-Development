@@ -9,6 +9,7 @@ from logic_pure import (
     create_soft_clay_pure,
     has_crafting_materials_pure,
     apply_crafting_pure,
+    apply_utility_activity_pure,
     apply_fletching_pure,
     apply_smelt_pure,
     apply_woodcutting_pure,
@@ -17,6 +18,9 @@ from logic_pure import (
     can_cut_tree_pure,
     can_craft_item_pure,
     can_fletch_item_pure,
+    can_perform_utility_activity_pure,
+    sanitize_xp_multiplier,
+    scale_skill_exp_pure,
 )
 
 class TestLogic(unittest.TestCase):
@@ -139,6 +143,64 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok2)
         self.assertEqual(new_inv2, {})
 
+    def test_apply_utility_activity_batches_without_xp(self):
+        utility_data = {
+            "make_soft_clay": {
+                "requirements": {"Clay": 1},
+                "output_item": "Soft clay",
+                "output_qty": 1,
+                "batch_size": 28,
+            }
+        }
+        inv = {"Clay": 3}
+        self.assertTrue(can_perform_utility_activity_pure(inv, "make_soft_clay", utility_data))
+
+        new_inv, exp, ok, processed = apply_utility_activity_pure("make_soft_clay", inv, utility_data)
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 3)
+        self.assertEqual(new_inv["Clay"], 0)
+        self.assertEqual(new_inv["Soft clay"], 3)
+        self.assertEqual(inv["Clay"], 3)
+
+    def test_apply_utility_activity_caps_at_batch_size(self):
+        utility_data = {
+            "make_soft_clay": {
+                "requirements": {"Clay": 1},
+                "output_item": "Soft clay",
+                "output_qty": 1,
+                "batch_size": 28,
+            }
+        }
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "make_soft_clay",
+            {"Clay": 40},
+            utility_data,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 28)
+        self.assertEqual(new_inv["Clay"], 12)
+        self.assertEqual(new_inv["Soft clay"], 28)
+
+    def test_apply_utility_activity_can_generate_batch_without_inputs(self):
+        utility_data = {
+            "gather_wool": {
+                "requirements": {},
+                "output_item": "Wool",
+                "output_qty": 1,
+                "batch_size": 28,
+            }
+        }
+        new_inv, exp, ok, processed = apply_utility_activity_pure("gather_wool", {}, utility_data)
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 28)
+        self.assertEqual(new_inv["Wool"], 28)
+
     def test_has_crafting_materials_and_apply(self):
         crafting_data = {
             "Soft clay": {"level": 1, "exp": 0, "requirements": {"Clay": 1}},
@@ -159,6 +221,50 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp2, 15)
         self.assertEqual(new_inv2.get("Gold ring"), 1)
         self.assertEqual(new_inv2.get("Gold bar"), 0)
+
+    def test_apply_crafting_pure_batches_station_actions(self):
+        crafting_data = {
+            "Bow string": {
+                "level": 10,
+                "exp": 15,
+                "requirements": {"Flax": 1},
+                "batch_size": 28,
+            }
+        }
+        inv = {"Flax": 30}
+
+        new_inv, exp, ok = apply_crafting_pure("Bow string", inv, crafting_data)
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 420)
+        self.assertEqual(new_inv["Flax"], 2)
+        self.assertEqual(new_inv["Bow string"], 28)
+        self.assertEqual(inv["Flax"], 30)
+
+    def test_apply_crafting_pure_respects_output_quantity(self):
+        crafting_data = {
+            "Silver bolts (unf)": {
+                "level": 21,
+                "exp": 50,
+                "requirements": {"Silver bar": 1},
+                "output_qty": 10,
+            }
+        }
+
+        new_inv, exp, ok = apply_crafting_pure("Silver bolts (unf)", {"Silver bar": 1}, crafting_data)
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 50)
+        self.assertEqual(new_inv["Silver bar"], 0)
+        self.assertEqual(new_inv["Silver bolts (unf)"], 10)
+
+    def test_xp_multiplier_validation_and_scaling(self):
+        self.assertEqual(sanitize_xp_multiplier("2.5"), 2.5)
+        self.assertEqual(sanitize_xp_multiplier("bad"), 1.0)
+        self.assertEqual(sanitize_xp_multiplier(True), 1.0)
+        self.assertEqual(sanitize_xp_multiplier(-5), 0.0)
+        self.assertEqual(sanitize_xp_multiplier(500), 100.0)
+        self.assertEqual(scale_skill_exp_pure(6.3, 2), 12.6)
 
     def test_apply_smelt_pure(self):
         bar_data = {
@@ -244,14 +350,14 @@ class TestLogic(unittest.TestCase):
 
     def test_apply_fletching_pure(self):
         fletching_data = {
-            "Arrow shafts": {
+            "arrow_shafts": {
                 "level": 1,
                 "exp": 5.0,
                 "requirements": {"Tree": 1},
                 "output_item": "Arrow shafts",
                 "output_qty": 15,
             },
-            "Oak shortbow (u)": {
+            "oak_shortbow_u": {
                 "level": 20,
                 "exp": 16.5,
                 "requirements": {"Oak": 1},
@@ -260,17 +366,17 @@ class TestLogic(unittest.TestCase):
             },
         }
         inv = {"Tree": 2}
-        self.assertTrue(can_fletch_item_pure(1, inv, "Arrow shafts", fletching_data))
+        self.assertTrue(can_fletch_item_pure(1, inv, "arrow_shafts", fletching_data))
 
-        new_inv, exp, ok = apply_fletching_pure("Arrow shafts", inv, fletching_data)
+        new_inv, exp, ok = apply_fletching_pure("arrow_shafts", inv, fletching_data)
         self.assertTrue(ok)
         self.assertAlmostEqual(exp, 5.0)
         self.assertEqual(new_inv["Tree"], 1)
         self.assertEqual(new_inv["Arrow shafts"], 15)
         self.assertEqual(inv["Tree"], 2)
 
-        self.assertFalse(can_fletch_item_pure(1, {"Oak": 1}, "Oak shortbow (u)", fletching_data))
-        new_inv2, exp2, ok2 = apply_fletching_pure("Oak shortbow (u)", {}, fletching_data)
+        self.assertFalse(can_fletch_item_pure(1, {"Oak": 1}, "oak_shortbow_u", fletching_data))
+        new_inv2, exp2, ok2 = apply_fletching_pure("oak_shortbow_u", {}, fletching_data)
         self.assertFalse(ok2)
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, {})

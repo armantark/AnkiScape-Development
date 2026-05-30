@@ -14,6 +14,7 @@ class _FakeHooks:
         self.reviewer_did_show_question = []
         self.reviewer_did_show_answer = []
         self.webview_did_receive_js_message = []
+        self.state_did_undo = []
 
 class _FakeReviewer:
     def _answerCard(self, ease):
@@ -143,7 +144,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_tree": "",
             "current_bar": "Bronze bar",
             "current_craft": "",
-            "current_fletch": "Arrow shafts",
+            "current_fletch": "arrow_shafts",
         }
         addon.current_skill = "Mining"
 
@@ -208,7 +209,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Tree": 1},
             "fletching_level": 1,
             "fletching_exp": 0,
-            "current_fletch": "Arrow shafts",
+            "current_fletch": "arrow_shafts",
             "completed_achievements": [],
         }
 
@@ -219,6 +220,196 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["xp"], [5.0])
+
+    def test_utility_answer_batches_inventory_without_skill_xp(self):
+        addon = _load_addon_as_package("ankiscape_utility_integration")
+
+        calls = {"save": 0}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Clay": 3},
+            "crafting_exp": 0,
+            "current_utility": "make_soft_clay",
+            "completed_achievements": [],
+        }
+
+        addon.on_utility_answer()
+
+        self.assertEqual(addon.player_data["inventory"]["Clay"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Soft clay"], 3)
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
+        self.assertEqual(calls["save"], 1)
+
+    def test_xp_multiplier_applies_to_gathering_and_processing_rewards(self):
+        addon = _load_addon_as_package("ankiscape_xp_multiplier_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_xp_multiplier": 2.0}))
+
+        addon.player_data = {
+            "inventory": {},
+            "woodcutting_level": 1,
+            "woodcutting_exp": 0,
+            "current_tree": "Tree",
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+        }
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_woodcutting_answer()
+            addon.on_fletching_answer()
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Tree"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertAlmostEqual(addon.player_data["woodcutting_exp"], 50.0)
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
+        self.assertEqual(calls["xp"], [50.0, 10.0])
+
+    def test_bad_xp_multiplier_config_falls_back_to_base_xp(self):
+        addon = _load_addon_as_package("ankiscape_bad_xp_multiplier_integration")
+
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon._show_exp = lambda _exp: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_xp_multiplier": "not-a-number"}))
+        addon.player_data = {
+            "inventory": {"Tree": 1},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+        }
+
+        addon.on_fletching_answer()
+
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
+
+    def test_undo_after_review_restores_awarded_game_progress(self):
+        addon = _load_addon_as_package("ankiscape_undo_integration")
+
+        calls = {"save": 0, "hud": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Tree": 1},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Tree"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Tree": 1})
+        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(addon.player_data["current_fletch"], "arrow_shafts")
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [5.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
+    def test_utility_review_reward_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_utility_undo_integration")
+
+        calls = {"save": 0}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Clay": 2},
+            "crafting_exp": 0,
+            "current_utility": "make_soft_clay",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"], {"Clay": 0, "Soft clay": 2})
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Clay": 2})
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertGreaterEqual(calls["save"], 2)
+
+    def test_unrelated_undo_does_not_consume_review_snapshot(self):
+        addon = _load_addon_as_package("ankiscape_unrelated_undo_integration")
+
+        addon.save_player_data = lambda: self.fail("unrelated undo should not save")
+        addon.player_data = {
+            "inventory": {"Tree": 0, "Arrow shafts": 15},
+            "fletching_level": 1,
+            "fletching_exp": 5.0,
+            "current_fletch": "arrow_shafts",
+        }
+        addon._REVIEW_UNDO_STACK.append(
+            {
+                "values": {"inventory": {"Tree": 1}, "fletching_exp": 0},
+                "remove": [],
+            }
+        )
+
+        changes = types.SimpleNamespace(
+            operation="Edit Note",
+            changes=types.SimpleNamespace(study_queues=False, card=False),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertEqual(addon.player_data["fletching_exp"], 5.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
 
 if __name__ == "__main__":

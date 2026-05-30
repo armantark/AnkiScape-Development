@@ -1,6 +1,7 @@
 # constants.py
 
 import os
+import re
 
 try:
     from .item_registry import build_item_definitions
@@ -18,24 +19,61 @@ ores_folder = os.path.join(current_dir, "ores")
 trees_folder = os.path.join(current_dir, "trees")
 GEMS_FOLDER = os.path.join(current_dir, "gems")
 bars_folder = os.path.join(current_dir, "bars")
+FLETCHED_ITEMS_FOLDER = os.path.join(current_dir, "fletcheditems")
 
 # Image dictionaries
 # New constants for Crafting
 CRAFTED_ITEMS_FOLDER = os.path.join(current_dir, "crafteditems")
 
+DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+UTILITY_ACTIVITY_DATA = {
+    "make_soft_clay": {
+        "display_name": "Make soft clay",
+        "requirements": {"Clay": 1},
+        "output_item": "Soft clay",
+        "output_qty": 1,
+        "batch_size": 28,
+        "source": "OSRS Soft clay > Creation > Container",
+    },
+    "gather_wool": {
+        "display_name": "Gather wool",
+        "requirements": {},
+        "output_item": "Wool",
+        "output_qty": 1,
+        "batch_size": 28,
+        "source": "Material source for OSRS Ball of wool > Creation",
+    },
+    "gather_flax": {
+        "display_name": "Gather flax",
+        "requirements": {},
+        "output_item": "Flax",
+        "output_qty": 1,
+        "batch_size": 28,
+        "source": "OSRS Bow string > Strategy > Manual Spinning",
+    },
+}
+
 CRAFTING_DATA = {
-    "Soft clay": {"level": 1, "exp": 0, "requirements": {"Clay": 1}},
-    "Unfired pot": {"level": 1, "exp": 6.3, "requirements": {"Soft clay": 1}},
-    "Pot": {"level": 1, "exp": 6.3, "requirements": {"Unfired pot": 1}},
-    "Pie dish": {"level": 1, "exp": 10, "requirements": {"Unfired pie dish": 1}},
-    "Bowl": {"level": 1, "exp": 15, "requirements": {"Unfired bowl": 1}},
+    "Unfired pot": {"level": 1, "exp": 6.3, "requirements": {"Soft clay": 1}, "source": "OSRS Crafting > Pottery"},
+    "Pot": {"level": 1, "exp": 6.3, "requirements": {"Unfired pot": 1}, "source": "OSRS Crafting > Pottery"},
+    "Ball of wool": {"level": 1, "exp": 2.5, "requirements": {"Wool": 1}, "batch_size": 28, "source": "OSRS Ball of wool > Creation"},
     "Gold ring": {"level": 5, "exp": 15, "requirements": {"Gold bar": 1}},
     "Gold necklace": {"level": 6, "exp": 20, "requirements": {"Gold bar": 1}},
-    "Unfired pie dish": {"level": 7, "exp": 15, "requirements": {"Soft clay": 1}},
-    "Unfired bowl": {"level": 8, "exp": 18, "requirements": {"Soft clay": 1}},
+    "Unfired pie dish": {"level": 7, "exp": 15, "requirements": {"Soft clay": 1}, "source": "OSRS Crafting > Pottery"},
+    "Pie dish": {"level": 7, "exp": 10, "requirements": {"Unfired pie dish": 1}, "source": "OSRS Crafting > Pottery"},
+    "Unfired bowl": {"level": 8, "exp": 18, "requirements": {"Soft clay": 1}, "source": "OSRS Crafting > Pottery"},
+    "Bowl": {"level": 8, "exp": 15, "requirements": {"Unfired bowl": 1}, "source": "OSRS Crafting > Pottery"},
+    "Bow string": {"level": 10, "exp": 15, "requirements": {"Flax": 1}, "batch_size": 28, "source": "OSRS Bow string > Creation"},
     "Unstrung symbol": {"level": 16, "exp": 50, "requirements": {"Silver bar": 1}},
     "Sapphire ring": {"level": 20, "exp": 40, "requirements": {"Gold bar": 1, "Sapphire": 1}},
     "Sapphire": {"level": 20, "exp": 50, "requirements": {"Uncut sapphire": 1}},
+    "Silver bolts (unf)": {
+        "level": 21,
+        "exp": 50,
+        "requirements": {"Silver bar": 1},
+        "output_qty": 10,
+        "source": "OSRS Silver bolts (unf) > Creation",
+    },
     "Sapphire necklace": {"level": 22, "exp": 60, "requirements": {"Gold bar": 1, "Sapphire": 1}},
     "Tiara": {"level": 23, "exp": 52.5, "requirements": {"Silver bar": 1}},
     "Emerald": {"level": 27, "exp": 67.5, "requirements": {"Uncut emerald": 1}},
@@ -50,6 +88,11 @@ CRAFTING_DATA = {
 }
 
 CRAFTED_ITEM_IMAGES = {item: os.path.join(CRAFTED_ITEMS_FOLDER, f"{item.lower().replace(' ', '_')}.png") for item in CRAFTING_DATA}
+UTILITY_ITEM_IMAGES = {
+    "Soft clay": os.path.join(CRAFTED_ITEMS_FOLDER, "soft_clay.png"),
+    "Wool": os.path.join(CRAFTED_ITEMS_FOLDER, "wool.png"),
+    "Flax": os.path.join(CRAFTED_ITEMS_FOLDER, "flax.png"),
+}
 
 TREE_IMAGES = {tree.split('.')[0]: os.path.join(trees_folder, tree) for tree in os.listdir(trees_folder) if tree.endswith('.png')}
 
@@ -131,16 +174,144 @@ BAR_DATA = {
 }
 
 FLETCHING_DATA = {
-    "Arrow shafts": {"level": 1, "exp": 5.0, "requirements": {"Tree": 1}, "output_item": "Arrow shafts", "output_qty": 15},
-    "Shortbow (u)": {"level": 5, "exp": 5.0, "requirements": {"Tree": 1}, "output_item": "Shortbow (u)", "output_qty": 1},
-    "Oak shortbow (u)": {"level": 20, "exp": 16.5, "requirements": {"Oak": 1}, "output_item": "Oak shortbow (u)", "output_qty": 1},
-    "Willow shortbow (u)": {"level": 35, "exp": 33.3, "requirements": {"Willow": 1}, "output_item": "Willow shortbow (u)", "output_qty": 1},
-    "Maple shortbow (u)": {"level": 50, "exp": 50.0, "requirements": {"Maple": 1}, "output_item": "Maple shortbow (u)", "output_qty": 1},
-    "Yew shortbow (u)": {"level": 65, "exp": 67.5, "requirements": {"Yew": 1}, "output_item": "Yew shortbow (u)", "output_qty": 1},
-    "Magic shortbow (u)": {"level": 80, "exp": 83.3, "requirements": {"Magic": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
+    "arrow_shafts": {
+        "display_name": "Arrow shafts (Tree)",
+        "level": 1,
+        "exp": 5.0,
+        "requirements": {"Tree": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 15,
+    },
+    "oak_arrow_shafts": {
+        "display_name": "Arrow shafts (Oak)",
+        "level": 15,
+        "exp": 10.0,
+        "requirements": {"Oak": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 30,
+    },
+    "willow_arrow_shafts": {
+        "display_name": "Arrow shafts (Willow)",
+        "level": 30,
+        "exp": 15.0,
+        "requirements": {"Willow": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 45,
+    },
+    "maple_arrow_shafts": {
+        "display_name": "Arrow shafts (Maple)",
+        "level": 45,
+        "exp": 20.0,
+        "requirements": {"Maple": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 60,
+    },
+    "yew_arrow_shafts": {
+        "display_name": "Arrow shafts (Yew)",
+        "level": 60,
+        "exp": 25.0,
+        "requirements": {"Yew": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 75,
+    },
+    "magic_arrow_shafts": {
+        "display_name": "Arrow shafts (Magic)",
+        "level": 75,
+        "exp": 30.0,
+        "requirements": {"Magic": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 90,
+    },
+    "redwood_arrow_shafts": {
+        "display_name": "Arrow shafts (Redwood)",
+        "level": 90,
+        "exp": 35.0,
+        "requirements": {"Redwood": 1},
+        "output_item": "Arrow shafts",
+        "output_qty": 105,
+    },
+    "headless_arrows": {
+        "display_name": "Headless arrows",
+        "level": 1,
+        "exp": 15.0,
+        "requirements": {"Arrow shafts": 15, "Feather": 15},
+        "output_item": "Headless arrows",
+        "output_qty": 15,
+    },
+    "bronze_arrows": {
+        "display_name": "Bronze arrows",
+        "level": 1,
+        "exp": 19.5,
+        "requirements": {"Headless arrows": 15, "Bronze arrowtips": 15},
+        "output_item": "Bronze arrows",
+        "output_qty": 15,
+    },
+    "iron_arrows": {
+        "display_name": "Iron arrows",
+        "level": 15,
+        "exp": 37.5,
+        "requirements": {"Headless arrows": 15, "Iron arrowtips": 15},
+        "output_item": "Iron arrows",
+        "output_qty": 15,
+    },
+    "steel_arrows": {
+        "display_name": "Steel arrows",
+        "level": 30,
+        "exp": 75.0,
+        "requirements": {"Headless arrows": 15, "Steel arrowtips": 15},
+        "output_item": "Steel arrows",
+        "output_qty": 15,
+    },
+    "mithril_arrows": {
+        "display_name": "Mithril arrows",
+        "level": 45,
+        "exp": 112.5,
+        "requirements": {"Headless arrows": 15, "Mithril arrowtips": 15},
+        "output_item": "Mithril arrows",
+        "output_qty": 15,
+    },
+    "adamant_arrows": {
+        "display_name": "Adamant arrows",
+        "level": 60,
+        "exp": 150.0,
+        "requirements": {"Headless arrows": 15, "Adamant arrowtips": 15},
+        "output_item": "Adamant arrows",
+        "output_qty": 15,
+    },
+    "rune_arrows": {
+        "display_name": "Rune arrows",
+        "level": 75,
+        "exp": 187.5,
+        "requirements": {"Headless arrows": 15, "Rune arrowtips": 15},
+        "output_item": "Rune arrows",
+        "output_qty": 15,
+    },
+    "shortbow_u": {"display_name": "Shortbow (u)", "level": 5, "exp": 5.0, "requirements": {"Tree": 1}, "output_item": "Shortbow (u)", "output_qty": 1},
+    "oak_shortbow_u": {"display_name": "Oak shortbow (u)", "level": 20, "exp": 16.5, "requirements": {"Oak": 1}, "output_item": "Oak shortbow (u)", "output_qty": 1},
+    "willow_shortbow_u": {"display_name": "Willow shortbow (u)", "level": 35, "exp": 33.3, "requirements": {"Willow": 1}, "output_item": "Willow shortbow (u)", "output_qty": 1},
+    "maple_shortbow_u": {"display_name": "Maple shortbow (u)", "level": 50, "exp": 50.0, "requirements": {"Maple": 1}, "output_item": "Maple shortbow (u)", "output_qty": 1},
+    "yew_shortbow_u": {"display_name": "Yew shortbow (u)", "level": 65, "exp": 67.5, "requirements": {"Yew": 1}, "output_item": "Yew shortbow (u)", "output_qty": 1},
+    "magic_shortbow_u": {"display_name": "Magic shortbow (u)", "level": 80, "exp": 83.3, "requirements": {"Magic": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
 }
 
-FLETCHED_ITEM_IMAGES = {}
+
+def _asset_slug(name: str) -> str:
+    return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
+
+
+_FLETCHING_ITEM_NAMES = {
+    str(spec["output_item"])
+    for spec in FLETCHING_DATA.values()
+    if isinstance(spec.get("output_item"), str)
+}
+for _spec in FLETCHING_DATA.values():
+    _FLETCHING_ITEM_NAMES.update(str(requirement) for requirement in _spec.get("requirements", {}))
+_FLETCHING_ITEM_NAMES.difference_update(TREE_DATA)
+
+FLETCHED_ITEM_IMAGES = {
+    item_name: os.path.join(FLETCHED_ITEMS_FOLDER, f"{_asset_slug(item_name)}.png")
+    for item_name in _FLETCHING_ITEM_NAMES
+}
 
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,
@@ -155,6 +326,8 @@ ITEM_DEFINITIONS = build_item_definitions(
     CRAFTED_ITEM_IMAGES,
     FLETCHING_DATA,
     FLETCHED_ITEM_IMAGES,
+    UTILITY_ACTIVITY_DATA,
+    UTILITY_ITEM_IMAGES,
 )
 
 # Experience table

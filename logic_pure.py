@@ -88,6 +88,29 @@ def can_smelt_any_bar_pure(inventory, smithing_level, bar_data):
                 return True
     return False
 
+
+def sanitize_xp_multiplier(value, default=1.0, minimum=0.0, maximum=100.0):
+    """Return a bounded XP multiplier safe to use during review rewards."""
+    if isinstance(value, bool):
+        return default
+    try:
+        multiplier = float(value)
+    except (TypeError, ValueError):
+        return default
+    if multiplier != multiplier:
+        return default
+    if multiplier < minimum:
+        return minimum
+    if multiplier > maximum:
+        return maximum
+    return multiplier
+
+
+def scale_skill_exp_pure(base_exp, xp_multiplier):
+    """Scale source XP once, after action logic has produced the base value."""
+    return base_exp * sanitize_xp_multiplier(xp_multiplier)
+
+
 def create_soft_clay_pure(inventory):
     """
     Deduct 1 "Clay" and add 1 "Soft clay" if possible.
@@ -100,6 +123,26 @@ def create_soft_clay_pure(inventory):
         new_inv["Soft clay"] = new_inv.get("Soft clay", 0) + 1
         return new_inv, True
     return inventory, False
+
+
+def _positive_int(value, default=1):
+    if isinstance(value, bool):
+        return default
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return default
+    return parsed if parsed > 0 else default
+
+
+def _max_batches_for_requirements(requirements, inventory, batch_size):
+    if not requirements:
+        return batch_size
+    possible = batch_size
+    for material, amount in requirements.items():
+        per_batch = _positive_int(amount)
+        possible = min(possible, inventory.get(material, 0) // per_batch)
+    return possible
 
 def has_crafting_materials_pure(item, inventory, crafting_data):
     """Return True if inventory satisfies crafting requirements for the given item.
@@ -121,12 +164,49 @@ def apply_crafting_pure(item, inventory, crafting_data):
     spec = crafting_data.get(item)
     if not spec or not has_crafting_materials_pure(item, inventory, crafting_data):
         return inventory, 0, False
+    requirements = spec.get("requirements", {})
+    batch_size = _positive_int(spec.get("batch_size", 1))
+    batch_count = _max_batches_for_requirements(requirements, inventory, batch_size)
+    if batch_count <= 0:
+        return inventory, 0, False
     new_inv = dict(inventory)
-    for material, amount in spec.get("requirements", {}).items():
-        new_inv[material] = new_inv.get(material, 0) - amount
-    new_inv[item] = new_inv.get(item, 0) + 1
-    exp = spec.get("exp", 0)
+    for material, amount in requirements.items():
+        new_inv[material] = new_inv.get(material, 0) - (_positive_int(amount) * batch_count)
+    output_item = spec.get("output_item", item)
+    output_qty = _positive_int(spec.get("output_qty", 1))
+    new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)
+    exp = spec.get("exp", 0) * batch_count
     return new_inv, exp, True
+
+
+def can_perform_utility_activity_pure(inventory, activity_key, utility_activity_data):
+    """Return True if a no-XP Utility/Activity can run for at least one batch."""
+    spec = utility_activity_data.get(activity_key)
+    if not spec:
+        return False
+    requirements = spec.get("requirements", {})
+    batch_size = _positive_int(spec.get("batch_size", 1))
+    return _max_batches_for_requirements(requirements, inventory, batch_size) > 0
+
+
+def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
+    """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
+    spec = utility_activity_data.get(activity_key)
+    if not spec:
+        return inventory, 0, False, 0
+    requirements = spec.get("requirements", {})
+    batch_size = _positive_int(spec.get("batch_size", 1))
+    batch_count = _max_batches_for_requirements(requirements, inventory, batch_size)
+    if batch_count <= 0:
+        return inventory, 0, False, 0
+
+    new_inv = dict(inventory)
+    for material, amount in requirements.items():
+        new_inv[material] = new_inv.get(material, 0) - (_positive_int(amount) * batch_count)
+    output_item = spec.get("output_item", activity_key)
+    output_qty = _positive_int(spec.get("output_qty", 1))
+    new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)
+    return new_inv, 0, True, batch_count
 
 def apply_smelt_pure(bar_name, inventory, bar_data):
     """

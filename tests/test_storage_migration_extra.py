@@ -33,7 +33,8 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(base["current_ore"], "Rune essence")
         self.assertEqual(base["current_tree"], "Tree")
         self.assertEqual(base["current_craft"], "")
-        self.assertEqual(base["current_fletch"], "Arrow shafts")
+        self.assertEqual(base["current_fletch"], "arrow_shafts")
+        self.assertEqual(base["current_utility"], "make_soft_clay")
         self.assertEqual(base["fletching_level"], 1)
         self.assertEqual(base["fletching_exp"], 0)
 

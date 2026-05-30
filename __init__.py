@@ -7,6 +7,8 @@ from .constants import (
     GEM_DATA,
     CRAFTING_DATA,
     FLETCHING_DATA,
+    UTILITY_ACTIVITY_DATA,
+    DEFAULT_UTILITY_ACTIVITY,
     ORE_IMAGES,
     TREE_IMAGES,
     BAR_IMAGES,
@@ -16,6 +18,7 @@ from .constants import (
 from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
+import copy
 import time
 import random
 import os
@@ -27,11 +30,16 @@ from .logic_pure import (
     create_soft_clay_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
+    can_fletch_item_pure,
+    can_perform_utility_activity_pure,
     apply_crafting_pure,
+    apply_utility_activity_pure,
     apply_smelt_pure,
     apply_fletching_pure,
     apply_woodcutting_pure,
     apply_mining_pure,
+    scale_skill_exp_pure,
+    sanitize_xp_multiplier,
     can_mine_ore_pure,
     can_cut_tree_pure,
 )
@@ -65,6 +73,7 @@ card_turned = False
 exp_awarded = False
 
 current_skill = "None"
+_UTILITY_SKILL_NAMES = {"Utility", "Utility / Activities"}
 
 # --- Debug logging (centralized) ---
 from .debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
@@ -79,6 +88,8 @@ except Exception:
 # Guard to avoid duplicate registrations
 _ANKISCAPE_HOOKS_REGISTERED = False
 _LAST_MENU_OPEN_TS = 0.0
+_REVIEW_UNDO_STACK = []
+_MAX_REVIEW_UNDO_SNAPSHOTS = 50
 
 def show_review_popup():
     ui.show_review_popup()
@@ -149,18 +160,112 @@ def _show_exp(exp_gained) -> None:
 def _refresh_skill_availability() -> None:
     """Recompute and refresh Smithing/Crafting availability in the menu."""
     try:
+        inventory = player_data.get("inventory", {})
         can_craft_any = any(
             can_craft_item_pure(
                 player_data.get("crafting_level", 1),
-                player_data.get("inventory", {}),
+                inventory,
                 item_name,
                 CRAFTING_DATA,
             )
             for item_name in CRAFTING_DATA.keys()
         )
-        refresh_skill_availability(can_smelt_any_bar(), can_craft_any)
+        can_fletch_any = any(
+            can_fletch_item_pure(
+                player_data.get("fletching_level", 1),
+                inventory,
+                target_key,
+                FLETCHING_DATA,
+            )
+            for target_key in FLETCHING_DATA.keys()
+        )
+        refresh_skill_availability(can_smelt_any_bar(), can_craft_any, can_fletch_any)
     except Exception:
         pass
+
+
+def _xp_multiplier() -> float:
+    try:
+        if mw and getattr(mw, 'col', None):
+            return sanitize_xp_multiplier(mw.col.get_config("ankiscape_xp_multiplier", 1.0))
+    except Exception:
+        pass
+    return 1.0
+
+
+def _award_skill_exp(exp_key: str, base_exp: float) -> float:
+    exp_gained = scale_skill_exp_pure(base_exp, _xp_multiplier())
+    player_data[exp_key] = player_data.get(exp_key, 0) + exp_gained
+    return exp_gained
+
+
+def _capture_player_data_snapshot():
+    return copy.deepcopy(player_data)
+
+
+def _remember_review_award_snapshot(before_state) -> None:
+    """Keep only keys changed by a successful review reward for Anki undo."""
+    changed_values = {}
+    removed_keys = []
+    all_keys = set(before_state) | set(player_data)
+    for key in all_keys:
+        had_before = key in before_state
+        has_after = key in player_data
+        if had_before and (not has_after or before_state[key] != player_data[key]):
+            changed_values[key] = copy.deepcopy(before_state[key])
+        elif not had_before and has_after:
+            removed_keys.append(key)
+
+    if not changed_values and not removed_keys:
+        return
+
+    _REVIEW_UNDO_STACK.append({"values": changed_values, "remove": removed_keys})
+    if len(_REVIEW_UNDO_STACK) > _MAX_REVIEW_UNDO_SNAPSHOTS:
+        del _REVIEW_UNDO_STACK[:-_MAX_REVIEW_UNDO_SNAPSHOTS]
+
+
+def _looks_like_review_undo(changes) -> bool:
+    """Best-effort guard so unrelated undo events do not consume reward history."""
+    if changes is None:
+        return True
+    try:
+        operation = str(getattr(changes, "operation", "") or "").lower()
+        if any(token in operation for token in ("answer", "review", "card")):
+            return True
+    except Exception:
+        pass
+    try:
+        nested_changes = getattr(changes, "changes", None)
+        if nested_changes is not None:
+            return bool(getattr(nested_changes, "study_queues", False) or getattr(nested_changes, "card", False))
+    except Exception:
+        pass
+    return False
+
+
+def _restore_review_award_snapshot(snapshot) -> None:
+    global player_data
+    for key in snapshot.get("remove", []):
+        player_data.pop(key, None)
+    for key, value in snapshot.get("values", {}).items():
+        player_data[key] = copy.deepcopy(value)
+
+    save_player_data()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    try:
+        _refresh_skill_availability()
+    except Exception:
+        pass
+
+
+def _on_state_did_undo(changes=None) -> None:
+    if not _REVIEW_UNDO_STACK or not _looks_like_review_undo(changes):
+        return
+    snapshot = _REVIEW_UNDO_STACK.pop()
+    _restore_review_award_snapshot(snapshot)
 
 
 def show_skill_selection():
@@ -212,7 +317,16 @@ def has_crafting_materials(item):
     return has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA)
 
 def on_crafting_answer():
-    item = player_data["current_craft"]
+    item = player_data.get("current_craft", "")
+    spec = CRAFTING_DATA.get(item)
+    if not spec:
+        show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
+        return
+
+    player_level = player_data.get("crafting_level", 1)
+    if player_level < spec["level"]:
+        show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {item}.")
+        return
 
     # Check level and material requirements first
     if not has_crafting_materials(item):
@@ -220,14 +334,14 @@ def on_crafting_answer():
         return
 
     # Apply crafting via pure function (handles Soft clay and crafted items)
-    new_inv, exp_gained, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
+    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
     if not ok:
         show_error_message("Insufficient materials", f"You don't have enough materials to craft {item}.")
         return
 
     # Update player data and UI
     player_data["inventory"] = new_inv
-    player_data["crafting_exp"] += exp_gained
+    exp_gained = _award_skill_exp("crafting_exp", base_exp)
     level_up_check("Crafting", player_data)
     check_achievements(player_data)
     save_player_data()
@@ -246,28 +360,65 @@ def on_crafting_answer():
     _show_exp(exp_gained)
 
 
+def on_utility_answer():
+    activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if activity_key not in UTILITY_ACTIVITY_DATA:
+        activity_key = DEFAULT_UTILITY_ACTIVITY
+        player_data["current_utility"] = activity_key
+    spec = UTILITY_ACTIVITY_DATA[activity_key]
+    display_name = spec.get("display_name", activity_key)
+
+    if not can_perform_utility_activity_pure(player_data.get("inventory", {}), activity_key, UTILITY_ACTIVITY_DATA):
+        requirements = spec.get("requirements", {})
+        if requirements:
+            missing = ", ".join(f"{amount} {material}" for material, amount in requirements.items())
+            show_error_message("Insufficient materials", f"You need {missing} to run {display_name}.")
+        else:
+            show_error_message("Unavailable activity", f"{display_name} is not available right now.")
+        return
+
+    new_inv, _exp, ok, _processed = apply_utility_activity_pure(
+        activity_key,
+        player_data.get("inventory", {}),
+        UTILITY_ACTIVITY_DATA,
+    )
+    if not ok:
+        show_error_message("Unavailable activity", f"{display_name} is not available right now.")
+        return
+
+    player_data["inventory"] = new_inv
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+
+
 def on_fletching_answer():
-    target = player_data.get("current_fletch", "Arrow shafts")
+    target = player_data.get("current_fletch", "arrow_shafts")
+    if target not in FLETCHING_DATA:
+        target = "arrow_shafts"
+        player_data["current_fletch"] = target
     spec = FLETCHING_DATA[target]
+    display_name = spec.get("display_name", target)
     player_level = player_data.get("fletching_level", 1)
 
     if player_level < spec["level"]:
-        show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {target}.")
+        show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")
         return
 
-    new_inv, exp_gained, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
+    new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
     if not ok:
         for material, amount in spec.get("requirements", {}).items():
             if player_data["inventory"].get(material, 0) < amount:
-                show_error_message("Insufficient materials", f"You need {amount} {material} to make {target}.")
+                show_error_message("Insufficient materials", f"You need {amount} {material} to make {display_name}.")
                 break
         return
 
     player_data["inventory"] = new_inv
-    player_data["fletching_exp"] += exp_gained
+    exp_gained = _award_skill_exp("fletching_exp", base_exp)
     level_up_check("Fletching", player_data)
     check_achievements(player_data)
     save_player_data()
+    _refresh_skill_availability()
     _show_exp(exp_gained)
 
 def show_bar_selection():
@@ -348,6 +499,7 @@ def _on_main_menu():
         on_set_bar=lambda bar: _set_value("current_bar", bar),
         on_set_craft=lambda item: _set_value("current_craft", item),
         on_set_fletch=lambda target: _set_value("current_fletch", target),
+        on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
     )
@@ -382,7 +534,7 @@ def on_smithing_answer():
         return
 
     # Use pure smelt application
-    new_inv, exp_gained, ok = apply_smelt_pure(bar, player_data["inventory"], BAR_DATA)
+    new_inv, base_exp, ok = apply_smelt_pure(bar, player_data["inventory"], BAR_DATA)
     if not ok:
         # Find first missing ore to provide a helpful message
         for ore, amount in bar_spec["ore_required"].items():
@@ -392,7 +544,7 @@ def on_smithing_answer():
         return
 
     player_data["inventory"] = new_inv
-    player_data["smithing_exp"] += exp_gained
+    exp_gained = _award_skill_exp("smithing_exp", base_exp)
     level_up_check("Smithing", player_data)
     check_achievements(player_data)
     save_player_data()
@@ -418,18 +570,18 @@ def on_woodcutting_answer():
 
     woodcutting_probability = calculate_woodcutting_probability(player_level, spec["probability"])
     r_action = random.random()
-    new_inv, exp_gained, ok = apply_woodcutting_pure(tree, player_data["inventory"], TREE_DATA, r_action, woodcutting_probability)
+    new_inv, base_exp, ok = apply_woodcutting_pure(tree, player_data["inventory"], TREE_DATA, r_action, woodcutting_probability)
     if ok:
         if "logs_cut_today" not in player_data:
             player_data["logs_cut_today"] = 0
         player_data["logs_cut_today"] += 1
         player_data["inventory"] = new_inv
-        player_data["woodcutting_exp"] += exp_gained
+        exp_gained = _award_skill_exp("woodcutting_exp", base_exp)
         level_up_check("Woodcutting", player_data)
         check_achievements(player_data)
         save_player_data()
 
-    _show_exp(exp_gained)
+    _show_exp(base_exp if not ok else exp_gained)
 
 def on_mining_answer():
     ore = player_data["current_ore"]
@@ -441,7 +593,7 @@ def on_mining_answer():
     r_gem_chance = random.random()
     r_gem_pick = random.random()
 
-    new_inv, exp_gained, ok, _gem = apply_mining_pure(
+    new_inv, base_exp, ok, _gem = apply_mining_pure(
         ore,
         player_data["inventory"],
         ORE_DATA,
@@ -457,7 +609,7 @@ def on_mining_answer():
             player_data["ores_mined_today"] = 0
         player_data["ores_mined_today"] += 1
         player_data["inventory"] = new_inv
-        player_data["mining_exp"] += exp_gained
+        exp_gained = _award_skill_exp("mining_exp", base_exp)
         level_up_check("Mining", player_data)
         check_achievements(player_data)
         save_player_data()
@@ -473,10 +625,13 @@ _REVIEW_HANDLERS = {
     "smithing": on_smithing_answer,
     "crafting": on_crafting_answer,
     "fletching": on_fletching_answer,
+    "utility": on_utility_answer,
 }
 
 
 def _registered_answer_handler(skill):
+    if skill in _UTILITY_SKILL_NAMES:
+        return _REVIEW_HANDLERS.get("utility")
     handler_key = review_handler_key(skill)
     if handler_key is None:
         return None
@@ -489,7 +644,9 @@ def on_good_answer():
         return
     handler = _registered_answer_handler(current_skill)
     if handler:
+        before_state = _capture_player_data_snapshot()
         handler()
+        _remember_review_award_snapshot(before_state)
 
     exp_awarded = True
 
@@ -499,7 +656,7 @@ def on_good_answer():
 
 def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown
-    if ease > 1 and is_review_skill(current_skill) and card_turned and not exp_awarded and answer_shown:
+    if ease > 1 and (is_review_skill(current_skill) or current_skill in _UTILITY_SKILL_NAMES) and card_turned and not exp_awarded and answer_shown:
         on_good_answer()
         exp_awarded = True
     card_turned = False
@@ -537,7 +694,11 @@ def can_smelt_any_bar():
     return can_smelt_any_bar_pure(player_data["inventory"], player_data["smithing_level"], BAR_DATA)
 
 def create_soft_clay():
-    new_inv, ok = create_soft_clay_pure(player_data["inventory"]) 
+    new_inv, _exp, ok, _processed = apply_utility_activity_pure(
+        DEFAULT_UTILITY_ACTIVITY,
+        player_data["inventory"],
+        UTILITY_ACTIVITY_DATA,
+    )
     if ok:
         player_data["inventory"] = new_inv
     return ok
@@ -599,6 +760,7 @@ try:
             "reviewer_question": [on_card_did_show, _on_rev_show_question],
             "reviewer_answer": [on_card_did_show, on_show_answer, _on_rev_show_answer],
             "answer_wrapper": on_answer_card,
+            "state_did_undo": [_on_state_did_undo],
         }
     )
     # Overview: inject after refresh so the icon is always present on the Study Now screen
@@ -651,6 +813,14 @@ except Exception:
         gui_hooks.reviewer_did_show_question.append(_on_rev_show_question)
         gui_hooks.reviewer_did_show_answer.append(_on_rev_show_answer)
         Reviewer._answerCard = wrap(Reviewer._answerCard, on_answer_card, "around")
+        try:
+            gui_hooks.state_did_undo.remove(_on_state_did_undo)  # type: ignore[attr-defined]
+        except Exception:
+            pass
+        try:
+            gui_hooks.state_did_undo.append(_on_state_did_undo)  # type: ignore[attr-defined]
+        except Exception:
+            pass
         # Overview: inject after refresh so the icon is always present on the Study Now screen
         try:
             try:

@@ -12,7 +12,13 @@ Backend registry implementation has started on `main` in a local git repository.
 
 Asset-fetch tooling now exists as a standalone developer CLI at `tools/fetch_assets.py`. It is not imported by the add-on runtime. It resolves one item icon at a time from the official RuneScape wikis, prefers OSRS with RS3 fallback, supports registry-key path resolution, normalizes PNG output when fetching, and records provenance.
 
-Fletching backend pilot is complete. Fletching is backend-playable through registry review metadata and flat save keys, but intentionally hidden from the normal Skills hub until the frontend target panel is added. The first Fletching slice consumes logs into arrow shafts and unstrung bows only; no bowstrings, arrows, Ranged, or combat dependencies yet.
+Fletching is now playable in the Skills hub and has had its first data-accuracy hardening pass. The target list uses stable recipe keys, includes tiered arrow-shaft yields, headless arrows, metal arrows through rune, and unstrung shortbows. Fletching output/material icons live under `fletcheditems/` and are recorded in `assets_provenance.json`.
+
+Review-answer XP/items now respect Anki undo. The runtime records changed `player_data` keys for each successful review reward and restores them when Anki emits `state_did_undo`, fixing the Command-Z case where the card was undone but XP remained.
+
+A project-local Cursor skill now exists at `.cursor/skills/ankiscape-skill-expansion/`. Use it before any future skill/action expansion so source audit, assets, target items, Utility/Activities, achievements, tests, and memory updates happen consistently instead of being rediscovered each time.
+
+Crafting/Utility backend rework is now complete. `Soft clay` is no longer a Crafting XP target; no-XP Utility/Activities handle `Clay -> Soft clay` in batches up to 28. The audited Crafting pilot now includes pottery shaping/firing, wool spinning, bowstring spinning, and silver bolts (unf). A backend XP multiplier read path exists under `ankiscape_xp_multiplier`, with source XP preserved in recipe data and scaling applied only at reward time.
 
 ## Key Product Decision
 The project can borrow broad inspiration from idle-RPG progression, including Melvor Idle-like long-term loops, but should not copy Melvor's concrete content, balancing, UI, or structure (because it is inferior to RuneScape, but combat is an interesting carryover). The Anki review loop remains the core mechanic.
@@ -26,15 +32,17 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 - Anki config migration mistakes could affect persisted player progress.
 - Running both the upstream `1808450369` copy and the local `ankiscape_fork` copy at the same time could double-register menus/hooks.
 - The backend registry is only the first layer; the Qt menu is still per-skill/top-tab oriented and will overload once many skills become playable.
-- Fletching is backend-playable but frontend-hidden. The next frontend handoff must add a target list and visible Skills-hub surfacing before normal users can train it through the menu.
-- Utility/Activities are intentionally no-XP, so the UI must make that tradeoff obvious before exposing them broadly.
+- Fletching is playable, but Stats/Bank/HUD are still not registry-driven enough to make the new skill/items feel fully integrated.
+- Utility/Activities now have backend data/mechanics but still need a visible frontend panel that makes the no-XP tradeoff obvious before exposing them broadly.
+- The XP multiplier backend is live, but the Settings page still needs the Gameplay section control before users can tune it without direct config edits.
 - The asset scraper records provenance, but existing asset provenance is still unaudited until icons are re-fetched or manually cataloged.
+- Future game state stored outside `player_data` must be made undo-aware; the current rollback is intentionally scoped to review reward mutations in `player_data`.
 
 ## Next Recommended Work
-1. (Backend) Fletching data accuracy in `constants.py`: per-tier arrow-shaft yields (normal 15 / oak 30 / willow 45 / maple 60 / yew 75 / magic 90 / redwood 105; levels 1/15/30/45/60/75/90; XP 5/10/15/20/25/30/35) verified on the OSRS wiki. Needs disambiguated target keys since every tier outputs the same `Arrow shaft` item. Then add the feather/arrowtip chain (headless arrows -> arrows). Shortbow (u) recipes are already accurate.
-2. (Backend) Optionally pass `can_fletch_any_item` (3rd arg) to `refresh_skill_availability` from the review hook so Fletching auto-enables mid-review like Smithing/Crafting; the frontend slot already supports it.
-3. Make Stats/Bank/HUD registry-driven (still hardcoded to the four original skills; Fletching does not yet surface there) so new skills appear automatically.
-4. Add Utility/Activities if bowstring/flax dependencies become necessary.
+1. Frontend handoff: surface Utility/Activities, remove Soft clay from the Crafting target UI, add no-XP/batch tooltips, and expose the XP multiplier under a Gameplay settings section.
+2. Make Stats/Bank/HUD registry-driven so Fletching level, XP, and inventory items appear cleanly outside the Skills hub.
+3. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
+4. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
 5. Only then design combat and Slayer task layering.
 
 ## Frontend Handoff Status

@@ -8,6 +8,7 @@ from constants import (
     ITEM_DEFINITIONS,
     ORE_DATA,
     TREE_DATA,
+    UTILITY_ACTIVITY_DATA,
 )
 from item_registry import (
     item_definitions_by_id,
@@ -88,7 +89,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_tree": "Tree",
                 "current_bar": "Bronze bar",
                 "current_craft": "",
-                "current_fletch": "Arrow shafts",
+                "current_fletch": "arrow_shafts",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
@@ -96,7 +97,30 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_item_manifest_covers_existing_backend_item_tables(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         fletching_outputs = [spec["output_item"] for spec in FLETCHING_DATA.values()]
-        for item_name in list(ORE_DATA) + list(TREE_DATA) + list(GEM_DATA) + list(BAR_DATA) + list(CRAFTING_DATA) + fletching_outputs:
+        fletching_materials = [
+            material
+            for spec in FLETCHING_DATA.values()
+            for material in spec.get("requirements", {})
+            if material not in TREE_DATA
+        ]
+        utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values()]
+        utility_materials = [
+            material
+            for spec in UTILITY_ACTIVITY_DATA.values()
+            for material in spec.get("requirements", {})
+            if material not in ORE_DATA
+        ]
+        for item_name in (
+            list(ORE_DATA)
+            + list(TREE_DATA)
+            + list(GEM_DATA)
+            + list(BAR_DATA)
+            + list(CRAFTING_DATA)
+            + fletching_outputs
+            + fletching_materials
+            + utility_outputs
+            + utility_materials
+        ):
             self.assertIn(item_name, by_storage_key)
 
         by_id = item_definitions_by_id(ITEM_DEFINITIONS)
@@ -105,6 +129,21 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")), set(TREE_DATA))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "bar")), set(BAR_DATA))
         self.assertIn("Arrow shafts", item_storage_keys_by_category(ITEM_DEFINITIONS, "fletched"))
+        self.assertIn("Soft clay", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Wool", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Flax", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+
+    def test_crafting_pilot_data_matches_utility_split(self):
+        self.assertNotIn("Soft clay", CRAFTING_DATA)
+        self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["requirements"], {"Clay": 1})
+        self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["batch_size"], 28)
+        self.assertEqual(CRAFTING_DATA["Unfired pot"]["requirements"], {"Soft clay": 1})
+        self.assertEqual(CRAFTING_DATA["Pot"]["requirements"], {"Unfired pot": 1})
+        self.assertEqual(CRAFTING_DATA["Pie dish"]["level"], 7)
+        self.assertEqual(CRAFTING_DATA["Bowl"]["level"], 8)
+        self.assertEqual(CRAFTING_DATA["Ball of wool"]["exp"], 2.5)
+        self.assertEqual(CRAFTING_DATA["Bow string"]["batch_size"], 28)
+        self.assertEqual(CRAFTING_DATA["Silver bolts (unf)"]["output_qty"], 10)
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())

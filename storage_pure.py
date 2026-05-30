@@ -8,7 +8,18 @@ except ImportError:
     from item_registry import ItemDefinition
     from skill_registry import default_skill_state, default_target_state
 
-CURRENT_CONFIG_VERSION = 4
+CURRENT_CONFIG_VERSION = 6
+DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+
+_LEGACY_FLETCHING_TARGETS = {
+    "Arrow shafts": "arrow_shafts",
+    "Shortbow (u)": "shortbow_u",
+    "Oak shortbow (u)": "oak_shortbow_u",
+    "Willow shortbow (u)": "willow_shortbow_u",
+    "Maple shortbow (u)": "maple_shortbow_u",
+    "Yew shortbow (u)": "yew_shortbow_u",
+    "Magic shortbow (u)": "magic_shortbow_u",
+}
 
 
 def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, int]:
@@ -31,6 +42,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     }
     data.update(default_skill_state())
     data.update(default_target_state())
+    data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     return data
 
 
@@ -59,6 +71,12 @@ def migrate_loaded_data(
         data.setdefault(key, value)
     for key, value in default_target_state().items():
         data.setdefault(key, value)
+    data.setdefault("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if isinstance(data.get("current_fletch"), str):
+        data["current_fletch"] = _LEGACY_FLETCHING_TARGETS.get(data["current_fletch"], data["current_fletch"])
+    if data.get("current_craft") == "Soft clay":
+        data["current_craft"] = ""
+        data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.

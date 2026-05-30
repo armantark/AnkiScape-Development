@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple
 
 
-ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched"]
+ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched", "material"]
 
 
 @dataclass(frozen=True)
@@ -80,27 +80,68 @@ def build_item_definitions(
     crafted_item_images: Mapping[str, str],
     fletching_data: Optional[Mapping[str, Mapping[str, object]]] = None,
     fletched_item_images: Optional[Mapping[str, str]] = None,
+    utility_activity_data: Optional[Mapping[str, Mapping[str, object]]] = None,
+    utility_item_images: Optional[Mapping[str, str]] = None,
 ) -> Tuple[ItemDefinition, ...]:
     definitions = []
+    seen_storage_keys = set()
+
+    def add_definition(item: ItemDefinition) -> None:
+        if item.storage_key in seen_storage_keys:
+            return
+        seen_storage_keys.add(item.storage_key)
+        definitions.append(item)
+
+    def add_material_definition(name: str, source: str, images: Mapping[str, str]) -> None:
+        add_definition(
+            ItemDefinition(
+                id=slugify_item_id("material", name),
+                display_name=name,
+                storage_key=name,
+                category="material",
+                asset_path=images.get(name),
+                source=source,
+                license_note="private-fork asset; provenance not audited",
+            )
+        )
+
+    crafting_material_images = dict(utility_item_images or {})
+    crafting_material_images.update(crafted_item_images)
+
     for name in ore_data:
-        definitions.append(_definition(name, "ore", "Mining", ore_data, ore_images))
+        add_definition(_definition(name, "ore", "Mining", ore_data, ore_images))
     for name in tree_data:
-        definitions.append(_definition(name, "log", "Woodcutting", tree_data, tree_images))
+        add_definition(_definition(name, "log", "Woodcutting", tree_data, tree_images))
     for name in gem_data:
-        definitions.append(_definition(name, "gem", "Mining gem drop", gem_data, gem_images))
+        add_definition(_definition(name, "gem", "Mining gem drop", gem_data, gem_images))
     for name in bar_data:
-        definitions.append(_definition(name, "bar", "Smithing", bar_data, bar_images))
-    for name in crafting_data:
-        definitions.append(_definition(name, "crafted", "Crafting", crafting_data, crafted_item_images))
+        add_definition(_definition(name, "bar", "Smithing", bar_data, bar_images))
+    for target_name, spec in crafting_data.items():
+        output_name = spec.get("output_item", target_name)
+        if isinstance(output_name, str):
+            add_definition(_definition(output_name, "crafted", "Crafting", {output_name: spec}, crafted_item_images))
+    for spec in crafting_data.values():
+        for requirement_name in spec.get("requirements", {}):
+            if requirement_name not in seen_storage_keys:
+                add_material_definition(requirement_name, "Crafting material", crafting_material_images)
     if fletching_data is not None:
         image_map = fletched_item_images or {}
-        seen_outputs = set()
-        for target_name, spec in fletching_data.items():
-            output_name = spec.get("output_item", target_name)
-            if not isinstance(output_name, str) or output_name in seen_outputs:
-                continue
-            seen_outputs.add(output_name)
-            definitions.append(_definition(output_name, "fletched", "Fletching", {output_name: spec}, image_map))
+        for target_key, spec in fletching_data.items():
+            output_name = spec.get("output_item", target_key)
+            if isinstance(output_name, str):
+                add_definition(_definition(output_name, "fletched", "Fletching", {output_name: spec}, image_map))
+            for requirement_name in spec.get("requirements", {}):
+                if requirement_name not in seen_storage_keys:
+                    add_material_definition(requirement_name, "Fletching material", image_map)
+    if utility_activity_data is not None:
+        image_map = utility_item_images or {}
+        for spec in utility_activity_data.values():
+            output_name = spec.get("output_item")
+            if isinstance(output_name, str):
+                add_material_definition(output_name, "Utility / Activities", image_map)
+            for requirement_name in spec.get("requirements", {}):
+                if requirement_name not in seen_storage_keys:
+                    add_material_definition(requirement_name, "Utility / Activities", image_map)
     return tuple(definitions)
 
 

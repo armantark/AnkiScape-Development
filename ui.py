@@ -35,6 +35,7 @@ try:
         QScrollArea,
         QProgressBar,
         QCheckBox,
+        QDoubleSpinBox,
         QDesktopServices,
         QUrl,
     QEvent,
@@ -54,12 +55,15 @@ try:
         GEM_DATA,
         CRAFTING_DATA,
         FLETCHING_DATA,
+        UTILITY_ACTIVITY_DATA,
+        DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
         BAR_IMAGES,
         GEM_IMAGES,
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
+        UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         current_dir,
     )
@@ -73,19 +77,22 @@ except Exception:
         GEM_DATA,
         CRAFTING_DATA,
         FLETCHING_DATA,
+        UTILITY_ACTIVITY_DATA,
+        DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
         BAR_IMAGES,
         GEM_IMAGES,
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
+        UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, sanitize_xp_multiplier
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, sanitize_xp_multiplier  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -158,6 +165,14 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
 def playable_review_skill_names() -> tuple:
     """Display names of skills that earn XP during review, straight from the registry."""
     return tuple(implemented_review_skill_names())
+
+
+# Utility / Activities is intentionally NOT a registry skill: it has no XP, level,
+# or exp key. The backend routes it through these display names + `current_utility`,
+# so the hub surfaces it as a synthetic, visually-distinct entry.
+_UTILITY_HUB_NAME = "Utility / Activities"
+_UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
+_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
 
 def icon_filled_to_box(path: str):
@@ -484,6 +499,29 @@ if HAS_QT:
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
+            if skill in _UTILITY_SKILL_NAMES:
+                # Utility / Activities has no level or XP; show the active activity
+                # and make the no-XP nature explicit instead of a progress bar.
+                activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+                spec = UTILITY_ACTIVITY_DATA.get(activity_key, {})
+                activity_name = str(spec.get("display_name", "Material prep"))
+                ip = skill_icon_path_for(skill) or self._placeholder_icon_path()
+                if ip:
+                    pm = QPixmap(ip)
+                    self.icon_lbl.setPixmap(pm.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+                else:
+                    self.icon_lbl.clear()
+                self.title_lbl.setText(_UTILITY_HUB_NAME)
+                self.sub_lbl.setText(f"{activity_name} • material prep (no XP)")
+                try:
+                    self.progress.setVisible(False)
+                    self.sub_lbl.setVisible(True)
+                except Exception:
+                    pass
+                self.adjustSize()
+                self._reposition()
+                self.show()
+                return
             if skill not in playable_review_skill_names():
                 # No skill selected: show placeholder state
                 ip = self._placeholder_icon_path()
@@ -833,6 +871,7 @@ def show_main_menu(
     on_set_bar,
     on_set_craft,
     on_set_fletch=None,
+    on_set_utility=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
 ):
@@ -894,11 +933,27 @@ def show_main_menu(
     include_planned = get_config_bool("ankiscape_developer_mode", False)
     hub = build_skill_hub(include_planned=include_planned)
 
+    # Append a synthetic Utility / Activities category. It is not a registry
+    # skill (no XP/level), so it is injected at the view layer and rendered with
+    # its own no-XP target list rather than the level-based skill panel.
+    utility_card = SkillCardView(
+        skill_id="utility",
+        display_name=_UTILITY_HUB_NAME,
+        category="utility",
+        implemented=True,
+        selectable_for_review=True,
+    )
+    hub = hub + (
+        CategoryView(category_id="utility", display_name=_UTILITY_HUB_NAME, skills=(utility_card,)),
+    )
+
+    _active_choices = set(playable_review_skill_names()) | _UTILITY_SKILL_NAMES
+
     # Mutable selection state (nested closures cannot rebind plain locals).
     state = {
         "category": first_category_id(hub),
         "skill": "",
-        "active": current_skill if current_skill in ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching") else "None",
+        "active": current_skill if current_skill in _active_choices else "None",
     }
 
     # ---- availability + active-skill helpers ----
@@ -925,6 +980,8 @@ def show_main_menu(
             return _craft_available()
         if display_name == "Fletching":
             return _fletch_available()
+        # Utility / Activities is always trainable: gather_* activities need no
+        # inputs, so there is always at least one runnable activity.
         return True
 
     def _refresh_active_label() -> None:
@@ -1069,7 +1126,16 @@ def show_main_menu(
                     materials_ok = False
                 mat_lines.append(f"{mat} x{amt} (you have {have})")
             mat_text = "\n".join(mat_lines) if mat_lines else "No materials required"
-            tooltip = f"Requires Crafting level {lvl_req}. You have {lvl_have}.\nMaterials:\n{mat_text}"
+            output_item = spec.get("output_item", item_name)
+            output_qty = spec.get("output_qty", 1)
+            batch_size = spec.get("batch_size", 1)
+            output_line = f"Output: {output_item} x{output_qty}"
+            if batch_size and batch_size > 1:
+                output_line += f" (up to {batch_size} per successful card)"
+            tooltip = (
+                f"Requires Crafting level {lvl_req}. You have {lvl_have}.\n"
+                f"{output_line}\nMaterials:\n{mat_text}"
+            )
             if not can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
                 reason = []
@@ -1143,12 +1209,56 @@ def show_main_menu(
         fletch_list.itemActivated.connect(_on_fletch_selected)
         return fletch_list
 
+    def _build_utility_list() -> QListWidget:
+        # Utility / Activities are no-XP material prep. Each successful card runs
+        # a batch (up to batch_size, capped by inventory), so tooltips lead with
+        # the batch + no-XP framing to set expectations apart from XP skills.
+        utility_list = QListWidget()
+        utility_list.setIconSize(QSize(28, 28))
+        utility_list.setAlternatingRowColors(True)
+        inv = player_data.get("inventory", {})
+        for activity_key, spec in UTILITY_ACTIVITY_DATA.items():
+            label = str(spec.get("display_name", activity_key))
+            output_item = str(spec.get("output_item", label))
+            output_qty = spec.get("output_qty", 1)
+            batch_size = spec.get("batch_size", 1)
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, activity_key)
+            u_icon = UTILITY_ITEM_IMAGES.get(output_item)
+            if u_icon and os.path.exists(u_icon):
+                item.setIcon(icon_filled_to_box(u_icon) or QIcon(u_icon))
+            reqs = spec.get("requirements", {})
+            if reqs:
+                mat_lines = [f"{mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
+                mat_text = "\n".join(mat_lines)
+            else:
+                mat_text = "No materials required"
+            tooltip = (
+                f"Processes up to {batch_size} per successful card. No Crafting XP.\n"
+                f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
+            )
+            if not can_perform_utility_activity_pure(inv, activity_key, UTILITY_ACTIVITY_DATA):
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                tooltip += "\nLocked: gather the required materials first."
+            item.setToolTip(tooltip)
+            utility_list.addItem(item)
+            if activity_key == player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY):
+                utility_list.setCurrentItem(item)
+
+        def _on_utility_selected(item: QListWidgetItem):
+            if item and on_set_utility is not None:
+                on_set_utility(item.data(Qt.ItemDataRole.UserRole))
+        utility_list.itemClicked.connect(_on_utility_selected)
+        utility_list.itemActivated.connect(_on_utility_selected)
+        return utility_list
+
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
         "Woodcutting": _build_tree_list,
         "Smithing": _build_bar_list,
         "Crafting": _build_craft_list,
         "Fletching": _build_fletch_list,
+        _UTILITY_HUB_NAME: _build_utility_list,
     }
     _TARGET_PROMPTS = {
         "Mining": "Select Ore to Mine",
@@ -1156,6 +1266,7 @@ def show_main_menu(
         "Smithing": "Select Bar to Smelt",
         "Crafting": "Select Item to Craft",
         "Fletching": "Select Item to Fletch",
+        _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
     def _skill_icon_path(display_name: str) -> str:
@@ -1302,11 +1413,15 @@ def show_main_menu(
             panel_layout.addStretch(1)
             return
 
+        is_utility = name in _UTILITY_SKILL_NAMES
         header = QWidget()
         hl = QHBoxLayout(header)
         hl.setContentsMargins(0, 0, 0, 0)
         hl.setSpacing(8)
-        if card.implemented:
+        if is_utility:
+            # No level/XP for Utility; keep the title bare and flag the no-XP nature.
+            title = QLabel(name)
+        elif card.implemented:
             level = player_data.get(f"{name.lower()}_level", 1)
             title = QLabel(f"{name} — Lv {level}")
         else:
@@ -1318,7 +1433,7 @@ def show_main_menu(
         if card.implemented and card.selectable_for_review:
             train_btn = QPushButton()
             if state["active"] == name:
-                train_btn.setText("Currently training")
+                train_btn.setText("Currently active" if is_utility else "Currently training")
                 train_btn.setEnabled(False)
                 train_btn.setStyleSheet(
                     "QPushButton { padding: 6px 12px; border: 1px solid #4CAF50;"
@@ -1326,7 +1441,7 @@ def show_main_menu(
                 )
             else:
                 available = _skill_available(name)
-                train_btn.setText("Train this skill")
+                train_btn.setText("Start activity" if is_utility else "Train this skill")
                 train_btn.setEnabled(available)
                 train_btn.setStyleSheet(
                     "QPushButton { padding: 6px 12px; border: 1px solid palette(mid);"
@@ -1350,6 +1465,12 @@ def show_main_menu(
             elif name == "Fletching":
                 _MAIN_MENU_CTX["fletch_btn"] = train_btn
         panel_layout.addWidget(header)
+
+        if is_utility:
+            note = QLabel("Material prep — earns no XP. Each successful review processes a batch.")
+            note.setWordWrap(True)
+            note.setStyleSheet("color: palette(mid); font-style: italic;")
+            panel_layout.addWidget(note)
 
         if not card.implemented:
             note = QLabel("This skill is planned but not yet playable.")
@@ -1734,29 +1855,67 @@ def show_main_menu(
     except Exception:
         pass
 
-    # Section header with icon: Widget
-    widget_hdr = QWidget()
-    whl = QHBoxLayout(widget_hdr)
-    whl.setContentsMargins(0, 0, 0, 0)
-    whl.setSpacing(6)
+    # Settings are grouped into clear sections (Gameplay, Notifications, Floating
+    # Widget, Developer). Controls are created first, then assembled, so the
+    # section order is easy to read and reorder without touching wiring.
     try:
-        settings_icon = os.path.join(current_dir, "icon", "settings_icon.png")
-        if os.path.exists(settings_icon):
-            lbl = QLabel()
-            lbl.setPixmap(QPixmap(settings_icon).scaled(18, 18, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-            whl.addWidget(lbl)
+        from aqt.qt import QFrame  # type: ignore
     except Exception:
-        pass
-    hdr_lbl = QLabel("Widget")
-    hdr_lbl.setStyleSheet("font-weight: 600;")
-    whl.addWidget(hdr_lbl)
-    whl.addStretch(1)
-    set_layout.addWidget(widget_hdr)
+        QFrame = None  # type: ignore
 
+    def _section_title(text: str) -> QLabel:
+        lbl = QLabel(text)
+        lbl.setStyleSheet("font-weight: 600;")
+        return lbl
+
+    def _add_divider() -> None:
+        if QFrame is not None:
+            div = QFrame()
+            div.setFrameShape(QFrame.Shape.HLine)
+            div.setFrameShadow(QFrame.Shadow.Sunken)
+            set_layout.addWidget(div)
+
+    # ---- Gameplay: XP multiplier + experience HUD ----
+    current_multiplier = 1.0
+    try:
+        if mw and getattr(mw, "col", None):
+            current_multiplier = sanitize_xp_multiplier(
+                mw.col.get_config(_XP_MULTIPLIER_CONFIG_KEY, 1.0)
+            )
+    except Exception:
+        current_multiplier = 1.0
+
+    xp_mult_row = QWidget()
+    xmr = QHBoxLayout(xp_mult_row)
+    xmr.setContentsMargins(0, 0, 0, 0)
+    xmr.setSpacing(8)
+    xmr.addWidget(QLabel("XP multiplier:"))
+    xp_mult_spin = QDoubleSpinBox()
+    xp_mult_spin.setRange(0.0, 100.0)
+    xp_mult_spin.setSingleStep(0.5)
+    xp_mult_spin.setDecimals(2)
+    xp_mult_spin.setSuffix("\u00d7")
+    xp_mult_spin.setValue(current_multiplier)
+    xp_mult_spin.setMaximumWidth(120)
+    xmr.addWidget(xp_mult_spin)
+    xmr.addStretch(1)
+
+    xp_mult_help = QLabel("Base data uses OSRS XP; this scales rewards for Anki pacing.")
+    xp_mult_help.setWordWrap(True)
+    xp_mult_help.setStyleSheet("color: palette(mid); font-size: 11px;")
+
+    review_hud_cb = QCheckBox("Enable experience HUD")
+    review_hud_cb.setChecked(review_hud_enabled)
+
+    # ---- Notifications: floating XP + popups ----
+    xp_cb = QCheckBox("Enable floating XP")
+    xp_cb.setChecked(floating_xp_enabled)
+    popups_cb = QCheckBox("Enable achievements and level up pop ups")
+    popups_cb.setChecked(popups_enabled)
+
+    # ---- Floating Widget: enable + position ----
     enabled_cb = QCheckBox("Enable widget")
     enabled_cb.setChecked(floating_enabled)
-    set_layout.addWidget(enabled_cb)
-
     pos_row = QWidget()
     prl = QHBoxLayout(pos_row)
     prl.setContentsMargins(0, 0, 0, 0)
@@ -1772,75 +1931,45 @@ def show_main_menu(
     prl.addWidget(rb_left)
     prl.addWidget(rb_right)
     prl.addStretch(1)
+
+    # ---- assemble sections in order ----
+    set_layout.addWidget(_section_title("Gameplay"))
+    set_layout.addWidget(xp_mult_row)
+    set_layout.addWidget(xp_mult_help)
+    set_layout.addWidget(review_hud_cb)
+    _add_divider()
+    set_layout.addWidget(_section_title("Notifications"))
+    set_layout.addWidget(xp_cb)
+    set_layout.addWidget(popups_cb)
+    _add_divider()
+    set_layout.addWidget(_section_title("Floating Widget"))
+    set_layout.addWidget(enabled_cb)
     set_layout.addWidget(pos_row)
+    _add_divider()
 
-    # Divider
-    try:
-        from aqt.qt import QFrame  # type: ignore
-    except Exception:
-        QFrame = None  # type: ignore
-    if QFrame is not None:
-        div1 = QFrame()
-        div1.setFrameShape(QFrame.Shape.HLine)
-        div1.setFrameShadow(QFrame.Shadow.Sunken)
-        set_layout.addWidget(div1)
-
-    # Disable/enable radio buttons based on checkbox
+    # ---- behavior wiring ----
     def _sync_pos_enabled():
         rb_left.setEnabled(enabled_cb.isChecked())
         rb_right.setEnabled(enabled_cb.isChecked())
     _sync_pos_enabled()
     enabled_cb.stateChanged.connect(lambda _=None: _sync_pos_enabled())
 
-    # Wire persistence through callbacks if provided
     if callable(on_set_floating_enabled):
         enabled_cb.stateChanged.connect(lambda _=None: on_set_floating_enabled(bool(enabled_cb.isChecked())))
     if callable(on_set_floating_position):
         rb_left.toggled.connect(lambda checked=False: checked and on_set_floating_position("left"))
         rb_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("right"))
 
-    # Section header: Experience
-    hud_hdr = QWidget()
-    hhl = QHBoxLayout(hud_hdr)
-    hhl.setContentsMargins(0, 0, 0, 0)
-    hhl.setSpacing(6)
-    try:
-        hud_icon = os.path.join(current_dir, "icon", "achievement_icon.png")
-        if os.path.exists(hud_icon):
-            lbl = QLabel()
-            lbl.setPixmap(QPixmap(hud_icon).scaled(18, 18, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
-            hhl.addWidget(lbl)
-    except Exception:
-        pass
-    hud_lbl = QLabel("Experience")
-    hud_lbl.setStyleSheet("font-weight: 600;")
-    hhl.addWidget(hud_lbl)
-    hhl.addStretch(1)
-    set_layout.addWidget(hud_hdr)
-
-    review_hud_cb = QCheckBox("Enable experience HUD")
-    review_hud_cb.setChecked(review_hud_enabled)
-    set_layout.addWidget(review_hud_cb)
-
-    xp_cb = QCheckBox("Enable floating XP")
-    xp_cb.setChecked(floating_xp_enabled)
-    set_layout.addWidget(xp_cb)
-
-    # Divider
-    if QFrame is not None:
-        div2 = QFrame()
-        div2.setFrameShape(QFrame.Shape.HLine)
-        div2.setFrameShadow(QFrame.Shadow.Sunken)
-        set_layout.addWidget(div2)
-
-    # Section header: Notifications
-    notif_title = QLabel("Notifications")
-    notif_title.setStyleSheet("font-weight: 600;")
-    set_layout.addWidget(notif_title)
-
-    popups_cb = QCheckBox("Enable achievements and level up pop ups")
-    popups_cb.setChecked(popups_enabled)
-    set_layout.addWidget(popups_cb)
+    def _apply_xp_multiplier(value: float) -> None:
+        # Clamp before persisting so a bad spin value can never corrupt config;
+        # the backend re-sanitizes at reward time as a second safety net.
+        safe = sanitize_xp_multiplier(value)
+        try:
+            if mw and getattr(mw, "col", None):
+                mw.col.set_config(_XP_MULTIPLIER_CONFIG_KEY, safe)
+        except Exception:
+            pass
+    xp_mult_spin.valueChanged.connect(lambda v: _apply_xp_multiplier(float(v)))
 
     def _persist_bool(key: str, val: bool):
         try:

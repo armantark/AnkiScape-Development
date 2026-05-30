@@ -5,26 +5,30 @@
 - The local working copy is intended to live outside the AnkiWeb-managed numeric folder.
 - The local working copy is now initialized as a git repository on `main`.
 - Review answers can award XP for the active skill.
+- Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
 - Mining, Woodcutting, Smithing, and Crafting exist.
 - Items are stored in a shared inventory/bank.
 - Level-up and achievement flows exist.
 - Review HUD, floating XP, floating widget, main menu, stats, bank, settings, and achievements are present.
 - Tests cover a meaningful portion of pure logic, migrations, settings, hooks, UI calculations, and integration smoke behavior.
 - A backend skill registry exists for current and planned 2011-era skills.
-- A backend item manifest exists for current ores, logs, gems, bars, and crafted items.
+- A backend item manifest exists for current ores, logs, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for the current four skills.
 - `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
-- Fletching exists as the first backend pilot skill: registry metadata, save defaults/migration keys, item manifest outputs, pure processing logic, and runtime review dispatch are in place.
+- Fletching exists as the first expanded playable skill: registry metadata, save defaults/migration keys, target panel, item manifest outputs/materials, pure processing logic, runtime review dispatch, and scraped output/material icons are in place.
+- A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
+- Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, a central XP multiplier read path, migration coverage, and undo-safe review handling.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
-- Frontend-visible playable skills beyond the current four.
+- Registry-driven Stats/Bank/HUD surfaces for skills beyond the original four.
 - Combat.
 - Registry-driven Stats/Bank/HUD surfaces (still hardcoded to the four skills).
 - Formal balancing pass for long-term progression.
 - A release-quality expansion spec.
 - Backfilled provenance for the existing bundled assets.
+- Frontend surfacing for Utility/Activities and the XP multiplier settings control.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -56,5 +60,13 @@ Skills-hub click bug fixed on 2026-05-29. Introduced an offscreen Qt behavior-te
 
 Fletching backend pilot completed on 2026-05-29. Fletching is backend-playable but hidden from normal Skills-hub mode pending frontend target-list work. Suite passes with 99 tests, including pure Fletching logic, storage defaults/migration, registry visibility/dispatch metadata, item manifest coverage, integration review handling, and offscreen Qt menu behavior.
 
+Fletching data and asset hardening completed on 2026-05-29. Recipe targets now use stable keys, model per-log arrow-shaft yields, add headless arrows and bronze-through-rune arrows, include Fletching materials in inventory defaults, and scrape 21 normalized PNG icons into `fletcheditems/` with provenance. Suite passes with 100 tests via `.venv-qt` unittest discovery.
+
+Review undo rollback completed on 2026-05-29. `state_did_undo` restores the `player_data` keys changed by the latest review reward so undoing an answered card also removes the associated XP/items. Suite passes with 105 tests.
+
+AnkiScape skill expansion project skill created on 2026-05-29. It documents the required workflow for source audits, scope cuts, data modeling, asset scraping, mechanics, UI, achievements, tests, manual Anki checks, and memory updates.
+
+Crafting/Utility backend rework completed on 2026-05-29. `Soft clay` moved out of Crafting XP data into batched no-XP Utility/Activities; audited Crafting pilot actions now cover pottery shaping/firing, ball of wool, bow string, and silver bolts (unf). New icons for wool, flax, ball of wool, bow string, and silver bolts (unf) were fetched with provenance. Suite passes with 117 tests in both `python3 run_tests.py` and the offscreen Qt unittest loop.
+
 ## Next Milestone
-Frontend handoff for Fletching: add the target-list panel, make it visible in the Skills hub, then make Stats/Bank/HUD registry-driven enough for new skills to appear cleanly.
+Frontend handoff for Crafting/Utility: expose Utility/Activities, add no-XP and batch tooltips, remove Soft clay from the Crafting target panel, and add the Gameplay XP multiplier setting. Then registry-drive Stats/Bank/HUD and define source loops for feathers and arrowtips.

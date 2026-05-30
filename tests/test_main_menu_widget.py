@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QToolButton, Qt
+    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QToolButton, QDoubleSpinBox, Qt
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -138,6 +138,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_bar=lambda *a: None,
             on_set_craft=lambda *a: None,
             on_set_fletch=lambda *a: None,
+            on_set_utility=lambda *a: None,
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
         return self._captured[-1]
@@ -250,6 +251,60 @@ class MainMenuWidgetTest(unittest.TestCase):
             f"HUD did not recognize Fletching; shows {hud.title_lbl.text()!r}",
         )
         self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fletching icon")
+
+    # ---- Crafting/Utility rework surfaces ---------------------------------
+    def _open_utility(self, dialog: "QDialog") -> "QListWidget":
+        cat = next(
+            b for b in dialog.findChildren(QPushButton) if b.text() == "Utility / Activities"
+        )
+        cat.click()
+        QApplication.processEvents()
+        return _find_list_with_item_prefix(dialog, "Make soft clay")
+
+    def test_soft_clay_left_crafting_and_is_now_a_utility_activity(self) -> None:
+        # Open Crafting target list and assert Soft clay is no longer a target.
+        artisan = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Artisan")
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(self.dialog)
+        craft_row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Crafting")
+        skill_list.setCurrentRow(craft_row)
+        QApplication.processEvents()
+        craft_list = _find_list_with_item_prefix(self.dialog, "Pot ")
+        craft_texts = [craft_list.item(i).text() for i in range(craft_list.count())]
+        self.assertFalse(
+            any(t.startswith("Soft clay") for t in craft_texts),
+            f"Soft clay should not be a Crafting target anymore: {craft_texts}",
+        )
+        # And it now lives under Utility / Activities.
+        utility_list = self._open_utility(self.dialog)
+        util_texts = [utility_list.item(i).text() for i in range(utility_list.count())]
+        self.assertIn("Make soft clay", util_texts)
+        self.assertIn("Gather wool", util_texts)
+
+    def test_utility_panel_uses_no_xp_language(self) -> None:
+        self._open_utility(self.dialog)
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertTrue(
+            any("no XP" in t for t in labels),
+            f"Utility panel should state it earns no XP; labels={labels}",
+        )
+
+    def test_hud_shows_utility_activity_without_xp(self) -> None:
+        hud = self._ui.ReviewHUD(None)
+        pd = _make_player_data()
+        pd["current_utility"] = "gather_flax"
+        hud.set_data(pd, "Utility / Activities")
+        self.assertEqual(hud.title_lbl.text(), "Utility / Activities")
+        self.assertIn("no XP", hud.sub_lbl.text())
+
+    def test_settings_expose_xp_multiplier_under_gameplay(self) -> None:
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Gameplay", labels)
+        self.assertIn("XP multiplier:", labels)
+        spins = self.dialog.findChildren(QDoubleSpinBox)
+        self.assertTrue(spins, "no XP multiplier spin box found")
+        self.assertGreaterEqual(spins[0].maximum(), 1.0)
 
 
 if __name__ == "__main__":
