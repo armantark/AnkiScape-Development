@@ -335,6 +335,17 @@ def write_png(image_bytes: bytes, output_path: Path, size: Optional[int]) -> Non
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with Image.open(BytesIO(image_bytes)) as opened:
         image = opened.convert("RGBA")
+        # Trim fully-transparent margins first so the visible sprite fills the
+        # frame edge-to-edge like the legacy bundled icons. Wiki sprites are
+        # tightly cropped with lots of alpha padding; without this the padding
+        # survives resize and the icon renders small inside its box (the Flax /
+        # Soft clay case). Cropping to the alpha bounding box is lossless — it
+        # only removes invisible pixels. This makes ui.icon_filled_to_box() a
+        # no-op for freshly fetched icons (it stays as a runtime safety net for
+        # older padded assets).
+        alpha_bbox = image.getchannel("A").getbbox()
+        if alpha_bbox is not None:
+            image = image.crop(alpha_bbox)
         if size is not None:
             if size <= 0:
                 raise AssetFetchError("--size must be a positive integer.")

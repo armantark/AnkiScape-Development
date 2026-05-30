@@ -298,6 +298,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(hud.title_lbl.text(), "Utility / Activities")
         self.assertIn("no XP", hud.sub_lbl.text())
 
+    def test_scraped_sprite_icon_is_cropped_to_fill_box(self) -> None:
+        # Flax ships as a 64x64 sprite with heavy transparent padding; scaled_item_icon
+        # must crop it so the visible art is well under 64px (and thus fills the 28px
+        # icon box) instead of rendering tiny inside the padding.
+        import os as _os
+        flax = _os.path.join(self._ui.current_dir, "crafteditems", "flax.png")
+        if not _os.path.exists(flax):
+            self.skipTest("flax sprite not present")
+        icon = self._ui.scaled_item_icon(flax)
+        self.assertFalse(icon.isNull())
+        sizes = icon.availableSizes()
+        self.assertTrue(sizes, "cropped icon exposes no pixmap size")
+        self.assertLess(sizes[0].width(), 64, "scraped sprite padding was not cropped")
+
     def test_settings_expose_xp_multiplier_under_gameplay(self) -> None:
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertIn("Gameplay", labels)

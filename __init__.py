@@ -157,6 +157,27 @@ def _show_exp(exp_gained) -> None:
         pass
 
 
+def _show_activity_gain(text: str) -> None:
+    """Floating 'ghost' confirmation for no-XP Utility/Activities (e.g. "+28 Flax").
+
+    Reuses the floating XP popup so utility actions get the same lightweight
+    feedback as XP skills, and respects the same floating-notification setting.
+    """
+    try:
+        show_popup = True
+        try:
+            if mw and getattr(mw, "col", None):
+                show_popup = bool(mw.col.get_config("ankiscape_floating_xp_enabled", True))
+        except Exception:
+            show_popup = True
+        if show_popup:
+            if not hasattr(mw, "exp_popup"):
+                mw.exp_popup = ExpPopup(mw)
+            mw.exp_popup.show_text(text)
+    except Exception:
+        pass
+
+
 def _refresh_skill_availability() -> None:
     """Recompute and refresh Smithing/Crafting availability in the menu."""
     try:
@@ -377,7 +398,7 @@ def on_utility_answer():
             show_error_message("Unavailable activity", f"{display_name} is not available right now.")
         return
 
-    new_inv, _exp, ok, _processed = apply_utility_activity_pure(
+    new_inv, _exp, ok, processed = apply_utility_activity_pure(
         activity_key,
         player_data.get("inventory", {}),
         UTILITY_ACTIVITY_DATA,
@@ -390,6 +411,17 @@ def on_utility_answer():
     check_achievements(player_data)
     save_player_data()
     _refresh_skill_availability()
+
+    # Confirm the action happened: utility earns no XP, so without this floating
+    # "+N <item>" the player gets no signal that the review did anything.
+    output_item = str(spec.get("output_item", activity_key))
+    try:
+        output_qty = max(int(spec.get("output_qty", 1)), 1)
+    except (TypeError, ValueError):
+        output_qty = 1
+    gained = output_qty * max(int(processed), 0)
+    if gained > 0:
+        _show_activity_gain(f"+{gained} {output_item}")
 
 
 def on_fletching_answer():

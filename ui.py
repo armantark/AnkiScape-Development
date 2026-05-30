@@ -209,6 +209,26 @@ def icon_filled_to_box(path: str):
         return None
 
 
+# Folders holding scraped wiki sprites. Their PNGs carry transparent padding (the
+# fetch tool centers a thumbnail on an NxN canvas), so they need the opaque-box
+# crop to render at the same visual size as legacy full-frame artwork. Legacy
+# photo icons live in other folders and are left untouched (cheap + correct).
+_SCRAPED_SPRITE_DIRS = ("crafteditems", "fletcheditems")
+
+
+def scaled_item_icon(path: str):
+    """Return a QIcon for an item, cropping scraped-sprite padding when present.
+
+    Routes scraped wiki sprites (crafteditems/, fletcheditems/) through
+    ``icon_filled_to_box`` so transparent margins do not shrink them in list/bank
+    views; everything else uses a plain ``QIcon`` to avoid scanning large
+    full-frame photos pixel-by-pixel.
+    """
+    if path and any(f"{os.sep}{d}{os.sep}" in path for d in _SCRAPED_SPRITE_DIRS):
+        return icon_filled_to_box(path) or QIcon(path)
+    return QIcon(path)
+
+
 def _item_def_for(storage_key: str) -> Optional["ItemDefinition"]:
     return _ITEM_DEFS_BY_KEY.get(storage_key)
 
@@ -623,7 +643,13 @@ if HAS_QT:
 
         def show_exp(self, exp):
             # Format like +25 XP, color accent via left border
-            self.setText(f"+{int(exp)} XP")
+            self.show_text(f"+{int(exp)} XP")
+
+        def show_text(self, text: str):
+            # Generic floating "ghost" indicator. Used for XP gains and, for no-XP
+            # Utility/Activities, for item gains like "+28 Flax" so the player gets
+            # the same confirmation that a review action actually happened.
+            self.setText(str(text))
             self.adjustSize()
             self.show()
 
@@ -665,6 +691,9 @@ else:
             pass
 
         def show_exp(self, exp):
+            pass
+
+        def show_text(self, text):
             pass
 
     class ReviewHUD:
@@ -1113,7 +1142,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, item_name)
             c_icon = CRAFTED_ITEM_IMAGES.get(item_name)
             if c_icon and os.path.exists(c_icon):
-                item.setIcon(QIcon(c_icon))
+                item.setIcon(scaled_item_icon(c_icon))
             lvl_req = spec.get('level', 1)
             lvl_have = player_data.get("crafting_level", 1)
             inv = player_data.get('inventory', {})
@@ -1171,7 +1200,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, target_key)
             f_icon = FLETCHED_ITEM_IMAGES.get(output_item)
             if f_icon and os.path.exists(f_icon):
-                item.setIcon(icon_filled_to_box(f_icon) or QIcon(f_icon))
+                item.setIcon(scaled_item_icon(f_icon))
             lvl_req = spec.get('level', 1)
             lvl_have = player_data.get("fletching_level", 1)
             inv = player_data.get('inventory', {})
@@ -1226,7 +1255,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, activity_key)
             u_icon = UTILITY_ITEM_IMAGES.get(output_item)
             if u_icon and os.path.exists(u_icon):
-                item.setIcon(icon_filled_to_box(u_icon) or QIcon(u_icon))
+                item.setIcon(scaled_item_icon(u_icon))
             reqs = spec.get("requirements", {})
             if reqs:
                 mat_lines = [f"{mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
@@ -1724,12 +1753,10 @@ def show_main_menu(
             li = QListWidgetItem(f"{item_name} x{amount}")
             icon_path = _bank_icon_path(item_name, asset_path)
             if icon_path:
-                # Fletched-item sprites have transparent padding; crop them so
-                # they fill the icon box like the legacy edge-to-edge artwork.
-                if "fletcheditems" in icon_path:
-                    li.setIcon(icon_filled_to_box(icon_path) or QIcon(icon_path))
-                else:
-                    li.setIcon(QIcon(icon_path))
+                # Scraped sprites (fletched + crafted/utility materials like Flax)
+                # ship with transparent padding; crop them so they fill the icon
+                # box like the legacy edge-to-edge artwork.
+                li.setIcon(scaled_item_icon(icon_path))
             bank_list.addItem(li)
     bk_layout.addWidget(bank_list)
     tabs.addTab(bank_tab, "Bank")

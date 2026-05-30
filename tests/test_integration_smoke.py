@@ -224,10 +224,11 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_utility_answer_batches_inventory_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_utility_integration")
 
-        calls = {"save": 0}
+        calls = {"save": 0, "gains": []}
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
         addon.show_error_message = lambda _title, message: self.fail(message)
 
         addon.player_data = {
@@ -243,6 +244,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Soft clay"], 3)
         self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(calls["save"], 1)
+        # No-XP activities still surface a floating "+N <item>" confirmation so the
+        # player knows the review did something despite earning no XP.
+        self.assertEqual(calls["gains"], ["+3 Soft clay"])
 
     def test_xp_multiplier_applies_to_gathering_and_processing_rewards(self):
         addon = _load_addon_as_package("ankiscape_xp_multiplier_integration")
