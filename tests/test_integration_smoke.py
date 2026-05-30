@@ -248,6 +248,52 @@ class TestIntegrationSmoke(unittest.TestCase):
         # player knows the review did something despite earning no XP.
         self.assertEqual(calls["gains"], ["+3 Soft clay"])
 
+    def test_utility_out_of_materials_switches_off_and_warns(self):
+        # Running a Utility activity with no materials must warn once and switch
+        # the active skill off (current_skill -> "None") so it stops nagging on
+        # every card; the player re-picks from the menu to resume.
+        addon = _load_addon_as_package("ankiscape_utility_depleted")
+        errors = []
+        addon.check_achievements = lambda _d: None
+        addon.save_player_data = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda _t: self.fail("should not gain when out of materials")
+        addon.show_error_message = lambda title, message: errors.append((title, message))
+        addon.current_skill = "Utility / Activities"
+        addon.player_data = {"inventory": {}, "current_utility": "make_soft_clay", "completed_achievements": []}
+
+        addon.on_utility_answer()
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("switched off", errors[0][1])
+        self.assertIn("Clay", errors[0][1])
+
+    def test_crafting_missing_intermediate_names_material_and_switches_off(self):
+        # "Pot" needs an "Unfired pot", not Soft clay directly. The error must name
+        # the actual missing item (so a bank full of Soft clay doesn't look like a
+        # bug) and switch Crafting off.
+        addon = _load_addon_as_package("ankiscape_craft_depleted")
+        errors = []
+        addon.check_achievements = lambda _d: None
+        addon.save_player_data = lambda: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda title, message: errors.append((title, message))
+        addon.current_skill = "Crafting"
+        addon.player_data = {
+            "inventory": {"Soft clay": 231},
+            "crafting_level": 50,
+            "current_craft": "Pot",
+            "completed_achievements": [],
+        }
+
+        addon.on_crafting_answer()
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(len(errors), 1)
+        self.assertIn("Unfired pot", errors[0][1])
+        self.assertIn("switched off", errors[0][1])
+
     def test_changing_target_refreshes_review_hud(self):
         # Switching the active Utility activity (or any target) must push the new
         # state to the in-review HUD immediately, not on the next card.

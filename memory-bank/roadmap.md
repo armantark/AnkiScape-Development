@@ -45,6 +45,11 @@ Candidate follow-ups:
 
 ## Phase 3: Item Economy And Achievements
 - Expand item definitions, icons, and category metadata beyond the minimal Phase 1 manifest.
+- Add an optional fake Grand Exchange-style market so non-ironman players can buy and sell tradable materials instead of manually gathering every dependency.
+  - The market should use a modeled/randomized supply of tradable items, not infinite fixed-price shops.
+  - GE interaction should be optional; gathering, Utility/Activities, and production chains should remain valid and rewarding.
+  - Keep account mode flexible: the default experience can allow market access, while an ironman-style self-sufficient mode can disable it later.
+  - Treat prices/supply as AnkiScape balance data, separate from source XP/recipe data.
 - Make achievements less dependent on hand-written lambdas where possible.
 - Add collection, milestone, and cross-skill achievements.
 - Consider optional drop tables for rare items.
@@ -75,5 +80,6 @@ Frontend:
 ## Open Questions
 - Which exact early Fletching targets and XP values should be used after the registry foundation is merged?
 - How should Utility/Activities be presented so no-XP material actions feel intentional rather than punishing?
+- What is the first fake GE model: daily randomized supply, review-refreshed supply, price drift from scarcity, or a simpler rotating catalog?
 - What is the first Thieving target list and reward table?
 - How much planned-skill catalog metadata should developer mode expose for testing?

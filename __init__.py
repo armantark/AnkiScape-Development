@@ -296,6 +296,41 @@ def show_skill_selection():
         return
     save_skill(selected, None)
 
+def _deactivate_current_skill() -> None:
+    """Turn the active skill off (current_skill -> "None").
+
+    Processing skills consume materials, so a target whose materials are
+    exhausted would otherwise re-raise the same "out of materials" error on every
+    single card. Switching AnkiScape off stops the nag and matches the intended
+    flow: the player re-opens the menu and picks another target/activity to
+    resume. Persisted + HUD-refreshed so the reviewer reflects the off state.
+    """
+    global current_skill
+    current_skill = "None"
+    try:
+        ui.update_menu_visibility(current_skill)
+    except Exception:
+        pass
+    try:
+        mw.col.set_config("ankiscape_current_skill", current_skill)
+    except Exception:
+        pass
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+
+
+def _missing_materials_text(requirements, inventory) -> str:
+    """Human-readable list of just the unmet requirements, e.g. "1 Unfired pot"."""
+    missing = [
+        f"{amount} {material}"
+        for material, amount in requirements.items()
+        if inventory.get(material, 0) < amount
+    ]
+    return ", ".join(missing) if missing else "materials"
+
+
 def save_skill(skill, dialog):
     global current_skill
     if skill == "Smithing" and not can_smelt_any_bar():
@@ -349,15 +384,30 @@ def on_crafting_answer():
         show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {item}.")
         return
 
-    # Check level and material requirements first
+    # Check level and material requirements first. Name the *specific* missing
+    # material (e.g. "Pot" needs an "Unfired pot", not Soft clay directly) so the
+    # player understands the pottery/processing chain instead of seeing a generic
+    # "not enough materials" that contradicts a full bank of the wrong item.
     if not has_crafting_materials(item):
-        show_error_message("Insufficient materials", f"You don't have enough materials to craft {item}.")
+        missing = _missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        _deactivate_current_skill()
+        show_error_message(
+            "Out of materials",
+            f"You need {missing} to craft {item}, so Crafting has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
         return
 
     # Apply crafting via pure function (handles Soft clay and crafted items)
     new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
     if not ok:
-        show_error_message("Insufficient materials", f"You don't have enough materials to craft {item}.")
+        missing = _missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        _deactivate_current_skill()
+        show_error_message(
+            "Out of materials",
+            f"You need {missing} to craft {item}, so Crafting has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
         return
 
     # Update player data and UI
@@ -391,11 +441,22 @@ def on_utility_answer():
 
     if not can_perform_utility_activity_pure(player_data.get("inventory", {}), activity_key, UTILITY_ACTIVITY_DATA):
         requirements = spec.get("requirements", {})
+        # Out of materials: switch the activity off so it stops firing this error
+        # on every card, and point the player back to the menu to pick another.
+        _deactivate_current_skill()
         if requirements:
-            missing = ", ".join(f"{amount} {material}" for material, amount in requirements.items())
-            show_error_message("Insufficient materials", f"You need {missing} to run {display_name}.")
+            missing = _missing_materials_text(requirements, player_data.get("inventory", {}))
+            show_error_message(
+                "Out of materials",
+                f"You're out of {missing} for {display_name}, so it's been switched off. "
+                "Open the AnkiScape menu to pick another activity.",
+            )
         else:
-            show_error_message("Unavailable activity", f"{display_name} is not available right now.")
+            show_error_message(
+                "Activity switched off",
+                f"{display_name} can't run right now, so it's been switched off. "
+                "Open the AnkiScape menu to pick another activity.",
+            )
         return
 
     new_inv, _exp, ok, processed = apply_utility_activity_pure(

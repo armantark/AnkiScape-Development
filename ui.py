@@ -762,6 +762,19 @@ def show_error_message(title: str, message: str):
     """Centralized error dialog helper."""
     error_dialog = QMessageBox(mw)
     error_dialog.setIcon(QMessageBox.Icon.Warning)
+    # Force the standard warning glyph. On macOS QMessageBox otherwise falls back
+    # to the host app's icon (the Python/Anki "folder" the user saw) for the body
+    # icon, which looks like a bug. The style's SP_MessageBoxWarning is a proper
+    # caution triangle on every platform.
+    try:
+        from aqt.qt import QStyle, QApplication
+        style = (mw.style() if mw is not None else None) or QApplication.style()
+        warning = style.standardIcon(QStyle.StandardPixmap.SP_MessageBoxWarning)
+        pm = warning.pixmap(48, 48)
+        if not pm.isNull():
+            error_dialog.setIconPixmap(pm)
+    except Exception:
+        pass
     error_dialog.setWindowTitle(title)
     error_dialog.setText(message)
     error_dialog.setStandardButtons(QMessageBox.StandardButton.Ok)

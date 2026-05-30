@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Depletion switch-off + clearer errors</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:40px 24px;max-width:1080px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--amber);background:rgba(251,191,36,.12);border:1px solid var(--amber);padding:5px 12px;border-radius:99px;text-transform:uppercase}
+h1{font-weight:700;font-size:2rem;margin:16px 0 6px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.97rem;max-width:74ch}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:28px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.card h3{font-weight:700;font-size:1rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.plabel{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;text-transform:uppercase;padding:3px 7px;border-radius:5px;letter-spacing:.05em}
+.p-fix{color:var(--green);background:rgba(74,222,128,.12)}
+.p-major{color:var(--amber);background:rgba(251,191,36,.12)}
+.p-polish{color:var(--purple);background:rgba(167,139,250,.12)}
+.card p{color:var(--text-dim);font-size:.86rem;margin-top:6px}
+.tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:6px}
+/* mock dialog */
+.dlg{margin-top:12px;background:#14161b;border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.dlg .ic{width:42px;height:42px;margin:0 auto 8px;border-radius:8px;display:grid;place-items:center;font-size:1.4rem}
+.dlg .ic.folder{background:linear-gradient(135deg,#ff6b6b,#e23b3b)}
+.dlg .ic.warn{background:transparent;color:var(--amber);font-size:2rem}
+.dlg .msg{font-size:.82rem;color:var(--text);font-weight:500}
+.dlg .ok{margin-top:12px;background:#e23b3b;color:#fff;border-radius:7px;padding:6px 0;font-size:.78rem;font-weight:600}
+.dlg.good .ok{background:#2c3340;color:var(--text)}
+.lab{font-family:'JetBrains Mono',monospace;font-size:.58rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin:10px 0 4px}
+.section{margin-top:34px}
+.section h2{font-size:1.2rem;font-weight:700;margin-bottom:8px}
+.chain{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:.84rem;margin-top:12px}
+.node{background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:7px 11px;display:flex;align-items:center;gap:7px}
+.node small{color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:.62rem}
+.node.have{border-color:rgba(74,222,128,.4)}
+.node.need{border-color:rgba(255,92,92,.4)}
+.arr{color:var(--text-dim)}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;font-size:.82rem}
+.fnode{background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
+.fnode.hl{border-color:var(--accent);color:var(--accent)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}
+@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.metric .v{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:600;color:var(--green)}
+.metric .k{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.note{margin-top:26px;padding:14px 16px;background:rgba(79,140,255,.07);border:1px solid rgba(79,140,255,.25);border-radius:10px;font-size:.85rem;color:var(--text-dim)}
+.note b{color:var(--text)}
+</style>
+</head>
+<body>
+  <span class="badge">Bugfix · Crafting / Utility</span>
+  <h1>"It said Pot, but I have soft clay" — three real bugs, fixed.</h1>
+  <p class="sub">You hit a depleted-target nag loop and a misleading error. The error wasn't lying — <code>Pot</code> needs an <code>Unfired pot</code>, not Soft clay — but it never said so, and it kept firing every card. Now it names the missing item, switches the skill off, and sends you back to the menu.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3><span class="plabel p-major">BUG</span> Misleading error</h3>
+      <p>"Not enough materials to craft Pot" while holding 231 Soft clay reads like a bug. The pottery chain has an intermediate you can't see in the message.</p>
+      <div class="lab">Before</div>
+      <div class="dlg"><div class="ic folder">📁</div><div class="msg">You don't have enough materials to craft Pot.</div><div class="ok">OK</div></div>
+      <div class="lab">After</div>
+      <div class="dlg good"><div class="ic warn">&#9888;</div><div class="msg">You need <b style="color:#fff">1 Unfired pot</b> to craft Pot, so Crafting has been switched off. Open the AnkiScape menu to pick another target.</div><div class="ok">OK</div></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="plabel p-fix">FIX</span> Switch off on depletion</h3>
+      <p>Out of materials used to re-raise the same dialog on <i>every</i> card. Now it warns once, sets <code>current_skill → "None"</code>, and the reviewer goes quiet until you pick a new target.</p>
+      <div class="flow" style="margin-top:16px">
+        <span class="fnode">card answered</span><span class="arr">→</span>
+        <span class="fnode">out of mats</span><span class="arr">→</span>
+        <span class="fnode hl">warn once + off</span><span class="arr">→</span>
+        <span class="fnode">silent</span>
+      </div>
+      <p style="margin-top:14px">Applies to <b style="color:var(--text)">Crafting</b> and <b style="color:var(--text)">Utility/Activities</b> (your "0 clay, still on soften clay" case). Partial batches still run — 7 clay processes 7, doesn't overflow.</p>
+      <div class="tags"><span class="tag">_deactivate_current_skill()</span></div>
+    </div>
+
+    <div class="card">
+      <h3><span class="plabel p-polish">UI</span> The "folder" icon</h3>
+      <p>Not really our bug — on macOS <code>QMessageBox</code> substitutes the host app's icon (Anki/Python = that red folder) for the body glyph. We now force the style's standard caution triangle, so it looks intentional everywhere.</p>
+      <div class="lab">body icon</div>
+      <div class="chain">
+        <span class="node need">📁 <small>app fallback</small></span>
+        <span class="arr">→</span>
+        <span class="node have">&#9888; <small>SP_MessageBoxWarning</small></span>
+      </div>
+      <div class="tags"><span class="tag">ui.show_error_message</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Why "Pot" needs more than Soft clay</h2>
+    <p class="sub">The pottery chain is authentic OSRS: soften clay (a no-XP Utility activity), shape the unfired item, then fire it. Two craft targets, one bank of clay.</p>
+    <div class="chain">
+      <span class="node have">Soft clay <small>×231 ✓</small></span>
+      <span class="arr">→ shape</span>
+      <span class="node need">Unfired pot <small>×0 ✗</small></span>
+      <span class="arr">→ fire</span>
+      <span class="node">Pot</span>
+    </div>
+    <p style="margin-top:10px">So to actually make Pots: select <b style="color:var(--text)">Unfired pot</b> first (consumes Soft clay), review to stock them, then switch to <b style="color:var(--text)">Pot</b> to fire. The new message points you at the exact next step.</p>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">125</div><div class="k">tests pass (+2)</div></div>
+    <div class="metric"><div class="v">2</div><div class="k">skills covered</div></div>
+    <div class="metric"><div class="v">1×</div><div class="k">warn, then quiet</div></div>
+    <div class="metric"><div class="v">0</div><div class="k">folder icons</div></div>
+  </div>
+
+  <div class="note"><b>Scope note:</b> switch-off-on-depletion is wired for the two consuming skills you exercised (Crafting, Utility). Smithing already has its own "no ores" gate; Fletching is the same pattern and an easy follow-up if you want it consistent there too — say the word. New tests: utility-depleted switches off + names Clay; crafting-Pot names "Unfired pot" + switches off.</div>
+</body>
+</html>
