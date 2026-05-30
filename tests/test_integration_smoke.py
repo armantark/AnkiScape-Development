@@ -248,6 +248,21 @@ class TestIntegrationSmoke(unittest.TestCase):
         # player knows the review did something despite earning no XP.
         self.assertEqual(calls["gains"], ["+3 Soft clay"])
 
+    def test_changing_target_refreshes_review_hud(self):
+        # Switching the active Utility activity (or any target) must push the new
+        # state to the in-review HUD immediately, not on the next card.
+        addon = _load_addon_as_package("ankiscape_target_hud_refresh")
+        calls = {"hud": []}
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda data, skill: calls["hud"].append(skill)
+        addon.current_skill = "Utility / Activities"
+        addon.player_data = {"inventory": {}, "current_utility": "gather_flax"}
+
+        addon._set_value("current_utility", "make_soft_clay")
+
+        self.assertEqual(addon.player_data["current_utility"], "make_soft_clay")
+        self.assertEqual(calls["hud"], ["Utility / Activities"])
+
     def test_xp_multiplier_applies_to_gathering_and_processing_rewards(self):
         addon = _load_addon_as_package("ankiscape_xp_multiplier_integration")
 

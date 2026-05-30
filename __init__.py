@@ -540,6 +540,15 @@ def _on_main_menu():
 def _set_value(key: str, value):
     player_data[key] = value
     save_player_data()
+    # Reflect target/activity changes on the in-review HUD immediately. For XP
+    # skills the HUD shows level/progress (so the target swap is not visible
+    # there), but for Utility/Activities the HUD shows the active activity name,
+    # so switching e.g. "Gather flax" -> "Make soft clay" must update the study
+    # screen right away rather than waiting for the next card.
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
 
 
 def initialize_menu():

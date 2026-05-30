@@ -298,19 +298,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(hud.title_lbl.text(), "Utility / Activities")
         self.assertIn("no XP", hud.sub_lbl.text())
 
-    def test_scraped_sprite_icon_is_cropped_to_fill_box(self) -> None:
-        # Flax ships as a 64x64 sprite with heavy transparent padding; scaled_item_icon
-        # must crop it so the visible art is well under 64px (and thus fills the 28px
-        # icon box) instead of rendering tiny inside the padding.
+    def test_scraped_sprites_are_pretrimmed_on_disk(self) -> None:
+        # Sprites are trimmed to their opaque box at build time (tools/trim_icons.py)
+        # so the UI can use a plain QIcon(path) with no runtime cropping. Verify the
+        # asset itself is tight: a padded 64x64 sprite would defeat that contract.
         import os as _os
+        from aqt.qt import QImage
         flax = _os.path.join(self._ui.current_dir, "crafteditems", "flax.png")
         if not _os.path.exists(flax):
             self.skipTest("flax sprite not present")
-        icon = self._ui.scaled_item_icon(flax)
-        self.assertFalse(icon.isNull())
-        sizes = icon.availableSizes()
-        self.assertTrue(sizes, "cropped icon exposes no pixmap size")
-        self.assertLess(sizes[0].width(), 64, "scraped sprite padding was not cropped")
+        img = QImage(flax)
+        self.assertFalse(img.isNull())
+        self.assertLess(max(img.width(), img.height()), 64,
+                        "flax sprite is not pre-trimmed; run tools/trim_icons.py")
 
     def test_settings_expose_xp_multiplier_under_gameplay(self) -> None:
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]

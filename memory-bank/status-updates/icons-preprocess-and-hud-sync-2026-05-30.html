@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Icon Preprocess + HUD Sync</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:40px 24px;max-width:1100px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--accent);background:var(--accent-glow);border:1px solid var(--accent);padding:5px 12px;border-radius:99px;text-transform:uppercase}
+h1{font-weight:700;font-size:2rem;margin:16px 0 6px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.97rem;max-width:70ch}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:28px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:transform .15s,box-shadow .15s}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.card h3{font-weight:700;font-size:1.05rem;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.plabel{font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;text-transform:uppercase;padding:3px 7px;border-radius:5px;letter-spacing:.05em}
+.p-fix{color:var(--green);background:rgba(74,222,128,.12)}
+.p-major{color:var(--amber);background:rgba(251,191,36,.12)}
+.p-polish{color:var(--purple);background:rgba(167,139,250,.12)}
+.card p{color:var(--text-dim);font-size:.9rem;margin-top:8px}
+.tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.64rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:6px}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.pane{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.pane .lab{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-dim);margin-bottom:8px}
+.pane.bad{border-color:rgba(255,92,92,.3)}
+.pane.good{border-color:rgba(74,222,128,.3)}
+.mockrow{display:flex;align-items:center;gap:8px;font-size:.78rem;padding:4px 0}
+.chip{border-radius:4px;flex:none;background:linear-gradient(135deg,#2a3a2a,#1a241a);border:1px solid #3a4a3a}
+.chip.small{width:11px;height:11px;margin:0 5px}
+.chip.full{width:22px;height:22px}
+.section{margin-top:34px}
+.section h2{font-size:1.2rem;font-weight:700;margin-bottom:14px}
+.steps{display:flex;flex-direction:column;gap:10px}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px}
+.snum{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.8rem;background:var(--accent);color:#06101f;width:24px;height:24px;border-radius:6px;display:grid;place-items:center;flex:none}
+.step .d{font-size:.88rem}
+.step .d b{font-weight:600;color:var(--text)}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.metric .v{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--green)}
+.metric .k{font-size:.7rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.shot{margin-top:14px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+.shot img{display:block;width:100%}
+.cap{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-dim);padding:8px 12px;background:var(--surface-2);border-top:1px solid var(--border)}
+.flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;font-size:.82rem}
+.node{background:var(--surface-2);border:1px solid var(--border);border-radius:7px;padding:8px 12px}
+.node.hl{border-color:var(--accent);color:var(--accent)}
+.arr{color:var(--text-dim)}
+.note{margin-top:28px;padding:14px 16px;background:rgba(79,140,255,.07);border:1px solid rgba(79,140,255,.25);border-radius:10px;font-size:.86rem;color:var(--text-dim)}
+.note b{color:var(--text)}
+</style>
+</head>
+<body>
+  <span class="badge">Second pass · Bugfix</span>
+  <h1>Icons baked, not computed. HUD now tracks your activity.</h1>
+  <p class="sub">You called it: the runtime "rendering math" was the wrong layer. Padding is now trimmed into the PNG once, so the UI just does <code>QIcon(path)</code> like it always did. And switching activity in the menu now updates the reviewer immediately.</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3><span class="plabel p-fix">FIX</span> Preprocess, don't render-math</h3>
+      <p>Small wiki sprites ship as art centered in a transparent 64×64 box, so they looked tiny in the icon slot. Instead of cropping every paint, a build-time pass trims each small sprite to its opaque box. Plain <code>QIcon(path)</code> from then on — no scan, no cache, no size-gate, no beachball.</p>
+      <div class="split">
+        <div class="pane bad">
+          <div class="lab">Before · runtime crop</div>
+          <div class="mockrow"><span class="chip small"></span>Flax (tiny in 64px pad)</div>
+          <div class="mockrow" style="color:var(--red);font-size:.7rem">scans 1500px photos → freeze</div>
+        </div>
+        <div class="pane good">
+          <div class="lab">After · pre-trimmed PNG</div>
+          <div class="mockrow"><span class="chip full"></span>Flax (fills the box)</div>
+          <div class="mockrow" style="color:var(--green);font-size:.7rem">QIcon(path), zero runtime work</div>
+        </div>
+      </div>
+      <div class="tags">
+        <span class="tag">tools/trim_icons.py</span>
+        <span class="tag">ui.py −95 lines</span>
+        <span class="tag">26 sprites trimmed</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3><span class="plabel p-major">MAJOR</span> Activity → reviewer sync</h3>
+      <p>Picking a new activity (e.g. <i>Gather flax → Make soft clay</i>) only saved config; the in-review HUD kept showing the old one until the next card. Now any target change pushes straight to the HUD.</p>
+      <div class="flow">
+        <span class="node">Pick activity</span><span class="arr">→</span>
+        <span class="node">save</span><span class="arr">→</span>
+        <span class="node hl">update_review_hud()</span><span class="arr">→</span>
+        <span class="node">study screen</span>
+      </div>
+      <p style="margin-top:12px"><b style="color:var(--text)">Re: gather/process targets —</b> they go through the same <code>_set_value</code> path, so they're now consistent too. The HUD intentionally shows level/XP progress (not the ore/tree name) for XP skills, so a target swap there is a no-op on screen by design; Utility is the only one whose HUD text is the activity, which is exactly the case you hit.</p>
+      <div class="tags"><span class="tag">__init__.py · _set_value</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Verification — bank, rendered offscreen with plain QIcon</h2>
+    <div class="shot">
+      <img src="icons_pretrimmed_bank.png" alt="Bank list with correctly-sized icons">
+      <div class="cap">Flax · Wool · Arrow shafts · Bronze arrows — all fill the icon box from the trimmed asset alone (no runtime cropping in the codebase).</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>What changed</h2>
+    <div class="steps">
+      <div class="step"><div class="snum">1</div><div class="d"><b>New build tool</b> — <code>tools/trim_icons.py</code> alpha-trims small (≤256px) padded sprites in place, skips the big full-frame photos, idempotent, Pillow-or-QImage backend. Ran it: 26 trimmed, large crafted photos untouched.</div></div>
+      <div class="step"><div class="snum">2</div><div class="d"><b>Removed runtime cropping</b> — deleted <code>icon_filled_to_box</code>, <code>scaled_item_icon</code>, the cache + size-gate. All four call sites (craft / fletch / utility / bank) revert to <code>QIcon(path)</code>.</div></div>
+      <div class="step"><div class="snum">3</div><div class="d"><b>HUD live sync</b> — <code>_set_value</code> now calls <code>update_review_hud</code> after persisting, so activity/target changes hit the reviewer right away.</div></div>
+      <div class="step"><div class="snum">4</div><div class="d"><b>Docs</b> — <code>techContext.md</code> + <code>fetch_assets.py</code> updated: the runtime-crop experiment is documented as reverted; preprocessing (scrape-time trim + <code>trim_icons.py</code>) is the convention.</div></div>
+    </div>
+    <div class="metrics">
+      <div class="metric"><div class="v">123</div><div class="k">tests pass</div></div>
+      <div class="metric"><div class="v">26</div><div class="k">sprites baked</div></div>
+      <div class="metric"><div class="v">0</div><div class="k">runtime icon math</div></div>
+      <div class="metric"><div class="v">~0ms</div><div class="k">crafting open</div></div>
+    </div>
+  </div>
+
+  <div class="note"><b>Earlier in this pass</b> (already in): the dark-mode "Start activity" button + subtext contrast fix, and the floating <code>+28 Flax</code> ghost indicator for no-XP activities. Tests: the old "runtime-crop" assertion was rewritten to assert the asset is <i>pre-trimmed on disk</i>, plus a new integration test that a target change calls <code>update_review_hud</code>.</div>
+</body>
+</html>

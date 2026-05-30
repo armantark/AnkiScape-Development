@@ -175,58 +175,10 @@ _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
 _XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
 
-def icon_filled_to_box(path: str):
-    """Build a QIcon whose visible sprite fills the list's icon box.
-
-    The fletched-item sprites ship as 64x64 PNGs with large transparent
-    margins, so at the shared 28px icon size they rendered much smaller than the
-    legacy edge-to-edge artwork. Cropping to the opaque bounding box before Qt
-    downscales makes new items match the old ones. Returns None on any failure
-    so callers can fall back to a plain QIcon(path).
-    """
-    try:
-        from aqt.qt import QImage, QRect  # type: ignore
-    except Exception:
-        return None
-    try:
-        img = QImage(path)
-        if img.isNull():
-            return None
-        if img.hasAlphaChannel():
-            w, h = img.width(), img.height()
-            min_x, min_y, max_x, max_y = w, h, -1, -1
-            for y in range(h):
-                for x in range(w):
-                    if img.pixelColor(x, y).alpha() > 8:
-                        min_x = min(min_x, x)
-                        min_y = min(min_y, y)
-                        max_x = max(max_x, x)
-                        max_y = max(max_y, y)
-            if max_x >= min_x and max_y >= min_y:
-                img = img.copy(QRect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1))
-        return QIcon(QPixmap.fromImage(img))
-    except Exception:
-        return None
-
-
-# Folders holding scraped wiki sprites. Their PNGs carry transparent padding (the
-# fetch tool centers a thumbnail on an NxN canvas), so they need the opaque-box
-# crop to render at the same visual size as legacy full-frame artwork. Legacy
-# photo icons live in other folders and are left untouched (cheap + correct).
-_SCRAPED_SPRITE_DIRS = ("crafteditems", "fletcheditems")
-
-
-def scaled_item_icon(path: str):
-    """Return a QIcon for an item, cropping scraped-sprite padding when present.
-
-    Routes scraped wiki sprites (crafteditems/, fletcheditems/) through
-    ``icon_filled_to_box`` so transparent margins do not shrink them in list/bank
-    views; everything else uses a plain ``QIcon`` to avoid scanning large
-    full-frame photos pixel-by-pixel.
-    """
-    if path and any(f"{os.sep}{d}{os.sep}" in path for d in _SCRAPED_SPRITE_DIRS):
-        return icon_filled_to_box(path) or QIcon(path)
-    return QIcon(path)
+# Item sprites are pre-trimmed at build time (see tools/trim_icons.py and the
+# fetch_assets.py alpha-trim step), so the UI just uses plain QIcon(path) — no
+# runtime cropping. Re-run tools/trim_icons.py if a freshly added sprite ever
+# looks small in its icon box.
 
 
 def _item_def_for(storage_key: str) -> Optional["ItemDefinition"]:
@@ -1142,7 +1094,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, item_name)
             c_icon = CRAFTED_ITEM_IMAGES.get(item_name)
             if c_icon and os.path.exists(c_icon):
-                item.setIcon(scaled_item_icon(c_icon))
+                item.setIcon(QIcon(c_icon))
             lvl_req = spec.get('level', 1)
             lvl_have = player_data.get("crafting_level", 1)
             inv = player_data.get('inventory', {})
@@ -1200,7 +1152,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, target_key)
             f_icon = FLETCHED_ITEM_IMAGES.get(output_item)
             if f_icon and os.path.exists(f_icon):
-                item.setIcon(scaled_item_icon(f_icon))
+                item.setIcon(QIcon(f_icon))
             lvl_req = spec.get('level', 1)
             lvl_have = player_data.get("fletching_level", 1)
             inv = player_data.get('inventory', {})
@@ -1255,7 +1207,7 @@ def show_main_menu(
             item.setData(Qt.ItemDataRole.UserRole, activity_key)
             u_icon = UTILITY_ITEM_IMAGES.get(output_item)
             if u_icon and os.path.exists(u_icon):
-                item.setIcon(scaled_item_icon(u_icon))
+                item.setIcon(QIcon(u_icon))
             reqs = spec.get("requirements", {})
             if reqs:
                 mat_lines = [f"{mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
@@ -1437,7 +1389,7 @@ def show_main_menu(
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
         if card is None:
             hint = QLabel("Select a skill to begin.")
-            hint.setStyleSheet("color: palette(mid);")
+            hint.setStyleSheet("color: palette(text); font-size: 11px;")
             panel_layout.addWidget(hint)
             panel_layout.addStretch(1)
             return
@@ -1473,8 +1425,12 @@ def show_main_menu(
                 train_btn.setText("Start activity" if is_utility else "Train this skill")
                 train_btn.setEnabled(available)
                 train_btn.setStyleSheet(
+                    # Use the base/text palette pairing (same as the category and
+                    # list widgets) rather than button/buttonText: on macOS dark
+                    # mode the button face renders light, which washed out the
+                    # text. base+text stays legible in both themes.
                     "QPushButton { padding: 6px 12px; border: 1px solid palette(mid);"
-                    " border-radius: 6px; color: palette(text); background: palette(button); }"
+                    " border-radius: 6px; color: palette(text); background: palette(base); }"
                     " QPushButton:hover { border-color: #4CAF50; }"
                     " QPushButton:disabled { color: palette(mid); }"
                 )
@@ -1498,13 +1454,15 @@ def show_main_menu(
         if is_utility:
             note = QLabel("Material prep — earns no XP. Each successful review processes a batch.")
             note.setWordWrap(True)
-            note.setStyleSheet("color: palette(mid); font-style: italic;")
+            # palette(mid) is a border role and renders near-black in dark mode;
+            # use palette(text) (smaller/italic) so the note stays readable.
+            note.setStyleSheet("color: palette(text); font-size: 11px; font-style: italic;")
             panel_layout.addWidget(note)
 
         if not card.implemented:
             note = QLabel("This skill is planned but not yet playable.")
             note.setWordWrap(True)
-            note.setStyleSheet("color: palette(mid);")
+            note.setStyleSheet("color: palette(text); font-size: 11px;")
             panel_layout.addWidget(note)
             panel_layout.addStretch(1)
             return
@@ -1753,10 +1711,7 @@ def show_main_menu(
             li = QListWidgetItem(f"{item_name} x{amount}")
             icon_path = _bank_icon_path(item_name, asset_path)
             if icon_path:
-                # Scraped sprites (fletched + crafted/utility materials like Flax)
-                # ship with transparent padding; crop them so they fill the icon
-                # box like the legacy edge-to-edge artwork.
-                li.setIcon(scaled_item_icon(icon_path))
+                li.setIcon(QIcon(icon_path))
             bank_list.addItem(li)
     bk_layout.addWidget(bank_list)
     tabs.addTab(bank_tab, "Bank")
