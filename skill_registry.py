@@ -95,7 +95,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         level_key="fletching_level",
         exp_key="fletching_exp",
         current_target_key="current_fletch",
-        default_target="Arrow shafts",
+        default_target="arrow_shafts",
         review_handler_key="fletching",
         visible_in_skill_hub=True,
     ),

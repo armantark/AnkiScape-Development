@@ -1,6 +1,6 @@
 # hooks.py - centralized hook registration for AnkiScape
 from __future__ import annotations
-from typing import Callable, Dict, List, Optional, TypedDict
+from typing import Callable, Dict, List, TypedDict
 
 try:
     from aqt import gui_hooks  # type: ignore
@@ -20,6 +20,7 @@ class HookCallbacks(TypedDict, total=False):
     reviewer_question: List[Callable]
     reviewer_answer: List[Callable]
     answer_wrapper: Callable
+    state_did_undo: List[Callable]
 
 
 _REGISTERED = False
@@ -32,6 +33,7 @@ def build_registration_plan(callbacks: HookCallbacks) -> Dict[str, int]:
         "reviewer_did_show_question": len(callbacks.get("reviewer_question", [])),
         "reviewer_did_show_answer": len(callbacks.get("reviewer_answer", [])),
         "wrap_reviewer_answerCard": 1 if callbacks.get("answer_wrapper") else 0,
+        "state_did_undo": len(callbacks.get("state_did_undo", [])),
     }
 
 
@@ -73,6 +75,16 @@ def register_hooks(callbacks: HookCallbacks, *, dry_run: bool = False) -> Dict[s
     if answer_wrapper:
         try:
             Reviewer._answerCard = wrap(Reviewer._answerCard, answer_wrapper, "around")  # type: ignore[attr-defined]
+        except Exception:
+            pass
+
+    for cb in callbacks.get("state_did_undo", []):
+        try:
+            try:
+                gui_hooks.state_did_undo.remove(cb)  # type: ignore[attr-defined]
+            except Exception:
+                pass
+            gui_hooks.state_did_undo.append(cb)  # type: ignore[attr-defined]
         except Exception:
             pass
 
