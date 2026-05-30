@@ -20,6 +20,8 @@ A project-local Cursor skill now exists at `.cursor/skills/ankiscape-skill-expan
 
 Crafting/Utility backend rework is now complete. `Soft clay` is no longer a Crafting XP target; no-XP Utility/Activities handle `Clay -> Soft clay` in batches up to 28. The audited Crafting pilot now includes pottery shaping/firing, wool spinning, bowstring spinning, and silver bolts (unf). A backend XP multiplier read path exists under `ankiscape_xp_multiplier`, with source XP preserved in recipe data and scaling applied only at reward time.
 
+The Crafting/Utility **frontend** pass is now also complete. Utility/Activities is surfaced as a synthetic, visually-distinct Skills-hub category (it is deliberately *not* a registry XP skill — no level/exp keys — and is routed through `_UTILITY_SKILL_NAMES` + `current_utility`). Its target list shows batch + "no Crafting XP" tooltips and persists the active activity via a new `on_set_utility` callback bridged in `__init__`. Crafting tooltips now show output qty / batch size; Soft clay no longer appears as a craft target. The review HUD recognizes the active Utility activity and states it earns no XP. Settings are reorganized into Gameplay / Notifications / Floating Widget / Developer, with a clamped XP-multiplier spin under Gameplay writing `ankiscape_xp_multiplier`.
+
 ## Key Product Decision
 The project can borrow broad inspiration from idle-RPG progression, including Melvor Idle-like long-term loops, but should not copy Melvor's concrete content, balancing, UI, or structure (because it is inferior to RuneScape, but combat is an interesting carryover). The Anki review loop remains the core mechanic.
 
@@ -32,21 +34,19 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 - Anki config migration mistakes could affect persisted player progress.
 - Running both the upstream `1808450369` copy and the local `ankiscape_fork` copy at the same time could double-register menus/hooks.
 - The backend registry is only the first layer; the Qt menu is still per-skill/top-tab oriented and will overload once many skills become playable.
-- Fletching is playable, but Stats/Bank/HUD are still not registry-driven enough to make the new skill/items feel fully integrated.
-- Utility/Activities now have backend data/mechanics but still need a visible frontend panel that makes the no-XP tradeoff obvious before exposing them broadly.
-- The XP multiplier backend is live, but the Settings page still needs the Gameplay section control before users can tune it without direct config edits.
 - The asset scraper records provenance, but existing asset provenance is still unaudited until icons are re-fetched or manually cataloged.
 - Future game state stored outside `player_data` must be made undo-aware; the current rollback is intentionally scoped to review reward mutations in `player_data`.
 
 ## Next Recommended Work
-1. Frontend handoff: surface Utility/Activities, remove Soft clay from the Crafting target UI, add no-XP/batch tooltips, and expose the XP multiplier under a Gameplay settings section.
-2. Make Stats/Bank/HUD registry-driven so Fletching level, XP, and inventory items appear cleanly outside the Skills hub.
-3. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
-4. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
-5. Only then design combat and Slayer task layering.
+1. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
+2. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
+3. Consider a small Utility/Activities icon set (currently the activity outputs reuse `crafteditems/` material art; the hub category/skill row falls back to the generic achievement icon).
+4. Only then design combat and Slayer task layering.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.
+
+The Crafting/Utility frontend handoff is also complete (see above): Utility/Activities surfaced as a no-XP hub category, Crafting target tooltips show batch/output, the HUD speaks the no-XP Utility state, and Settings carry the Gameplay XP-multiplier control. Pattern worth remembering: **non-XP "skills" (Utility/Activities) are injected at the ui view layer as a synthetic `CategoryView`/`SkillCardView`, not added to `skill_registry`**, so the XP registry stays honest (no fake level/exp keys). Reuse this approach for any future no-XP action family.
 
 ## Testing Workflow Note
 UI-behavior regressions in the menu/HUD should be exercised with the offscreen Qt loop (`.venv-qt` + `aqt`, `QT_QPA_PLATFORM=offscreen`, see `tests/test_main_menu_widget.py`) before falling back to a manual Anki restart. Enable `ANKISCAPE_DEBUG=1` (or Developer Mode) and tail `ankiscape_debug.log` to read the `hub.*` navigation trace.

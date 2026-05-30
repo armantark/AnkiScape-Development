@@ -19,16 +19,15 @@
 - Fletching exists as the first expanded playable skill: registry metadata, save defaults/migration keys, target panel, item manifest outputs/materials, pure processing logic, runtime review dispatch, and scraped output/material icons are in place.
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, a central XP multiplier read path, migration coverage, and undo-safe review handling.
+- Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped XP-multiplier control. Covered by offscreen Qt tests.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
-- Registry-driven Stats/Bank/HUD surfaces for skills beyond the original four.
 - Combat.
-- Registry-driven Stats/Bank/HUD surfaces (still hardcoded to the four skills).
 - Formal balancing pass for long-term progression.
 - A release-quality expansion spec.
 - Backfilled provenance for the existing bundled assets.
-- Frontend surfacing for Utility/Activities and the XP multiplier settings control.
+- A dedicated icon set for Utility/Activities (activities currently reuse `crafteditems/` material art; the hub row falls back to the achievement icon).
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.

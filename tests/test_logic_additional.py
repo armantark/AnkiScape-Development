@@ -124,9 +124,9 @@ class TestLogicAdditional(unittest.TestCase):
         self.assertFalse(can_craft_item_pure(99, {}, "Missing", {"Soft clay": {"level": 1, "requirements": {}}}))
 
     def test_fletching_unknown_target_and_missing_materials(self):
-        fletching_data = {"Arrow shafts": {"level": 1, "requirements": {"Tree": 1}, "output_qty": 15}}
+        fletching_data = {"arrow_shafts": {"level": 1, "requirements": {"Tree": 1}, "output_qty": 15}}
         self.assertFalse(can_fletch_item_pure(99, {"Tree": 1}, "Missing", fletching_data))
-        self.assertFalse(can_fletch_item_pure(1, {}, "Arrow shafts", fletching_data))
+        self.assertFalse(can_fletch_item_pure(1, {}, "arrow_shafts", fletching_data))
         new_inv, exp, ok = apply_fletching_pure("Missing", {"Tree": 1}, fletching_data)
         self.assertFalse(ok)
         self.assertEqual(exp, 0)

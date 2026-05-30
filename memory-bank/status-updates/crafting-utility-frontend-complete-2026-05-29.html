@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Crafting / Utility — Frontend Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,rgba(167,139,250,.10),transparent 40%),radial-gradient(circle at 78% 12%,rgba(79,140,255,.16),transparent 26rem),var(--bg);color:var(--text);font-family:"Outfit",sans-serif;padding:42px}
+main{max-width:1180px;margin:0 auto}
+.badge{display:inline-flex;padding:8px 12px;border-radius:999px;border:1px solid rgba(74,222,128,.4);background:rgba(74,222,128,.1);color:var(--green);font-family:"JetBrains Mono",monospace;font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+h1{margin:18px 0 10px;font-size:clamp(2rem,5vw,3.7rem);line-height:.98;letter-spacing:-.04em}
+.sub{max-width:880px;color:var(--text-dim);font-size:1.04rem;line-height:1.62;margin:0 0 26px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 30px}
+.metric{border:1px solid var(--border);background:rgba(22,26,33,.88);border-radius:var(--radius);padding:18px}
+.metric b{display:block;font-size:1.9rem;line-height:1}
+.metric span{display:block;margin-top:8px;color:var(--text-dim);font-family:"JetBrains Mono",monospace;font-size:.66rem;text-transform:uppercase;letter-spacing:.08em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{border:1px solid var(--border);background:rgba(22,26,33,.9);border-radius:var(--radius);padding:22px}
+.card h2{margin:0 0 6px;font-size:1.12rem;display:flex;align-items:center;gap:10px}
+.plabel{font-family:"JetBrains Mono",monospace;font-size:.6rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;padding:4px 8px;border-radius:6px}
+.p-green{color:var(--green);background:rgba(74,222,128,.12)}
+.p-purple{color:var(--purple);background:rgba(167,139,250,.12)}
+.p-amber{color:var(--amber);background:rgba(251,191,36,.12)}
+.p-blue{color:var(--accent);background:var(--accent-glow)}
+.card p{margin:8px 0 0;color:var(--text-dim);font-size:.95rem;line-height:1.6}
+.shot{width:100%;border:1px solid var(--border);border-radius:10px;margin-top:14px;display:block}
+.shots{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0 30px}
+.cap{font-family:"JetBrains Mono",monospace;font-size:.64rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em;margin:10px 0 0}
+.tag{display:inline-flex;margin:6px 6px 0 0;padding:5px 8px;border-radius:7px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);font-family:"JetBrains Mono",monospace;font-size:.66rem}
+.decision{border:1px solid rgba(167,139,250,.4);background:rgba(167,139,250,.07);border-radius:var(--radius);padding:22px;margin:30px 0}
+.decision h2{margin:0 0 10px;font-size:1.1rem;color:var(--purple)}
+.decision code{font-family:"JetBrains Mono",monospace;font-size:.85em;color:var(--text);background:var(--surface-2);padding:2px 6px;border-radius:5px}
+.decision p{color:var(--text-dim);line-height:1.65;margin:8px 0}
+.flow{display:grid;grid-template-columns:1fr 38px 1fr;gap:10px;align-items:center;margin-top:12px}
+.pane{border:1px solid var(--border);background:var(--surface-2);border-radius:10px;padding:12px}
+.pane .l{font-family:"JetBrains Mono",monospace;font-size:.6rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.pane .row{font-size:.84rem;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pane .row:last-child{border:0}
+.arr{text-align:center;color:var(--accent);font-family:"JetBrains Mono",monospace}
+h3.section{font-size:.78rem;font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);margin:34px 0 14px}
+ol.next{margin:0;padding:0;list-style:none;counter-reset:s}
+ol.next li{counter-increment:s;display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);color:var(--text-dim);font-size:.95rem;line-height:1.55}
+ol.next li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:7px;background:var(--accent-glow);color:var(--accent);font-family:"JetBrains Mono",monospace;font-weight:600;display:grid;place-items:center;font-size:.8rem}
+ol.next li b{color:var(--text);font-weight:600}
+@media(max-width:920px){body{padding:24px}.metrics,.grid,.shots,.flow{grid-template-columns:1fr}.arr{display:none}}
+</style>
+</head>
+<body>
+<main>
+<span class="badge">Frontend Complete · Claude</span>
+<h1>Utility prep gets a home. Crafting stays honest.</h1>
+<p class="sub">The Crafting/Utility rework's frontend half is in. The Skills hub now surfaces <b>Utility / Activities</b> as a no-XP material-prep bucket, the review HUD speaks its no-XP state, Crafting tooltips reveal batch/output, and Settings are regrouped with a tunable XP multiplier under Gameplay — all without making Utility a fake XP skill.</p>
+
+<section class="metrics">
+<div class="metric"><b>121</b><span>Tests · both suites</span></div>
+<div class="metric"><b>+4</b><span>New Qt UI tests</span></div>
+<div class="metric"><b>3</b><span>Utility activities</span></div>
+<div class="metric"><b>4</b><span>Settings sections</span></div>
+</section>
+
+<div class="shots">
+<figure style="margin:0">
+<img class="shot" src="utility_hub_preview.png" alt="Utility / Activities hub" />
+<figcaption class="cap">Skills hub → Utility / Activities: distinct category, no-level header, italic "earns no XP" note, batched activity list.</figcaption>
+</figure>
+<figure style="margin:0">
+<img class="shot" src="settings_sections_preview.png" alt="Reorganized settings" />
+<figcaption class="cap">Settings → Gameplay / Notifications / Floating Widget / Developer, with the clamped XP multiplier spin.</figcaption>
+</figure>
+</div>
+
+<section class="grid">
+<div class="card">
+<h2><span class="plabel p-green">Hub</span> Utility / Activities surfaced</h2>
+<p>A synthetic, visually-distinct category below the registry skills. Activity rows (<code>make_soft_clay</code>, <code>gather_wool</code>, <code>gather_flax</code>) carry tooltips that lead with <i>"Processes up to 28 per successful card. No Crafting XP."</i> Selection persists <code>current_utility</code>; "Start activity" / "Currently active" replace the XP-skill "Train" verbs.</p>
+</div>
+<div class="card">
+<h2><span class="plabel p-amber">Crafting</span> Soft clay gone, batch shown</h2>
+<p>Soft clay is no longer a craft target (it moved to Utility in the backend). Craft tooltips now show <code>Output: x{qty}</code> and "up to N per successful card" for batched recipes (Ball of wool, Bow string) and multi-output ones (Silver bolts ×10).</p>
+</div>
+<div class="card">
+<h2><span class="plabel p-blue">HUD</span> No-XP state, not "no skill"</h2>
+<p>When Utility is active, the review HUD shows the activity name and <i>"material prep (no XP)"</i> with the progress bar hidden — instead of falling back to the "No skill selected" placeholder it used to hit for unrecognized skills.</p>
+</div>
+<div class="card">
+<h2><span class="plabel p-purple">Settings</span> Sections + XP multiplier</h2>
+<p>Regrouped into <b>Gameplay</b> (XP multiplier + experience HUD), <b>Notifications</b> (floating XP + popups), <b>Floating Widget</b> (enable + position), and <b>Developer</b>. The multiplier writes <code>ankiscape_xp_multiplier</code>, clamped through <code>sanitize_xp_multiplier</code> before persisting.</p>
+</div>
+</section>
+
+<div class="decision">
+<h2>Design call: Utility is NOT a registry skill</h2>
+<p>Utility/Activities has no level or XP, so adding it to <code>skill_registry</code> would force fake <code>*_level</code>/<code>*_exp</code> keys and make <code>is_review_skill</code> lie. Instead it's injected at the <code>ui</code> view layer as a synthetic <code>CategoryView</code>/<code>SkillCardView</code>, routed through <code>_UTILITY_SKILL_NAMES</code> + <code>current_utility</code> (matching the backend's existing contract).</p>
+<div class="flow">
+<div class="pane"><div class="l">Rejected</div><div class="row">Add "Utility" to skill_registry</div><div class="row">→ fake level/exp keys</div><div class="row">→ pollutes Stats, XP dispatch</div></div>
+<div class="arr">vs</div>
+<div class="pane"><div class="l">Shipped</div><div class="row">View-layer synthetic card</div><div class="row">→ registry stays XP-honest</div><div class="row">→ reusable for any no-XP family</div></div>
+</div>
+</div>
+
+<h3 class="section">Wiring touched</h3>
+<span class="tag">ui.py · _build_utility_list</span>
+<span class="tag">ui.py · synthetic CategoryView</span>
+<span class="tag">ui.py · _render_panel (no-XP header)</span>
+<span class="tag">ui.py · ReviewHUD.set_data</span>
+<span class="tag">ui.py · settings sections + QDoubleSpinBox</span>
+<span class="tag">__init__.py · on_set_utility bridge</span>
+<span class="tag">tests/test_main_menu_widget.py · +4</span>
+
+<h3 class="section">What's next</h3>
+<ol class="next">
+<li><b>Economy sources</b> — decide how arrowtips/feathers enter play (dev-seed, Smithing, Utility, or shop/drop) before widening recipes.</li>
+<li><b>Utility iconography</b> — activities reuse <code>crafteditems/</code> material art and the hub row falls back to the achievement icon; a small dedicated set would sharpen the distinction.</li>
+<li><b>Manual pass in Anki</b> — verify a live review with Utility active increments inventory, awards no XP, and rolls back on Cmd-Z; confirm the multiplier scales a real XP skill.</li>
+</ol>
+</main>
+</body>
+</html>
