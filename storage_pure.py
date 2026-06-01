@@ -3,6 +3,7 @@ from typing import Dict, Iterable, Optional, Any
 
 try:
     from .item_registry import ItemDefinition
+    from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .skill_registry import default_skill_state, default_target_state
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
@@ -11,6 +12,7 @@ try:
     )
 except ImportError:
     from item_registry import ItemDefinition
+    from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from skill_registry import default_skill_state, default_target_state
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
@@ -18,7 +20,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 7
+CURRENT_CONFIG_VERSION = 8
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 
 _LEGACY_FLETCHING_TARGETS = {
@@ -35,7 +37,18 @@ _LEGACY_FLETCHING_TARGETS = {
 
 def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, int]:
     if item_definitions is None:
-        return {ore: 0 for ore in ORE_DATA}
+        inventory: Dict[str, int] = {}
+        for spec in ORE_DATA.values():
+            output_item = spec.get("output_item")
+            if isinstance(output_item, str):
+                inventory.setdefault(output_item, 0)
+            alternate_output = spec.get("alternate_output_item")
+            if isinstance(alternate_output, str):
+                inventory.setdefault(alternate_output, 0)
+            for weighted in spec.get("weighted_outputs", ()):
+                if isinstance(weighted, dict) and isinstance(weighted.get("item"), str):
+                    inventory.setdefault(str(weighted["item"]), 0)
+        return inventory
     inventory: Dict[str, int] = {}
     for item in item_definitions:
         inventory.setdefault(item.storage_key, 0)
@@ -55,11 +68,25 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["toolbelt"] = _default_toolbelt()
+    data["owned_equipment"] = []
     return data
 
 
 def _default_toolbelt() -> Dict[str, list[str]]:
-    return {skill: list(items) for skill, items in DEFAULT_WOODCUTTING_TOOLBELT.items()}
+    defaults: Dict[str, list[str]] = {}
+    for source in (DEFAULT_WOODCUTTING_TOOLBELT, DEFAULT_MINING_TOOLBELT):
+        for skill, items in source.items():
+            defaults.setdefault(skill, [])
+            defaults[skill].extend(item for item in items if item not in defaults[skill])
+    return defaults
+
+
+def _migrate_legacy_mining_target(data: Dict[str, Any], ore_data: Dict[str, Any]) -> None:
+    current_ore = data.get("current_ore")
+    if isinstance(current_ore, str):
+        data["current_ore"] = LEGACY_ORE_TARGETS.get(current_ore, current_ore)
+    if data.get("current_ore") not in ore_data:
+        data["current_ore"] = DEFAULT_MINING_TARGET
 
 
 def _migrate_legacy_woodcutting_target(data: Dict[str, Any]) -> None:
@@ -103,6 +130,23 @@ def _migrate_toolbelt(data: Dict[str, Any]) -> None:
     data["toolbelt"] = toolbelt
 
 
+def _migrate_owned_equipment(data: Dict[str, Any]) -> None:
+    owned = data.get("owned_equipment")
+    if isinstance(owned, str):
+        items = [owned]
+    elif isinstance(owned, list):
+        items = [item for item in owned if isinstance(item, str)]
+    elif isinstance(owned, tuple):
+        items = [item for item in owned if isinstance(item, str)]
+    else:
+        items = []
+    deduped: list[str] = []
+    for item in items:
+        if item not in deduped:
+            deduped.append(item)
+    data["owned_equipment"] = deduped
+
+
 def migrate_loaded_data(
     loaded: Dict[str, Any],
     ORE_DATA: Dict[str, Any],
@@ -129,6 +173,7 @@ def migrate_loaded_data(
     for key, value in default_target_state().items():
         data.setdefault(key, value)
     data.setdefault("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    _migrate_legacy_mining_target(data, ORE_DATA)
     _migrate_legacy_woodcutting_target(data)
     if isinstance(data.get("current_fletch"), str):
         data["current_fletch"] = _LEGACY_FLETCHING_TARGETS.get(data["current_fletch"], data["current_fletch"])
@@ -158,6 +203,7 @@ def migrate_loaded_data(
         data["current_craft"] = ""
         data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     _migrate_toolbelt(data)
+    _migrate_owned_equipment(data)
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.

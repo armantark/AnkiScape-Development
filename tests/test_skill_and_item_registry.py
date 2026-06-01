@@ -6,8 +6,9 @@ from constants import (
     FLETCHING_DATA,
     GEM_DATA,
     ITEM_DEFINITIONS,
-    ORE_DATA,
-    TREE_DATA,
+    MINING_BONUS_ITEM_DATA,
+    MINING_OUTPUT_ITEMS,
+    MINING_PICKAXE_DATA,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
@@ -87,7 +88,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(
             default_target_state(),
             {
-                "current_ore": "Rune essence",
+                "current_ore": "rune_essence",
                 "current_tree": "tree",
                 "current_bar": "Bronze bar",
                 "current_craft": "",
@@ -110,10 +111,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             material
             for spec in UTILITY_ACTIVITY_DATA.values()
             for material in spec.get("requirements", {})
-            if material not in ORE_DATA
+            if material not in MINING_OUTPUT_ITEMS
         ]
         for item_name in (
-            list(ORE_DATA)
+            list(MINING_OUTPUT_ITEMS)
             + list(WOODCUTTING_LOG_ITEMS)
             + list(GEM_DATA)
             + list(BAR_DATA)
@@ -123,19 +124,31 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + utility_outputs
             + utility_materials
             + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
+            + [spec["display_name"] for spec in MINING_PICKAXE_DATA.values()]
+            + [spec["display_name"] for spec in MINING_BONUS_ITEM_DATA.values()]
         ):
             self.assertIn(item_name, by_storage_key)
 
         by_id = item_definitions_by_id(ITEM_DEFINITIONS)
         self.assertEqual(len(by_id), len(ITEM_DEFINITIONS))
-        self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "ore")), set(ORE_DATA))
+        self.assertIn("Rune essence", item_storage_keys_by_category(ITEM_DEFINITIONS, "ore"))
+        self.assertIn("Runite ore", item_storage_keys_by_category(ITEM_DEFINITIONS, "ore"))
+        self.assertIn("Granite (5kg)", item_storage_keys_by_category(ITEM_DEFINITIONS, "ore"))
+        self.assertIn("Uncut opal", item_storage_keys_by_category(ITEM_DEFINITIONS, "gem"))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")), set(WOODCUTTING_LOG_ITEMS))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "bar")), set(BAR_DATA))
         self.assertIn("Bronze hatchet", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
+        self.assertIn("Bronze pickaxe", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
+        self.assertIn("Varrock armour 1", item_storage_keys_by_category(ITEM_DEFINITIONS, "equipment"))
         self.assertIn("Arrow shafts", item_storage_keys_by_category(ITEM_DEFINITIONS, "fletched"))
         self.assertIn("Soft clay", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Wool", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Flax", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertFalse(by_storage_key["Blurite ore"].tradeable)
+        self.assertTrue(by_storage_key["Dragon pickaxe"].tradeable)
+        self.assertFalse(by_storage_key["Inferno adze"].tradeable)
+        self.assertFalse(by_storage_key["Varrock armour 4"].tradeable)
+        self.assertEqual(by_storage_key["Varrock armour 4"].equipment_slot, "chest")
 
     def test_crafting_pilot_data_matches_utility_split(self):
         self.assertNotIn("Soft clay", CRAFTING_DATA)

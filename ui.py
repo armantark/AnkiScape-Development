@@ -50,6 +50,9 @@ try:
     from .constants import (
         EXP_TABLE,
         ORE_DATA,
+        MINING_OUTPUT_ITEMS,
+        MINING_PICKAXE_DATA,
+        DEFAULT_MINING_TARGET,
         TREE_DATA,
         WOODCUTTING_AXE_DATA,
         WOODCUTTING_LOG_ITEMS,
@@ -76,6 +79,9 @@ except Exception:
     from constants import (  # type: ignore
         EXP_TABLE,
         ORE_DATA,
+        MINING_OUTPUT_ITEMS,
+        MINING_PICKAXE_DATA,
+        DEFAULT_MINING_TARGET,
         TREE_DATA,
         WOODCUTTING_AXE_DATA,
         WOODCUTTING_LOG_ITEMS,
@@ -98,9 +104,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -181,6 +187,16 @@ def playable_review_skill_names() -> tuple:
 _UTILITY_HUB_NAME = "Utility / Activities"
 _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
 _XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
+
+# Backend (mining_data.DEFERRED_MINING_CONTENT) deliberately defers the
+# "concentrated" coal/gold deposits: their 2011Scape distinction is Living Rock
+# Caverns depletion behavior, which AnkiScape's review loop doesn't model. We
+# surface that as honest tooltip copy on the ordinary rows rather than letting a
+# player wonder why concentrated variants are missing. Keyed by stable target ID.
+_MINING_DEFERRED_VARIANT_NOTES = {
+    "coal": "Concentrated coal deposits are deferred (Living Rock Caverns depletion isn't modeled); this row mines ordinary coal.",
+    "gold": "Concentrated gold deposits are deferred (Living Rock Caverns depletion isn't modeled); this row mines ordinary gold.",
+}
 
 
 # Item sprites are pre-trimmed at build time (see tools/trim_icons.py and the
@@ -1024,22 +1040,93 @@ def show_main_menu(
 
     # ---- target list builders (one per implemented skill) ----
     def _build_ore_list() -> QListWidget:
+        # ORE_DATA is keyed by stable target IDs ("rune_essence", "coal", ...).
+        # Mirrors _build_tree_list: the row text shows the friendly display name +
+        # level, the chosen ID is stored on the item and persisted via on_set_ore,
+        # and lock reasons distinguish level from a missing usable pickaxe. Lock
+        # state and best-pickaxe come straight from the backend pure helpers
+        # (can_mine_target_pure / best_mining_pickaxe_pure) so source rules aren't
+        # re-derived in Qt. Variable-output rocks (Sandstone, Granite, Gem rocks)
+        # and the essence -> Pure essence upgrade are labelled inline + in tooltips.
         ore_list = QListWidget()
         ore_list.setIconSize(QSize(28, 28))
         ore_list.setAlternatingRowColors(True)
-        for ore, data in ORE_DATA.items():
-            item = QListWidgetItem(f"{ore} (Lvl {data['level']})")
-            item.setData(Qt.ItemDataRole.UserRole, ore)
-            icon_path = ORE_IMAGES.get(ore)
+        lvl_have = player_data.get("mining_level", 1)
+        inv = player_data.get("inventory", {})
+        toolbelt = player_data.get("toolbelt", {})
+        best_pick = best_mining_pickaxe_pure(lvl_have, inv, toolbelt, MINING_PICKAXE_DATA)
+        best_pick_name = best_pick.get("display_name", "a pickaxe") if best_pick else None
+        for target_id, data in ORE_DATA.items():
+            display_name = str(data.get("display_name", target_id))
+            lvl_req = data.get("level", 1)
+            output_item = data.get("output_item")
+            weighted = data.get("weighted_outputs", ()) or ()
+            alt_item = data.get("alternate_output_item")
+            alt_level = data.get("alternate_output_level")
+
+            label = f"{display_name} (Lvl {lvl_req})"
+            if weighted:
+                label += " — variable output"
+            elif isinstance(alt_item, str) and isinstance(alt_level, int):
+                label += f" — {alt_item} at Lvl {alt_level}+"
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, target_id)
+
+            # ORE_IMAGES is keyed by real item names; weighted rocks have no single
+            # output_item so fall back to the display name (or first weighted item).
+            icon_key = output_item or display_name
+            if not output_item and weighted:
+                first = weighted[0]
+                icon_key = first.get("item", display_name) if isinstance(first, dict) else display_name
+            icon_path = ORE_IMAGES.get(icon_key)
             if icon_path and os.path.exists(icon_path):
                 item.setIcon(QIcon(icon_path))
-            lvl_req = data.get('level', 1)
-            lvl_have = player_data.get("mining_level", 1)
-            if not can_mine_ore_pure(player_data.get("mining_level", 1), ore, ORE_DATA):
+
+            if weighted:
+                names = ", ".join(
+                    str(w.get("item")) for w in weighted if isinstance(w, dict) and w.get("item")
+                )
+                output_line = f"Output: variable — {names}"
+            elif isinstance(alt_item, str) and isinstance(alt_level, int):
+                output_line = (
+                    f"Output: {output_item} x1 "
+                    f"(becomes {alt_item} at Mining level {alt_level}+)"
+                )
+            elif output_item:
+                output_line = f"Output: {output_item} x1"
+            else:
+                output_line = "Output: none"
+
+            tooltip = (
+                f"Requires Mining level {lvl_req}. You have {lvl_have}.\n"
+                f"{output_line}\n"
+                f"Base XP: {data.get('exp', 0)} per ore\n"
+                f"Best usable pickaxe: {best_pick_name or 'none — get a pickaxe'}"
+            )
+            source = data.get("source")
+            if source:
+                tooltip += f"\nSource: {source}"
+            # Source notes/anomalies (essence upgrade, equal-weight simplifications,
+            # OSRS gem-rate cross-check) come straight from the backend data.
+            note = data.get("notes")
+            if note:
+                tooltip += f"\nNote: {note}"
+            deferred_note = _MINING_DEFERRED_VARIANT_NOTES.get(target_id)
+            if deferred_note:
+                tooltip += f"\nNote: {deferred_note}"
+
+            if not can_mine_target_pure(lvl_have, target_id, ORE_DATA, inv, toolbelt, MINING_PICKAXE_DATA):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-            item.setToolTip(f"Requires Mining level {lvl_req}. You have {lvl_have}.")
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if best_pick is None:
+                    reason.append("no usable pickaxe")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            item.setToolTip(tooltip)
             ore_list.addItem(item)
-            if ore == player_data.get("current_ore"):
+            if target_id == player_data.get("current_ore", DEFAULT_MINING_TARGET):
                 ore_list.setCurrentItem(item)
 
         def _on_ore_selected(item: QListWidgetItem):
@@ -2305,15 +2392,20 @@ def show_ore_selection_dialog(current_ore: str, mining_level: int, ORE_DATA: dic
     button_group = QButtonGroup(dialog)
 
     for ore, data in ORE_DATA.items():
+        display_name = data.get("display_name", ore)
         ore_widget = QWidget()
         ore_layout = QVBoxLayout(ore_widget)
 
-        ore_image = QLabel()
-        pixmap = QPixmap(ORE_IMAGES[ore])
-        ore_image.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio))
-        ore_layout.addWidget(ore_image, alignment=Qt.AlignmentFlag.AlignCenter)
+        # output_item is None for variable-output rocks (Sandstone/Granite/Gem
+        # rocks), so fall back to the display name instead of resolving None.
+        icon_path = ORE_IMAGES.get(data.get("output_item") or display_name)
+        if icon_path:
+            ore_image = QLabel()
+            pixmap = QPixmap(icon_path)
+            ore_image.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio))
+            ore_layout.addWidget(ore_image, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        ore_info = QLabel(f"{ore}\nLevel: {data['level']}")
+        ore_info = QLabel(f"{display_name}\nLevel: {data['level']}")
         ore_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         ore_layout.addWidget(ore_info)
 
@@ -2653,7 +2745,7 @@ def show_stats(player_data: dict, current_skill: str):
             row = 0
             for item, amount in player_data.get("inventory", {}).items():
                 if (
-                    (skill_name == "Mining" and (item in ORE_DATA or item in GEM_DATA))
+                    (skill_name == "Mining" and (item in MINING_OUTPUT_ITEMS or item in GEM_DATA))
                     # Woodcutting stores real log items (Logs, Oak logs, Bark), not
                     # the stable tree IDs that now key TREE_DATA.
                     or (skill_name == "Woodcutting" and item in WOODCUTTING_LOG_ITEMS)

@@ -21,6 +21,7 @@
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, a central XP multiplier read path, migration coverage, and undo-safe review handling.
 - Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped XP-multiplier control. Covered by offscreen Qt tests.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
+- Mining backend parity is in place: 2011Scape target/pickaxe source data, stable target IDs, real output item names, toolbelt-aware pickaxe resolution, source-shaped Mining probabilities, weighted sandstone/granite/gem-rock outputs, incidental gem drops with no Mining XP, Varrock-armour extra output, amulet-of-glory gem chance, explicit Mining item tradability metadata, and storage migration from legacy display-name `current_ore` values.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
@@ -70,5 +71,7 @@ Crafting/Utility backend rework completed on 2026-05-29. `Soft clay` moved out o
 
 Woodcutting backend parity completed on 2026-06-01. `woodcutting_data.py` captures the local 2011Scape source audit; `TREE_DATA` now uses stable IDs and real output item names; Fletching consumes real log keys; storage config version is 7 with legacy log/target migration and bound Bronze hatchet seeding; bird nests can drop from Woodcutting and open through no-XP Utility. Core and offscreen Qt suites pass with 134 tests.
 
+Mining backend parity completed on 2026-06-01. `mining_data.py` captures the local 2011Scape source audit plus the scoped simple historical targets; `ORE_DATA` now uses stable IDs and real output item names; storage config version is 8 with legacy target migration, bound Bronze pickaxe seeding, and an empty `owned_equipment` collection; the item manifest now carries `tradeable` and minimal equipable metadata. `python3 -m unittest discover -s tests` passes with 154 tests (18 skipped).
+
 ## Next Milestone
-Frontend handoff for Woodcutting parity: render stable target IDs as display names, show output/base XP/best hatchet/lock reason tooltips, label Ivy as XP-only, and make `Open bird nests` feel intentional in Utility/Activities. Then registry-drive Stats/Bank/HUD further and define source loops for feathers and arrowtips.
+Frontend handoff for Mining parity: give Mining the Woodcutting-quality target panel (display names, output/base XP, best pickaxe, lock reason, weighted-output labels, and source notes), then registry-drive Stats/Bank/HUD further and define source loops for feathers and arrowtips.

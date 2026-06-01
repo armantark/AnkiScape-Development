@@ -1,7 +1,7 @@
 import unittest
 
 from storage_pure import migrate_loaded_data, default_player_data, CURRENT_CONFIG_VERSION
-from constants import ORE_DATA
+from constants import MINING_OUTPUT_ITEMS, ORE_DATA
 
 
 class TestStorageMigrationExtra(unittest.TestCase):
@@ -9,14 +9,14 @@ class TestStorageMigrationExtra(unittest.TestCase):
         data = {"inventory": None}
         out = migrate_loaded_data(data, ORE_DATA)
         self.assertIsInstance(out["inventory"], dict)
-        for ore in ORE_DATA:
+        for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, out["inventory"])  # seeded
 
     def test_missing_inventory_key(self):
         data = {}
         out = migrate_loaded_data(data, ORE_DATA)
         self.assertIsInstance(out["inventory"], dict)
-        for ore in ORE_DATA:
+        for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, out["inventory"])  # seeded
 
     def test_total_exp_preserved_when_mining_exp_present(self):
@@ -30,7 +30,7 @@ class TestStorageMigrationExtra(unittest.TestCase):
         base = default_player_data(ORE_DATA)
         self.assertEqual(base["config_version"], CURRENT_CONFIG_VERSION)
         self.assertEqual(base["current_bar"], "Bronze bar")
-        self.assertEqual(base["current_ore"], "Rune essence")
+        self.assertEqual(base["current_ore"], "rune_essence")
         self.assertEqual(base["current_tree"], "tree")
         self.assertEqual(base["current_craft"], "")
         self.assertEqual(base["current_fletch"], "arrow_shafts")

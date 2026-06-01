@@ -65,6 +65,8 @@ AnkiScape replicates the skilling side of early-2010s RuneScape. Canonical basel
 
 Current Woodcutting backend parity data lives in `woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure.py` adapt them to Anki review cadence.
 
+Current Mining backend parity data lives in `mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and backend-only Mining bonus metadata. Storage config version 8 migrates old display-name Mining targets to stable IDs.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 

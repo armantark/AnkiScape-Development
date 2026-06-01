@@ -37,9 +37,10 @@ def _make_player_data() -> dict:
     for skill in ("mining", "woodcutting", "smithing", "crafting"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
-    # Real saves are seeded with a bound Bronze hatchet; without it every tree
-    # would lock on "no usable hatchet" and Woodcutting rows couldn't be tested.
-    data["toolbelt"] = {"woodcutting": ["bronze_hatchet"]}
+    # Real saves are seeded with a bound starter tool per gathering skill; without
+    # it every tree/rock would lock on "no usable hatchet/pickaxe" and those rows
+    # couldn't be exercised. Mirror that seed so Woodcutting and Mining rows unlock.
+    data["toolbelt"] = {"woodcutting": ["bronze_hatchet"], "mining": ["bronze_pickaxe"]}
     return data
 
 
@@ -380,6 +381,82 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Tree should lock without a usable hatchet",
         )
         self.assertIn("no usable hatchet", tree.toolTip())
+
+    # ---- Mining 2011Scape parity frontend ---------------------------------
+    def _open_mining(self, dialog: "QDialog") -> "QListWidget":
+        skill_list = _find_skill_list(dialog)
+        mining_row = next(
+            i for i in range(skill_list.count()) if skill_list.item(i).text() == "Mining"
+        )
+        skill_list.setCurrentRow(mining_row)
+        QApplication.processEvents()
+        # Copper is a stable, always-present low-level rock row.
+        return _find_list_with_item_prefix(dialog, "Copper ")
+
+    def _ore_row(self, ore_list: "QListWidget", prefix: str) -> "QListWidgetItem":
+        return next(
+            ore_list.item(i) for i in range(ore_list.count())
+            if ore_list.item(i).text().startswith(prefix)
+        )
+
+    def test_mining_list_shows_friendly_names_not_stable_ids(self) -> None:
+        ore_list = self._open_mining(self.dialog)
+        texts = [ore_list.item(i).text() for i in range(ore_list.count())]
+        # Friendly display names, not raw IDs like "rune_essence"/"coal".
+        self.assertTrue(any(t.startswith("Copper (Lvl 1)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("Coal (Lvl 30)") for t in texts), texts)
+        self.assertFalse(any(t in ("rune_essence", "coal", "copper") for t in texts), texts)
+
+    def test_mining_tooltip_shows_output_and_best_pickaxe(self) -> None:
+        ore_list = self._open_mining(self.dialog)
+        copper = self._ore_row(ore_list, "Copper ")
+        tip = copper.toolTip()
+        self.assertIn("Copper ore", tip)
+        self.assertIn("Bronze pickaxe", tip)  # seeded toolbelt is the best usable
+
+    def test_mining_essence_row_labels_pure_essence_upgrade(self) -> None:
+        ore_list = self._open_mining(self.dialog)
+        essence = self._ore_row(ore_list, "Rune essence ")
+        self.assertIn("Pure essence", essence.text())
+        self.assertIn("Pure essence", essence.toolTip())
+
+    def test_mining_variable_output_rocks_are_labeled(self) -> None:
+        ore_list = self._open_mining(self.dialog)
+        for name, sample in (
+            ("Sandstone ", "Sandstone (1kg)"),
+            ("Granite ", "Granite (500g)"),
+            ("Gem rocks ", "Uncut opal"),
+        ):
+            row = self._ore_row(ore_list, name)
+            self.assertIn("variable output", row.text(), f"{name!r} not labelled variable")
+            self.assertIn(sample, row.toolTip(), f"{name!r} tooltip missing {sample!r}")
+
+    def test_mining_high_level_rock_locked_with_level_reason(self) -> None:
+        ore_list = self._open_mining(self.dialog)
+        runite = self._ore_row(ore_list, "Runite ")  # level 85, player is 33
+        self.assertFalse(
+            bool(runite.flags() & Qt.ItemFlag.ItemIsEnabled),
+            "Runite should be locked at level 33",
+        )
+        self.assertIn("level 85", runite.toolTip())
+
+    def test_mining_locks_all_rocks_when_no_usable_pickaxe(self) -> None:
+        pd = _make_player_data()
+        pd["toolbelt"] = {"mining": []}  # no bound tool, no pickaxe item
+        dialog = self._open(pd)
+        ore_list = self._open_mining(dialog)
+        copper = self._ore_row(ore_list, "Copper ")
+        self.assertFalse(
+            bool(copper.flags() & Qt.ItemFlag.ItemIsEnabled),
+            "Copper should lock without a usable pickaxe",
+        )
+        self.assertIn("no usable pickaxe", copper.toolTip())
+
+    def test_mining_coal_tooltip_mentions_concentrated_deferral(self) -> None:
+        ore_list = self._open_mining(self.dialog)
+        coal = self._ore_row(ore_list, "Coal ")
+        self.assertIn("Concentrated coal", coal.toolTip())
+        self.assertIn("deferred", coal.toolTip())
 
     def test_open_bird_nests_is_a_visible_no_xp_utility_activity(self) -> None:
         utility_list = self._open_utility(self.dialog)

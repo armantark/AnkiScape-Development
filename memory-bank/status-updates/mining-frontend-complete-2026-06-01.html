@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mining Frontend — Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:48px 24px;max-width:1100px;margin:0 auto}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.12em;color:var(--green);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);padding:5px 12px;border-radius:999px;text-transform:uppercase}
+h1{font-weight:700;font-size:2rem;margin:18px 0 8px}
+.sub{color:var(--text-dim);font-size:.98rem;max-width:70ch}
+h2{font-weight:700;font-size:1.15rem;margin:38px 0 16px;display:flex;align-items:center;gap:10px}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;transition:.2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.card h3{font-size:.95rem;font-weight:700;margin-bottom:10px}
+.card p{color:var(--text-dim);font-size:.86rem}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.65rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:6px;margin:4px 4px 0 0}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+@media(max-width:600px){.ba{grid-template-columns:1fr}}
+.pane{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px}
+.plabel{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px}
+.pane.after .plabel{color:var(--green)}
+.row{display:flex;align-items:center;gap:8px;font-size:.78rem;padding:6px 8px;border-radius:6px;background:#11151c;margin-bottom:5px}
+.row .ico{width:18px;height:18px;border-radius:4px;background:linear-gradient(135deg,#5a4a32,#8a6a3a);flex:0 0 auto}
+.row.locked{opacity:.45}
+.row .pill{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--amber)}
+.tip{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text-dim);background:#0a0d12;border:1px dashed var(--border);border-radius:6px;padding:8px;margin-top:6px;white-space:pre-line;line-height:1.5}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:700px){.metrics{grid-template-columns:1fr 1fr}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.metric .n{font-family:'JetBrains Mono',monospace;font-size:1.7rem;font-weight:600;color:var(--accent)}
+.metric .l{font-size:.72rem;color:var(--text-dim);margin-top:4px}
+.metric.green .n{color:var(--green)}
+ol.steps{list-style:none;counter-reset:s;margin-top:8px}
+ol.steps li{counter-increment:s;position:relative;padding:10px 0 10px 40px;border-bottom:1px solid var(--border);font-size:.88rem}
+ol.steps li:last-child{border-bottom:none}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:9px;width:26px;height:26px;background:var(--accent-glow);border:1px solid var(--accent);color:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600}
+code{font-family:'JetBrains Mono',monospace;font-size:.82em;background:var(--surface-2);padding:2px 6px;border-radius:5px;color:var(--purple)}
+.prompt{background:#0a0d12;border:1px solid var(--border);border-radius:8px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-dim);white-space:pre-wrap;line-height:1.6;position:relative}
+.copy{position:absolute;top:10px;right:10px;font-family:'JetBrains Mono',monospace;font-size:.6rem;background:var(--accent);color:#fff;border:none;padding:5px 10px;border-radius:6px;cursor:pointer}
+.copy:active{transform:scale(.95)}
+</style>
+</head>
+<body>
+<span class="badge">Frontend · Completed</span>
+<h1>Mining 2011Scape Parity — Frontend</h1>
+<p class="sub">The Skills-hub Mining target list now mirrors the Woodcutting pattern: stable target IDs rendered as friendly rows, pickaxe-aware lock reasons read straight from the backend pure helpers, and variable / upgrade outputs labelled inline and in tooltips. Backend mechanics untouched.</p>
+
+<div class="metrics" style="margin-top:26px">
+  <div class="metric green"><div class="n">+7</div><div class="l">new offscreen Qt tests</div></div>
+  <div class="metric green"><div class="n">25/25</div><div class="l">Qt menu tests pass</div></div>
+  <div class="metric green"><div class="n">161</div><div class="l">total suite pass</div></div>
+  <div class="metric"><div class="n">0</div><div class="l">backend files changed</div></div>
+</div>
+
+<h2>The ore list, before &amp; after</h2>
+<div class="ba">
+  <div class="pane">
+    <div class="plabel">Before</div>
+    <div class="row"><span class="ico"></span>Rune essence (Lvl 1)</div>
+    <div class="row"><span class="ico"></span>Sandstone (Lvl 35)</div>
+    <div class="row"><span class="ico"></span>Coal (Lvl 30)</div>
+    <div class="tip">Requires Mining level 30. You have 33.</div>
+    <p style="font-size:.74rem;margin-top:10px">Level-only tooltip. No output, no pickaxe, no source. Locks ignored a missing pickaxe.</p>
+  </div>
+  <div class="pane after">
+    <div class="plabel">After</div>
+    <div class="row"><span class="ico"></span>Rune essence (Lvl 1)<span class="pill">→ Pure essence @30+</span></div>
+    <div class="row"><span class="ico"></span>Sandstone (Lvl 35)<span class="pill">variable output</span></div>
+    <div class="row locked"><span class="ico"></span>Runite (Lvl 85)<span class="pill">locked</span></div>
+    <div class="tip">Requires Mining level 30. You have 33.
+Output: Coal x1
+Base XP: 50.0 per ore
+Best usable pickaxe: Bronze pickaxe
+Note: Concentrated coal deposits are deferred…</div>
+  </div>
+</div>
+
+<h2>What each row now carries</h2>
+<div class="grid">
+  <div class="card">
+    <h3>Friendly rows, stable IDs</h3>
+    <p>Row text uses <code>display_name</code> + level; the stable target ID rides on <code>UserRole</code> and is what gets persisted to <code>current_ore</code>.</p>
+    <span class="tag">ui.py · _build_ore_list</span>
+  </div>
+  <div class="card">
+    <h3>Pickaxe-aware locks</h3>
+    <p>Lock state and best tool come from <code>can_mine_target_pure</code> + <code>best_mining_pickaxe_pure</code> over <code>player_data["toolbelt"]</code>. Reasons split <em>level</em> vs <em>no usable pickaxe</em> — no source rules re-derived in Qt.</p>
+    <span class="tag">logic_pure.py</span>
+  </div>
+  <div class="card">
+    <h3>Variable &amp; upgrade outputs</h3>
+    <p>Sandstone / Granite / Gem rocks are flagged <code>— variable output</code> inline and list every weighted item in the tooltip. Essence shows <code>— Pure essence at Lvl 30+</code>.</p>
+    <span class="tag">weighted_outputs</span><span class="tag">alternate_output_item</span>
+  </div>
+  <div class="card">
+    <h3>Honest source notes</h3>
+    <p>Per-target <code>notes</code> (essence upgrade, equal-weight caveats, OSRS gem-rate cross-check) surface in tooltips. Coal/Gold rows explain that <em>concentrated</em> deposits are deliberately deferred.</p>
+    <span class="tag">DEFERRED_MINING_CONTENT</span>
+  </div>
+</div>
+
+<h2>Scope honored</h2>
+<div class="grid">
+  <div class="card"><h3>Bonus equipment stays backend-only</h3><p><code>owned_equipment</code> was <strong>not</strong> moved into toolbelt/UI. No equipment surface added — Varrock armour / Glory remain backend metadata until a real equipment UI exists.</p></div>
+  <div class="card"><h3>Bank / Stats already clean</h3><p>Both are registry-driven by item category and already key on real item names (<code>MINING_OUTPUT_ITEMS</code>, weighted outputs, gems). Only de-landmined the legacy ore dialog's icon fallback for output-less rocks.</p></div>
+</div>
+
+<h2>Manual Anki check</h2>
+<ol class="steps">
+  <li>Open AnkiScape menu → Skilling → <strong>Mining</strong>. Confirm rows read as display names with levels.</li>
+  <li>Hover Coal: tooltip shows output, base XP, <em>Best usable pickaxe</em>, source, and the concentrated-deferral note.</li>
+  <li>Hover Sandstone / Gem rocks: row says <em>variable output</em>; tooltip lists the weighted items.</li>
+  <li>With only a Bronze pickaxe at level 33, Runite is greyed with <em>Locked due to: level 85</em>.</li>
+  <li>Unbind the pickaxe (empty <code>toolbelt["mining"]</code>): every rock greys with <em>no usable pickaxe</em>.</li>
+  <li>Pick essence, review a card: it produces Rune essence below 30, Pure essence at 30+ (backend behavior, label matches).</li>
+</ol>
+
+<h2>Handoff — assets follow-up</h2>
+<p class="sub" style="margin-bottom:10px">Frontend degrades gracefully to icon-less rows. The remaining gap is Mining icons (blurite/pure essence, normal+gilded pickaxes, sandstone/granite/gem-rock outputs). Copy-paste for the assets pass:</p>
+<div class="prompt"><button class="copy" onclick="navigator.clipboard.writeText(this.nextSibling.textContent.trim())">Copy</button><span>Mining frontend parity is in place: the Skills-hub ore list renders stable target IDs as friendly rows with pickaxe-aware locks, variable/upgrade output labels, and source-note tooltips. Run the Mining assets pass via tools/fetch_mining_assets.py: fetch/verify icons for blurite ore, pure essence, normal + gilded pickaxes, and the weighted outputs (Sandstone 1/2/5/10kg, Granite 500g/2kg/5kg, Uncut opal/jade/red topaz/sapphire/emerald/ruby/diamond). Key ORE_IMAGES by the real item name (output_item / weighted item) and the pickaxe display_name; update assets_provenance.json and add the required-manifest-path asset tests.</span></div>
+
+<p style="margin-top:30px;color:var(--text-dim);font-size:.78rem;font-family:'JetBrains Mono',monospace">tests: python3 -m unittest discover -s tests · QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</p>
+</body>
+</html>

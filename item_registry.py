@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
 
-ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool"]
+ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment"]
 
 
 @dataclass(frozen=True)
@@ -23,6 +23,10 @@ class ItemDefinition:
     stackable: bool = True
     required_level: int = 1
     base_exp: float = 0.0
+    tradeable: bool = True
+    equipment_slot: Optional[str] = None
+    equipment_type: Optional[str] = None
+    equipment_tier: int = 0
 
 
 def slugify_item_id(category: ItemCategory, display_name: str) -> str:
@@ -46,6 +50,13 @@ def _level_value(spec: Mapping[str, object]) -> int:
     return 1
 
 
+def _bool_value(spec: Mapping[str, object], key: str, default: bool) -> bool:
+    value = spec.get(key, default)
+    if isinstance(value, bool):
+        return value
+    return default
+
+
 def _definition(
     name: str,
     category: ItemCategory,
@@ -64,6 +75,10 @@ def _definition(
         license_note="private-fork asset; provenance not audited",
         required_level=_level_value(spec),
         base_exp=_number_value(spec, "exp", 0.0),
+        tradeable=_bool_value(spec, "tradeable", True),
+        equipment_slot=str(spec["equipment_slot"]) if isinstance(spec.get("equipment_slot"), str) else None,
+        equipment_type=str(spec["equipment_type"]) if isinstance(spec.get("equipment_type"), str) else None,
+        equipment_tier=_level_value({"level": spec.get("tier", 0)}),
     )
 
 
@@ -109,15 +124,36 @@ def build_item_definitions(
 
     def extra_item_category(spec: Mapping[str, object]) -> ItemCategory:
         category = spec.get("category", "material")
-        if category in ("ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool"):
+        if category in ("ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment"):
             return cast(ItemCategory, category)
         return "material"
 
     crafting_material_images = dict(utility_item_images or {})
     crafting_material_images.update(crafted_item_images)
 
-    for name in ore_data:
-        add_definition(_definition(name, "ore", "Mining", ore_data, ore_images))
+    for target_name, spec in ore_data.items():
+        output_name = spec.get("output_item", target_name)
+        if isinstance(output_name, str):
+            output_spec = dict(spec)
+            output_spec["tradeable"] = spec.get("output_tradeable", spec.get("tradeable", True))
+            add_definition(_definition(output_name, "ore", "Mining", {output_name: output_spec}, ore_images))
+        alternate_output = spec.get("alternate_output_item")
+        if isinstance(alternate_output, str):
+            alternate_spec = dict(spec)
+            alternate_spec["level"] = spec.get("alternate_output_level", spec.get("level", 1))
+            alternate_spec["tradeable"] = spec.get("alternate_output_tradeable", True)
+            add_definition(_definition(alternate_output, "ore", "Mining", {alternate_output: alternate_spec}, ore_images))
+        for weighted_output in spec.get("weighted_outputs", ()):
+            if not isinstance(weighted_output, Mapping):
+                continue
+            weighted_name = weighted_output.get("item")
+            if not isinstance(weighted_name, str):
+                continue
+            weighted_spec = dict(spec)
+            weighted_spec["exp"] = weighted_output.get("exp", spec.get("exp", 0.0))
+            weighted_spec["tradeable"] = weighted_output.get("tradeable", True)
+            category = "gem" if weighted_name.startswith("Uncut ") else "ore"
+            add_definition(_definition(weighted_name, cast(ItemCategory, category), "Mining", {weighted_name: weighted_spec}, ore_images))
     for target_name, spec in tree_data.items():
         output_name = spec.get("output_item", target_name)
         if isinstance(output_name, str):

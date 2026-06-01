@@ -15,9 +15,13 @@ from logic_pure import (
     apply_woodcutting_pure,
     apply_woodcutting_action_pure,
     apply_mining_pure,
+    apply_mining_action_pure,
     apply_open_bird_nests_pure,
     best_woodcutting_axe_pure,
+    best_mining_pickaxe_pure,
+    mining_bonus_state_pure,
     calculate_woodcutting_success_probability_pure,
+    calculate_mining_success_probability_pure,
     can_mine_ore_pure,
     can_cut_tree_pure,
     can_craft_item_pure,
@@ -25,6 +29,13 @@ from logic_pure import (
     can_perform_utility_activity_pure,
     sanitize_xp_multiplier,
     scale_skill_exp_pure,
+)
+from constants import (
+    GLORY_GEM_DROP_CHANCE,
+    INCIDENTAL_GEM_DROP_TABLE,
+    MINING_BONUS_ITEM_DATA,
+    MINING_PICKAXE_DATA,
+    ORE_DATA,
 )
 
 class TestLogic(unittest.TestCase):
@@ -423,6 +434,128 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp2, 0)
         self.assertIsNone(gem2)
         self.assertEqual(new_inv2, inv)
+
+    def test_best_mining_pickaxe_prefers_best_owned_usable_tool(self):
+        pickaxe = best_mining_pickaxe_pure(
+            41,
+            {"Rune pickaxe": 1, "Dragon pickaxe": 1},
+            {"mining": ["bronze_pickaxe"]},
+            MINING_PICKAXE_DATA,
+        )
+        self.assertEqual(pickaxe["display_name"], "Rune pickaxe")
+
+        pickaxe = best_mining_pickaxe_pure(
+            61,
+            {"Rune pickaxe": 1, "Dragon pickaxe": 1},
+            {"mining": ["bronze_pickaxe"]},
+            MINING_PICKAXE_DATA,
+        )
+        self.assertEqual(pickaxe["display_name"], "Dragon pickaxe")
+
+    def test_mining_success_probability_scales_by_pickaxe_and_target(self):
+        bronze = MINING_PICKAXE_DATA["bronze_pickaxe"]
+        rune = MINING_PICKAXE_DATA["rune_pickaxe"]
+        iron = ORE_DATA["iron"]
+        runite = ORE_DATA["runite"]
+
+        self.assertGreater(
+            calculate_mining_success_probability_pure(60, iron, rune),
+            calculate_mining_success_probability_pure(60, iron, bronze),
+        )
+        self.assertGreater(
+            calculate_mining_success_probability_pure(60, iron, rune),
+            calculate_mining_success_probability_pure(60, runite, rune),
+        )
+
+    def test_apply_mining_action_outputs_pure_essence_without_random_gems(self):
+        new_inv, exp, ok, output_item, gem, extra = apply_mining_action_pure(
+            "rune_essence",
+            {"Pure essence": 0, "Uncut sapphire": 0},
+            ORE_DATA,
+            30,
+            MINING_PICKAXE_DATA["bronze_pickaxe"],
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            INCIDENTAL_GEM_DROP_TABLE,
+            1.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 5.0)
+        self.assertEqual(output_item, "Pure essence")
+        self.assertIsNone(gem)
+        self.assertIsNone(extra)
+        self.assertEqual(new_inv["Pure essence"], 1)
+        self.assertEqual(new_inv["Uncut sapphire"], 0)
+
+    def test_apply_mining_action_weighted_outputs_use_output_xp(self):
+        new_inv, exp, ok, output_item, _gem, _extra = apply_mining_action_pure(
+            "sandstone",
+            {},
+            ORE_DATA,
+            35,
+            MINING_PICKAXE_DATA["rune_pickaxe"],
+            0.0,
+            0.99,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(output_item, "Sandstone (10kg)")
+        self.assertEqual(exp, 60.0)
+        self.assertEqual(new_inv["Sandstone (10kg)"], 1)
+
+    def test_apply_mining_action_gems_are_inventory_only_side_drops(self):
+        new_inv, exp, ok, output_item, gem, _extra = apply_mining_action_pure(
+            "iron",
+            {"Iron ore": 0, "Uncut sapphire": 0},
+            ORE_DATA,
+            60,
+            MINING_PICKAXE_DATA["rune_pickaxe"],
+            0.0,
+            0.0,
+            0.0,
+            0.99,
+            INCIDENTAL_GEM_DROP_TABLE,
+            GLORY_GEM_DROP_CHANCE,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 35.0)
+        self.assertEqual(output_item, "Iron ore")
+        self.assertEqual(gem, "Uncut sapphire")
+        self.assertEqual(new_inv["Iron ore"], 1)
+        self.assertEqual(new_inv["Uncut sapphire"], 1)
+
+    def test_mining_bonus_state_and_varrock_extra_output(self):
+        bonus_state = mining_bonus_state_pure(
+            ["amulet_of_glory_4", "varrock_armour_1"],
+            MINING_BONUS_ITEM_DATA,
+        )
+
+        self.assertTrue(bonus_state["has_glory"])
+        self.assertEqual(bonus_state["varrock_armour_tier"], 1)
+
+        new_inv, exp, ok, output_item, _gem, extra = apply_mining_action_pure(
+            "coal",
+            {"Coal": 0},
+            ORE_DATA,
+            60,
+            MINING_PICKAXE_DATA["rune_pickaxe"],
+            0.0,
+            0.0,
+            None,
+            None,
+            INCIDENTAL_GEM_DROP_TABLE,
+            varrock_armour_tier=bonus_state["varrock_armour_tier"],
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 50.0)
+        self.assertEqual(output_item, "Coal")
+        self.assertEqual(extra, "Coal")
+        self.assertEqual(new_inv["Coal"], 2)
 
     def test_can_mine_and_cut_pure(self):
         ore_data = {"Copper ore": {"level": 1}, "Iron ore": {"level": 15}}

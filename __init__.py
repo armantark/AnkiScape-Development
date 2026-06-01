@@ -9,7 +9,13 @@ from .constants import (
     FLETCHING_DATA,
     UTILITY_ACTIVITY_DATA,
     DEFAULT_UTILITY_ACTIVITY,
+    DEFAULT_MINING_TARGET,
     DEFAULT_WOODCUTTING_TARGET,
+    MINING_PICKAXE_DATA,
+    MINING_BONUS_ITEM_DATA,
+    INCIDENTAL_GEM_DROP_CHANCE,
+    INCIDENTAL_GEM_DROP_TABLE,
+    GLORY_GEM_DROP_CHANCE,
     WOODCUTTING_AXE_DATA,
     BIRD_NEST_DROP_CHANCE,
     BIRD_NEST_DROP_TABLE,
@@ -43,14 +49,16 @@ from .logic_pure import (
     apply_smelt_pure,
     apply_fletching_pure,
     apply_woodcutting_action_pure,
-    apply_mining_pure,
+    apply_mining_action_pure,
     scale_skill_exp_pure,
     sanitize_xp_multiplier,
     can_mine_ore_pure,
     can_cut_tree_pure,
     best_woodcutting_axe_pure,
+    best_mining_pickaxe_pure,
+    mining_bonus_state_pure,
 )
-from .logic import level_up_check, check_achievements, calculate_mining_probability
+from .logic import level_up_check, check_achievements
 from .ui import (
     ExpPopup,
     show_error_message,
@@ -749,25 +757,51 @@ def on_woodcutting_answer():
     _show_exp(base_exp if not ok else exp_gained)
 
 def on_mining_answer():
-    ore = player_data["current_ore"]
+    ore = player_data.get("current_ore", DEFAULT_MINING_TARGET)
+    if ore not in ORE_DATA:
+        ore = DEFAULT_MINING_TARGET
+        player_data["current_ore"] = ore
     ore_spec = ORE_DATA[ore]
     player_level = player_data["mining_level"]
 
-    mining_probability = calculate_mining_probability(player_level, ore_spec["probability"])
+    if player_level < ore_spec.get("level", 1):
+        show_error_message("Insufficient level", f"You need level {ore_spec['level']} Mining to mine {ore_spec.get('display_name', ore)}.")
+        return
+
+    pickaxe_spec = best_mining_pickaxe_pure(
+        player_level,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        MINING_PICKAXE_DATA,
+    )
+    if pickaxe_spec is None:
+        _deactivate_current_skill()
+        show_error_message(
+            "Missing pickaxe",
+            "You need a usable pickaxe to train Mining. Mining has been switched off.",
+        )
+        return
+
+    bonus_state = mining_bonus_state_pure(player_data.get("owned_equipment", ()), MINING_BONUS_ITEM_DATA)
+    gem_drop_chance = GLORY_GEM_DROP_CHANCE if bonus_state["has_glory"] else INCIDENTAL_GEM_DROP_CHANCE
     r_action = random.random()
+    r_output = random.random()
     r_gem_chance = random.random()
     r_gem_pick = random.random()
 
-    new_inv, base_exp, ok, _gem = apply_mining_pure(
+    new_inv, base_exp, ok, _output_item, _gem, _extra_output = apply_mining_action_pure(
         ore,
-        player_data["inventory"],
+        player_data.get("inventory", {}),
         ORE_DATA,
-        GEM_DATA,
+        player_level,
+        pickaxe_spec,
         r_action,
-        mining_probability,
+        r_output,
         r_gem_chance,
         r_gem_pick,
-        gem_drop_chance=1/256,
+        INCIDENTAL_GEM_DROP_TABLE,
+        gem_drop_chance,
+        bonus_state["varrock_armour_tier"],
     )
     if ok:
         if "ores_mined_today" not in player_data:

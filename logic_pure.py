@@ -294,6 +294,74 @@ def best_woodcutting_axe_pure(woodcutting_level, inventory, toolbelt, axe_data):
     return best
 
 
+def best_mining_pickaxe_pure(mining_level, inventory, toolbelt, pickaxe_data):
+    """Return the best usable pickaxe spec, considering bound tools and owned items."""
+    bound_ids = _toolbelt_ids(toolbelt, "mining")
+    best = None
+    best_power = 0.0
+    for pickaxe_id, spec in pickaxe_data.items():
+        if spec.get("status", "implemented") != "implemented":
+            continue
+        display_name = spec.get("display_name", pickaxe_id)
+        owned = pickaxe_id in bound_ids or inventory.get(display_name, 0) > 0
+        if not owned or mining_level < spec.get("level", 1):
+            continue
+        power = float(spec.get("ratio", 0))
+        if "dragon" in str(spec.get("display_name", "")).lower():
+            power *= 1.12
+        if best is None or power > best_power:
+            best = spec
+            best_power = power
+    return best
+
+
+def mining_bonus_state_pure(owned_equipment, bonus_item_data):
+    """Summarize temporary owned-equipment Mining bonuses without equipment UI."""
+    if isinstance(owned_equipment, str):
+        owned_ids = {owned_equipment}
+    elif isinstance(owned_equipment, Iterable):
+        owned_ids = {item for item in owned_equipment if isinstance(item, str)}
+    else:
+        owned_ids = set()
+    has_glory = False
+    varrock_tier = 0
+    for bonus_id, spec in bonus_item_data.items():
+        if bonus_id not in owned_ids:
+            continue
+        if spec.get("equipment_type") == "gem_chance":
+            has_glory = True
+        if spec.get("equipment_type") == "extra_ore":
+            varrock_tier = max(varrock_tier, _positive_int(spec.get("tier", 0), 0))
+    return {"has_glory": has_glory, "varrock_armour_tier": varrock_tier}
+
+
+def mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec):
+    """Approximate the 2011Scape raw mining roll before Anki pacing is applied."""
+    low = float(target_spec.get("low_chance", 0))
+    high = float(target_spec.get("high_chance", 0))
+    level_progress = max(0.0, min((float(mining_level) - 1.0) / 98.0, 1.0))
+    interpolated = low + ((high - low) * level_progress)
+    ratio = float(pickaxe_spec.get("ratio", 1.0))
+    if "dragon" in str(pickaxe_spec.get("display_name", "")).lower():
+        ratio *= 1.12
+    return max(0.0, min((interpolated * ratio) / 255.0, 1.0))
+
+
+def calculate_mining_success_probability_pure(mining_level, target_spec, pickaxe_spec, minimum=0.05, scale=0.62, cap=0.95):
+    """Translate source mining odds into one review-scale success probability."""
+    source_chance = mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec)
+    return max(0.0, min(minimum + (sqrt(source_chance) * scale), cap))
+
+
+def can_mine_target_pure(mining_level, target_id, ore_data, inventory, toolbelt, pickaxe_data):
+    spec = ore_data.get(target_id)
+    if not spec:
+        return False
+    if mining_level < spec.get("level", 1):
+        return False
+    return best_mining_pickaxe_pure(mining_level, inventory, toolbelt, pickaxe_data) is not None
+
+
 def woodcutting_source_roll_chance_pure(woodcutting_level, target_spec, axe_spec):
     """Approximate the 2011Scape raw chop roll before Anki pacing is applied."""
     low = float(target_spec.get("low_chance", 0)) * float(axe_spec.get("ratio", 1.0))
@@ -420,6 +488,78 @@ def apply_mining_pure(
             new_inv[gem_name] = new_inv.get(gem_name, 0) + 1
             exp += gem_data[gem_name].get("exp", 0)
     return new_inv, exp, True, gem_name
+
+
+def apply_mining_action_pure(
+    target_id,
+    inventory,
+    ore_data,
+    mining_level,
+    pickaxe_spec,
+    r_action,
+    r_output=None,
+    r_gem_chance=None,
+    r_gem_pick=None,
+    gem_drop_table=(),
+    gem_drop_chance=1 / 256,
+    varrock_armour_tier=0,
+):
+    """Apply one source-shaped Anki Mining attempt.
+
+    Returns (inventory, base_exp, success, output_item, gem_item, extra_output).
+    Random gem drops are inventory-only side drops; they do not add Mining XP.
+    """
+    spec = ore_data.get(target_id)
+    if not spec or not pickaxe_spec:
+        return inventory, 0, False, None, None, None
+    success_probability = calculate_mining_success_probability_pure(mining_level, spec, pickaxe_spec)
+    if r_action >= success_probability:
+        return inventory, 0, False, None, None, None
+
+    new_inv = dict(inventory)
+    output_item = spec.get("output_item")
+    base_exp = spec.get("exp", 0)
+    weighted_outputs = spec.get("weighted_outputs", ())
+    if weighted_outputs:
+        picked = pick_weighted_item_pure(weighted_outputs, 0.0 if r_output is None else r_output)
+        if picked:
+            output_item = picked
+            for weighted in weighted_outputs:
+                if weighted.get("item") == picked:
+                    base_exp = weighted.get("exp", base_exp)
+                    break
+    alternate_output_item = spec.get("alternate_output_item")
+    alternate_output_level = spec.get("alternate_output_level")
+    if isinstance(alternate_output_item, str) and isinstance(alternate_output_level, int) and mining_level >= alternate_output_level:
+        output_item = alternate_output_item
+
+    if output_item:
+        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+
+    extra_output = None
+    required_varrock_tier = spec.get("varrock_armour_tier")
+    if (
+        output_item
+        and isinstance(required_varrock_tier, int)
+        and required_varrock_tier > 0
+        and varrock_armour_tier >= required_varrock_tier
+    ):
+        extra_output = output_item
+        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+
+    gem_item = None
+    if (
+        spec.get("allows_random_gems", True)
+        and r_gem_chance is not None
+        and r_gem_pick is not None
+        and gem_drop_table
+        and r_gem_chance < gem_drop_chance
+    ):
+        gem_item = pick_weighted_item_pure(gem_drop_table, r_gem_pick)
+        if gem_item:
+            new_inv[gem_item] = new_inv.get(gem_item, 0) + 1
+
+    return new_inv, base_exp, True, output_item, gem_item, extra_output
 
 
 def can_mine_ore_pure(mining_level, ore_name, ore_data):

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mining Backend Parity Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 15% 14%, rgba(251,191,36,.18), transparent 30rem), radial-gradient(circle at 82% 10%, rgba(79,140,255,.2), transparent 31rem), linear-gradient(180deg,#0c0e12,#111621 65%,#0c0e12); color:var(--text); font-family:Outfit,sans-serif; padding:38px 22px; }
+    main { max-width:1200px; margin:0 auto; }
+    .badge { display:inline-flex; padding:7px 11px; border:1px solid rgba(251,191,36,.38); border-radius:999px; background:rgba(251,191,36,.12); color:#ffe7a6; font:600 .72rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:18px 0 10px; font-size:clamp(2.35rem,6vw,5rem); line-height:.92; letter-spacing:-.05em; }
+    .subtitle { max-width:870px; color:var(--text-dim); line-height:1.55; font-size:1.06rem; margin:0 0 28px; }
+    .grid { display:grid; grid-template-columns:1.04fr .96fr; gap:18px; align-items:stretch; }
+    .card { border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--surface); box-shadow:0 22px 70px rgba(0,0,0,.22); padding:20px; overflow:hidden; }
+    .wide { grid-column:1/-1; }
+    .label { display:block; color:var(--green); font:600 .68rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }
+    .label.amber { color:var(--amber); } .label.purple { color:var(--purple); } .label.red { color:var(--red); }
+    h2 { margin:0 0 12px; font-size:1.32rem; }
+    p { color:var(--text-dim); line-height:1.55; margin:0; }
+    .flow { display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-top:16px; }
+    .node { min-height:112px; border:1px solid var(--border); border-radius:12px; background:var(--surface-2); padding:12px; }
+    .node strong { display:block; margin-bottom:6px; }
+    .node small { color:var(--text-dim); line-height:1.35; display:block; }
+    .num { width:26px; height:26px; display:grid; place-items:center; border-radius:8px; background:var(--accent); color:#fff; font:600 .72rem/1 JetBrains Mono,monospace; margin-bottom:10px; }
+    .table { display:grid; gap:7px; margin-top:14px; }
+    .row { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:9px 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+    code,.pill,.tag { font-family:JetBrains Mono,monospace; }
+    .pill { padding:5px 7px; border-radius:8px; font-size:.68rem; background:rgba(79,140,255,.16); color:#cbdcff; white-space:nowrap; }
+    .pill.green { background:rgba(74,222,128,.14); color:#c7f9d8; }
+    .pill.amber { background:rgba(251,191,36,.13); color:#ffe7a6; }
+    .pill.red { background:rgba(255,92,92,.12); color:#ffc2c2; }
+    .before-after { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+    .pane { border:1px solid var(--border); border-radius:12px; background:var(--surface-2); padding:12px; }
+    .pane-title { font:600 .66rem/1 JetBrains Mono,monospace; letter-spacing:.08em; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
+    .ore-row { display:grid; grid-template-columns:28px 1fr auto; gap:9px; align-items:center; padding:8px; border-radius:9px; background:rgba(255,255,255,.035); margin-bottom:7px; }
+    .rock { width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg,#313847,#8d96aa); box-shadow:inset 0 0 0 1px rgba(255,255,255,.08); }
+    .rock.gold { background:linear-gradient(135deg,#675020,#e7b84a); }
+    .rock.blue { background:linear-gradient(135deg,#243653,#5f9fff); }
+    .rock.green { background:linear-gradient(135deg,#224932,#6fda85); }
+    .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .tag { padding:6px 8px; border-radius:8px; background:var(--surface-2); color:var(--text); font-size:.72rem; }
+    .bars { display:grid; gap:9px; margin-top:16px; }
+    .bar { display:grid; grid-template-columns:104px 1fr 64px; gap:10px; align-items:center; font:600 .74rem/1 JetBrains Mono,monospace; color:var(--text-dim); }
+    .track { height:10px; border-radius:999px; background:#0f131a; border:1px solid var(--border); overflow:hidden; }
+    .fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--amber),var(--accent)); }
+    .callout { margin-top:16px; padding:14px; border-radius:12px; background:rgba(167,139,250,.1); border:1px solid rgba(167,139,250,.28); color:#dccfff; }
+    @media (max-width:900px){ body{padding:28px 14px;} .grid,.flow,.before-after{grid-template-columns:1fr;} .wide{grid-column:auto;} }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Pre-Implementation · Backend First</span>
+  <h1>Mining gets source-shaped weight.</h1>
+  <p class="subtitle">This pass takes Mining from display-name ores and generic odds to Woodcutting-style backend parity: stable target IDs, pickaxe-aware rolls, source-modeled gems, safe migrations, and a tiny backend-only equipment foundation for Mining bonuses.</p>
+
+  <section class="grid">
+    <article class="card wide">
+      <span class="label">Backend Route</span>
+      <h2>Five contracts before the frontend agent touches Qt</h2>
+      <div class="flow">
+        <div class="node"><div class="num">1</div><strong>Audit</strong><small>Local rev 667 plugin first, then ordinary missing rocks like sandstone, granite, limestone, and gem rocks if source-clean.</small></div>
+        <div class="node"><div class="num">2</div><strong>Targets</strong><small>Stable Mining IDs in `ORE_DATA`; inventory remains real item names such as `Coal` and `Pure essence`.</small></div>
+        <div class="node"><div class="num">3</div><strong>Tools</strong><small>Toolbelt remains tools-only, with starter bronze pickaxe and source-normalized tiers.</small></div>
+        <div class="node"><div class="num">4</div><strong>Bonuses</strong><small>Minimal owned-equipment backend collection for Glory and Varrock armour effects, no acquisition/UI yet.</small></div>
+        <div class="node"><div class="num">5</div><strong>Review</strong><small>One eligible successful card is one attempt; source-shaped RNG, undo-safe mutation, XP multiplier after base XP.</small></div>
+      </div>
+      <div class="tags"><span class="tag">mining_data.py</span><span class="tag">logic_pure.py</span><span class="tag">storage_pure.py</span><span class="tag">item_registry.py</span><span class="tag">__init__.py</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label amber">Target Identity</span>
+      <h2>Targets stop pretending to be items</h2>
+      <div class="before-after">
+        <div class="pane">
+          <div class="pane-title">Before</div>
+          <div class="ore-row"><div class="rock blue"></div><span>Rune essence</span><span class="pill">target+item</span></div>
+          <div class="ore-row"><div class="rock"></div><span>Iron ore</span><span class="pill">generic p</span></div>
+          <div class="ore-row"><div class="rock gold"></div><span>Gold ore</span><span class="pill">single row</span></div>
+        </div>
+        <div class="pane">
+          <div class="pane-title">After</div>
+          <div class="ore-row"><div class="rock blue"></div><span><code>rune_essence</code></span><span class="pill green">Pure at 30</span></div>
+          <div class="ore-row"><div class="rock"></div><span><code>iron</code></span><span class="pill green">source odds</span></div>
+          <div class="ore-row"><div class="rock gold"></div><span><code>sandstone</code></span><span class="pill amber">weighted</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="label purple">Balance Dial</span>
+      <h2>Runite should feel rare before cooldowns exist</h2>
+      <p>We will first replace the legacy probabilities with a source-shaped adapter using rock low/high chance plus best pickaxe. Respawn delays are preserved as data, but no stateful target cooldowns land in this backend slice.</p>
+      <div class="bars">
+        <div class="bar"><span>Copper</span><div class="track"><div class="fill" style="width:86%"></div></div><span>common</span></div>
+        <div class="bar"><span>Coal</span><div class="track"><div class="fill" style="width:45%"></div></div><span>slower</span></div>
+        <div class="bar"><span>Runite</span><div class="track"><div class="fill" style="width:18%"></div></div><span>rare</span></div>
+      </div>
+      <div class="callout">Concentrated coal/gold stay audited but not selectable until depletion/location mechanics make them meaningfully different.</div>
+    </article>
+
+    <article class="card">
+      <span class="label">Gems</span>
+      <h2>Random gems become drops, not XP bombs</h2>
+      <p>Incidental gems follow source semantics: extra inventory item, no extra Mining XP, excluded for essence and deferred concentrated deposits. Gem rocks get their own audited target/drop table if the source is clean.</p>
+      <div class="table">
+        <div class="row"><code>incidental</code><span>No XP</span><span class="pill green">drop</span></div>
+        <div class="row"><code>glory</code><span>Better gem roll</span><span class="pill amber">equipable</span></div>
+        <div class="row"><code>gem_rocks</code><span>Weighted table</span><span class="pill">target</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="label red">Out Of This Slice</span>
+      <h2>Do not let backend parity become a diary system</h2>
+      <p>Varrock armour acquisition is earmarked for a later achievement-diary-style reward design. This pass only models bonus item metadata and effects once owned.</p>
+      <div class="tags"><span class="tag">no equipment UI</span><span class="tag">no quests</span><span class="tag">no locations</span><span class="tag">no shooting stars</span></div>
+    </article>
+  </section>
+</main>
+</body>
+</html>

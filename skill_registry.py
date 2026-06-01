@@ -43,7 +43,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         level_key="mining_level",
         exp_key="mining_exp",
         current_target_key="current_ore",
-        default_target="Rune essence",
+        default_target="rune_essence",
         review_handler_key="mining",
     ),
     SkillDefinition(

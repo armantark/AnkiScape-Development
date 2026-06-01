@@ -5,6 +5,17 @@ import re
 
 try:
     from .item_registry import build_item_definitions
+    from .mining_data import (
+        DEFAULT_MINING_TARGET,
+        GLORY_GEM_DROP_CHANCE,
+        INCIDENTAL_GEM_DROP_CHANCE,
+        INCIDENTAL_GEM_DROP_TABLE as SOURCE_INCIDENTAL_GEM_DROP_TABLE,
+        mining_bonus_items_as_dict,
+        mining_extra_items_as_dict,
+        mining_output_items,
+        mining_pickaxes_as_dict,
+        mining_targets_as_dict,
+    )
     from .woodcutting_data import (
         BIRD_NEST_DROP_CHANCE,
         BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
@@ -17,6 +28,17 @@ try:
     )
 except ImportError:
     from item_registry import build_item_definitions
+    from mining_data import (
+        DEFAULT_MINING_TARGET,
+        GLORY_GEM_DROP_CHANCE,
+        INCIDENTAL_GEM_DROP_CHANCE,
+        INCIDENTAL_GEM_DROP_TABLE as SOURCE_INCIDENTAL_GEM_DROP_TABLE,
+        mining_bonus_items_as_dict,
+        mining_extra_items_as_dict,
+        mining_output_items,
+        mining_pickaxes_as_dict,
+        mining_targets_as_dict,
+    )
     from woodcutting_data import (
         BIRD_NEST_DROP_CHANCE,
         BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
@@ -140,6 +162,21 @@ ORE_IMAGES = {
     "Adamantite ore": os.path.join(ores_folder, "Adamantite.png"),
     "Runite ore": os.path.join(ores_folder, "Runite.png")
 }
+for _item_name, _filename in {
+    "Pure essence": "pure_essence.png",
+    "Blurite ore": "blurite_ore.png",
+    "Limestone": "limestone.png",
+    "Sandstone (1kg)": "sandstone_1kg.png",
+    "Sandstone (2kg)": "sandstone_2kg.png",
+    "Sandstone (5kg)": "sandstone_5kg.png",
+    "Sandstone (10kg)": "sandstone_10kg.png",
+    "Granite (500g)": "granite_500g.png",
+    "Granite (2kg)": "granite_2kg.png",
+    "Granite (5kg)": "granite_5kg.png",
+}.items():
+    _path = os.path.join(ores_folder, _filename)
+    if os.path.exists(_path):
+        ORE_IMAGES[_item_name] = _path
 
 GEM_IMAGES = {
     "Uncut sapphire": os.path.join(GEMS_FOLDER, "sapphire.png"),
@@ -160,24 +197,17 @@ BAR_IMAGES = {
 }
 
 # Data dictionaries
-ORE_DATA = {
-    "Rune essence": {"level": 1, "exp": 5.0, "probability": 0.95},
-    "Clay": {"level": 1, "exp": 5.0, "probability": 0.90},
-    "Copper ore": {"level": 1, "exp": 17.5, "probability": 0.85},
-    "Tin ore": {"level": 1, "exp": 17.5, "probability": 0.85},
-    "Iron ore": {"level": 15, "exp": 35, "probability": 0.80},
-    "Silver ore": {"level": 20, "exp": 40, "probability": 0.75},
-    "Coal": {"level": 30, "exp": 50, "probability": 0.70},
-    "Gold ore": {"level": 40, "exp": 65.0, "probability": 0.65},
-    "Mithril ore": {"level": 55, "exp": 80, "probability": 0.60},
-    "Adamantite ore": {"level": 70, "exp": 95.0, "probability": 0.55},
-    "Runite ore": {"level": 85, "exp": 125, "probability": 0.50}
-}
+ORE_DATA = mining_targets_as_dict()
+MINING_PICKAXE_DATA = mining_pickaxes_as_dict()
+MINING_BONUS_ITEM_DATA = mining_bonus_items_as_dict()
+MINING_EXTRA_ITEM_DATA = mining_extra_items_as_dict()
+MINING_OUTPUT_ITEMS = mining_output_items()
 
 TREE_DATA = woodcutting_targets_as_dict()
 WOODCUTTING_AXE_DATA = woodcutting_axes_as_dict()
 WOODCUTTING_EXTRA_ITEM_DATA = woodcutting_extra_items_as_dict()
 BIRD_NEST_DROP_TABLE = tuple({"item": item.item, "weight": item.weight} for item in SOURCE_BIRD_NEST_DROP_TABLE)
+INCIDENTAL_GEM_DROP_TABLE = tuple({"item": item.item, "weight": item.weight} for item in SOURCE_INCIDENTAL_GEM_DROP_TABLE)
 BIRD_NEST_OPEN_TABLES = {
     input_item: {
         "guaranteed_item": table.guaranteed_item,
@@ -366,6 +396,15 @@ for _item_name in WOODCUTTING_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         WOODCUTTING_EXTRA_ITEM_IMAGES[_item_name] = _path
 
+MINING_EXTRA_ITEM_IMAGES = {}
+for _item_name in MINING_EXTRA_ITEM_DATA:
+    _path = ORE_IMAGES.get(_item_name) or GEM_IMAGES.get(_item_name)
+    if _path and os.path.exists(_path):
+        MINING_EXTRA_ITEM_IMAGES[_item_name] = _path
+
+EXTRA_ITEM_DATA = {**WOODCUTTING_EXTRA_ITEM_DATA, **MINING_EXTRA_ITEM_DATA}
+EXTRA_ITEM_IMAGES = {**WOODCUTTING_EXTRA_ITEM_IMAGES, **MINING_EXTRA_ITEM_IMAGES}
+
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,
     ORE_IMAGES,
@@ -381,8 +420,8 @@ ITEM_DEFINITIONS = build_item_definitions(
     FLETCHED_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
     UTILITY_ITEM_IMAGES,
-    WOODCUTTING_EXTRA_ITEM_DATA,
-    WOODCUTTING_EXTRA_ITEM_IMAGES,
+    EXTRA_ITEM_DATA,
+    EXTRA_ITEM_IMAGES,
 )
 
 # Experience table
@@ -400,13 +439,13 @@ EXP_TABLE = [
 ACHIEVEMENTS = {
     # Easy Achievements
     "First Steps": {"description": "Mine your first ore", "difficulty": "Easy",
-                    "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in ORE_DATA) > 0},
+                    "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in MINING_OUTPUT_ITEMS) > 0},
     "Novice Miner": {"description": "Reach Mining level 10", "difficulty": "Easy",
                      "condition": lambda player: player["mining_level"] >= 10},
     "Ore Collector": {"description": "Collect 100 total ores", "difficulty": "Easy",
-                      "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in ORE_DATA) >= 100},
+                      "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in MINING_OUTPUT_ITEMS) >= 100},
     "Jack of All Ores": {"description": "Mine at least one of each ore type", "difficulty": "Easy",
-                         "condition": lambda player: all(player["inventory"].get(ore, 0) > 0 for ore in ORE_DATA)},
+                         "condition": lambda player: all(player["inventory"].get(ore, 0) > 0 for ore in MINING_OUTPUT_ITEMS)},
     "Rune Essence Enthusiast": {"description": "Mine 500 Rune Essence", "difficulty": "Easy",
                                 "condition": lambda player: player["inventory"]["Rune essence"] >= 500},
     "Clay Modeler": {"description": "Mine 500 Clay", "difficulty": "Easy",
@@ -424,7 +463,7 @@ ACHIEVEMENTS = {
     "Intermediate Miner": {"description": "Reach Mining level 30", "difficulty": "Moderate",
                            "condition": lambda player: player["mining_level"] >= 30},
     "Ore Hoarder": {"description": "Collect 1,000 total ores", "difficulty": "Moderate",
-                    "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in ORE_DATA) >= 1000},
+                    "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in MINING_OUTPUT_ITEMS) >= 1000},
     "Coal Connoisseur": {"description": "Mine 500 Coal", "difficulty": "Moderate",
                          "condition": lambda player: player["inventory"]["Coal"] >= 500},
     "Golden Touch": {"description": "Mine 100 Gold ore", "difficulty": "Moderate",
@@ -436,7 +475,7 @@ ACHIEVEMENTS = {
     "Runite Rookie": {"description": "Mine 50 Runite ore", "difficulty": "Moderate",
                       "condition": lambda player: player["inventory"]["Runite ore"] >= 50},
     "Diverse Miner": {"description": "Mine 100 of each ore type", "difficulty": "Moderate",
-                      "condition": lambda player: all(player["inventory"].get(ore, 0) >= 100 for ore in ORE_DATA)},
+                      "condition": lambda player: all(player["inventory"].get(ore, 0) >= 100 for ore in MINING_OUTPUT_ITEMS)},
     "XP Chaser": {"description": "Gain 100,000 total Mining experience", "difficulty": "Moderate",
                   "condition": lambda player: player["mining_exp"] >= 100000},
 
@@ -444,7 +483,7 @@ ACHIEVEMENTS = {
     "Expert Miner": {"description": "Reach Mining level 60", "difficulty": "Difficult",
                      "condition": lambda player: player["mining_level"] >= 60},
     "Ore Magnate": {"description": "Collect 10,000 total ores", "difficulty": "Difficult",
-                    "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in ORE_DATA) >= 10000},
+                    "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in MINING_OUTPUT_ITEMS) >= 10000},
     "Rune Essence Baron": {"description": "Mine 10,000 Rune Essence", "difficulty": "Difficult",
                            "condition": lambda player: player["inventory"]["Rune essence"] >= 10000},
     "Clay Empire": {"description": "Mine 10,000 Clay", "difficulty": "Difficult",
@@ -466,7 +505,7 @@ ACHIEVEMENTS = {
     "Master Miner": {"description": "Reach Mining level 99", "difficulty": "Very Challenging",
                      "condition": lambda player: player["mining_level"] >= 99},
     "Ore Tycoon": {"description": "Collect 100,000 total ores", "difficulty": "Very Challenging",
-                   "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in ORE_DATA) >= 100000},
+                   "condition": lambda player: sum(player["inventory"].get(ore, 0) for ore in MINING_OUTPUT_ITEMS) >= 100000},
     "Mithril Monarch": {"description": "Mine 10,000 Mithril ore", "difficulty": "Very Challenging",
                         "condition": lambda player: player["inventory"]["Mithril ore"] >= 10000},
     "Adamantite Overlord": {"description": "Mine 5,000 Adamantite ore", "difficulty": "Very Challenging",
@@ -475,7 +514,7 @@ ACHIEVEMENTS = {
                      "condition": lambda player: player["inventory"]["Runite ore"] >= 2500},
     "Ore Completionist": {"description": "Mine 10,000 of each ore type", "difficulty": "Very Challenging",
                           "condition": lambda player: all(
-                              player["inventory"].get(ore, 0) >= 10000 for ore in ORE_DATA)},
+                              player["inventory"].get(ore, 0) >= 10000 for ore in MINING_OUTPUT_ITEMS)},
     "XP Master": {"description": "Gain 1,000,000 total Mining experience", "difficulty": "Very Challenging",
                   "condition": lambda player: player["mining_exp"] >= 1000000},
 
@@ -518,7 +557,7 @@ ACHIEVEMENTS = {
                                "woodcutting_level"] >= 50},
     "Resource Baron": {"description": "Collect 10,000 total ores and 10,000 total logs", "difficulty": "Difficult",
                        "condition": lambda player: sum(
-                           player["inventory"].get(ore, 0) for ore in ORE_DATA) >= 10000 and sum(
+                           player["inventory"].get(ore, 0) for ore in MINING_OUTPUT_ITEMS) >= 10000 and sum(
                            player["inventory"].get(item, 0) for item in WOODCUTTING_LOG_ITEMS) >= 10000},
     "Skilling Prodigy": {"description": "Reach level 80 in both Mining and Woodcutting",
                          "difficulty": "Very Challenging",

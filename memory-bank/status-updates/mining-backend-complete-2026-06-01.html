@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mining Backend Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(79, 140, 255, 0.18), transparent 32rem),
+        radial-gradient(circle at 85% 20%, rgba(167, 139, 250, 0.14), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 44px 0; }
+    .badge, .tag, button { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #bcd2ff;
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(34px, 5vw, 62px); line-height: .95; max-width: 900px; }
+    .subtitle { color: var(--text-dim); font-size: 18px; line-height: 1.5; max-width: 860px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 28px; }
+    .card {
+      grid-column: span 6;
+      background: linear-gradient(180deg, rgba(255,255,255,.03), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.22);
+    }
+    .wide { grid-column: span 12; }
+    h2 { margin: 0 0 12px; font-size: 21px; }
+    p { color: var(--text-dim); line-height: 1.45; }
+    ul { margin: 0; padding-left: 18px; color: var(--text-dim); line-height: 1.6; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 8px; color: #cbd5e1; font-size: 11px; }
+    .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .metric { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .metric strong { display: block; font-size: 28px; }
+    .metric span { color: var(--text-dim); font-family: "JetBrains Mono", monospace; font-size: 11px; text-transform: uppercase; }
+    .lane { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: stretch; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: #10141b; }
+    .arrow { display: grid; place-items: center; color: var(--accent); font-family: "JetBrains Mono", monospace; }
+    .mini-title { color: var(--text-dim); font-family: "JetBrains Mono", monospace; font-size: 11px; text-transform: uppercase; margin-bottom: 10px; }
+    .pill-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill { border: 1px solid var(--border); border-radius: 999px; padding: 7px 9px; background: rgba(255,255,255,.03); font-size: 13px; }
+    .ok { color: var(--green); }
+    .warn { color: var(--amber); }
+    .no { color: var(--red); }
+    pre {
+      white-space: pre-wrap;
+      margin: 0;
+      color: #dbeafe;
+      background: #0b111b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    button {
+      border: 1px solid rgba(79, 140, 255, .5);
+      border-radius: 10px;
+      background: var(--accent-glow);
+      color: #dbeafe;
+      padding: 10px 12px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover { border-color: var(--accent); }
+    @media (max-width: 900px) {
+      .card, .wide { grid-column: span 12; }
+      .metric-row, .lane { grid-template-columns: 1fr; }
+      .arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Completed Backend Pass</span>
+  <h1>Mining now has a source-shaped spine.</h1>
+  <p class="subtitle">Backend parity is in place: stable target IDs, real item outputs, pickaxe-aware rolls, weighted rock outputs, explicit tradability, and storage migrations. Frontend can now build against a real contract instead of legacy ore names.</p>
+
+  <section class="grid">
+    <article class="card">
+      <h2>What Changed</h2>
+      <ul>
+        <li><strong>Targets:</strong> 16 stable Mining targets, including limestone, sandstone, granite, and gem rocks.</li>
+        <li><strong>Tools:</strong> starter Bronze pickaxe in the toolbelt plus owned-item pickaxe resolution.</li>
+        <li><strong>Rewards:</strong> pure essence, weighted sandstone/granite/gem rocks, incidental gems with no Mining XP.</li>
+        <li><strong>Bonuses:</strong> backend-only owned equipment for amulet of glory and Varrock armour.</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">mining_data.py</span>
+        <span class="tag">logic_pure.py</span>
+        <span class="tag">storage_pure.py</span>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Test Signal</h2>
+      <div class="metric-row">
+        <div class="metric"><strong>154</strong><span>tests ran</span></div>
+        <div class="metric"><strong>18</strong><span>skipped</span></div>
+        <div class="metric"><strong>0</strong><span>failures</span></div>
+        <div class="metric"><strong>v8</strong><span>storage</span></div>
+      </div>
+      <p>Command: <span class="tag">python3 -m unittest discover -s tests</span></p>
+    </article>
+
+    <article class="card wide">
+      <h2>Tradability Ledger</h2>
+      <div class="lane">
+        <div class="pane">
+          <div class="mini-title">Tradable</div>
+          <div class="pill-list">
+            <span class="pill ok">Normal pickaxes</span>
+            <span class="pill ok">Gilded pickaxes</span>
+            <span class="pill ok">Dragon pickaxe item 15261</span>
+            <span class="pill ok">Uncut gems</span>
+            <span class="pill ok">Ordinary ores</span>
+          </div>
+        </div>
+        <div class="arrow">-></div>
+        <div class="pane">
+          <div class="mini-title">Non-Tradable / Normalized</div>
+          <div class="pill-list">
+            <span class="pill no">Blurite ore</span>
+            <span class="pill no">Inferno adze</span>
+            <span class="pill no">Varrock armour 1-4</span>
+            <span class="pill warn">15259 Dragon pickaxe source anomaly</span>
+            <span class="pill warn">Varrock armour 4 source anomaly</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Frontend Contract</h2>
+      <ul>
+        <li>Use `ORE_DATA[target_id]["display_name"]` for row labels.</li>
+        <li>Use `output_item` / `weighted_outputs` for bank-facing item names.</li>
+        <li>Show best usable pickaxe from backend helpers, not duplicated Qt logic.</li>
+        <li>Mark sandstone, granite, and gem rocks as variable-output targets.</li>
+      </ul>
+      <div class="tags">
+        <span class="tag">ui.py</span>
+        <span class="tag">MINING_PICKAXE_DATA</span>
+        <span class="tag">MINING_OUTPUT_ITEMS</span>
+      </div>
+    </article>
+
+    <article class="card">
+      <h2>Still Deferred</h2>
+      <ul>
+        <li>Concentrated coal/gold: waits for depletion/location behavior.</li>
+        <li>Shooting Stars: separate timed activity design.</li>
+        <li>Equipment UI: `owned_equipment` is backend-only for now.</li>
+        <li>Asset polish: new Mining target/tool/equipment sprites can be fetched after frontend layout is decided.</li>
+      </ul>
+    </article>
+
+    <article class="card wide">
+      <h2>Copy-Paste Prompt For Frontend Agent</h2>
+      <pre id="handoff">You are the frontend agent for AnkiScape Mining parity. Backend is complete. Build the Mining frontend handoff only: update the Skills hub Mining target panel, stats/bank affordances if needed, and HUD/menu copy without changing backend mechanics.
+
+Backend contracts:
+- `constants.ORE_DATA` is keyed by stable target IDs. Use `display_name` for labels.
+- Inventory uses real item names from `output_item`, `alternate_output_item`, and `weighted_outputs`.
+- `constants.MINING_PICKAXE_DATA` has display names, required levels, ratios, source notes, and tradeability.
+- `constants.MINING_OUTPUT_ITEMS` is the inventory-facing Mining item set.
+- `logic_pure.best_mining_pickaxe_pure` and `can_mine_target_pure` should drive lock reasons instead of re-implementing source rules in Qt.
+
+Required UX:
+- Rows show display name, level, output/base XP, best usable pickaxe, and a clear lock reason.
+- Weighted targets label variable outputs: Sandstone, Granite, Gem rocks.
+- Mention source notes/anomalies in tooltips where helpful, especially concentrated deposits being deferred.
+- Do not move bonus equipment into toolbelt UI. `owned_equipment` is backend-only until an equipment UI exists.
+
+Validation:
+- Add/adjust offscreen Qt tests for the Mining panel.
+- Run `python3 -m unittest discover -s tests` and the offscreen Qt loop if available.</pre>
+      <button type="button" onclick="copyPrompt()">Copy Handoff Prompt</button>
+    </article>
+  </section>
+</main>
+<script>
+  function copyPrompt() {
+    const text = document.getElementById('handoff').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const button = document.querySelector('button');
+      button.textContent = 'Copied';
+      setTimeout(() => { button.textContent = 'Copy Handoff Prompt'; }, 1400);
+    });
+  }
+</script>
+</body>
+</html>

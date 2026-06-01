@@ -5,7 +5,7 @@ from storage_pure import (
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
-from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA, WOODCUTTING_LOG_ITEMS
+from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA, WOODCUTTING_LOG_ITEMS, MINING_OUTPUT_ITEMS
 
 
 class TestStoragePure(unittest.TestCase):
@@ -34,12 +34,15 @@ class TestStoragePure(unittest.TestCase):
             "progress_to_next",
             "completed_achievements",
             "toolbelt",
+            "owned_equipment",
         ]:
             self.assertIn(key, data)
-        # Inventory seeded with ore keys
-        for ore in ORE_DATA:
+        # Inventory uses real item names; Mining targets use stable IDs.
+        for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, data["inventory"])  # zero by default
         self.assertEqual(data["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertIn("bronze_pickaxe", data["toolbelt"]["mining"])
+        self.assertEqual(data["owned_equipment"], [])
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -52,7 +55,7 @@ class TestStoragePure(unittest.TestCase):
         ]
         utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values() if "output_item" in spec]
         for item_name in (
-            list(ORE_DATA)
+            list(MINING_OUTPUT_ITEMS)
             + list(WOODCUTTING_LOG_ITEMS)
             + list(BAR_DATA)
             + list(GEM_DATA)
@@ -84,7 +87,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
-        for ore in ORE_DATA:
+        for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, migrated["inventory"])  # completed
         # Version bumped
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
@@ -106,6 +109,27 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Wool", migrated["inventory"])
         self.assertIn("Flax", migrated["inventory"])
         self.assertIn("bronze_hatchet", migrated["toolbelt"]["woodcutting"])
+        self.assertIn("bronze_pickaxe", migrated["toolbelt"]["mining"])
+        self.assertEqual(migrated["owned_equipment"], [])
+
+    def test_migrate_legacy_mining_target_names(self):
+        migrated = migrate_loaded_data(
+            {"current_ore": "Iron ore", "inventory": {"Iron ore": 2}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_ore"], "iron")
+        self.assertEqual(migrated["inventory"]["Iron ore"], 2)
+
+    def test_migrate_unknown_mining_target_to_default(self):
+        migrated = migrate_loaded_data(
+            {"current_ore": "Not a rock", "inventory": {}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_ore"], "rune_essence")
 
     def test_migrate_legacy_woodcutting_target_and_logs(self):
         migrated = migrate_loaded_data(
@@ -145,7 +169,7 @@ class TestStoragePure(unittest.TestCase):
         base = {"mining_exp": 10, "inventory": 5}  # not a dict
         migrated = migrate_loaded_data(base, ORE_DATA)
         self.assertIsInstance(migrated["inventory"], dict)
-        for ore in ORE_DATA:
+        for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, migrated["inventory"])  # seeded
 
 
