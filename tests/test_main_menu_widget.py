@@ -37,6 +37,9 @@ def _make_player_data() -> dict:
     for skill in ("mining", "woodcutting", "smithing", "crafting"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
+    # Real saves are seeded with a bound Bronze hatchet; without it every tree
+    # would lock on "no usable hatchet" and Woodcutting rows couldn't be tested.
+    data["toolbelt"] = {"woodcutting": ["bronze_hatchet"]}
     return data
 
 
@@ -223,7 +226,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {
-            "Tree": 5,
+            "Logs": 5,
             "Bronze bar": 2,
             "Arrow shafts": 30,
             "Feather": 50,
@@ -319,6 +322,75 @@ class MainMenuWidgetTest(unittest.TestCase):
         spins = self.dialog.findChildren(QDoubleSpinBox)
         self.assertTrue(spins, "no XP multiplier spin box found")
         self.assertGreaterEqual(spins[0].maximum(), 1.0)
+
+    # ---- Woodcutting 2011Scape parity frontend ----------------------------
+    def _open_woodcutting(self, dialog: "QDialog") -> "QListWidget":
+        skill_list = _find_skill_list(dialog)
+        wc_row = next(
+            i for i in range(skill_list.count()) if skill_list.item(i).text() == "Woodcutting"
+        )
+        skill_list.setCurrentRow(wc_row)
+        QApplication.processEvents()
+        return _find_list_with_item_prefix(dialog, "Oak ")
+
+    def _wc_row(self, tree_list: "QListWidget", prefix: str) -> "QListWidgetItem":
+        return next(
+            tree_list.item(i) for i in range(tree_list.count())
+            if tree_list.item(i).text().startswith(prefix)
+        )
+
+    def test_woodcutting_list_shows_friendly_names_not_stable_ids(self) -> None:
+        tree_list = self._open_woodcutting(self.dialog)
+        texts = [tree_list.item(i).text() for i in range(tree_list.count())]
+        # Friendly display names, not raw IDs like "oak"/"tree".
+        self.assertTrue(any(t.startswith("Oak (Lvl 15)") for t in texts), texts)
+        self.assertTrue(any(t.startswith("Tree (Lvl 1)") for t in texts), texts)
+        self.assertFalse(any(t == "oak" or t == "tree" for t in texts), texts)
+
+    def test_woodcutting_ivy_marked_xp_only_no_logs(self) -> None:
+        tree_list = self._open_woodcutting(self.dialog)
+        ivy = self._wc_row(tree_list, "Ivy ")
+        self.assertIn("XP only", ivy.text())
+        self.assertIn("produces no logs", ivy.toolTip())
+
+    def test_woodcutting_tooltip_shows_output_and_best_hatchet(self) -> None:
+        tree_list = self._open_woodcutting(self.dialog)
+        oak = self._wc_row(tree_list, "Oak ")
+        tip = oak.toolTip()
+        self.assertIn("Oak logs", tip)
+        self.assertIn("Bronze hatchet", tip)  # seeded toolbelt is the best usable
+
+    def test_woodcutting_high_level_tree_locked_with_level_reason(self) -> None:
+        tree_list = self._open_woodcutting(self.dialog)
+        magic = self._wc_row(tree_list, "Magic ")  # level 75, player is 33
+        self.assertFalse(
+            bool(magic.flags() & Qt.ItemFlag.ItemIsEnabled),
+            "Magic should be locked at level 33",
+        )
+        self.assertIn("level 75", magic.toolTip())
+
+    def test_woodcutting_locks_all_trees_when_no_usable_hatchet(self) -> None:
+        pd = _make_player_data()
+        pd["toolbelt"] = {"woodcutting": []}  # no bound tool, no hatchet item
+        dialog = self._open(pd)
+        tree_list = self._open_woodcutting(dialog)
+        tree = self._wc_row(tree_list, "Tree ")
+        self.assertFalse(
+            bool(tree.flags() & Qt.ItemFlag.ItemIsEnabled),
+            "Tree should lock without a usable hatchet",
+        )
+        self.assertIn("no usable hatchet", tree.toolTip())
+
+    def test_open_bird_nests_is_a_visible_no_xp_utility_activity(self) -> None:
+        utility_list = self._open_utility(self.dialog)
+        texts = [utility_list.item(i).text() for i in range(utility_list.count())]
+        self.assertIn("Open bird nests", texts)
+        nest = next(
+            utility_list.item(i) for i in range(utility_list.count())
+            if utility_list.item(i).text() == "Open bird nests"
+        )
+        self.assertIn("No XP", nest.toolTip())
+        self.assertIn("bird nest", nest.toolTip().lower())
 
 
 if __name__ == "__main__":

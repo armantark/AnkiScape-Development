@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Woodcutting Backend Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 18% 12%, rgba(79,140,255,.2), transparent 30rem), radial-gradient(circle at 80% 20%, rgba(74,222,128,.18), transparent 30rem), var(--bg); color:var(--text); font-family:Outfit,sans-serif; padding:38px 22px; }
+    main { max-width:1180px; margin:0 auto; }
+    .badge { display:inline-flex; padding:7px 11px; border:1px solid rgba(74,222,128,.38); border-radius:999px; background:rgba(74,222,128,.12); color:#c7f9d8; font:600 .72rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:18px 0 10px; font-size:clamp(2.3rem,6vw,4.9rem); line-height:.93; letter-spacing:-.05em; }
+    .subtitle { max-width:830px; color:var(--text-dim); line-height:1.55; font-size:1.06rem; margin:0 0 26px; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:18px; }
+    .metric,.card { border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--surface); box-shadow:0 20px 60px rgba(0,0,0,.18); padding:18px; }
+    .metric strong { display:block; font-size:2rem; line-height:1; margin-bottom:8px; }
+    .metric span { color:var(--text-dim); font:600 .7rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    .label { color:var(--green); font:600 .68rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; display:block; margin-bottom:8px; }
+    .label.amber{color:var(--amber);} .label.purple{color:var(--purple);}
+    h2 { margin:0 0 12px; font-size:1.3rem; }
+    p { margin:0; color:var(--text-dim); line-height:1.55; }
+    .table { display:grid; gap:7px; margin-top:14px; }
+    .row { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; padding:9px 10px; border:1px solid var(--border); border-radius:10px; background:var(--surface-2); }
+    .row code,.tag,.pill { font-family:JetBrains Mono,monospace; }
+    .pill { padding:5px 7px; border-radius:8px; font-size:.68rem; background:rgba(79,140,255,.16); color:#cbdcff; }
+    .pill.green { background:rgba(74,222,128,.14); color:#c7f9d8; }
+    .pill.amber { background:rgba(251,191,36,.13); color:#ffe7a6; }
+    .steps { display:grid; gap:10px; margin-top:14px; }
+    .step { display:grid; grid-template-columns:34px 1fr; gap:12px; align-items:start; padding:10px; border-radius:10px; background:var(--surface-2); border:1px solid var(--border); }
+    .num { width:34px; height:34px; border-radius:10px; display:grid; place-items:center; background:var(--accent); color:#fff; font:600 .78rem/1 JetBrains Mono,monospace; }
+    .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .tag { padding:6px 8px; border-radius:8px; background:var(--surface-2); color:var(--text); font-size:.72rem; }
+    .wide { grid-column:1/-1; }
+    @media (max-width:900px){ body{padding:28px 14px;} .metrics,.grid{grid-template-columns:1fr;} .wide{grid-column:auto;} }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Backend Complete · 2011Scape Parity</span>
+  <h1>Woodcutting now has real source data.</h1>
+  <p class="subtitle">The backend now separates target IDs from inventory items, resolves hatchets, drops and opens bird nests, migrates old saves, and leaves the frontend a clean metadata contract.</p>
+
+  <section class="metrics">
+    <div class="metric"><strong>11</strong><span>Targets</span></div>
+    <div class="metric"><strong>8+1</strong><span>Hatchets</span></div>
+    <div class="metric"><strong>134</strong><span>Tests Green</span></div>
+    <div class="metric"><strong>v7</strong><span>Save Schema</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="label">Data Contract</span>
+      <h2>Stable targets, real items</h2>
+      <div class="table">
+        <div class="row"><code>tree</code><span>Logs</span><span class="pill green">item 1511</span></div>
+        <div class="row"><code>hollow</code><span>Bark</span><span class="pill green">item 3239</span></div>
+        <div class="row"><code>ivy</code><span>No output</span><span class="pill amber">XP only</span></div>
+        <div class="row"><code>redwood</code><span>Removed</span><span class="pill">OSRS-only</span></div>
+      </div>
+      <div class="tags"><span class="tag">woodcutting_data.py</span><span class="tag">constants.py</span><span class="tag">item_registry.py</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label purple">Mechanics</span>
+      <h2>Hatchets improve the roll</h2>
+      <p>Woodcutting keeps RNG, but now uses 2011Scape low/high chances and hatchet ratios through an Anki-tuned adapter. Better tools raise success chance; successful chops still produce one output item.</p>
+      <div class="steps">
+        <div class="step"><div class="num">1</div><div><strong>Resolve tool</strong><p>Best usable hatchet from toolbelt or owned items.</p></div></div>
+        <div class="step"><div class="num">2</div><div><strong>Roll chop</strong><p>Source-shaped probability, one attempt per card.</p></div></div>
+        <div class="step"><div class="num">3</div><div><strong>Roll nest</strong><p>Subtype drop table, then Utility opening later.</p></div></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="label amber">Save Migration</span>
+      <h2>Known legacy keys are cleaned up</h2>
+      <p>`Tree`, `Oak`, and friends merge into real log keys and are removed. Unknown inventory entries survive. Existing saves also receive a bound Bronze hatchet.</p>
+      <div class="tags"><span class="tag">storage_pure.py</span><span class="tag">CURRENT_CONFIG_VERSION = 7</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label">Nest Utility</span>
+      <h2>No-XP opening is backend-ready</h2>
+      <p>`Open bird nests` opens up to 28 nest subtypes per review and rolls source seed/ring/egg contents. Those items are registered now and can stay inert until Farming, Herblore, or loot systems use them.</p>
+      <div class="tags"><span class="tag">logic_pure.py</span><span class="tag">__init__.py</span><span class="tag">UTILITY_ACTIVITY_DATA</span></div>
+    </article>
+
+    <article class="card wide">
+      <span class="label purple">Frontend Handoff</span>
+      <h2>Next agent should render, not re-derive</h2>
+      <p>Use `display_name`, `output_item`, source XP, best usable hatchet, and lock metadata from backend data. The target list should stop showing raw IDs, mark Ivy as XP-only, and present nest opening as a visible no-XP Utility action.</p>
+    </article>
+  </section>
+</main>
+</body>
+</html>

@@ -51,6 +51,10 @@ try:
         EXP_TABLE,
         ORE_DATA,
         TREE_DATA,
+        WOODCUTTING_AXE_DATA,
+        WOODCUTTING_LOG_ITEMS,
+        DEFAULT_WOODCUTTING_TARGET,
+        BIRD_NEST_OPEN_TABLES,
         BAR_DATA,
         GEM_DATA,
         CRAFTING_DATA,
@@ -73,6 +77,10 @@ except Exception:
         EXP_TABLE,
         ORE_DATA,
         TREE_DATA,
+        WOODCUTTING_AXE_DATA,
+        WOODCUTTING_LOG_ITEMS,
+        DEFAULT_WOODCUTTING_TARGET,
+        BIRD_NEST_OPEN_TABLES,
         BAR_DATA,
         GEM_DATA,
         CRAFTING_DATA,
@@ -90,9 +98,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, sanitize_xp_multiplier
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, sanitize_xp_multiplier  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -1042,22 +1050,54 @@ def show_main_menu(
         return ore_list
 
     def _build_tree_list() -> QListWidget:
+        # TREE_DATA is keyed by stable target IDs ("tree", "oak", ...). The row
+        # text shows the friendly display name + level; the chosen ID is stored on
+        # the item and persisted via on_set_tree. Locks distinguish level from a
+        # missing usable hatchet, and Ivy is flagged as XP-only (no log output).
         tree_list = QListWidget()
         tree_list.setIconSize(QSize(28, 28))
         tree_list.setAlternatingRowColors(True)
-        for tree, data in TREE_DATA.items():
-            item = QListWidgetItem(f"{tree} (Lvl {data['level']})")
-            item.setData(Qt.ItemDataRole.UserRole, tree)
-            t_icon = TREE_IMAGES.get(tree)
+        lvl_have = player_data.get("woodcutting_level", 1)
+        inv = player_data.get("inventory", {})
+        toolbelt = player_data.get("toolbelt", {})
+        best_axe = best_woodcutting_axe_pure(lvl_have, inv, toolbelt, WOODCUTTING_AXE_DATA)
+        best_axe_name = best_axe.get("display_name", "a hatchet") if best_axe else None
+        for target_id, data in TREE_DATA.items():
+            display = str(data.get("display_name", target_id))
+            output_item = data.get("output_item")
+            lvl_req = data.get("level", 1)
+            xp_only = output_item is None
+            label = f"{display} (Lvl {lvl_req})"
+            if xp_only:
+                label += " — XP only"
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, target_id)
+            # TREE_IMAGES is keyed by the legacy display-name filename ("Oak").
+            t_icon = TREE_IMAGES.get(display)
             if t_icon and os.path.exists(t_icon):
                 item.setIcon(QIcon(t_icon))
-            lvl_req = data.get('level', 1)
-            lvl_have = player_data.get("woodcutting_level", 1)
-            if not can_cut_tree_pure(player_data.get("woodcutting_level", 1), tree, TREE_DATA):
+            output_line = "XP only — produces no logs." if xp_only else f"Output: {output_item} x1"
+            tooltip = (
+                f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.\n"
+                f"{output_line}\n"
+                f"Base XP: {data.get('exp', 0)} per chop\n"
+                f"Best usable hatchet: {best_axe_name or 'none — get a hatchet'}"
+            )
+            source = data.get("source")
+            if source:
+                tooltip += f"\nSource: {source}"
+            if not can_chop_woodcutting_target_pure(lvl_have, target_id, TREE_DATA, inv, toolbelt, WOODCUTTING_AXE_DATA):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-            item.setToolTip(f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.")
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if best_axe is None:
+                    reason.append("no usable hatchet")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            item.setToolTip(tooltip)
             tree_list.addItem(item)
-            if tree == player_data.get("current_tree"):
+            if target_id == player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET):
                 tree_list.setCurrentItem(item)
 
         def _on_tree_selected(item: QListWidgetItem):
@@ -1213,27 +1253,43 @@ def show_main_menu(
         inv = player_data.get("inventory", {})
         for activity_key, spec in UTILITY_ACTIVITY_DATA.items():
             label = str(spec.get("display_name", activity_key))
-            output_item = str(spec.get("output_item", label))
-            output_qty = spec.get("output_qty", 1)
             batch_size = spec.get("batch_size", 1)
             item = QListWidgetItem(label)
             item.setData(Qt.ItemDataRole.UserRole, activity_key)
-            u_icon = UTILITY_ITEM_IMAGES.get(output_item)
-            if u_icon and os.path.exists(u_icon):
-                item.setIcon(QIcon(u_icon))
-            reqs = spec.get("requirements", {})
-            if reqs:
-                mat_lines = [f"{mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
-                mat_text = "\n".join(mat_lines)
+
+            # Bird-nest opening consumes nests (no fixed "output_item"); its
+            # contents are rolled from source tables, so it gets bespoke tooltip
+            # + lock handling rather than the requirement/output framing.
+            openable_items = spec.get("openable_items")
+            if openable_items:
+                have_nests = sum(inv.get(nest, 0) for nest in openable_items)
+                tooltip = (
+                    f"Opens up to {batch_size} bird nests per successful card. No XP.\n"
+                    "Rolls source seed / ring / egg contents into your bank.\n"
+                    f"Bird nests held: {have_nests} (drop while Woodcutting)"
+                )
+                if not can_open_bird_nests_pure(inv, BIRD_NEST_OPEN_TABLES):
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                    tooltip += "\nLocked: cut trees until a bird nest drops."
             else:
-                mat_text = "No materials required"
-            tooltip = (
-                f"Processes up to {batch_size} per successful card. No Crafting XP.\n"
-                f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
-            )
-            if not can_perform_utility_activity_pure(inv, activity_key, UTILITY_ACTIVITY_DATA):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                tooltip += "\nLocked: gather the required materials first."
+                output_item = str(spec.get("output_item", label))
+                output_qty = spec.get("output_qty", 1)
+                u_icon = UTILITY_ITEM_IMAGES.get(output_item)
+                if u_icon and os.path.exists(u_icon):
+                    item.setIcon(QIcon(u_icon))
+                reqs = spec.get("requirements", {})
+                if reqs:
+                    mat_lines = [f"{mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
+                    mat_text = "\n".join(mat_lines)
+                else:
+                    mat_text = "No materials required"
+                tooltip = (
+                    f"Processes up to {batch_size} per successful card. No Crafting XP.\n"
+                    f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
+                )
+                if not can_perform_utility_activity_pure(inv, activity_key, UTILITY_ACTIVITY_DATA):
+                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                    tooltip += "\nLocked: gather the required materials first."
             item.setToolTip(tooltip)
             utility_list.addItem(item)
             if activity_key == player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY):
@@ -2181,15 +2237,20 @@ def show_tree_selection_dialog(current_tree: str, woodcutting_level: int, TREE_D
     button_group = QButtonGroup(dialog)
 
     for tree_name, tree_data in TREE_DATA.items():
+        # tree_name is a stable target ID; show the friendly display name and
+        # look up the legacy icon by that name (some IDs have no bundled image).
+        display = str(tree_data.get("display_name", tree_name))
         tree_widget = QWidget()
         tree_layout = QVBoxLayout(tree_widget)
 
-        tree_image = QLabel()
-        pixmap = QPixmap(TREE_IMAGES[tree_name])
-        tree_image.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio))
-        tree_layout.addWidget(tree_image, alignment=Qt.AlignmentFlag.AlignCenter)
+        icon_path = TREE_IMAGES.get(display)
+        if icon_path and os.path.exists(icon_path):
+            tree_image = QLabel()
+            pixmap = QPixmap(icon_path)
+            tree_image.setPixmap(pixmap.scaled(64, 64, Qt.AspectRatioMode.KeepAspectRatio))
+            tree_layout.addWidget(tree_image, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        tree_info = QLabel(f"{tree_name}\nLevel: {tree_data['level']}")
+        tree_info = QLabel(f"{display}\nLevel: {tree_data['level']}")
         tree_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         tree_layout.addWidget(tree_info)
 
@@ -2593,17 +2654,20 @@ def show_stats(player_data: dict, current_skill: str):
             for item, amount in player_data.get("inventory", {}).items():
                 if (
                     (skill_name == "Mining" and (item in ORE_DATA or item in GEM_DATA))
-                    or (skill_name == "Woodcutting" and item in TREE_DATA)
+                    # Woodcutting stores real log items (Logs, Oak logs, Bark), not
+                    # the stable tree IDs that now key TREE_DATA.
+                    or (skill_name == "Woodcutting" and item in WOODCUTTING_LOG_ITEMS)
                     or (skill_name == "Smithing" and item in BAR_DATA)
                     or (skill_name == "Crafting" and item in CRAFTING_DATA)
                 ):
                     item_image = QLabel()
+                    _item_def = _item_def_for(item)
                     pixmap = QPixmap(
                         ORE_IMAGES.get(item)
-                        or TREE_IMAGES.get(item)
                         or BAR_IMAGES.get(item)
                         or GEM_IMAGES.get(item)
                         or CRAFTED_ITEM_IMAGES.get(item)
+                        or (_item_def.asset_path if _item_def and _item_def.asset_path else "")
                     )
                     item_image.setPixmap(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio))
                     inventory_layout.addWidget(item_image, row, 0)

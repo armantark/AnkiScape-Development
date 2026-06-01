@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Woodcutting Backend Parity Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 15% 18%, rgba(74,222,128,.16), transparent 28rem), radial-gradient(circle at 82% 8%, rgba(167,139,250,.18), transparent 30rem), linear-gradient(180deg,#0c0e12,#10151d 60%,#0c0e12); color:var(--text); font-family:Outfit,sans-serif; padding:38px 22px; }
+    main { max-width:1200px; margin:0 auto; }
+    .badge { display:inline-flex; gap:8px; align-items:center; padding:7px 11px; border:1px solid rgba(74,222,128,.36); border-radius:999px; background:rgba(74,222,128,.12); color:#c7f9d8; font:600 .72rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; }
+    h1 { margin:18px 0 10px; font-size:clamp(2.25rem,6vw,4.8rem); line-height:.92; letter-spacing:-.05em; }
+    .subtitle { max-width:840px; color:var(--text-dim); font-size:1.06rem; line-height:1.55; margin:0 0 28px; }
+    .grid { display:grid; grid-template-columns:1.05fr .95fr; gap:18px; align-items:stretch; }
+    .card { border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(180deg,rgba(255,255,255,.035),transparent),var(--surface); box-shadow:0 22px 70px rgba(0,0,0,.2); padding:20px; overflow:hidden; }
+    .label { display:block; font:600 .68rem/1 JetBrains Mono,monospace; letter-spacing:.08em; text-transform:uppercase; color:var(--green); margin-bottom:8px; }
+    .label.amber { color:var(--amber); } .label.purple { color:var(--purple); } .label.red { color:var(--red); }
+    h2 { margin:0 0 12px; font-size:1.32rem; }
+    p { color:var(--text-dim); line-height:1.55; margin:0; }
+    .flow { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:16px; }
+    .node { min-height:104px; border:1px solid var(--border); border-radius:12px; background:var(--surface-2); padding:12px; position:relative; }
+    .node strong { display:block; margin-bottom:6px; }
+    .node small { color:var(--text-dim); line-height:1.35; display:block; }
+    .num { width:26px; height:26px; display:grid; place-items:center; border-radius:8px; background:var(--accent); color:#fff; font:600 .72rem/1 JetBrains Mono,monospace; margin-bottom:10px; }
+    .before-after { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+    .pane { border:1px solid var(--border); border-radius:12px; background:var(--surface-2); padding:12px; }
+    .pane-title { font:600 .66rem/1 JetBrains Mono,monospace; letter-spacing:.08em; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
+    .inv-row { display:grid; grid-template-columns:28px 1fr auto; gap:9px; align-items:center; padding:8px; border-radius:9px; background:rgba(255,255,255,.035); margin-bottom:7px; }
+    .dot { width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg,#6a4a22,#cf9c4d); }
+    .dot.green { background:linear-gradient(135deg,#2d4f2c,#79c75d); }
+    .dot.purple { background:linear-gradient(135deg,#59428f,#b38cff); }
+    .pill { padding:5px 7px; border-radius:8px; background:rgba(79,140,255,.16); color:#cbdcff; font:600 .65rem/1 JetBrains Mono,monospace; white-space:nowrap; }
+    .tags { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+    .tag { padding:6px 8px; border-radius:8px; background:var(--surface-2); color:var(--text); font:400 .72rem/1 JetBrains Mono,monospace; }
+    .bars { display:grid; gap:9px; margin-top:16px; }
+    .bar { display:grid; grid-template-columns:110px 1fr 44px; gap:10px; align-items:center; font:600 .74rem/1 JetBrains Mono,monospace; color:var(--text-dim); }
+    .track { height:10px; border-radius:999px; background:#0f131a; border:1px solid var(--border); overflow:hidden; }
+    .fill { height:100%; border-radius:999px; background:linear-gradient(90deg,var(--green),var(--accent)); }
+    .callout { margin-top:16px; padding:14px; border-radius:12px; background:rgba(251,191,36,.09); border:1px solid rgba(251,191,36,.28); color:#f7df9a; }
+    .wide { grid-column:1 / -1; }
+    @media (max-width:900px){ body{padding:28px 14px;} .grid,.flow,.before-after{grid-template-columns:1fr;} .wide{grid-column:auto;} }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Pre-Implementation · Backend Slice</span>
+  <h1>Woodcutting gets source-honest bones.</h1>
+  <p class="subtitle">This pass keeps the study loop intact while replacing the old tree-name inventory shortcut with 2011Scape target data, real log items, hatchet-aware RNG, and bird nests that can be opened through visible no-XP Utility.</p>
+
+  <section class="grid">
+    <article class="card wide">
+      <span class="label">Backend Route</span>
+      <h2>Four contracts to stabilize before frontend polish</h2>
+      <div class="flow">
+        <div class="node"><div class="num">1</div><strong>Source data</strong><small>Typed target and hatchet tables copied from the local rev 667 source, with raw chance metadata preserved.</small></div>
+        <div class="node"><div class="num">2</div><strong>Save migration</strong><small>Stable tree IDs, real log storage keys, Bronze hatchet seed, and known legacy keys removed after merge.</small></div>
+        <div class="node"><div class="num">3</div><strong>Pure mechanics</strong><small>Best usable hatchet, Anki-tuned chop probability, Ivy no-output, and nest roll as testable pure functions.</small></div>
+        <div class="node"><div class="num">4</div><strong>Runtime dispatch</strong><small>Review reward, undo rollback, achievements, Utility nest opening, and backend tests.</small></div>
+      </div>
+      <div class="tags"><span class="tag">woodcutting_data.py</span><span class="tag">logic_pure.py</span><span class="tag">storage_pure.py</span><span class="tag">__init__.py</span><span class="tag">constants.py</span></div>
+    </article>
+
+    <article class="card">
+      <span class="label amber">Migration Risk</span>
+      <h2>Old bank keys become real items</h2>
+      <div class="before-after">
+        <div class="pane">
+          <div class="pane-title">Before</div>
+          <div class="inv-row"><div class="dot"></div><span>Tree</span><span class="pill">log?</span></div>
+          <div class="inv-row"><div class="dot green"></div><span>Oak</span><span class="pill">target?</span></div>
+          <div class="inv-row"><div class="dot purple"></div><span>Redwood</span><span class="pill">OSRS</span></div>
+        </div>
+        <div class="pane">
+          <div class="pane-title">After</div>
+          <div class="inv-row"><div class="dot"></div><span>Logs</span><span class="pill">1511</span></div>
+          <div class="inv-row"><div class="dot green"></div><span>Oak logs</span><span class="pill">1521</span></div>
+          <div class="inv-row"><div class="dot purple"></div><span>Redwood</span><span class="pill">removed</span></div>
+        </div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="label purple">Balance Dial</span>
+      <h2>Hatchets improve the roll, not the yield</h2>
+      <p>Source ratios stay in data; AnkiScape maps them to review-scale probabilities so better tools feel faster without doubling logs or pretending one card is one server tick.</p>
+      <div class="bars">
+        <div class="bar"><span>Bronze</span><div class="track"><div class="fill" style="width:34%"></div></div><span>base</span></div>
+        <div class="bar"><span>Mithril</span><div class="track"><div class="fill" style="width:58%"></div></div><span>2.5x</span></div>
+        <div class="bar"><span>Rune</span><div class="track"><div class="fill" style="width:78%"></div></div><span>3.5x</span></div>
+        <div class="bar"><span>Dragon</span><div class="track"><div class="fill" style="width:84%"></div></div><span>3.75x</span></div>
+      </div>
+      <div class="callout">Inferno adze is documented as deferred special content, not silently approximated.</div>
+    </article>
+
+    <article class="card wide">
+      <span class="label red">Backend/Frontend Boundary</span>
+      <h2>Notes for the later frontend agent</h2>
+      <p>The backend will expose stable target IDs, output names, source XP, best hatchet, lock reasons, and Utility nest-opening metadata. The frontend pass should render those without re-deriving rules in Qt code.</p>
+    </article>
+  </section>
+</main>
+</body>
+</html>

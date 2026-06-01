@@ -20,6 +20,7 @@
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, a central XP multiplier read path, migration coverage, and undo-safe review handling.
 - Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped XP-multiplier control. Covered by offscreen Qt tests.
+- Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
@@ -67,5 +68,7 @@ AnkiScape skill expansion project skill created on 2026-05-29. It documents the 
 
 Crafting/Utility backend rework completed on 2026-05-29. `Soft clay` moved out of Crafting XP data into batched no-XP Utility/Activities; audited Crafting pilot actions now cover pottery shaping/firing, ball of wool, bow string, and silver bolts (unf). New icons for wool, flax, ball of wool, bow string, and silver bolts (unf) were fetched with provenance. Suite passes with 117 tests in both `python3 run_tests.py` and the offscreen Qt unittest loop.
 
+Woodcutting backend parity completed on 2026-06-01. `woodcutting_data.py` captures the local 2011Scape source audit; `TREE_DATA` now uses stable IDs and real output item names; Fletching consumes real log keys; storage config version is 7 with legacy log/target migration and bound Bronze hatchet seeding; bird nests can drop from Woodcutting and open through no-XP Utility. Core and offscreen Qt suites pass with 134 tests.
+
 ## Next Milestone
-Frontend handoff for Crafting/Utility: expose Utility/Activities, add no-XP and batch tooltips, remove Soft clay from the Crafting target panel, and add the Gameplay XP multiplier setting. Then registry-drive Stats/Bank/HUD and define source loops for feathers and arrowtips.
+Frontend handoff for Woodcutting parity: render stable target IDs as display names, show output/base XP/best hatchet/lock reason tooltips, label Ivy as XP-only, and make `Open bird nests` feel intentional in Utility/Activities. Then registry-drive Stats/Bank/HUD further and define source loops for feathers and arrowtips.

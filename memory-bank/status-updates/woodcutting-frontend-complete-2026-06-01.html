@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Woodcutting frontend complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:40px 24px;max-width:1100px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--green);background:rgba(74,222,128,.12);border:1px solid var(--green);padding:5px 12px;border-radius:99px;text-transform:uppercase}
+h1{font-weight:700;font-size:2rem;margin:16px 0 6px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.97rem;max-width:76ch}
+.cols{display:grid;grid-template-columns:1.1fr 1fr;gap:20px;margin-top:26px}
+@media(max-width:900px){.cols{grid-template-columns:1fr}}
+.shot{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#fff}
+.shot img{display:block;width:100%}
+.cap{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--text-dim);padding:8px 12px;background:var(--surface-2);border-top:1px solid var(--border)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px}
+.card h3{font-weight:700;font-size:1rem;margin-bottom:6px;display:flex;gap:8px;align-items:center}
+.plabel{font-family:'JetBrains Mono',monospace;font-size:.58rem;font-weight:600;text-transform:uppercase;padding:3px 7px;border-radius:5px}
+.p-fix{color:var(--green);background:rgba(74,222,128,.12)}
+.p-feat{color:var(--accent);background:var(--accent-glow)}
+.p-warn{color:var(--amber);background:rgba(251,191,36,.12)}
+.card p{color:var(--text-dim);font-size:.87rem;margin-top:5px}
+.tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:3px 8px;border-radius:6px}
+.tt{margin-top:12px;background:#0f1115;border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text);white-space:pre-line;line-height:1.5}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:24px}
+@media(max-width:700px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.metric .v{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:600;color:var(--green)}
+.metric .k{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
+.note{margin-top:24px;padding:14px 16px;background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.28);border-radius:10px;font-size:.86rem;color:var(--text-dim)}
+.note b{color:var(--text)}
+.handoff{margin-top:14px;padding:14px 16px;background:rgba(79,140,255,.07);border:1px solid rgba(79,140,255,.25);border-radius:10px;font-size:.86rem;color:var(--text-dim)}
+.handoff b{color:var(--text)}
+</style>
+</head>
+<body>
+  <span class="badge">Frontend Complete · Woodcutting parity</span>
+  <h1>The hub renders the backend's contract — no raw IDs left.</h1>
+  <p class="sub">Built on the finished backend (stable target IDs, hatchet resolution, bird-nest tables, save migration). The frontend now shows friendly names, real lock reasons, output/XP/hatchet tooltips, the XP-only Ivy, and bird-nest opening as a first-class no-XP activity.</p>
+
+  <div class="cols">
+    <div>
+      <div class="shot">
+        <img src="woodcutting_target_list.png" alt="Woodcutting target list">
+        <div class="cap">Level 62 save: friendly names + levels, Willow active, Ivy flagged "— XP only", Yew(60) open, Ivy(68)/Magic(75) level-locked. (Achey/Hollow show the pending icon gap.)</div>
+      </div>
+      <div class="tt">Oak (Lvl 15) tooltip
+Requires Woodcutting level 15. You have 62.
+Output: Oak logs x1
+Base XP: 37.5 per chop
+Best usable hatchet: Bronze hatchet
+Source: …/woodcutting/TreeType.kt</div>
+    </div>
+    <div>
+      <div class="card">
+        <h3><span class="plabel p-fix">FIX</span> IDs → friendly names</h3>
+        <p>The list iterated <code>TREE_DATA</code> whose keys are now stable IDs, so it would have shown "oak"/"tree". Rows now render <code>display_name</code> + level; the ID is stored on the item and persisted via <code>on_set_tree</code>.</p>
+        <div class="tags"><span class="tag">ui._build_tree_list</span></div>
+      </div>
+      <div class="card">
+        <h3><span class="plabel p-feat">NEW</span> Real lock reasons</h3>
+        <p>Locks now run through <code>can_chop_woodcutting_target_pure</code> and separate <b style="color:var(--text)">level</b> from <b style="color:var(--text)">no usable hatchet</b> (resolved from the bound toolbelt + owned items), shown in the tooltip.</p>
+        <div class="tags"><span class="tag">best_woodcutting_axe_pure</span><span class="tag">toolbelt</span></div>
+      </div>
+      <div class="card">
+        <h3><span class="plabel p-feat">NEW</span> Ivy + Open bird nests</h3>
+        <p>Ivy is marked inline "— XP only / produces no logs". <code>Open bird nests</code> is a visible no-XP Utility row (batch of 28), locked until you hold a nest.</p>
+        <div class="tags"><span class="tag">can_open_bird_nests_pure</span><span class="tag">UTILITY list</span></div>
+      </div>
+      <div class="card">
+        <h3><span class="plabel p-fix">FIX</span> De-landmined legacy views</h3>
+        <p>The unwired <code>show_stats</code> / <code>show_tree_selection_dialog</code> still subscripted <code>TREE_IMAGES[id]</code> and filtered <code>item in TREE_DATA</code> — both broken by the ID switch. Now use real log-item names + safe image lookups.</p>
+        <div class="tags"><span class="tag">WOODCUTTING_LOG_ITEMS</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics">
+    <div class="metric"><div class="v">140</div><div class="k">tests green</div></div>
+    <div class="metric"><div class="v">+6</div><div class="k">new Qt tests</div></div>
+    <div class="metric"><div class="v">11</div><div class="k">trees, real names</div></div>
+    <div class="metric"><div class="v">0</div><div class="k">raw IDs shown</div></div>
+  </div>
+
+  <div class="note"><b>Deferred — assets task:</b> log items (Logs, Oak logs, Bark…), the Achey/Hollow/Ivy tree icons, hatchets, and bird-nest items/contents have no icons yet. The UI degrades gracefully to iconless rows. Fetching + trimming these (via <code>tools/fetch_assets.py</code> → <code>tools/trim_icons.py</code>, with provenance) is the remaining plan todo and wants a network pass of its own — say the word and I'll run it.</div>
+
+  <div class="handoff"><b>Future Mining handoff:</b> the toolbelt/best-tool resolution pattern proven here for hatchets is ready to reuse for pickaxes — the tree list's lock-reason + tooltip code is the template.</div>
+</body>
+</html>

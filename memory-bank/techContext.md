@@ -63,6 +63,8 @@ AnkiScape replicates the skilling side of early-2010s RuneScape. Canonical basel
 - **Primary source: the local `2011Scape/game` emulator source** (Apache-2.0, client rev 667 = Oct 4 2011; upstream `github.com/2011Scape/game`). Currently downloaded at `/Users/ArmanTarkhanian1/Downloads/game-main`. Skill mechanics: `game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/<skill>/` (per-target `level`/`xp` in `*Type.kt` enums); item data: `data/cfg/items.yml`. Authoritative for exact numbers; grep it, never import it into the add-on runtime.
 - **Cross-checks:** 2011Scape wikis (`rs2011.miraheze.org`, `2011scape.fandom.com`) and `runescape.wiki` 2011 revisions via `?oldid=` / the `/w/2011` monthly archive. Raw caches at OpenRS2 Archive only if binary IDs/sprites are needed.
 
+Current Woodcutting backend parity data lives in `woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure.py` adapt them to Anki review cadence.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 

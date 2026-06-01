@@ -44,7 +44,7 @@ Candidate follow-ups:
 - Cooking: consumes raw fish/food and produces cooked items.
 
 ## Current Priority: Skill Roster Breadth
-Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting (gathering) and Smithing, Crafting, Fletching (artisan).
+Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting (gathering) and Smithing, Crafting, Fletching (artisan). Woodcutting has now had a 2011Scape backend-parity pass; its frontend still needs a display/tooling polish pass over the new stable IDs and hatchet/nest metadata.
 - Remaining gathering skills: Fishing, Hunter, Farming.
 - Basic artisan skills: Cooking, Firemaking next; then Herblore, Runecrafting, Construction.
 - Each skill goes through `.cursor/skills/ankiscape-skill-expansion/` (source audit, assets, targets/recipes, Utility/Activities, achievements, tests, memory update).
