@@ -29,7 +29,9 @@ The project can borrow broad inspiration from idle-RPG progression, including Me
 
 The target economy is now a compressed 2011-era RuneScape-style skill set adapted to Anki. Categories are Combat, Gathering, Artisan, Support, plus a visible Utility/Activities bucket for material-only no-XP actions. Magic remains one skill with separate combat and noncombat action families.
 
-Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. It should provide modeled tradable-item buy/sell orders and pricing, while preserving self-sufficient gathering/production as a valid path and leaving room for an ironman-style restriction mode. The current design checkpoint is `memory-bank/fake-grand-exchange-design.md`: local-only aggregate order flow, `Coins` as a stackable item, 8 persistent order slots, partial fills, OSRS-like price improvement/refunds, market time advanced by every answered card, 40-action buy-limit windows, 240-action guide-price days capped at +/-5%, scraped buy limits, and low/high alchemy values as price-seeding anchors and future GP sources.
+Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. The GE **design is now fully grilled and parked** in `memory-bank/fake-grand-exchange-design.md` (engine = hidden true-price + stochastic fill model with no persisted order book; GP = convenience-abundant, gated by buy limits + market clock, never sells XP; undo rolls back the market tick via deterministic RNG + per-tick delta snapshot; 8 slots, partial fills, OSRS price improvement, 40-action buy-limit windows, 240-action guide-price days capped +/-5%, alch-anchored seeding). It is intentionally **blocked on item-economy breadth**: the GE only earns its keep once many more tradable items exist.
+
+Active priority (decided): **broaden the skill roster before resuming the GE.** Target is all remaining gathering skills (Fishing, Hunter, Farming — Mining/Woodcutting already done) and most basic artisan skills (Cooking, Firemaking next; Herblore, Runecrafting, Construction after). Each new skill goes through the `ankiscape-skill-expansion` project skill (source audit -> assets -> targets/recipes -> Utility/Activities -> achievements -> tests -> memory). The expanded item set produced by these skills becomes the GE's tradable universe when it is unparked.
 
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
@@ -42,11 +44,12 @@ Roadmap direction: add an optional fake Grand Exchange-style market later so the
 - Future game state stored outside `player_data` must be made undo-aware; the current rollback is intentionally scoped to review reward mutations in `player_data`.
 
 ## Next Recommended Work
-1. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
-2. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
-3. When returning to the fake GE, start from `memory-bank/fake-grand-exchange-design.md` rather than re-grilling the same decision tree.
+1. Expand the skill roster (current priority). Remaining gathering: Fishing, Hunter, Farming. Basic artisan: Cooking, Firemaking, then Herblore/Runecrafting/Construction. Use `.cursor/skills/ankiscape-skill-expansion/` for each.
+2. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
+3. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
 4. Consider a small Utility/Activities icon set (currently the activity outputs reuse `crafteditems/` material art; the hub category/skill row falls back to the generic achievement icon).
-5. Only then design combat and Slayer task layering.
+5. Unpark the fake GE once the item economy is broad enough; resume from `memory-bank/fake-grand-exchange-design.md` (design is locked — do not re-grill the same decision tree).
+6. Only then design combat and Slayer task layering.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

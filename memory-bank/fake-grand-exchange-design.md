@@ -1,5 +1,7 @@
 # Fake Grand Exchange Design Checkpoint
 
+> **Status: PARKED (design locked, implementation deferred).** The design below is fully grilled and considered final for v1; do not re-grill the decision tree. The GE is intentionally blocked on item-economy breadth — it is only worth building once many more tradable items exist. Current priority is broadening the skill roster (all gathering skills + most basic artisan skills). Resume here when the item universe is wide enough.
+
 ## Purpose
 
 The fake Grand Exchange is an optional pressure valve for the AnkiScape economy. It lets normal-mode players buy and sell tradable materials/products without turning the whole game into a forced ironman experience. Gathering, Utility/Activities, Crafting, Fletching, and future production chains should remain meaningful paths; the GE should reduce friction, not replace skilling.

@@ -43,10 +43,18 @@ Candidate follow-ups:
 - Fishing: gathers fish with level-gated spots.
 - Cooking: consumes raw fish/food and produces cooked items.
 
+## Current Priority: Skill Roster Breadth
+Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting (gathering) and Smithing, Crafting, Fletching (artisan).
+- Remaining gathering skills: Fishing, Hunter, Farming.
+- Basic artisan skills: Cooking, Firemaking next; then Herblore, Runecrafting, Construction.
+- Each skill goes through `.cursor/skills/ankiscape-skill-expansion/` (source audit, assets, targets/recipes, Utility/Activities, achievements, tests, memory update).
+- The tradable items these skills introduce become the GE's item universe when it is unparked.
+
 ## Phase 3: Item Economy And Achievements
 - Expand item definitions, icons, and category metadata beyond the minimal Phase 1 manifest.
 - Add an optional fake Grand Exchange-style market so non-ironman players can buy and sell tradable materials instead of manually gathering every dependency.
-  - The market should use a modeled/randomized supply of tradable items, not infinite fixed-price shops.
+  - **Status: design locked and PARKED**, gated on skill-roster breadth (see Current Priority). Do not re-grill the design; resume from the checkpoint.
+  - Engine is a hidden true-price + stochastic fill model (no persisted order book). GP is convenience-abundant, gated by buy limits + the market clock, and never sells XP. Undo rolls back the market tick via deterministic RNG + per-tick delta snapshot.
   - GE interaction should be optional; gathering, Utility/Activities, and production chains should remain valid and rewarding.
   - Keep account mode flexible: the default experience can allow market access, while an ironman-style self-sufficient mode can disable it later.
   - Treat prices/supply as AnkiScape balance data, separate from source XP/recipe data.
