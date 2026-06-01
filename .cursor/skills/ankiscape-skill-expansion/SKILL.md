@@ -25,11 +25,16 @@ Use this skill before planning or implementing a skill expansion. The goal is to
 
 ## Source Hierarchy (2011-Era Parity)
 
-AnkiScape targets a compressed **2011-era** RuneScape (pre-Evolution of Combat, Nov 2012). 2011 is *between* OSRS (2007 baseline) and current RS3 (post-EOC), so neither live wiki is a clean 2011 source on its own. Use sources in this priority order:
+AnkiScape replicates the **skilling** side of a compressed early-2010s RuneScape. The canonical baseline is the **2011Scape snapshot: RuneScape as of October 4, 2011 (client rev 667)** — the same era as the primary source below. This era sits *between* OSRS (2007 baseline) and current RS3 (post-EOC, Nov 2012), so neither live wiki is a clean source for it.
 
-1. **Primary, authoritative, machine-readable: the `2011Scape/game` emulator repo.** Open-source, Apache-2.0, pinned to client **revision 667 (October 4, 2011)**. Skill mechanics live as Kotlin content plugins under `game/`; item/object/config data under `data/`. This is the source of truth for exact numbers (level reqs, XP per action, inputs/outputs, tool tiers). Game balance numbers are facts (not copyrightable); Apache-2.0 covers the code expression, so reading and referencing is fine.
-   - Repo: `https://github.com/2011Scape/game` (default branch `main`).
-   - Recommended workflow: clone into a gitignored local reference dir (default `reference/2011scape/`) and `grep` it locally instead of crawling the GitHub API (which rate-limits unauthenticated requests). The add-on runtime must never import or depend on this reference.
+Treat the Oct-2011 snapshot as the source of truth. The ~13 months of pre-EOC 2012 content (e.g. Runespan, bonfires) changed training *methods*, not the skilling item/recipe tables, so the 2011-vs-2012 delta is negligible for our scope. Adopt a specific pre-EOC-2012 feature only as a deliberate, documented exception; never chase moving "2012 parity," since no equivalent clean dataset exists. Post-EOC content is out of scope.
+
+Use sources in this priority order:
+
+1. **Primary, authoritative: the local `2011Scape/game` emulator source.** Open-source (Apache-2.0), pinned to client **revision 667 (October 4, 2011)**. It is the source of truth for exact numbers: level requirements, XP per action, inputs/outputs, and tool tiers. Game balance numbers are facts (not copyrightable) and Apache-2.0 covers the code, so reading and referencing it is fine. `grep` it locally; never import it into the add-on runtime.
+   - Local path: `/Users/ArmanTarkhanian1/Downloads/game-main` (update this line if the folder moves; upstream is `https://github.com/2011Scape/game`).
+   - Skill mechanics: `game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/<skill>/`. Each skill defines a `*Type.kt` enum holding per-target `level` and `xp` (for example `woodcutting/TreeType.kt`) plus a `*Type.kt` for tool tiers (for example `woodcutting/AxeType.kt`).
+   - Item/object/npc data: `data/cfg/items.yml`, `data/cfg/objs.yml`, `data/cfg/npcs.yml`.
 2. **Human-readable cross-check: the 2011Scape community wikis.** `https://rs2011.miraheze.org` and `https://2011scape.fandom.com`. Same reload, prose form. Thin coverage, so use to confirm intent, not as the only source.
 3. **Canonical wiki with revision pinning: `https://runescape.wiki`.** Use page history / `?oldid=` filtered to 2011, plus the dated `Update:` pages and the month-by-month `/w/2011` archive to confirm what existed by Oct 2011 and when it changed.
 4. **Raw cache (rarely needed): OpenRS2 Archive (`https://archive.openrs2.org`).** Dated binary cache dumps the emulators build from. Only for exact item IDs/sprites at the binary level.
@@ -41,7 +46,7 @@ OSRS wiki (`oldschool.runescape.wiki`) is a *cross-check only* for 2007/2011-sha
 Think through these steps before making code changes:
 
 1. Audit sources:
-   - Start from the `2011Scape/game` repo (local clone) for the skill's content plugin and data. Capture exact level/XP/material/output values.
+   - Start from the local 2011Scape source (see Source Hierarchy) for the skill's content plugin and data. Capture exact level/XP/material/output values.
    - Cross-check against the 2011Scape wikis and runescape.wiki 2011 revisions; reconcile any discrepancy in favor of the emulator data unless it is clearly a known emulator bug.
    - Extract action tables: level, item/action, materials, outputs, XP, members/F2P, quest gates, tool requirements.
    - Record the exact source (repo file path or wiki oldid) used for each implemented recipe.
@@ -93,7 +98,7 @@ Think through these steps before making code changes:
 
 ## Tool Guidelines
 
-- Use the local `2011Scape/game` clone (grep) as the first stop for source audits; use web fetch/search of the 2011Scape wikis and runescape.wiki 2011 revisions to cross-check.
+- Grep the local 2011Scape source (path in Source Hierarchy) as the first stop for source audits; use web fetch/search of the 2011Scape wikis and runescape.wiki 2011 revisions to cross-check.
 - Use `tools/fetch_assets.py` for assets and provenance.
 - Use pure tests before Anki/Qt tests when adding backend mechanics.
 - Use offscreen Qt tests for UI behavior rather than restarting Anki repeatedly.
@@ -106,7 +111,7 @@ When planning or summarizing, split work like this:
 - Backend: source audit, data tables, item manifest, pure logic, storage, dispatch, achievements, tests.
 - Frontend: Skills hub/Utility UI, target lists, tooltips, settings, Stats/Bank/HUD, Qt tests.
 - Assets: scrape list, output folders, provenance, missing/deferred assets.
-- Balance: OSRS base values, Anki batch sizes, XP multiplier implications, known pacing risks.
+- Balance: 2011 base values (from the 2011Scape source), Anki batch sizes, XP multiplier implications, known pacing risks.
 
 ## Dynamic Project Context
 
