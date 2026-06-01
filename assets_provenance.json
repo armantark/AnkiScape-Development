@@ -299,6 +299,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:21Z"
   },
+  "trees/Ivy.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Choking_ivy_icon.png",
+    "file_title": "Choking ivy icon.png",
+    "image_url": "https://runescape.wiki/images/Choking_ivy_icon.png?bea46",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1b05ec60d0994543d892ebaed88de3b323b09637",
+    "size": 762,
+    "source_wiki": "rs3",
+    "timestamp": "2023-06-16T14:43:27Z"
+  },
   "woodcuttingitems/acorn.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Acorn_5.png",
     "file_title": "Acorn 5.png",
