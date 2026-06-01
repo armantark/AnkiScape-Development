@@ -9,6 +9,8 @@ from constants import (
     ORE_DATA,
     TREE_DATA,
     UTILITY_ACTIVITY_DATA,
+    WOODCUTTING_AXE_DATA,
+    WOODCUTTING_LOG_ITEMS,
 )
 from item_registry import (
     item_definitions_by_id,
@@ -86,7 +88,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             default_target_state(),
             {
                 "current_ore": "Rune essence",
-                "current_tree": "Tree",
+                "current_tree": "tree",
                 "current_bar": "Bronze bar",
                 "current_craft": "",
                 "current_fletch": "arrow_shafts",
@@ -101,9 +103,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             material
             for spec in FLETCHING_DATA.values()
             for material in spec.get("requirements", {})
-            if material not in TREE_DATA
+            if material not in WOODCUTTING_LOG_ITEMS
         ]
-        utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values()]
+        utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values() if "output_item" in spec]
         utility_materials = [
             material
             for spec in UTILITY_ACTIVITY_DATA.values()
@@ -112,7 +114,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ]
         for item_name in (
             list(ORE_DATA)
-            + list(TREE_DATA)
+            + list(WOODCUTTING_LOG_ITEMS)
             + list(GEM_DATA)
             + list(BAR_DATA)
             + list(CRAFTING_DATA)
@@ -120,14 +122,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + fletching_materials
             + utility_outputs
             + utility_materials
+            + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
         ):
             self.assertIn(item_name, by_storage_key)
 
         by_id = item_definitions_by_id(ITEM_DEFINITIONS)
         self.assertEqual(len(by_id), len(ITEM_DEFINITIONS))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "ore")), set(ORE_DATA))
-        self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")), set(TREE_DATA))
+        self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")), set(WOODCUTTING_LOG_ITEMS))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "bar")), set(BAR_DATA))
+        self.assertIn("Bronze hatchet", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
         self.assertIn("Arrow shafts", item_storage_keys_by_category(ITEM_DEFINITIONS, "fletched"))
         self.assertIn("Soft clay", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Wool", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
@@ -147,6 +151,17 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_woodcutting_bank_items_have_icons(self):
+        # Logs reuse the trees/ sprites; hatchets and bird nests were fetched
+        # into woodcuttingitems/. All three surfaces should resolve an icon so
+        # the Bank/Stats panels don't show blank rows for real Woodcutting drops.
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for name in ("Logs", "Oak logs", "Bark", "Achey tree logs", "Magic logs"):
+            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a log icon")
+        for name in [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]:
+            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a hatchet icon")
+        self.assertIsNotNone(by_storage_key["Bird's nest (seeds)"].asset_path)
 
 
 if __name__ == "__main__":

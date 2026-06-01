@@ -13,7 +13,11 @@ from logic_pure import (
     apply_fletching_pure,
     apply_smelt_pure,
     apply_woodcutting_pure,
+    apply_woodcutting_action_pure,
     apply_mining_pure,
+    apply_open_bird_nests_pure,
+    best_woodcutting_axe_pure,
+    calculate_woodcutting_success_probability_pure,
     can_mine_ore_pure,
     can_cut_tree_pure,
     can_craft_item_pure,
@@ -287,18 +291,109 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv2, inv2)
 
     def test_apply_woodcutting_pure(self):
-        tree_data = {"Oak": {"exp": 15, "probability": 0.8}}
+        tree_data = {"oak": {"exp": 15, "probability": 0.8, "output_item": "Oak logs"}}
         inv = {}
         # success when r < p
-        new_inv, exp, ok = apply_woodcutting_pure("Oak", inv, tree_data, r_action=0.1, success_probability=0.5)
+        new_inv, exp, ok = apply_woodcutting_pure("oak", inv, tree_data, r_action=0.1, success_probability=0.5)
         self.assertTrue(ok)
         self.assertEqual(exp, 15)
-        self.assertEqual(new_inv.get("Oak"), 1)
+        self.assertEqual(new_inv.get("Oak logs"), 1)
         # failure when r >= p
-        new_inv2, exp2, ok2 = apply_woodcutting_pure("Oak", inv, tree_data, r_action=0.6, success_probability=0.5)
+        new_inv2, exp2, ok2 = apply_woodcutting_pure("oak", inv, tree_data, r_action=0.6, success_probability=0.5)
         self.assertFalse(ok2)
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, inv)
+
+    def test_woodcutting_axe_selection_and_source_shaped_probability(self):
+        axe_data = {
+            "bronze_hatchet": {"display_name": "Bronze hatchet", "level": 1, "ratio": 1.0, "status": "implemented"},
+            "rune_hatchet": {"display_name": "Rune hatchet", "level": 41, "ratio": 3.5, "status": "implemented"},
+        }
+        target = {"low_chance": 32, "high_chance": 100}
+
+        bronze = best_woodcutting_axe_pure(50, {}, {"woodcutting": ["bronze_hatchet"]}, axe_data)
+        rune = best_woodcutting_axe_pure(50, {"Rune hatchet": 1}, {"woodcutting": ["bronze_hatchet"]}, axe_data)
+
+        self.assertEqual(bronze["display_name"], "Bronze hatchet")
+        self.assertEqual(rune["display_name"], "Rune hatchet")
+        self.assertGreater(
+            calculate_woodcutting_success_probability_pure(50, target, rune),
+            calculate_woodcutting_success_probability_pure(50, target, bronze),
+        )
+
+    def test_apply_woodcutting_action_awards_output_and_bird_nest(self):
+        tree_data = {"tree": {"exp": 25.0, "output_item": "Logs", "low_chance": 64, "high_chance": 200}}
+        axe = {"display_name": "Bronze hatchet", "level": 1, "ratio": 1.0, "status": "implemented"}
+        nest_table = (
+            {"item": "Bird's nest (seeds)", "weight": 65},
+            {"item": "Bird's nest (ring)", "weight": 35},
+        )
+
+        new_inv, exp, ok, output_item, nest_item = apply_woodcutting_action_pure(
+            "tree",
+            {},
+            tree_data,
+            1,
+            axe,
+            r_action=0.0,
+            r_nest_drop=0.0,
+            r_nest_type=0.0,
+            nest_drop_table=nest_table,
+            nest_drop_chance=1.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 25.0)
+        self.assertEqual(output_item, "Logs")
+        self.assertEqual(nest_item, "Bird's nest (seeds)")
+        self.assertEqual(new_inv["Logs"], 1)
+        self.assertEqual(new_inv["Bird's nest (seeds)"], 1)
+
+    def test_apply_woodcutting_action_ivy_awards_xp_without_output(self):
+        tree_data = {"ivy": {"exp": 332.5, "output_item": None, "low_chance": 7, "high_chance": 11}}
+        axe = {"display_name": "Dragon hatchet", "level": 61, "ratio": 3.75, "status": "implemented"}
+
+        new_inv, exp, ok, output_item, nest_item = apply_woodcutting_action_pure(
+            "ivy",
+            {},
+            tree_data,
+            99,
+            axe,
+            r_action=0.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 332.5)
+        self.assertIsNone(output_item)
+        self.assertIsNone(nest_item)
+        self.assertEqual(new_inv, {})
+
+    def test_open_bird_nests_batches_random_contents_without_xp(self):
+        tables = {
+            "Bird's nest (seeds)": {
+                "guaranteed_item": "Bird's nest (empty)",
+                "total_weight": 2,
+                "rolls": (
+                    {"item": "Acorn", "weight": 1},
+                    {"item": "Magic seed", "weight": 1},
+                ),
+            }
+        }
+
+        new_inv, ok, opened, outputs = apply_open_bird_nests_pure(
+            {"Bird's nest (seeds)": 2},
+            tables,
+            rolls=[0.0, 0.75],
+            batch_size=28,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(opened, 2)
+        self.assertEqual(new_inv["Bird's nest (seeds)"], 0)
+        self.assertEqual(new_inv["Bird's nest (empty)"], 2)
+        self.assertEqual(new_inv["Acorn"], 1)
+        self.assertEqual(new_inv["Magic seed"], 1)
+        self.assertEqual(outputs["Bird's nest (empty)"], 2)
 
     def test_apply_mining_pure_with_gem(self):
         ore_data = {"Iron ore": {"exp": 35, "probability": 0.8}}
@@ -331,11 +426,11 @@ class TestLogic(unittest.TestCase):
 
     def test_can_mine_and_cut_pure(self):
         ore_data = {"Copper ore": {"level": 1}, "Iron ore": {"level": 15}}
-        tree_data = {"Tree": {"level": 1}, "Oak": {"level": 15}}
+        tree_data = {"tree": {"level": 1}, "oak": {"level": 15}}
         self.assertTrue(can_mine_ore_pure(1, "Copper ore", ore_data))
         self.assertFalse(can_mine_ore_pure(1, "Iron ore", ore_data))
-        self.assertTrue(can_cut_tree_pure(1, "Tree", tree_data))
-        self.assertFalse(can_cut_tree_pure(1, "Oak", tree_data))
+        self.assertTrue(can_cut_tree_pure(1, "tree", tree_data))
+        self.assertFalse(can_cut_tree_pure(1, "oak", tree_data))
 
     def test_can_craft_item_pure(self):
         crafting_data = {
@@ -353,29 +448,29 @@ class TestLogic(unittest.TestCase):
             "arrow_shafts": {
                 "level": 1,
                 "exp": 5.0,
-                "requirements": {"Tree": 1},
+                "requirements": {"Logs": 1},
                 "output_item": "Arrow shafts",
                 "output_qty": 15,
             },
             "oak_shortbow_u": {
                 "level": 20,
                 "exp": 16.5,
-                "requirements": {"Oak": 1},
+                "requirements": {"Oak logs": 1},
                 "output_item": "Oak shortbow (u)",
                 "output_qty": 1,
             },
         }
-        inv = {"Tree": 2}
+        inv = {"Logs": 2}
         self.assertTrue(can_fletch_item_pure(1, inv, "arrow_shafts", fletching_data))
 
         new_inv, exp, ok = apply_fletching_pure("arrow_shafts", inv, fletching_data)
         self.assertTrue(ok)
         self.assertAlmostEqual(exp, 5.0)
-        self.assertEqual(new_inv["Tree"], 1)
+        self.assertEqual(new_inv["Logs"], 1)
         self.assertEqual(new_inv["Arrow shafts"], 15)
-        self.assertEqual(inv["Tree"], 2)
+        self.assertEqual(inv["Logs"], 2)
 
-        self.assertFalse(can_fletch_item_pure(1, {"Oak": 1}, "oak_shortbow_u", fletching_data))
+        self.assertFalse(can_fletch_item_pure(1, {"Oak logs": 1}, "oak_shortbow_u", fletching_data))
         new_inv2, exp2, ok2 = apply_fletching_pure("oak_shortbow_u", {}, fletching_data)
         self.assertFalse(ok2)
         self.assertEqual(exp2, 0)

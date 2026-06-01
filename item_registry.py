@@ -5,10 +5,10 @@ from __future__ import annotations
 import os
 import re
 from dataclasses import dataclass
-from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple
+from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
 
-ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched", "material"]
+ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool"]
 
 
 @dataclass(frozen=True)
@@ -82,6 +82,8 @@ def build_item_definitions(
     fletched_item_images: Optional[Mapping[str, str]] = None,
     utility_activity_data: Optional[Mapping[str, Mapping[str, object]]] = None,
     utility_item_images: Optional[Mapping[str, str]] = None,
+    extra_item_data: Optional[Mapping[str, Mapping[str, object]]] = None,
+    extra_item_images: Optional[Mapping[str, str]] = None,
 ) -> Tuple[ItemDefinition, ...]:
     definitions = []
     seen_storage_keys = set()
@@ -105,13 +107,24 @@ def build_item_definitions(
             )
         )
 
+    def extra_item_category(spec: Mapping[str, object]) -> ItemCategory:
+        category = spec.get("category", "material")
+        if category in ("ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool"):
+            return cast(ItemCategory, category)
+        return "material"
+
     crafting_material_images = dict(utility_item_images or {})
     crafting_material_images.update(crafted_item_images)
 
     for name in ore_data:
         add_definition(_definition(name, "ore", "Mining", ore_data, ore_images))
-    for name in tree_data:
-        add_definition(_definition(name, "log", "Woodcutting", tree_data, tree_images))
+    for target_name, spec in tree_data.items():
+        output_name = spec.get("output_item", target_name)
+        if isinstance(output_name, str):
+            image_map = dict(tree_images)
+            if target_name in tree_images and output_name not in image_map:
+                image_map[output_name] = tree_images[target_name]
+            add_definition(_definition(output_name, "log", "Woodcutting", {output_name: spec}, image_map))
     for name in gem_data:
         add_definition(_definition(name, "gem", "Mining gem drop", gem_data, gem_images))
     for name in bar_data:
@@ -142,6 +155,11 @@ def build_item_definitions(
             for requirement_name in spec.get("requirements", {}):
                 if requirement_name not in seen_storage_keys:
                     add_material_definition(requirement_name, "Utility / Activities", image_map)
+    if extra_item_data is not None:
+        image_map = extra_item_images or {}
+        for item_name, spec in extra_item_data.items():
+            source = str(spec.get("source", "AnkiScape extra item"))
+            add_definition(_definition(item_name, extra_item_category(spec), source, {item_name: spec}, image_map))
     return tuple(definitions)
 
 

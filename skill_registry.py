@@ -56,7 +56,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         level_key="woodcutting_level",
         exp_key="woodcutting_exp",
         current_target_key="current_tree",
-        default_target="Tree",
+        default_target="tree",
         review_handler_key="woodcutting",
     ),
     SkillDefinition(

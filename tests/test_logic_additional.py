@@ -30,8 +30,8 @@ class TestLogicAdditional(unittest.TestCase):
     def test_probability_helpers_boundary(self):
         # When r_action == success_probability, action should fail (strict <)
         inv = {}
-        tree_data = {"Oak": {"exp": 15}}
-        new_inv, exp, ok = apply_woodcutting_pure("Oak", inv, tree_data, r_action=0.5, success_probability=0.5)
+        tree_data = {"oak": {"exp": 15, "output_item": "Oak logs"}}
+        new_inv, exp, ok = apply_woodcutting_pure("oak", inv, tree_data, r_action=0.5, success_probability=0.5)
         self.assertFalse(ok)
         self.assertEqual(exp, 0)
         self.assertEqual(new_inv, inv)
@@ -64,7 +64,7 @@ class TestLogicAdditional(unittest.TestCase):
         ore_data = {"Iron ore": {"exp": 35}}
         inv = {}
         # p=1.0 should succeed for r_action < 1.0
-        new_inv, exp, ok, gem = apply_mining_pure(
+        new_inv, _exp, ok, _gem = apply_mining_pure(
             "Iron ore", inv, ore_data, {}, r_action=0.9999, success_probability=1.0
         )
         self.assertTrue(ok)
@@ -118,19 +118,19 @@ class TestLogicAdditional(unittest.TestCase):
 
     def test_mining_and_woodcutting_gating_unknown_items(self):
         self.assertFalse(can_mine_ore_pure(1, "Unknown", {"Copper ore": {"level": 1}}))
-        self.assertFalse(can_cut_tree_pure(1, "Unknown", {"Tree": {"level": 1}}))
+        self.assertFalse(can_cut_tree_pure(1, "Unknown", {"tree": {"level": 1}}))
 
     def test_can_craft_item_pure_missing_item(self):
         self.assertFalse(can_craft_item_pure(99, {}, "Missing", {"Soft clay": {"level": 1, "requirements": {}}}))
 
     def test_fletching_unknown_target_and_missing_materials(self):
-        fletching_data = {"arrow_shafts": {"level": 1, "requirements": {"Tree": 1}, "output_qty": 15}}
-        self.assertFalse(can_fletch_item_pure(99, {"Tree": 1}, "Missing", fletching_data))
+        fletching_data = {"arrow_shafts": {"level": 1, "requirements": {"Logs": 1}, "output_qty": 15}}
+        self.assertFalse(can_fletch_item_pure(99, {"Logs": 1}, "Missing", fletching_data))
         self.assertFalse(can_fletch_item_pure(1, {}, "arrow_shafts", fletching_data))
-        new_inv, exp, ok = apply_fletching_pure("Missing", {"Tree": 1}, fletching_data)
+        new_inv, exp, ok = apply_fletching_pure("Missing", {"Logs": 1}, fletching_data)
         self.assertFalse(ok)
         self.assertEqual(exp, 0)
-        self.assertEqual(new_inv, {"Tree": 1})
+        self.assertEqual(new_inv, {"Logs": 1})
 
     def test_calculate_new_level_caps_at_99_with_list(self):
         # Very high exp should cap at 99

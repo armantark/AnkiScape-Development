@@ -5,7 +5,7 @@ from storage_pure import (
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
-from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA
+from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA, WOODCUTTING_LOG_ITEMS
 
 
 class TestStoragePure(unittest.TestCase):
@@ -33,6 +33,7 @@ class TestStoragePure(unittest.TestCase):
             "inventory",
             "progress_to_next",
             "completed_achievements",
+            "toolbelt",
         ]:
             self.assertIn(key, data)
         # Inventory seeded with ore keys
@@ -47,12 +48,12 @@ class TestStoragePure(unittest.TestCase):
             material
             for spec in FLETCHING_DATA.values()
             for material in spec.get("requirements", {})
-            if material not in TREE_DATA
+            if material not in WOODCUTTING_LOG_ITEMS
         ]
-        utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values()]
+        utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values() if "output_item" in spec]
         for item_name in (
             list(ORE_DATA)
-            + list(TREE_DATA)
+            + list(WOODCUTTING_LOG_ITEMS)
             + list(BAR_DATA)
             + list(GEM_DATA)
             + list(CRAFTING_DATA)
@@ -95,7 +96,8 @@ class TestStoragePure(unittest.TestCase):
             ITEM_DEFINITIONS,
         )
         self.assertEqual(migrated["inventory"]["Mystery item"], 7)
-        self.assertEqual(migrated["inventory"]["Oak"], 3)
+        self.assertNotIn("Oak", migrated["inventory"])
+        self.assertEqual(migrated["inventory"]["Oak logs"], 3)
         self.assertIn("Bronze bar", migrated["inventory"])
         self.assertIn("Uncut sapphire", migrated["inventory"])
         self.assertIn("Arrow shafts", migrated["inventory"])
@@ -103,6 +105,25 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Soft clay", migrated["inventory"])
         self.assertIn("Wool", migrated["inventory"])
         self.assertIn("Flax", migrated["inventory"])
+        self.assertIn("bronze_hatchet", migrated["toolbelt"]["woodcutting"])
+
+    def test_migrate_legacy_woodcutting_target_and_logs(self):
+        migrated = migrate_loaded_data(
+            {
+                "current_tree": "Magic",
+                "inventory": {"Tree": 2, "Magic": 4, "Redwood": 99, "Mystery item": 1},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_tree"], "magic")
+        self.assertEqual(migrated["inventory"]["Logs"], 2)
+        self.assertEqual(migrated["inventory"]["Magic logs"], 4)
+        self.assertNotIn("Tree", migrated["inventory"])
+        self.assertNotIn("Magic", migrated["inventory"])
+        self.assertNotIn("Redwood", migrated["inventory"])
+        self.assertEqual(migrated["inventory"]["Mystery item"], 1)
 
     def test_migrate_moves_legacy_soft_clay_target_to_utility(self):
         migrated = migrate_loaded_data(

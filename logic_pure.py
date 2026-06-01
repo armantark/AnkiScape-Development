@@ -1,4 +1,8 @@
 # logic_pure.py - Pure logic functions for AnkiScape (no Anki dependencies)
+from __future__ import annotations
+
+from math import sqrt
+from typing import Iterable, Mapping
 
 def get_exp_to_next_level(player_data, EXP_TABLE):
     """Return exp needed to reach the next level for Mining.
@@ -76,6 +80,22 @@ def pick_gem(gem_data, r):
         if r < cumulative:
             return gem
     return None
+
+
+def pick_weighted_item_pure(weighted_items, r, total_weight=None):
+    """Pick an item from source-style weighted slots using a [0, 1) roll."""
+    if total_weight is None:
+        total_weight = sum(_positive_int(item.get("weight", 0), 0) for item in weighted_items)
+    if total_weight <= 0:
+        return None
+    threshold = max(0.0, min(float(r), 0.999999999)) * total_weight
+    cumulative = 0
+    for item in weighted_items:
+        cumulative += _positive_int(item.get("weight", 0), 0)
+        if threshold < cumulative:
+            return item.get("item")
+    last = weighted_items[-1] if weighted_items else {}
+    return last.get("item")
 
 def can_smelt_any_bar_pure(inventory, smithing_level, bar_data):
     """
@@ -184,6 +204,9 @@ def can_perform_utility_activity_pure(inventory, activity_key, utility_activity_
     spec = utility_activity_data.get(activity_key)
     if not spec:
         return False
+    openable_items = spec.get("openable_items")
+    if openable_items:
+        return any(inventory.get(item_name, 0) > 0 for item_name in openable_items)
     requirements = spec.get("requirements", {})
     batch_size = _positive_int(spec.get("batch_size", 1))
     return _max_batches_for_requirements(requirements, inventory, batch_size) > 0
@@ -237,9 +260,135 @@ def apply_woodcutting_pure(tree_name, inventory, tree_data, r_action, success_pr
     if not success:
         return inventory, 0, False
     new_inv = dict(inventory)
-    new_inv[tree_name] = new_inv.get(tree_name, 0) + 1
+    output_item = tree_data[tree_name].get("output_item", tree_name)
+    if output_item:
+        new_inv[output_item] = new_inv.get(output_item, 0) + 1
     exp = tree_data[tree_name].get("exp", 0)
     return new_inv, exp, True
+
+
+def _toolbelt_ids(toolbelt, skill_key):
+    if not isinstance(toolbelt, Mapping):
+        return set()
+    raw = toolbelt.get(skill_key, ())
+    if isinstance(raw, str):
+        return {raw}
+    if isinstance(raw, Iterable):
+        return {item for item in raw if isinstance(item, str)}
+    return set()
+
+
+def best_woodcutting_axe_pure(woodcutting_level, inventory, toolbelt, axe_data):
+    """Return the best usable axe spec, considering bound tools and owned items."""
+    bound_ids = _toolbelt_ids(toolbelt, "woodcutting")
+    best = None
+    for axe_id, spec in axe_data.items():
+        if spec.get("status", "implemented") != "implemented":
+            continue
+        display_name = spec.get("display_name", axe_id)
+        owned = axe_id in bound_ids or inventory.get(display_name, 0) > 0
+        if not owned or woodcutting_level < spec.get("level", 1):
+            continue
+        if best is None or spec.get("ratio", 0) > best.get("ratio", 0):
+            best = spec
+    return best
+
+
+def woodcutting_source_roll_chance_pure(woodcutting_level, target_spec, axe_spec):
+    """Approximate the 2011Scape raw chop roll before Anki pacing is applied."""
+    low = float(target_spec.get("low_chance", 0)) * float(axe_spec.get("ratio", 1.0))
+    high = float(target_spec.get("high_chance", 0)) * float(axe_spec.get("ratio", 1.0))
+    level_progress = max(0.0, min((float(woodcutting_level) - 1.0) / 98.0, 1.0))
+    interpolated = low + ((high - low) * level_progress)
+    return max(0.0, min(interpolated / 255.0, 1.0))
+
+
+def calculate_woodcutting_success_probability_pure(woodcutting_level, target_spec, axe_spec, minimum=0.20, scale=0.72, cap=0.95):
+    """Translate source chop odds into a review-scale success probability.
+
+    2011Scape rolls every few game ticks; AnkiScape rolls once per eligible card.
+    The square-root adapter preserves ordering and tool upgrades while avoiding
+    extremely dry high-tier trees at normal review cadence.
+    """
+    source_chance = woodcutting_source_roll_chance_pure(woodcutting_level, target_spec, axe_spec)
+    return max(0.0, min(minimum + (sqrt(source_chance) * scale), cap))
+
+
+def can_chop_woodcutting_target_pure(woodcutting_level, target_id, tree_data, inventory, toolbelt, axe_data):
+    spec = tree_data.get(target_id)
+    if not spec:
+        return False
+    if woodcutting_level < spec.get("level", 1):
+        return False
+    return best_woodcutting_axe_pure(woodcutting_level, inventory, toolbelt, axe_data) is not None
+
+
+def apply_woodcutting_action_pure(
+    target_id,
+    inventory,
+    tree_data,
+    woodcutting_level,
+    axe_spec,
+    r_action,
+    r_nest_drop=None,
+    r_nest_type=None,
+    nest_drop_table=None,
+    nest_drop_chance=0.0,
+):
+    spec = tree_data.get(target_id)
+    if not spec or not axe_spec:
+        return inventory, 0, False, None, None
+    success_probability = calculate_woodcutting_success_probability_pure(woodcutting_level, spec, axe_spec)
+    if r_action >= success_probability:
+        return inventory, 0, False, None, None
+
+    new_inv = dict(inventory)
+    output_item = spec.get("output_item")
+    if output_item:
+        new_inv[output_item] = new_inv.get(output_item, 0) + 1
+
+    nest_item = None
+    if r_nest_drop is not None and r_nest_type is not None and nest_drop_table and r_nest_drop < nest_drop_chance:
+        nest_item = pick_weighted_item_pure(nest_drop_table, r_nest_type)
+        if nest_item:
+            new_inv[nest_item] = new_inv.get(nest_item, 0) + 1
+
+    return new_inv, spec.get("exp", 0), True, output_item, nest_item
+
+
+def can_open_bird_nests_pure(inventory, nest_open_tables):
+    return any(inventory.get(input_item, 0) > 0 for input_item in nest_open_tables)
+
+
+def apply_open_bird_nests_pure(inventory, nest_open_tables, rolls=(), batch_size=28):
+    """Open up to batch_size source bird nests and return inert contents."""
+    remaining = _positive_int(batch_size, 28)
+    roll_iter = iter(rolls or ())
+    new_inv = dict(inventory)
+    opened = 0
+    outputs = {}
+    for input_item, table in nest_open_tables.items():
+        while remaining > 0 and new_inv.get(input_item, 0) > 0:
+            new_inv[input_item] = new_inv.get(input_item, 0) - 1
+            opened += 1
+            remaining -= 1
+
+            guaranteed_item = table.get("guaranteed_item")
+            if guaranteed_item:
+                new_inv[guaranteed_item] = new_inv.get(guaranteed_item, 0) + 1
+                outputs[guaranteed_item] = outputs.get(guaranteed_item, 0) + 1
+
+            weighted_items = table.get("rolls", ())
+            total_weight = table.get("total_weight")
+            try:
+                roll = next(roll_iter)
+            except StopIteration:
+                roll = 0.0
+            rolled_item = pick_weighted_item_pure(weighted_items, roll, total_weight)
+            if rolled_item:
+                new_inv[rolled_item] = new_inv.get(rolled_item, 0) + 1
+                outputs[rolled_item] = outputs.get(rolled_item, 0) + 1
+    return new_inv, opened > 0, opened, outputs
 
 def apply_mining_pure(
     ore_name,

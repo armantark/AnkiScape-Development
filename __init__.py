@@ -9,6 +9,11 @@ from .constants import (
     FLETCHING_DATA,
     UTILITY_ACTIVITY_DATA,
     DEFAULT_UTILITY_ACTIVITY,
+    DEFAULT_WOODCUTTING_TARGET,
+    WOODCUTTING_AXE_DATA,
+    BIRD_NEST_DROP_CHANCE,
+    BIRD_NEST_DROP_TABLE,
+    BIRD_NEST_OPEN_TABLES,
     ORE_IMAGES,
     TREE_IMAGES,
     BAR_IMAGES,
@@ -34,16 +39,18 @@ from .logic_pure import (
     can_perform_utility_activity_pure,
     apply_crafting_pure,
     apply_utility_activity_pure,
+    apply_open_bird_nests_pure,
     apply_smelt_pure,
     apply_fletching_pure,
-    apply_woodcutting_pure,
+    apply_woodcutting_action_pure,
     apply_mining_pure,
     scale_skill_exp_pure,
     sanitize_xp_multiplier,
     can_mine_ore_pure,
     can_cut_tree_pure,
+    best_woodcutting_axe_pure,
 )
-from .logic import level_up_check, check_achievements, calculate_woodcutting_probability, calculate_mining_probability
+from .logic import level_up_check, check_achievements, calculate_mining_probability
 from .ui import (
     ExpPopup,
     show_error_message,
@@ -459,6 +466,29 @@ def on_utility_answer():
             )
         return
 
+    if activity_key == "open_bird_nest":
+        batch_size = 28
+        try:
+            batch_size = max(int(spec.get("batch_size", 28)), 1)
+        except (TypeError, ValueError):
+            batch_size = 28
+        rolls = [random.random() for _ in range(batch_size)]
+        new_inv, ok, processed, _outputs = apply_open_bird_nests_pure(
+            player_data.get("inventory", {}),
+            BIRD_NEST_OPEN_TABLES,
+            rolls=rolls,
+            batch_size=batch_size,
+        )
+        if not ok:
+            show_error_message("Unavailable activity", f"{display_name} is not available right now.")
+            return
+        player_data["inventory"] = new_inv
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        _show_activity_gain(f"Opened {processed} bird nest{'s' if processed != 1 else ''}")
+        return
+
     new_inv, _exp, ok, processed = apply_utility_activity_pure(
         activity_key,
         player_data.get("inventory", {}),
@@ -666,13 +696,46 @@ def on_smithing_answer():
 
 
 def on_woodcutting_answer():
-    tree = player_data["current_tree"]
+    tree = player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET)
+    if tree not in TREE_DATA:
+        tree = DEFAULT_WOODCUTTING_TARGET
+        player_data["current_tree"] = tree
     spec = TREE_DATA[tree]
-    player_level = player_data["woodcutting_level"]
+    player_level = player_data.get("woodcutting_level", 1)
 
-    woodcutting_probability = calculate_woodcutting_probability(player_level, spec["probability"])
+    if player_level < spec.get("level", 1):
+        show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
+        return
+
+    axe_spec = best_woodcutting_axe_pure(
+        player_level,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        WOODCUTTING_AXE_DATA,
+    )
+    if axe_spec is None:
+        _deactivate_current_skill()
+        show_error_message(
+            "No usable hatchet",
+            "You need a usable hatchet to train Woodcutting. Woodcutting has been switched off.",
+        )
+        return
+
     r_action = random.random()
-    new_inv, base_exp, ok = apply_woodcutting_pure(tree, player_data["inventory"], TREE_DATA, r_action, woodcutting_probability)
+    r_nest_drop = random.random()
+    r_nest_type = random.random()
+    new_inv, base_exp, ok, _output_item, _nest_item = apply_woodcutting_action_pure(
+        tree,
+        player_data.get("inventory", {}),
+        TREE_DATA,
+        player_level,
+        axe_spec,
+        r_action,
+        r_nest_drop,
+        r_nest_type,
+        BIRD_NEST_DROP_TABLE,
+        BIRD_NEST_DROP_CHANCE,
+    )
     if ok:
         if "logs_cut_today" not in player_data:
             player_data["logs_cut_today"] = 0

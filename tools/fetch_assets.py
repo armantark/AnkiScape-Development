@@ -215,7 +215,6 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
     "Mahogany": "Mahogany logs.png",
     "Yew": "Yew logs.png",
     "Magic": "Magic logs.png",
-    "Redwood": "Redwood logs.png",
 }
 
 

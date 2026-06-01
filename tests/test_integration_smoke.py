@@ -206,7 +206,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
 
         addon.player_data = {
-            "inventory": {"Tree": 1},
+            "inventory": {"Logs": 1},
             "fletching_level": 1,
             "fletching_exp": 0,
             "current_fletch": "arrow_shafts",
@@ -215,7 +215,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_fletching_answer()
 
-        self.assertEqual(addon.player_data["inventory"]["Tree"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
         self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
         self.assertEqual(calls["save"], 1)
@@ -247,6 +247,37 @@ class TestIntegrationSmoke(unittest.TestCase):
         # No-XP activities still surface a floating "+N <item>" confirmation so the
         # player knows the review did something despite earning no XP.
         self.assertEqual(calls["gains"], ["+3 Soft clay"])
+
+    def test_utility_opens_bird_nests_without_skill_xp(self):
+        addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.player_data = {
+                "inventory": {"Bird's nest (seeds)": 1},
+                "woodcutting_exp": 0,
+                "current_utility": "open_bird_nest",
+                "completed_achievements": [],
+            }
+
+            addon.on_utility_answer()
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Bird's nest (seeds)"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Bird's nest (empty)"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Acorn"], 1)
+        self.assertEqual(addon.player_data["woodcutting_exp"], 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Opened 1 bird nest"])
 
     def test_utility_out_of_materials_switches_off_and_warns(self):
         # Running a Utility activity with no materials must warn once and switch
@@ -325,7 +356,8 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {},
             "woodcutting_level": 1,
             "woodcutting_exp": 0,
-            "current_tree": "Tree",
+            "current_tree": "tree",
+            "toolbelt": {"woodcutting": ["bronze_hatchet"]},
             "fletching_level": 1,
             "fletching_exp": 0,
             "current_fletch": "arrow_shafts",
@@ -340,7 +372,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         finally:
             addon.random.random = original_random
 
-        self.assertEqual(addon.player_data["inventory"]["Tree"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
         self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
         self.assertAlmostEqual(addon.player_data["woodcutting_exp"], 50.0)
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
@@ -357,7 +389,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_xp_multiplier": "not-a-number"}))
         addon.player_data = {
-            "inventory": {"Tree": 1},
+            "inventory": {"Logs": 1},
             "fletching_level": 1,
             "fletching_exp": 0,
             "current_fletch": "arrow_shafts",
@@ -381,7 +413,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
 
         addon.player_data = {
-            "inventory": {"Tree": 1},
+            "inventory": {"Logs": 1},
             "fletching_level": 1,
             "fletching_exp": 0,
             "current_fletch": "arrow_shafts",
@@ -394,7 +426,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.player_data["inventory"]["Tree"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
         self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
@@ -405,7 +437,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         addon._on_state_did_undo(changes)
 
-        self.assertEqual(addon.player_data["inventory"], {"Tree": 1})
+        self.assertEqual(addon.player_data["inventory"], {"Logs": 1})
         self.assertEqual(addon.player_data["fletching_exp"], 0)
         self.assertEqual(addon.player_data["current_fletch"], "arrow_shafts")
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
@@ -454,14 +486,14 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.save_player_data = lambda: self.fail("unrelated undo should not save")
         addon.player_data = {
-            "inventory": {"Tree": 0, "Arrow shafts": 15},
+            "inventory": {"Logs": 0, "Arrow shafts": 15},
             "fletching_level": 1,
             "fletching_exp": 5.0,
             "current_fletch": "arrow_shafts",
         }
         addon._REVIEW_UNDO_STACK.append(
             {
-                "values": {"inventory": {"Tree": 1}, "fletching_exp": 0},
+                "values": {"inventory": {"Logs": 1}, "fletching_exp": 0},
                 "remove": [],
             }
         )

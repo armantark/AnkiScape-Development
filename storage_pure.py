@@ -4,11 +4,21 @@ from typing import Dict, Iterable, Optional, Any
 try:
     from .item_registry import ItemDefinition
     from .skill_registry import default_skill_state, default_target_state
+    from .woodcutting_data import (
+        DEFAULT_WOODCUTTING_TOOLBELT,
+        LEGACY_LOG_STORAGE_MIGRATIONS,
+        LEGACY_TREE_TARGETS,
+    )
 except ImportError:
     from item_registry import ItemDefinition
     from skill_registry import default_skill_state, default_target_state
+    from woodcutting_data import (
+        DEFAULT_WOODCUTTING_TOOLBELT,
+        LEGACY_LOG_STORAGE_MIGRATIONS,
+        LEGACY_TREE_TARGETS,
+    )
 
-CURRENT_CONFIG_VERSION = 6
+CURRENT_CONFIG_VERSION = 7
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 
 _LEGACY_FLETCHING_TARGETS = {
@@ -19,6 +29,7 @@ _LEGACY_FLETCHING_TARGETS = {
     "Maple shortbow (u)": "maple_shortbow_u",
     "Yew shortbow (u)": "yew_shortbow_u",
     "Magic shortbow (u)": "magic_shortbow_u",
+    "redwood_arrow_shafts": "arrow_shafts",
 }
 
 
@@ -43,7 +54,53 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_skill_state())
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
+    data["toolbelt"] = _default_toolbelt()
     return data
+
+
+def _default_toolbelt() -> Dict[str, list[str]]:
+    return {skill: list(items) for skill, items in DEFAULT_WOODCUTTING_TOOLBELT.items()}
+
+
+def _migrate_legacy_woodcutting_target(data: Dict[str, Any]) -> None:
+    current_tree = data.get("current_tree")
+    if isinstance(current_tree, str):
+        data["current_tree"] = LEGACY_TREE_TARGETS.get(current_tree, current_tree)
+
+
+def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
+    for legacy_key, new_key in LEGACY_LOG_STORAGE_MIGRATIONS.items():
+        if legacy_key not in inventory:
+            continue
+        try:
+            amount = int(inventory.get(legacy_key, 0))
+        except (TypeError, ValueError):
+            amount = 0
+        if new_key is not None and amount:
+            inventory[new_key] = inventory.get(new_key, 0) + amount
+        inventory.pop(legacy_key, None)
+
+
+def _migrate_toolbelt(data: Dict[str, Any]) -> None:
+    toolbelt = data.get("toolbelt")
+    if not isinstance(toolbelt, dict):
+        toolbelt = {}
+    defaults = _default_toolbelt()
+    for skill, default_items in defaults.items():
+        existing = toolbelt.get(skill)
+        if isinstance(existing, str):
+            items = [existing]
+        elif isinstance(existing, list):
+            items = [item for item in existing if isinstance(item, str)]
+        elif isinstance(existing, tuple):
+            items = [item for item in existing if isinstance(item, str)]
+        else:
+            items = []
+        for default_item in default_items:
+            if default_item not in items:
+                items.append(default_item)
+        toolbelt[skill] = items
+    data["toolbelt"] = toolbelt
 
 
 def migrate_loaded_data(
@@ -72,11 +129,35 @@ def migrate_loaded_data(
     for key, value in default_target_state().items():
         data.setdefault(key, value)
     data.setdefault("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    _migrate_legacy_woodcutting_target(data)
     if isinstance(data.get("current_fletch"), str):
         data["current_fletch"] = _LEGACY_FLETCHING_TARGETS.get(data["current_fletch"], data["current_fletch"])
+    if data.get("current_fletch") not in (
+        "arrow_shafts",
+        "oak_arrow_shafts",
+        "willow_arrow_shafts",
+        "maple_arrow_shafts",
+        "yew_arrow_shafts",
+        "magic_arrow_shafts",
+        "headless_arrows",
+        "bronze_arrows",
+        "iron_arrows",
+        "steel_arrows",
+        "mithril_arrows",
+        "adamant_arrows",
+        "rune_arrows",
+        "shortbow_u",
+        "oak_shortbow_u",
+        "willow_shortbow_u",
+        "maple_shortbow_u",
+        "yew_shortbow_u",
+        "magic_shortbow_u",
+    ):
+        data["current_fletch"] = "arrow_shafts"
     if data.get("current_craft") == "Soft clay":
         data["current_craft"] = ""
         data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
+    _migrate_toolbelt(data)
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.
@@ -85,6 +166,7 @@ def migrate_loaded_data(
         inv = {}
     for item_key in _default_inventory(ORE_DATA, item_definitions):
         inv.setdefault(item_key, 0)
+    _migrate_legacy_log_inventory(inv)
     data["inventory"] = inv
 
     # Ensure achievements structure exists

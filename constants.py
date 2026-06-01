@@ -5,8 +5,28 @@ import re
 
 try:
     from .item_registry import build_item_definitions
+    from .woodcutting_data import (
+        BIRD_NEST_DROP_CHANCE,
+        BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
+        BIRD_NEST_OPEN_TABLES_BY_INPUT as SOURCE_BIRD_NEST_OPEN_TABLES_BY_INPUT,
+        BIRD_NEST_OPEN_TABLES_BY_INPUT,
+        DEFAULT_WOODCUTTING_TARGET,
+        woodcutting_axes_as_dict,
+        woodcutting_extra_items_as_dict,
+        woodcutting_targets_as_dict,
+    )
 except ImportError:
     from item_registry import build_item_definitions
+    from woodcutting_data import (
+        BIRD_NEST_DROP_CHANCE,
+        BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
+        BIRD_NEST_OPEN_TABLES_BY_INPUT as SOURCE_BIRD_NEST_OPEN_TABLES_BY_INPUT,
+        BIRD_NEST_OPEN_TABLES_BY_INPUT,
+        DEFAULT_WOODCUTTING_TARGET,
+        woodcutting_axes_as_dict,
+        woodcutting_extra_items_as_dict,
+        woodcutting_targets_as_dict,
+    )
 
 # Base probabilities and factors
 BASE_WOODCUTTING_PROBABILITY = 0.8
@@ -20,6 +40,10 @@ trees_folder = os.path.join(current_dir, "trees")
 GEMS_FOLDER = os.path.join(current_dir, "gems")
 bars_folder = os.path.join(current_dir, "bars")
 FLETCHED_ITEMS_FOLDER = os.path.join(current_dir, "fletcheditems")
+# Woodcutting bank items (hatchets, bird nests, seed contents). Logs reuse the
+# trees/ sprites — those files are the log item art (see WIKI_TITLE_OVERRIDES in
+# tools/fetch_assets.py) — so only non-log Woodcutting items live here.
+WOODCUTTING_ITEMS_FOLDER = os.path.join(current_dir, "woodcuttingitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -50,6 +74,13 @@ UTILITY_ACTIVITY_DATA = {
         "output_qty": 1,
         "batch_size": 28,
         "source": "OSRS Bow string > Strategy > Manual Spinning",
+    },
+    "open_bird_nest": {
+        "display_name": "Open bird nests",
+        "requirements": {},
+        "openable_items": tuple(BIRD_NEST_OPEN_TABLES_BY_INPUT.keys()),
+        "batch_size": 28,
+        "source": "2011Scape bird_nest.plugin.kts",
     },
 }
 
@@ -143,17 +174,24 @@ ORE_DATA = {
     "Runite ore": {"level": 85, "exp": 125, "probability": 0.50}
 }
 
-TREE_DATA = {
-    "Tree": {"level": 1, "exp": 25, "probability": 0.90},
-    "Oak": {"level": 15, "exp": 37.5, "probability": 0.85},
-    "Willow": {"level": 30, "exp": 67.5, "probability": 0.80},
-    "Teak": {"level": 35, "exp": 85, "probability": 0.75},
-    "Maple": {"level": 45, "exp": 100, "probability": 0.70},
-    "Mahogany": {"level": 50, "exp": 125, "probability": 0.65},
-    "Yew": {"level": 60, "exp": 175, "probability": 0.60},
-    "Magic": {"level": 75, "exp": 250, "probability": 0.55},
-    "Redwood": {"level": 90, "exp": 380, "probability": 0.50},
+TREE_DATA = woodcutting_targets_as_dict()
+WOODCUTTING_AXE_DATA = woodcutting_axes_as_dict()
+WOODCUTTING_EXTRA_ITEM_DATA = woodcutting_extra_items_as_dict()
+BIRD_NEST_DROP_TABLE = tuple({"item": item.item, "weight": item.weight} for item in SOURCE_BIRD_NEST_DROP_TABLE)
+BIRD_NEST_OPEN_TABLES = {
+    input_item: {
+        "guaranteed_item": table.guaranteed_item,
+        "rolls": tuple({"item": item.item, "weight": item.weight} for item in table.rolls),
+        "total_weight": table.total_weight,
+        "source": table.source,
+    }
+    for input_item, table in SOURCE_BIRD_NEST_OPEN_TABLES_BY_INPUT.items()
 }
+WOODCUTTING_LOG_ITEMS = tuple(
+    str(spec["output_item"])
+    for spec in TREE_DATA.values()
+    if isinstance(spec.get("output_item"), str)
+)
 
 GEM_DATA = {
     "Uncut sapphire": {"probability": 1 / 4, "exp": 50},
@@ -175,60 +213,52 @@ BAR_DATA = {
 
 FLETCHING_DATA = {
     "arrow_shafts": {
-        "display_name": "Arrow shafts (Tree)",
+        "display_name": "Arrow shafts (Logs)",
         "level": 1,
         "exp": 5.0,
-        "requirements": {"Tree": 1},
+        "requirements": {"Logs": 1},
         "output_item": "Arrow shafts",
         "output_qty": 15,
     },
     "oak_arrow_shafts": {
-        "display_name": "Arrow shafts (Oak)",
+        "display_name": "Arrow shafts (Oak logs)",
         "level": 15,
         "exp": 10.0,
-        "requirements": {"Oak": 1},
+        "requirements": {"Oak logs": 1},
         "output_item": "Arrow shafts",
         "output_qty": 30,
     },
     "willow_arrow_shafts": {
-        "display_name": "Arrow shafts (Willow)",
+        "display_name": "Arrow shafts (Willow logs)",
         "level": 30,
         "exp": 15.0,
-        "requirements": {"Willow": 1},
+        "requirements": {"Willow logs": 1},
         "output_item": "Arrow shafts",
         "output_qty": 45,
     },
     "maple_arrow_shafts": {
-        "display_name": "Arrow shafts (Maple)",
+        "display_name": "Arrow shafts (Maple logs)",
         "level": 45,
         "exp": 20.0,
-        "requirements": {"Maple": 1},
+        "requirements": {"Maple logs": 1},
         "output_item": "Arrow shafts",
         "output_qty": 60,
     },
     "yew_arrow_shafts": {
-        "display_name": "Arrow shafts (Yew)",
+        "display_name": "Arrow shafts (Yew logs)",
         "level": 60,
         "exp": 25.0,
-        "requirements": {"Yew": 1},
+        "requirements": {"Yew logs": 1},
         "output_item": "Arrow shafts",
         "output_qty": 75,
     },
     "magic_arrow_shafts": {
-        "display_name": "Arrow shafts (Magic)",
+        "display_name": "Arrow shafts (Magic logs)",
         "level": 75,
         "exp": 30.0,
-        "requirements": {"Magic": 1},
+        "requirements": {"Magic logs": 1},
         "output_item": "Arrow shafts",
         "output_qty": 90,
-    },
-    "redwood_arrow_shafts": {
-        "display_name": "Arrow shafts (Redwood)",
-        "level": 90,
-        "exp": 35.0,
-        "requirements": {"Redwood": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 105,
     },
     "headless_arrows": {
         "display_name": "Headless arrows",
@@ -286,12 +316,12 @@ FLETCHING_DATA = {
         "output_item": "Rune arrows",
         "output_qty": 15,
     },
-    "shortbow_u": {"display_name": "Shortbow (u)", "level": 5, "exp": 5.0, "requirements": {"Tree": 1}, "output_item": "Shortbow (u)", "output_qty": 1},
-    "oak_shortbow_u": {"display_name": "Oak shortbow (u)", "level": 20, "exp": 16.5, "requirements": {"Oak": 1}, "output_item": "Oak shortbow (u)", "output_qty": 1},
-    "willow_shortbow_u": {"display_name": "Willow shortbow (u)", "level": 35, "exp": 33.3, "requirements": {"Willow": 1}, "output_item": "Willow shortbow (u)", "output_qty": 1},
-    "maple_shortbow_u": {"display_name": "Maple shortbow (u)", "level": 50, "exp": 50.0, "requirements": {"Maple": 1}, "output_item": "Maple shortbow (u)", "output_qty": 1},
-    "yew_shortbow_u": {"display_name": "Yew shortbow (u)", "level": 65, "exp": 67.5, "requirements": {"Yew": 1}, "output_item": "Yew shortbow (u)", "output_qty": 1},
-    "magic_shortbow_u": {"display_name": "Magic shortbow (u)", "level": 80, "exp": 83.3, "requirements": {"Magic": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
+    "shortbow_u": {"display_name": "Shortbow (u)", "level": 5, "exp": 5.0, "requirements": {"Logs": 1}, "output_item": "Shortbow (u)", "output_qty": 1},
+    "oak_shortbow_u": {"display_name": "Oak shortbow (u)", "level": 20, "exp": 16.5, "requirements": {"Oak logs": 1}, "output_item": "Oak shortbow (u)", "output_qty": 1},
+    "willow_shortbow_u": {"display_name": "Willow shortbow (u)", "level": 35, "exp": 33.3, "requirements": {"Willow logs": 1}, "output_item": "Willow shortbow (u)", "output_qty": 1},
+    "maple_shortbow_u": {"display_name": "Maple shortbow (u)", "level": 50, "exp": 50.0, "requirements": {"Maple logs": 1}, "output_item": "Maple shortbow (u)", "output_qty": 1},
+    "yew_shortbow_u": {"display_name": "Yew shortbow (u)", "level": 65, "exp": 67.5, "requirements": {"Yew logs": 1}, "output_item": "Yew shortbow (u)", "output_qty": 1},
+    "magic_shortbow_u": {"display_name": "Magic shortbow (u)", "level": 80, "exp": 83.3, "requirements": {"Magic logs": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
 }
 
 
@@ -313,11 +343,34 @@ FLETCHED_ITEM_IMAGES = {
     for item_name in _FLETCHING_ITEM_NAMES
 }
 
+# Logs are item drops, but their art already ships in trees/ (the row sprite IS
+# the log icon). Re-key those files by log item name so the Bank/Stats item
+# registry can give logs an asset_path without a second fetch. Existence-guarded
+# so missing files never trip missing_required_asset_paths().
+LOG_IMAGES = {}
+for _spec in TREE_DATA.values():
+    _output = _spec.get("output_item")
+    _display = _spec.get("display_name")
+    if isinstance(_output, str) and isinstance(_display, str):
+        _path = TREE_IMAGES.get(_display)
+        if _path and os.path.exists(_path):
+            LOG_IMAGES[_output] = _path
+
+# Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
+# tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
+# up; only files that actually exist are wired (rare egg nests/eggs stay
+# iconless rather than pointing at absent files).
+WOODCUTTING_EXTRA_ITEM_IMAGES = {}
+for _item_name in WOODCUTTING_EXTRA_ITEM_DATA:
+    _path = os.path.join(WOODCUTTING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        WOODCUTTING_EXTRA_ITEM_IMAGES[_item_name] = _path
+
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,
     ORE_IMAGES,
     TREE_DATA,
-    TREE_IMAGES,
+    {**TREE_IMAGES, **LOG_IMAGES},
     GEM_DATA,
     GEM_IMAGES,
     BAR_DATA,
@@ -328,6 +381,8 @@ ITEM_DEFINITIONS = build_item_definitions(
     FLETCHED_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
     UTILITY_ITEM_IMAGES,
+    WOODCUTTING_EXTRA_ITEM_DATA,
+    WOODCUTTING_EXTRA_ITEM_IMAGES,
 )
 
 # Experience table
@@ -426,38 +481,36 @@ ACHIEVEMENTS = {
 
     # New Woodcutting Achievements
     "First Chop": {"description": "Cut your first log", "difficulty": "Easy",
-                   "condition": lambda player: any(player["inventory"].get(tree, 0) > 0 for tree in TREE_DATA)},
+                   "condition": lambda player: any(player["inventory"].get(item, 0) > 0 for item in WOODCUTTING_LOG_ITEMS)},
     "Novice Woodcutter": {"description": "Reach Woodcutting level 10", "difficulty": "Easy",
                           "condition": lambda player: player["woodcutting_level"] >= 10},
     "Log Collector": {"description": "Collect 100 total logs", "difficulty": "Easy",
-                      "condition": lambda player: sum(player["inventory"].get(tree, 0) for tree in TREE_DATA) >= 100},
+                      "condition": lambda player: sum(player["inventory"].get(item, 0) for item in WOODCUTTING_LOG_ITEMS) >= 100},
     "Jack of All Trees": {"description": "Cut at least one log from each tree type", "difficulty": "Easy",
-                          "condition": lambda player: all(player["inventory"].get(tree, 0) > 0 for tree in TREE_DATA)},
+                          "condition": lambda player: all(player["inventory"].get(item, 0) > 0 for item in WOODCUTTING_LOG_ITEMS)},
     "Oak Enthusiast": {"description": "Cut 500 Oak logs", "difficulty": "Easy",
-                       "condition": lambda player: player["inventory"].get("Oak", 0) >= 500},
+                       "condition": lambda player: player["inventory"].get("Oak logs", 0) >= 500},
     "Willow Whisperer": {"description": "Cut 500 Willow logs", "difficulty": "Easy",
-                         "condition": lambda player: player["inventory"].get("Willow", 0) >= 500},
+                         "condition": lambda player: player["inventory"].get("Willow logs", 0) >= 500},
 
     "Intermediate Woodcutter": {"description": "Reach Woodcutting level 30", "difficulty": "Moderate",
                                 "condition": lambda player: player["woodcutting_level"] >= 30},
     "Log Hoarder": {"description": "Collect 1,000 total logs", "difficulty": "Moderate",
-                    "condition": lambda player: sum(player["inventory"].get(tree, 0) for tree in TREE_DATA) >= 1000},
+                    "condition": lambda player: sum(player["inventory"].get(item, 0) for item in WOODCUTTING_LOG_ITEMS) >= 1000},
     "Maple Master": {"description": "Cut 500 Maple logs", "difficulty": "Moderate",
-                     "condition": lambda player: player["inventory"].get("Maple", 0) >= 500},
+                     "condition": lambda player: player["inventory"].get("Maple logs", 0) >= 500},
     "Yew Yeoman": {"description": "Cut 250 Yew logs", "difficulty": "Moderate",
-                   "condition": lambda player: player["inventory"].get("Yew", 0) >= 250},
+                   "condition": lambda player: player["inventory"].get("Yew logs", 0) >= 250},
 
     "Expert Woodcutter": {"description": "Reach Woodcutting level 60", "difficulty": "Difficult",
                           "condition": lambda player: player["woodcutting_level"] >= 60},
     "Log Magnate": {"description": "Collect 10,000 total logs", "difficulty": "Difficult",
-                    "condition": lambda player: sum(player["inventory"].get(tree, 0) for tree in TREE_DATA) >= 10000},
+                    "condition": lambda player: sum(player["inventory"].get(item, 0) for item in WOODCUTTING_LOG_ITEMS) >= 10000},
     "Magic Logger": {"description": "Cut 1,000 Magic logs", "difficulty": "Difficult",
-                     "condition": lambda player: player["inventory"].get("Magic", 0) >= 1000},
+                     "condition": lambda player: player["inventory"].get("Magic logs", 0) >= 1000},
 
     "Master Woodcutter": {"description": "Reach Woodcutting level 99", "difficulty": "Very Challenging",
                           "condition": lambda player: player["woodcutting_level"] >= 99},
-    "Redwood Ruler": {"description": "Cut 2,500 Redwood logs", "difficulty": "Very Challenging",
-                      "condition": lambda player: player["inventory"].get("Redwood", 0) >= 2500},
 
     # Combined Achievements
     "Jack of Two Trades": {"description": "Reach level 50 in both Mining and Woodcutting", "difficulty": "Moderate",
@@ -466,7 +519,7 @@ ACHIEVEMENTS = {
     "Resource Baron": {"description": "Collect 10,000 total ores and 10,000 total logs", "difficulty": "Difficult",
                        "condition": lambda player: sum(
                            player["inventory"].get(ore, 0) for ore in ORE_DATA) >= 10000 and sum(
-                           player["inventory"].get(tree, 0) for tree in TREE_DATA) >= 10000},
+                           player["inventory"].get(item, 0) for item in WOODCUTTING_LOG_ITEMS) >= 10000},
     "Skilling Prodigy": {"description": "Reach level 80 in both Mining and Woodcutting",
                          "difficulty": "Very Challenging",
                          "condition": lambda player: player["mining_level"] >= 80 and player[
