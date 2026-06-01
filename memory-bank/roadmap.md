@@ -50,6 +50,7 @@ Candidate follow-ups:
   - GE interaction should be optional; gathering, Utility/Activities, and production chains should remain valid and rewarding.
   - Keep account mode flexible: the default experience can allow market access, while an ironman-style self-sufficient mode can disable it later.
   - Treat prices/supply as AnkiScape balance data, separate from source XP/recipe data.
+  - Detailed checkpoint: see `memory-bank/fake-grand-exchange-design.md`.
 - Make achievements less dependent on hand-written lambdas where possible.
 - Add collection, milestone, and cross-skill achievements.
 - Consider optional drop tables for rare items.
@@ -80,6 +81,6 @@ Frontend:
 ## Open Questions
 - Which exact early Fletching targets and XP values should be used after the registry foundation is merged?
 - How should Utility/Activities be presented so no-XP material actions feel intentional rather than punishing?
-- What is the first fake GE model: daily randomized supply, review-refreshed supply, price drift from scarcity, or a simpler rotating catalog?
+- What exact constants should the fake GE use for liquidity, volatility, aggregate order flow, and stochastic supply/demand shocks?
 - What is the first Thieving target list and reward table?
 - How much planned-skill catalog metadata should developer mode expose for testing?

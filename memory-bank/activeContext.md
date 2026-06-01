@@ -29,7 +29,7 @@ The project can borrow broad inspiration from idle-RPG progression, including Me
 
 The target economy is now a compressed 2011-era RuneScape-style skill set adapted to Anki. Categories are Combat, Gathering, Artisan, Support, plus a visible Utility/Activities bucket for material-only no-XP actions. Magic remains one skill with separate combat and noncombat action families.
 
-Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. It should provide randomized/modeled tradable-item supply and pricing, while preserving self-sufficient gathering/production as a valid path and leaving room for an ironman-style restriction mode.
+Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. It should provide modeled tradable-item buy/sell orders and pricing, while preserving self-sufficient gathering/production as a valid path and leaving room for an ironman-style restriction mode. The current design checkpoint is `memory-bank/fake-grand-exchange-design.md`: local-only aggregate order flow, `Coins` as a stackable item, 8 persistent order slots, partial fills, OSRS-like price improvement/refunds, market time advanced by every answered card, 40-action buy-limit windows, 240-action guide-price days capped at +/-5%, scraped buy limits, and low/high alchemy values as price-seeding anchors and future GP sources.
 
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
@@ -44,8 +44,9 @@ Roadmap direction: add an optional fake Grand Exchange-style market later so the
 ## Next Recommended Work
 1. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
 2. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
-3. Consider a small Utility/Activities icon set (currently the activity outputs reuse `crafteditems/` material art; the hub category/skill row falls back to the generic achievement icon).
-4. Only then design combat and Slayer task layering.
+3. When returning to the fake GE, start from `memory-bank/fake-grand-exchange-design.md` rather than re-grilling the same decision tree.
+4. Consider a small Utility/Activities icon set (currently the activity outputs reuse `crafteditems/` material art; the hub category/skill row falls back to the generic achievement icon).
+5. Only then design combat and Slayer task layering.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.
