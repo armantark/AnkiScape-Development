@@ -7,11 +7,12 @@ Use this table in a markdown artifact or data note for every implemented slice.
 | Field | Notes |
 | --- | --- |
 | Skill or family | Example: Crafting / Pottery |
-| Source URL | Wiki page or subpage |
-| Source section | Example: Pottery table |
-| Captured rows | Exact rows used for implemented targets |
+| Primary source | `2011Scape/game` repo file path(s) used (rev 667, Oct 4 2011) |
+| Cross-check source | 2011Scape wiki / runescape.wiki `?oldid=` URL used to confirm |
+| Source section | Example: Pottery content plugin / table |
+| Captured rows | Exact rows/values used for implemented targets |
 | Excluded rows | Why deferred or omitted |
-| Era concern | OSRS-only, RS3-only, post-2011, quest-gated, members-only |
+| Era concern | post-2011, quest-gated, members-only, or OSRS-vs-2011 divergence noted |
 | Open balance note | Any Anki pacing adjustment separate from base XP |
 
 ## Target Data Checklist

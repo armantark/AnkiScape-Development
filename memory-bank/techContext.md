@@ -56,6 +56,13 @@ There is no separate package manager requirement in the current add-on. If Pytho
 
 Developer-only scripts can use `uv run` inline script metadata when optional tooling dependencies should not become add-on runtime dependencies. `tools/fetch_assets.py` uses this pattern for Pillow-based PNG normalization.
 
+## Source Data (2011-era parity)
+AnkiScape targets a compressed **2011-era** RuneScape (pre-EOC). Canonical, detailed sourcing policy lives in the `ankiscape-skill-expansion` Cursor skill (`.cursor/skills/ankiscape-skill-expansion/SKILL.md`, "Source Hierarchy"). Summary so it is discoverable from the memory bank:
+
+- **The OSRS wiki is NOT a 2011 source.** OSRS branched from a 2007 backup; treat OSRS data as 2007 baseline + OSRS-only additions, useful only as a cross-check for 2007/2011-unchanged content.
+- **Primary source: the `2011Scape/game` emulator repo** (`github.com/2011Scape/game`, Apache-2.0, client rev 667 = Oct 4 2011). Skill mechanics are Kotlin content plugins under `game/`; item/object data under `data/`. Authoritative for exact level/XP/material/output numbers. Recommended: clone into a gitignored `reference/2011scape/` and grep locally (the unauthenticated GitHub API rate-limits quickly). The add-on runtime must never import this reference.
+- **Cross-checks:** 2011Scape wikis (`rs2011.miraheze.org`, `2011scape.fandom.com`) and `runescape.wiki` 2011 revisions via `?oldid=` / the `/w/2011` monthly archive. Raw caches at OpenRS2 Archive only if binary IDs/sprites are needed.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 
