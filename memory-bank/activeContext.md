@@ -3,6 +3,23 @@
 ## Current Focus
 Protect the local fork before any large expansion. The agreed direction is to augment the existing add-on, not rebuild it first.
 
+## Bank gear panel (toolbelt + equipped)
+The Bank tab now shows a read-only gear summary in its own non-striped panel
+pinned below the scrollable inventory list (`gearList`, populated from
+`bank_gear_rows_pure`). The **Toolbelt** rows show the *active* tool per
+gathering type (best owned pickaxe/hatchet, since the toolbelt is auto-resolved
+and binding is treated as a formality), and the **Equipped** section lists
+`owned_equipment` with its slot, sharing one space until real armour/weapon
+slots exist (currently always "Nothing equipped yet." — no obtain path).
+
+Deferred by owner decision: a right-click context menu and/or click-and-drag
+**equip/dequip** interaction. It is intentionally not built yet because there is
+nothing actionable today — `owned_equipment` has no obtain path, and tool use is
+auto-best (manually pinning a worse tool is rarely wanted). Revisit when (a) an
+obtain path for bonus equipment lands, or (b) players can own multiple tools and
+want to pin one over auto-best. The panel layout already separates gear from the
+inventory so the interaction can attach without restructuring.
+
 ## Recent Decision
 The next meaningful engineering step should be a skill-registry refactor. That refactor should preserve the current four skills while making future skills cheaper and safer to add.
 
