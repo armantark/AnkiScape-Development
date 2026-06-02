@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smithing Frontend — Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;
+  line-height:1.55;padding:40px 24px;max-width:1180px;margin:0 auto}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;
+  letter-spacing:.08em;color:var(--green);background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);
+  padding:5px 12px;border-radius:999px;text-transform:uppercase}
+h1{font-weight:700;font-size:2.1rem;margin:14px 0 6px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.98rem;max-width:760px}
+.metrics{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:30px 0}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 12px;text-align:center}
+.metric .n{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.6rem;color:var(--accent)}
+.metric .l{font-size:.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em;margin-top:4px}
+.metric.green .n{color:var(--green)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:8px 0 28px}
+@media(max-width:900px){.grid,.metrics{grid-template-columns:1fr 1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.35);border-color:#39425a}
+.card h3{font-weight:700;font-size:1.05rem;margin-bottom:4px}
+.plabel{font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.08em;padding:2px 8px;border-radius:5px;display:inline-block;margin-bottom:8px}
+.p-dec{color:var(--purple);background:rgba(167,139,250,.13)}
+.p-ui{color:var(--accent);background:var(--accent-glow)}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.pane{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px}
+.pane .t{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-dim);margin-bottom:8px}
+.row{font-size:.72rem;padding:4px 7px;border-radius:5px;margin-bottom:3px;background:var(--surface-2);
+  display:flex;justify-content:space-between;gap:6px}
+.row.hdr{background:transparent;color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:600;
+  font-size:.6rem;letter-spacing:.06em;padding:5px 4px 2px;border-bottom:1px solid var(--border);border-radius:0}
+.row.sub{color:var(--text-dim);background:transparent;font-size:.62rem;padding:3px 12px;font-family:'JetBrains Mono',monospace}
+.row.lock{color:var(--text-dim);opacity:.6}
+.row .lk{color:var(--red);font-size:.62rem}
+.tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:5px}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--text-dim);background:var(--surface-2);
+  border:1px solid var(--border);padding:2px 7px;border-radius:5px}
+.steps{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:6px}
+.steps h2{font-size:1.15rem;font-weight:700;margin-bottom:16px}
+.step{display:flex;gap:12px;margin-bottom:13px;align-items:flex-start}
+.snum{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.75rem;color:var(--accent);
+  background:var(--accent-glow);border:1px solid rgba(79,140,255,.3);width:24px;height:24px;border-radius:6px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step .d{font-size:.86rem}.step .d b{font-weight:500}
+.dec{display:flex;gap:10px;align-items:baseline;font-size:.84rem;margin-bottom:9px}
+.dec .k{font-family:'JetBrains Mono',monospace;font-size:.66rem;color:var(--green);flex-shrink:0;width:74px}
+.foot{color:var(--text-dim);font-size:.78rem;font-family:'JetBrains Mono',monospace;margin-top:26px;
+  border-top:1px solid var(--border);padding-top:14px}
+</style>
+</head>
+<body>
+  <span class="badge">Frontend + Assets · Complete</span>
+  <h1>Smithing Skills-hub panel is live</h1>
+  <p class="sub">The smelt-only bar selector is gone. One <code>SMITHING_DATA</code>-driven list now renders all 166 recipes — smelt and forge — grouped by station, gated on level + materials only, persisting stable <code>current_smith</code> IDs. No backend mechanics touched.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="n">166</div><div class="l">recipes</div></div>
+    <div class="metric"><div class="n">9</div><div class="l">smelt bars</div></div>
+    <div class="metric"><div class="n">157</div><div class="l">forge rows</div></div>
+    <div class="metric green"><div class="n">+8</div><div class="l">new tests</div></div>
+    <div class="metric green"><div class="n">180</div><div class="l">suite green</div></div>
+    <div class="metric"><div class="n">7</div><div class="l">icons fetched</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <span class="plabel p-ui">The panel</span>
+      <h3>Before → After</h3>
+      <div class="split">
+        <div class="pane">
+          <div class="t">Before — bar list</div>
+          <div class="row"><span>Bronze bar (Lvl 1)</span></div>
+          <div class="row"><span>Iron bar (Lvl 15)</span></div>
+          <div class="row"><span>Steel bar (Lvl 30)</span></div>
+          <div class="row lock"><span>Rune bar (Lvl 85)</span></div>
+          <div class="t" style="margin-top:10px;color:var(--red)">forge table absent</div>
+        </div>
+        <div class="pane">
+          <div class="t">After — unified</div>
+          <div class="row hdr"><span>SMELT · FURNACE</span></div>
+          <div class="row"><span>Bronze bar (Lvl 1)</span></div>
+          <div class="row lock"><span>Rune bar (Lvl 85)</span><span class="lk">lvl/mats</span></div>
+          <div class="row hdr"><span>FORGE · ANVIL</span></div>
+          <div class="row sub">Bronze</div>
+          <div class="row"><span>Bronze dagger (Lvl 1)</span></div>
+          <div class="row sub">Rune</div>
+          <div class="row lock"><span>Rune platebody — makes 1</span><span class="lk">lvl 99</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="plabel p-dec">Grilled decisions, honored</span>
+      <h3>What the UI commits to</h3>
+      <div class="dec"><span class="k">model</span><span>Unified recipe list; smelt + forge share one row builder, split only by <code>station</code> header.</span></div>
+      <div class="dec"><span class="k">batching</span><span>None surfaced — every row is one XP action. <code>makes&nbsp;N</code> is output qty, not a batch.</span></div>
+      <div class="dec"><span class="k">tool gate</span><span>No hammer. Locks are <b>level</b> or <b>materials</b> only — asserted absent in tests.</span></div>
+      <div class="dec"><span class="k">bank cat</span><span>Forged → <code>Smithed</code>; forged picks/hatchets → <code>tool</code> and reuse gathering icons.</span></div>
+      <div class="tags">
+        <span class="tag">can_smith_item_pure</span>
+        <span class="tag">current_smith</span>
+        <span class="tag">on_set_smith</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="steps">
+    <h2>How it was wired</h2>
+    <div class="step"><span class="snum">1</span><div class="d"><b>_build_smith_list</b> replaces <b>_build_bar_list</b> — grouped Smelt/Forge with per-tier subheaders (derived from the bar requirement), stable IDs on <code>UserRole</code>, tooltips with output qty + base XP + owned material counts + source enum/path.<div class="tags"><span class="tag">ui.py</span></div></div></div>
+    <div class="step"><span class="snum">2</span><div class="d"><b>on_set_smith</b> callback added to <code>show_main_menu</code> and bridged to <code>_set_value("current_smith", id)</code>; legacy <code>on_set_bar</code> kept as a smelt-only fallback.<div class="tags"><span class="tag">ui.py</span><span class="tag">__init__.py</span></div></div></div>
+    <div class="step"><span class="snum">3</span><div class="d"><b>Icons</b> via registry: <code>SMITHING_ITEMS_FOLDER</code> + existence-guarded <code>SMITHING_EXTRA_ITEM_IMAGES</code>; <code>DEFAULT_SMITHING_TARGET</code> exported. Un-fetched rows degrade to text.<div class="tags"><span class="tag">constants.py</span></div></div></div>
+    <div class="step"><span class="snum">4</span><div class="d"><b>fetch_smithing_assets.py</b> pulled the Blurite bar (only smelt output lacking art) + marquee plate/helm/kiteshield; forged tools reuse mining/WC art.<div class="tags"><span class="tag">tools/fetch_smithing_assets.py</span><span class="tag">smithingitems/</span><span class="tag">bars/bluritebar.png</span></div></div></div>
+    <div class="step"><span class="snum">5</span><div class="d"><b>Tests</b>: 7 offscreen Qt (grouping, stable IDs, level/material locks, owned-count tooltip, persistence, header inertness, current-target highlight) + a registry icon resolution/degradation case.<div class="tags"><span class="tag">tests/test_main_menu_widget.py</span><span class="tag">tests/test_skill_and_item_registry.py</span></div></div></div>
+  </div>
+
+  <p class="foot">commit a1af3c6 · 180/180 tests green · no backend mechanics changed · manual verification covered by the offscreen Qt harness (Anki addon, no web surface)</p>
+</body>
+</html>
