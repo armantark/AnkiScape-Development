@@ -118,16 +118,40 @@ platebody is level 18, Rune dagger 85, Rune platebody 99). Transcribe levels fro
 - **Combat use of forged gear** — gear is bankable/tradeable XP output now; actual equipping waits on
   the Combat prototype + GE.
 
+## Architecture Decisions (grilled with owner, 2026-06-01)
+
+These four were the genuinely-new forks (Smithing is the first skill with two XP-bearing verbs
+under one skill); the rest follows the Mining/WC/Crafting precedent.
+
+1. **Unified recipe model.** Smelt and forge are NOT two handlers — they are both generic recipes in
+   one `SMITHING_DATA` table (shaped like `CRAFTING_DATA`: `requirements → output_item/output_qty +
+   exp + level`), each tagged `station: "furnace"` (smelt) or `"anvil"` (forge). The review handler
+   reuses the existing `apply_crafting_pure` inputs→output→xp path (a thin `apply_smithing_pure`
+   wrapper is fine for a separate `smithing_exp` key). The smelt/forge distinction is a pure UI
+   grouping off `station`. Single `current_smith` target key (migrate legacy `current_bar`).
+2. **No batching for XP actions.** Every Smithing action is XP-bearing, so each is **1 per card** —
+   no `batch_size` on any Smithing recipe (`apply_crafting_pure`'s default of 1 is correct). A
+   recipe's `output_qty` still yields multi-output (1 bar → 10 bolts) in a single card; that is
+   output quantity, not batching. **Rationale (owner principle):** 28-batching exists only for the
+   no-XP Utility prep activities (e.g. wetting clay) that would be instant at an in-game sink/fountain;
+   real skilling stays gated. *(Follow-up, out of scope: Crafting's `Ball of wool` / `Bow string`
+   currently batch 28 while granting XP — inconsistent with this principle; drop to 1/card in the
+   Crafting re-audit.)*
+3. **No tool gate.** The hammer is implicit (treated like the water source for Soft clay) — there is
+   NO `toolbelt["smithing"]` seed and forge recipes do NOT gate on a hammer. **Toolbelt is
+   gathering-only** (pickaxes + hatchets, plus the temporary Mining equipable in progress); processing
+   skills gate on materials + level only. Smithing row lock reasons are exactly two: insufficient
+   level, or missing inputs (ores for smelt, bars for forge).
+4. **Bank category.** One new `Smithed` category for forged gear + ammo; forged **pickaxes/hatchets →
+   `tool`** (so they sit with the gathering tools they become); bars stay `bar`. Category is just
+   registry metadata, so re-bucketing later is cheap.
+
 ## Mechanics Decisions (proposed for backend thread)
 
-- Two action families under the one Smithing skill: **Smelt** (ore→bar) and **Forge** (bar→item).
-- One eligible successful card = one craft action. **Batch up to 28** for bulk shapes (smelting and
-  ammo: bolts/dart tips/arrow tips/nails/knives), single output for weapons/armour. Encode batch per
-  target in data.
-- Hammer requirement: model as a bound Smithing tool in `toolbelt` (seed a `hammer` default like the
-  Mining/WC starter tools) OR an owned "Hammer" item; pick the toolbelt pattern for consistency.
 - Apply the global `ankiscape_xp_multiplier` after base XP, before level checks.
 - Undo-safe: record changed `player_data` keys for rollback like other review rewards.
+- "Can do any Smithing" availability = can smelt any bar **or** forge any item (update
+  `can_smelt_any_bar` callers to a broader `can_smith_any` check that scans the unified table).
 
 ## Tradability
 
@@ -137,7 +161,8 @@ platebody is level 18, Rune dagger 85, Rune platebody 99). Transcribe levels fro
 
 ## Storage and Tests (planned)
 
-- Bump storage config version; migrate legacy display-name `current_bar` to stable bar IDs; add a
-  `current_smith` (forge target) save key + hammer toolbelt seed without deleting unknown inventory.
+- Bump storage config version; migrate legacy display-name `current_bar` into the single stable
+  `current_smith` target key (a smelt recipe id). No hammer/toolbelt seed. Never delete unknown inventory.
 - Tests: data integrity (smelt table, forge XP = bars×barXP, level transcription spot-checks), pure
-  smelt/forge mechanics + batch caps, review dispatch + undo, asset-path coverage, offscreen Qt rows.
+  smelt/forge mechanics, the multi-input deduction (one forge card consuming N bars correctly, and
+  failing cleanly when short a bar/coal), review dispatch + undo, asset-path coverage, offscreen Qt rows.
