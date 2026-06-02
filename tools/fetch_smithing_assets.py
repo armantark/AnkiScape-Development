@@ -3,27 +3,29 @@
 # requires-python = ">=3.9"
 # dependencies = ["pillow>=10"]
 # ///
-"""Batch-fetch the high-value Smithing parity icons through one rate-limited client.
+"""Batch-fetch the full Smithing icon set through one rate-limited client.
 
-The full forge table is ~150 rows; fetching every one is neither practical nor
-worthwhile while most forged gear has no in-game use yet. Instead this fetches a
-curated, high-signal subset and lets every other row degrade to a text-only entry
-(``constants.SMITHING_EXTRA_ITEM_IMAGES`` is existence-guarded, so an unfetched
-icon never breaks the panel or trips ``missing_required_asset_paths()``).
+The forge table is ~157 rows; rather than hand-pick a few and leave the rest as
+blank text rows, this derives its manifest directly from ``SMITHING_DATA`` so it
+fetches *every* forged output (plus the one un-bundled smelt bar) and can never
+drift out of sync with the data module. ``constants.SMITHING_EXTRA_ITEM_IMAGES``
+stays existence-guarded, so any individual icon the wiki can't resolve simply
+leaves that one row text-only instead of breaking the panel.
 
-Curation rationale:
-- **Blurite bar** is the one smelt output with no bundled icon (the other 8 bars
-  ship in ``bars/``); constants.BAR_IMAGES already points at ``bars/bluritebar.png``.
-- **Marquee forged armour** (platebodies per tier) are the iconic high-XP forge
-  targets players actually chase, so they earn an icon.
-- Forged **pickaxes/hatchets** are intentionally NOT listed here: their item names
-  match the gathering tools, so the registry already resolves their icons from
-  ``miningitems/`` / ``woodcuttingitems/`` (fetched by the gathering asset tools).
-  Re-fetching them would just duplicate art under a second slug.
+Output paths match what ``constants`` expects:
+- **Blurite bar** -> ``bars/bluritebar.png`` (BAR_IMAGES filename; the other 8
+  bars ship bundled).
+- **Forged items** -> ``smithingitems/<_asset_slug(name)>.png`` so
+  SMITHING_EXTRA_ITEM_IMAGES picks them up by slug.
 
-Output paths match what ``constants`` expects: the Blurite bar lands in ``bars/``
-with the BAR_IMAGES filename; forged items land in ``smithingitems/`` keyed by
-``constants._asset_slug(display_name)`` so SMITHING_EXTRA_ITEM_IMAGES picks them up.
+Forged **pickaxes/hatchets** are skipped on purpose: their item names match the
+gathering tools, so the registry already resolves their icons from
+``miningitems/`` / ``woodcuttingitems/``. Re-fetching would duplicate art under a
+second slug for no benefit.
+
+Wiki naming: item inventory icons are ``File:<item name>.png`` with redirects, so
+the display name resolves directly in almost every case (OSRS first, RS3
+fallback). Genuine title mismatches go in WIKI_TITLE_OVERRIDES below.
 
 Developer-only; never runs inside Anki. Re-runs skip existing files unless --force.
 
@@ -37,7 +39,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import List, Optional, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
@@ -50,27 +52,54 @@ from tools.fetch_assets import (  # noqa: E402
     fetch_asset,
     wiki_title_for_item,
 )
+from constants import (  # noqa: E402
+    MINING_EXTRA_ITEM_IMAGES,
+    SMITHING_DATA,
+    SMITHING_ITEMS_FOLDER,
+    WOODCUTTING_EXTRA_ITEM_IMAGES,
+    _asset_slug,
+)
 
 PROVENANCE = Path("assets_provenance.json")
+_SMITHING_ITEMS_REL = Path(SMITHING_ITEMS_FOLDER).relative_to(REPO_ROOT)
 
-# The only smelt output without a bundled icon. BAR_IMAGES expects this filename.
+# The only smelt output without bundled art. BAR_IMAGES expects this filename.
 BARS: List[Tuple[str, str]] = [
     ("Blurite bar", "bars/bluritebar.png"),
 ]
 
-# Marquee forged armour: the high-XP plate targets players grind toward. Slugs
-# match constants._asset_slug(display_name) so SMITHING_EXTRA_ITEM_IMAGES wires
-# them automatically. Extend this list as more forged gear earns a real use.
-FORGED: List[Tuple[str, str]] = [
-    ("Steel platebody", "smithingitems/steel_platebody.png"),
-    ("Mithril platebody", "smithingitems/mithril_platebody.png"),
-    ("Adamant platebody", "smithingitems/adamant_platebody.png"),
-    ("Rune platebody", "smithingitems/rune_platebody.png"),
-    ("Rune full helm", "smithingitems/rune_full_helm.png"),
-    ("Rune kiteshield", "smithingitems/rune_kiteshield.png"),
-]
+# Forged item display name -> wiki File title override, for the handful whose
+# inventory-icon page is not simply "<name>.png". Filled in from --dry-run/run
+# failures so a re-run resolves the stragglers instead of leaving them iconless.
+WIKI_TITLE_OVERRIDES: Dict[str, str] = {}
 
-MANIFEST: List[Tuple[str, str]] = BARS + FORGED
+# Item names already carrying gathering-tool art; the registry resolves these
+# from miningitems/ / woodcuttingitems/, so skip re-fetching them here.
+_REUSED_TOOL_NAMES = set(MINING_EXTRA_ITEM_IMAGES) | set(WOODCUTTING_EXTRA_ITEM_IMAGES)
+
+
+def _forged_manifest() -> List[Tuple[str, str, Optional[str]]]:
+    """(item_name, out_path, wiki_override) for every anvil output, deduped."""
+    seen: set = set()
+    rows: List[Tuple[str, str, Optional[str]]] = []
+    for spec in SMITHING_DATA.values():
+        if spec.get("station") != "anvil":
+            continue
+        name = str(spec.get("output_item", ""))
+        if not name or name in seen or name in _REUSED_TOOL_NAMES:
+            continue
+        seen.add(name)
+        out_rel = str(_SMITHING_ITEMS_REL / f"{_asset_slug(name)}.png")
+        rows.append((name, out_rel, WIKI_TITLE_OVERRIDES.get(name)))
+    return rows
+
+
+def _build_manifest() -> List[Tuple[str, str, Optional[str]]]:
+    manifest: List[Tuple[str, str, Optional[str]]] = [
+        (name, out, None) for name, out in BARS
+    ]
+    manifest.extend(_forged_manifest())
+    return manifest
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -79,13 +108,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--dry-run", action="store_true", help="Resolve without downloading.")
     args = parser.parse_args(argv)
 
+    MANIFEST = _build_manifest()
+
     client = HttpWikiClient()
     ok = skipped = failed = 0
     failures: List[str] = []
-    for item_name, out_rel in MANIFEST:
+    print(f"Resolving {len(MANIFEST)} Smithing icons...")
+    for item_name, out_rel, wiki_override in MANIFEST:
         request = AssetRequest(
             item_name=item_name,
-            wiki_title=wiki_title_for_item(item_name),
+            wiki_title=wiki_title_for_item(item_name, wiki_override),
             output_path=Path(out_rel),
             provenance_path=PROVENANCE,
         )

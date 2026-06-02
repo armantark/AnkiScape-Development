@@ -213,21 +213,29 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for name in ("Bronze pickaxe", "Rune pickaxe", "Dragon pickaxe"):
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a pickaxe icon")
 
-    def test_smithing_icons_resolve_where_fetched_and_degrade_otherwise(self):
-        # The forge table is ~150 rows; only a curated high-value subset is
-        # fetched (tools/fetch_smithing_assets.py). The Blurite bar (only smelt
-        # output without bundled art) and the marquee platebodies must resolve an
-        # icon, while an un-fetched forged row degrades to asset_path None instead
-        # of pointing at a dead file. Forged tools reuse the gathering tool icons.
+    def test_every_smithing_output_resolves_an_icon(self):
+        # The full forge table (tools/fetch_smithing_assets.py derives its manifest
+        # from SMITHING_DATA) is fetched, so every distinct smelt/forge output must
+        # resolve an asset_path -- no blank rows in the ~166-row panel. Forged
+        # pickaxes/hatchets resolve via the gathering art they share a name with;
+        # the rest resolve from smithingitems/ (forged) or bars/ (Blurite bar).
+        from constants import SMITHING_DATA  # local import: large module
+
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
-        for name in ("Blurite bar", "Rune platebody", "Adamant platebody", "Steel platebody"):
-            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a smith icon")
-        # Forged pickaxes/hatchets share names with gathering tools, so they reuse
-        # the icons fetched into miningitems/ / woodcuttingitems/.
-        self.assertIsNotNone(by_storage_key["Rune pickaxe"].asset_path)
-        # A low-value forged row with no fetched art degrades gracefully.
-        self.assertIsNone(by_storage_key["Bronze wire"].asset_path)
-        # Whether or not art exists, every registered path that IS set must exist.
+        iconless = sorted(
+            {
+                spec["output_item"]
+                for spec in SMITHING_DATA.values()
+                if not (
+                    spec["output_item"] in by_storage_key
+                    and by_storage_key[spec["output_item"]].asset_path
+                )
+            }
+        )
+        self.assertEqual(iconless, [], f"Smithing outputs missing icons: {iconless}")
+        self.assertIsNotNone(by_storage_key["Blurite bar"].asset_path)
+        self.assertIsNotNone(by_storage_key["Rune pickaxe"].asset_path)  # reuses mining art
+        # The wiring is existence-guarded, so no registered path may be dead.
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 
