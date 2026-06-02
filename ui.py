@@ -52,6 +52,7 @@ try:
         ORE_DATA,
         MINING_OUTPUT_ITEMS,
         MINING_PICKAXE_DATA,
+        MINING_BONUS_ITEM_DATA,
         DEFAULT_MINING_TARGET,
         TREE_DATA,
         WOODCUTTING_AXE_DATA,
@@ -83,6 +84,7 @@ except Exception:
         ORE_DATA,
         MINING_OUTPUT_ITEMS,
         MINING_PICKAXE_DATA,
+        MINING_BONUS_ITEM_DATA,
         DEFAULT_MINING_TARGET,
         TREE_DATA,
         WOODCUTTING_AXE_DATA,
@@ -108,9 +110,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -1342,7 +1344,18 @@ def show_main_menu(
             font.setBold(True)
             parent.setFont(0, font)
             tree.addTopLevelItem(parent)
-            for recipe_id, spec in groups[tier]:
+            # Within a metal group, order by required level (then smelt before
+            # forge on ties so the bar leads, then name) — a low→high progression
+            # reads far better than the source/BarProducts emit order.
+            ordered = sorted(
+                groups[tier],
+                key=lambda rs: (
+                    rs[1].get("level", 1),
+                    0 if rs[1].get("station") == "furnace" else 1,
+                    str(rs[1].get("display_name", "")),
+                ),
+            )
+            for recipe_id, spec in ordered:
                 child = _make_child(recipe_id, spec)
                 parent.addChild(child)
                 if recipe_id == current:
@@ -2009,25 +2022,57 @@ def show_main_menu(
                 return candidate
         return None
 
-    groups = grouped_inventory(inv)
-    if not groups:
-        empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
-        empty.setFlags(Qt.ItemFlag.NoItemFlags)
-        bank_list.addItem(empty)
-    for category_label, rows in groups:
-        header = QListWidgetItem(category_label)
+    def _add_bank_header(label: str) -> None:
+        header = QListWidgetItem(label)
         header.setFlags(Qt.ItemFlag.NoItemFlags)
         header_font = header.font()
         header_font.setBold(True)
         header.setFont(header_font)
         header.setData(Qt.ItemDataRole.UserRole, "__header__")
         bank_list.addItem(header)
+
+    def _add_gear_row(text: str, item_name: str) -> None:
+        li = QListWidgetItem(text)
+        definition = _item_def_for(item_name)
+        asset_path = definition.asset_path if definition is not None else None
+        icon_path = _bank_icon_path(item_name, asset_path)
+        if icon_path:
+            li.setIcon(QIcon(icon_path))
+        li.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        li.setData(Qt.ItemDataRole.UserRole, "__gear__")
+        bank_list.addItem(li)
+
+    groups = grouped_inventory(inv)
+    if not groups:
+        empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
+        empty.setFlags(Qt.ItemFlag.NoItemFlags)
+        bank_list.addItem(empty)
+    for category_label, rows in groups:
+        _add_bank_header(category_label)
         for item_name, amount, asset_path in rows:
             li = QListWidgetItem(f"{item_name} x{amount}")
             icon_path = _bank_icon_path(item_name, asset_path)
             if icon_path:
                 li.setIcon(QIcon(icon_path))
             bank_list.addItem(li)
+
+    # Gear lives below the inventory: the toolbelt is auto-resolved (best owned
+    # tool wins) so we show the active pickaxe/hatchet, and owned_equipment
+    # shares one "Equipped" space until real armour/weapon slots exist.
+    gear = bank_gear_rows_pure(player_data, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+    if gear["toolbelt"]:
+        _add_bank_header("Toolbelt")
+        for slot_label, display_name in gear["toolbelt"]:
+            _add_gear_row(f"{slot_label}: {display_name}", display_name)
+    _add_bank_header("Equipped")
+    if gear["equipped"]:
+        for slot_label, display_name in gear["equipped"]:
+            _add_gear_row(f"{display_name} — {slot_label}", display_name)
+    else:
+        empty_eq = QListWidgetItem("Nothing equipped yet.")
+        empty_eq.setFlags(Qt.ItemFlag.NoItemFlags)
+        empty_eq.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
+        bank_list.addItem(empty_eq)
     bk_layout.addWidget(bank_list)
     tabs.addTab(bank_tab, "Bank")
     tabs.setTabToolTip(tabs.indexOf(bank_tab), "View all your items")

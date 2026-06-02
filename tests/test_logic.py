@@ -22,6 +22,7 @@ from logic_pure import (
     apply_open_bird_nests_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
+    bank_gear_rows_pure,
     mining_bonus_state_pure,
     calculate_woodcutting_success_probability_pure,
     calculate_mining_success_probability_pure,
@@ -37,6 +38,7 @@ from constants import (
     INCIDENTAL_GEM_DROP_TABLE,
     MINING_BONUS_ITEM_DATA,
     MINING_PICKAXE_DATA,
+    WOODCUTTING_AXE_DATA,
     ORE_DATA,
 )
 
@@ -648,6 +650,38 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok2)
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, {})
+
+    def test_bank_gear_rows_shows_active_tool_not_just_bound(self):
+        # Owns a rune pickaxe in the bank; only bronze is bound. Since the
+        # toolbelt is auto-resolved, the Bank should surface the rune pickaxe
+        # (the tool actually used) once the player can use it.
+        pd = {
+            "mining_level": 41,
+            "woodcutting_level": 1,
+            "inventory": {"Rune pickaxe": 1},
+            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "owned_equipment": [],
+        }
+        gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+        pick = dict(gear["toolbelt"])
+        self.assertEqual(pick["Pickaxe"], "Rune pickaxe")
+        self.assertEqual(pick["Hatchet"], "Bronze hatchet")
+        self.assertEqual(gear["equipped"], [])
+
+    def test_bank_gear_rows_lists_equipped_with_slot(self):
+        bonus_id = next(iter(MINING_BONUS_ITEM_DATA))
+        pd = {
+            "mining_level": 1,
+            "woodcutting_level": 1,
+            "inventory": {},
+            "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
+            "owned_equipment": [bonus_id, bonus_id],  # dedup guard
+        }
+        gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+        self.assertEqual(len(gear["equipped"]), 1)
+        slot, name = gear["equipped"][0]
+        self.assertEqual(slot, MINING_BONUS_ITEM_DATA[bonus_id]["equipment_slot"])
+        self.assertEqual(name, MINING_BONUS_ITEM_DATA[bonus_id]["display_name"])
 
 if __name__ == "__main__":
     unittest.main()

@@ -289,6 +289,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("smelt_bronze_bar", child_ids)
         self.assertIn("forge_bronze_dagger", child_ids)
 
+    def test_smithing_children_sorted_by_level_within_a_metal(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Rune bar": 20}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        tree = _find_smith_tree(dialog)
+        rune = _smith_tier_node(tree, "Rune")
+        levels = [
+            int(re.search(r"\(Lvl (\d+)\)", rune.child(i).text(0)).group(1))
+            for i in range(rune.childCount())
+        ]
+        self.assertEqual(levels, sorted(levels), f"Rune group not level-ordered: {levels}")
+        # Sanity: the smelt bar (Lvl 85) leads its level tie ahead of forge rows.
+        self.assertEqual(rune.child(0).data(0, Qt.ItemDataRole.UserRole), "smelt_rune_bar")
+
     def test_smithing_groups_collapsed_by_default_except_current_target(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Bronze bar": 10}
@@ -457,6 +472,25 @@ class MainMenuWidgetTest(unittest.TestCase):
             if bank.item(i).text().startswith("Arrow shafts x")
         )
         self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
+
+    def test_bank_shows_toolbelt_and_equipped_sections(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Logs": 5}
+        dialog = self._open(pd)
+        bank = _find_bank_list(dialog)
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertIn("Toolbelt", texts, "missing Toolbelt header")
+        self.assertIn("Equipped", texts, "missing Equipped header")
+        self.assertTrue(any(t.startswith("Pickaxe: ") for t in texts), f"no pickaxe row in {texts}")
+        self.assertTrue(any(t.startswith("Hatchet: ") for t in texts), f"no hatchet row in {texts}")
+        # owned_equipment is empty until an obtain path exists, so the section
+        # renders a discoverable placeholder rather than vanishing.
+        self.assertIn("Nothing equipped yet.", texts)
+        pick_row = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Pickaxe: ")
+        )
+        self.assertFalse(pick_row.icon().isNull(), "pickaxe gear row has no icon")
 
     def test_hud_recognizes_fletching_as_active_skill(self) -> None:
         hud = self._ui.ReviewHUD(None)

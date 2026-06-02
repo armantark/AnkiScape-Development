@@ -405,6 +405,53 @@ def mining_bonus_state_pure(owned_equipment, bonus_item_data):
     return {"has_glory": has_glory, "varrock_armour_tier": varrock_tier}
 
 
+def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, bonus_item_data):
+    """Read-only gear summary the Bank tab renders below the inventory.
+
+    Why surface the *best owned* tool rather than the raw bound toolbelt id:
+    the toolbelt is auto-resolved (best_*_pure already picks the strongest
+    usable tool from bound ids + bank items), and the owner has decided that
+    binding a tool is "basically a formality." Showing the active tool keeps
+    the bank honest as the player smiths/loots upgrades, without any equip step.
+
+    owned_equipment is rendered as 'Equipped' with its slot so bonus gear
+    (Varrock armour, amulet of glory) shares one space until real armour/weapon
+    slots exist. It stays empty until an obtain path lands; callers still draw
+    the header so the layout is discoverable.
+
+    Returns {"toolbelt": [(label, display_name), ...],
+             "equipped": [(slot, display_name), ...]}.
+    """
+    inventory = player_data.get("inventory", {}) or {}
+    toolbelt = player_data.get("toolbelt", {}) or {}
+    toolbelt_rows: list = []
+    pick = best_mining_pickaxe_pure(
+        player_data.get("mining_level", 1), inventory, toolbelt, pickaxe_data
+    )
+    if pick is not None:
+        toolbelt_rows.append(("Pickaxe", str(pick.get("display_name", ""))))
+    axe = best_woodcutting_axe_pure(
+        player_data.get("woodcutting_level", 1), inventory, toolbelt, axe_data
+    )
+    if axe is not None:
+        toolbelt_rows.append(("Hatchet", str(axe.get("display_name", ""))))
+
+    equipped_rows: list = []
+    owned = player_data.get("owned_equipment", []) or []
+    seen: set = set()
+    for item_id in owned:
+        if not isinstance(item_id, str) or item_id in seen:
+            continue
+        seen.add(item_id)
+        spec = bonus_item_data.get(item_id)
+        if not spec:
+            continue
+        equipped_rows.append(
+            (str(spec.get("equipment_slot", "equipment")), str(spec.get("display_name", item_id)))
+        )
+    return {"toolbelt": toolbelt_rows, "equipped": equipped_rows}
+
+
 def mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec):
     """Approximate the 2011Scape raw mining roll before Anki pacing is applied."""
     low = float(target_spec.get("low_chance", 0))
