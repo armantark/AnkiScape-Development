@@ -257,6 +257,41 @@ def get_config_bool(key: str, default: bool = True) -> bool:
         pass
     return bool(default)
 
+_SMITH_EXPANDED_CONFIG_KEY = "ankiscape_smith_expanded_tiers"
+
+
+def smith_expanded_tiers() -> set:
+    """Return the set of Smithing metal-tier groups the user has expanded.
+
+    Persisted as a plain list in Anki's profile config so the Smithing panel can
+    open with the same groups expanded across sessions. Returns an empty set
+    (everything collapsed) when config is unavailable, e.g. in headless tests.
+    """
+    try:
+        if mw and getattr(mw, 'col', None):
+            value = mw.col.get_config(_SMITH_EXPANDED_CONFIG_KEY, [])
+            if isinstance(value, (list, tuple)):
+                return {str(tier) for tier in value}
+    except Exception:
+        pass
+    return set()
+
+
+def set_smith_tier_expanded(tier: str, expanded: bool) -> None:
+    """Persist a single Smithing metal-tier group's expand/collapse state."""
+    try:
+        if not (mw and getattr(mw, 'col', None)):
+            return
+        current = smith_expanded_tiers()
+        if expanded:
+            current.add(tier)
+        else:
+            current.discard(tier)
+        mw.col.set_config(_SMITH_EXPANDED_CONFIG_KEY, sorted(current))
+    except Exception:
+        pass
+
+
 def is_floating_xp_enabled() -> bool:
     """Return True if floating XP popups are enabled (default True)."""
     return get_config_bool("ankiscape_floating_xp_enabled", True)
@@ -1111,11 +1146,9 @@ def show_main_menu(
                 f"Base XP: {data.get('exp', 0)} per ore\n"
                 f"Best usable pickaxe: {best_pick_name or 'none — get a pickaxe'}"
             )
-            source = data.get("source")
-            if source:
-                tooltip += f"\nSource: {source}"
-            # Source notes/anomalies (essence upgrade, equal-weight simplifications,
-            # OSRS gem-rate cross-check) come straight from the backend data.
+            # Player-facing notes/anomalies (essence upgrade, equal-weight
+            # simplifications, OSRS gem-rate cross-check) come from backend data.
+            # The dev-facing `source` audit path is intentionally not shown.
             note = data.get("notes")
             if note:
                 tooltip += f"\nNote: {note}"
@@ -1178,9 +1211,7 @@ def show_main_menu(
                 f"Base XP: {data.get('exp', 0)} per chop\n"
                 f"Best usable hatchet: {best_axe_name or 'none — get a hatchet'}"
             )
-            source = data.get("source")
-            if source:
-                tooltip += f"\nSource: {source}"
+            # The dev-facing `source` audit path is intentionally not shown.
             if not can_chop_woodcutting_target_pure(lvl_have, target_id, TREE_DATA, inv, toolbelt, WOODCUTTING_AXE_DATA):
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
                 reason = []
@@ -1202,81 +1233,84 @@ def show_main_menu(
         tree_list.itemActivated.connect(_on_tree_selected)
         return tree_list
 
-    def _build_smith_list() -> QListWidget:
+    def _smith_tier_of(spec: dict) -> str:
+        # Metal-type label that unifies a smelt bar with the forge items made from
+        # it: smelt rows use their bar output, forge rows use their (single) bar
+        # requirement. "Bronze bar" / "Rune bar" -> "Bronze" / "Rune".
+        if spec.get("station") == "furnace":
+            return str(spec.get("output_item", "")).replace(" bar", "").strip() or "Other"
+        reqs = spec.get("requirements", {}) or {}
+        return str(next(iter(reqs), "")).replace(" bar", "").strip() or "Other"
+
+    def _build_smith_list() -> QTreeWidget:
         # SMITHING_DATA is one unified table keyed by stable recipe IDs
-        # ("smelt_bronze_bar", "forge_rune_platebody", ...). Smelt (furnace) and
-        # forge (anvil) are the same generic recipe shape, so this renders them in
-        # a single list grouped by station — Smelt first, then Forge broken out by
-        # bar tier — with bold, non-selectable header rows. The chosen recipe ID is
-        # stored on the row and persisted via on_set_smith (recipe-ID setter); we
-        # fall back to the legacy on_set_bar (bar-name setter) only for smelt rows
-        # when no on_set_smith was wired. Lock reasons come straight from
-        # can_smith_item_pure: insufficient Smithing level or missing inputs. There
-        # is deliberately no hammer/tool gate (the toolbelt is gathering-only).
-        smith_list = QListWidget()
-        smith_list.setIconSize(QSize(28, 28))
-        smith_list.setAlternatingRowColors(True)
+        # ("smelt_bronze_bar", "forge_rune_platebody", ...). With ~166 recipes a
+        # flat list is a wall of rows, so this is a QTreeWidget grouped by metal
+        # type (Bronze, Iron, ... Rune): each tier is a collapsible parent holding
+        # its smelt bar first, then the forge items made from it. Groups are
+        # collapsed by default and the expand/collapse state is persisted per tier
+        # (smith_expanded_tiers / set_smith_tier_expanded); the group holding the
+        # current target is always expanded so the selection stays visible.
+        #
+        # The chosen recipe ID lives on the child item and is persisted via
+        # on_set_smith; the legacy on_set_bar (bar-name setter) is a smelt-only
+        # fallback. Lock reasons come straight from can_smith_item_pure: level or
+        # missing inputs only (no hammer/tool gate — the toolbelt is gathering-only).
+        tree = QTreeWidget()
+        tree.setHeaderHidden(True)
+        tree.setIconSize(QSize(28, 28))
+        tree.setRootIsDecorated(True)
+        tree.setIndentation(14)
+        tree.setUniformRowHeights(True)
+        tree.setStyleSheet(
+            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 4px; }"
+            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            " QTreeWidget::item:disabled { color: palette(mid); }"
+        )
         lvl_have = player_data.get("smithing_level", 1)
         inv = player_data.get("inventory", {})
         current = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
-
-        def _add_header(text: str) -> None:
-            header = QListWidgetItem(text)
-            # NoItemFlags => not selectable, not enabled: a pure visual separator
-            # that keyboard/click navigation skips over.
-            header.setFlags(Qt.ItemFlag.NoItemFlags)
-            header.setData(Qt.ItemDataRole.UserRole, "__header__")
-            font = header.font()
-            font.setBold(True)
-            header.setFont(font)
-            smith_list.addItem(header)
+        cur_spec = SMITHING_DATA.get(current)
+        cur_tier = _smith_tier_of(cur_spec) if cur_spec else None
+        expanded = smith_expanded_tiers()
 
         def _icon_for(output_item: str):
             # Bars resolve via the registry (built with BAR_IMAGES); forged items
-            # resolve via SMITHING_EXTRA_ITEM_IMAGES when an icon was fetched.
-            # Either way a missing asset leaves the row text-only.
+            # resolve via SMITHING_EXTRA_ITEM_IMAGES. A missing asset leaves the
+            # row text-only.
             definition = _ITEM_DEFS_BY_KEY.get(output_item)
-            path = (definition.asset_path if definition and definition.asset_path else None) or BAR_IMAGES.get(output_item)
-            return path
+            return (definition.asset_path if definition and definition.asset_path else None) or BAR_IMAGES.get(output_item)
 
-        def _add_recipe_row(recipe_id: str, spec: dict) -> None:
+        def _make_child(recipe_id: str, spec: dict) -> "QTreeWidgetItem":
             display_name = str(spec.get("display_name", spec.get("output_item", recipe_id)))
             lvl_req = spec.get("level", 1)
             output_item = str(spec.get("output_item", display_name))
             output_qty = spec.get("output_qty", 1) or 1
             reqs = spec.get("requirements", {}) or {}
+            station_word = "Smelt" if spec.get("station") == "furnace" else "Forge"
 
             label = f"{display_name} (Lvl {lvl_req})"
             if output_qty > 1:
                 label += f" — makes {output_qty}"
-            item = QListWidgetItem(label)
-            item.setData(Qt.ItemDataRole.UserRole, recipe_id)
+            child = QTreeWidgetItem([label])
+            child.setData(0, Qt.ItemDataRole.UserRole, recipe_id)
 
             icon_path = _icon_for(output_item)
             if icon_path and os.path.exists(icon_path):
-                item.setIcon(QIcon(icon_path))
+                child.setIcon(0, QIcon(icon_path))
 
-            mat_lines = [
-                f"  {mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()
-            ]
+            mat_lines = [f"  {mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
             mat_text = "\n".join(mat_lines) if mat_lines else "  none"
             tooltip = (
-                f"Requires Smithing level {lvl_req}. You have {lvl_have}.\n"
+                f"{station_word} · requires Smithing level {lvl_req}. You have {lvl_have}.\n"
                 f"Output: {output_item} x{output_qty}\n"
                 f"Base XP: {spec.get('exp', 0)} per action\n"
                 f"Materials:\n{mat_text}"
             )
-            source_enum = spec.get("source_enum")
-            source = spec.get("source")
-            if source_enum:
-                tooltip += f"\nSource: {source_enum}"
-                if source:
-                    tooltip += f" ({source})"
-            elif source:
-                tooltip += f"\nSource: {source}"
-
             if not can_smith_item_pure(lvl_have, inv, recipe_id, SMITHING_DATA):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                child.setDisabled(True)
                 reason = []
                 if lvl_have < lvl_req:
                     reason.append(f"level {lvl_req}")
@@ -1284,47 +1318,71 @@ def show_main_menu(
                     reason.append("materials")
                 if reason:
                     tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            smith_list.addItem(item)
-            if recipe_id == current:
-                smith_list.setCurrentItem(item)
+            child.setToolTip(0, tooltip)
+            return child
 
-        smelt = [(rid, s) for rid, s in SMITHING_DATA.items() if s.get("station") == "furnace"]
-        forge = [(rid, s) for rid, s in SMITHING_DATA.items() if s.get("station") == "anvil"]
+        # Group recipes by metal tier, preserving the smelt-bar progression order
+        # (Bronze, Blurite, Iron, Silver, Steel, Gold, Mithril, Adamant, Rune)
+        # that SMITHING_DATA already lists smelt rows in.
+        order: list = []
+        groups: dict = {}
+        for recipe_id, spec in SMITHING_DATA.items():
+            tier = _smith_tier_of(spec)
+            if tier not in groups:
+                groups[tier] = []
+                order.append(tier)
+            groups[tier].append((recipe_id, spec))
 
-        if smelt:
-            _add_header("Smelt — ore → bar (furnace)")
-            for recipe_id, spec in smelt:
-                _add_recipe_row(recipe_id, spec)
-        if forge:
-            _add_header("Forge — bar → item (anvil)")
-            current_tier = None
-            for recipe_id, spec in forge:
-                # One requirement per forge recipe (the bar); subheader the tier so
-                # 150+ rows stay navigable, e.g. "Rune" from "Rune bar".
-                reqs = spec.get("requirements", {}) or {}
-                bar_name = next(iter(reqs), "")
-                tier_label = bar_name.replace(" bar", "").strip() or "Other"
-                if tier_label != current_tier:
-                    current_tier = tier_label
-                    _add_header(f"  {tier_label}")
-                _add_recipe_row(recipe_id, spec)
+        selected_child = None
+        for tier in order:
+            parent = QTreeWidgetItem([f"{tier}  ({len(groups[tier])})"])
+            parent.setData(0, Qt.ItemDataRole.UserRole, f"__tier__:{tier}")
+            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)  # selectable-off; expand still works
+            font = parent.font(0)
+            font.setBold(True)
+            parent.setFont(0, font)
+            tree.addTopLevelItem(parent)
+            for recipe_id, spec in groups[tier]:
+                child = _make_child(recipe_id, spec)
+                parent.addChild(child)
+                if recipe_id == current:
+                    selected_child = child
+            # Collapsed by default; expanded if the user previously expanded this
+            # tier or it holds the current target. Set before connecting the
+            # expand/collapse signals so building doesn't rewrite persisted state.
+            parent.setExpanded(tier in expanded or tier == cur_tier)
 
-        def _on_smith_selected(item: QListWidgetItem):
-            if item is None or item.data(Qt.ItemDataRole.UserRole) == "__header__":
+        if selected_child is not None:
+            tree.setCurrentItem(selected_child)
+
+        def _on_smith_clicked(item: "QTreeWidgetItem", _column: int = 0):
+            if item is None:
                 return
-            recipe_id = item.data(Qt.ItemDataRole.UserRole)
+            recipe_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if not recipe_id or str(recipe_id).startswith("__tier__"):
+                return
             if on_set_smith is not None:
                 on_set_smith(recipe_id)
             else:
-                # Legacy fallback: the old setter takes a bar name, so it can only
-                # express smelt targets. Forge rows require on_set_smith.
                 spec = SMITHING_DATA.get(recipe_id, {})
                 if spec.get("station") == "furnace":
                     on_set_bar(spec.get("output_item", recipe_id))
-        smith_list.itemClicked.connect(_on_smith_selected)
-        smith_list.itemActivated.connect(_on_smith_selected)
-        return smith_list
+
+        def _tier_label(item: "QTreeWidgetItem") -> Optional[str]:
+            role = item.data(0, Qt.ItemDataRole.UserRole)
+            if isinstance(role, str) and role.startswith("__tier__:"):
+                return role.split(":", 1)[1]
+            return None
+
+        tree.itemClicked.connect(_on_smith_clicked)
+        tree.itemActivated.connect(_on_smith_clicked)
+        tree.itemExpanded.connect(
+            lambda it: (_tier_label(it) and set_smith_tier_expanded(_tier_label(it), True))
+        )
+        tree.itemCollapsed.connect(
+            lambda it: (_tier_label(it) and set_smith_tier_expanded(_tier_label(it), False))
+        )
+        return tree
 
     def _build_craft_list() -> QListWidget:
         craft_list = QListWidget()
