@@ -239,6 +239,17 @@ DEFERRED_MINING_CONTENT: Tuple[DeferredMiningContent, ...] = (
         ROCK_SOURCE_PATH,
     ),
     DeferredMiningContent(
+        "ring_of_wealth_gem_bonus",
+        "Ring of wealth (gem-rock bonus)",
+        "deferred_dependency",
+        "Ring of wealth speeds up gem-rock mining and gives a chance at two gems "
+        "from one rock. The ring is acquired by enchanting a dragonstone ring "
+        "(Lvl-5 Enchant), so this bonus is blocked on a future Enchanting/Magic "
+        "system; implement the double-gem roll on gem_rocks when that lands. "
+        "Glory's gem-rate boost is already modeled as a separate Mining bonus.",
+        HISTORICAL_MINING_SOURCE,
+    ),
+    DeferredMiningContent(
         "shooting_stars",
         "Shooting Stars",
         "future_content",
