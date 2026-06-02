@@ -150,6 +150,15 @@ def _find_bank_list(dialog: "QDialog") -> "QListWidget":
     raise AssertionError("bank list (with category headers) not found")
 
 
+def _find_gear_list(dialog: "QDialog") -> "QListWidget":
+    """The gear panel is the separate (non-striped) list below the inventory."""
+    for lw in dialog.findChildren(QListWidget):
+        for i in range(lw.count()):
+            if lw.item(i).data(Qt.ItemDataRole.UserRole) == "__gear_header__":
+                return lw
+    raise AssertionError("gear list (toolbelt/equipped) not found")
+
+
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(unittest.TestCase):
     app: "QApplication"
@@ -473,22 +482,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
 
-    def test_bank_shows_toolbelt_and_equipped_sections(self) -> None:
+    def test_bank_gear_lives_in_separate_panel_from_striped_inventory(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Logs": 5}
         dialog = self._open(pd)
         bank = _find_bank_list(dialog)
-        texts = [bank.item(i).text() for i in range(bank.count())]
-        self.assertIn("Toolbelt", texts, "missing Toolbelt header")
-        self.assertIn("Equipped", texts, "missing Equipped header")
-        self.assertTrue(any(t.startswith("Pickaxe: ") for t in texts), f"no pickaxe row in {texts}")
-        self.assertTrue(any(t.startswith("Hatchet: ") for t in texts), f"no hatchet row in {texts}")
+        gear = _find_gear_list(dialog)
+        # The gear panel must be a distinct widget from the striped inventory,
+        # and must not carry the alternating-row striping.
+        self.assertIsNot(gear, bank, "gear shares the inventory list")
+        self.assertFalse(gear.alternatingRowColors(), "gear panel is striped")
+        bank_texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertNotIn("Toolbelt", bank_texts, "Toolbelt leaked into inventory list")
+        gear_texts = [gear.item(i).text() for i in range(gear.count())]
+        self.assertIn("Toolbelt", gear_texts, "missing Toolbelt header")
+        self.assertIn("Equipped", gear_texts, "missing Equipped header")
+        self.assertTrue(any(t.startswith("Pickaxe: ") for t in gear_texts), f"no pickaxe row in {gear_texts}")
+        self.assertTrue(any(t.startswith("Hatchet: ") for t in gear_texts), f"no hatchet row in {gear_texts}")
         # owned_equipment is empty until an obtain path exists, so the section
         # renders a discoverable placeholder rather than vanishing.
-        self.assertIn("Nothing equipped yet.", texts)
+        self.assertIn("Nothing equipped yet.", gear_texts)
         pick_row = next(
-            bank.item(i) for i in range(bank.count())
-            if bank.item(i).text().startswith("Pickaxe: ")
+            gear.item(i) for i in range(gear.count())
+            if gear.item(i).text().startswith("Pickaxe: ")
         )
         self.assertFalse(pick_row.icon().isNull(), "pickaxe gear row has no icon")
 

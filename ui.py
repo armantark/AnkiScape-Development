@@ -2022,14 +2022,42 @@ def show_main_menu(
                 return candidate
         return None
 
-    def _add_bank_header(label: str) -> None:
+    def _make_header_item(label: str, marker: str) -> QListWidgetItem:
         header = QListWidgetItem(label)
         header.setFlags(Qt.ItemFlag.NoItemFlags)
         header_font = header.font()
         header_font.setBold(True)
         header.setFont(header_font)
-        header.setData(Qt.ItemDataRole.UserRole, "__header__")
-        bank_list.addItem(header)
+        header.setData(Qt.ItemDataRole.UserRole, marker)
+        return header
+
+    groups = grouped_inventory(inv)
+    if not groups:
+        empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
+        empty.setFlags(Qt.ItemFlag.NoItemFlags)
+        bank_list.addItem(empty)
+    for category_label, rows in groups:
+        bank_list.addItem(_make_header_item(category_label, "__header__"))
+        for item_name, amount, asset_path in rows:
+            li = QListWidgetItem(f"{item_name} x{amount}")
+            icon_path = _bank_icon_path(item_name, asset_path)
+            if icon_path:
+                li.setIcon(QIcon(icon_path))
+            bank_list.addItem(li)
+    bk_layout.addWidget(bank_list, 1)
+
+    # Gear sits in its own pinned panel below the scrollable, striped inventory
+    # (the owner wanted it "outside the striped window"). The toolbelt is
+    # auto-resolved — best owned tool wins — so we show the active
+    # pickaxe/hatchet, and owned_equipment shares one "Equipped" space until
+    # real armour/weapon slots exist.
+    gear_list = QListWidget()
+    gear_list.setObjectName("gearList")
+    gear_list.setIconSize(QSize(28, 28))
+    gear_list.setAlternatingRowColors(False)
+    gear_list.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+    gear_list.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    gear_list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
     def _add_gear_row(text: str, item_name: str) -> None:
         li = QListWidgetItem(text)
@@ -2040,31 +2068,14 @@ def show_main_menu(
             li.setIcon(QIcon(icon_path))
         li.setFlags(Qt.ItemFlag.ItemIsEnabled)
         li.setData(Qt.ItemDataRole.UserRole, "__gear__")
-        bank_list.addItem(li)
+        gear_list.addItem(li)
 
-    groups = grouped_inventory(inv)
-    if not groups:
-        empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
-        empty.setFlags(Qt.ItemFlag.NoItemFlags)
-        bank_list.addItem(empty)
-    for category_label, rows in groups:
-        _add_bank_header(category_label)
-        for item_name, amount, asset_path in rows:
-            li = QListWidgetItem(f"{item_name} x{amount}")
-            icon_path = _bank_icon_path(item_name, asset_path)
-            if icon_path:
-                li.setIcon(QIcon(icon_path))
-            bank_list.addItem(li)
-
-    # Gear lives below the inventory: the toolbelt is auto-resolved (best owned
-    # tool wins) so we show the active pickaxe/hatchet, and owned_equipment
-    # shares one "Equipped" space until real armour/weapon slots exist.
     gear = bank_gear_rows_pure(player_data, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
     if gear["toolbelt"]:
-        _add_bank_header("Toolbelt")
+        gear_list.addItem(_make_header_item("Toolbelt", "__gear_header__"))
         for slot_label, display_name in gear["toolbelt"]:
             _add_gear_row(f"{slot_label}: {display_name}", display_name)
-    _add_bank_header("Equipped")
+    gear_list.addItem(_make_header_item("Equipped", "__gear_header__"))
     if gear["equipped"]:
         for slot_label, display_name in gear["equipped"]:
             _add_gear_row(f"{display_name} — {slot_label}", display_name)
@@ -2072,8 +2083,15 @@ def show_main_menu(
         empty_eq = QListWidgetItem("Nothing equipped yet.")
         empty_eq.setFlags(Qt.ItemFlag.NoItemFlags)
         empty_eq.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
-        bank_list.addItem(empty_eq)
-    bk_layout.addWidget(bank_list)
+        gear_list.addItem(empty_eq)
+
+    # Hug contents so the panel is a fixed strip, never its own scroller.
+    _gear_h = 2 * gear_list.frameWidth() + 6
+    for _i in range(gear_list.count()):
+        _row_h = gear_list.sizeHintForRow(_i)
+        _gear_h += _row_h if _row_h > 0 else 30
+    gear_list.setFixedHeight(_gear_h)
+    bk_layout.addWidget(gear_list)
     tabs.addTab(bank_tab, "Bank")
     tabs.setTabToolTip(tabs.indexOf(bank_tab), "View all your items")
 
