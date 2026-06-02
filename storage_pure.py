@@ -4,6 +4,12 @@ from typing import Dict, Iterable, Optional, Any
 try:
     from .item_registry import ItemDefinition
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
+    from .smithing_data import (
+        DEFAULT_SMITHING_TARGET,
+        LEGACY_BAR_STORAGE_MIGRATIONS,
+        LEGACY_SMITHING_TARGETS,
+        SMITHING_RECIPES_BY_ID,
+    )
     from .skill_registry import default_skill_state, default_target_state
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
@@ -13,6 +19,12 @@ try:
 except ImportError:
     from item_registry import ItemDefinition
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
+    from smithing_data import (
+        DEFAULT_SMITHING_TARGET,
+        LEGACY_BAR_STORAGE_MIGRATIONS,
+        LEGACY_SMITHING_TARGETS,
+        SMITHING_RECIPES_BY_ID,
+    )
     from skill_registry import default_skill_state, default_target_state
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
@@ -20,7 +32,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 8
+CURRENT_CONFIG_VERSION = 9
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 
 _LEGACY_FLETCHING_TARGETS = {
@@ -95,6 +107,22 @@ def _migrate_legacy_woodcutting_target(data: Dict[str, Any]) -> None:
         data["current_tree"] = LEGACY_TREE_TARGETS.get(current_tree, current_tree)
 
 
+def _migrate_legacy_smithing_target(data: Dict[str, Any]) -> None:
+    current_smith = data.get("current_smith")
+    current_bar = data.get("current_bar")
+    try:
+        config_version = int(data.get("config_version", 1))
+    except (TypeError, ValueError):
+        config_version = 1
+    if isinstance(current_bar, str) and (config_version < 9 or not isinstance(current_smith, str)):
+        current_smith = LEGACY_SMITHING_TARGETS.get(current_bar, current_bar)
+    if isinstance(current_smith, str):
+        current_smith = LEGACY_SMITHING_TARGETS.get(current_smith, current_smith)
+    if not isinstance(current_smith, str) or current_smith not in SMITHING_RECIPES_BY_ID:
+        current_smith = DEFAULT_SMITHING_TARGET
+    data["current_smith"] = current_smith
+
+
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
     for legacy_key, new_key in LEGACY_LOG_STORAGE_MIGRATIONS.items():
         if legacy_key not in inventory:
@@ -104,6 +132,19 @@ def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
         except (TypeError, ValueError):
             amount = 0
         if new_key is not None and amount:
+            inventory[new_key] = inventory.get(new_key, 0) + amount
+        inventory.pop(legacy_key, None)
+
+
+def _migrate_legacy_bar_inventory(inventory: Dict[str, int]) -> None:
+    for legacy_key, new_key in LEGACY_BAR_STORAGE_MIGRATIONS.items():
+        if legacy_key not in inventory:
+            continue
+        try:
+            amount = int(inventory.get(legacy_key, 0))
+        except (TypeError, ValueError):
+            amount = 0
+        if amount:
             inventory[new_key] = inventory.get(new_key, 0) + amount
         inventory.pop(legacy_key, None)
 
@@ -175,6 +216,7 @@ def migrate_loaded_data(
     data.setdefault("current_utility", DEFAULT_UTILITY_ACTIVITY)
     _migrate_legacy_mining_target(data, ORE_DATA)
     _migrate_legacy_woodcutting_target(data)
+    _migrate_legacy_smithing_target(data)
     if isinstance(data.get("current_fletch"), str):
         data["current_fletch"] = _LEGACY_FLETCHING_TARGETS.get(data["current_fletch"], data["current_fletch"])
     if data.get("current_fletch") not in (
@@ -213,6 +255,7 @@ def migrate_loaded_data(
     for item_key in _default_inventory(ORE_DATA, item_definitions):
         inv.setdefault(item_key, 0)
     _migrate_legacy_log_inventory(inv)
+    _migrate_legacy_bar_inventory(inv)
     data["inventory"] = inv
 
     # Ensure achievements structure exists

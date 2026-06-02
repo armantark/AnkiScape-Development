@@ -2,10 +2,10 @@
 
 ## Status
 
-Planning/audit completed 2026-06-01. Scope decision: **Option C — full `BarProducts`
-forge table** (every emulator forge item, ~150 rows), plus all 9 smelt bars.
-Backend implementation handed to a separate GPT thread; frontend follows after the
-backend contract is stable. No code beyond this audit + the plan artifact yet.
+Planning/audit completed 2026-06-01. Backend implementation completed 2026-06-01.
+Scope landed as **Option C — full `BarProducts` forge table** (157 emulator forge
+rows), plus all 9 smelt bars. Frontend/assets follow after the backend contract is
+stable.
 
 ## Primary Sources (local 2011Scape rev 667)
 
@@ -84,7 +84,7 @@ platebody is level 18, Rune dagger 85, Rune platebody 99). Transcribe levels fro
 
 ## Implemented Scope (Option C — full table)
 
-- All 9 smelt bars (add Blurite, stable IDs, source notes, Silver→13.7).
+- All 9 smelt bars (add Blurite, stable IDs, source notes, Silver `13.7`).
 - Every `BarProducts.kt` forge row across Bronze/Blurite/Iron/Steel/Mithril/Adamant/Rune.
 - Result item names resolved from `items.yml` by id. Many ids are `Items.*` constants (self-naming);
   the rest are raw ints (e.g. `1203` Iron dagger, `9377` Iron bolts unf, `40/41/42/43/44` arrow tips).
@@ -159,10 +159,12 @@ under one skill); the rest follows the Mining/WC/Crafting precedent.
   Blurite-ore non-tradeable precedent only for ore; blurite **bolts/limbs** are tradeable item forms.
   Confirm each via `items.yml` `tradeable` and record explicitly in `smithing_data.py`.
 
-## Storage and Tests (planned)
+## Storage and Tests (implemented)
 
-- Bump storage config version; migrate legacy display-name `current_bar` into the single stable
-  `current_smith` target key (a smelt recipe id). No hammer/toolbelt seed. Never delete unknown inventory.
-- Tests: data integrity (smelt table, forge XP = bars×barXP, level transcription spot-checks), pure
-  smelt/forge mechanics, the multi-input deduction (one forge card consuming N bars correctly, and
-  failing cleanly when short a bar/coal), review dispatch + undo, asset-path coverage, offscreen Qt rows.
+- Storage config version is `9`. Legacy display-name `current_bar` values migrate into the single stable
+  `current_smith` target key (for example `Runite bar` → `smelt_rune_bar`). Legacy inventory keys
+  `Adamantite bar`/`Runite bar` migrate to source item names `Adamant bar`/`Rune bar`. Unknown inventory
+  entries are preserved.
+- Tests cover source-data integrity (166 recipes, smelt table, forge XP = bars×barXP, level/output
+  spot checks), pure smelt/forge mechanics, multi-bar forge deduction, runtime forge dispatch, storage
+  migration, item manifest coverage, and offscreen Qt import/UI smoke coverage.

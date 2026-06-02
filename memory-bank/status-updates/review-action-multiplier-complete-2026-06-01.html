@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Review Action Multiplier Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 12%, rgba(74, 222, 128, 0.16), transparent 28rem),
+        radial-gradient(circle at 82% 4%, rgba(79, 140, 255, 0.20), transparent 34rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0 64px;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 7px 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(74, 222, 128, 0.42);
+      background: rgba(74, 222, 128, 0.10);
+      color: #a7f3c4;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .sub {
+      margin: 0;
+      width: min(780px, 100%);
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 1.05rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.22rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.52;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .node {
+      min-height: 112px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    .node strong {
+      display: block;
+      font-size: 0.95rem;
+      margin-bottom: 7px;
+    }
+
+    .node span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .metric {
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .metric b {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.55rem;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.42);
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+    }
+
+    .check strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .check small {
+      color: var(--text-dim);
+      line-height: 1.45;
+      font-size: 0.88rem;
+    }
+
+    code, .tag {
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .tag {
+      display: inline-flex;
+      margin: 10px 6px 0 0;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.68rem;
+    }
+
+    .manual {
+      border-color: rgba(251, 191, 36, 0.38);
+      background:
+        linear-gradient(135deg, rgba(251, 191, 36, 0.08), transparent 42%),
+        var(--surface);
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .flow,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed · Review Action Multiplier</span>
+    <h1>XP now scales because time passes.</h1>
+    <p class="sub">
+      The old XP-only multiplier has been replaced by an integer actions-per-review model. A successful card can now run
+      2, 3, or more normal game ticks, so XP, items, failures, side rolls, material consumption, and Utility batches all move together.
+    </p>
+
+    <section class="grid">
+      <div class="card wide">
+        <h2>Runtime Flow</h2>
+        <div class="flow">
+          <div class="node"><strong>Answer card</strong><span>Eligible review enters `on_good_answer` once.</span></div>
+          <div class="node"><strong>Read multiplier</strong><span>`ankiscape_review_action_multiplier`, falling back to the legacy key.</span></div>
+          <div class="node"><strong>Run ticks</strong><span>Gathering rolls N attempts; processing/Utility stop at depletion.</span></div>
+          <div class="node"><strong>Aggregate feedback</strong><span>Floating XP/activity popup appears once per review.</span></div>
+          <div class="node"><strong>Undo snapshot</strong><span>One saved rollback covers the whole multi-action review.</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Backend</h2>
+        <div class="checklist">
+          <div class="check"><div class="dot">✓</div><div><strong>Base XP only</strong><small>`_award_skill_exp` adds audited base XP per action tick; no post-action XP multiplication remains.</small></div></div>
+          <div class="check"><div class="dot">✓</div><div><strong>Tick contract</strong><small>Review handlers return whether a tick ran, allowing the loop to stop cleanly on blockers.</small></div></div>
+          <div class="check"><div class="dot">✓</div><div><strong>Undo-aware</strong><small>The snapshot is still taken before the review and recorded once after all sub-actions.</small></div></div>
+        </div>
+        <span class="tag">__init__.py</span>
+        <span class="tag">logic_pure.py</span>
+      </div>
+
+      <div class="card">
+        <h2>Frontend</h2>
+        <div class="checklist">
+          <div class="check"><div class="dot">✓</div><div><strong>Simple +/- box</strong><small>Settings now show `Actions per review:` as a `QSpinBox`, range 1x-10x.</small></div></div>
+          <div class="check"><div class="dot">✓</div><div><strong>Honest help text</strong><small>The copy says XP rises because more actions run, and items/materials/rolls scale too.</small></div></div>
+          <div class="check"><div class="dot">✓</div><div><strong>Compatible config</strong><small>New writes use `ankiscape_review_action_multiplier`; old `ankiscape_xp_multiplier` values are read only as fallback.</small></div></div>
+        </div>
+        <span class="tag">ui.py</span>
+        <span class="tag">tests/test_main_menu_widget.py</span>
+      </div>
+
+      <div class="card">
+        <h2>Verification</h2>
+        <div class="metrics">
+          <div class="metric"><span>Targeted backend</span><b>4 ok</b></div>
+          <div class="metric"><span>Targeted Qt</span><b>1 ok</b></div>
+          <div class="metric"><span>Core suite</span><b>165 ok</b></div>
+          <div class="metric"><span>Qt suite</span><b>165 ok</b></div>
+        </div>
+        <p style="margin-top:14px">
+          Commands run: <code>python3 run_tests.py</code> and
+          <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code>.
+          Editor diagnostics still show the pre-existing Anki/PyQt import and broad Pylint warnings.
+        </p>
+      </div>
+
+      <div class="card manual">
+        <h2>Manual Anki Check</h2>
+        <p>
+          In Anki, open AnkiScape settings, set `Actions per review` to 2x, train Woodcutting or Mining, and answer one eligible card.
+          Expect one floating aggregate reward and two underlying action attempts. Then train Fletching with one log and 3x: one log should be consumed,
+          no depletion dialog should fire after that productive tick, and Command-Z should restore the whole review reward.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

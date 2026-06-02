@@ -67,6 +67,8 @@ Current Woodcutting backend parity data lives in `woodcutting_data.py`, with a d
 
 Current Mining backend parity data lives in `mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and backend-only Mining bonus metadata. Storage config version 8 migrates old display-name Mining targets to stable IDs.
 
+Current Smithing backend parity data lives in `smithing_data.py`, with a detailed audit at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md`. `tools/generate_smithing_data.py` parses the local 2011Scape Smithing plugin and item metadata into a checked-in Python module with 9 smelt recipes and 157 forge recipes. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 

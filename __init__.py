@@ -4,6 +4,7 @@ from .constants import (
     ORE_DATA,
     TREE_DATA,
     BAR_DATA,
+    SMITHING_DATA,
     GEM_DATA,
     CRAFTING_DATA,
     FLETCHING_DATA,
@@ -26,6 +27,7 @@ from .constants import (
     GEM_IMAGES,
     CRAFTED_ITEM_IMAGES,
 )
+from .smithing_data import DEFAULT_SMITHING_TARGET
 from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
@@ -37,7 +39,8 @@ import datetime
 from .logic_pure import (
     calculate_probability_with_level,
     pick_gem,
-    can_smelt_any_bar_pure,
+    can_smith_any_pure,
+    can_smith_item_pure,
     create_soft_clay_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
@@ -46,12 +49,11 @@ from .logic_pure import (
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_open_bird_nests_pure,
-    apply_smelt_pure,
+    apply_smithing_pure,
     apply_fletching_pure,
     apply_woodcutting_action_pure,
     apply_mining_action_pure,
-    scale_skill_exp_pure,
-    sanitize_xp_multiplier,
+    sanitize_review_action_multiplier,
     can_mine_ore_pure,
     can_cut_tree_pure,
     best_woodcutting_axe_pure,
@@ -105,6 +107,9 @@ _ANKISCAPE_HOOKS_REGISTERED = False
 _LAST_MENU_OPEN_TS = 0.0
 _REVIEW_UNDO_STACK = []
 _MAX_REVIEW_UNDO_SNAPSHOTS = 50
+_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
+_LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
+_REVIEW_FEEDBACK_CONTEXT = None
 
 def show_review_popup():
     ui.show_review_popup()
@@ -152,6 +157,12 @@ def _initialize_debug_from_config():
 def _show_exp(exp_gained) -> None:
     """Ensure the ExpPopup exists and display exp."""
     try:
+        if _REVIEW_FEEDBACK_CONTEXT is not None:
+            try:
+                _REVIEW_FEEDBACK_CONTEXT["xp"] += float(exp_gained)
+            except (TypeError, ValueError):
+                pass
+            return
         # Respect user setting for floating XP (default True)
         show_xp = True
         try:
@@ -179,6 +190,9 @@ def _show_activity_gain(text: str) -> None:
     feedback as XP skills, and respects the same floating-notification setting.
     """
     try:
+        if _REVIEW_FEEDBACK_CONTEXT is not None:
+            _REVIEW_FEEDBACK_CONTEXT["activity"].append(str(text))
+            return
         show_popup = True
         try:
             if mw and getattr(mw, "col", None):
@@ -189,6 +203,67 @@ def _show_activity_gain(text: str) -> None:
             if not hasattr(mw, "exp_popup"):
                 mw.exp_popup = ExpPopup(mw)
             mw.exp_popup.show_text(text)
+    except Exception:
+        pass
+
+
+def _combine_activity_feedback(messages) -> str:
+    plus_totals = {}
+    opened_nests = 0
+    for message in messages:
+        text = str(message)
+        if text.startswith("+"):
+            parts = text[1:].split(" ", 1)
+            if len(parts) == 2:
+                try:
+                    amount = int(parts[0])
+                except ValueError:
+                    amount = 0
+                if amount > 0:
+                    item = parts[1]
+                    plus_totals[item] = plus_totals.get(item, 0) + amount
+                    continue
+        if text.startswith("Opened ") and " bird nest" in text:
+            parts = text.split(" ", 2)
+            if len(parts) >= 2:
+                try:
+                    opened_nests += int(parts[1])
+                    continue
+                except ValueError:
+                    pass
+
+    if plus_totals and len(plus_totals) == 1 and opened_nests == 0:
+        item, amount = next(iter(plus_totals.items()))
+        return f"+{amount} {item}"
+    if opened_nests > 0 and not plus_totals:
+        return f"Opened {opened_nests} bird nest{'s' if opened_nests != 1 else ''}"
+    return messages[-1] if messages else ""
+
+
+def _begin_review_feedback_context() -> None:
+    global _REVIEW_FEEDBACK_CONTEXT
+    _REVIEW_FEEDBACK_CONTEXT = {"xp": 0.0, "activity": []}
+
+
+def _finish_review_feedback_context() -> None:
+    global _REVIEW_FEEDBACK_CONTEXT
+    context = _REVIEW_FEEDBACK_CONTEXT or {"xp": 0.0, "activity": []}
+    _REVIEW_FEEDBACK_CONTEXT = None
+    xp_total = context.get("xp", 0.0)
+    try:
+        xp_total = float(xp_total)
+    except (TypeError, ValueError):
+        xp_total = 0.0
+    if xp_total > 0:
+        _show_exp(xp_total)
+        return
+    activity_messages = context.get("activity", [])
+    if activity_messages:
+        combined = _combine_activity_feedback(activity_messages)
+        if combined:
+            _show_activity_gain(combined)
+    try:
+        update_review_hud(player_data, current_skill)
     except Exception:
         pass
 
@@ -215,24 +290,26 @@ def _refresh_skill_availability() -> None:
             )
             for target_key in FLETCHING_DATA.keys()
         )
-        refresh_skill_availability(can_smelt_any_bar(), can_craft_any, can_fletch_any)
+        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any)
     except Exception:
         pass
 
 
-def _xp_multiplier() -> float:
+def _review_action_multiplier() -> int:
     try:
         if mw and getattr(mw, 'col', None):
-            return sanitize_xp_multiplier(mw.col.get_config("ankiscape_xp_multiplier", 1.0))
+            raw_value = mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, None)
+            if raw_value is None:
+                raw_value = mw.col.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, 1)
+            return sanitize_review_action_multiplier(raw_value)
     except Exception:
         pass
-    return 1.0
+    return 1
 
 
 def _award_skill_exp(exp_key: str, base_exp: float) -> float:
-    exp_gained = scale_skill_exp_pure(base_exp, _xp_multiplier())
-    player_data[exp_key] = player_data.get(exp_key, 0) + exp_gained
-    return exp_gained
+    player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
+    return base_exp
 
 
 def _capture_player_data_snapshot():
@@ -306,7 +383,7 @@ def _on_state_did_undo(changes=None) -> None:
 
 def show_skill_selection():
     global current_skill
-    selected = ui.show_skill_selection_dialog(current_skill, can_smelt_any_bar())
+    selected = ui.show_skill_selection_dialog(current_skill, can_smith_any())
     if selected is None:
         return
     save_skill(selected, None)
@@ -348,8 +425,11 @@ def _missing_materials_text(requirements, inventory) -> str:
 
 def save_skill(skill, dialog):
     global current_skill
-    if skill == "Smithing" and not can_smelt_any_bar():
-        show_error_message("No Ores Available", "You don't have enough ores to smelt any bars. Mine some ores first!")
+    if skill == "Smithing" and not can_smith_any():
+        show_error_message(
+            "No Smithing Actions Available",
+            "You don't have the level and materials for any Smithing recipe. Mine ore or pick another target first!",
+        )
     else:
         current_skill = skill
         ui.update_menu_visibility(current_skill)
@@ -392,12 +472,12 @@ def on_crafting_answer():
     spec = CRAFTING_DATA.get(item)
     if not spec:
         show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
-        return
+        return False
 
     player_level = player_data.get("crafting_level", 1)
     if player_level < spec["level"]:
         show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {item}.")
-        return
+        return False
 
     # Check level and material requirements first. Name the *specific* missing
     # material (e.g. "Pot" needs an "Unfired pot", not Soft clay directly) so the
@@ -411,7 +491,7 @@ def on_crafting_answer():
             f"You need {missing} to craft {item}, so Crafting has been switched off. "
             "Open the AnkiScape menu to pick another target.",
         )
-        return
+        return False
 
     # Apply crafting via pure function (handles Soft clay and crafted items)
     new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
@@ -423,7 +503,7 @@ def on_crafting_answer():
             f"You need {missing} to craft {item}, so Crafting has been switched off. "
             "Open the AnkiScape menu to pick another target.",
         )
-        return
+        return False
 
     # Update player data and UI
     player_data["inventory"] = new_inv
@@ -438,12 +518,13 @@ def on_crafting_answer():
             can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
             for item_name in CRAFTING_DATA.keys()
         )
-        refresh_skill_availability(can_smelt_any_bar(), can_craft_any)
+        refresh_skill_availability(can_smith_any(), can_craft_any)
     except Exception:
         pass
 
     _refresh_skill_availability()
     _show_exp(exp_gained)
+    return True
 
 
 def on_utility_answer():
@@ -472,7 +553,7 @@ def on_utility_answer():
                 f"{display_name} can't run right now, so it's been switched off. "
                 "Open the AnkiScape menu to pick another activity.",
             )
-        return
+        return False
 
     if activity_key == "open_bird_nest":
         batch_size = 28
@@ -489,13 +570,13 @@ def on_utility_answer():
         )
         if not ok:
             show_error_message("Unavailable activity", f"{display_name} is not available right now.")
-            return
+            return False
         player_data["inventory"] = new_inv
         check_achievements(player_data)
         save_player_data()
         _refresh_skill_availability()
         _show_activity_gain(f"Opened {processed} bird nest{'s' if processed != 1 else ''}")
-        return
+        return True
 
     new_inv, _exp, ok, processed = apply_utility_activity_pure(
         activity_key,
@@ -504,7 +585,7 @@ def on_utility_answer():
     )
     if not ok:
         show_error_message("Unavailable activity", f"{display_name} is not available right now.")
-        return
+        return False
 
     player_data["inventory"] = new_inv
     check_achievements(player_data)
@@ -521,6 +602,7 @@ def on_utility_answer():
     gained = output_qty * max(int(processed), 0)
     if gained > 0:
         _show_activity_gain(f"+{gained} {output_item}")
+    return True
 
 
 def on_fletching_answer():
@@ -534,7 +616,7 @@ def on_fletching_answer():
 
     if player_level < spec["level"]:
         show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")
-        return
+        return False
 
     new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
     if not ok:
@@ -542,7 +624,7 @@ def on_fletching_answer():
             if player_data["inventory"].get(material, 0) < amount:
                 show_error_message("Insufficient materials", f"You need {amount} {material} to make {display_name}.")
                 break
-        return
+        return False
 
     player_data["inventory"] = new_inv
     exp_gained = _award_skill_exp("fletching_exp", base_exp)
@@ -551,6 +633,7 @@ def on_fletching_answer():
     save_player_data()
     _refresh_skill_availability()
     _show_exp(exp_gained)
+    return True
 
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
@@ -561,6 +644,7 @@ def show_bar_selection():
     )
     if selected:
         player_data["current_bar"] = selected
+        player_data["current_smith"] = _smelt_target_for_bar(selected)
         save_player_data()
 
 
@@ -623,17 +707,30 @@ def _on_main_menu():
     ui.show_main_menu(
         player_data,
         current_skill,
-        can_smelt_any_bar(),
+        can_smith_any(),
         on_save_skill=lambda skill: save_skill(skill, None),
         on_set_ore=lambda ore: _set_value("current_ore", ore),
         on_set_tree=lambda tree: _set_value("current_tree", tree),
-        on_set_bar=lambda bar: _set_value("current_bar", bar),
+        on_set_bar=_set_legacy_bar_target,
+        on_set_smith=lambda recipe_id: _set_value("current_smith", recipe_id),
         on_set_craft=lambda item: _set_value("current_craft", item),
         on_set_fletch=lambda target: _set_value("current_fletch", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
     )
+
+
+def _smelt_target_for_bar(bar_name: str) -> str:
+    for target, spec in SMITHING_DATA.items():
+        if spec.get("station") == "furnace" and spec.get("output_item") == bar_name:
+            return target
+    return DEFAULT_SMITHING_TARGET
+
+
+def _set_legacy_bar_target(bar_name: str):
+    player_data["current_bar"] = bar_name
+    _set_value("current_smith", _smelt_target_for_bar(bar_name))
 
 
 def _set_value(key: str, value):
@@ -665,23 +762,28 @@ def initialize_menu():
 # Main functionality
 
 def on_smithing_answer():
-    bar = player_data["current_bar"]
-    bar_spec = BAR_DATA[bar]
+    target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
+    if target not in SMITHING_DATA:
+        target = DEFAULT_SMITHING_TARGET
+        player_data["current_smith"] = target
+    spec = SMITHING_DATA[target]
+    display_name = spec.get("display_name", spec.get("output_item", target))
     player_level = player_data["smithing_level"]
 
-    if player_level < bar_spec["level"]:
-        show_error_message("Insufficient level", f"You need level {bar_spec['level']} Smithing to smelt {bar}.")
-        return
+    if player_level < spec["level"]:
+        show_error_message("Insufficient level", f"You need level {spec['level']} Smithing to make {display_name}.")
+        return False
 
-    # Use pure smelt application
-    new_inv, base_exp, ok = apply_smelt_pure(bar, player_data["inventory"], BAR_DATA)
+    new_inv, base_exp, ok = apply_smithing_pure(target, player_data["inventory"], SMITHING_DATA)
     if not ok:
-        # Find first missing ore to provide a helpful message
-        for ore, amount in bar_spec["ore_required"].items():
-            if player_data["inventory"].get(ore, 0) < amount:
-                show_error_message("Insufficient ore", f"You need {amount} {ore} to smelt {bar}.")
-                break
-        return
+        missing = _missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        _deactivate_current_skill()
+        show_error_message(
+            "Out of materials",
+            f"You need {missing} to make {display_name}, so Smithing has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
 
     player_data["inventory"] = new_inv
     exp_gained = _award_skill_exp("smithing_exp", base_exp)
@@ -689,18 +791,19 @@ def on_smithing_answer():
     check_achievements(player_data)
     save_player_data()
 
-    # Refresh availability for Crafting/Smithing in the open menu after smelting
+    # Refresh availability for Crafting/Smithing in the open menu after processing.
     try:
         can_craft_any = any(
             can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
             for item_name in CRAFTING_DATA.keys()
         )
-        refresh_skill_availability(can_smelt_any_bar(), can_craft_any)
+        refresh_skill_availability(can_smith_any(), can_craft_any)
     except Exception:
         pass
 
     _refresh_skill_availability()
     _show_exp(exp_gained)
+    return True
 
 
 def on_woodcutting_answer():
@@ -713,7 +816,7 @@ def on_woodcutting_answer():
 
     if player_level < spec.get("level", 1):
         show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
-        return
+        return False
 
     axe_spec = best_woodcutting_axe_pure(
         player_level,
@@ -727,7 +830,7 @@ def on_woodcutting_answer():
             "No usable hatchet",
             "You need a usable hatchet to train Woodcutting. Woodcutting has been switched off.",
         )
-        return
+        return False
 
     r_action = random.random()
     r_nest_drop = random.random()
@@ -755,6 +858,7 @@ def on_woodcutting_answer():
         save_player_data()
 
     _show_exp(base_exp if not ok else exp_gained)
+    return True
 
 def on_mining_answer():
     ore = player_data.get("current_ore", DEFAULT_MINING_TARGET)
@@ -766,7 +870,7 @@ def on_mining_answer():
 
     if player_level < ore_spec.get("level", 1):
         show_error_message("Insufficient level", f"You need level {ore_spec['level']} Mining to mine {ore_spec.get('display_name', ore)}.")
-        return
+        return False
 
     pickaxe_spec = best_mining_pickaxe_pure(
         player_level,
@@ -780,7 +884,7 @@ def on_mining_answer():
             "Missing pickaxe",
             "You need a usable pickaxe to train Mining. Mining has been switched off.",
         )
-        return
+        return False
 
     bonus_state = mining_bonus_state_pure(player_data.get("owned_equipment", ()), MINING_BONUS_ITEM_DATA)
     gem_drop_chance = GLORY_GEM_DROP_CHANCE if bonus_state["has_glory"] else INCIDENTAL_GEM_DROP_CHANCE
@@ -816,6 +920,64 @@ def on_mining_answer():
         # If the main menu is open, auto-enable Smithing/Crafting when they become possible.
         _refresh_skill_availability()
         _show_exp(exp_gained)
+    return True
+
+
+def _can_start_current_action() -> bool:
+    if current_skill == "Fletching":
+        target = player_data.get("current_fletch", "arrow_shafts")
+        return can_fletch_item_pure(
+            player_data.get("fletching_level", 1),
+            player_data.get("inventory", {}),
+            target,
+            FLETCHING_DATA,
+        )
+    if current_skill == "Crafting":
+        target = player_data.get("current_craft", "")
+        return can_craft_item_pure(
+            player_data.get("crafting_level", 1),
+            player_data.get("inventory", {}),
+            target,
+            CRAFTING_DATA,
+        )
+    if current_skill == "Smithing":
+        target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
+        return can_smith_item_pure(
+            player_data.get("smithing_level", 1),
+            player_data.get("inventory", {}),
+            target,
+            SMITHING_DATA,
+        )
+    if current_skill in _UTILITY_SKILL_NAMES:
+        activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+        return can_perform_utility_activity_pure(
+            player_data.get("inventory", {}),
+            activity_key,
+            UTILITY_ACTIVITY_DATA,
+        )
+    if current_skill == "Woodcutting":
+        target = player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET)
+        spec = TREE_DATA.get(target)
+        if not spec or player_data.get("woodcutting_level", 1) < spec.get("level", 1):
+            return False
+        return best_woodcutting_axe_pure(
+            player_data.get("woodcutting_level", 1),
+            player_data.get("inventory", {}),
+            player_data.get("toolbelt", {}),
+            WOODCUTTING_AXE_DATA,
+        ) is not None
+    if current_skill == "Mining":
+        target = player_data.get("current_ore", DEFAULT_MINING_TARGET)
+        spec = ORE_DATA.get(target)
+        if not spec or player_data.get("mining_level", 1) < spec.get("level", 1):
+            return False
+        return best_mining_pickaxe_pure(
+            player_data.get("mining_level", 1),
+            player_data.get("inventory", {}),
+            player_data.get("toolbelt", {}),
+            MINING_PICKAXE_DATA,
+        ) is not None
+    return True
 
 
 _REVIEW_HANDLERS = {
@@ -844,8 +1006,17 @@ def on_good_answer():
     handler = _registered_answer_handler(current_skill)
     if handler:
         before_state = _capture_player_data_snapshot()
-        handler()
-        _remember_review_award_snapshot(before_state)
+        _begin_review_feedback_context()
+        try:
+            for tick_index in range(_review_action_multiplier()):
+                if tick_index > 0 and not _can_start_current_action():
+                    break
+                result = handler()
+                if result is False or current_skill == "None":
+                    break
+        finally:
+            _finish_review_feedback_context()
+            _remember_review_award_snapshot(before_state)
 
     exp_awarded = True
 
@@ -889,8 +1060,13 @@ def on_show_answer(reviewer):
 ## show_error_message now provided by ui.show_error_message
 
 
+def can_smith_any():
+    return can_smith_any_pure(player_data["inventory"], player_data["smithing_level"], SMITHING_DATA)
+
+
 def can_smelt_any_bar():
-    return can_smelt_any_bar_pure(player_data["inventory"], player_data["smithing_level"], BAR_DATA)
+    """Compatibility name for UI paths that still label Smithing as smelting."""
+    return can_smith_any()
 
 def create_soft_clay():
     new_inv, _exp, ok, _processed = apply_utility_activity_pure(

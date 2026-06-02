@@ -142,7 +142,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "fletching_exp": 0,
             "current_ore": "Rune essence",
             "current_tree": "",
-            "current_bar": "Bronze bar",
+            "current_smith": "smelt_bronze_bar",
             "current_craft": "",
             "current_fletch": "arrow_shafts",
         }
@@ -220,6 +220,34 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["xp"], [5.0])
+
+    def test_smithing_answer_forges_selected_recipe(self):
+        addon = _load_addon_as_package("ankiscape_smithing_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon.refresh_skill_availability = lambda *_args, **_kwargs: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Iron bar": 2},
+            "smithing_level": 20,
+            "smithing_exp": 0,
+            "current_smith": "forge_iron_pickaxe",
+            "completed_achievements": [],
+        }
+
+        addon.on_smithing_answer()
+
+        self.assertEqual(addon.player_data["inventory"]["Iron bar"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Iron pickaxe"], 1)
+        self.assertAlmostEqual(addon.player_data["smithing_exp"], 50.0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["xp"], [50.0])
 
     def test_utility_answer_batches_inventory_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_utility_integration")
@@ -340,17 +368,18 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["current_utility"], "make_soft_clay")
         self.assertEqual(calls["hud"], ["Utility / Activities"])
 
-    def test_xp_multiplier_applies_to_gathering_and_processing_rewards(self):
-        addon = _load_addon_as_package("ankiscape_xp_multiplier_integration")
+    def test_review_action_multiplier_runs_gathering_and_processing_ticks(self):
+        addon = _load_addon_as_package("ankiscape_review_multiplier_integration")
 
         calls = {"save": 0, "xp": []}
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
-        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon.update_review_hud = lambda _data, _skill: None
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_xp_multiplier": 2.0}))
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 2}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_exp=lambda exp: calls["xp"].append(exp))
 
         addon.player_data = {
             "inventory": {},
@@ -367,19 +396,28 @@ class TestIntegrationSmoke(unittest.TestCase):
         original_random = addon.random.random
         addon.random.random = lambda: 0.0
         try:
-            addon.on_woodcutting_answer()
-            addon.on_fletching_answer()
+            addon.current_skill = "Woodcutting"
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+            addon.current_skill = "Fletching"
+            addon.card_turned = True
+            addon.answer_shown = True
+            addon.exp_awarded = False
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
         finally:
             addon.random.random = original_random
 
         self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
-        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 30)
         self.assertAlmostEqual(addon.player_data["woodcutting_exp"], 50.0)
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
         self.assertEqual(calls["xp"], [50.0, 10.0])
 
-    def test_bad_xp_multiplier_config_falls_back_to_base_xp(self):
-        addon = _load_addon_as_package("ankiscape_bad_xp_multiplier_integration")
+    def test_bad_review_action_multiplier_config_falls_back_to_one_tick(self):
+        addon = _load_addon_as_package("ankiscape_bad_review_multiplier_integration")
 
         addon.level_up_check = lambda _skill, _data: None
         addon.check_achievements = lambda _data: None
@@ -387,7 +425,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._show_exp = lambda _exp: None
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_xp_multiplier": "not-a-number"}))
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": "not-a-number"}))
         addon.player_data = {
             "inventory": {"Logs": 1},
             "fletching_level": 1,
@@ -396,9 +434,45 @@ class TestIntegrationSmoke(unittest.TestCase):
             "completed_achievements": [],
         }
 
-        addon.on_fletching_answer()
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
+
+    def test_processing_multiplier_stops_when_materials_are_depleted(self):
+        addon = _load_addon_as_package("ankiscape_review_multiplier_depletion")
+
+        calls = {"xp": [], "errors": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: calls["errors"].append(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_exp=lambda exp: calls["xp"].append(exp))
+        addon.player_data = {
+            "inventory": {"Logs": 1},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 15)
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 5.0)
+        self.assertEqual(calls["xp"], [5.0])
+        self.assertEqual(calls["errors"], [])
 
     def test_undo_after_review_restores_awarded_game_progress(self):
         addon = _load_addon_as_package("ankiscape_undo_integration")

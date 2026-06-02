@@ -29,7 +29,7 @@ class TestStorageMigrationExtra(unittest.TestCase):
     def test_default_player_data_sets_current_defaults(self):
         base = default_player_data(ORE_DATA)
         self.assertEqual(base["config_version"], CURRENT_CONFIG_VERSION)
-        self.assertEqual(base["current_bar"], "Bronze bar")
+        self.assertEqual(base["current_smith"], "smelt_bronze_bar")
         self.assertEqual(base["current_ore"], "rune_essence")
         self.assertEqual(base["current_tree"], "tree")
         self.assertEqual(base["current_craft"], "")

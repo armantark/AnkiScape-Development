@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smithing Backend Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(251, 191, 36, 0.12), transparent 28rem),
+        radial-gradient(circle at 82% 8%, rgba(79, 140, 255, 0.16), transparent 26rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      min-height: 100vh;
+      padding: 42px;
+    }
+    main { max-width: 1160px; margin: 0 auto; }
+    .badge, code, .tag, .step-num { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 7px 10px;
+      border: 1px solid rgba(251, 191, 36, 0.38);
+      border-radius: 999px;
+      color: var(--amber);
+      background: rgba(251, 191, 36, 0.08);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 4rem); line-height: 0.95; margin: 18px 0 14px; }
+    p { color: var(--text-dim); line-height: 1.55; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 24px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent), var(--surface);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.28);
+    }
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .metric strong { display: block; font-size: 1.5rem; }
+    .metric span { color: var(--text-dim); font-size: 0.85rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .label {
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .amber { color: var(--amber); }
+    .purple { color: var(--purple); }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .node {
+      min-height: 86px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: rgba(79, 140, 255, 0.08);
+    }
+    .node b { display: block; margin-bottom: 5px; }
+    .node span { color: var(--text-dim); font-size: 0.85rem; }
+    .steps { display: grid; gap: 12px; margin-top: 16px; }
+    .step {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 13px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .tag {
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+    }
+    .mock {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #10141b;
+      min-height: 168px;
+    }
+    .pane h4 { margin: 0 0 10px; color: var(--text-dim); font-family: "JetBrains Mono", monospace; font-size: 11px; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.9rem;
+    }
+    .row:last-child { border-bottom: 0; }
+    .tiny { color: var(--text-dim); font-size: 0.78rem; }
+    button {
+      appearance: none;
+      border: 1px solid rgba(79, 140, 255, 0.5);
+      background: var(--accent-glow);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 10px 12px;
+      font-family: "JetBrains Mono", monospace;
+      cursor: pointer;
+    }
+    textarea {
+      width: 100%;
+      min-height: 116px;
+      margin-top: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0a0d12;
+      color: var(--text);
+      padding: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      resize: vertical;
+    }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .hero, .grid, .mock { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="card">
+        <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+        <h1>Smithing backend lands as one recipe system.</h1>
+        <p>The audit chose the full 2011Scape Smithing table: all smelt bars plus every forge product. Backend work stays isolated from Qt polish and gives the frontend a stable `current_smith` contract to render later.</p>
+        <div class="flow" aria-label="implementation flow">
+          <div class="node"><b>Source</b><span>Parse local 2011Scape Smithing plugin plus item names.</span></div>
+          <div class="node"><b>Data</b><span>`smithing_data.py` owns stable ids, station, inputs, XP, outputs.</span></div>
+          <div class="node"><b>Items</b><span>Register bars, forged gear, ammo, and tools with tradeability.</span></div>
+          <div class="node"><b>Runtime</b><span>Review dispatch uses one pure processing helper for smelt and forge.</span></div>
+          <div class="node"><b>Tests</b><span>Data integrity, migration, review dispatch, undo, registry coverage.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="scoreboard">
+          <div class="metric"><strong>9</strong><span>smelt recipes</span></div>
+          <div class="metric"><strong>~150</strong><span>forge rows</span></div>
+          <div class="metric"><strong>1</strong><span>target key</span></div>
+          <div class="metric"><strong>0</strong><span>hammer/tool gates</span></div>
+        </div>
+        <p class="tiny">Current risk: existing Smithing is display-name keyed and only smelts. This pass changes persistence shape, so migration tests are the highest-value guardrail.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label amber">Backend Scope</div>
+        <h2>Contract Change</h2>
+        <div class="mock">
+          <div class="pane">
+            <h4>BEFORE</h4>
+            <div class="row"><span>`current_bar`</span><span>Bronze bar</span></div>
+            <div class="row"><span>Action</span><span>smelt only</span></div>
+            <div class="row"><span>Data</span><span>`BAR_DATA` dict</span></div>
+            <div class="row"><span>Output</span><span>bars</span></div>
+          </div>
+          <div class="pane">
+            <h4>AFTER</h4>
+            <div class="row"><span>`current_smith`</span><span>smelt_bronze_bar</span></div>
+            <div class="row"><span>Action</span><span>smelt or forge</span></div>
+            <div class="row"><span>Data</span><span>`SMITHING_DATA`</span></div>
+            <div class="row"><span>Output</span><span>bars, gear, ammo, tools</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label purple">Frontend Handoff</div>
+        <h2>What the Claude thread gets later</h2>
+        <p>The backend will expose station metadata, display names, level gates, requirements, output quantities, and source notes. Frontend should group by Furnace vs Anvil, show exact missing inputs, and never infer forge XP from UI code.</p>
+        <textarea id="handoff" readonly>Frontend handoff after Smithing backend:
+- Render Smithing targets from SMITHING_DATA using current_smith stable recipe IDs.
+- Group station == "furnace" as Smelt and station == "anvil" as Forge.
+- Lock rows only on smithing_level or missing inventory requirements.
+- Show base XP, output quantity, and source note from the backend recipe.
+- Do not add a hammer/toolbelt gate.</textarea>
+        <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('handoff').value)">Copy handoff prompt</button>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <div class="label">Execution Steps</div>
+      <div class="steps">
+        <div class="step"><div class="step-num">1</div><div>Generate source-backed Smithing data and keep source XP separate from Anki pacing.<div class="tags"><span class="tag">tools/parse_smithing_source.py</span><span class="tag">smithing_data.py</span></div></div></div>
+        <div class="step"><div class="step-num">2</div><div>Migrate runtime from `current_bar` to `current_smith`, preserving legacy saves and unknown inventory entries.<div class="tags"><span class="tag">skill_registry.py</span><span class="tag">storage_pure.py</span><span class="tag">__init__.py</span></div></div></div>
+        <div class="step"><div class="step-num">3</div><div>Register forged outputs so Bank/Stats/Inventory can see real item keys before the UI pass.<div class="tags"><span class="tag">item_registry.py</span><span class="tag">constants.py</span></div></div></div>
+        <div class="step"><div class="step-num">4</div><div>Prove it with unit and integration tests, then update the memory bank and completion artifact.<div class="tags"><span class="tag">tests/</span><span class="tag">memory-bank/</span></div></div></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

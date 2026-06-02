@@ -35,7 +35,7 @@ try:
         QScrollArea,
         QProgressBar,
         QCheckBox,
-        QDoubleSpinBox,
+        QSpinBox,
         QDesktopServices,
         QUrl,
     QEvent,
@@ -59,6 +59,8 @@ try:
         DEFAULT_WOODCUTTING_TARGET,
         BIRD_NEST_OPEN_TABLES,
         BAR_DATA,
+        SMITHING_DATA,
+        DEFAULT_SMITHING_TARGET,
         GEM_DATA,
         CRAFTING_DATA,
         FLETCHING_DATA,
@@ -88,6 +90,8 @@ except Exception:
         DEFAULT_WOODCUTTING_TARGET,
         BIRD_NEST_OPEN_TABLES,
         BAR_DATA,
+        SMITHING_DATA,
+        DEFAULT_SMITHING_TARGET,
         GEM_DATA,
         CRAFTING_DATA,
         FLETCHING_DATA,
@@ -104,9 +108,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_xp_multiplier  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -186,7 +190,8 @@ def playable_review_skill_names() -> tuple:
 # so the hub surfaces it as a synthetic, visually-distinct entry.
 _UTILITY_HUB_NAME = "Utility / Activities"
 _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
-_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
+_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
+_LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
 # Backend (mining_data.DEFERRED_MINING_CONTENT) deliberately defers the
 # "concentrated" coal/gold deposits: their 2011Scape distinction is Living Rock
@@ -888,6 +893,7 @@ def show_main_menu(
     on_set_tree,
     on_set_bar,
     on_set_craft,
+    on_set_smith=None,
     on_set_fletch=None,
     on_set_utility=None,
     on_set_floating_enabled=None,
@@ -1196,36 +1202,129 @@ def show_main_menu(
         tree_list.itemActivated.connect(_on_tree_selected)
         return tree_list
 
-    def _build_bar_list() -> QListWidget:
-        bar_list = QListWidget()
-        bar_list.setIconSize(QSize(28, 28))
-        bar_list.setAlternatingRowColors(True)
-        for bar, data in BAR_DATA.items():
-            item = QListWidgetItem(f"{bar} (Lvl {data['level']})")
-            item.setData(Qt.ItemDataRole.UserRole, bar)
-            b_icon = BAR_IMAGES.get(bar)
-            if b_icon and os.path.exists(b_icon):
-                item.setIcon(QIcon(b_icon))
-            lvl_req = data.get('level', 1)
-            lvl_have = player_data.get("smithing_level", 1)
-            reqs = data.get('ore_required', {})
-            inv = player_data.get('inventory', {})
-            mat_lines = [f"{ore_name} x{amt} (you have {inv.get(ore_name, 0)})" for ore_name, amt in reqs.items()]
-            mat_text = "\n".join(mat_lines) if mat_lines else "No materials required"
-            tooltip = f"Requires Smithing level {lvl_req}. You have {lvl_have}.\nMaterials:\n{mat_text}"
-            if data.get("level", 1) > player_data.get("smithing_level", 1):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-            item.setToolTip(tooltip)
-            bar_list.addItem(item)
-            if bar == player_data.get("current_bar"):
-                bar_list.setCurrentItem(item)
+    def _build_smith_list() -> QListWidget:
+        # SMITHING_DATA is one unified table keyed by stable recipe IDs
+        # ("smelt_bronze_bar", "forge_rune_platebody", ...). Smelt (furnace) and
+        # forge (anvil) are the same generic recipe shape, so this renders them in
+        # a single list grouped by station — Smelt first, then Forge broken out by
+        # bar tier — with bold, non-selectable header rows. The chosen recipe ID is
+        # stored on the row and persisted via on_set_smith (recipe-ID setter); we
+        # fall back to the legacy on_set_bar (bar-name setter) only for smelt rows
+        # when no on_set_smith was wired. Lock reasons come straight from
+        # can_smith_item_pure: insufficient Smithing level or missing inputs. There
+        # is deliberately no hammer/tool gate (the toolbelt is gathering-only).
+        smith_list = QListWidget()
+        smith_list.setIconSize(QSize(28, 28))
+        smith_list.setAlternatingRowColors(True)
+        lvl_have = player_data.get("smithing_level", 1)
+        inv = player_data.get("inventory", {})
+        current = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
 
-        def _on_bar_selected(item: QListWidgetItem):
-            if item:
-                on_set_bar(item.data(Qt.ItemDataRole.UserRole))
-        bar_list.itemClicked.connect(_on_bar_selected)
-        bar_list.itemActivated.connect(_on_bar_selected)
-        return bar_list
+        def _add_header(text: str) -> None:
+            header = QListWidgetItem(text)
+            # NoItemFlags => not selectable, not enabled: a pure visual separator
+            # that keyboard/click navigation skips over.
+            header.setFlags(Qt.ItemFlag.NoItemFlags)
+            header.setData(Qt.ItemDataRole.UserRole, "__header__")
+            font = header.font()
+            font.setBold(True)
+            header.setFont(font)
+            smith_list.addItem(header)
+
+        def _icon_for(output_item: str):
+            # Bars resolve via the registry (built with BAR_IMAGES); forged items
+            # resolve via SMITHING_EXTRA_ITEM_IMAGES when an icon was fetched.
+            # Either way a missing asset leaves the row text-only.
+            definition = _ITEM_DEFS_BY_KEY.get(output_item)
+            path = (definition.asset_path if definition and definition.asset_path else None) or BAR_IMAGES.get(output_item)
+            return path
+
+        def _add_recipe_row(recipe_id: str, spec: dict) -> None:
+            display_name = str(spec.get("display_name", spec.get("output_item", recipe_id)))
+            lvl_req = spec.get("level", 1)
+            output_item = str(spec.get("output_item", display_name))
+            output_qty = spec.get("output_qty", 1) or 1
+            reqs = spec.get("requirements", {}) or {}
+
+            label = f"{display_name} (Lvl {lvl_req})"
+            if output_qty > 1:
+                label += f" — makes {output_qty}"
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, recipe_id)
+
+            icon_path = _icon_for(output_item)
+            if icon_path and os.path.exists(icon_path):
+                item.setIcon(QIcon(icon_path))
+
+            mat_lines = [
+                f"  {mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()
+            ]
+            mat_text = "\n".join(mat_lines) if mat_lines else "  none"
+            tooltip = (
+                f"Requires Smithing level {lvl_req}. You have {lvl_have}.\n"
+                f"Output: {output_item} x{output_qty}\n"
+                f"Base XP: {spec.get('exp', 0)} per action\n"
+                f"Materials:\n{mat_text}"
+            )
+            source_enum = spec.get("source_enum")
+            source = spec.get("source")
+            if source_enum:
+                tooltip += f"\nSource: {source_enum}"
+                if source:
+                    tooltip += f" ({source})"
+            elif source:
+                tooltip += f"\nSource: {source}"
+
+            if not can_smith_item_pure(lvl_have, inv, recipe_id, SMITHING_DATA):
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if any(inv.get(mat, 0) < amt for mat, amt in reqs.items()):
+                    reason.append("materials")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            item.setToolTip(tooltip)
+            smith_list.addItem(item)
+            if recipe_id == current:
+                smith_list.setCurrentItem(item)
+
+        smelt = [(rid, s) for rid, s in SMITHING_DATA.items() if s.get("station") == "furnace"]
+        forge = [(rid, s) for rid, s in SMITHING_DATA.items() if s.get("station") == "anvil"]
+
+        if smelt:
+            _add_header("Smelt — ore → bar (furnace)")
+            for recipe_id, spec in smelt:
+                _add_recipe_row(recipe_id, spec)
+        if forge:
+            _add_header("Forge — bar → item (anvil)")
+            current_tier = None
+            for recipe_id, spec in forge:
+                # One requirement per forge recipe (the bar); subheader the tier so
+                # 150+ rows stay navigable, e.g. "Rune" from "Rune bar".
+                reqs = spec.get("requirements", {}) or {}
+                bar_name = next(iter(reqs), "")
+                tier_label = bar_name.replace(" bar", "").strip() or "Other"
+                if tier_label != current_tier:
+                    current_tier = tier_label
+                    _add_header(f"  {tier_label}")
+                _add_recipe_row(recipe_id, spec)
+
+        def _on_smith_selected(item: QListWidgetItem):
+            if item is None or item.data(Qt.ItemDataRole.UserRole) == "__header__":
+                return
+            recipe_id = item.data(Qt.ItemDataRole.UserRole)
+            if on_set_smith is not None:
+                on_set_smith(recipe_id)
+            else:
+                # Legacy fallback: the old setter takes a bar name, so it can only
+                # express smelt targets. Forge rows require on_set_smith.
+                spec = SMITHING_DATA.get(recipe_id, {})
+                if spec.get("station") == "furnace":
+                    on_set_bar(spec.get("output_item", recipe_id))
+        smith_list.itemClicked.connect(_on_smith_selected)
+        smith_list.itemActivated.connect(_on_smith_selected)
+        return smith_list
 
     def _build_craft_list() -> QListWidget:
         craft_list = QListWidget()
@@ -1394,7 +1493,7 @@ def show_main_menu(
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
         "Woodcutting": _build_tree_list,
-        "Smithing": _build_bar_list,
+        "Smithing": _build_smith_list,
         "Crafting": _build_craft_list,
         "Fletching": _build_fletch_list,
         _UTILITY_HUB_NAME: _build_utility_list,
@@ -1402,7 +1501,7 @@ def show_main_menu(
     _TARGET_PROMPTS = {
         "Mining": "Select Ore to Mine",
         "Woodcutting": "Select Tree to Cut",
-        "Smithing": "Select Bar to Smelt",
+        "Smithing": "Select what to Smelt or Forge",
         "Crafting": "Select Item to Craft",
         "Fletching": "Select Item to Fletch",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
@@ -2015,32 +2114,35 @@ def show_main_menu(
             div.setFrameShadow(QFrame.Shadow.Sunken)
             set_layout.addWidget(div)
 
-    # ---- Gameplay: XP multiplier + experience HUD ----
-    current_multiplier = 1.0
+    # ---- Gameplay: review action multiplier + experience HUD ----
+    current_multiplier = 1
     try:
         if mw and getattr(mw, "col", None):
-            current_multiplier = sanitize_xp_multiplier(
-                mw.col.get_config(_XP_MULTIPLIER_CONFIG_KEY, 1.0)
-            )
+            raw_multiplier = mw.col.get_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, None)
+            if raw_multiplier is None:
+                raw_multiplier = mw.col.get_config(_LEGACY_XP_MULTIPLIER_CONFIG_KEY, 1)
+            current_multiplier = sanitize_review_action_multiplier(raw_multiplier)
     except Exception:
-        current_multiplier = 1.0
+        current_multiplier = 1
 
     xp_mult_row = QWidget()
     xmr = QHBoxLayout(xp_mult_row)
     xmr.setContentsMargins(0, 0, 0, 0)
     xmr.setSpacing(8)
-    xmr.addWidget(QLabel("XP multiplier:"))
-    xp_mult_spin = QDoubleSpinBox()
-    xp_mult_spin.setRange(0.0, 100.0)
-    xp_mult_spin.setSingleStep(0.5)
-    xp_mult_spin.setDecimals(2)
-    xp_mult_spin.setSuffix("\u00d7")
+    xmr.addWidget(QLabel("Actions per review:"))
+    xp_mult_spin = QSpinBox()
+    xp_mult_spin.setRange(1, 10)
+    xp_mult_spin.setSingleStep(1)
+    xp_mult_spin.setSuffix("x")
     xp_mult_spin.setValue(current_multiplier)
     xp_mult_spin.setMaximumWidth(120)
     xmr.addWidget(xp_mult_spin)
     xmr.addStretch(1)
 
-    xp_mult_help = QLabel("Base data uses OSRS XP; this scales rewards for Anki pacing.")
+    xp_mult_help = QLabel(
+        "Each successful review runs this many game action ticks. XP rises because more actions run; "
+        "items, rolls, and material use scale with it."
+    )
     xp_mult_help.setWordWrap(True)
     xp_mult_help.setStyleSheet("color: palette(mid); font-size: 11px;")
 
@@ -2100,16 +2202,15 @@ def show_main_menu(
         rb_left.toggled.connect(lambda checked=False: checked and on_set_floating_position("left"))
         rb_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("right"))
 
-    def _apply_xp_multiplier(value: float) -> None:
-        # Clamp before persisting so a bad spin value can never corrupt config;
-        # the backend re-sanitizes at reward time as a second safety net.
-        safe = sanitize_xp_multiplier(value)
+    def _apply_review_action_multiplier(value: int) -> None:
+        # Clamp before persisting so the backend sees an integer action count.
+        safe = sanitize_review_action_multiplier(value)
         try:
             if mw and getattr(mw, "col", None):
-                mw.col.set_config(_XP_MULTIPLIER_CONFIG_KEY, safe)
+                mw.col.set_config(_REVIEW_ACTION_MULTIPLIER_CONFIG_KEY, safe)
         except Exception:
             pass
-    xp_mult_spin.valueChanged.connect(lambda v: _apply_xp_multiplier(float(v)))
+    xp_mult_spin.valueChanged.connect(lambda v: _apply_review_action_multiplier(int(v)))
 
     def _persist_bool(key: str, val: bool):
         try:

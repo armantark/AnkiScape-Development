@@ -6,12 +6,15 @@ from logic_pure import (
     calculate_probability_with_level,
     pick_gem,
     can_smelt_any_bar_pure,
+    can_smith_any_pure,
+    can_smith_item_pure,
     create_soft_clay_pure,
     has_crafting_materials_pure,
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_fletching_pure,
     apply_smelt_pure,
+    apply_smithing_pure,
     apply_woodcutting_pure,
     apply_woodcutting_action_pure,
     apply_mining_pure,
@@ -27,8 +30,7 @@ from logic_pure import (
     can_craft_item_pure,
     can_fletch_item_pure,
     can_perform_utility_activity_pure,
-    sanitize_xp_multiplier,
-    scale_skill_exp_pure,
+    sanitize_review_action_multiplier,
 )
 from constants import (
     GLORY_GEM_DROP_CHANCE,
@@ -144,6 +146,45 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(can_smelt_any_bar_pure(inv, 1, bar_data))
         self.assertFalse(can_smelt_any_bar_pure({}, 99, bar_data))
         self.assertFalse(can_smelt_any_bar_pure({"Copper ore": 1}, 99, bar_data))
+
+    def test_apply_smithing_pure_smelt_and_forge(self):
+        smithing_data = {
+            "smelt_bronze_bar": {
+                "level": 1,
+                "exp": 6.2,
+                "requirements": {"Tin ore": 1, "Copper ore": 1},
+                "output_item": "Bronze bar",
+                "output_qty": 1,
+                "station": "furnace",
+            },
+            "forge_iron_pickaxe": {
+                "level": 20,
+                "exp": 50.0,
+                "requirements": {"Iron bar": 2},
+                "output_item": "Iron pickaxe",
+                "output_qty": 1,
+                "station": "anvil",
+            },
+        }
+        inv = {"Tin ore": 1, "Copper ore": 1, "Iron bar": 2}
+
+        self.assertTrue(can_smith_any_pure(inv, 1, smithing_data))
+        self.assertFalse(can_smith_item_pure(19, inv, "forge_iron_pickaxe", smithing_data))
+        self.assertTrue(can_smith_item_pure(20, inv, "forge_iron_pickaxe", smithing_data))
+
+        after_smelt, smelt_exp, smelt_ok = apply_smithing_pure("smelt_bronze_bar", inv, smithing_data)
+        self.assertTrue(smelt_ok)
+        self.assertAlmostEqual(smelt_exp, 6.2)
+        self.assertEqual(after_smelt["Tin ore"], 0)
+        self.assertEqual(after_smelt["Copper ore"], 0)
+        self.assertEqual(after_smelt["Bronze bar"], 1)
+
+        after_forge, forge_exp, forge_ok = apply_smithing_pure("forge_iron_pickaxe", inv, smithing_data)
+        self.assertTrue(forge_ok)
+        self.assertAlmostEqual(forge_exp, 50.0)
+        self.assertEqual(after_forge["Iron bar"], 0)
+        self.assertEqual(after_forge["Iron pickaxe"], 1)
+        self.assertEqual(inv["Iron bar"], 2)
 
     def test_create_soft_clay_pure(self):
         inv = {"Clay": 2}
@@ -273,13 +314,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Silver bar"], 0)
         self.assertEqual(new_inv["Silver bolts (unf)"], 10)
 
-    def test_xp_multiplier_validation_and_scaling(self):
-        self.assertEqual(sanitize_xp_multiplier("2.5"), 2.5)
-        self.assertEqual(sanitize_xp_multiplier("bad"), 1.0)
-        self.assertEqual(sanitize_xp_multiplier(True), 1.0)
-        self.assertEqual(sanitize_xp_multiplier(-5), 0.0)
-        self.assertEqual(sanitize_xp_multiplier(500), 100.0)
-        self.assertEqual(scale_skill_exp_pure(6.3, 2), 12.6)
+    def test_review_action_multiplier_validation(self):
+        self.assertEqual(sanitize_review_action_multiplier("2.5"), 2)
+        self.assertEqual(sanitize_review_action_multiplier("bad"), 1)
+        self.assertEqual(sanitize_review_action_multiplier(True), 1)
+        self.assertEqual(sanitize_review_action_multiplier(-5), 1)
+        self.assertEqual(sanitize_review_action_multiplier(500), 10)
 
     def test_apply_smelt_pure(self):
         bar_data = {

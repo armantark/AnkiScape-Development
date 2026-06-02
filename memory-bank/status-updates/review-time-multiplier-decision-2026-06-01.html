@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Review Time Multiplier</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(79, 140, 255, 0.18), transparent 34rem),
+        radial-gradient(circle at 86% 18%, rgba(167, 139, 250, 0.12), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0 60px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      border-radius: 999px;
+      background: rgba(79, 140, 255, 0.12);
+      color: #a9c7ff;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+
+    .subtitle {
+      width: min(760px, 100%);
+      color: var(--text-dim);
+      font-size: 1.05rem;
+      line-height: 1.55;
+      margin: 0 0 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-top: 24px;
+    }
+
+    .card {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.2rem;
+      letter-spacing: -0.02em;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    .decision {
+      border-color: rgba(74, 222, 128, 0.42);
+      background:
+        linear-gradient(135deg, rgba(74, 222, 128, 0.10), transparent 42%),
+        var(--surface);
+    }
+
+    .decision .label {
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .pane {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      min-height: 190px;
+    }
+
+    .pane strong {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .tick {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin: 9px 0;
+    }
+
+    .node {
+      height: 36px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(79, 140, 255, 0.13);
+    }
+
+    .node.green { background: rgba(74, 222, 128, 0.13); }
+    .node.purple { background: rgba(167, 139, 250, 0.14); }
+
+    .bar {
+      height: 10px;
+      border-radius: 99px;
+      background: #10141b;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--purple));
+    }
+
+    .knob {
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 18px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .metric div {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .metric span {
+      display: block;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .metric b {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.55rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .tag {
+      display: inline-flex;
+      margin: 10px 6px 0 0;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+    }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.34);
+      color: #bcd2ff;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .step h3 {
+      margin: 2px 0 4px;
+      font-size: 1rem;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    .prompt {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 118px;
+      resize: vertical;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f131a;
+      color: var(--text);
+      padding: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    button {
+      justify-self: start;
+      border: 1px solid rgba(79, 140, 255, 0.48);
+      background: rgba(79, 140, 255, 0.14);
+      color: #c7d9ff;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-family: "JetBrains Mono", monospace;
+      cursor: pointer;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .grid,
+      .compare,
+      .knob,
+      .metric {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Design checkpoint · Jun 1</span>
+    <h1>Make the multiplier mean time, not free XP.</h1>
+    <p class="subtitle">
+      Current behavior scales only the XP number after one review action. The better long-term model is an
+      <strong>actions-per-review tick</strong>: at 2x, a successful card runs two action attempts; at 3x, three attempts.
+      Source XP stays honest, item chains move forward, success odds remain meaningful, and Utility/Activities benefit too.
+    </p>
+
+    <section class="hero">
+      <div class="card decision">
+        <div class="label">Recommendation</div>
+        <h2>Replace XP multiplier semantics with review time multiplier.</h2>
+        <p>
+          Keep `ankiscape_xp_multiplier` as a migrated config key if needed, but stop thinking of it as reward inflation.
+          Runtime should ask, "how many action ticks does this review buy?" and then execute the same action pipeline
+          repeatedly inside one undo-aware review transaction.
+        </p>
+        <span class="tag">__init__.py</span>
+        <span class="tag">logic_pure.py</span>
+        <span class="tag">ui.py</span>
+        <span class="tag">tests/test_integration_smoke.py</span>
+      </div>
+
+      <div class="card">
+        <h2>Before / After</h2>
+        <div class="compare">
+          <div class="pane">
+            <strong>Current XP-only scalar</strong>
+            <div class="tick"><div class="node">card</div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+            <div class="tick"><div class="node green">1 roll</div><div class="bar"><div class="fill" style="width:42%"></div></div></div>
+            <div class="tick"><div class="node purple">XP x3</div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+            <p>Items and success rolls still move as if only one game action happened.</p>
+          </div>
+          <div class="pane">
+            <strong>Proposed time scalar</strong>
+            <div class="tick"><div class="node">card</div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+            <div class="tick"><div class="node green">3 rolls</div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+            <div class="tick"><div class="node purple">base XP</div><div class="bar"><div class="fill" style="width:100%"></div></div></div>
+            <p>XP, items, nests, gems, material consumption, and activity batches all advance together.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Multiplier Playground</h2>
+        <p>
+          This is the intended mental model: a review produces more elapsed game time, not inflated numbers.
+        </p>
+        <div class="knob">
+          <label for="mult">Actions per review tick: <strong><span id="multValue">2</span>x</strong></label>
+          <input id="mult" type="range" min="1" max="8" step="1" value="2">
+        </div>
+        <div class="metric">
+          <div><span>Review cards</span><b>1</b></div>
+          <div><span>Action attempts</span><b id="attempts">2</b></div>
+          <div><span>Undo snapshots</span><b>1</b></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Backend Contract</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <div>
+              <h3>One review, one transaction, N attempts.</h3>
+              <p>Capture the pre-review `player_data` once, run up to N action ticks, then record one undo snapshot.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div>
+              <h3>Stop on hard blockers.</h3>
+              <p>Processing skills should stop when materials run out. Gathering skills can spend failed rolls normally.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div>
+              <h3>Show aggregate feedback.</h3>
+              <p>Floating XP should show the total earned across attempts, not one popup per sub-action.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Frontend Contract</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <div>
+              <h3>Rename the setting.</h3>
+              <p>Use "Review time multiplier" or "Actions per review"; avoid "XP multiplier" because it now lies.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div>
+              <h3>Make it integer-first.</h3>
+              <p>2x should be two actions. Fractional values can be deferred until there is a real need.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div>
+              <h3>Explain material pressure.</h3>
+              <p>Help text should say higher values spend resources faster and roll more gather attempts per card.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Balance Guardrails</h2>
+        <p>
+          Cap the UI tightly at first, likely 1x-5x or 1x-10x, because this setting accelerates the entire economy.
+          Utility actions are already batched, so a time multiplier can compound with batch size. That is acceptable
+          if it is named honestly and tested as elapsed review time.
+        </p>
+        <span class="tag">Gathering: N independent rolls</span>
+        <span class="tag">Processing: N recipes or until blocked</span>
+        <span class="tag">Utility: N activity ticks, each respecting batch caps</span>
+      </div>
+    </section>
+
+    <section class="card prompt">
+      <h2>Copy-Paste Prompt For Backend Agent</h2>
+      <p>Use this if you want to hand the implementation to a backend-focused thread.</p>
+      <textarea id="handoff" readonly>Implement the AnkiScape multiplier redesign as a review time multiplier, not an XP multiplier. Current code uses `ankiscape_xp_multiplier` to scale XP after one action. Change backend semantics so a successful review runs an integer number of action attempts per review tick, preserving audited base XP per attempt and aggregating total XP/items/outputs before one undo snapshot. Split gathering, processing, and Utility behavior deliberately: gathering rolls N independent attempts; processing runs up to N actions but stops when materials are depleted; Utility/Activities runs N activity ticks while each tick still respects existing batch caps. Keep review undo rollback as one transaction, aggregate floating XP/activity feedback, add targeted pure/integration tests, and leave notes for the frontend agent about the renamed setting and help text.</textarea>
+      <button id="copy">Copy Prompt</button>
+    </section>
+  </main>
+
+  <script>
+    const slider = document.getElementById("mult");
+    const multValue = document.getElementById("multValue");
+    const attempts = document.getElementById("attempts");
+    slider.addEventListener("input", () => {
+      multValue.textContent = slider.value;
+      attempts.textContent = slider.value;
+    });
+
+    document.getElementById("copy").addEventListener("click", async () => {
+      const text = document.getElementById("handoff").value;
+      try {
+        await navigator.clipboard.writeText(text);
+        document.getElementById("copy").textContent = "Copied";
+        setTimeout(() => { document.getElementById("copy").textContent = "Copy Prompt"; }, 1400);
+      } catch (_) {
+        document.getElementById("handoff").select();
+        document.execCommand("copy");
+      }
+    });
+  </script>
+</body>
+</html>

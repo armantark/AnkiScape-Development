@@ -1,4 +1,16 @@
 {
+  "bars/bluritebar.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blurite_bar.png",
+    "file_title": "Blurite bar.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Blurite_bar.png?e22ed",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1ddb0dac5d375882a73070f22d7f1e9605940722",
+    "size": 235,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:48Z"
+  },
   "crafteditems/wool.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wool.png",
     "file_title": "Wool.png",
@@ -514,6 +526,78 @@
     "size": 487,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:21Z"
+  },
+  "smithingitems/adamant_platebody.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Adamant_platebody.png",
+    "file_title": "Adamant platebody.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Adamant_platebody.png?6fdfc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1dc11dd4024eeb0f34eb184ee863801fd36088e5",
+    "size": 582,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:51:49Z"
+  },
+  "smithingitems/mithril_platebody.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Mithril_platebody.png",
+    "file_title": "Mithril platebody.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Mithril_platebody.png?8b58a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "904c6647952f119931792d9e72b9448c37d5ea37",
+    "size": 614,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:03Z"
+  },
+  "smithingitems/rune_full_helm.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_full_helm.png",
+    "file_title": "Rune full helm.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_full_helm.png?ce07d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "12f8927ab348dcc48763087eecbea03de3ecf5ed",
+    "size": 555,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:07Z"
+  },
+  "smithingitems/rune_kiteshield.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_kiteshield.png",
+    "file_title": "Rune kiteshield.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_kiteshield.png?ff16c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c56ddcee532982cfd04bcbac1ee4eba4e09273fd",
+    "size": 505,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:09Z"
+  },
+  "smithingitems/rune_platebody.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_platebody.png",
+    "file_title": "Rune platebody.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_platebody.png?e8496",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5d727f70b6c084785f9eefebfca6099846ab4f64",
+    "size": 668,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:11Z"
+  },
+  "smithingitems/steel_platebody.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Steel_platebody.png",
+    "file_title": "Steel platebody.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Steel_platebody.png?0395b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3217e42859b7cc8714a6c477cbea73926eca7015",
+    "size": 814,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:21Z"
   },
   "trees/Achey.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Achey_tree_logs.png",

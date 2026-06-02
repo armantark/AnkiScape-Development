@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Smithing Backend Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 42px;
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      background:
+        linear-gradient(135deg, rgba(74, 222, 128, 0.13), transparent 24rem),
+        radial-gradient(circle at 80% 10%, rgba(167, 139, 250, 0.16), transparent 26rem),
+        var(--bg);
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .mono, .badge, code, textarea, button { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      background: rgba(74, 222, 128, 0.09);
+      border-radius: 999px;
+      padding: 7px 10px;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+    }
+    h1 { font-size: clamp(2.2rem, 5vw, 4.6rem); line-height: 0.95; margin: 18px 0 12px; }
+    h2 { margin: 0 0 10px; }
+    p { color: var(--text-dim); line-height: 1.55; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 22px 60px rgba(0,0,0,0.28);
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric {
+      padding: 15px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+    .metric strong { display: block; font-size: 1.9rem; }
+    .metric span { color: var(--text-dim); font-size: 0.86rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+    .label {
+      color: var(--amber);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .green { color: var(--green); }
+    .purple { color: var(--purple); }
+    .rows { display: grid; gap: 8px; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      color: var(--text-dim);
+    }
+    .row b { color: var(--text); }
+    .tagbox {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      background: rgba(255,255,255,0.055);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 6px 8px;
+    }
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .pipe {
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(79, 140, 255, 0.08);
+      padding: 13px;
+      min-height: 104px;
+    }
+    .pipe b { display: block; margin-bottom: 6px; }
+    .pipe span { color: var(--text-dim); font-size: 0.84rem; }
+    textarea {
+      width: 100%;
+      min-height: 190px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #090c11;
+      color: var(--text);
+      padding: 14px;
+      resize: vertical;
+      line-height: 1.45;
+      font-size: 12px;
+    }
+    button {
+      margin-top: 10px;
+      border: 1px solid rgba(79, 140, 255, 0.55);
+      border-radius: 10px;
+      background: var(--accent-glow);
+      color: var(--text);
+      padding: 10px 13px;
+      cursor: pointer;
+    }
+    @media (max-width: 950px) {
+      body { padding: 24px; }
+      .hero, .grid, .pipeline { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="card">
+        <span class="badge">BACKEND COMPLETE</span>
+        <h1>Smithing now has the whole 2011 forge table.</h1>
+        <p>The backend contract is stable: `SMITHING_DATA` is the source-backed recipe table, `current_smith` is the persisted target, and every successful review action runs exactly one smelt or forge recipe.</p>
+        <div class="pipeline">
+          <div class="pipe"><b>Generated</b><span>`tools/generate_smithing_data.py` parses local 2011Scape source.</span></div>
+          <div class="pipe"><b>Modeled</b><span>9 furnace recipes and 157 anvil recipes in `smithing_data.py`.</span></div>
+          <div class="pipe"><b>Migrated</b><span>`current_bar` saves move to stable `current_smith` IDs.</span></div>
+          <div class="pipe"><b>Registered</b><span>Bars, forged tools, ammo, and gear enter the item manifest.</span></div>
+          <div class="pipe"><b>Verified</b><span>Core and offscreen Qt suites both pass with 172 tests.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="metrics">
+          <div class="metric"><strong>166</strong><span>total Smithing recipes</span></div>
+          <div class="metric"><strong>157</strong><span>forge rows from `BarProducts.kt`</span></div>
+          <div class="metric"><strong>9</strong><span>smelt bars, including Blurite</span></div>
+          <div class="metric"><strong>v9</strong><span>storage migration</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label green">Runtime Contract</div>
+        <div class="rows">
+          <div class="row"><b>Target key</b><span>`current_smith`</span></div>
+          <div class="row"><b>Default</b><span>`smelt_bronze_bar`</span></div>
+          <div class="row"><b>Stations</b><span>`furnace`, `anvil`</span></div>
+          <div class="row"><b>Gates</b><span>level + materials only</span></div>
+          <div class="row"><b>Batching</b><span>none for XP actions</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label purple">Tests Passed</div>
+        <div class="rows">
+          <div class="row"><b>Unit/data/integration</b><span>`python3 run_tests.py`</span></div>
+          <div class="row"><b>Qt offscreen</b><span>`.venv-qt/bin/python -m unittest discover tests`</span></div>
+          <div class="row"><b>Manual Anki</b><span>not run; no live Anki/browser surface changed</span></div>
+        </div>
+        <div class="tagbox">
+          <span class="tag">tests/test_smithing_data.py</span>
+          <span class="tag">tests/test_logic.py</span>
+          <span class="tag">tests/test_storage_pure.py</span>
+          <span class="tag">tests/test_integration_smoke.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label">Important Quirks</div>
+        <p>Source item names are now `Adamant bar` and `Rune bar`; old `Adamantite bar` and `Runite bar` inventory keys migrate forward. Blurite item tradeability follows local `items.yml` metadata. The old smelt-only UI is bridged but does not expose forge rows.</p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <div class="label">Copy-Paste Frontend Prompt</div>
+      <textarea id="prompt" readonly>You are the frontend agent for AnkiScape Smithing parity. Backend is complete.
+
+Use backend contract:
+- `constants.SMITHING_DATA` is the canonical recipe table keyed by stable recipe IDs.
+- Persist selected Smithing target via `current_smith`, not `current_bar`.
+- Group recipes by `station`: `furnace` = Smelt, `anvil` = Forge.
+- Render `display_name`, `level`, `exp`, `requirements`, `output_item`, `output_qty`, `source`, and `source_enum` from each recipe.
+- Lock rows only for insufficient Smithing level or missing input materials. Do not add a hammer/toolbelt gate.
+- `constants.BAR_DATA` exists only as a smelt compatibility view for old UI paths.
+- Source item names are `Adamant bar` and `Rune bar`; legacy `Adamantite bar`/`Runite bar` are migrated by storage.
+
+Frontend tasks:
+1. Replace the Smithing target panel/list with a `SMITHING_DATA`-driven view.
+2. Provide Smelt/Forge grouping or filtering while keeping the current Skills hub style.
+3. Tooltips should show output quantity, base XP, requirements with owned counts, and source note/path.
+4. Set target through the existing `on_set_bar` replacement or add an explicit `on_set_smith` callback if cleaner.
+5. Fetch/wire icons for Blurite bar and high-value forged outputs where practical; missing icons should degrade gracefully.
+6. Add offscreen Qt tests for station grouping, stable recipe IDs, lock reasons, and current target persistence.
+
+Backend files to inspect: `smithing_data.py`, `constants.py`, `logic_pure.py`, `storage_pure.py`, `__init__.py`, `tests/test_smithing_data.py`.</textarea>
+      <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('prompt').value)">Copy frontend prompt</button>
+    </section>
+  </main>
+</body>
+</html>

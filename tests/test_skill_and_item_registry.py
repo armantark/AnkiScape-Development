@@ -10,6 +10,7 @@ from constants import (
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
     ORE_DATA,
+    SMITHING_OUTPUT_ITEMS,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
@@ -91,7 +92,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             {
                 "current_ore": "rune_essence",
                 "current_tree": "tree",
-                "current_bar": "Bronze bar",
+                "current_smith": "smelt_bronze_bar",
                 "current_craft": "",
                 "current_fletch": "arrow_shafts",
             },
@@ -118,7 +119,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             list(MINING_OUTPUT_ITEMS)
             + list(WOODCUTTING_LOG_ITEMS)
             + list(GEM_DATA)
-            + list(BAR_DATA)
+            + list(SMITHING_OUTPUT_ITEMS)
             + list(CRAFTING_DATA)
             + fletching_outputs
             + fletching_materials
@@ -138,6 +139,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Uncut opal", item_storage_keys_by_category(ITEM_DEFINITIONS, "gem"))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")), set(WOODCUTTING_LOG_ITEMS))
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "bar")), set(BAR_DATA))
+        self.assertIn("Bronze dagger", item_storage_keys_by_category(ITEM_DEFINITIONS, "smithed"))
+        self.assertIn("Rune platebody", item_storage_keys_by_category(ITEM_DEFINITIONS, "smithed"))
+        self.assertIn("Blurite bolts (unf)", item_storage_keys_by_category(ITEM_DEFINITIONS, "smithed"))
         self.assertIn("Bronze hatchet", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
         self.assertIn("Bronze pickaxe", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
         self.assertIn("Varrock armour 1", item_storage_keys_by_category(ITEM_DEFINITIONS, "equipment"))
@@ -208,6 +212,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a gem icon")
         for name in ("Bronze pickaxe", "Rune pickaxe", "Dragon pickaxe"):
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a pickaxe icon")
+
+    def test_smithing_icons_resolve_where_fetched_and_degrade_otherwise(self):
+        # The forge table is ~150 rows; only a curated high-value subset is
+        # fetched (tools/fetch_smithing_assets.py). The Blurite bar (only smelt
+        # output without bundled art) and the marquee platebodies must resolve an
+        # icon, while an un-fetched forged row degrades to asset_path None instead
+        # of pointing at a dead file. Forged tools reuse the gathering tool icons.
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for name in ("Blurite bar", "Rune platebody", "Adamant platebody", "Steel platebody"):
+            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a smith icon")
+        # Forged pickaxes/hatchets share names with gathering tools, so they reuse
+        # the icons fetched into miningitems/ / woodcuttingitems/.
+        self.assertIsNotNone(by_storage_key["Rune pickaxe"].asset_path)
+        # A low-value forged row with no fetched art degrades gracefully.
+        self.assertIsNone(by_storage_key["Bronze wire"].asset_path)
+        # Whether or not art exists, every registered path that IS set must exist.
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 
 if __name__ == "__main__":

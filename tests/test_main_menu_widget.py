@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QToolButton, QDoubleSpinBox, Qt
+    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QToolButton, QSpinBox, Qt
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -91,6 +91,35 @@ def _find_tool_button(dialog: "QDialog", text: str) -> "QToolButton":
     raise AssertionError(f"no tool button labeled {text!r}")
 
 
+def _goto_smithing(dialog: "QDialog") -> None:
+    """Open Artisan -> Smithing so the unified smith list is rendered."""
+    artisan = next(b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan")
+    artisan.click()
+    QApplication.processEvents()
+    skill_list = _find_artisan_skill_list(dialog)
+    row = next(
+        i for i in range(skill_list.count()) if skill_list.item(i).text() == "Smithing"
+    )
+    skill_list.setCurrentRow(row)
+    QApplication.processEvents()
+
+
+def _find_smith_list(dialog: "QDialog") -> "QListWidget":
+    """The Smithing target list, identified by its stable smelt-bronze recipe id."""
+    for lw in dialog.findChildren(QListWidget):
+        for i in range(lw.count()):
+            if lw.item(i).data(Qt.ItemDataRole.UserRole) == "smelt_bronze_bar":
+                return lw
+    raise AssertionError("smith list (with recipe ids) not found")
+
+
+def _smith_row(smith: "QListWidget", recipe_id: str) -> "QListWidgetItem":
+    for i in range(smith.count()):
+        if smith.item(i).data(Qt.ItemDataRole.UserRole) == recipe_id:
+            return smith.item(i)
+    raise AssertionError(f"smith row {recipe_id!r} not found")
+
+
 def _find_bank_list(dialog: "QDialog") -> "QListWidget":
     """The bank list is the one whose rows carry category headers."""
     for lw in dialog.findChildren(QListWidget):
@@ -113,6 +142,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         import ui
 
         self._captured: list = []
+        # Records recipe IDs the Smithing list persists via on_set_smith so tests
+        # can assert selection wiring without real mouse events.
+        self._smith_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -140,6 +172,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_ore=lambda *a: None,
             on_set_tree=lambda *a: None,
             on_set_bar=lambda *a: None,
+            on_set_smith=lambda rid: self._smith_calls.append(rid),
             on_set_craft=lambda *a: None,
             on_set_fletch=lambda *a: None,
             on_set_utility=lambda *a: None,
@@ -214,6 +247,106 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         target_list = _find_list_with_item_prefix(self.dialog, "Arrow shafts")
         self.assertIsNotNone(target_list)
+
+    # ---- Smithing parity (unified SMITHING_DATA recipe list) --------------
+    def test_smithing_list_groups_smelt_then_forge_with_headers(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Tin ore": 5, "Copper ore": 5, "Bronze bar": 5}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        texts = [smith.item(i).text() for i in range(smith.count())]
+        smelt_idx = next(i for i, t in enumerate(texts) if t.startswith("Smelt —"))
+        forge_idx = next(i for i, t in enumerate(texts) if t.startswith("Forge —"))
+        self.assertLess(smelt_idx, forge_idx, "Smelt group must precede Forge group")
+        # Header rows are pure separators: not selectable, not enabled.
+        smelt_header = smith.item(smelt_idx)
+        self.assertFalse(bool(smelt_header.flags() & Qt.ItemFlag.ItemIsSelectable))
+        self.assertFalse(bool(smelt_header.flags() & Qt.ItemFlag.ItemIsEnabled))
+        # A per-tier subheader (e.g. "Rune") appears under Forge for navigability.
+        self.assertTrue(any(t.strip() == "Rune" for t in texts), texts[forge_idx:forge_idx + 5])
+
+    def test_smithing_rows_carry_stable_recipe_ids_not_display_names(self) -> None:
+        pd = _make_player_data()
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        roles = [smith.item(i).data(Qt.ItemDataRole.UserRole) for i in range(smith.count())]
+        self.assertIn("smelt_bronze_bar", roles)
+        self.assertIn("forge_rune_platebody", roles)
+        # The row stores the stable id, never the human display name.
+        self.assertNotIn("Bronze bar", roles)
+        self.assertNotIn("Rune platebody", roles)
+
+    def test_smithing_locks_rows_for_level_and_for_missing_materials(self) -> None:
+        pd = _make_player_data()  # smithing_level 33, empty inventory
+        pd["inventory"] = {}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        # Rune platebody (Lvl 99) is above level -> locked with a level reason.
+        rune = _smith_row(smith, "forge_rune_platebody")
+        self.assertFalse(bool(rune.flags() & Qt.ItemFlag.ItemIsEnabled))
+        self.assertIn("level 99", rune.toolTip())
+        # Bronze bar is in-level but there are no ores -> locked with materials.
+        bronze = _smith_row(smith, "smelt_bronze_bar")
+        self.assertFalse(bool(bronze.flags() & Qt.ItemFlag.ItemIsEnabled))
+        self.assertIn("materials", bronze.toolTip())
+        # No hammer/tool gate is ever surfaced (toolbelt is gathering-only).
+        self.assertNotIn("hammer", bronze.toolTip().lower())
+
+    def test_smithing_tooltip_shows_output_xp_and_owned_material_counts(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Iron bar": 1}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        # Iron pickaxe needs 2 Iron bars; the tooltip should reflect output + owned.
+        pick = _smith_row(smith, "forge_iron_pickaxe")
+        tip = pick.toolTip()
+        self.assertIn("Output: Iron pickaxe x1", tip)
+        self.assertIn("Base XP:", tip)
+        self.assertIn("Iron bar x2 (you have 1)", tip)
+        # Owning only 1 of 2 required bars keeps it locked on materials.
+        self.assertFalse(bool(pick.flags() & Qt.ItemFlag.ItemIsEnabled))
+
+    def test_smithing_unlocks_with_materials_and_persists_recipe_id(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze bar": 10}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        dagger = _smith_row(smith, "forge_bronze_dagger")
+        self.assertTrue(bool(dagger.flags() & Qt.ItemFlag.ItemIsEnabled))
+        smith.itemClicked.emit(dagger)
+        QApplication.processEvents()
+        self.assertEqual(self._smith_calls[-1], "forge_bronze_dagger")
+
+    def test_smithing_clicking_a_header_does_not_persist(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze bar": 10}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        header = next(
+            smith.item(i) for i in range(smith.count())
+            if smith.item(i).data(Qt.ItemDataRole.UserRole) == "__header__"
+        )
+        before = list(self._smith_calls)
+        smith.itemClicked.emit(header)
+        QApplication.processEvents()
+        self.assertEqual(self._smith_calls, before, "header rows must not set a target")
+
+    def test_smithing_highlights_current_target_on_open(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze bar": 10}
+        pd["current_smith"] = "forge_bronze_dagger"
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        smith = _find_smith_list(dialog)
+        current = smith.currentItem()
+        self.assertIsNotNone(current)
+        self.assertEqual(current.data(Qt.ItemDataRole.UserRole), "forge_bronze_dagger")
 
     # ---- Stats / Bank / HUD registry-driven surfaces ----------------------
     def test_stats_tab_has_fletching_and_shows_its_details(self) -> None:
@@ -316,12 +449,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertLess(max(img.width(), img.height()), 64,
                         "flax sprite is not pre-trimmed; run tools/trim_icons.py")
 
-    def test_settings_expose_xp_multiplier_under_gameplay(self) -> None:
+    def test_settings_expose_action_multiplier_under_gameplay(self) -> None:
         labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
         self.assertIn("Gameplay", labels)
-        self.assertIn("XP multiplier:", labels)
-        spins = self.dialog.findChildren(QDoubleSpinBox)
-        self.assertTrue(spins, "no XP multiplier spin box found")
+        self.assertIn("Actions per review:", labels)
+        spins = self.dialog.findChildren(QSpinBox)
+        self.assertTrue(spins, "no action multiplier spin box found")
+        self.assertEqual(spins[0].minimum(), 1)
         self.assertGreaterEqual(spins[0].maximum(), 1.0)
 
     # ---- Woodcutting 2011Scape parity frontend ----------------------------

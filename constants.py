@@ -16,6 +16,13 @@ try:
         mining_pickaxes_as_dict,
         mining_targets_as_dict,
     )
+    from .smithing_data import (
+        DEFAULT_SMITHING_TARGET,
+        smithing_bars_as_dict,
+        smithing_extra_items_as_dict,
+        smithing_output_items,
+        smithing_recipes_as_dict,
+    )
     from .woodcutting_data import (
         BIRD_NEST_DROP_CHANCE,
         BIRD_NEST_DROP_TABLE as SOURCE_BIRD_NEST_DROP_TABLE,
@@ -38,6 +45,13 @@ except ImportError:
         mining_output_items,
         mining_pickaxes_as_dict,
         mining_targets_as_dict,
+    )
+    from smithing_data import (
+        DEFAULT_SMITHING_TARGET,
+        smithing_bars_as_dict,
+        smithing_extra_items_as_dict,
+        smithing_output_items,
+        smithing_recipes_as_dict,
     )
     from woodcutting_data import (
         BIRD_NEST_DROP_CHANCE,
@@ -69,6 +83,10 @@ WOODCUTTING_ITEMS_FOLDER = os.path.join(current_dir, "woodcuttingitems")
 # Mining bank items that aren't ores/gems: pickaxes (and future bonus equipables).
 # Fetched into miningitems/ by tools/fetch_mining_assets.py.
 MINING_ITEMS_FOLDER = os.path.join(current_dir, "miningitems")
+# Forged Smithing outputs (weapons/armour/tools/ammo). Bars reuse bars_folder via
+# BAR_IMAGES; everything anvil-made is fetched here by tools/fetch_smithing_assets.py.
+# Optional: any output without a file degrades to an iconless row.
+SMITHING_ITEMS_FOLDER = os.path.join(current_dir, "smithingitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -206,9 +224,12 @@ BAR_IMAGES = {
     "Steel bar": os.path.join(bars_folder, "steelbar.png"),
     "Gold bar": os.path.join(bars_folder, "goldbar.png"),
     "Mithril bar": os.path.join(bars_folder, "mithrilbar.png"),
-    "Adamantite bar": os.path.join(bars_folder, "adamantitebar.png"),
-    "Runite bar": os.path.join(bars_folder, "runitebar.png"),
+    "Adamant bar": os.path.join(bars_folder, "adamantitebar.png"),
+    "Rune bar": os.path.join(bars_folder, "runitebar.png"),
 }
+_blurite_bar_image = os.path.join(bars_folder, "bluritebar.png")
+if os.path.exists(_blurite_bar_image):
+    BAR_IMAGES["Blurite bar"] = _blurite_bar_image
 
 # Data dictionaries
 ORE_DATA = mining_targets_as_dict()
@@ -244,16 +265,9 @@ GEM_DATA = {
     "Uncut diamond": {"probability": 1 / 64, "exp": 107.5},
 }
 
-BAR_DATA = {
-    "Bronze bar": {"level": 1, "exp": 6.2, "ore_required": {"Copper ore": 1, "Tin ore": 1}},
-    "Iron bar": {"level": 15, "exp": 12.5, "ore_required": {"Iron ore": 1}},
-    "Silver bar": {"level": 20, "exp": 13.67, "ore_required": {"Silver ore": 1}},
-    "Steel bar": {"level": 30, "exp": 17.5, "ore_required": {"Iron ore": 1, "Coal": 2}},
-    "Gold bar": {"level": 40, "exp": 22.5, "ore_required": {"Gold ore": 1}},
-    "Mithril bar": {"level": 50, "exp": 30.0, "ore_required": {"Mithril ore": 1, "Coal": 4}},
-    "Adamantite bar": {"level": 70, "exp": 37.5, "ore_required": {"Adamantite ore": 1, "Coal": 6}},
-    "Runite bar": {"level": 85, "exp": 50.0, "ore_required": {"Runite ore": 1, "Coal": 8}},
-}
+SMITHING_DATA = smithing_recipes_as_dict()
+BAR_DATA = smithing_bars_as_dict()
+SMITHING_OUTPUT_ITEMS = smithing_output_items()
 
 FLETCHING_DATA = {
     "arrow_shafts": {
@@ -423,8 +437,18 @@ for _item_name in MINING_EXTRA_ITEM_DATA:
     if _path and os.path.exists(_path):
         MINING_EXTRA_ITEM_IMAGES[_item_name] = _path
 
-EXTRA_ITEM_DATA = {**WOODCUTTING_EXTRA_ITEM_DATA, **MINING_EXTRA_ITEM_DATA}
-EXTRA_ITEM_IMAGES = {**WOODCUTTING_EXTRA_ITEM_IMAGES, **MINING_EXTRA_ITEM_IMAGES}
+SMITHING_EXTRA_ITEM_DATA = smithing_extra_items_as_dict()
+# Forged outputs (anvil) keyed by item name. Bars (furnace) are not here — they
+# come from BAR_IMAGES. Icons are looked up in smithingitems/ by _asset_slug and
+# existence-guarded, so the ~150-row forge table renders fine with only a handful
+# of high-value icons present and the rest degrading to text-only rows.
+SMITHING_EXTRA_ITEM_IMAGES = {}
+for _item_name in SMITHING_EXTRA_ITEM_DATA:
+    _path = os.path.join(SMITHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
+EXTRA_ITEM_DATA = {**WOODCUTTING_EXTRA_ITEM_DATA, **MINING_EXTRA_ITEM_DATA, **SMITHING_EXTRA_ITEM_DATA}
+EXTRA_ITEM_IMAGES = {**WOODCUTTING_EXTRA_ITEM_IMAGES, **MINING_EXTRA_ITEM_IMAGES, **SMITHING_EXTRA_ITEM_IMAGES}
 
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,

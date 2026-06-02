@@ -5,7 +5,7 @@ from storage_pure import (
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
-from constants import ITEM_DEFINITIONS, ORE_DATA, TREE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA, WOODCUTTING_LOG_ITEMS, MINING_OUTPUT_ITEMS
+from constants import ITEM_DEFINITIONS, ORE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA, WOODCUTTING_LOG_ITEMS, MINING_OUTPUT_ITEMS
 
 
 class TestStoragePure(unittest.TestCase):
@@ -29,7 +29,7 @@ class TestStoragePure(unittest.TestCase):
             "current_utility",
             "current_ore",
             "current_tree",
-            "current_bar",
+            "current_smith",
             "inventory",
             "progress_to_next",
             "completed_achievements",
@@ -82,7 +82,7 @@ class TestStoragePure(unittest.TestCase):
         # Ensure smithing/crafting defaults
         self.assertEqual(migrated["smithing_level"], 1)
         self.assertEqual(migrated["crafting_level"], 1)
-        self.assertEqual(migrated["current_bar"], "Bronze bar")
+        self.assertEqual(migrated["current_smith"], "smelt_bronze_bar")
         self.assertEqual(migrated["current_craft"], "")
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         # Inventory preserved and completed with ore keys
@@ -148,6 +148,23 @@ class TestStoragePure(unittest.TestCase):
         self.assertNotIn("Magic", migrated["inventory"])
         self.assertNotIn("Redwood", migrated["inventory"])
         self.assertEqual(migrated["inventory"]["Mystery item"], 1)
+
+    def test_migrate_legacy_smithing_target_and_bar_names(self):
+        migrated = migrate_loaded_data(
+            {
+                "current_bar": "Runite bar",
+                "inventory": {"Runite bar": 3, "Adamantite bar": 2, "Mystery bar": 1},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_smith"], "smelt_rune_bar")
+        self.assertEqual(migrated["inventory"]["Rune bar"], 3)
+        self.assertEqual(migrated["inventory"]["Adamant bar"], 2)
+        self.assertNotIn("Runite bar", migrated["inventory"])
+        self.assertNotIn("Adamantite bar", migrated["inventory"])
+        self.assertEqual(migrated["inventory"]["Mystery bar"], 1)
 
     def test_migrate_moves_legacy_soft_clay_target_to_utility(self):
         migrated = migrate_loaded_data(

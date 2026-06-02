@@ -97,20 +97,72 @@ def pick_weighted_item_pure(weighted_items, r, total_weight=None):
     last = weighted_items[-1] if weighted_items else {}
     return last.get("item")
 
+def _requirements_from_spec(spec):
+    return spec.get("requirements") or spec.get("ore_required", {})
+
+
 def can_smelt_any_bar_pure(inventory, smithing_level, bar_data):
     """
     Return True if at least one bar can be smelted given the player's smithing_level and inventory.
     bar_data format: { bar_name: {"level": int, "ore_required": {ore: amount}} }
     """
     for _, data in bar_data.items():
+        if data.get("station") not in (None, "furnace"):
+            continue
         if smithing_level >= data.get("level", 0):
-            if all(inventory.get(ore, 0) >= amount for ore, amount in data.get("ore_required", {}).items()):
+            if all(inventory.get(material, 0) >= amount for material, amount in _requirements_from_spec(data).items()):
                 return True
     return False
 
 
+def has_smithing_materials_pure(target, inventory, smithing_data):
+    """Return True when inventory satisfies a Smithing recipe's material needs."""
+    spec = smithing_data.get(target)
+    if not spec:
+        return False
+    for material, amount in _requirements_from_spec(spec).items():
+        if inventory.get(material, 0) < amount:
+            return False
+    return True
+
+
+def can_smith_item_pure(smithing_level, inventory, target, smithing_data):
+    """Return True if level and materials allow one Smithing recipe action."""
+    spec = smithing_data.get(target)
+    if not spec:
+        return False
+    if smithing_level < spec.get("level", 1):
+        return False
+    return has_smithing_materials_pure(target, inventory, smithing_data)
+
+
+def can_smith_any_pure(inventory, smithing_level, smithing_data):
+    """Return True if any smelt or forge recipe can run right now."""
+    return any(
+        can_smith_item_pure(smithing_level, inventory, target, smithing_data)
+        for target in smithing_data
+    )
+
+
+def sanitize_review_action_multiplier(value, default=1, minimum=1, maximum=10):
+    """Return the integer number of game action ticks one review can run."""
+    if isinstance(value, bool):
+        return default
+    try:
+        multiplier = float(value)
+    except (TypeError, ValueError):
+        return default
+    if multiplier != multiplier:
+        return default
+    if multiplier < minimum:
+        return minimum
+    if multiplier > maximum:
+        return maximum
+    return int(multiplier)
+
+
 def sanitize_xp_multiplier(value, default=1.0, minimum=0.0, maximum=100.0):
-    """Return a bounded XP multiplier safe to use during review rewards."""
+    """Compatibility wrapper for old configs/tests; review rewards no longer use it."""
     if isinstance(value, bool):
         return default
     try:
@@ -124,11 +176,6 @@ def sanitize_xp_multiplier(value, default=1.0, minimum=0.0, maximum=100.0):
     if multiplier > maximum:
         return maximum
     return multiplier
-
-
-def scale_skill_exp_pure(base_exp, xp_multiplier):
-    """Scale source XP once, after action logic has produced the base value."""
-    return base_exp * sanitize_xp_multiplier(xp_multiplier)
 
 
 def create_soft_clay_pure(inventory):
@@ -240,7 +287,7 @@ def apply_smelt_pure(bar_name, inventory, bar_data):
     spec = bar_data.get(bar_name)
     if not spec:
         return inventory, 0, False
-    requirements = spec.get("ore_required", {})
+    requirements = _requirements_from_spec(spec)
     # Check materials
     if not all(inventory.get(ore, 0) >= amount for ore, amount in requirements.items()):
         return inventory, 0, False
@@ -248,7 +295,30 @@ def apply_smelt_pure(bar_name, inventory, bar_data):
     new_inv = dict(inventory)
     for ore, amount in requirements.items():
         new_inv[ore] = new_inv.get(ore, 0) - amount
-    new_inv[bar_name] = new_inv.get(bar_name, 0) + 1
+    output_item = spec.get("output_item", bar_name)
+    output_qty = _positive_int(spec.get("output_qty", 1))
+    new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+    return new_inv, spec.get("exp", 0), True
+
+
+def apply_smithing_pure(target, inventory, smithing_data):
+    """Apply one source-backed Smithing recipe, smelt or forge.
+
+    Smithing actions are XP-bearing, so this intentionally does not honor a
+    recipe-level batch size. Review pacing runs multiple normal actions when the
+    global actions-per-review setting is greater than one.
+    """
+    spec = smithing_data.get(target)
+    if not spec or not has_smithing_materials_pure(target, inventory, smithing_data):
+        return inventory, 0, False
+
+    new_inv = dict(inventory)
+    for material, amount in _requirements_from_spec(spec).items():
+        new_inv[material] = new_inv.get(material, 0) - amount
+
+    output_item = spec.get("output_item", target)
+    output_qty = _positive_int(spec.get("output_qty", 1))
+    new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
     return new_inv, spec.get("exp", 0), True
 
 def apply_woodcutting_pure(tree_name, inventory, tree_data, r_action, success_probability):

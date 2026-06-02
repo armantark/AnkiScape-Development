@@ -68,8 +68,8 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         action_kind="process",
         level_key="smithing_level",
         exp_key="smithing_exp",
-        current_target_key="current_bar",
-        default_target="Bronze bar",
+        current_target_key="current_smith",
+        default_target="smelt_bronze_bar",
         review_handler_key="smithing",
     ),
     SkillDefinition(
