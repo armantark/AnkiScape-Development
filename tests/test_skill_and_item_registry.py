@@ -9,6 +9,7 @@ from constants import (
     MINING_BONUS_ITEM_DATA,
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
+    ORE_DATA,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
@@ -175,6 +176,38 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for name in [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]:
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a hatchet icon")
         self.assertIsNotNone(by_storage_key["Bird's nest (seeds)"].asset_path)
+
+    def test_mining_target_rows_have_output_icons(self):
+        # Every Mining target row resolves an icon from its output: a single
+        # output_item for ordinary rocks, or the representative first weighted
+        # output for the variable rocks (Sandstone/Granite/Gem rocks). These were
+        # fetched by tools/fetch_mining_assets.py; a missing one means a blank row.
+        try:
+            from ui import ORE_IMAGES, GEM_IMAGES  # type: ignore
+        except Exception:
+            from constants import ORE_IMAGES, GEM_IMAGES  # type: ignore
+        for target_id, spec in ORE_DATA.items():
+            weighted = spec.get("weighted_outputs") or ()
+            if weighted:
+                icon_key = weighted[0]["item"]
+            else:
+                icon_key = spec.get("output_item")
+            self.assertIsNotNone(icon_key, f"{target_id} has no resolvable output for an icon")
+            self.assertTrue(
+                bool(ORE_IMAGES.get(icon_key) or GEM_IMAGES.get(icon_key)),
+                f"Mining target {target_id!r} row icon missing for {icon_key!r}",
+            )
+
+    def test_mining_bank_items_have_icons(self):
+        # Ores, gem-rock gems, and standard pickaxes should all carry an
+        # asset_path so Bank/Stats rows aren't blank for real Mining drops/tools.
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for name in ("Blurite ore", "Limestone", "Pure essence", "Sandstone (10kg)", "Granite (5kg)"):
+            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have an ore icon")
+        for name in ("Uncut opal", "Uncut jade", "Uncut red topaz"):
+            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a gem icon")
+        for name in ("Bronze pickaxe", "Rune pickaxe", "Dragon pickaxe"):
+            self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a pickaxe icon")
 
 
 if __name__ == "__main__":

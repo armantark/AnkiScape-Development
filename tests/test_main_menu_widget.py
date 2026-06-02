@@ -452,6 +452,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIn("no usable pickaxe", copper.toolTip())
 
+    def test_mining_rows_render_icons_including_variable_rocks(self) -> None:
+        # Icons were fetched by tools/fetch_mining_assets.py. Ordinary rocks use
+        # their output_item art; variable rocks fall back to the first weighted
+        # output (Gem rocks -> Uncut opal, sourced from GEM_IMAGES).
+        ore_list = self._open_mining(self.dialog)
+        for prefix in ("Copper ", "Blurite ", "Sandstone ", "Granite ", "Gem rocks "):
+            row = self._ore_row(ore_list, prefix)
+            self.assertFalse(row.icon().isNull(), f"{prefix!r} row has no icon")
+
     def test_mining_coal_tooltip_mentions_concentrated_deferral(self) -> None:
         ore_list = self._open_mining(self.dialog)
         coal = self._ore_row(ore_list, "Coal ")

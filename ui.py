@@ -1072,13 +1072,15 @@ def show_main_menu(
             item = QListWidgetItem(label)
             item.setData(Qt.ItemDataRole.UserRole, target_id)
 
-            # ORE_IMAGES is keyed by real item names; weighted rocks have no single
-            # output_item so fall back to the display name (or first weighted item).
+            # Icons are keyed by real item names; weighted rocks have no single
+            # output_item so use the first weighted item as the representative
+            # icon (e.g. Gem rocks -> Uncut opal). Gem outputs live in GEM_IMAGES,
+            # ores in ORE_IMAGES, so consult both.
             icon_key = output_item or display_name
             if not output_item and weighted:
                 first = weighted[0]
                 icon_key = first.get("item", display_name) if isinstance(first, dict) else display_name
-            icon_path = ORE_IMAGES.get(icon_key)
+            icon_path = ORE_IMAGES.get(icon_key) or GEM_IMAGES.get(icon_key)
             if icon_path and os.path.exists(icon_path):
                 item.setIcon(QIcon(icon_path))
 

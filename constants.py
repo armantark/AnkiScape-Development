@@ -66,6 +66,9 @@ FLETCHED_ITEMS_FOLDER = os.path.join(current_dir, "fletcheditems")
 # trees/ sprites — those files are the log item art (see WIKI_TITLE_OVERRIDES in
 # tools/fetch_assets.py) — so only non-log Woodcutting items live here.
 WOODCUTTING_ITEMS_FOLDER = os.path.join(current_dir, "woodcuttingitems")
+# Mining bank items that aren't ores/gems: pickaxes (and future bonus equipables).
+# Fetched into miningitems/ by tools/fetch_mining_assets.py.
+MINING_ITEMS_FOLDER = os.path.join(current_dir, "miningitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -184,6 +187,17 @@ GEM_IMAGES = {
     "Uncut ruby": os.path.join(GEMS_FOLDER, "ruby.png"),
     "Uncut diamond": os.path.join(GEMS_FOLDER, "diamond.png"),
 }
+# Gem-rock outputs fetched by tools/fetch_mining_assets.py. Existence-guarded so
+# a missing file leaves the row iconless instead of pointing at an absent path
+# (which would trip missing_required_asset_paths()).
+for _gem_name, _gem_file in {
+    "Uncut opal": "opal.png",
+    "Uncut jade": "jade.png",
+    "Uncut red topaz": "red_topaz.png",
+}.items():
+    _gem_path = os.path.join(GEMS_FOLDER, _gem_file)
+    if os.path.exists(_gem_path):
+        GEM_IMAGES[_gem_name] = _gem_path
 
 BAR_IMAGES = {
     "Bronze bar": os.path.join(bars_folder, "bronzebar.png"),
@@ -398,7 +412,14 @@ for _item_name in WOODCUTTING_EXTRA_ITEM_DATA:
 
 MINING_EXTRA_ITEM_IMAGES = {}
 for _item_name in MINING_EXTRA_ITEM_DATA:
-    _path = ORE_IMAGES.get(_item_name) or GEM_IMAGES.get(_item_name)
+    # Ores/gems reuse the ORE_IMAGES/GEM_IMAGES maps; pickaxes (and other tools)
+    # come from miningitems/ keyed by _asset_slug. Existence-guarded throughout so
+    # an unfetched icon leaves the row iconless instead of pointing at a dead path.
+    _path = (
+        ORE_IMAGES.get(_item_name)
+        or GEM_IMAGES.get(_item_name)
+        or os.path.join(MINING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    )
     if _path and os.path.exists(_path):
         MINING_EXTRA_ITEM_IMAGES[_item_name] = _path
 
@@ -407,7 +428,10 @@ EXTRA_ITEM_IMAGES = {**WOODCUTTING_EXTRA_ITEM_IMAGES, **MINING_EXTRA_ITEM_IMAGES
 
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,
-    ORE_IMAGES,
+    # Weighted gem-rock outputs (Uncut opal/jade/red topaz) are Mining "ore_data"
+    # outputs but their art lives in gems/. Merge GEM_IMAGES in so those rows get
+    # an asset_path here; the earlier dedup would otherwise pin them iconless.
+    {**ORE_IMAGES, **GEM_IMAGES},
     TREE_DATA,
     {**TREE_IMAGES, **LOG_IMAGES},
     GEM_DATA,
