@@ -3,22 +3,49 @@
 ## Current Focus
 Protect the local fork before any large expansion. The agreed direction is to augment the existing add-on, not rebuild it first.
 
-## Bank gear panel (toolbelt + equipped)
-The Bank tab now shows a read-only gear summary in its own non-striped panel
-pinned below the scrollable inventory list (`gearList`, populated from
-`bank_gear_rows_pure`). The **Toolbelt** rows show the *active* tool per
-gathering type (best owned pickaxe/hatchet, since the toolbelt is auto-resolved
-and binding is treated as a formality), and the **Equipped** section lists
-`owned_equipment` with its slot, sharing one space until real armour/weapon
-slots exist (currently always "Nothing equipped yet." — no obtain path).
+## Equipment backend contract
+The backend equipment pass is complete. `tools/generate_equipment_data.py`
+joins checked-in Smithing recipe metadata, local 2011Scape `items.yml`
+equipment blocks, and Mining bonus item data into generated `equipment_data.py`.
+That module exposes 11 ordered slots, 117 unique equippable items, real combat
+requirements, two-handed flags, attack speed, and full combat bonus blocks.
 
-Deferred by owner decision: a right-click context menu and/or click-and-drag
-**equip/dequip** interaction. It is intentionally not built yet because there is
-nothing actionable today — `owned_equipment` has no obtain path, and tool use is
-auto-best (manually pinning a worse tool is rarely wanted). Revisit when (a) an
-obtain path for bonus equipment lands, or (b) players can own multiple tools and
-want to pin one over auto-best. The panel layout already separates gear from the
-inventory so the interaction can attach without restructuring.
+`player_data["equipment"]` is now the single worn-equipment source of truth
+(slot -> item name). Storage config version is 10, planned combat level/exp keys
+are scaffolded with authentic defaults (combat levels 1; Constitution 10), and
+legacy `owned_equipment` is removed during migration. Mining bonuses now read
+from worn slots: glory in `neck`, Varrock armour in `body`.
+
+Frontend handoff: add a dedicated Equipment tab, right-click Equip/Unequip in the
+Bank/Equipment views, slot icons, and compact bonus/requirement tooltips. The
+backend callbacks are `on_equip_item(item_name)` and `on_unequip_slot(slot)`;
+pure helpers are documented in `memory-bank/equipment-combat-contract-design.md`.
+
+The equipment **frontend** pass is now complete. `ui.show_main_menu` gained a
+dedicated **Equipment tab** that always renders all 11 `EQUIPMENT_SLOTS` (greyed
+"(empty)" placeholder + OSRS slot icon when empty; item name + icon when filled)
+plus a summed **stat-totals** panel driven by `equipment_stat_totals_pure`.
+Right-click **Equip** is offered on equippable Bank inventory rows (enabled only
+when `can_equip_item_pure` passes; otherwise a disabled action carrying the lock
+reason, e.g. "Equip (Requires level 40 Defense)"), and right-click **Unequip** on
+filled Equipment slots. Both route through the new `on_equip_item` /
+`on_unequip_slot` callbacks (bridged in `__init__`) and then call a shared
+`_refresh_equipment_views` so the Bank inventory and Equipment tab repaint in
+place — no dialog rebuild. Equippable inventory rows and worn slots carry a
+multi-line bonus + requirement tooltip (`equipment_full_tooltip`). The Bank gear
+strip is now **toolbelt-only**: the old "Equipped"/"Nothing equipped yet."
+placeholder was dropped in favor of the tab. Combat-skill vocabulary in the UI
+deliberately matches the backend lock-reason wording ("Defense", not "Defence")
+so the tooltip and the menu speak with one voice. Slot art is fetched by
+`tools/fetch_equipment_assets.py` into `equipment_slots/<slot_id>.png` (11/11,
+provenance recorded; ammunition resolves from the wiki's `Ammo slot.png`); rows
+degrade to text-only if a file is missing. Twelve offscreen Qt tests in
+`tests/test_main_menu_widget.py` cover all-slots render + placeholder icons,
+bronze enabled Equip, rune disabled Equip + reason, equip moving item into slot,
+unequip returning to inventory, empty-slot no-menu, 2h clearing the shield,
+summed stat totals, and the equippable-row bonus tooltip. The test seam exposes
+`dialog._ankiscape_equip_menu_for` / `_ankiscape_unequip_menu_for` so the menus
+are asserted without a native popup.
 
 ## Recent Decision
 The next meaningful engineering step should be a skill-registry refactor. That refactor should preserve the current four skills while making future skills cheaper and safer to add.

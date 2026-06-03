@@ -34,7 +34,12 @@ class TestStoragePure(unittest.TestCase):
             "progress_to_next",
             "completed_achievements",
             "toolbelt",
-            "owned_equipment",
+            "equipment",
+            "attack_level",
+            "defense_level",
+            "ranged_level",
+            "strength_level",
+            "constitution_level",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -42,7 +47,10 @@ class TestStoragePure(unittest.TestCase):
             self.assertIn(ore, data["inventory"])  # zero by default
         self.assertEqual(data["config_version"], CURRENT_CONFIG_VERSION)
         self.assertIn("bronze_pickaxe", data["toolbelt"]["mining"])
-        self.assertEqual(data["owned_equipment"], [])
+        self.assertEqual(data["equipment"], {})
+        self.assertEqual(data["attack_level"], 1)
+        self.assertEqual(data["defense_level"], 1)
+        self.assertEqual(data["constitution_level"], 10)
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -110,7 +118,22 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Flax", migrated["inventory"])
         self.assertIn("bronze_hatchet", migrated["toolbelt"]["woodcutting"])
         self.assertIn("bronze_pickaxe", migrated["toolbelt"]["mining"])
-        self.assertEqual(migrated["owned_equipment"], [])
+        self.assertEqual(migrated["equipment"], {})
+        self.assertNotIn("owned_equipment", migrated)
+
+    def test_migrate_equipment_state_and_removes_owned_equipment(self):
+        migrated = migrate_loaded_data(
+            {
+                "equipment": {"body": "Bronze platebody", "bad_slot": "Mystery"},
+                "owned_equipment": ["amulet_of_glory_4"],
+                "inventory": {"Bronze platebody": 0},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["equipment"], {"body": "Bronze platebody"})
+        self.assertNotIn("owned_equipment", migrated)
 
     def test_migrate_legacy_mining_target_names(self):
         migrated = migrate_loaded_data(

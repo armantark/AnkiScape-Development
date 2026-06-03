@@ -4,6 +4,7 @@ import os
 import re
 
 try:
+    from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .item_registry import build_item_definitions
     from .mining_data import (
         DEFAULT_MINING_TARGET,
@@ -34,6 +35,7 @@ try:
         woodcutting_targets_as_dict,
     )
 except ImportError:
+    from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from item_registry import build_item_definitions
     from mining_data import (
         DEFAULT_MINING_TARGET,
@@ -447,7 +449,26 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
     _path = os.path.join(SMITHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
-EXTRA_ITEM_DATA = {**WOODCUTTING_EXTRA_ITEM_DATA, **MINING_EXTRA_ITEM_DATA, **SMITHING_EXTRA_ITEM_DATA}
+EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
+
+
+def _apply_equipment_metadata(extra_item_data):
+    enriched = {item_name: dict(spec) for item_name, spec in extra_item_data.items()}
+    for item_name, equipment_spec in EQUIPMENT_ITEM_DATA.items():
+        if item_name not in enriched:
+            continue
+        enriched[item_name]["equipment_slot"] = equipment_spec["slot"]
+        enriched[item_name]["equipment_type"] = equipment_spec["equipment_type"]
+        enriched[item_name]["equipment_required_level"] = equipment_spec["required_level"]
+        enriched[item_name]["equipment_combat_skill"] = equipment_spec["combat_skill"]
+        # ItemDefinition already has a generic equipment_tier field; for smithed
+        # gear this stores combat equipment requirement, while Mining bonus gear
+        # keeps its Varrock/glory-specific tier from mining_data.
+        enriched[item_name].setdefault("tier", equipment_spec["required_level"])
+    return enriched
+
+
+EXTRA_ITEM_DATA = _apply_equipment_metadata({**WOODCUTTING_EXTRA_ITEM_DATA, **MINING_EXTRA_ITEM_DATA, **SMITHING_EXTRA_ITEM_DATA})
 EXTRA_ITEM_IMAGES = {**WOODCUTTING_EXTRA_ITEM_IMAGES, **MINING_EXTRA_ITEM_IMAGES, **SMITHING_EXTRA_ITEM_IMAGES}
 
 ITEM_DEFINITIONS = build_item_definitions(

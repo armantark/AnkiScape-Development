@@ -10,7 +10,7 @@ try:
         LEGACY_SMITHING_TARGETS,
         SMITHING_RECIPES_BY_ID,
     )
-    from .skill_registry import default_skill_state, default_target_state
+    from .skill_registry import default_skill_state, default_target_state, planned_skill_definitions
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -25,15 +25,28 @@ except ImportError:
         LEGACY_SMITHING_TARGETS,
         SMITHING_RECIPES_BY_ID,
     )
-    from skill_registry import default_skill_state, default_target_state
+    from skill_registry import default_skill_state, default_target_state, planned_skill_definitions
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 9
+CURRENT_CONFIG_VERSION = 10
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+_EQUIPMENT_SLOT_IDS = {
+    "head",
+    "cape",
+    "neck",
+    "ammunition",
+    "weapon",
+    "body",
+    "shield",
+    "legs",
+    "hands",
+    "feet",
+    "ring",
+}
 
 _LEGACY_FLETCHING_TARGETS = {
     "Arrow shafts": "arrow_shafts",
@@ -77,11 +90,22 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
         "completed_achievements": [],
     }
     data.update(default_skill_state())
+    data.update(_default_combat_state())
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["toolbelt"] = _default_toolbelt()
-    data["owned_equipment"] = []
+    data["equipment"] = {}
     return data
+
+
+def _default_combat_state() -> Dict[str, int]:
+    state: Dict[str, int] = {}
+    for skill in planned_skill_definitions():
+        if skill.category != "combat":
+            continue
+        state[skill.level_key] = 10 if skill.id == "constitution" else 1
+        state[skill.exp_key] = 0
+    return state
 
 
 def _default_toolbelt() -> Dict[str, list[str]]:
@@ -171,21 +195,15 @@ def _migrate_toolbelt(data: Dict[str, Any]) -> None:
     data["toolbelt"] = toolbelt
 
 
-def _migrate_owned_equipment(data: Dict[str, Any]) -> None:
-    owned = data.get("owned_equipment")
-    if isinstance(owned, str):
-        items = [owned]
-    elif isinstance(owned, list):
-        items = [item for item in owned if isinstance(item, str)]
-    elif isinstance(owned, tuple):
-        items = [item for item in owned if isinstance(item, str)]
-    else:
-        items = []
-    deduped: list[str] = []
-    for item in items:
-        if item not in deduped:
-            deduped.append(item)
-    data["owned_equipment"] = deduped
+def _migrate_equipment(data: Dict[str, Any]) -> None:
+    equipment = data.get("equipment")
+    clean_equipment: Dict[str, str] = {}
+    if isinstance(equipment, dict):
+        for slot, item_name in equipment.items():
+            if isinstance(slot, str) and slot in _EQUIPMENT_SLOT_IDS and isinstance(item_name, str):
+                clean_equipment[slot] = item_name
+    data["equipment"] = clean_equipment
+    data.pop("owned_equipment", None)
 
 
 def migrate_loaded_data(
@@ -210,6 +228,8 @@ def migrate_loaded_data(
     # Registry-backed defaults preserve today's flat save keys while removing
     # the need to hand-add keys for each playable skill.
     for key, value in default_skill_state().items():
+        data.setdefault(key, value)
+    for key, value in _default_combat_state().items():
         data.setdefault(key, value)
     for key, value in default_target_state().items():
         data.setdefault(key, value)
@@ -245,7 +265,7 @@ def migrate_loaded_data(
         data["current_craft"] = ""
         data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     _migrate_toolbelt(data)
-    _migrate_owned_equipment(data)
+    _migrate_equipment(data)
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.

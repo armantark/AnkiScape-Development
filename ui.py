@@ -27,6 +27,7 @@ try:
         QMessageBox,
         QDialog,
         QPixmap,
+        QPalette,
         QMenu,
         QGridLayout,
         QHBoxLayout,
@@ -75,6 +76,8 @@ try:
         FLETCHED_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
+        EQUIPMENT_SLOTS,
+        EQUIPMENT_ITEM_DATA,
         current_dir,
     )
 except Exception:
@@ -107,12 +110,19 @@ except Exception:
         FLETCHED_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
+        EQUIPMENT_SLOTS,
+        EQUIPMENT_ITEM_DATA,
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
+
+try:
+    from .equipment_data import EQUIPMENT_BONUS_FIELDS
+except Exception:
+    from equipment_data import EQUIPMENT_BONUS_FIELDS  # type: ignore
 
 try:
     from .skill_hub import CategoryView, SkillCardView, build_skill_hub, first_category_id
@@ -185,6 +195,149 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
 def playable_review_skill_names() -> tuple:
     """Display names of skills that earn XP during review, straight from the registry."""
     return tuple(implemented_review_skill_names())
+
+
+# ---- equipment surface helpers -------------------------------------------
+# Why this lives here and not in logic_pure: these are *presentation* concerns
+# (icon paths, compact human labels). The equip gate, swap, and stat-totalling
+# are all pure and tested in logic_pure; the UI only reads them. The Equipment
+# tab renders every EQUIPMENT_SLOTS row (greyed when empty) and right-click
+# Equip/Unequip drives the backend on_equip_item / on_unequip_slot handlers.
+
+# Friendly labels for the EquipmentBonuses stat block. Order mirrors how OSRS
+# groups the worn-equipment screen so a future combat system's tooltip can reuse
+# the same vocabulary without re-deriving it.
+_EQUIPMENT_BONUS_LABELS = {
+    "attack_stab": "Stab",
+    "attack_slash": "Slash",
+    "attack_crush": "Crush",
+    "attack_magic": "Magic",
+    "attack_ranged": "Range",
+    "defence_stab": "Stab",
+    "defence_slash": "Slash",
+    "defence_crush": "Crush",
+    "defence_magic": "Magic",
+    "defence_ranged": "Range",
+    "melee_strength": "Str",
+    "ranged_strength": "Ranged Str",
+    "magic_damage": "Magic Dmg",
+    "prayer": "Prayer",
+}
+_EQUIPMENT_BONUS_GROUPS = (
+    ("Attack bonuses", ("attack_stab", "attack_slash", "attack_crush", "attack_magic", "attack_ranged")),
+    ("Defence bonuses", ("defence_stab", "defence_slash", "defence_crush", "defence_magic", "defence_ranged")),
+    ("Other bonuses", ("melee_strength", "ranged_strength", "magic_damage", "prayer")),
+)
+# A handful of high-signal fields for the one-line summary on inventory rows, so
+# the tooltip reads like the plan's "Stab +20, Slash +29, Str +25" example
+# rather than dumping all 14 fields.
+_EQUIPMENT_SUMMARY_FIELDS = (
+    "attack_stab",
+    "attack_slash",
+    "attack_crush",
+    "attack_ranged",
+    "melee_strength",
+    "ranged_strength",
+    "defence_stab",
+    "prayer",
+)
+# Matches the backend's can_equip_item_pure lock-reason wording ("Defense") so
+# the inventory-row tooltip and the right-click lock reason speak with one voice.
+_COMBAT_SKILL_LABELS = {
+    "attack": "Attack",
+    "defense": "Defense",
+    "ranged": "Ranged",
+    "strength": "Strength",
+    "magic": "Magic",
+    "prayer": "Prayer",
+}
+
+
+def is_equippable_item(item_name: str) -> bool:
+    return item_name in EQUIPMENT_ITEM_DATA
+
+
+def equipment_slot_icon_path(slot_id: str) -> Optional[str]:
+    """Path to the greyed OSRS placeholder for a worn slot, or None if unfetched.
+
+    Slot art is developer-fetched by tools/fetch_equipment_assets.py into
+    equipment_slots/<slot_id>.png. Missing files degrade to a text-only row.
+    """
+    path = os.path.join(current_dir, "equipment_slots", f"{slot_id}.png")
+    return path if os.path.exists(path) else None
+
+
+def _bonus_value(bonuses, key: str) -> int:
+    if isinstance(bonuses, dict):
+        value = bonuses.get(key, 0)
+    else:
+        value = getattr(bonuses, key, 0)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _format_bonus(value: int) -> str:
+    return f"+{value}" if value >= 0 else str(value)
+
+
+def equipment_requirement_text(item_name: str) -> str:
+    """e.g. 'Requires level 40 Attack', or '' for no-requirement gear (req 1)."""
+    spec = EQUIPMENT_ITEM_DATA.get(item_name)
+    if not spec:
+        return ""
+    combat_skill = spec.get("combat_skill")
+    required = int(spec.get("required_level", 1) or 1)
+    if not combat_skill or required <= 1:
+        return ""
+    label = _COMBAT_SKILL_LABELS.get(combat_skill, str(combat_skill).title())
+    return f"Requires level {required} {label}"
+
+
+def equipment_summary_text(item_name: str) -> str:
+    """Compact one-line bonus + requirement summary for tooltips/rows.
+
+    Picks the high-signal offensive/strength fields so the line stays short
+    (the plan's "Stab +20, Slash +29, Str +25, Req 40 Atk" shape) instead of
+    listing every zeroed stat.
+    """
+    spec = EQUIPMENT_ITEM_DATA.get(item_name)
+    if not spec:
+        return ""
+    bonuses = spec.get("bonuses", {})
+    parts = []
+    for field in _EQUIPMENT_SUMMARY_FIELDS:
+        value = _bonus_value(bonuses, field)
+        if value:
+            parts.append(f"{_EQUIPMENT_BONUS_LABELS[field]} {_format_bonus(value)}")
+    combat_skill = spec.get("combat_skill")
+    required = int(spec.get("required_level", 1) or 1)
+    if combat_skill and required > 1:
+        short = {"attack": "Atk", "defense": "Def", "ranged": "Rng"}.get(combat_skill, str(combat_skill).title())
+        parts.append(f"Req {required} {short}")
+    return ", ".join(parts)
+
+
+def equipment_full_tooltip(item_name: str, lock_reason: str = "") -> str:
+    """Multi-line worn-stat breakdown for a slot/inventory row tooltip."""
+    spec = EQUIPMENT_ITEM_DATA.get(item_name)
+    if not spec:
+        return ""
+    bonuses = spec.get("bonuses", {})
+    lines = [item_name]
+    requirement = equipment_requirement_text(item_name)
+    if requirement:
+        lines.append(requirement)
+    if lock_reason:
+        lines.append(lock_reason)
+    for group_label, fields in _EQUIPMENT_BONUS_GROUPS:
+        cells = [
+            f"{_EQUIPMENT_BONUS_LABELS[field]} {_format_bonus(_bonus_value(bonuses, field))}"
+            for field in fields
+        ]
+        lines.append(f"{group_label}: " + ", ".join(cells))
+    return "\n".join(lines)
 
 
 # Utility / Activities is intentionally NOT a registry skill: it has no XP, level,
@@ -935,6 +1088,8 @@ def show_main_menu(
     on_set_utility=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
+    on_equip_item=None,
+    on_unequip_slot=None,
 ):
     """Show the consolidated window.
 
@@ -2006,11 +2161,11 @@ def show_main_menu(
     bank_list = QListWidget()
     bank_list.setIconSize(QSize(28, 28))
     bank_list.setAlternatingRowColors(True)
+    bank_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
     # Inventory is grouped by item-registry category (Ores, Logs, ..., Fletched,
     # Materials) so newly registered items appear cleanly without per-skill
     # branches. Each item's icon comes from its ItemDefinition.asset_path, with a
     # legacy image-map fallback for anything predating the manifest.
-    inv = player_data.get("inventory", {})
     _legacy_icon_maps = (ORE_IMAGES, TREE_IMAGES, BAR_IMAGES, GEM_IMAGES, CRAFTED_ITEM_IMAGES, FLETCHED_ITEM_IMAGES)
 
     def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
@@ -2031,26 +2186,83 @@ def show_main_menu(
         header.setData(Qt.ItemDataRole.UserRole, marker)
         return header
 
-    groups = grouped_inventory(inv)
-    if not groups:
-        empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
-        empty.setFlags(Qt.ItemFlag.NoItemFlags)
-        bank_list.addItem(empty)
-    for category_label, rows in groups:
-        bank_list.addItem(_make_header_item(category_label, "__header__"))
-        for item_name, amount, asset_path in rows:
-            li = QListWidgetItem(f"{item_name} x{amount}")
-            icon_path = _bank_icon_path(item_name, asset_path)
-            if icon_path:
-                li.setIcon(QIcon(icon_path))
-            bank_list.addItem(li)
+    # Equip/Unequip mutate player_data via the backend handlers, so the Bank
+    # inventory and the Equipment tab must both re-read after an action. The
+    # Equipment tab registers its repaint here so a single call refreshes both
+    # without rebuilding the whole dialog.
+    _equipment_refreshers: list = []
+
+    def _refresh_equipment_views() -> None:
+        _populate_bank_list()
+        for refresher in _equipment_refreshers:
+            refresher()
+
+    def _populate_bank_list() -> None:
+        bank_list.clear()
+        inv = player_data.get("inventory", {}) or {}
+        groups = grouped_inventory(inv)
+        if not groups:
+            empty = QListWidgetItem("Your bank is empty — train a skill to gather items.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            bank_list.addItem(empty)
+        for category_label, rows in groups:
+            bank_list.addItem(_make_header_item(category_label, "__header__"))
+            for item_name, amount, asset_path in rows:
+                li = QListWidgetItem(f"{item_name} x{amount}")
+                icon_path = _bank_icon_path(item_name, asset_path)
+                if icon_path:
+                    li.setIcon(QIcon(icon_path))
+                # The plain item name is stashed on every inventory row so the
+                # right-click handler can resolve equippability without parsing
+                # the "Name xN" label back apart.
+                li.setData(Qt.ItemDataRole.UserRole, item_name)
+                if is_equippable_item(item_name):
+                    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
+                    li.setToolTip(equipment_full_tooltip(item_name, "" if ok else reason))
+                bank_list.addItem(li)
+
+    def _build_bank_equip_menu(item_name: str) -> "QMenu":
+        """Right-click menu for an equippable inventory row.
+
+        Exposed as a builder (rather than only an inline exec) so the offscreen
+        tests can assert the Equip action's enabled state + lock reason without
+        spawning a native popup.
+        """
+        menu = QMenu(bank_list)
+        ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
+        action = menu.addAction("Equip" if ok else f"Equip ({reason})")
+        action.setEnabled(bool(ok) and on_equip_item is not None)
+        if not ok and reason:
+            action.setToolTip(reason)
+
+        def _do_equip(_checked: bool = False) -> None:
+            if on_equip_item is None:
+                return
+            if on_equip_item(item_name):
+                _refresh_equipment_views()
+
+        action.triggered.connect(_do_equip)
+        return menu
+
+    def _bank_context_menu(pos) -> None:
+        item = bank_list.itemAt(pos)
+        if item is None:
+            return
+        item_name = item.data(Qt.ItemDataRole.UserRole)
+        if not isinstance(item_name, str) or not is_equippable_item(item_name):
+            return
+        menu = _build_bank_equip_menu(item_name)
+        menu.exec(bank_list.viewport().mapToGlobal(pos))
+
+    bank_list.customContextMenuRequested.connect(_bank_context_menu)
+    _populate_bank_list()
     bk_layout.addWidget(bank_list, 1)
 
     # Gear sits in its own pinned panel below the scrollable, striped inventory
     # (the owner wanted it "outside the striped window"). The toolbelt is
     # auto-resolved — best owned tool wins — so we show the active
-    # pickaxe/hatchet, and owned_equipment shares one "Equipped" space until
-    # real armour/weapon slots exist.
+    # pickaxe/hatchet. Worn equipment now has its own dedicated Equipment tab,
+    # so the Bank panel is toolbelt-only.
     gear_list = QListWidget()
     gear_list.setObjectName("gearList")
     gear_list.setIconSize(QSize(28, 28))
@@ -2071,19 +2283,15 @@ def show_main_menu(
         gear_list.addItem(li)
 
     gear = bank_gear_rows_pure(player_data, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
+    gear_list.addItem(_make_header_item("Toolbelt", "__gear_header__"))
     if gear["toolbelt"]:
-        gear_list.addItem(_make_header_item("Toolbelt", "__gear_header__"))
         for slot_label, display_name in gear["toolbelt"]:
             _add_gear_row(f"{slot_label}: {display_name}", display_name)
-    gear_list.addItem(_make_header_item("Equipped", "__gear_header__"))
-    if gear["equipped"]:
-        for slot_label, display_name in gear["equipped"]:
-            _add_gear_row(f"{display_name} — {slot_label}", display_name)
     else:
-        empty_eq = QListWidgetItem("Nothing equipped yet.")
-        empty_eq.setFlags(Qt.ItemFlag.NoItemFlags)
-        empty_eq.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
-        gear_list.addItem(empty_eq)
+        empty_tb = QListWidgetItem("No tools yet.")
+        empty_tb.setFlags(Qt.ItemFlag.NoItemFlags)
+        empty_tb.setData(Qt.ItemDataRole.UserRole, "__gear_empty__")
+        gear_list.addItem(empty_tb)
 
     # Hug contents so the panel is a fixed strip, never its own scroller.
     _gear_h = 2 * gear_list.frameWidth() + 6
@@ -2094,6 +2302,119 @@ def show_main_menu(
     bk_layout.addWidget(gear_list)
     tabs.addTab(bank_tab, "Bank")
     tabs.setTabToolTip(tabs.indexOf(bank_tab), "View all your items")
+
+    # ---- Equipment tab (dedicated worn-slot list + summed stat totals) ----
+    # All 11 OSRS worn slots always render (greyed placeholder when empty) so the
+    # layout is stable and discoverable; filled slots show the item + its icon
+    # and expose right-click Unequip. The totals panel sums the worn set via the
+    # pure equipment_stat_totals_pure so a future combat system reads the exact
+    # same numbers the player sees.
+    equipment_tab = QWidget()
+    eq_layout = QVBoxLayout(equipment_tab)
+    eq_layout.setContentsMargins(12, 12, 12, 12)
+    eq_layout.setSpacing(8)
+
+    eq_caption = QLabel("Right-click a worn item to unequip. Right-click bank gear to equip.")
+    eq_caption.setStyleSheet("color: palette(mid);")
+    eq_layout.addWidget(eq_caption)
+
+    equip_list = QListWidget()
+    equip_list.setObjectName("equipmentList")
+    equip_list.setIconSize(QSize(28, 28))
+    equip_list.setAlternatingRowColors(True)
+    equip_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+    eq_layout.addWidget(equip_list, 1)
+
+    totals_label = QLabel("")
+    totals_label.setObjectName("equipmentTotals")
+    totals_label.setWordWrap(True)
+    totals_label.setStyleSheet("font-family: monospace; color: palette(text);")
+    eq_layout.addWidget(totals_label)
+
+    def _populate_equipment() -> None:
+        equip_list.clear()
+        equipment = player_data.get("equipment", {}) or {}
+        for slot in EQUIPMENT_SLOTS:
+            slot_id = slot.id
+            item_name = equipment.get(slot_id) if isinstance(equipment, dict) else None
+            if isinstance(item_name, str) and item_name:
+                li = QListWidgetItem(f"{slot.label}: {item_name}")
+                definition = _item_def_for(item_name)
+                asset_path = definition.asset_path if definition is not None else None
+                icon_path = _bank_icon_path(item_name, asset_path) or equipment_slot_icon_path(slot_id)
+                if icon_path:
+                    li.setIcon(QIcon(icon_path))
+                li.setToolTip(equipment_full_tooltip(item_name))
+                li.setData(Qt.ItemDataRole.UserRole, slot_id)
+                li.setData(Qt.ItemDataRole.UserRole + 1, item_name)
+            else:
+                li = QListWidgetItem(f"{slot.label}: (empty)")
+                slot_icon = equipment_slot_icon_path(slot_id)
+                if slot_icon:
+                    li.setIcon(QIcon(slot_icon))
+                # Greyed, non-actionable placeholder row (still hit-testable so
+                # the row stays visible; the unequip menu no-ops on empties).
+                li.setForeground(equip_list.palette().color(QPalette.ColorRole.Mid))
+                li.setData(Qt.ItemDataRole.UserRole, slot_id)
+                li.setData(Qt.ItemDataRole.UserRole + 1, None)
+            equip_list.addItem(li)
+        _populate_equipment_totals()
+
+    def _populate_equipment_totals() -> None:
+        equipment = player_data.get("equipment", {}) or {}
+        totals = equipment_stat_totals_pure(equipment, EQUIPMENT_ITEM_DATA)
+        lines = ["Equipment stats"]
+        for group_label, fields in _EQUIPMENT_BONUS_GROUPS:
+            cells = [
+                f"{_EQUIPMENT_BONUS_LABELS[field]} {_format_bonus(_bonus_value(totals, field))}"
+                for field in fields
+            ]
+            lines.append(f"{group_label}: " + ", ".join(cells))
+        totals_label.setText("\n".join(lines))
+
+    def _build_slot_unequip_menu(slot_id: str):
+        """Right-click menu for a filled Equipment slot (None when empty)."""
+        equipment = player_data.get("equipment", {}) or {}
+        item_name = equipment.get(slot_id) if isinstance(equipment, dict) else None
+        if not isinstance(item_name, str) or not item_name:
+            return None
+        menu = QMenu(equip_list)
+        action = menu.addAction(f"Unequip {item_name}")
+        action.setEnabled(on_unequip_slot is not None)
+
+        def _do_unequip(_checked: bool = False) -> None:
+            if on_unequip_slot is None:
+                return
+            if on_unequip_slot(slot_id):
+                _refresh_equipment_views()
+
+        action.triggered.connect(_do_unequip)
+        return menu
+
+    def _equipment_context_menu(pos) -> None:
+        item = equip_list.itemAt(pos)
+        if item is None:
+            return
+        slot_id = item.data(Qt.ItemDataRole.UserRole)
+        if not isinstance(slot_id, str):
+            return
+        menu = _build_slot_unequip_menu(slot_id)
+        if menu is not None:
+            menu.exec(equip_list.viewport().mapToGlobal(pos))
+
+    equip_list.customContextMenuRequested.connect(_equipment_context_menu)
+    _equipment_refreshers.append(_populate_equipment)
+    _populate_equipment()
+
+    tabs.addTab(equipment_tab, "Equipment")
+    tabs.setTabToolTip(tabs.indexOf(equipment_tab), "View and manage your worn equipment")
+
+    # Test seams: expose the menu builders so offscreen tests can assert the
+    # Equip/Unequip wiring (enabled state, lock reason, action effect) without a
+    # native popup. Harmless in production.
+    dialog._ankiscape_equip_menu_for = _build_bank_equip_menu  # type: ignore[attr-defined]
+    dialog._ankiscape_unequip_menu_for = _build_slot_unequip_menu  # type: ignore[attr-defined]
+    dialog._ankiscape_refresh_equipment = _refresh_equipment_views  # type: ignore[attr-defined]
 
     # Now add the Stats tab (after Bank) and set its icon/tooltip
     tabs.addTab(stats_tab, "Stats")

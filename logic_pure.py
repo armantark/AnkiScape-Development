@@ -2,7 +2,12 @@
 from __future__ import annotations
 
 from math import sqrt
-from typing import Iterable, Mapping
+from typing import Iterable, Mapping, Optional
+
+try:
+    from .equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
+except ImportError:
+    from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 def get_exp_to_next_level(player_data, EXP_TABLE):
     """Return exp needed to reach the next level for Mining.
@@ -385,18 +390,70 @@ def best_mining_pickaxe_pure(mining_level, inventory, toolbelt, pickaxe_data):
     return best
 
 
-def mining_bonus_state_pure(owned_equipment, bonus_item_data):
-    """Summarize temporary owned-equipment Mining bonuses without equipment UI."""
-    if isinstance(owned_equipment, str):
-        owned_ids = {owned_equipment}
-    elif isinstance(owned_equipment, Iterable):
-        owned_ids = {item for item in owned_equipment if isinstance(item, str)}
+def _equipment_value(spec: object, key: str, default: object = None) -> object:
+    if isinstance(spec, Mapping):
+        return spec.get(key, default)
+    return getattr(spec, key, default)
+
+
+def _equipment_bonuses(spec: object) -> object:
+    bonuses = _equipment_value(spec, "bonuses", None)
+    return bonuses if bonuses is not None else EquipmentBonuses()
+
+
+def _equipment_bonus_value(bonuses: object, key: str) -> int:
+    if isinstance(bonuses, Mapping):
+        value = bonuses.get(key, 0)
     else:
-        owned_ids = set()
+        value = getattr(bonuses, key, 0)
+    if isinstance(value, bool):
+        return 0
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _normalized_equipment_slot(slot: object) -> str:
+    if not isinstance(slot, str):
+        return ""
+    return {"amulet": "neck", "chest": "body"}.get(slot, slot)
+
+
+def _combat_level_key(combat_skill: object) -> Optional[str]:
+    if not isinstance(combat_skill, str) or not combat_skill:
+        return None
+    return f"{combat_skill}_level"
+
+
+def _combat_skill_label(combat_skill: object) -> str:
+    labels = {
+        "attack": "Attack",
+        "defense": "Defense",
+        "ranged": "Ranged",
+        "strength": "Strength",
+        "magic": "Magic",
+        "prayer": "Prayer",
+        "constitution": "Constitution",
+    }
+    if isinstance(combat_skill, str):
+        return labels.get(combat_skill, combat_skill.replace("_", " ").title())
+    return "Combat"
+
+
+def equipment_bonus_state_pure(equipment: Mapping[str, str], bonus_item_data: Mapping[str, Mapping[str, object]]) -> dict[str, object]:
+    """Summarize Mining bonuses from explicitly worn equipment slots."""
     has_glory = False
     varrock_tier = 0
-    for bonus_id, spec in bonus_item_data.items():
-        if bonus_id not in owned_ids:
+    equipped_by_slot = {
+        _normalized_equipment_slot(slot): item_name
+        for slot, item_name in equipment.items()
+        if isinstance(slot, str) and isinstance(item_name, str)
+    }
+    for spec in bonus_item_data.values():
+        display_name = spec.get("display_name")
+        slot = _normalized_equipment_slot(spec.get("equipment_slot"))
+        if not isinstance(display_name, str) or equipped_by_slot.get(slot) != display_name:
             continue
         if spec.get("equipment_type") == "gem_chance":
             has_glory = True
@@ -405,7 +462,106 @@ def mining_bonus_state_pure(owned_equipment, bonus_item_data):
     return {"has_glory": has_glory, "varrock_armour_tier": varrock_tier}
 
 
-def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, bonus_item_data):
+def can_equip_item_pure(
+    item_name: str,
+    equipment_data: Mapping[str, object],
+    player_data: Mapping[str, object],
+) -> tuple[bool, str]:
+    spec = equipment_data.get(item_name)
+    if spec is None:
+        return False, "Item is not equippable"
+    combat_skill = _equipment_value(spec, "combat_skill", None)
+    level_key = _combat_level_key(combat_skill)
+    required_level = _positive_int(_equipment_value(spec, "required_level", 1), 1)
+    if level_key is None:
+        return True, ""
+    current_level = _positive_int(player_data.get(level_key, 1), 1)
+    if current_level < required_level:
+        return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    return True, ""
+
+
+def equip_item_pure(
+    item_name: str,
+    inventory: Mapping[str, int],
+    equipment: Mapping[str, str],
+    equipment_data: Mapping[str, object],
+) -> tuple[dict[str, int], dict[str, str], bool]:
+    spec = equipment_data.get(item_name)
+    if spec is None:
+        return dict(inventory), dict(equipment), False
+    slot = _equipment_value(spec, "slot", None)
+    if not isinstance(slot, str) or not slot:
+        return dict(inventory), dict(equipment), False
+    owned_qty = inventory.get(item_name, 0)
+    if owned_qty <= 0:
+        return dict(inventory), dict(equipment), False
+
+    new_inventory = dict(inventory)
+    new_equipment = {
+        equipped_slot: equipped_item
+        for equipped_slot, equipped_item in equipment.items()
+        if isinstance(equipped_slot, str) and isinstance(equipped_item, str)
+    }
+    new_inventory[item_name] = owned_qty - 1
+
+    displaced = new_equipment.get(slot)
+    if displaced:
+        new_inventory[displaced] = new_inventory.get(displaced, 0) + 1
+    new_equipment[slot] = item_name
+
+    two_handed = bool(_equipment_value(spec, "two_handed", False))
+    if slot == "weapon" and two_handed:
+        shield_item = new_equipment.pop("shield", None)
+        if shield_item:
+            new_inventory[shield_item] = new_inventory.get(shield_item, 0) + 1
+    elif slot == "shield":
+        weapon_item = new_equipment.get("weapon")
+        if weapon_item:
+            weapon_spec = equipment_data.get(weapon_item)
+            if bool(_equipment_value(weapon_spec, "two_handed", False)):
+                removed_weapon = new_equipment.pop("weapon")
+                new_inventory[removed_weapon] = new_inventory.get(removed_weapon, 0) + 1
+
+    return new_inventory, new_equipment, True
+
+
+def unequip_item_pure(
+    slot: str,
+    inventory: Mapping[str, int],
+    equipment: Mapping[str, str],
+) -> tuple[dict[str, int], dict[str, str], bool]:
+    if slot not in equipment or not isinstance(equipment.get(slot), str):
+        return dict(inventory), dict(equipment), False
+    new_inventory = dict(inventory)
+    new_equipment = {
+        equipped_slot: equipped_item
+        for equipped_slot, equipped_item in equipment.items()
+        if isinstance(equipped_slot, str) and isinstance(equipped_item, str)
+    }
+    item_name = new_equipment.pop(slot)
+    new_inventory[item_name] = new_inventory.get(item_name, 0) + 1
+    return new_inventory, new_equipment, True
+
+
+def equipment_stat_totals_pure(
+    equipment: Mapping[str, str],
+    equipment_data: Mapping[str, object],
+) -> EquipmentBonuses:
+    totals = {field: 0 for field in EQUIPMENT_BONUS_FIELDS}
+    for item_name in equipment.values():
+        if not isinstance(item_name, str):
+            continue
+        spec = equipment_data.get(item_name)
+        if spec is None:
+            continue
+        bonuses = _equipment_bonuses(spec)
+        for field in EQUIPMENT_BONUS_FIELDS:
+            totals[field] += _equipment_bonus_value(bonuses, field)
+    return EquipmentBonuses(**totals)
+
+
+def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     """Read-only gear summary the Bank tab renders below the inventory.
 
     Why surface the *best owned* tool rather than the raw bound toolbelt id:
@@ -414,10 +570,8 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, bonus_item_data):
     binding a tool is "basically a formality." Showing the active tool keeps
     the bank honest as the player smiths/loots upgrades, without any equip step.
 
-    owned_equipment is rendered as 'Equipped' with its slot so bonus gear
-    (Varrock armour, amulet of glory) shares one space until real armour/weapon
-    slots exist. It stays empty until an obtain path lands; callers still draw
-    the header so the layout is discoverable.
+    Worn equipment now lives in player_data["equipment"]. The Bank frontend still
+    uses this read-only summary until the dedicated Equipment tab lands.
 
     Returns {"toolbelt": [(label, display_name), ...],
              "equipped": [(slot, display_name), ...]}.
@@ -437,18 +591,11 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, bonus_item_data):
         toolbelt_rows.append(("Hatchet", str(axe.get("display_name", ""))))
 
     equipped_rows: list = []
-    owned = player_data.get("owned_equipment", []) or []
-    seen: set = set()
-    for item_id in owned:
-        if not isinstance(item_id, str) or item_id in seen:
-            continue
-        seen.add(item_id)
-        spec = bonus_item_data.get(item_id)
-        if not spec:
-            continue
-        equipped_rows.append(
-            (str(spec.get("equipment_slot", "equipment")), str(spec.get("display_name", item_id)))
-        )
+    equipment = player_data.get("equipment", {}) or {}
+    if isinstance(equipment, Mapping):
+        for slot, item_name in equipment.items():
+            if isinstance(slot, str) and isinstance(item_name, str):
+                equipped_rows.append((slot, item_name))
     return {"toolbelt": toolbelt_rows, "equipped": equipped_rows}
 
 

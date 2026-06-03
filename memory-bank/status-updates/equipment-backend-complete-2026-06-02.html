@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Equipment Backend Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 40px;
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(74, 222, 128, 0.15), transparent 28rem),
+        radial-gradient(circle at 82% 12%, rgba(79, 140, 255, 0.18), transparent 30rem),
+        var(--bg);
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .mono, .badge, .tag, button, textarea { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 7px 11px;
+      border: 1px solid rgba(74, 222, 128, 0.42);
+      border-radius: 999px;
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.10);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+    }
+    h1 { max-width: 960px; margin: 18px 0 12px; font-size: clamp(2.2rem, 5vw, 4.4rem); line-height: 0.94; }
+    p { color: var(--text-dim); line-height: 1.55; }
+    .hero { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 20px; margin-bottom: 20px; }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent), var(--surface);
+      padding: 22px;
+      box-shadow: 0 22px 70px rgba(0,0,0,0.30);
+    }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 14px;
+    }
+    .metric strong { display: block; font-size: 1.55rem; }
+    .metric span { color: var(--text-dim); font-size: 0.82rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .flow { display: grid; gap: 12px; margin-top: 14px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .num {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--green);
+      color: #06110a;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+    }
+    .step b { display: block; margin-bottom: 3px; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 8px; }
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.055);
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+    .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 9px; margin-top: 16px; }
+    .slot {
+      min-height: 46px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      color: var(--text-dim);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .slot.filled { color: var(--green); border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.08); }
+    textarea {
+      width: 100%;
+      min-height: 210px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0a0d12;
+      color: var(--text);
+      padding: 12px;
+      resize: vertical;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    button {
+      margin-top: 10px;
+      border: 1px solid rgba(79, 140, 255, 0.5);
+      border-radius: 9px;
+      background: var(--accent-glow);
+      color: var(--text);
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .hero, .grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .slots { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="card">
+        <span class="badge">BACKEND COMPLETE</span>
+        <h1>Equipment is now a real save model.</h1>
+        <p>Smithing outputs and Mining bonus gear now share one generated equipment contract. The backend can gate, equip, unequip, displace, total stats, and source Mining bonuses from worn slots. The UI still needs the dedicated Equipment tab and context menus.</p>
+        <div class="metrics" aria-label="completion metrics">
+          <div class="metric"><strong>117</strong><span>unique equippable items</span></div>
+          <div class="metric"><strong>11</strong><span>worn slots</span></div>
+          <div class="metric"><strong>14</strong><span>bonus fields</span></div>
+          <div class="metric"><strong>10</strong><span>storage version</span></div>
+          <div class="metric"><strong>197</strong><span>core tests green</span></div>
+          <div class="metric"><strong>197</strong><span>offscreen Qt tests green</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <p class="mono" style="margin-top:0;color:var(--green)">SAVE STATE</p>
+        <div class="slots" aria-label="sample equipment slots">
+          <div class="slot">head</div><div class="slot">cape</div><div class="slot filled">neck</div><div class="slot">ammo</div>
+          <div class="slot filled">weapon</div><div class="slot filled">body</div><div class="slot">shield</div><div class="slot">legs</div>
+          <div class="slot">hands</div><div class="slot">feet</div><div class="slot">ring</div><div class="slot filled">totals</div>
+        </div>
+        <p>Mining bonuses now require worn slots: glory in `neck`, Varrock armour in `body`. Two-handed weapons automatically return shields, and shields automatically return two-handed weapons.</p>
+      </div>
+    </section>
+    <section class="grid">
+      <article class="card">
+        <h2>What Landed</h2>
+        <div class="flow">
+          <div class="step"><span class="num">1</span><div><b>Generated data.</b><span style="color:var(--text-dim)">`equipment_data.py` comes from Smithing recipes + 2011Scape item equipment blocks + Mining bonus gear.</span><div class="tags"><span class="tag">tools/generate_equipment_data.py</span><span class="tag">equipment_data.py</span></div></div></div>
+          <div class="step"><span class="num">2</span><div><b>Storage migration.</b><span style="color:var(--text-dim)">`equipment` replaces `owned_equipment`; combat levels/XP are scaffolded flat for future systems.</span><div class="tags"><span class="tag">storage_pure.py</span><span class="tag">config v10</span></div></div></div>
+          <div class="step"><span class="num">3</span><div><b>Pure mechanics.</b><span style="color:var(--text-dim)">Equip gates, swaps, two-handed rules, unequip returns, Mining bonus state, and stat totals.</span><div class="tags"><span class="tag">logic_pure.py</span></div></div></div>
+          <div class="step"><span class="num">4</span><div><b>Runtime hooks.</b><span style="color:var(--text-dim)">Backend callbacks are ready for the frontend right-click pass.</span><div class="tags"><span class="tag">on_equip_item</span><span class="tag">on_unequip_slot</span></div></div></div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Frontend Copy-Paste Prompt</h2>
+        <textarea id="prompt" readonly>Frontend pass for AnkiScape Equipment system please.
+
+Backend is landed. Use:
+- constants.EQUIPMENT_DATA
+- constants.EQUIPMENT_SLOTS
+- logic_pure.can_equip_item_pure
+- logic_pure.equipment_stat_totals_pure
+- runtime on_equip_item(item_name)
+- runtime on_unequip_slot(slot)
+
+Build the dedicated Equipment tab in ui.py: render all 11 slots, filled item/icon or grey empty state, and summed stat totals. Move worn gear out of the old Bank placeholder; Bank should keep inventory + toolbelt. Add right-click Equip on equippable inventory rows, disabled with can_equip reason when locked, and Unequip on filled equipment slots. Add compact bonus/requirement tooltips. Slot placeholder icons/assets are still pending. Keep this frontend-only; do not change backend contracts unless a test proves the contract is wrong.
+
+Read memory-bank/equipment-combat-contract-design.md and memory-bank/activeContext.md before editing. Run python3 run_tests.py and QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests.</textarea>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('prompt').value)">Copy Frontend Prompt</button>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -69,6 +69,8 @@ Current Mining backend parity data lives in `mining_data.py`, with a detailed au
 
 Current Smithing backend parity data lives in `smithing_data.py`, with a detailed audit at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md`. `tools/generate_smithing_data.py` parses the local 2011Scape Smithing plugin and item metadata into a checked-in Python module with 9 smelt recipes and 157 forge recipes. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 
+Current equipment backend data lives in generated `equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `smithing_data.py`, local 2011Scape `data/cfg/items.yml` equipment blocks, and `mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and scaffolds planned combat level/exp defaults so equipment gates are real `*_level` checks before combat training exists.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 

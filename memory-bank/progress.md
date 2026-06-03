@@ -24,10 +24,12 @@
 - Mining backend parity is in place: 2011Scape target/pickaxe source data, stable target IDs, real output item names, toolbelt-aware pickaxe resolution, source-shaped Mining probabilities, weighted sandstone/granite/gem-rock outputs, incidental gem drops with no Mining XP, Varrock-armour extra output, amulet-of-glory gem chance, explicit Mining item tradability metadata, and storage migration from legacy display-name `current_ore` values.
 - Review pacing can run multiple game action ticks per successful card via `Actions per review` (1x-10x). This replaces the old XP-only multiplier semantics: XP, items, material use, gathering rolls, and Utility batches now scale together, while Anki undo rolls back the whole multi-action review as one reward.
 - Smithing backend parity is in place: source-generated `smithing_data.py`, unified `SMITHING_DATA` smelt/forge recipes, all 9 bars, all 157 forge rows from `BarProducts.kt`, stable `current_smith` recipe IDs, storage config version 9, canonical `Adamant bar`/`Rune bar` names, forged item manifest registration, and runtime review dispatch through the unified pure Smithing helper.
+- Equipment backend is in place: generated `equipment_data.py` covers Smithing armour/weapons plus Mining bonus gear, `player_data["equipment"]` replaces `owned_equipment`, combat level defaults are scaffolded, pure equip/unequip/stat-total helpers exist, and runtime exposes `on_equip_item` / `on_unequip_slot` for the frontend pass.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
-- Combat.
+- Combat training and combat encounters.
+- The dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, and equipment tooltips.
 - Formal balancing pass for long-term progression.
 - A release-quality expansion spec.
 - Backfilled provenance for the existing bundled assets.
@@ -79,5 +81,7 @@ Review action multiplier completed on 2026-06-01. Runtime reads the new `ankisca
 
 Smithing 2011Scape backend parity completed on 2026-06-01. `python3 run_tests.py` passes with 172 tests (26 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 172 tests.
 
+Equipment backend completed on 2026-06-02. `tools/generate_equipment_data.py` emits `equipment_data.py` from Smithing recipe metadata, 2011Scape `items.yml` equipment blocks, and Mining bonus items. Storage config version is 10 with `equipment` save state and combat defaults. `python3 run_tests.py` passes with 197 tests (37 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 197 tests.
+
 ## Next Milestone
-Frontend/assets handoff for Smithing parity: expose the full `SMITHING_DATA` table in the Skills hub, grouped by Furnace/Anvil, persist `current_smith`, show level/material gates from backend data, and fetch/wire icons for Blurite bar plus important forged outputs where practical.
+Frontend equipment pass: add the dedicated Equipment tab, Bank/Equipment context menus for `on_equip_item` / `on_unequip_slot`, compact bonus/requirement tooltips, and slot placeholder icons.

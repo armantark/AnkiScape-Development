@@ -153,7 +153,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(by_storage_key["Dragon pickaxe"].tradeable)
         self.assertFalse(by_storage_key["Inferno adze"].tradeable)
         self.assertFalse(by_storage_key["Varrock armour 4"].tradeable)
-        self.assertEqual(by_storage_key["Varrock armour 4"].equipment_slot, "chest")
+        self.assertEqual(by_storage_key["Varrock armour 4"].equipment_slot, "body")
+        self.assertEqual(by_storage_key["Rune platebody"].equipment_slot, "body")
+        self.assertEqual(by_storage_key["Rune platebody"].equipment_tier, 40)
+        self.assertEqual(by_storage_key["Rune knife"].equipment_slot, "weapon")
 
     def test_crafting_pilot_data_matches_utility_split(self):
         self.assertNotIn("Soft clay", CRAFTING_DATA)

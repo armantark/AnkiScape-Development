@@ -159,6 +159,21 @@ def _find_gear_list(dialog: "QDialog") -> "QListWidget":
     raise AssertionError("gear list (toolbelt/equipped) not found")
 
 
+def _find_equipment_list(dialog: "QDialog") -> "QListWidget":
+    """The Equipment tab's worn-slot list, identified by its objectName."""
+    for lw in dialog.findChildren(QListWidget):
+        if lw.objectName() == "equipmentList":
+            return lw
+    raise AssertionError("equipment list (worn slots) not found")
+
+
+def _equip_slot_row(equip_list: "QListWidget", slot_id: str) -> "QListWidgetItem":
+    for i in range(equip_list.count()):
+        if equip_list.item(i).data(Qt.ItemDataRole.UserRole) == slot_id:
+            return equip_list.item(i)
+    raise AssertionError(f"equipment slot row {slot_id!r} not found")
+
+
 @unittest.skipUnless(HAS_AQT, "aqt/PyQt6 not installed (use .venv-qt)")
 class MainMenuWidgetTest(unittest.TestCase):
     app: "QApplication"
@@ -496,17 +511,201 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertNotIn("Toolbelt", bank_texts, "Toolbelt leaked into inventory list")
         gear_texts = [gear.item(i).text() for i in range(gear.count())]
         self.assertIn("Toolbelt", gear_texts, "missing Toolbelt header")
-        self.assertIn("Equipped", gear_texts, "missing Equipped header")
         self.assertTrue(any(t.startswith("Pickaxe: ") for t in gear_texts), f"no pickaxe row in {gear_texts}")
         self.assertTrue(any(t.startswith("Hatchet: ") for t in gear_texts), f"no hatchet row in {gear_texts}")
-        # owned_equipment is empty until an obtain path exists, so the section
-        # renders a discoverable placeholder rather than vanishing.
-        self.assertIn("Nothing equipped yet.", gear_texts)
+        # Worn equipment moved to its own tab; the Bank gear strip is toolbelt
+        # only now and must not still carry the old "Equipped" placeholder.
+        self.assertNotIn("Equipped", gear_texts, "Equipped header leaked into Bank gear strip")
+        self.assertNotIn("Nothing equipped yet.", gear_texts)
         pick_row = next(
             gear.item(i) for i in range(gear.count())
             if gear.item(i).text().startswith("Pickaxe: ")
         )
         self.assertFalse(pick_row.icon().isNull(), "pickaxe gear row has no icon")
+
+    # ---- Equipment tab (worn slots, equip/unequip, stat totals) -----------
+    def _open_with_equip(self, pd: dict) -> "QDialog":
+        """Open the menu with equip/unequip wired to the real pure logic.
+
+        The frontend test seam mirrors what __init__.on_equip_item /
+        on_unequip_slot do (run the pure mutation, persist into player_data) so
+        the menu -> handler -> refresh contract is exercised end to end without
+        Anki's global state.
+        """
+        from logic_pure import equip_item_pure, unequip_item_pure
+        from constants import EQUIPMENT_ITEM_DATA
+
+        def _equip(item_name: str) -> bool:
+            inv, equipment, ok = equip_item_pure(
+                item_name,
+                pd.get("inventory", {}) or {},
+                pd.get("equipment", {}) or {},
+                EQUIPMENT_ITEM_DATA,
+            )
+            if ok:
+                pd["inventory"] = inv
+                pd["equipment"] = equipment
+            return ok
+
+        def _unequip(slot: str) -> bool:
+            inv, equipment, ok = unequip_item_pure(
+                slot,
+                pd.get("inventory", {}) or {},
+                pd.get("equipment", {}) or {},
+            )
+            if ok:
+                pd["inventory"] = inv
+                pd["equipment"] = equipment
+            return ok
+
+        self._captured.clear()
+        self._ui.show_main_menu(
+            player_data=pd,
+            current_skill="Mining",
+            can_smelt_any_bar=True,
+            on_save_skill=lambda *a: None,
+            on_set_ore=lambda *a: None,
+            on_set_tree=lambda *a: None,
+            on_set_bar=lambda *a: None,
+            on_set_smith=lambda *a: None,
+            on_set_craft=lambda *a: None,
+            on_set_fletch=lambda *a: None,
+            on_set_utility=lambda *a: None,
+            on_equip_item=_equip,
+            on_unequip_slot=_unequip,
+        )
+        self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
+        return self._captured[-1]
+
+    def test_equipment_tab_renders_all_eleven_slots(self) -> None:
+        from constants import EQUIPMENT_SLOTS
+
+        equip_list = _find_equipment_list(self.dialog)
+        rendered_slots = {
+            equip_list.item(i).data(Qt.ItemDataRole.UserRole)
+            for i in range(equip_list.count())
+        }
+        for slot in EQUIPMENT_SLOTS:
+            self.assertIn(slot.id, rendered_slots, f"slot {slot.id!r} not rendered")
+        # Empty save -> every slot shows the greyed "(empty)" placeholder.
+        empties = [
+            equip_list.item(i).text()
+            for i in range(equip_list.count())
+            if equip_list.item(i).data(Qt.ItemDataRole.UserRole + 1) is None
+        ]
+        self.assertEqual(len(empties), len(EQUIPMENT_SLOTS))
+        self.assertTrue(all("(empty)" in t for t in empties))
+        # Slot placeholder art is fetched into equipment_slots/, so empty rows
+        # should carry the greyed OSRS slot icon (graceful text-only if absent).
+        import ui as _ui
+        if _ui.equipment_slot_icon_path("head"):
+            head_row = _equip_slot_row(equip_list, "head")
+            self.assertFalse(head_row.icon().isNull(), "head slot has no placeholder icon")
+
+    def test_bronze_item_exposes_enabled_equip(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze platebody": 1}
+        dialog = self._open_with_equip(pd)
+        menu = dialog._ankiscape_equip_menu_for("Bronze platebody")
+        action = menu.actions()[0]
+        self.assertEqual(action.text(), "Equip")
+        self.assertTrue(action.isEnabled(), "bronze (req 1) Equip should be enabled")
+
+    def test_rune_item_exposes_disabled_equip_with_reason(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Rune platebody": 1}
+        dialog = self._open_with_equip(pd)
+        menu = dialog._ankiscape_equip_menu_for("Rune platebody")
+        action = menu.actions()[0]
+        # Defence defaults to level 1, rune needs 40 -> locked with the reason.
+        self.assertFalse(action.isEnabled(), "rune Equip should be locked at default combat")
+        self.assertIn("Requires level 40 Defense", action.text())
+
+    def test_equipping_moves_item_to_slot_and_out_of_inventory(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze platebody": 1}
+        dialog = self._open_with_equip(pd)
+        menu = dialog._ankiscape_equip_menu_for("Bronze platebody")
+        menu.actions()[0].trigger()
+        QApplication.processEvents()
+        # Backend state: moved out of inventory into the body slot.
+        self.assertEqual(pd["equipment"].get("body"), "Bronze platebody")
+        self.assertEqual(pd["inventory"].get("Bronze platebody", 0), 0)
+        # Frontend reflects it: the body slot row now names the item.
+        equip_list = _find_equipment_list(dialog)
+        body_row = _equip_slot_row(equip_list, "body")
+        self.assertIn("Bronze platebody", body_row.text())
+        self.assertEqual(body_row.data(Qt.ItemDataRole.UserRole + 1), "Bronze platebody")
+
+    def test_unequip_returns_item_to_inventory(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {}
+        pd["equipment"] = {"body": "Bronze platebody"}
+        dialog = self._open_with_equip(pd)
+        equip_list = _find_equipment_list(dialog)
+        body_row = _equip_slot_row(equip_list, "body")
+        self.assertIn("Bronze platebody", body_row.text())
+        menu = dialog._ankiscape_unequip_menu_for("body")
+        self.assertIsNotNone(menu, "filled slot should offer an Unequip action")
+        menu.actions()[0].trigger()
+        QApplication.processEvents()
+        self.assertNotIn("body", pd["equipment"])
+        self.assertEqual(pd["inventory"].get("Bronze platebody", 0), 1)
+        # Slot returns to the greyed placeholder.
+        equip_list = _find_equipment_list(dialog)
+        self.assertIn("(empty)", _equip_slot_row(equip_list, "body").text())
+
+    def test_empty_slot_offers_no_unequip_menu(self) -> None:
+        dialog = self._open_with_equip(_make_player_data())
+        self.assertIsNone(dialog._ankiscape_unequip_menu_for("body"))
+
+    def test_equipping_two_hander_clears_shield(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bronze 2h sword": 1}
+        pd["equipment"] = {"shield": "Bronze kiteshield"}
+        dialog = self._open_with_equip(pd)
+        menu = dialog._ankiscape_equip_menu_for("Bronze 2h sword")
+        menu.actions()[0].trigger()
+        QApplication.processEvents()
+        # 2h occupies the weapon slot and forces the shield off (back to bank).
+        self.assertEqual(pd["equipment"].get("weapon"), "Bronze 2h sword")
+        self.assertNotIn("shield", pd["equipment"])
+        self.assertEqual(pd["inventory"].get("Bronze kiteshield", 0), 1)
+        equip_list = _find_equipment_list(dialog)
+        self.assertIn("(empty)", _equip_slot_row(equip_list, "shield").text())
+        self.assertIn("Bronze 2h sword", _equip_slot_row(equip_list, "weapon").text())
+
+    def test_stat_totals_reflect_worn_set(self) -> None:
+        from constants import EQUIPMENT_ITEM_DATA
+
+        pd = _make_player_data()
+        pd["equipment"] = {"body": "Bronze platebody", "head": "Bronze full helm"}
+        dialog = self._open_with_equip(pd)
+        totals = next(
+            lbl for lbl in dialog.findChildren(QLabel)
+            if lbl.objectName() == "equipmentTotals"
+        )
+        text = totals.text()
+        # Bronze platebody defence_stab 15 + Bronze full helm defence_stab 4 = 19.
+        expected = (
+            EQUIPMENT_ITEM_DATA["Bronze platebody"]["bonuses"]["defence_stab"]
+            + EQUIPMENT_ITEM_DATA["Bronze full helm"]["bonuses"]["defence_stab"]
+        )
+        self.assertIn(f"Stab +{expected}", text)
+        self.assertIn("Defence bonuses", text)
+
+    def test_equippable_bank_row_has_bonus_tooltip(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Rune scimitar": 1}
+        dialog = self._open_with_equip(pd)
+        bank = _find_bank_list(dialog)
+        scim = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Rune scimitar")
+        )
+        tip = scim.toolTip()
+        self.assertIn("Requires level 40 Attack", tip)
+        self.assertIn("Attack bonuses", tip)
 
     def test_hud_recognizes_fletching_as_active_skill(self) -> None:
         hud = self._ui.ReviewHUD(None)

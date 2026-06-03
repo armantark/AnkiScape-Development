@@ -249,6 +249,31 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["xp"], [50.0])
 
+    def test_equipment_callbacks_equip_and_unequip_items(self):
+        addon = _load_addon_as_package("ankiscape_equipment_callbacks")
+
+        calls = {"save": 0, "errors": []}
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.show_error_message = lambda title, message: calls["errors"].append((title, message))
+        addon.player_data = {
+            "inventory": {"Bronze platebody": 1, "Rune platebody": 1},
+            "equipment": {},
+            "defense_level": 1,
+        }
+
+        self.assertTrue(addon.on_equip_item("Bronze platebody"))
+        self.assertEqual(addon.player_data["inventory"]["Bronze platebody"], 0)
+        self.assertEqual(addon.player_data["equipment"], {"body": "Bronze platebody"})
+
+        self.assertFalse(addon.on_equip_item("Rune platebody"))
+        self.assertEqual(calls["errors"], [("Cannot equip item", "Requires level 40 Defense")])
+        self.assertEqual(addon.player_data["equipment"], {"body": "Bronze platebody"})
+
+        self.assertTrue(addon.on_unequip_slot("body"))
+        self.assertEqual(addon.player_data["inventory"]["Bronze platebody"], 1)
+        self.assertEqual(addon.player_data["equipment"], {})
+        self.assertEqual(calls["save"], 2)
+
     def test_utility_answer_batches_inventory_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_utility_integration")
 

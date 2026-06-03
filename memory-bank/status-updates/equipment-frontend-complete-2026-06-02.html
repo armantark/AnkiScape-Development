@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Equipment System — Frontend Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff; --accent-glow: rgba(79,140,255,0.15);
+    --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300;
+         line-height: 1.55; padding: 40px 24px 80px; }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  .badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600;
+           letter-spacing: 0.08em; color: var(--green); background: rgba(74,222,128,0.12);
+           border: 1px solid rgba(74,222,128,0.3); padding: 5px 12px; border-radius: 999px; }
+  h1 { font-weight: 700; font-size: 2.1rem; margin: 16px 0 6px; letter-spacing: -0.01em; }
+  .sub { color: var(--text-dim); font-size: 0.98rem; max-width: 760px; }
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 32px 0; }
+  .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .metric .n { font-family: 'JetBrains Mono', monospace; font-size: 1.8rem; font-weight: 600; color: var(--accent); }
+  .metric .l { color: var(--text-dim); font-size: 0.78rem; margin-top: 4px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 18px 0; }
+  @media (max-width: 900px) { .grid, .metrics { grid-template-columns: 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
+          transition: transform .15s, box-shadow .15s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+  .card h3 { font-weight: 700; font-size: 1.05rem; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .plabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600; text-transform: uppercase;
+            padding: 3px 7px; border-radius: 5px; }
+  .pl-major { color: var(--amber); background: rgba(251,191,36,0.12); }
+  .pl-core { color: var(--accent); background: var(--accent-glow); }
+  .pl-polish { color: var(--purple); background: rgba(167,139,250,0.12); }
+  .card p { color: var(--text-dim); font-size: 0.88rem; }
+  .tags { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-family: 'JetBrains Mono', monospace; font-size: 0.64rem; color: var(--text-dim);
+         background: var(--surface-2); border: 1px solid var(--border); padding: 3px 7px; border-radius: 5px; }
+  .section-title { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em;
+                   text-transform: uppercase; color: var(--text-dim); margin: 38px 0 14px; }
+  /* mockup */
+  .mock { background: #11151c; border: 1px solid var(--border); border-radius: 8px; padding: 10px; font-size: 0.72rem;
+          font-family: 'JetBrains Mono', monospace; }
+  .mock .ttl { color: var(--text-dim); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border-radius: 4px; }
+  .row .sw { width: 16px; height: 16px; border-radius: 3px; background: var(--surface-2); border: 1px solid var(--border); flex: none; }
+  .row.head { color: var(--text-dim); font-weight: 600; background: var(--surface-2); }
+  .row.empty { color: #5a6376; font-style: italic; }
+  .row.filled { color: var(--text); }
+  .row.locked { color: #6b7385; }
+  .pill { margin-left: auto; font-size: 0.58rem; padding: 1px 6px; border-radius: 999px; }
+  .pill.ok { color: var(--green); background: rgba(74,222,128,0.12); }
+  .pill.no { color: var(--red); background: rgba(255,92,92,0.12); }
+  .totals { margin-top: 8px; padding: 8px; border-top: 1px dashed var(--border); color: var(--text-dim); font-size: 0.66rem; }
+  .steps { counter-reset: s; margin-top: 8px; }
+  .step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step .num { counter-increment: s; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600;
+               color: var(--accent); background: var(--accent-glow); width: 26px; height: 26px; border-radius: 6px;
+               display: grid; place-items: center; flex: none; }
+  .step .num::before { content: counter(s); }
+  .step .body { font-size: 0.88rem; }
+  .step .body b { font-weight: 500; color: var(--text); }
+  .tcov { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .t { font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: var(--green); background: rgba(74,222,128,0.08);
+       border: 1px solid rgba(74,222,128,0.2); padding: 3px 8px; border-radius: 6px; }
+  .note { background: var(--surface); border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0; padding: 14px 18px;
+          margin-top: 16px; font-size: 0.88rem; color: var(--text-dim); }
+  .note b { color: var(--text); font-weight: 500; }
+  .handoff { background: linear-gradient(135deg, rgba(79,140,255,0.08), rgba(167,139,250,0.06));
+             border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; margin-top: 24px; }
+  code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">FRONTEND · COMPLETE</span>
+  <h1>Full Equipment System — Frontend</h1>
+  <p class="sub">Dedicated Equipment tab with all 11 worn slots, right-click Equip / Unequip wired to the backend
+    handlers, compact bonus + lock-reason tooltips, summed stat totals, and fetched OSRS slot placeholder art.
+    Backend contract (<code>EQUIPMENT_DATA</code>, <code>equipment</code> save key, <code>on_equip_item</code> /
+    <code>on_unequip_slot</code>, pure equip/stat functions) was in place and unchanged.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="n">11/11</div><div class="l">worn slots rendered</div></div>
+    <div class="metric"><div class="n">11/11</div><div class="l">slot icons fetched</div></div>
+    <div class="metric"><div class="n">12</div><div class="l">new offscreen Qt tests</div></div>
+    <div class="metric"><div class="n">206</div><div class="l">full suite · all green</div></div>
+  </div>
+
+  <div class="section-title">What changed — Bank gear strip → dedicated Equipment tab</div>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="plabel pl-major">Before</span> Bank · shared "Equipped" strip</h3>
+      <div class="mock">
+        <div class="ttl">Bank tab · gear panel</div>
+        <div class="row head">Toolbelt</div>
+        <div class="row filled"><span class="sw"></span>Pickaxe: Bronze pickaxe</div>
+        <div class="row filled"><span class="sw"></span>Hatchet: Bronze hatchet</div>
+        <div class="row head">Equipped</div>
+        <div class="row empty">Nothing equipped yet.</div>
+      </div>
+      <p style="margin-top:10px">A read-only placeholder shared the toolbelt panel. No way to equip, unequip,
+        inspect bonuses, or see totals.</p>
+    </div>
+    <div class="card">
+      <h3><span class="plabel pl-core">After</span> Equipment tab · live worn slots</h3>
+      <div class="mock">
+        <div class="ttl">Equipment tab</div>
+        <div class="row filled"><span class="sw"></span>Head: Bronze full helm</div>
+        <div class="row empty"><span class="sw"></span>Cape: (empty)</div>
+        <div class="row filled"><span class="sw"></span>Weapon: Bronze 2h sword</div>
+        <div class="row empty"><span class="sw"></span>Shield: (empty)</div>
+        <div class="row filled"><span class="sw"></span>Body: Bronze platebody</div>
+        <div class="totals">Defence bonuses: Stab +19, Slash +18 … &nbsp;·&nbsp; Other: Str +10</div>
+      </div>
+      <p style="margin-top:10px">All 11 slots always render (greyed + OSRS silhouette when empty). The Bank strip is
+        now toolbelt-only.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Right-click interaction</div>
+  <div class="grid">
+    <div class="card">
+      <h3>Equip from the Bank</h3>
+      <div class="mock">
+        <div class="ttl">Bank inventory · right-click</div>
+        <div class="row filled">Bronze platebody x1 <span class="pill ok">Equip ✓</span></div>
+        <div class="row locked">Rune platebody x1 <span class="pill no">Equip (Requires lvl 40 Defense)</span></div>
+      </div>
+      <p style="margin-top:10px">Equip is enabled only when <code>can_equip_item_pure</code> passes; otherwise a
+        disabled action carries the exact lock reason. Bronze/iron (req 1) work now; steel→rune stay locked until
+        combat is trainable.</p>
+    </div>
+    <div class="card">
+      <h3>Unequip from a slot</h3>
+      <div class="mock">
+        <div class="ttl">Equipment slot · right-click</div>
+        <div class="row filled"><span class="sw"></span>Weapon: Bronze 2h sword &nbsp; ▸ Unequip</div>
+        <div class="row empty"><span class="sw"></span>Shield: (empty) &nbsp; ▸ (no menu)</div>
+      </div>
+      <p style="margin-top:10px">Equipping a 2h sword auto-returns the shield to the bank (RS-authentic swap). Empty
+        slots offer no menu. Both actions repaint Bank + Equipment in place via a shared refresh.</p>
+    </div>
+  </div>
+
+  <div class="section-title">Implementation</div>
+  <div class="card">
+    <div class="steps">
+      <div class="step"><span class="num"></span><div class="body"><b>Equipment tab</b> renders every
+        <code>EQUIPMENT_SLOTS</code> row + a monospace stat-totals panel from <code>equipment_stat_totals_pure</code>.
+        <div class="tags"><span class="tag">ui.py</span><span class="tag">_populate_equipment</span><span class="tag">_populate_equipment_totals</span></div></div></div>
+      <div class="step"><span class="num"></span><div class="body"><b>Context menus</b> — custom-policy right-click on
+        the Bank list (Equip) and Equipment list (Unequip), built via testable menu-builder closures.
+        <div class="tags"><span class="tag">_build_bank_equip_menu</span><span class="tag">_build_slot_unequip_menu</span><span class="tag">on_equip_item / on_unequip_slot</span></div></div></div>
+      <div class="step"><span class="num"></span><div class="body"><b>Refresh</b> — equip/unequip mutate
+        <code>player_data</code> through the backend handlers, then <code>_refresh_equipment_views</code> re-reads and
+        repaints both surfaces with no dialog rebuild.
+        <div class="tags"><span class="tag">_equipment_refreshers</span></div></div></div>
+      <div class="step"><span class="num"></span><div class="body"><b>Tooltips</b> — multi-line bonus + requirement /
+        lock-reason on equippable inventory rows and worn slots; UI wording matches the backend ("Defense").
+        <div class="tags"><span class="tag">equipment_full_tooltip</span><span class="tag">equipment_requirement_text</span></div></div></div>
+      <div class="step"><span class="num"></span><div class="body"><b>Slot art</b> — new fetch tool pulls the 11 OSRS
+        placeholders (ammunition resolves from <code>Ammo slot.png</code>); rows degrade to text-only if absent.
+        <div class="tags"><span class="tag">tools/fetch_equipment_assets.py</span><span class="tag">equipment_slots/*.png</span><span class="tag">assets_provenance.json</span></div></div></div>
+    </div>
+  </div>
+
+  <div class="section-title">Test coverage — tests/test_main_menu_widget.py</div>
+  <div class="tcov">
+    <span class="t">all 11 slots render</span><span class="t">empty placeholders + icons</span>
+    <span class="t">bronze Equip enabled</span><span class="t">rune Equip disabled + reason</span>
+    <span class="t">equip → item into slot, out of bank</span><span class="t">unequip → back to bank</span>
+    <span class="t">empty slot → no menu</span><span class="t">2h clears shield</span>
+    <span class="t">stat totals reflect worn set</span><span class="t">equippable row bonus tooltip</span>
+  </div>
+
+  <div class="note"><b>Decision noted:</b> the UI uses the backend's American spelling ("Defense") in lock reasons and
+    tooltips rather than OSRS "Defence", so the menu and tooltip stay consistent without touching the shipped backend
+    <code>can_equip_item_pure</code> reason string.</div>
+
+  <div class="handoff">
+    <h3 style="font-weight:700; margin-bottom:8px;">Status</h3>
+    <p style="color:var(--text-dim); font-size:0.9rem;">Equipment system is feature-complete end to end: backend
+      (data, save state, pure logic, handlers) + frontend (tab, menus, tooltips, totals, slot art). No outstanding
+      frontend work. Equippability falls straight out of <code>level &gt;= required</code>, so steel→rune gear and the
+      melee combat skills light up automatically once a future combat system trains those levels — no UI changes
+      required then.</p>
+  </div>
+</div>
+</body>
+</html>

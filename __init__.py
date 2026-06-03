@@ -26,6 +26,7 @@ from .constants import (
     BAR_IMAGES,
     GEM_IMAGES,
     CRAFTED_ITEM_IMAGES,
+    EQUIPMENT_DATA,
 )
 from .smithing_data import DEFAULT_SMITHING_TARGET
 from aqt import mw, gui_hooks
@@ -58,7 +59,10 @@ from .logic_pure import (
     can_cut_tree_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
-    mining_bonus_state_pure,
+    can_equip_item_pure,
+    equip_item_pure,
+    unequip_item_pure,
+    equipment_bonus_state_pure,
 )
 from .logic import level_up_check, check_achievements
 from .ui import (
@@ -718,6 +722,8 @@ def _on_main_menu():
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
+        on_equip_item=on_equip_item,
+        on_unequip_slot=on_unequip_slot,
     )
 
 
@@ -886,7 +892,7 @@ def on_mining_answer():
         )
         return False
 
-    bonus_state = mining_bonus_state_pure(player_data.get("owned_equipment", ()), MINING_BONUS_ITEM_DATA)
+    bonus_state = equipment_bonus_state_pure(player_data.get("equipment", {}) or {}, MINING_BONUS_ITEM_DATA)
     gem_drop_chance = GLORY_GEM_DROP_CHANCE if bonus_state["has_glory"] else INCIDENTAL_GEM_DROP_CHANCE
     r_action = random.random()
     r_output = random.random()
@@ -920,6 +926,41 @@ def on_mining_answer():
         # If the main menu is open, auto-enable Smithing/Crafting when they become possible.
         _refresh_skill_availability()
         _show_exp(exp_gained)
+    return True
+
+
+def on_equip_item(item_name):
+    ok, reason = can_equip_item_pure(item_name, EQUIPMENT_DATA, player_data)
+    if not ok:
+        show_error_message("Cannot equip item", reason)
+        return False
+    new_inventory, new_equipment, equipped = equip_item_pure(
+        item_name,
+        player_data.get("inventory", {}) or {},
+        player_data.get("equipment", {}) or {},
+        EQUIPMENT_DATA,
+    )
+    if not equipped:
+        show_error_message("Cannot equip item", f"You need {item_name} in your bank to equip it.")
+        return False
+    player_data["inventory"] = new_inventory
+    player_data["equipment"] = new_equipment
+    save_player_data()
+    return True
+
+
+def on_unequip_slot(slot):
+    new_inventory, new_equipment, unequipped = unequip_item_pure(
+        slot,
+        player_data.get("inventory", {}) or {},
+        player_data.get("equipment", {}) or {},
+    )
+    if not unequipped:
+        show_error_message("Cannot unequip item", "That equipment slot is already empty.")
+        return False
+    player_data["inventory"] = new_inventory
+    player_data["equipment"] = new_equipment
+    save_player_data()
     return True
 
 

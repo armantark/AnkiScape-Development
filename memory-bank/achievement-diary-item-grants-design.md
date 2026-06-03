@@ -84,9 +84,12 @@ Do not add combat-only or region-specific diary rewards until the account/equipm
 
 ## Equipment Relationship
 
-Mining parity will introduce only a minimal backend-owned equipment collection so bonus items can be modeled once obtained. This future diary reward system should eventually become one of the acquisition paths for those equipable items.
+The equipment backend now exists. Diary reward items should grant inventory items
+that can be explicitly worn through `player_data["equipment"]`; Mining bonuses
+only apply from worn slots, not passive ownership.
 
-When a real equipment UI exists, diary reward items should probably move from passive ownership checks into explicit equipment slots.
+The future diary reward system should become one acquisition path for items like
+Varrock armour. It should not reintroduce a separate `owned_equipment` collection.
 
 ## Design Questions For Later
 
@@ -103,5 +106,5 @@ When a real equipment UI exists, diary reward items should probably move from pa
 - Do not implement diary reward grants.
 - Do not implement Varrock armour acquisition.
 - Do not rebalance all achievement difficulties.
-- Do not add an equipment UI.
+- Do not add diary-specific equipment UI; use the general Equipment tab once the frontend pass lands.
 - Do not create region diaries or quest analogues.

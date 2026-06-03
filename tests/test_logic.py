@@ -23,7 +23,11 @@ from logic_pure import (
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
     bank_gear_rows_pure,
-    mining_bonus_state_pure,
+    equipment_bonus_state_pure,
+    can_equip_item_pure,
+    equip_item_pure,
+    unequip_item_pure,
+    equipment_stat_totals_pure,
     calculate_woodcutting_success_probability_pure,
     calculate_mining_success_probability_pure,
     can_mine_ore_pure,
@@ -40,6 +44,7 @@ from constants import (
     MINING_PICKAXE_DATA,
     WOODCUTTING_AXE_DATA,
     ORE_DATA,
+    EQUIPMENT_DATA,
 )
 
 class TestLogic(unittest.TestCase):
@@ -571,8 +576,8 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Uncut sapphire"], 1)
 
     def test_mining_bonus_state_and_varrock_extra_output(self):
-        bonus_state = mining_bonus_state_pure(
-            ["amulet_of_glory_4", "varrock_armour_1"],
+        bonus_state = equipment_bonus_state_pure(
+            {"neck": "Amulet of glory (4)", "body": "Varrock armour 1"},
             MINING_BONUS_ITEM_DATA,
         )
 
@@ -598,6 +603,58 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(output_item, "Coal")
         self.assertEqual(extra, "Coal")
         self.assertEqual(new_inv["Coal"], 2)
+
+    def test_can_equip_uses_real_combat_level_gate(self):
+        ok, reason = can_equip_item_pure("Bronze platebody", EQUIPMENT_DATA, {"defense_level": 1})
+        self.assertTrue(ok)
+        self.assertEqual(reason, "")
+
+        ok, reason = can_equip_item_pure("Rune platebody", EQUIPMENT_DATA, {"defense_level": 1})
+        self.assertFalse(ok)
+        self.assertEqual(reason, "Requires level 40 Defense")
+
+    def test_equip_unequip_returns_displaced_items(self):
+        inv = {"Bronze platebody": 1, "Iron platebody": 1}
+        new_inv, equipment, ok = equip_item_pure("Bronze platebody", inv, {}, EQUIPMENT_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(new_inv["Bronze platebody"], 0)
+        self.assertEqual(equipment, {"body": "Bronze platebody"})
+
+        new_inv, equipment, ok = equip_item_pure("Iron platebody", new_inv, equipment, EQUIPMENT_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(new_inv["Iron platebody"], 0)
+        self.assertEqual(new_inv["Bronze platebody"], 1)
+        self.assertEqual(equipment, {"body": "Iron platebody"})
+
+        new_inv, equipment, ok = unequip_item_pure("body", new_inv, equipment)
+        self.assertTrue(ok)
+        self.assertEqual(new_inv["Iron platebody"], 1)
+        self.assertEqual(equipment, {})
+
+    def test_two_handed_weapon_and_shield_displace_each_other(self):
+        inv = {"Bronze 2h sword": 1, "Bronze sq shield": 1}
+        inv, equipment, ok = equip_item_pure("Bronze sq shield", inv, {}, EQUIPMENT_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(equipment, {"shield": "Bronze sq shield"})
+
+        inv, equipment, ok = equip_item_pure("Bronze 2h sword", inv, equipment, EQUIPMENT_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(equipment, {"weapon": "Bronze 2h sword"})
+        self.assertEqual(inv["Bronze sq shield"], 1)
+
+        inv, equipment, ok = equip_item_pure("Bronze sq shield", inv, equipment, EQUIPMENT_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(equipment, {"shield": "Bronze sq shield"})
+        self.assertEqual(inv["Bronze 2h sword"], 1)
+
+    def test_equipment_stat_totals_sum_worn_bonuses(self):
+        totals = equipment_stat_totals_pure(
+            {"weapon": "Bronze sword", "body": "Bronze platebody"},
+            EQUIPMENT_DATA,
+        )
+        self.assertEqual(totals.attack_stab, EQUIPMENT_DATA["Bronze sword"].bonuses.attack_stab)
+        self.assertEqual(totals.defence_stab, EQUIPMENT_DATA["Bronze platebody"].bonuses.defence_stab)
+        self.assertEqual(totals.melee_strength, EQUIPMENT_DATA["Bronze sword"].bonuses.melee_strength)
 
     def test_can_mine_and_cut_pure(self):
         ore_data = {"Copper ore": {"level": 1}, "Iron ore": {"level": 15}}
@@ -660,7 +717,7 @@ class TestLogic(unittest.TestCase):
             "woodcutting_level": 1,
             "inventory": {"Rune pickaxe": 1},
             "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
-            "owned_equipment": [],
+            "equipment": {},
         }
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
         pick = dict(gear["toolbelt"])
@@ -675,12 +732,12 @@ class TestLogic(unittest.TestCase):
             "woodcutting_level": 1,
             "inventory": {},
             "toolbelt": {"mining": ["bronze_pickaxe"], "woodcutting": ["bronze_hatchet"]},
-            "owned_equipment": [bonus_id, bonus_id],  # dedup guard
+            "equipment": {"neck": MINING_BONUS_ITEM_DATA[bonus_id]["display_name"]},
         }
         gear = bank_gear_rows_pure(pd, MINING_PICKAXE_DATA, WOODCUTTING_AXE_DATA, MINING_BONUS_ITEM_DATA)
         self.assertEqual(len(gear["equipped"]), 1)
         slot, name = gear["equipped"][0]
-        self.assertEqual(slot, MINING_BONUS_ITEM_DATA[bonus_id]["equipment_slot"])
+        self.assertEqual(slot, "neck")
         self.assertEqual(name, MINING_BONUS_ITEM_DATA[bonus_id]["display_name"])
 
 if __name__ == "__main__":
