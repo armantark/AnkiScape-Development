@@ -28,6 +28,8 @@ try:
         QDialog,
         QPixmap,
         QPalette,
+        QColor,
+        QApplication,
         QMenu,
         QGridLayout,
         QHBoxLayout,
@@ -195,6 +197,39 @@ def skill_icon_path_for(display_name: str) -> Optional[str]:
 def playable_review_skill_names() -> tuple:
     """Display names of skills that earn XP during review, straight from the registry."""
     return tuple(implemented_review_skill_names())
+
+
+# ---- dark-mode-safe text colors ------------------------------------------
+# RECURRING BUG, READ BEFORE STYLING TEXT: ``palette(mid)`` / ``QPalette.Mid`` is
+# a *frame/border* role, NOT a text role. In dark mode it resolves to a near-black
+# grey, so using it as a text/foreground color makes the text invisible on the
+# dark base (greyed/disabled rows "vanish"). It has bitten the Skills-hub buttons,
+# the Smithing locked rows, and the Equipment empty slots. Never use palette(mid)
+# (or QPalette.Mid) for text. For dimmed-but-legible text use the helpers below,
+# which derive the color from the theme's actual Text role and just drop the
+# alpha — guaranteed contrast in BOTH light and dark themes. (palette(mid) is fine
+# for borders/frames, which is its intended role.)
+
+def dim_text_color(widget=None) -> "QColor":
+    """A dimmed-but-readable text QColor that works in light AND dark themes.
+
+    Use for greyed/placeholder/disabled-row text (e.g. ``setForeground(...)``).
+    """
+    palette = widget.palette() if widget is not None else QApplication.palette()
+    color = QColor(palette.color(QPalette.ColorRole.Text))
+    color.setAlpha(150)
+    return color
+
+
+def dim_text_css(widget=None) -> str:
+    """``rgba(...)`` form of :func:`dim_text_color` for Qt stylesheets.
+
+    Stylesheets can't reference a dimmed text role (the stylesheet ``palette()``
+    function only exposes solid roles, and ``mid`` is the trap we're avoiding), so
+    bake an explicit rgba string from the live palette instead.
+    """
+    c = dim_text_color(widget)
+    return f"rgba({c.red()}, {c.green()}, {c.blue()}, {c.alphaF():.2f})"
 
 
 # ---- equipment surface helpers -------------------------------------------
@@ -1135,7 +1170,9 @@ def show_main_menu(
         "QPushButton { padding: 5px 12px; border: 1px solid #ff5c5c;"
         " border-radius: 6px; color: #ff8a8a; background: rgba(255,92,92,0.12); }"
         " QPushButton:hover { background: rgba(255,92,92,0.22); }"
-        " QPushButton:disabled { color: palette(mid); border-color: palette(mid);"
+        # Disabled: dim_text_css for the label (palette(mid) is a border role and
+        # vanishes in dark mode); palette(mid) stays only on the border.
+        f" QPushButton:disabled {{ color: {dim_text_css(stop_btn)}; border-color: palette(mid);"
         " background: transparent; }"
     )
     status_layout.addWidget(active_label)
@@ -1424,7 +1461,9 @@ def show_main_menu(
             " background: palette(base); color: palette(text); padding: 4px; }"
             " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
             " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-            " QTreeWidget::item:disabled { color: palette(mid); }"
+            # Locked/disabled rows: dim_text_css, NOT palette(mid) (which is a
+            # border role and renders near-black/invisible in dark mode).
+            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
         lvl_have = player_data.get("smithing_level", 1)
         inv = player_data.get("inventory", {})
@@ -1915,7 +1954,7 @@ def show_main_menu(
                     "QPushButton { padding: 6px 12px; border: 1px solid palette(mid);"
                     " border-radius: 6px; color: palette(text); background: palette(base); }"
                     " QPushButton:hover { border-color: #4CAF50; }"
-                    " QPushButton:disabled { color: palette(mid); }"
+                    f" QPushButton:disabled {{ color: {dim_text_css(train_btn)}; }}"
                 )
                 if not available:
                     if name == "Smithing":
@@ -2315,7 +2354,7 @@ def show_main_menu(
     eq_layout.setSpacing(8)
 
     eq_caption = QLabel("Right-click a worn item to unequip. Right-click bank gear to equip.")
-    eq_caption.setStyleSheet("color: palette(mid);")
+    eq_caption.setStyleSheet(f"color: {dim_text_css(eq_caption)};")
     eq_layout.addWidget(eq_caption)
 
     equip_list = QListWidget()
@@ -2354,7 +2393,8 @@ def show_main_menu(
                     li.setIcon(QIcon(slot_icon))
                 # Greyed, non-actionable placeholder row (still hit-testable so
                 # the row stays visible; the unequip menu no-ops on empties).
-                li.setForeground(equip_list.palette().color(QPalette.ColorRole.Mid))
+                # dim_text_color (not palette(mid)) so it stays legible in dark mode.
+                li.setForeground(dim_text_color(equip_list))
                 li.setData(Qt.ItemDataRole.UserRole, slot_id)
                 li.setData(Qt.ItemDataRole.UserRole + 1, None)
             equip_list.addItem(li)

@@ -602,6 +602,27 @@ class MainMenuWidgetTest(unittest.TestCase):
             head_row = _equip_slot_row(equip_list, "head")
             self.assertFalse(head_row.icon().isNull(), "head slot has no placeholder icon")
 
+    def test_empty_slot_text_is_dark_mode_safe_not_palette_mid(self) -> None:
+        # Regression guard for the recurring "greyed text vanishes in dark mode"
+        # bug: empty-slot labels must use the dim-text helper (derived from the
+        # readable Text role with reduced alpha), never QPalette.Mid (a border
+        # role that renders near-black on a dark base).
+        import ui as _ui
+        from aqt.qt import QPalette
+
+        equip_list = _find_equipment_list(self.dialog)
+        head_row = _equip_slot_row(equip_list, "head")
+        fg = head_row.foreground().color()
+        mid = equip_list.palette().color(QPalette.ColorRole.Mid)
+        expected = _ui.dim_text_color(equip_list)
+        self.assertEqual(fg.rgba(), expected.rgba(), "empty slot not using dim_text_color")
+        self.assertLess(fg.alpha(), 255, "dim text should be semi-transparent")
+        self.assertNotEqual(
+            (fg.red(), fg.green(), fg.blue(), fg.alpha()),
+            (mid.red(), mid.green(), mid.blue(), mid.alpha()),
+            "empty slot text fell back to palette(mid) (invisible in dark mode)",
+        )
+
     def test_bronze_item_exposes_enabled_equip(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Bronze platebody": 1}
