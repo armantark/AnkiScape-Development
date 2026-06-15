@@ -144,6 +144,20 @@ Roadmap direction: add an optional fake Grand Exchange-style market later so the
 
 Active priority (updated 2026-06-15): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt are the best next cleanup target; Utility/Activities icons are the next polish target; feathers remain the focused Fletching input gap; the GE remains a later candidate, not the next default project. Firemaking can still proceed in a separate skill-expansion thread.
 
+P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
+`action_registry.py` resolves review-action handler keys for Mining,
+Woodcutting, Smithing, Crafting, Fletching, and the no-XP Utility/Activities
+aliases. Runtime review dispatch now uses that registry for answer eligibility
+and handler lookup, and `_can_start_current_action` delegates to a handler-keyed
+readiness map instead of a single long skill-name branch. Utility/Activities
+remains synthetic and outside `skill_registry.py`; no flat save keys or XP/item
+behavior changed. Frontend target-list builders in `ui.py` remain hardcoded by
+skill because the backend still does not expose enough target-widget metadata to
+migrate them safely; that is the next frontend boundary for continued P0 work.
+Verification: `python3 run_tests.py` passed with 233 tests (57 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 233 tests.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -157,7 +171,9 @@ Active priority (updated 2026-06-15): use `memory-bank/future-work-kanban.md` as
 ## Next Recommended Work
 Use `memory-bank/future-work-kanban.md` as the current future-thread source of truth.
 
-1. **P0 existing-skill architecture and old debt**: refactor current Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities behavior toward registry metadata and shared action plumbing without changing player-visible behavior.
+1. **Continue P0 only if the owner wants another architecture slice**: the next
+   useful boundary is frontend target-list metadata or decomposing the remaining
+   `__init__.py` runtime orchestration, not repeating review handler dispatch.
 2. **P1 Utility/Activities icon set**: add purpose-built icons and metadata for non-skill actions such as soft clay, flax/wool gathering, and nest opening.
 3. **P2 feather source for Fletching**: feathers still need a legitimate source; arrowtips are not an open source gap because Smithing supplies them.
 4. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.

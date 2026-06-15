@@ -12,7 +12,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking can be implemented in a separate thread and does not need to block this cleanup plan.
-- Existing skill architecture and old implementation debt are the best high-leverage work to do next.
+- P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Further P0 work should target frontend target-list metadata or larger `__init__.py` decomposition, not repeat this dispatch slice.
 - Utility and Activities should get their own icon set so non-skill actions feel first-class.
 
 ## Priority Board
@@ -43,10 +43,15 @@ Acceptance criteria:
 - Existing tests pass, and targeted tests cover any changed registry/action dispatch behavior.
 - The follow-up Firemaking thread has fewer places to edit than the previous skill-expansion threads.
 
+Status 2026-06-15: Initial backend dispatch slice complete. No storage shape,
+XP, item, undo, or visible UI behavior changed. Frontend target-list builders are
+still per-skill and remain a separate P0 follow-up because the backend does not
+yet expose a safe widget metadata contract.
+
 Future thread prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Work on P0: existing skill architecture and old debt. Audit Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities, then make the smallest registry/action-dispatch refactor that reduces hardcoded skill branches without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
+In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup is already done, so focus next on frontend target-list metadata or further __init__.py runtime decomposition without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
 ```
 
 ### P1 - Utility And Activities Icon Set

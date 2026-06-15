@@ -393,6 +393,35 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["current_utility"], "make_soft_clay")
         self.assertEqual(calls["hud"], ["Utility / Activities"])
 
+    def test_review_handler_lookup_uses_action_registry_for_skills_and_utility(self):
+        addon = _load_addon_as_package("ankiscape_action_dispatch_lookup")
+
+        self.assertIs(addon._registered_answer_handler("Fletching"), addon.on_fletching_answer)
+        self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.on_utility_answer)
+        self.assertIs(addon._registered_answer_handler("Utility"), addon.on_utility_answer)
+        self.assertIsNone(addon._registered_answer_handler("Thieving"))
+
+    def test_can_start_current_action_uses_handler_keyed_readiness_checks(self):
+        addon = _load_addon_as_package("ankiscape_action_dispatch_readiness")
+
+        addon.current_skill = "Fletching"
+        addon.player_data = {
+            "inventory": {"Logs": 1},
+            "fletching_level": 1,
+            "current_fletch": "arrow_shafts",
+        }
+        self.assertTrue(addon._can_start_current_action())
+
+        addon.player_data["inventory"] = {}
+        self.assertFalse(addon._can_start_current_action())
+
+        addon.current_skill = "Utility"
+        addon.player_data = {"inventory": {"Clay": 1}, "current_utility": "make_soft_clay"}
+        self.assertTrue(addon._can_start_current_action())
+
+        addon.player_data = {"inventory": {}, "current_utility": "make_soft_clay"}
+        self.assertFalse(addon._can_start_current_action())
+
     def test_review_action_multiplier_runs_gathering_and_processing_ticks(self):
         addon = _load_addon_as_package("ankiscape_review_multiplier_integration")
 

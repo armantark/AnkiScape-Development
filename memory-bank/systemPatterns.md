@@ -11,6 +11,7 @@ The add-on is a small Python package loaded by Anki. It separates some pure game
 - `storage.py`: Anki config persistence.
 - `storage_pure.py`: default player shape and migrations.
 - `skill_registry.py`: pure skill catalog for current and planned skills, including stable IDs, categories, save keys, and review eligibility.
+- `action_registry.py`: pure review-action dispatch metadata. It resolves levelled skills and no-XP Utility/Activities to handler keys without adding Utility as a fake skill.
 - `item_registry.py`: pure item manifest helpers for current economy items, including stable IDs, storage keys, categories, assets, and source/license notes.
 - `equipment_data.py`: generated worn-equipment contract for Smithing armour/weapons and Mining bonus gear, including slots, combat gates, two-handed flags, attack speed, and combat bonuses.
 - `ui.py`: Qt dialogs, HUD, menu, stats, bank, achievements, and settings.
@@ -30,10 +31,11 @@ The add-on is a small Python package loaded by Anki. It separates some pure game
 - Inventory is a single dictionary shared across ores, logs, gems, bars, and crafted items.
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
-- Review dispatch now resolves a registry `review_handler_key` before calling the runtime handler map. This keeps display names, save keys, and handler identity connected without requiring a large action-engine rewrite.
+- Review dispatch now resolves an `action_registry.review_action_handler_key` before calling the runtime handler map. This keeps display names, save keys, Utility aliases, and handler identity connected without requiring a large action-engine rewrite.
 - Fletching is the first staged expansion skill to complete backend + target-panel rollout. It uses stable recipe IDs for save/UI selection, because multiple recipes can produce the same inventory item (for example, several log tiers all output arrow shafts).
 - Fletching material-only inputs such as feathers and arrowtips are registered as item-manifest `material` entries. They are inventory-safe now, but still need explicit source loops before the economy is complete.
 - Utility/Activities are backend actions, not skills. They use stable activity IDs in `UTILITY_ACTIVITY_DATA`, mutate inventory through pure helpers, award zero skill XP, and can batch up to an inventory-sized cap when they represent fast material preparation.
+- Utility/Activities should stay outside `skill_registry.py` unless they gain real level/XP semantics. Runtime dispatch handles them through `action_registry.py` and the handler key `utility`, while the UI may still surface them as a synthetic Skills-hub category.
 - Crafting recipe data stores source XP only. Runtime reward handling awards base XP per action tick; review pacing is controlled by the actions-per-review multiplier rather than by inflating a single action's XP.
 - Crafting now follows the source-data-module pattern at the backend layer (`crafting_data.py`). `current_craft` stores stable recipe IDs, inventory stores real item names, and the data intentionally includes live input-starved recipes so missing acquisition loops light up later without reshaping the recipe. XP-bearing Crafting ignores recipe `batch_size`; only no-XP Utility/Activities batch material prep.
 - Woodcutting now has a focused source-data module (`woodcutting_data.py`) rather than only ad hoc `constants.py` rows. Its stable target IDs are persisted in `current_tree`, while inventory uses real item output names such as `Logs` and `Oak logs`.
@@ -58,7 +60,7 @@ Adding many skills by copying the current pattern would increase duplication in:
 - icon/image registration
 - tests
 
-The next major refactor should continue moving target-list metadata and action behavior behind registry metadata. Skill and item identity now exist in pure backend modules; UI, achievements, and the remaining runtime dispatch internals are still transitional.
+The next major refactor should continue moving target-list metadata and action behavior behind registry metadata. Skill, item, and review-action identity now exist in pure backend modules; UI target builders, achievements, and large pieces of `__init__.py` orchestration are still transitional.
 
 ## Skill Expansion Workflow
 Use the project skill at `.cursor/skills/ankiscape-skill-expansion/SKILL.md` before adding or expanding any skill, Utility/Activity, target chain, item economy slice, or achievement set. It encodes the repeatable workflow: source audit first, playable scope cut, registry/item data, asset scraping, pure mechanics, UI surfacing, achievement patterns, tests, manual Anki checks, and memory updates.

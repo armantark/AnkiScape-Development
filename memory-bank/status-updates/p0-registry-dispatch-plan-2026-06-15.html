@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P0 Registry Dispatch Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.12), transparent 38%),
+        radial-gradient(circle at 78% 18%, rgba(74, 222, 128, 0.10), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #9cc0ff;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(2rem, 5vw, 3.8rem); line-height: 0.95; letter-spacing: 0; }
+    .subtitle { max-width: 780px; margin: 0 0 28px; color: var(--text-dim); font-size: 1rem; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.92);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.20);
+    }
+    .card:hover { transform: translateY(-1px); transition: transform 150ms ease; }
+    .label { font: 600 0.68rem "JetBrains Mono", monospace; letter-spacing: 0.06em; text-transform: uppercase; }
+    .critical { color: var(--red); }
+    .major { color: var(--amber); }
+    .medium { color: var(--green); }
+    .polish { color: var(--purple); }
+    h2 { margin: 8px 0 10px; font-size: 1.28rem; }
+    p { color: var(--text-dim); line-height: 1.52; }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .tag {
+      padding: 4px 7px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: #c7d2e5;
+      font: 400 0.68rem "JetBrains Mono", monospace;
+    }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; background: #10131a; padding: 12px; }
+    .pane-title { color: var(--text-dim); font: 600 0.64rem "JetBrains Mono", monospace; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px; }
+    .branch { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 0; border-bottom: 1px solid rgba(42, 48, 64, 0.7); }
+    .branch:last-child { border-bottom: 0; }
+    .branch span:first-child { color: var(--text); }
+    .pill { color: var(--green); font: 600 0.62rem "JetBrains Mono", monospace; white-space: nowrap; }
+    .flow { margin-top: 12px; display: grid; gap: 8px; }
+    .step { display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+    .num { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: var(--accent); color: white; font: 600 0.78rem "JetBrains Mono", monospace; }
+    .step b { display: block; margin-bottom: 2px; }
+    .meter { height: 12px; border-radius: 99px; background: #0f1218; overflow: hidden; border: 1px solid var(--border); }
+    .meter > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+    .checklist label { display: flex; align-items: center; gap: 8px; color: var(--text-dim); margin: 9px 0; }
+    input[type="checkbox"] { accent-color: var(--accent); }
+    @media (max-width: 900px) {
+      .grid, .split { grid-template-columns: 1fr; }
+      main { padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Pre-Implementation Plan · 2026-06-15</div>
+    <h1>P0 Registry Dispatch Cleanup</h1>
+    <p class="subtitle">Source of truth: <code>memory-bank/future-work-kanban.md</code>. Goal: reduce old skill-branch debt in review dispatch while preserving Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities behavior and the flat save model.</p>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label critical">Backend</div>
+        <h2>Smallest Useful Refactor</h2>
+        <p>Keep skill data and save keys stable. Add pure review-action dispatch metadata so runtime code resolves skill and Utility handlers through one path, then replace the long readiness branch with handler-keyed readiness checks.</p>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="branch"><span>Skill handler</span><span class="pill">registry</span></div>
+            <div class="branch"><span>Utility handler</span><span class="pill" style="color: var(--amber)">special case</span></div>
+            <div class="branch"><span>Can-start checks</span><span class="pill" style="color: var(--red)">if/elif</span></div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">After</div>
+            <div class="branch"><span>Skill handler</span><span class="pill">action registry</span></div>
+            <div class="branch"><span>Utility handler</span><span class="pill">action registry</span></div>
+            <div class="branch"><span>Can-start checks</span><span class="pill">handler map</span></div>
+          </div>
+        </div>
+        <div class="tags"><span class="tag">action_registry.py</span><span class="tag">__init__.py</span><span class="tag">tests</span></div>
+      </article>
+
+      <article class="card">
+        <div class="label major">Frontend</div>
+        <h2>Audit, Not Rewrite</h2>
+        <p>The UI still has per-skill target builders, prompts, and icon paths. That is real debt, but current backend metadata does not yet describe target-list widgets enough to migrate the screen without inventing a larger contract.</p>
+        <div class="flow">
+          <div class="step"><div class="num">1</div><div><b>Leave visible behavior alone.</b><p>Do not redesign the Skills hub or target panels in this pass.</p></div></div>
+          <div class="step"><div class="num">2</div><div><b>Document the handoff.</b><p>Record that UI target-list metadata remains the next frontend boundary once backend contracts exist.</p></div></div>
+        </div>
+        <div class="tags"><span class="tag">ui.py</span><span class="tag">skill_hub.py</span><span class="tag">memory-bank</span></div>
+      </article>
+
+      <article class="card">
+        <div class="label medium">Grill-Me Branches</div>
+        <h2>Resolved From Code</h2>
+        <div class="branch"><span>Promote Utility to a skill?</span><span class="pill">No</span></div>
+        <div class="branch"><span>Change save shape?</span><span class="pill">No</span></div>
+        <div class="branch"><span>Change XP/item behavior?</span><span class="pill">No</span></div>
+        <div class="branch"><span>Move target UI now?</span><span class="pill" style="color: var(--amber)">Not yet</span></div>
+        <p>The repo already answers these: Utility has no level/XP, storage is flat, and target-list widgets still need richer metadata before a safe UI migration.</p>
+      </article>
+
+      <article class="card">
+        <div class="label polish">Verification</div>
+        <h2>Targeted Coverage</h2>
+        <p>Tests should prove dispatch behavior, not merely line coverage. The fast path is unit tests for action registry mapping plus integration smoke for review-answer routing and multi-tick readiness checks.</p>
+        <div class="checklist">
+          <label><input type="checkbox" checked> Unit: Skill + Utility dispatch keys resolve correctly.</label>
+          <label><input type="checkbox" checked> Integration: review handler lookup uses the new dispatch registry.</label>
+          <label><input type="checkbox" checked> Integration: multi-action reviews stop on handler-keyed readiness.</label>
+          <label><input type="checkbox"> Full: run core and offscreen Qt suites after edits.</label>
+        </div>
+        <div class="meter" aria-label="Plan confidence"><div style="width: 82%"></div></div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

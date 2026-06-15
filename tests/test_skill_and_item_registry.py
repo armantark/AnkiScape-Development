@@ -1,5 +1,11 @@
 import unittest
 
+from action_registry import (
+    is_review_action,
+    is_utility_review_action,
+    review_action_display_names,
+    review_action_handler_key,
+)
 from constants import (
     BAR_DATA,
     CRAFTING_DATA,
@@ -45,6 +51,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Fletching"))
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
+
+    def test_review_action_registry_includes_utility_without_making_it_a_skill(self):
+        self.assertFalse(is_review_skill("Utility / Activities"))
+        self.assertTrue(is_review_action("Utility / Activities"))
+        self.assertTrue(is_utility_review_action("Utility"))
+        self.assertEqual(review_action_handler_key("Utility / Activities"), "utility")
+        self.assertEqual(review_action_handler_key("Fletching"), "fletching")
+        self.assertIsNone(review_action_handler_key("Thieving"))
+        self.assertEqual(
+            review_action_display_names(),
+            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching", "Utility / Activities"),
+        )
 
     def test_planned_catalog_contains_2011_era_targets_without_enabling_them(self):
         planned = {skill.id: skill for skill in planned_skill_definitions()}

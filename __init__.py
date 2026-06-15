@@ -55,8 +55,8 @@ from .logic_pure import (
     apply_woodcutting_action_pure,
     apply_mining_action_pure,
     sanitize_review_action_multiplier,
-    can_mine_ore_pure,
-    can_cut_tree_pure,
+    can_mine_target_pure,
+    can_chop_woodcutting_target_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
     can_equip_item_pure,
@@ -85,7 +85,7 @@ from .injectors import inject_overview_floating_button as _inject_overview_float
 from .injectors import register_deck_browser_button as _register_deck_browser_button
 from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
-from .skill_registry import is_review_skill, review_handler_key
+from .action_registry import is_review_action, review_action_handler_key
 
 global card_turned, exp_awarded, answer_shown
 
@@ -94,7 +94,6 @@ card_turned = False
 exp_awarded = False
 
 current_skill = "None"
-_UTILITY_SKILL_NAMES = {"Utility", "Utility / Activities"}
 
 # --- Debug logging (centralized) ---
 from .debug import debug_log  # size-rotated, disabled by default unless ANKISCAPE_DEBUG=1
@@ -965,61 +964,81 @@ def on_unequip_slot(slot):
     return True
 
 
+def _can_start_fletching_action() -> bool:
+    target = player_data.get("current_fletch", "arrow_shafts")
+    return can_fletch_item_pure(
+        player_data.get("fletching_level", 1),
+        player_data.get("inventory", {}),
+        target,
+        FLETCHING_DATA,
+    )
+
+
+def _can_start_crafting_action() -> bool:
+    target = player_data.get("current_craft", "form_pot_unfired")
+    return can_craft_item_pure(
+        player_data.get("crafting_level", 1),
+        player_data.get("inventory", {}),
+        target,
+        CRAFTING_DATA,
+    )
+
+
+def _can_start_smithing_action() -> bool:
+    target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
+    return can_smith_item_pure(
+        player_data.get("smithing_level", 1),
+        player_data.get("inventory", {}),
+        target,
+        SMITHING_DATA,
+    )
+
+
+def _can_start_utility_action() -> bool:
+    activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    return can_perform_utility_activity_pure(
+        player_data.get("inventory", {}),
+        activity_key,
+        UTILITY_ACTIVITY_DATA,
+    )
+
+
+def _can_start_woodcutting_action() -> bool:
+    return can_chop_woodcutting_target_pure(
+        player_data.get("woodcutting_level", 1),
+        player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET),
+        TREE_DATA,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        WOODCUTTING_AXE_DATA,
+    )
+
+
+def _can_start_mining_action() -> bool:
+    return can_mine_target_pure(
+        player_data.get("mining_level", 1),
+        player_data.get("current_ore", DEFAULT_MINING_TARGET),
+        ORE_DATA,
+        player_data.get("inventory", {}),
+        player_data.get("toolbelt", {}),
+        MINING_PICKAXE_DATA,
+    )
+
+
+_CAN_START_HANDLERS = {
+    "mining": _can_start_mining_action,
+    "woodcutting": _can_start_woodcutting_action,
+    "smithing": _can_start_smithing_action,
+    "crafting": _can_start_crafting_action,
+    "fletching": _can_start_fletching_action,
+    "utility": _can_start_utility_action,
+}
+
+
 def _can_start_current_action() -> bool:
-    if current_skill == "Fletching":
-        target = player_data.get("current_fletch", "arrow_shafts")
-        return can_fletch_item_pure(
-            player_data.get("fletching_level", 1),
-            player_data.get("inventory", {}),
-            target,
-            FLETCHING_DATA,
-        )
-    if current_skill == "Crafting":
-        target = player_data.get("current_craft", "form_pot_unfired")
-        return can_craft_item_pure(
-            player_data.get("crafting_level", 1),
-            player_data.get("inventory", {}),
-            target,
-            CRAFTING_DATA,
-        )
-    if current_skill == "Smithing":
-        target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
-        return can_smith_item_pure(
-            player_data.get("smithing_level", 1),
-            player_data.get("inventory", {}),
-            target,
-            SMITHING_DATA,
-        )
-    if current_skill in _UTILITY_SKILL_NAMES:
-        activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-        return can_perform_utility_activity_pure(
-            player_data.get("inventory", {}),
-            activity_key,
-            UTILITY_ACTIVITY_DATA,
-        )
-    if current_skill == "Woodcutting":
-        target = player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET)
-        spec = TREE_DATA.get(target)
-        if not spec or player_data.get("woodcutting_level", 1) < spec.get("level", 1):
-            return False
-        return best_woodcutting_axe_pure(
-            player_data.get("woodcutting_level", 1),
-            player_data.get("inventory", {}),
-            player_data.get("toolbelt", {}),
-            WOODCUTTING_AXE_DATA,
-        ) is not None
-    if current_skill == "Mining":
-        target = player_data.get("current_ore", DEFAULT_MINING_TARGET)
-        spec = ORE_DATA.get(target)
-        if not spec or player_data.get("mining_level", 1) < spec.get("level", 1):
-            return False
-        return best_mining_pickaxe_pure(
-            player_data.get("mining_level", 1),
-            player_data.get("inventory", {}),
-            player_data.get("toolbelt", {}),
-            MINING_PICKAXE_DATA,
-        ) is not None
-    return True
+    handler_key = review_action_handler_key(current_skill)
+    checker = _CAN_START_HANDLERS.get(handler_key)
+    return checker() if checker is not None else True
 
 
 _REVIEW_HANDLERS = {
@@ -1033,9 +1052,7 @@ _REVIEW_HANDLERS = {
 
 
 def _registered_answer_handler(skill):
-    if skill in _UTILITY_SKILL_NAMES:
-        return _REVIEW_HANDLERS.get("utility")
-    handler_key = review_handler_key(skill)
+    handler_key = review_action_handler_key(skill)
     if handler_key is None:
         return None
     return _REVIEW_HANDLERS.get(handler_key)
@@ -1068,7 +1085,7 @@ def on_good_answer():
 
 def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown
-    if ease > 1 and (is_review_skill(current_skill) or current_skill in _UTILITY_SKILL_NAMES) and card_turned and not exp_awarded and answer_shown:
+    if ease > 1 and is_review_action(current_skill) and card_turned and not exp_awarded and answer_shown:
         on_good_answer()
         exp_awarded = True
     card_turned = False
