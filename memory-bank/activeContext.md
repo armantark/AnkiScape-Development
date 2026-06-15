@@ -16,10 +16,11 @@ are scaffolded with authentic defaults (combat levels 1; Constitution 10), and
 legacy `owned_equipment` is removed during migration. Mining bonuses now read
 from worn slots: glory in `neck`, Varrock armour in `body`.
 
-Frontend handoff: add a dedicated Equipment tab, right-click Equip/Unequip in the
-Bank/Equipment views, slot icons, and compact bonus/requirement tooltips. The
-backend callbacks are `on_equip_item(item_name)` and `on_unequip_slot(slot)`;
-pure helpers are documented in `memory-bank/equipment-combat-contract-design.md`.
+The original frontend handoff for Equipment is complete: the UI now has a
+dedicated Equipment tab, right-click Equip/Unequip in the Bank/Equipment views,
+slot icons, and compact bonus/requirement tooltips. The backend callbacks are
+`on_equip_item(item_name)` and `on_unequip_slot(slot)`; pure helpers are
+documented in `memory-bank/equipment-combat-contract-design.md`.
 
 The equipment **frontend** pass is now complete. `ui.show_main_menu` gained a
 dedicated **Equipment tab** that always renders all 11 `EQUIPMENT_SLOTS` (greyed
@@ -63,8 +64,58 @@ Review-answer XP/items now respect Anki undo. The runtime records changed `playe
 A project-local Cursor skill now exists at `.cursor/skills/ankiscape-skill-expansion/`. Use it before any future skill/action expansion so source audit, assets, target items, Utility/Activities, achievements, tests, and memory updates happen consistently instead of being rediscovered each time.
 
 Crafting/Utility backend rework is now complete. `Soft clay` is no longer a Crafting XP target; no-XP Utility/Activities handle `Clay -> Soft clay` in batches up to 28. The audited Crafting pilot now includes pottery shaping/firing, wool spinning, bowstring spinning, and silver bolts (unf). Source XP is preserved in recipe data; pacing now comes from the review action multiplier rather than scaling XP after a single action.
+Crafting 2011Scape **backend parity foundation** is now complete. Legacy inline `constants.CRAFTING_DATA` has been replaced by source-backed `crafting_data.py` with stable recipe IDs in `current_craft`, real output item names in inventory, corrected 2011Scape values (Emerald cut 67.0 XP; Sapphire necklace 55.0 XP), and live input-starved targets for dragonstone/onyx, hides, glass, battlestaves, selected urns, and other dependency-heavy rows. XP-bearing Crafting now always runs one action per review; 28x batching is reserved for no-XP Utility/Activities. Storage config version is 11 and migrates legacy display-name Crafting targets through `LEGACY_CRAFTING_TARGETS`; `Soft clay` still migrates to `current_utility = make_soft_clay`. Minimal Qt compatibility was included so Crafting rows render `display_name` while storing stable IDs; full grouped Crafting frontend polish remains a frontend handoff.
 
-Woodcutting 2011Scape **frontend** pass is complete. The Skills-hub tree list now renders stable target IDs as friendly display names + level, shows output/base-XP/best-usable-hatchet/source in tooltips, distinguishes level vs "no usable hatchet" lock reasons (via `can_chop_woodcutting_target_pure` + `best_woodcutting_axe_pure` over `player_data["toolbelt"]`), and flags Ivy inline as "— XP only" (no logs). `Open bird nests` is surfaced as a visible no-XP Utility/Activities row, locked until a nest is held (`can_open_bird_nests_pure`). The legacy `show_stats`/`show_tree_selection_dialog` were de-landmined for the ID schema (real log item names + display names + missing-icon guards). Known follow-up: the `assets` task (log/Achey/Hollow/Ivy/hatchet/nest icons) is still pending — the UI degrades gracefully to iconless rows until then.
+
+Crafting 2011Scape **frontend grouping + assets** pass is now complete.
+`_build_craft_list` was rebuilt from a flat `QListWidget` into a `QTreeWidget`
+grouped by `CraftingRecipe.family` (Gem cutting → Combinations), mirroring the
+Smithing metal-tier pattern: each family is a collapsible parent, children render
+`display_name` + level (+ `— makes N` when `output_qty > 1`), store the stable
+recipe ID on `UserRole`, and persist via the existing `on_set_craft`
+(== `current_craft`). Families are collapsed by default with per-family
+expand/collapse persisted in Anki config (`ankiscape_craft_expanded_families`
+via `craft_expanded_families` / `set_craft_family_expanded`, mw-guarded for
+headless tests); the family holding the current target is force-expanded.
+Tooltips show output item/qty, base XP, and per-material owned counts; lock
+reasons come straight from `can_craft_item_pure` (level/materials only).
+
+**Dependency-heavy targets are wired identically to every other target** —
+dragonstone/onyx cuts + jewellery, dragonhide bodies, glassblowing, battlestaves
+are NOT hidden, NOT tagged, and carry no distinct visual/semantic state. They are
+simply, emergently un-runnable because the player holds 0 of a material whose
+acquisition route doesn't exist yet — the exact same state as a Sapphire ring
+with 0 sapphires. An earlier attempt added an inline "— input-starved" tag plus
+an `INPUT_STARVED_RECIPE_IDS` structured flag; both were **removed** at the
+maintainer's direction (the inertness must be implicit, never labelled). The
+skill MD's live-content non-negotiable was rewritten to make this explicit so it
+isn't re-litigated.
+
+**Disabled-row click bug fixed across all target builders.** Qt fires
+`itemClicked` even on disabled rows (the enabled flag gates *selection*, not the
+click signal), so clicking a greyed/locked target used to set it active and then
+fail the next review with "you don't have X". Every selection handler
+(`_on_ore_selected`, `_on_tree_selected`, `_on_smith_clicked`, `_on_craft_clicked`,
+`_on_fletch_selected`, `_on_utility_selected`) now ignores disabled rows
+(`item.isDisabled()` for trees / `flags() & ItemIsEnabled` for lists).
+
+**Assets:** `tools/fetch_crafting_assets.py` derives its manifest from
+`CRAFTING_DATA` (all outputs + crafting-specific raw materials; cross-skill
+ores/gems/bars/logs are skipped since the registry resolves those from their own
+folders) and fills `crafteditems/`. Intermediate pottery/urn states and unstrung
+amulets use `WIKI_TITLE_OVERRIDES`. `constants` now wires `CRAFTED_ITEM_IMAGES`
+for both outputs **and** input materials (existence-guarded) so the Bank shows
+material icons too. Legacy CamelCase `crafteditems/*.png` files still resolve on
+macOS's case-insensitive FS; the fetcher writes lowercase `_asset_slug` names.
+
+Qt tests cover family grouping, stable recipe IDs (incl. the colliding
+"Dragonstone ammy" rows), level-ordering, dependency-heavy targets being wired
+like any other (present, untagged, material-gated only), owned-count tooltips,
+`on_set_craft` persistence, family-node click-inertness, current-target
+auto-expand, and the disabled-row click guard on both the Crafting and Smithing
+trees.
+
+Woodcutting 2011Scape **frontend/assets** pass is complete. The Skills-hub tree list now renders stable target IDs as friendly display names + level, shows output/base-XP/best-usable-hatchet in tooltips, distinguishes level vs "no usable hatchet" lock reasons (via `can_chop_woodcutting_target_pure` + `best_woodcutting_axe_pure` over `player_data["toolbelt"]`), and flags Ivy inline as "— XP only" (no logs). `Open bird nests` is surfaced as a visible no-XP Utility/Activities row, locked until a nest is held (`can_open_bird_nests_pure`). The legacy `show_stats`/`show_tree_selection_dialog` were de-landmined for the ID schema, and fetched log/hatchet/nest sprites are wired through `LOG_IMAGES` / `WOODCUTTING_EXTRA_ITEM_IMAGES` with graceful gaps only for rare unresolved egg assets.
 
 Depletion handling for processing skills: when a Crafting target or Utility activity runs out of its required materials, the runtime now names the *specific* missing item (e.g. "Pot" reports a missing "Unfired pot", not the Soft clay the player has plenty of) and switches the active skill off (`current_skill -> "None"`) via `_deactivate_current_skill`, instead of re-raising the same error on every card. The player re-picks a target from the menu to resume. Error dialogs also force the style's standard warning glyph so macOS stops substituting the host app's "folder" icon.
 
@@ -72,11 +123,11 @@ The Crafting/Utility **frontend** pass is now also complete. Utility/Activities 
 
 Woodcutting backend parity is now complete. Source data lives in `woodcutting_data.py` and is audited against local 2011Scape rev 667 source. Woodcutting now uses stable target IDs (`tree`, `oak`, `ivy`, etc.), real output item keys (`Logs`, `Oak logs`, `Bark`), source-shaped Anki-tuned chop probabilities, hybrid tool resolution from bound toolbelt IDs plus owned hatchet items, and rare bird nest subtype drops. Existing saves migrate legacy target names and tree-named inventory keys into the new shape; Redwood is removed as OSRS-only content. `Open bird nests` is a no-XP Utility/Activities backend action that opens up to 28 source nests into inert seed/ring/egg contents for future systems.
 
-Mining 2011Scape **frontend** pass is now complete. The Skills-hub ore list (`_build_ore_list`) mirrors the Woodcutting tree-list pattern: rows render stable target IDs as friendly `display_name` + level with the ID on `UserRole`, tooltips show output / base XP / best-usable-pickaxe / source, and lock reasons split level vs "no usable pickaxe" via `can_mine_target_pure` + `best_mining_pickaxe_pure` over `player_data["toolbelt"]`. Variable-output rocks (Sandstone, Granite, Gem rocks) are flagged `— variable output` inline and list their weighted items in tooltips; essence shows `— Pure essence at Lvl 30+`. Coal/Gold tooltips note that the `concentrated` deposits are deliberately deferred. `owned_equipment` was intentionally left backend-only (no toolbelt/equipment UI). Bank/Stats were already registry-driven on real item names; only the unwired legacy `show_ore_selection_dialog` icon fallback was de-landmined for output-less rocks. Eight offscreen Qt tests cover Mining rows in `tests/test_main_menu_widget.py`.
+Mining 2011Scape **frontend** pass is now complete. The Skills-hub ore list (`_build_ore_list`) mirrors the Woodcutting tree-list pattern: rows render stable target IDs as friendly `display_name` + level with the ID on `UserRole`, tooltips show output / base XP / best-usable-pickaxe / source, and lock reasons split level vs "no usable pickaxe" via `can_mine_target_pure` + `best_mining_pickaxe_pure` over `player_data["toolbelt"]`. Variable-output rocks (Sandstone, Granite, Gem rocks) are flagged `— variable output` inline and list their weighted items in tooltips; essence shows `— Pure essence at Lvl 30+`. Coal/Gold tooltips note that the `concentrated` deposits are deliberately deferred. Mining bonus gear now flows through the general Equipment tab and worn `player_data["equipment"]` slots, not a backend-only passive collection. Bank/Stats are registry-driven on real item names, and the legacy `show_ore_selection_dialog` icon fallback was de-landmined for output-less rocks. Eight offscreen Qt tests cover Mining rows in `tests/test_main_menu_widget.py`.
 
 The Mining **assets** pass is now complete. `tools/fetch_mining_assets.py` batch-fetches (via the shared rate-limited `tools/fetch_assets.py` client + provenance) the parity ore art (Pure essence, Blurite ore, Limestone, Sandstone 1/2/5/10kg, Granite 500g/2kg/5kg into `ores/`), the gem-rock gems (Uncut opal/jade/red topaz into `gems/`), and the standard pickaxe tiers (Bronze→Dragon into a new `miningitems/`). Gilded pickaxes are intentionally skipped (cosmetic, don't resolve cleanly, share base-tier behavior). Wiring: `GEM_IMAGES` gained opal/jade/red topaz (existence-guarded); `MINING_EXTRA_ITEM_IMAGES` now also resolves tools from `miningitems/` by `_asset_slug`; the `_build_ore_list` row-icon lookup falls back ORE_IMAGES→GEM_IMAGES so variable rocks show their first weighted output (Gem rocks→Uncut opal). One landmine fixed: `build_item_definitions` resolved weighted gem outputs from the `ore_images` map (and `seen_storage_keys` blocked the later override), so the `ITEM_DEFINITIONS` call now passes a merged `{**ORE_IMAGES, **GEM_IMAGES}` for ore art. Asset-path tests live in `tests/test_skill_and_item_registry.py`.
 
-Mining backend parity is now complete. Source data lives in `mining_data.py`: stable target IDs (`rune_essence`, `iron`, `gem_rocks`, etc.), real output item keys, source low/high Mining chances, respawn-time data, pickaxe metadata, weighted sandstone/granite/gem-rock outputs, incidental gem drops, and minimal backend-only owned equipment for Mining bonuses. Storage config version is 8 and migrates legacy display-name `current_ore` values while preserving existing inventory item names. The item manifest now records `tradeable` plus minimal equipable metadata; Mining-specific non-tradable decisions include Blurite ore, Inferno adze, and Varrock armour. Dragon pickaxe is normalized to item 15261 because local `PickaxeType.kt` references 15259 but `items.yml` marks 15261 as the tradeable "Used for mining" item.
+Mining backend parity is now complete. Source data lives in `mining_data.py`: stable target IDs (`rune_essence`, `iron`, `gem_rocks`, etc.), real output item keys, source low/high Mining chances, respawn-time data, pickaxe metadata, weighted sandstone/granite/gem-rock outputs, incidental gem drops, and Mining bonus metadata that now resolves through worn Equipment slots. Storage config version is 8 and migrates legacy display-name `current_ore` values while preserving existing inventory item names. The item manifest records `tradeable` plus minimal equipable metadata; Mining-specific non-tradable decisions include Blurite ore, Inferno adze, and Varrock armour. Dragon pickaxe is normalized to item 15261 because local `PickaxeType.kt` references 15259 but `items.yml` marks 15261 as the tradeable "Used for mining" item.
 
 Review pacing has been reworked from an XP-only multiplier to a time/action multiplier. The Settings UI now exposes an integer `Actions per review` spinner (1x-10x) backed by `ankiscape_review_action_multiplier`; runtime falls back to the legacy `ankiscape_xp_multiplier` config only to preserve existing user settings. A successful review now runs up to N normal action ticks inside one undo-aware review transaction, so XP increases because more actions run, alongside item outputs, material consumption, gathering failures, gems/nests, and Utility batches. Floating XP/activity feedback is aggregated once per review, and processing/Utility stop silently when materials are depleted after a productive sub-action.
 
@@ -106,7 +157,7 @@ Active priority (decided): **broaden the skill roster before resuming the GE.** 
 ## Next Recommended Work
 1. Smithing frontend/assets handoff is **complete** (see above) with full 166/166 icon coverage. No follow-up needed; if a future forge row is added, re-run `tools/fetch_smithing_assets.py` (it derives the manifest from `SMITHING_DATA`).
 2. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
-3. Extend Crafting beyond the curated pilot only after each dependency has a source loop.
+3. Crafting backend and frontend/assets passes are complete; remaining Crafting work is adding real acquisition loops for currently input-starved materials.
 4. Consider a small Utility/Activities icon set (currently the activity outputs reuse `crafteditems/` material art; the hub category/skill row falls back to the generic achievement icon).
 5. Unpark the fake GE once the item economy is broad enough; resume from `memory-bank/fake-grand-exchange-design.md` (design is locked — do not re-grill the same decision tree).
 6. Only then design combat and Slayer task layering.

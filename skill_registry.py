@@ -82,7 +82,7 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         level_key="crafting_level",
         exp_key="crafting_exp",
         current_target_key="current_craft",
-        default_target="",
+        default_target="form_pot_unfired",
         review_handler_key="crafting",
     ),
     SkillDefinition(

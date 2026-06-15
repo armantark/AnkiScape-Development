@@ -171,7 +171,7 @@ def build_item_definitions(
             add_definition(_definition(output_name, "crafted", "Crafting", {output_name: spec}, crafted_item_images))
     for spec in crafting_data.values():
         for requirement_name in spec.get("requirements", {}):
-            if requirement_name not in seen_storage_keys:
+            if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                 add_material_definition(requirement_name, "Crafting material", crafting_material_images)
     if fletching_data is not None:
         image_map = fletched_item_images or {}
@@ -180,7 +180,7 @@ def build_item_definitions(
             if isinstance(output_name, str):
                 add_definition(_definition(output_name, "fletched", "Fletching", {output_name: spec}, image_map))
             for requirement_name in spec.get("requirements", {}):
-                if requirement_name not in seen_storage_keys:
+                if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                     add_material_definition(requirement_name, "Fletching material", image_map)
     if utility_activity_data is not None:
         image_map = utility_item_images or {}
@@ -189,7 +189,7 @@ def build_item_definitions(
             if isinstance(output_name, str):
                 add_material_definition(output_name, "Utility / Activities", image_map)
             for requirement_name in spec.get("requirements", {}):
-                if requirement_name not in seen_storage_keys:
+                if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                     add_material_definition(requirement_name, "Utility / Activities", image_map)
     if extra_item_data is not None:
         image_map = extra_item_images or {}

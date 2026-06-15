@@ -141,6 +141,57 @@ def _smith_tier_node(tree: "QTreeWidget", tier: str) -> "QTreeWidgetItem":
     raise AssertionError(f"smith tier node {tier!r} not found")
 
 
+def _tree_items(tree: "QTreeWidget") -> "list[QTreeWidgetItem]":
+    """All items in a grouped tree (family/tier parents + recipe children)."""
+    items: "list[QTreeWidgetItem]" = []
+
+    def _walk(item: "QTreeWidgetItem") -> None:
+        items.append(item)
+        for i in range(item.childCount()):
+            _walk(item.child(i))
+
+    for i in range(tree.topLevelItemCount()):
+        _walk(tree.topLevelItem(i))
+    return items
+
+
+def _find_craft_tree(dialog: "QDialog") -> "QTreeWidget":
+    """The Crafting target tree, identified by a stable Crafting recipe id."""
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == "cut_emerald" for it in _tree_items(tw)):
+            return tw
+    raise AssertionError("craft tree (with recipe ids) not found")
+
+
+def _craft_row(tree: "QTreeWidget", recipe_id: str) -> "QTreeWidgetItem":
+    for it in _tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == recipe_id:
+            return it
+    raise AssertionError(f"craft row {recipe_id!r} not found")
+
+
+def _craft_family_node(tree: "QTreeWidget", family: str) -> "QTreeWidgetItem":
+    role = f"__family__:{family}"
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole) == role:
+            return tree.topLevelItem(i)
+    raise AssertionError(f"craft family node {family!r} not found")
+
+
+def _goto_crafting(dialog: "QDialog") -> "QTreeWidget":
+    """Open Artisan -> Crafting and return the family-grouped recipe tree."""
+    artisan = next(b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan")
+    artisan.click()
+    QApplication.processEvents()
+    skill_list = _find_artisan_skill_list(dialog)
+    row = next(
+        i for i in range(skill_list.count()) if skill_list.item(i).text() == "Crafting"
+    )
+    skill_list.setCurrentRow(row)
+    QApplication.processEvents()
+    return _find_craft_tree(dialog)
+
+
 def _find_bank_list(dialog: "QDialog") -> "QListWidget":
     """The bank list is the one whose rows carry category headers."""
     for lw in dialog.findChildren(QListWidget):
@@ -190,6 +241,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         # Records recipe IDs the Smithing list persists via on_set_smith so tests
         # can assert selection wiring without real mouse events.
         self._smith_calls: list = []
+        # Same seam for the family-grouped Crafting tree (on_set_craft).
+        self._craft_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -218,7 +271,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_tree=lambda *a: None,
             on_set_bar=lambda *a: None,
             on_set_smith=lambda rid: self._smith_calls.append(rid),
-            on_set_craft=lambda *a: None,
+            on_set_craft=lambda rid: self._craft_calls.append(rid),
             on_set_fletch=lambda *a: None,
             on_set_utility=lambda *a: None,
         )
@@ -747,16 +800,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         return _find_list_with_item_prefix(dialog, "Make soft clay")
 
     def test_soft_clay_left_crafting_and_is_now_a_utility_activity(self) -> None:
-        # Open Crafting target list and assert Soft clay is no longer a target.
-        artisan = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Artisan")
-        artisan.click()
-        QApplication.processEvents()
-        skill_list = _find_artisan_skill_list(self.dialog)
-        craft_row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Crafting")
-        skill_list.setCurrentRow(craft_row)
-        QApplication.processEvents()
-        craft_list = _find_list_with_item_prefix(self.dialog, "Pot ")
-        craft_texts = [craft_list.item(i).text() for i in range(craft_list.count())]
+        # Open Crafting target tree and assert Soft clay is no longer a target.
+        tree = _goto_crafting(self.dialog)
+        craft_texts = [it.text(0) for it in _tree_items(tree)]
         self.assertFalse(
             any(t.startswith("Soft clay") for t in craft_texts),
             f"Soft clay should not be a Crafting target anymore: {craft_texts}",
@@ -766,6 +812,149 @@ class MainMenuWidgetTest(unittest.TestCase):
         util_texts = [utility_list.item(i).text() for i in range(utility_list.count())]
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
+
+    # ---- Crafting parity (family-grouped CRAFTING_DATA recipe tree) --------
+    def test_crafting_groups_recipes_by_family(self) -> None:
+        tree = _goto_crafting(self.dialog)
+        family_roles = [
+            tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole)
+            for i in range(tree.topLevelItemCount())
+        ]
+        self.assertIn("__family__:gems", family_roles)
+        self.assertIn("__family__:jewellery", family_roles)
+        # The Gem-cutting family parents the stable cut recipe IDs.
+        gems = _craft_family_node(tree, "gems")
+        child_ids = {gems.child(i).data(0, Qt.ItemDataRole.UserRole) for i in range(gems.childCount())}
+        self.assertIn("cut_emerald", child_ids)
+        self.assertIn("cut_sapphire", child_ids)
+
+    def test_crafting_rows_carry_stable_recipe_ids_not_display_names(self) -> None:
+        tree = _goto_crafting(self.dialog)
+        roles = [it.data(0, Qt.ItemDataRole.UserRole) for it in _tree_items(tree)]
+        self.assertIn("jewellery_sapphire_necklace", roles)
+        self.assertNotIn("Sapphire necklace", roles)
+        # Display-name collisions (e.g. the strung "Dragonstone ammy") are exactly
+        # why targets are keyed by stable id, never by output name.
+        self.assertIn("jewellery_dragonstone_ammy", roles)
+        self.assertIn("string_dragonstone_amulet", roles)
+
+    def test_crafting_children_sorted_by_level_within_a_family(self) -> None:
+        tree = _goto_crafting(self.dialog)
+        jewellery = _craft_family_node(tree, "jewellery")
+        levels = [
+            int(re.search(r"\(Lvl (\d+)\)", jewellery.child(i).text(0)).group(1))
+            for i in range(jewellery.childCount())
+        ]
+        self.assertEqual(levels, sorted(levels), f"jewellery not level-ordered: {levels}")
+
+    def test_crafting_dependency_heavy_targets_are_wired_like_any_other(self) -> None:
+        # Dragonstone/onyx/hide/glass/battlestaff targets are NOT hidden, NOT
+        # special-cased, and carry no distinct tag/label/state. They are simply,
+        # emergently un-runnable because the player holds 0 of a material with no
+        # source yet — identical to a Sapphire ring with 0 sapphires. The only
+        # gate is the normal missing-material check.
+        pd = _make_player_data()
+        pd["inventory"] = {}
+        pd["crafting_level"] = 99
+        dialog = self._open(pd)
+        tree = _goto_crafting(dialog)
+        for rid in (
+            "cut_dragonstone",
+            "cut_onyx",
+            "jewellery_onyx_amulet",
+            "leather_black_dhide_body",
+            "glass_beer_glass",
+            "battlestaff_water_battlestaff",
+        ):
+            row = _craft_row(tree, rid)
+            # Present and visible, with no special "input-starved"/"coming soon"
+            # wording on the row — wired exactly like every other target.
+            self.assertNotIn("input-starved", row.text(0).lower(), rid)
+            self.assertNotIn("coming soon", row.text(0).lower(), rid)
+            # Locked only on materials (level 99 is met), same as any other recipe
+            # whose materials you lack.
+            self.assertTrue(row.isDisabled(), f"{rid} should be material-gated")
+            self.assertIn("materials", row.toolTip(0))
+            self.assertNotIn("level", row.toolTip(0).split("Locked due to:")[-1])
+
+    def test_crafting_disabled_row_click_does_not_change_target(self) -> None:
+        # Bug fix: itemClicked fires on disabled rows, so clicking a locked target
+        # must NOT make it active (otherwise the next review fails with
+        # "you don't have X"). Empty inventory locks every craft on materials.
+        pd = _make_player_data()
+        pd["inventory"] = {}
+        pd["crafting_level"] = 99
+        pd["current_craft"] = None
+        dialog = self._open(pd)
+        tree = _goto_crafting(dialog)
+        locked = _craft_row(tree, "cut_dragonstone")
+        self.assertTrue(locked.isDisabled())
+        before = list(self._craft_calls)
+        tree.itemClicked.emit(locked, 0)
+        tree.itemActivated.emit(locked, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._craft_calls, before, "locked target must not be selectable")
+
+    def test_smithing_disabled_row_click_does_not_change_target(self) -> None:
+        # Same disabled-row click guard on the Smithing tree.
+        pd = _make_player_data()
+        pd["inventory"] = {}  # no bars -> every smith recipe locked on materials
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        tree = _find_smith_tree(dialog)
+        locked = _smith_row(tree, "smelt_bronze_bar")
+        self.assertTrue(locked.isDisabled())
+        before = list(self._smith_calls)
+        tree.itemClicked.emit(locked, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._smith_calls, before, "locked smith target must not be selectable")
+
+    def test_crafting_tooltip_shows_output_xp_and_owned_counts(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Gold bar": 1}  # sapphire necklace needs a bar + sapphire
+        pd["crafting_level"] = 99
+        dialog = self._open(pd)
+        tree = _goto_crafting(dialog)
+        row = _craft_row(tree, "jewellery_sapphire_necklace")
+        tip = row.toolTip(0)
+        self.assertIn("Output: Sapphire necklace x1", tip)
+        self.assertIn("Base XP:", tip)
+        self.assertIn("Gold bar x1 (you have 1)", tip)
+        self.assertIn("Sapphire x1 (you have 0)", tip)
+        self.assertTrue(row.isDisabled())  # missing the sapphire
+
+    def test_crafting_unlocks_with_materials_and_persists_recipe_id(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Gold bar": 5}
+        pd["crafting_level"] = 99
+        dialog = self._open(pd)
+        tree = _goto_crafting(dialog)
+        ring = _craft_row(tree, "jewellery_gold_ring")
+        self.assertFalse(ring.isDisabled())
+        tree.itemClicked.emit(ring, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._craft_calls[-1], "jewellery_gold_ring")
+
+    def test_crafting_clicking_a_family_node_does_not_persist_a_target(self) -> None:
+        tree = _goto_crafting(self.dialog)
+        before = list(self._craft_calls)
+        tree.itemClicked.emit(_craft_family_node(tree, "jewellery"), 0)
+        QApplication.processEvents()
+        self.assertEqual(self._craft_calls, before, "family headers must not set a target")
+
+    def test_crafting_highlights_current_target_and_expands_its_family(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Gold bar": 5}
+        pd["current_craft"] = "jewellery_gold_ring"
+        dialog = self._open(pd)
+        tree = _goto_crafting(dialog)
+        current = tree.currentItem()
+        self.assertIsNotNone(current)
+        self.assertEqual(current.data(0, Qt.ItemDataRole.UserRole), "jewellery_gold_ring")
+        # The family holding the current target opens so the selection is visible.
+        self.assertTrue(_craft_family_node(tree, "jewellery").isExpanded())
+        # Unrelated families stay collapsed to tame the panel.
+        self.assertFalse(_craft_family_node(tree, "gems").isExpanded())
 
     def test_utility_panel_uses_no_xp_language(self) -> None:
         self._open_utility(self.dialog)

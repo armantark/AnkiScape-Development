@@ -1,6 +1,6 @@
 import unittest
 
-from ui import compute_level_progress
+from ui import compute_level_progress, current_target_display_name
 from constants import EXP_TABLE
 
 class TestReviewHUDProgress(unittest.TestCase):
@@ -48,6 +48,39 @@ class TestReviewHUDProgress(unittest.TestCase):
         self.assertEqual(pct, 100)
         self.assertEqual(remain, 0.0)
         self.assertEqual(target, 99)
+
+class TestCurrentTargetDisplayName(unittest.TestCase):
+    def test_echoes_selected_target_display_name(self):
+        pd = {"current_craft": "fire_empty_pot"}
+        self.assertEqual(current_target_display_name("Crafting", pd), "Empty pot")
+
+    def test_falls_back_to_skill_default_when_unset(self):
+        # Empty player data should resolve to the registry default target.
+        self.assertEqual(current_target_display_name("Mining", {}), "Rune essence")
+
+    def test_resolves_for_each_target_skill(self):
+        cases = {
+            "Woodcutting": ("current_tree", "oak", "Oak"),
+            "Crafting": ("current_craft", "form_pot_unfired", "Pot (unfired)"),
+        }
+        for skill, (key, target_id, expected) in cases.items():
+            with self.subTest(skill=skill):
+                self.assertEqual(
+                    current_target_display_name(skill, {key: target_id}), expected
+                )
+
+    def test_unknown_target_id_echoes_raw_id(self):
+        # Defensive: a stale/unknown id still shows something rather than blanking.
+        out = current_target_display_name("Crafting", {"current_craft": "bogus_id"})
+        self.assertEqual(out, "bogus_id")
+
+    def test_returns_none_for_skill_without_target(self):
+        # Combat skills have no selectable target -> label should hide.
+        self.assertIsNone(current_target_display_name("Attack", {}))
+
+    def test_returns_none_for_unknown_skill(self):
+        self.assertIsNone(current_target_display_name("Nonsense", {}))
+
 
 if __name__ == "__main__":
     unittest.main()

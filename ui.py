@@ -174,6 +174,22 @@ _ITEM_CATEGORY_LABELS = {
     "material": "Materials",
 }
 
+# Friendly headers for the Crafting panel's family groups (CraftingRecipe.family
+# -> display label). Anything not listed falls back to family.title(), so a new
+# family group still renders a sensible header without a code change.
+_CRAFT_FAMILY_LABELS = {
+    "gems": "Gem cutting",
+    "pottery": "Pottery",
+    "spinning": "Spinning",
+    "silver": "Silver",
+    "jewellery": "Jewellery",
+    "leather": "Leather",
+    "glass": "Glassblowing",
+    "battlestaff": "Battlestaves",
+    "weaving": "Weaving",
+    "combination": "Combinations",
+}
+
 
 def skill_icon_path_for(display_name: str) -> Optional[str]:
     """Resolve a skill's icon by registry id (icon/<id>_icon.png), else None.
@@ -482,6 +498,42 @@ def set_smith_tier_expanded(tier: str, expanded: bool) -> None:
         pass
 
 
+_CRAFT_EXPANDED_CONFIG_KEY = "ankiscape_craft_expanded_families"
+
+
+def craft_expanded_families() -> set:
+    """Return the set of Crafting family groups the user has expanded.
+
+    The Crafting panel groups recipes by family (Gem cutting, Pottery,
+    Jewellery, ...). This mirrors the Smithing tier persistence so the panel
+    reopens with the same families expanded across sessions; returns an empty
+    set (everything collapsed) when config is unavailable, e.g. headless tests.
+    """
+    try:
+        if mw and getattr(mw, 'col', None):
+            value = mw.col.get_config(_CRAFT_EXPANDED_CONFIG_KEY, [])
+            if isinstance(value, (list, tuple)):
+                return {str(family) for family in value}
+    except Exception:
+        pass
+    return set()
+
+
+def set_craft_family_expanded(family: str, expanded: bool) -> None:
+    """Persist a single Crafting family group's expand/collapse state."""
+    try:
+        if not (mw and getattr(mw, 'col', None)):
+            return
+        current = craft_expanded_families()
+        if expanded:
+            current.add(family)
+        else:
+            current.discard(family)
+        mw.col.set_config(_CRAFT_EXPANDED_CONFIG_KEY, sorted(current))
+    except Exception:
+        pass
+
+
 def is_floating_xp_enabled() -> bool:
     """Return True if floating XP popups are enabled (default True)."""
     return get_config_bool("ankiscape_floating_xp_enabled", True)
@@ -615,6 +667,38 @@ def compute_level_progress(level: int, exp: float, exp_table: list) -> tuple[int
         return 0, 0.0, min(safe_lvl + 1, 99)
 
 
+# Maps a skill id to the data table that resolves its current-target id into a
+# human-readable display name. Registry-driven (skill_registry supplies the
+# current_target_key/default_target) so the HUD label is just a literal echo of
+# whatever the player picked in the menu — no per-skill verb phrasing.
+_SKILL_TARGET_TABLES = {
+    "mining": ORE_DATA,
+    "woodcutting": TREE_DATA,
+    "smithing": SMITHING_DATA,
+    "crafting": CRAFTING_DATA,
+    "fletching": FLETCHING_DATA,
+}
+
+
+def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
+    """Return the display name of the skill's currently selected target.
+
+    Returns None when the skill has no selectable target (e.g. combat/support)
+    or cannot be resolved, so callers can simply hide the label.
+    """
+    sd = get_skill(skill or "")
+    if sd is None or sd.current_target_key is None:
+        return None
+    target_id = player_data.get(sd.current_target_key) or sd.default_target
+    if not target_id:
+        return None
+    table = _SKILL_TARGET_TABLES.get(sd.id)
+    spec = table.get(target_id) if table else None
+    if isinstance(spec, dict):
+        return str(spec.get("display_name", target_id))
+    return str(target_id)
+
+
 # UI Classes
 if HAS_QT:
     # Shared HUD theme
@@ -680,6 +764,13 @@ if HAS_QT:
             self.sub_lbl.setStyleSheet("color: rgba(255,255,255,0.85); font-size: 11px;")
             info.addWidget(self.sub_lbl)
 
+            # Small line echoing the target currently selected in the menu
+            # (e.g. "Pot (unfired)"). Updated live via set_data whenever the
+            # player changes their selection.
+            self.target_lbl = QLabel("")
+            self.target_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
+            info.addWidget(self.target_lbl)
+
             root.addLayout(info, 1)
 
             # Aesthetic container style
@@ -742,6 +833,9 @@ if HAS_QT:
                 try:
                     self.progress.setVisible(False)
                     self.sub_lbl.setVisible(True)
+                    # Activity name already shown in sub_lbl for Utility.
+                    self.target_lbl.setText("")
+                    self.target_lbl.setVisible(False)
                 except Exception:
                     pass
                 self.adjustSize()
@@ -763,6 +857,8 @@ if HAS_QT:
                 try:
                     self.progress.setVisible(True)
                     self.sub_lbl.setVisible(True)
+                    self.target_lbl.setText("")
+                    self.target_lbl.setVisible(False)
                 except Exception:
                     pass
                 self.adjustSize()
@@ -789,10 +885,19 @@ if HAS_QT:
             self.progress.setValue(pct)
             self.sub_lbl.setText(f"{pct}% to Lv {target_lv} • {remain:,.0f} XP to next")
 
+            # Echo the currently selected menu target (e.g. "Pot (unfired)").
+            target_name = current_target_display_name(skill, player_data)
+
             # Always show progress/subtext when HUD is enabled
             try:
                 self.progress.setVisible(True)
                 self.sub_lbl.setVisible(True)
+                if target_name:
+                    self.target_lbl.setText(target_name)
+                    self.target_lbl.setVisible(True)
+                else:
+                    self.target_lbl.setText("")
+                    self.target_lbl.setVisible(False)
             except Exception:
                 pass
 
@@ -1365,7 +1470,10 @@ def show_main_menu(
                 ore_list.setCurrentItem(item)
 
         def _on_ore_selected(item: QListWidgetItem):
-            if item:
+            # Skip locked rows: itemClicked still fires on disabled items, and
+            # selecting one would make it the active target only to fail the next
+            # review (e.g. a too-high-level rock).
+            if item and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
                 on_set_ore(item.data(Qt.ItemDataRole.UserRole))
         ore_list.itemClicked.connect(_on_ore_selected)
         ore_list.itemActivated.connect(_on_ore_selected)
@@ -1421,7 +1529,8 @@ def show_main_menu(
                 tree_list.setCurrentItem(item)
 
         def _on_tree_selected(item: QListWidgetItem):
-            if item:
+            # Skip locked rows (itemClicked still fires on disabled items).
+            if item and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
                 on_set_tree(item.data(Qt.ItemDataRole.UserRole))
         tree_list.itemClicked.connect(_on_tree_selected)
         tree_list.itemActivated.connect(_on_tree_selected)
@@ -1563,7 +1672,9 @@ def show_main_menu(
             tree.setCurrentItem(selected_child)
 
         def _on_smith_clicked(item: "QTreeWidgetItem", _column: int = 0):
-            if item is None:
+            # Skip locked rows: itemClicked fires on disabled items, so a locked
+            # recipe would otherwise become active and fail the next review.
+            if item is None or item.isDisabled():
                 return
             recipe_id = item.data(0, Qt.ItemDataRole.UserRole)
             if not recipe_id or str(recipe_id).startswith("__tier__"):
@@ -1591,40 +1702,76 @@ def show_main_menu(
         )
         return tree
 
-    def _build_craft_list() -> QListWidget:
-        craft_list = QListWidget()
-        craft_list.setIconSize(QSize(28, 28))
-        craft_list.setAlternatingRowColors(True)
-        for item_name, spec in CRAFTING_DATA.items():
-            item = QListWidgetItem(f"{item_name} (Lvl {spec['level']})")
-            item.setData(Qt.ItemDataRole.UserRole, item_name)
-            c_icon = CRAFTED_ITEM_IMAGES.get(item_name)
+    def _build_craft_list() -> QTreeWidget:
+        # CRAFTING_DATA is one table keyed by stable recipe IDs ("cut_emerald",
+        # "jewellery_sapphire_necklace", "form_pot_unfired", ...). Like Smithing,
+        # a flat list of ~60 recipes is a wall of rows, so this is a QTreeWidget
+        # grouped by CraftingRecipe.family (Gem cutting, Pottery, Jewellery, ...).
+        # Each family is a collapsible parent; the chosen recipe ID lives on the
+        # child's UserRole and persists via on_set_craft (== current_craft).
+        #
+        # Every source-backed recipe is rendered live and wired identically to
+        # every other recipe — including dragonstone/onyx cuts + jewellery,
+        # dragonhide bodies, glassblowing, and battlestaves. Nothing about them is
+        # special-cased: no tag, no "coming soon", no distinct visual state. They
+        # are simply, emergently un-runnable right now because you have 0 of a
+        # material whose acquisition route doesn't exist yet — exactly the same
+        # state as a Sapphire ring when you hold 0 sapphires. The only gate is the
+        # standard can_craft_item_pure level/material check. Utility/Activities
+        # (no-XP material prep) stay in their own hub category and never appear.
+        tree = QTreeWidget()
+        tree.setHeaderHidden(True)
+        tree.setIconSize(QSize(28, 28))
+        tree.setRootIsDecorated(True)
+        tree.setIndentation(14)
+        tree.setUniformRowHeights(True)
+        tree.setStyleSheet(
+            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 4px; }"
+            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+        )
+        lvl_have = player_data.get("crafting_level", 1)
+        inv = player_data.get("inventory", {})
+        current = player_data.get("current_craft")
+        cur_spec = CRAFTING_DATA.get(current) if current else None
+        cur_family = cur_spec.get("family") if cur_spec else None
+        expanded = craft_expanded_families()
+
+        def _make_child(recipe_id: str, spec: dict) -> "QTreeWidgetItem":
+            display_name = str(spec.get("display_name", recipe_id))
+            lvl_req = spec.get("level", 1)
+            output_item = str(spec.get("output_item", display_name))
+            output_qty = spec.get("output_qty", 1) or 1
+            reqs = spec.get("requirements", {}) or {}
+
+            label = f"{display_name} (Lvl {lvl_req})"
+            if output_qty > 1:
+                label += f" — makes {output_qty}"
+            child = QTreeWidgetItem([label])
+            child.setData(0, Qt.ItemDataRole.UserRole, recipe_id)
+
+            c_icon = CRAFTED_ITEM_IMAGES.get(output_item) or CRAFTED_ITEM_IMAGES.get(display_name)
             if c_icon and os.path.exists(c_icon):
-                item.setIcon(QIcon(c_icon))
-            lvl_req = spec.get('level', 1)
-            lvl_have = player_data.get("crafting_level", 1)
-            inv = player_data.get('inventory', {})
-            reqs = spec.get('requirements', {})
+                child.setIcon(0, QIcon(c_icon))
+
             materials_ok = True
             mat_lines = []
             for mat, amt in reqs.items():
                 have = inv.get(mat, 0)
                 if have < amt:
                     materials_ok = False
-                mat_lines.append(f"{mat} x{amt} (you have {have})")
-            mat_text = "\n".join(mat_lines) if mat_lines else "No materials required"
-            output_item = spec.get("output_item", item_name)
-            output_qty = spec.get("output_qty", 1)
-            batch_size = spec.get("batch_size", 1)
-            output_line = f"Output: {output_item} x{output_qty}"
-            if batch_size and batch_size > 1:
-                output_line += f" (up to {batch_size} per successful card)"
+                mat_lines.append(f"  {mat} x{amt} (you have {have})")
+            mat_text = "\n".join(mat_lines) if mat_lines else "  No materials required"
             tooltip = (
                 f"Requires Crafting level {lvl_req}. You have {lvl_have}.\n"
-                f"{output_line}\nMaterials:\n{mat_text}"
+                f"Output: {output_item} x{output_qty}\n"
+                f"Base XP: {spec.get('exp', 0)} per action\n"
+                f"Materials:\n{mat_text}"
             )
-            if not can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+            if not can_craft_item_pure(lvl_have, inv, recipe_id, CRAFTING_DATA):
+                child.setDisabled(True)
                 reason = []
                 if lvl_have < lvl_req:
                     reason.append(f"level {lvl_req}")
@@ -1632,17 +1779,77 @@ def show_main_menu(
                     reason.append("materials")
                 if reason:
                     tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            craft_list.addItem(item)
-            if item_name == player_data.get("current_craft"):
-                craft_list.setCurrentItem(item)
+            child.setToolTip(0, tooltip)
+            return child
 
-        def _on_craft_selected(item: QListWidgetItem):
-            if item:
-                on_set_craft(item.data(Qt.ItemDataRole.UserRole))
-        craft_list.itemClicked.connect(_on_craft_selected)
-        craft_list.itemActivated.connect(_on_craft_selected)
-        return craft_list
+        # Group by family, preserving the first-appearance order CRAFTING_DATA
+        # already lists families in (gems, pottery, spinning, silver, jewellery,
+        # leather, glass, battlestaff, weaving, combination).
+        order: list = []
+        groups: dict = {}
+        for recipe_id, spec in CRAFTING_DATA.items():
+            family = str(spec.get("family", "other"))
+            if family not in groups:
+                groups[family] = []
+                order.append(family)
+            groups[family].append((recipe_id, spec))
+
+        selected_child = None
+        for family in order:
+            label = _CRAFT_FAMILY_LABELS.get(family, family.title())
+            parent = QTreeWidgetItem([f"{label}  ({len(groups[family])})"])
+            parent.setData(0, Qt.ItemDataRole.UserRole, f"__family__:{family}")
+            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)  # header: expand only, not selectable
+            font = parent.font(0)
+            font.setBold(True)
+            parent.setFont(0, font)
+            tree.addTopLevelItem(parent)
+            # Low -> high level within a family reads better than source emit order.
+            ordered = sorted(
+                groups[family],
+                key=lambda rs: (rs[1].get("level", 1), str(rs[1].get("display_name", ""))),
+            )
+            for recipe_id, spec in ordered:
+                child = _make_child(recipe_id, spec)
+                parent.addChild(child)
+                if recipe_id == current:
+                    selected_child = child
+            # Collapsed by default; expanded if previously expanded or it holds
+            # the current target. Set before wiring signals so building the tree
+            # doesn't rewrite persisted state.
+            parent.setExpanded(family in expanded or family == cur_family)
+
+        if selected_child is not None:
+            tree.setCurrentItem(selected_child)
+
+        def _on_craft_clicked(item: "QTreeWidgetItem", _column: int = 0):
+            # itemClicked fires even on disabled rows (the enabled flag gates
+            # selection, not the click signal), so a locked target would otherwise
+            # become the active craft and then fail the next review with a
+            # "you don't have X" dialog. Ignore locked/header rows here.
+            if item is None or item.isDisabled():
+                return
+            recipe_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if not recipe_id or str(recipe_id).startswith("__family__"):
+                return
+            if on_set_craft is not None:
+                on_set_craft(recipe_id)
+
+        def _family_label(item: "QTreeWidgetItem") -> Optional[str]:
+            role = item.data(0, Qt.ItemDataRole.UserRole)
+            if isinstance(role, str) and role.startswith("__family__:"):
+                return role.split(":", 1)[1]
+            return None
+
+        tree.itemClicked.connect(_on_craft_clicked)
+        tree.itemActivated.connect(_on_craft_clicked)
+        tree.itemExpanded.connect(
+            lambda it: (_family_label(it) and set_craft_family_expanded(_family_label(it), True))
+        )
+        tree.itemCollapsed.connect(
+            lambda it: (_family_label(it) and set_craft_family_expanded(_family_label(it), False))
+        )
+        return tree
 
     def _build_fletch_list() -> QListWidget:
         # Fletching is a processing skill like Crafting: it consumes logs and
@@ -1690,7 +1897,8 @@ def show_main_menu(
                 fletch_list.setCurrentItem(item)
 
         def _on_fletch_selected(item: QListWidgetItem):
-            if item and on_set_fletch is not None:
+            # Skip locked rows (itemClicked still fires on disabled items).
+            if item and on_set_fletch is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
                 on_set_fletch(item.data(Qt.ItemDataRole.UserRole))
         fletch_list.itemClicked.connect(_on_fletch_selected)
         fletch_list.itemActivated.connect(_on_fletch_selected)
@@ -1749,7 +1957,8 @@ def show_main_menu(
                 utility_list.setCurrentItem(item)
 
         def _on_utility_selected(item: QListWidgetItem):
-            if item and on_set_utility is not None:
+            # Skip locked rows (itemClicked still fires on disabled items).
+            if item and on_set_utility is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
                 on_set_utility(item.data(Qt.ItemDataRole.UserRole))
         utility_list.itemClicked.connect(_on_utility_selected)
         utility_list.itemActivated.connect(_on_utility_selected)

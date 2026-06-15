@@ -106,5 +106,5 @@ Varrock armour. It should not reintroduce a separate `owned_equipment` collectio
 - Do not implement diary reward grants.
 - Do not implement Varrock armour acquisition.
 - Do not rebalance all achievement difficulties.
-- Do not add diary-specific equipment UI; use the general Equipment tab once the frontend pass lands.
+- Do not add diary-specific equipment UI; use the general Equipment tab.
 - Do not create region diaries or quest analogues.

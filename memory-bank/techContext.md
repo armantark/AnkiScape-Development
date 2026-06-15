@@ -65,7 +65,10 @@ AnkiScape replicates the skilling side of early-2010s RuneScape. Canonical basel
 
 Current Woodcutting backend parity data lives in `woodcutting_data.py`, with a detailed audit at `memory-bank/source-audits/woodcutting-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high chop chances and hatchet ratios, then lets `logic_pure.py` adapt them to Anki review cadence.
 
-Current Mining backend parity data lives in `mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and backend-only Mining bonus metadata. Storage config version 8 migrates old display-name Mining targets to stable IDs.
+Current Mining backend parity data lives in `mining_data.py`, with a detailed audit at `memory-bank/source-audits/mining-2011scape-2026-06-01.md`. It stores raw 2011Scape low/high Mining chances, respawn-time data, pickaxe roll cadence, scoped simple historical targets, gem-drop tables, tradability, and Mining bonus metadata consumed through worn equipment. Storage config version 8 migrates old display-name Mining targets to stable IDs; storage config version 10 moves passive bonus ownership into `player_data["equipment"]`.
+
+
+Current Crafting backend parity data lives in `crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
 
 Current Smithing backend parity data lives in `smithing_data.py`, with a detailed audit at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md`. `tools/generate_smithing_data.py` parses the local 2011Scape Smithing plugin and item metadata into a checked-in Python module with 9 smelt recipes and 157 forge recipes. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 

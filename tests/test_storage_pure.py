@@ -67,7 +67,7 @@ class TestStoragePure(unittest.TestCase):
             + list(WOODCUTTING_LOG_ITEMS)
             + list(BAR_DATA)
             + list(GEM_DATA)
-            + list(CRAFTING_DATA)
+            + [spec["output_item"] for spec in CRAFTING_DATA.values()]
             + fletching_outputs
             + fletching_materials
             + utility_outputs
@@ -91,7 +91,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["smithing_level"], 1)
         self.assertEqual(migrated["crafting_level"], 1)
         self.assertEqual(migrated["current_smith"], "smelt_bronze_bar")
-        self.assertEqual(migrated["current_craft"], "")
+        self.assertEqual(migrated["current_craft"], "form_pot_unfired")
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
@@ -198,6 +198,36 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_craft"], "")
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         self.assertEqual(migrated["inventory"]["Clay"], 4)
+
+    def test_migrate_legacy_crafting_target_names(self):
+        migrated = migrate_loaded_data(
+            {"current_craft": "Bow string", "inventory": {"Flax": 3}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["current_craft"], "spin_flax_to_bow_string")
+        self.assertEqual(migrated["inventory"]["Flax"], 3)
+
+    def test_migrate_legacy_crafting_inventory_names(self):
+        migrated = migrate_loaded_data(
+            {
+                "inventory": {
+                    "Unfired pot": 120,
+                    "Pot": 4,
+                    "Unfired pie dish": 3,
+                    "Pot (unfired)": 2,
+                }
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["inventory"]["Pot (unfired)"], 122)
+        self.assertEqual(migrated["inventory"]["Empty pot"], 4)
+        self.assertEqual(migrated["inventory"]["Pie dish (unfired)"], 3)
+        self.assertNotIn("Unfired pot", migrated["inventory"])
+        self.assertNotIn("Pot", migrated["inventory"])
+        self.assertNotIn("Unfired pie dish", migrated["inventory"])
 
     def test_migrate_idempotent(self):
         base = {"mining_exp": 10, "inventory": {}}

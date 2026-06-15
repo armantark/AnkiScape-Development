@@ -367,7 +367,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.player_data = {
             "inventory": {"Soft clay": 231},
             "crafting_level": 50,
-            "current_craft": "Pot",
+            "current_craft": "fire_empty_pot",
             "completed_achievements": [],
         }
 
@@ -375,7 +375,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "None")
         self.assertEqual(len(errors), 1)
-        self.assertIn("Unfired pot", errors[0][1])
+        self.assertIn("Pot (unfired)", errors[0][1])
         self.assertIn("switched off", errors[0][1])
 
     def test_changing_target_refreshes_review_hud(self):

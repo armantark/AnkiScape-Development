@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crafting Frontend Grouping + Assets — Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.55;padding:40px 24px 80px;background-image:radial-gradient(900px 500px at 80% -5%,var(--accent-glow),transparent)}
+.wrap{max-width:1180px;margin:0 auto}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.12em;color:var(--green);background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);padding:5px 11px;border-radius:999px;text-transform:uppercase}
+h1{font-weight:700;font-size:2.05rem;margin:14px 0 6px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.97rem;max-width:780px}
+.mono{font-family:'JetBrains Mono',monospace}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:30px 0}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px}
+.metric .n{font-family:'JetBrains Mono',monospace;font-size:1.7rem;font-weight:600;color:var(--accent)}
+.metric .l{color:var(--text-dim);font-size:.78rem;margin-top:2px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:8px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.18s}
+.card:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(0,0,0,.35);border-color:#3a4256}
+.card h3{font-size:.7rem;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:4px}
+.card h2{font-size:1.12rem;font-weight:700;margin-bottom:10px}
+.ba{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.pane{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px}
+.pane .lbl{font-family:'JetBrains Mono',monospace;font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:9px}
+.pane.before .lbl{color:var(--red)}
+.pane.after .lbl{color:var(--green)}
+.row{font-size:.72rem;padding:4px 7px;border-radius:5px;display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;background:var(--surface)}
+.row.dim{color:var(--text-dim)}
+.row.sel{background:rgba(76,175,80,.22);outline:1px solid rgba(76,175,80,.5)}
+.row .ic{width:11px;height:11px;border-radius:3px;background:var(--surface-2);margin-right:6px;display:inline-block;vertical-align:-1px}
+.row .ic.img{background:linear-gradient(135deg,#6c5ce7,#00b894)}
+.hdr{font-size:.7rem;font-weight:600;color:var(--text);padding:4px 6px;margin:7px 0 3px;font-family:'JetBrains Mono',monospace}
+.section{margin-top:34px}
+.section h2{font-size:1.25rem;font-weight:700;margin-bottom:14px}
+.step{display:flex;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:15px 17px;margin-bottom:11px}
+.step .num{flex:0 0 28px;height:28px;border-radius:7px;background:var(--accent);color:#fff;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.85rem;display:grid;place-items:center}
+.step .body{flex:1}
+.step .body p{color:var(--text-dim);font-size:.86rem;margin-top:2px}
+.pill{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:2px 8px;border-radius:999px;border:1px solid}
+.pill.g{color:var(--green);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)}
+.pill.r{color:var(--red);border-color:rgba(255,92,92,.4);background:rgba(255,92,92,.08)}
+.gallery{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.f{font-family:'JetBrains Mono',monospace;font-size:.66rem;background:var(--surface-2);border:1px solid var(--border);padding:3px 9px;border-radius:7px;color:var(--text-dim)}
+.f b{color:var(--text)}
+.note{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:10px;padding:16px 18px;margin-top:14px}
+.note b{color:var(--purple)}
+.codeblock{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--text-dim);line-height:1.7;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px 13px;margin-top:8px}
+.del{color:var(--red);text-decoration:line-through;opacity:.7}
+.add{color:var(--green)}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.ba{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <span class="badge">Frontend · Completed · v2</span>
+  <h1>Crafting — grouped tree, implicit gating, full icons</h1>
+  <p class="sub">The flat Crafting list is now a family-grouped <span class="mono">QTreeWidget</span>. Dependency-heavy targets (dragonstone, onyx, hide, glass, battlestaves) are wired <b>identically to every other target</b> — no tag, no label, no special state. They're just material-locked like anything you lack mats for. Plus: a real click-selection bug fix and the full crafting icon set.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="n">10</div><div class="l">family groups</div></div>
+    <div class="metric"><div class="n">74</div><div class="l">icons fetched · 0 failed</div></div>
+    <div class="metric"><div class="n">6</div><div class="l">builders click-bug-fixed</div></div>
+    <div class="metric"><div class="n">280</div><div class="l">tests green (223 pure · 57 Qt)</div></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>Before / After · the panel</h3>
+      <h2>Flat wall → grouped, with icons</h2>
+      <div class="ba">
+        <div class="pane before">
+          <div class="lbl">Before — flat, iconless</div>
+          <div class="row"><span><span class="ic"></span>Opal (Lvl 1)</span></div>
+          <div class="row"><span><span class="ic"></span>Pot (unfired) (Lvl 1)</span></div>
+          <div class="row sel"><span><span class="ic"></span>Gold ring (Lvl 5)</span></div>
+          <div class="row dim"><span><span class="ic"></span>Dragonstone (Lvl 55)</span></div>
+          <div class="row"><span><span class="ic"></span>Sapphire necklace (Lvl 22)</span></div>
+          <div class="row" style="opacity:.5"><span>…~50 ungrouped rows</span></div>
+        </div>
+        <div class="pane after">
+          <div class="lbl">After — grouped + icons</div>
+          <div class="hdr">▸ Gem cutting&nbsp;&nbsp;(9)</div>
+          <div class="hdr">▾ Jewellery&nbsp;&nbsp;(21)</div>
+          <div class="row" style="margin-left:12px"><span><span class="ic img"></span>Gold ring (Lvl 5)</span></div>
+          <div class="row sel" style="margin-left:12px"><span><span class="ic img"></span>Sapphire necklace (Lvl 22)</span></div>
+          <div class="row dim" style="margin-left:12px"><span><span class="ic img"></span>Onyx amulet (Lvl 90)</span></div>
+          <div class="hdr">▸ Glassblowing&nbsp;&nbsp;(3)</div>
+        </div>
+      </div>
+      <p class="sub" style="font-size:.8rem;margin-top:10px">Note the Onyx amulet row: greyed because you hold 0 onyx — <b>no tag, no badge</b>. Identical treatment to any recipe you lack mats for.</p>
+    </div>
+
+    <div class="card">
+      <h3>Course-correction · got it wrong first</h3>
+      <h2>"Input-starved" is implicit, never labelled</h2>
+      <p class="sub" style="font-size:.86rem">v1 added a loud <span class="mono">— input-starved</span> row tag + an <span class="mono">INPUT_STARVED_RECIPE_IDS</span> structured flag. Wrong call: these targets aren't special. They're emergently inaccessible only because a material has no source yet — exactly like a sapphire ring with zero sapphires.</p>
+      <div class="codeblock">
+        <span class="del">label += " — input-starved"</span><br>
+        <span class="del">INPUT_STARVED_RECIPE_IDS = frozenset({…})</span><br>
+        <span class="add">+ wired identically to every other row</span><br>
+        <span class="add">+ skill MD non-negotiable rewritten so this</span><br>
+        <span class="add">&nbsp;&nbsp;isn't re-litigated every expansion</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>What shipped</h2>
+    <div>
+      <div class="step"><div class="num">1</div><div class="body"><b>Family-grouped tree + expand persistence</b> <span class="pill g">_build_craft_list</span><p>Grouped by <span class="mono">CraftingRecipe.family</span>, collapsed by default, current target's family auto-expands, state round-trips through <span class="mono">ankiscape_craft_expanded_families</span>. Stable recipe ID on <span class="mono">UserRole</span>, persisted via <span class="mono">on_set_craft</span>. Tooltips: output qty, base XP, per-material owned counts.</p></div></div>
+      <div class="step"><div class="num">2</div><div class="body"><b>Bug fix: locked rows were selectable</b> <span class="pill r">all 6 builders</span><p>Qt fires <span class="mono">itemClicked</span> even on disabled rows (the enabled flag gates <i>selection</i>, not the click), so clicking a greyed target made it active → next review failed with "you don't have X". Every handler (ore, tree, smith, craft, fletch, utility) now ignores disabled rows.</p><div class="gallery"><span class="f">item.isDisabled() / flags() &amp; ItemIsEnabled</span></div></div></div>
+      <div class="step"><div class="num">3</div><div class="body"><b>Full crafting icon set</b> <span class="pill g">tools/fetch_crafting_assets.py</span><p>Manifest derived from <span class="mono">CRAFTING_DATA</span> (every output + crafting-only raw materials; ores/gems/bars/logs skipped — registry resolves those elsewhere). 74 fetched, 0 failed, alpha-trimmed. <span class="mono">constants</span> now wires <span class="mono">CRAFTED_ITEM_IMAGES</span> for outputs <b>and</b> input materials so the Bank shows them too.</p><div class="gallery"><span class="f"><b>crafteditems/</b> 103 png</span><span class="f">WIKI_TITLE_OVERRIDES (urns, unstrung amulets)</span></div></div></div>
+      <div class="step"><div class="num">4</div><div class="body"><b>Skill MD hardened</b> <span class="pill g">ankiscape-skill-expansion</span><p>The live-content non-negotiable now forbids any tag/label/badge/state for emergently-inaccessible content, requires the disabled-row click guard, and makes <b>asset fetching mandatory every pass</b> — so this doesn't need re-specifying.</p></div></div>
+      <div class="step"><div class="num">5</div><div class="body"><b>Tests</b> <span class="pill g">+ click guard, + icon coverage</span><p>Qt: dependency-heavy targets present &amp; untagged &amp; material-gated; disabled-row click no-ops on Crafting <i>and</i> Smithing trees. Registry: every Crafting output resolves an icon, key raw materials wired. Reverted the v1 input-starved data test.</p></div></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <p><b>Manual Anki check (2 min):</b> menu → Artisan → Crafting. Click a greyed target (e.g. <span class="mono">Dragonstone</span> with no dragonstones) → it must <b>not</b> become active and the next review must train your previous pick, not error. Confirm rows now show icons and families remember their expand state across reopen.</p>
+  </div>
+</div>
+</body>
+</html>

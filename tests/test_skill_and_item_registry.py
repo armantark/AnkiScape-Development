@@ -93,7 +93,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_ore": "rune_essence",
                 "current_tree": "tree",
                 "current_smith": "smelt_bronze_bar",
-                "current_craft": "",
+                "current_craft": "form_pot_unfired",
                 "current_fletch": "arrow_shafts",
             },
         )
@@ -120,7 +120,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + list(WOODCUTTING_LOG_ITEMS)
             + list(GEM_DATA)
             + list(SMITHING_OUTPUT_ITEMS)
-            + list(CRAFTING_DATA)
+            + [spec["output_item"] for spec in CRAFTING_DATA.values()]
             + fletching_outputs
             + fletching_materials
             + utility_outputs
@@ -158,17 +158,20 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Rune platebody"].equipment_tier, 40)
         self.assertEqual(by_storage_key["Rune knife"].equipment_slot, "weapon")
 
-    def test_crafting_pilot_data_matches_utility_split(self):
+    def test_crafting_source_data_uses_stable_ids_and_live_targets(self):
         self.assertNotIn("Soft clay", CRAFTING_DATA)
-        self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["requirements"], {"Clay": 1})
+        self.assertIn("form_pot_unfired", CRAFTING_DATA)
+        self.assertEqual(CRAFTING_DATA["form_pot_unfired"]["requirements"], {"Soft clay": 1})
+        self.assertEqual(CRAFTING_DATA["fire_empty_pot"]["requirements"], {"Pot (unfired)": 1})
+        self.assertEqual(CRAFTING_DATA["cut_emerald"]["exp"], 67.0)
+        self.assertEqual(CRAFTING_DATA["jewellery_sapphire_necklace"]["exp"], 55.0)
+        self.assertEqual(CRAFTING_DATA["spin_wool_to_ball_of_wool"]["exp"], 2.5)
+        self.assertNotIn("batch_size", CRAFTING_DATA["spin_flax_to_bow_string"])
+        self.assertEqual(CRAFTING_DATA["silver_silver_bolts_unf"]["output_qty"], 10)
+        self.assertIn("cut_dragonstone", CRAFTING_DATA)
+        self.assertIn("jewellery_dragonstone_ring", CRAFTING_DATA)
+        self.assertIn("input-starved", CRAFTING_DATA["cut_dragonstone"].get("notes", ""))
         self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["batch_size"], 28)
-        self.assertEqual(CRAFTING_DATA["Unfired pot"]["requirements"], {"Soft clay": 1})
-        self.assertEqual(CRAFTING_DATA["Pot"]["requirements"], {"Unfired pot": 1})
-        self.assertEqual(CRAFTING_DATA["Pie dish"]["level"], 7)
-        self.assertEqual(CRAFTING_DATA["Bowl"]["level"], 8)
-        self.assertEqual(CRAFTING_DATA["Ball of wool"]["exp"], 2.5)
-        self.assertEqual(CRAFTING_DATA["Bow string"]["batch_size"], 28)
-        self.assertEqual(CRAFTING_DATA["Silver bolts (unf)"]["output_qty"], 10)
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
@@ -239,6 +242,31 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIsNotNone(by_storage_key["Blurite bar"].asset_path)
         self.assertIsNotNone(by_storage_key["Rune pickaxe"].asset_path)  # reuses mining art
         # The wiring is existence-guarded, so no registered path may be dead.
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_every_crafting_output_resolves_an_icon(self):
+        # tools/fetch_crafting_assets.py derives its manifest from CRAFTING_DATA,
+        # so every distinct craft *output* must resolve an asset_path -- no blank
+        # rows in the family-grouped panel, including the dependency-heavy
+        # dragonstone/onyx/hide/glass/battlestaff targets that are wired live.
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        iconless = sorted(
+            {
+                spec["output_item"]
+                for spec in CRAFTING_DATA.values()
+                if not (
+                    spec["output_item"] in by_storage_key
+                    and by_storage_key[spec["output_item"]].asset_path
+                )
+            }
+        )
+        self.assertEqual(iconless, [], f"Crafting outputs missing icons: {iconless}")
+        # Spot-check a few input-only materials wired through crafteditems/ so the
+        # Bank isn't blank for raw crafting inputs that have no other skill's art.
+        for material in ("Leather", "Molten glass", "Water orb"):
+            self.assertIsNotNone(
+                by_storage_key[material].asset_path, f"{material} should have a crafting icon"
+            )
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 

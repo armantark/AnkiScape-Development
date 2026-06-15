@@ -2,6 +2,12 @@
 from typing import Dict, Iterable, Optional, Any
 
 try:
+    from .crafting_data import (
+        DEFAULT_CRAFTING_TARGET,
+        CRAFTING_RECIPES_BY_ID,
+        LEGACY_CRAFTING_ITEM_MIGRATIONS,
+        LEGACY_CRAFTING_TARGETS,
+    )
     from .item_registry import ItemDefinition
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
@@ -17,6 +23,12 @@ try:
         LEGACY_TREE_TARGETS,
     )
 except ImportError:
+    from crafting_data import (
+        DEFAULT_CRAFTING_TARGET,
+        CRAFTING_RECIPES_BY_ID,
+        LEGACY_CRAFTING_ITEM_MIGRATIONS,
+        LEGACY_CRAFTING_TARGETS,
+    )
     from item_registry import ItemDefinition
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
@@ -32,7 +44,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 10
+CURRENT_CONFIG_VERSION = 11
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -147,6 +159,18 @@ def _migrate_legacy_smithing_target(data: Dict[str, Any]) -> None:
     data["current_smith"] = current_smith
 
 
+def _migrate_legacy_crafting_target(data: Dict[str, Any]) -> None:
+    current_craft = data.get("current_craft")
+    if isinstance(current_craft, str):
+        current_craft = LEGACY_CRAFTING_TARGETS.get(current_craft, current_craft)
+    if current_craft == "":
+        data["current_craft"] = current_craft
+        return
+    if not isinstance(current_craft, str) or current_craft not in CRAFTING_RECIPES_BY_ID:
+        current_craft = DEFAULT_CRAFTING_TARGET
+    data["current_craft"] = current_craft
+
+
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
     for legacy_key, new_key in LEGACY_LOG_STORAGE_MIGRATIONS.items():
         if legacy_key not in inventory:
@@ -162,6 +186,19 @@ def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
 
 def _migrate_legacy_bar_inventory(inventory: Dict[str, int]) -> None:
     for legacy_key, new_key in LEGACY_BAR_STORAGE_MIGRATIONS.items():
+        if legacy_key not in inventory:
+            continue
+        try:
+            amount = int(inventory.get(legacy_key, 0))
+        except (TypeError, ValueError):
+            amount = 0
+        if amount:
+            inventory[new_key] = inventory.get(new_key, 0) + amount
+        inventory.pop(legacy_key, None)
+
+
+def _migrate_legacy_crafting_inventory(inventory: Dict[str, int]) -> None:
+    for legacy_key, new_key in LEGACY_CRAFTING_ITEM_MIGRATIONS.items():
         if legacy_key not in inventory:
             continue
         try:
@@ -237,6 +274,7 @@ def migrate_loaded_data(
     _migrate_legacy_mining_target(data, ORE_DATA)
     _migrate_legacy_woodcutting_target(data)
     _migrate_legacy_smithing_target(data)
+    _migrate_legacy_crafting_target(data)
     if isinstance(data.get("current_fletch"), str):
         data["current_fletch"] = _LEGACY_FLETCHING_TARGETS.get(data["current_fletch"], data["current_fletch"])
     if data.get("current_fletch") not in (
@@ -261,9 +299,6 @@ def migrate_loaded_data(
         "magic_shortbow_u",
     ):
         data["current_fletch"] = "arrow_shafts"
-    if data.get("current_craft") == "Soft clay":
-        data["current_craft"] = ""
-        data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     _migrate_toolbelt(data)
     _migrate_equipment(data)
 
@@ -276,6 +311,7 @@ def migrate_loaded_data(
         inv.setdefault(item_key, 0)
     _migrate_legacy_log_inventory(inv)
     _migrate_legacy_bar_inventory(inv)
+    _migrate_legacy_crafting_inventory(inv)
     data["inventory"] = inv
 
     # Ensure achievements structure exists

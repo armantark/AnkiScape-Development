@@ -237,8 +237,8 @@ def apply_crafting_pure(item, inventory, crafting_data):
     if not spec or not has_crafting_materials_pure(item, inventory, crafting_data):
         return inventory, 0, False
     requirements = spec.get("requirements", {})
-    batch_size = _positive_int(spec.get("batch_size", 1))
-    batch_count = _max_batches_for_requirements(requirements, inventory, batch_size)
+    # Crafting is XP-bearing; batching is reserved for no-XP Utility/Activities.
+    batch_count = _max_batches_for_requirements(requirements, inventory, 1)
     if batch_count <= 0:
         return inventory, 0, False
     new_inv = dict(inventory)

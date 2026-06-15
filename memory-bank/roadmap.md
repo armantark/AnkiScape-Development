@@ -35,7 +35,7 @@ First proof point:
 
 Do not include flax, bowstrings, strung bows, arrows, Ranged, or combat dependencies in the first Fletching slice. Use this slice to prove that adding a skill is mostly registry data plus a small action handler.
 
-Backend status: Fletching slice 1 is implemented behind the registry and hidden from normal Skills-hub mode until frontend target selection is added.
+Status: Fletching is implemented behind the registry and surfaced in the normal Skills hub with target selection.
 
 Candidate follow-ups:
 - Utility/Activities: visible material-only actions such as flax or wool gathering with no skill XP.
@@ -44,7 +44,7 @@ Candidate follow-ups:
 - Cooking: consumes raw fish/food and produces cooked items.
 
 ## Current Priority: Skill Roster Breadth
-Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting (gathering) and Smithing, Crafting, Fletching (artisan). Woodcutting has now had a 2011Scape backend-parity pass; its frontend still needs a display/tooling polish pass over the new stable IDs and hatchet/nest metadata.
+Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting (gathering) and Smithing, Crafting, Fletching (artisan), with their current backend/frontend parity passes complete.
 - Remaining gathering skills: Fishing, Hunter, Farming.
 - Basic artisan skills: Cooking, Firemaking next; then Herblore, Runecrafting, Construction.
 - Each skill goes through `.cursor/skills/ankiscape-skill-expansion/` (source audit, assets, targets/recipes, Utility/Activities, achievements, tests, memory update).
@@ -87,7 +87,7 @@ Frontend:
 - Decide whether this remains a personal fork or becomes a public derivative release.
 
 ## Open Questions
-- Which exact early Fletching targets and XP values should be used after the registry foundation is merged?
+- Which acquisition loops should supply feathers, arrowtips, hides, glass inputs, battlestaff parts, and other currently input-starved materials before the GE exists?
 - How should Utility/Activities be presented so no-XP material actions feel intentional rather than punishing?
 - What exact constants should the fake GE use for liquidity, volatility, aggregate order flow, and stochastic supply/demand shocks?
 - What is the first Thieving target list and reward table?

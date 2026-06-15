@@ -4,6 +4,7 @@ import os
 import re
 
 try:
+    from .crafting_data import crafting_output_items, crafting_recipes_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .item_registry import build_item_definitions
     from .mining_data import (
@@ -35,6 +36,7 @@ try:
         woodcutting_targets_as_dict,
     )
 except ImportError:
+    from crafting_data import crafting_output_items, crafting_recipes_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from item_registry import build_item_definitions
     from mining_data import (
@@ -129,41 +131,9 @@ UTILITY_ACTIVITY_DATA = {
     },
 }
 
-CRAFTING_DATA = {
-    "Unfired pot": {"level": 1, "exp": 6.3, "requirements": {"Soft clay": 1}, "source": "OSRS Crafting > Pottery"},
-    "Pot": {"level": 1, "exp": 6.3, "requirements": {"Unfired pot": 1}, "source": "OSRS Crafting > Pottery"},
-    "Ball of wool": {"level": 1, "exp": 2.5, "requirements": {"Wool": 1}, "batch_size": 28, "source": "OSRS Ball of wool > Creation"},
-    "Gold ring": {"level": 5, "exp": 15, "requirements": {"Gold bar": 1}},
-    "Gold necklace": {"level": 6, "exp": 20, "requirements": {"Gold bar": 1}},
-    "Unfired pie dish": {"level": 7, "exp": 15, "requirements": {"Soft clay": 1}, "source": "OSRS Crafting > Pottery"},
-    "Pie dish": {"level": 7, "exp": 10, "requirements": {"Unfired pie dish": 1}, "source": "OSRS Crafting > Pottery"},
-    "Unfired bowl": {"level": 8, "exp": 18, "requirements": {"Soft clay": 1}, "source": "OSRS Crafting > Pottery"},
-    "Bowl": {"level": 8, "exp": 15, "requirements": {"Unfired bowl": 1}, "source": "OSRS Crafting > Pottery"},
-    "Bow string": {"level": 10, "exp": 15, "requirements": {"Flax": 1}, "batch_size": 28, "source": "OSRS Bow string > Creation"},
-    "Unstrung symbol": {"level": 16, "exp": 50, "requirements": {"Silver bar": 1}},
-    "Sapphire ring": {"level": 20, "exp": 40, "requirements": {"Gold bar": 1, "Sapphire": 1}},
-    "Sapphire": {"level": 20, "exp": 50, "requirements": {"Uncut sapphire": 1}},
-    "Silver bolts (unf)": {
-        "level": 21,
-        "exp": 50,
-        "requirements": {"Silver bar": 1},
-        "output_qty": 10,
-        "source": "OSRS Silver bolts (unf) > Creation",
-    },
-    "Sapphire necklace": {"level": 22, "exp": 60, "requirements": {"Gold bar": 1, "Sapphire": 1}},
-    "Tiara": {"level": 23, "exp": 52.5, "requirements": {"Silver bar": 1}},
-    "Emerald": {"level": 27, "exp": 67.5, "requirements": {"Uncut emerald": 1}},
-    "Emerald ring": {"level": 27, "exp": 55, "requirements": {"Gold bar": 1, "Emerald": 1}},
-    "Emerald necklace": {"level": 29, "exp": 60, "requirements": {"Gold bar": 1, "Emerald": 1}},
-    "Ruby ring": {"level": 34, "exp": 70, "requirements": {"Gold bar": 1, "Ruby": 1}},
-    "Ruby": {"level": 34, "exp": 85, "requirements": {"Uncut ruby": 1}},
-    "Ruby necklace": {"level": 40, "exp": 75, "requirements": {"Gold bar": 1, "Ruby": 1}},
-    "Diamond ring": {"level": 43, "exp": 85, "requirements": {"Gold bar": 1, "Diamond": 1}},
-    "Diamond": {"level": 43, "exp": 107.5, "requirements": {"Uncut diamond": 1}},
-    "Diamond necklace": {"level": 56, "exp": 90, "requirements": {"Gold bar": 1, "Diamond": 1}},
-}
+CRAFTING_DATA = crafting_recipes_as_dict()
 
-CRAFTED_ITEM_IMAGES = {item: os.path.join(CRAFTED_ITEMS_FOLDER, f"{item.lower().replace(' ', '_')}.png") for item in CRAFTING_DATA}
+CRAFTED_ITEM_IMAGES = {}
 UTILITY_ITEM_IMAGES = {
     "Soft clay": os.path.join(CRAFTED_ITEMS_FOLDER, "soft_clay.png"),
     "Wool": os.path.join(CRAFTED_ITEMS_FOLDER, "wool.png"),
@@ -387,6 +357,21 @@ FLETCHING_DATA = {
 
 def _asset_slug(name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
+
+
+# Crafting icons cover both outputs (the craft-target row art) and the
+# crafting-specific raw materials (Leather, Molten glass, orbs, runes, ...) so
+# the Bank can show them too. Cross-skill materials (ores/gems/bars/logs) keep
+# their own folders' art and simply have no file here. Existence-guarded:
+# tools/fetch_crafting_assets.py fills crafteditems/, and an unfetched icon
+# leaves that one row text-only rather than pointing at a dead path.
+_crafting_item_names = set(crafting_output_items())
+for _spec in CRAFTING_DATA.values():
+    _crafting_item_names.update(str(_material) for _material in _spec.get("requirements", {}))
+for _item_name in _crafting_item_names:
+    _path = os.path.join(CRAFTED_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        CRAFTED_ITEM_IMAGES[_item_name] = _path
 
 
 _FLETCHING_ITEM_NAMES = {

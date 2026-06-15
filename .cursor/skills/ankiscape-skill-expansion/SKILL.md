@@ -18,6 +18,12 @@ Use this skill before planning or implementing a skill expansion. The goal is to
 - Do not treat the OSRS wiki as a 2011 source. OSRS branched from a 2007 backup, so OSRS data is 2007 baseline plus OSRS-only additions, not 2011. Use it only as a cross-check for content that was unchanged between 2007 and 2011.
 - Keep source data honest: preserve audited 2011 base XP in data, then apply AnkiScape pacing knobs separately.
 - Use stable IDs for skills, recipes, targets, and items. Do not use display names as durable target identifiers when outputs can collide.
+- Build source-backed content **fully and live by default**, wiring each target/action into the UI as a normal, functional entry that is **indistinguishable from every other entry** — even when its inputs cannot be obtained yet. Such content is not special: it is simply, *emergently* un-runnable right now because the player holds zero of a material whose acquisition route (a drop, market, another skill, or Utility/Activity) does not exist yet. That is the **exact same state** as any normal recipe whose materials you happen to lack (e.g. a sapphire ring when you hold zero sapphires).
+  - **Do NOT** delete it, hide it, "coming soon" it, add a `locked until later` gate, or give it any distinct tag, label, badge, tooltip note, colour, or visual/semantic state. The internal term "input-starved" is for design notes only and must **never** surface in the player UI.
+  - The **only** gate is the standard "you do not have the materials / level" check that every other target already uses. Adding the missing acquisition/use route later lights the content up with **zero change to the recipe row itself**.
+  - Example: dragonstone-cutting and dragonstone-jewellery targets exist and are wired now, looking and behaving like any gem recipe; they just sit material-locked until dragonstone acquisition (GE, crystal chest, rare drop table) ships. An enchant action appears under Magic when Magic ships.
+- Locked/greyed targets must **not be selectable**: a click on a disabled row must not change the active target (Qt still fires `itemClicked` on disabled items, so guard the handler). Selecting an unrunnable target only to fail the next review is a bug, not a feature.
+- **Assets are mandatory, every pass, without being asked.** A skill expansion is not done until its target/output/material icons are fetched (via `tools/fetch_assets.py` or a skill-specific `tools/fetch_<skill>_assets.py` deriving its manifest from the data module), wired through the item registry, provenance-recorded, and covered by an asset-path test. Rows may degrade gracefully to text-only when a single icon genuinely will not resolve, but skipping the asset step entirely is not acceptable.
 - Separate XP-bearing skill actions from no-XP Utility/Activities.
 - Keep persisted save keys flat unless a migration is deliberately planned.
 - Every review reward must remain compatible with Anki undo rollback.
@@ -53,10 +59,10 @@ Think through these steps before making code changes:
    - Mark uncertain, post-2011, or OSRS-only-divergent content instead of guessing.
 
 2. Cut scope:
-   - Pick a playable slice.
-   - Classify each candidate as `implemented`, `deferred_dependency`, `future_content`, or `not_applicable`.
-   - Avoid normal UI entries that cannot be completed because their material source loop does not exist.
-   - Prefer a small complete chain over a large dead-end list.
+   - Implement every candidate that has clear 2011 source data, fully wired and selectable, regardless of whether its inputs are obtainable yet. The recipe/action is real now.
+   - The only thing deferred is missing supporting infrastructure: an acquisition route for an input (drop, market, another skill, Utility/Activity) or a downstream use/action that belongs to a not-yet-built skill. Track those gaps as notes, not as gates on the action.
+   - Do not artificially block, hide, or "coming soon" a fully-source-backed action. Rely on the existing normal material/level gating; an action with no obtainable input is simply inert until that input has a source.
+   - Reserve `future_content` for content lacking clear source data, and `not_applicable` for dev/test/shop-tool/quest-only junk with no useful AnkiScape semantics.
 
 3. Add backend data:
    - Update `skill_registry.py` for skill identity, category, save keys, review eligibility, handler key, and visibility.
@@ -73,7 +79,7 @@ Think through these steps before making code changes:
 5. Implement mechanics:
    - Add pure logic first in `logic_pure.py`.
    - Model one successful card as one action tick by default.
-   - For station-like actions, use explicit batches capped by inventory (for example, up to 28 items per successful card).
+   - For no-XP Utility/Activities that represent quick material prep, use explicit batches capped by inventory (for example, up to 28 items per successful card).
    - Apply any global XP multiplier after base XP is calculated and before level checks.
    - Keep no-XP Utility/Activities from awarding skill XP.
 

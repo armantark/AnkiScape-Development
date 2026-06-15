@@ -2,7 +2,7 @@
 
 ## Status
 
-Backend complete as of 2026-06-02. Frontend Equipment tab, right-click context menus, tooltips, and slot icons are still pending.
+Backend and frontend complete as of 2026-06-02. The Equipment tab, right-click context menus, tooltips, slot icons, and stat totals are wired to the backend contract.
 
 ## Contract
 
@@ -64,11 +64,11 @@ Frontend should treat the backend as ready when it needs:
 - runtime `on_equip_item(item_name)`
 - runtime `on_unequip_slot(slot)`
 
-The Bank tab still has a transitional read-only gear summary. The frontend pass should move worn gear into a dedicated Equipment tab and keep the Bank focused on inventory plus toolbelt.
+The Bank tab now stays focused on inventory plus toolbelt. Worn gear lives in the dedicated Equipment tab, which calls the runtime callbacks above and refreshes in place.
 
 ## Manual Test Instructions
 
-Manual runtime verification should happen inside Anki after the frontend pass wires the callbacks:
+Manual runtime verification should happen inside Anki when equipment behavior changes:
 
 1. Seed inventory with `Bronze platebody`, `Rune platebody`, `Bronze 2h sword`, and `Bronze sq shield`.
 2. Confirm Bronze gear equips at default combat levels.

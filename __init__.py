@@ -472,15 +472,16 @@ def has_crafting_materials(item):
     return has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA)
 
 def on_crafting_answer():
-    item = player_data.get("current_craft", "")
+    item = player_data.get("current_craft", "form_pot_unfired")
     spec = CRAFTING_DATA.get(item)
+    display_name = spec.get("display_name", item) if spec else item
     if not spec:
         show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
         return False
 
     player_level = player_data.get("crafting_level", 1)
     if player_level < spec["level"]:
-        show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {item}.")
+        show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
         return False
 
     # Check level and material requirements first. Name the *specific* missing
@@ -492,7 +493,7 @@ def on_crafting_answer():
         _deactivate_current_skill()
         show_error_message(
             "Out of materials",
-            f"You need {missing} to craft {item}, so Crafting has been switched off. "
+            f"You need {missing} to craft {display_name}, so Crafting has been switched off. "
             "Open the AnkiScape menu to pick another target.",
         )
         return False
@@ -504,7 +505,7 @@ def on_crafting_answer():
         _deactivate_current_skill()
         show_error_message(
             "Out of materials",
-            f"You need {missing} to craft {item}, so Crafting has been switched off. "
+            f"You need {missing} to craft {display_name}, so Crafting has been switched off. "
             "Open the AnkiScape menu to pick another target.",
         )
         return False
@@ -974,7 +975,7 @@ def _can_start_current_action() -> bool:
             FLETCHING_DATA,
         )
     if current_skill == "Crafting":
-        target = player_data.get("current_craft", "")
+        target = player_data.get("current_craft", "form_pot_unfired")
         return can_craft_item_pure(
             player_data.get("crafting_level", 1),
             player_data.get("inventory", {}),

@@ -20,16 +20,20 @@
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, action-multiplier-compatible reward handling, migration coverage, and undo-safe review handling.
 - Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped Actions-per-review control. Covered by offscreen Qt tests.
+- Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
+- Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
+- Woodcutting frontend/assets are in place: target rows show friendly names, tool requirements, Ivy/no-output notes, bird-nest Utility access, and fetched log/hatchet/nest art with graceful gaps only for rare unresolved egg assets.
 - Mining backend parity is in place: 2011Scape target/pickaxe source data, stable target IDs, real output item names, toolbelt-aware pickaxe resolution, source-shaped Mining probabilities, weighted sandstone/granite/gem-rock outputs, incidental gem drops with no Mining XP, Varrock-armour extra output, amulet-of-glory gem chance, explicit Mining item tradability metadata, and storage migration from legacy display-name `current_ore` values.
 - Review pacing can run multiple game action ticks per successful card via `Actions per review` (1x-10x). This replaces the old XP-only multiplier semantics: XP, items, material use, gathering rolls, and Utility batches now scale together, while Anki undo rolls back the whole multi-action review as one reward.
 - Smithing backend parity is in place: source-generated `smithing_data.py`, unified `SMITHING_DATA` smelt/forge recipes, all 9 bars, all 157 forge rows from `BarProducts.kt`, stable `current_smith` recipe IDs, storage config version 9, canonical `Adamant bar`/`Rune bar` names, forged item manifest registration, and runtime review dispatch through the unified pure Smithing helper.
-- Equipment backend is in place: generated `equipment_data.py` covers Smithing armour/weapons plus Mining bonus gear, `player_data["equipment"]` replaces `owned_equipment`, combat level defaults are scaffolded, pure equip/unequip/stat-total helpers exist, and runtime exposes `on_equip_item` / `on_unequip_slot` for the frontend pass.
+- Equipment backend is in place: generated `equipment_data.py` covers Smithing armour/weapons plus Mining bonus gear, `player_data["equipment"]` replaces `owned_equipment`, combat level defaults are scaffolded, pure equip/unequip/stat-total helpers exist, and runtime exposes `on_equip_item` / `on_unequip_slot` for the Equipment tab.
+- Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 
 ## What Is Not Built Yet
 - Full action handler registry metadata beyond the current review handler map.
 - Combat training and combat encounters.
-- The dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, and equipment tooltips.
+- Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Formal balancing pass for long-term progression.
 - A release-quality expansion spec.
 - Backfilled provenance for the existing bundled assets.
@@ -63,7 +67,7 @@ Fletching frontend slice completed on 2026-05-29. The backend pilot's `visible_i
 
 Skills-hub click bug fixed on 2026-05-29. Introduced an offscreen Qt behavior-test loop (`.venv-qt` with `aqt`, `QT_QPA_PLATFORM=offscreen`) that builds the real dialog and drives the widgets — no Anki restart needed. `tests/test_main_menu_widget.py` asserts that selecting Woodcutting and Artisan -> Crafting updates the panel. The core `run_tests.py` suite (95 tests) skips these when `aqt` is absent.
 
-Fletching backend pilot completed on 2026-05-29. Fletching is backend-playable but hidden from normal Skills-hub mode pending frontend target-list work. Suite passes with 99 tests, including pure Fletching logic, storage defaults/migration, registry visibility/dispatch metadata, item manifest coverage, integration review handling, and offscreen Qt menu behavior.
+Fletching backend pilot completed on 2026-05-29. Fletching began backend-playable behind the registry; its frontend target list later landed and is now visible in normal Skills-hub mode. The original suite passed with 99 tests, including pure Fletching logic, storage defaults/migration, registry visibility/dispatch metadata, item manifest coverage, integration review handling, and offscreen Qt menu behavior.
 
 Fletching data and asset hardening completed on 2026-05-29. Recipe targets now use stable keys, model per-log arrow-shaft yields, add headless arrows and bronze-through-rune arrows, include Fletching materials in inventory defaults, and scrape 21 normalized PNG icons into `fletcheditems/` with provenance. Suite passes with 100 tests via `.venv-qt` unittest discovery.
 
@@ -75,7 +79,7 @@ Crafting/Utility backend rework completed on 2026-05-29. `Soft clay` moved out o
 
 Woodcutting backend parity completed on 2026-06-01. `woodcutting_data.py` captures the local 2011Scape source audit; `TREE_DATA` now uses stable IDs and real output item names; Fletching consumes real log keys; storage config version is 7 with legacy log/target migration and bound Bronze hatchet seeding; bird nests can drop from Woodcutting and open through no-XP Utility. Core and offscreen Qt suites pass with 134 tests.
 
-Mining backend parity completed on 2026-06-01. `mining_data.py` captures the local 2011Scape source audit plus the scoped simple historical targets; `ORE_DATA` now uses stable IDs and real output item names; storage config version is 8 with legacy target migration, bound Bronze pickaxe seeding, and an empty `owned_equipment` collection; the item manifest now carries `tradeable` and minimal equipable metadata. `python3 -m unittest discover -s tests` passes with 154 tests (18 skipped).
+Mining backend parity completed on 2026-06-01. `mining_data.py` captures the local 2011Scape source audit plus the scoped simple historical targets; `ORE_DATA` now uses stable IDs and real output item names; storage config version 8 handles legacy target migration and bound Bronze pickaxe seeding, and storage config version 10 later moved Mining bonus gear into worn `equipment`; the item manifest carries `tradeable` and minimal equipable metadata. `python3 -m unittest discover -s tests` passes with 154 tests (18 skipped).
 
 Review action multiplier completed on 2026-06-01. Runtime reads the new `ankiscape_review_action_multiplier` setting, falls back to the legacy XP multiplier key, and executes integer action ticks per eligible review with aggregate feedback and one undo snapshot. Settings now show a simple `Actions per review` +/- spinner. `python3 run_tests.py` passes with 165 tests (26 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 165 tests.
 
@@ -83,5 +87,11 @@ Smithing 2011Scape backend parity completed on 2026-06-01. `python3 run_tests.py
 
 Equipment backend completed on 2026-06-02. `tools/generate_equipment_data.py` emits `equipment_data.py` from Smithing recipe metadata, 2011Scape `items.yml` equipment blocks, and Mining bonus items. Storage config version is 10 with `equipment` save state and combat defaults. `python3 run_tests.py` passes with 197 tests (37 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 197 tests.
 
+Equipment frontend completed on 2026-06-02. The main menu now owns worn gear in a dedicated Equipment tab instead of a Bank placeholder, with slot icons, stat totals, right-click Equip/Unequip, disabled lock reasons, and tooltip coverage.
+
+Crafting 2011Scape backend parity foundation completed on 2026-06-03. `python3 run_tests.py` passes with 212 tests (47 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 212 tests.
+
+Crafting frontend grouping/assets completed on 2026-06-03. Current local verification on 2026-06-15: `python3 run_tests.py` passes with 230 tests (57 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 230 tests.
+
 ## Next Milestone
-Frontend equipment pass: add the dedicated Equipment tab, Bank/Equipment context menus for `on_equip_item` / `on_unequip_slot`, compact bonus/requirement tooltips, and slot placeholder icons.
+Pick the next skill-roster expansion using `.cursor/skills/ankiscape-skill-expansion/`. The likely next choices are Firemaking or Cooking as focused artisan follow-ups, or Fishing/Hunter/Farming to broaden gathering; keep feather/arrowtip sources and dependency-heavy Crafting acquisition loops on the near-term backlog.

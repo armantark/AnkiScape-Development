@@ -2,10 +2,9 @@
 
 ## Status
 
-Planning/audit completed 2026-06-01. Backend implementation completed 2026-06-01.
+Planning/audit completed 2026-06-01. Backend implementation and frontend/assets handoff completed 2026-06-01.
 Scope landed as **Option C — full `BarProducts` forge table** (157 emulator forge
-rows), plus all 9 smelt bars. Frontend/assets follow after the backend contract is
-stable.
+rows), plus all 9 smelt bars.
 
 ## Primary Sources (local 2011Scape rev 667)
 
@@ -115,8 +114,8 @@ platebody is level 18, Rune dagger 85, Rune platebody 99). Transcribe levels fro
   rolls in the review loop). Record `respawn`/fail data as notes only.
 - **Cannonballs, Goldsmith gauntlets, Artisan's Workshop, blast furnace** — not in this plugin / out of
   era scope; `future_content`.
-- **Combat use of forged gear** — gear is bankable/tradeable XP output now; actual equipping waits on
-  the Combat prototype + GE.
+- **Combat effects of forged gear** — gear can be banked and equipped now, but combat training and
+  encounter effects wait on the Combat prototype.
 
 ## Architecture Decisions (grilled with owner, 2026-06-01)
 

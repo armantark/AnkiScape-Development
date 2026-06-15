@@ -285,7 +285,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv2.get("Gold ring"), 1)
         self.assertEqual(new_inv2.get("Gold bar"), 0)
 
-    def test_apply_crafting_pure_batches_station_actions(self):
+    def test_apply_crafting_pure_ignores_batch_size_for_xp_actions(self):
         crafting_data = {
             "Bow string": {
                 "level": 10,
@@ -299,9 +299,9 @@ class TestLogic(unittest.TestCase):
         new_inv, exp, ok = apply_crafting_pure("Bow string", inv, crafting_data)
 
         self.assertTrue(ok)
-        self.assertEqual(exp, 420)
-        self.assertEqual(new_inv["Flax"], 2)
-        self.assertEqual(new_inv["Bow string"], 28)
+        self.assertEqual(exp, 15)
+        self.assertEqual(new_inv["Flax"], 29)
+        self.assertEqual(new_inv["Bow string"], 1)
         self.assertEqual(inv["Flax"], 30)
 
     def test_apply_crafting_pure_respects_output_quantity(self):
