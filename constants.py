@@ -91,6 +91,7 @@ MINING_ITEMS_FOLDER = os.path.join(current_dir, "miningitems")
 # BAR_IMAGES; everything anvil-made is fetched here by tools/fetch_smithing_assets.py.
 # Optional: any output without a file degrades to an iconless row.
 SMITHING_ITEMS_FOLDER = os.path.join(current_dir, "smithingitems")
+UTILITY_ACTIVITY_ICONS_FOLDER = os.path.join(current_dir, "activityicons")
 
 # Image dictionaries
 # New constants for Crafting
@@ -104,6 +105,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_item": "Soft clay",
         "output_qty": 1,
         "batch_size": 28,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "make_soft_clay.png"),
         "source": "OSRS Soft clay > Creation > Container",
     },
     "gather_wool": {
@@ -112,6 +114,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_item": "Wool",
         "output_qty": 1,
         "batch_size": 28,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_wool.png"),
         "source": "Material source for OSRS Ball of wool > Creation",
     },
     "gather_flax": {
@@ -120,6 +123,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_item": "Flax",
         "output_qty": 1,
         "batch_size": 28,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_flax.png"),
         "source": "OSRS Bow string > Strategy > Manual Spinning",
     },
     "open_bird_nest": {
@@ -127,6 +131,7 @@ UTILITY_ACTIVITY_DATA = {
         "requirements": {},
         "openable_items": tuple(BIRD_NEST_OPEN_TABLES_BY_INPUT.keys()),
         "batch_size": 28,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "open_bird_nest.png"),
         "source": "2011Scape bird_nest.plugin.kts",
     },
 }

@@ -79,6 +79,15 @@ Acceptance criteria:
 - Tests or lightweight verification cover the metadata path used by the UI.
 - Provenance is recorded for new art or source-derived assets.
 
+Status 2026-06-15: Complete. Existing Utility/Activities rows now carry a
+purpose-built `icon_path` contract backed by dedicated `activityicons/` PNGs
+for soft clay, wool, flax, and bird-nest opening. The Skills-hub target list
+prefers those activity icons and falls back to existing output-item art when an
+icon path is missing. No reward logic, storage shape, XP behavior, or new
+gameplay system changed. Asset provenance is recorded in
+`assets_provenance.json`; verification passed with `python3 run_tests.py` and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`.
+
 Future thread prompt:
 
 ```text

@@ -1917,6 +1917,11 @@ def show_main_menu(
             batch_size = spec.get("batch_size", 1)
             item = QListWidgetItem(label)
             item.setData(Qt.ItemDataRole.UserRole, activity_key)
+            icon_set = False
+            activity_icon = spec.get("icon_path")
+            if isinstance(activity_icon, str) and activity_icon and os.path.exists(activity_icon):
+                item.setIcon(QIcon(activity_icon))
+                icon_set = True
 
             # Bird-nest opening consumes nests (no fixed "output_item"); its
             # contents are rolled from source tables, so it gets bespoke tooltip
@@ -1936,7 +1941,7 @@ def show_main_menu(
                 output_item = str(spec.get("output_item", label))
                 output_qty = spec.get("output_qty", 1)
                 u_icon = UTILITY_ITEM_IMAGES.get(output_item)
-                if u_icon and os.path.exists(u_icon):
+                if not icon_set and u_icon and os.path.exists(u_icon):
                     item.setIcon(QIcon(u_icon))
                 reqs = spec.get("requirements", {})
                 if reqs:

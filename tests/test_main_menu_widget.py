@@ -964,6 +964,12 @@ class MainMenuWidgetTest(unittest.TestCase):
             f"Utility panel should state it earns no XP; labels={labels}",
         )
 
+    def test_utility_rows_use_activity_icon_contract(self) -> None:
+        utility_list = self._open_utility(self.dialog)
+        for i in range(utility_list.count()):
+            row = utility_list.item(i)
+            self.assertFalse(row.icon().isNull(), f"{row.text()} should have an activity icon")
+
     def test_hud_shows_utility_activity_without_xp(self) -> None:
         hud = self._ui.ReviewHUD(None)
         pd = _make_player_data()

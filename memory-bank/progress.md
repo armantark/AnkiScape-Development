@@ -21,6 +21,7 @@
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, action-multiplier-compatible reward handling, migration coverage, and undo-safe review handling.
 - Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped Actions-per-review control. Covered by offscreen Qt tests.
+- Utility/Activities has a dedicated icon set: each existing activity exposes an `icon_path` backed by `activityicons/` assets, and the Qt list falls back to output-item art if an activity icon is missing.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -37,8 +38,7 @@
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Formal balancing pass for long-term progression.
 - A release-quality expansion spec.
-- Backfilled provenance for the existing bundled assets.
-- A dedicated icon set for Utility/Activities (activities currently reuse `crafteditems/` material art; the hub row falls back to the achievement icon).
+- Backfilled provenance for older bundled assets that predate the current scraper/provenance workflow.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -106,11 +106,19 @@ passes with 233 tests (57 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 233 tests.
 
+P1 Utility/Activities icon set completed on 2026-06-15. Existing Utility rows
+now resolve activity-level icons from `UTILITY_ACTIVITY_DATA["icon_path"]` into
+`activityicons/`, with output-item art as the frontend fallback. The pass added
+no new activities, acquisition loops, storage keys, or XP behavior. Asset
+provenance is recorded for all four new row icons. `python3 run_tests.py` passes
+with 235 tests (58 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 235 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
 - Continue P0 only for a new architecture slice: frontend target-list metadata or further `__init__.py` decomposition. The review-action dispatch slice is done.
-- Next polish: dedicated Utility/Activities icon set.
 - Focused economy patch: add a legitimate feather source for Fletching. Arrowtips are already covered by Smithing.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.

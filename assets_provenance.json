@@ -1,4 +1,52 @@
 {
+  "activityicons/gather_flax.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Flax.png",
+    "file_title": "Flax.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Flax.png?96770",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "db165cc39444a4cff64d2117e3a176e63cdaf975",
+    "size": 545,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:03Z"
+  },
+  "activityicons/gather_wool.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wool.png",
+    "file_title": "Wool.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Wool.png?819f7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "54dad46e1fe850ed6dbb8e2064104eb3784f5984",
+    "size": 941,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:14:02Z"
+  },
+  "activityicons/make_soft_clay.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Soft_clay.png",
+    "file_title": "Soft clay.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Soft_clay.png?44c1f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f5c925f85a496e76973d9cfa13cdb8754ad5d765",
+    "size": 364,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:52Z"
+  },
+  "activityicons/open_bird_nest.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Bird%27s_nest_%28seeds%29.png",
+    "file_title": "Bird's nest (seeds).png",
+    "image_url": "https://runescape.wiki/images/Bird%27s_nest_%28seeds%29.png?ea972",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "96be5f24548a970438014561ca742866625fb52b",
+    "size": 679,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-13T02:02:42Z"
+  },
   "bars/bluritebar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blurite_bar.png",
     "file_title": "Blurite bar.png",

@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from action_registry import (
@@ -190,6 +191,21 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("jewellery_dragonstone_ring", CRAFTING_DATA)
         self.assertIn("input-starved", CRAFTING_DATA["cut_dragonstone"].get("notes", ""))
         self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["batch_size"], 28)
+
+    def test_utility_activities_have_purpose_built_icon_contract(self):
+        expected_files = {
+            "make_soft_clay": "make_soft_clay.png",
+            "gather_wool": "gather_wool.png",
+            "gather_flax": "gather_flax.png",
+            "open_bird_nest": "open_bird_nest.png",
+        }
+        self.assertEqual(set(UTILITY_ACTIVITY_DATA), set(expected_files))
+        for activity_key, file_name in expected_files.items():
+            icon_path = UTILITY_ACTIVITY_DATA[activity_key].get("icon_path")
+            self.assertIsInstance(icon_path, str, activity_key)
+            self.assertEqual(os.path.basename(icon_path), file_name)
+            self.assertEqual(os.path.basename(os.path.dirname(icon_path)), "activityicons")
+            self.assertTrue(os.path.exists(icon_path), f"{activity_key} icon path is missing")
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())

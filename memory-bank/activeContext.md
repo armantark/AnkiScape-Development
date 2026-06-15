@@ -158,6 +158,20 @@ Verification: `python3 run_tests.py` passed with 233 tests (57 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 233 tests.
 
+P1 Utility/Activities icon set is complete on 2026-06-15. The backend metadata
+contract is deliberately small: existing `UTILITY_ACTIVITY_DATA` rows now expose
+`icon_path` entries pointing to dedicated `activityicons/` PNGs for Make soft
+clay, Gather wool, Gather flax, and Open bird nests. The Qt Skills-hub Utility
+target list prefers those activity icons and falls back to the old output-item
+image map when a path is absent. No reward logic, storage migration, XP behavior,
+activity list, or new acquisition system changed. New source-derived assets were
+fetched through `tools/fetch_assets.py` and provenance was recorded in
+`assets_provenance.json` (`Soft clay`, `Wool`, and `Flax` from OSRS wiki art;
+`Bird's nest (seeds)` from runescape.wiki). Verification: `python3 run_tests.py`
+passed with 235 tests (58 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 235 tests.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -174,11 +188,10 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 1. **Continue P0 only if the owner wants another architecture slice**: the next
    useful boundary is frontend target-list metadata or decomposing the remaining
    `__init__.py` runtime orchestration, not repeating review handler dispatch.
-2. **P1 Utility/Activities icon set**: add purpose-built icons and metadata for non-skill actions such as soft clay, flax/wool gathering, and nest opening.
-3. **P2 feather source for Fletching**: feathers still need a legitimate source; arrowtips are not an open source gap because Smithing supplies them.
-4. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
-5. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
-6. **Parallel skill option**: Firemaking can be implemented in another thread and does not need to block the architecture cleanup.
+2. **P2 feather source for Fletching**: feathers still need a legitimate source; arrowtips are not an open source gap because Smithing supplies them.
+3. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
+4. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
+5. **Parallel skill option**: Firemaking can be implemented in another thread and does not need to block the architecture cleanup.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

@@ -89,5 +89,11 @@ Current equipment backend data lives in generated `equipment_data.py`. `tools/ge
 - **Hatchets / nests / seeds live in `woodcuttingitems/`**, keyed by `constants._asset_slug(name)` and wired via `WOODCUTTING_EXTRA_ITEM_IMAGES`. Both `LOG_IMAGES` and that map are existence-guarded so `missing_required_asset_paths()` (asserted empty by tests) never trips on an unfetched item.
 - **Ivy uses the Choking ivy interface icon.** Ivy has no inventory/log item, and `File:Ivy.png` (OSRS) is a full castle-wall *screenshot*, not an icon. The usable art is `File:Choking ivy icon.png` (RS3) — fetched into `trees/Ivy.png` so the (XP-only, no-output) row still shows a vine icon. Egg bird-nests and bird's eggs stay iconless (wiki titles don't resolve; vanishingly rare drops). Nest *ring* contents reuse the existing crafted ring sprites.
 
+### Utility/Activities row icons
+- Existing no-XP activity rows now use dedicated `activityicons/` PNGs instead of relying only on output-item material art. The row contract is `UTILITY_ACTIVITY_DATA[activity_id]["icon_path"]`.
+- The Qt Utility target list prefers `icon_path` and falls back to `UTILITY_ITEM_IMAGES` for output-producing rows. Missing activity icons therefore degrade to the older output icon or text-only row, without changing action behavior.
+- Fetch activity-row icons with `uv run tools/fetch_assets.py <item> --out activityicons/<activity_id>.png --wiki-title <File title> --size 64`, then confirm `assets_provenance.json` contains the `activityicons/` key. Do provenance-affecting fetches sequentially because the current JSON writer is not concurrency-safe.
+- Current activity icon provenance: Soft clay, Wool, and Flax from OSRS wiki art; Open bird nests uses runescape.wiki `Bird's nest (seeds).png` because that title resolved there.
+
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.
