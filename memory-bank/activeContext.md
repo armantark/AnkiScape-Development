@@ -142,7 +142,7 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 
 Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. The GE **design is now fully grilled and parked** in `memory-bank/fake-grand-exchange-design.md` (engine = hidden true-price + stochastic fill model with no persisted order book; GP = convenience-abundant, gated by buy limits + market clock, never sells XP; undo rolls back the market tick via deterministic RNG + per-tick delta snapshot; 8 slots, partial fills, OSRS price improvement, 40-action buy-limit windows, 240-action guide-price days capped +/-5%, alch-anchored seeding). It is intentionally **blocked on item-economy breadth**: the GE only earns its keep once many more tradable items exist.
 
-Active priority (decided): **broaden the skill roster before resuming the GE.** Target is all remaining gathering skills (Fishing, Hunter, Farming; Mining/Woodcutting backend parity is done) and most basic artisan skills (Cooking, Firemaking next; Herblore, Runecrafting, Construction after). Each new skill goes through the `ankiscape-skill-expansion` project skill (source audit -> assets -> targets/recipes -> Utility/Activities -> achievements -> tests -> memory). The expanded item set produced by these skills becomes the GE's tradable universe when it is unparked.
+Active priority (updated 2026-06-15): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt are the best next cleanup target; Utility/Activities icons are the next polish target; feathers remain the focused Fletching input gap; the GE remains a later candidate, not the next default project. Firemaking can still proceed in a separate skill-expansion thread.
 
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
@@ -155,12 +155,14 @@ Active priority (decided): **broaden the skill roster before resuming the GE.** 
 - Future game state stored outside `player_data` must be made undo-aware; the current rollback is intentionally scoped to review reward mutations in `player_data`.
 
 ## Next Recommended Work
-1. Smithing frontend/assets handoff is **complete** (see above) with full 166/166 icon coverage. No follow-up needed; if a future forge row is added, re-run `tools/fetch_smithing_assets.py` (it derives the manifest from `SMITHING_DATA`).
-2. Decide how arrowtips and feathers enter the economy: temporary developer-seeded items, Smithing outputs, Utility/Activities, or explicit shop/drop sources.
-3. Crafting backend and frontend/assets passes are complete; remaining Crafting work is adding real acquisition loops for currently input-starved materials.
-4. Consider a small Utility/Activities icon set (currently the activity outputs reuse `crafteditems/` material art; the hub category/skill row falls back to the generic achievement icon).
-5. Unpark the fake GE once the item economy is broad enough; resume from `memory-bank/fake-grand-exchange-design.md` (design is locked — do not re-grill the same decision tree).
-6. Only then design combat and Slayer task layering.
+Use `memory-bank/future-work-kanban.md` as the current future-thread source of truth.
+
+1. **P0 existing-skill architecture and old debt**: refactor current Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities behavior toward registry metadata and shared action plumbing without changing player-visible behavior.
+2. **P1 Utility/Activities icon set**: add purpose-built icons and metadata for non-skill actions such as soft clay, flax/wool gathering, and nest opening.
+3. **P2 feather source for Fletching**: feathers still need a legitimate source; arrowtips are not an open source gap because Smithing supplies them.
+4. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
+5. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
+6. **Parallel skill option**: Firemaking can be implemented in another thread and does not need to block the architecture cleanup.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

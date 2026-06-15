@@ -53,6 +53,7 @@
 - `ui.py` is large and mixes many dialogs/surfaces.
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
 - The runtime answer handler map now uses registry handler keys, but target-list metadata and handler internals are still partly hardcoded.
+- The current future-thread priority board lives in `memory-bank/future-work-kanban.md`.
 
 ## Current Status
 Documentation seed completed as of 2026-05-27. The working copy has been moved to `addons21/ankiscape_fork` to avoid AnkiWeb update overwrites against the numeric upstream folder.
@@ -94,4 +95,11 @@ Crafting 2011Scape backend parity foundation completed on 2026-06-03. `python3 r
 Crafting frontend grouping/assets completed on 2026-06-03. Current local verification on 2026-06-15: `python3 run_tests.py` passes with 230 tests (57 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passes with 230 tests.
 
 ## Next Milestone
-Pick the next skill-roster expansion using `.cursor/skills/ankiscape-skill-expansion/`. The likely next choices are Firemaking or Cooking as focused artisan follow-ups, or Fishing/Hunter/Farming to broaden gathering; keep feather/arrowtip sources and dependency-heavy Crafting acquisition loops on the near-term backlog.
+Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
+
+- Best next cleanup: existing-skill architecture and old debt across Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities.
+- Next polish: dedicated Utility/Activities icon set.
+- Focused economy patch: add a legitimate feather source for Fletching. Arrowtips are already covered by Smithing.
+- Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
+- Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
+- Parallel option: Firemaking can happen in a separate thread.

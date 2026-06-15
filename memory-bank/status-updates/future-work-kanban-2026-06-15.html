@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnkiScape Future Work Kanban</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b10;
+      --panel: #11151d;
+      --panel-2: #171d27;
+      --line: #273142;
+      --text: #eef3fb;
+      --muted: #9da9ba;
+      --soft: #c7d0de;
+      --blue: #64a8ff;
+      --green: #4ed29a;
+      --yellow: #f2bf5e;
+      --red: #ff7e79;
+      --violet: #b89cff;
+      --cyan: #58d5e8;
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(100, 168, 255, 0.14), transparent 26rem),
+        radial-gradient(circle at 88% 2%, rgba(78, 210, 154, 0.12), transparent 24rem),
+        linear-gradient(180deg, #090b10 0%, #0c1017 48%, #080a0e 100%);
+      color: var(--text);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .shell {
+      width: min(1500px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 38px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+      gap: 24px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero,
+    .decision-panel,
+    .lane,
+    .prompt-drawer {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(23, 29, 39, 0.94), rgba(13, 17, 24, 0.96));
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      min-height: 260px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -120px auto;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: conic-gradient(from 90deg, rgba(100, 168, 255, 0.4), rgba(78, 210, 154, 0.28), rgba(242, 191, 94, 0.32), rgba(100, 168, 255, 0.4));
+      filter: blur(42px);
+      opacity: 0.42;
+    }
+
+    .eyebrow {
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 12px;
+      max-width: 840px;
+      font-size: clamp(34px, 5vw, 72px);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      max-width: 780px;
+      margin: 0;
+      color: var(--soft);
+      font-size: 17px;
+      line-height: 1.55;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .metric {
+      min-width: 150px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .decision-panel {
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .decision-panel h2,
+    .lane h2,
+    .prompt-drawer h2 {
+      margin: 0;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.065);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .tag.now { color: #06110d; background: var(--green); }
+    .tag.next { color: #07101b; background: var(--blue); }
+    .tag.later { color: #171006; background: var(--yellow); }
+    .tag.parked { color: #180d0c; background: var(--red); }
+    .tag.candidate { color: #120d1b; background: var(--violet); }
+
+    .decision p {
+      margin: 0;
+      color: var(--soft);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(250px, 1fr));
+      gap: 14px;
+      align-items: start;
+    }
+
+    .lane {
+      min-height: 520px;
+      padding: 16px;
+    }
+
+    .lane-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .lane-head small {
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .card {
+      padding: 15px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.055);
+      border: 1px solid rgba(255, 255, 255, 0.075);
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .card:hover,
+    .card.active {
+      transform: translateY(-2px);
+      border-color: rgba(100, 168, 255, 0.52);
+      background: rgba(100, 168, 255, 0.09);
+    }
+
+    .card h3 {
+      margin: 12px 0 8px;
+      font-size: 17px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      margin: 0 0 12px;
+      color: var(--soft);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .mini-list li {
+      display: grid;
+      grid-template-columns: 12px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      margin-top: 5px;
+      border-radius: 999px;
+      background: var(--blue);
+    }
+
+    .lane:nth-child(2) .dot { background: var(--green); }
+    .lane:nth-child(3) .dot { background: var(--yellow); }
+    .lane:nth-child(4) .dot { background: var(--violet); }
+    .lane:nth-child(5) .dot { background: var(--red); }
+
+    .prompt-drawer {
+      margin-top: 18px;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .prompt-drawer p {
+      margin: 10px 0 16px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .prompt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--text);
+      min-height: 36px;
+      padding: 0 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: rgba(100, 168, 255, 0.16);
+      border-color: rgba(100, 168, 255, 0.45);
+    }
+
+    pre {
+      margin: 0;
+      min-height: 170px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      padding: 16px;
+      background: #080b10;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #dbe7f7;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      padding: 12px 14px;
+      border: 1px solid rgba(78, 210, 154, 0.45);
+      background: rgba(10, 18, 15, 0.92);
+      color: var(--text);
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1180px) {
+      header,
+      .prompt-drawer {
+        grid-template-columns: 1fr;
+      }
+
+      .board {
+        grid-template-columns: repeat(2, minmax(260px, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      .shell {
+        width: min(100vw - 20px, 1500px);
+        padding-top: 10px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .board {
+        grid-template-columns: 1fr;
+      }
+
+      .decision {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">AnkiScape planning board - 2026-06-15</div>
+          <h1>Future work sorted by what actually matters next.</h1>
+          <p>
+            The immediate win is existing-skill architecture and old debt. Utility icon polish follows.
+            Feathers are the only obvious Fletching input gap. GE is a real candidate, but not urgent.
+            Crafting dependency loops and Mining/Woodcutting special content stay parked.
+          </p>
+        </div>
+        <div class="metric-strip" aria-label="Planning summary">
+          <div class="metric"><strong>P0</strong><span>Architecture cleanup before more sprawl.</span></div>
+          <div class="metric"><strong>P1</strong><span>Utility and Activities get real icons.</span></div>
+          <div class="metric"><strong>P2</strong><span>Feathers only; arrowtips are smithable.</span></div>
+          <div class="metric"><strong>Park</strong><span>GE and special content wait.</span></div>
+        </div>
+      </section>
+
+      <aside class="decision-panel" aria-label="Current decisions">
+        <h2>Current Decisions</h2>
+        <div class="decision">
+          <span class="tag now">Fixed</span>
+          <p>Arrowtips are not an open source problem because Smithing already supplies them.</p>
+        </div>
+        <div class="decision">
+          <span class="tag next">Open</span>
+          <p>Feathers still need one legitimate acquisition path, preferably narrow.</p>
+        </div>
+        <div class="decision">
+          <span class="tag candidate">GE</span>
+          <p>The Grand Exchange remains a parked candidate, not the next default project.</p>
+        </div>
+        <div class="decision">
+          <span class="tag parked">Parked</span>
+          <p>Crafting dependency loops plus Mining and Woodcutting special content stay out of scope.</p>
+        </div>
+      </aside>
+    </header>
+
+    <section class="board" aria-label="Kanban board">
+      <article class="lane">
+        <div class="lane-head">
+          <h2>P0 Now</h2>
+          <small>Best next thread</small>
+        </div>
+        <div class="card active" data-card="architecture" tabindex="0">
+          <span class="tag now">Architecture</span>
+          <h3>Existing Skill Architecture And Old Debt</h3>
+          <p>Move recurring behavior behind registries and shared action plumbing without changing player-visible behavior.</p>
+          <ul class="mini-list">
+            <li><span class="dot"></span><span>Audit Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility.</span></li>
+            <li><span class="dot"></span><span>Reduce hardcoded skill branches where registry metadata can own the contract.</span></li>
+            <li><span class="dot"></span><span>Keep flat saves unless a focused change proves otherwise.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lane">
+        <div class="lane-head">
+          <h2>P1 Next</h2>
+          <small>Small polish</small>
+        </div>
+        <div class="card" data-card="icons" tabindex="0">
+          <span class="tag next">Icons</span>
+          <h3>Utility And Activities Icon Set</h3>
+          <p>Give non-XP support actions their own visual identity without turning the task into new gameplay.</p>
+          <ul class="mini-list">
+            <li><span class="dot"></span><span>Wire stable icon keys or paths for Utility/Activities rows.</span></li>
+            <li><span class="dot"></span><span>Keep skill and item art unchanged.</span></li>
+            <li><span class="dot"></span><span>Record source or asset provenance.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lane">
+        <div class="lane-head">
+          <h2>P2 Later</h2>
+          <small>Focused economy patch</small>
+        </div>
+        <div class="card" data-card="feathers" tabindex="0">
+          <span class="tag later">Fletching</span>
+          <h3>Feather Source</h3>
+          <p>Add one legitimate route for feathers. Do not reopen broad Crafting inputs or duplicate arrowtip ownership.</p>
+          <ul class="mini-list">
+            <li><span class="dot"></span><span>Feathers become earnable through one narrow path.</span></li>
+            <li><span class="dot"></span><span>Arrowtips remain owned by Smithing.</span></li>
+            <li><span class="dot"></span><span>Undo and multiplier behavior is tested if this is an activity.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lane">
+        <div class="lane-head">
+          <h2>P3 Candidate</h2>
+          <small>Not urgent</small>
+        </div>
+        <div class="card" data-card="ge" tabindex="0">
+          <span class="tag candidate">GE v1</span>
+          <h3>Grand Exchange Backend Spike</h3>
+          <p>Use the parked design only if the owner explicitly promotes GE above cleanup and feather work.</p>
+          <ul class="mini-list">
+            <li><span class="dot"></span><span>Backend first: tradability, coins, offers, matching, ticks, storage.</span></li>
+            <li><span class="dot"></span><span>Local-only and deterministic.</span></li>
+            <li><span class="dot"></span><span>No recipe-aware bulk buying in v1.</span></li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="lane">
+        <div class="lane-head">
+          <h2>Parked</h2>
+          <small>Do not start by default</small>
+        </div>
+        <div class="card" data-card="crafting" tabindex="0">
+          <span class="tag parked">Crafting</span>
+          <h3>Dependency-Heavy Acquisition Loops</h3>
+          <p>Keep dragonstone, onyx, molten glass, battlestaves, roots, and broad source chains deferred.</p>
+          <ul class="mini-list">
+            <li><span class="dot"></span><span>Only unpark if the owner explicitly reprioritizes them.</span></li>
+          </ul>
+        </div>
+        <div class="card" data-card="special" tabindex="0">
+          <span class="tag parked">Special</span>
+          <h3>Mining And Woodcutting Special Content</h3>
+          <p>Keep concentrated rocks, Shooting Stars, Inferno adze, and downstream nest systems parked.</p>
+          <ul class="mini-list">
+            <li><span class="dot"></span><span>Wait for supporting systems such as Magic, Firemaking, Farming, or Herblore.</span></li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section class="prompt-drawer" aria-label="Copyable future thread prompt">
+      <div>
+        <h2>Copyable Future Thread Prompt</h2>
+        <p>Select a card to load the matching prompt. The full source lives in <code>memory-bank/future-work-kanban.md</code>.</p>
+        <div class="prompt-actions">
+          <button type="button" id="copyPrompt">Copy prompt</button>
+          <button type="button" data-load="architecture">P0 architecture</button>
+          <button type="button" data-load="icons">P1 icons</button>
+          <button type="button" data-load="feathers">P2 feathers</button>
+          <button type="button" data-load="ge">P3 GE</button>
+          <button type="button" data-load="firemaking">Firemaking</button>
+        </div>
+      </div>
+      <pre id="promptText"></pre>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
+
+  <script>
+    const prompts = {
+      architecture: "In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Work on P0: existing skill architecture and old debt. Audit Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities, then make the smallest registry/action-dispatch refactor that reduces hardcoded skill branches without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.",
+      icons: "In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Work on P1: Utility and Activities icon set. Add a small, purpose-built icon contract and assets for existing Utility/Activities rows without adding new gameplay systems. Keep backend metadata and frontend display work explicitly split, verify the UI, update the Memory Bank, and commit the result.",
+      feathers: "In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Work on P2: feather source for Fletching. Arrowtips are already smithable, so only solve feathers. Implement one narrow, legitimate acquisition route, likely a Utility/Activities action, without reopening broader Crafting input loops or the Grand Exchange. Add targeted tests, update the Memory Bank, and commit the result.",
+      ge: "In the AnkiScape repo, use memory-bank/future-work-kanban.md and memory-bank/fake-grand-exchange-design.md. Work on P3 only if the owner has explicitly reprioritized the Grand Exchange. Implement backend first: tradability metadata, coins, local offer matching, storage, ticks, and tests. Do not build recipe-aware buying. Leave a frontend handoff note before any UI thread starts.",
+      crafting: "In the AnkiScape repo, do not work on Crafting dependency-heavy acquisition loops unless the owner explicitly reprioritizes them. If reprioritized, start from memory-bank/source-audits/crafting-2011scape-2026-06-03.md, keep the scope to one source chain, and avoid broad economy or drop-table work.",
+      special: "In the AnkiScape repo, keep Mining and Woodcutting special content parked unless the owner explicitly reprioritizes it. If reprioritized, start from the relevant source audit in memory-bank/source-audits/ and implement one narrow special-content slice with tests and provenance notes.",
+      firemaking: "In the AnkiScape repo, implement Firemaking as a separate skill-expansion thread. Use the ankiscape-skill-expansion skill and the current Memory Bank. Do not use this as a reason to unpark Mining/Woodcutting special content unless the owner explicitly asks for it. Keep backend and frontend work split, add targeted tests, update the Memory Bank, and commit the result."
+    };
+
+    const promptText = document.getElementById("promptText");
+    const toast = document.getElementById("toast");
+
+    function loadPrompt(key) {
+      promptText.textContent = prompts[key] || prompts.architecture;
+      document.querySelectorAll(".card").forEach((card) => {
+        card.classList.toggle("active", card.dataset.card === key);
+      });
+    }
+
+    function showToast() {
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1200);
+    }
+
+    document.querySelectorAll(".card").forEach((card) => {
+      card.addEventListener("click", () => loadPrompt(card.dataset.card));
+      card.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          loadPrompt(card.dataset.card);
+        }
+      });
+    });
+
+    document.querySelectorAll("[data-load]").forEach((button) => {
+      button.addEventListener("click", () => loadPrompt(button.dataset.load));
+    });
+
+    document.getElementById("copyPrompt").addEventListener("click", async () => {
+      await navigator.clipboard.writeText(promptText.textContent);
+      showToast();
+    });
+
+    loadPrompt("architecture");
+  </script>
+</body>
+</html>
