@@ -1,12 +1,14 @@
 # AnkiScape (Development)
 
 AnkiScape adds a lightweight, game-like experience layer to Anki:
-- Experience HUD during review (skill icon + level + progress bar).
-- Floating XP toasts when you earn XP.
-- Achievement and level-up popups.
-- A small floating widget you can position on screen.
+- Review HUD feedback with the active skill or activity, level, and progress.
+- Floating XP or material toasts, achievement popups, and level-up popups.
+- A Skills hub for Mining, Woodcutting, Smithing, Crafting, and Fletching.
+- Utility / Activities for no-XP material prep such as soft clay, wool, flax, bird nests, and feathers.
+- Bank, Stats, Equipment, Achievements, and Settings tabs in the floating widget.
+- Undo-aware review rewards with an `Actions per review` pacing control.
 
-This branch contains the in-progress development version with a refined Settings experience and improved tests.
+This development checkout tracks the local fork's current playable loop: study cards, run a selected skill or Utility activity, grow the inventory, and inspect progress from the widget.
 
 ## Install (from source)
 
@@ -25,19 +27,25 @@ All user-visible options are in Anki: Tools → Add-ons → AnkiScape → Config
 
 - Experience
   - Enable experience HUD: toggles the entire in-review HUD (icon + level + progress).
+- Gameplay
+  - Actions per review: runs 1-10 game action ticks per successful review. XP, items, rolls, and material use scale because more actions run.
 - Notifications
   - Enable floating XP: toggles the small XP toast when XP is earned.
   - Enable achievements and level up pop ups: toggles achievement/level-up dialogs.
 - Floating widget
   - Enable widget: show/hide the small floating button.
-  - Widget Position: left/right.
+  - Widget Position: bottom left/bottom right.
+- Developer Mode
+  - Enable developer mode: turns on debug logs and shows developer actions such as clearing logs and running unit tests.
 
 ### Defaults
 - Enable experience HUD: true
+- Actions per review: 1x
 - Enable floating XP: true
 - Enable achievements and level up pop ups: true
 - Enable widget: true
-- Widget Position: "right"
+- Widget Position: "right" (bottom right)
+- Enable developer mode: false
 
 ### Migration of legacy settings
 If you previously used a separate “progress bar” toggle, it’s automatically migrated on profile load:
@@ -56,6 +64,15 @@ python3 run_tests.py
 - Uses Python’s built-in `unittest`.
 - Discovers `tests/test_*.py`.
 - Includes an integration smoke test that loads the add-on without Qt and verifies hook flow + settings gating.
+
+For the Qt behavior suite, run the tests through the checked-in Qt virtual environment:
+
+```
+QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
+```
+
+- Confirms widget, Skills hub, Bank, Stats, Equipment, Settings, and Utility row behavior in an offscreen Qt runtime.
+- Keeps UI contracts covered without requiring a visible Anki window.
 
 ### Debug logging
 Set an environment variable before launching Anki or running tests to enable debug logs:
