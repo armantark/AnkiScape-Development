@@ -11,6 +11,8 @@ from constants import (
     FIREMAKING_DATA,
     FIREMAKING_LOG_ITEMS,
     FIREMAKING_OUTPUT_ITEMS,
+    FISHING_DATA,
+    FISHING_OUTPUT_ITEMS,
     FLETCHING_DATA,
     GEM_DATA,
     ITEM_DEFINITIONS,
@@ -33,15 +35,18 @@ class TestStoragePure(unittest.TestCase):
             "crafting_level",
             "fletching_level",
             "firemaking_level",
+            "fishing_level",
             "mining_exp",
             "woodcutting_exp",
             "smithing_exp",
             "crafting_exp",
             "fletching_exp",
             "firemaking_exp",
+            "fishing_exp",
             "current_craft",
             "current_fletch",
             "current_firemaking",
+            "current_fishing",
             "current_utility",
             "current_ore",
             "current_tree",
@@ -55,6 +60,8 @@ class TestStoragePure(unittest.TestCase):
             "defense_level",
             "ranged_level",
             "strength_level",
+            "agility_level",
+            "agility_exp",
             "constitution_level",
         ]:
             self.assertIn(key, data)
@@ -66,6 +73,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["equipment"], {})
         self.assertEqual(data["attack_level"], 1)
         self.assertEqual(data["defense_level"], 1)
+        self.assertEqual(data["agility_level"], 1)
+        self.assertEqual(data["agility_exp"], 0)
         self.assertEqual(data["constitution_level"], 10)
 
     def test_default_player_data_can_seed_registered_items(self):
@@ -88,6 +97,7 @@ class TestStoragePure(unittest.TestCase):
             + fletching_outputs
             + fletching_materials
             + list(FIREMAKING_OUTPUT_ITEMS)
+            + list(FISHING_OUTPUT_ITEMS)
             + utility_outputs
         ):
             self.assertIn(item_name, data["inventory"])
@@ -111,6 +121,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_smith"], "smelt_bronze_bar")
         self.assertEqual(migrated["current_craft"], "form_pot_unfired")
         self.assertEqual(migrated["current_firemaking"], "logs")
+        self.assertEqual(migrated["current_fishing"], "catch_crayfish")
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
@@ -132,6 +143,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Uncut sapphire", migrated["inventory"])
         self.assertIn("Arrow shafts", migrated["inventory"])
         self.assertIn("Feather", migrated["inventory"])
+        self.assertIn("Fishing bait", migrated["inventory"])
+        self.assertIn("Raw crayfish", migrated["inventory"])
         self.assertIn("Soft clay", migrated["inventory"])
         self.assertIn("Ashes", migrated["inventory"])
         self.assertIn("Arctic pine logs", migrated["inventory"])
@@ -186,6 +199,19 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["inventory"]["Mystery ash"], 3)
         self.assertIn("Cursed magic logs", migrated["inventory"])
         self.assertEqual(FIREMAKING_DATA["logs"]["output_item"], "Ashes")
+
+    def test_migrate_fishing_target_to_stable_default_and_seeds_items(self):
+        migrated = migrate_loaded_data(
+            {"current_fishing": "Not a fish", "inventory": {"Mystery fish": 3}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_fishing"], "catch_crayfish")
+        self.assertEqual(migrated["inventory"]["Mystery fish"], 3)
+        self.assertIn("Raw crayfish", migrated["inventory"])
+        self.assertIn("Fishing bait", migrated["inventory"])
+        self.assertEqual(FISHING_DATA["catch_crayfish"]["fish"][0]["output_item"], "Raw crayfish")
 
     def test_migrate_legacy_woodcutting_target_and_logs(self):
         migrated = migrate_loaded_data(

@@ -688,6 +688,116 @@ def apply_woodcutting_action_pure(
     return new_inv, spec.get("exp", 0), True, output_item, nest_item
 
 
+def fishing_source_roll_chance_pure(fishing_level, fish_spec):
+    """Approximate the 2011Scape raw fish roll before Anki pacing is applied."""
+    low = float(fish_spec.get("min_chance", 0))
+    high = float(fish_spec.get("max_chance", 0))
+    level_progress = max(0.0, min((float(fishing_level) - 1.0) / 98.0, 1.0))
+    interpolated = low + ((high - low) * level_progress)
+    return max(0.0, min(interpolated / 255.0, 1.0))
+
+
+def calculate_fishing_success_probability_pure(fishing_level, fish_spec, minimum=0.08, scale=0.68, cap=0.95):
+    """Translate source Fishing odds into one review-scale success probability."""
+    source_chance = fishing_source_roll_chance_pure(fishing_level, fish_spec)
+    return max(0.0, min(minimum + (sqrt(source_chance) * scale), cap))
+
+
+def eligible_fishing_fish_pure(method_spec, fishing_level, strength_level=1, agility_level=1):
+    """Fish rows whose Fishing and hidden side-level gates are currently met."""
+    eligible = []
+    for fish in method_spec.get("fish", ()):
+        if fishing_level < _positive_int(fish.get("level", 1), 1):
+            continue
+        strength_req = fish.get("strength_level")
+        if strength_req is not None and strength_level < _positive_int(strength_req, 1):
+            continue
+        agility_req = fish.get("agility_level")
+        if agility_req is not None and agility_level < _positive_int(agility_req, 1):
+            continue
+        eligible.append(fish)
+    return tuple(eligible)
+
+
+def has_fishing_bait_pure(inventory, method_spec):
+    """Return True if the method has no consumable bait or any allowed bait is held."""
+    bait_options = tuple(method_spec.get("bait_options") or ())
+    if not bait_options:
+        return True
+    return any(inventory.get(bait, 0) > 0 for bait in bait_options)
+
+
+def can_fish_method_pure(fishing_level, inventory, target_id, fishing_data, strength_level=1, agility_level=1):
+    """Return True if a Fishing target can make at least one source roll now."""
+    method_spec = fishing_data.get(target_id)
+    if not method_spec:
+        return False
+    if fishing_level < method_spec.get("level", 1):
+        return False
+    if not has_fishing_bait_pure(inventory, method_spec):
+        return False
+    return bool(eligible_fishing_fish_pure(method_spec, fishing_level, strength_level, agility_level))
+
+
+def can_fish_any_pure(inventory, fishing_level, fishing_data, strength_level=1, agility_level=1):
+    """Return True if any Fishing method can be attempted now."""
+    return any(
+        can_fish_method_pure(fishing_level, inventory, target, fishing_data, strength_level, agility_level)
+        for target in fishing_data
+    )
+
+
+def apply_fishing_action_pure(
+    target_id,
+    inventory,
+    fishing_data,
+    fishing_level,
+    strength_level=1,
+    agility_level=1,
+    rolls=(),
+):
+    """Apply one ordered source-shaped Fishing attempt.
+
+    Returns (inventory, base_fishing_exp, success, output_item, side_exp). Bait
+    is consumed only after a catch, mirroring the 2011Scape runtime.
+    """
+    method_spec = fishing_data.get(target_id)
+    if not method_spec:
+        return inventory, 0, False, None, {}
+    if not can_fish_method_pure(fishing_level, inventory, target_id, fishing_data, strength_level, agility_level):
+        return inventory, 0, False, None, {}
+
+    roll_iter = iter(rolls or ())
+    for fish in eligible_fishing_fish_pure(method_spec, fishing_level, strength_level, agility_level):
+        try:
+            roll = float(next(roll_iter))
+        except (StopIteration, TypeError, ValueError):
+            roll = 1.0
+        success_probability = calculate_fishing_success_probability_pure(fishing_level, fish)
+        if roll >= success_probability:
+            continue
+
+        new_inv = dict(inventory)
+        for bait in method_spec.get("bait_options") or ():
+            if new_inv.get(bait, 0) > 0:
+                new_inv[bait] = new_inv.get(bait, 0) - 1
+                break
+        output_item = fish.get("output_item")
+        if output_item:
+            new_inv[output_item] = new_inv.get(output_item, 0) + 1
+
+        side_exp = {}
+        strength_exp = float(fish.get("strength_exp") or 0.0)
+        agility_exp = float(fish.get("agility_exp") or 0.0)
+        if strength_exp > 0:
+            side_exp["strength_exp"] = strength_exp
+        if agility_exp > 0:
+            side_exp["agility_exp"] = agility_exp
+        return new_inv, fish.get("exp", 0), True, output_item, side_exp
+
+    return inventory, 0, False, None, {}
+
+
 def can_open_bird_nests_pure(inventory, nest_open_tables):
     return any(inventory.get(input_item, 0) > 0 for input_item in nest_open_tables)
 

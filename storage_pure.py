@@ -10,6 +10,7 @@ try:
     )
     from .item_registry import ItemDefinition
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
+    from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -32,6 +33,7 @@ except ImportError:
     )
     from item_registry import ItemDefinition
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
+    from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -46,7 +48,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 12
+CURRENT_CONFIG_VERSION = 13
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -105,6 +107,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     }
     data.update(default_skill_state())
     data.update(_default_combat_state())
+    data.update(_default_hidden_support_state())
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["toolbelt"] = _default_toolbelt()
@@ -118,6 +121,17 @@ def _default_combat_state() -> Dict[str, int]:
         if skill.category != "combat":
             continue
         state[skill.level_key] = 10 if skill.id == "constitution" else 1
+        state[skill.exp_key] = 0
+    return state
+
+
+def _default_hidden_support_state() -> Dict[str, int]:
+    """Support skills with hidden XP side effects but no visible surface yet."""
+    state: Dict[str, int] = {}
+    for skill in planned_skill_definitions():
+        if skill.id != "agility":
+            continue
+        state[skill.level_key] = 1
         state[skill.exp_key] = 0
     return state
 
@@ -178,6 +192,13 @@ def _migrate_firemaking_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_firemaking, str) or current_firemaking not in FIREMAKING_TARGETS_BY_ID:
         current_firemaking = DEFAULT_FIREMAKING_TARGET
     data["current_firemaking"] = current_firemaking
+
+
+def _migrate_fishing_target(data: Dict[str, Any]) -> None:
+    current_fishing = data.get("current_fishing")
+    if not isinstance(current_fishing, str) or current_fishing not in FISHING_METHODS_BY_ID:
+        current_fishing = DEFAULT_FISHING_TARGET
+    data["current_fishing"] = current_fishing
 
 
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
@@ -277,6 +298,8 @@ def migrate_loaded_data(
         data.setdefault(key, value)
     for key, value in _default_combat_state().items():
         data.setdefault(key, value)
+    for key, value in _default_hidden_support_state().items():
+        data.setdefault(key, value)
     for key, value in default_target_state().items():
         data.setdefault(key, value)
     data.setdefault("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -309,6 +332,7 @@ def migrate_loaded_data(
     ):
         data["current_fletch"] = "arrow_shafts"
     _migrate_firemaking_target(data)
+    _migrate_fishing_target(data)
     _migrate_toolbelt(data)
     _migrate_equipment(data)
 

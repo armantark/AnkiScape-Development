@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnkiScape Fishing Expansion Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --cyan: #22d3ee;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 16% 0%, rgba(34, 211, 238, 0.12), transparent 26rem),
+        radial-gradient(circle at 92% 12%, rgba(79, 140, 255, 0.14), transparent 28rem),
+        var(--bg);
+      font-family: "Outfit", sans-serif;
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 46px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+
+    .hero-copy, .panel {
+      background: linear-gradient(180deg, rgba(30, 35, 44, 0.92), rgba(22, 26, 33, 0.95));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero-copy {
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-copy::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -42px auto;
+      width: 180px;
+      height: 180px;
+      border: 1px solid rgba(34, 211, 238, 0.22);
+      border-radius: 50%;
+    }
+
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 5vw, 4.1rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 780px;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 1.02rem;
+      line-height: 1.55;
+    }
+
+    .metric-panel {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .metric {
+      min-height: 116px;
+      padding: 16px;
+      border-radius: 10px;
+      background: rgba(12, 14, 18, 0.46);
+      border: 1px solid rgba(138, 149, 168, 0.18);
+    }
+
+    .metric b {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .lane {
+      padding: 16px;
+      min-height: 202px;
+    }
+
+    .lane h2, .section h2 {
+      margin: 0 0 10px;
+      font-size: 1.05rem;
+    }
+
+    .lane p, .section p {
+      color: var(--text-dim);
+      line-height: 1.42;
+      margin: 0;
+      font-size: 0.92rem;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 7px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      border: 1px solid rgba(138, 149, 168, 0.14);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.66rem;
+    }
+
+    .label {
+      display: inline-flex;
+      margin-bottom: 12px;
+      font-family: "JetBrains Mono", monospace;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+    }
+
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+    .purple { color: var(--purple); }
+    .cyan { color: var(--cyan); }
+
+    .wide {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .section {
+      padding: 20px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .step {
+      position: relative;
+      padding: 12px;
+      border: 1px solid rgba(138, 149, 168, 0.16);
+      border-radius: 10px;
+      background: rgba(12, 14, 18, 0.36);
+      min-height: 110px;
+    }
+
+    .step strong {
+      display: block;
+      color: var(--text);
+      margin-bottom: 6px;
+      font-size: 0.92rem;
+    }
+
+    .step small {
+      color: var(--text-dim);
+      line-height: 1.35;
+    }
+
+    .tabbar {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0 14px;
+      flex-wrap: wrap;
+    }
+
+    .tabbar button, .copy {
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      cursor: pointer;
+    }
+
+    .tabbar button.active {
+      border-color: rgba(79, 140, 255, 0.7);
+      background: rgba(79, 140, 255, 0.2);
+      color: #dbeafe;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    .checklist {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 9px 10px;
+      background: rgba(12, 14, 18, 0.34);
+      border: 1px solid rgba(138, 149, 168, 0.12);
+      border-radius: 9px;
+      color: var(--text-dim);
+      line-height: 1.32;
+    }
+
+    .checklist input {
+      margin-top: 2px;
+      accent-color: var(--green);
+    }
+
+    .promptbox {
+      display: grid;
+      gap: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 122px;
+      resize: vertical;
+      color: var(--text);
+      background: rgba(12, 14, 18, 0.62);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .source-gap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .gap-card {
+      padding: 13px;
+      border-radius: 10px;
+      background: rgba(12, 14, 18, 0.34);
+      border: 1px solid rgba(138, 149, 168, 0.14);
+    }
+
+    .gap-card strong {
+      display: block;
+      margin-bottom: 7px;
+    }
+
+    footer {
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      padding-top: 6px;
+    }
+
+    @media (max-width: 900px) {
+      .hero, .wide, .source-gap { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .flow { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .grid, .metric-panel { grid-template-columns: 1fr; }
+      main { width: min(100vw - 20px, 1180px); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="badge">Completed · Fishing v1 · 2026-06-16</span>
+        <h1>Fishing is playable.</h1>
+        <p class="subtitle">
+          Gathering now has a source-backed Fishing loop: output-first targets,
+          scaled catch odds, material-on-catch behavior, hidden Barbarian side XP,
+          Utility bait acquisition, and complete icon/provenance coverage.
+        </p>
+      </div>
+      <div class="panel metric-panel" aria-label="Completion metrics">
+        <div class="metric"><b>15</b><span>live source-bound method behaviors</span></div>
+        <div class="metric"><b>31</b><span>Fishing assets fetched without failures</span></div>
+        <div class="metric"><b>281</b><span>full `run_tests.py` tests passed</span></div>
+        <div class="metric"><b>281</b><span>full offscreen Qt tests passed</span></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel lane">
+        <span class="label green">Backend</span>
+        <h2>Source data and review logic</h2>
+        <p>Stable method IDs, source fish rows, eligibility checks, scaled odds, ordered mixed rolls, material consumption, hidden side XP, migration defaults, and achievements are wired.</p>
+        <div class="tag-row">
+          <span class="tag">fishing_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">__init__.py</span>
+          <span class="tag">storage_pure.py</span>
+        </div>
+      </article>
+      <article class="panel lane">
+        <span class="label cyan">Frontend</span>
+        <h2>Output-first Fishing hub</h2>
+        <p>The Gathering hub renders Fishing targets as fish catches, blocks locked rows from selection, and explains output ranges, material counts, and side-level requirements.</p>
+        <div class="tag-row">
+          <span class="tag">ui.py</span>
+          <span class="tag">skill_registry.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+      <article class="panel lane">
+        <span class="label amber">Assets</span>
+        <h2>Icons derive from data</h2>
+        <p>The fetch script builds its manifest from Fishing data, pulls fish/material/skill/activity icons, and leaves reusable implements out of the visual surface.</p>
+        <div class="tag-row">
+          <span class="tag">tools/fetch_fishing_assets.py</span>
+          <span class="tag">fishingitems/</span>
+          <span class="tag">assets_provenance.json</span>
+        </div>
+      </article>
+      <article class="panel lane">
+        <span class="label purple">Balance</span>
+        <h2>2011 odds, Anki pacing</h2>
+        <p>Raw min/max chances remain auditable source data. Review-time odds are adapted like Mining and Woodcutting so one review action stays the pacing unit.</p>
+        <div class="tag-row">
+          <span class="tag">memory-bank/source-audits/</span>
+          <span class="tag">tests/test_fishing_data.py</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="wide">
+      <article class="panel section">
+        <h2>Review Tick Contract</h2>
+        <p>Each successful card runs up to the configured number of Fishing attempts. Dry rolls are inert. Catch rolls mutate inventory and XP under the same undo snapshot as the review.</p>
+        <div class="flow" aria-label="Fishing review flow">
+          <div class="step"><strong>1. Review</strong><small>Eligible answer reaches the handler.</small></div>
+          <div class="step"><strong>2. Gate</strong><small>Fishing level, material, and side levels are checked.</small></div>
+          <div class="step"><strong>3. Roll</strong><small>Eligible fish are tried in source order.</small></div>
+          <div class="step"><strong>4. Catch</strong><small>Item, Fishing XP, side XP, and material use land together.</small></div>
+          <div class="step"><strong>5. Undo</strong><small>Anki rollback restores the changed keys.</small></div>
+        </div>
+      </article>
+
+      <article class="panel section">
+        <h2>Verification Tabs</h2>
+        <div class="tabbar" role="tablist" aria-label="Verification groups">
+          <button class="tab active" data-tab="unit" role="tab" aria-selected="true">Unit</button>
+          <button class="tab" data-tab="integration" role="tab">Integration</button>
+          <button class="tab" data-tab="qt" role="tab">Qt</button>
+          <button class="tab" data-tab="manual" role="tab">Manual</button>
+        </div>
+        <div id="unit" class="tab-panel active">
+          <ul class="checklist">
+            <li><input type="checkbox" checked> Source rows, method IDs, deferred rows, scaled odds, ordered rolls, material-on-catch, and side XP are covered.</li>
+            <li><input type="checkbox" checked> Utility bait batching grants 28 bait and no XP.</li>
+          </ul>
+        </div>
+        <div id="integration" class="tab-panel">
+          <ul class="checklist">
+            <li><input type="checkbox" checked> Review dispatch catches fish, applies action multiplier stopping, and rolls back with Anki undo.</li>
+            <li><input type="checkbox" checked> Storage migration seeds Fishing, hidden Agility, fish, and bait while preserving unknown inventory keys.</li>
+          </ul>
+        </div>
+        <div id="qt" class="tab-panel">
+          <ul class="checklist">
+            <li><input type="checkbox" checked> Fishing hub rows render output-first labels, icons, tooltips, disabled click guard, Stats, Bank, HUD, and Utility bait row.</li>
+          </ul>
+        </div>
+        <div id="manual" class="tab-panel">
+          <ul class="checklist">
+            <li><input type="checkbox"> Manual Anki runtime checklist remains documented for a later in-app smoke: catch no-bait fish, gather bait, catch baited fish, dry attempt, undo, restart persistence.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section class="wide">
+      <article class="panel section">
+        <h2>Wiki Gap Check</h2>
+        <p>No ordinary catch method appears missing between the 2011 snapshot and pre-EOC. The relevant findings are separate systems, not v1 omissions.</p>
+        <div class="source-gap">
+          <div class="gap-card"><strong>Audit-only</strong><p>Stone fish is quest-only; Fish Flingers is a D&D surface; Depth Charge is cosmetic.</p></div>
+          <div class="gap-card"><strong>Future slices</strong><p>Dungeoneering fish, Fishing Trawler, quest-only fish, and shop/GE sourcing need their own action models.</p></div>
+        </div>
+      </article>
+
+      <article class="panel section promptbox">
+        <h2>Copy-Paste Follow-Up Prompt</h2>
+        <p>Use this if Fishing comes back into scope later without reopening v1.</p>
+        <textarea id="prompt" readonly>In the AnkiScape repo, do not redo Fishing v1. It already implements local 2011Scape ordinary FishingSpot methods with source-backed data, assets, Utility fishing bait, undo-safe review handling, and Qt coverage. Only revisit Fishing if explicitly working on Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, or real shop/GE material sourcing.</textarea>
+        <button class="copy" type="button" data-copy="#prompt">Copy prompt</button>
+      </article>
+    </section>
+
+    <footer>
+      Artifact: memory-bank/status-updates/fishing-expansion-complete-2026-06-16.html · Source audit: memory-bank/source-audits/fishing-2011scape-2026-06-16.md
+    </footer>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const panels = document.querySelectorAll(".tab-panel");
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((item) => {
+          item.classList.remove("active");
+          item.setAttribute("aria-selected", "false");
+        });
+        panels.forEach((panel) => panel.classList.remove("active"));
+        tab.classList.add("active");
+        tab.setAttribute("aria-selected", "true");
+        document.getElementById(tab.dataset.tab).classList.add("active");
+      });
+    });
+
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = document.querySelector(button.dataset.copy);
+        await navigator.clipboard.writeText(target.value);
+        const old = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => { button.textContent = old; }, 1200);
+      });
+    });
+  </script>
+</body>
+</html>

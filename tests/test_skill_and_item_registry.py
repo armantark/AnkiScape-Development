@@ -14,6 +14,9 @@ from constants import (
     FIREMAKING_ITEM_IMAGES,
     FIREMAKING_LOG_ITEMS,
     FIREMAKING_OUTPUT_ITEMS,
+    FISHING_DATA,
+    FISHING_ITEM_IMAGES,
+    FISHING_OUTPUT_ITEMS,
     FLETCHING_DATA,
     GEM_DATA,
     ITEM_DEFINITIONS,
@@ -49,12 +52,14 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_current_skills_preserve_existing_display_contract(self):
         self.assertEqual(
             implemented_review_skill_names(),
-            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching", "Firemaking"),
+            ("Mining", "Woodcutting", "Fishing", "Smithing", "Crafting", "Fletching", "Firemaking"),
         )
         self.assertTrue(is_review_skill("Mining"))
         self.assertTrue(is_review_skill("woodcutting"))
+        self.assertTrue(is_review_skill("Fishing"))
         self.assertTrue(is_review_skill("Fletching"))
         self.assertTrue(is_review_skill("Firemaking"))
+        self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
@@ -64,12 +69,13 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_action("Utility / Activities"))
         self.assertTrue(is_utility_review_action("Utility"))
         self.assertEqual(review_action_handler_key("Utility / Activities"), "utility")
+        self.assertEqual(review_action_handler_key("Fishing"), "fishing")
         self.assertEqual(review_action_handler_key("Fletching"), "fletching")
         self.assertEqual(review_action_handler_key("Firemaking"), "firemaking")
         self.assertIsNone(review_action_handler_key("Thieving"))
         self.assertEqual(
             review_action_display_names(),
-            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching", "Firemaking", "Utility / Activities"),
+            ("Mining", "Woodcutting", "Fishing", "Smithing", "Crafting", "Fletching", "Firemaking", "Utility / Activities"),
         )
 
     def test_planned_catalog_contains_2011_era_targets_without_enabling_them(self):
@@ -80,6 +86,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "magic",
             "summoning",
             "farming",
+            "hunter",
             "dungeoneering",
             "slayer",
             "thieving",
@@ -106,6 +113,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(firemaking.default_target, "logs")
         self.assertTrue(firemaking.visible_in_skill_hub)
 
+    def test_fishing_is_current_and_playable(self):
+        fishing = get_skill("Fishing")
+        self.assertIsNotNone(fishing)
+        self.assertTrue(fishing.implemented)
+        self.assertTrue(fishing.participates_in_review)
+        self.assertEqual(fishing.current_target_key, "current_fishing")
+        self.assertEqual(fishing.default_target, "catch_crayfish")
+        self.assertTrue(fishing.visible_in_skill_hub)
+
     def test_registry_generates_current_flat_save_defaults(self):
         self.assertEqual(
             default_skill_state(),
@@ -114,6 +130,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "mining_exp": 0,
                 "woodcutting_level": 1,
                 "woodcutting_exp": 0,
+                "fishing_level": 1,
+                "fishing_exp": 0,
                 "smithing_level": 1,
                 "smithing_exp": 0,
                 "crafting_level": 1,
@@ -129,6 +147,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             {
                 "current_ore": "rune_essence",
                 "current_tree": "tree",
+                "current_fishing": "catch_crayfish",
                 "current_smith": "smelt_bronze_bar",
                 "current_craft": "form_pot_unfired",
                 "current_fletch": "arrow_shafts",
@@ -163,6 +182,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + fletching_materials
             + list(FIREMAKING_LOG_ITEMS)
             + list(FIREMAKING_OUTPUT_ITEMS)
+            + list(FISHING_OUTPUT_ITEMS)
             + utility_outputs
             + utility_materials
             + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
@@ -193,7 +213,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Wool", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Flax", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Feather", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Fishing bait", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Ashes", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Raw crayfish", item_storage_keys_by_category(ITEM_DEFINITIONS, "fish"))
+        self.assertIn("Raw shark", item_storage_keys_by_category(ITEM_DEFINITIONS, "fish"))
+        self.assertIn("Leaping sturgeon", item_storage_keys_by_category(ITEM_DEFINITIONS, "fish"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
         self.assertFalse(by_storage_key["Cursed magic logs"].tradeable)
         self.assertTrue(by_storage_key["Dragon pickaxe"].tradeable)
@@ -219,6 +243,26 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
         self.assertEqual(FIREMAKING_DATA["cursed_magic_logs"]["requirements"], {"Cursed magic logs": 1})
 
+    def test_fishing_items_and_assets_are_registered(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in (
+            "Raw crayfish",
+            "Raw shrimps",
+            "Raw anchovies",
+            "Raw salmon",
+            "Raw shark",
+            "Leaping sturgeon",
+            "Fishing bait",
+            "Living minerals",
+        ):
+            self.assertIn(item_name, by_storage_key)
+            self.assertIn(item_name, FISHING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(FISHING_ITEM_IMAGES[item_name]), f"{item_name} Fishing icon is missing")
+        self.assertEqual(by_storage_key["Raw crayfish"].category, "fish")
+        self.assertEqual(by_storage_key["Raw crayfish"].base_exp, 10.0)
+        self.assertEqual(FISHING_DATA["catch_sardine_herring"]["requirements"], {"Fishing bait": 1})
+        self.assertEqual(FISHING_DATA["catch_crayfish"]["requirements"], {})
+
     def test_crafting_source_data_uses_stable_ids_and_live_targets(self):
         self.assertNotIn("Soft clay", CRAFTING_DATA)
         self.assertIn("form_pot_unfired", CRAFTING_DATA)
@@ -240,6 +284,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "gather_wool": "gather_wool.png",
             "gather_flax": "gather_flax.png",
             "scavenge_chicken_feathers": "scavenge_chicken_feathers.png",
+            "gather_fishing_bait": "gather_fishing_bait.png",
             "open_bird_nest": "open_bird_nest.png",
         }
         self.assertEqual(set(UTILITY_ACTIVITY_DATA), set(expected_files))
@@ -252,6 +297,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         feather_source = UTILITY_ACTIVITY_DATA["scavenge_chicken_feathers"]["source"]
         self.assertIn("ranged_instructor.plugin.kts", feather_source)
         self.assertIn("chicken_level_1.plugin.kts", feather_source)
+        bait_source = UTILITY_ACTIVITY_DATA["gather_fishing_bait"]["source"]
+        self.assertIn("lumbridge_fishing_supplies.plugin.kts", bait_source)
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
@@ -347,6 +394,22 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIsNotNone(
                 by_storage_key[material].asset_path, f"{material} should have a crafting icon"
             )
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_every_fishing_output_resolves_an_icon(self):
+        # tools/fetch_fishing_assets.py derives its manifest from FISHING_DATA,
+        # so every live catch output must resolve an asset_path -- no blank rows
+        # in the output-first Fishing target list.
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        iconless = sorted(
+            item_name
+            for item_name in FISHING_OUTPUT_ITEMS
+            if not (
+                item_name in by_storage_key
+                and by_storage_key[item_name].asset_path
+            )
+        )
+        self.assertEqual(iconless, [], f"Fishing outputs missing icons: {iconless}")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 

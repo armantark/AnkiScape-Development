@@ -9,11 +9,14 @@ from .constants import (
     CRAFTING_DATA,
     FLETCHING_DATA,
     FIREMAKING_DATA,
+    FISHING_DATA,
     UTILITY_ACTIVITY_DATA,
     DEFAULT_FIREMAKING_TARGET,
+    DEFAULT_FISHING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_MINING_TARGET,
     DEFAULT_WOODCUTTING_TARGET,
+    EXP_TABLE,
     MINING_PICKAXE_DATA,
     MINING_BONUS_ITEM_DATA,
     INCIDENTAL_GEM_DROP_CHANCE,
@@ -28,6 +31,7 @@ from .constants import (
     BAR_IMAGES,
     GEM_IMAGES,
     CRAFTED_ITEM_IMAGES,
+    FISHING_ITEM_IMAGES,
     EQUIPMENT_DATA,
 )
 from .smithing_data import DEFAULT_SMITHING_TARGET
@@ -58,9 +62,13 @@ from .logic_pure import (
     apply_smithing_pure,
     apply_fletching_pure,
     apply_firemaking_action_pure,
+    apply_fishing_action_pure,
     apply_woodcutting_action_pure,
     apply_mining_action_pure,
     sanitize_review_action_multiplier,
+    can_fish_method_pure,
+    eligible_fishing_fish_pure,
+    has_fishing_bait_pure,
     can_mine_target_pure,
     can_chop_woodcutting_target_pure,
     best_woodcutting_axe_pure,
@@ -69,6 +77,7 @@ from .logic_pure import (
     equip_item_pure,
     unequip_item_pure,
     equipment_bonus_state_pure,
+    calculate_new_level,
 )
 from .logic import level_up_check, check_achievements
 from .ui import (
@@ -326,6 +335,17 @@ def _award_skill_exp(exp_key: str, base_exp: float) -> float:
     return base_exp
 
 
+def _award_hidden_skill_exp(exp_key: str, level_key: str, base_exp: float) -> None:
+    if base_exp <= 0:
+        return
+    player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
+    player_data[level_key] = calculate_new_level(
+        player_data.get(exp_key, 0),
+        player_data.get(level_key, 1),
+        EXP_TABLE,
+    )
+
+
 def _capture_player_data_snapshot():
     return copy.deepcopy(player_data)
 
@@ -435,6 +455,16 @@ def _missing_materials_text(requirements, inventory) -> str:
         if inventory.get(material, 0) < amount
     ]
     return ", ".join(missing) if missing else "materials"
+
+
+def _fishing_materials_text(method_spec, inventory) -> str:
+    bait_options = tuple(method_spec.get("bait_options") or ())
+    if not bait_options:
+        return "materials"
+    if len(bait_options) == 1:
+        bait = bait_options[0]
+        return f"1 {bait}"
+    return "any of " + ", ".join(f"1 {bait}" for bait in bait_options)
 
 
 def save_skill(skill, dialog):
@@ -693,6 +723,68 @@ def on_firemaking_answer():
     _show_exp(exp_gained)
     return True
 
+
+def on_fishing_answer():
+    target = player_data.get("current_fishing", DEFAULT_FISHING_TARGET)
+    if target not in FISHING_DATA:
+        target = DEFAULT_FISHING_TARGET
+        player_data["current_fishing"] = target
+    spec = FISHING_DATA[target]
+    display_name = spec.get("display_name", target)
+    player_level = player_data.get("fishing_level", 1)
+    strength_level = player_data.get("strength_level", 1)
+    agility_level = player_data.get("agility_level", 1)
+    inventory = player_data.get("inventory", {})
+
+    if player_level < spec.get("level", 1):
+        show_error_message("Insufficient level", f"You need level {spec['level']} Fishing to {str(display_name).lower()}.")
+        return False
+
+    if not has_fishing_bait_pure(inventory, spec):
+        missing = _fishing_materials_text(spec, inventory)
+        _deactivate_current_skill()
+        show_error_message(
+            "Out of materials",
+            f"You need {missing} to {str(display_name).lower()}, so Fishing has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
+
+    eligible = eligible_fishing_fish_pure(spec, player_level, strength_level, agility_level)
+    if not eligible:
+        _deactivate_current_skill()
+        show_error_message(
+            "Insufficient level",
+            f"You do not meet the side-level requirements for {display_name}, so Fishing has been switched off.",
+        )
+        return False
+
+    rolls = [random.random() for _ in eligible]
+    new_inv, base_exp, ok, _output_item, side_exp = apply_fishing_action_pure(
+        target,
+        inventory,
+        FISHING_DATA,
+        player_level,
+        strength_level,
+        agility_level,
+        rolls=rolls,
+    )
+    if not ok:
+        return True
+
+    player_data["inventory"] = new_inv
+    exp_gained = _award_skill_exp("fishing_exp", base_exp)
+    if side_exp.get("strength_exp", 0) > 0:
+        _award_hidden_skill_exp("strength_exp", "strength_level", side_exp["strength_exp"])
+    if side_exp.get("agility_exp", 0) > 0:
+        _award_hidden_skill_exp("agility_exp", "agility_level", side_exp["agility_exp"])
+    level_up_check("Fishing", player_data)
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    _show_exp(exp_gained)
+    return True
+
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
         current_bar=player_data.get("current_bar", "Bronze bar"),
@@ -774,6 +866,7 @@ def _on_main_menu():
         on_set_craft=lambda item: _set_value("current_craft", item),
         on_set_fletch=lambda target: _set_value("current_fletch", target),
         on_set_firemaking=lambda target: _set_value("current_firemaking", target),
+        on_set_fishing=lambda target: _set_value("current_fishing", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
@@ -1039,6 +1132,17 @@ def _can_start_firemaking_action() -> bool:
     )
 
 
+def _can_start_fishing_action() -> bool:
+    return can_fish_method_pure(
+        player_data.get("fishing_level", 1),
+        player_data.get("inventory", {}),
+        player_data.get("current_fishing", DEFAULT_FISHING_TARGET),
+        FISHING_DATA,
+        player_data.get("strength_level", 1),
+        player_data.get("agility_level", 1),
+    )
+
+
 def _can_start_crafting_action() -> bool:
     target = player_data.get("current_craft", "form_pot_unfired")
     return can_craft_item_pure(
@@ -1097,6 +1201,7 @@ _CAN_START_HANDLERS = {
     "crafting": _can_start_crafting_action,
     "fletching": _can_start_fletching_action,
     "firemaking": _can_start_firemaking_action,
+    "fishing": _can_start_fishing_action,
     "utility": _can_start_utility_action,
 }
 
@@ -1114,6 +1219,7 @@ _REVIEW_HANDLERS = {
     "crafting": on_crafting_answer,
     "fletching": on_fletching_answer,
     "firemaking": on_firemaking_answer,
+    "fishing": on_fishing_answer,
     "utility": on_utility_answer,
 }
 

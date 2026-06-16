@@ -14,6 +14,7 @@ from logic_pure import (
     apply_utility_activity_pure,
     apply_fletching_pure,
     apply_firemaking_action_pure,
+    apply_fishing_action_pure,
     apply_smelt_pure,
     apply_smithing_pure,
     apply_woodcutting_pure,
@@ -39,6 +40,11 @@ from logic_pure import (
     can_burn_firemaking_target_pure,
     calculate_firemaking_success_probability_pure,
     firemaking_source_roll_chance_pure,
+    fishing_source_roll_chance_pure,
+    calculate_fishing_success_probability_pure,
+    can_fish_method_pure,
+    eligible_fishing_fish_pure,
+    has_fishing_bait_pure,
     can_perform_utility_activity_pure,
     sanitize_review_action_multiplier,
 )
@@ -54,6 +60,7 @@ from constants import (
     ORE_DATA,
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
+    FISHING_DATA,
     UTILITY_ACTIVITY_DATA,
 )
 
@@ -795,6 +802,120 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(failed_exp, 0)
         self.assertIsNone(failed_output)
         self.assertEqual(failed_inv, inv)
+
+    def test_fishing_source_odds_and_scaled_probability(self):
+        crayfish = FISHING_DATA["catch_crayfish"]["fish"][0]
+        shark = FISHING_DATA["catch_sharks"]["fish"][0]
+
+        self.assertAlmostEqual(fishing_source_roll_chance_pure(1, crayfish), 58 / 255)
+        self.assertEqual(fishing_source_roll_chance_pure(99, crayfish), 1.0)
+        self.assertLess(
+            fishing_source_roll_chance_pure(76, shark),
+            fishing_source_roll_chance_pure(99, shark),
+        )
+
+        scaled = calculate_fishing_success_probability_pure(1, crayfish)
+        self.assertGreater(scaled, fishing_source_roll_chance_pure(1, crayfish))
+        self.assertLessEqual(calculate_fishing_success_probability_pure(99, crayfish), 0.95)
+
+    def test_fishing_ordered_rolls_and_bait_consumed_only_on_catch(self):
+        inv = {"Fishing bait": 1}
+
+        dry_inv, dry_exp, dry_ok, dry_output, dry_side = apply_fishing_action_pure(
+            "catch_sardine_herring",
+            inv,
+            FISHING_DATA,
+            fishing_level=10,
+            rolls=(1.0, 1.0),
+        )
+        self.assertFalse(dry_ok)
+        self.assertEqual(dry_exp, 0)
+        self.assertIsNone(dry_output)
+        self.assertEqual(dry_side, {})
+        self.assertEqual(dry_inv["Fishing bait"], 1)
+
+        catch_inv, catch_exp, catch_ok, catch_output, side_exp = apply_fishing_action_pure(
+            "catch_sardine_herring",
+            inv,
+            FISHING_DATA,
+            fishing_level=10,
+            rolls=(0.0, 0.0),
+        )
+        self.assertTrue(catch_ok)
+        self.assertEqual(catch_output, "Raw sardine")
+        self.assertAlmostEqual(catch_exp, 20.0)
+        self.assertEqual(side_exp, {})
+        self.assertEqual(catch_inv["Fishing bait"], 0)
+        self.assertEqual(catch_inv["Raw sardine"], 1)
+        self.assertEqual(inv["Fishing bait"], 1)
+
+    def test_fishing_mixed_outputs_respect_source_order_after_level_filter(self):
+        low_level_fish = eligible_fishing_fish_pure(
+            FISHING_DATA["catch_shrimp_anchovies"],
+            fishing_level=1,
+        )
+        self.assertEqual([fish["output_item"] for fish in low_level_fish], ["Raw shrimps"])
+
+        inv, exp, ok, output_item, _side = apply_fishing_action_pure(
+            "catch_shrimp_anchovies",
+            {},
+            FISHING_DATA,
+            fishing_level=15,
+            rolls=(1.0, 0.0),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(output_item, "Raw shrimps")
+        self.assertAlmostEqual(exp, 10.0)
+        self.assertEqual(inv["Raw shrimps"], 1)
+
+        inv2, exp2, ok2, output_item2, _side2 = apply_fishing_action_pure(
+            "catch_shrimp_anchovies",
+            {},
+            FISHING_DATA,
+            fishing_level=15,
+            rolls=(0.0, 0.0),
+        )
+        self.assertTrue(ok2)
+        self.assertEqual(output_item2, "Raw anchovies")
+        self.assertAlmostEqual(exp2, 40.0)
+        self.assertEqual(inv2["Raw anchovies"], 1)
+
+    def test_fishing_side_level_gates_and_hidden_side_xp_payload(self):
+        self.assertFalse(can_fish_method_pure(48, {"Feather": 1}, "catch_leaping_fish", FISHING_DATA, 14, 15))
+        self.assertFalse(can_fish_method_pure(48, {"Feather": 1}, "catch_leaping_fish", FISHING_DATA, 15, 14))
+        self.assertTrue(can_fish_method_pure(48, {"Feather": 1}, "catch_leaping_fish", FISHING_DATA, 15, 15))
+
+        inv, exp, ok, output_item, side_exp = apply_fishing_action_pure(
+            "catch_leaping_fish",
+            {"Feather": 1},
+            FISHING_DATA,
+            fishing_level=48,
+            strength_level=15,
+            agility_level=15,
+            rolls=(0.0,),
+        )
+        self.assertTrue(ok)
+        self.assertEqual(output_item, "Leaping trout")
+        self.assertAlmostEqual(exp, 50.0)
+        self.assertEqual(side_exp, {"strength_exp": 5.0, "agility_exp": 5.0})
+        self.assertEqual(inv["Feather"], 0)
+
+    def test_fishing_material_gates_and_utility_bait_batch(self):
+        self.assertTrue(has_fishing_bait_pure({"Fishing bait": 1}, FISHING_DATA["catch_sardine_herring"]))
+        self.assertFalse(has_fishing_bait_pure({}, FISHING_DATA["catch_sardine_herring"]))
+        self.assertTrue(has_fishing_bait_pure({"Caviar": 1}, FISHING_DATA["catch_leaping_fish"]))
+        self.assertFalse(can_fish_method_pure(5, {}, "catch_sardine_herring", FISHING_DATA))
+
+        self.assertTrue(can_perform_utility_activity_pure({}, "gather_fishing_bait", UTILITY_ACTIVITY_DATA))
+        inv, exp, ok, processed = apply_utility_activity_pure(
+            "gather_fishing_bait",
+            {},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 28)
+        self.assertEqual(inv["Fishing bait"], 28)
 
     def test_firemaking_achievements_unlock_from_ashes_inventory(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

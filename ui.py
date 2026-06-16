@@ -69,9 +69,12 @@ try:
         CRAFTING_DATA,
         FLETCHING_DATA,
         FIREMAKING_DATA,
+        FISHING_DATA,
         FIREMAKING_LOG_ITEMS,
+        FISHING_OUTPUT_ITEMS,
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
+        DEFAULT_FISHING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -80,6 +83,7 @@ try:
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
+        FISHING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -107,9 +111,12 @@ except Exception:
         CRAFTING_DATA,
         FLETCHING_DATA,
         FIREMAKING_DATA,
+        FISHING_DATA,
         FIREMAKING_LOG_ITEMS,
+        FISHING_OUTPUT_ITEMS,
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
+        DEFAULT_FISHING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -118,6 +125,7 @@ except Exception:
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
+        FISHING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -125,9 +133,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -178,10 +186,11 @@ _MAIN_MENU_CTX = {
 # four-skill branch. Icons follow the existing convention: icon/<skill_id>_icon.png.
 
 # Bank grouping order + labels. Categories come from item_registry.ItemCategory.
-_ITEM_CATEGORY_ORDER = ("ore", "log", "gem", "bar", "crafted", "fletched", "material")
+_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "gem", "bar", "crafted", "fletched", "material")
 _ITEM_CATEGORY_LABELS = {
     "ore": "Ores",
     "log": "Logs",
+    "fish": "Fish",
     "gem": "Gems",
     "bar": "Bars",
     "crafted": "Crafted",
@@ -704,6 +713,7 @@ _SKILL_TARGET_TABLES = {
     "crafting": CRAFTING_DATA,
     "fletching": FLETCHING_DATA,
     "firemaking": FIREMAKING_DATA,
+    "fishing": FISHING_DATA,
 }
 
 
@@ -1253,6 +1263,7 @@ def show_main_menu(
     on_set_smith=None,
     on_set_fletch=None,
     on_set_firemaking=None,
+    on_set_fishing=None,
     on_set_utility=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
@@ -2000,6 +2011,102 @@ def show_main_menu(
         firemaking_list.itemActivated.connect(_on_firemaking_selected)
         return firemaking_list
 
+    def _build_fishing_list() -> QListWidget:
+        fishing_list = QListWidget()
+        fishing_list.setIconSize(QSize(28, 28))
+        fishing_list.setAlternatingRowColors(True)
+        lvl_have = player_data.get("fishing_level", 1)
+        strength_have = player_data.get("strength_level", 1)
+        agility_have = player_data.get("agility_level", 1)
+        inv = player_data.get("inventory", {})
+        current_target = player_data.get("current_fishing", DEFAULT_FISHING_TARGET)
+
+        def _output_lines(fish_rows) -> str:
+            return ", ".join(
+                f"{fish.get('output_item')} (Lvl {fish.get('level', 1)}, {fish.get('exp', 0)} XP)"
+                for fish in fish_rows
+            )
+
+        def _xp_text(fish_rows) -> str:
+            xp_values = [float(fish.get("exp", 0)) for fish in fish_rows]
+            if not xp_values:
+                return "0"
+            if min(xp_values) == max(xp_values):
+                return f"{xp_values[0]:g}"
+            return f"{min(xp_values):g}-{max(xp_values):g}"
+
+        def _materials_text(bait_options) -> str:
+            if not bait_options:
+                return "No consumable materials"
+            parts = [f"{bait} x1 (you have {inv.get(bait, 0)})" for bait in bait_options]
+            return parts[0] if len(parts) == 1 else "Any of " + ", ".join(parts)
+
+        def _side_req_text(fish_rows) -> str:
+            parts = []
+            for fish in fish_rows:
+                reqs = []
+                if fish.get("strength_level"):
+                    reqs.append(f"Strength {fish.get('strength_level')}")
+                if fish.get("agility_level"):
+                    reqs.append(f"Agility {fish.get('agility_level')}")
+                if reqs:
+                    parts.append(f"{fish.get('output_item')}: " + " and ".join(reqs))
+            return "; ".join(parts)
+
+        for target_key, spec in FISHING_DATA.items():
+            display_name = str(spec.get("display_name", target_key))
+            fish_rows = tuple(spec.get("fish", ()))
+            bait_options = tuple(spec.get("bait_options") or ())
+            lvl_req = spec.get("level", 1)
+            eligible = eligible_fishing_fish_pure(spec, lvl_have, strength_have, agility_have)
+            item = QListWidgetItem(f"{display_name} (Lvl {lvl_req})")
+            item.setData(Qt.ItemDataRole.UserRole, target_key)
+            icon_fish = eligible[0] if eligible else (fish_rows[0] if fish_rows else {})
+            icon_path = FISHING_ITEM_IMAGES.get(icon_fish.get("output_item"))
+            if icon_path and os.path.exists(icon_path):
+                item.setIcon(QIcon(icon_path))
+
+            chance_lines = []
+            for fish in eligible:
+                chance = calculate_fishing_success_probability_pure(lvl_have, fish)
+                chance_lines.append(f"{fish.get('output_item')} {chance:.0%}")
+            chance_text = ", ".join(chance_lines) if chance_lines else "locked"
+            tooltip = (
+                f"Requires Fishing level {lvl_req}. You have {lvl_have}.\n"
+                f"Outputs: {_output_lines(fish_rows)}\n"
+                f"Base XP: {_xp_text(fish_rows)} per catch\n"
+                f"Materials: {_materials_text(bait_options)}\n"
+                f"Success chance now: {chance_text}"
+            )
+            side_text = _side_req_text(fish_rows)
+            if side_text:
+                tooltip += f"\nSide levels: {side_text}"
+
+            if not can_fish_method_pure(lvl_have, inv, target_key, FISHING_DATA, strength_have, agility_have):
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if not has_fishing_bait_pure(inv, spec):
+                    reason.append("materials")
+                if lvl_have >= lvl_req and not eligible:
+                    reason.append("side levels")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            item.setToolTip(tooltip)
+            fishing_list.addItem(item)
+            if target_key == current_target:
+                fishing_list.setCurrentItem(item)
+
+        def _on_fishing_selected(item: QListWidgetItem):
+            # Skip locked rows (itemClicked still fires on disabled items).
+            if item and on_set_fishing is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
+                on_set_fishing(item.data(Qt.ItemDataRole.UserRole))
+
+        fishing_list.itemClicked.connect(_on_fishing_selected)
+        fishing_list.itemActivated.connect(_on_fishing_selected)
+        return fishing_list
+
     def _build_utility_list() -> QListWidget:
         # Utility / Activities are no-XP material prep. Each successful card runs
         # a batch (up to batch_size, capped by inventory), so tooltips lead with
@@ -2072,6 +2179,7 @@ def show_main_menu(
         "Crafting": _build_craft_list,
         "Fletching": _build_fletch_list,
         "Firemaking": _build_firemaking_list,
+        "Fishing": _build_fishing_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
     _TARGET_PROMPTS = {
@@ -2081,6 +2189,7 @@ def show_main_menu(
         "Crafting": "Select Item to Craft",
         "Fletching": "Select Item to Fletch",
         "Firemaking": "Select Logs to Burn",
+        "Fishing": "Select Fish to Catch",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
@@ -2092,6 +2201,7 @@ def show_main_menu(
             "Crafting": "crafting_icon.png",
             "Fletching": "fletching_icon.png",
             "Firemaking": "firemaking_icon.png",
+            "Fishing": "fishing_icon.png",
         }
         return os.path.join(current_dir, "icon", icon_files.get(display_name, "achievement_icon.png"))
 
@@ -2538,6 +2648,7 @@ def show_main_menu(
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
+        FISHING_ITEM_IMAGES,
     )
 
     def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
@@ -3669,6 +3780,9 @@ def show_stats(player_data: dict, current_skill: str):
                     or (skill_name == "Woodcutting" and item in WOODCUTTING_LOG_ITEMS)
                     or (skill_name == "Smithing" and item in BAR_DATA)
                     or (skill_name == "Crafting" and item in CRAFTING_DATA)
+                    or (skill_name == "Fletching" and (_item_def_for(item) is not None and _item_def_for(item).category == "fletched"))
+                    or (skill_name == "Firemaking" and (item in FIREMAKING_LOG_ITEMS or item in FIREMAKING_ITEM_IMAGES))
+                    or (skill_name == "Fishing" and item in FISHING_OUTPUT_ITEMS)
                 ):
                     item_image = QLabel()
                     _item_def = _item_def_for(item)
@@ -3677,6 +3791,9 @@ def show_stats(player_data: dict, current_skill: str):
                         or BAR_IMAGES.get(item)
                         or GEM_IMAGES.get(item)
                         or CRAFTED_ITEM_IMAGES.get(item)
+                        or FLETCHED_ITEM_IMAGES.get(item)
+                        or FIREMAKING_ITEM_IMAGES.get(item)
+                        or FISHING_ITEM_IMAGES.get(item)
                         or (_item_def.asset_path if _item_def and _item_def.asset_path else "")
                     )
                     item_image.setPixmap(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio))
@@ -3694,10 +3811,8 @@ def show_stats(player_data: dict, current_skill: str):
             tab.setLayout(tab_layout)
             return tab
 
-        tabs.addTab(create_skill_tab("Mining"), "Mining")
-        tabs.addTab(create_skill_tab("Woodcutting"), "Woodcutting")
-        tabs.addTab(create_skill_tab("Smithing"), "Smithing")
-        tabs.addTab(create_skill_tab("Crafting"), "Crafting")
+        for skill_name in playable_review_skill_names():
+            tabs.addTab(create_skill_tab(skill_name), skill_name)
 
         main_layout.addWidget(tabs)
         dialog.setLayout(main_layout)

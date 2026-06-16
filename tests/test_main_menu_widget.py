@@ -34,7 +34,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
 
 def _make_player_data() -> dict:
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "smithing", "crafting", "fletching", "firemaking"):
+    for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -49,7 +49,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Smithing|Crafting|Fletching|Firemaking)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Smithing|Crafting|Fletching|Firemaking)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -254,6 +254,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._utility_calls: list = []
         # Same seam for Firemaking target selection.
         self._firemaking_calls: list = []
+        # Same seam for Fishing target selection.
+        self._fishing_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -285,6 +287,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_craft=lambda rid: self._craft_calls.append(rid),
             on_set_fletch=lambda *a: None,
             on_set_firemaking=lambda target: self._firemaking_calls.append(target),
+            on_set_fishing=lambda target: self._fishing_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
@@ -312,6 +315,84 @@ class MainMenuWidgetTest(unittest.TestCase):
             title.startswith("Woodcutting"),
             f"panel did not switch to Woodcutting; still shows {title!r}",
         )
+
+    def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
+        pd = _make_player_data()
+        pd["fishing_level"] = 48
+        pd["strength_level"] = 15
+        pd["agility_level"] = 15
+        pd["inventory"] = {"Fishing bait": 2, "Feather": 1}
+        pd["current_fishing"] = "catch_sardine_herring"
+        dialog = self._open(pd)
+
+        skill_list = _find_skill_list(dialog)
+        fishing_row = next(
+            (i for i in range(skill_list.count()) if skill_list.item(i).text() == "Fishing"),
+            None,
+        )
+        self.assertIsNotNone(fishing_row, "Fishing is missing from the Gathering skill list")
+        skill_list.setCurrentRow(fishing_row)
+        QApplication.processEvents()
+
+        title = _panel_title(dialog)
+        self.assertTrue(
+            title.startswith("Fishing"),
+            f"panel did not switch to Fishing; still shows {title!r}",
+        )
+        target_list = _find_list_with_user_role(dialog, "catch_sardine_herring")
+        sardine_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_sardine_herring"
+        )
+        crayfish_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_crayfish"
+        )
+
+        self.assertTrue(crayfish_row.text().startswith("Catch crayfish"))
+        tip = sardine_row.toolTip()
+        self.assertIn("Outputs: Raw sardine", tip)
+        self.assertIn("Raw herring", tip)
+        self.assertIn("Base XP: 20-30 per catch", tip)
+        self.assertIn("Materials: Fishing bait x1 (you have 2)", tip)
+        self.assertNotIn("rod", tip.lower())
+        self.assertNotIn("net", tip.lower())
+        self.assertNotIn("harpoon", tip.lower())
+
+        target_list.itemClicked.emit(crayfish_row)
+        QApplication.processEvents()
+        self.assertEqual(self._fishing_calls[-1], "catch_crayfish")
+
+    def test_fishing_locked_rows_are_inert_and_explain_material_or_side_gate(self) -> None:
+        pd = _make_player_data()
+        pd["fishing_level"] = 48
+        pd["strength_level"] = 1
+        pd["agility_level"] = 1
+        pd["inventory"] = {}
+        dialog = self._open(pd)
+
+        skill_list = _find_skill_list(dialog)
+        fishing_row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Fishing")
+        skill_list.setCurrentRow(fishing_row)
+        QApplication.processEvents()
+        target_list = _find_list_with_user_role(dialog, "catch_sardine_herring")
+        bait_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_sardine_herring"
+        )
+        leaping_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_leaping_fish"
+        )
+
+        self.assertFalse(bait_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("materials", bait_row.toolTip())
+        self.assertFalse(leaping_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("side levels", leaping_row.toolTip())
+        target_list.itemClicked.emit(bait_row)
+        target_list.itemClicked.emit(leaping_row)
+        QApplication.processEvents()
+        self.assertEqual(self._fishing_calls, [])
 
     def test_switching_category_then_selecting_crafting_updates_panel(self) -> None:
         # The user reported the same stale-panel bug under Artisan -> Crafting,
@@ -619,6 +700,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Firemaking Stats", labels)
         self.assertIn("Firemaking Level:", labels)
 
+    def test_stats_tab_has_fishing_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Fishing")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Fishing Stats", labels)
+        self.assertIn("Fishing Level:", labels)
+
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {
@@ -661,6 +750,31 @@ class MainMenuWidgetTest(unittest.TestCase):
             if bank.item(i).text().startswith("Ashes x")
         )
         self.assertFalse(ashes_row.icon().isNull(), "Ashes row has no icon")
+
+    def test_bank_groups_fish_and_bait_with_icons(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Raw crayfish": 3,
+            "Raw shark": 1,
+            "Fishing bait": 12,
+        }
+        dialog = self._open(pd)
+        bank = _find_bank_list(dialog)
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        for header in ("Fish", "Materials"):
+            self.assertIn(header, texts, f"missing bank category header {header!r}")
+        self.assertTrue(any(t.startswith("Raw crayfish x3") for t in texts))
+        self.assertTrue(any(t.startswith("Fishing bait x12") for t in texts))
+        crayfish_row = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Raw crayfish x")
+        )
+        bait_row = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Fishing bait x")
+        )
+        self.assertFalse(crayfish_row.icon().isNull(), "Raw crayfish row has no icon")
+        self.assertFalse(bait_row.icon().isNull(), "Fishing bait row has no icon")
 
     def test_bank_gear_lives_in_separate_panel_from_striped_inventory(self) -> None:
         pd = _make_player_data()
@@ -735,6 +849,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_smith=lambda *a: None,
             on_set_craft=lambda *a: None,
             on_set_fletch=lambda *a: None,
+            on_set_fishing=lambda *a: None,
             on_set_utility=lambda *a: None,
             on_equip_item=_equip,
             on_unequip_slot=_unequip,
@@ -914,6 +1029,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(hud.target_lbl.text(), "Logs")
         self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Firemaking icon")
 
+    def test_hud_recognizes_fishing_as_active_skill(self) -> None:
+        pd = _make_player_data()
+        pd["current_fishing"] = "catch_crayfish"
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Fishing")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Fishing"),
+            f"HUD did not recognize Fishing; shows {hud.title_lbl.text()!r}",
+        )
+        self.assertEqual(hud.target_lbl.text(), "Catch crayfish")
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fishing icon")
+
     # ---- Crafting/Utility rework surfaces ---------------------------------
     def _open_utility(self, dialog: "QDialog") -> "QListWidget":
         cat = next(
@@ -937,6 +1064,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
         self.assertIn("Scavenge chicken feathers", util_texts)
+        self.assertIn("Gather fishing bait", util_texts)
 
     # ---- Crafting parity (family-grouped CRAFTING_DATA recipe tree) --------
     def test_crafting_groups_recipes_by_family(self) -> None:

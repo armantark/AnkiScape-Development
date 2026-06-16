@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Fishing Design Grill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.12), transparent 34%),
+        radial-gradient(circle at 85% 8%, rgba(74, 222, 128, 0.13), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 36px;
+    }
+
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.36);
+      border-radius: 999px;
+      padding: 7px 10px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 8px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+    }
+
+    .card {
+      background: rgba(22, 26, 33, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .card h2 {
+      margin: 6px 0 12px;
+      font-size: 1.2rem;
+      letter-spacing: 0;
+    }
+
+    .label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .label.green { color: var(--green); }
+    .label.purple { color: var(--purple); }
+
+    .file-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.67rem;
+      color: var(--text-dim);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 8px;
+    }
+
+    .decision {
+      display: grid;
+      gap: 10px;
+    }
+
+    .option {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151c;
+      padding: 14px;
+      cursor: pointer;
+      transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+    }
+
+    .option:hover, .option[aria-pressed="true"] {
+      border-color: rgba(79, 140, 255, 0.75);
+      background: rgba(79, 140, 255, 0.08);
+      transform: translateY(-1px);
+    }
+
+    .option strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.98rem;
+    }
+
+    .option p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.45;
+      font-size: 0.9rem;
+    }
+
+    .mock {
+      border: 1px solid var(--border);
+      background: #10141b;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .mock-header {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+    }
+
+    .target-row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(42, 48, 64, 0.62);
+    }
+
+    .target-row:last-child { border-bottom: 0; }
+    .icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: linear-gradient(145deg, #2a5060, #79d0a4);
+      border: 1px solid rgba(232, 236, 244, 0.18);
+    }
+
+    .icon.bait { background: linear-gradient(145deg, #795c3b, #fbbf24); }
+    .icon.high { background: linear-gradient(145deg, #334155, #94a3b8); }
+    .row-title { font-size: 0.93rem; }
+    .row-sub { color: var(--text-dim); font-size: 0.75rem; margin-top: 2px; }
+    .xp { font-family: "JetBrains Mono", monospace; color: var(--green); font-size: 0.76rem; }
+
+    .steps {
+      display: grid;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .num {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.3);
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+    }
+
+    .step p { margin: 0; color: var(--text-dim); line-height: 1.45; }
+    .step strong { color: var(--text); }
+
+    .wide { grid-column: 1 / -1; }
+
+    @media (max-width: 900px) {
+      body { padding: 22px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-Implementation Design Grill</span>
+    <h1>Fishing needs one early design decision.</h1>
+    <p class="subtitle">The source-backed 2011Scape data exists locally, but Fishing is structurally different from Mining and Woodcutting: player-facing actions are spot/tool methods that can produce multiple fish, not always one fixed output.</p>
+
+    <section class="grid" aria-label="Fishing design checkpoint">
+      <article class="card">
+        <div class="label">Source shape</div>
+        <h2>What the source says</h2>
+        <div class="mock" aria-label="Fishing target mock">
+          <div class="mock-header"><span>Fishing target list</span><span>2011Scape rev 667</span></div>
+          <div class="target-row">
+            <div class="icon"></div>
+            <div>
+              <div class="row-title">Small net</div>
+              <div class="row-sub">Raw anchovies or raw shrimps; no bait</div>
+            </div>
+            <div class="xp">10-40 xp</div>
+          </div>
+          <div class="target-row">
+            <div class="icon bait"></div>
+            <div>
+              <div class="row-title">Fly fishing rod</div>
+              <div class="row-sub">Raw salmon or raw trout; consumes Feather</div>
+            </div>
+            <div class="xp">50-70 xp</div>
+          </div>
+          <div class="target-row">
+            <div class="icon high"></div>
+            <div>
+              <div class="row-title">Harpoon shark</div>
+              <div class="row-sub">Raw shark; high-level, no bait</div>
+            </div>
+            <div class="xp">110 xp</div>
+          </div>
+        </div>
+        <div class="file-tags">
+          <span class="tag">Fish.kt</span>
+          <span class="tag">FishingTool.kt</span>
+          <span class="tag">FishingSpot.kt</span>
+          <span class="tag">skill_registry.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label green">Recommended answer</div>
+        <h2>Use method targets, not fish targets</h2>
+        <div class="decision">
+          <button class="option" type="button" aria-pressed="true">
+            <strong>Recommended: target the fishing method.</strong>
+            <p>Rows like Small net, Fly fishing rod, Lobster pot, and Harpoon match the real action and preserve mixed-output behavior for each successful review.</p>
+          </button>
+          <button class="option" type="button" aria-pressed="false">
+            <strong>Alternative: target each fish directly.</strong>
+            <p>This is simpler for output planning, but it lies about source behavior when one method rolls multiple possible fish and bypasses some bait/tool semantics.</p>
+          </button>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="label purple">Implementation branches after this decision</div>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <p><strong>Backend:</strong> add source-audited Fishing method data, item definitions, pure catch roll logic, storage defaults, review dispatch, achievements, and tests.</p>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <p><strong>Frontend:</strong> expose Fishing in the Skills hub, render method rows with icons, level and bait/material gating, stable target IDs, and disabled-row click guards.</p>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <p><strong>Assets:</strong> fetch fish, bait, and fishing tool icons from the registry-derived manifest, record provenance, and cover all required asset paths.</p>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <p><strong>Balance:</strong> keep base XP from 2011Scape unchanged, treat one successful card as one catch attempt, and model bait consumption separately from XP pacing.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    document.querySelectorAll(".option").forEach((button) => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".option").forEach((other) => other.setAttribute("aria-pressed", "false"));
+        button.setAttribute("aria-pressed", "true");
+      });
+    });
+  </script>
+</body>
+</html>

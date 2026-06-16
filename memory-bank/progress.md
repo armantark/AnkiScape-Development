@@ -6,14 +6,14 @@
 - The local working copy is now initialized as a git repository on `main`.
 - Review answers can award XP for the active skill.
 - Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
-- Mining, Woodcutting, Smithing, Crafting, Fletching, and Firemaking exist.
+- Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, and Firemaking exist.
 - Items are stored in a shared inventory/bank.
 - Level-up and achievement flows exist.
 - Review HUD, floating XP, floating widget, main menu, stats, bank, settings, and achievements are present.
 - Tests cover a meaningful portion of pure logic, migrations, settings, hooks, UI calculations, and integration smoke behavior.
 - A backend skill registry exists for current and planned 2011-era skills.
 - A pure review-action registry exists for levelled skills plus no-XP Utility/Activities aliases, without adding Utility as a fake skill.
-- A backend item manifest exists for current ores, logs, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
+- A backend item manifest exists for current ores, logs, fish, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for the current four skills.
 - `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
@@ -24,6 +24,7 @@
 - Utility/Activities has a dedicated icon set: each existing activity exposes an `icon_path` backed by `activityicons/` assets, and the Qt list falls back to output-item art if an activity icon is missing.
 - Feathers now have one legitimate non-dev source: `Scavenge chicken feathers` is a no-XP Utility/Activities bridge that grants `28 Feather` per successful action tick without opening Combat, shops, coins, or GE.
 - Firemaking v1 is in place: source-backed `firemaking_data.py`, stable `current_firemaking` target IDs, storage config version 12 migration/defaults, review-scale lighting chances, implicit tinderbox behavior, source XP, `Ashes x1`, achievements, assets, and Artisan hub/Stats/Bank/HUD support.
+- Fishing v1 is in place: source-backed `fishing_data.py`, stable `current_fishing` method IDs, storage config version 13 migration/defaults, review-scale catch chances, ordered mixed-output rolls, success-only material consumption, hidden Strength/Agility side XP for Barbarian fish, generic Fishing achievements, dedicated fish/material assets, a `fish` item category, and Gathering hub/Stats/Bank/HUD support.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -42,6 +43,7 @@
 - A release-quality expansion spec.
 - Backfilled provenance for older bundled assets that predate the current scraper/provenance workflow.
 - Firemaking bonfires and fire spirits; they are pre-EOC but intentionally deferred as a separate extension.
+- Fishing Dungeoneering fish, Fishing Trawler outputs, quest-only fish, Fish Flingers, and a real shop/GE material economy; they are intentionally deferred as separate systems rather than folded into ordinary Fishing v1.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -135,10 +137,25 @@ and Qt target-list coverage. Bonfires/fire spirits are recorded as deferred
 2012 pre-EOC extension content in
 `memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`.
 
+Fishing v1 completed on 2026-06-16. The skill is a current Gathering review
+skill with 15 live local-2011Scape `FishingSpot.kt` behaviors, stable
+`current_fishing` IDs, output-first labels, source XP and min/max chance data,
+ordered mixed-output rolls, material use only on successful catches, hidden
+Strength/Agility side XP for Barbarian fish, storage config version 13,
+achievements, assets, item/icon registration, Utility `Gather fishing bait`,
+runtime review dispatch, action multiplier support, undo rollback, and Qt
+target-list coverage. The source audit records that the 2011-to-pre-EOC wiki
+gap adds no missing ordinary catch method for this v1; Stone fish, Fish Flingers,
+cosmetics, Dungeoneering fish, and Fishing Trawler stay deferred. `python3 run_tests.py`
+passes with 281 tests (69 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 281 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
 - Continue P0 only for a new architecture slice: frontend target-list metadata or further `__init__.py` decomposition. The review-action dispatch slice is done.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
+- Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.
 - Firemaking-specific follow-up: bonfires/fire spirits, only if explicitly prioritized.

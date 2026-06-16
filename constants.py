@@ -13,6 +13,13 @@ try:
         firemaking_output_items,
         firemaking_targets_as_dict,
     )
+    from .fishing_data import (
+        DEFAULT_FISHING_TARGET,
+        FISHING_BAIT_SHOP_SOURCE_PATH,
+        fishing_extra_items_as_dict,
+        fishing_methods_as_dict,
+        fishing_output_items,
+    )
     from .item_registry import build_item_definitions
     from .mining_data import (
         DEFAULT_MINING_TARGET,
@@ -51,6 +58,13 @@ except ImportError:
         firemaking_input_items,
         firemaking_output_items,
         firemaking_targets_as_dict,
+    )
+    from fishing_data import (
+        DEFAULT_FISHING_TARGET,
+        FISHING_BAIT_SHOP_SOURCE_PATH,
+        fishing_extra_items_as_dict,
+        fishing_methods_as_dict,
+        fishing_output_items,
     )
     from item_registry import build_item_definitions
     from mining_data import (
@@ -107,6 +121,7 @@ MINING_ITEMS_FOLDER = os.path.join(current_dir, "miningitems")
 SMITHING_ITEMS_FOLDER = os.path.join(current_dir, "smithingitems")
 UTILITY_ACTIVITY_ICONS_FOLDER = os.path.join(current_dir, "activityicons")
 FIREMAKING_ITEMS_FOLDER = os.path.join(current_dir, "firemakingitems")
+FISHING_ITEMS_FOLDER = os.path.join(current_dir, "fishingitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -153,6 +168,15 @@ UTILITY_ACTIVITY_DATA = {
             "chicken_level_1.plugin.kts drops Feather. AnkiScape temporary scavenging bridge until Combat/GE."
         ),
     },
+    "gather_fishing_bait": {
+        "display_name": "Gather fishing bait",
+        "requirements": {},
+        "output_item": "Fishing bait",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_fishing_bait.png"),
+        "source": f"{FISHING_BAIT_SHOP_SOURCE_PATH}: Lumbridge Fishing Supplies stock, temporary no-XP bridge.",
+    },
     "open_bird_nest": {
         "display_name": "Open bird nests",
         "requirements": {},
@@ -170,6 +194,8 @@ UTILITY_ITEM_IMAGES = {
     "Soft clay": os.path.join(CRAFTED_ITEMS_FOLDER, "soft_clay.png"),
     "Wool": os.path.join(CRAFTED_ITEMS_FOLDER, "wool.png"),
     "Flax": os.path.join(CRAFTED_ITEMS_FOLDER, "flax.png"),
+    "Feather": os.path.join(FLETCHED_ITEMS_FOLDER, "feather.png"),
+    "Fishing bait": os.path.join(FISHING_ITEMS_FOLDER, "fishing_bait.png"),
 }
 
 TREE_IMAGES = {tree.split('.')[0]: os.path.join(trees_folder, tree) for tree in os.listdir(trees_folder) if tree.endswith('.png')}
@@ -390,6 +416,9 @@ FIREMAKING_DATA = firemaking_targets_as_dict()
 FIREMAKING_LOG_ITEMS = firemaking_input_items()
 FIREMAKING_OUTPUT_ITEMS = firemaking_output_items()
 
+FISHING_DATA = fishing_methods_as_dict()
+FISHING_OUTPUT_ITEMS = fishing_output_items()
+
 
 def _asset_slug(name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
@@ -445,6 +474,13 @@ for _item_name in FIREMAKING_EXTRA_ITEM_DATA:
         _path = os.path.join(FIREMAKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if _path and os.path.exists(_path):
         FIREMAKING_ITEM_IMAGES[_item_name] = _path
+
+FISHING_EXTRA_ITEM_DATA = fishing_extra_items_as_dict()
+FISHING_ITEM_IMAGES = {}
+for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
+    _path = os.path.join(FISHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        FISHING_ITEM_IMAGES[_item_name] = _path
 
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
@@ -503,12 +539,14 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **MINING_EXTRA_ITEM_DATA,
     **SMITHING_EXTRA_ITEM_DATA,
     **FIREMAKING_EXTRA_ITEM_DATA,
+    **FISHING_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
     **MINING_EXTRA_ITEM_IMAGES,
     **SMITHING_EXTRA_ITEM_IMAGES,
     **FIREMAKING_ITEM_IMAGES,
+    **FISHING_ITEM_IMAGES,
 }
 
 ITEM_DEFINITIONS = build_item_definitions(
@@ -527,6 +565,8 @@ ITEM_DEFINITIONS = build_item_definitions(
     CRAFTED_ITEM_IMAGES,
     FLETCHING_DATA,
     FLETCHED_ITEM_IMAGES,
+    FISHING_DATA,
+    FISHING_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
     UTILITY_ITEM_IMAGES,
     EXTRA_ITEM_DATA,
@@ -751,4 +791,47 @@ ACHIEVEMENTS.update({
     "Expert Firemaker": {"description": "Reach Firemaking level 60", "difficulty": "Difficult", "condition": lambda player: player.get("firemaking_level", 1) >= 60},
     "Ash Stockpile": {"description": "Collect 10,000 Ashes", "difficulty": "Difficult", "condition": lambda player: player["inventory"].get("Ashes", 0) >= 10000},
     "Master Firemaker": {"description": "Reach Firemaking level 99", "difficulty": "Very Challenging", "condition": lambda player: player.get("firemaking_level", 1) >= 99},
+})
+
+ACHIEVEMENTS.update({
+    "First Catch": {
+        "description": "Catch your first fish",
+        "difficulty": "Easy",
+        "condition": lambda player: any(player["inventory"].get(item, 0) > 0 for item in FISHING_OUTPUT_ITEMS),
+    },
+    "Novice Angler": {
+        "description": "Reach Fishing level 10",
+        "difficulty": "Easy",
+        "condition": lambda player: player.get("fishing_level", 1) >= 10,
+    },
+    "Fish Collector": {
+        "description": "Catch 100 total fish",
+        "difficulty": "Easy",
+        "condition": lambda player: sum(player["inventory"].get(item, 0) for item in FISHING_OUTPUT_ITEMS) >= 100,
+    },
+    "Intermediate Angler": {
+        "description": "Reach Fishing level 30",
+        "difficulty": "Moderate",
+        "condition": lambda player: player.get("fishing_level", 1) >= 30,
+    },
+    "Fish Hoarder": {
+        "description": "Catch 1,000 total fish",
+        "difficulty": "Moderate",
+        "condition": lambda player: sum(player["inventory"].get(item, 0) for item in FISHING_OUTPUT_ITEMS) >= 1000,
+    },
+    "Expert Angler": {
+        "description": "Reach Fishing level 60",
+        "difficulty": "Difficult",
+        "condition": lambda player: player.get("fishing_level", 1) >= 60,
+    },
+    "Fish Stockpile": {
+        "description": "Catch 10,000 total fish",
+        "difficulty": "Difficult",
+        "condition": lambda player: sum(player["inventory"].get(item, 0) for item in FISHING_OUTPUT_ITEMS) >= 10000,
+    },
+    "Master Angler": {
+        "description": "Reach Fishing level 99",
+        "difficulty": "Very Challenging",
+        "condition": lambda player: player.get("fishing_level", 1) >= 99,
+    },
 })

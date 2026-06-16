@@ -254,6 +254,45 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["xp"], [40.0])
 
+    def test_fishing_answer_catches_fish_adds_exp_and_hidden_side_exp(self):
+        addon = _load_addon_as_package("ankiscape_fishing_integration")
+
+        calls = {"save": 0, "xp": [], "achievements": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda data: calls["achievements"].append(data["inventory"].get("Leaping trout", 0))
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.player_data = {
+                "inventory": {"Feather": 1},
+                "fishing_level": 48,
+                "fishing_exp": 0,
+                "strength_level": 15,
+                "strength_exp": 0,
+                "agility_level": 15,
+                "agility_exp": 0,
+                "current_fishing": "catch_leaping_fish",
+                "completed_achievements": [],
+            }
+
+            addon.on_fishing_answer()
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Feather"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Leaping trout"], 1)
+        self.assertAlmostEqual(addon.player_data["fishing_exp"], 50.0)
+        self.assertAlmostEqual(addon.player_data["strength_exp"], 5.0)
+        self.assertAlmostEqual(addon.player_data["agility_exp"], 5.0)
+        self.assertEqual(calls["achievements"], [1])
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["xp"], [50.0])
+
     def test_smithing_answer_forges_selected_recipe(self):
         addon = _load_addon_as_package("ankiscape_smithing_integration")
 
@@ -455,6 +494,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertIs(addon._registered_answer_handler("Fletching"), addon.on_fletching_answer)
         self.assertIs(addon._registered_answer_handler("Firemaking"), addon.on_firemaking_answer)
+        self.assertIs(addon._registered_answer_handler("Fishing"), addon.on_fishing_answer)
         self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.on_utility_answer)
         self.assertIs(addon._registered_answer_handler("Utility"), addon.on_utility_answer)
         self.assertIsNone(addon._registered_answer_handler("Thieving"))
@@ -478,6 +518,17 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Logs": 1},
             "firemaking_level": 1,
             "current_firemaking": "logs",
+        }
+        self.assertTrue(addon._can_start_current_action())
+
+        addon.player_data["inventory"] = {}
+        self.assertFalse(addon._can_start_current_action())
+
+        addon.current_skill = "Fishing"
+        addon.player_data = {
+            "inventory": {"Fishing bait": 1},
+            "fishing_level": 5,
+            "current_fishing": "catch_sardine_herring",
         }
         self.assertTrue(addon._can_start_current_action())
 
@@ -567,6 +618,35 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["fletching_exp"], 0)
         self.assertEqual(calls["save"], 2)
         self.assertEqual(calls["gains"], ["+56 Feather"])
+
+    def test_utility_fishing_bait_batches_without_skill_xp(self):
+        addon = _load_addon_as_package("ankiscape_fishing_bait_utility_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 1}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda text: calls["gains"].append(text))
+        addon.player_data = {
+            "inventory": {},
+            "fishing_exp": 0,
+            "current_utility": "gather_fishing_bait",
+            "completed_achievements": [],
+        }
+
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Fishing bait"], 28)
+        self.assertEqual(addon.player_data["fishing_exp"], 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["+28 Fishing bait"])
 
     def test_bad_review_action_multiplier_config_falls_back_to_one_tick(self):
         addon = _load_addon_as_package("ankiscape_bad_review_multiplier_integration")
@@ -663,6 +743,45 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [80.0])
         self.assertEqual(calls["errors"], [])
 
+    def test_fishing_multiplier_stops_when_bait_is_depleted(self):
+        addon = _load_addon_as_package("ankiscape_fishing_multiplier_depletion")
+
+        calls = {"xp": [], "errors": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: calls["errors"].append(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_exp=lambda exp: calls["xp"].append(exp))
+        addon.player_data = {
+            "inventory": {"Fishing bait": 1},
+            "fishing_level": 5,
+            "fishing_exp": 0,
+            "strength_level": 1,
+            "agility_level": 1,
+            "current_fishing": "catch_sardine_herring",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Fishing"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Fishing bait"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Raw sardine"], 1)
+        self.assertAlmostEqual(addon.player_data["fishing_exp"], 20.0)
+        self.assertEqual(calls["xp"], [20.0])
+        self.assertEqual(calls["errors"], [])
+
     def test_undo_after_review_restores_awarded_game_progress(self):
         addon = _load_addon_as_package("ankiscape_undo_integration")
 
@@ -753,6 +872,62 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["current_firemaking"], "logs")
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [40.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
+    def test_fishing_review_reward_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_fishing_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Feather": 1},
+            "fishing_level": 48,
+            "fishing_exp": 0,
+            "strength_level": 15,
+            "strength_exp": 0,
+            "agility_level": 15,
+            "agility_exp": 0,
+            "current_fishing": "catch_leaping_fish",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Fishing"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"], {"Feather": 0, "Leaping trout": 1})
+        self.assertAlmostEqual(addon.player_data["fishing_exp"], 50.0)
+        self.assertAlmostEqual(addon.player_data["strength_exp"], 5.0)
+        self.assertAlmostEqual(addon.player_data["agility_exp"], 5.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Feather": 1})
+        self.assertEqual(addon.player_data["fishing_exp"], 0)
+        self.assertEqual(addon.player_data["strength_exp"], 0)
+        self.assertEqual(addon.player_data["agility_exp"], 0)
+        self.assertEqual(addon.player_data["current_fishing"], "catch_leaping_fish")
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [50.0])
         self.assertGreaterEqual(calls["save"], 2)
 
     def test_utility_review_reward_rolls_back_on_undo(self):

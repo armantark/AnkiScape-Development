@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
 
-ItemCategory = Literal["ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"]
+ItemCategory = Literal["ore", "log", "fish", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"]
 
 
 @dataclass(frozen=True)
@@ -95,6 +95,8 @@ def build_item_definitions(
     crafted_item_images: Mapping[str, str],
     fletching_data: Optional[Mapping[str, Mapping[str, object]]] = None,
     fletched_item_images: Optional[Mapping[str, str]] = None,
+    fishing_data: Optional[Mapping[str, Mapping[str, object]]] = None,
+    fishing_item_images: Optional[Mapping[str, str]] = None,
     utility_activity_data: Optional[Mapping[str, Mapping[str, object]]] = None,
     utility_item_images: Optional[Mapping[str, str]] = None,
     extra_item_data: Optional[Mapping[str, Mapping[str, object]]] = None,
@@ -124,7 +126,7 @@ def build_item_definitions(
 
     def extra_item_category(spec: Mapping[str, object]) -> ItemCategory:
         category = spec.get("category", "material")
-        if category in ("ore", "log", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"):
+        if category in ("ore", "log", "fish", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"):
             return cast(ItemCategory, category)
         return "material"
 
@@ -182,6 +184,24 @@ def build_item_definitions(
             for requirement_name in spec.get("requirements", {}):
                 if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                     add_material_definition(requirement_name, "Fletching material", image_map)
+    if fishing_data is not None:
+        image_map = fishing_item_images or {}
+        for target_key, spec in fishing_data.items():
+            for fish in spec.get("fish", ()):
+                if not isinstance(fish, Mapping):
+                    continue
+                output_name = fish.get("output_item")
+                if not isinstance(output_name, str):
+                    continue
+                fish_spec = dict(fish)
+                fish_spec.setdefault("level", fish.get("level", spec.get("level", 1)))
+                fish_spec.setdefault("exp", fish.get("exp", 0.0))
+                add_definition(_definition(output_name, "fish", "Fishing", {output_name: fish_spec}, image_map))
+            for bait_name in spec.get("bait_options", ()):
+                if isinstance(bait_name, str) and bait_name not in seen_storage_keys and (
+                    extra_item_data is None or bait_name not in extra_item_data
+                ):
+                    add_material_definition(bait_name, "Fishing material", image_map)
     if utility_activity_data is not None:
         image_map = utility_item_images or {}
         for spec in utility_activity_data.values():

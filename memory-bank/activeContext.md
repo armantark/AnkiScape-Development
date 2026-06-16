@@ -198,6 +198,25 @@ log consumption, source XP, `Ashes x1`, achievements, assets, and offscreen Qt
 coverage. Bonfires/fire spirits are intentionally deferred as a 2012 pre-EOC
 extension rather than part of line Firemaking v1.
 
+Fishing v1 is complete on 2026-06-16 as a Gathering skill-expansion thread.
+Source data lives in `fishing_data.py`, audited against local 2011Scape
+`Fish.kt`, `FishingTool.kt`, `FishingSpot.kt`, `Fishing.kt`, `items.yml`, and
+Lumbridge Fishing Supplies in
+`memory-bank/source-audits/fishing-2011scape-2026-06-16.md`. Fishing is a
+current Gathering review skill with flat save keys (`fishing_level`,
+`fishing_exp`, `current_fishing`), stable output-first method IDs, source
+min/max chance rows adapted to AnkiScape review pacing, ordered mixed-output
+rolls, success-only material consumption, hidden Strength/Agility side XP for
+Barbarian fish, generic Fishing achievements, and a no-XP `Gather fishing bait`
+Utility bridge. Reusable fishing tools are implicit and do not appear in labels,
+tooltips, or fetched assets. The wiki gap check found no missing ordinary
+Fishing training catch between the 2011 snapshot and pre-EOC; Stone fish,
+Fish Flingers updates, cosmetics, Dungeoneering fish, and Fishing Trawler are
+recorded as separate audit-only/future-slice content. Verification:
+`python3 run_tests.py` passed with 281 tests (69 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 281 tests.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -216,7 +235,8 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
    `__init__.py` runtime orchestration, not repeating review handler dispatch.
 2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
-4. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
+4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.
+5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

@@ -13,8 +13,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
+- Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Further P0 work should target frontend target-list metadata or larger `__init__.py` decomposition, not repeat this dispatch slice.
-- Utility and Activities should get their own icon set so non-skill actions feel first-class.
+- Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
 
 ## Priority Board
 
@@ -224,4 +225,25 @@ Future thread prompt:
 
 ```text
 In the AnkiScape repo, do not redo Firemaking v1. It is already implemented as a current Artisan skill. Only revisit Firemaking if the owner explicitly asks for a follow-up such as bonfires/fire spirits; if so, treat that as a separate 2012 pre-EOC extension with its own batch-log, XP-bonus, fire-spirit reward, Cooking boost, warmth/temporary-health, multiplier, undo, UI, tests, and Memory Bank plan.
+```
+
+## Completed - Fishing V1
+
+Status 2026-06-16: Complete. Fishing is a current Gathering review skill with
+15 local-2011Scape `FishingSpot.kt` behaviors, stable `current_fishing` IDs,
+source XP/chance rows, ordered mixed-output rolls, material use only on catch,
+hidden Strength/Agility side XP for Barbarian fish, generic Fishing
+achievements, fish/material assets, and Skills hub/Stats/Bank/HUD support. See
+`memory-bank/source-audits/fishing-2011scape-2026-06-16.md`.
+
+The 2011 snapshot-to-pre-EOC wiki check found no missing ordinary catch method
+for this v1. Stone fish is quest-only, Fish Flingers is a D&D/reward surface,
+Depth Charge Fishing is cosmetic, and Dungeoneering fish/Fishing Trawler are
+older nonstandard systems. Treat all of those as separate future slices rather
+than Fishing v1 gaps.
+
+Future replacement prompt:
+
+```text
+In the AnkiScape repo, do not redo Fishing v1. It already implements local 2011Scape ordinary FishingSpot methods with source-backed data, assets, Utility fishing bait, undo-safe review handling, and Qt coverage. Only revisit Fishing if explicitly working on Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, or real shop/GE material sourcing.
 ```
