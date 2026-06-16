@@ -13,6 +13,7 @@
 - Tests cover a meaningful portion of pure logic, migrations, settings, hooks, UI calculations, and integration smoke behavior.
 - A backend skill registry exists for current and planned 2011-era skills.
 - A pure review-action registry exists for levelled skills plus no-XP Utility/Activities aliases, without adding Utility as a fake skill.
+- A pure flat target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities, so their Skills-hub rows are generated as shared metadata before Qt renders them.
 - A backend item manifest exists for current ores, logs, fish, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for the current four skills.
@@ -36,7 +37,7 @@
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 
 ## What Is Not Built Yet
-- Full target-list/action metadata beyond the current review-action dispatch registry.
+- Full target-list/action metadata beyond the current review-action dispatch registry and the flat target-row metadata contract. Grouped Smithing/Crafting target trees still need their own metadata seam if they are refactored.
 - Combat training and combat encounters.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Formal balancing pass for long-term progression.
@@ -58,8 +59,9 @@
 - `__init__.py` owns too much runtime orchestration and skill dispatch.
 - `ui.py` is large and mixes many dialogs/surfaces.
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
-- The runtime answer handler map now uses registry handler keys, but target-list metadata and handler internals are still partly hardcoded.
+- The runtime answer handler map now uses registry handler keys, but grouped target-list metadata and handler internals are still partly hardcoded.
 - The runtime answer path now uses `action_registry.py` for Skill/Utility handler-key resolution and a handler-keyed can-start map, but the individual handler bodies still live in `__init__.py`.
+- Flat target rows now use `target_metadata.py`, but grouped Smithing/Crafting trees still carry local row-building logic because parent rows and expand/collapse state need a separate contract.
 - The current future-thread priority board lives in `memory-bank/future-work-kanban.md`.
 
 ## Current Status
@@ -111,6 +113,17 @@ passes with 233 tests (57 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 233 tests.
 
+P0 flat target-list metadata cleanup completed on 2026-06-16. `target_metadata.py`
+now produces pure `TargetRowMetadata` rows for Mining, Woodcutting, Fletching,
+Firemaking, Fishing, and Utility/Activities. `ui.show_main_menu` renders those
+rows through one shared `QListWidget` helper, preserving disabled-row click
+guards, tooltips, icons, active-target highlighting, flat save keys, XP/item
+math, action multiplier behavior, and undo rollback. Smithing and Crafting stay
+on their grouped `QTreeWidget` builders for now. `python3 run_tests.py` passes
+with 287 tests (69 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 287 tests.
+
 P2 feather source completed on 2026-06-15. Added `Scavenge chicken feathers` as
 a no-input Utility/Activities action with a dedicated activity icon and
 source-audit note. It grants `28 Feather` per successful action tick, awards no
@@ -154,7 +167,7 @@ passes with 281 tests.
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
-- Continue P0 only for a new architecture slice: frontend target-list metadata or further `__init__.py` decomposition. The review-action dispatch slice is done.
+- Continue P0 only for a new architecture slice: grouped Smithing/Crafting target-tree metadata or further `__init__.py` decomposition. The review-action dispatch and flat target-row metadata slices are done.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
 - Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.

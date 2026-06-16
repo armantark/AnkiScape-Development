@@ -14,7 +14,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
-- P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Further P0 work should target frontend target-list metadata or larger `__init__.py` decomposition, not repeat this dispatch slice.
+- P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
+- P0 flat target-list metadata cleanup is complete as of 2026-06-16: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities row labels, tooltips, icon paths, enabled/current state, and lock reasons before Qt renders them. Further P0 work should target grouped Smithing/Crafting target-tree metadata or larger `__init__.py` decomposition.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
 
 ## Priority Board
@@ -45,15 +46,19 @@ Acceptance criteria:
 - Existing tests pass, and targeted tests cover any changed registry/action dispatch behavior.
 - Future skill or Firemaking-extension threads have fewer places to edit than the previous broad skill-expansion threads.
 
-Status 2026-06-15: Initial backend dispatch slice complete. No storage shape,
-XP, item, undo, or visible UI behavior changed. Frontend target-list builders are
-still per-skill and remain a separate P0 follow-up because the backend does not
-yet expose a safe widget metadata contract.
+Status 2026-06-16: Initial backend dispatch slice and the flat target-list
+metadata slice are complete. No storage shape, XP, item, undo, action multiplier,
+or visible UI behavior changed. Mining, Woodcutting, Fletching, Firemaking,
+Fishing, and Utility/Activities now share a pure `TargetRowMetadata` contract
+plus one Qt `QListWidget` renderer. Smithing and Crafting are still grouped
+`QTreeWidget` builders and remain a separate P0 follow-up if the owner wants
+another UI metadata pass. `__init__.py` still owns the individual runtime handler
+bodies.
 
 Future thread prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup is already done, so focus next on frontend target-list metadata or further __init__.py runtime decomposition without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
+In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup and 2026-06-16 flat target-list metadata cleanup are already done, so focus next on grouped Smithing/Crafting target-tree metadata or further __init__.py runtime decomposition without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
 ```
 
 ### P1 - Utility And Activities Icon Set

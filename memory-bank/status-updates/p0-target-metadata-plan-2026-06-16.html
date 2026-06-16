@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape P0 Target Metadata Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 0%, rgba(79, 140, 255, 0.18), transparent 30%), var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      line-height: 1.45;
+    }
+    main { width: min(1120px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0; }
+    .badge {
+      display: inline-flex;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1; }
+    .subtitle { max-width: 780px; margin: 0; color: var(--text-dim); font-size: 1rem; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; margin-top: 28px; }
+    .card {
+      background: linear-gradient(180deg, rgba(30, 35, 44, 0.96), rgba(22, 26, 33, 0.96));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.18rem; }
+    .label {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--amber);
+      font: 600 0.7rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+    }
+    .label.green { color: var(--green); }
+    .label.purple { color: var(--purple); }
+    .label.red { color: var(--red); }
+    .file-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+    .tag {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font: 400 0.68rem "JetBrains Mono", monospace;
+    }
+    .contract {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .lane {
+      min-height: 170px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(12, 14, 18, 0.45);
+      padding: 14px;
+    }
+    .lane-title {
+      margin-bottom: 12px;
+      color: var(--text-dim);
+      font: 600 0.68rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 34px;
+      margin: 8px 0;
+      padding: 8px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid rgba(42, 48, 64, 0.9);
+      font-size: 0.85rem;
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-glow); }
+    .dot.disabled { background: var(--text-dim); box-shadow: none; opacity: 0.55; }
+    .muted { color: var(--text-dim); }
+    .steps { display: grid; gap: 12px; }
+    .step { display: grid; grid-template-columns: 32px 1fr; gap: 12px; align-items: start; }
+    .step-num {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #07101f;
+      font: 700 0.9rem "JetBrains Mono", monospace;
+    }
+    .step p { margin: 3px 0 0; color: var(--text-dim); }
+    .meter {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      margin-top: 14px;
+    }
+    .meter span { display: block; width: 42%; height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+    @media (max-width: 900px) {
+      .grid, .contract { grid-template-columns: 1fr; }
+      main { padding-top: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-Implementation Plan</span>
+    <h1>P0 architecture cleanup: target metadata seam</h1>
+    <p class="subtitle">
+      The dispatch registry is already complete. This pass targets one smaller shared contract:
+      a pure row-metadata layer that lets Qt target lists share stable labels, icons, disabled
+      states, tooltips, and current-target detection without changing save keys or reward math.
+    </p>
+
+    <section class="grid" aria-label="Implementation plan">
+      <article class="card">
+        <span class="label">Backend contract</span>
+        <h2>Shared target row metadata, not a new action engine</h2>
+        <div class="contract">
+          <div class="lane">
+            <div class="lane-title">Today</div>
+            <div class="row"><span class="dot"></span><span>Each builder derives labels</span></div>
+            <div class="row"><span class="dot disabled"></span><span>Each builder repeats lock logic</span></div>
+            <div class="row"><span class="dot"></span><span>Icons resolved per skill</span></div>
+          </div>
+          <div class="lane">
+            <div class="lane-title">Target seam</div>
+            <div class="row"><span class="dot"></span><span>Pure row object per target</span></div>
+            <div class="row"><span class="dot disabled"></span><span>Same disabled-click guards</span></div>
+            <div class="row"><span class="dot"></span><span>Same icon paths, same UI style</span></div>
+          </div>
+        </div>
+        <div class="file-tags">
+          <span class="tag">target_metadata.py</span>
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label green">Frontend boundary</span>
+        <h2>Use the contract where it lowers risk</h2>
+        <p class="muted">
+          The first UI migration should cover repeated Skills-hub list plumbing that can be
+          described safely by existing data. It must preserve disabled-row click guards, tooltips,
+          icons, active-row highlighting, and grouped/flat layouts.
+        </p>
+        <div class="meter" aria-label="Scope meter"><span></span></div>
+        <p class="muted">Scope stays below a broad `ui.py` decomposition.</p>
+      </article>
+
+      <article class="card">
+        <span class="label purple">Execution</span>
+        <h2>Backend and frontend split</h2>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><p>Inspect target builders and tests; pick the narrowest repeated row-shape contract.</p></div>
+          <div class="step"><span class="step-num">2</span><p>Add pure metadata helpers and unit tests that prove labels, target IDs, icons, and gating are unchanged.</p></div>
+          <div class="step"><span class="step-num">3</span><p>Move one or more Qt builders to the shared helper while keeping existing layout and click guards.</p></div>
+          <div class="step"><span class="step-num">4</span><p>Run both required suites, update the Memory Bank, write the completion artifact, and commit without pushing.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label red">Guardrails</span>
+        <h2>Behavior that must not move</h2>
+        <p class="muted">
+          No storage migration, no XP or item math changes, no action multiplier changes, no undo
+          rollback changes, no Utility-as-skill registry move, no asset replacement, and no visual
+          redesign. This is metadata extraction only unless tests expose a tiny compatibility fix.
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

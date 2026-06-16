@@ -12,6 +12,7 @@ The add-on is a small Python package loaded by Anki. It separates some pure game
 - `storage_pure.py`: default player shape and migrations.
 - `skill_registry.py`: pure skill catalog for current and planned skills, including stable IDs, categories, save keys, and review eligibility.
 - `action_registry.py`: pure review-action dispatch metadata. It resolves levelled skills and no-XP Utility/Activities to handler keys without adding Utility as a fake skill.
+- `target_metadata.py`: pure flat target-row metadata for the Skills hub. It builds labels, tooltips, icon paths, enabled/current state, and lock reasons for Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities without creating Qt widgets.
 - `item_registry.py`: pure item manifest helpers for current economy items, including stable IDs, storage keys, categories, assets, and source/license notes.
 - `equipment_data.py`: generated worn-equipment contract for Smithing armour/weapons and Mining bonus gear, including slots, combat gates, two-handed flags, attack speed, and combat bonuses.
 - `ui.py`: Qt dialogs, HUD, menu, stats, bank, achievements, and settings.
@@ -32,6 +33,7 @@ The add-on is a small Python package loaded by Anki. It separates some pure game
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
 - Review dispatch now resolves an `action_registry.review_action_handler_key` before calling the runtime handler map. This keeps display names, save keys, Utility aliases, and handler identity connected without requiring a large action-engine rewrite.
+- Flat Skills-hub target lists now consume `target_metadata.TargetRowMetadata` rows. The Qt layer uses one shared `QListWidget` renderer for Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities, preserving disabled-row click guards, row icons, tooltips, active-target highlighting, and flat save keys. Smithing and Crafting remain grouped `QTreeWidget` builders because their parent/child expand-state behavior is a different contract.
 - Fletching is the first staged expansion skill to complete backend + target-panel rollout. It uses stable recipe IDs for save/UI selection, because multiple recipes can produce the same inventory item (for example, several log tiers all output arrow shafts).
 - Fletching material-only inputs such as feathers and arrowtips are registered as item-manifest `material` entries. Arrowtips are sourced through Smithing, and feathers have a temporary no-XP Utility bridge (`scavenge_chicken_feathers`) until Combat chicken drops and/or GE exist.
 - Utility/Activities are backend actions, not skills. They use stable activity IDs in `UTILITY_ACTIVITY_DATA`, mutate inventory through pure helpers, award zero skill XP, and can batch up to an inventory-sized cap when they represent fast material preparation.
@@ -63,7 +65,7 @@ Adding many skills by copying the current pattern would increase duplication in:
 - icon/image registration
 - tests
 
-The next major refactor should continue moving target-list metadata and action behavior behind registry metadata. Skill, item, and review-action identity now exist in pure backend modules; UI target builders, achievements, and large pieces of `__init__.py` orchestration are still transitional.
+The next major refactor should continue moving target-list metadata and action behavior behind registry metadata. Skill, item, review-action, and flat target-row identity now exist in pure backend modules; grouped Smithing/Crafting target trees, achievements, and large pieces of `__init__.py` orchestration are still transitional.
 
 ## Skill Expansion Workflow
 Use the project skill at `.cursor/skills/ankiscape-skill-expansion/SKILL.md` before adding or expanding any skill, Utility/Activity, target chain, item economy slice, or achievement set. It encodes the repeatable workflow: source audit first, playable scope cut, registry/item data, asset scraping, pure mechanics, UI surfacing, achievement patterns, tests, manual Anki checks, and memory updates.

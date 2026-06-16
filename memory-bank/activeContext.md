@@ -158,6 +158,21 @@ Verification: `python3 run_tests.py` passed with 233 tests (57 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 233 tests.
 
+P0 architecture cleanup second pass is complete on 2026-06-16. The new pure
+`target_metadata.py` module defines `TargetRowMetadata` and row builders for the
+flat Skills-hub target lists: Mining, Woodcutting, Fletching, Firemaking,
+Fishing, and Utility/Activities. `ui.show_main_menu` now renders those rows
+through one shared `QListWidget` helper, preserving the same labels, icons,
+tooltips, disabled-row click guards, active-target highlighting, grouped/flat
+layout split, flat save keys, XP/item math, action multiplier behavior, and
+undo semantics. Smithing and Crafting were intentionally left on their grouped
+`QTreeWidget` builders because parent rows, expand/collapse persistence, and
+family/tier grouping need their own contract. `__init__.py` still owns the
+individual runtime handler bodies. Verification:
+`python3 run_tests.py` passed with 287 tests (69 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 287 tests.
+
 P1 Utility/Activities icon set is complete on 2026-06-15. The backend metadata
 contract is deliberately small: existing `UTILITY_ACTIVITY_DATA` rows now expose
 `icon_path` entries pointing to dedicated `activityicons/` PNGs for Make soft
@@ -231,8 +246,9 @@ passed with 281 tests.
 Use `memory-bank/future-work-kanban.md` as the current future-thread source of truth.
 
 1. **Continue P0 only if the owner wants another architecture slice**: the next
-   useful boundary is frontend target-list metadata or decomposing the remaining
-   `__init__.py` runtime orchestration, not repeating review handler dispatch.
+   useful boundary is grouped Smithing/Crafting target-tree metadata or
+   decomposing the remaining `__init__.py` runtime orchestration, not repeating
+   review handler dispatch or flat target-row metadata.
 2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.

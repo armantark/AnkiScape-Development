@@ -153,6 +153,27 @@ except Exception:
     from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill  # type: ignore
 
 try:
+    from .target_metadata import (
+        TargetRowMetadata,
+        firemaking_target_rows,
+        fishing_target_rows,
+        fletching_target_rows,
+        mining_target_rows,
+        utility_activity_rows,
+        woodcutting_target_rows,
+    )
+except Exception:
+    from target_metadata import (  # type: ignore
+        TargetRowMetadata,
+        firemaking_target_rows,
+        fishing_target_rows,
+        fletching_target_rows,
+        mining_target_rows,
+        utility_activity_rows,
+        woodcutting_target_rows,
+    )
+
+try:
     from .constants import ITEM_DEFINITIONS
     from .item_registry import ItemDefinition, item_definitions_by_storage_key
 except Exception:
@@ -1433,162 +1454,57 @@ def show_main_menu(
     stop_btn.clicked.connect(lambda _=False: _stop_training())
 
     # ---- target list builders (one per implemented skill) ----
-    def _build_ore_list() -> QListWidget:
-        # ORE_DATA is keyed by stable target IDs ("rune_essence", "coal", ...).
-        # Mirrors _build_tree_list: the row text shows the friendly display name +
-        # level, the chosen ID is stored on the item and persisted via on_set_ore,
-        # and lock reasons distinguish level from a missing usable pickaxe. Lock
-        # state and best-pickaxe come straight from the backend pure helpers
-        # (can_mine_target_pure / best_mining_pickaxe_pure) so source rules aren't
-        # re-derived in Qt. Variable-output rocks (Sandstone, Granite, Gem rocks)
-        # and the essence -> Pure essence upgrade are labelled inline + in tooltips.
-        ore_list = QListWidget()
-        ore_list.setIconSize(QSize(28, 28))
-        ore_list.setAlternatingRowColors(True)
-        lvl_have = player_data.get("mining_level", 1)
-        inv = player_data.get("inventory", {})
-        toolbelt = player_data.get("toolbelt", {})
-        best_pick = best_mining_pickaxe_pure(lvl_have, inv, toolbelt, MINING_PICKAXE_DATA)
-        best_pick_name = best_pick.get("display_name", "a pickaxe") if best_pick else None
-        for target_id, data in ORE_DATA.items():
-            display_name = str(data.get("display_name", target_id))
-            lvl_req = data.get("level", 1)
-            output_item = data.get("output_item")
-            weighted = data.get("weighted_outputs", ()) or ()
-            alt_item = data.get("alternate_output_item")
-            alt_level = data.get("alternate_output_level")
-
-            label = f"{display_name} (Lvl {lvl_req})"
-            if weighted:
-                label += " — variable output"
-            elif isinstance(alt_item, str) and isinstance(alt_level, int):
-                label += f" — {alt_item} at Lvl {alt_level}+"
-            item = QListWidgetItem(label)
-            item.setData(Qt.ItemDataRole.UserRole, target_id)
-
-            # Icons are keyed by real item names; weighted rocks have no single
-            # output_item so use the first weighted item as the representative
-            # icon (e.g. Gem rocks -> Uncut opal). Gem outputs live in GEM_IMAGES,
-            # ores in ORE_IMAGES, so consult both.
-            icon_key = output_item or display_name
-            if not output_item and weighted:
-                first = weighted[0]
-                icon_key = first.get("item", display_name) if isinstance(first, dict) else display_name
-            icon_path = ORE_IMAGES.get(icon_key) or GEM_IMAGES.get(icon_key)
-            if icon_path and os.path.exists(icon_path):
-                item.setIcon(QIcon(icon_path))
-
-            if weighted:
-                names = ", ".join(
-                    str(w.get("item")) for w in weighted if isinstance(w, dict) and w.get("item")
-                )
-                output_line = f"Output: variable — {names}"
-            elif isinstance(alt_item, str) and isinstance(alt_level, int):
-                output_line = (
-                    f"Output: {output_item} x1 "
-                    f"(becomes {alt_item} at Mining level {alt_level}+)"
-                )
-            elif output_item:
-                output_line = f"Output: {output_item} x1"
-            else:
-                output_line = "Output: none"
-
-            tooltip = (
-                f"Requires Mining level {lvl_req}. You have {lvl_have}.\n"
-                f"{output_line}\n"
-                f"Base XP: {data.get('exp', 0)} per ore\n"
-                f"Best usable pickaxe: {best_pick_name or 'none — get a pickaxe'}"
-            )
-            # Player-facing notes/anomalies (essence upgrade, equal-weight
-            # simplifications, OSRS gem-rate cross-check) come from backend data.
-            # The dev-facing `source` audit path is intentionally not shown.
-            note = data.get("notes")
-            if note:
-                tooltip += f"\nNote: {note}"
-            deferred_note = _MINING_DEFERRED_VARIANT_NOTES.get(target_id)
-            if deferred_note:
-                tooltip += f"\nNote: {deferred_note}"
-
-            if not can_mine_target_pure(lvl_have, target_id, ORE_DATA, inv, toolbelt, MINING_PICKAXE_DATA):
+    def _build_flat_target_list(rows: tuple[TargetRowMetadata, ...], on_select=None) -> QListWidget:
+        target_list = QListWidget()
+        target_list.setIconSize(QSize(28, 28))
+        target_list.setAlternatingRowColors(True)
+        for row in rows:
+            item = QListWidgetItem(row.label)
+            item.setData(Qt.ItemDataRole.UserRole, row.target_id)
+            if row.icon_path and os.path.exists(row.icon_path):
+                item.setIcon(QIcon(row.icon_path))
+            if not row.enabled:
                 item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if best_pick is None:
-                    reason.append("no usable pickaxe")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            ore_list.addItem(item)
-            if target_id == player_data.get("current_ore", DEFAULT_MINING_TARGET):
-                ore_list.setCurrentItem(item)
+            item.setToolTip(row.tooltip)
+            target_list.addItem(item)
+            if row.current:
+                target_list.setCurrentItem(item)
 
-        def _on_ore_selected(item: QListWidgetItem):
-            # Skip locked rows: itemClicked still fires on disabled items, and
-            # selecting one would make it the active target only to fail the next
-            # review (e.g. a too-high-level rock).
-            if item and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
-                on_set_ore(item.data(Qt.ItemDataRole.UserRole))
-        ore_list.itemClicked.connect(_on_ore_selected)
-        ore_list.itemActivated.connect(_on_ore_selected)
-        return ore_list
+        def _on_target_selected(item: QListWidgetItem):
+            # Skip locked rows: Qt still emits clicks/activations for disabled
+            # items even though selection is blocked.
+            if item and on_select is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
+                on_select(item.data(Qt.ItemDataRole.UserRole))
+
+        target_list.itemClicked.connect(_on_target_selected)
+        target_list.itemActivated.connect(_on_target_selected)
+        return target_list
+
+    def _build_ore_list() -> QListWidget:
+        return _build_flat_target_list(
+            mining_target_rows(
+                player_data,
+                ORE_DATA,
+                ORE_IMAGES,
+                GEM_IMAGES,
+                MINING_PICKAXE_DATA,
+                DEFAULT_MINING_TARGET,
+                _MINING_DEFERRED_VARIANT_NOTES,
+            ),
+            on_set_ore,
+        )
 
     def _build_tree_list() -> QListWidget:
-        # TREE_DATA is keyed by stable target IDs ("tree", "oak", ...). The row
-        # text shows the friendly display name + level; the chosen ID is stored on
-        # the item and persisted via on_set_tree. Locks distinguish level from a
-        # missing usable hatchet, and Ivy is flagged as XP-only (no log output).
-        tree_list = QListWidget()
-        tree_list.setIconSize(QSize(28, 28))
-        tree_list.setAlternatingRowColors(True)
-        lvl_have = player_data.get("woodcutting_level", 1)
-        inv = player_data.get("inventory", {})
-        toolbelt = player_data.get("toolbelt", {})
-        best_axe = best_woodcutting_axe_pure(lvl_have, inv, toolbelt, WOODCUTTING_AXE_DATA)
-        best_axe_name = best_axe.get("display_name", "a hatchet") if best_axe else None
-        for target_id, data in TREE_DATA.items():
-            display = str(data.get("display_name", target_id))
-            output_item = data.get("output_item")
-            lvl_req = data.get("level", 1)
-            xp_only = output_item is None
-            label = f"{display} (Lvl {lvl_req})"
-            if xp_only:
-                label += " — XP only"
-            item = QListWidgetItem(label)
-            item.setData(Qt.ItemDataRole.UserRole, target_id)
-            # TREE_IMAGES is keyed by the legacy display-name filename ("Oak").
-            t_icon = TREE_IMAGES.get(display)
-            if t_icon and os.path.exists(t_icon):
-                item.setIcon(QIcon(t_icon))
-            output_line = "XP only — produces no logs." if xp_only else f"Output: {output_item} x1"
-            tooltip = (
-                f"Requires Woodcutting level {lvl_req}. You have {lvl_have}.\n"
-                f"{output_line}\n"
-                f"Base XP: {data.get('exp', 0)} per chop\n"
-                f"Best usable hatchet: {best_axe_name or 'none — get a hatchet'}"
-            )
-            # The dev-facing `source` audit path is intentionally not shown.
-            if not can_chop_woodcutting_target_pure(lvl_have, target_id, TREE_DATA, inv, toolbelt, WOODCUTTING_AXE_DATA):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if best_axe is None:
-                    reason.append("no usable hatchet")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            tree_list.addItem(item)
-            if target_id == player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET):
-                tree_list.setCurrentItem(item)
-
-        def _on_tree_selected(item: QListWidgetItem):
-            # Skip locked rows (itemClicked still fires on disabled items).
-            if item and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
-                on_set_tree(item.data(Qt.ItemDataRole.UserRole))
-        tree_list.itemClicked.connect(_on_tree_selected)
-        tree_list.itemActivated.connect(_on_tree_selected)
-        return tree_list
+        return _build_flat_target_list(
+            woodcutting_target_rows(
+                player_data,
+                TREE_DATA,
+                TREE_IMAGES,
+                WOODCUTTING_AXE_DATA,
+                DEFAULT_WOODCUTTING_TARGET,
+            ),
+            on_set_tree,
+        )
 
     def _smith_tier_of(spec: dict) -> str:
         # Metal-type label that unifies a smelt bar with the forge items made from
@@ -1906,271 +1822,44 @@ def show_main_menu(
         return tree
 
     def _build_fletch_list() -> QListWidget:
-        # Fletching is a processing skill like Crafting: it consumes logs and
-        # produces fletched items, so the row gating mirrors the craft list.
-        fletch_list = QListWidget()
-        fletch_list.setIconSize(QSize(28, 28))
-        fletch_list.setAlternatingRowColors(True)
-        for target_key, spec in FLETCHING_DATA.items():
-            display_name = spec.get("display_name", target_key)
-            output_item = spec.get("output_item", display_name)
-            output_qty = spec.get("output_qty", 1)
-            item = QListWidgetItem(f"{display_name} (Lvl {spec['level']})")
-            item.setData(Qt.ItemDataRole.UserRole, target_key)
-            f_icon = FLETCHED_ITEM_IMAGES.get(output_item)
-            if f_icon and os.path.exists(f_icon):
-                item.setIcon(QIcon(f_icon))
-            lvl_req = spec.get('level', 1)
-            lvl_have = player_data.get("fletching_level", 1)
-            inv = player_data.get('inventory', {})
-            reqs = spec.get('requirements', {})
-            materials_ok = True
-            mat_lines = []
-            for mat, amt in reqs.items():
-                have = inv.get(mat, 0)
-                if have < amt:
-                    materials_ok = False
-                mat_lines.append(f"{mat} x{amt} (you have {have})")
-            mat_text = "\n".join(mat_lines) if mat_lines else "No materials required"
-            tooltip = (
-                f"Requires Fletching level {lvl_req}. You have {lvl_have}.\n"
-                f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
-            )
-            if not can_fletch_item_pure(lvl_have, inv, target_key, FLETCHING_DATA):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if not materials_ok:
-                    reason.append("materials")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            fletch_list.addItem(item)
-            if target_key == player_data.get("current_fletch"):
-                fletch_list.setCurrentItem(item)
-
-        def _on_fletch_selected(item: QListWidgetItem):
-            # Skip locked rows (itemClicked still fires on disabled items).
-            if item and on_set_fletch is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
-                on_set_fletch(item.data(Qt.ItemDataRole.UserRole))
-        fletch_list.itemClicked.connect(_on_fletch_selected)
-        fletch_list.itemActivated.connect(_on_fletch_selected)
-        return fletch_list
+        return _build_flat_target_list(
+            fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES),
+            on_set_fletch,
+        )
 
     def _build_firemaking_list() -> QListWidget:
-        firemaking_list = QListWidget()
-        firemaking_list.setIconSize(QSize(28, 28))
-        firemaking_list.setAlternatingRowColors(True)
-        lvl_have = player_data.get("firemaking_level", 1)
-        inv = player_data.get("inventory", {})
-        current_target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
-
-        for target_key, spec in FIREMAKING_DATA.items():
-            display_name = spec.get("display_name", target_key)
-            lvl_req = spec.get("level", 1)
-            base_xp = spec.get("exp", 0)
-            input_item = next(iter(spec.get("requirements", {display_name: 1}).keys()), display_name)
-            input_qty = spec.get("requirements", {}).get(input_item, 1)
-            owned = inv.get(input_item, 0)
-            output_item = spec.get("output_item", "Ashes")
-            output_qty = spec.get("output_qty", 1)
-            chance = calculate_firemaking_success_probability_pure(lvl_have, spec)
-            item = QListWidgetItem(f"{display_name} (Lvl {lvl_req})")
-            item.setData(Qt.ItemDataRole.UserRole, target_key)
-            f_icon = FIREMAKING_ITEM_IMAGES.get(input_item) or FIREMAKING_ITEM_IMAGES.get(output_item)
-            if f_icon and os.path.exists(f_icon):
-                item.setIcon(QIcon(f_icon))
-            tooltip = (
-                f"Requires Firemaking level {lvl_req}. You have {lvl_have}.\n"
-                f"Base XP: {base_xp} per successful burn\n"
-                f"Input: {input_item} x{input_qty} (you have {owned})\n"
-                f"Output: {output_item} x{output_qty}\n"
-                f"Success chance: {chance:.0%} per attempt"
-            )
-            if not can_burn_firemaking_target_pure(lvl_have, inv, target_key, FIREMAKING_DATA):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if owned < input_qty:
-                    reason.append("materials")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            firemaking_list.addItem(item)
-            if target_key == current_target:
-                firemaking_list.setCurrentItem(item)
-
-        def _on_firemaking_selected(item: QListWidgetItem):
-            # Skip locked rows (itemClicked still fires on disabled items).
-            if item and on_set_firemaking is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
-                on_set_firemaking(item.data(Qt.ItemDataRole.UserRole))
-
-        firemaking_list.itemClicked.connect(_on_firemaking_selected)
-        firemaking_list.itemActivated.connect(_on_firemaking_selected)
-        return firemaking_list
+        return _build_flat_target_list(
+            firemaking_target_rows(
+                player_data,
+                FIREMAKING_DATA,
+                FIREMAKING_ITEM_IMAGES,
+                DEFAULT_FIREMAKING_TARGET,
+            ),
+            on_set_firemaking,
+        )
 
     def _build_fishing_list() -> QListWidget:
-        fishing_list = QListWidget()
-        fishing_list.setIconSize(QSize(28, 28))
-        fishing_list.setAlternatingRowColors(True)
-        lvl_have = player_data.get("fishing_level", 1)
-        strength_have = player_data.get("strength_level", 1)
-        agility_have = player_data.get("agility_level", 1)
-        inv = player_data.get("inventory", {})
-        current_target = player_data.get("current_fishing", DEFAULT_FISHING_TARGET)
-
-        def _output_lines(fish_rows) -> str:
-            return ", ".join(
-                f"{fish.get('output_item')} (Lvl {fish.get('level', 1)}, {fish.get('exp', 0)} XP)"
-                for fish in fish_rows
-            )
-
-        def _xp_text(fish_rows) -> str:
-            xp_values = [float(fish.get("exp", 0)) for fish in fish_rows]
-            if not xp_values:
-                return "0"
-            if min(xp_values) == max(xp_values):
-                return f"{xp_values[0]:g}"
-            return f"{min(xp_values):g}-{max(xp_values):g}"
-
-        def _materials_text(bait_options) -> str:
-            if not bait_options:
-                return "No consumable materials"
-            parts = [f"{bait} x1 (you have {inv.get(bait, 0)})" for bait in bait_options]
-            return parts[0] if len(parts) == 1 else "Any of " + ", ".join(parts)
-
-        def _side_req_text(fish_rows) -> str:
-            parts = []
-            for fish in fish_rows:
-                reqs = []
-                if fish.get("strength_level"):
-                    reqs.append(f"Strength {fish.get('strength_level')}")
-                if fish.get("agility_level"):
-                    reqs.append(f"Agility {fish.get('agility_level')}")
-                if reqs:
-                    parts.append(f"{fish.get('output_item')}: " + " and ".join(reqs))
-            return "; ".join(parts)
-
-        for target_key, spec in FISHING_DATA.items():
-            display_name = str(spec.get("display_name", target_key))
-            fish_rows = tuple(spec.get("fish", ()))
-            bait_options = tuple(spec.get("bait_options") or ())
-            lvl_req = spec.get("level", 1)
-            eligible = eligible_fishing_fish_pure(spec, lvl_have, strength_have, agility_have)
-            item = QListWidgetItem(f"{display_name} (Lvl {lvl_req})")
-            item.setData(Qt.ItemDataRole.UserRole, target_key)
-            icon_fish = eligible[0] if eligible else (fish_rows[0] if fish_rows else {})
-            icon_path = FISHING_ITEM_IMAGES.get(icon_fish.get("output_item"))
-            if icon_path and os.path.exists(icon_path):
-                item.setIcon(QIcon(icon_path))
-
-            chance_lines = []
-            for fish in eligible:
-                chance = calculate_fishing_success_probability_pure(lvl_have, fish)
-                chance_lines.append(f"{fish.get('output_item')} {chance:.0%}")
-            chance_text = ", ".join(chance_lines) if chance_lines else "locked"
-            tooltip = (
-                f"Requires Fishing level {lvl_req}. You have {lvl_have}.\n"
-                f"Outputs: {_output_lines(fish_rows)}\n"
-                f"Base XP: {_xp_text(fish_rows)} per catch\n"
-                f"Materials: {_materials_text(bait_options)}\n"
-                f"Success chance now: {chance_text}"
-            )
-            side_text = _side_req_text(fish_rows)
-            if side_text:
-                tooltip += f"\nSide levels: {side_text}"
-
-            if not can_fish_method_pure(lvl_have, inv, target_key, FISHING_DATA, strength_have, agility_have):
-                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if not has_fishing_bait_pure(inv, spec):
-                    reason.append("materials")
-                if lvl_have >= lvl_req and not eligible:
-                    reason.append("side levels")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            item.setToolTip(tooltip)
-            fishing_list.addItem(item)
-            if target_key == current_target:
-                fishing_list.setCurrentItem(item)
-
-        def _on_fishing_selected(item: QListWidgetItem):
-            # Skip locked rows (itemClicked still fires on disabled items).
-            if item and on_set_fishing is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
-                on_set_fishing(item.data(Qt.ItemDataRole.UserRole))
-
-        fishing_list.itemClicked.connect(_on_fishing_selected)
-        fishing_list.itemActivated.connect(_on_fishing_selected)
-        return fishing_list
+        return _build_flat_target_list(
+            fishing_target_rows(
+                player_data,
+                FISHING_DATA,
+                FISHING_ITEM_IMAGES,
+                DEFAULT_FISHING_TARGET,
+            ),
+            on_set_fishing,
+        )
 
     def _build_utility_list() -> QListWidget:
-        # Utility / Activities are no-XP material prep. Each successful card runs
-        # a batch (up to batch_size, capped by inventory), so tooltips lead with
-        # the batch + no-XP framing to set expectations apart from XP skills.
-        utility_list = QListWidget()
-        utility_list.setIconSize(QSize(28, 28))
-        utility_list.setAlternatingRowColors(True)
-        inv = player_data.get("inventory", {})
-        for activity_key, spec in UTILITY_ACTIVITY_DATA.items():
-            label = str(spec.get("display_name", activity_key))
-            batch_size = spec.get("batch_size", 1)
-            item = QListWidgetItem(label)
-            item.setData(Qt.ItemDataRole.UserRole, activity_key)
-            icon_set = False
-            activity_icon = spec.get("icon_path")
-            if isinstance(activity_icon, str) and activity_icon and os.path.exists(activity_icon):
-                item.setIcon(QIcon(activity_icon))
-                icon_set = True
-
-            # Bird-nest opening consumes nests (no fixed "output_item"); its
-            # contents are rolled from source tables, so it gets bespoke tooltip
-            # + lock handling rather than the requirement/output framing.
-            openable_items = spec.get("openable_items")
-            if openable_items:
-                have_nests = sum(inv.get(nest, 0) for nest in openable_items)
-                tooltip = (
-                    f"Opens up to {batch_size} bird nests per successful card. No XP.\n"
-                    "Rolls source seed / ring / egg contents into your bank.\n"
-                    f"Bird nests held: {have_nests} (drop while Woodcutting)"
-                )
-                if not can_open_bird_nests_pure(inv, BIRD_NEST_OPEN_TABLES):
-                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                    tooltip += "\nLocked: cut trees until a bird nest drops."
-            else:
-                output_item = str(spec.get("output_item", label))
-                output_qty = spec.get("output_qty", 1)
-                u_icon = UTILITY_ITEM_IMAGES.get(output_item)
-                if not icon_set and u_icon and os.path.exists(u_icon):
-                    item.setIcon(QIcon(u_icon))
-                reqs = spec.get("requirements", {})
-                if reqs:
-                    mat_lines = [f"{mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
-                    mat_text = "\n".join(mat_lines)
-                else:
-                    mat_text = "No materials required"
-                tooltip = (
-                    f"Processes up to {batch_size} per successful card. No Crafting XP.\n"
-                    f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
-                )
-                if not can_perform_utility_activity_pure(inv, activity_key, UTILITY_ACTIVITY_DATA):
-                    item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
-                    tooltip += "\nLocked: gather the required materials first."
-            item.setToolTip(tooltip)
-            utility_list.addItem(item)
-            if activity_key == player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY):
-                utility_list.setCurrentItem(item)
-
-        def _on_utility_selected(item: QListWidgetItem):
-            # Skip locked rows (itemClicked still fires on disabled items).
-            if item and on_set_utility is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
-                on_set_utility(item.data(Qt.ItemDataRole.UserRole))
-        utility_list.itemClicked.connect(_on_utility_selected)
-        utility_list.itemActivated.connect(_on_utility_selected)
-        return utility_list
+        return _build_flat_target_list(
+            utility_activity_rows(
+                player_data,
+                UTILITY_ACTIVITY_DATA,
+                UTILITY_ITEM_IMAGES,
+                BIRD_NEST_OPEN_TABLES,
+                DEFAULT_UTILITY_ACTIVITY,
+            ),
+            on_set_utility,
+        )
 
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
