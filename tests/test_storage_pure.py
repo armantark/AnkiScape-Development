@@ -5,7 +5,20 @@ from storage_pure import (
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
-from constants import ITEM_DEFINITIONS, ORE_DATA, BAR_DATA, GEM_DATA, CRAFTING_DATA, FLETCHING_DATA, UTILITY_ACTIVITY_DATA, WOODCUTTING_LOG_ITEMS, MINING_OUTPUT_ITEMS
+from constants import (
+    BAR_DATA,
+    CRAFTING_DATA,
+    FIREMAKING_DATA,
+    FIREMAKING_LOG_ITEMS,
+    FIREMAKING_OUTPUT_ITEMS,
+    FLETCHING_DATA,
+    GEM_DATA,
+    ITEM_DEFINITIONS,
+    MINING_OUTPUT_ITEMS,
+    ORE_DATA,
+    UTILITY_ACTIVITY_DATA,
+    WOODCUTTING_LOG_ITEMS,
+)
 
 
 class TestStoragePure(unittest.TestCase):
@@ -19,13 +32,16 @@ class TestStoragePure(unittest.TestCase):
             "smithing_level",
             "crafting_level",
             "fletching_level",
+            "firemaking_level",
             "mining_exp",
             "woodcutting_exp",
             "smithing_exp",
             "crafting_exp",
             "fletching_exp",
+            "firemaking_exp",
             "current_craft",
             "current_fletch",
+            "current_firemaking",
             "current_utility",
             "current_ore",
             "current_tree",
@@ -65,11 +81,13 @@ class TestStoragePure(unittest.TestCase):
         for item_name in (
             list(MINING_OUTPUT_ITEMS)
             + list(WOODCUTTING_LOG_ITEMS)
+            + list(FIREMAKING_LOG_ITEMS)
             + list(BAR_DATA)
             + list(GEM_DATA)
             + [spec["output_item"] for spec in CRAFTING_DATA.values()]
             + fletching_outputs
             + fletching_materials
+            + list(FIREMAKING_OUTPUT_ITEMS)
             + utility_outputs
         ):
             self.assertIn(item_name, data["inventory"])
@@ -92,6 +110,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["crafting_level"], 1)
         self.assertEqual(migrated["current_smith"], "smelt_bronze_bar")
         self.assertEqual(migrated["current_craft"], "form_pot_unfired")
+        self.assertEqual(migrated["current_firemaking"], "logs")
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
@@ -114,6 +133,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Arrow shafts", migrated["inventory"])
         self.assertIn("Feather", migrated["inventory"])
         self.assertIn("Soft clay", migrated["inventory"])
+        self.assertIn("Ashes", migrated["inventory"])
+        self.assertIn("Arctic pine logs", migrated["inventory"])
         self.assertIn("Wool", migrated["inventory"])
         self.assertIn("Flax", migrated["inventory"])
         self.assertIn("bronze_hatchet", migrated["toolbelt"]["woodcutting"])
@@ -153,6 +174,18 @@ class TestStoragePure(unittest.TestCase):
         )
 
         self.assertEqual(migrated["current_ore"], "rune_essence")
+
+    def test_migrate_firemaking_target_to_stable_default(self):
+        migrated = migrate_loaded_data(
+            {"current_firemaking": "Not a log", "inventory": {"Mystery ash": 3}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_firemaking"], "logs")
+        self.assertEqual(migrated["inventory"]["Mystery ash"], 3)
+        self.assertIn("Cursed magic logs", migrated["inventory"])
+        self.assertEqual(FIREMAKING_DATA["logs"]["output_item"], "Ashes")
 
     def test_migrate_legacy_woodcutting_target_and_logs(self):
         migrated = migrate_loaded_data(

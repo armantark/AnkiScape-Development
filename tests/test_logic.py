@@ -13,6 +13,7 @@ from logic_pure import (
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_fletching_pure,
+    apply_firemaking_action_pure,
     apply_smelt_pure,
     apply_smithing_pure,
     apply_woodcutting_pure,
@@ -34,17 +35,25 @@ from logic_pure import (
     can_cut_tree_pure,
     can_craft_item_pure,
     can_fletch_item_pure,
+    can_burn_any_firemaking_target_pure,
+    can_burn_firemaking_target_pure,
+    calculate_firemaking_success_probability_pure,
+    firemaking_source_roll_chance_pure,
     can_perform_utility_activity_pure,
     sanitize_review_action_multiplier,
 )
+from storage_pure import default_player_data
 from constants import (
+    ACHIEVEMENTS,
     GLORY_GEM_DROP_CHANCE,
     INCIDENTAL_GEM_DROP_TABLE,
+    ITEM_DEFINITIONS,
     MINING_BONUS_ITEM_DATA,
     MINING_PICKAXE_DATA,
     WOODCUTTING_AXE_DATA,
     ORE_DATA,
     EQUIPMENT_DATA,
+    FIREMAKING_DATA,
     UTILITY_ACTIVITY_DATA,
 )
 
@@ -729,6 +738,71 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok2)
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, {})
+
+    def test_firemaking_source_chance_and_tier_curve(self):
+        logs = FIREMAKING_DATA["logs"]
+        magic = FIREMAKING_DATA["magic_logs"]
+
+        self.assertAlmostEqual(firemaking_source_roll_chance_pure(1, logs), 65 / 255)
+        self.assertEqual(firemaking_source_roll_chance_pure(99, logs), 1.0)
+        self.assertLess(
+            firemaking_source_roll_chance_pure(40, {"low_chance": 40, "high_chance": 200}),
+            firemaking_source_roll_chance_pure(40, {"low_chance": 80, "high_chance": 300}),
+        )
+
+        logs_at_unlock = calculate_firemaking_success_probability_pure(1, logs)
+        logs_overleveled = calculate_firemaking_success_probability_pure(45, logs)
+        magic_at_unlock = calculate_firemaking_success_probability_pure(75, magic)
+        magic_overleveled = calculate_firemaking_success_probability_pure(99, magic)
+
+        self.assertGreaterEqual(logs_at_unlock, 0.40)
+        self.assertLessEqual(logs_at_unlock, 0.50)
+        self.assertGreater(logs_overleveled, logs_at_unlock)
+        self.assertGreater(logs_overleveled, magic_at_unlock)
+        self.assertGreater(magic_overleveled, magic_at_unlock)
+        self.assertLessEqual(magic_overleveled, 0.95)
+
+    def test_firemaking_gating_and_action_application(self):
+        self.assertTrue(can_burn_firemaking_target_pure(1, {"Logs": 1}, "logs", FIREMAKING_DATA))
+        self.assertFalse(can_burn_firemaking_target_pure(1, {}, "logs", FIREMAKING_DATA))
+        self.assertFalse(can_burn_firemaking_target_pure(14, {"Oak logs": 1}, "oak_logs", FIREMAKING_DATA))
+        self.assertTrue(can_burn_any_firemaking_target_pure({"Logs": 1}, 1, FIREMAKING_DATA))
+        self.assertFalse(can_burn_any_firemaking_target_pure({"Oak logs": 1}, 1, FIREMAKING_DATA))
+
+        inv = {"Logs": 2, "Ashes": 4}
+        new_inv, exp, ok, output_item = apply_firemaking_action_pure(
+            "logs",
+            inv,
+            FIREMAKING_DATA,
+            1,
+            r_action=0.0,
+        )
+        self.assertTrue(ok)
+        self.assertAlmostEqual(exp, 40.0)
+        self.assertEqual(output_item, "Ashes")
+        self.assertEqual(new_inv["Logs"], 1)
+        self.assertEqual(new_inv["Ashes"], 5)
+        self.assertEqual(inv["Logs"], 2)
+
+        failed_inv, failed_exp, failed_ok, failed_output = apply_firemaking_action_pure(
+            "logs",
+            inv,
+            FIREMAKING_DATA,
+            1,
+            r_action=1.0,
+        )
+        self.assertFalse(failed_ok)
+        self.assertEqual(failed_exp, 0)
+        self.assertIsNone(failed_output)
+        self.assertEqual(failed_inv, inv)
+
+    def test_firemaking_achievements_unlock_from_ashes_inventory(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"]["Ashes"] = 1
+
+        newly_completed = get_newly_completed_achievements(player_data, ACHIEVEMENTS)
+
+        self.assertIn("First Fire", newly_completed)
 
     def test_bank_gear_rows_shows_active_tool_not_just_bound(self):
         # Owns a rune pickaxe in the bank; only bronze is bound. Since the

@@ -62,6 +62,7 @@ class TestCurrentTargetDisplayName(unittest.TestCase):
         cases = {
             "Woodcutting": ("current_tree", "oak", "Oak"),
             "Crafting": ("current_craft", "form_pot_unfired", "Pot (unfired)"),
+            "Firemaking": ("current_firemaking", "oak_logs", "Oak logs"),
         }
         for skill, (key, target_id, expected) in cases.items():
             with self.subTest(skill=skill):

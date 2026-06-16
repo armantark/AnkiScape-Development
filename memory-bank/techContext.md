@@ -80,6 +80,14 @@ no-XP `scavenge_chicken_feathers` activity, with the audit at
 temporary Utility bridge from local 2011Scape chicken feather drops, not the
 final Combat drop or GE route.
 
+Current Firemaking data lives in `firemaking_data.py`, with the audit at
+`memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`. It stores 13
+local-2011Scape burnable targets, stable target IDs, input item IDs, source XP,
+`Ashes` output metadata, raw source low/high lighting odds, and explicit
+deferred bonfire/fire-spirit notes. Runtime review behavior adapts the source
+lighting roll in `logic_pure.py`; storage config version 12 adds
+`firemaking_level`, `firemaking_exp`, and `current_firemaking`.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 
@@ -100,6 +108,21 @@ final Combat drop or GE route.
 - The Qt Utility target list prefers `icon_path` and falls back to `UTILITY_ITEM_IMAGES` for output-producing rows. Missing activity icons therefore degrade to the older output icon or text-only row, without changing action behavior.
 - Fetch activity-row icons with `uv run tools/fetch_assets.py <item> --out activityicons/<activity_id>.png --wiki-title <File title> --size 64`, then confirm `assets_provenance.json` contains the `activityicons/` key. Do provenance-affecting fetches sequentially because the current JSON writer is not concurrency-safe.
 - Current activity icon provenance: Soft clay, Wool, and Flax from OSRS wiki art; Open bird nests uses runescape.wiki `Bird's nest (seeds).png` because that title resolved there.
+
+### Firemaking asset wiring
+- `tools/fetch_firemaking_assets.py` derives the Firemaking-only asset manifest
+  from `firemaking_data.FIREMAKING_TARGETS` and uses the shared
+  `tools/fetch_assets.py` client/provenance writer.
+- The skill icon uses `File:Firemaking icon (detail).png` and lands at
+  `icon/firemaking_icon.png` with `--size 64`, matching the detail-icon
+  convention for playable skills.
+- Most logs reuse existing Woodcutting log art via `LOG_IMAGES`. Firemaking-only
+  inputs plus Ashes live in `firemakingitems/` and are wired through
+  `FIREMAKING_ITEM_IMAGES`: `ashes.png`, `arctic_pine_logs.png`,
+  `eucalyptus_logs.png`, `curly_root.png`, and `cursed_magic_logs.png`.
+- Provenance is recorded in `assets_provenance.json`; do Firemaking asset
+  refreshes sequentially because the provenance JSON writer is not
+  concurrency-safe.
 
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.

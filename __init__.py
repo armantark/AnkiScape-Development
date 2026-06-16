@@ -8,7 +8,9 @@ from .constants import (
     GEM_DATA,
     CRAFTING_DATA,
     FLETCHING_DATA,
+    FIREMAKING_DATA,
     UTILITY_ACTIVITY_DATA,
+    DEFAULT_FIREMAKING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_MINING_TARGET,
     DEFAULT_WOODCUTTING_TARGET,
@@ -46,12 +48,16 @@ from .logic_pure import (
     has_crafting_materials_pure,
     can_craft_item_pure,
     can_fletch_item_pure,
+    has_firemaking_materials_pure,
+    can_burn_any_firemaking_target_pure,
+    can_burn_firemaking_target_pure,
     can_perform_utility_activity_pure,
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_open_bird_nests_pure,
     apply_smithing_pure,
     apply_fletching_pure,
+    apply_firemaking_action_pure,
     apply_woodcutting_action_pure,
     apply_mining_action_pure,
     sanitize_review_action_multiplier,
@@ -293,7 +299,12 @@ def _refresh_skill_availability() -> None:
             )
             for target_key in FLETCHING_DATA.keys()
         )
-        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any)
+        can_firemake_any = can_burn_any_firemaking_target_pure(
+            inventory,
+            player_data.get("firemaking_level", 1),
+            FIREMAKING_DATA,
+        )
+        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any)
     except Exception:
         pass
 
@@ -639,6 +650,49 @@ def on_fletching_answer():
     _show_exp(exp_gained)
     return True
 
+
+def on_firemaking_answer():
+    target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
+    if target not in FIREMAKING_DATA:
+        target = DEFAULT_FIREMAKING_TARGET
+        player_data["current_firemaking"] = target
+    spec = FIREMAKING_DATA[target]
+    display_name = spec.get("display_name", target)
+    player_level = player_data.get("firemaking_level", 1)
+
+    if player_level < spec["level"]:
+        show_error_message("Insufficient level", f"You need level {spec['level']} Firemaking to burn {display_name}.")
+        return False
+
+    if not has_firemaking_materials_pure(target, player_data.get("inventory", {}), FIREMAKING_DATA):
+        missing = _missing_materials_text(spec.get("requirements", {}), player_data.get("inventory", {}))
+        _deactivate_current_skill()
+        show_error_message(
+            "Out of materials",
+            f"You need {missing} to burn {display_name}, so Firemaking has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
+
+    new_inv, base_exp, ok, _output_item = apply_firemaking_action_pure(
+        target,
+        player_data.get("inventory", {}),
+        FIREMAKING_DATA,
+        player_level,
+        random.random(),
+    )
+    if not ok:
+        return True
+
+    player_data["inventory"] = new_inv
+    exp_gained = _award_skill_exp("firemaking_exp", base_exp)
+    level_up_check("Firemaking", player_data)
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    _show_exp(exp_gained)
+    return True
+
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
         current_bar=player_data.get("current_bar", "Bronze bar"),
@@ -719,6 +773,7 @@ def _on_main_menu():
         on_set_smith=lambda recipe_id: _set_value("current_smith", recipe_id),
         on_set_craft=lambda item: _set_value("current_craft", item),
         on_set_fletch=lambda target: _set_value("current_fletch", target),
+        on_set_firemaking=lambda target: _set_value("current_firemaking", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
@@ -974,6 +1029,16 @@ def _can_start_fletching_action() -> bool:
     )
 
 
+def _can_start_firemaking_action() -> bool:
+    target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
+    return can_burn_firemaking_target_pure(
+        player_data.get("firemaking_level", 1),
+        player_data.get("inventory", {}),
+        target,
+        FIREMAKING_DATA,
+    )
+
+
 def _can_start_crafting_action() -> bool:
     target = player_data.get("current_craft", "form_pot_unfired")
     return can_craft_item_pure(
@@ -1031,6 +1096,7 @@ _CAN_START_HANDLERS = {
     "smithing": _can_start_smithing_action,
     "crafting": _can_start_crafting_action,
     "fletching": _can_start_fletching_action,
+    "firemaking": _can_start_firemaking_action,
     "utility": _can_start_utility_action,
 }
 
@@ -1047,6 +1113,7 @@ _REVIEW_HANDLERS = {
     "smithing": on_smithing_answer,
     "crafting": on_crafting_answer,
     "fletching": on_fletching_answer,
+    "firemaking": on_firemaking_answer,
     "utility": on_utility_answer,
 }
 

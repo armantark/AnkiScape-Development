@@ -10,6 +10,10 @@ from action_registry import (
 from constants import (
     BAR_DATA,
     CRAFTING_DATA,
+    FIREMAKING_DATA,
+    FIREMAKING_ITEM_IMAGES,
+    FIREMAKING_LOG_ITEMS,
+    FIREMAKING_OUTPUT_ITEMS,
     FLETCHING_DATA,
     GEM_DATA,
     ITEM_DEFINITIONS,
@@ -45,12 +49,14 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_current_skills_preserve_existing_display_contract(self):
         self.assertEqual(
             implemented_review_skill_names(),
-            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching"),
+            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching", "Firemaking"),
         )
         self.assertTrue(is_review_skill("Mining"))
         self.assertTrue(is_review_skill("woodcutting"))
         self.assertTrue(is_review_skill("Fletching"))
+        self.assertTrue(is_review_skill("Firemaking"))
         self.assertEqual(review_handler_key("Fletching"), "fletching")
+        self.assertEqual(review_handler_key("Firemaking"), "firemaking")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
 
     def test_review_action_registry_includes_utility_without_making_it_a_skill(self):
@@ -59,10 +65,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_utility_review_action("Utility"))
         self.assertEqual(review_action_handler_key("Utility / Activities"), "utility")
         self.assertEqual(review_action_handler_key("Fletching"), "fletching")
+        self.assertEqual(review_action_handler_key("Firemaking"), "firemaking")
         self.assertIsNone(review_action_handler_key("Thieving"))
         self.assertEqual(
             review_action_display_names(),
-            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching", "Utility / Activities"),
+            ("Mining", "Woodcutting", "Smithing", "Crafting", "Fletching", "Firemaking", "Utility / Activities"),
         )
 
     def test_planned_catalog_contains_2011_era_targets_without_enabling_them(self):
@@ -90,6 +97,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         # Frontend target panel landed, so the hub gate is now open.
         self.assertTrue(fletching.visible_in_skill_hub)
 
+    def test_firemaking_is_current_and_playable(self):
+        firemaking = get_skill("Firemaking")
+        self.assertIsNotNone(firemaking)
+        self.assertTrue(firemaking.implemented)
+        self.assertTrue(firemaking.participates_in_review)
+        self.assertEqual(firemaking.current_target_key, "current_firemaking")
+        self.assertEqual(firemaking.default_target, "logs")
+        self.assertTrue(firemaking.visible_in_skill_hub)
+
     def test_registry_generates_current_flat_save_defaults(self):
         self.assertEqual(
             default_skill_state(),
@@ -104,6 +120,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "crafting_exp": 0,
                 "fletching_level": 1,
                 "fletching_exp": 0,
+                "firemaking_level": 1,
+                "firemaking_exp": 0,
             },
         )
         self.assertEqual(
@@ -114,6 +132,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_smith": "smelt_bronze_bar",
                 "current_craft": "form_pot_unfired",
                 "current_fletch": "arrow_shafts",
+                "current_firemaking": "logs",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
@@ -142,6 +161,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + [spec["output_item"] for spec in CRAFTING_DATA.values()]
             + fletching_outputs
             + fletching_materials
+            + list(FIREMAKING_LOG_ITEMS)
+            + list(FIREMAKING_OUTPUT_ITEMS)
             + utility_outputs
             + utility_materials
             + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
@@ -156,7 +177,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Runite ore", item_storage_keys_by_category(ITEM_DEFINITIONS, "ore"))
         self.assertIn("Granite (5kg)", item_storage_keys_by_category(ITEM_DEFINITIONS, "ore"))
         self.assertIn("Uncut opal", item_storage_keys_by_category(ITEM_DEFINITIONS, "gem"))
-        self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")), set(WOODCUTTING_LOG_ITEMS))
+        self.assertEqual(
+            set(item_storage_keys_by_category(ITEM_DEFINITIONS, "log")),
+            set(WOODCUTTING_LOG_ITEMS) | set(FIREMAKING_LOG_ITEMS),
+        )
         self.assertEqual(set(item_storage_keys_by_category(ITEM_DEFINITIONS, "bar")), set(BAR_DATA))
         self.assertIn("Bronze dagger", item_storage_keys_by_category(ITEM_DEFINITIONS, "smithed"))
         self.assertIn("Rune platebody", item_storage_keys_by_category(ITEM_DEFINITIONS, "smithed"))
@@ -169,7 +193,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Wool", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Flax", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Feather", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Ashes", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
+        self.assertFalse(by_storage_key["Cursed magic logs"].tradeable)
         self.assertTrue(by_storage_key["Dragon pickaxe"].tradeable)
         self.assertFalse(by_storage_key["Inferno adze"].tradeable)
         self.assertFalse(by_storage_key["Varrock armour 4"].tradeable)
@@ -177,6 +203,21 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Rune platebody"].equipment_slot, "body")
         self.assertEqual(by_storage_key["Rune platebody"].equipment_tier, 40)
         self.assertEqual(by_storage_key["Rune knife"].equipment_slot, "weapon")
+
+    def test_firemaking_item_assets_are_registered(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in (
+            "Ashes",
+            "Arctic pine logs",
+            "Eucalyptus logs",
+            "Curly root",
+            "Cursed magic logs",
+        ):
+            self.assertIn(item_name, by_storage_key)
+            self.assertIn(item_name, FIREMAKING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
+            self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
+        self.assertEqual(FIREMAKING_DATA["cursed_magic_logs"]["requirements"], {"Cursed magic logs": 1})
 
     def test_crafting_source_data_uses_stable_ids_and_live_targets(self):
         self.assertNotIn("Soft clay", CRAFTING_DATA)

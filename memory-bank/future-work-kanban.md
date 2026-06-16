@@ -1,6 +1,6 @@
 # Future Work Kanban
 
-Status: 2026-06-15
+Status: 2026-06-16
 
 Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
 
@@ -12,7 +12,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - The Grand Exchange is a valid future candidate, but it is not a high-priority next step.
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
-- Firemaking can be implemented in a separate thread and does not need to block this cleanup plan.
+- Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Further P0 work should target frontend target-list metadata or larger `__init__.py` decomposition, not repeat this dispatch slice.
 - Utility and Activities should get their own icon set so non-skill actions feel first-class.
 
@@ -42,7 +42,7 @@ Acceptance criteria:
 - Existing Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility flows behave the same after the refactor.
 - The review answer path still resolves actions through the intended handler key.
 - Existing tests pass, and targeted tests cover any changed registry/action dispatch behavior.
-- The follow-up Firemaking thread has fewer places to edit than the previous skill-expansion threads.
+- Future skill or Firemaking-extension threads have fewer places to edit than the previous broad skill-expansion threads.
 
 Status 2026-06-15: Initial backend dispatch slice complete. No storage shape,
 XP, item, undo, or visible UI behavior changed. Frontend target-list builders are
@@ -208,12 +208,20 @@ Future thread prompt:
 In the AnkiScape repo, keep Mining and Woodcutting special content parked unless the owner explicitly reprioritizes it. If reprioritized, start from the relevant source audit in memory-bank/source-audits/ and implement one narrow special-content slice with tests and provenance notes.
 ```
 
-## Parallel Firemaking Thread
+## Completed - Firemaking V1
 
-Firemaking is still a valid separate skill-expansion thread. It can proceed independently from this Kanban if the owner wants a new skill before the architecture cleanup.
+Status 2026-06-16: Complete. Firemaking is a current Artisan review skill with
+13 local-2011Scape burnable targets, stable `current_firemaking` IDs, source XP,
+success-only log consumption, `Ashes x1`, storage config version 12, achievements,
+assets, and Skills hub/Stats/Bank/HUD support. See
+`memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`.
+
+Bonfires and fire spirits are technically pre-EOC, but intentionally deferred
+because they are a separate 2012 training method and reward system rather than
+ordinary line-lighting behavior.
 
 Future thread prompt:
 
 ```text
-In the AnkiScape repo, implement Firemaking as a separate skill-expansion thread. Use the ankiscape-skill-expansion skill and the current Memory Bank. Do not use this as a reason to unpark Mining/Woodcutting special content unless the owner explicitly asks for it. Keep backend and frontend work split, add targeted tests, update the Memory Bank, and commit the result.
+In the AnkiScape repo, do not redo Firemaking v1. It is already implemented as a current Artisan skill. Only revisit Firemaking if the owner explicitly asks for a follow-up such as bonfires/fire spirits; if so, treat that as a separate 2012 pre-EOC extension with its own batch-log, XP-bonus, fire-spirit reward, Cooking boost, warmth/temporary-health, multiplier, undo, UI, tests, and Memory Bank plan.
 ```

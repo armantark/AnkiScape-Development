@@ -9,6 +9,7 @@ try:
         LEGACY_CRAFTING_TARGETS,
     )
     from .item_registry import ItemDefinition
+    from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -30,6 +31,7 @@ except ImportError:
         LEGACY_CRAFTING_TARGETS,
     )
     from item_registry import ItemDefinition
+    from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -44,7 +46,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 11
+CURRENT_CONFIG_VERSION = 12
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -169,6 +171,13 @@ def _migrate_legacy_crafting_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_craft, str) or current_craft not in CRAFTING_RECIPES_BY_ID:
         current_craft = DEFAULT_CRAFTING_TARGET
     data["current_craft"] = current_craft
+
+
+def _migrate_firemaking_target(data: Dict[str, Any]) -> None:
+    current_firemaking = data.get("current_firemaking")
+    if not isinstance(current_firemaking, str) or current_firemaking not in FIREMAKING_TARGETS_BY_ID:
+        current_firemaking = DEFAULT_FIREMAKING_TARGET
+    data["current_firemaking"] = current_firemaking
 
 
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
@@ -299,6 +308,7 @@ def migrate_loaded_data(
         "magic_shortbow_u",
     ):
         data["current_fletch"] = "arrow_shafts"
+    _migrate_firemaking_target(data)
     _migrate_toolbelt(data)
     _migrate_equipment(data)
 

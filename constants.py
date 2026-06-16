@@ -6,6 +6,13 @@ import re
 try:
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from .firemaking_data import (
+        DEFAULT_FIREMAKING_TARGET,
+        firemaking_extra_items_as_dict,
+        firemaking_input_items,
+        firemaking_output_items,
+        firemaking_targets_as_dict,
+    )
     from .item_registry import build_item_definitions
     from .mining_data import (
         DEFAULT_MINING_TARGET,
@@ -38,6 +45,13 @@ try:
 except ImportError:
     from crafting_data import crafting_output_items, crafting_recipes_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
+    from firemaking_data import (
+        DEFAULT_FIREMAKING_TARGET,
+        firemaking_extra_items_as_dict,
+        firemaking_input_items,
+        firemaking_output_items,
+        firemaking_targets_as_dict,
+    )
     from item_registry import build_item_definitions
     from mining_data import (
         DEFAULT_MINING_TARGET,
@@ -92,6 +106,7 @@ MINING_ITEMS_FOLDER = os.path.join(current_dir, "miningitems")
 # Optional: any output without a file degrades to an iconless row.
 SMITHING_ITEMS_FOLDER = os.path.join(current_dir, "smithingitems")
 UTILITY_ACTIVITY_ICONS_FOLDER = os.path.join(current_dir, "activityicons")
+FIREMAKING_ITEMS_FOLDER = os.path.join(current_dir, "firemakingitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -371,6 +386,10 @@ FLETCHING_DATA = {
     "magic_shortbow_u": {"display_name": "Magic shortbow (u)", "level": 80, "exp": 83.3, "requirements": {"Magic logs": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
 }
 
+FIREMAKING_DATA = firemaking_targets_as_dict()
+FIREMAKING_LOG_ITEMS = firemaking_input_items()
+FIREMAKING_OUTPUT_ITEMS = firemaking_output_items()
+
 
 def _asset_slug(name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
@@ -417,6 +436,15 @@ for _spec in TREE_DATA.values():
         _path = TREE_IMAGES.get(_display)
         if _path and os.path.exists(_path):
             LOG_IMAGES[_output] = _path
+
+FIREMAKING_EXTRA_ITEM_DATA = firemaking_extra_items_as_dict()
+FIREMAKING_ITEM_IMAGES = dict(LOG_IMAGES)
+for _item_name in FIREMAKING_EXTRA_ITEM_DATA:
+    _path = FIREMAKING_ITEM_IMAGES.get(_item_name)
+    if not _path:
+        _path = os.path.join(FIREMAKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if _path and os.path.exists(_path):
+        FIREMAKING_ITEM_IMAGES[_item_name] = _path
 
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
@@ -470,8 +498,18 @@ def _apply_equipment_metadata(extra_item_data):
     return enriched
 
 
-EXTRA_ITEM_DATA = _apply_equipment_metadata({**WOODCUTTING_EXTRA_ITEM_DATA, **MINING_EXTRA_ITEM_DATA, **SMITHING_EXTRA_ITEM_DATA})
-EXTRA_ITEM_IMAGES = {**WOODCUTTING_EXTRA_ITEM_IMAGES, **MINING_EXTRA_ITEM_IMAGES, **SMITHING_EXTRA_ITEM_IMAGES}
+EXTRA_ITEM_DATA = _apply_equipment_metadata({
+    **WOODCUTTING_EXTRA_ITEM_DATA,
+    **MINING_EXTRA_ITEM_DATA,
+    **SMITHING_EXTRA_ITEM_DATA,
+    **FIREMAKING_EXTRA_ITEM_DATA,
+})
+EXTRA_ITEM_IMAGES = {
+    **WOODCUTTING_EXTRA_ITEM_IMAGES,
+    **MINING_EXTRA_ITEM_IMAGES,
+    **SMITHING_EXTRA_ITEM_IMAGES,
+    **FIREMAKING_ITEM_IMAGES,
+}
 
 ITEM_DEFINITIONS = build_item_definitions(
     ORE_DATA,
@@ -702,4 +740,15 @@ ACHIEVEMENTS.update({
     "Jewelry Novice": {"description": "Craft 50 gold rings", "difficulty": "Moderate", "condition": lambda player: player["inventory"].get("Gold ring", 0) >= 50},
     "Gem Cutter": {"description": "Cut 10 of each gem type", "difficulty": "Difficult", "condition": lambda player: all(player["inventory"].get(gem, 0) >= 10 for gem in ["Sapphire", "Emerald", "Ruby", "Diamond"])},
     "Master Crafter": {"description": "Reach Crafting level 99", "difficulty": "Very Challenging", "condition": lambda player: player["crafting_level"] >= 99},
+})
+
+ACHIEVEMENTS.update({
+    "First Fire": {"description": "Burn your first log", "difficulty": "Easy", "condition": lambda player: player["inventory"].get("Ashes", 0) > 0},
+    "Novice Firemaker": {"description": "Reach Firemaking level 10", "difficulty": "Easy", "condition": lambda player: player.get("firemaking_level", 1) >= 10},
+    "Ash Collector": {"description": "Collect 100 Ashes", "difficulty": "Easy", "condition": lambda player: player["inventory"].get("Ashes", 0) >= 100},
+    "Intermediate Firemaker": {"description": "Reach Firemaking level 30", "difficulty": "Moderate", "condition": lambda player: player.get("firemaking_level", 1) >= 30},
+    "Ash Hoarder": {"description": "Collect 1,000 Ashes", "difficulty": "Moderate", "condition": lambda player: player["inventory"].get("Ashes", 0) >= 1000},
+    "Expert Firemaker": {"description": "Reach Firemaking level 60", "difficulty": "Difficult", "condition": lambda player: player.get("firemaking_level", 1) >= 60},
+    "Ash Stockpile": {"description": "Collect 10,000 Ashes", "difficulty": "Difficult", "condition": lambda player: player["inventory"].get("Ashes", 0) >= 10000},
+    "Master Firemaker": {"description": "Reach Firemaking level 99", "difficulty": "Very Challenging", "condition": lambda player: player.get("firemaking_level", 1) >= 99},
 })

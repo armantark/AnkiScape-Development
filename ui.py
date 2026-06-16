@@ -68,7 +68,10 @@ try:
         GEM_DATA,
         CRAFTING_DATA,
         FLETCHING_DATA,
+        FIREMAKING_DATA,
+        FIREMAKING_LOG_ITEMS,
         UTILITY_ACTIVITY_DATA,
+        DEFAULT_FIREMAKING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -76,6 +79,7 @@ try:
         GEM_IMAGES,
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
+        FIREMAKING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -102,7 +106,10 @@ except Exception:
         GEM_DATA,
         CRAFTING_DATA,
         FLETCHING_DATA,
+        FIREMAKING_DATA,
+        FIREMAKING_LOG_ITEMS,
         UTILITY_ACTIVITY_DATA,
+        DEFAULT_FIREMAKING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -110,6 +117,7 @@ except Exception:
         GEM_IMAGES,
         CRAFTED_ITEM_IMAGES,
         FLETCHED_ITEM_IMAGES,
+        FIREMAKING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -117,9 +125,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -154,7 +162,14 @@ except Exception:
             pass
 
 # Lightweight context for the open Main Menu to allow dynamic UI refreshes
-_MAIN_MENU_CTX = {"dialog": None, "smith_btn": None, "craft_btn": None, "fletch_btn": None, "warn_label": None}
+_MAIN_MENU_CTX = {
+    "dialog": None,
+    "smith_btn": None,
+    "craft_btn": None,
+    "fletch_btn": None,
+    "firemaking_btn": None,
+    "warn_label": None,
+}
 
 
 # ---- registry-driven UI helpers -------------------------------------------
@@ -587,12 +602,17 @@ def focus_main_menu_if_open() -> bool:
         pass
     return False
 
-def refresh_skill_availability(can_smelt_any_bar: bool, can_craft_any_item: bool, can_fletch_any_item: bool = False):
+def refresh_skill_availability(
+    can_smelt_any_bar: bool,
+    can_craft_any_item: bool,
+    can_fletch_any_item: bool = False,
+    can_firemake_any_item: bool = False,
+):
     """Auto-enable processing-skill buttons when they become available while the menu is open.
     Never auto-selects the skill; users must choose it explicitly. Only enables; does not disable.
 
-    ``can_fletch_any_item`` defaults to False so existing two-argument callers
-    (the runtime review hook) keep working until they also pass Fletching.
+    Optional processing-skill booleans default to False so older two-argument
+    callers keep working until they pass the newer skills too.
     """
     try:
         # Smithing
@@ -610,11 +630,17 @@ def refresh_skill_availability(can_smelt_any_bar: bool, can_craft_any_item: bool
         if f_btn is not None and can_fletch_any_item and not f_btn.isEnabled():
             f_btn.setEnabled(True)
             f_btn.setToolTip("Fletching")
+        # Firemaking
+        fm_btn = _MAIN_MENU_CTX.get("firemaking_btn")
+        if fm_btn is not None and can_firemake_any_item and not fm_btn.isEnabled():
+            fm_btn.setEnabled(True)
+            fm_btn.setToolTip("Firemaking")
         # Clear warning text if any became available
         if (
             (s_btn is not None and s_btn.isEnabled())
             or (c_btn is not None and c_btn.isEnabled())
             or (f_btn is not None and f_btn.isEnabled())
+            or (fm_btn is not None and fm_btn.isEnabled())
         ):
             warn = _MAIN_MENU_CTX.get("warn_label")
             if warn is not None and hasattr(warn, "setText"):
@@ -677,6 +703,7 @@ _SKILL_TARGET_TABLES = {
     "smithing": SMITHING_DATA,
     "crafting": CRAFTING_DATA,
     "fletching": FLETCHING_DATA,
+    "firemaking": FIREMAKING_DATA,
 }
 
 
@@ -1225,6 +1252,7 @@ def show_main_menu(
     on_set_craft,
     on_set_smith=None,
     on_set_fletch=None,
+    on_set_firemaking=None,
     on_set_utility=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
@@ -1331,6 +1359,16 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _firemaking_available() -> bool:
+        try:
+            return can_burn_any_firemaking_target_pure(
+                player_data.get("inventory", {}),
+                player_data.get("firemaking_level", 1),
+                FIREMAKING_DATA,
+            )
+        except Exception:
+            return False
+
     def _skill_available(display_name: str) -> bool:
         if display_name == "Smithing":
             return bool(can_smelt_any_bar)
@@ -1338,6 +1376,8 @@ def show_main_menu(
             return _craft_available()
         if display_name == "Fletching":
             return _fletch_available()
+        if display_name == "Firemaking":
+            return _firemaking_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -1362,6 +1402,9 @@ def show_main_menu(
             return
         if display_name == "Fletching" and not _fletch_available():
             warn.setText("You can't fletch anything yet. Cut some logs or level up first!")
+            return
+        if display_name == "Firemaking" and not _firemaking_available():
+            warn.setText("You can't burn anything yet. Cut or acquire logs first!")
             return
         warn.setText("")
         state["active"] = display_name
@@ -1904,6 +1947,59 @@ def show_main_menu(
         fletch_list.itemActivated.connect(_on_fletch_selected)
         return fletch_list
 
+    def _build_firemaking_list() -> QListWidget:
+        firemaking_list = QListWidget()
+        firemaking_list.setIconSize(QSize(28, 28))
+        firemaking_list.setAlternatingRowColors(True)
+        lvl_have = player_data.get("firemaking_level", 1)
+        inv = player_data.get("inventory", {})
+        current_target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
+
+        for target_key, spec in FIREMAKING_DATA.items():
+            display_name = spec.get("display_name", target_key)
+            lvl_req = spec.get("level", 1)
+            base_xp = spec.get("exp", 0)
+            input_item = next(iter(spec.get("requirements", {display_name: 1}).keys()), display_name)
+            input_qty = spec.get("requirements", {}).get(input_item, 1)
+            owned = inv.get(input_item, 0)
+            output_item = spec.get("output_item", "Ashes")
+            output_qty = spec.get("output_qty", 1)
+            chance = calculate_firemaking_success_probability_pure(lvl_have, spec)
+            item = QListWidgetItem(f"{display_name} (Lvl {lvl_req})")
+            item.setData(Qt.ItemDataRole.UserRole, target_key)
+            f_icon = FIREMAKING_ITEM_IMAGES.get(input_item) or FIREMAKING_ITEM_IMAGES.get(output_item)
+            if f_icon and os.path.exists(f_icon):
+                item.setIcon(QIcon(f_icon))
+            tooltip = (
+                f"Requires Firemaking level {lvl_req}. You have {lvl_have}.\n"
+                f"Base XP: {base_xp} per successful burn\n"
+                f"Input: {input_item} x{input_qty} (you have {owned})\n"
+                f"Output: {output_item} x{output_qty}\n"
+                f"Success chance: {chance:.0%} per attempt"
+            )
+            if not can_burn_firemaking_target_pure(lvl_have, inv, target_key, FIREMAKING_DATA):
+                item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if owned < input_qty:
+                    reason.append("materials")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            item.setToolTip(tooltip)
+            firemaking_list.addItem(item)
+            if target_key == current_target:
+                firemaking_list.setCurrentItem(item)
+
+        def _on_firemaking_selected(item: QListWidgetItem):
+            # Skip locked rows (itemClicked still fires on disabled items).
+            if item and on_set_firemaking is not None and (item.flags() & Qt.ItemFlag.ItemIsEnabled):
+                on_set_firemaking(item.data(Qt.ItemDataRole.UserRole))
+
+        firemaking_list.itemClicked.connect(_on_firemaking_selected)
+        firemaking_list.itemActivated.connect(_on_firemaking_selected)
+        return firemaking_list
+
     def _build_utility_list() -> QListWidget:
         # Utility / Activities are no-XP material prep. Each successful card runs
         # a batch (up to batch_size, capped by inventory), so tooltips lead with
@@ -1975,6 +2071,7 @@ def show_main_menu(
         "Smithing": _build_smith_list,
         "Crafting": _build_craft_list,
         "Fletching": _build_fletch_list,
+        "Firemaking": _build_firemaking_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
     _TARGET_PROMPTS = {
@@ -1983,6 +2080,7 @@ def show_main_menu(
         "Smithing": "Select what to Smelt or Forge",
         "Crafting": "Select Item to Craft",
         "Fletching": "Select Item to Fletch",
+        "Firemaking": "Select Logs to Burn",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
@@ -1993,6 +2091,7 @@ def show_main_menu(
             "Smithing": "smithing_icon.png",
             "Crafting": "crafting_icon.png",
             "Fletching": "fletching_icon.png",
+            "Firemaking": "firemaking_icon.png",
         }
         return os.path.join(current_dir, "icon", icon_files.get(display_name, "achievement_icon.png"))
 
@@ -2120,6 +2219,7 @@ def show_main_menu(
         _MAIN_MENU_CTX["smith_btn"] = None
         _MAIN_MENU_CTX["craft_btn"] = None
         _MAIN_MENU_CTX["fletch_btn"] = None
+        _MAIN_MENU_CTX["firemaking_btn"] = None
         name = state["skill"]
         _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
@@ -2177,6 +2277,8 @@ def show_main_menu(
                         train_btn.setToolTip("Gather materials or level up to craft an item.")
                     elif name == "Fletching":
                         train_btn.setToolTip("Cut logs or level up to fletch an item.")
+                    elif name == "Firemaking":
+                        train_btn.setToolTip("Cut or acquire logs before training Firemaking.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
             if name == "Smithing":
@@ -2185,6 +2287,8 @@ def show_main_menu(
                 _MAIN_MENU_CTX["craft_btn"] = train_btn
             elif name == "Fletching":
                 _MAIN_MENU_CTX["fletch_btn"] = train_btn
+            elif name == "Firemaking":
+                _MAIN_MENU_CTX["firemaking_btn"] = train_btn
         panel_layout.addWidget(header)
 
         if is_utility:
@@ -2254,7 +2358,14 @@ def show_main_menu(
     try:
         dialog.finished.connect(
             lambda _=None: _MAIN_MENU_CTX.update(
-                {"dialog": None, "smith_btn": None, "craft_btn": None, "fletch_btn": None, "warn_label": None}
+                {
+                    "dialog": None,
+                    "smith_btn": None,
+                    "craft_btn": None,
+                    "fletch_btn": None,
+                    "firemaking_btn": None,
+                    "warn_label": None,
+                }
             )
         )
     except Exception:
@@ -2419,7 +2530,15 @@ def show_main_menu(
     # Materials) so newly registered items appear cleanly without per-skill
     # branches. Each item's icon comes from its ItemDefinition.asset_path, with a
     # legacy image-map fallback for anything predating the manifest.
-    _legacy_icon_maps = (ORE_IMAGES, TREE_IMAGES, BAR_IMAGES, GEM_IMAGES, CRAFTED_ITEM_IMAGES, FLETCHED_ITEM_IMAGES)
+    _legacy_icon_maps = (
+        ORE_IMAGES,
+        TREE_IMAGES,
+        BAR_IMAGES,
+        GEM_IMAGES,
+        CRAFTED_ITEM_IMAGES,
+        FLETCHED_ITEM_IMAGES,
+        FIREMAKING_ITEM_IMAGES,
+    )
 
     def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
         if asset_path and os.path.exists(asset_path):

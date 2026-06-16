@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Firemaking Implementation Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, rgba(79, 140, 255, 0.16), transparent 32rem), var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      line-height: 1.5;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 48px 24px 64px; }
+    .badge, .tag, .label, code { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(2rem, 5vw, 4rem); line-height: 1; }
+    .subtitle { max-width: 760px; color: var(--text-dim); font-size: 1rem; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 30px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+    }
+    .card h2 { margin: 6px 0 10px; font-size: 1.25rem; }
+    .label { color: var(--green); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .label.amber { color: var(--amber); }
+    .label.purple { color: var(--purple); }
+    .label.red { color: var(--red); }
+    .tag {
+      display: inline-flex;
+      margin: 4px 5px 0 0;
+      padding: 4px 7px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-dim);
+      font-size: 0.68rem;
+    }
+    .burn-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+    .burn {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.74rem;
+    }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 14px; }
+    .step {
+      min-height: 92px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: white;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .step p { margin: 8px 0 0; color: var(--text-dim); font-size: 0.85rem; }
+    .mock {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #10141b;
+      margin-top: 12px;
+    }
+    .mock-head { display: flex; gap: 8px; padding: 10px; background: #1d2430; border-bottom: 1px solid var(--border); }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
+    .dot:nth-child(2) { background: var(--amber); }
+    .dot:nth-child(3) { background: var(--green); }
+    .mock-body { display: grid; grid-template-columns: 120px 1fr; min-height: 170px; }
+    .rail { border-right: 1px solid var(--border); padding: 10px; color: var(--text-dim); font-size: 0.76rem; }
+    .row { padding: 8px; border-radius: 7px; margin-bottom: 6px; background: rgba(79, 140, 255, 0.12); color: var(--text); }
+    .panel { padding: 12px; }
+    .target { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; }
+    .target span:last-child { color: var(--text-dim); font-family: "JetBrains Mono", monospace; font-size: 0.72rem; }
+    .defer { border-color: rgba(251, 191, 36, 0.45); background: rgba(251, 191, 36, 0.08); }
+    @media (max-width: 900px) {
+      .grid, .burn-list, .flow { grid-template-columns: 1fr; }
+      .mock-body { grid-template-columns: 1fr; }
+      .rail { border-right: 0; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-Implementation Plan</span>
+    <h1>Firemaking enters AnkiScape</h1>
+    <p class="subtitle">The first pass implements source-backed line Firemaking from local 2011Scape data, with a deliberate note that bonfires and fire spirits are pre-EOC 2012 content deferred for a later extension.</p>
+
+    <section class="grid">
+      <article class="card">
+        <span class="label">Backend</span>
+        <h2>Source-backed target table</h2>
+        <p>Firemaking will become a real Artisan skill with stable target IDs, flat save keys, source XP, implicit tinderbox, and ashes output.</p>
+        <div class="burn-list">
+          <div class="burn"><span>Logs</span><strong>1 / 40.0</strong></div>
+          <div class="burn"><span>Achey</span><strong>1 / 40.0</strong></div>
+          <div class="burn"><span>Oak</span><strong>15 / 60.0</strong></div>
+          <div class="burn"><span>Willow</span><strong>30 / 90.0</strong></div>
+          <div class="burn"><span>Teak</span><strong>35 / 105.0</strong></div>
+          <div class="burn"><span>Arctic pine</span><strong>42 / 125.0</strong></div>
+          <div class="burn"><span>Maple</span><strong>45 / 135.0</strong></div>
+          <div class="burn"><span>Mahogany</span><strong>50 / 157.5</strong></div>
+          <div class="burn"><span>Eucalyptus</span><strong>58 / 193.5</strong></div>
+          <div class="burn"><span>Yew</span><strong>60 / 202.5</strong></div>
+          <div class="burn"><span>Magic</span><strong>75 / 303.8</strong></div>
+          <div class="burn"><span>Curly root</span><strong>75 / 161.6</strong></div>
+          <div class="burn"><span>Cursed magic</span><strong>82 / 303.8</strong></div>
+        </div>
+        <span class="tag">firemaking_data.py</span><span class="tag">logic_pure.py</span><span class="tag">storage_pure.py</span>
+      </article>
+
+      <article class="card">
+        <span class="label purple">Frontend</span>
+        <h2>Artisan hub surface</h2>
+        <p>Rows use the existing Skills hub pattern: level/material gates, disabled-row click guards, target icons, source-free tooltips, and current-target highlighting.</p>
+        <div class="mock" aria-label="Firemaking target list mockup">
+          <div class="mock-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <div class="mock-body">
+            <div class="rail"><div class="row">Artisan</div><div>Firemaking</div><div>Fletching</div><div>Crafting</div></div>
+            <div class="panel">
+              <div class="target"><strong>Logs</strong><span>Lvl 1 | 40 XP | 63%</span></div>
+              <div class="target"><strong>Oak logs</strong><span>Lvl 15 | 60 XP | locked</span></div>
+              <div class="target"><strong>Willow logs</strong><span>Lvl 30 | 90 XP | locked</span></div>
+              <div class="target"><strong>Ashes</strong><span>output x1</span></div>
+            </div>
+          </div>
+        </div>
+        <span class="tag">ui.py</span><span class="tag">constants.py</span><span class="tag">assets_provenance.json</span>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Balance</span>
+        <h2>Anki-tuned lighting curve</h2>
+        <p>Source lighting odds are preserved as audit data, then adapted so higher-tier logs feel slower near unlock while failed attempts do not delete materials.</p>
+        <div class="flow">
+          <div class="step"><span class="step-num">1</span><p>Eligible review triggers one Firemaking attempt.</p></div>
+          <div class="step"><span class="step-num">2</span><p>Level and log count gate the target.</p></div>
+          <div class="step"><span class="step-num">3</span><p>Tier curve rolls success chance.</p></div>
+          <div class="step"><span class="step-num">4</span><p>Success consumes log, adds XP and Ashes.</p></div>
+          <div class="step"><span class="step-num">5</span><p>Undo restores the full review transaction.</p></div>
+        </div>
+      </article>
+
+      <article class="card defer">
+        <span class="label red">Deferred</span>
+        <h2>Bonfires and fire spirits</h2>
+        <p>Bonfires are historically pre-EoC, but not in the rev-667 source baseline. They will be recorded as a later 2012 extension: batch log feeding, bonus XP, fire-spirit rewards, Cooking boost, and HP warmth need their own design instead of being hidden inside v1 line Firemaking.</p>
+        <span class="tag">source audit note</span><span class="tag">future-work-kanban.md</span>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

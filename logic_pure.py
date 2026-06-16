@@ -892,3 +892,88 @@ def apply_fletching_pure(target, inventory, fletching_data):
     output_qty = spec.get("output_qty", 1)
     new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
     return new_inv, spec.get("exp", 0), True
+
+
+def firemaking_source_roll_chance_pure(firemaking_level, target_spec):
+    """Approximate the 2011Scape raw Firemaking roll before Anki pacing."""
+    low = float(target_spec.get("low_chance", 65))
+    high = float(target_spec.get("high_chance", 513))
+    level_progress = max(0.0, min((float(firemaking_level) - 1.0) / 98.0, 1.0))
+    interpolated = low + ((high - low) * level_progress)
+    return max(0.0, min(interpolated / 255.0, 1.0))
+
+
+def calculate_firemaking_success_probability_pure(
+    firemaking_level,
+    target_spec,
+    minimum=0.30,
+    scale=0.65,
+    overlevel_window=40,
+    cap=0.95,
+):
+    """Translate source lighting odds into one review-scale success probability.
+
+    The source chance mostly depends on Firemaking level, not the log tier. To
+    make higher-level logs feel slower near unlock in AnkiScape, this adapter
+    also applies a target-level curve: old logs become comfortable as the player
+    overlevels them, while newly unlocked logs start stickier.
+    """
+    source_chance = firemaking_source_roll_chance_pure(firemaking_level, target_spec)
+    source_adapter = min(0.20 + (sqrt(source_chance) * 0.72), cap)
+    required_level = _positive_int(target_spec.get("level", 1), 1)
+    overlevel = max(0.0, float(firemaking_level) - float(required_level))
+    window = max(float(overlevel_window), 1.0)
+    tier_progress = max(0.0, min((overlevel + 1.0) / window, 1.0))
+    tier_adapter = min(minimum + (sqrt(tier_progress) * scale), cap)
+    return max(0.0, min(source_adapter, tier_adapter, cap))
+
+
+def has_firemaking_materials_pure(target, inventory, firemaking_data):
+    """Return True when inventory has the log/root for one Firemaking action."""
+    spec = firemaking_data.get(target)
+    if not spec:
+        return False
+    for material, amount in spec.get("requirements", {}).items():
+        if inventory.get(material, 0) < amount:
+            return False
+    return True
+
+
+def can_burn_firemaking_target_pure(firemaking_level, inventory, target, firemaking_data):
+    """Return True if level and materials allow one Firemaking attempt."""
+    spec = firemaking_data.get(target)
+    if not spec:
+        return False
+    if firemaking_level < spec.get("level", 1):
+        return False
+    return has_firemaking_materials_pure(target, inventory, firemaking_data)
+
+
+def can_burn_any_firemaking_target_pure(inventory, firemaking_level, firemaking_data):
+    """Return True if any Firemaking target can be attempted right now."""
+    return any(
+        can_burn_firemaking_target_pure(firemaking_level, inventory, target, firemaking_data)
+        for target in firemaking_data
+    )
+
+
+def apply_firemaking_action_pure(target, inventory, firemaking_data, firemaking_level, r_action):
+    """Apply one Firemaking attempt.
+
+    Returns (inventory, base_exp, success, output_item). Failed attempts consume
+    no log and award no XP/items, matching AnkiScape's gathering-style pacing.
+    """
+    spec = firemaking_data.get(target)
+    if not spec or not has_firemaking_materials_pure(target, inventory, firemaking_data):
+        return inventory, 0, False, None
+    success_probability = calculate_firemaking_success_probability_pure(firemaking_level, spec)
+    if r_action >= success_probability:
+        return inventory, 0, False, None
+
+    new_inv = dict(inventory)
+    for material, amount in spec.get("requirements", {}).items():
+        new_inv[material] = new_inv.get(material, 0) - amount
+    output_item = spec.get("output_item", "Ashes")
+    output_qty = _positive_int(spec.get("output_qty", 1))
+    new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+    return new_inv, spec.get("exp", 0), True, output_item

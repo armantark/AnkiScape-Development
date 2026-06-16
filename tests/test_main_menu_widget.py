@@ -34,7 +34,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
 
 def _make_player_data() -> dict:
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "smithing", "crafting"):
+    for skill in ("mining", "woodcutting", "smithing", "crafting", "fletching", "firemaking"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -49,7 +49,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Smithing|Crafting|Fletching)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Smithing|Crafting|Fletching|Firemaking)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -82,6 +82,13 @@ def _find_list_with_item_prefix(dialog: "QDialog", prefix: str) -> "QListWidget"
         if any(lw.item(i).text().startswith(prefix) for i in range(lw.count())):
             return lw
     raise AssertionError(f"no list widget with an item starting {prefix!r}")
+
+
+def _find_list_with_user_role(dialog: "QDialog", role) -> "QListWidget":
+    for lw in dialog.findChildren(QListWidget):
+        if any(lw.item(i).data(Qt.ItemDataRole.UserRole) == role for i in range(lw.count())):
+            return lw
+    raise AssertionError(f"no list widget with user role {role!r}")
 
 
 def _find_tool_button(dialog: "QDialog", text: str) -> "QToolButton":
@@ -245,6 +252,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._craft_calls: list = []
         # Same seam for Utility/Activities selection.
         self._utility_calls: list = []
+        # Same seam for Firemaking target selection.
+        self._firemaking_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -275,6 +284,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_smith=lambda rid: self._smith_calls.append(rid),
             on_set_craft=lambda rid: self._craft_calls.append(rid),
             on_set_fletch=lambda *a: None,
+            on_set_firemaking=lambda target: self._firemaking_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
@@ -347,6 +357,78 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         target_list = _find_list_with_item_prefix(self.dialog, "Arrow shafts")
         self.assertIsNotNone(target_list)
+
+    def test_firemaking_is_selectable_and_shows_source_backed_target_list(self) -> None:
+        pd = _make_player_data()
+        pd["firemaking_level"] = 45
+        pd["inventory"] = {"Logs": 2, "Oak logs": 1}
+        pd["current_firemaking"] = "oak_logs"
+        dialog = self._open(pd)
+        artisan = next(
+            b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan"
+        )
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(dialog)
+        fm_row = next(
+            (i for i in range(skill_list.count()) if skill_list.item(i).text() == "Firemaking"),
+            None,
+        )
+        self.assertIsNotNone(fm_row, "Firemaking is missing from the Artisan skill list")
+        skill_list.setCurrentRow(fm_row)
+        QApplication.processEvents()
+
+        title = _panel_title(dialog)
+        self.assertTrue(
+            title.startswith("Firemaking"),
+            f"panel did not switch to Firemaking; still shows {title!r}",
+        )
+        target_list = _find_list_with_user_role(dialog, "logs")
+        logs_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "logs"
+        )
+        oak_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "oak_logs"
+        )
+        self.assertEqual(target_list.currentItem().data(Qt.ItemDataRole.UserRole), "oak_logs")
+        self.assertIn("Base XP: 40.0", logs_row.toolTip())
+        self.assertIn("Input: Logs x1 (you have 2)", logs_row.toolTip())
+        self.assertIn("Output: Ashes x1", logs_row.toolTip())
+        self.assertIn("Success chance:", logs_row.toolTip())
+        self.assertNotIn("FiremakingData.kt", logs_row.toolTip())
+
+        target_list.itemClicked.emit(logs_row)
+        QApplication.processEvents()
+        self.assertEqual(self._firemaking_calls[-1], "logs")
+        self.assertTrue(oak_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+
+    def test_firemaking_locked_or_missing_material_rows_are_inert(self) -> None:
+        pd = _make_player_data()
+        pd["firemaking_level"] = 1
+        pd["inventory"] = {"Logs": 1}
+        dialog = self._open(pd)
+        artisan = next(
+            b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan"
+        )
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(dialog)
+        fm_row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Firemaking")
+        skill_list.setCurrentRow(fm_row)
+        QApplication.processEvents()
+        target_list = _find_list_with_user_role(dialog, "oak_logs")
+        oak_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "oak_logs"
+        )
+
+        self.assertFalse(oak_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("Locked due to:", oak_row.toolTip())
+        target_list.itemClicked.emit(oak_row)
+        QApplication.processEvents()
+        self.assertEqual(self._firemaking_calls, [])
 
     # ---- Smithing parity (unified SMITHING_DATA recipe tree) --------------
     def test_smithing_groups_recipes_by_metal_tier(self) -> None:
@@ -529,6 +611,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Fletching Stats", labels)
         self.assertIn("Fletching Level:", labels)
 
+    def test_stats_tab_has_firemaking_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Firemaking")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Firemaking Stats", labels)
+        self.assertIn("Firemaking Level:", labels)
+
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {
@@ -551,6 +641,26 @@ class MainMenuWidgetTest(unittest.TestCase):
             if bank.item(i).text().startswith("Arrow shafts x")
         )
         self.assertFalse(arrow_row.icon().isNull(), "Arrow shafts row has no icon")
+
+    def test_bank_groups_firemaking_logs_and_ashes_with_icons(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Arctic pine logs": 3,
+            "Cursed magic logs": 1,
+            "Ashes": 2,
+        }
+        dialog = self._open(pd)
+        bank = _find_bank_list(dialog)
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        for header in ("Logs", "Materials"):
+            self.assertIn(header, texts, f"missing bank category header {header!r}")
+        self.assertTrue(any(t.startswith("Arctic pine logs x3") for t in texts))
+        self.assertTrue(any(t.startswith("Ashes x2") for t in texts))
+        ashes_row = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Ashes x")
+        )
+        self.assertFalse(ashes_row.icon().isNull(), "Ashes row has no icon")
 
     def test_bank_gear_lives_in_separate_panel_from_striped_inventory(self) -> None:
         pd = _make_player_data()
@@ -791,6 +901,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             f"HUD did not recognize Fletching; shows {hud.title_lbl.text()!r}",
         )
         self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fletching icon")
+
+    def test_hud_recognizes_firemaking_as_active_skill(self) -> None:
+        pd = _make_player_data()
+        pd["current_firemaking"] = "logs"
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Firemaking")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Firemaking"),
+            f"HUD did not recognize Firemaking; shows {hud.title_lbl.text()!r}",
+        )
+        self.assertEqual(hud.target_lbl.text(), "Logs")
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Firemaking icon")
 
     # ---- Crafting/Utility rework surfaces ---------------------------------
     def _open_utility(self, dialog: "QDialog") -> "QListWidget":

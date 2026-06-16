@@ -1103,6 +1103,66 @@
     "source_wiki": "osrs",
     "timestamp": "2018-11-18T22:22:58Z"
   },
+  "firemakingitems/arctic_pine_logs.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Arctic_pine_logs.png",
+    "file_title": "Arctic pine logs.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Arctic_pine_logs.png?c0a17",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e1f372bf4d8ff38a258608d5d035ee000f839f09",
+    "size": 748,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:11Z"
+  },
+  "firemakingitems/ashes.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ashes.png",
+    "file_title": "Ashes.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Ashes.png?e56f0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "006cb4b7ad8c3b79a461a95471540a075c56242a",
+    "size": 402,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:14Z"
+  },
+  "firemakingitems/curly_root.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Curly_root.png",
+    "file_title": "Curly root.png",
+    "image_url": "https://runescape.wiki/images/Curly_root.png?549f3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "98478aa00858598a71d86ca9f6fc078c1a235a23",
+    "size": 1071,
+    "source_wiki": "rs3",
+    "timestamp": "2024-11-27T08:26:46Z"
+  },
+  "firemakingitems/cursed_magic_logs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cursed_magic_logs.png",
+    "file_title": "Cursed magic logs.png",
+    "image_url": "https://runescape.wiki/images/Cursed_magic_logs.png?071ee",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3a9af6a81f2202c373231a5acd29fd591ac9275b",
+    "size": 937,
+    "source_wiki": "rs3",
+    "timestamp": "2023-06-16T14:37:05Z"
+  },
+  "firemakingitems/eucalyptus_logs.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Eucalyptus_logs.png",
+    "file_title": "Eucalyptus logs.png",
+    "image_url": "https://runescape.wiki/images/Eucalyptus_logs.png?cd20c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "00db772b95ce489d70db0ffc232394647cdaff1f",
+    "size": 1702,
+    "source_wiki": "rs3",
+    "timestamp": "2021-11-18T12:09:35Z"
+  },
   "fletcheditems/adamant_arrows.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Adamant_arrow_5.png",
     "file_title": "Adamant arrow 5.png",
@@ -1390,6 +1450,18 @@
     "size": 321,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:07:09Z"
+  },
+  "icon/firemaking_icon.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Firemaking_icon_%28detail%29.png",
+    "file_title": "Firemaking icon (detail).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Firemaking_icon_%28detail%29.png?a4903",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d69046f7a4cd6fd182bebbaa96e2a19d661df45f",
+    "size": 563,
+    "source_wiki": "osrs",
+    "timestamp": "2022-01-19T13:54:36Z"
   },
   "icon/fletching_icon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fletching_icon_%28detail%29.png",

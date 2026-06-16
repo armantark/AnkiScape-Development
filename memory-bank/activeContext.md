@@ -142,7 +142,7 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 
 Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. The GE **design is now fully grilled and parked** in `memory-bank/fake-grand-exchange-design.md` (engine = hidden true-price + stochastic fill model with no persisted order book; GP = convenience-abundant, gated by buy limits + market clock, never sells XP; undo rolls back the market tick via deterministic RNG + per-tick delta snapshot; 8 slots, partial fills, OSRS price improvement, 40-action buy-limit windows, 240-action guide-price days capped +/-5%, alch-anchored seeding). It is intentionally **blocked on item-economy breadth**: the GE only earns its keep once many more tradable items exist.
 
-Active priority (updated 2026-06-15): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt are the best next cleanup target; Utility/Activities icons and the focused feather source are complete; the GE remains a later candidate, not the next default project. Firemaking can still proceed in a separate skill-expansion thread.
+Active priority (updated 2026-06-16): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt remain the best cleanup target; Utility/Activities icons, the focused feather source, and Firemaking v1 are complete; the GE remains a later candidate, not the next default project.
 
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,
@@ -186,6 +186,18 @@ replace, supplement, or rebalance this Utility route. Verification:
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 240 tests.
 
+Firemaking v1 is complete on 2026-06-16 as an independent skill-expansion
+thread. Source data lives in `firemaking_data.py`, audited against local
+2011Scape `FiremakingData.kt`, `FiremakingAction.kt`, `firemaking.plugin.kts`,
+and `items.yml` in
+`memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`. Firemaking is a
+current Artisan review skill with flat save keys (`firemaking_level`,
+`firemaking_exp`, `current_firemaking`), 13 source-backed burnable targets,
+review-scale lighting chance helpers, implicit tinderbox behavior, success-only
+log consumption, source XP, `Ashes x1`, achievements, assets, and offscreen Qt
+coverage. Bonfires/fire spirits are intentionally deferred as a 2012 pre-EOC
+extension rather than part of line Firemaking v1.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -204,7 +216,7 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
    `__init__.py` runtime orchestration, not repeating review handler dispatch.
 2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
-4. **Parallel skill option**: Firemaking can be implemented in another thread and does not need to block the architecture cleanup.
+4. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

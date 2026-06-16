@@ -221,6 +221,39 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["xp"], [5.0])
 
+    def test_firemaking_answer_burns_log_adds_ashes_and_exp(self):
+        addon = _load_addon_as_package("ankiscape_firemaking_integration")
+
+        calls = {"save": 0, "xp": [], "achievements": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda data: calls["achievements"].append(data["inventory"].get("Ashes", 0))
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.player_data = {
+                "inventory": {"Logs": 1},
+                "firemaking_level": 1,
+                "firemaking_exp": 0,
+                "current_firemaking": "logs",
+                "completed_achievements": [],
+            }
+
+            addon.on_firemaking_answer()
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Ashes"], 1)
+        self.assertAlmostEqual(addon.player_data["firemaking_exp"], 40.0)
+        self.assertEqual(calls["achievements"], [1])
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["xp"], [40.0])
+
     def test_smithing_answer_forges_selected_recipe(self):
         addon = _load_addon_as_package("ankiscape_smithing_integration")
 
@@ -421,6 +454,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon = _load_addon_as_package("ankiscape_action_dispatch_lookup")
 
         self.assertIs(addon._registered_answer_handler("Fletching"), addon.on_fletching_answer)
+        self.assertIs(addon._registered_answer_handler("Firemaking"), addon.on_firemaking_answer)
         self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.on_utility_answer)
         self.assertIs(addon._registered_answer_handler("Utility"), addon.on_utility_answer)
         self.assertIsNone(addon._registered_answer_handler("Thieving"))
@@ -433,6 +467,17 @@ class TestIntegrationSmoke(unittest.TestCase):
             "inventory": {"Logs": 1},
             "fletching_level": 1,
             "current_fletch": "arrow_shafts",
+        }
+        self.assertTrue(addon._can_start_current_action())
+
+        addon.player_data["inventory"] = {}
+        self.assertFalse(addon._can_start_current_action())
+
+        addon.current_skill = "Firemaking"
+        addon.player_data = {
+            "inventory": {"Logs": 1},
+            "firemaking_level": 1,
+            "current_firemaking": "logs",
         }
         self.assertTrue(addon._can_start_current_action())
 
@@ -581,6 +626,43 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [5.0])
         self.assertEqual(calls["errors"], [])
 
+    def test_firemaking_multiplier_stops_when_logs_are_depleted(self):
+        addon = _load_addon_as_package("ankiscape_firemaking_multiplier_depletion")
+
+        calls = {"xp": [], "errors": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: calls["errors"].append(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 3}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_exp=lambda exp: calls["xp"].append(exp))
+        addon.player_data = {
+            "inventory": {"Logs": 2},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Firemaking"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Ashes"], 2)
+        self.assertAlmostEqual(addon.player_data["firemaking_exp"], 80.0)
+        self.assertEqual(calls["xp"], [80.0])
+        self.assertEqual(calls["errors"], [])
+
     def test_undo_after_review_restores_awarded_game_progress(self):
         addon = _load_addon_as_package("ankiscape_undo_integration")
 
@@ -623,6 +705,54 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["current_fletch"], "arrow_shafts")
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [5.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
+    def test_firemaking_review_reward_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_firemaking_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Logs": 1},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Firemaking"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.0
+        try:
+            addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"], {"Logs": 0, "Ashes": 1})
+        self.assertAlmostEqual(addon.player_data["firemaking_exp"], 40.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Logs": 1})
+        self.assertEqual(addon.player_data["firemaking_exp"], 0)
+        self.assertEqual(addon.player_data["current_firemaking"], "logs")
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [40.0])
         self.assertGreaterEqual(calls["save"], 2)
 
     def test_utility_review_reward_rolls_back_on_undo(self):
