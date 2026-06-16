@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QIcon, QImage, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -96,6 +96,13 @@ def _find_tool_button(dialog: "QDialog", text: str) -> "QToolButton":
         if btn.text() == text:
             return btn
     raise AssertionError(f"no tool button labeled {text!r}")
+
+
+def _icon_pixels(icon: "QIcon") -> bytes:
+    image = icon.pixmap(28, 28).toImage().convertToFormat(QImage.Format.Format_ARGB32)
+    bits = image.bits()
+    bits.setsize(image.sizeInBytes())
+    return bytes(bits)
 
 
 def _goto_smithing(dialog: "QDialog") -> None:
@@ -568,10 +575,27 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["current_cooking"] = "cook_shrimps"
         dialog = self._open(pd)
         tree = _goto_cooking(dialog)
+        skill_list = _find_artisan_skill_list(dialog)
+        cooking_item = next(
+            skill_list.item(i)
+            for i in range(skill_list.count())
+            if skill_list.item(i).text() == "Cooking"
+        )
         title = _panel_title(dialog)
         self.assertTrue(
             title.startswith("Cooking"),
             f"panel did not switch to Cooking; still shows {title!r}",
+        )
+        self.assertFalse(cooking_item.icon().isNull(), "Cooking skill row has no icon")
+        self.assertEqual(
+            _icon_pixels(cooking_item.icon()),
+            _icon_pixels(QIcon(self._ui.skill_icon_path_for("Cooking"))),
+            "Cooking skill row did not use icon/cooking_icon.png",
+        )
+        self.assertNotEqual(
+            _icon_pixels(cooking_item.icon()),
+            _icon_pixels(QIcon(os.path.join(_ADDON_DIR, "icon", "achievement_icon.png"))),
+            "Cooking skill row fell back to the achievement icon",
         )
 
         family_roles = [

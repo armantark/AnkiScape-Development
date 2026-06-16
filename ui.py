@@ -2106,16 +2106,7 @@ def show_main_menu(
     }
 
     def _skill_icon_path(display_name: str) -> str:
-        icon_files = {
-            "Mining": "mining_icon.png",
-            "Woodcutting": "woodcutting_icon.png",
-            "Smithing": "smithing_icon.png",
-            "Crafting": "crafting_icon.png",
-            "Fletching": "fletching_icon.png",
-            "Firemaking": "firemaking_icon.png",
-            "Fishing": "fishing_icon.png",
-        }
-        return os.path.join(current_dir, "icon", icon_files.get(display_name, "achievement_icon.png"))
+        return skill_icon_path_for(display_name) or os.path.join(current_dir, "icon", "achievement_icon.png")
 
     # ---- three-pane layout: categories | skills | target panel ----
     panes = QWidget()
