@@ -142,7 +142,7 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 
 Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. The GE **design is now fully grilled and parked** in `memory-bank/fake-grand-exchange-design.md` (engine = hidden true-price + stochastic fill model with no persisted order book; GP = convenience-abundant, gated by buy limits + market clock, never sells XP; undo rolls back the market tick via deterministic RNG + per-tick delta snapshot; 8 slots, partial fills, OSRS price improvement, 40-action buy-limit windows, 240-action guide-price days capped +/-5%, alch-anchored seeding). It is intentionally **blocked on item-economy breadth**: the GE only earns its keep once many more tradable items exist.
 
-Active priority (updated 2026-06-15): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt are the best next cleanup target; Utility/Activities icons are the next polish target; feathers remain the focused Fletching input gap; the GE remains a later candidate, not the next default project. Firemaking can still proceed in a separate skill-expansion thread.
+Active priority (updated 2026-06-15): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt are the best next cleanup target; Utility/Activities icons and the focused feather source are complete; the GE remains a later candidate, not the next default project. Firemaking can still proceed in a separate skill-expansion thread.
 
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,
@@ -172,6 +172,20 @@ passed with 235 tests (58 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 235 tests.
 
+P2 feather source is complete on 2026-06-15. `Scavenge chicken feathers` is a
+no-input, no-XP Utility/Activities action that grants `28 Feather` per action
+tick and uses a dedicated `activityicons/scavenge_chicken_feathers.png` icon.
+The source rationale is recorded in
+`memory-bank/source-audits/feather-utility-2026-06-15.md`: the local 2011Scape
+Ranged instructor points arrow makers to chickens for feathers, and the local
+chicken drop table includes Feather drops. The route is intentionally a bridge:
+no Combat, shops, coins, GE, bones, raw chicken, Fletching recipe change, or
+Smithing arrowtip change landed. Combat chicken drops and/or GE can later
+replace, supplement, or rebalance this Utility route. Verification:
+`python3 run_tests.py` passed with 240 tests (59 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 240 tests.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -188,10 +202,9 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 1. **Continue P0 only if the owner wants another architecture slice**: the next
    useful boundary is frontend target-list metadata or decomposing the remaining
    `__init__.py` runtime orchestration, not repeating review handler dispatch.
-2. **P2 feather source for Fletching**: feathers still need a legitimate source; arrowtips are not an open source gap because Smithing supplies them.
-3. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
-4. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
-5. **Parallel skill option**: Firemaking can be implemented in another thread and does not need to block the architecture cleanup.
+2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
+3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
+4. **Parallel skill option**: Firemaking can be implemented in another thread and does not need to block the architecture cleanup.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

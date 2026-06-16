@@ -22,6 +22,7 @@
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, action-multiplier-compatible reward handling, migration coverage, and undo-safe review handling.
 - Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped Actions-per-review control. Covered by offscreen Qt tests.
 - Utility/Activities has a dedicated icon set: each existing activity exposes an `icon_path` backed by `activityicons/` assets, and the Qt list falls back to output-item art if an activity icon is missing.
+- Feathers now have one legitimate non-dev source: `Scavenge chicken feathers` is a no-XP Utility/Activities bridge that grants `28 Feather` per successful action tick without opening Combat, shops, coins, or GE.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -66,7 +67,7 @@ Frontend Skills-hub conversion completed on 2026-05-29: the per-skill top tabs c
 
 Asset scraper CLI completed on 2026-05-29. Suite now passes with 92 tests, including mocked OSRS hit, OSRS miss/RS3 fallback, key/path resolution, skip-if-present, and dry-run coverage.
 
-Fletching frontend slice completed on 2026-05-29. The backend pilot's `visible_in_skill_hub` gate is now open: Fletching appears under Artisan with its own target panel (`_build_fletch_list`), level/material gating via `can_fletch_item_pure`, active-skill gating + warning, an `on_set_fletch` callback wired through `__init__`, and a live-availability slot (`fletch_btn`, optional 3rd arg to `refresh_skill_availability`). Skill icon fetched from the OSRS wiki `(detail)` variant via `tools/fetch_assets.py`. Covered by a new offscreen Qt test. NOTE: backend data gap — per-tier arrow-shaft yields (oak 30, willow 45, ... redwood 105) and the feather/arrowtip chain are not modeled yet; shortbow (u) recipes are accurate.
+Fletching frontend slice completed on 2026-05-29. The backend pilot's `visible_in_skill_hub` gate is now open: Fletching appears under Artisan with its own target panel (`_build_fletch_list`), level/material gating via `can_fletch_item_pure`, active-skill gating + warning, an `on_set_fletch` callback wired through `__init__`, and a live-availability slot (`fletch_btn`, optional 3rd arg to `refresh_skill_availability`). Skill icon fetched from the OSRS wiki `(detail)` variant via `tools/fetch_assets.py`. Covered by a new offscreen Qt test. Historical note: per-tier arrow-shaft yields and the feather/arrowtip chain were still incomplete at this point; later passes added the Fletching chain and Smithing-owned arrowtips.
 
 Skills-hub click bug fixed on 2026-05-29. Introduced an offscreen Qt behavior-test loop (`.venv-qt` with `aqt`, `QT_QPA_PLATFORM=offscreen`) that builds the real dialog and drives the widgets — no Anki restart needed. `tests/test_main_menu_widget.py` asserts that selecting Woodcutting and Artisan -> Crafting updates the panel. The core `run_tests.py` suite (95 tests) skips these when `aqt` is absent.
 
@@ -106,6 +107,15 @@ passes with 233 tests (57 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 233 tests.
 
+P2 feather source completed on 2026-06-15. Added `Scavenge chicken feathers` as
+a no-input Utility/Activities action with a dedicated activity icon and
+source-audit note. It grants `28 Feather` per successful action tick, awards no
+skill XP, supports the action multiplier and Anki undo rollback, and leaves
+Fletching recipes plus Smithing-owned arrowtips unchanged. `python3 run_tests.py`
+passes with 240 tests (59 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 240 tests.
+
 P1 Utility/Activities icon set completed on 2026-06-15. Existing Utility rows
 now resolve activity-level icons from `UTILITY_ACTIVITY_DATA["icon_path"]` into
 `activityicons/`, with output-item art as the frontend fallback. The pass added
@@ -119,7 +129,6 @@ passes with 235 tests.
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
 - Continue P0 only for a new architecture slice: frontend target-list metadata or further `__init__.py` decomposition. The review-action dispatch slice is done.
-- Focused economy patch: add a legitimate feather source for Fletching. Arrowtips are already covered by Smithing.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
 - Parallel option: Firemaking can happen in a separate thread.

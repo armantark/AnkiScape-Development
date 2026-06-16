@@ -87,7 +87,7 @@ Frontend:
 - Decide whether this remains a personal fork or becomes a public derivative release.
 
 ## Open Questions
-- Which acquisition loops should supply feathers, hides, glass inputs, battlestaff parts, and other currently input-starved materials before the GE exists? Arrowtips are already smithable.
+- Which acquisition loops should supply hides, glass inputs, battlestaff parts, and other currently input-starved materials before the GE exists? Arrowtips are already smithable, and feathers now have the temporary `Scavenge chicken feathers` Utility bridge.
 - How should Utility/Activities be presented so no-XP material actions feel intentional rather than punishing? Current priority and prompts live in `memory-bank/future-work-kanban.md`.
 - What exact constants should the fake GE use for liquidity, volatility, aggregate order flow, and stochastic supply/demand shocks?
 - What is the first Thieving target list and reward table?

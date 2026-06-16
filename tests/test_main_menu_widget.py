@@ -243,6 +243,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._smith_calls: list = []
         # Same seam for the family-grouped Crafting tree (on_set_craft).
         self._craft_calls: list = []
+        # Same seam for Utility/Activities selection.
+        self._utility_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -273,7 +275,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_smith=lambda rid: self._smith_calls.append(rid),
             on_set_craft=lambda rid: self._craft_calls.append(rid),
             on_set_fletch=lambda *a: None,
-            on_set_utility=lambda *a: None,
+            on_set_utility=lambda activity: self._utility_calls.append(activity),
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
         return self._captured[-1]
@@ -812,6 +814,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         util_texts = [utility_list.item(i).text() for i in range(utility_list.count())]
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
+        self.assertIn("Scavenge chicken feathers", util_texts)
 
     # ---- Crafting parity (family-grouped CRAFTING_DATA recipe tree) --------
     def test_crafting_groups_recipes_by_family(self) -> None:
@@ -969,6 +972,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         for i in range(utility_list.count()):
             row = utility_list.item(i)
             self.assertFalse(row.icon().isNull(), f"{row.text()} should have an activity icon")
+
+    def test_feather_scavenging_is_enabled_and_selectable_from_utility(self) -> None:
+        utility_list = self._open_utility(self.dialog)
+        feather_row = next(
+            utility_list.item(i) for i in range(utility_list.count())
+            if utility_list.item(i).text() == "Scavenge chicken feathers"
+        )
+
+        self.assertTrue(feather_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertFalse(feather_row.icon().isNull())
+        self.assertIn("No Crafting XP", feather_row.toolTip())
+        self.assertIn("Output: Feather x1", feather_row.toolTip())
+        self.assertIn("No materials required", feather_row.toolTip())
+
+        self._utility_calls.clear()
+        utility_list.itemClicked.emit(feather_row)
+        QApplication.processEvents()
+
+        self.assertEqual(self._utility_calls, ["scavenge_chicken_feathers"])
 
     def test_hud_shows_utility_activity_without_xp(self) -> None:
         hud = self._ui.ReviewHUD(None)

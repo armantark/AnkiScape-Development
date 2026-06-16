@@ -45,6 +45,7 @@ from constants import (
     WOODCUTTING_AXE_DATA,
     ORE_DATA,
     EQUIPMENT_DATA,
+    UTILITY_ACTIVITY_DATA,
 )
 
 class TestLogic(unittest.TestCase):
@@ -263,6 +264,27 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 28)
         self.assertEqual(new_inv["Wool"], 28)
+
+    def test_apply_feather_scavenging_batches_without_inputs_or_xp(self):
+        inv = {}
+
+        self.assertTrue(can_perform_utility_activity_pure(
+            inv,
+            "scavenge_chicken_feathers",
+            UTILITY_ACTIVITY_DATA,
+        ))
+
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "scavenge_chicken_feathers",
+            inv,
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 28)
+        self.assertEqual(new_inv["Feather"], 28)
+        self.assertEqual(inv, {})
 
     def test_has_crafting_materials_and_apply(self):
         crafting_data = {

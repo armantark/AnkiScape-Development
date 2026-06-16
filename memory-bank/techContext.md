@@ -74,6 +74,12 @@ Current Smithing backend parity data lives in `smithing_data.py`, with a detaile
 
 Current equipment backend data lives in generated `equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `smithing_data.py`, local 2011Scape `data/cfg/items.yml` equipment blocks, and `mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and scaffolds planned combat level/exp defaults so equipment gates are real `*_level` checks before combat training exists.
 
+Current feather source data lives in `constants.UTILITY_ACTIVITY_DATA` as the
+no-XP `scavenge_chicken_feathers` activity, with the audit at
+`memory-bank/source-audits/feather-utility-2026-06-15.md`. It is deliberately a
+temporary Utility bridge from local 2011Scape chicken feather drops, not the
+final Combat drop or GE route.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 

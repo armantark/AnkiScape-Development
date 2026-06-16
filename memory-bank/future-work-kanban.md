@@ -7,7 +7,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 ## Current Decisions
 
 - Arrowtips are not an unresolved source gap. They are smithable through Smithing.
-- Feathers are still an unresolved Fletching input gap.
+- Feathers are no longer an unresolved Fletching input gap. P2 added a
+  no-XP Utility/Activities bridge, `Scavenge chicken feathers`, on 2026-06-15.
 - The Grand Exchange is a valid future candidate, but it is not a high-priority next step.
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
@@ -96,6 +97,12 @@ In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of tr
 
 ### P2 - Feather Source For Fletching
 
+Status 2026-06-15: Complete. `Scavenge chicken feathers` is a no-input,
+no-XP Utility/Activities action that grants `28 Feather` per successful action.
+It is source-backed by the local 2011Scape Ranged instructor and chicken drop
+table, but deliberately omits Combat, shops, GE, bones, and raw chicken. See
+`memory-bank/source-audits/feather-utility-2026-06-15.md`.
+
 User story: As a Fletching player, I want a legitimate source for feathers, so arrow recipes can progress without seeded materials or a full economy feature.
 
 Why now: Fletching is functional, and Smithing already supplies arrowtips. Feathers are the remaining obvious arrow-making input gap.
@@ -118,10 +125,10 @@ Acceptance criteria:
 - Fletching recipe definitions do not need source hacks or free-material assumptions.
 - Undo/action multiplier behavior is tested if the source is an activity action.
 
-Future thread prompt:
+Future replacement prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Work on P2: feather source for Fletching. Arrowtips are already smithable, so only solve feathers. Implement one narrow, legitimate acquisition route, likely a Utility/Activities action, without reopening broader Crafting input loops or the Grand Exchange. Add targeted tests, update the Memory Bank, and commit the result.
+In the AnkiScape repo, do not redo P2 feather sourcing. Feathers already have the temporary Utility/Activities bridge `Scavenge chicken feathers`. Only revisit feathers when Combat chicken drops or the Grand Exchange is explicitly in scope; then decide whether to keep, remove, or rebalance the bridge route.
 ```
 
 ### P3 - Grand Exchange V1 Candidate

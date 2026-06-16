@@ -126,6 +126,18 @@ UTILITY_ACTIVITY_DATA = {
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_flax.png"),
         "source": "OSRS Bow string > Strategy > Manual Spinning",
     },
+    "scavenge_chicken_feathers": {
+        "display_name": "Scavenge chicken feathers",
+        "requirements": {},
+        "output_item": "Feather",
+        "output_qty": 1,
+        "batch_size": 28,
+        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "scavenge_chicken_feathers.png"),
+        "source": (
+            "2011Scape ranged_instructor.plugin.kts says arrows need chickens for feathers; "
+            "chicken_level_1.plugin.kts drops Feather. AnkiScape temporary scavenging bridge until Combat/GE."
+        ),
+    },
     "open_bird_nest": {
         "display_name": "Open bird nests",
         "requirements": {},

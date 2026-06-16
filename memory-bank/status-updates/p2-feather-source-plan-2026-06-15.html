@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P2 Feather Source Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 10% 10%, rgba(79, 140, 255, 0.18), transparent 32rem),
+                  radial-gradient(circle at 88% 12%, rgba(74, 222, 128, 0.12), transparent 28rem),
+                  var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 40px;
+    }
+    main { max-width: 1120px; margin: 0 auto; }
+    .badge, code, .tag, .step-num { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2.4rem, 6vw, 4.8rem); line-height: 0.95; }
+    h2 { margin: 0 0 12px; font-size: 1.2rem; }
+    p { color: var(--text-dim); line-height: 1.55; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent), var(--surface);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+    .lane {
+      min-height: 150px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface-2);
+      padding: 16px;
+    }
+    .lane strong { display: block; margin-bottom: 8px; }
+    .lane span { color: var(--text-dim); font-size: 0.92rem; line-height: 1.45; }
+    .flow { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+    .step-num {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .tag {
+      display: inline-flex;
+      margin: 8px 6px 0 0;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-dim);
+      background: rgba(255, 255, 255, 0.045);
+      font-size: 11px;
+    }
+    .mock {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .icon { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(135deg, #f7d36b, #8b5b22); }
+    .pill { color: var(--green); border: 1px solid rgba(74, 222, 128, 0.35); border-radius: 999px; padding: 4px 8px; }
+    .warn { color: var(--amber); }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .hero, .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <article class="card">
+        <span class="badge">Pre-Implementation Plan</span>
+        <h1>Feathers get one small source.</h1>
+        <p>P2 closes the obvious Fletching input gap without opening Combat, shops, coins, or the Grand Exchange. The action is a temporary Utility/Activities route: source-backed by chicken feather drops, paced like wool/flax gathering.</p>
+        <div class="mock" aria-label="planned Utility row">
+          <div class="row"><div class="icon"></div><div>Scavenge chicken feathers</div><span class="pill">+28 Feather</span></div>
+          <div class="row"><div class="icon"></div><div>Gather flax</div><span class="pill">+28 Flax</span></div>
+          <div class="row"><div class="icon"></div><div>Gather wool</div><span class="pill">+28 Wool</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Guardrails</h2>
+        <div class="flow">
+          <div class="step"><div class="step-num">1</div><div>No Fletching recipe edits.<br><span class="tag">constants.py</span></div></div>
+          <div class="step"><div class="step-num">2</div><div>No arrowtip duplication; Smithing keeps ownership.<br><span class="tag">smithing_data.py untouched</span></div></div>
+          <div class="step"><div class="step-num">3</div><div>No bones, raw chicken, shops, coins, or GE.<br><span class="tag">Utility only</span></div></div>
+          <div class="step"><div class="step-num">4</div><div>Undo/action multiplier behavior stays covered.<br><span class="tag">tests/test_integration_smoke.py</span></div></div>
+        </div>
+      </article>
+    </section>
+    <section class="grid">
+      <article class="lane"><strong>Backend</strong><span>Add one no-input Utility activity with `batch_size = 28`, source notes, and item-manifest coverage for `Feather`.</span></article>
+      <article class="lane"><strong>Frontend</strong><span>The existing Utility list renders the row. Add an activity icon path and test that it is enabled from empty inventory.</span></article>
+      <article class="lane"><strong>Memory</strong><span>Mark P2 complete and record that Combat drops / GE should later replace or supplement this bridge route.</span></article>
+    </section>
+  </main>
+</body>
+</html>

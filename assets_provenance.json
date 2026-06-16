@@ -47,6 +47,18 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-13T02:02:42Z"
   },
+  "activityicons/scavenge_chicken_feathers.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Feather.png",
+    "file_title": "Feather.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Feather.png?97fe8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8fbb526d1542155c94cb4ade9f972ee4e4c0634b",
+    "size": 411,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:58Z"
+  },
   "bars/bluritebar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blurite_bar.png",
     "file_title": "Blurite bar.png",

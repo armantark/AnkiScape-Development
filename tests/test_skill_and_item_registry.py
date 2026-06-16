@@ -168,6 +168,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Soft clay", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Wool", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Flax", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Feather", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
         self.assertTrue(by_storage_key["Dragon pickaxe"].tradeable)
         self.assertFalse(by_storage_key["Inferno adze"].tradeable)
@@ -197,6 +198,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "make_soft_clay": "make_soft_clay.png",
             "gather_wool": "gather_wool.png",
             "gather_flax": "gather_flax.png",
+            "scavenge_chicken_feathers": "scavenge_chicken_feathers.png",
             "open_bird_nest": "open_bird_nest.png",
         }
         self.assertEqual(set(UTILITY_ACTIVITY_DATA), set(expected_files))
@@ -206,6 +208,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(os.path.basename(icon_path), file_name)
             self.assertEqual(os.path.basename(os.path.dirname(icon_path)), "activityicons")
             self.assertTrue(os.path.exists(icon_path), f"{activity_key} icon path is missing")
+        feather_source = UTILITY_ACTIVITY_DATA["scavenge_chicken_feathers"]["source"]
+        self.assertIn("ranged_instructor.plugin.kts", feather_source)
+        self.assertIn("chicken_level_1.plugin.kts", feather_source)
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())

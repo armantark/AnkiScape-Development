@@ -301,6 +301,30 @@ class TestIntegrationSmoke(unittest.TestCase):
         # player knows the review did something despite earning no XP.
         self.assertEqual(calls["gains"], ["+3 Soft clay"])
 
+    def test_feather_scavenging_utility_grants_feathers_without_skill_xp(self):
+        addon = _load_addon_as_package("ankiscape_feather_utility_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {},
+            "fletching_exp": 0,
+            "current_utility": "scavenge_chicken_feathers",
+            "completed_achievements": [],
+        }
+
+        addon.on_utility_answer()
+
+        self.assertEqual(addon.player_data["inventory"]["Feather"], 28)
+        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["+28 Feather"])
+
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
 
@@ -470,6 +494,35 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
         self.assertEqual(calls["xp"], [50.0, 10.0])
 
+    def test_utility_multiplier_runs_feather_scavenging_ticks(self):
+        addon = _load_addon_as_package("ankiscape_feather_multiplier_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 2}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda text: calls["gains"].append(text))
+        addon.player_data = {
+            "inventory": {},
+            "fletching_exp": 0,
+            "current_utility": "scavenge_chicken_feathers",
+            "completed_achievements": [],
+        }
+
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Feather"], 56)
+        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(calls["save"], 2)
+        self.assertEqual(calls["gains"], ["+56 Feather"])
+
     def test_bad_review_action_multiplier_config_falls_back_to_one_tick(self):
         addon = _load_addon_as_package("ankiscape_bad_review_multiplier_integration")
 
@@ -606,6 +659,43 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["inventory"], {"Clay": 2})
         self.assertEqual(addon.player_data["crafting_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertGreaterEqual(calls["save"], 2)
+
+    def test_feather_scavenging_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_feather_undo_integration")
+
+        calls = {"save": 0}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {},
+            "fletching_exp": 0,
+            "current_utility": "scavenge_chicken_feathers",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"], {"Feather": 28})
+        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {})
+        self.assertEqual(addon.player_data["fletching_exp"], 0)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
