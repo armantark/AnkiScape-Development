@@ -67,6 +67,7 @@ try:
         DEFAULT_SMITHING_TARGET,
         GEM_DATA,
         CRAFTING_DATA,
+        COOKING_DATA,
         FLETCHING_DATA,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -75,6 +76,7 @@ try:
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_COOKING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -84,6 +86,7 @@ try:
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
+        COOKING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -109,6 +112,7 @@ except Exception:
         DEFAULT_SMITHING_TARGET,
         GEM_DATA,
         CRAFTING_DATA,
+        COOKING_DATA,
         FLETCHING_DATA,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -117,6 +121,7 @@ except Exception:
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_COOKING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -126,6 +131,7 @@ except Exception:
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
+        COOKING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -133,9 +139,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -197,6 +203,7 @@ _MAIN_MENU_CTX = {
     "craft_btn": None,
     "fletch_btn": None,
     "firemaking_btn": None,
+    "cooking_btn": None,
     "warn_label": None,
 }
 
@@ -207,11 +214,12 @@ _MAIN_MENU_CTX = {
 # four-skill branch. Icons follow the existing convention: icon/<skill_id>_icon.png.
 
 # Bank grouping order + labels. Categories come from item_registry.ItemCategory.
-_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "gem", "bar", "crafted", "fletched", "material")
+_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "material")
 _ITEM_CATEGORY_LABELS = {
     "ore": "Ores",
     "log": "Logs",
     "fish": "Fish",
+    "food": "Food",
     "gem": "Gems",
     "bar": "Bars",
     "crafted": "Crafted",
@@ -233,6 +241,25 @@ _CRAFT_FAMILY_LABELS = {
     "battlestaff": "Battlestaves",
     "weaving": "Weaving",
     "combination": "Combinations",
+}
+
+_COOKING_FAMILY_LABELS = {
+    "fish": "Fish",
+    "eels": "Eels",
+    "snails": "Snails",
+    "bread": "Bread",
+    "pies": "Pies",
+    "stews": "Stews and curry",
+    "vegetables": "Vegetables",
+    "pizza": "Pizza",
+    "meat": "Meat",
+}
+
+_UTILITY_GROUP_LABELS = {
+    "cooking_prep": "Cooking prep",
+    "gathering": "Gathering",
+    "material_processing": "Material processing",
+    "containers_opening": "Containers / opening",
 }
 
 
@@ -637,6 +664,7 @@ def refresh_skill_availability(
     can_craft_any_item: bool,
     can_fletch_any_item: bool = False,
     can_firemake_any_item: bool = False,
+    can_cook_any_item: bool = False,
 ):
     """Auto-enable processing-skill buttons when they become available while the menu is open.
     Never auto-selects the skill; users must choose it explicitly. Only enables; does not disable.
@@ -665,12 +693,18 @@ def refresh_skill_availability(
         if fm_btn is not None and can_firemake_any_item and not fm_btn.isEnabled():
             fm_btn.setEnabled(True)
             fm_btn.setToolTip("Firemaking")
+        # Cooking
+        cook_btn = _MAIN_MENU_CTX.get("cooking_btn")
+        if cook_btn is not None and can_cook_any_item and not cook_btn.isEnabled():
+            cook_btn.setEnabled(True)
+            cook_btn.setToolTip("Cooking")
         # Clear warning text if any became available
         if (
             (s_btn is not None and s_btn.isEnabled())
             or (c_btn is not None and c_btn.isEnabled())
             or (f_btn is not None and f_btn.isEnabled())
             or (fm_btn is not None and fm_btn.isEnabled())
+            or (cook_btn is not None and cook_btn.isEnabled())
         ):
             warn = _MAIN_MENU_CTX.get("warn_label")
             if warn is not None and hasattr(warn, "setText"):
@@ -735,6 +769,7 @@ _SKILL_TARGET_TABLES = {
     "fletching": FLETCHING_DATA,
     "firemaking": FIREMAKING_DATA,
     "fishing": FISHING_DATA,
+    "cooking": COOKING_DATA,
 }
 
 
@@ -1285,11 +1320,13 @@ def show_main_menu(
     on_set_fletch=None,
     on_set_firemaking=None,
     on_set_fishing=None,
+    on_set_cooking=None,
     on_set_utility=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
     on_equip_item=None,
     on_unequip_slot=None,
+    on_discard_item=None,
 ):
     """Show the consolidated window.
 
@@ -1401,6 +1438,14 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _cooking_available() -> bool:
+        try:
+            level = player_data.get("cooking_level", 1)
+            inv = player_data.get("inventory", {})
+            return any(can_cook_target_pure(level, inv, target, COOKING_DATA) for target in COOKING_DATA)
+        except Exception:
+            return False
+
     def _skill_available(display_name: str) -> bool:
         if display_name == "Smithing":
             return bool(can_smelt_any_bar)
@@ -1410,6 +1455,8 @@ def show_main_menu(
             return _fletch_available()
         if display_name == "Firemaking":
             return _firemaking_available()
+        if display_name == "Cooking":
+            return _cooking_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -1849,17 +1896,191 @@ def show_main_menu(
             on_set_fishing,
         )
 
-    def _build_utility_list() -> QListWidget:
-        return _build_flat_target_list(
-            utility_activity_rows(
-                player_data,
-                UTILITY_ACTIVITY_DATA,
-                UTILITY_ITEM_IMAGES,
-                BIRD_NEST_OPEN_TABLES,
-                DEFAULT_UTILITY_ACTIVITY,
-            ),
-            on_set_utility,
+    def _build_cooking_list() -> QTreeWidget:
+        tree = QTreeWidget()
+        tree.setHeaderHidden(True)
+        tree.setIconSize(QSize(28, 28))
+        tree.setRootIsDecorated(True)
+        tree.setIndentation(14)
+        tree.setUniformRowHeights(True)
+        tree.setStyleSheet(
+            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 4px; }"
+            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
         )
+        lvl_have = player_data.get("cooking_level", 1)
+        inv = player_data.get("inventory", {})
+        current = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
+        cur_spec = COOKING_DATA.get(current)
+        cur_family = cur_spec.get("family") if cur_spec else None
+
+        def _icon_for(item_name: str):
+            definition = _ITEM_DEFS_BY_KEY.get(item_name)
+            return (definition.asset_path if definition and definition.asset_path else None) or COOKING_ITEM_IMAGES.get(item_name)
+
+        def _make_child(target_id: str, spec: dict) -> "QTreeWidgetItem":
+            display_name = str(spec.get("display_name", target_id))
+            lvl_req = spec.get("level", 1)
+            output_item = str(spec.get("output_item", display_name))
+            burnt_item = str(spec.get("burnt_item", "Burnt food"))
+            reqs = spec.get("requirements", {}) or {}
+            label = f"{display_name} (Lvl {lvl_req})"
+            child = QTreeWidgetItem([label])
+            child.setData(0, Qt.ItemDataRole.UserRole, target_id)
+
+            icon_path = _icon_for(output_item)
+            if icon_path and os.path.exists(icon_path):
+                child.setIcon(0, QIcon(icon_path))
+
+            materials_ok = True
+            mat_lines = []
+            for mat, amt in reqs.items():
+                have = inv.get(mat, 0)
+                if have < amt:
+                    materials_ok = False
+                mat_lines.append(f"  {mat} x{amt} (you have {have})")
+            mat_text = "\n".join(mat_lines) if mat_lines else "  No materials required"
+            chance = calculate_cooking_success_probability_pure(lvl_have, spec) * 100.0
+            tooltip = (
+                f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n"
+                f"Success output: {output_item} x1\n"
+                f"Burn output: {burnt_item} x1, no XP\n"
+                f"Base XP: {spec.get('exp', 0)} on success\n"
+                f"Success chance: {chance:.0f}% per action\n"
+                f"Materials:\n{mat_text}"
+            )
+            if not can_cook_target_pure(lvl_have, inv, target_id, COOKING_DATA):
+                child.setDisabled(True)
+                reason = []
+                if lvl_have < lvl_req:
+                    reason.append(f"level {lvl_req}")
+                if not materials_ok:
+                    reason.append("materials")
+                if reason:
+                    tooltip += "\nLocked due to: " + ", ".join(reason)
+            child.setToolTip(0, tooltip)
+            return child
+
+        order: list = []
+        groups: dict = {}
+        for target_id, spec in COOKING_DATA.items():
+            family = str(spec.get("family", "other"))
+            if family not in groups:
+                groups[family] = []
+                order.append(family)
+            groups[family].append((target_id, spec))
+
+        selected_child = None
+        for family in order:
+            label = _COOKING_FAMILY_LABELS.get(family, family.title())
+            parent = QTreeWidgetItem([f"{label}  ({len(groups[family])})"])
+            parent.setData(0, Qt.ItemDataRole.UserRole, f"__cooking_family__:{family}")
+            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            font = parent.font(0)
+            font.setBold(True)
+            parent.setFont(0, font)
+            tree.addTopLevelItem(parent)
+            ordered = sorted(groups[family], key=lambda rs: (rs[1].get("level", 1), str(rs[1].get("display_name", ""))))
+            for target_id, spec in ordered:
+                child = _make_child(target_id, spec)
+                parent.addChild(child)
+                if target_id == current:
+                    selected_child = child
+            parent.setExpanded(family == cur_family)
+
+        if selected_child is not None:
+            tree.setCurrentItem(selected_child)
+
+        def _on_cooking_clicked(item: "QTreeWidgetItem", _column: int = 0):
+            if item is None or item.isDisabled():
+                return
+            target_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if not target_id or str(target_id).startswith("__cooking_family__"):
+                return
+            if on_set_cooking is not None:
+                on_set_cooking(target_id)
+
+        tree.itemClicked.connect(_on_cooking_clicked)
+        tree.itemActivated.connect(_on_cooking_clicked)
+        return tree
+
+    def _build_utility_list() -> QTreeWidget:
+        tree = QTreeWidget()
+        tree.setHeaderHidden(True)
+        tree.setIconSize(QSize(28, 28))
+        tree.setRootIsDecorated(True)
+        tree.setIndentation(14)
+        tree.setUniformRowHeights(True)
+        tree.setStyleSheet(
+            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 4px; }"
+            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+        )
+        rows = utility_activity_rows(
+            player_data,
+            UTILITY_ACTIVITY_DATA,
+            {**UTILITY_ITEM_IMAGES, **COOKING_ITEM_IMAGES},
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        current = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+        ordered_groups = list(_UTILITY_GROUP_LABELS)
+        groups = {group: [] for group in ordered_groups}
+        for row in rows:
+            spec = UTILITY_ACTIVITY_DATA.get(row.target_id, {})
+            group = str(spec.get("group", "material_processing"))
+            if group not in groups:
+                groups[group] = []
+                ordered_groups.append(group)
+            groups[group].append(row)
+
+        selected_child = None
+        for group in ordered_groups:
+            group_rows = groups.get(group, [])
+            if not group_rows:
+                continue
+            label = _UTILITY_GROUP_LABELS.get(group, group.replace("_", " ").title())
+            parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
+            parent.setData(0, Qt.ItemDataRole.UserRole, f"__utility_group__:{group}")
+            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            font = parent.font(0)
+            font.setBold(True)
+            parent.setFont(0, font)
+            tree.addTopLevelItem(parent)
+            group_has_current = False
+            for row in group_rows:
+                child = QTreeWidgetItem([row.label])
+                child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
+                if row.icon_path and os.path.exists(row.icon_path):
+                    child.setIcon(0, QIcon(row.icon_path))
+                if not row.enabled:
+                    child.setDisabled(True)
+                child.setToolTip(0, row.tooltip)
+                parent.addChild(child)
+                if row.target_id == current:
+                    selected_child = child
+                    group_has_current = True
+            parent.setExpanded(group_has_current)
+
+        if selected_child is not None:
+            tree.setCurrentItem(selected_child)
+
+        def _on_utility_clicked(item: "QTreeWidgetItem", _column: int = 0):
+            if item is None or item.isDisabled():
+                return
+            activity_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if not activity_id or str(activity_id).startswith("__utility_group__"):
+                return
+            if on_set_utility is not None:
+                on_set_utility(activity_id)
+
+        tree.itemClicked.connect(_on_utility_clicked)
+        tree.itemActivated.connect(_on_utility_clicked)
+        return tree
 
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
@@ -1869,6 +2090,7 @@ def show_main_menu(
         "Fletching": _build_fletch_list,
         "Firemaking": _build_firemaking_list,
         "Fishing": _build_fishing_list,
+        "Cooking": _build_cooking_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
     _TARGET_PROMPTS = {
@@ -1879,6 +2101,7 @@ def show_main_menu(
         "Fletching": "Select Item to Fletch",
         "Firemaking": "Select Logs to Burn",
         "Fishing": "Select Fish to Catch",
+        "Cooking": "Select Food to Cook",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
@@ -2019,6 +2242,7 @@ def show_main_menu(
         _MAIN_MENU_CTX["craft_btn"] = None
         _MAIN_MENU_CTX["fletch_btn"] = None
         _MAIN_MENU_CTX["firemaking_btn"] = None
+        _MAIN_MENU_CTX["cooking_btn"] = None
         name = state["skill"]
         _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
@@ -2078,6 +2302,8 @@ def show_main_menu(
                         train_btn.setToolTip("Cut logs or level up to fletch an item.")
                     elif name == "Firemaking":
                         train_btn.setToolTip("Cut or acquire logs before training Firemaking.")
+                    elif name == "Cooking":
+                        train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
             if name == "Smithing":
@@ -2088,6 +2314,8 @@ def show_main_menu(
                 _MAIN_MENU_CTX["fletch_btn"] = train_btn
             elif name == "Firemaking":
                 _MAIN_MENU_CTX["firemaking_btn"] = train_btn
+            elif name == "Cooking":
+                _MAIN_MENU_CTX["cooking_btn"] = train_btn
         panel_layout.addWidget(header)
 
         if is_utility:
@@ -2163,6 +2391,7 @@ def show_main_menu(
                     "craft_btn": None,
                     "fletch_btn": None,
                     "firemaking_btn": None,
+                    "cooking_btn": None,
                     "warn_label": None,
                 }
             )
@@ -2338,6 +2567,7 @@ def show_main_menu(
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
+        COOKING_ITEM_IMAGES,
     )
 
     def _bank_icon_path(item_name: str, asset_path) -> Optional[str]:
@@ -2394,26 +2624,46 @@ def show_main_menu(
                 bank_list.addItem(li)
 
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
-        """Right-click menu for an equippable inventory row.
+        """Right-click menu for an inventory row.
 
         Exposed as a builder (rather than only an inline exec) so the offscreen
-        tests can assert the Equip action's enabled state + lock reason without
-        spawning a native popup.
+        tests can assert action state without spawning a native popup.
         """
         menu = QMenu(bank_list)
-        ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
-        action = menu.addAction("Equip" if ok else f"Equip ({reason})")
-        action.setEnabled(bool(ok) and on_equip_item is not None)
-        if not ok and reason:
-            action.setToolTip(reason)
+        if is_equippable_item(item_name):
+            ok, reason = can_equip_item_pure(item_name, EQUIPMENT_ITEM_DATA, player_data)
+            action = menu.addAction("Equip" if ok else f"Equip ({reason})")
+            action.setEnabled(bool(ok) and on_equip_item is not None)
+            if not ok and reason:
+                action.setToolTip(reason)
 
-        def _do_equip(_checked: bool = False) -> None:
-            if on_equip_item is None:
+            def _do_equip(_checked: bool = False) -> None:
+                if on_equip_item is None:
+                    return
+                if on_equip_item(item_name):
+                    _refresh_equipment_views()
+
+            action.triggered.connect(_do_equip)
+            menu.addSeparator()
+
+        amount = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
+        discard_action = menu.addAction(f"Discard all ({amount})")
+        discard_action.setEnabled(amount > 0 and on_discard_item is not None)
+
+        def _do_discard(_checked: bool = False) -> None:
+            if on_discard_item is None:
                 return
-            if on_equip_item(item_name):
+            answer = QMessageBox.question(
+                bank_list,
+                "Discard all?",
+                f"Discard all {amount} {item_name} from your bank?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            if answer == QMessageBox.StandardButton.Yes and on_discard_item(item_name):
                 _refresh_equipment_views()
 
-        action.triggered.connect(_do_equip)
+        discard_action.triggered.connect(_do_discard)
         return menu
 
     def _bank_context_menu(pos) -> None:
@@ -2421,7 +2671,7 @@ def show_main_menu(
         if item is None:
             return
         item_name = item.data(Qt.ItemDataRole.UserRole)
-        if not isinstance(item_name, str) or not is_equippable_item(item_name):
+        if not isinstance(item_name, str):
             return
         menu = _build_bank_equip_menu(item_name)
         menu.exec(bank_list.viewport().mapToGlobal(pos))

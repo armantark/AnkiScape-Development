@@ -177,7 +177,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(feathers.current)
         self.assertTrue(feathers.enabled)
         self.assertEqual(os.path.basename(feathers.icon_path or ""), "scavenge_chicken_feathers.png")
-        self.assertIn("No Crafting XP", feathers.tooltip)
+        self.assertIn("No skill XP", feathers.tooltip)
         self.assertIn("Output: Feather x1", feathers.tooltip)
         self.assertIn("No materials required", feathers.tooltip)
         self.assertFalse(nests.enabled)

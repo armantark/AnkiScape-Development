@@ -1004,6 +1004,68 @@ def apply_fletching_pure(target, inventory, fletching_data):
     return new_inv, spec.get("exp", 0), True
 
 
+def has_cooking_materials_pure(target, inventory, cooking_data):
+    """Return True when inventory has the raw/prepared item for one Cooking action."""
+    spec = cooking_data.get(target)
+    if not spec:
+        return False
+    requirements = spec.get("requirements", {})
+    return all(inventory.get(material, 0) >= amount for material, amount in requirements.items())
+
+
+def can_cook_target_pure(cooking_level, inventory, target, cooking_data):
+    """Return True when level and materials permit one Cooking action."""
+    spec = cooking_data.get(target)
+    if not spec:
+        return False
+    if int(cooking_level or 1) < _positive_int(spec.get("level", 1), 1):
+        return False
+    return has_cooking_materials_pure(target, inventory, cooking_data)
+
+
+def cooking_source_roll_chance_pure(cooking_level, target_spec):
+    """Approximate the 2011Scape raw Cooking roll before Anki pacing."""
+    low = float(target_spec.get("low_chance", 1))
+    high = float(target_spec.get("high_chance", 255))
+    level_progress = max(0.0, min((float(cooking_level) - 1.0) / 98.0, 1.0))
+    interpolated = low + ((high - low) * level_progress)
+    return max(0.0, min(interpolated / 255.0, 1.0))
+
+
+def calculate_cooking_success_probability_pure(cooking_level, target_spec, minimum=0.18, scale=0.78, cap=0.98):
+    """Translate source Cooking odds into one review-scale success probability."""
+    source_chance = cooking_source_roll_chance_pure(cooking_level, target_spec)
+    return max(0.0, min(minimum + (sqrt(source_chance) * scale), cap))
+
+
+def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, roll):
+    """Apply one Cooking action.
+
+    Returns (inventory, exp, processed, output_item, burned). A failed burn still
+    counts as processed because the raw input was consumed and a burnt item was
+    produced; it simply awards zero XP.
+    """
+    spec = cooking_data.get(target)
+    if not spec or not has_cooking_materials_pure(target, inventory, cooking_data):
+        return inventory, 0, False, None, False
+
+    new_inv = dict(inventory)
+    for material, amount in spec.get("requirements", {}).items():
+        new_inv[material] = new_inv.get(material, 0) - amount
+
+    success_probability = calculate_cooking_success_probability_pure(cooking_level, spec)
+    if float(roll) < success_probability:
+        output_item = spec.get("output_item", target)
+        output_qty = _positive_int(spec.get("output_qty", 1), 1)
+        new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+        return new_inv, spec.get("exp", 0), True, output_item, False
+
+    burnt_item = spec.get("burnt_item")
+    if isinstance(burnt_item, str) and burnt_item:
+        new_inv[burnt_item] = new_inv.get(burnt_item, 0) + 1
+    return new_inv, 0, True, burnt_item, True
+
+
 def firemaking_source_roll_chance_pure(firemaking_level, target_spec):
     """Approximate the 2011Scape raw Firemaking roll before Anki pacing."""
     low = float(target_spec.get("low_chance", 65))

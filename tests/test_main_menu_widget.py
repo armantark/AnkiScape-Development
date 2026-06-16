@@ -34,7 +34,7 @@ except Exception:  # pragma: no cover - environment without aqt installed
 
 def _make_player_data() -> dict:
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking"):
+    for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking", "cooking"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -49,7 +49,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Smithing|Crafting|Fletching|Firemaking)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Smithing|Crafting|Fletching|Firemaking|Cooking)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -199,6 +199,53 @@ def _goto_crafting(dialog: "QDialog") -> "QTreeWidget":
     return _find_craft_tree(dialog)
 
 
+def _find_cooking_tree(dialog: "QDialog") -> "QTreeWidget":
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == "cook_shrimps" for it in _tree_items(tw)):
+            return tw
+    raise AssertionError("cooking tree (with target ids) not found")
+
+
+def _cooking_row(tree: "QTreeWidget", target_id: str) -> "QTreeWidgetItem":
+    for it in _tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == target_id:
+            return it
+    raise AssertionError(f"cooking row {target_id!r} not found")
+
+
+def _cooking_family_node(tree: "QTreeWidget", family: str) -> "QTreeWidgetItem":
+    role = f"__cooking_family__:{family}"
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole) == role:
+            return tree.topLevelItem(i)
+    raise AssertionError(f"cooking family node {family!r} not found")
+
+
+def _goto_cooking(dialog: "QDialog") -> "QTreeWidget":
+    artisan = next(b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan")
+    artisan.click()
+    QApplication.processEvents()
+    skill_list = _find_artisan_skill_list(dialog)
+    row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Cooking")
+    skill_list.setCurrentRow(row)
+    QApplication.processEvents()
+    return _find_cooking_tree(dialog)
+
+
+def _find_utility_tree(dialog: "QDialog") -> "QTreeWidget":
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == "make_soft_clay" for it in _tree_items(tw)):
+            return tw
+    raise AssertionError("utility tree (with activity ids) not found")
+
+
+def _utility_row(tree: "QTreeWidget", activity_id: str) -> "QTreeWidgetItem":
+    for it in _tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == activity_id:
+            return it
+    raise AssertionError(f"utility row {activity_id!r} not found")
+
+
 def _find_bank_list(dialog: "QDialog") -> "QListWidget":
     """The bank list is the one whose rows carry category headers."""
     for lw in dialog.findChildren(QListWidget):
@@ -256,6 +303,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._firemaking_calls: list = []
         # Same seam for Fishing target selection.
         self._fishing_calls: list = []
+        # Same seam for Cooking target selection.
+        self._cooking_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -288,6 +337,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_fletch=lambda *a: None,
             on_set_firemaking=lambda target: self._firemaking_calls.append(target),
             on_set_fishing=lambda target: self._fishing_calls.append(target),
+            on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
@@ -510,6 +560,55 @@ class MainMenuWidgetTest(unittest.TestCase):
         target_list.itemClicked.emit(oak_row)
         QApplication.processEvents()
         self.assertEqual(self._firemaking_calls, [])
+
+    def test_cooking_is_selectable_and_shows_grouped_source_targets(self) -> None:
+        pd = _make_player_data()
+        pd["cooking_level"] = 33
+        pd["inventory"] = {"Raw shrimps": 2}
+        pd["current_cooking"] = "cook_shrimps"
+        dialog = self._open(pd)
+        tree = _goto_cooking(dialog)
+        title = _panel_title(dialog)
+        self.assertTrue(
+            title.startswith("Cooking"),
+            f"panel did not switch to Cooking; still shows {title!r}",
+        )
+
+        family_roles = [
+            tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole)
+            for i in range(tree.topLevelItemCount())
+        ]
+        self.assertIn("__cooking_family__:fish", family_roles)
+        self.assertIn("__cooking_family__:pies", family_roles)
+
+        shrimps = _cooking_row(tree, "cook_shrimps")
+        shark = _cooking_row(tree, "cook_shark")
+        self.assertFalse(shrimps.isDisabled())
+        self.assertFalse(shrimps.icon(0).isNull(), "Cooking target row has no icon")
+        self.assertIn("Success output: Shrimps x1", shrimps.toolTip(0))
+        self.assertIn("Burn output: Burnt shrimp x1, no XP", shrimps.toolTip(0))
+        self.assertIn("Success chance:", shrimps.toolTip(0))
+        self.assertTrue(shark.isDisabled())
+        self.assertIn("Locked due to:", shark.toolTip(0))
+
+        tree.itemClicked.emit(shrimps, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._cooking_calls[-1], "cook_shrimps")
+        self.assertTrue(_cooking_family_node(tree, "fish").isExpanded())
+
+    def test_cooking_locked_rows_are_inert(self) -> None:
+        pd = _make_player_data()
+        pd["cooking_level"] = 1
+        pd["inventory"] = {"Raw beef": 1}
+        dialog = self._open(pd)
+        tree = _goto_cooking(dialog)
+        locked = _cooking_row(tree, "cook_shrimps")
+        self.assertTrue(locked.isDisabled())
+        before = list(self._cooking_calls)
+        tree.itemClicked.emit(locked, 0)
+        tree.itemActivated.emit(locked, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._cooking_calls, before, "locked cooking target must not be selectable")
 
     # ---- Smithing parity (unified SMITHING_DATA recipe tree) --------------
     def test_smithing_groups_recipes_by_metal_tier(self) -> None:
@@ -776,6 +875,60 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(crayfish_row.icon().isNull(), "Raw crayfish row has no icon")
         self.assertFalse(bait_row.icon().isNull(), "Fishing bait row has no icon")
 
+    def test_bank_groups_food_with_icons_and_discard_all_confirmation(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Shrimps": 3}
+        discards: list[str] = []
+
+        def _discard(item_name: str) -> bool:
+            discards.append(item_name)
+            pd["inventory"][item_name] = 0
+            return True
+
+        self._captured.clear()
+        self._ui.show_main_menu(
+            player_data=pd,
+            current_skill="Mining",
+            can_smelt_any_bar=True,
+            on_save_skill=lambda *a: None,
+            on_set_ore=lambda *a: None,
+            on_set_tree=lambda *a: None,
+            on_set_bar=lambda *a: None,
+            on_set_smith=lambda *a: None,
+            on_set_craft=lambda *a: None,
+            on_set_fletch=lambda *a: None,
+            on_set_firemaking=lambda *a: None,
+            on_set_fishing=lambda *a: None,
+            on_set_cooking=lambda *a: None,
+            on_set_utility=lambda *a: None,
+            on_discard_item=_discard,
+        )
+        dialog = self._captured[-1]
+        bank = _find_bank_list(dialog)
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertIn("Food", texts)
+        self.assertTrue(any(t.startswith("Shrimps x3") for t in texts))
+        shrimp_row = next(
+            bank.item(i) for i in range(bank.count())
+            if bank.item(i).text().startswith("Shrimps x")
+        )
+        self.assertFalse(shrimp_row.icon().isNull(), "Shrimps row has no icon")
+
+        menu = dialog._ankiscape_equip_menu_for("Shrimps")
+        action = menu.actions()[0]
+        self.assertEqual(action.text(), "Discard all (3)")
+        self.assertTrue(action.isEnabled())
+
+        original_question = self._ui.QMessageBox.question
+        self._ui.QMessageBox.question = lambda *a, **k: self._ui.QMessageBox.StandardButton.Yes
+        try:
+            action.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.question = original_question
+        self.assertEqual(discards, ["Shrimps"])
+        self.assertEqual(pd["inventory"]["Shrimps"], 0)
+
     def test_bank_gear_lives_in_separate_panel_from_striped_inventory(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Logs": 5}
@@ -1041,14 +1194,26 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(hud.target_lbl.text(), "Catch crayfish")
         self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fishing icon")
 
+    def test_hud_recognizes_cooking_as_active_skill(self) -> None:
+        pd = _make_player_data()
+        pd["current_cooking"] = "cook_shrimps"
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Cooking")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Cooking"),
+            f"HUD did not recognize Cooking; shows {hud.title_lbl.text()!r}",
+        )
+        self.assertEqual(hud.target_lbl.text(), "Cook raw shrimps")
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Cooking icon")
+
     # ---- Crafting/Utility rework surfaces ---------------------------------
-    def _open_utility(self, dialog: "QDialog") -> "QListWidget":
+    def _open_utility(self, dialog: "QDialog") -> "QTreeWidget":
         cat = next(
             b for b in dialog.findChildren(QPushButton) if b.text() == "Utility / Activities"
         )
         cat.click()
         QApplication.processEvents()
-        return _find_list_with_item_prefix(dialog, "Make soft clay")
+        return _find_utility_tree(dialog)
 
     def test_soft_clay_left_crafting_and_is_now_a_utility_activity(self) -> None:
         # Open Crafting target tree and assert Soft clay is no longer a target.
@@ -1059,12 +1224,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             f"Soft clay should not be a Crafting target anymore: {craft_texts}",
         )
         # And it now lives under Utility / Activities.
-        utility_list = self._open_utility(self.dialog)
-        util_texts = [utility_list.item(i).text() for i in range(utility_list.count())]
+        utility_tree = self._open_utility(self.dialog)
+        util_texts = [it.text(0) for it in _tree_items(utility_tree)]
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
         self.assertIn("Scavenge chicken feathers", util_texts)
         self.assertIn("Gather fishing bait", util_texts)
+        self.assertIn("Gather grain", util_texts)
+        self.assertIn("Make bread dough", util_texts)
 
     # ---- Crafting parity (family-grouped CRAFTING_DATA recipe tree) --------
     def test_crafting_groups_recipes_by_family(self) -> None:
@@ -1218,26 +1385,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
 
     def test_utility_rows_use_activity_icon_contract(self) -> None:
-        utility_list = self._open_utility(self.dialog)
-        for i in range(utility_list.count()):
-            row = utility_list.item(i)
-            self.assertFalse(row.icon().isNull(), f"{row.text()} should have an activity icon")
+        utility_tree = self._open_utility(self.dialog)
+        for row in _tree_items(utility_tree):
+            role = row.data(0, Qt.ItemDataRole.UserRole)
+            if isinstance(role, str) and role.startswith("__utility_group__"):
+                continue
+            self.assertFalse(row.icon(0).isNull(), f"{row.text(0)} should have an activity icon")
 
     def test_feather_scavenging_is_enabled_and_selectable_from_utility(self) -> None:
-        utility_list = self._open_utility(self.dialog)
-        feather_row = next(
-            utility_list.item(i) for i in range(utility_list.count())
-            if utility_list.item(i).text() == "Scavenge chicken feathers"
-        )
+        utility_tree = self._open_utility(self.dialog)
+        feather_row = _utility_row(utility_tree, "scavenge_chicken_feathers")
 
         self.assertTrue(feather_row.flags() & Qt.ItemFlag.ItemIsEnabled)
-        self.assertFalse(feather_row.icon().isNull())
-        self.assertIn("No Crafting XP", feather_row.toolTip())
-        self.assertIn("Output: Feather x1", feather_row.toolTip())
-        self.assertIn("No materials required", feather_row.toolTip())
+        self.assertFalse(feather_row.icon(0).isNull())
+        self.assertIn("No skill XP", feather_row.toolTip(0))
+        self.assertIn("Output: Feather x1", feather_row.toolTip(0))
+        self.assertIn("No materials required", feather_row.toolTip(0))
 
         self._utility_calls.clear()
-        utility_list.itemClicked.emit(feather_row)
+        utility_tree.itemClicked.emit(feather_row, 0)
         QApplication.processEvents()
 
         self.assertEqual(self._utility_calls, ["scavenge_chicken_feathers"])
@@ -1417,15 +1583,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("deferred", coal.toolTip())
 
     def test_open_bird_nests_is_a_visible_no_xp_utility_activity(self) -> None:
-        utility_list = self._open_utility(self.dialog)
-        texts = [utility_list.item(i).text() for i in range(utility_list.count())]
+        utility_tree = self._open_utility(self.dialog)
+        texts = [it.text(0) for it in _tree_items(utility_tree)]
         self.assertIn("Open bird nests", texts)
-        nest = next(
-            utility_list.item(i) for i in range(utility_list.count())
-            if utility_list.item(i).text() == "Open bird nests"
-        )
-        self.assertIn("No XP", nest.toolTip())
-        self.assertIn("bird nest", nest.toolTip().lower())
+        nest = _utility_row(utility_tree, "open_bird_nest")
+        self.assertIn("No XP", nest.toolTip(0))
+        self.assertIn("bird nest", nest.toolTip(0).lower())
 
 
 if __name__ == "__main__":

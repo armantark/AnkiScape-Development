@@ -9,6 +9,11 @@ from action_registry import (
 )
 from constants import (
     BAR_DATA,
+    COOKING_BURNT_ITEMS,
+    COOKING_DATA,
+    COOKING_EXTRA_ITEM_DATA,
+    COOKING_ITEM_IMAGES,
+    COOKING_OUTPUT_ITEMS,
     CRAFTING_DATA,
     FIREMAKING_DATA,
     FIREMAKING_ITEM_IMAGES,
@@ -52,16 +57,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_current_skills_preserve_existing_display_contract(self):
         self.assertEqual(
             implemented_review_skill_names(),
-            ("Mining", "Woodcutting", "Fishing", "Smithing", "Crafting", "Fletching", "Firemaking"),
+            ("Mining", "Woodcutting", "Fishing", "Smithing", "Crafting", "Fletching", "Firemaking", "Cooking"),
         )
         self.assertTrue(is_review_skill("Mining"))
         self.assertTrue(is_review_skill("woodcutting"))
         self.assertTrue(is_review_skill("Fishing"))
         self.assertTrue(is_review_skill("Fletching"))
         self.assertTrue(is_review_skill("Firemaking"))
+        self.assertTrue(is_review_skill("Cooking"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
+        self.assertEqual(review_handler_key("Cooking"), "cooking")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
 
     def test_review_action_registry_includes_utility_without_making_it_a_skill(self):
@@ -72,10 +79,21 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_action_handler_key("Fishing"), "fishing")
         self.assertEqual(review_action_handler_key("Fletching"), "fletching")
         self.assertEqual(review_action_handler_key("Firemaking"), "firemaking")
+        self.assertEqual(review_action_handler_key("Cooking"), "cooking")
         self.assertIsNone(review_action_handler_key("Thieving"))
         self.assertEqual(
             review_action_display_names(),
-            ("Mining", "Woodcutting", "Fishing", "Smithing", "Crafting", "Fletching", "Firemaking", "Utility / Activities"),
+            (
+                "Mining",
+                "Woodcutting",
+                "Fishing",
+                "Smithing",
+                "Crafting",
+                "Fletching",
+                "Firemaking",
+                "Cooking",
+                "Utility / Activities",
+            ),
         )
 
     def test_planned_catalog_contains_2011_era_targets_without_enabling_them(self):
@@ -122,6 +140,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(fishing.default_target, "catch_crayfish")
         self.assertTrue(fishing.visible_in_skill_hub)
 
+    def test_cooking_is_current_and_playable(self):
+        cooking = get_skill("Cooking")
+        self.assertIsNotNone(cooking)
+        self.assertTrue(cooking.implemented)
+        self.assertTrue(cooking.participates_in_review)
+        self.assertEqual(cooking.current_target_key, "current_cooking")
+        self.assertEqual(cooking.default_target, "cook_shrimps")
+        self.assertTrue(cooking.visible_in_skill_hub)
+
     def test_registry_generates_current_flat_save_defaults(self):
         self.assertEqual(
             default_skill_state(),
@@ -140,6 +167,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "fletching_exp": 0,
                 "firemaking_level": 1,
                 "firemaking_exp": 0,
+                "cooking_level": 1,
+                "cooking_exp": 0,
             },
         )
         self.assertEqual(
@@ -152,6 +181,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_craft": "form_pot_unfired",
                 "current_fletch": "arrow_shafts",
                 "current_firemaking": "logs",
+                "current_cooking": "cook_shrimps",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
@@ -182,9 +212,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + fletching_materials
             + list(FIREMAKING_LOG_ITEMS)
             + list(FIREMAKING_OUTPUT_ITEMS)
-            + list(FISHING_OUTPUT_ITEMS)
-            + utility_outputs
-            + utility_materials
+                + list(FISHING_OUTPUT_ITEMS)
+                + list(COOKING_OUTPUT_ITEMS)
+                + list(COOKING_BURNT_ITEMS)
+                + [
+                    material
+                    for spec in COOKING_DATA.values()
+                    for material in spec.get("requirements", {})
+                ]
+                + utility_outputs
+                + utility_materials
             + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
             + [spec["display_name"] for spec in MINING_PICKAXE_DATA.values()]
             + [spec["display_name"] for spec in MINING_BONUS_ITEM_DATA.values()]
@@ -218,8 +255,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Raw crayfish", item_storage_keys_by_category(ITEM_DEFINITIONS, "fish"))
         self.assertIn("Raw shark", item_storage_keys_by_category(ITEM_DEFINITIONS, "fish"))
         self.assertIn("Leaping sturgeon", item_storage_keys_by_category(ITEM_DEFINITIONS, "fish"))
+        self.assertIn("Crayfish", item_storage_keys_by_category(ITEM_DEFINITIONS, "food"))
+        self.assertIn("Cooked meat", item_storage_keys_by_category(ITEM_DEFINITIONS, "food"))
+        self.assertIn("Burnt fish", item_storage_keys_by_category(ITEM_DEFINITIONS, "food"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
         self.assertFalse(by_storage_key["Cursed magic logs"].tradeable)
+        self.assertFalse(by_storage_key["Burnt fish"].tradeable)
         self.assertTrue(by_storage_key["Dragon pickaxe"].tradeable)
         self.assertFalse(by_storage_key["Inferno adze"].tradeable)
         self.assertFalse(by_storage_key["Varrock armour 4"].tradeable)
@@ -287,7 +328,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "gather_fishing_bait": "gather_fishing_bait.png",
             "open_bird_nest": "open_bird_nest.png",
         }
-        self.assertEqual(set(UTILITY_ACTIVITY_DATA), set(expected_files))
+        self.assertTrue(set(expected_files).issubset(UTILITY_ACTIVITY_DATA))
         for activity_key, file_name in expected_files.items():
             icon_path = UTILITY_ACTIVITY_DATA[activity_key].get("icon_path")
             self.assertIsInstance(icon_path, str, activity_key)
@@ -299,6 +340,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("chicken_level_1.plugin.kts", feather_source)
         bait_source = UTILITY_ACTIVITY_DATA["gather_fishing_bait"]["source"]
         self.assertIn("lumbridge_fishing_supplies.plugin.kts", bait_source)
+        self.assertIn("gather_grain", UTILITY_ACTIVITY_DATA)
+        self.assertEqual(UTILITY_ACTIVITY_DATA["gather_grain"]["group"], "gathering")
+        self.assertIn("assemble_uncooked_pizza", UTILITY_ACTIVITY_DATA)
+        self.assertEqual(UTILITY_ACTIVITY_DATA["assemble_uncooked_pizza"]["group"], "cooking_prep")
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
@@ -410,6 +455,22 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             )
         )
         self.assertEqual(iconless, [], f"Fishing outputs missing icons: {iconless}")
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_every_cooking_item_resolves_an_icon(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        iconless = sorted(
+            item_name
+            for item_name in COOKING_EXTRA_ITEM_DATA
+            if not (
+                item_name in by_storage_key
+                and by_storage_key[item_name].asset_path
+            )
+        )
+        self.assertEqual(iconless, [], f"Cooking items missing icons: {iconless}")
+        for item_name in ("Cooking apple", "Burnt fish", "Cooked meat", "Raw wild pie"):
+            self.assertIn(item_name, COOKING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 

@@ -7,12 +7,14 @@ from .constants import (
     SMITHING_DATA,
     GEM_DATA,
     CRAFTING_DATA,
+    COOKING_DATA,
     FLETCHING_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,
     UTILITY_ACTIVITY_DATA,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
+    DEFAULT_COOKING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_MINING_TARGET,
     DEFAULT_WOODCUTTING_TARGET,
@@ -52,6 +54,8 @@ from .logic_pure import (
     has_crafting_materials_pure,
     can_craft_item_pure,
     can_fletch_item_pure,
+    can_cook_target_pure,
+    has_cooking_materials_pure,
     has_firemaking_materials_pure,
     can_burn_any_firemaking_target_pure,
     can_burn_firemaking_target_pure,
@@ -61,6 +65,7 @@ from .logic_pure import (
     apply_open_bird_nests_pure,
     apply_smithing_pure,
     apply_fletching_pure,
+    apply_cooking_action_pure,
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
     apply_woodcutting_action_pure,
@@ -313,7 +318,16 @@ def _refresh_skill_availability() -> None:
             player_data.get("firemaking_level", 1),
             FIREMAKING_DATA,
         )
-        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any)
+        can_cook_any = any(
+            can_cook_target_pure(
+                player_data.get("cooking_level", 1),
+                inventory,
+                target_key,
+                COOKING_DATA,
+            )
+            for target_key in COOKING_DATA.keys()
+        )
+        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any, can_cook_any)
     except Exception:
         pass
 
@@ -785,6 +799,59 @@ def on_fishing_answer():
     _show_exp(exp_gained)
     return True
 
+
+def on_cooking_answer():
+    target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
+    if target not in COOKING_DATA:
+        target = DEFAULT_COOKING_TARGET
+        player_data["current_cooking"] = target
+    spec = COOKING_DATA[target]
+    display_name = spec.get("display_name", target)
+    player_level = player_data.get("cooking_level", 1)
+
+    if player_level < spec.get("level", 1):
+        show_error_message("Insufficient level", f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
+        return False
+
+    if not has_cooking_materials_pure(target, player_data.get("inventory", {}), COOKING_DATA):
+        missing = _missing_materials_text(spec.get("requirements", {}), player_data.get("inventory", {}))
+        _deactivate_current_skill()
+        show_error_message(
+            "Out of materials",
+            f"You need {missing} to {str(display_name).lower()}, so Cooking has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
+
+    new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(
+        target,
+        player_data.get("inventory", {}),
+        COOKING_DATA,
+        player_level,
+        random.random(),
+    )
+    if not ok:
+        return False
+
+    player_data["inventory"] = new_inv
+    if burned:
+        player_data["cooking_burn_count"] = player_data.get("cooking_burn_count", 0) + 1
+        check_achievements(player_data)
+        save_player_data()
+        _refresh_skill_availability()
+        if output_item:
+            _show_activity_gain(f"+1 {output_item}")
+        return True
+
+    player_data["cooking_success_count"] = player_data.get("cooking_success_count", 0) + 1
+    exp_gained = _award_skill_exp("cooking_exp", base_exp)
+    level_up_check("Cooking", player_data)
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    _show_exp(exp_gained)
+    return True
+
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
         current_bar=player_data.get("current_bar", "Bronze bar"),
@@ -867,11 +934,13 @@ def _on_main_menu():
         on_set_fletch=lambda target: _set_value("current_fletch", target),
         on_set_firemaking=lambda target: _set_value("current_firemaking", target),
         on_set_fishing=lambda target: _set_value("current_fishing", target),
+        on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
         on_equip_item=on_equip_item,
         on_unequip_slot=on_unequip_slot,
+        on_discard_item=on_discard_item,
     )
 
 
@@ -1112,6 +1181,21 @@ def on_unequip_slot(slot):
     return True
 
 
+def on_discard_item(item_name):
+    inventory = dict(player_data.get("inventory", {}) or {})
+    if int(inventory.get(item_name, 0) or 0) <= 0:
+        return False
+    inventory[item_name] = 0
+    player_data["inventory"] = inventory
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
+
+
 def _can_start_fletching_action() -> bool:
     target = player_data.get("current_fletch", "arrow_shafts")
     return can_fletch_item_pure(
@@ -1140,6 +1224,16 @@ def _can_start_fishing_action() -> bool:
         FISHING_DATA,
         player_data.get("strength_level", 1),
         player_data.get("agility_level", 1),
+    )
+
+
+def _can_start_cooking_action() -> bool:
+    target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
+    return can_cook_target_pure(
+        player_data.get("cooking_level", 1),
+        player_data.get("inventory", {}),
+        target,
+        COOKING_DATA,
     )
 
 
@@ -1202,6 +1296,7 @@ _CAN_START_HANDLERS = {
     "fletching": _can_start_fletching_action,
     "firemaking": _can_start_firemaking_action,
     "fishing": _can_start_fishing_action,
+    "cooking": _can_start_cooking_action,
     "utility": _can_start_utility_action,
 }
 
@@ -1220,6 +1315,7 @@ _REVIEW_HANDLERS = {
     "fletching": on_fletching_answer,
     "firemaking": on_firemaking_answer,
     "fishing": on_fishing_answer,
+    "cooking": on_cooking_answer,
     "utility": on_utility_answer,
 }
 

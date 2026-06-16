@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cooking Expansion Start</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 8% 10%, rgba(251, 191, 36, 0.16), transparent 26rem),
+        radial-gradient(circle at 92% 8%, rgba(79, 140, 255, 0.18), transparent 24rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge, .tag, .step-num, code { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 12px;
+      font-size: clamp(2.2rem, 6vw, 4.8rem);
+      line-height: 0.94;
+      letter-spacing: -0.045em;
+    }
+    h2 { margin: 0 0 10px; font-size: 1.25rem; }
+    p { color: var(--text-dim); line-height: 1.58; margin: 0; }
+    .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 18px; }
+    .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), transparent), var(--surface);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.25);
+    }
+    .lane {
+      display: grid;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .tag {
+      display: inline-flex;
+      margin: 8px 6px 0 0;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.045);
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+    .steps { display: grid; gap: 12px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .bars { display: grid; gap: 12px; margin-top: 18px; }
+    .bar { height: 11px; border-radius: 999px; background: #0a0d12; border: 1px solid var(--border); overflow: hidden; }
+    .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--amber), var(--green)); }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .grid, .cards { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="grid">
+      <div class="card">
+        <span class="badge">Pre-Implementation</span>
+        <h1>Cooking becomes a full skill, not a fish-only stub.</h1>
+        <p>The pass will wire the 2011Scape Cooking table, adapted burn rolls, Cooking prep activities, food item grouping, assets, achievements, and Bank discard behavior. Farming-heavy acquisition stays naturally material-locked.</p>
+        <div class="lane">
+          <div class="row"><span class="label">Backend</span><span>Data module, pure logic, storage, dispatch, achievements, item registry.</span></div>
+          <div class="row"><span class="label">Frontend</span><span>Grouped Cooking tree, grouped Utility tree, tooltips, food Bank category, discard confirmation.</span></div>
+          <div class="row"><span class="label">Assets</span><span>Cooking icon and food/prep item icons with provenance and tests.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Risk Meter</h2>
+        <p>Most risk is integration surface area: review dispatch, migration, UI selection guards, and icon coverage.</p>
+        <div class="bars">
+          <div><span class="tag">Data size</span><div class="bar"><span style="width: 86%"></span></div></div>
+          <div><span class="tag">UI change</span><div class="bar"><span style="width: 74%"></span></div></div>
+          <div><span class="tag">Balance risk</span><div class="bar"><span style="width: 48%"></span></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="cards">
+      <article class="card">
+        <h2>Implementation Order</h2>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><p>Generate source-backed Cooking data and add pure mechanics.</p></div>
+          <div class="step"><div class="step-num">2</div><p>Wire storage, registry, review dispatch, counters, and achievements.</p></div>
+          <div class="step"><div class="step-num">3</div><p>Upgrade Utility and Cooking selection UIs to grouped trees.</p></div>
+          <div class="step"><div class="step-num">4</div><p>Fetch assets, add source audit, update memory bank, and run tests.</p></div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Locked Decisions</h2>
+        <p>Full table, burn failures, adapted chance, no fire/range option, sinew targets, all prep except obvious Farming acquisition, Crafting owns bowls and pie dishes, and burnt foods are not tradeable for the future GE model.</p>
+        <span class="tag">CookingData.kt</span>
+        <span class="tag">Utility / Activities</span>
+        <span class="tag">Food category</span>
+        <span class="tag">Discard all</span>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -13,6 +13,7 @@ from logic_pure import (
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_fletching_pure,
+    apply_cooking_action_pure,
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
     apply_smelt_pure,
@@ -42,6 +43,9 @@ from logic_pure import (
     firemaking_source_roll_chance_pure,
     fishing_source_roll_chance_pure,
     calculate_fishing_success_probability_pure,
+    cooking_source_roll_chance_pure,
+    calculate_cooking_success_probability_pure,
+    can_cook_target_pure,
     can_fish_method_pure,
     eligible_fishing_fish_pure,
     has_fishing_bait_pure,
@@ -61,6 +65,7 @@ from constants import (
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,
+    COOKING_DATA,
     UTILITY_ACTIVITY_DATA,
 )
 
@@ -916,6 +921,54 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 28)
         self.assertEqual(inv["Fishing bait"], 28)
+
+    def test_cooking_source_odds_and_scaled_probability(self):
+        shrimps = COOKING_DATA["cook_shrimps"]
+        shark = COOKING_DATA["cook_shark"]
+
+        self.assertAlmostEqual(cooking_source_roll_chance_pure(1, shrimps), 128 / 255)
+        self.assertEqual(cooking_source_roll_chance_pure(99, shrimps), 1.0)
+        self.assertLess(
+            cooking_source_roll_chance_pure(80, shark),
+            cooking_source_roll_chance_pure(99, shark),
+        )
+
+        scaled = calculate_cooking_success_probability_pure(1, shrimps)
+        self.assertGreater(scaled, cooking_source_roll_chance_pure(1, shrimps))
+        self.assertLessEqual(calculate_cooking_success_probability_pure(99, shrimps), 0.98)
+
+    def test_cooking_success_and_burn_consume_raw_item(self):
+        self.assertTrue(can_cook_target_pure(1, {"Raw beef": 2}, "render_beef_sinew", COOKING_DATA))
+        self.assertFalse(can_cook_target_pure(1, {}, "render_beef_sinew", COOKING_DATA))
+        self.assertFalse(can_cook_target_pure(79, {"Raw shark": 1}, "cook_shark", COOKING_DATA))
+
+        cooked_inv, cooked_exp, cooked_ok, cooked_output, cooked_burned = apply_cooking_action_pure(
+            "render_beef_sinew",
+            {"Raw beef": 2},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=0.0,
+        )
+        self.assertTrue(cooked_ok)
+        self.assertFalse(cooked_burned)
+        self.assertEqual(cooked_output, "Sinew")
+        self.assertAlmostEqual(cooked_exp, 30.0)
+        self.assertEqual(cooked_inv["Raw beef"], 1)
+        self.assertEqual(cooked_inv["Sinew"], 1)
+
+        burnt_inv, burnt_exp, burnt_ok, burnt_output, burnt_burned = apply_cooking_action_pure(
+            "cook_shrimps",
+            {"Raw shrimps": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=1.0,
+        )
+        self.assertTrue(burnt_ok)
+        self.assertTrue(burnt_burned)
+        self.assertEqual(burnt_exp, 0)
+        self.assertEqual(burnt_output, "Burnt shrimp")
+        self.assertEqual(burnt_inv["Raw shrimps"], 0)
+        self.assertEqual(burnt_inv["Burnt shrimp"], 1)
 
     def test_firemaking_achievements_unlock_from_ashes_inventory(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

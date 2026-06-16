@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
 
-ItemCategory = Literal["ore", "log", "fish", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"]
+ItemCategory = Literal["ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"]
 
 
 @dataclass(frozen=True)
@@ -126,7 +126,7 @@ def build_item_definitions(
 
     def extra_item_category(spec: Mapping[str, object]) -> ItemCategory:
         category = spec.get("category", "material")
-        if category in ("ore", "log", "fish", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"):
+        if category in ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"):
             return cast(ItemCategory, category)
         return "material"
 
@@ -206,7 +206,7 @@ def build_item_definitions(
         image_map = utility_item_images or {}
         for spec in utility_activity_data.values():
             output_name = spec.get("output_item")
-            if isinstance(output_name, str):
+            if isinstance(output_name, str) and (extra_item_data is None or output_name not in extra_item_data):
                 add_material_definition(output_name, "Utility / Activities", image_map)
             for requirement_name in spec.get("requirements", {}):
                 if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):

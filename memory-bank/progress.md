@@ -6,7 +6,7 @@
 - The local working copy is now initialized as a git repository on `main`.
 - Review answers can award XP for the active skill.
 - Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
-- Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, and Firemaking exist.
+- Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, and Cooking exist.
 - Items are stored in a shared inventory/bank.
 - Level-up and achievement flows exist.
 - Review HUD, floating XP, floating widget, main menu, stats, bank, settings, and achievements are present.
@@ -26,6 +26,7 @@
 - Feathers now have one legitimate non-dev source: `Scavenge chicken feathers` is a no-XP Utility/Activities bridge that grants `28 Feather` per successful action tick without opening Combat, shops, coins, or GE.
 - Firemaking v1 is in place: source-backed `firemaking_data.py`, stable `current_firemaking` target IDs, storage config version 12 migration/defaults, review-scale lighting chances, implicit tinderbox behavior, source XP, `Ashes x1`, achievements, assets, and Artisan hub/Stats/Bank/HUD support.
 - Fishing v1 is in place: source-backed `fishing_data.py`, stable `current_fishing` method IDs, storage config version 13 migration/defaults, review-scale catch chances, ordered mixed-output rolls, success-only material consumption, hidden Strength/Agility side XP for Barbarian fish, generic Fishing achievements, dedicated fish/material assets, a `fish` item category, and Gathering hub/Stats/Bank/HUD support.
+- Cooking v1 is in place: source-backed `cooking_data.py`, stable `current_cooking` target IDs, storage config version 14 migration/defaults, review-scale cook/burn chances, burn failures that consume raw inputs and produce burnt items, generic Cooking achievements, beef/bear sinew secondary targets, dedicated Cooking assets, a `food` item category, grouped Cooking target UI, grouped Utility/Activities prep UI, and confirmed Bank `Discard all` for every item.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -45,6 +46,7 @@
 - Backfilled provenance for older bundled assets that predate the current scraper/provenance workflow.
 - Firemaking bonfires and fire spirits; they are pre-EOC but intentionally deferred as a separate extension.
 - Fishing Dungeoneering fish, Fishing Trawler outputs, quest-only fish, Fish Flingers, and a real shop/GE material economy; they are intentionally deferred as separate systems rather than folded into ordinary Fishing v1.
+- Cooking follow-ups that need broader systems: cleaner Farming/Combat/shop/GE acquisition routes for some prep ingredients, and any recipe families not represented in the local `CookingData.kt` table.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -164,6 +166,16 @@ passes with 281 tests (69 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 281 tests.
 
+Cooking v1 completed on 2026-06-16. The skill is a current Artisan review skill
+with 54 local-2011Scape Cooking targets, no-XP Utility prep bridges, stable
+`current_cooking` IDs, source XP and low/high chance data, review-scale success
+probabilities, raw consumption on both success and burn failure, burnt-item junk
+outputs, storage config version 14, achievements, assets, item/icon
+registration, runtime review dispatch, action multiplier support, undo rollback,
+grouped Cooking and Utility target-list coverage, and confirmed Bank discard-all
+for every item. The source audit is
+`memory-bank/source-audits/cooking-2011scape-2026-06-16.md`.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
@@ -172,3 +184,4 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
 - Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.
 - Firemaking-specific follow-up: bonfires/fire spirits, only if explicitly prioritized.
+- Cooking follow-ups: broader source-backed acquisition routes for remaining prep materials, only if explicitly prioritized.

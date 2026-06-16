@@ -4,6 +4,15 @@ import os
 import re
 
 try:
+    from .cooking_data import (
+        DEFAULT_COOKING_TARGET,
+        cooking_burnt_items,
+        cooking_extra_items_as_dict,
+        cooking_output_items,
+        cooking_prep_activities_as_dict,
+        cooking_raw_items,
+        cooking_targets_as_dict,
+    )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .firemaking_data import (
@@ -50,6 +59,15 @@ try:
         woodcutting_targets_as_dict,
     )
 except ImportError:
+    from cooking_data import (
+        DEFAULT_COOKING_TARGET,
+        cooking_burnt_items,
+        cooking_extra_items_as_dict,
+        cooking_output_items,
+        cooking_prep_activities_as_dict,
+        cooking_raw_items,
+        cooking_targets_as_dict,
+    )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from firemaking_data import (
@@ -122,6 +140,7 @@ SMITHING_ITEMS_FOLDER = os.path.join(current_dir, "smithingitems")
 UTILITY_ACTIVITY_ICONS_FOLDER = os.path.join(current_dir, "activityicons")
 FIREMAKING_ITEMS_FOLDER = os.path.join(current_dir, "firemakingitems")
 FISHING_ITEMS_FOLDER = os.path.join(current_dir, "fishingitems")
+COOKING_ITEMS_FOLDER = os.path.join(current_dir, "cookingitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -136,6 +155,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_qty": 1,
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "make_soft_clay.png"),
+        "group": "material_processing",
         "source": "OSRS Soft clay > Creation > Container",
     },
     "gather_wool": {
@@ -145,6 +165,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_qty": 1,
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_wool.png"),
+        "group": "gathering",
         "source": "Material source for OSRS Ball of wool > Creation",
     },
     "gather_flax": {
@@ -154,6 +175,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_qty": 1,
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_flax.png"),
+        "group": "gathering",
         "source": "OSRS Bow string > Strategy > Manual Spinning",
     },
     "scavenge_chicken_feathers": {
@@ -163,6 +185,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_qty": 1,
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "scavenge_chicken_feathers.png"),
+        "group": "gathering",
         "source": (
             "2011Scape ranged_instructor.plugin.kts says arrows need chickens for feathers; "
             "chicken_level_1.plugin.kts drops Feather. AnkiScape temporary scavenging bridge until Combat/GE."
@@ -175,6 +198,7 @@ UTILITY_ACTIVITY_DATA = {
         "output_qty": 1,
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_fishing_bait.png"),
+        "group": "gathering",
         "source": f"{FISHING_BAIT_SHOP_SOURCE_PATH}: Lumbridge Fishing Supplies stock, temporary no-XP bridge.",
     },
     "open_bird_nest": {
@@ -183,9 +207,11 @@ UTILITY_ACTIVITY_DATA = {
         "openable_items": tuple(BIRD_NEST_OPEN_TABLES_BY_INPUT.keys()),
         "batch_size": 28,
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "open_bird_nest.png"),
+        "group": "containers_opening",
         "source": "2011Scape bird_nest.plugin.kts",
     },
 }
+UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 
@@ -419,6 +445,11 @@ FIREMAKING_OUTPUT_ITEMS = firemaking_output_items()
 FISHING_DATA = fishing_methods_as_dict()
 FISHING_OUTPUT_ITEMS = fishing_output_items()
 
+COOKING_DATA = cooking_targets_as_dict()
+COOKING_OUTPUT_ITEMS = cooking_output_items()
+COOKING_BURNT_ITEMS = cooking_burnt_items()
+COOKING_RAW_ITEMS = cooking_raw_items()
+
 
 def _asset_slug(name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
@@ -482,6 +513,19 @@ for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
     if os.path.exists(_path):
         FISHING_ITEM_IMAGES[_item_name] = _path
 
+COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
+COOKING_ITEM_IMAGES = {}
+for _item_name in COOKING_EXTRA_ITEM_DATA:
+    _path = (
+        FISHING_ITEM_IMAGES.get(_item_name)
+        or CRAFTED_ITEM_IMAGES.get(_item_name)
+        or ORE_IMAGES.get(_item_name)
+        or BAR_IMAGES.get(_item_name)
+        or os.path.join(COOKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    )
+    if _path and os.path.exists(_path):
+        COOKING_ITEM_IMAGES[_item_name] = _path
+
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
 # up; only files that actually exist are wired (rare egg nests/eggs stay
@@ -540,6 +584,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SMITHING_EXTRA_ITEM_DATA,
     **FIREMAKING_EXTRA_ITEM_DATA,
     **FISHING_EXTRA_ITEM_DATA,
+    **COOKING_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
@@ -547,6 +592,7 @@ EXTRA_ITEM_IMAGES = {
     **SMITHING_EXTRA_ITEM_IMAGES,
     **FIREMAKING_ITEM_IMAGES,
     **FISHING_ITEM_IMAGES,
+    **COOKING_ITEM_IMAGES,
 }
 
 ITEM_DEFINITIONS = build_item_definitions(
@@ -833,5 +879,53 @@ ACHIEVEMENTS.update({
         "description": "Reach Fishing level 99",
         "difficulty": "Very Challenging",
         "condition": lambda player: player.get("fishing_level", 1) >= 99,
+    },
+})
+
+ACHIEVEMENTS.update({
+    "First Cook": {
+        "description": "Cook your first food",
+        "difficulty": "Easy",
+        "condition": lambda player: player.get("cooking_success_count", 0) >= 1,
+    },
+    "First Burn": {
+        "description": "Burn your first food",
+        "difficulty": "Easy",
+        "condition": lambda player: player.get("cooking_burn_count", 0) >= 1,
+    },
+    "Novice Cook": {
+        "description": "Reach Cooking level 10",
+        "difficulty": "Easy",
+        "condition": lambda player: player.get("cooking_level", 1) >= 10,
+    },
+    "Food Collector": {
+        "description": "Successfully cook 100 items",
+        "difficulty": "Easy",
+        "condition": lambda player: player.get("cooking_success_count", 0) >= 100,
+    },
+    "Intermediate Cook": {
+        "description": "Reach Cooking level 30",
+        "difficulty": "Moderate",
+        "condition": lambda player: player.get("cooking_level", 1) >= 30,
+    },
+    "Kitchen Regular": {
+        "description": "Successfully cook 1,000 items",
+        "difficulty": "Moderate",
+        "condition": lambda player: player.get("cooking_success_count", 0) >= 1000,
+    },
+    "Expert Cook": {
+        "description": "Reach Cooking level 60",
+        "difficulty": "Difficult",
+        "condition": lambda player: player.get("cooking_level", 1) >= 60,
+    },
+    "Kitchen Stockpile": {
+        "description": "Successfully cook 10,000 items",
+        "difficulty": "Difficult",
+        "condition": lambda player: player.get("cooking_success_count", 0) >= 10000,
+    },
+    "Master Cook": {
+        "description": "Reach Cooking level 99",
+        "difficulty": "Very Challenging",
+        "condition": lambda player: player.get("cooking_level", 1) >= 99,
     },
 })

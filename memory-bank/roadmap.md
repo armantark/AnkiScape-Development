@@ -39,14 +39,14 @@ Status: Fletching is implemented behind the registry and surfaced in the normal 
 
 Candidate follow-ups:
 - Utility/Activities: visible material-only actions such as flax or wool gathering with no skill XP.
-- Firemaking: consumes logs for XP.
-- Fishing: gathers fish with level-gated spots.
-- Cooking: consumes raw fish/food and produces cooked items.
+- Firemaking: consumes logs for XP. Status: complete.
+- Fishing: gathers fish with level-gated spots. Status: complete.
+- Cooking: consumes raw fish/food and produces cooked or burnt items. Status: complete.
 
 ## Current Priority: Skill Roster Breadth
-Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting (gathering) and Smithing, Crafting, Fletching (artisan), with their current backend/frontend parity passes complete.
-- Remaining gathering skills: Fishing, Hunter, Farming.
-- Basic artisan skills: Cooking, Firemaking next; then Herblore, Runecrafting, Construction.
+Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting, Fishing (gathering) and Smithing, Crafting, Fletching, Firemaking, Cooking (artisan), with their current backend/frontend parity passes complete.
+- Remaining gathering skills: Hunter, Farming.
+- Remaining basic artisan skills: Herblore, Runecrafting, Construction.
 - Each skill goes through `.cursor/skills/ankiscape-skill-expansion/` (source audit, assets, targets/recipes, Utility/Activities, achievements, tests, memory update).
 - The tradable items these skills introduce become the GE's item universe when it is unparked.
 
@@ -87,7 +87,7 @@ Frontend:
 - Decide whether this remains a personal fork or becomes a public derivative release.
 
 ## Open Questions
-- Which acquisition loops should supply hides, glass inputs, battlestaff parts, and other currently input-starved materials before the GE exists? Arrowtips are already smithable, and feathers now have the temporary `Scavenge chicken feathers` Utility bridge.
+- Which acquisition loops should supply hides, glass inputs, battlestaff parts, Cooking prep oddities, and other currently input-starved materials before the GE exists? Arrowtips are already smithable, feathers have the temporary `Scavenge chicken feathers` Utility bridge, and Cooking has no-XP prep bridges for simple materials.
 - How should Utility/Activities be presented so no-XP material actions feel intentional rather than punishing? Current priority and prompts live in `memory-bank/future-work-kanban.md`.
 - What exact constants should the fake GE use for liquidity, volatility, aggregate order flow, and stochastic supply/demand shocks?
 - What is the first Thieving target list and reward table?

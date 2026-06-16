@@ -126,6 +126,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="firemaking",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="cooking",
+        display_name="Cooking",
+        category="artisan",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="process",
+        level_key="cooking_level",
+        exp_key="cooking_exp",
+        current_target_key="current_cooking",
+        default_target="cook_shrimps",
+        review_handler_key="cooking",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -139,7 +153,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp"),
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp"),
     SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
-    SkillDefinition("cooking", "Cooking", "artisan", False, False, "process", "cooking_level", "cooking_exp"),
     SkillDefinition("herblore", "Herblore", "artisan", False, False, "process", "herblore_level", "herblore_exp"),
     SkillDefinition("runecrafting", "Runecrafting", "artisan", False, False, "process", "runecrafting_level", "runecrafting_exp"),
     SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp"),

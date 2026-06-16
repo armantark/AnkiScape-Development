@@ -448,7 +448,7 @@ def utility_activity_rows(
             reqs = requirements if isinstance(requirements, Mapping) else {}
             _, mat_text = _material_lines(reqs, inventory)
             tooltip = (
-                f"Processes up to {batch_size} per successful card. No Crafting XP.\n"
+                f"Processes up to {batch_size} per successful card. No skill XP.\n"
                 f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
             )
             enabled = can_perform_utility_activity_pure(inventory, activity_key, utility_activity_data)

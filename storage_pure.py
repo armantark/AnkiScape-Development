@@ -2,6 +2,7 @@
 from typing import Dict, Iterable, Optional, Any
 
 try:
+    from .cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
     from .crafting_data import (
         DEFAULT_CRAFTING_TARGET,
         CRAFTING_RECIPES_BY_ID,
@@ -25,6 +26,7 @@ try:
         LEGACY_TREE_TARGETS,
     )
 except ImportError:
+    from cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
     from crafting_data import (
         DEFAULT_CRAFTING_TARGET,
         CRAFTING_RECIPES_BY_ID,
@@ -48,7 +50,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 13
+CURRENT_CONFIG_VERSION = 14
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -110,6 +112,8 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(_default_hidden_support_state())
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
+    data["cooking_success_count"] = 0
+    data["cooking_burn_count"] = 0
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
     return data
@@ -199,6 +203,13 @@ def _migrate_fishing_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_fishing, str) or current_fishing not in FISHING_METHODS_BY_ID:
         current_fishing = DEFAULT_FISHING_TARGET
     data["current_fishing"] = current_fishing
+
+
+def _migrate_cooking_target(data: Dict[str, Any]) -> None:
+    current_cooking = data.get("current_cooking")
+    if not isinstance(current_cooking, str) or current_cooking not in COOKING_TARGETS_BY_ID:
+        current_cooking = DEFAULT_COOKING_TARGET
+    data["current_cooking"] = current_cooking
 
 
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
@@ -333,6 +344,7 @@ def migrate_loaded_data(
         data["current_fletch"] = "arrow_shafts"
     _migrate_firemaking_target(data)
     _migrate_fishing_target(data)
+    _migrate_cooking_target(data)
     _migrate_toolbelt(data)
     _migrate_equipment(data)
 
@@ -350,6 +362,8 @@ def migrate_loaded_data(
 
     # Ensure achievements structure exists
     data.setdefault("completed_achievements", [])
+    data.setdefault("cooking_success_count", 0)
+    data.setdefault("cooking_burn_count", 0)
 
     # Progress key retained (not critical)
     data.setdefault("progress_to_next", 0)

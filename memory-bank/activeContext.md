@@ -232,6 +232,23 @@ recorded as separate audit-only/future-slice content. Verification:
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 281 tests.
 
+Cooking v1 is complete on 2026-06-16 as an Artisan skill-expansion thread.
+Source data lives in `cooking_data.py`, audited against local 2011Scape
+`CookingData.kt`, `CookingAction.kt`, `raw_food_cooking.plugin.kts`, `Items.kt`,
+and `items.yml` in
+`memory-bank/source-audits/cooking-2011scape-2026-06-16.md`. Cooking is a
+current review skill with flat save keys (`cooking_level`, `cooking_exp`,
+`current_cooking`), 54 stable targets, source XP/level/raw/cooked/burnt/chance
+data, beef/bear sinew as distinct stable targets, review-scale burn chances,
+success counters, burn counters, achievements, and a grouped Cooking target
+tree. Burn failures consume the raw input and produce the source burnt item with
+no XP. Cooking prep is intentionally no-XP Utility/Activities: wheat/flour/dough,
+water/container actions, pie/stew/pizza assembly, simple gathering/scavenging,
+and food-prep bridges are grouped under Utility. A new `food` item category and
+`cookingitems/` icon folder are wired through the item registry and Bank; burnt
+food is treated as non-tradeable junk for future GE/trading semantics. The Bank
+now offers confirmed `Discard all` for every item, not only equippable gear.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
