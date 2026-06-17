@@ -6,6 +6,7 @@ from constants import (
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
     DEFAULT_MINING_TARGET,
+    DEFAULT_RUNECRAFTING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_WOODCUTTING_TARGET,
     FIREMAKING_DATA,
@@ -18,6 +19,10 @@ from constants import (
     MINING_PICKAXE_DATA,
     ORE_DATA,
     ORE_IMAGES,
+    QUEST_UNLOCK_RULES,
+    RUNECRAFTING_DATA,
+    RUNECRAFTING_ITEM_IMAGES,
+    RUNECRAFTING_POUCH_DATA,
     TREE_DATA,
     TREE_IMAGES,
     UTILITY_ACTIVITY_DATA,
@@ -30,6 +35,7 @@ from target_metadata import (
     fishing_target_rows,
     fletching_target_rows,
     mining_target_rows,
+    runecrafting_target_rows,
     utility_activity_rows,
     woodcutting_target_rows,
 )
@@ -71,6 +77,26 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Concentrated coal deposits are deferred.", coal.tooltip)
         self.assertFalse(runite.enabled)
         self.assertIn("level 85", runite.tooltip)
+
+    def test_mining_rows_apply_quest_unlock_rules(self):
+        rows = mining_target_rows(
+            {
+                "mining_level": 33,
+                "inventory": {},
+                "toolbelt": {"mining": ["bronze_pickaxe"]},
+                "current_ore": "rune_essence",
+            },
+            ORE_DATA,
+            ORE_IMAGES,
+            GEM_IMAGES,
+            MINING_PICKAXE_DATA,
+            DEFAULT_MINING_TARGET,
+            quest_unlock_rules=QUEST_UNLOCK_RULES,
+        )
+
+        rune_essence = _row(rows, "rune_essence")
+        self.assertFalse(rune_essence.enabled)
+        self.assertIn("Locked due to: Rune Mysteries", rune_essence.tooltip)
 
     def test_woodcutting_rows_preserve_xp_only_and_tool_lock_contract(self):
         rows = woodcutting_target_rows(
@@ -161,6 +187,62 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("side levels", leaping.tooltip)
         self.assertNotIn("rod", leaping.tooltip.lower())
         self.assertNotIn("harpoon", leaping.tooltip.lower())
+
+    def test_fishing_rows_apply_quest_unlock_rules(self):
+        rows = fishing_target_rows(
+            {
+                "fishing_level": 99,
+                "strength_level": 99,
+                "agility_level": 99,
+                "inventory": {},
+            },
+            FISHING_DATA,
+            FISHING_ITEM_IMAGES,
+            DEFAULT_FISHING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        monkfish = _row(rows, "catch_monkfish")
+        karambwan = _row(rows, "catch_karambwan")
+        self.assertFalse(monkfish.enabled)
+        self.assertIn("Swan Song", monkfish.tooltip)
+        self.assertFalse(karambwan.enabled)
+        self.assertIn("Tai Bwo Wannai Trio", karambwan.tooltip)
+
+    def test_runecrafting_rows_apply_quest_unlock_rules(self):
+        player_data = {
+            "runecrafting_level": 99,
+            "inventory": {"Pure essence": 1, "Cosmic talisman": 1},
+            "equipment": {},
+            "wicked_hood": {"fed_altars": []},
+            "runecrafting_pouches": {},
+            "quests": {
+                "rune_mysteries": {"started": True, "progress": 6, "completed": True},
+            },
+            "current_runecrafting": "craft_cosmic_runes",
+        }
+        rows = runecrafting_target_rows(
+            player_data,
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_ITEM_IMAGES,
+            RUNECRAFTING_POUCH_DATA,
+            DEFAULT_RUNECRAFTING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        cosmic = _row(rows, "craft_cosmic_runes")
+        self.assertFalse(cosmic.enabled)
+        self.assertIn("Lost City", cosmic.tooltip)
+
+        player_data["quests"]["lost_city"] = {"started": True, "progress": 6, "completed": True}
+        unlocked_rows = runecrafting_target_rows(
+            player_data,
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_ITEM_IMAGES,
+            RUNECRAFTING_POUCH_DATA,
+            DEFAULT_RUNECRAFTING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked_rows, "craft_cosmic_runes").enabled)
 
     def test_utility_rows_preserve_activity_icons_no_xp_text_and_locks(self):
         rows = utility_activity_rows(

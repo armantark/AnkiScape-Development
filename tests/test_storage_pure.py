@@ -79,6 +79,7 @@ class TestStoragePure(unittest.TestCase):
             "cooking_burn_count",
             "quests",
             "quest_points",
+            "pending_skill_exp_rewards",
             "claims",
             "wicked_hood",
             "runecrafting_pouches",
@@ -100,6 +101,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["current_quest"], "rune_mysteries")
         self.assertEqual(data["quest_points"], 0)
         self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
+        self.assertIn("lost_city", data["quests"])
+        self.assertIn("lunar_diplomacy", data["quests"])
+        self.assertEqual(data["pending_skill_exp_rewards"], {})
         self.assertEqual(data["claims"]["wicked_hood"], {"claimed": False})
         self.assertEqual(data["wicked_hood"], {"fed_altars": []})
         self.assertEqual(data["runecrafting_pouches"], {})
@@ -158,6 +162,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_runecrafting"], "craft_air_runes")
         self.assertEqual(migrated["current_quest"], "rune_mysteries")
         self.assertEqual(migrated["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
+        self.assertIn("swan_song", migrated["quests"])
         self.assertEqual(migrated["claims"]["wicked_hood"], {"claimed": False})
         self.assertEqual(migrated["wicked_hood"], {"fed_altars": []})
         self.assertEqual(migrated["runecrafting_pouches"], {})
@@ -191,6 +196,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Air talisman", migrated["inventory"])
         self.assertIn("Binding necklace", migrated["inventory"])
         self.assertIn("Wicked hood", migrated["inventory"])
+        self.assertIn("Dramen staff", migrated["inventory"])
+        self.assertIn("Coins", migrated["inventory"])
         self.assertIn("Soft clay", migrated["inventory"])
         self.assertIn("Ashes", migrated["inventory"])
         self.assertIn("Arctic pine logs", migrated["inventory"])
@@ -200,6 +207,22 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("bronze_pickaxe", migrated["toolbelt"]["mining"])
         self.assertEqual(migrated["equipment"], {})
         self.assertNotIn("owned_equipment", migrated)
+
+    def test_migrate_pending_skill_exp_rewards_applies_implemented_keys_once(self):
+        migrated = migrate_loaded_data(
+            {
+                "runecrafting_exp": 100,
+                "pending_skill_exp_rewards": {
+                    "runecrafting_exp": 5000,
+                    "herblore_exp": 250,
+                },
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["runecrafting_exp"], 5100.0)
+        self.assertEqual(migrated["pending_skill_exp_rewards"], {"herblore_exp": 250.0})
 
     def test_migrate_equipment_state_and_removes_owned_equipment(self):
         migrated = migrate_loaded_data(

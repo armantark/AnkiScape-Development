@@ -57,7 +57,10 @@ from logic_pure import (
     binding_necklace_charges_pure,
     claim_rows_pure,
     sanitize_review_action_multiplier,
+    can_start_quest_pure,
     start_quest_pure,
+    quest_locked_reasons_pure,
+    quest_unlock_locked_reasons_pure,
 )
 from storage_pure import default_player_data
 from constants import (
@@ -75,6 +78,7 @@ from constants import (
     FISHING_DATA,
     COOKING_DATA,
     QUEST_DATA,
+    QUEST_UNLOCK_RULES,
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
     UTILITY_ACTIVITY_DATA,
@@ -1012,6 +1016,82 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
         self.assertEqual(after_complete["inventory"]["Air talisman"], 1)
+
+    def test_unlock_quests_enforce_strict_start_requirements(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["crafting_level"] = 31
+        player_data["woodcutting_level"] = 36
+
+        reasons = quest_locked_reasons_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertEqual(reasons, ())
+
+        lunar_reasons = quest_locked_reasons_pure(player_data, "lunar_diplomacy", QUEST_DATA)
+        self.assertIn("The Fremennik Trials (not implemented)", lunar_reasons)
+        self.assertIn("Shilo Village (not implemented)", lunar_reasons)
+        self.assertIn("Defence 40 (not implemented)", lunar_reasons)
+        self.assertIn("Herblore 5 (not implemented)", lunar_reasons)
+        self.assertIn("Magic 65 (not implemented)", lunar_reasons)
+        self.assertFalse(can_start_quest_pure(player_data, "lunar_diplomacy", QUEST_DATA))
+
+    def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["crafting_level"] = 31
+        player_data["woodcutting_level"] = 36
+
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "runecrafting", "craft_cosmic_runes", QUEST_UNLOCK_RULES),
+            ("Lost City",),
+        )
+
+        for _ in range(6):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+            self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["lost_city"]["completed"])
+        self.assertEqual(player_data["quest_points"], 3)
+        self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "runecrafting", "craft_cosmic_runes", QUEST_UNLOCK_RULES),
+            (),
+        )
+
+    def test_quest_completion_awards_implemented_xp_and_parks_unimplemented_xp(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["lunar_diplomacy"] = {"started": True, "progress": 7, "completed": False}
+
+        player_data, ok, completed_now = apply_quest_progress_pure(
+            player_data,
+            "lunar_diplomacy",
+            QUEST_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["inventory"]["Astral rune"], 50)
+        self.assertEqual(player_data["runecrafting_exp"], 5000)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"magic_exp": 5000.0})
+
+    def test_fishing_unlock_rules_cover_swan_song_and_tai_bwo_wannai_trio(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_monkfish", QUEST_UNLOCK_RULES),
+            ("Swan Song",),
+        )
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_karambwan", QUEST_UNLOCK_RULES),
+            ("Tai Bwo Wannai Trio",),
+        )
+        player_data["quests"]["swan_song"] = {"started": True, "progress": 6, "completed": True}
+        player_data["quests"]["tai_bwo_wannai_trio"] = {"started": True, "progress": 6, "completed": True}
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_monkfish", QUEST_UNLOCK_RULES),
+            (),
+        )
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_karambwan", QUEST_UNLOCK_RULES),
+            (),
+        )
 
     def test_wicked_hood_claim_requires_rune_mysteries_and_runecrafting_level_5(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

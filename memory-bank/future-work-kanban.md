@@ -15,7 +15,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
 - Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
-- Quest-lock audit completed on 2026-06-17. Use `memory-bank/quest-unlock-audit-2026-06-17.md` before copying quest gates into skills; it separates strong completion unlocks from route/location gates and quest-stage recipes.
+- Quest-lock registry pass completed on 2026-06-17. Do not redo the first priority gates; use `memory-bank/quest-unlock-audit-2026-06-17.md` for the current implementation status and for future route/location or stage-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities row labels, tooltips, icon paths, enabled/current state, and lock reasons before Qt renders them. Runecrafting added its own grouped row metadata on 2026-06-17. Further P0 work should target grouped Smithing/Crafting/Runecrafting target-tree metadata or larger `__init__.py` decomposition.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
@@ -66,6 +66,17 @@ In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of tr
 
 ### P1 - Quest Lock Registry And Copy-Forward Skill
 
+Status 2026-06-17: Complete for the priority unlocks identified by
+`memory-bank/quest-unlock-audit-2026-06-17.md`. Rune Mysteries, Lost City, Tai
+Bwo Wannai Trio, Mourning's End Part II, Swan Song, Lunar Diplomacy, and Legacy
+of Seergaze are now playable Quest rows. `QUEST_UNLOCK_RULES` owns the strong
+completion gates for Mining rune essence, Runecrafting cosmic/astral/death/blood
+targets, Fishing monkfish, and Fishing karambwan. Quest starts are strict:
+unimplemented prerequisite quests or skills block starting rather than being
+approximated. XP rewards for unimplemented skills are stored in
+`pending_skill_exp_rewards` and auto-applied by migration once those skills are
+implemented.
+
 User story: As a future quest implementer, I want quest unlock rules recorded in
 one auditable pattern, so adding Lost City, Swan Song, Tai Bwo Wannai Trio, and
 similar gates does not require scattered per-skill guesswork.
@@ -105,10 +116,10 @@ Acceptance criteria:
 - Unit, integration, Qt, and manual smoke coverage prove at least one locked and
   one unlocked path per migrated skill family.
 
-Future thread prompt:
+Future replacement prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/quest-unlock-audit-2026-06-17.md and memory-bank/future-work-kanban.md as the source of truth. Implement a backend-first quest-lock registry/copy-forward pattern after Rune Mysteries. Keep backend and frontend work explicitly split. Add quest definitions before gates, separate completion unlocks from route/location gates and quest-stage recipes, use quest_completed_pure only for completion gates, add targeted tests plus Qt/manual smoke coverage, update the Memory Bank, and commit.
+In the AnkiScape repo, do not redo the 2026-06-17 priority quest-lock registry pass. Rune Mysteries, Lost City, Tai Bwo Wannai Trio, Mourning's End Part II, Swan Song, Lunar Diplomacy, and Legacy of Seergaze already cover the current strong completion gates. Only reopen this area for stage-aware partial unlocks, route/location gates, or the broader pre-EOC quest catalog. Preserve strict quest starts, keep unimplemented-skill XP in pending_skill_exp_rewards, split backend/frontend work explicitly, add targeted tests plus Qt/manual smoke coverage, update the Memory Bank, and commit.
 ```
 
 ### P1 - Utility And Activities Icon Set

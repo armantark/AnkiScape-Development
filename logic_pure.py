@@ -9,6 +9,11 @@ try:
 except ImportError:
     from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
+try:
+    from .skill_registry import get_skill, implemented_skill_definitions
+except ImportError:
+    from skill_registry import get_skill, implemented_skill_definitions
+
 def get_exp_to_next_level(player_data, EXP_TABLE):
     """Return exp needed to reach the next level for Mining.
     Supports EXP_TABLE as list or dict. Uses mining_exp, falls back to legacy total_exp.
@@ -636,6 +641,96 @@ def quest_completed_pure(player_data, quest_id):
     return bool(quest_state_pure(player_data, quest_id).get("completed", False))
 
 
+def _implemented_exp_keys():
+    return {skill.exp_key for skill in implemented_skill_definitions() if skill.implemented}
+
+
+def _skill_requirement_reason(player_data, requirement):
+    if not isinstance(requirement, Mapping):
+        return None
+    skill_id = requirement.get("skill_id")
+    display_name = requirement.get("display_name")
+    if not isinstance(skill_id, str):
+        return None
+    skill = get_skill(skill_id)
+    label = str(display_name or (skill.display_name if skill is not None else skill_id.replace("_", " ").title()))
+    level_required = _positive_int(requirement.get("level", 1), 1)
+    if skill is None or not skill.implemented:
+        return f"{label} {level_required} (not implemented)"
+    level_key = skill.level_key
+    if level_key not in player_data:
+        return f"{label} {level_required} (not implemented)"
+    if _positive_int(player_data.get(level_key, 1), 1) < level_required:
+        return f"{label} {level_required}"
+    return None
+
+
+def quest_locked_reasons_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return ("unknown quest",)
+    state = quest_state_pure(player_data, quest_id)
+    if state["completed"]:
+        return ("completed",)
+    if state["started"]:
+        return tuple()
+
+    reasons = []
+    for requirement in quest.get("required_quests", ()) or ():
+        if not isinstance(requirement, Mapping):
+            continue
+        required_id = requirement.get("quest_id")
+        display_name = requirement.get("display_name")
+        if not isinstance(required_id, str):
+            continue
+        if not isinstance(quest_data.get(required_id), Mapping):
+            reasons.append(f"{display_name or required_id.replace('_', ' ').title()} (not implemented)")
+        elif not quest_completed_pure(player_data, required_id):
+            reasons.append(str(display_name or required_id.replace("_", " ").title()))
+
+    for requirement in quest.get("required_skills", ()) or ():
+        reason = _skill_requirement_reason(player_data, requirement)
+        if reason:
+            reasons.append(reason)
+
+    required_quest_points = _positive_int(quest.get("required_quest_points", 0), 0)
+    if required_quest_points and _positive_int(player_data.get("quest_points", 0), 0) < required_quest_points:
+        reasons.append(f"{required_quest_points} quest points")
+
+    inventory = player_data.get("inventory", {}) or {}
+    required_items = quest.get("required_items", {}) or {}
+    for item_name, amount in required_items.items():
+        if inventory.get(item_name, 0) < amount:
+            reasons.append(f"{item_name} x{amount}")
+    return tuple(dict.fromkeys(reasons))
+
+
+def quest_unlock_locked_reasons_pure(player_data, skill_id, target_id, quest_unlock_rules):
+    reasons = []
+    for rule in quest_unlock_rules or ():
+        if not isinstance(rule, Mapping):
+            continue
+        if rule.get("gate_kind", "target") != "target":
+            continue
+        if rule.get("skill_id") != skill_id:
+            continue
+        target_ids = rule.get("target_ids", ())
+        if isinstance(target_ids, str):
+            target_id_set = {target_ids}
+        elif isinstance(target_ids, Iterable):
+            target_id_set = {item for item in target_ids if isinstance(item, str)}
+        else:
+            target_id_set = set()
+        if target_id not in target_id_set:
+            continue
+        quest_id = rule.get("quest_id")
+        if not isinstance(quest_id, str) or quest_completed_pure(player_data, quest_id):
+            continue
+        reason = rule.get("reason") or quest_id.replace("_", " ").title()
+        reasons.append(str(reason))
+    return tuple(dict.fromkeys(reasons))
+
+
 def can_start_quest_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
     if not quest:
@@ -645,9 +740,7 @@ def can_start_quest_pure(player_data, quest_id, quest_data):
         return False
     if state["started"]:
         return True
-    inventory = player_data.get("inventory", {}) or {}
-    required_items = quest.get("required_items", {}) or {}
-    return all(inventory.get(item_name, 0) >= amount for item_name, amount in required_items.items())
+    return not quest_locked_reasons_pure(player_data, quest_id, quest_data)
 
 
 def start_quest_pure(player_data, quest_id, quest_data):
@@ -685,8 +778,38 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
         inventory = data["inventory"]
         for item_name, amount in (quest.get("rewards", {}) or {}).items():
             inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
+        _apply_quest_xp_rewards(data, quest)
     data.setdefault("quests", {})[quest_id] = state
     return data, True, completed_now
+
+
+def _apply_quest_xp_rewards(data, quest):
+    implemented_exp_keys = _implemented_exp_keys()
+    pending = data.get("pending_skill_exp_rewards", {})
+    if not isinstance(pending, Mapping):
+        pending = {}
+    clean_pending = dict(pending)
+    for reward in quest.get("xp_rewards", ()) or ():
+        if not isinstance(reward, Mapping):
+            continue
+        skill_id = reward.get("skill_id")
+        if not isinstance(skill_id, str):
+            continue
+        skill = get_skill(skill_id)
+        exp_key = skill.exp_key if skill is not None else f"{skill_id}_exp"
+        try:
+            amount = float(reward.get("amount", 0))
+        except (TypeError, ValueError):
+            amount = 0.0
+        if amount <= 0:
+            continue
+        if exp_key in implemented_exp_keys and skill is not None and skill.implemented:
+            data[exp_key] = data.get(exp_key, 0) + amount
+        else:
+            clean_pending[exp_key] = float(clean_pending.get(exp_key, 0) or 0) + amount
+    data["pending_skill_exp_rewards"] = {
+        key: value for key, value in clean_pending.items() if value > 0
+    }
 
 
 def quest_journal_rows_pure(player_data, quest_id, quest_data):
@@ -970,13 +1093,21 @@ def binding_necklace_charges_pure(player_data):
     return max(0, _positive_int(charges, 0))
 
 
-def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data):
+def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data, quest_unlock_rules=()):
     target = runecrafting_data.get(target_id)
     if not target:
         return ("unknown target",)
     reasons = []
     if not runecrafting_unlocked_pure(player_data):
         reasons.append("Rune Mysteries")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "runecrafting",
+            target_id,
+            quest_unlock_rules,
+        )
+    )
     level = _positive_int(player_data.get("runecrafting_level", 1), 1)
     required_level = _positive_int(target.get("level", 1), 1)
     if level < required_level:
@@ -1011,20 +1142,42 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
     return tuple(dict.fromkeys(reasons))
 
 
-def can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data):
-    return not runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data)
+def can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data, quest_unlock_rules=()):
+    return not runecrafting_locked_reasons_pure(
+        player_data,
+        target_id,
+        runecrafting_data,
+        pouch_data,
+        quest_unlock_rules,
+    )
 
 
-def can_runecraft_any_pure(player_data, runecrafting_data, pouch_data):
-    return any(can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data) for target_id in runecrafting_data)
+def can_runecraft_any_pure(player_data, runecrafting_data, pouch_data, quest_unlock_rules=()):
+    return any(
+        can_runecraft_target_pure(
+            player_data,
+            target_id,
+            runecrafting_data,
+            pouch_data,
+            quest_unlock_rules,
+        )
+        for target_id in runecrafting_data
+    )
 
 
-def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, pouch_data, rolls=()):
+def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, pouch_data, rolls=(), quest_unlock_rules=()):
     target = runecrafting_data.get(target_id)
     if not target:
         return player_data, 0, False, "Unknown Runecrafting target"
-    if runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data):
-        return player_data, 0, False, "Runecrafting target is locked"
+    locked_reasons = runecrafting_locked_reasons_pure(
+        player_data,
+        target_id,
+        runecrafting_data,
+        pouch_data,
+        quest_unlock_rules,
+    )
+    if locked_reasons:
+        return player_data, 0, False, "Runecrafting target is locked: " + ", ".join(locked_reasons)
 
     data = _copy_player_data_with_nested(player_data)
     _repair_degraded_pouches(data, pouch_data)
@@ -1118,6 +1271,32 @@ def calculate_mining_success_probability_pure(mining_level, target_spec, pickaxe
     """Translate source mining odds into one review-scale success probability."""
     source_chance = mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec)
     return max(0.0, min(minimum + (sqrt(source_chance) * scale), cap))
+
+
+def mining_target_locked_reasons_pure(player_data, target_id, ore_data, pickaxe_data, quest_unlock_rules=()):
+    spec = ore_data.get(target_id)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    mining_level = _positive_int(player_data.get("mining_level", 1), 1)
+    if mining_level < _positive_int(spec.get("level", 1), 1):
+        reasons.append(f"Mining level {spec.get('level', 1)}")
+    if best_mining_pickaxe_pure(
+        mining_level,
+        player_data.get("inventory", {}) or {},
+        player_data.get("toolbelt", {}) or {},
+        pickaxe_data,
+    ) is None:
+        reasons.append("no usable pickaxe")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "mining",
+            target_id,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
 
 
 def can_mine_target_pure(mining_level, target_id, ore_data, inventory, toolbelt, pickaxe_data):
@@ -1240,6 +1419,35 @@ def can_fish_method_pure(fishing_level, inventory, target_id, fishing_data, stre
     if not has_fishing_bait_pure(inventory, method_spec):
         return False
     return bool(eligible_fishing_fish_pure(method_spec, fishing_level, strength_level, agility_level))
+
+
+def fishing_method_locked_reasons_pure(player_data, target_id, fishing_data, quest_unlock_rules=()):
+    method_spec = fishing_data.get(target_id)
+    if not method_spec:
+        return ("unknown target",)
+    reasons = []
+    fishing_level = _positive_int(player_data.get("fishing_level", 1), 1)
+    strength_level = _positive_int(player_data.get("strength_level", 1), 1)
+    agility_level = _positive_int(player_data.get("agility_level", 1), 1)
+    inventory = player_data.get("inventory", {}) or {}
+    if fishing_level < _positive_int(method_spec.get("level", 1), 1):
+        reasons.append(f"Fishing level {method_spec.get('level', 1)}")
+    if not has_fishing_bait_pure(inventory, method_spec):
+        reasons.append("materials")
+    if (
+        fishing_level >= _positive_int(method_spec.get("level", 1), 1)
+        and not eligible_fishing_fish_pure(method_spec, fishing_level, strength_level, agility_level)
+    ):
+        reasons.append("side levels")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "fishing",
+            target_id,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
 
 
 def can_fish_any_pure(inventory, fishing_level, fishing_data, strength_level=1, agility_level=1):

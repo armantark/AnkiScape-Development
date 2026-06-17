@@ -14,14 +14,13 @@ try:
         calculate_fishing_success_probability_pure,
         can_burn_firemaking_target_pure,
         can_chop_woodcutting_target_pure,
-        can_fish_method_pure,
         can_fletch_item_pure,
-        can_mine_target_pure,
         can_open_bird_nests_pure,
         can_perform_utility_activity_pure,
         can_runecraft_target_pure,
         eligible_fishing_fish_pure,
-        has_fishing_bait_pure,
+        fishing_method_locked_reasons_pure,
+        mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
     )
 except Exception:
@@ -32,14 +31,13 @@ except Exception:
         calculate_fishing_success_probability_pure,
         can_burn_firemaking_target_pure,
         can_chop_woodcutting_target_pure,
-        can_fish_method_pure,
         can_fletch_item_pure,
-        can_mine_target_pure,
         can_open_bird_nests_pure,
         can_perform_utility_activity_pure,
         can_runecraft_target_pure,
         eligible_fishing_fish_pure,
-        has_fishing_bait_pure,
+        fishing_method_locked_reasons_pure,
+        mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
     )
 
@@ -78,6 +76,7 @@ def mining_target_rows(
     pickaxe_data: Mapping[str, Mapping[str, object]],
     default_target: str,
     deferred_notes: Optional[Mapping[str, str]] = None,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     lvl_have = int(player_data.get("mining_level", 1) or 1)
@@ -137,15 +136,16 @@ def mining_target_rows(
         if deferred_note:
             tooltip += f"\nNote: {deferred_note}"
 
-        enabled = can_mine_target_pure(lvl_have, target_id, ore_data, inventory, tools, pickaxe_data)
-        if not enabled:
-            reason = []
-            if lvl_have < lvl_req:
-                reason.append(f"level {lvl_req}")
-            if best_pick is None:
-                reason.append("no usable pickaxe")
-            if reason:
-                tooltip += "\nLocked due to: " + ", ".join(reason)
+        locked_reasons = mining_target_locked_reasons_pure(
+            player_data,
+            target_id,
+            ore_data,
+            pickaxe_data,
+            quest_unlock_rules,
+        )
+        enabled = not locked_reasons
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
         rows.append(
             TargetRowMetadata(
@@ -357,6 +357,7 @@ def fishing_target_rows(
     fishing_data: Mapping[str, Mapping[str, object]],
     fishing_item_images: Mapping[str, str],
     default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     lvl_have = int(player_data.get("fishing_level", 1) or 1)
@@ -390,17 +391,15 @@ def fishing_target_rows(
         if side_text:
             tooltip += f"\nSide levels: {side_text}"
 
-        enabled = can_fish_method_pure(lvl_have, inventory, target_key, fishing_data, strength_have, agility_have)
-        if not enabled:
-            reason = []
-            if lvl_have < lvl_req:
-                reason.append(f"level {lvl_req}")
-            if not has_fishing_bait_pure(inventory, spec):
-                reason.append("materials")
-            if lvl_have >= lvl_req and not eligible:
-                reason.append("side levels")
-            if reason:
-                tooltip += "\nLocked due to: " + ", ".join(reason)
+        locked_reasons = fishing_method_locked_reasons_pure(
+            player_data,
+            target_key,
+            fishing_data,
+            quest_unlock_rules,
+        )
+        enabled = not locked_reasons
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
         rows.append(
             TargetRowMetadata(
@@ -479,6 +478,7 @@ def runecrafting_target_rows(
     runecrafting_item_images: Mapping[str, str],
     pouch_data: Mapping[str, Mapping[str, object]],
     default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     lvl_have = int(player_data.get("runecrafting_level", 1) or 1)
@@ -527,8 +527,20 @@ def runecrafting_target_rows(
                 f"Materials: {input_item} ({inventory.get(input_item, 0)})"
             )
 
-        enabled = can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data)
-        reasons = runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data)
+        enabled = can_runecraft_target_pure(
+            player_data,
+            target_id,
+            runecrafting_data,
+            pouch_data,
+            quest_unlock_rules,
+        )
+        reasons = runecrafting_locked_reasons_pure(
+            player_data,
+            target_id,
+            runecrafting_data,
+            pouch_data,
+            quest_unlock_rules,
+        )
         if reasons:
             tooltip += "\nLocked due to: " + ", ".join(reasons)
 

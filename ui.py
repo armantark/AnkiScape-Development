@@ -74,6 +74,7 @@ try:
         RUNECRAFTING_DATA,
         RUNECRAFTING_POUCH_DATA,
         QUEST_DATA,
+        QUEST_UNLOCK_RULES,
         CLAIM_DATA,
         BINDING_NECKLACE_ITEM,
         FIREMAKING_LOG_ITEMS,
@@ -127,6 +128,7 @@ except Exception:
         RUNECRAFTING_DATA,
         RUNECRAFTING_POUCH_DATA,
         QUEST_DATA,
+        QUEST_UNLOCK_RULES,
         CLAIM_DATA,
         BINDING_NECKLACE_ITEM,
         FIREMAKING_LOG_ITEMS,
@@ -155,9 +157,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_state_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_state_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -1612,6 +1614,7 @@ def show_main_menu(
                 MINING_PICKAXE_DATA,
                 DEFAULT_MINING_TARGET,
                 _MINING_DEFERRED_VARIANT_NOTES,
+                QUEST_UNLOCK_RULES,
             ),
             on_set_ore,
         )
@@ -1967,6 +1970,7 @@ def show_main_menu(
                 FISHING_DATA,
                 FISHING_ITEM_IMAGES,
                 DEFAULT_FISHING_TARGET,
+                QUEST_UNLOCK_RULES,
             ),
             on_set_fishing,
         )
@@ -2101,6 +2105,7 @@ def show_main_menu(
             RUNECRAFTING_ITEM_IMAGES,
             RUNECRAFTING_POUCH_DATA,
             DEFAULT_RUNECRAFTING_TARGET,
+            QUEST_UNLOCK_RULES,
         )
         current = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
         ordered_groups = list(RUNECRAFTING_GROUP_LABELS)
@@ -2565,9 +2570,29 @@ def show_main_menu(
     q_layout.setContentsMargins(12, 12, 12, 12)
     q_layout.setSpacing(8)
 
+    quest_top = QWidget()
+    quest_top_layout = QHBoxLayout(quest_top)
+    quest_top_layout.setContentsMargins(0, 0, 0, 0)
     quest_points_label = QLabel(f"Quest points: {int(player_data.get('quest_points', 0) or 0)}")
     quest_points_label.setStyleSheet("font-weight: 600; color: palette(text);")
-    q_layout.addWidget(quest_points_label)
+    sort_label = QLabel("Sort")
+    sort_label.setStyleSheet(f"color: {dim_text_css(sort_label)};")
+    quest_sort_combo = QComboBox()
+    quest_sort_combo.setObjectName("questSortCombo")
+    quest_sort_modes = (
+        "Release Order",
+        "Progress",
+        "Difficulty",
+        "Free/Members",
+        "Timeline",
+        "Length",
+    )
+    quest_sort_combo.addItems(list(quest_sort_modes))
+    quest_top_layout.addWidget(quest_points_label)
+    quest_top_layout.addStretch(1)
+    quest_top_layout.addWidget(sort_label)
+    quest_top_layout.addWidget(quest_sort_combo)
+    q_layout.addWidget(quest_top)
 
     quest_scroll = QScrollArea()
     quest_scroll.setWidgetResizable(True)
@@ -2591,7 +2616,63 @@ def show_main_menu(
             return "Continue quest"
         return "Start quest"
 
+    difficulty_order = {"Novice": 0, "Intermediate": 1, "Experienced": 2, "Master": 3, "Grandmaster": 4, "Special": 5}
+    length_order = {
+        "Short": 0,
+        "Short to Medium": 1,
+        "Medium": 2,
+        "Medium to Long": 3,
+        "Long": 4,
+        "Long to Very Long": 5,
+        "Very Long": 6,
+        "Very, Very Long": 7,
+    }
+    timeline_order = {"Fifth Age": 0, "Ambiguous": 1, "Sixth Age": 2}
+    expanded_quests = {}
+
+    def _quest_progress_rank(q_state: dict) -> int:
+        if q_state.get("started") and not q_state.get("completed"):
+            return 0
+        if not q_state.get("completed"):
+            return 1
+        return 2
+
+    def _quest_sort_key(item: tuple[str, dict], mode: str) -> tuple:
+        quest_id, quest = item
+        q_state = quest_state_pure(player_data, quest_id)
+        release_key = str(quest.get("release_date", "9999-99-99"))
+        name = str(quest.get("display_name", quest_id))
+        if mode == "Progress":
+            return (_quest_progress_rank(q_state), release_key, name)
+        if mode == "Difficulty":
+            return (difficulty_order.get(str(quest.get("difficulty", "")), 99), release_key, name)
+        if mode == "Free/Members":
+            return (1 if quest.get("members") else 0, release_key, name)
+        if mode == "Timeline":
+            return (timeline_order.get(str(quest.get("timeline", "")), 99), release_key, name)
+        if mode == "Length":
+            return (length_order.get(str(quest.get("length", "")), 99), release_key, name)
+        return (release_key, name)
+
+    def _short_lock_text(reasons: tuple) -> str:
+        if not reasons:
+            return ""
+        shown = [str(reason) for reason in reasons[:5]]
+        extra = len(reasons) - len(shown)
+        if extra > 0:
+            shown.append(f"+{extra} more")
+        return "Requires: " + ", ".join(shown)
+
+    def _clear_quest_cards() -> None:
+        while quest_content_layout.count():
+            item = quest_content_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.setParent(None)
+
     def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel) -> None:
+        if quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA):
+            return
         if on_set_quest is not None and on_set_quest(quest_id) is False:
             return
         state["active"] = "Quests"
@@ -2603,9 +2684,16 @@ def show_main_menu(
         button.setEnabled(False)
         status_label.setText(_quest_status_text(q_state, quest))
 
-    for quest_id, quest in QUEST_DATA.items():
+    def _add_quest_card(quest_id: str, quest: dict) -> None:
         q_state = quest_state_pure(player_data, quest_id)
+        lock_reasons = () if q_state.get("completed") else quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
+        lock_text = _short_lock_text(lock_reasons)
+        active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
+        default_expanded = bool(q_state.get("started") and not q_state.get("completed") and active_this_quest)
+        expanded = expanded_quests.get(quest_id, default_expanded)
+
         card = QWidget()
+        card.setObjectName(f"questCard_{quest_id}")
         card.setStyleSheet("border: 1px solid palette(mid); border-radius: 6px; background: palette(base);")
         card_layout = QVBoxLayout(card)
         card_layout.setContentsMargins(10, 8, 10, 8)
@@ -2614,31 +2702,59 @@ def show_main_menu(
         header = QWidget()
         header_layout = QHBoxLayout(header)
         header_layout.setContentsMargins(0, 0, 0, 0)
+        toggle_btn = QPushButton("v" if expanded else ">")
+        toggle_btn.setObjectName(f"questToggle_{quest_id}")
+        toggle_btn.setFixedWidth(28)
+        toggle_btn.setToolTip("Show or hide quest journal")
         title = QLabel(str(quest.get("display_name", quest_id)))
         title.setStyleSheet("font-weight: 700; color: palette(text);")
+        title.setToolTip(lock_text or str(quest.get("source", "")))
         status = QLabel(_quest_status_text(q_state, quest))
         status.setStyleSheet(f"color: {dim_text_css(status)};")
         quest_btn = QPushButton(_quest_button_text(q_state))
-        quest_btn.setEnabled(not q_state.get("completed") and state["active"] != "Quests")
-        if state["active"] == "Quests" and player_data.get("current_quest") == quest_id:
+        quest_btn.setObjectName(f"questAction_{quest_id}")
+        quest_btn.setEnabled(not q_state.get("completed") and state["active"] != "Quests" and not lock_reasons)
+        if lock_text:
+            quest_btn.setToolTip(lock_text)
+            header.setToolTip(lock_text)
+        if active_this_quest:
             quest_btn.setText("Currently active")
             quest_btn.setEnabled(False)
         quest_btn.clicked.connect(lambda _=False, qid=quest_id, btn=quest_btn, lbl=status: _set_quest_active(qid, btn, lbl))
+        header_layout.addWidget(toggle_btn)
         header_layout.addWidget(title)
         header_layout.addWidget(status)
         header_layout.addStretch(1)
         header_layout.addWidget(quest_btn)
         card_layout.addWidget(header)
 
+        body = QWidget()
+        body.setObjectName(f"questBody_{quest_id}")
+        body_layout = QVBoxLayout(body)
+        body_layout.setContentsMargins(0, 4, 0, 0)
+        body_layout.setSpacing(5)
+
         if not q_state.get("started"):
             start = QLabel(str(quest.get("start_point", "")))
             start.setWordWrap(True)
             start.setStyleSheet("color: palette(text);")
-            card_layout.addWidget(start)
+            body_layout.addWidget(start)
+        requirements = tuple(quest.get("requirements", ()) or ())
+        if requirements:
+            req_label = QLabel("Requires: " + ", ".join(str(req) for req in requirements))
+            req_label.setWordWrap(True)
+            req_label.setStyleSheet(f"color: {dim_text_css(req_label)};")
+            body_layout.addWidget(req_label)
+        unlocks = tuple(quest.get("unlocks", ()) or ())
+        if unlocks:
+            unlock_label = QLabel("Unlocks: " + ", ".join(str(unlock) for unlock in unlocks))
+            unlock_label.setWordWrap(True)
+            unlock_label.setStyleSheet(f"color: {dim_text_css(unlock_label)};")
+            body_layout.addWidget(unlock_label)
         for row in quest_journal_rows_pure(player_data, quest_id, QUEST_DATA):
             stage_label = QLabel(f"Stage {row['stage']}")
             stage_label.setStyleSheet("font-weight: 600; color: palette(text);")
-            card_layout.addWidget(stage_label)
+            body_layout.addWidget(stage_label)
             for line in row.get("lines", ()):
                 text = str(line)
                 if row.get("completed"):
@@ -2647,10 +2763,29 @@ def show_main_menu(
                 line_label.setWordWrap(True)
                 line_label.setTextFormat(Qt.TextFormat.RichText)
                 line_label.setStyleSheet("color: palette(text);")
-                card_layout.addWidget(line_label)
+                body_layout.addWidget(line_label)
+
+        body.setVisible(expanded)
+        card_layout.addWidget(body)
+
+        def _toggle_quest() -> None:
+            new_expanded = not body.isVisible()
+            expanded_quests[quest_id] = new_expanded
+            body.setVisible(new_expanded)
+            toggle_btn.setText("v" if new_expanded else ">")
+
+        toggle_btn.clicked.connect(_toggle_quest)
         quest_content_layout.addWidget(card)
 
-    quest_content_layout.addStretch(1)
+    def _rebuild_quest_cards() -> None:
+        _clear_quest_cards()
+        mode = quest_sort_combo.currentText() or "Release Order"
+        for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode)):
+            _add_quest_card(quest_id, quest)
+        quest_content_layout.addStretch(1)
+
+    quest_sort_combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
+    _rebuild_quest_cards()
     quest_scroll.setWidget(quest_content)
     q_layout.addWidget(quest_scroll, 1)
     tabs.addTab(quests_tab, "Quests")

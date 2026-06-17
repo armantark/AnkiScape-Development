@@ -26,13 +26,15 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QDialog, QLabel, QListWidget, QPushButton, QIcon, QImage, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QComboBox, QDialog, QLabel, QListWidget, QPushButton, QIcon, QImage, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
 
 
 def _make_player_data() -> dict:
+    from quest_data import default_quest_states
+
     data: dict = {"inventory": {}}
     for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting"):
         data[f"{skill}_level"] = 33
@@ -44,7 +46,7 @@ def _make_player_data() -> dict:
     data["equipment"] = {}
     data["current_runecrafting"] = "craft_air_runes"
     data["current_quest"] = "rune_mysteries"
-    data["quests"] = {"rune_mysteries": {"started": False, "progress": 0, "completed": False}}
+    data["quests"] = default_quest_states()
     data["quest_points"] = 0
     data["claims"] = {"wicked_hood": {"claimed": False}}
     data["wicked_hood"] = {"fed_altars": []}
@@ -949,15 +951,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Rune Mysteries", labels)
         self.assertIn("Quest points: 0", labels)
 
-        start_btn = next(
-            btn for btn in dialog.findChildren(QPushButton)
-            if btn.text() == "Start quest"
-        )
+        start_btn = dialog.findChild(QPushButton, "questAction_rune_mysteries")
+        self.assertIsNotNone(start_btn)
         start_btn.click()
         QApplication.processEvents()
         self.assertEqual(self._quest_calls[-1], "rune_mysteries")
         self.assertEqual(start_btn.text(), "Currently active")
         self.assertFalse(start_btn.isEnabled())
+
+    def test_quests_tab_defaults_release_sort_and_collapses_completed_journals(self) -> None:
+        pd = _make_player_data()
+        pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        dialog = self._open(pd)
+
+        sort_combo = dialog.findChild(QComboBox, "questSortCombo")
+        self.assertIsNotNone(sort_combo)
+        self.assertEqual(sort_combo.currentText(), "Release Order")
+        self.assertIn("Difficulty", [sort_combo.itemText(i) for i in range(sort_combo.count())])
+        self.assertIn("Length", [sort_combo.itemText(i) for i in range(sort_combo.count())])
+
+        body = dialog.findChild(QWidget, "questBody_rune_mysteries")
+        toggle = dialog.findChild(QPushButton, "questToggle_rune_mysteries")
+        self.assertIsNotNone(body)
+        self.assertIsNotNone(toggle)
+        self.assertTrue(body.isHidden())
+        toggle.click()
+        QApplication.processEvents()
+        self.assertFalse(body.isHidden())
 
     def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:
         pd = _make_player_data()

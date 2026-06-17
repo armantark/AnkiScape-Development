@@ -30,7 +30,15 @@ try:
         fishing_output_items,
     )
     from .item_registry import build_item_definitions
-    from .quest_data import CLAIMS_BY_ID, QUESTS_BY_ID, claims_as_dict, quests_as_dict
+    from .quest_data import (
+        CLAIMS_BY_ID,
+        QUESTS_BY_ID,
+        claims_as_dict,
+        quest_reward_items_as_dict,
+        quest_references_as_dict,
+        quest_unlock_rules_as_dict,
+        quests_as_dict,
+    )
     from .runecrafting_data import (
         DEFAULT_RUNECRAFTING_TARGET,
         BINDING_NECKLACE_ITEM,
@@ -97,7 +105,15 @@ except ImportError:
         fishing_output_items,
     )
     from item_registry import build_item_definitions
-    from quest_data import CLAIMS_BY_ID, QUESTS_BY_ID, claims_as_dict, quests_as_dict
+    from quest_data import (
+        CLAIMS_BY_ID,
+        QUESTS_BY_ID,
+        claims_as_dict,
+        quest_reward_items_as_dict,
+        quest_references_as_dict,
+        quest_unlock_rules_as_dict,
+        quests_as_dict,
+    )
     from runecrafting_data import (
         DEFAULT_RUNECRAFTING_TARGET,
         BINDING_NECKLACE_ITEM,
@@ -480,6 +496,9 @@ RUNECRAFTING_POUCH_DATA = runecrafting_pouches_as_dict()
 RUNECRAFTING_OUTPUT_ITEMS = runecrafting_output_items()
 RUNECRAFTING_ACCESS_ITEMS = runecrafting_access_items()
 QUEST_DATA = quests_as_dict()
+QUEST_REFERENCE_DATA = quest_references_as_dict()
+QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
+QUEST_REWARD_ITEM_DATA = quest_reward_items_as_dict()
 CLAIM_DATA = claims_as_dict()
 
 
@@ -629,6 +648,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FISHING_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
+    **QUEST_REWARD_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,

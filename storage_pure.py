@@ -21,7 +21,7 @@ try:
         LEGACY_SMITHING_TARGETS,
         SMITHING_RECIPES_BY_ID,
     )
-    from .skill_registry import default_skill_state, default_target_state, planned_skill_definitions
+    from .skill_registry import default_skill_state, default_target_state, implemented_skill_definitions, planned_skill_definitions
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -47,14 +47,14 @@ except ImportError:
         LEGACY_SMITHING_TARGETS,
         SMITHING_RECIPES_BY_ID,
     )
-    from skill_registry import default_skill_state, default_target_state, planned_skill_definitions
+    from skill_registry import default_skill_state, default_target_state, implemented_skill_definitions, planned_skill_definitions
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 15
+CURRENT_CONFIG_VERSION = 16
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -123,6 +123,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["equipment"] = {}
     data["quests"] = default_quest_states()
     data["quest_points"] = 0
+    data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
     data["wicked_hood"] = {"fed_altars": []}
     data["runecrafting_pouches"] = {}
@@ -258,6 +259,31 @@ def _migrate_quest_state(data: Dict[str, Any]) -> None:
     if not isinstance(current_quest, str) or current_quest not in clean_quests:
         current_quest = DEFAULT_QUEST_TARGET
     data["current_quest"] = current_quest
+
+
+def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
+    raw_pending = data.get("pending_skill_exp_rewards")
+    implemented_exp_keys = {skill.exp_key for skill in implemented_skill_definitions()}
+    clean_pending: Dict[str, float] = {}
+    if isinstance(raw_pending, dict):
+        for exp_key, raw_amount in raw_pending.items():
+            if not isinstance(exp_key, str):
+                continue
+            try:
+                amount = float(raw_amount)
+            except (TypeError, ValueError):
+                continue
+            if amount <= 0:
+                continue
+            if exp_key in implemented_exp_keys:
+                try:
+                    existing = float(data.get(exp_key, 0) or 0)
+                except (TypeError, ValueError):
+                    existing = 0.0
+                data[exp_key] = existing + amount
+            else:
+                clean_pending[exp_key] = clean_pending.get(exp_key, 0.0) + amount
+    data["pending_skill_exp_rewards"] = clean_pending
 
 
 def _migrate_claim_state(data: Dict[str, Any]) -> None:
@@ -447,6 +473,7 @@ def migrate_loaded_data(
     _migrate_cooking_target(data)
     _migrate_runecrafting_target(data)
     _migrate_quest_state(data)
+    _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
     _migrate_runecrafting_side_state(data)
     _migrate_toolbelt(data)

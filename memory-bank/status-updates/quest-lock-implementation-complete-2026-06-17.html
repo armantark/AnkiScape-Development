@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Unlock Registry Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(79, 140, 255, 0.15), transparent 28rem),
+        radial-gradient(circle at 88% 12%, rgba(74, 222, 128, 0.12), transparent 24rem),
+        linear-gradient(180deg, #0c0e12 0%, #10131a 100%);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      font-weight: 300;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 48px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: end;
+      margin-bottom: 22px;
+    }
+
+    h1 {
+      margin: 10px 0 10px;
+      font-size: clamp(2rem, 6vw, 4.6rem);
+      line-height: 0.92;
+      letter-spacing: 0;
+    }
+
+    h2, h3, p { margin-top: 0; }
+
+    p {
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .badge, .tag, .label, .metric-label {
+      font-family: "JetBrains Mono", monospace;
+      letter-spacing: 0;
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: var(--accent-glow);
+      color: #9ec0ff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .summary-card, .card, .quest-ui {
+      background: rgba(22, 26, 33, 0.86);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.24);
+    }
+
+    .summary-card {
+      padding: 18px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .metric {
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .metric-label {
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .card {
+      padding: 18px;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(79, 140, 255, 0.42);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+
+    .label.done { color: var(--green); }
+    .label.ui { color: var(--purple); }
+    .label.lock { color: var(--red); }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      padding: 5px 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--text-dim);
+      font-size: 0.65rem;
+    }
+
+    .matrix {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 178px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(30, 35, 44, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .row strong {
+      font-size: 0.92rem;
+    }
+
+    .row span {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    .quest-ui {
+      padding: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    .toolbar .points {
+      font-weight: 700;
+      flex: 1;
+    }
+
+    select {
+      color: var(--text);
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: 600 0.78rem "JetBrains Mono", monospace;
+    }
+
+    .quest-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .quest {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #11151c;
+      overflow: hidden;
+    }
+
+    .quest button {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      text-align: left;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .chev {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: inline-grid;
+      place-items: center;
+      background: var(--surface-2);
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      flex: 0 0 auto;
+    }
+
+    .quest-title {
+      flex: 1;
+      font-weight: 700;
+    }
+
+    .status {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .quest-body {
+      display: none;
+      padding: 0 10px 12px 44px;
+      color: var(--text-dim);
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .quest.open .quest-body { display: block; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .flow-step {
+      position: relative;
+      padding: 14px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      min-height: 118px;
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .flow-step p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      margin-bottom: 8px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: #fff;
+      font: 600 0.75rem "JetBrains Mono", monospace;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      color: var(--text-dim);
+    }
+
+    .box {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.65);
+      color: var(--green);
+      display: inline-grid;
+      place-items: center;
+      font-size: 0.72rem;
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+
+    footer {
+      margin-top: 18px;
+      color: var(--text-dim);
+      font-size: 0.86rem;
+    }
+
+    a {
+      color: #9ec0ff;
+      text-decoration: none;
+    }
+
+    @media (max-width: 900px) {
+      header, .grid, .flow { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 520px) {
+      main { width: min(100vw - 20px, 1180px); padding-top: 20px; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .toolbar { align-items: stretch; flex-direction: column; }
+      select { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section>
+        <span class="badge">Completed 2026-06-17</span>
+        <h1>Quest Unlock Registry</h1>
+        <p>
+          Priority quest gates are now implemented as real playable quests with
+          strict start requirements, completion-based target locks, deferred XP
+          storage, and a collapsible Quest journal.
+        </p>
+      </section>
+      <aside class="summary-card" aria-label="Implementation metrics">
+        <div class="metric-grid">
+          <div class="metric"><strong>7</strong><span class="metric-label">Playable quest rows</span></div>
+          <div class="metric"><strong>3</strong><span class="metric-label">Skill families gated</span></div>
+          <div class="metric"><strong>0</strong><span class="metric-label">State-only unlock quests</span></div>
+          <div class="metric"><strong>326</strong><span class="metric-label">Test count passing</span></div>
+        </div>
+      </aside>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-head">
+          <h2>Strong Gates</h2>
+          <span class="label lock">Backend</span>
+        </div>
+        <p>
+          The target locks now come from one auditable registry instead of
+          one-off checks in each skill screen.
+        </p>
+        <div class="matrix" aria-label="Quest lock matrix">
+          <div class="row"><strong>Rune Mysteries</strong><span>Mining rune essence and global Runecrafting access.</span></div>
+          <div class="row"><strong>Lost City</strong><span>Cosmic rune crafting, cosmic tiara binding, and hood feeding.</span></div>
+          <div class="row"><strong>Lunar Diplomacy</strong><span>Astral rune crafting.</span></div>
+          <div class="row"><strong>Mourning's End II</strong><span>Death rune crafting, death tiara binding, and hood feeding.</span></div>
+          <div class="row"><strong>Legacy of Seergaze</strong><span>Blood rune crafting, blood tiara binding, and hood feeding.</span></div>
+          <div class="row"><strong>Swan Song</strong><span>Monkfish.</span></div>
+          <div class="row"><strong>Tai Bwo Wannai Trio</strong><span>Karambwan.</span></div>
+        </div>
+        <div class="tags">
+          <span class="tag">quest_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">target_metadata.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Quest Journal</h2>
+          <span class="label ui">Frontend</span>
+        </div>
+        <p>
+          The Quest tab now scales past a handful of completed quests. Release
+          order is the default; the dropdown also includes current RuneScape
+          list modes.
+        </p>
+        <div class="quest-ui">
+          <div class="toolbar">
+            <div class="points">Quest points: 4</div>
+            <label class="label" for="sort">Sort</label>
+            <select id="sort">
+              <option>Release Order</option>
+              <option>Progress</option>
+              <option>Difficulty</option>
+              <option>Free/Members</option>
+              <option>Timeline</option>
+              <option>Length</option>
+            </select>
+          </div>
+          <div class="quest-list">
+            <div class="quest">
+              <button type="button"><span class="chev">&gt;</span><span class="quest-title">Lost City</span><span class="status">Completed</span></button>
+              <div class="quest-body">Collapsed by default once finished.</div>
+            </div>
+            <div class="quest open">
+              <button type="button"><span class="chev">v</span><span class="quest-title">Rune Mysteries</span><span class="status">In progress</span></button>
+              <div class="quest-body">Active quest remains expanded with compact requirements and journal rows.</div>
+            </div>
+            <div class="quest">
+              <button type="button"><span class="chev">&gt;</span><span class="quest-title">Lunar Diplomacy</span><span class="status">Requires unimplemented prerequisites</span></button>
+              <div class="quest-body">Start is blocked until prerequisite quests and skills exist.</div>
+            </div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Strict Starts</h2>
+          <span class="label done">Rules</span>
+        </div>
+        <p>
+          A quest with missing prerequisite content is not startable. Lunar
+          Diplomacy, Swan Song, and Legacy of Seergaze stay impossible until
+          their prerequisite quests and unimplemented skills exist.
+        </p>
+        <div class="flow">
+          <div class="flow-step">
+            <span class="step-num">1</span>
+            <strong>Check prerequisites</strong>
+            <p>Required quest rows and required skills are validated before start.</p>
+          </div>
+          <div class="flow-step">
+            <span class="step-num">2</span>
+            <strong>Block missing systems</strong>
+            <p>Unimplemented skills or quests show concise requirement text.</p>
+          </div>
+          <div class="flow-step">
+            <span class="step-num">3</span>
+            <strong>Allow only real starts</strong>
+            <p>Started quests can continue; completed quests cannot restart.</p>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">quest_locked_reasons_pure</span>
+          <span class="tag">can_start_quest_pure</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Deferred XP</h2>
+          <span class="label done">Storage</span>
+        </div>
+        <p>
+          Rewards for implemented skills apply immediately. Rewards for planned
+          skills are parked in flat player state and migrate once the skill
+          becomes implemented.
+        </p>
+        <div class="checklist">
+          <div class="check"><span class="box">✓</span><span>Implemented XP uses the current skill XP key and triggers level checks.</span></div>
+          <div class="check"><span class="box">✓</span><span>Unimplemented XP lands in <code>pending_skill_exp_rewards</code>.</span></div>
+          <div class="check"><span class="box">✓</span><span>Migration applies pending implemented keys once and preserves future keys.</span></div>
+        </div>
+        <div class="tags">
+          <span class="tag">storage_pure.py</span>
+          <span class="tag">tests/test_storage_pure.py</span>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      Source note: current Quest List sort modes were checked against
+      <a href="https://runescape.fandom.com/wiki/Quest_List">RuneScape Wiki's Quest List interface page</a>.
+      The remaining route/location and stage-aware gates stay parked in the Memory Bank.
+    </footer>
+  </main>
+
+  <script>
+    document.querySelectorAll(".quest button").forEach((button) => {
+      button.addEventListener("click", () => {
+        const quest = button.closest(".quest");
+        const open = quest.classList.toggle("open");
+        button.querySelector(".chev").textContent = open ? "v" : ">";
+      });
+    });
+  </script>
+</body>
+</html>

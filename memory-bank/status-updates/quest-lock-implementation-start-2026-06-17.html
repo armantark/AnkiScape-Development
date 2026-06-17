@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Lock Implementation Start</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 14px 0 8px;
+      font-size: 2rem;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      max-width: 780px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 0.98rem;
+      line-height: 1.55;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.16);
+    }
+    .card h2 {
+      margin: 8px 0 10px;
+      font-size: 1.12rem;
+      letter-spacing: 0;
+    }
+    .priority {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+    .priority.critical { color: var(--red); }
+    .priority.good { color: var(--green); }
+    .priority.purple { color: var(--purple); }
+    p, li {
+      color: var(--text-dim);
+      line-height: 1.5;
+      font-size: 0.93rem;
+    }
+    ul { margin: 10px 0 0; padding-left: 18px; }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      padding: 5px 8px;
+      color: var(--text);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.65rem;
+    }
+    .lane {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 9px 0;
+      border-top: 1px solid var(--border);
+    }
+    .lane:first-of-type { border-top: 0; }
+    .lane b {
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .target-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .target {
+      min-height: 46px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      padding: 9px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      color: var(--text);
+    }
+    .target span {
+      display: block;
+      margin-top: 4px;
+      color: var(--text-dim);
+      font-family: "Outfit", sans-serif;
+      font-size: 0.76rem;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .step {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      padding: 12px;
+      min-height: 98px;
+    }
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .step p { margin: 8px 0 0; font-size: 0.82rem; }
+    @media (max-width: 900px) {
+      .grid, .flow, .target-list { grid-template-columns: 1fr; }
+      .lane { grid-template-columns: 1fr; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-implementation plan</span>
+    <h1>Quest Lock Registry: P1 Copy-Forward Pass</h1>
+    <p class="subtitle">
+      The audit and current code answer the grill branches: quest completion gates should be centralized,
+      route/location gates stay out of global target locks, karambwan uses completion-only until stage-aware
+      quest state exists, and existing display lock reasons are enough for this slice.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <span class="priority critical">Backend</span>
+        <h2>Central Completion Gate Rules</h2>
+        <p>Add missing quest definitions and one auditable target-lock registry, then feed it into pure lock checks before runtime actions mutate XP, inventory, or quest state.</p>
+        <div class="target-list">
+          <div class="target">Rune Mysteries<span>Mining rune essence</span></div>
+          <div class="target">Lost City<span>Cosmic altar rows</span></div>
+          <div class="target">Lunar Diplomacy<span>Astral rune row</span></div>
+          <div class="target">Mourning's End Part II<span>Death altar rows</span></div>
+          <div class="target">Legacy of Seergaze<span>Blood altar rows</span></div>
+          <div class="target">Swan Song / Tai Bwo Wannai Trio<span>Monkfish and karambwan</span></div>
+        </div>
+        <div class="tags">
+          <span class="tag">quest_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">tests/test_logic.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority">Frontend</span>
+        <h2>Use Existing Row Metadata</h2>
+        <p>Surface quest names through the same locked tooltip path already used for levels, materials, tools, altar access, and Runecrafting groups.</p>
+        <ul>
+          <li>No new player-visible state for route gates.</li>
+          <li>No new lock-kind contract unless tests reveal display text is insufficient.</li>
+          <li>Disabled quest rows remain inert through existing click guards.</li>
+        </ul>
+        <div class="tags">
+          <span class="tag">target_metadata.py</span>
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority good">Out of scope</span>
+        <h2>Route Gates Stay Parked</h2>
+        <p>Gem rocks, Mort Myre flavored gathering, Neitiznot/yak/arctic pine sources, and chaos altar shortcuts are route or acquisition-model work. The current targets remain generic and route-neutral.</p>
+        <div class="tags">
+          <span class="tag">quest-unlock-audit</span>
+          <span class="tag">future-work-kanban</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority purple">Verification</span>
+        <h2>Targeted Proof</h2>
+        <div class="flow">
+          <div class="step"><span class="num">1</span><p>Unit tests for each quest gate and unblock path.</p></div>
+          <div class="step"><span class="num">2</span><p>Runtime action tests prove locks stop mutation.</p></div>
+          <div class="step"><span class="num">3</span><p>Qt tests prove row tooltips show quest names.</p></div>
+          <div class="step"><span class="num">4</span><p>Full pure and offscreen Qt test pair before commit.</p></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

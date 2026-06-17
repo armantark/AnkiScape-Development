@@ -19,9 +19,45 @@ skill after the Rune Mysteries pilot settles the final pattern.
   state before they should be copied into the normal `quest_completed_pure`
   pattern.
 
+## Implementation Status - 2026-06-17
+
+The priority completion unlocks from this audit have now been implemented in
+the live add-on. `quest_data.py` defines playable Quest rows for Rune Mysteries,
+Lost City, Tai Bwo Wannai Trio, Mourning's End Part II, Swan Song, Lunar
+Diplomacy, and Legacy of Seergaze, each with release-order metadata and compact
+journal stages.
+
+Strong completion gates now live in a central `QUEST_UNLOCK_RULES` registry and
+feed pure lock-reason helpers for Mining, Fishing, and Runecrafting. The
+implemented locks are:
+
+| Quest | Targets now gated |
+| --- | --- |
+| Rune Mysteries | Mining `rune_essence` plus the existing global Runecrafting/Wicked hood gates |
+| Lost City | Runecrafting `craft_cosmic_runes`, `bind_cosmic_tiara`, `feed_cosmic_talisman_to_hood`, `feed_cosmic_tiara_to_hood` |
+| Lunar Diplomacy | Runecrafting `craft_astral_runes` |
+| Mourning's End Part II | Runecrafting `craft_death_runes`, `bind_death_tiara`, `feed_death_talisman_to_hood`, `feed_death_tiara_to_hood` |
+| Legacy of Seergaze | Runecrafting `craft_blood_runes`, `bind_blood_tiara`, `feed_blood_talisman_to_hood`, `feed_blood_tiara_to_hood` |
+| Swan Song | Fishing `catch_monkfish` |
+| Tai Bwo Wannai Trio | Fishing `catch_karambwan` |
+
+Quest starts are strict. If a required skill or prerequisite quest is not
+implemented, the quest is impossible to start and the UI surfaces a concise
+requirement tooltip instead of allowing an approximation. XP rewards for
+implemented skills are granted on completion; XP rewards for unimplemented
+skills are stored in `pending_skill_exp_rewards` and applied programmatically
+during save migration once the relevant skill exists.
+
+The Quests tab is now collapsible and sortable. It defaults to real
+RuneScape release order, while also exposing the live-game sort modes
+Free/Members, Progress, Difficulty, Timeline, and Length. Completed quest
+bodies are collapsed by default, and the active in-progress quest remains
+expanded.
+
 ## Current Quest Surface
 
-Implemented quest state is minimal and completion-based:
+Historical note from before the implementation pass: quest state was minimal
+and completion-based:
 
 - `quest_data.py:15` defines `rune_mysteries`.
 - `quest_data.py:130-145` registers Rune Mysteries as the only quest.
@@ -188,4 +224,3 @@ Runecrafting per-altar gates.
    actions rather than direct skill target locks?
 5. Do FE lock reasons need a stable machine-readable `lock_kind="quest"` field,
    or is display text enough for now?
-

@@ -14,6 +14,7 @@ from .constants import (
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
     QUEST_DATA,
+    QUEST_UNLOCK_RULES,
     CLAIM_DATA,
     UTILITY_ACTIVITY_DATA,
     DEFAULT_FIREMAKING_TARGET,
@@ -83,10 +84,8 @@ from .logic_pure import (
     apply_woodcutting_action_pure,
     apply_mining_action_pure,
     sanitize_review_action_multiplier,
-    can_fish_method_pure,
     eligible_fishing_fish_pure,
     has_fishing_bait_pure,
-    can_mine_target_pure,
     can_chop_woodcutting_target_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
@@ -94,6 +93,8 @@ from .logic_pure import (
     equip_item_pure,
     unequip_item_pure,
     equipment_bonus_state_pure,
+    mining_target_locked_reasons_pure,
+    fishing_method_locked_reasons_pure,
     calculate_new_level,
 )
 from .logic import level_up_check, check_achievements
@@ -118,6 +119,7 @@ from .injectors import register_deck_browser_button as _register_deck_browser_bu
 from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .action_registry import is_review_action, review_action_handler_key
+from .skill_registry import implemented_skill_definitions
 
 global card_turned, exp_awarded, answer_shown
 
@@ -339,7 +341,7 @@ def _refresh_skill_availability() -> None:
             )
             for target_key in COOKING_DATA.keys()
         )
-        can_runecraft_any = can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA)
+        can_runecraft_any = can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA, QUEST_UNLOCK_RULES)
         refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any, can_cook_any, can_runecraft_any)
     except Exception:
         pass
@@ -371,6 +373,28 @@ def _award_hidden_skill_exp(exp_key: str, level_key: str, base_exp: float) -> No
         player_data.get(level_key, 1),
         EXP_TABLE,
     )
+
+
+def _implemented_exp_keys_snapshot() -> dict[str, float]:
+    return {
+        skill.exp_key: float(player_data.get(skill.exp_key, 0) or 0)
+        for skill in implemented_skill_definitions()
+    }
+
+
+def _show_quest_exp_delta(before: dict[str, float]) -> None:
+    total = 0.0
+    for skill in implemented_skill_definitions():
+        old_exp = before.get(skill.exp_key, 0.0)
+        try:
+            new_exp = float(player_data.get(skill.exp_key, 0) or 0)
+        except (TypeError, ValueError):
+            new_exp = old_exp
+        if new_exp > old_exp:
+            total += new_exp - old_exp
+            level_up_check(skill.display_name, player_data)
+    if total > 0:
+        _show_exp(total)
 
 
 def _capture_player_data_snapshot():
@@ -785,6 +809,14 @@ def on_fishing_answer():
             f"You do not meet the side-level requirements for {display_name}, so Fishing has been switched off.",
         )
         return False
+    locked_reasons = fishing_method_locked_reasons_pure(player_data, target, FISHING_DATA, QUEST_UNLOCK_RULES)
+    if locked_reasons:
+        _deactivate_current_skill()
+        show_error_message(
+            "Fishing target locked",
+            f"{display_name} requires {', '.join(locked_reasons)}, so Fishing has been switched off.",
+        )
+        return False
 
     rolls = [random.random() for _ in eligible]
     new_inv, base_exp, ok, _output_item, side_exp = apply_fishing_action_pure(
@@ -886,6 +918,7 @@ def on_runecrafting_answer():
         RUNECRAFTING_DATA,
         RUNECRAFTING_POUCH_DATA,
         rolls=rolls,
+        quest_unlock_rules=QUEST_UNLOCK_RULES,
     )
     if not ok:
         _deactivate_current_skill()
@@ -923,11 +956,13 @@ def on_quest_answer():
         )
         return False
 
+    exp_before = _implemented_exp_keys_snapshot()
     new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
     if not ok:
         return False
     player_data.update(new_data)
     if completed_now:
+        _show_quest_exp_delta(exp_before)
         _deactivate_current_skill()
     check_achievements(player_data)
     save_player_data()
@@ -1231,6 +1266,14 @@ def on_mining_answer():
             "You need a usable pickaxe to train Mining. Mining has been switched off.",
         )
         return False
+    locked_reasons = mining_target_locked_reasons_pure(player_data, ore, ORE_DATA, MINING_PICKAXE_DATA, QUEST_UNLOCK_RULES)
+    if locked_reasons:
+        _deactivate_current_skill()
+        show_error_message(
+            "Mining target locked",
+            f"{ore_spec.get('display_name', ore)} requires {', '.join(locked_reasons)}, so Mining has been switched off.",
+        )
+        return False
 
     bonus_state = equipment_bonus_state_pure(player_data.get("equipment", {}) or {}, MINING_BONUS_ITEM_DATA)
     gem_drop_chance = GLORY_GEM_DROP_CHANCE if bonus_state["has_glory"] else INCIDENTAL_GEM_DROP_CHANCE
@@ -1340,13 +1383,11 @@ def _can_start_firemaking_action() -> bool:
 
 
 def _can_start_fishing_action() -> bool:
-    return can_fish_method_pure(
-        player_data.get("fishing_level", 1),
-        player_data.get("inventory", {}),
+    return not fishing_method_locked_reasons_pure(
+        player_data,
         player_data.get("current_fishing", DEFAULT_FISHING_TARGET),
         FISHING_DATA,
-        player_data.get("strength_level", 1),
-        player_data.get("agility_level", 1),
+        QUEST_UNLOCK_RULES,
     )
 
 
@@ -1367,6 +1408,7 @@ def _can_start_runecrafting_action() -> bool:
         target,
         RUNECRAFTING_DATA,
         RUNECRAFTING_POUCH_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 
@@ -1416,13 +1458,12 @@ def _can_start_woodcutting_action() -> bool:
 
 
 def _can_start_mining_action() -> bool:
-    return can_mine_target_pure(
-        player_data.get("mining_level", 1),
+    return not mining_target_locked_reasons_pure(
+        player_data,
         player_data.get("current_ore", DEFAULT_MINING_TARGET),
         ORE_DATA,
-        player_data.get("inventory", {}),
-        player_data.get("toolbelt", {}),
         MINING_PICKAXE_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 
