@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Lock Audit Complete</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel-2: #1f2732;
+      --border: #303949;
+      --text: #edf2f7;
+      --muted: #98a4b5;
+      --blue: #63a4ff;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --red: #fb7185;
+      --violet: #b794f4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 30px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: end;
+      margin-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 18px;
+    }
+    .eyebrow {
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      font-size: .74rem;
+      font-weight: 700;
+    }
+    h1 { margin: 8px 0 8px; font-size: clamp(2rem, 4.5vw, 4rem); line-height: .95; }
+    .summary { color: var(--muted); max-width: 760px; line-height: 1.55; font-size: 1.04rem; }
+    .stamp {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      border: 1px solid var(--border);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    h2 { margin: 0 0 12px; font-size: 1rem; }
+    .stack { display: grid; gap: 8px; }
+    .row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 10px 12px;
+    }
+    .row strong { display: block; font-size: .95rem; }
+    .row span { color: var(--muted); font-size: .82rem; line-height: 1.35; }
+    .pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: .68rem;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      padding: 5px 8px;
+    }
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+    .red { color: var(--red); }
+    .violet { color: var(--violet); }
+    .blue { color: var(--blue); }
+    .full { grid-column: 1 / -1; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .step {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 110px;
+    }
+    .step b { color: var(--blue); display: block; margin-bottom: 8px; }
+    .step p { margin: 0; color: var(--muted); line-height: 1.42; font-size: .9rem; }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    @media (max-width: 880px) {
+      body { padding: 18px; }
+      header, .grid, .flow { grid-template-columns: 1fr; }
+      .stamp { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">Quest Lock Audit Complete</div>
+        <h1>Unlocks separated from route checks</h1>
+        <p class="summary">
+          The audit now gives future agents a hard line between completion-based quest gates, route/location gates that need a new model, and quest-flavored content that should not be locked globally.
+        </p>
+      </div>
+      <div class="stamp">2026-06-17<br>memory-bank/quest-unlock-audit-2026-06-17.md</div>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Copy-Forward Candidates</h2>
+        <div class="stack">
+          <div class="row"><div><strong>Rune Mysteries -> Mining rune essence</strong><span>Strong completion gate; essence mine access is quest-locked.</span></div><i class="pill green">copy</i></div>
+          <div class="row"><div><strong>Lost City / Lunar Diplomacy / MEP2 / Legacy</strong><span>Per-altar Runecrafting gates for cosmic, astral, death, and blood families.</span></div><i class="pill green">copy</i></div>
+          <div class="row"><div><strong>Swan Song -> monkfish</strong><span>Catch target relies on Piscatoris Fishing Colony access.</span></div><i class="pill green">copy</i></div>
+          <div class="row"><div><strong>Tai Bwo Wannai Trio -> karambwan</strong><span>Needs a completion-only approximation unless stage-aware quests land first.</span></div><i class="pill amber">decide</i></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Do Not Global-Gate</h2>
+        <div class="stack">
+          <div class="row"><div><strong>Cook's Assistant</strong><span>Only the Lumbridge cook's range object is blocked in source.</span></div><i class="pill red">no</i></div>
+          <div class="row"><div><strong>Doric's Quest</strong><span>Only Doric's anvil is blocked; Smithing as a skill is not.</span></div><i class="pill red">no</i></div>
+          <div class="row"><div><strong>Druidic Ritual</strong><span>Herblore unlock is real, but Herblore is not implemented.</span></div><i class="pill violet">future</i></div>
+          <div class="row"><div><strong>Shilo gem rocks / Mort Myre / Fremennik Isles</strong><span>These are route/acquisition locks until the backend models routes.</span></div><i class="pill amber">defer</i></div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Future Skill Shape</h2>
+        <div class="flow">
+          <div class="step"><b>1. Quest data</b><p>Add stable quest definitions first, with source provenance.</p></div>
+          <div class="step"><b>2. Registry</b><p>Store completion unlock rules centrally or in a clearly imported sidecar.</p></div>
+          <div class="step"><b>3. Pure logic</b><p>Reuse `quest_completed_pure` for completion locks only.</p></div>
+          <div class="step"><b>4. FE reasons</b><p>Render quest names through target-row metadata after backend behavior exists.</p></div>
+          <div class="step"><b>5. Tests</b><p>Cover blocked and unlocked paths per skill family, then run Qt/manual smoke.</p></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

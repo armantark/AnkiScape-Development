@@ -203,3 +203,8 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Firemaking-specific follow-up: bonfires/fire spirits, only if explicitly prioritized.
 - Cooking follow-ups: broader source-backed acquisition routes for remaining prep materials, only if explicitly prioritized.
 - Runecrafting follow-ups: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes, only if explicitly prioritized.
+- Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
+  records implemented targets that should be locked by quest completion versus
+  route/location checks that should stay ungated until a route model exists. Use
+  it before creating a systematic Codex skill for copying quest gates across
+  Mining, Runecrafting, Fishing, and later quest-aware skills.

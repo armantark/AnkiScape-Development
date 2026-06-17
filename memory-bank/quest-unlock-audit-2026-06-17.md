@@ -1,0 +1,191 @@
+# Quest Unlock Audit - 2026-06-17
+
+Purpose: inventory the implemented AnkiScape skill surface and separate content
+that should be locked by quest completion from content that only looks
+quest-related because a source location, quest stage, or acquisition route is
+special. This is intended as a durable input for a later quest-lock migration
+skill after the Rune Mysteries pilot settles the final pattern.
+
+## Source Policy
+
+- Prefer local 2011Scape source when it has the behavior.
+- Use archived 2011 Knowledge Base pages for requirements and map/location
+  facts that the emulator source does not model.
+- Use RuneScape Wiki/Fandom only where the local source and 2011Scape archive do
+  not expose a specific item acquisition rule.
+- Completion unlocks are not the same thing as route locks. Do not global-gate a
+  skill target just because one location or source NPC is quest-restricted.
+- Quest-stage recipes are not completion unlocks. They need stage-aware quest
+  state before they should be copied into the normal `quest_completed_pure`
+  pattern.
+
+## Current Quest Surface
+
+Implemented quest state is minimal and completion-based:
+
+- `quest_data.py:15` defines `rune_mysteries`.
+- `quest_data.py:130-145` registers Rune Mysteries as the only quest.
+- `quest_data.py:42-48` defines claim requirements with default Rune Mysteries
+  and Runecrafting level 5 requirements.
+- `logic_pure.py:623-636` exposes `quest_state_pure()` and
+  `quest_completed_pure()`.
+- `logic_pure.py:777-779` makes Rune Mysteries the global Runecrafting unlock.
+- `logic_pure.py:973-1011` applies the Runecrafting lock reasons; today these
+  include the global Rune Mysteries check, levels, materials, altar access, and
+  hood feed state, but no per-altar quest gates.
+
+## Quest Gates Already Implemented
+
+| Quest | Unlock | Current implementation | Verdict |
+| --- | --- | --- | --- |
+| Rune Mysteries | Runecrafting skill access | `runecrafting_unlocked_pure()` blocks every Runecrafting target until `quest_completed_pure(player_data, "rune_mysteries")` is true. | Keep. This matches local source and 2011 KB evidence. |
+| Rune Mysteries + Runecrafting 5 | Wicked hood one-time Bank Claim | `CLAIMS` defaults require Rune Mysteries and Runecrafting 5; `claim_locked_reasons_pure()` enforces both. | Keep. This is an AnkiScape adaptation, not a direct 2011Scape quest unlock. |
+
+Evidence:
+
+- Local source `skills/runecrafting/runecrafting.plugin.kts:17-31` checks
+  `finishedQuest(RuneMysteries)` before entering runecrafting ruins by talisman
+  or tiara/varbit entry.
+- 2011Scape Runecrafting basics says mining your own rune essence requires Rune
+  Mysteries and lists Rune Mysteries as the entry point to rune essence access:
+  https://www.2011.rs/kb/runecrafting_the_basics
+
+## Implemented Content Missing Strong Quest Gates
+
+These are the best candidates for a first systematic migration after Rune
+Mysteries proves the quest data/state pattern.
+
+| Quest | Skill | Implemented target/action IDs | Lock type | Why it should be gated |
+| --- | --- | --- | --- | --- |
+| Rune Mysteries | Mining | `rune_essence` | Completion unlock | `mining_data.py:129-145` exposes Rune essence and Pure essence through one target. Local Sedridor/Aubury teleport source and the 2011 KB state that essence mine access requires Rune Mysteries. |
+| Lost City | Runecrafting | `craft_cosmic_runes`, `bind_cosmic_tiara`, `feed_cosmic_talisman_to_hood`, `feed_cosmic_tiara_to_hood` | Completion unlock | The cosmic altar is inside Zanaris/Lost City. The 2011 KB explicitly says cosmic runes require Lost City. |
+| Lunar Diplomacy | Runecrafting | `craft_astral_runes` | Completion or route unlock | The astral altar is on Lunar Isle and the 2011 KB says Lunar Isle is reached on Lunar Diplomacy. Astral has no talisman/tiara/hood-feed rows in current data. |
+| Mourning's End Part II | Runecrafting | `craft_death_runes`, `bind_death_tiara`, `feed_death_talisman_to_hood`, `feed_death_tiara_to_hood` | Completion unlock | The 2011 KB says death runes require Mourning's End Part II and locates the altar in the Temple of Light. |
+| Legacy of Seergaze | Runecrafting | `craft_blood_runes`, `bind_blood_tiara`, `feed_blood_talisman_to_hood`, `feed_blood_tiara_to_hood` | Completion unlock | The 2011 KB says blood runes require Legacy of Seergaze and locates the altar beneath Castle Drakan. |
+| Swan Song | Fishing | `catch_monkfish` | Completion unlock | `fishing_data.py:237-243` exposes monkfish. Raw monkfish can only be caught at Piscatoris Fishing Colony, which requires Swan Song completion. |
+| Tai Bwo Wannai Trio | Fishing | `catch_karambwan` | Partial-or-completion unlock | `fishing_data.py:244-251` exposes karambwan. Wiki evidence says catching raw karambwan requires at least partial Tai Bwo Wannai Trio completion. For AnkiScape's completion-only quest model, use full completion unless stage-aware quest state exists. |
+
+Source links:
+
+- Runecrafting requirements and essence access:
+  https://www.2011.rs/kb/runecrafting_the_basics
+- Runecrafting altar locations:
+  https://www.2011.rs/kb/runecrafting_locating_the_altars
+- Rune essence mine access:
+  https://www.2011.rs/kb/mining_the_rune_essence_mine
+- Raw monkfish:
+  https://runescape.fandom.com/wiki/Raw_monkfish
+- Raw karambwan:
+  https://runescape.fandom.com/wiki/Raw_karambwan
+
+## Candidate Route Gates, Not Global Target Gates Yet
+
+These need a location/source/acquisition model before they should be copied into
+normal skill locks.
+
+| Quest or unlock | Current content | Current verdict | Reason |
+| --- | --- | --- | --- |
+| Shilo Village | Mining `gem_rocks` | Candidate route gate | Shilo Village surface gem mine requires Shilo Village, but gem rocks also exist in other locations in later eras. The current AnkiScape target is generic `gem_rocks`, not a Shilo-specific route. If we keep a global no-location model, leave it ungated. If we add mining locations, make Shilo mine route-locked. |
+| Priest in Peril / Nature Spirit | Fishing `catch_slimy_eel`; Cooking snail/eel rows; Utility snail gathering | Candidate route gate | Mort Myre access is quest-shaped, but slimy eels have alternate non-Morytania sources and Cooking from inventory should stay material-gated. Only route-specific gathering should care. |
+| The Fremennik Isles | Cooking `cook_yak`, Utility `scavenge_raw_yak_meat`, Firemaking `arctic_pine_logs` | Candidate route gate | Yak and arctic pine acquisition is Neitiznot/Fremennik Isles flavored. Cooking/burning from inventory should not be globally locked; source-real acquisition routes can be gated later. |
+| Karamja Diary / Shilo Village | Extra gem mine or diary access | Future route gate | Karamja hard diary grants underground gem mine access, but AnkiScape has no diary or location model. |
+| What Lies Below | Chaos altar safe tunnel | Route shortcut only | The 2011 KB describes a safe route, not chaos rune creation itself. Do not gate `craft_chaos_runes`. |
+
+Source links:
+
+- Shilo Village mining site:
+  https://runescape.fandom.com/wiki/Shilo_Village_mining_site
+- Karamja task requirements:
+  https://www.2011.rs/kb/karamja
+
+## Quest-Related Content That Should Stay Ungated Now
+
+| Quest | Current content | Verdict |
+| --- | --- | --- |
+| Cook's Assistant | Cooking targets | Do not global-gate. Local source only blocks Lumbridge cook's range object `114`; AnkiScape does not model range locations. |
+| Doric's Quest | Smithing targets | Do not global-gate. Local source only blocks Doric's anvil object; other anvils remain usable. |
+| Druidic Ritual | Current Cooking meat rows; future Herblore | Do not gate current Cooking. The true unlock is Herblore, which is not implemented. |
+| The Knight's Sword | Smithing | Do not gate. The quest awards Smithing XP and has quest interactions around blurite, but no current global Smithing target unlock was identified. |
+| Fishing Contest | Fishing | Do not gate. It is a transport/shortcut quest, not a current Fishing target unlock. |
+| Tai Bwo Wannai Trio | Cooking karambwan | Not implemented as a Cooking target today. If `cook_karambwan` is added later, decide whether to use completion-only or stage-aware gating. |
+| Tai Bwo Wannai Trio / Barbarian Training | Poisoned spears, hastae, karambwan poison | Not implemented in Smithing/Cooking/Fishing today. Re-audit when those rows land. |
+| Dorgesh-Kaan/lightorbs | Firemaking repair XP | Not implemented. This is an extra feature, not current Firemaking v1. |
+| Druidic Ritual stone fish | Fishing | Not implemented. `memory-bank/source-audits/fishing-2011scape-2026-06-16.md` already records Stone fish as quest-only future content. |
+
+Local source evidence:
+
+- `raw_food_cooking.plugin.kts:120-123` blocks only Lumbridge cook's range
+  object when Cook's Assistant is incomplete.
+- `smithing.plugin.kts:43-51` and `smithing.plugin.kts:74-80` special-case only
+  Doric's anvil.
+- `DruidicRitual.kt:11-23` describes the Herblore unlock and 250 Herblore XP
+  reward; Herblore is outside the implemented skill set.
+
+## Backend Migration Pattern To Pilot
+
+Do this backend-first when implementing the quest locks:
+
+1. Add missing quest definitions to `quest_data.py` with stable snake-case IDs.
+2. Add a small quest-lock registry, not scattered inline checks. Suggested
+   shape:
+
+   ```python
+   QuestUnlockRule(
+       quest_id="lost_city",
+       gate_kind="target",
+       skill_id="runecrafting",
+       target_ids=("craft_cosmic_runes", "bind_cosmic_tiara", "feed_cosmic_talisman_to_hood", "feed_cosmic_tiara_to_hood"),
+       reason="Lost City",
+       source="https://www.2011.rs/kb/runecrafting_the_basics",
+   )
+   ```
+
+3. Feed that registry into pure locked-reason functions for completion gates.
+4. Keep route gates out of target locks until a route/location/acquisition model
+   exists.
+5. Keep quest-stage recipes out of completion locks until stage-aware quest
+   checks are intentionally supported.
+6. Add undo-safe tests for the blocked and newly-unblocked paths before touching
+   Qt.
+
+## Frontend Migration Pattern To Pilot
+
+After backend lock reasons exist:
+
+1. Surface quest lock reasons through the same target-row metadata path used for
+   levels/materials.
+2. Show quest names as lock reasons, not generic "quest".
+3. For grouped Runecrafting targets, make sure standard runes, tiara binding,
+   and hood feeding each show the correct quest lock independently.
+4. Do not invent new UI state for route gates; those should stay as Memory Bank
+   notes until the backend exposes a route model.
+
+## Copy-Paste Prompt For A Future Quest-Lock Skill
+
+```text
+Create a Codex skill for AnkiScape quest-lock migrations. Read
+memory-bank/quest-unlock-audit-2026-06-17.md first. The skill must split backend
+and frontend work, add quest definitions before gates, separate completion
+unlock rules from route/location gates and quest-stage recipes, reuse
+quest_completed_pure for completion gates, update target-row lock reasons only
+after pure backend logic exists, add targeted unit/integration/Qt coverage, run
+the AnkiScape test pair, update the Memory Bank, and commit. The first pilot
+after Rune Mysteries should be Rune Mysteries -> Mining rune essence or the
+Runecrafting per-altar gates.
+```
+
+## Design Decisions To Grill Before Implementation
+
+1. Should quest-lock rules live beside `quest_data.py`, or beside each skill's
+   data module? Central registry is easier to audit; skill-local metadata is
+   easier to read while editing a skill.
+2. Do we accept completion-only approximation for partial quest unlocks such as
+   karambwan, or do we add stage-aware quest checks first?
+3. Do generic current targets represent "any valid route" or "the canonical
+   source route"? This decides whether `gem_rocks` stays ungated or becomes a
+   Shilo Village lock.
+4. Should route gates be modeled as future no-XP Utility/Activities acquisition
+   actions rather than direct skill target locks?
+5. Do FE lock reasons need a stable machine-readable `lock_kind="quest"` field,
+   or is display text enough for now?
+

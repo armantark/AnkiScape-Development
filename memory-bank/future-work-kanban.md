@@ -15,6 +15,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
 - Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
+- Quest-lock audit completed on 2026-06-17. Use `memory-bank/quest-unlock-audit-2026-06-17.md` before copying quest gates into skills; it separates strong completion unlocks from route/location gates and quest-stage recipes.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities row labels, tooltips, icon paths, enabled/current state, and lock reasons before Qt renders them. Runecrafting added its own grouped row metadata on 2026-06-17. Further P0 work should target grouped Smithing/Crafting/Runecrafting target-tree metadata or larger `__init__.py` decomposition.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
@@ -61,6 +62,53 @@ Future thread prompt:
 
 ```text
 In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup and 2026-06-16 flat target-list metadata cleanup are already done, so focus next on grouped Smithing/Crafting/Runecrafting target-tree metadata or further __init__.py runtime decomposition without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
+```
+
+### P1 - Quest Lock Registry And Copy-Forward Skill
+
+User story: As a future quest implementer, I want quest unlock rules recorded in
+one auditable pattern, so adding Lost City, Swan Song, Tai Bwo Wannai Trio, and
+similar gates does not require scattered per-skill guesswork.
+
+Why now: Rune Mysteries proved a small Quest/Claim state model and revealed that
+some existing targets already need quest gates, while others are only
+location-route checks. Copying the wrong pattern would over-lock Cooking,
+Smithing, and future acquisition routes.
+
+Backend scope:
+
+- Start from `memory-bank/quest-unlock-audit-2026-06-17.md`.
+- Add quest definitions before adding gates.
+- Prefer a small quest-lock registry for completion gates.
+- Use `quest_completed_pure` for completion unlocks only.
+- Keep route/location gates and quest-stage recipes out of global target locks
+  until their state model exists.
+- First candidates: Rune Mysteries -> Mining `rune_essence`, per-altar
+  Runecrafting gates, Swan Song -> `catch_monkfish`, and Tai Bwo Wannai Trio ->
+  `catch_karambwan`.
+
+Frontend scope:
+
+- Surface quest lock reasons from backend target-row metadata after pure logic is
+  in place.
+- Preserve grouped Runecrafting row behavior while showing independent quest
+  locks for standard rune, tiara, and hood-feed rows.
+- Do not add route-gate UI until the backend exposes route/acquisition state.
+
+Acceptance criteria:
+
+- Quest completion locks block and unblock the intended targets without changing
+  unrelated level/material/undo behavior.
+- Cooking range checks and Doric's anvil checks are not copied into global
+  Cooking or Smithing target locks.
+- Target rows show quest names clearly when locked.
+- Unit, integration, Qt, and manual smoke coverage prove at least one locked and
+  one unlocked path per migrated skill family.
+
+Future thread prompt:
+
+```text
+In the AnkiScape repo, use memory-bank/quest-unlock-audit-2026-06-17.md and memory-bank/future-work-kanban.md as the source of truth. Implement a backend-first quest-lock registry/copy-forward pattern after Rune Mysteries. Keep backend and frontend work explicitly split. Add quest definitions before gates, separate completion unlocks from route/location gates and quest-stage recipes, use quest_completed_pure only for completion gates, add targeted tests plus Qt/manual smoke coverage, update the Memory Bank, and commit.
 ```
 
 ### P1 - Utility And Activities Icon Set
