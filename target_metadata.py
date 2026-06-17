@@ -19,8 +19,10 @@ try:
         can_mine_target_pure,
         can_open_bird_nests_pure,
         can_perform_utility_activity_pure,
+        can_runecraft_target_pure,
         eligible_fishing_fish_pure,
         has_fishing_bait_pure,
+        runecrafting_locked_reasons_pure,
     )
 except Exception:
     from logic_pure import (  # type: ignore
@@ -35,8 +37,10 @@ except Exception:
         can_mine_target_pure,
         can_open_bird_nests_pure,
         can_perform_utility_activity_pure,
+        can_runecraft_target_pure,
         eligible_fishing_fish_pure,
         has_fishing_bait_pure,
+        runecrafting_locked_reasons_pure,
     )
 
 
@@ -50,6 +54,7 @@ class TargetRowMetadata:
     enabled: bool = True
     current: bool = False
     icon_path: Optional[str] = None
+    group: str = ""
 
 
 def _material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int]) -> tuple[bool, str]:
@@ -463,6 +468,79 @@ def utility_activity_rows(
                 enabled=enabled,
                 current=activity_key == current_activity,
                 icon_path=icon_path,
+            )
+        )
+    return tuple(rows)
+
+
+def runecrafting_target_rows(
+    player_data: Mapping[str, object],
+    runecrafting_data: Mapping[str, Mapping[str, object]],
+    runecrafting_item_images: Mapping[str, str],
+    pouch_data: Mapping[str, Mapping[str, object]],
+    default_target: str,
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    lvl_have = int(player_data.get("runecrafting_level", 1) or 1)
+    inv = player_data.get("inventory", {})
+    inventory = inv if isinstance(inv, Mapping) else {}
+    current_target = player_data.get("current_runecrafting", default_target)
+
+    for target_id, spec in runecrafting_data.items():
+        display_name = str(spec.get("display_name", target_id))
+        lvl_req = int(spec.get("level", 1) or 1)
+        kind = str(spec.get("kind", "standard"))
+        output_item = str(spec.get("output_item", spec.get("input_item", display_name)))
+        group = str(spec.get("group", "standard"))
+        base_xp = float(spec.get("base_exp", 0.0) or 0.0)
+
+        if kind == "standard":
+            essence_items = tuple(spec.get("essence_items", ()))
+            essence_text = ", ".join(f"{item} ({inventory.get(item, 0)})" for item in essence_items)
+            tooltip = (
+                f"Requires Runecrafting level {lvl_req}. You have {lvl_have}.\n"
+                f"Output: {output_item}\n"
+                f"Base XP: {base_xp:g} per essence\n"
+                f"Essence: {essence_text}"
+            )
+        elif kind == "combination":
+            component = str(spec.get("component_rune"))
+            talisman = str(spec.get("consumed_talisman"))
+            tooltip = (
+                f"Requires Runecrafting level {lvl_req}. You have {lvl_have}.\n"
+                f"Output: {output_item}\n"
+                f"Base XP: {base_xp:g} per pure essence\n"
+                f"Materials: Pure essence ({inventory.get('Pure essence', 0)}), "
+                f"{component} ({inventory.get(component, 0)}), {talisman} ({inventory.get(talisman, 0)})"
+            )
+        elif kind == "tiara":
+            talisman = str(spec.get("talisman_item"))
+            tooltip = (
+                f"Output: {output_item}\n"
+                f"Base XP: {base_xp:g}\n"
+                f"Materials: Tiara ({inventory.get('Tiara', 0)}), {talisman} ({inventory.get(talisman, 0)})"
+            )
+        else:
+            input_item = str(spec.get("input_item", ""))
+            tooltip = (
+                f"Consumes {input_item} and stores its altar access in the Wicked hood.\n"
+                f"Materials: {input_item} ({inventory.get(input_item, 0)})"
+            )
+
+        enabled = can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data)
+        reasons = runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data)
+        if reasons:
+            tooltip += "\nLocked due to: " + ", ".join(reasons)
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=target_id,
+                label=f"{display_name} (Lvl {lvl_req})" if lvl_req > 1 else display_name,
+                tooltip=tooltip,
+                enabled=enabled,
+                current=target_id == current_target,
+                icon_path=runecrafting_item_images.get(output_item) or runecrafting_item_images.get(str(spec.get("input_item", ""))),
+                group=group,
             )
         )
     return tuple(rows)

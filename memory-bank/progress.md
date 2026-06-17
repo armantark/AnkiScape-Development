@@ -6,17 +6,18 @@
 - The local working copy is now initialized as a git repository on `main`.
 - Review answers can award XP for the active skill.
 - Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
-- Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, and Cooking exist.
+- Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, and Runecrafting exist.
+- Rune Mysteries exists as a review-driven Quest action that unlocks Runecrafting.
 - Items are stored in a shared inventory/bank.
 - Level-up and achievement flows exist.
 - Review HUD, floating XP, floating widget, main menu, stats, bank, settings, and achievements are present.
 - Tests cover a meaningful portion of pure logic, migrations, settings, hooks, UI calculations, and integration smoke behavior.
 - A backend skill registry exists for current and planned 2011-era skills.
 - A pure review-action registry exists for levelled skills plus no-XP Utility/Activities aliases, without adding Utility as a fake skill.
-- A pure flat target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities, so their Skills-hub rows are generated as shared metadata before Qt renders them.
-- A backend item manifest exists for current ores, logs, fish, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
+- A pure flat target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, Runecrafting, and Utility/Activities, so their Skills-hub rows are generated as shared metadata before Qt renders them.
+- A backend item manifest exists for current ores, logs, fish, food, runes/access items, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
-- Review eligibility and level-up key lookup are registry-backed for the current four skills.
+- Review eligibility and level-up key lookup are registry-backed for current review skills.
 - `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
 - Fletching exists as the first expanded playable skill: registry metadata, save defaults/migration keys, target panel, item manifest outputs/materials, pure processing logic, runtime review dispatch, and scraped output/material icons are in place.
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
@@ -27,6 +28,7 @@
 - Firemaking v1 is in place: source-backed `firemaking_data.py`, stable `current_firemaking` target IDs, storage config version 12 migration/defaults, review-scale lighting chances, implicit tinderbox behavior, source XP, `Ashes x1`, achievements, assets, and Artisan hub/Stats/Bank/HUD support.
 - Fishing v1 is in place: source-backed `fishing_data.py`, stable `current_fishing` method IDs, storage config version 13 migration/defaults, review-scale catch chances, ordered mixed-output rolls, success-only material consumption, hidden Strength/Agility side XP for Barbarian fish, generic Fishing achievements, dedicated fish/material assets, a `fish` item category, and Gathering hub/Stats/Bank/HUD support.
 - Cooking v1 is in place: source-backed `cooking_data.py`, stable `current_cooking` target IDs, storage config version 14 migration/defaults, review-scale cook/burn chances, burn failures that consume raw inputs and produce burnt items, generic Cooking achievements, beef/bear sinew secondary targets, dedicated Cooking assets, a `food` item category, grouped Cooking target UI, grouped Utility/Activities prep UI, and confirmed Bank `Discard all` for every item.
+- Runecrafting v1 is in place: source-backed `runecrafting_data.py`, stable `current_runecrafting` target IDs, storage config version 15 migration/defaults, Rune Mysteries quest unlock, standard/combination rune crafting, tiara binding, Wicked hood claim/feed access, pouch capacity/degradation, Binding necklace charge counter, achievements, dedicated assets, a `runecrafting` item category, grouped Runecrafting target UI, Quests tab, Bank Claims, Stats/Bank/HUD support, action multiplier support, and undo rollback.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -47,6 +49,7 @@
 - Firemaking bonfires and fire spirits; they are pre-EOC but intentionally deferred as a separate extension.
 - Fishing Dungeoneering fish, Fishing Trawler outputs, quest-only fish, Fish Flingers, and a real shop/GE material economy; they are intentionally deferred as separate systems rather than folded into ordinary Fishing v1.
 - Cooking follow-ups that need broader systems: cleaner Farming/Combat/shop/GE acquisition routes for some prep ingredients, and any recipe families not represented in the local `CookingData.kt` table.
+- Runecrafting follow-ups that need broader systems: Magic Imbue, Wicked hood daily essence/runes/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -63,7 +66,7 @@
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
 - The runtime answer handler map now uses registry handler keys, but grouped target-list metadata and handler internals are still partly hardcoded.
 - The runtime answer path now uses `action_registry.py` for Skill/Utility handler-key resolution and a handler-keyed can-start map, but the individual handler bodies still live in `__init__.py`.
-- Flat target rows now use `target_metadata.py`, but grouped Smithing/Crafting trees still carry local row-building logic because parent rows and expand/collapse state need a separate contract.
+- Flat target rows now use `target_metadata.py`, but grouped Smithing/Crafting trees and the grouped Runecrafting tree still carry local row-building logic because parent rows and expand/collapse state need a separate contract.
 - The current future-thread priority board lives in `memory-bank/future-work-kanban.md`.
 
 ## Current Status
@@ -176,6 +179,20 @@ grouped Cooking and Utility target-list coverage, and confirmed Bank discard-all
 for every item. The source audit is
 `memory-bank/source-audits/cooking-2011scape-2026-06-16.md`.
 
+Runecrafting v1 completed on 2026-06-17. The skill is a current Artisan review
+skill with 61 local-2011Scape-backed targets, stable `current_runecrafting`
+IDs, source XP, standard/combination/tiara/hood action families, Rune
+Mysteries as a review-driven Quest action, Wicked hood as a one-time Bank
+Claim, pouch capacity/degradation, Binding necklace state stored as
+`item_charges["Binding necklace"]`, storage config version 15, achievements,
+assets, item/icon registration, runtime review dispatch, action multiplier
+support, undo rollback, and Qt coverage for Runecrafting, Quests, Bank Claims,
+Stats, Bank, and HUD. The source audit is
+`memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`.
+`python3 run_tests.py` passes with 317 tests (79 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 317 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
@@ -185,3 +202,4 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.
 - Firemaking-specific follow-up: bonfires/fire spirits, only if explicitly prioritized.
 - Cooking follow-ups: broader source-backed acquisition routes for remaining prep materials, only if explicitly prioritized.
+- Runecrafting follow-ups: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes, only if explicitly prioritized.

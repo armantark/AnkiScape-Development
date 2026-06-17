@@ -8,7 +8,21 @@ from dataclasses import dataclass
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
 
-ItemCategory = Literal["ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"]
+ItemCategory = Literal[
+    "ore",
+    "log",
+    "fish",
+    "food",
+    "gem",
+    "bar",
+    "crafted",
+    "fletched",
+    "runecrafting",
+    "material",
+    "tool",
+    "equipment",
+    "smithed",
+]
 
 
 @dataclass(frozen=True)
@@ -126,7 +140,21 @@ def build_item_definitions(
 
     def extra_item_category(spec: Mapping[str, object]) -> ItemCategory:
         category = spec.get("category", "material")
-        if category in ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "material", "tool", "equipment", "smithed"):
+        if category in (
+            "ore",
+            "log",
+            "fish",
+            "food",
+            "gem",
+            "bar",
+            "crafted",
+            "fletched",
+            "runecrafting",
+            "material",
+            "tool",
+            "equipment",
+            "smithed",
+        ):
             return cast(ItemCategory, category)
         return "material"
 

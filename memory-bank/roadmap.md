@@ -42,11 +42,12 @@ Candidate follow-ups:
 - Firemaking: consumes logs for XP. Status: complete.
 - Fishing: gathers fish with level-gated spots. Status: complete.
 - Cooking: consumes raw fish/food and produces cooked or burnt items. Status: complete.
+- Runecrafting: creates runes, tiaras, combination runes, and hood access after Rune Mysteries. Status: complete.
 
 ## Current Priority: Skill Roster Breadth
-Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting, Fishing (gathering) and Smithing, Crafting, Fletching, Firemaking, Cooking (artisan), with their current backend/frontend parity passes complete.
+Before resuming the GE (below), broaden the playable skill set so a real item economy exists to trade. Implemented today: Mining, Woodcutting, Fishing (gathering) and Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting (artisan), with their current backend/frontend parity passes complete.
 - Remaining gathering skills: Hunter, Farming.
-- Remaining basic artisan skills: Herblore, Runecrafting, Construction.
+- Remaining basic artisan skills: Herblore, Construction.
 - Each skill goes through `.cursor/skills/ankiscape-skill-expansion/` (source audit, assets, targets/recipes, Utility/Activities, achievements, tests, memory update).
 - The tradable items these skills introduce become the GE's item universe when it is unparked.
 

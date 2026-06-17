@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Runecrafting Design Grill</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 14% 0%, rgba(79, 140, 255, 0.20), transparent 28rem),
+        radial-gradient(circle at 86% 12%, rgba(167, 139, 250, 0.16), transparent 24rem),
+        linear-gradient(180deg, rgba(255,255,255,0.025), transparent 26rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1220px; margin: 0 auto; }
+    .badge, .tag, .step-num, code, .mono { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      padding: 8px 12px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: var(--accent);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 16px 0 12px;
+      max-width: 920px;
+      font-size: clamp(2.15rem, 5.4vw, 4.7rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+    h2 { margin: 0 0 10px; font-size: 1.24rem; }
+    h3 { margin: 0 0 8px; font-size: 1rem; color: var(--text); }
+    p { color: var(--text-dim); line-height: 1.56; margin: 0; }
+    .hero { margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 18px; }
+    .card {
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,0.045), transparent), var(--surface);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.25);
+    }
+    .card:hover { transform: translateY(-1px); transition: transform 120ms ease; }
+    .source-map { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 18px; }
+    .source-cell {
+      min-height: 94px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 13px;
+    }
+    .source-cell strong { display: block; margin-bottom: 6px; }
+    .source-cell span { color: var(--text-dim); font-size: 0.86rem; line-height: 1.4; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 8px 6px 0 0;
+      padding: 5px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.045);
+      color: var(--text-dim);
+      font-size: 11px;
+      line-height: 1.2;
+    }
+    .tag.green { color: var(--green); border-color: rgba(74, 222, 128, 0.34); }
+    .tag.amber { color: var(--amber); border-color: rgba(251, 191, 36, 0.34); }
+    .tag.purple { color: var(--purple); border-color: rgba(167, 139, 250, 0.34); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+    .choice {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: #11151c;
+      cursor: pointer;
+      min-height: 180px;
+    }
+    .choice input { position: absolute; opacity: 0; pointer-events: none; }
+    .choice:has(input:checked) {
+      border-color: rgba(74, 222, 128, 0.8);
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.11);
+      background: linear-gradient(180deg, rgba(74, 222, 128, 0.10), transparent), #11151c;
+    }
+    .choice .metric { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 8px; }
+    .choice .big { font-size: 2.6rem; font-weight: 700; color: var(--text); }
+    .choice small { color: var(--text-dim); }
+    .runes { display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; margin-top: 16px; }
+    .rune {
+      display: grid;
+      place-items: center;
+      min-height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .rune.live { border-color: rgba(74, 222, 128, 0.38); color: var(--green); }
+    .rune.combo { border-color: rgba(167, 139, 250, 0.38); color: var(--purple); }
+    .steps { display: grid; gap: 12px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .step-num {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .lane { display: grid; gap: 10px; margin-top: 14px; }
+    .row {
+      display: grid;
+      grid-template-columns: 104px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .label {
+      color: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 11px;
+    }
+    .row span:last-child { color: var(--text-dim); line-height: 1.42; }
+    .output {
+      margin-top: 12px;
+      border: 1px dashed rgba(79, 140, 255, 0.45);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(79, 140, 255, 0.07);
+      color: var(--text);
+      min-height: 50px;
+    }
+    button {
+      margin-top: 12px;
+      border: 1px solid rgba(79, 140, 255, 0.5);
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      padding: 9px 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    @media (max-width: 980px) {
+      body { padding: 24px; }
+      .grid, .cards, .source-map, .split { grid-template-columns: 1fr; }
+      .runes { grid-template-columns: repeat(3, 1fr); }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="badge">Pre-Implementation Grill</span>
+      <h1>Runecrafting has one real product decision before code.</h1>
+      <p>The source table is clear enough to implement. The design hinge is what one successful Anki review means when the original altar action converts all carried essence but AnkiScape stores bank-like item counts.</p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Source Shape</h2>
+        <p>The local 2011Scape rev 667 plugin is the source of truth. It exposes standard altar crafting, combination runes, and a small active tiara subset. Pouches exist in source but are transport/storage mechanics, not the target row itself.</p>
+        <div class="source-map">
+          <div class="source-cell"><strong>13</strong><span>Standard rune targets from <code>Rune.kt</code>.</span></div>
+          <div class="source-cell"><strong>12</strong><span>Combination altar variants from <code>CombinationRune.kt</code>.</span></div>
+          <div class="source-cell"><strong>5</strong><span>Active tiara bindings in <code>Tiara.kt</code>; broader rows are commented in source.</span></div>
+          <div class="source-cell"><strong>1</strong><span>Existing source route for essence: Mining already defaults to Rune essence.</span></div>
+        </div>
+        <div class="runes" aria-label="Rune target preview">
+          <div class="rune live">AIR</div><div class="rune live">MIND</div><div class="rune live">WATER</div><div class="rune live">EARTH</div><div class="rune live">FIRE</div>
+          <div class="rune live">BODY</div><div class="rune live">COSMIC</div><div class="rune live">CHAOS</div><div class="rune live">ASTRAL</div><div class="rune live">NATURE</div>
+          <div class="rune live">LAW</div><div class="rune live">DEATH</div><div class="rune live">BLOOD</div><div class="rune combo">MIST</div><div class="rune combo">LAVA</div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Question 1</h2>
+        <p>Pick the action unit. My recommendation is the source-shaped altar trip capped at 28 essence, because it respects the original altar click without letting bank-sized stacks vanish in one review.</p>
+        <div class="split" role="radiogroup" aria-label="Runecrafting batch choice">
+          <label class="choice">
+            <input type="radio" name="batch" value="one">
+            <h3>One Essence</h3>
+            <div class="metric"><span class="big">1</span><small>essence per card</small></div>
+            <p>Consistent with Cooking and Fletching, but Runecrafting becomes very slow and no longer resembles an altar click.</p>
+          </label>
+          <label class="choice">
+            <input type="radio" name="batch" value="trip" checked>
+            <h3>Altar Trip</h3>
+            <div class="metric"><span class="big">28</span><small>essence cap per card</small></div>
+            <p>Matches carried-inventory source behavior while keeping the bank safe. Combination runes would use the same cap across essence, component runes, and talismans.</p>
+          </label>
+        </div>
+        <div class="output mono" id="decisionText">Recommended: one review converts up to 28 eligible essence.</div>
+        <button type="button" id="copyBtn">Copy Decision</button>
+      </article>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <h2>Backend</h2>
+        <div class="lane">
+          <div class="row"><span class="label mono">Data</span><span><code>runecrafting_data.py</code> with stable target IDs, source XP, materials, outputs, and multiplier thresholds.</span></div>
+          <div class="row"><span class="label mono">Logic</span><span>Pure apply/can-start helpers, source-backed output multipliers, rollback-compatible reward shape.</span></div>
+          <div class="row"><span class="label mono">Save</span><span>Flat keys: <code>runecrafting_level</code>, <code>runecrafting_exp</code>, <code>current_runecrafting</code>, counters only if achievements need them.</span></div>
+        </div>
+        <span class="tag">skill_registry.py</span><span class="tag">logic_pure.py</span><span class="tag">storage_pure.py</span>
+      </article>
+
+      <article class="card">
+        <h2>Frontend</h2>
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><p>Add a flat Runecrafting target list via <code>TargetRowMetadata</code>.</p></div>
+          <div class="step"><div class="step-num">2</div><p>Use normal material and level gates only. No special labels for missing talismans or pure essence.</p></div>
+          <div class="step"><div class="step-num">3</div><p>Extend Stats, Bank, HUD, and availability refresh through existing registry paths.</p></div>
+        </div>
+        <span class="tag">target_metadata.py</span><span class="tag">ui.py</span><span class="tag">tests/test_main_menu_widget.py</span>
+      </article>
+
+      <article class="card">
+        <h2>Assets</h2>
+        <p>Mandatory fetch: skill icon, standard runes, combination runes, essence, talismans, and active tiaras. Target rows may be text-only only if a single historical asset genuinely fails to resolve.</p>
+        <div class="lane">
+          <div class="row"><span class="label mono">Folder</span><span><code>runecraftingitems/</code> plus <code>icon/runecrafting_icon.png</code>.</span></div>
+          <div class="row"><span class="label mono">Tooling</span><span>A focused fetch script should derive its manifest from the data module.</span></div>
+        </div>
+        <span class="tag green">assets_provenance.json</span><span class="tag amber">asset-path test</span>
+      </article>
+    </section>
+
+    <section class="cards">
+      <article class="card">
+        <h2>Balance Notes</h2>
+        <p>Base XP remains untouched from source. Output quantity is separate from XP: standard rune multipliers grant extra runes at higher levels but do not multiply experience.</p>
+        <span class="tag green">XP once</span><span class="tag green">Output multiplier</span><span class="tag amber">28-cap decision</span>
+      </article>
+      <article class="card">
+        <h2>Deferred By Source</h2>
+        <p>Quest traversal, pouches, Abyss, binding necklace durability, Magic Imbue, Runespan, Great Orb Project, and broader tiaras can be documented without becoming v1 gates.</p>
+        <span class="tag purple">normal material locks</span><span class="tag purple">no coming-soon rows</span>
+      </article>
+      <article class="card">
+        <h2>Verification</h2>
+        <p>Targeted pure and integration tests first, then the repo’s two full commands: <code>python3 run_tests.py</code> and offscreen Qt unittest discovery. Manual Anki flow comes last.</p>
+        <span class="tag">run_tests.py</span><span class="tag">offscreen Qt</span><span class="tag">Pinchtab/manual note</span>
+      </article>
+    </section>
+  </main>
+  <script>
+    const radios = document.querySelectorAll('input[name="batch"]');
+    const output = document.getElementById('decisionText');
+    const text = {
+      one: 'Decision: one review converts exactly 1 eligible essence.',
+      trip: 'Recommended: one review converts up to 28 eligible essence.'
+    };
+    radios.forEach((radio) => {
+      radio.addEventListener('change', () => {
+        output.textContent = text[radio.value];
+      });
+    });
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(output.textContent);
+        output.textContent = output.textContent + ' Copied.';
+        setTimeout(() => {
+          const checked = document.querySelector('input[name="batch"]:checked');
+          output.textContent = text[checked.value];
+        }, 1400);
+      } catch (err) {
+        output.textContent = output.textContent + ' Select and copy manually.';
+      }
+    });
+  </script>
+</body>
+</html>

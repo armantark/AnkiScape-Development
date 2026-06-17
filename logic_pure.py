@@ -599,6 +599,509 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     return {"toolbelt": toolbelt_rows, "equipped": equipped_rows}
 
 
+def _copy_player_data_with_nested(player_data):
+    copied = dict(player_data)
+    copied["inventory"] = dict(player_data.get("inventory", {}) or {})
+    copied["equipment"] = dict(player_data.get("equipment", {}) or {})
+    copied["quests"] = {
+        str(quest_id): dict(state) if isinstance(state, Mapping) else {}
+        for quest_id, state in (player_data.get("quests", {}) or {}).items()
+    }
+    copied["claims"] = {
+        str(claim_id): dict(state) if isinstance(state, Mapping) else {}
+        for claim_id, state in (player_data.get("claims", {}) or {}).items()
+    }
+    copied["wicked_hood"] = dict(player_data.get("wicked_hood", {}) or {})
+    copied["runecrafting_pouches"] = {
+        str(pouch_id): dict(state) if isinstance(state, Mapping) else {}
+        for pouch_id, state in (player_data.get("runecrafting_pouches", {}) or {}).items()
+    }
+    copied["item_charges"] = dict(player_data.get("item_charges", {}) or {})
+    return copied
+
+
+def quest_state_pure(player_data, quest_id):
+    raw_quests = player_data.get("quests", {}) or {}
+    state = raw_quests.get(quest_id, {}) if isinstance(raw_quests, Mapping) else {}
+    if not isinstance(state, Mapping):
+        state = {}
+    return {
+        "started": bool(state.get("started", False)),
+        "completed": bool(state.get("completed", False)),
+        "progress": max(0, _positive_int(state.get("progress", 0), 0)),
+    }
+
+
+def quest_completed_pure(player_data, quest_id):
+    return bool(quest_state_pure(player_data, quest_id).get("completed", False))
+
+
+def can_start_quest_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return False
+    state = quest_state_pure(player_data, quest_id)
+    if state["completed"]:
+        return False
+    if state["started"]:
+        return True
+    inventory = player_data.get("inventory", {}) or {}
+    required_items = quest.get("required_items", {}) or {}
+    return all(inventory.get(item_name, 0) >= amount for item_name, amount in required_items.items())
+
+
+def start_quest_pure(player_data, quest_id, quest_data):
+    if not can_start_quest_pure(player_data, quest_id, quest_data):
+        return player_data, False
+    data = _copy_player_data_with_nested(player_data)
+    quest = quest_data[quest_id]
+    state = quest_state_pure(data, quest_id)
+    if not state["started"]:
+        inventory = data["inventory"]
+        for item_name, amount in (quest.get("required_items", {}) or {}).items():
+            inventory[item_name] = inventory.get(item_name, 0) - amount
+        state["started"] = True
+        state["progress"] = 0
+        state["completed"] = False
+    data.setdefault("quests", {})[quest_id] = state
+    data["current_quest"] = quest_id
+    return data, True
+
+
+def apply_quest_progress_pure(player_data, quest_id, quest_data):
+    data, ok = start_quest_pure(player_data, quest_id, quest_data)
+    if not ok:
+        return player_data, False, False
+    quest = quest_data[quest_id]
+    state = quest_state_pure(data, quest_id)
+    if state["completed"]:
+        return data, False, False
+    total_stages = _positive_int(quest.get("stages", 1), 1)
+    state["progress"] = min(total_stages, state["progress"] + 1)
+    completed_now = state["progress"] >= total_stages
+    if completed_now:
+        state["completed"] = True
+        data["quest_points"] = max(0, _positive_int(data.get("quest_points", 0), 0)) + _positive_int(quest.get("point_reward", 0), 0)
+        inventory = data["inventory"]
+        for item_name, amount in (quest.get("rewards", {}) or {}).items():
+            inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
+    data.setdefault("quests", {})[quest_id] = state
+    return data, True, completed_now
+
+
+def quest_journal_rows_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return tuple()
+    state = quest_state_pure(player_data, quest_id)
+    progress = state["progress"]
+    if state["started"] and progress <= 0:
+        progress = 1
+    if state["completed"]:
+        progress = _positive_int(quest.get("stages", progress), progress)
+    journal_stages = quest.get("journal_stages", {}) or {}
+    rows = []
+    for stage in sorted(journal_stages):
+        if stage > progress:
+            continue
+        rows.append(
+            {
+                "stage": stage,
+                "lines": tuple(journal_stages.get(stage, ())),
+                "completed": state["completed"] or stage < progress,
+                "current": (not state["completed"] and stage == progress),
+            }
+        )
+    return tuple(rows)
+
+
+def claim_locked_reasons_pure(player_data, claim_id, claim_data):
+    claim = claim_data.get(claim_id)
+    if not claim:
+        return ("unknown claim",)
+    state = (player_data.get("claims", {}) or {}).get(claim_id, {})
+    if isinstance(state, Mapping) and state.get("claimed"):
+        return ("claimed",)
+    reasons = []
+    required_quest = claim.get("required_quest")
+    if required_quest and not quest_completed_pure(player_data, str(required_quest)):
+        reasons.append("quest")
+    required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
+    if _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
+        reasons.append(f"Runecrafting level {required_level}")
+    return tuple(reasons)
+
+
+def claim_rows_pure(player_data, claim_data):
+    rows = []
+    for claim_id, claim in claim_data.items():
+        reasons = claim_locked_reasons_pure(player_data, claim_id, claim_data)
+        claimed = reasons == ("claimed",)
+        eligible = not reasons
+        rows.append(
+            {
+                "claim_id": claim_id,
+                "display_name": claim.get("display_name", claim_id),
+                "item_name": claim.get("item_name", claim_id),
+                "quantity": _positive_int(claim.get("quantity", 1), 1),
+                "eligible": eligible,
+                "claimed": claimed,
+                "locked_reasons": reasons,
+            }
+        )
+    return tuple(rows)
+
+
+def apply_claim_pure(player_data, claim_id, claim_data):
+    if claim_locked_reasons_pure(player_data, claim_id, claim_data):
+        return player_data, False
+    claim = claim_data.get(claim_id)
+    if not claim:
+        return player_data, False
+    data = _copy_player_data_with_nested(player_data)
+    item_name = str(claim.get("item_name", claim_id))
+    quantity = _positive_int(claim.get("quantity", 1), 1)
+    data["inventory"][item_name] = data["inventory"].get(item_name, 0) + quantity
+    data.setdefault("claims", {}).setdefault(claim_id, {})["claimed"] = True
+    return data, True
+
+
+def _altar_for_target(target, runecrafting_data):
+    altar_id = target.get("altar_id")
+    for candidate in runecrafting_data.values():
+        if candidate.get("kind") == "standard" and candidate.get("altar_id") == altar_id:
+            return candidate
+    return None
+
+
+def runecrafting_unlocked_pure(player_data):
+    return quest_completed_pure(player_data, "rune_mysteries")
+
+
+def _fed_altars(player_data):
+    hood = player_data.get("wicked_hood", {}) or {}
+    raw = hood.get("fed_altars", ()) if isinstance(hood, Mapping) else ()
+    if isinstance(raw, str):
+        return {raw}
+    if isinstance(raw, Iterable):
+        return {altar for altar in raw if isinstance(altar, str)}
+    return set()
+
+
+def _altar_access_item_names(altar_id, runecrafting_data):
+    talisman = None
+    tiara = None
+    for target in runecrafting_data.values():
+        if target.get("kind") == "tiara" and target.get("altar_id") == altar_id:
+            talisman = target.get("talisman_item")
+            tiara = target.get("output_item")
+            break
+    if talisman is None:
+        standard = _altar_for_target({"altar_id": altar_id}, runecrafting_data)
+        if standard:
+            rune_item = str(standard.get("output_item", "")).replace(" rune", "")
+            talisman = f"{rune_item} talisman" if rune_item else None
+            tiara = f"{rune_item} tiara" if rune_item else None
+    return talisman, tiara
+
+
+def runecrafting_altar_access_source_pure(player_data, altar_id, runecrafting_data):
+    inventory = player_data.get("inventory", {}) or {}
+    equipment = player_data.get("equipment", {}) or {}
+    talisman_item, tiara_item = _altar_access_item_names(altar_id, runecrafting_data)
+    if tiara_item and equipment.get("head") == tiara_item:
+        return "tiara"
+    if altar_id in _fed_altars(player_data):
+        return "hood"
+    if talisman_item and inventory.get(talisman_item, 0) > 0:
+        return "talisman"
+    return ""
+
+
+def runecrafting_standard_base_capacity_pure(player_data, target, runecrafting_data):
+    source = runecrafting_altar_access_source_pure(player_data, target.get("altar_id"), runecrafting_data)
+    if source in {"tiara", "hood"}:
+        return 28
+    if source == "talisman":
+        return 27
+    return 0
+
+
+def _pouch_capacity_after_degradation(pouch, degradation):
+    threshold = pouch.get("degradation_threshold")
+    capacity = _positive_int(pouch.get("capacity", 0), 0)
+    if threshold is None:
+        return capacity
+    try:
+        threshold_int = int(threshold)
+    except (TypeError, ValueError):
+        threshold_int = 0
+    loss = max(0, int(degradation) - threshold_int)
+    return max(0, capacity - loss)
+
+
+def _repair_degraded_pouches(data, pouch_data):
+    inventory = data["inventory"]
+    pouch_state = data.setdefault("runecrafting_pouches", {})
+    for pouch_id, pouch in pouch_data.items():
+        degraded_item = pouch.get("degraded_item")
+        display_name = pouch.get("display_name")
+        if degraded_item and display_name and inventory.get(degraded_item, 0) > 0:
+            count = inventory.get(degraded_item, 0)
+            inventory[degraded_item] = 0
+            inventory[display_name] = inventory.get(display_name, 0) + count
+            pouch_state[pouch_id] = {"degradation": 0}
+
+
+def runecrafting_pouch_capacity_pure(player_data, pouch_data):
+    level = _positive_int(player_data.get("runecrafting_level", 1), 1)
+    inventory = player_data.get("inventory", {}) or {}
+    pouch_state = player_data.get("runecrafting_pouches", {}) or {}
+    total = 0
+    for pouch_id, pouch in pouch_data.items():
+        display_name = pouch.get("display_name")
+        if not display_name or inventory.get(display_name, 0) <= 0:
+            continue
+        if level < _positive_int(pouch.get("required_level", 1), 1):
+            continue
+        state = pouch_state.get(pouch_id, {}) if isinstance(pouch_state, Mapping) else {}
+        degradation = _positive_int(state.get("degradation", 0), 0) if isinstance(state, Mapping) else 0
+        total += _pouch_capacity_after_degradation(pouch, degradation)
+    return total
+
+
+def _degrade_used_pouches(data, pouch_data, extra_essence_used):
+    level = _positive_int(data.get("runecrafting_level", 1), 1)
+    inventory = data["inventory"]
+    pouch_state = data.setdefault("runecrafting_pouches", {})
+    remaining_extra = max(0, int(extra_essence_used))
+    for pouch_id, pouch in pouch_data.items():
+        if remaining_extra <= 0:
+            break
+        display_name = pouch.get("display_name")
+        if not display_name or inventory.get(display_name, 0) <= 0:
+            continue
+        if level < _positive_int(pouch.get("required_level", 1), 1):
+            continue
+        state = pouch_state.setdefault(pouch_id, {"degradation": 0})
+        degradation_before = _positive_int(state.get("degradation", 0), 0)
+        capacity_before = _pouch_capacity_after_degradation(pouch, degradation_before)
+        if capacity_before <= 0:
+            continue
+        remaining_extra -= min(remaining_extra, capacity_before)
+        threshold = pouch.get("degradation_threshold")
+        if threshold is None:
+            continue
+        degradation = degradation_before + 1
+        state["degradation"] = degradation
+        if _pouch_capacity_after_degradation(pouch, degradation) <= 0 and pouch.get("degraded_item"):
+            inventory[display_name] = max(0, inventory.get(display_name, 0) - 1)
+            degraded_item = str(pouch["degraded_item"])
+            inventory[degraded_item] = inventory.get(degraded_item, 0) + 1
+            state["degradation"] = 0
+
+
+def _available_essence_count(inventory, essence_items):
+    return sum(_positive_int(inventory.get(item, 0), 0) for item in essence_items)
+
+
+def _consume_essence_ordered(inventory, essence_items, amount):
+    remaining = amount
+    consumed = {}
+    for item in essence_items:
+        if remaining <= 0:
+            break
+        take = min(remaining, _positive_int(inventory.get(item, 0), 0))
+        if take > 0:
+            inventory[item] = inventory.get(item, 0) - take
+            consumed[item] = take
+            remaining -= take
+    return amount - remaining, consumed
+
+
+def _runecrafting_multiplier_info(target, level):
+    output_item = str(target.get("output_item", ""))
+    divisors = {
+        "Air rune": 11,
+        "Mind rune": 14,
+        "Water rune": 19,
+        "Earth rune": 26,
+        "Fire rune": 35,
+        "Body rune": 46,
+        "Cosmic rune": 59,
+        "Chaos rune": 74,
+        "Nature rune": 91,
+    }
+    divisor = divisors.get(output_item)
+    if divisor is None:
+        return 1, 0.0, 1
+    base = int(level) // divisor + 1
+    max_base = 99 // divisor + 1
+    if base >= max_base:
+        return base, 0.0, max_base
+    current_start = divisor * (base - 1)
+    next_start = divisor * base
+    span = max(1, next_start - current_start)
+    chance = max(0.0, min(((float(level) - current_start) / span) * 0.60, 0.60))
+    return base, chance, max_base
+
+
+def _standard_output_count(target, level, essence_used, rolls):
+    base, chance, max_base = _runecrafting_multiplier_info(target, level)
+    if base >= max_base or chance <= 0:
+        return base * essence_used
+    total = 0
+    roll_iter = iter(rolls or ())
+    for _ in range(essence_used):
+        try:
+            roll = float(next(roll_iter))
+        except (StopIteration, TypeError, ValueError):
+            roll = 1.0
+        total += base + 1 if roll < chance else base
+    return total
+
+
+def binding_necklace_charges_pure(player_data):
+    if (player_data.get("equipment", {}) or {}).get("neck") != "Binding necklace":
+        return 0
+    charges = (player_data.get("item_charges", {}) or {}).get("Binding necklace")
+    if charges is None:
+        return 15
+    return max(0, _positive_int(charges, 0))
+
+
+def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data):
+    target = runecrafting_data.get(target_id)
+    if not target:
+        return ("unknown target",)
+    reasons = []
+    if not runecrafting_unlocked_pure(player_data):
+        reasons.append("Rune Mysteries")
+    level = _positive_int(player_data.get("runecrafting_level", 1), 1)
+    required_level = _positive_int(target.get("level", 1), 1)
+    if level < required_level:
+        reasons.append(f"Runecrafting level {required_level}")
+    inventory = player_data.get("inventory", {}) or {}
+    kind = target.get("kind")
+    if kind == "standard":
+        if runecrafting_standard_base_capacity_pure(player_data, target, runecrafting_data) <= 0:
+            reasons.append("altar access")
+        if _available_essence_count(inventory, tuple(target.get("essence_items", ()))) <= 0:
+            reasons.append("essence")
+    elif kind == "combination":
+        if runecrafting_altar_access_source_pure(player_data, target.get("altar_id"), runecrafting_data) == "":
+            reasons.append("altar access")
+        for item_name in ("Pure essence", target.get("component_rune"), target.get("consumed_talisman")):
+            if item_name and inventory.get(item_name, 0) <= 0:
+                reasons.append(str(item_name))
+    elif kind == "tiara":
+        for item_name in ("Tiara", target.get("talisman_item")):
+            if item_name and inventory.get(item_name, 0) <= 0:
+                reasons.append(str(item_name))
+    elif kind == "hood_feed":
+        equipment = player_data.get("equipment", {}) or {}
+        has_hood = inventory.get("Wicked hood", 0) > 0 or equipment.get("head") == "Wicked hood"
+        if not has_hood:
+            reasons.append("Wicked hood")
+        if target.get("altar_id") in _fed_altars(player_data):
+            reasons.append("already fed")
+        input_item = target.get("input_item")
+        if input_item and inventory.get(input_item, 0) <= 0:
+            reasons.append(str(input_item))
+    return tuple(dict.fromkeys(reasons))
+
+
+def can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data):
+    return not runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data)
+
+
+def can_runecraft_any_pure(player_data, runecrafting_data, pouch_data):
+    return any(can_runecraft_target_pure(player_data, target_id, runecrafting_data, pouch_data) for target_id in runecrafting_data)
+
+
+def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, pouch_data, rolls=()):
+    target = runecrafting_data.get(target_id)
+    if not target:
+        return player_data, 0, False, "Unknown Runecrafting target"
+    if runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, pouch_data):
+        return player_data, 0, False, "Runecrafting target is locked"
+
+    data = _copy_player_data_with_nested(player_data)
+    _repair_degraded_pouches(data, pouch_data)
+    inventory = data["inventory"]
+    level = _positive_int(data.get("runecrafting_level", 1), 1)
+    kind = target.get("kind")
+    roll_iter = iter(rolls or ())
+
+    if kind == "standard":
+        base_capacity = runecrafting_standard_base_capacity_pure(data, target, runecrafting_data)
+        capacity = base_capacity + runecrafting_pouch_capacity_pure(data, pouch_data)
+        essence_items = tuple(target.get("essence_items", ()))
+        essence_to_use = min(capacity, _available_essence_count(inventory, essence_items))
+        used, _consumed = _consume_essence_ordered(inventory, essence_items, essence_to_use)
+        if used <= 0:
+            return player_data, 0, False, "No essence available"
+        output_count = _standard_output_count(target, level, used, roll_iter)
+        output_item = str(target.get("output_item"))
+        inventory[output_item] = inventory.get(output_item, 0) + output_count
+        if used > base_capacity:
+            _degrade_used_pouches(data, pouch_data, used - base_capacity)
+        return data, float(target.get("base_exp", 0.0)) * used, True, f"+{output_count} {output_item}"
+
+    if kind == "combination":
+        base_capacity = 26
+        capacity = base_capacity + runecrafting_pouch_capacity_pure(data, pouch_data)
+        pure_count = _positive_int(inventory.get("Pure essence", 0), 0)
+        component_rune = str(target.get("component_rune"))
+        consumed_talisman = str(target.get("consumed_talisman"))
+        craft_count = min(capacity, pure_count, _positive_int(inventory.get(component_rune, 0), 0))
+        if craft_count <= 0 or inventory.get(consumed_talisman, 0) <= 0:
+            return player_data, 0, False, "Missing combination materials"
+        inventory["Pure essence"] = inventory.get("Pure essence", 0) - craft_count
+        inventory[component_rune] = inventory.get(component_rune, 0) - craft_count
+        inventory[consumed_talisman] = inventory.get(consumed_talisman, 0) - 1
+        output_item = str(target.get("output_item"))
+        charges = binding_necklace_charges_pure(data)
+        if charges > 0:
+            output_count = craft_count
+            remaining = charges - 1
+            if remaining > 0:
+                data.setdefault("item_charges", {})["Binding necklace"] = remaining
+            else:
+                data.setdefault("item_charges", {}).pop("Binding necklace", None)
+                data.setdefault("equipment", {}).pop("neck", None)
+        else:
+            try:
+                roll = float(next(roll_iter))
+            except (StopIteration, TypeError, ValueError):
+                roll = 0.0
+            output_count = min(craft_count, int(max(0.0, min(roll, 0.999999999)) * craft_count) + 1)
+        inventory[output_item] = inventory.get(output_item, 0) + output_count
+        if craft_count > base_capacity:
+            _degrade_used_pouches(data, pouch_data, craft_count - base_capacity)
+        return data, float(target.get("base_exp", 0.0)) * craft_count, True, f"+{output_count} {output_item}"
+
+    if kind == "tiara":
+        talisman = str(target.get("talisman_item"))
+        inventory["Tiara"] = inventory.get("Tiara", 0) - 1
+        inventory[talisman] = inventory.get(talisman, 0) - 1
+        output_item = str(target.get("output_item"))
+        inventory[output_item] = inventory.get(output_item, 0) + 1
+        return data, float(target.get("base_exp", 0.0)), True, f"+1 {output_item}"
+
+    if kind == "hood_feed":
+        input_item = str(target.get("input_item"))
+        altar_id = str(target.get("altar_id"))
+        inventory[input_item] = inventory.get(input_item, 0) - 1
+        hood = data.setdefault("wicked_hood", {})
+        fed = set(_fed_altars(data))
+        fed.add(altar_id)
+        hood["fed_altars"] = sorted(fed)
+        return data, 0, True, f"{input_item} fed"
+
+    return player_data, 0, False, "Unsupported Runecrafting target"
+
+
 def mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec):
     """Approximate the 2011Scape raw mining roll before Anki pacing is applied."""
     low = float(target_spec.get("low_chance", 0))

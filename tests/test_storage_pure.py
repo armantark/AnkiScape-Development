@@ -20,6 +20,9 @@ from constants import (
     ITEM_DEFINITIONS,
     MINING_OUTPUT_ITEMS,
     ORE_DATA,
+    RUNECRAFTING_ACCESS_ITEMS,
+    RUNECRAFTING_EXTRA_ITEM_DATA,
+    RUNECRAFTING_OUTPUT_ITEMS,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
@@ -39,6 +42,7 @@ class TestStoragePure(unittest.TestCase):
             "firemaking_level",
             "fishing_level",
             "cooking_level",
+            "runecrafting_level",
             "mining_exp",
             "woodcutting_exp",
             "smithing_exp",
@@ -47,12 +51,15 @@ class TestStoragePure(unittest.TestCase):
             "firemaking_exp",
             "fishing_exp",
             "cooking_exp",
+            "runecrafting_exp",
             "current_craft",
             "current_fletch",
             "current_firemaking",
             "current_fishing",
             "current_cooking",
+            "current_runecrafting",
             "current_utility",
+            "current_quest",
             "current_ore",
             "current_tree",
             "current_smith",
@@ -70,6 +77,12 @@ class TestStoragePure(unittest.TestCase):
             "constitution_level",
             "cooking_success_count",
             "cooking_burn_count",
+            "quests",
+            "quest_points",
+            "claims",
+            "wicked_hood",
+            "runecrafting_pouches",
+            "item_charges",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -83,6 +96,14 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["agility_level"], 1)
         self.assertEqual(data["agility_exp"], 0)
         self.assertEqual(data["constitution_level"], 10)
+        self.assertEqual(data["current_runecrafting"], "craft_air_runes")
+        self.assertEqual(data["current_quest"], "rune_mysteries")
+        self.assertEqual(data["quest_points"], 0)
+        self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
+        self.assertEqual(data["claims"]["wicked_hood"], {"claimed": False})
+        self.assertEqual(data["wicked_hood"], {"fed_altars": []})
+        self.assertEqual(data["runecrafting_pouches"], {})
+        self.assertEqual(data["item_charges"], {})
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -107,6 +128,9 @@ class TestStoragePure(unittest.TestCase):
             + list(FISHING_OUTPUT_ITEMS)
             + list(COOKING_OUTPUT_ITEMS)
             + utility_outputs
+            + list(RUNECRAFTING_OUTPUT_ITEMS)
+            + list(RUNECRAFTING_ACCESS_ITEMS)
+            + list(RUNECRAFTING_EXTRA_ITEM_DATA)
         ):
             self.assertIn(item_name, data["inventory"])
             self.assertEqual(data["inventory"][item_name], 0)
@@ -131,6 +155,13 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_firemaking"], "logs")
         self.assertEqual(migrated["current_fishing"], "catch_crayfish")
         self.assertEqual(migrated["current_cooking"], "cook_shrimps")
+        self.assertEqual(migrated["current_runecrafting"], "craft_air_runes")
+        self.assertEqual(migrated["current_quest"], "rune_mysteries")
+        self.assertEqual(migrated["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
+        self.assertEqual(migrated["claims"]["wicked_hood"], {"claimed": False})
+        self.assertEqual(migrated["wicked_hood"], {"fed_altars": []})
+        self.assertEqual(migrated["runecrafting_pouches"], {})
+        self.assertEqual(migrated["item_charges"], {})
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
@@ -156,6 +187,10 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Raw crayfish", migrated["inventory"])
         self.assertIn("Shrimps", migrated["inventory"])
         self.assertIn("Burnt fish", migrated["inventory"])
+        self.assertIn("Air rune", migrated["inventory"])
+        self.assertIn("Air talisman", migrated["inventory"])
+        self.assertIn("Binding necklace", migrated["inventory"])
+        self.assertIn("Wicked hood", migrated["inventory"])
         self.assertIn("Soft clay", migrated["inventory"])
         self.assertIn("Ashes", migrated["inventory"])
         self.assertIn("Arctic pine logs", migrated["inventory"])

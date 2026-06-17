@@ -88,6 +88,16 @@ deferred bonfire/fire-spirit notes. Runtime review behavior adapts the source
 lighting roll in `logic_pure.py`; storage config version 12 adds
 `firemaking_level`, `firemaking_exp`, and `current_firemaking`.
 
+Current Runecrafting data lives in `runecrafting_data.py`, with the audit at
+`memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`. It stores
+standard rune, combination rune, tiara binding, pouch, and Wicked hood feed
+metadata from the local 2011Scape Runecrafting source. `quest_data.py` stores
+Rune Mysteries and the one-time Wicked hood claim. Runtime review behavior
+lives in `logic_pure.py`; storage config version 15 adds
+`runecrafting_level`, `runecrafting_exp`, `current_runecrafting`,
+`current_quest`, `quests`, `quest_points`, `claims`, `wicked_hood`,
+`runecrafting_pouches`, and `item_charges`.
+
 ## Asset Scraping (icons)
 `tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
 
@@ -123,6 +133,17 @@ lighting roll in `logic_pure.py`; storage config version 12 adds
 - Provenance is recorded in `assets_provenance.json`; do Firemaking asset
   refreshes sequentially because the provenance JSON writer is not
   concurrency-safe.
+
+### Runecrafting asset wiring
+- `tools/fetch_runecrafting_assets.py` derives the Runecrafting manifest from
+  `runecrafting_data.py` and uses the shared `tools/fetch_assets.py`
+  client/provenance writer.
+- The skill icon uses `File:Runecraft icon (detail).png` and lands at
+  `icon/runecrafting_icon.png`.
+- Runes, talismans, tiaras, pouches, the Wicked hood, and Binding necklace live
+  in `runecraftingitems/` and are wired through `RUNECRAFTING_ITEM_IMAGES`.
+- Rune/Pure essence reuse Mining ore art; do provenance-affecting refreshes
+  sequentially because the provenance JSON writer is not concurrency-safe.
 
 ## Manual Testing Target
 Manual verification should happen inside Anki when runtime behavior changes. Browser-based Pinchtab testing is only relevant if the change introduces browser-rendered surfaces that can be exercised outside Anki.

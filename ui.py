@@ -71,12 +71,19 @@ try:
         FLETCHING_DATA,
         FIREMAKING_DATA,
         FISHING_DATA,
+        RUNECRAFTING_DATA,
+        RUNECRAFTING_POUCH_DATA,
+        QUEST_DATA,
+        CLAIM_DATA,
+        BINDING_NECKLACE_ITEM,
         FIREMAKING_LOG_ITEMS,
         FISHING_OUTPUT_ITEMS,
+        RUNECRAFTING_GROUP_LABELS,
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_COOKING_TARGET,
+        DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -87,6 +94,7 @@ try:
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
         COOKING_ITEM_IMAGES,
+        RUNECRAFTING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -116,12 +124,19 @@ except Exception:
         FLETCHING_DATA,
         FIREMAKING_DATA,
         FISHING_DATA,
+        RUNECRAFTING_DATA,
+        RUNECRAFTING_POUCH_DATA,
+        QUEST_DATA,
+        CLAIM_DATA,
+        BINDING_NECKLACE_ITEM,
         FIREMAKING_LOG_ITEMS,
         FISHING_OUTPUT_ITEMS,
+        RUNECRAFTING_GROUP_LABELS,
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_COOKING_TARGET,
+        DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -132,6 +147,7 @@ except Exception:
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
         COOKING_ITEM_IMAGES,
+        RUNECRAFTING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -139,9 +155,9 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_state_pure
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_state_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -165,6 +181,7 @@ try:
         fishing_target_rows,
         fletching_target_rows,
         mining_target_rows,
+        runecrafting_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -175,6 +192,7 @@ except Exception:
         fishing_target_rows,
         fletching_target_rows,
         mining_target_rows,
+        runecrafting_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -204,6 +222,7 @@ _MAIN_MENU_CTX = {
     "fletch_btn": None,
     "firemaking_btn": None,
     "cooking_btn": None,
+    "runecrafting_btn": None,
     "warn_label": None,
 }
 
@@ -214,7 +233,7 @@ _MAIN_MENU_CTX = {
 # four-skill branch. Icons follow the existing convention: icon/<skill_id>_icon.png.
 
 # Bank grouping order + labels. Categories come from item_registry.ItemCategory.
-_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "material")
+_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "runecrafting", "material", "equipment", "smithed", "tool")
 _ITEM_CATEGORY_LABELS = {
     "ore": "Ores",
     "log": "Logs",
@@ -224,7 +243,11 @@ _ITEM_CATEGORY_LABELS = {
     "bar": "Bars",
     "crafted": "Crafted",
     "fletched": "Fletched",
+    "runecrafting": "Runecrafting",
     "material": "Materials",
+    "equipment": "Equipment",
+    "smithed": "Smithed",
+    "tool": "Tools",
 }
 
 # Friendly headers for the Crafting panel's family groups (CraftingRecipe.family
@@ -665,6 +688,7 @@ def refresh_skill_availability(
     can_fletch_any_item: bool = False,
     can_firemake_any_item: bool = False,
     can_cook_any_item: bool = False,
+    can_runecraft_any_item: bool = False,
 ):
     """Auto-enable processing-skill buttons when they become available while the menu is open.
     Never auto-selects the skill; users must choose it explicitly. Only enables; does not disable.
@@ -698,6 +722,11 @@ def refresh_skill_availability(
         if cook_btn is not None and can_cook_any_item and not cook_btn.isEnabled():
             cook_btn.setEnabled(True)
             cook_btn.setToolTip("Cooking")
+        # Runecrafting
+        rc_btn = _MAIN_MENU_CTX.get("runecrafting_btn")
+        if rc_btn is not None and can_runecraft_any_item and not rc_btn.isEnabled():
+            rc_btn.setEnabled(True)
+            rc_btn.setToolTip("Runecrafting")
         # Clear warning text if any became available
         if (
             (s_btn is not None and s_btn.isEnabled())
@@ -705,6 +734,7 @@ def refresh_skill_availability(
             or (f_btn is not None and f_btn.isEnabled())
             or (fm_btn is not None and fm_btn.isEnabled())
             or (cook_btn is not None and cook_btn.isEnabled())
+            or (rc_btn is not None and rc_btn.isEnabled())
         ):
             warn = _MAIN_MENU_CTX.get("warn_label")
             if warn is not None and hasattr(warn, "setText"):
@@ -770,6 +800,7 @@ _SKILL_TARGET_TABLES = {
     "firemaking": FIREMAKING_DATA,
     "fishing": FISHING_DATA,
     "cooking": COOKING_DATA,
+    "runecrafting": RUNECRAFTING_DATA,
 }
 
 
@@ -779,6 +810,12 @@ def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
     Returns None when the skill has no selectable target (e.g. combat/support)
     or cannot be resolved, so callers can simply hide the label.
     """
+    if skill == "Quests":
+        quest_id = player_data.get("current_quest")
+        quest = QUEST_DATA.get(quest_id) if isinstance(quest_id, str) else None
+        if isinstance(quest, dict):
+            return str(quest.get("display_name", quest_id))
+        return None
     sd = get_skill(skill or "")
     if sd is None or sd.current_target_key is None:
         return None
@@ -931,6 +968,30 @@ if HAS_QT:
                     self.target_lbl.setVisible(False)
                 except Exception:
                     pass
+                self.adjustSize()
+                self._reposition()
+                self.show()
+                return
+            if skill == "Quests":
+                quest_id = player_data.get("current_quest")
+                quest = QUEST_DATA.get(quest_id) if isinstance(quest_id, str) else None
+                state = quest_state_pure(player_data, quest_id) if isinstance(quest_id, str) else {"progress": 0, "completed": False}
+                total = int(quest.get("stages", 1) if isinstance(quest, dict) else 1)
+                progress = int(state.get("progress", 0) or 0)
+                quest_name = str(quest.get("display_name", "Quest") if isinstance(quest, dict) else "Quest")
+                ip = os.path.join(current_dir, "icon", "achievement_icon.png")
+                if os.path.exists(ip):
+                    pm = QPixmap(ip)
+                    self.icon_lbl.setPixmap(pm.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+                else:
+                    self.icon_lbl.clear()
+                self.title_lbl.setText("Quests")
+                self.progress.setVisible(True)
+                self.progress.setValue(100 if state.get("completed") else int((progress / max(1, total)) * 100))
+                self.sub_lbl.setVisible(True)
+                self.sub_lbl.setText("Completed" if state.get("completed") else f"Stage {progress}/{total}")
+                self.target_lbl.setText(quest_name)
+                self.target_lbl.setVisible(True)
                 self.adjustSize()
                 self._reposition()
                 self.show()
@@ -1321,7 +1382,10 @@ def show_main_menu(
     on_set_firemaking=None,
     on_set_fishing=None,
     on_set_cooking=None,
+    on_set_runecrafting=None,
     on_set_utility=None,
+    on_set_quest=None,
+    on_claim_reward=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
     on_equip_item=None,
@@ -1402,7 +1466,7 @@ def show_main_menu(
         CategoryView(category_id="utility", display_name=_UTILITY_HUB_NAME, skills=(utility_card,)),
     )
 
-    _active_choices = set(playable_review_skill_names()) | _UTILITY_SKILL_NAMES
+    _active_choices = set(playable_review_skill_names()) | {"Quests"} | _UTILITY_SKILL_NAMES
 
     # Mutable selection state (nested closures cannot rebind plain locals).
     state = {
@@ -1446,6 +1510,12 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _runecrafting_available() -> bool:
+        try:
+            return can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA)
+        except Exception:
+            return False
+
     def _skill_available(display_name: str) -> bool:
         if display_name == "Smithing":
             return bool(can_smelt_any_bar)
@@ -1457,6 +1527,8 @@ def show_main_menu(
             return _firemaking_available()
         if display_name == "Cooking":
             return _cooking_available()
+        if display_name == "Runecrafting":
+            return _runecrafting_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -1484,6 +1556,9 @@ def show_main_menu(
             return
         if display_name == "Firemaking" and not _firemaking_available():
             warn.setText("You can't burn anything yet. Cut or acquire logs first!")
+            return
+        if display_name == "Runecrafting" and not _runecrafting_available():
+            warn.setText("You can't runecraft anything yet. Complete Rune Mysteries and gather access items first!")
             return
         warn.setText("")
         state["active"] = display_name
@@ -2006,6 +2081,82 @@ def show_main_menu(
         tree.itemActivated.connect(_on_cooking_clicked)
         return tree
 
+    def _build_runecrafting_list() -> QTreeWidget:
+        tree = QTreeWidget()
+        tree.setHeaderHidden(True)
+        tree.setIconSize(QSize(28, 28))
+        tree.setRootIsDecorated(True)
+        tree.setIndentation(14)
+        tree.setUniformRowHeights(True)
+        tree.setStyleSheet(
+            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 4px; }"
+            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+        )
+        rows = runecrafting_target_rows(
+            player_data,
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_ITEM_IMAGES,
+            RUNECRAFTING_POUCH_DATA,
+            DEFAULT_RUNECRAFTING_TARGET,
+        )
+        current = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
+        ordered_groups = list(RUNECRAFTING_GROUP_LABELS)
+        groups = {group: [] for group in ordered_groups}
+        for row in rows:
+            group = row.group or "standard"
+            if group not in groups:
+                groups[group] = []
+                ordered_groups.append(group)
+            groups[group].append(row)
+
+        selected_child = None
+        for group in ordered_groups:
+            group_rows = groups.get(group, [])
+            if not group_rows:
+                continue
+            label = RUNECRAFTING_GROUP_LABELS.get(group, group.replace("_", " ").title())
+            parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
+            parent.setData(0, Qt.ItemDataRole.UserRole, f"__runecrafting_group__:{group}")
+            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            font = parent.font(0)
+            font.setBold(True)
+            parent.setFont(0, font)
+            tree.addTopLevelItem(parent)
+            group_has_current = False
+            ordered = sorted(group_rows, key=lambda row: (RUNECRAFTING_DATA.get(row.target_id, {}).get("level", 1), row.label))
+            for row in ordered:
+                child = QTreeWidgetItem([row.label])
+                child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
+                if row.icon_path and os.path.exists(row.icon_path):
+                    child.setIcon(0, QIcon(row.icon_path))
+                if not row.enabled:
+                    child.setDisabled(True)
+                child.setToolTip(0, row.tooltip)
+                parent.addChild(child)
+                if row.target_id == current:
+                    selected_child = child
+                    group_has_current = True
+            parent.setExpanded(group_has_current)
+
+        if selected_child is not None:
+            tree.setCurrentItem(selected_child)
+
+        def _on_runecrafting_clicked(item: "QTreeWidgetItem", _column: int = 0):
+            if item is None or item.isDisabled():
+                return
+            target_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if not target_id or str(target_id).startswith("__runecrafting_group__"):
+                return
+            if on_set_runecrafting is not None:
+                on_set_runecrafting(target_id)
+
+        tree.itemClicked.connect(_on_runecrafting_clicked)
+        tree.itemActivated.connect(_on_runecrafting_clicked)
+        return tree
+
     def _build_utility_list() -> QTreeWidget:
         tree = QTreeWidget()
         tree.setHeaderHidden(True)
@@ -2091,6 +2242,7 @@ def show_main_menu(
         "Firemaking": _build_firemaking_list,
         "Fishing": _build_fishing_list,
         "Cooking": _build_cooking_list,
+        "Runecrafting": _build_runecrafting_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
     _TARGET_PROMPTS = {
@@ -2102,6 +2254,7 @@ def show_main_menu(
         "Firemaking": "Select Logs to Burn",
         "Fishing": "Select Fish to Catch",
         "Cooking": "Select Food to Cook",
+        "Runecrafting": "Select Runecrafting Action",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
@@ -2234,6 +2387,7 @@ def show_main_menu(
         _MAIN_MENU_CTX["fletch_btn"] = None
         _MAIN_MENU_CTX["firemaking_btn"] = None
         _MAIN_MENU_CTX["cooking_btn"] = None
+        _MAIN_MENU_CTX["runecrafting_btn"] = None
         name = state["skill"]
         _debug_log(f"hub.render_panel: skill={name!r} cat={state['category']!r}")
         card = next((c for c in _cards_for(state["category"]) if c.display_name == name), None)
@@ -2295,6 +2449,8 @@ def show_main_menu(
                         train_btn.setToolTip("Cut or acquire logs before training Firemaking.")
                     elif name == "Cooking":
                         train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
+                    elif name == "Runecrafting":
+                        train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
             if name == "Smithing":
@@ -2307,6 +2463,8 @@ def show_main_menu(
                 _MAIN_MENU_CTX["firemaking_btn"] = train_btn
             elif name == "Cooking":
                 _MAIN_MENU_CTX["cooking_btn"] = train_btn
+            elif name == "Runecrafting":
+                _MAIN_MENU_CTX["runecrafting_btn"] = train_btn
         panel_layout.addWidget(header)
 
         if is_utility:
@@ -2383,6 +2541,7 @@ def show_main_menu(
                     "fletch_btn": None,
                     "firemaking_btn": None,
                     "cooking_btn": None,
+                    "runecrafting_btn": None,
                     "warn_label": None,
                 }
             )
@@ -2399,6 +2558,105 @@ def show_main_menu(
 
     tabs.addTab(skills_tab, "Skills")
     tabs.setTabToolTip(tabs.indexOf(skills_tab), "Pick a category, choose a skill, then select what to train on")
+
+    # ---- Quests tab --------------------------------------------------------
+    quests_tab = QWidget()
+    q_layout = QVBoxLayout(quests_tab)
+    q_layout.setContentsMargins(12, 12, 12, 12)
+    q_layout.setSpacing(8)
+
+    quest_points_label = QLabel(f"Quest points: {int(player_data.get('quest_points', 0) or 0)}")
+    quest_points_label.setStyleSheet("font-weight: 600; color: palette(text);")
+    q_layout.addWidget(quest_points_label)
+
+    quest_scroll = QScrollArea()
+    quest_scroll.setWidgetResizable(True)
+    quest_scroll.setStyleSheet("border: none;")
+    quest_content = QWidget()
+    quest_content_layout = QVBoxLayout(quest_content)
+    quest_content_layout.setContentsMargins(0, 0, 0, 0)
+    quest_content_layout.setSpacing(10)
+
+    def _quest_status_text(state: dict, quest: dict) -> str:
+        if state.get("completed"):
+            return "Completed"
+        if state.get("started"):
+            return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
+        return "Not started"
+
+    def _quest_button_text(state: dict) -> str:
+        if state.get("completed"):
+            return "Completed"
+        if state["started"] and state["progress"] > 0:
+            return "Continue quest"
+        return "Start quest"
+
+    def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel) -> None:
+        if on_set_quest is not None and on_set_quest(quest_id) is False:
+            return
+        state["active"] = "Quests"
+        on_save_skill("Quests")
+        _refresh_active_label()
+        q_state = quest_state_pure(player_data, quest_id)
+        quest = QUEST_DATA.get(quest_id, {})
+        button.setText("Currently active")
+        button.setEnabled(False)
+        status_label.setText(_quest_status_text(q_state, quest))
+
+    for quest_id, quest in QUEST_DATA.items():
+        q_state = quest_state_pure(player_data, quest_id)
+        card = QWidget()
+        card.setStyleSheet("border: 1px solid palette(mid); border-radius: 6px; background: palette(base);")
+        card_layout = QVBoxLayout(card)
+        card_layout.setContentsMargins(10, 8, 10, 8)
+        card_layout.setSpacing(6)
+
+        header = QWidget()
+        header_layout = QHBoxLayout(header)
+        header_layout.setContentsMargins(0, 0, 0, 0)
+        title = QLabel(str(quest.get("display_name", quest_id)))
+        title.setStyleSheet("font-weight: 700; color: palette(text);")
+        status = QLabel(_quest_status_text(q_state, quest))
+        status.setStyleSheet(f"color: {dim_text_css(status)};")
+        quest_btn = QPushButton(_quest_button_text(q_state))
+        quest_btn.setEnabled(not q_state.get("completed") and state["active"] != "Quests")
+        if state["active"] == "Quests" and player_data.get("current_quest") == quest_id:
+            quest_btn.setText("Currently active")
+            quest_btn.setEnabled(False)
+        quest_btn.clicked.connect(lambda _=False, qid=quest_id, btn=quest_btn, lbl=status: _set_quest_active(qid, btn, lbl))
+        header_layout.addWidget(title)
+        header_layout.addWidget(status)
+        header_layout.addStretch(1)
+        header_layout.addWidget(quest_btn)
+        card_layout.addWidget(header)
+
+        if not q_state.get("started"):
+            start = QLabel(str(quest.get("start_point", "")))
+            start.setWordWrap(True)
+            start.setStyleSheet("color: palette(text);")
+            card_layout.addWidget(start)
+        for row in quest_journal_rows_pure(player_data, quest_id, QUEST_DATA):
+            stage_label = QLabel(f"Stage {row['stage']}")
+            stage_label.setStyleSheet("font-weight: 600; color: palette(text);")
+            card_layout.addWidget(stage_label)
+            for line in row.get("lines", ()):
+                text = str(line)
+                if row.get("completed"):
+                    text = f"<s>{text}</s>"
+                line_label = QLabel(text)
+                line_label.setWordWrap(True)
+                line_label.setTextFormat(Qt.TextFormat.RichText)
+                line_label.setStyleSheet("color: palette(text);")
+                card_layout.addWidget(line_label)
+        quest_content_layout.addWidget(card)
+
+    quest_content_layout.addStretch(1)
+    quest_scroll.setWidget(quest_content)
+    q_layout.addWidget(quest_scroll, 1)
+    tabs.addTab(quests_tab, "Quests")
+    if os.path.exists(ach_icon_path := os.path.join(current_dir, "icon", "achievement_icon.png")):
+        tabs.setTabIcon(tabs.indexOf(quests_tab), QIcon(ach_icon_path))
+    tabs.setTabToolTip(tabs.indexOf(quests_tab), "View quest journals and active quest progress")
 
     # Stats tab (inline, single-skill view with icon selectors)
     stats_tab = QWidget()
@@ -2614,6 +2872,53 @@ def show_main_menu(
                     li.setToolTip(equipment_full_tooltip(item_name, "" if ok else reason))
                 bank_list.addItem(li)
 
+    claims_box = QWidget()
+    claims_layout = QVBoxLayout(claims_box)
+    claims_layout.setContentsMargins(0, 0, 0, 0)
+    claims_layout.setSpacing(6)
+
+    def _populate_claims() -> None:
+        _clear_layout(claims_layout)
+        rows = claim_rows_pure(player_data, CLAIM_DATA)
+        if not rows:
+            claims_box.setVisible(False)
+            return
+        claims_box.setVisible(True)
+        header = QLabel("Bank Claims")
+        header.setStyleSheet("font-weight: 600; color: palette(text);")
+        claims_layout.addWidget(header)
+        for row in rows:
+            claim_row = QWidget()
+            crl = QHBoxLayout(claim_row)
+            crl.setContentsMargins(0, 0, 0, 0)
+            crl.setSpacing(8)
+            item_name = str(row.get("item_name", row.get("display_name", "")))
+            label = QLabel(f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}")
+            label.setStyleSheet("color: palette(text);")
+            claim_btn = QPushButton("Claim")
+            locked = tuple(row.get("locked_reasons", ()))
+            if row.get("claimed"):
+                claim_btn.setText("Claimed")
+                claim_btn.setEnabled(False)
+            elif not row.get("eligible"):
+                claim_btn.setText("Locked")
+                claim_btn.setEnabled(False)
+                if locked:
+                    claim_btn.setToolTip("Requires: " + ", ".join(str(reason) for reason in locked))
+
+            def _do_claim(_checked: bool = False, claim_id=row.get("claim_id")) -> None:
+                if on_claim_reward is None or not isinstance(claim_id, str):
+                    return
+                if on_claim_reward(claim_id):
+                    _populate_claims()
+                    _refresh_equipment_views()
+
+            claim_btn.clicked.connect(_do_claim)
+            crl.addWidget(label)
+            crl.addStretch(1)
+            crl.addWidget(claim_btn)
+            claims_layout.addWidget(claim_row)
+
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
 
@@ -2668,6 +2973,8 @@ def show_main_menu(
         menu.exec(bank_list.viewport().mapToGlobal(pos))
 
     bank_list.customContextMenuRequested.connect(_bank_context_menu)
+    _populate_claims()
+    bk_layout.addWidget(claims_box)
     _populate_bank_list()
     bk_layout.addWidget(bank_list, 1)
 
@@ -2757,7 +3064,10 @@ def show_main_menu(
                 icon_path = _bank_icon_path(item_name, asset_path) or equipment_slot_icon_path(slot_id)
                 if icon_path:
                     li.setIcon(QIcon(icon_path))
-                li.setToolTip(equipment_full_tooltip(item_name))
+                tooltip = equipment_full_tooltip(item_name)
+                if item_name == BINDING_NECKLACE_ITEM:
+                    tooltip += f"\nCharges remaining: {binding_necklace_charges_pure(player_data)}"
+                li.setToolTip(tooltip)
                 li.setData(Qt.ItemDataRole.UserRole, slot_id)
                 li.setData(Qt.ItemDataRole.UserRole + 1, item_name)
             else:

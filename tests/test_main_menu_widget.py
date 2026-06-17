@@ -34,13 +34,22 @@ except Exception:  # pragma: no cover - environment without aqt installed
 
 def _make_player_data() -> dict:
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking", "cooking"):
+    for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
     # it every tree/rock would lock on "no usable hatchet/pickaxe" and those rows
     # couldn't be exercised. Mirror that seed so Woodcutting and Mining rows unlock.
     data["toolbelt"] = {"woodcutting": ["bronze_hatchet"], "mining": ["bronze_pickaxe"]}
+    data["equipment"] = {}
+    data["current_runecrafting"] = "craft_air_runes"
+    data["current_quest"] = "rune_mysteries"
+    data["quests"] = {"rune_mysteries": {"started": False, "progress": 0, "completed": False}}
+    data["quest_points"] = 0
+    data["claims"] = {"wicked_hood": {"claimed": False}}
+    data["wicked_hood"] = {"fed_altars": []}
+    data["runecrafting_pouches"] = {}
+    data["item_charges"] = {}
     return data
 
 
@@ -49,7 +58,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Smithing|Crafting|Fletching|Firemaking|Cooking)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -239,6 +248,31 @@ def _goto_cooking(dialog: "QDialog") -> "QTreeWidget":
     return _find_cooking_tree(dialog)
 
 
+def _find_runecrafting_tree(dialog: "QDialog") -> "QTreeWidget":
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == "craft_air_runes" for it in _tree_items(tw)):
+            return tw
+    raise AssertionError("runecrafting tree (with target ids) not found")
+
+
+def _runecrafting_row(tree: "QTreeWidget", target_id: str) -> "QTreeWidgetItem":
+    for it in _tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == target_id:
+            return it
+    raise AssertionError(f"runecrafting row {target_id!r} not found")
+
+
+def _goto_runecrafting(dialog: "QDialog") -> "QTreeWidget":
+    artisan = next(b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan")
+    artisan.click()
+    QApplication.processEvents()
+    skill_list = _find_artisan_skill_list(dialog)
+    row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Runecrafting")
+    skill_list.setCurrentRow(row)
+    QApplication.processEvents()
+    return _find_runecrafting_tree(dialog)
+
+
 def _find_utility_tree(dialog: "QDialog") -> "QTreeWidget":
     for tw in dialog.findChildren(QTreeWidget):
         if any(it.data(0, Qt.ItemDataRole.UserRole) == "make_soft_clay" for it in _tree_items(tw)):
@@ -312,6 +346,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._fishing_calls: list = []
         # Same seam for Cooking target selection.
         self._cooking_calls: list = []
+        # Same seam for Runecrafting target selection.
+        self._runecrafting_calls: list = []
+        # Quests and Bank Claims are review-adjacent but not levelled skills.
+        self._quest_calls: list = []
+        self._claim_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -345,7 +384,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_firemaking=lambda target: self._firemaking_calls.append(target),
             on_set_fishing=lambda target: self._fishing_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
+            on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
+            on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
+            on_claim_reward=lambda claim_id: self._claim_calls.append(claim_id) or True,
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
         return self._captured[-1]
@@ -634,6 +676,66 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._cooking_calls, before, "locked cooking target must not be selectable")
 
+    def test_runecrafting_is_selectable_and_shows_grouped_targets(self) -> None:
+        pd = _make_player_data()
+        pd["runecrafting_level"] = 23
+        pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        pd["inventory"] = {
+            "Rune essence": 31,
+            "Air talisman": 1,
+            "Pure essence": 26,
+            "Fire rune": 26,
+            "Fire talisman": 1,
+        }
+        pd["equipment"] = {"head": "Earth tiara"}
+        dialog = self._open(pd)
+        tree = _goto_runecrafting(dialog)
+
+        title = _panel_title(dialog)
+        self.assertTrue(
+            title.startswith("Runecrafting"),
+            f"panel did not switch to Runecrafting; still shows {title!r}",
+        )
+        group_roles = [
+            tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole)
+            for i in range(tree.topLevelItemCount())
+        ]
+        self.assertIn("__runecrafting_group__:standard", group_roles)
+        self.assertIn("__runecrafting_group__:combination", group_roles)
+        self.assertIn("__runecrafting_group__:tiara", group_roles)
+        self.assertIn("__runecrafting_group__:hood", group_roles)
+
+        air = _runecrafting_row(tree, "craft_air_runes")
+        lava = _runecrafting_row(tree, "combo_lava_at_earth")
+        blood = _runecrafting_row(tree, "craft_blood_runes")
+        self.assertFalse(air.isDisabled())
+        self.assertFalse(lava.isDisabled())
+        self.assertTrue(blood.isDisabled())
+        self.assertFalse(air.icon(0).isNull(), "Runecrafting target row has no icon")
+        self.assertIn("Output: Air rune", air.toolTip(0))
+        self.assertIn("Pure essence", lava.toolTip(0))
+        self.assertIn("Locked due to:", blood.toolTip(0))
+
+        tree.itemClicked.emit(air, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._runecrafting_calls[-1], "craft_air_runes")
+
+    def test_runecrafting_locked_rows_are_inert(self) -> None:
+        pd = _make_player_data()
+        pd["runecrafting_level"] = 1
+        pd["inventory"] = {"Rune essence": 28}
+        dialog = self._open(pd)
+        tree = _goto_runecrafting(dialog)
+        air = _runecrafting_row(tree, "craft_air_runes")
+
+        self.assertTrue(air.isDisabled())
+        self.assertIn("Rune Mysteries", air.toolTip(0))
+        before = list(self._runecrafting_calls)
+        tree.itemClicked.emit(air, 0)
+        tree.itemActivated.emit(air, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._runecrafting_calls, before, "locked runecrafting target must not be selectable")
+
     # ---- Smithing parity (unified SMITHING_DATA recipe tree) --------------
     def test_smithing_groups_recipes_by_metal_tier(self) -> None:
         pd = _make_player_data()
@@ -831,6 +933,50 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Fishing Stats", labels)
         self.assertIn("Fishing Level:", labels)
 
+    def test_stats_tab_has_runecrafting_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Runecrafting")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Runecrafting Stats", labels)
+        self.assertIn("Runecrafting Level:", labels)
+
+    def test_quests_tab_starts_rune_mysteries_via_quest_action(self) -> None:
+        pd = _make_player_data()
+        pd["quests"]["rune_mysteries"] = {"started": False, "progress": 0, "completed": False}
+        dialog = self._open(pd)
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Rune Mysteries", labels)
+        self.assertIn("Quest points: 0", labels)
+
+        start_btn = next(
+            btn for btn in dialog.findChildren(QPushButton)
+            if btn.text() == "Start quest"
+        )
+        start_btn.click()
+        QApplication.processEvents()
+        self.assertEqual(self._quest_calls[-1], "rune_mysteries")
+        self.assertEqual(start_btn.text(), "Currently active")
+        self.assertFalse(start_btn.isEnabled())
+
+    def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:
+        pd = _make_player_data()
+        pd["runecrafting_level"] = 5
+        pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Bank Claims", labels)
+        self.assertIn("Wicked hood x1", labels)
+        claim_btn = next(
+            btn for btn in dialog.findChildren(QPushButton)
+            if btn.text() == "Claim"
+        )
+        self.assertTrue(claim_btn.isEnabled())
+        claim_btn.click()
+        QApplication.processEvents()
+        self.assertEqual(self._claim_calls[-1], "wicked_hood")
+
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {
@@ -898,6 +1044,27 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertFalse(crayfish_row.icon().isNull(), "Raw crayfish row has no icon")
         self.assertFalse(bait_row.icon().isNull(), "Fishing bait row has no icon")
+
+    def test_bank_groups_runecrafting_items_with_icons(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Air rune": 120,
+            "Air talisman": 1,
+            "Small pouch": 1,
+            "Binding necklace": 1,
+            "Wicked hood": 1,
+        }
+        dialog = self._open(pd)
+        bank = _find_bank_list(dialog)
+        texts = [bank.item(i).text() for i in range(bank.count())]
+        self.assertIn("Runecrafting", texts)
+        for item_name in ("Air rune", "Air talisman", "Small pouch", "Binding necklace", "Wicked hood"):
+            self.assertTrue(any(t.startswith(f"{item_name} x") for t in texts), f"{item_name} missing from bank")
+            row = next(
+                bank.item(i) for i in range(bank.count())
+                if bank.item(i).text().startswith(f"{item_name} x")
+            )
+            self.assertFalse(row.icon().isNull(), f"{item_name} row has no icon")
 
     def test_bank_groups_food_with_icons_and_discard_all_confirmation(self) -> None:
         pd = _make_player_data()

@@ -19,8 +19,11 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 117)
+        self.assertEqual(len(EQUIPMENT_DATA), 131)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
+        self.assertEqual(EQUIPMENT_DATA["Air tiara"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Wicked hood"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Binding necklace"].slot, "neck")
 
     def test_smithed_armour_and_weapon_requirements(self):
         self.assertEqual(EQUIPMENT_DATA["Bronze platebody"].slot, "body")

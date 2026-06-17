@@ -11,10 +11,15 @@ from .constants import (
     FLETCHING_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,
+    RUNECRAFTING_DATA,
+    RUNECRAFTING_POUCH_DATA,
+    QUEST_DATA,
+    CLAIM_DATA,
     UTILITY_ACTIVITY_DATA,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
     DEFAULT_COOKING_TARGET,
+    DEFAULT_RUNECRAFTING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_MINING_TARGET,
     DEFAULT_WOODCUTTING_TARGET,
@@ -55,6 +60,13 @@ from .logic_pure import (
     can_craft_item_pure,
     can_fletch_item_pure,
     can_cook_target_pure,
+    can_runecraft_any_pure,
+    can_runecraft_target_pure,
+    can_start_quest_pure,
+    start_quest_pure,
+    apply_quest_progress_pure,
+    apply_claim_pure,
+    apply_runecrafting_action_pure,
     has_cooking_materials_pure,
     has_firemaking_materials_pure,
     can_burn_any_firemaking_target_pure,
@@ -327,7 +339,8 @@ def _refresh_skill_availability() -> None:
             )
             for target_key in COOKING_DATA.keys()
         )
-        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any, can_cook_any)
+        can_runecraft_any = can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA)
+        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any, can_cook_any, can_runecraft_any)
     except Exception:
         pass
 
@@ -852,6 +865,80 @@ def on_cooking_answer():
     _show_exp(exp_gained)
     return True
 
+
+def on_runecrafting_answer():
+    target = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
+    if target not in RUNECRAFTING_DATA:
+        target = DEFAULT_RUNECRAFTING_TARGET
+        player_data["current_runecrafting"] = target
+    spec = RUNECRAFTING_DATA[target]
+    display_name = spec.get("display_name", target)
+    player_level = player_data.get("runecrafting_level", 1)
+
+    if player_level < spec.get("level", 1):
+        show_error_message("Insufficient level", f"You need level {spec['level']} Runecrafting for {display_name}.")
+        return False
+
+    rolls = [random.random() for _ in range(64)]
+    new_data, base_exp, ok, message = apply_runecrafting_action_pure(
+        player_data,
+        target,
+        RUNECRAFTING_DATA,
+        RUNECRAFTING_POUCH_DATA,
+        rolls=rolls,
+    )
+    if not ok:
+        _deactivate_current_skill()
+        show_error_message(
+            "Runecrafting unavailable",
+            f"{display_name} cannot run right now, so Runecrafting has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
+
+    player_data.update(new_data)
+    exp_gained = _award_skill_exp("runecrafting_exp", base_exp)
+    level_up_check("Runecrafting", player_data)
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    if exp_gained > 0:
+        _show_exp(exp_gained)
+    elif message:
+        _show_activity_gain(str(message))
+    return True
+
+
+def on_quest_answer():
+    quest_id = player_data.get("current_quest", "rune_mysteries")
+    if quest_id not in QUEST_DATA:
+        quest_id = "rune_mysteries"
+        player_data["current_quest"] = quest_id
+    quest = QUEST_DATA[quest_id]
+    if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):
+        _deactivate_current_skill()
+        show_error_message(
+            "Quest unavailable",
+            f"{quest.get('display_name', quest_id)} cannot progress right now, so questing has been switched off.",
+        )
+        return False
+
+    new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
+    if not ok:
+        return False
+    player_data.update(new_data)
+    if completed_now:
+        _deactivate_current_skill()
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    if completed_now:
+        _show_activity_gain(f"{quest.get('display_name', quest_id)} complete")
+    else:
+        state = player_data.get("quests", {}).get(quest_id, {})
+        _show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
+    return True
+
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
         current_bar=player_data.get("current_bar", "Bronze bar"),
@@ -935,7 +1022,10 @@ def _on_main_menu():
         on_set_firemaking=lambda target: _set_value("current_firemaking", target),
         on_set_fishing=lambda target: _set_value("current_fishing", target),
         on_set_cooking=lambda target: _set_value("current_cooking", target),
+        on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_set_quest=on_set_quest,
+        on_claim_reward=on_claim_reward,
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
         on_equip_item=on_equip_item,
@@ -968,6 +1058,39 @@ def _set_value(key: str, value):
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+
+
+def on_set_quest(quest_id):
+    if quest_id not in QUEST_DATA:
+        show_error_message("Unknown quest", "Choose a valid quest before reviewing.")
+        return False
+    new_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
+    if not ok:
+        show_error_message("Cannot start quest", "You do not meet this quest's requirements.")
+        return False
+    player_data.update(new_data)
+    save_player_data()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
+
+
+def on_claim_reward(claim_id):
+    new_data, ok = apply_claim_pure(player_data, claim_id, CLAIM_DATA)
+    if not ok:
+        show_error_message("Cannot claim reward", "That claim is not available right now.")
+        return False
+    player_data.update(new_data)
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
 
 
 def initialize_menu():
@@ -1237,6 +1360,21 @@ def _can_start_cooking_action() -> bool:
     )
 
 
+def _can_start_runecrafting_action() -> bool:
+    target = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
+    return can_runecraft_target_pure(
+        player_data,
+        target,
+        RUNECRAFTING_DATA,
+        RUNECRAFTING_POUCH_DATA,
+    )
+
+
+def _can_start_quest_action() -> bool:
+    quest_id = player_data.get("current_quest", "rune_mysteries")
+    return can_start_quest_pure(player_data, quest_id, QUEST_DATA)
+
+
 def _can_start_crafting_action() -> bool:
     target = player_data.get("current_craft", "form_pot_unfired")
     return can_craft_item_pure(
@@ -1297,7 +1435,9 @@ _CAN_START_HANDLERS = {
     "firemaking": _can_start_firemaking_action,
     "fishing": _can_start_fishing_action,
     "cooking": _can_start_cooking_action,
+    "runecrafting": _can_start_runecrafting_action,
     "utility": _can_start_utility_action,
+    "quest": _can_start_quest_action,
 }
 
 
@@ -1316,7 +1456,9 @@ _REVIEW_HANDLERS = {
     "firemaking": on_firemaking_answer,
     "fishing": on_fishing_answer,
     "cooking": on_cooking_answer,
+    "runecrafting": on_runecrafting_answer,
     "utility": on_utility_answer,
+    "quest": on_quest_answer,
 }
 
 

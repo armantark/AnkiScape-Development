@@ -29,6 +29,12 @@ from constants import (
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
     ORE_DATA,
+    RUNECRAFTING_ACCESS_ITEMS,
+    RUNECRAFTING_DATA,
+    RUNECRAFTING_EXTRA_ITEM_DATA,
+    RUNECRAFTING_ITEM_IMAGES,
+    RUNECRAFTING_OUTPUT_ITEMS,
+    RUNECRAFTING_POUCH_DATA,
     SMITHING_OUTPUT_ITEMS,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
@@ -57,7 +63,17 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_current_skills_preserve_existing_display_contract(self):
         self.assertEqual(
             implemented_review_skill_names(),
-            ("Mining", "Woodcutting", "Fishing", "Smithing", "Crafting", "Fletching", "Firemaking", "Cooking"),
+            (
+                "Mining",
+                "Woodcutting",
+                "Fishing",
+                "Smithing",
+                "Crafting",
+                "Fletching",
+                "Firemaking",
+                "Cooking",
+                "Runecrafting",
+            ),
         )
         self.assertTrue(is_review_skill("Mining"))
         self.assertTrue(is_review_skill("woodcutting"))
@@ -65,21 +81,27 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Fletching"))
         self.assertTrue(is_review_skill("Firemaking"))
         self.assertTrue(is_review_skill("Cooking"))
+        self.assertTrue(is_review_skill("Runecrafting"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
         self.assertEqual(review_handler_key("Cooking"), "cooking")
+        self.assertEqual(review_handler_key("Runecrafting"), "runecrafting")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
 
-    def test_review_action_registry_includes_utility_without_making_it_a_skill(self):
+    def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
         self.assertFalse(is_review_skill("Utility / Activities"))
+        self.assertFalse(is_review_skill("Quests"))
         self.assertTrue(is_review_action("Utility / Activities"))
+        self.assertTrue(is_review_action("Quests"))
         self.assertTrue(is_utility_review_action("Utility"))
         self.assertEqual(review_action_handler_key("Utility / Activities"), "utility")
+        self.assertEqual(review_action_handler_key("Quests"), "quest")
         self.assertEqual(review_action_handler_key("Fishing"), "fishing")
         self.assertEqual(review_action_handler_key("Fletching"), "fletching")
         self.assertEqual(review_action_handler_key("Firemaking"), "firemaking")
         self.assertEqual(review_action_handler_key("Cooking"), "cooking")
+        self.assertEqual(review_action_handler_key("Runecrafting"), "runecrafting")
         self.assertIsNone(review_action_handler_key("Thieving"))
         self.assertEqual(
             review_action_display_names(),
@@ -92,6 +114,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Fletching",
                 "Firemaking",
                 "Cooking",
+                "Runecrafting",
+                "Quests",
                 "Utility / Activities",
             ),
         )
@@ -149,6 +173,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(cooking.default_target, "cook_shrimps")
         self.assertTrue(cooking.visible_in_skill_hub)
 
+    def test_runecrafting_is_current_and_playable_after_quest_unlock(self):
+        runecrafting = get_skill("Runecrafting")
+        self.assertIsNotNone(runecrafting)
+        self.assertTrue(runecrafting.implemented)
+        self.assertTrue(runecrafting.participates_in_review)
+        self.assertEqual(runecrafting.current_target_key, "current_runecrafting")
+        self.assertEqual(runecrafting.default_target, "craft_air_runes")
+        self.assertTrue(runecrafting.visible_in_skill_hub)
+
     def test_registry_generates_current_flat_save_defaults(self):
         self.assertEqual(
             default_skill_state(),
@@ -169,6 +202,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "firemaking_exp": 0,
                 "cooking_level": 1,
                 "cooking_exp": 0,
+                "runecrafting_level": 1,
+                "runecrafting_exp": 0,
             },
         )
         self.assertEqual(
@@ -182,6 +217,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_fletch": "arrow_shafts",
                 "current_firemaking": "logs",
                 "current_cooking": "cook_shrimps",
+                "current_runecrafting": "craft_air_runes",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
@@ -212,16 +248,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + fletching_materials
             + list(FIREMAKING_LOG_ITEMS)
             + list(FIREMAKING_OUTPUT_ITEMS)
-                + list(FISHING_OUTPUT_ITEMS)
-                + list(COOKING_OUTPUT_ITEMS)
-                + list(COOKING_BURNT_ITEMS)
-                + [
-                    material
-                    for spec in COOKING_DATA.values()
-                    for material in spec.get("requirements", {})
-                ]
-                + utility_outputs
-                + utility_materials
+            + list(FISHING_OUTPUT_ITEMS)
+            + list(COOKING_OUTPUT_ITEMS)
+            + list(COOKING_BURNT_ITEMS)
+            + [
+                material
+                for spec in COOKING_DATA.values()
+                for material in spec.get("requirements", {})
+            ]
+            + utility_outputs
+            + utility_materials
+            + list(RUNECRAFTING_OUTPUT_ITEMS)
+            + list(RUNECRAFTING_ACCESS_ITEMS)
+            + list(RUNECRAFTING_EXTRA_ITEM_DATA)
             + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
             + [spec["display_name"] for spec in MINING_PICKAXE_DATA.values()]
             + [spec["display_name"] for spec in MINING_BONUS_ITEM_DATA.values()]
@@ -258,6 +297,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Crayfish", item_storage_keys_by_category(ITEM_DEFINITIONS, "food"))
         self.assertIn("Cooked meat", item_storage_keys_by_category(ITEM_DEFINITIONS, "food"))
         self.assertIn("Burnt fish", item_storage_keys_by_category(ITEM_DEFINITIONS, "food"))
+        self.assertIn("Air rune", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
+        self.assertIn("Air talisman", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
+        self.assertIn("Air tiara", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
+        self.assertIn("Binding necklace", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
+        self.assertIn("Wicked hood", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
         self.assertFalse(by_storage_key["Cursed magic logs"].tradeable)
         self.assertFalse(by_storage_key["Burnt fish"].tradeable)
@@ -471,6 +515,34 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in ("Cooking apple", "Burnt fish", "Cooked meat", "Raw wild pie"):
             self.assertIn(item_name, COOKING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_runecrafting_items_targets_and_assets_are_registered(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        self.assertEqual(len(RUNECRAFTING_DATA), 61)
+        self.assertEqual(RUNECRAFTING_DATA["craft_air_runes"]["output_item"], "Air rune")
+        self.assertEqual(RUNECRAFTING_DATA["combo_lava_at_earth"]["consumed_talisman"], "Fire talisman")
+        self.assertEqual(RUNECRAFTING_POUCH_DATA["small"]["capacity"], 3)
+        self.assertEqual(RUNECRAFTING_POUCH_DATA["giant"]["degradation_threshold"], 10)
+
+        for item_name in (
+            "Air rune",
+            "Lava rune",
+            "Air talisman",
+            "Air tiara",
+            "Small pouch",
+            "Medium pouch (worn)",
+            "Binding necklace",
+            "Wicked hood",
+        ):
+            self.assertIn(item_name, by_storage_key)
+            self.assertIn(item_name, RUNECRAFTING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(RUNECRAFTING_ITEM_IMAGES[item_name]), f"{item_name} Runecrafting icon is missing")
+            self.assertEqual(by_storage_key[item_name].asset_path, RUNECRAFTING_ITEM_IMAGES[item_name])
+
+        self.assertEqual(by_storage_key["Air rune"].category, "runecrafting")
+        self.assertEqual(by_storage_key["Binding necklace"].equipment_slot, "neck")
+        self.assertEqual(by_storage_key["Wicked hood"].equipment_slot, "head")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 

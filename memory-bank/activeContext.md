@@ -7,7 +7,7 @@ Protect the local fork before any large expansion. The agreed direction is to au
 The backend equipment pass is complete. `tools/generate_equipment_data.py`
 joins checked-in Smithing recipe metadata, local 2011Scape `items.yml`
 equipment blocks, and Mining bonus item data into generated `equipment_data.py`.
-That module exposes 11 ordered slots, 117 unique equippable items, real combat
+That module exposes 11 ordered slots, 131 unique equippable items, real combat
 requirements, two-handed flags, attack speed, and full combat bonus blocks.
 
 `player_data["equipment"]` is now the single worn-equipment source of truth
@@ -49,7 +49,7 @@ summed stat totals, and the equippable-row bonus tooltip. The test seam exposes
 are asserted without a native popup.
 
 ## Recent Decision
-The next meaningful engineering step should be a skill-registry refactor. That refactor should preserve the current four skills while making future skills cheaper and safer to add.
+The next meaningful engineering step should be a skill-registry refactor. That refactor should preserve the current playable skills while making future skills cheaper and safer to add.
 
 The add-on folder has been renamed from the AnkiWeb ID `1808450369` to `ankiscape_fork` so public AnkiWeb updates do not overwrite local work.
 
@@ -249,6 +249,27 @@ and food-prep bridges are grouped under Utility. A new `food` item category and
 food is treated as non-tradeable junk for future GE/trading semantics. The Bank
 now offers confirmed `Discard all` for every item, not only equippable gear.
 
+Runecrafting v1 is complete on 2026-06-17 as a combined backend/frontend
+skill-expansion thread. Source data lives in `runecrafting_data.py`, audited
+against local 2011Scape Runecrafting source plus Rune Mysteries in
+`memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`. Runecrafting
+is a current Artisan review skill with flat save keys (`runecrafting_level`,
+`runecrafting_exp`, `current_runecrafting`), 61 source-backed targets across
+standard runes, combination runes, tiara binding, and Wicked hood feeding, plus
+storage config version 15 state for `quests`, `quest_points`, `claims`,
+`wicked_hood`, `runecrafting_pouches`, and `item_charges`. Rune Mysteries is a
+review action, not an XP skill: it advances through 6 successful quest reviews,
+awards 1 quest point plus an Air talisman, and unlocks Runecrafting. The Wicked
+hood is a one-time Bank Claim after Rune Mysteries and Runecrafting level 5;
+hood feeding is an explicit Runecrafting target that permanently consumes
+talisman/tiara access items. Binding necklace uses one equipment item plus
+`item_charges["Binding necklace"]` (15 initial charges), not item variants; each
+combination trip consumes one charge and removes the worn necklace at zero.
+Assets are fetched into `runecraftingitems/` plus `icon/runecrafting_icon.png`.
+Verification: `python3 run_tests.py` passed with 317 tests (79 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 317 tests.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -270,6 +291,7 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
+6. **Future Runecrafting extensions**: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss/abyssal creatures, talisman sourcing, and broader rune economy routes should stay separate from v1 until explicitly prioritized.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

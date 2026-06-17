@@ -1,6 +1,6 @@
 # Future Work Kanban
 
-Status: 2026-06-16
+Status: 2026-06-17
 
 Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
 
@@ -14,8 +14,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
+- Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
-- P0 flat target-list metadata cleanup is complete as of 2026-06-16: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities row labels, tooltips, icon paths, enabled/current state, and lock reasons before Qt renders them. Further P0 work should target grouped Smithing/Crafting target-tree metadata or larger `__init__.py` decomposition.
+- P0 flat target-list metadata cleanup is complete as of 2026-06-16: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, and Utility/Activities row labels, tooltips, icon paths, enabled/current state, and lock reasons before Qt renders them. Runecrafting added its own grouped row metadata on 2026-06-17. Further P0 work should target grouped Smithing/Crafting/Runecrafting target-tree metadata or larger `__init__.py` decomposition.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
 
 ## Priority Board
@@ -28,7 +29,7 @@ Why now: The repo has enough real skills to reveal recurring pressure in skill s
 
 Backend scope:
 
-- Audit current Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility/Activities paths.
+- Audit current Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Quests, and Utility/Activities paths.
 - Continue moving action behavior and target-list metadata behind registries instead of per-skill hardcoding.
 - Keep the current flat save format unless a specific refactor proves it must change.
 - Preserve current XP, item, undo, and review behavior.
@@ -41,7 +42,7 @@ Frontend scope:
 
 Acceptance criteria:
 
-- Existing Mining, Woodcutting, Smithing, Crafting, Fletching, and Utility flows behave the same after the refactor.
+- Existing Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Quest, and Utility flows behave the same after the refactor.
 - The review answer path still resolves actions through the intended handler key.
 - Existing tests pass, and targeted tests cover any changed registry/action dispatch behavior.
 - Future skill or Firemaking-extension threads have fewer places to edit than the previous broad skill-expansion threads.
@@ -49,16 +50,17 @@ Acceptance criteria:
 Status 2026-06-16: Initial backend dispatch slice and the flat target-list
 metadata slice are complete. No storage shape, XP, item, undo, action multiplier,
 or visible UI behavior changed. Mining, Woodcutting, Fletching, Firemaking,
-Fishing, and Utility/Activities now share a pure `TargetRowMetadata` contract
-plus one Qt `QListWidget` renderer. Smithing and Crafting are still grouped
-`QTreeWidget` builders and remain a separate P0 follow-up if the owner wants
-another UI metadata pass. `__init__.py` still owns the individual runtime handler
-bodies.
+Fishing, Runecrafting, and Utility/Activities now share pure row-metadata
+contracts. Mining, Woodcutting, Fletching, Firemaking, Fishing, and
+Utility/Activities share one Qt `QListWidget` renderer. Smithing, Crafting, and
+Runecrafting are still grouped `QTreeWidget` builders and remain a separate P0
+follow-up if the owner wants another UI metadata pass. `__init__.py` still owns
+the individual runtime handler bodies.
 
 Future thread prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup and 2026-06-16 flat target-list metadata cleanup are already done, so focus next on grouped Smithing/Crafting target-tree metadata or further __init__.py runtime decomposition without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
+In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup and 2026-06-16 flat target-list metadata cleanup are already done, so focus next on grouped Smithing/Crafting/Runecrafting target-tree metadata or further __init__.py runtime decomposition without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
 ```
 
 ### P1 - Utility And Activities Icon Set
@@ -251,4 +253,26 @@ Future replacement prompt:
 
 ```text
 In the AnkiScape repo, do not redo Fishing v1. It already implements local 2011Scape ordinary FishingSpot methods with source-backed data, assets, Utility fishing bait, undo-safe review handling, and Qt coverage. Only revisit Fishing if explicitly working on Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, or real shop/GE material sourcing.
+```
+
+## Completed - Runecrafting V1
+
+Status 2026-06-17: Complete. Runecrafting is a current Artisan review skill
+with 61 local-2011Scape-backed targets, stable `current_runecrafting` IDs,
+standard runes, combination runes, tiara binding, Wicked hood feeding, pouch
+capacity/degradation, Binding necklace charge counters, generic achievements,
+runecrafting assets, and Skills hub/Stats/Bank/HUD support. Rune Mysteries is a
+review-driven Quest action, not a fake XP skill, and the Wicked hood is a
+one-time Bank Claim after Rune Mysteries plus Runecrafting level 5. See
+`memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`.
+
+Magic Imbue, Wicked hood daily essence/runes/teleports/reclaim, Abyss routing
+and abyssal creatures, talisman sourcing, and broader rune economy routes are
+deferred system slices. Treat those as follow-ups rather than Runecrafting v1
+gaps.
+
+Future replacement prompt:
+
+```text
+In the AnkiScape repo, do not redo Runecrafting v1. It already implements local 2011Scape standard/combo/tiara Runecrafting, Rune Mysteries quest unlock, Wicked hood claim/feed access, Binding necklace charges, pouches, assets, undo-safe review handling, and Qt coverage. Only revisit Runecrafting if explicitly working on Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, or broader rune economy routes.
 ```

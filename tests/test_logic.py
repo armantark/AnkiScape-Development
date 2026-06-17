@@ -16,6 +16,9 @@ from logic_pure import (
     apply_cooking_action_pure,
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
+    apply_claim_pure,
+    apply_quest_progress_pure,
+    apply_runecrafting_action_pure,
     apply_smelt_pure,
     apply_smithing_pure,
     apply_woodcutting_pure,
@@ -50,11 +53,16 @@ from logic_pure import (
     eligible_fishing_fish_pure,
     has_fishing_bait_pure,
     can_perform_utility_activity_pure,
+    can_runecraft_target_pure,
+    binding_necklace_charges_pure,
+    claim_rows_pure,
     sanitize_review_action_multiplier,
+    start_quest_pure,
 )
 from storage_pure import default_player_data
 from constants import (
     ACHIEVEMENTS,
+    CLAIM_DATA,
     GLORY_GEM_DROP_CHANCE,
     INCIDENTAL_GEM_DROP_TABLE,
     ITEM_DEFINITIONS,
@@ -66,6 +74,9 @@ from constants import (
     FIREMAKING_DATA,
     FISHING_DATA,
     COOKING_DATA,
+    QUEST_DATA,
+    RUNECRAFTING_DATA,
+    RUNECRAFTING_POUCH_DATA,
     UTILITY_ACTIVITY_DATA,
 )
 
@@ -969,6 +980,186 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(burnt_output, "Burnt shrimp")
         self.assertEqual(burnt_inv["Raw shrimps"], 0)
         self.assertEqual(burnt_inv["Burnt shrimp"], 1)
+
+    def test_rune_mysteries_progresses_on_reviews_and_rewards_once(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        player_data, ok = start_quest_pure(player_data, "rune_mysteries", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["current_quest"], "rune_mysteries")
+
+        completed_now = False
+        for _ in range(6):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "rune_mysteries",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["rune_mysteries"]["completed"])
+        self.assertEqual(player_data["quests"]["rune_mysteries"]["progress"], 6)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Air talisman"], 1)
+
+        after_complete, ok, completed_again = apply_quest_progress_pure(
+            player_data,
+            "rune_mysteries",
+            QUEST_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertFalse(completed_again)
+        self.assertEqual(after_complete["quest_points"], 1)
+        self.assertEqual(after_complete["inventory"]["Air talisman"], 1)
+
+    def test_wicked_hood_claim_requires_rune_mysteries_and_runecrafting_level_5(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        rows = claim_rows_pure(player_data, CLAIM_DATA)
+        self.assertEqual(rows[0]["locked_reasons"], ("quest", "Runecrafting level 5"))
+
+        player_data["runecrafting_level"] = 5
+        player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        claimed_data, ok = apply_claim_pure(player_data, "wicked_hood", CLAIM_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(claimed_data["inventory"]["Wicked hood"], 1)
+        self.assertTrue(claimed_data["claims"]["wicked_hood"]["claimed"])
+
+        claimed_again, ok = apply_claim_pure(claimed_data, "wicked_hood", CLAIM_DATA)
+        self.assertFalse(ok)
+        self.assertEqual(claimed_again["inventory"]["Wicked hood"], 1)
+
+    def test_standard_runecrafting_uses_talisman_capacity_and_prefers_rune_essence(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        player_data["inventory"]["Air talisman"] = 1
+        player_data["inventory"]["Rune essence"] = 30
+        player_data["inventory"]["Pure essence"] = 30
+
+        self.assertTrue(can_runecraft_target_pure(
+            player_data,
+            "craft_air_runes",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        ))
+        new_data, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "craft_air_runes",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(message, "+27 Air rune")
+        self.assertAlmostEqual(exp, 135.0)
+        self.assertEqual(new_data["inventory"]["Rune essence"], 3)
+        self.assertEqual(new_data["inventory"]["Pure essence"], 30)
+        self.assertEqual(new_data["inventory"]["Air rune"], 27)
+
+    def test_runecrafting_tiara_and_small_pouch_raise_trip_capacity(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        player_data["equipment"]["head"] = "Air tiara"
+        player_data["inventory"]["Small pouch"] = 1
+        player_data["inventory"]["Rune essence"] = 31
+
+        new_data, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "craft_air_runes",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(message, "+31 Air rune")
+        self.assertAlmostEqual(exp, 155.0)
+        self.assertEqual(new_data["inventory"]["Rune essence"], 0)
+        self.assertEqual(new_data["inventory"]["Air rune"], 31)
+        self.assertEqual(new_data["inventory"]["Small pouch"], 1)
+        self.assertEqual(new_data["runecrafting_pouches"]["small"], {"degradation": 0})
+
+    def test_combination_runecrafting_uses_binding_necklace_charge_counter(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        player_data["runecrafting_level"] = 23
+        player_data["equipment"]["head"] = "Earth tiara"
+        player_data["equipment"]["neck"] = "Binding necklace"
+        player_data["inventory"]["Pure essence"] = 26
+        player_data["inventory"]["Fire rune"] = 26
+        player_data["inventory"]["Fire talisman"] = 1
+
+        self.assertEqual(binding_necklace_charges_pure(player_data), 15)
+        new_data, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "combo_lava_at_earth",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(message, "+26 Lava rune")
+        self.assertAlmostEqual(exp, 260.0)
+        self.assertEqual(new_data["inventory"]["Pure essence"], 0)
+        self.assertEqual(new_data["inventory"]["Fire rune"], 0)
+        self.assertEqual(new_data["inventory"]["Fire talisman"], 0)
+        self.assertEqual(new_data["inventory"]["Lava rune"], 26)
+        self.assertEqual(new_data["equipment"]["neck"], "Binding necklace")
+        self.assertEqual(new_data["item_charges"]["Binding necklace"], 14)
+
+    def test_binding_necklace_breaks_at_zero_charges(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        player_data["runecrafting_level"] = 23
+        player_data["equipment"]["head"] = "Earth tiara"
+        player_data["equipment"]["neck"] = "Binding necklace"
+        player_data["item_charges"]["Binding necklace"] = 1
+        player_data["inventory"]["Pure essence"] = 1
+        player_data["inventory"]["Fire rune"] = 1
+        player_data["inventory"]["Fire talisman"] = 1
+
+        new_data, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "combo_lava_at_earth",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(message, "+1 Lava rune")
+        self.assertAlmostEqual(exp, 10.0)
+        self.assertNotIn("neck", new_data["equipment"])
+        self.assertNotIn("Binding necklace", new_data["item_charges"])
+
+    def test_wicked_hood_feed_consumes_access_item_and_unlocks_altar_capacity(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        player_data["inventory"]["Wicked hood"] = 1
+        player_data["inventory"]["Air talisman"] = 1
+        player_data["inventory"]["Rune essence"] = 28
+
+        fed_data, exp, ok, message = apply_runecrafting_action_pure(
+            player_data,
+            "feed_air_talisman_to_hood",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(message, "Air talisman fed")
+        self.assertEqual(fed_data["inventory"]["Air talisman"], 0)
+        self.assertEqual(fed_data["wicked_hood"]["fed_altars"], ["air"])
+
+        crafted_data, exp, ok, message = apply_runecrafting_action_pure(
+            fed_data,
+            "craft_air_runes",
+            RUNECRAFTING_DATA,
+            RUNECRAFTING_POUCH_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(message, "+28 Air rune")
+        self.assertAlmostEqual(exp, 140.0)
+        self.assertEqual(crafted_data["inventory"]["Rune essence"], 0)
+        self.assertEqual(crafted_data["inventory"]["Air rune"], 28)
 
     def test_firemaking_achievements_unlock_from_ashes_inventory(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

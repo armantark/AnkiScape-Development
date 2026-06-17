@@ -10,6 +10,8 @@ try:
         LEGACY_CRAFTING_TARGETS,
     )
     from .item_registry import ItemDefinition
+    from .quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
+    from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -34,6 +36,8 @@ except ImportError:
         LEGACY_CRAFTING_TARGETS,
     )
     from item_registry import ItemDefinition
+    from quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
+    from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -50,7 +54,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 14
+CURRENT_CONFIG_VERSION = 15
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -112,10 +116,17 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(_default_hidden_support_state())
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
+    data["current_quest"] = DEFAULT_QUEST_TARGET
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
+    data["quests"] = default_quest_states()
+    data["quest_points"] = 0
+    data["claims"] = default_claim_states()
+    data["wicked_hood"] = {"fed_altars": []}
+    data["runecrafting_pouches"] = {}
+    data["item_charges"] = {}
     return data
 
 
@@ -210,6 +221,95 @@ def _migrate_cooking_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_cooking, str) or current_cooking not in COOKING_TARGETS_BY_ID:
         current_cooking = DEFAULT_COOKING_TARGET
     data["current_cooking"] = current_cooking
+
+
+def _migrate_runecrafting_target(data: Dict[str, Any]) -> None:
+    current_runecrafting = data.get("current_runecrafting")
+    if not isinstance(current_runecrafting, str) or current_runecrafting not in RUNECRAFTING_TARGETS_BY_ID:
+        current_runecrafting = DEFAULT_RUNECRAFTING_TARGET
+    data["current_runecrafting"] = current_runecrafting
+
+
+def _migrate_quest_state(data: Dict[str, Any]) -> None:
+    quests = data.get("quests")
+    clean_quests = default_quest_states()
+    if isinstance(quests, dict):
+        for quest_id, default_state in clean_quests.items():
+            raw_state = quests.get(quest_id)
+            if not isinstance(raw_state, dict):
+                continue
+            state = dict(default_state)
+            state["started"] = bool(raw_state.get("started", state["started"]))
+            state["completed"] = bool(raw_state.get("completed", state["completed"]))
+            try:
+                progress = int(raw_state.get("progress", state["progress"]))
+            except (TypeError, ValueError):
+                progress = int(state["progress"])
+            state["progress"] = max(0, progress)
+            if state["completed"] and state["progress"] < 1:
+                state["progress"] = 1
+            clean_quests[quest_id] = state
+    data["quests"] = clean_quests
+    try:
+        data["quest_points"] = max(0, int(data.get("quest_points", 0)))
+    except (TypeError, ValueError):
+        data["quest_points"] = 0
+    current_quest = data.get("current_quest")
+    if not isinstance(current_quest, str) or current_quest not in clean_quests:
+        current_quest = DEFAULT_QUEST_TARGET
+    data["current_quest"] = current_quest
+
+
+def _migrate_claim_state(data: Dict[str, Any]) -> None:
+    claims = data.get("claims")
+    clean_claims = default_claim_states()
+    if isinstance(claims, dict):
+        for claim_id, default_state in clean_claims.items():
+            raw_state = claims.get(claim_id)
+            if isinstance(raw_state, dict):
+                clean_claims[claim_id] = {"claimed": bool(raw_state.get("claimed", default_state["claimed"]))}
+            elif isinstance(raw_state, bool):
+                clean_claims[claim_id] = {"claimed": raw_state}
+    data["claims"] = clean_claims
+
+
+def _migrate_runecrafting_side_state(data: Dict[str, Any]) -> None:
+    hood = data.get("wicked_hood")
+    fed_altars = []
+    if isinstance(hood, dict):
+        raw_fed = hood.get("fed_altars", [])
+        if isinstance(raw_fed, str):
+            fed_altars = [raw_fed]
+        elif isinstance(raw_fed, (list, tuple, set)):
+            fed_altars = [altar for altar in raw_fed if isinstance(altar, str)]
+    data["wicked_hood"] = {"fed_altars": sorted(set(fed_altars))}
+
+    pouches = data.get("runecrafting_pouches")
+    clean_pouches: Dict[str, Dict[str, int]] = {}
+    if isinstance(pouches, dict):
+        for pouch_id, raw_state in pouches.items():
+            if not isinstance(pouch_id, str) or not isinstance(raw_state, dict):
+                continue
+            try:
+                degradation = max(0, int(raw_state.get("degradation", 0)))
+            except (TypeError, ValueError):
+                degradation = 0
+            clean_pouches[pouch_id] = {"degradation": degradation}
+    data["runecrafting_pouches"] = clean_pouches
+
+    charges = data.get("item_charges")
+    clean_charges: Dict[str, int] = {}
+    if isinstance(charges, dict):
+        for item_name, raw_charges in charges.items():
+            if not isinstance(item_name, str):
+                continue
+            try:
+                charge_count = int(raw_charges)
+            except (TypeError, ValueError):
+                continue
+            if charge_count > 0:
+                clean_charges[item_name] = charge_count
+    data["item_charges"] = clean_charges
 
 
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
@@ -345,6 +445,10 @@ def migrate_loaded_data(
     _migrate_firemaking_target(data)
     _migrate_fishing_target(data)
     _migrate_cooking_target(data)
+    _migrate_runecrafting_target(data)
+    _migrate_quest_state(data)
+    _migrate_claim_state(data)
+    _migrate_runecrafting_side_state(data)
     _migrate_toolbelt(data)
     _migrate_equipment(data)
 

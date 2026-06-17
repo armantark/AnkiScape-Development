@@ -30,6 +30,18 @@ try:
         fishing_output_items,
     )
     from .item_registry import build_item_definitions
+    from .quest_data import CLAIMS_BY_ID, QUESTS_BY_ID, claims_as_dict, quests_as_dict
+    from .runecrafting_data import (
+        DEFAULT_RUNECRAFTING_TARGET,
+        BINDING_NECKLACE_ITEM,
+        RUNECRAFTING_GROUP_LABELS,
+        WICKED_HOOD_ITEM,
+        runecrafting_access_items,
+        runecrafting_extra_items_as_dict,
+        runecrafting_output_items,
+        runecrafting_pouches_as_dict,
+        runecrafting_targets_as_dict,
+    )
     from .mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -85,6 +97,18 @@ except ImportError:
         fishing_output_items,
     )
     from item_registry import build_item_definitions
+    from quest_data import CLAIMS_BY_ID, QUESTS_BY_ID, claims_as_dict, quests_as_dict
+    from runecrafting_data import (
+        DEFAULT_RUNECRAFTING_TARGET,
+        BINDING_NECKLACE_ITEM,
+        RUNECRAFTING_GROUP_LABELS,
+        WICKED_HOOD_ITEM,
+        runecrafting_access_items,
+        runecrafting_extra_items_as_dict,
+        runecrafting_output_items,
+        runecrafting_pouches_as_dict,
+        runecrafting_targets_as_dict,
+    )
     from mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -141,6 +165,7 @@ UTILITY_ACTIVITY_ICONS_FOLDER = os.path.join(current_dir, "activityicons")
 FIREMAKING_ITEMS_FOLDER = os.path.join(current_dir, "firemakingitems")
 FISHING_ITEMS_FOLDER = os.path.join(current_dir, "fishingitems")
 COOKING_ITEMS_FOLDER = os.path.join(current_dir, "cookingitems")
+RUNECRAFTING_ITEMS_FOLDER = os.path.join(current_dir, "runecraftingitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -450,6 +475,13 @@ COOKING_OUTPUT_ITEMS = cooking_output_items()
 COOKING_BURNT_ITEMS = cooking_burnt_items()
 COOKING_RAW_ITEMS = cooking_raw_items()
 
+RUNECRAFTING_DATA = runecrafting_targets_as_dict()
+RUNECRAFTING_POUCH_DATA = runecrafting_pouches_as_dict()
+RUNECRAFTING_OUTPUT_ITEMS = runecrafting_output_items()
+RUNECRAFTING_ACCESS_ITEMS = runecrafting_access_items()
+QUEST_DATA = quests_as_dict()
+CLAIM_DATA = claims_as_dict()
+
 
 def _asset_slug(name: str) -> str:
     return "_".join(re.findall(r"[a-z0-9]+", name.lower()))
@@ -526,6 +558,17 @@ for _item_name in COOKING_EXTRA_ITEM_DATA:
     if _path and os.path.exists(_path):
         COOKING_ITEM_IMAGES[_item_name] = _path
 
+RUNECRAFTING_EXTRA_ITEM_DATA = runecrafting_extra_items_as_dict()
+RUNECRAFTING_ITEM_IMAGES = {}
+for _item_name in set(RUNECRAFTING_OUTPUT_ITEMS) | set(RUNECRAFTING_ACCESS_ITEMS) | set(RUNECRAFTING_EXTRA_ITEM_DATA):
+    _path = (
+        ORE_IMAGES.get(_item_name)
+        or CRAFTED_ITEM_IMAGES.get(_item_name)
+        or os.path.join(RUNECRAFTING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    )
+    if _path and os.path.exists(_path):
+        RUNECRAFTING_ITEM_IMAGES[_item_name] = _path
+
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
 # up; only files that actually exist are wired (rare egg nests/eggs stay
@@ -585,6 +628,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FIREMAKING_EXTRA_ITEM_DATA,
     **FISHING_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
+    **RUNECRAFTING_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
@@ -593,6 +637,7 @@ EXTRA_ITEM_IMAGES = {
     **FIREMAKING_ITEM_IMAGES,
     **FISHING_ITEM_IMAGES,
     **COOKING_ITEM_IMAGES,
+    **RUNECRAFTING_ITEM_IMAGES,
 }
 
 ITEM_DEFINITIONS = build_item_definitions(
@@ -798,6 +843,46 @@ ACHIEVEMENTS.update({
         "description": "Mine 100 gems in total",
         "difficulty": "Very Challenging",
         "condition": lambda player: sum(player["inventory"].get(gem, 0) for gem in GEM_DATA) >= 100
+    },
+})
+
+ACHIEVEMENTS.update({
+    "Rune Mysteries": {
+        "description": "Complete Rune Mysteries",
+        "difficulty": "Easy",
+        "condition": lambda player: bool(
+            ((player.get("quests", {}) or {}).get("rune_mysteries", {}) or {}).get("completed", False)
+        ),
+    },
+    "Novice Runecrafter": {
+        "description": "Reach Runecrafting level 10",
+        "difficulty": "Easy",
+        "condition": lambda player: player.get("runecrafting_level", 1) >= 10,
+    },
+    "Hooded Runecrafter": {
+        "description": "Claim the Wicked hood",
+        "difficulty": "Easy",
+        "condition": lambda player: bool(((player.get("claims", {}) or {}).get("wicked_hood", {}) or {}).get("claimed", False)),
+    },
+    "Intermediate Runecrafter": {
+        "description": "Reach Runecrafting level 30",
+        "difficulty": "Moderate",
+        "condition": lambda player: player.get("runecrafting_level", 1) >= 30,
+    },
+    "Rune Stockpile": {
+        "description": "Craft 1,000 total runes",
+        "difficulty": "Moderate",
+        "condition": lambda player: sum(player.get("inventory", {}).get(item, 0) for item in RUNECRAFTING_OUTPUT_ITEMS) >= 1000,
+    },
+    "Expert Runecrafter": {
+        "description": "Reach Runecrafting level 60",
+        "difficulty": "Difficult",
+        "condition": lambda player: player.get("runecrafting_level", 1) >= 60,
+    },
+    "Master Runecrafter": {
+        "description": "Reach Runecrafting level 99",
+        "difficulty": "Very Challenging",
+        "condition": lambda player: player.get("runecrafting_level", 1) >= 99,
     },
 })
 

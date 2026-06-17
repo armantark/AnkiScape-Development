@@ -140,6 +140,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="cooking",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="runecrafting",
+        display_name="Runecrafting",
+        category="artisan",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="process",
+        level_key="runecrafting_level",
+        exp_key="runecrafting_exp",
+        current_target_key="current_runecrafting",
+        default_target="craft_air_runes",
+        review_handler_key="runecrafting",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -154,7 +168,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp"),
     SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
     SkillDefinition("herblore", "Herblore", "artisan", False, False, "process", "herblore_level", "herblore_exp"),
-    SkillDefinition("runecrafting", "Runecrafting", "artisan", False, False, "process", "runecrafting_level", "runecrafting_exp"),
     SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp"),
     SkillDefinition("hunter", "Hunter", "gathering", False, False, "gather", "hunter_level", "hunter_exp"),
     SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp"),

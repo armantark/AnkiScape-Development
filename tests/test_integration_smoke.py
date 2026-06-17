@@ -397,6 +397,77 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["+28 Feather"])
 
+    def test_runecrafting_answer_crafts_air_runes_and_awards_exp(self):
+        addon = _load_addon_as_package("ankiscape_runecrafting_integration")
+
+        calls = {"save": 0, "xp": [], "achievements": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda data: calls["achievements"].append(data["inventory"].get("Air rune", 0))
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 1.0
+        try:
+            addon.player_data = {
+                "inventory": {"Rune essence": 30, "Air talisman": 1},
+                "equipment": {},
+                "runecrafting_level": 1,
+                "runecrafting_exp": 0,
+                "current_runecrafting": "craft_air_runes",
+                "quests": {"rune_mysteries": {"started": True, "progress": 6, "completed": True}},
+                "wicked_hood": {"fed_altars": []},
+                "runecrafting_pouches": {},
+                "item_charges": {},
+                "completed_achievements": [],
+            }
+
+            addon.on_runecrafting_answer()
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Rune essence"], 3)
+        self.assertEqual(addon.player_data["inventory"]["Air rune"], 27)
+        self.assertAlmostEqual(addon.player_data["runecrafting_exp"], 135.0)
+        self.assertEqual(calls["achievements"], [27])
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["xp"], [135.0])
+
+    def test_quest_answer_completes_rune_mysteries_and_switches_off(self):
+        addon = _load_addon_as_package("ankiscape_quest_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "rune_mysteries",
+            "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertTrue(addon.player_data["quests"]["rune_mysteries"]["completed"])
+        self.assertEqual(addon.player_data["quest_points"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Air talisman"], 1)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Rune Mysteries complete"])
+
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
 

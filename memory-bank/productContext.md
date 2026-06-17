@@ -14,7 +14,7 @@ Anki already rewards consistency through memory gains, but the feedback loop can
 - Floating XP appears after earned XP.
 - Level-up and achievement dialogs can appear when milestones are met.
 - A floating widget and main menu expose skill selection, item selection, bank, stats, achievements, and settings.
-- Four skills exist now: Mining, Woodcutting, Smithing, and Crafting.
+- Nine review skills exist now: Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, and Runecrafting. Rune Mysteries also exists as the first review-driven Quest action.
 
 ## Expansion Direction
 The desired direction is "OSRS-like breadth inside Anki": eventually many skills, item chains, and possibly combat. The first expansion should still feel like AnkiScape.

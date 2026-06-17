@@ -1592,6 +1592,42 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
     )
 }
 
+_RUNECRAFTING_ACCESS_SOURCE = 'game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/runecrafting/Altar.kt'
+_RUNECRAFTING_EXTERNAL_SOURCE = 'external RuneScape wiki; not present in local 2011Scape rev-667 source'
+
+for _item_name, _slot, _equipment_type, _source_item_id, _source in (
+    ('Air tiara', 'head', 'runecrafting_access', 5527, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Mind tiara', 'head', 'runecrafting_access', 5529, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Water tiara', 'head', 'runecrafting_access', 5531, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Earth tiara', 'head', 'runecrafting_access', 5535, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Fire tiara', 'head', 'runecrafting_access', 5537, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Body tiara', 'head', 'runecrafting_access', 5533, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Cosmic tiara', 'head', 'runecrafting_access', 5539, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Chaos tiara', 'head', 'runecrafting_access', 5543, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Nature tiara', 'head', 'runecrafting_access', 5541, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Law tiara', 'head', 'runecrafting_access', 5545, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Death tiara', 'head', 'runecrafting_access', 5547, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Blood tiara', 'head', 'runecrafting_access', 5549, _RUNECRAFTING_ACCESS_SOURCE),
+    ('Wicked hood', 'head', 'wicked_hood', 22332, _RUNECRAFTING_EXTERNAL_SOURCE),
+    ('Binding necklace', 'neck', 'binding_necklace', 5521, _RUNECRAFTING_EXTERNAL_SOURCE),
+):
+    EQUIPMENT_DATA.setdefault(
+        _item_name,
+        EquipmentItem(
+            item_name=_item_name,
+            slot=_slot,
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type=_equipment_type,
+            bonuses=EquipmentBonuses(),
+            attack_speed=0,
+            source_item_id=_source_item_id,
+            source=_source,
+            source_status='manual Runecrafting v1 equipment entry',
+        ),
+    )
+
 
 def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
     return {
