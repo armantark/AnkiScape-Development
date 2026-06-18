@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pre-EOC Quest Catalog Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101214;
+      --panel: #171b1f;
+      --panel-2: #1f252b;
+      --text: #e7edf3;
+      --muted: #98a7b6;
+      --line: #2c343c;
+      --green: #36d399;
+      --blue: #6aa9ff;
+      --gold: #f3c86b;
+      --red: #ff7b7b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 34px 24px 44px; }
+    header { display: grid; gap: 14px; margin-bottom: 26px; }
+    h1 { font-size: 32px; line-height: 1.1; margin: 0; letter-spacing: 0; }
+    h2 { font-size: 16px; margin: 0 0 12px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); max-width: 900px; }
+    .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 22px 0; }
+    .tile, .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .tile strong { display: block; font-size: 28px; line-height: 1; margin-bottom: 7px; }
+    .tile span, li, code { color: var(--muted); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+    ul { margin: 0; padding-left: 18px; }
+    li { margin: 6px 0; }
+    code {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.92em;
+    }
+    .bar {
+      height: 10px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--blue)); width: 100%; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 999px;
+      padding: 5px 10px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-right: 6px;
+      margin-top: 8px;
+    }
+    .ok { color: var(--green); }
+    .warn { color: var(--gold); }
+    .lineup { display: grid; gap: 8px; }
+    .row {
+      display: grid;
+      grid-template-columns: 36px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: var(--panel-2);
+    }
+    .num { color: var(--blue); font-variant-numeric: tabular-nums; }
+    .state { color: var(--muted); font-size: 13px; }
+    @media (max-width: 860px) {
+      .grid, .two { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Pre-EOC Quest Catalog Complete</h1>
+      <p>The Quests surface now has a generated source-backed catalog for every RuneScape quest available before the 2012-11-20 Evolution of Combat cutoff, with the priority unlock quests still using hand-audited overrides.</p>
+      <div>
+        <span class="tag">backend generated catalog</span>
+        <span class="tag">strict quest starts</span>
+        <span class="tag">collapsed sortable UI</span>
+        <span class="tag">pending XP preserved</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="tile"><strong>185</strong><span>pre-EOC quests in runtime</span><div class="bar"><div class="fill"></div></div></div>
+      <div class="tile"><strong>7</strong><span>hand-audited unlock overrides preserved</span></div>
+      <div class="tile"><strong>331</strong><span>non-Qt tests passing</span></div>
+      <div class="tile"><strong>331</strong><span>offscreen Qt tests passing</span></div>
+    </section>
+
+    <section class="two">
+      <div class="panel">
+        <h2>What Changed</h2>
+        <ul>
+          <li><code>tools/build_pre_eoc_quest_catalog.py</code> generates and caches the source-backed catalog.</li>
+          <li><code>quest_catalog_generated.py</code> stores the 185-row cutoff snapshot with oldids, requirements, QP, XP, and release order.</li>
+          <li><code>quest_data.py</code> imports generated rows and overlays bespoke Rune Mysteries-style definitions for unlock-critical quests.</li>
+          <li><code>ui.py</code> uses generated release-order metadata, so same-date quests sort by real game order.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h2>Behavior Guarantees</h2>
+        <ul>
+          <li>Missing or incomplete prerequisite quests block start.</li>
+          <li>Unimplemented required skills block start as “not implemented.”</li>
+          <li>Generated XP for unimplemented skills parks in <code>pending_skill_exp_rewards</code>.</li>
+          <li>Completed quest bodies stay collapsed, keeping the full quest list manageable.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="two">
+      <div class="panel">
+        <h2>Catalog Edges Handled</h2>
+        <div class="lineup">
+          <div class="row"><span class="num">01</span><span>Included quests that only became “former” after EOC.</span><span class="state">done</span></div>
+          <div class="row"><span class="num">02</span><span>Excluded rows replaced before the cutoff, such as Doric’s Quest and Prince Ali Rescue.</span><span class="state">done</span></div>
+          <div class="row"><span class="num">03</span><span>Used current-page requirement fallback only when old revisions lacked expanded quest tables.</span><span class="state">done</span></div>
+          <div class="row"><span class="num">04</span><span>Kept Lunar Diplomacy and Swan Song stricter via local override evidence.</span><span class="state">done</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Verified</h2>
+        <ul>
+          <li><span class="ok">Passed</span> <code>python3 run_tests.py</code></li>
+          <li><span class="ok">Passed</span> <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code></li>
+          <li><span class="ok">Passed</span> generated graph closure: every required quest ID resolves to a playable row.</li>
+          <li><span class="warn">Parked</span> stage-aware partial unlocks and route/location gates remain separate future work.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

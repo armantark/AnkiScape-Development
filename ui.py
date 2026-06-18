@@ -2641,18 +2641,19 @@ def show_main_menu(
         quest_id, quest = item
         q_state = quest_state_pure(player_data, quest_id)
         release_key = str(quest.get("release_date", "9999-99-99"))
+        release_order = int(quest.get("release_order", 9999) or 9999)
         name = str(quest.get("display_name", quest_id))
         if mode == "Progress":
-            return (_quest_progress_rank(q_state), release_key, name)
+            return (_quest_progress_rank(q_state), release_order, release_key, name)
         if mode == "Difficulty":
-            return (difficulty_order.get(str(quest.get("difficulty", "")), 99), release_key, name)
+            return (difficulty_order.get(str(quest.get("difficulty", "")), 99), release_order, release_key, name)
         if mode == "Free/Members":
-            return (1 if quest.get("members") else 0, release_key, name)
+            return (1 if quest.get("members") else 0, release_order, release_key, name)
         if mode == "Timeline":
-            return (timeline_order.get(str(quest.get("timeline", "")), 99), release_key, name)
+            return (timeline_order.get(str(quest.get("timeline", "")), 99), release_order, release_key, name)
         if mode == "Length":
-            return (length_order.get(str(quest.get("length", "")), 99), release_key, name)
-        return (release_key, name)
+            return (length_order.get(str(quest.get("length", "")), 99), release_order, release_key, name)
+        return (release_order, release_key, name)
 
     def _short_lock_text(reasons: tuple) -> str:
         if not reasons:

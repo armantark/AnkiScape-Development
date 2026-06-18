@@ -1026,8 +1026,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(reasons, ())
 
         lunar_reasons = quest_locked_reasons_pure(player_data, "lunar_diplomacy", QUEST_DATA)
-        self.assertIn("The Fremennik Trials (not implemented)", lunar_reasons)
-        self.assertIn("Shilo Village (not implemented)", lunar_reasons)
+        self.assertIn("The Fremennik Trials", lunar_reasons)
+        self.assertIn("Lost City", lunar_reasons)
+        self.assertIn("Rune Mysteries", lunar_reasons)
+        self.assertIn("Shilo Village", lunar_reasons)
         self.assertIn("Defence 40 (not implemented)", lunar_reasons)
         self.assertIn("Herblore 5 (not implemented)", lunar_reasons)
         self.assertIn("Magic 65 (not implemented)", lunar_reasons)
@@ -1070,6 +1072,29 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Astral rune"], 50)
         self.assertEqual(player_data["runecrafting_exp"], 5000)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {"magic_exp": 5000.0})
+
+    def test_generated_quest_blocks_on_requirements_and_parks_unimplemented_xp(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        reasons = quest_locked_reasons_pure(player_data, "dragon_slayer", QUEST_DATA)
+        self.assertIn("33 quest points", reasons)
+        self.assertFalse(can_start_quest_pure(player_data, "dragon_slayer", QUEST_DATA))
+
+        player_data["quest_points"] = 33
+        player_data["quests"]["dragon_slayer"] = {
+            "started": True,
+            "progress": QUEST_DATA["dragon_slayer"]["stages"] - 1,
+            "completed": False,
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
+
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["quest_points"], 35)
+        self.assertEqual(
+            player_data["pending_skill_exp_rewards"],
+            {"defense_exp": 18650.0, "strength_exp": 18650.0},
+        )
 
     def test_fishing_unlock_rules_cover_swan_song_and_tai_bwo_wannai_trio(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

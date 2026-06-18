@@ -3,8 +3,13 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, Tuple
+
+try:
+    from .quest_catalog_generated import PRE_EOC_QUEST_CATALOG
+except ImportError:  # pragma: no cover
+    from quest_catalog_generated import PRE_EOC_QUEST_CATALOG  # type: ignore
 
 try:
     from .runecrafting_data import RUNEMYSTERIES_SOURCE_PATH, WICKED_HOOD_ITEM
@@ -24,7 +29,7 @@ DEFAULT_QUEST_TARGET = RUNE_MYSTERIES_ID
 THE_FREMENNIK_TRIALS_ID = "the_fremennik_trials"
 SHILO_VILLAGE_ID = "shilo_village"
 MOURNINGS_END_PART_I_ID = "mournings_end_part_i"
-DARKNESS_OF_HALLOWVALE_ID = "darkness_of_hallowvale"
+DARKNESS_OF_HALLOWVALE_ID = "the_darkness_of_hallowvale"
 ONE_SMALL_FAVOUR_ID = "one_small_favour"
 GARDEN_OF_TRANQUILLITY_ID = "garden_of_tranquillity"
 JUNGLE_POTION_ID = "jungle_potion"
@@ -95,6 +100,7 @@ class QuestDefinition:
     required_quest_points: int = 0
     xp_rewards: Tuple[QuestXpReward, ...] = ()
     unlocks: Tuple[str, ...] = ()
+    release_order: int = 0
 
 
 @dataclass(frozen=True)
@@ -257,7 +263,7 @@ LEGACY_OF_SEERGAZE_STAGES: Tuple[QuestStage, ...] = (
 )
 
 
-QUESTS: Tuple[QuestDefinition, ...] = (
+QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
     QuestDefinition(
         id=LOST_CITY_ID,
         display_name="Lost City",
@@ -493,6 +499,106 @@ QUESTS: Tuple[QuestDefinition, ...] = (
         unlocks=("Access to the Blood Altar", "Paterdomus Columbarium rewards"),
     ),
 )
+QUEST_OVERRIDES_BY_ID: Dict[str, QuestDefinition] = {quest.id: quest for quest in QUEST_OVERRIDES}
+
+
+_STAGE_COUNT_BY_LENGTH = {
+    "Short": 3,
+    "Short to Medium": 4,
+    "Medium": 5,
+    "Medium to Long": 6,
+    "Long": 7,
+    "Long to Very Long": 8,
+    "Very Long": 9,
+    "Very, Very Long": 10,
+}
+
+
+def _generated_stage_count(length: str) -> int:
+    return _STAGE_COUNT_BY_LENGTH.get(length, 5)
+
+
+def _generated_journal_stages(display_name: str, stages: int) -> Tuple[QuestStage, ...]:
+    if stages <= 1:
+        return (_simple_stage(1, f"I completed {display_name}.", "Quest complete!"),)
+    rows = [_simple_stage(1, f"I started {display_name}.")]
+    for stage in range(2, stages):
+        rows.append(_simple_stage(stage, f"I made progress on {display_name}."))
+    rows.append(_simple_stage(stages, f"I completed {display_name}.", "Quest complete!"))
+    return tuple(rows)
+
+
+def _catalog_int(row: Dict[str, object], key: str, default: int = 0) -> int:
+    try:
+        return int(row.get(key, default))
+    except (TypeError, ValueError):
+        return default
+
+
+def _catalog_bool(row: Dict[str, object], key: str, default: bool = False) -> bool:
+    value = row.get(key, default)
+    return bool(value)
+
+
+def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
+    display_name = str(row.get("display_name", row.get("id", "Quest")))
+    length = str(row.get("length", "Medium"))
+    stages = _generated_stage_count(length)
+    required_quests = tuple(
+        QuestPrerequisite(str(req.get("quest_id")), str(req.get("display_name", req.get("quest_id"))))
+        for req in row.get("required_quests", ()) or ()
+        if isinstance(req, dict) and req.get("quest_id")
+    )
+    required_skills = tuple(
+        QuestSkillRequirement(
+            str(req.get("skill_id")),
+            str(req.get("display_name", req.get("skill_id"))),
+            _catalog_int(req, "level", 1),
+        )
+        for req in row.get("required_skills", ()) or ()
+        if isinstance(req, dict) and req.get("skill_id")
+    )
+    xp_rewards = tuple(
+        QuestXpReward(str(reward.get("skill_id")), float(reward.get("amount", 0) or 0))
+        for reward in row.get("xp_rewards", ()) or ()
+        if isinstance(reward, dict) and reward.get("skill_id")
+    )
+    return QuestDefinition(
+        id=str(row.get("id")),
+        display_name=display_name,
+        stages=stages,
+        point_reward=_catalog_int(row, "point_reward", 0),
+        rewards=(),
+        start_point=str(row.get("start_point", "See the source guide for the start location.")),
+        requirements=tuple(str(requirement) for requirement in (row.get("requirements", ()) or ())),
+        required_items=(),
+        combat=str(row.get("combat", "See the source guide.")),
+        source=f"{row.get('source', '')}; {row.get('release_source', '')}",
+        journal_stages=_generated_journal_stages(display_name, stages),
+        release_date=str(row.get("release_date", "")),
+        members=_catalog_bool(row, "members", True),
+        difficulty=str(row.get("difficulty", "Novice")),
+        length=length,
+        timeline=str(row.get("timeline", "Fifth Age")),
+        required_quests=required_quests,
+        required_skills=required_skills,
+        required_quest_points=_catalog_int(row, "required_quest_points", 0),
+        xp_rewards=xp_rewards,
+        release_order=_catalog_int(row, "release_order", 9999),
+    )
+
+
+def _quest_catalog_row_id(row: Dict[str, object]) -> str:
+    return str(row.get("id", ""))
+
+
+QUESTS: Tuple[QuestDefinition, ...] = tuple(
+    replace(QUEST_OVERRIDES_BY_ID[row_id], release_order=_catalog_int(row, "release_order", 9999))
+    if row_id in QUEST_OVERRIDES_BY_ID
+    else _quest_from_catalog(row)
+    for row in PRE_EOC_QUEST_CATALOG
+    for row_id in (_quest_catalog_row_id(row),)
+)
 QUESTS_BY_ID: Dict[str, QuestDefinition] = {quest.id: quest for quest in QUESTS}
 QUEST_DISPLAY_NAMES: Dict[str, str] = {quest.id: quest.display_name for quest in QUESTS}
 
@@ -583,6 +689,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "combat": quest.combat,
             "source": quest.source,
             "release_date": quest.release_date,
+            "release_order": quest.release_order,
             "members": quest.members,
             "difficulty": quest.difficulty,
             "length": quest.length,

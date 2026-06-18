@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pre-EOC Quest Catalog Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(120deg, rgba(79, 140, 255, 0.12), transparent 36%),
+        linear-gradient(240deg, rgba(251, 191, 36, 0.10), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      font-weight: 300;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+    .badge, .tag, .eyebrow, .step-num { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: var(--accent-glow);
+      color: #9ec0ff;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 12px 0 10px;
+      font-size: clamp(2.1rem, 6vw, 4.8rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+    h2, h3, p { margin-top: 0; }
+    p { color: var(--text-dim); line-height: 1.55; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+    .panel, .card {
+      background: rgba(22, 26, 33, 0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+    .panel { padding: 18px; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .metric {
+      padding: 14px;
+      background: var(--surface-2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 2.1rem;
+      line-height: 1;
+      margin-bottom: 7px;
+    }
+    .metric span {
+      color: var(--text-dim);
+      font: 600 0.68rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card { padding: 18px; }
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .eyebrow {
+      color: var(--amber);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .eyebrow.source { color: var(--green); }
+    .eyebrow.ui { color: var(--purple); }
+    .eyebrow.risk { color: var(--red); }
+    .lane {
+      display: grid;
+      gap: 9px;
+      margin-top: 12px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 11px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .step-num {
+      width: 26px;
+      height: 26px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .step strong { display: block; margin-bottom: 3px; }
+    .step span { color: var(--text-dim); font-size: 0.9rem; line-height: 1.42; }
+    .tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .tag {
+      padding: 5px 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.65rem;
+    }
+    .schema {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .schema-row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 10px;
+      padding: 10px;
+      background: var(--surface-2);
+      border-radius: 9px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    .schema-row code {
+      font-family: "JetBrains Mono", monospace;
+      color: #9ec0ff;
+      font-size: 0.78rem;
+    }
+    .schema-row span { color: var(--text-dim); font-size: 0.9rem; }
+    @media (max-width: 900px) {
+      .hero, .grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100vw - 20px, 1180px); }
+      .metric-grid, .schema-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div>
+        <span class="badge">Pre-Implementation Plan</span>
+        <h1>Full Pre-EOC Quest Catalog</h1>
+        <p>
+          This pass expands the quest tree from priority unlocks to the whole
+          pre-EOC quest surface, using a cached importer so the catalog is
+          auditable and repeatable instead of an LLM-only transcription.
+        </p>
+      </div>
+      <aside class="panel">
+        <div class="metric-grid">
+          <div class="metric"><strong>~185</strong><span>Quest rows before EOC</span></div>
+          <div class="metric"><strong>2012</strong><span>Post-2011 gap included</span></div>
+          <div class="metric"><strong>0</strong><span>Approximate starts allowed</span></div>
+          <div class="metric"><strong>1</strong><span>Generated catalog source</span></div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="card-head">
+          <h2>Backend Path</h2>
+          <span class="eyebrow">Generator first</span>
+        </div>
+        <p>
+          The catalog will be generated from cached external source pages,
+          normalized into repo-native Python data, then validated against the
+          existing strict quest-start and pending-XP mechanics.
+        </p>
+        <div class="lane">
+          <div class="step"><span class="step-num">1</span><div><strong>Fetch release list</strong><span>Cut off at the last quest before EOC on 2012-11-20.</span></div></div>
+          <div class="step"><span class="step-num">2</span><div><strong>Fetch quest infoboxes</strong><span>Cache requirements, rewards, difficulty, members, length, QP, and timeline.</span></div></div>
+          <div class="step"><span class="step-num">3</span><div><strong>Generate catalog</strong><span>Write deterministic quest rows with stable IDs and source URLs.</span></div></div>
+        </div>
+        <div class="tags">
+          <span class="tag">tools/</span>
+          <span class="tag">quest_data.py</span>
+          <span class="tag">tests/test_quest_catalog.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Source Strategy</h2>
+          <span class="eyebrow source">Evidence</span>
+        </div>
+        <p>
+          Local 2011Scape remains authoritative where it exists. For late 2011
+          and 2012 pre-EOC quests, the importer will rely on RuneScape Wiki
+          release/quest pages and preserve URLs on every generated row.
+        </p>
+        <div class="schema">
+          <div class="schema-row"><code>release list</code><span>Defines inclusion and release-order sorting.</span></div>
+          <div class="schema-row"><code>quest page</code><span>Defines requirements, rewards, members, length, and difficulty.</span></div>
+          <div class="schema-row"><code>local source</code><span>Used when present for already modeled quest behavior.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Strict Starts</h2>
+          <span class="eyebrow risk">Invariant</span>
+        </div>
+        <p>
+          Adding prerequisite quests should unblock the quest tree, but missing
+          skills still block start. That keeps Lunar Diplomacy-style edges
+          honest until Combat, Magic, Herblore, and other skills exist.
+        </p>
+        <div class="lane">
+          <div class="step"><span class="step-num">A</span><div><strong>Implemented skill</strong><span>Level key must exist and satisfy the requirement.</span></div></div>
+          <div class="step"><span class="step-num">B</span><div><strong>Unimplemented skill</strong><span>Quest remains impossible to start and tooltip says why.</span></div></div>
+          <div class="step"><span class="step-num">C</span><div><strong>Unimplemented XP</strong><span>Reward is parked in pending_skill_exp_rewards.</span></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-head">
+          <h2>Frontend Impact</h2>
+          <span class="eyebrow ui">Quest tab</span>
+        </div>
+        <p>
+          The collapsible Quest tab should absorb the larger list without a new
+          design pass. Verification will focus on sorting stability, collapsed
+          completed rows, and concise locked-start tooltips.
+        </p>
+        <div class="schema">
+          <div class="schema-row"><code>Release Order</code><span>Default sort must match real game release order.</span></div>
+          <div class="schema-row"><code>Progress</code><span>Active/incomplete rows remain discoverable.</span></div>
+          <div class="schema-row"><code>Tooltips</code><span>No giant requirement dumps; cap and summarize.</span></div>
+        </div>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

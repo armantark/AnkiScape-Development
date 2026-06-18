@@ -8,6 +8,7 @@
 - Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
 - Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, and Runecrafting exist.
 - Rune Mysteries exists as a review-driven Quest action that unlocks Runecrafting.
+- The Quest catalog now contains all 185 RuneScape quests available before the 2012-11-20 EOC cutoff, generated from source-backed RuneScape Wiki old revisions with hand-audited overrides for unlock-critical quests.
 - Items are stored in a shared inventory/bank.
 - Level-up and achievement flows exist.
 - Review HUD, floating XP, floating widget, main menu, stats, bank, settings, and achievements are present.
@@ -193,6 +194,22 @@ Stats, Bank, and HUD. The source audit is
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 317 tests.
 
+Full pre-EOC Quest catalog completed on 2026-06-17. `tools/build_pre_eoc_quest_catalog.py`
+generates `quest_catalog_generated.py` with 185 quests available before the
+2012-11-20 Evolution of Combat cutoff, using cached RuneScape Wiki old revisions
+plus a current-page fallback only when old pages lack expanded quest requirement
+tables. `quest_data.py` imports that generated catalog and layers hand-audited
+overrides for Rune Mysteries, Lost City, Tai Bwo Wannai Trio, Mourning's End
+Part II, Swan Song, Lunar Diplomacy, and Legacy of Seergaze. Strict quest starts
+now block on incomplete prerequisite quests and on unimplemented required skills;
+generated XP rewards for unimplemented skills are parked in
+`pending_skill_exp_rewards`. The Quests tab renders the full catalog as
+collapsed sortable cards and now sorts release order by generated real-game
+order, not same-date alphabetical fallback. Verification: `python3 run_tests.py`
+passes with 331 tests (80 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 331 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
@@ -204,7 +221,7 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Cooking follow-ups: broader source-backed acquisition routes for remaining prep materials, only if explicitly prioritized.
 - Runecrafting follow-ups: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes, only if explicitly prioritized.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
-  records implemented targets that should be locked by quest completion versus
-  route/location checks that should stay ungated until a route model exists. Use
-  it before creating a systematic Codex skill for copying quest gates across
-  Mining, Runecrafting, Fishing, and later quest-aware skills.
+  records the completed 185-quest pre-EOC catalog, implemented completion gates,
+  and route/location checks that should stay ungated until a route model exists.
+  Use it before stage-aware partial unlocks, route/location gates, or new
+  quest-unlocked skill targets.

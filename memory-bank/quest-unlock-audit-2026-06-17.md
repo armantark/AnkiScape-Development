@@ -3,8 +3,9 @@
 Purpose: inventory the implemented AnkiScape skill surface and separate content
 that should be locked by quest completion from content that only looks
 quest-related because a source location, quest stage, or acquisition route is
-special. This is intended as a durable input for a later quest-lock migration
-skill after the Rune Mysteries pilot settles the final pattern.
+special. This is intended as a durable record for quest-lock migrations after
+the Rune Mysteries pilot and full pre-EOC quest-catalog pass settled the final
+pattern.
 
 ## Source Policy
 
@@ -21,11 +22,21 @@ skill after the Rune Mysteries pilot settles the final pattern.
 
 ## Implementation Status - 2026-06-17
 
-The priority completion unlocks from this audit have now been implemented in
-the live add-on. `quest_data.py` defines playable Quest rows for Rune Mysteries,
-Lost City, Tai Bwo Wannai Trio, Mourning's End Part II, Swan Song, Lunar
-Diplomacy, and Legacy of Seergaze, each with release-order metadata and compact
-journal stages.
+The broad quest catalog is now implemented in the live add-on. `quest_data.py`
+builds `QUESTS` from generated `quest_catalog_generated.py` data covering 185
+RuneScape quests available before the 2012-11-20 Evolution of Combat release.
+The generator is `tools/build_pre_eoc_quest_catalog.py`; it caches old
+RuneScape Wiki revisions under `tools/.cache/`, includes quests that only
+became `former` after EOC, excludes pre-EOC replacements, and records per-quest
+source oldids, release order, requirements, quest-point rewards, and XP rewards.
+Do not hand-edit the generated catalog; update the generator or the override
+layer.
+
+The priority completion unlocks from this audit remain hand-audited overrides
+layered on top of the generated catalog: Rune Mysteries, Lost City, Tai Bwo
+Wannai Trio, Mourning's End Part II, Swan Song, Lunar Diplomacy, and Legacy of
+Seergaze keep bespoke compact journal stages, stricter 2011-era requirements,
+concrete item rewards, and unlock text.
 
 Strong completion gates now live in a central `QUEST_UNLOCK_RULES` registry and
 feed pure lock-reason helpers for Mining, Fishing, and Runecrafting. The
@@ -41,12 +52,12 @@ implemented locks are:
 | Swan Song | Fishing `catch_monkfish` |
 | Tai Bwo Wannai Trio | Fishing `catch_karambwan` |
 
-Quest starts are strict. If a required skill or prerequisite quest is not
-implemented, the quest is impossible to start and the UI surfaces a concise
-requirement tooltip instead of allowing an approximation. XP rewards for
-implemented skills are granted on completion; XP rewards for unimplemented
-skills are stored in `pending_skill_exp_rewards` and applied programmatically
-during save migration once the relevant skill exists.
+Quest starts are strict. If a required skill is not implemented, or a
+prerequisite quest is incomplete or missing, the quest is impossible to start
+and the UI surfaces a concise requirement tooltip instead of allowing an
+approximation. XP rewards for implemented skills are granted on completion; XP
+rewards for unimplemented skills are stored in `pending_skill_exp_rewards` and
+applied programmatically during save migration once the relevant skill exists.
 
 The Quests tab is now collapsible and sortable. It defaults to real
 RuneScape release order, while also exposing the live-game sort modes
@@ -56,7 +67,7 @@ expanded.
 
 ## Current Quest Surface
 
-Historical note from before the implementation pass: quest state was minimal
+Historical note from before the implementation passes: quest state was minimal
 and completion-based:
 
 - `quest_data.py:15` defines `rune_mysteries`.

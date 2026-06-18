@@ -969,6 +969,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(sort_combo.currentText(), "Release Order")
         self.assertIn("Difficulty", [sort_combo.itemText(i) for i in range(sort_combo.count())])
         self.assertIn("Length", [sort_combo.itemText(i) for i in range(sort_combo.count())])
+        quest_cards = [
+            widget for widget in dialog.findChildren(QWidget)
+            if widget.objectName().startswith("questCard_")
+        ]
+        self.assertGreaterEqual(len(quest_cards), 185)
 
         body = dialog.findChild(QWidget, "questBody_rune_mysteries")
         toggle = dialog.findChild(QPushButton, "questToggle_rune_mysteries")
