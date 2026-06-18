@@ -1112,8 +1112,8 @@ def on_set_quest(quest_id):
     return True
 
 
-def on_claim_reward(claim_id):
-    new_data, ok = apply_claim_pure(player_data, claim_id, CLAIM_DATA)
+def on_claim_reward(claim_id, selected_skill_id=None):
+    new_data, ok = apply_claim_pure(player_data, claim_id, CLAIM_DATA, selected_skill_id)
     if not ok:
         show_error_message("Cannot claim reward", "That claim is not available right now.")
         return False

@@ -50,6 +50,11 @@ RUNECRAFTING_ALTARS_SOURCE = "https://www.2011.rs/kb/runecrafting_locating_the_a
 RUNE_ESSENCE_MINE_SOURCE = "https://www.2011.rs/kb/mining_the_rune_essence_mine"
 RAW_MONKFISH_SOURCE = "https://runescape.fandom.com/wiki/Raw_monkfish"
 RAW_KARAMBWAN_SOURCE = "https://runescape.fandom.com/wiki/Raw_karambwan"
+GEM_ROCK_SOURCE = "https://runescape.wiki/w/Gem_rock?oldid=37044944"
+
+QUEST_REWARD_ITEM_NAME_OVERRIDES = {
+    "Ring of charos": "Ring of Charos",
+}
 
 
 @dataclass(frozen=True)
@@ -78,6 +83,17 @@ class QuestXpReward:
 
 
 @dataclass(frozen=True)
+class QuestLampReward:
+    display_name: str
+    amount: float
+    skill_options: Tuple[str, ...]
+    minimum_level: int
+    source: str
+    source_text: str = ""
+    quantity: int = 1
+
+
+@dataclass(frozen=True)
 class QuestDefinition:
     id: str
     display_name: str
@@ -99,6 +115,7 @@ class QuestDefinition:
     required_skills: Tuple[QuestSkillRequirement, ...] = ()
     required_quest_points: int = 0
     xp_rewards: Tuple[QuestXpReward, ...] = ()
+    lamp_rewards: Tuple[QuestLampReward, ...] = ()
     unlocks: Tuple[str, ...] = ()
     release_order: int = 0
 
@@ -107,11 +124,15 @@ class QuestDefinition:
 class ClaimDefinition:
     id: str
     display_name: str
-    item_name: str
-    quantity: int
     source: str
+    claim_type: str = "item"
+    item_name: str = ""
+    quantity: int = 1
     required_quest: str = RUNE_MYSTERIES_ID
-    required_runecrafting_level: int = 5
+    required_runecrafting_level: int = 0
+    xp_amount: float = 0.0
+    skill_options: Tuple[str, ...] = ()
+    minimum_level: int = 1
 
 
 @dataclass(frozen=True)
@@ -528,6 +549,30 @@ def _generated_journal_stages(display_name: str, stages: int) -> Tuple[QuestStag
     return tuple(rows)
 
 
+def _catalog_journal_stages(row: Dict[str, object], display_name: str, stages: int) -> Tuple[QuestStage, ...]:
+    raw_stages = row.get("journal_stages", ()) or ()
+    rows = []
+    for raw_stage in raw_stages:
+        if not isinstance(raw_stage, dict):
+            continue
+        try:
+            stage = int(raw_stage.get("stage", 0))
+        except (TypeError, ValueError):
+            continue
+        raw_lines = raw_stage.get("journal", ()) or ()
+        lines = tuple(str(line) for line in raw_lines if str(line).strip())
+        if stage > 0 and lines:
+            rows.append(QuestStage(stage, lines))
+    if rows:
+        return tuple(sorted(rows, key=lambda stage: stage.stage))
+    return _generated_journal_stages(display_name, stages)
+
+
+def _quest_reward_item_name(name: object) -> str:
+    raw_name = str(name)
+    return QUEST_REWARD_ITEM_NAME_OVERRIDES.get(raw_name, raw_name)
+
+
 def _catalog_int(row: Dict[str, object], key: str, default: int = 0) -> int:
     try:
         return int(row.get(key, default))
@@ -543,7 +588,7 @@ def _catalog_bool(row: Dict[str, object], key: str, default: bool = False) -> bo
 def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
     display_name = str(row.get("display_name", row.get("id", "Quest")))
     length = str(row.get("length", "Medium"))
-    stages = _generated_stage_count(length)
+    stages = _catalog_int(row, "stages", _generated_stage_count(length))
     required_quests = tuple(
         QuestPrerequisite(str(req.get("quest_id")), str(req.get("display_name", req.get("quest_id"))))
         for req in row.get("required_quests", ()) or ()
@@ -563,18 +608,36 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         for reward in row.get("xp_rewards", ()) or ()
         if isinstance(reward, dict) and reward.get("skill_id")
     )
+    item_rewards = tuple(
+        (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
+        for reward in row.get("item_rewards", ()) or ()
+        if isinstance(reward, dict) and reward.get("item_name")
+    )
+    lamp_rewards = tuple(
+        QuestLampReward(
+            str(reward.get("display_name", "XP lamp")),
+            float(reward.get("amount", 0) or 0),
+            tuple(str(skill_id) for skill_id in (reward.get("skill_options", ()) or ()) if str(skill_id)),
+            _catalog_int(reward, "minimum_level", 1),
+            str(reward.get("source", row.get("reward_source", row.get("source", "")))),
+            str(reward.get("source_text", "")),
+            _catalog_int(reward, "quantity", 1),
+        )
+        for reward in row.get("lamp_rewards", ()) or ()
+        if isinstance(reward, dict) and reward.get("amount")
+    )
     return QuestDefinition(
         id=str(row.get("id")),
         display_name=display_name,
         stages=stages,
         point_reward=_catalog_int(row, "point_reward", 0),
-        rewards=(),
+        rewards=item_rewards,
         start_point=str(row.get("start_point", "See the source guide for the start location.")),
         requirements=tuple(str(requirement) for requirement in (row.get("requirements", ()) or ())),
         required_items=(),
         combat=str(row.get("combat", "See the source guide.")),
         source=f"{row.get('source', '')}; {row.get('release_source', '')}",
-        journal_stages=_generated_journal_stages(display_name, stages),
+        journal_stages=_catalog_journal_stages(row, display_name, stages),
         release_date=str(row.get("release_date", "")),
         members=_catalog_bool(row, "members", True),
         difficulty=str(row.get("difficulty", "Novice")),
@@ -584,6 +647,8 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         required_skills=required_skills,
         required_quest_points=_catalog_int(row, "required_quest_points", 0),
         xp_rewards=xp_rewards,
+        lamp_rewards=lamp_rewards,
+        unlocks=tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ())),
         release_order=_catalog_int(row, "release_order", 9999),
     )
 
@@ -637,16 +702,48 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     ),
     QuestUnlockRule(SWAN_SONG_ID, "target", "fishing", ("catch_monkfish",), "Swan Song", RAW_MONKFISH_SOURCE),
     QuestUnlockRule(TAI_BWO_WANNAI_TRIO_ID, "target", "fishing", ("catch_karambwan",), "Tai Bwo Wannai Trio", RAW_KARAMBWAN_SOURCE),
+    QuestUnlockRule(SHILO_VILLAGE_ID, "target", "mining", ("gem_rocks",), "Shilo Village", GEM_ROCK_SOURCE),
 )
+
+
+def _lamp_claim_id(quest: QuestDefinition, index: int) -> str:
+    return f"{quest.id}_xp_lamp_{index}"
+
+
+def _quest_lamp_claims() -> Tuple[ClaimDefinition, ...]:
+    claims = []
+    for quest in QUESTS:
+        lamp_index = 1
+        for lamp in quest.lamp_rewards:
+            if lamp.amount <= 0 or not lamp.skill_options:
+                continue
+            for _ in range(max(1, int(lamp.quantity))):
+                claims.append(
+                    ClaimDefinition(
+                        id=_lamp_claim_id(quest, lamp_index),
+                        display_name=f"{quest.display_name}: {lamp.display_name} ({int(lamp.amount):,} XP)",
+                        source=lamp.source or quest.source,
+                        claim_type="xp_lamp",
+                        required_quest=quest.id,
+                        xp_amount=lamp.amount,
+                        skill_options=lamp.skill_options,
+                        minimum_level=max(1, int(lamp.minimum_level)),
+                    )
+                )
+                lamp_index += 1
+    return tuple(claims)
+
 
 CLAIMS: Tuple[ClaimDefinition, ...] = (
     ClaimDefinition(
         id="wicked_hood",
         display_name="Wicked hood",
+        source="https://runescape.wiki/w/Wicked_hood",
         item_name=WICKED_HOOD_ITEM,
         quantity=1,
-        source="https://runescape.wiki/w/Wicked_hood",
+        required_runecrafting_level=5,
     ),
+    *_quest_lamp_claims(),
 )
 CLAIMS_BY_ID: Dict[str, ClaimDefinition] = {claim.id: claim for claim in CLAIMS}
 
@@ -671,6 +768,18 @@ def _xp_reward_dict(reward: QuestXpReward) -> Dict[str, object]:
     return {"skill_id": reward.skill_id, "amount": reward.amount}
 
 
+def _lamp_reward_dict(reward: QuestLampReward) -> Dict[str, object]:
+    return {
+        "display_name": reward.display_name,
+        "amount": reward.amount,
+        "skill_options": reward.skill_options,
+        "minimum_level": reward.minimum_level,
+        "source": reward.source,
+        "source_text": reward.source_text,
+        "quantity": reward.quantity,
+    }
+
+
 def quests_as_dict() -> Dict[str, Dict[str, object]]:
     return {
         quest.id: {
@@ -686,6 +795,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "required_skills": tuple(_skill_requirement_dict(req) for req in quest.required_skills),
             "required_quest_points": quest.required_quest_points,
             "xp_rewards": tuple(_xp_reward_dict(reward) for reward in quest.xp_rewards),
+            "lamp_rewards": tuple(_lamp_reward_dict(reward) for reward in quest.lamp_rewards),
             "combat": quest.combat,
             "source": quest.source,
             "release_date": quest.release_date,
@@ -723,13 +833,26 @@ def quest_unlock_rules_as_dict() -> Tuple[Dict[str, object], ...]:
 
 
 def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
-    return {
+    generated_items: Dict[str, Dict[str, object]] = {}
+    for row in PRE_EOC_QUEST_CATALOG:
+        for reward in row.get("item_rewards", ()) or ():
+            if not isinstance(reward, dict):
+                continue
+            item_name = _quest_reward_item_name(reward.get("item_name"))
+            if not isinstance(item_name, str) or not item_name:
+                continue
+            generated_items[item_name] = {
+                "category": str(reward.get("category", "material")),
+                "source": str(reward.get("source", row.get("reward_source", row.get("source", "")))),
+            }
+    generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},
         "Dramen staff": {"category": "material", "source": LOST_CITY_SOURCE_PATH},
         "Rune spear (kp)": {"category": "equipment", "source": TAI_BWO_WANNAI_TRIO_SOURCE},
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},
         "Tome of Experience, 2nd Ed.": {"category": "material", "source": LEGACY_OF_SEERGAZE_SOURCE},
-    }
+    })
+    return generated_items
 
 
 def claims_as_dict() -> Dict[str, Dict[str, object]]:
@@ -737,11 +860,15 @@ def claims_as_dict() -> Dict[str, Dict[str, object]]:
         claim.id: {
             "id": claim.id,
             "display_name": claim.display_name,
+            "claim_type": claim.claim_type,
             "item_name": claim.item_name,
             "quantity": claim.quantity,
             "source": claim.source,
             "required_quest": claim.required_quest,
             "required_runecrafting_level": claim.required_runecrafting_level,
+            "xp_amount": claim.xp_amount,
+            "skill_options": claim.skill_options,
+            "minimum_level": claim.minimum_level,
         }
         for claim in CLAIMS
     }

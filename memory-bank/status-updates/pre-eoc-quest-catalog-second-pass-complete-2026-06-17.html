@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pre-EOC Quest Catalog Second Pass Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 0%, rgba(79, 140, 255, 0.16), transparent 36%), var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 42px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.08);
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      color: var(--text-dim);
+      max-width: 860px;
+      font-size: 1.05rem;
+      line-height: 1.55;
+      margin: 0 0 28px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 26px 0;
+    }
+    .metric, .card, .flow, .tab-panel {
+      background: rgba(22, 26, 33, 0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+    .metric { padding: 18px; }
+    .metric strong {
+      display: block;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .metric span {
+      display: block;
+      color: var(--text-dim);
+      margin-top: 8px;
+      font-size: 0.88rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .card {
+      padding: 18px;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+    .card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(79, 140, 255, 0.5);
+    }
+    .label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .label.green { color: var(--green); }
+    .label.purple { color: var(--purple); }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      letter-spacing: 0;
+    }
+    p { color: var(--text-dim); line-height: 1.5; margin: 0; }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+    code, .tag {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--surface-2);
+      color: #cbd5e1;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 3px 6px;
+      font-size: 0.72rem;
+    }
+    .flow {
+      padding: 18px;
+      margin: 24px 0;
+    }
+    .flow-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      align-items: stretch;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .step {
+      min-height: 92px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 14px;
+    }
+    .step strong { display: block; margin-bottom: 6px; }
+    .arrow {
+      color: var(--accent);
+      font-size: 1.6rem;
+      align-self: center;
+      font-family: "JetBrains Mono", monospace;
+    }
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 26px 0 10px;
+    }
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-family: "JetBrains Mono", monospace;
+      cursor: pointer;
+    }
+    button.active {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      color: #dbeafe;
+    }
+    .tab-panel { padding: 18px; display: none; }
+    .tab-panel.active { display: block; }
+    .check {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(42, 48, 64, 0.8);
+    }
+    .check:last-child { border-bottom: 0; }
+    .dot {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: rgba(74, 222, 128, 0.16);
+      border: 1px solid rgba(74, 222, 128, 0.6);
+      margin-top: 2px;
+      position: relative;
+    }
+    .dot:after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 4px;
+      border-left: 2px solid var(--green);
+      border-bottom: 2px solid var(--green);
+      transform: rotate(-45deg);
+      top: 5px;
+      left: 4px;
+    }
+    .mini {
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #11151b;
+    }
+    .mini-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      background: #1d2430;
+      padding: 10px 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      color: var(--text-dim);
+    }
+    .mini-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .pill {
+      border-radius: 999px;
+      background: rgba(79, 140, 255, 0.12);
+      color: #bfdbfe;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      padding: 2px 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+    @media (max-width: 900px) {
+      body { padding: 24px; }
+      .metrics, .grid, .flow-row { grid-template-columns: 1fr; }
+      .arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">COMPLETED - QUEST SECOND PASS</div>
+    <h1>Pre-EOC quests now behave like a real catalog</h1>
+    <p class="subtitle">
+      The broad quest import is no longer just starts, requirements, and XP. The runtime now has split RFD subquests, source-backed journals for every row, direct item rewards, flattened XP lamps, strict unimplemented-skill locks, and the Shilo gem-rock gate.
+    </p>
+
+    <section class="metrics" aria-label="completion metrics">
+      <div class="metric"><strong>194</strong><span>quest rows after RFD split</span></div>
+      <div class="metric"><strong>10</strong><span>Recipe for Disaster rows</span></div>
+      <div class="metric"><strong>0</strong><span>generated journal fallbacks</span></div>
+      <div class="metric"><strong>336</strong><span>tests passing in each runner</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label">Catalog Shape</div>
+        <h2>RFD is split correctly</h2>
+        <p>The aggregate Recipe for Disaster row is gone. The cook intro, eight guests, Skrach Uglogwee, and the Culinaromancer finale now stand as separate quests with their own requirement and reward payloads.</p>
+        <div class="tags"><span class="tag">quest_catalog_generated.py</span><span class="tag">tools/build_pre_eoc_quest_catalog.py</span></div>
+      </article>
+      <article class="card">
+        <div class="label green">Rewards</div>
+        <h2>Items and lamps are live</h2>
+        <p>Generated item rewards register as inventory items. XP lamps become Bank Claims with preserved quantities, XP amounts, skill option sets, and minimum-level checks.</p>
+        <div class="tags"><span class="tag">quest_data.py</span><span class="tag">logic_pure.py</span><span class="tag">ui.py</span></div>
+      </article>
+      <article class="card">
+        <div class="label purple">Journals</div>
+        <h2>No placeholder journals</h2>
+        <p>Journal stages now come from local 2011Scape QuestStage text, wiki quick-guide checklist stages, or oldid walkthrough prose. Black Knights' Fortress uses the walkthrough fallback because no quick-guide page exists.</p>
+        <div class="tags"><span class="tag">test_quest_catalog.py</span><span class="tag">source oldids</span></div>
+      </article>
+      <article class="card">
+        <div class="label">Locks</div>
+        <h2>Quest gates stay strict</h2>
+        <p>Quests cannot start through missing requirements, unimplemented skill requirements park XP instead of losing it, and Shilo Village now gates Mining gem rocks until route modeling exists.</p>
+        <div class="tags"><span class="tag">QUEST_UNLOCK_RULES</span><span class="tag">pending_skill_exp_rewards</span></div>
+      </article>
+    </section>
+
+    <section class="flow">
+      <div class="label green">Reward Flow</div>
+      <h2>What happens when a quest completes</h2>
+      <div class="flow-row">
+        <div class="step"><strong>Quest completion</strong><p>Strict requirements are already satisfied before the review action can start.</p></div>
+        <div class="arrow">></div>
+        <div class="step"><strong>Direct rewards</strong><p>Quest points, implemented skill XP, and item rewards are applied immediately.</p></div>
+        <div class="arrow">></div>
+        <div class="step"><strong>Deferred rewards</strong><p>Unimplemented skill XP parks in state; XP lamps wait in Bank Claims for a valid skill choice.</p></div>
+      </div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="details">
+      <button class="active" data-tab="proof">Proof</button>
+      <button data-tab="ui">UI Shape</button>
+      <button data-tab="memory">Memory Updates</button>
+    </div>
+    <section id="proof" class="tab-panel active">
+      <div class="check"><span class="dot"></span><p><code>python3 run_tests.py</code> passed: 336 tests, 80 skipped in the non-Qt runner.</p></div>
+      <div class="check"><span class="dot"></span><p><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> passed: 336 tests.</p></div>
+      <div class="check"><span class="dot"></span><p>New regression coverage rejects generated journal fallbacks and verifies RFD split, item rewards, lamp rewards, Shilo gating, and XP lamp claim behavior.</p></div>
+    </section>
+    <section id="ui" class="tab-panel">
+      <div class="mini">
+        <div class="mini-head"><span>Bank Claims</span><span>flattened lamps</span></div>
+        <div class="mini-row"><span>One Small Favour XP lamp</span><span class="pill">Choose skill</span></div>
+        <div class="mini-row"><span>Requirement tooltip</span><span class="pill">min level + options</span></div>
+        <div class="mini-row"><span>Unimplemented skill choice</span><span class="pill">parks XP</span></div>
+      </div>
+      <p style="margin-top:14px;">Tooltips stay compact: short option sets are named, long option sets collapse to a concise "Any listed skill" summary with the minimum level.</p>
+    </section>
+    <section id="memory" class="tab-panel">
+      <div class="check"><span class="dot"></span><p><code>memory-bank/quest-unlock-audit-2026-06-17.md</code> now records the resolved RFD, reward, lamp, journal, and Shilo decisions.</p></div>
+      <div class="check"><span class="dot"></span><p><code>memory-bank/progress.md</code>, <code>activeContext.md</code>, <code>systemPatterns.md</code>, and <code>future-work-kanban.md</code> now say 194 rows, not 185 quests.</p></div>
+      <div class="check"><span class="dot"></span><p><code>.codex/skills/ankiscape-skill-expansion/SKILL.md</code> carries the durable quest-import rules for future Codex runs.</p></div>
+    </section>
+  </main>
+  <script>
+    for (const button of document.querySelectorAll("button[data-tab]")) {
+      button.addEventListener("click", () => {
+        for (const candidate of document.querySelectorAll("button[data-tab]")) {
+          candidate.classList.toggle("active", candidate === button);
+        }
+        for (const panel of document.querySelectorAll(".tab-panel")) {
+          panel.classList.toggle("active", panel.id === button.dataset.tab);
+        }
+      });
+    }
+  </script>
+</body>
+</html>

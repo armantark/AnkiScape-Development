@@ -389,7 +389,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
-            on_claim_reward=lambda claim_id: self._claim_calls.append(claim_id) or True,
+            on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
         return self._captured[-1]
@@ -973,7 +973,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             widget for widget in dialog.findChildren(QWidget)
             if widget.objectName().startswith("questCard_")
         ]
-        self.assertGreaterEqual(len(quest_cards), 185)
+        self.assertGreaterEqual(len(quest_cards), 194)
 
         body = dialog.findChild(QWidget, "questBody_rune_mysteries")
         toggle = dialog.findChild(QPushButton, "questToggle_rune_mysteries")
@@ -1000,7 +1000,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(claim_btn.isEnabled())
         claim_btn.click()
         QApplication.processEvents()
-        self.assertEqual(self._claim_calls[-1], "wicked_hood")
+        self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
 
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()

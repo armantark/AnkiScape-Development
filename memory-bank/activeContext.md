@@ -270,19 +270,24 @@ Verification: `python3 run_tests.py` passed with 317 tests (79 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 317 tests.
 
-Full pre-EOC Quest catalog is complete on 2026-06-17. Runtime Quest data now
-comes from generated `quest_catalog_generated.py` (185 quests available before
-the 2012-11-20 Evolution of Combat cutoff) via `tools/build_pre_eoc_quest_catalog.py`.
+Full pre-EOC Quest catalog second pass is complete on 2026-06-17. Runtime Quest
+data now comes from generated `quest_catalog_generated.py` (194 rows: all quests
+available before the 2012-11-20 Evolution of Combat cutoff, with Recipe for
+Disaster split into 10 subquests) via `tools/build_pre_eoc_quest_catalog.py`.
 The generator caches RuneScape Wiki old revisions, keeps source oldids and real
-release order, includes quests that only became `former` after EOC, and excludes
-pre-EOC replacements. `quest_data.py` layers hand-audited overrides for the
-unlock-critical quests so stricter 2011-era evidence is preserved where current
-wiki requirements are looser. Quest starts remain strict for incomplete
-prerequisite quests and unimplemented skills; generated unimplemented-skill XP
-parks in `pending_skill_exp_rewards`. The Quests tab renders the full catalog as
-collapsed sortable cards. Verification: `python3 run_tests.py` passed with 331
-tests (80 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passed with 331 tests.
+release order, includes quests that only became `former` after EOC, excludes
+pre-EOC replacements, parses item rewards, parses XP lamps, and supplies
+source-backed journals for every quest from local 2011Scape `QuestStage` text,
+quick-guide checklist stages, or oldid walkthrough prose. `quest_data.py` layers
+hand-audited overrides for unlock-critical quests and turns generated XP lamps
+into Bank Claims with preserved skill choices/minimum levels. Quest starts
+remain strict for incomplete prerequisite quests and unimplemented skills;
+generated unimplemented-skill XP parks in `pending_skill_exp_rewards`. The
+Quests tab renders the full catalog as collapsed sortable cards. Shilo Village
+now gates Mining `gem_rocks` globally by owner choice until a route/location
+model exists. Verification: `python3 run_tests.py` passed with 336 tests
+(80 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 336 tests.
 
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
@@ -306,7 +311,7 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
 6. **Future Runecrafting extensions**: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss/abyssal creatures, talisman sourcing, and broader rune economy routes should stay separate from v1 until explicitly prioritized.
-7. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 185-quest pre-EOC catalog, implemented completion gates, and content that should or should not be quest-gated. Only reopen this area for stage-aware partial unlocks, route/location gates, new quest-unlocked skill targets, or generator/source corrections.
+7. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, generated rewards, and content that should or should not be quest-gated. Only reopen this area for stage-aware partial unlocks, route/location gates, new quest-unlocked skill targets, or generator/source corrections.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

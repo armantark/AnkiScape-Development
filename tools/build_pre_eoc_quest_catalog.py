@@ -33,6 +33,10 @@ RELEASE_LIST_SOURCE = "https://runescape.wiki/w/List_of_quests_by_release_date"
 EOC_CUTOFF_DATE = dt.date(2012, 11, 20)
 EOC_CUTOFF_TIMESTAMP = "2012-11-19T23:59:59Z"
 USER_AGENT = "AnkiScape pre-EOC quest catalog builder (local development; contact: local user)"
+SCAPE_2011_QUEST_IMPL_DIR = (
+    Path("/Users/ArmanTarkhanian1/Downloads/game-main")
+    / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
+)
 
 # These rows are marked former today, but they still existed as quests just
 # before the Evolution of Combat release. The current release list is a present
@@ -86,6 +90,104 @@ SKILLS: Mapping[str, Tuple[str, str]] = {
     "thieving": ("thieving", "Thieving"),
     "woodcutting": ("woodcutting", "Woodcutting"),
 }
+
+RFD_SUBQUESTS: Tuple[Tuple[str, str], ...] = (
+    ("Recipe for Disaster: Another Cook's Quest", "Recipe for Disaster: Another Cook's Quest"),
+    ("Recipe for Disaster: Freeing the Mountain Dwarf", "Recipe for Disaster: Freeing the Mountain Dwarf"),
+    ("Recipe for Disaster: Freeing the Goblin Generals", "Recipe for Disaster: Freeing the Goblin generals"),
+    ("Recipe for Disaster: Freeing Pirate Pete", "Recipe for Disaster: Freeing Pirate Pete"),
+    ("Recipe for Disaster: Freeing the Lumbridge Sage", "Recipe for Disaster: Freeing the Lumbridge Sage"),
+    ("Recipe for Disaster: Freeing Evil Dave", "Recipe for Disaster: Freeing Evil Dave"),
+    ("Recipe for Disaster: Freeing Sir Amik Varze", "Recipe for Disaster: Freeing Sir Amik Varze"),
+    ("Recipe for Disaster: Freeing King Awowogei", "Recipe for Disaster: Freeing King Awowogei"),
+    ("Recipe for Disaster: Freeing Skrach Uglogwee", "Recipe for Disaster: Freeing Skrach Uglogwee"),
+    ("Recipe for Disaster: Defeating the Culinaromancer", "Recipe for Disaster: Defeating the Culinaromancer"),
+)
+
+RFD_REQUIREMENT_ALIASES: Mapping[str, str] = {
+    "recipe for disaster": "recipe_for_disaster_defeating_the_culinaromancer",
+    "recipe for disaster/another cook's quest": "recipe_for_disaster_another_cooks_quest",
+    "recipe for disaster/freeing the mountain dwarf": "recipe_for_disaster_freeing_the_mountain_dwarf",
+    "recipe for disaster/freeing the goblin generals": "recipe_for_disaster_freeing_the_goblin_generals",
+    "recipe for disaster/freeing pirate pete": "recipe_for_disaster_freeing_pirate_pete",
+    "recipe for disaster/freeing the lumbridge sage": "recipe_for_disaster_freeing_the_lumbridge_sage",
+    "recipe for disaster/freeing the lumbridge guide": "recipe_for_disaster_freeing_the_lumbridge_sage",
+    "recipe for disaster/freeing evil dave": "recipe_for_disaster_freeing_evil_dave",
+    "recipe for disaster/freeing sir amik varze": "recipe_for_disaster_freeing_sir_amik_varze",
+    "recipe for disaster/freeing king awowogei": "recipe_for_disaster_freeing_king_awowogei",
+    "recipe for disaster/freeing skrach uglogwee": "recipe_for_disaster_freeing_skrach_uglogwee",
+    "recipe for disaster/defeating the culinaromancer": "recipe_for_disaster_defeating_the_culinaromancer",
+}
+
+RFD_FINALE_ID = "recipe_for_disaster_defeating_the_culinaromancer"
+
+_UNLOCK_REWARD_PREFIXES = (
+    "access to",
+    "full access to",
+    "further access to",
+    "(further) access to",
+    "ability to",
+    "the ability to",
+    "permission to",
+    "music unlocked",
+    "a new route",
+    "you can now",
+)
+
+_REWARD_ITEM_SKIP_TITLES = {
+    "agility",
+    "attack",
+    "constitution",
+    "cooking",
+    "crafting",
+    "defence",
+    "defense",
+    "experience",
+    "farming",
+    "firemaking",
+    "fishing",
+    "fletching",
+    "herblore",
+    "historian minas",
+    "hunter",
+    "lamp",
+    "magic",
+    "members",
+    "mining",
+    "prayer",
+    "quest point",
+    "quest points",
+    "ranged",
+    "runecrafting",
+    "slayer",
+    "squeal of fortune",
+    "strength",
+    "summoning",
+    "thieving",
+    "treasure hunter key",
+    "woodcutting",
+}
+
+_REWARD_ITEM_CATEGORY_HINTS = (
+    "amulet",
+    "armour",
+    "armor",
+    "axe",
+    "bow",
+    "body",
+    "boots",
+    "dagger",
+    "gloves",
+    "helmet",
+    "helm",
+    "mace",
+    "platebody",
+    "ring",
+    "shield",
+    "staff",
+    "sword",
+    "wand",
+)
 
 
 @dataclass(frozen=True)
@@ -162,6 +264,163 @@ class AnchorExtractor(HTMLParser):
         self._text = []
 
 
+class RewardListExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.items: List[Dict[str, object]] = []
+        self._in_li = False
+        self._depth = 0
+        self._text: List[str] = []
+        self._href: Optional[str] = None
+        self._anchor_text: List[str] = []
+        self._anchor_title: str = ""
+        self._anchors: List[Dict[str, str]] = []
+
+    def handle_starttag(self, tag: str, attrs: Sequence[Tuple[str, Optional[str]]]) -> None:
+        attr_map = {key: value for key, value in attrs}
+        if tag == "li":
+            if not self._in_li:
+                self._in_li = True
+                self._depth = 1
+                self._text = []
+                self._anchors = []
+            else:
+                self._depth += 1
+                self._text.append("\n")
+            return
+        if not self._in_li:
+            return
+        if tag in {"br", "p", "div"}:
+            self._text.append("\n")
+        if tag == "img":
+            alt = attr_map.get("alt")
+            if alt:
+                self._text.append(f" {alt} ")
+        if tag == "a":
+            self._href = attr_map.get("href")
+            self._anchor_title = html.unescape(attr_map.get("title") or "")
+            self._anchor_text = []
+
+    def handle_data(self, data: str) -> None:
+        if not self._in_li:
+            return
+        self._text.append(data)
+        if self._href is not None:
+            self._anchor_text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if not self._in_li:
+            return
+        if tag == "a" and self._href is not None:
+            label = re.sub(r"\s+", " ", "".join(self._anchor_text)).strip()
+            self._anchors.append({"href": self._href, "label": label, "title": self._anchor_title})
+            self._href = None
+            self._anchor_text = []
+            self._anchor_title = ""
+            return
+        if tag == "li":
+            self._depth -= 1
+            if self._depth <= 0:
+                text = re.sub(r"[ \t]+", " ", "".join(self._text))
+                text = re.sub(r"\s*\n\s*", " ", text).strip()
+                if text:
+                    self.items.append({"text": text, "anchors": tuple(self._anchors)})
+                self._in_li = False
+                self._depth = 0
+                self._text = []
+                self._anchors = []
+
+
+class QuickGuideExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.lines: List[str] = []
+        self._in_li = False
+        self._depth = 0
+        self._text: List[str] = []
+        self._skip_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: Sequence[Tuple[str, Optional[str]]]) -> None:
+        if tag in {"script", "style", "table"}:
+            self._skip_depth += 1
+            return
+        if self._skip_depth:
+            return
+        if tag == "li":
+            if not self._in_li:
+                self._in_li = True
+                self._depth = 1
+                self._text = []
+            else:
+                self._depth += 1
+                self._text.append(" ")
+        elif self._in_li and tag in {"br", "p", "div"}:
+            self._text.append(" ")
+        elif self._in_li and tag == "img":
+            attr_map = {key: value for key, value in attrs}
+            alt = attr_map.get("alt")
+            if alt:
+                self._text.append(f" {alt} ")
+
+    def handle_data(self, data: str) -> None:
+        if self._in_li and not self._skip_depth:
+            self._text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._skip_depth:
+            if tag in {"script", "style", "table"}:
+                self._skip_depth -= 1
+            return
+        if tag != "li" or not self._in_li:
+            return
+        self._depth -= 1
+        if self._depth <= 0:
+            text = re.sub(r"\s+", " ", "".join(self._text)).strip(" -*\n\t")
+            if text:
+                self.lines.append(text)
+            self._in_li = False
+            self._depth = 0
+            self._text = []
+
+
+class WalkthroughProseExtractor(HTMLParser):
+    def __init__(self) -> None:
+        super().__init__()
+        self.lines: List[str] = []
+        self._in_paragraph = False
+        self._text: List[str] = []
+        self._skip_depth = 0
+
+    def handle_starttag(self, tag: str, attrs: Sequence[Tuple[str, Optional[str]]]) -> None:
+        if tag in {"script", "style", "table"}:
+            self._skip_depth += 1
+            return
+        if self._skip_depth:
+            return
+        if tag == "p" and not self._in_paragraph:
+            self._in_paragraph = True
+            self._text = []
+        elif self._in_paragraph and tag in {"br", "div"}:
+            self._text.append(" ")
+
+    def handle_data(self, data: str) -> None:
+        if self._in_paragraph and not self._skip_depth:
+            self._text.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if self._skip_depth:
+            if tag in {"script", "style", "table"}:
+                self._skip_depth -= 1
+            return
+        if tag != "p" or not self._in_paragraph:
+            return
+        text = re.sub(r"\s+", " ", "".join(self._text)).strip(" -*\n\t")
+        if text:
+            self.lines.append(text)
+        self._in_paragraph = False
+        self._text = []
+
+
 def cached_json(cache_key: str, params: Mapping[str, object]) -> Mapping[str, object]:
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache_path = CACHE_DIR / f"{cache_key}.json"
@@ -222,6 +481,12 @@ def quest_id_from_name(name: str) -> str:
     value = value.replace("'", "")
     value = re.sub(r"[^a-z0-9]+", "_", value)
     return re.sub(r"_+", "_", value).strip("_")
+
+
+RFD_DISPLAY_BY_ID: Mapping[str, str] = {
+    quest_id_from_name(display_name): display_name
+    for display_name, _ in RFD_SUBQUESTS
+}
 
 
 def split_top_level(value: str, delimiter: str) -> List[str]:
@@ -374,6 +639,22 @@ def canonical_timeline(value: str) -> str:
     return "Fifth Age"
 
 
+_STAGE_COUNT_BY_LENGTH = {
+    "Short": 3,
+    "Short to Medium": 4,
+    "Medium": 5,
+    "Medium to Long": 6,
+    "Long": 7,
+    "Long to Very Long": 8,
+    "Very Long": 9,
+    "Very, Very Long": 10,
+}
+
+
+def generated_stage_count(length: str) -> int:
+    return _STAGE_COUNT_BY_LENGTH.get(length, 5)
+
+
 def parse_members(value: str) -> bool:
     cleaned = clean_markup(value).strip().lower()
     return cleaned not in {"no", "false", "free", "f2p"}
@@ -490,12 +771,17 @@ def fetch_parsed_html(revision: Revision) -> str:
 
 def build_title_lookup(rows: Sequence[ReleaseRow]) -> Dict[str, Tuple[str, str]]:
     lookup: Dict[str, Tuple[str, str]] = {}
+    by_id = {quest_id_from_name(row.display_name): row.display_name for row in rows}
     for row in rows:
         quest_id = quest_id_from_name(row.display_name)
         for title in {row.source_title, row.display_name, re.sub(r"\s+\((historical|quest|miniquest)\)$", "", row.source_title, flags=re.I)}:
             key = normalize_title(title)
             if key:
                 lookup[key] = (quest_id, row.display_name)
+    for alias, quest_id in RFD_REQUIREMENT_ALIASES.items():
+        display_name = by_id.get(quest_id)
+        if display_name:
+            lookup[normalize_title(alias)] = (quest_id, display_name)
     return lookup
 
 
@@ -539,6 +825,16 @@ def parse_linked_quests(requirements: str, title_lookup: Mapping[str, Tuple[str,
                 quests.append((quest_id, display_name))
             break
     return dedupe_pairs(quests)
+
+
+def rfd_manual_prerequisites(current_id: str) -> Tuple[Tuple[str, str], ...]:
+    if current_id != RFD_FINALE_ID:
+        return ()
+    return tuple(
+        (quest_id, display_name)
+        for quest_id, display_name in RFD_DISPLAY_BY_ID.items()
+        if quest_id != RFD_FINALE_ID
+    )
 
 
 def dedupe_pairs(values: Iterable[Tuple[str, str]]) -> List[Tuple[str, str]]:
@@ -633,6 +929,412 @@ def parse_xp_rewards(reward_text: str) -> List[Tuple[str, float]]:
     return sorted(rewards.items())
 
 
+def expand_recipe_for_disaster_rows(rows: Sequence[ReleaseRow]) -> List[ReleaseRow]:
+    expanded: List[ReleaseRow] = []
+    for row in rows:
+        if row.source_title != "Recipe for Disaster":
+            expanded.append(row)
+            continue
+        for display_name, source_title in RFD_SUBQUESTS:
+            expanded.append(
+                ReleaseRow(
+                    source_title=source_title,
+                    display_name=display_name,
+                    release_date=row.release_date,
+                    cumulative_qp=row.cumulative_qp,
+                    difficulty=row.difficulty,
+                    former=row.former,
+                    nr=row.nr,
+                    update=row.update,
+                )
+            )
+    return expanded
+
+
+def _unescape_kotlin_string(value: str) -> str:
+    try:
+        return bytes(value, "utf-8").decode("unicode_escape")
+    except UnicodeDecodeError:
+        return value
+
+
+def clean_journal_line(value: str) -> str:
+    text = _unescape_kotlin_string(value)
+    text = re.sub(r"</?col(?:=[^>]*)?>", "", text)
+    text = text.replace("<str>", "").replace("</str>", "")
+    text = clean_markup(text)
+    text = text.replace("QUEST COMPLETE!", "Quest complete!")
+    return text.strip()
+
+
+def parse_2011scape_journals() -> Dict[str, Tuple[Dict[str, object], ...]]:
+    journals: Dict[str, Tuple[Dict[str, object], ...]] = {}
+    if not SCAPE_2011_QUEST_IMPL_DIR.exists():
+        return journals
+    for path in sorted(SCAPE_2011_QUEST_IMPL_DIR.glob("*.kt")):
+        text = path.read_text(encoding="utf-8")
+        name_match = re.search(r'name\s*=\s*"([^"]+)"', text)
+        if not name_match:
+            continue
+        quest_id = quest_id_from_name(_unescape_kotlin_string(name_match.group(1)))
+        stages: List[Dict[str, object]] = []
+        for stage_match in re.finditer(
+            r"\b(\d+)\s*->\s*(?:\{[^{}]*)?QuestStage\s*\(\s*objectives\s*=\s*listOf\s*\((.*?)\)\s*,?\s*\)",
+            text,
+            flags=re.S,
+        ):
+            stage = parse_int(stage_match.group(1), 0)
+            if stage <= 0:
+                continue
+            lines = tuple(
+                line
+                for line in (clean_journal_line(match.group(1)) for match in re.finditer(r'"((?:\\.|[^"])*)"', stage_match.group(2)))
+                if line
+            )
+            if lines:
+                stages.append({"stage": stage, "journal": lines})
+        if stages:
+            journals[quest_id] = tuple(stages)
+    return journals
+
+
+_SCAPE_2011_JOURNALS = parse_2011scape_journals()
+
+
+def extract_reward_items(reward_html: str) -> List[Dict[str, object]]:
+    parser = RewardListExtractor()
+    parser.feed(reward_html)
+    return parser.items
+
+
+def reward_payload_html(reward_html: str) -> str:
+    navbox = re.search(r"<table\b[^>]*\bnavbox\b", reward_html, flags=re.I)
+    if navbox:
+        reward_html = reward_html[: navbox.start()]
+    music_heading = re.search(
+        r"(?:<h[34]\b[^>]*(?:id=\"[^\"]*Music[^\"]*\"|>.*?Music unlocked).*?</h[34]>|<dt>\s*Music unlocked\s*</dt>)",
+        reward_html,
+        flags=re.I | re.S,
+    )
+    if music_heading:
+        return reward_html[: music_heading.start()]
+    return reward_html
+
+
+def reward_text_from_items(items: Sequence[Mapping[str, object]]) -> str:
+    return "\n".join(str(item.get("text", "")) for item in items)
+
+
+def _reward_item_category(item_name: str) -> str:
+    lower = item_name.lower()
+    if any(hint in lower for hint in _REWARD_ITEM_CATEGORY_HINTS):
+        return "equipment"
+    return "material"
+
+
+def _quantity_word(value: str) -> int:
+    return {
+        "a": 1,
+        "an": 1,
+        "one": 1,
+        "two": 2,
+        "three": 3,
+        "four": 4,
+        "five": 5,
+        "six": 6,
+        "seven": 7,
+        "eight": 8,
+        "nine": 9,
+        "ten": 10,
+    }.get(value.lower(), 0)
+
+
+def _quantity_for_item(line: str, item_name: str, label: str) -> int:
+    lower = line.lower()
+    candidates = {item_name.lower(), label.lower()}
+    if item_name.endswith("y"):
+        candidates.add(f"{item_name[:-1].lower()}ies")
+    else:
+        candidates.add(f"{item_name.lower()}s")
+    for candidate in sorted(candidates, key=len, reverse=True):
+        if not candidate:
+            continue
+        match = re.search(rf"\b([0-9][0-9,]*)\s+(?:noted\s+)?{re.escape(candidate)}\b", lower, flags=re.I)
+        if match:
+            return parse_int(match.group(1), 1)
+        word_match = re.search(
+            rf"\b(a|an|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:noted\s+)?{re.escape(candidate)}\b",
+            lower,
+            flags=re.I,
+        )
+        if word_match:
+            return _quantity_word(word_match.group(1)) or 1
+    return 1
+
+
+def _clean_anchor_item_name(anchor: Mapping[str, str]) -> str:
+    title = clean_markup(anchor.get("title") or "")
+    label = clean_markup(anchor.get("label") or "")
+    name = title or label
+    name = re.sub(r"\s+\((?:item|object|historical|quest)\)$", "", name, flags=re.I)
+    if name.lower() == "coins":
+        return "Coins"
+    return name
+
+
+def parse_item_rewards(reward_items: Sequence[Mapping[str, object]], source: str) -> Tuple[Dict[str, object], ...]:
+    rewards: Dict[str, Dict[str, object]] = {}
+    music_track_tail = 0
+    for item in reward_items:
+        line = str(item.get("text", "")).strip()
+        lower = line.lower()
+        if not line:
+            continue
+        has_explicit_quantity = bool(
+            re.match(r"(?:[0-9][0-9,]*|a|an|one|two|three|four|five|six|seven|eight|nine|ten)\b", lower)
+            or re.search(r"\b[0-9][0-9,]*\s+coins?\b", lower)
+        )
+        if music_track_tail and not has_explicit_quantity:
+            music_track_tail -= 1
+            continue
+        if lower.startswith("music unlocked"):
+            music_track_tail = 10
+            continue
+        if "squeal of fortune" in lower or "treasure hunter" in lower:
+            continue
+        if "quest point" in lower or re.search(r"\b(xp|experience)\b", lower):
+            if "coin" not in lower and "lamp" not in lower:
+                continue
+        if "lamp" in lower or "experience reward" in lower:
+            continue
+        if any(lower.startswith(prefix) for prefix in _UNLOCK_REWARD_PREFIXES):
+            continue
+        anchors = item.get("anchors", ())
+        if not isinstance(anchors, tuple):
+            anchors = ()
+        item_name = ""
+        label = ""
+        for anchor in anchors:
+            if not isinstance(anchor, Mapping):
+                continue
+            candidate = _clean_anchor_item_name(anchor)
+            if not candidate or candidate.lower() in _REWARD_ITEM_SKIP_TITLES:
+                continue
+            item_name = candidate
+            label = clean_markup(anchor.get("label") or candidate)
+            break
+        if not item_name:
+            coin_match = re.search(r"\b([0-9][0-9,]*)\s+coins?\b", line, flags=re.I)
+            if coin_match:
+                item_name = "Coins"
+                label = "coins"
+            elif (
+                len(line) <= 70
+                and not any(lower.startswith(prefix) for prefix in _UNLOCK_REWARD_PREFIXES)
+                and has_explicit_quantity
+            ):
+                item_name = clean_markup(line)
+                label = item_name
+        if not item_name:
+            continue
+        quantity = _quantity_for_item(line, item_name, label)
+        existing = rewards.get(item_name)
+        if existing:
+            existing["quantity"] = int(existing["quantity"]) + quantity
+            continue
+        rewards[item_name] = {
+            "item_name": item_name,
+            "quantity": quantity,
+            "category": _reward_item_category(item_name),
+            "source": source,
+        }
+    return tuple(rewards[name] for name in sorted(rewards))
+
+
+def _skill_options_for_lamp(line: str) -> Tuple[str, ...]:
+    lower = line.lower()
+    options = []
+    for key, (skill_id, display_name) in SKILLS.items():
+        if key in {"combat", "defense"}:
+            continue
+        if re.search(rf"\b{re.escape(display_name.lower())}\b", lower):
+            options.append(skill_id)
+    explicit_options = tuple(sorted(set(options)))
+    combat_options = ("attack", "constitution", "defense", "magic", "ranged", "strength", "summoning")
+    if "combat skill" in lower or "combat lamp" in lower:
+        if "other than prayer" in lower or "except prayer" in lower:
+            return combat_options
+        if len(explicit_options) > 1:
+            return explicit_options
+        return combat_options
+    if explicit_options:
+        return explicit_options
+    if "any skill" in lower or "skill of your choice" in lower:
+        return tuple(skill_id for skill_id, _ in sorted({value for key, value in SKILLS.items() if key != "combat"}))
+    return ()
+
+
+def _lamp_minimum_level(line: str) -> int:
+    lower = line.lower()
+    for pattern in (
+        r"at least level\s+(\d+)",
+        r"at or over level\s+(\d+)",
+        r"level\s+(\d+)\s+or (?:above|higher|over)",
+        r"level\s+(\d+)\+",
+    ):
+        match = re.search(pattern, lower)
+        if match:
+            return parse_int(match.group(1), 1)
+    for pattern in (r"(?:above|over|higher than)\s+level\s+(\d+)", r"(?:above|over|higher than)\s+(\d+)"):
+        match = re.search(pattern, lower)
+        if match:
+            return parse_int(match.group(1), 0) + 1
+    return 1
+
+
+def _lamp_count(line: str) -> int:
+    lower = line.lower()
+    match = re.search(r"\b([0-9]+)\s*×\s*[a-z ]*lamps?\b", lower)
+    if match:
+        return parse_int(match.group(1), 1)
+    match = re.search(r"\b([0-9]+)\s+x\s+[a-z ]*lamps?\b", lower)
+    if match:
+        return parse_int(match.group(1), 1)
+    match = re.search(r"\b([0-9]+)\s+wishes\s+each\b", lower)
+    if match:
+        return parse_int(match.group(1), 1)
+    match = re.search(r"\b([0-9]+)\s+(?:[a-z]+\s+){0,3}lamps\b", lower)
+    if match:
+        return parse_int(match.group(1), 1)
+    match = re.search(r"\b(a|an|one|two|three|four|five|six|seven|eight|nine|ten)\s+(?:[a-z]+\s+){0,3}lamps?\b", lower)
+    if match:
+        return _quantity_word(match.group(1)) or 1
+    if "lamp" in lower:
+        return 1
+    return 0
+
+
+def parse_lamp_rewards(reward_items: Sequence[Mapping[str, object]], source: str) -> Tuple[Dict[str, object], ...]:
+    lamps: List[Dict[str, object]] = []
+    for item in reward_items:
+        line = str(item.get("text", "")).strip()
+        lower = line.lower()
+        if not line or "lamp" not in lower:
+            continue
+        amount_values = [parse_int(match, 0) for match in re.findall(r"\b([0-9][0-9,]*)\s+(?:xp|experience)\b", line, flags=re.I)]
+        if not amount_values:
+            continue
+        amount = max(amount_values)
+        count = _lamp_count(line)
+        skill_options = _skill_options_for_lamp(line)
+        if amount <= 0 or count <= 0 or not skill_options:
+            continue
+        lamps.append(
+            {
+                "display_name": "XP lamp",
+                "quantity": count,
+                "amount": amount,
+                "skill_options": skill_options,
+                "minimum_level": _lamp_minimum_level(line),
+                "source": source,
+                "source_text": clean_markup(line),
+            }
+        )
+    return tuple(lamps)
+
+
+def parse_unlock_rewards(reward_items: Sequence[Mapping[str, object]]) -> Tuple[str, ...]:
+    unlocks = []
+    for item in reward_items:
+        line = clean_markup(str(item.get("text", "")))
+        lower = line.lower()
+        if not line:
+            continue
+        if any(lower.startswith(prefix) for prefix in _UNLOCK_REWARD_PREFIXES):
+            unlocks.append(line)
+    return tuple(dict.fromkeys(unlocks))
+
+
+def _quick_guide_title(title: str, display_name: str) -> str:
+    cleaned = re.sub(r"\s+\((historical|quest|miniquest)\)$", "", title, flags=re.I).strip()
+    return f"{cleaned or display_name}/Quick guide"
+
+
+def parse_quick_guide_lines(title: str, display_name: str) -> Tuple[str, ...]:
+    quick_title = _quick_guide_title(title, display_name)
+    try:
+        revision = fetch_wikitext(quick_title, before_cutoff=False)
+    except RuntimeError:
+        return ()
+    checklist_lines: List[str] = []
+    for body in iter_templates(revision.content):
+        if template_name(body) != "checklist":
+            continue
+        params = parse_template_params(body)
+        raw = params.get("1") or ""
+        for raw_line in raw.splitlines():
+            if not raw_line.lstrip().startswith("*"):
+                continue
+            line = clean_markup(raw_line)
+            line = re.sub(r"\{\{.*$", "", line).strip()
+            if not line or "congratulations" in line.lower() or "quest complete" in line.lower():
+                continue
+            checklist_lines.append(line)
+        if checklist_lines:
+            break
+    if checklist_lines:
+        return tuple(dict.fromkeys(checklist_lines))
+
+    try:
+        quick_html = fetch_parsed_html(revision)
+    except RuntimeError:
+        return ()
+    section = section_html(quick_html, "Walkthrough") or quick_html
+    parser = QuickGuideExtractor()
+    parser.feed(section)
+    lines = []
+    for line in parser.lines:
+        cleaned = clean_markup(line)
+        if cleaned and "congratulations" not in cleaned.lower() and "quest complete" not in cleaned.lower():
+            lines.append(cleaned)
+    return tuple(dict.fromkeys(lines))
+
+
+def parse_walkthrough_prose_lines(page_html: str) -> Tuple[str, ...]:
+    section = section_html(page_html, "Walkthrough")
+    if not section:
+        return ()
+    parser = WalkthroughProseExtractor()
+    parser.feed(section)
+    lines = []
+    for line in parser.lines:
+        cleaned = clean_markup(line)
+        lower = cleaned.lower()
+        if not cleaned or "lua error" in lower or "quest complete" in lower:
+            continue
+        lines.append(cleaned)
+    return tuple(dict.fromkeys(lines))
+
+
+def grouped_journal_stages(lines: Sequence[str], stages: int, display_name: str, source_kind: str) -> Tuple[Dict[str, object], ...]:
+    clean_lines = [clean_journal_line(line) for line in lines if clean_journal_line(line)]
+    if not clean_lines:
+        return ()
+    stage_count = max(1, stages)
+    groups: List[List[str]] = [[] for _ in range(stage_count)]
+    for index, line in enumerate(clean_lines):
+        group_index = min(stage_count - 1, int(index * stage_count / max(1, len(clean_lines))))
+        groups[group_index].append(line)
+    rows = []
+    for index, group in enumerate(groups, start=1):
+        if not group:
+            group = [f"I made progress on {display_name}."]
+        if index == stage_count and not any("quest complete" in line.lower() for line in group):
+            group = [*group, "Quest complete!"]
+        rows.append({"stage": index, "journal": tuple(group), "source_kind": source_kind})
+    return tuple(rows)
+
+
 def quest_details_from_wikitext(wikitext: str) -> Dict[str, str]:
     return find_first_template(wikitext, ("Quest details", "Questdetails"))
 
@@ -656,6 +1358,20 @@ def parse_catalog_row(
     details = quest_details_from_wikitext(revision.content)
     requirements_wikitext = details.get("requirements", "")
     reward_html = section_html(parsed_html, "Reward")
+    reward_revision = revision
+    if not reward_html:
+        reward_html = section_html(parsed_html, "Rewards")
+    if not reward_html:
+        try:
+            reward_revision = fetch_wikitext(_quick_guide_title(row.source_title, row.display_name), before_cutoff=False)
+            reward_html = section_html(fetch_parsed_html(reward_revision), "Reward")
+            if not reward_html:
+                reward_html = section_html(fetch_parsed_html(reward_revision), "Rewards")
+        except RuntimeError:
+            reward_revision = revision
+            reward_html = ""
+    reward_html = reward_payload_html(reward_html)
+    reward_items = extract_reward_items(reward_html)
     reward_text = html_to_text(reward_html)
 
     required_quests = parse_questreq_tables(parsed_html, title_lookup, quest_id)
@@ -668,11 +1384,15 @@ def parse_catalog_row(
         if not required_quests:
             current_details = quest_details_from_wikitext(current_revision.content)
             required_quests = parse_linked_quests(current_details.get("requirements", ""), title_lookup, quest_id)
+    required_quests = dedupe_pairs([*required_quests, *rfd_manual_prerequisites(quest_id)])
 
     required_skills = parse_skill_requirements(requirements_wikitext, parsed_html)
     required_quest_points = parse_required_quest_points(requirements_wikitext)
     point_reward = parse_reward_points(reward_text) or fallback_reward_points(included_rows, row, index)
     xp_rewards = parse_xp_rewards(reward_text)
+    item_rewards = parse_item_rewards(reward_items, page_url(reward_revision.title, reward_revision.oldid))
+    lamp_rewards = parse_lamp_rewards(reward_items, page_url(reward_revision.title, reward_revision.oldid))
+    unlocks = parse_unlock_rewards(reward_items)
 
     requirement_labels: List[str] = []
     requirement_labels.extend(display_name for _, display_name in required_quests)
@@ -682,6 +1402,25 @@ def parse_catalog_row(
 
     start_point = clean_markup(details.get("start", ""))
     combat = clean_markup(details.get("kills", "") or details.get("combat", ""))
+    length = canonical_length(details.get("length", ""))
+    local_journal = _SCAPE_2011_JOURNALS.get(quest_id)
+    if local_journal:
+        journal_stages = local_journal
+        journal_source = str(SCAPE_2011_QUEST_IMPL_DIR)
+        journal_source_kind = "2011scape_quest_stage"
+        stages = max(parse_int(stage.get("stage"), 1) for stage in local_journal)
+    else:
+        stages = generated_stage_count(length)
+        quick_lines = parse_quick_guide_lines(row.source_title, row.display_name)
+        if quick_lines:
+            journal_stages = grouped_journal_stages(quick_lines, stages, row.display_name, "quick_guide_checklist")
+            journal_source = page_url(_quick_guide_title(row.source_title, row.display_name))
+            journal_source_kind = "quick_guide_checklist"
+        else:
+            walkthrough_lines = parse_walkthrough_prose_lines(parsed_html)
+            journal_stages = grouped_journal_stages(walkthrough_lines, stages, row.display_name, "walkthrough_prose")
+            journal_source = page_url(revision.title, revision.oldid) if walkthrough_lines else page_url(_quick_guide_title(row.source_title, row.display_name))
+            journal_source_kind = "walkthrough_prose" if walkthrough_lines else "generated_fallback"
     return {
         "id": quest_id,
         "display_name": row.display_name,
@@ -690,13 +1429,15 @@ def parse_catalog_row(
         "source_revision": revision.oldid,
         "source_timestamp": revision.timestamp,
         "source_fallback_current": revision.fallback_current,
+        "reward_source": page_url(reward_revision.title, reward_revision.oldid),
         "release_source": RELEASE_LIST_SOURCE,
         "release_order": index + 1,
         "release_date": row.release_date.isoformat(),
         "members": parse_members(details.get("members", "Yes")),
         "difficulty": row.difficulty or clean_markup(details.get("difficulty", "Novice")),
-        "length": canonical_length(details.get("length", "")),
+        "length": length,
         "timeline": canonical_timeline(details.get("timeline") or details.get("age") or ""),
+        "stages": stages,
         "start_point": start_point or "See the source guide for the start location.",
         "combat": combat or "See the source guide.",
         "requirements": tuple(requirement_labels),
@@ -708,6 +1449,12 @@ def parse_catalog_row(
         "required_quest_points": required_quest_points,
         "point_reward": point_reward,
         "xp_rewards": tuple({"skill_id": skill_id, "amount": amount} for skill_id, amount in xp_rewards),
+        "item_rewards": item_rewards,
+        "lamp_rewards": lamp_rewards,
+        "unlocks": unlocks,
+        "journal_stages": journal_stages,
+        "journal_source": journal_source,
+        "journal_source_kind": journal_source_kind,
     }
 
 
@@ -721,6 +1468,7 @@ def main() -> None:
     all_rows = parse_questline_templates(release_text)
     included_rows = [row for row in all_rows if include_row(row)]
     included_rows.sort(key=lambda row: (row.release_date, parse_int(row.nr, 9999), row.display_name))
+    included_rows = expand_recipe_for_disaster_rows(included_rows)
     title_lookup = build_title_lookup(included_rows)
 
     parsed_by_id: Dict[str, Mapping[str, object]] = {}

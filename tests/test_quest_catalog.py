@@ -9,8 +9,8 @@ class TestQuestCatalog(unittest.TestCase):
         ids = {quest["id"] for quest in PRE_EOC_QUEST_CATALOG}
 
         self.assertEqual(PRE_EOC_QUEST_CATALOG_SOURCE["cutoff_date"], "2012-11-20")
-        self.assertEqual(len(PRE_EOC_QUEST_CATALOG), 185)
-        self.assertEqual(len(QUESTS), 185)
+        self.assertEqual(len(PRE_EOC_QUEST_CATALOG), 194)
+        self.assertEqual(len(QUESTS), 194)
         self.assertEqual(PRE_EOC_QUEST_CATALOG[0]["display_name"], "Cook's Assistant")
         self.assertEqual(PRE_EOC_QUEST_CATALOG[-1]["display_name"], "What's Mine is Yours")
 
@@ -19,6 +19,9 @@ class TestQuestCatalog(unittest.TestCase):
 
         for quest_id in ("dorics_quest", "prince_ali_rescue", "romeo_and_juliet", "rune_memories"):
             self.assertNotIn(quest_id, ids)
+        self.assertNotIn("recipe_for_disaster", ids)
+        self.assertIn("recipe_for_disaster_another_cooks_quest", ids)
+        self.assertIn("recipe_for_disaster_defeating_the_culinaromancer", ids)
 
     def test_generated_prerequisite_graph_resolves_to_playable_quests(self):
         ids = set(QUESTS_BY_ID)
@@ -42,6 +45,10 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn(
             {"quest_id": "jungle_potion", "display_name": "Jungle Potion"},
             data["shilo_village"]["required_quests"],
+        )
+        self.assertIn(
+            {"quest_id": "recipe_for_disaster_freeing_pirate_pete", "display_name": "Recipe for Disaster: Freeing Pirate Pete"},
+            data["recipe_for_disaster_defeating_the_culinaromancer"]["required_quests"],
         )
 
     def test_priority_overrides_keep_hand_audited_requirements_and_rewards(self):
@@ -68,6 +75,35 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(ordered[7]["display_name"], "Black Knights' Fortress")
         self.assertEqual(ordered[-1]["display_name"], "What's Mine is Yours")
         self.assertEqual(data["rune_mysteries"]["release_order"], 45)
+
+    def test_generated_rewards_journals_and_lamps_are_structured(self):
+        data = quests_as_dict()
+
+        cooks = data["cooks_assistant"]
+        self.assertEqual(cooks["rewards"]["Coins"], 500)
+        self.assertEqual(cooks["rewards"]["Sardine"], 20)
+        self.assertGreaterEqual(len(cooks["journal_stages"]), 2)
+        self.assertIn("Duke of Lumbridge", " ".join(cooks["journal_stages"][1]))
+
+        one_small_favour = data["one_small_favour"]
+        self.assertEqual(one_small_favour["lamp_rewards"][0]["quantity"], 2)
+        self.assertEqual(one_small_favour["lamp_rewards"][0]["amount"], 10000)
+        self.assertEqual(one_small_favour["lamp_rewards"][0]["minimum_level"], 30)
+
+        final_rfd = data["recipe_for_disaster_defeating_the_culinaromancer"]
+        rfd_requirements = {req["quest_id"] for req in final_rfd["required_quests"]}
+        self.assertIn("recipe_for_disaster_another_cooks_quest", rfd_requirements)
+        self.assertIn("recipe_for_disaster_freeing_skrach_uglogwee", rfd_requirements)
+        self.assertEqual(final_rfd["lamp_rewards"][0]["amount"], 20000)
+
+    def test_all_generated_quests_have_source_backed_journals(self):
+        missing = [
+            (quest["id"], quest["display_name"], quest["journal_source_kind"])
+            for quest in PRE_EOC_QUEST_CATALOG
+            if not quest["journal_stages"] or quest["journal_source_kind"] == "generated_fallback"
+        ]
+
+        self.assertEqual(missing, [])
 
 
 if __name__ == "__main__":

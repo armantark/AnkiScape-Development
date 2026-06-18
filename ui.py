@@ -39,6 +39,7 @@ try:
         QProgressBar,
         QCheckBox,
         QSpinBox,
+        QInputDialog,
         QDesktopServices,
         QUrl,
     QEvent,
@@ -158,8 +159,10 @@ except Exception:
     )
 try:
     from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
+    from .skill_registry import get_skill
 except Exception:
     from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
+    from skill_registry import get_skill  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -3013,6 +3016,47 @@ def show_main_menu(
     claims_layout.setContentsMargins(0, 0, 0, 0)
     claims_layout.setSpacing(6)
 
+    def _skill_display(skill_id: str) -> str:
+        skill = get_skill(skill_id)
+        return skill.display_name if skill is not None else skill_id.replace("_", " ").title()
+
+    def _skill_level(skill_id: str) -> int:
+        skill = get_skill(skill_id)
+        level_key = skill.level_key if skill is not None else f"{skill_id}_level"
+        try:
+            return int(player_data.get(level_key, 1))
+        except (TypeError, ValueError):
+            return 1
+
+    def _claim_skill_tooltip(row: dict) -> str:
+        options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
+        minimum_level = int(row.get("minimum_level", 1) or 1)
+        if not options:
+            return ""
+        if len(options) > 8:
+            label = "Any listed skill"
+        else:
+            label = ", ".join(_skill_display(skill_id) for skill_id in options[:8])
+        if minimum_level > 1:
+            return f"Choose: {label}. Minimum level: {minimum_level}."
+        return f"Choose: {label}."
+
+    def _choose_claim_skill(row: dict) -> Optional[str]:
+        options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
+        minimum_level = int(row.get("minimum_level", 1) or 1)
+        eligible = [skill_id for skill_id in options if _skill_level(skill_id) >= minimum_level]
+        if not eligible:
+            QMessageBox.warning(claims_box, "No eligible skill", f"This lamp requires level {minimum_level} in an allowed skill.")
+            return None
+        labels = [_skill_display(skill_id) for skill_id in eligible]
+        choice, ok = QInputDialog.getItem(claims_box, "Claim XP lamp", "Skill:", labels, 0, False)
+        if not ok:
+            return None
+        try:
+            return eligible[labels.index(choice)]
+        except ValueError:
+            return None
+
     def _populate_claims() -> None:
         _clear_layout(claims_layout)
         rows = claim_rows_pure(player_data, CLAIM_DATA)
@@ -3029,7 +3073,12 @@ def show_main_menu(
             crl.setContentsMargins(0, 0, 0, 0)
             crl.setSpacing(8)
             item_name = str(row.get("item_name", row.get("display_name", "")))
-            label = QLabel(f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}")
+            claim_type = str(row.get("claim_type", "item"))
+            if claim_type == "xp_lamp":
+                label = QLabel(str(row.get("display_name", item_name)))
+                label.setToolTip(_claim_skill_tooltip(row))
+            else:
+                label = QLabel(f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}")
             label.setStyleSheet("color: palette(text);")
             claim_btn = QPushButton("Claim")
             locked = tuple(row.get("locked_reasons", ()))
@@ -3041,11 +3090,19 @@ def show_main_menu(
                 claim_btn.setEnabled(False)
                 if locked:
                     claim_btn.setToolTip("Requires: " + ", ".join(str(reason) for reason in locked))
+            elif claim_type == "xp_lamp":
+                claim_btn.setText("Choose skill")
+                claim_btn.setToolTip(_claim_skill_tooltip(row))
 
-            def _do_claim(_checked: bool = False, claim_id=row.get("claim_id")) -> None:
+            def _do_claim(_checked: bool = False, claim_id=row.get("claim_id"), claim_row=row) -> None:
                 if on_claim_reward is None or not isinstance(claim_id, str):
                     return
-                if on_claim_reward(claim_id):
+                selected_skill_id = None
+                if str(claim_row.get("claim_type", "item")) == "xp_lamp":
+                    selected_skill_id = _choose_claim_skill(claim_row)
+                    if selected_skill_id is None:
+                        return
+                if on_claim_reward(claim_id, selected_skill_id):
                     _populate_claims()
                     _refresh_equipment_views()
 

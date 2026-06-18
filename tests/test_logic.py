@@ -1118,6 +1118,20 @@ class TestLogic(unittest.TestCase):
             (),
         )
 
+    def test_shilo_village_gates_current_gem_rocks_target(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "mining", "gem_rocks", QUEST_UNLOCK_RULES),
+            ("Shilo Village",),
+        )
+
+        player_data["quests"]["shilo_village"] = {"started": True, "progress": 7, "completed": True}
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "mining", "gem_rocks", QUEST_UNLOCK_RULES),
+            (),
+        )
+
     def test_wicked_hood_claim_requires_rune_mysteries_and_runecrafting_level_5(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         rows = claim_rows_pure(player_data, CLAIM_DATA)
@@ -1133,6 +1147,38 @@ class TestLogic(unittest.TestCase):
         claimed_again, ok = apply_claim_pure(claimed_data, "wicked_hood", CLAIM_DATA)
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Wicked hood"], 1)
+
+    def test_quest_completion_grants_generated_item_rewards(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        data, progressed, completed = apply_quest_progress_pure(player_data, "cooks_assistant", QUEST_DATA)
+        self.assertTrue(progressed)
+        self.assertFalse(completed)
+        data, progressed, completed = apply_quest_progress_pure(data, "cooks_assistant", QUEST_DATA)
+
+        self.assertTrue(progressed)
+        self.assertTrue(completed)
+        self.assertEqual(data["quest_points"], 1)
+        self.assertEqual(data["inventory"]["Coins"], 500)
+        self.assertEqual(data["inventory"]["Sardine"], 20)
+        self.assertEqual(data["cooking_exp"], 300.0)
+
+    def test_xp_lamp_claim_grants_chosen_skill_or_parks_unimplemented_skill(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["mining_level"] = 30
+        player_data["quests"]["one_small_favour"] = {"started": True, "progress": 7, "completed": True}
+        claimed_data, ok = apply_claim_pure(player_data, "one_small_favour_xp_lamp_1", CLAIM_DATA, "mining")
+
+        self.assertTrue(ok)
+        self.assertEqual(claimed_data["mining_exp"], player_data["mining_exp"] + 10000)
+        self.assertTrue(claimed_data["claims"]["one_small_favour_xp_lamp_1"]["claimed"])
+
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["stolen_hearts"] = {"started": True, "progress": 3, "completed": True}
+        claimed_data, ok = apply_claim_pure(player_data, "stolen_hearts_xp_lamp_2", CLAIM_DATA, "agility")
+
+        self.assertTrue(ok)
+        self.assertEqual(claimed_data["pending_skill_exp_rewards"]["agility_exp"], 250.0)
+        self.assertTrue(claimed_data["claims"]["stolen_hearts_xp_lamp_2"]["claimed"])
 
     def test_standard_runecrafting_uses_talisman_capacity_and_prefers_rune_essence(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

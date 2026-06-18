@@ -23,14 +23,27 @@ pattern.
 ## Implementation Status - 2026-06-17
 
 The broad quest catalog is now implemented in the live add-on. `quest_data.py`
-builds `QUESTS` from generated `quest_catalog_generated.py` data covering 185
-RuneScape quests available before the 2012-11-20 Evolution of Combat release.
-The generator is `tools/build_pre_eoc_quest_catalog.py`; it caches old
-RuneScape Wiki revisions under `tools/.cache/`, includes quests that only
+builds `QUESTS` from generated `quest_catalog_generated.py` data covering 194
+pre-EOC quest rows: every RuneScape quest available before the 2012-11-20
+Evolution of Combat release, with Recipe for Disaster split into its 10
+subquests. The generator is `tools/build_pre_eoc_quest_catalog.py`; it caches
+old RuneScape Wiki revisions under `tools/.cache/`, includes quests that only
 became `former` after EOC, excludes pre-EOC replacements, and records per-quest
-source oldids, release order, requirements, quest-point rewards, and XP rewards.
-Do not hand-edit the generated catalog; update the generator or the override
-layer.
+source oldids, release order, requirements, quest-point rewards, XP rewards,
+item rewards, XP lamp rewards, unlock text, and journal stages. Do not hand-edit
+the generated catalog; update the generator or the override layer.
+
+Journals are source-backed for every generated quest row. The source priority is
+local 2011Scape `QuestStage` text, then RuneScape Wiki quick-guide checklist
+stages, then oldid walkthrough prose when a quick guide does not exist. Black
+Knights' Fortress currently uses the walkthrough-prose fallback because the wiki
+has no quick-guide subpage for the historical/current title.
+
+All quest rewards should be brought in. Direct item rewards register as
+inventory items and are granted on quest completion. XP lamps are flattened into
+Bank Claims with the source quantity, amount, allowed skill options, and minimum
+level preserved; the UI intentionally uses one `Choose skill` flow instead of
+copying every historical quest-specific lamp/chatbox interface.
 
 The priority completion unlocks from this audit remain hand-audited overrides
 layered on top of the generated catalog: Rune Mysteries, Lost City, Tai Bwo
@@ -51,6 +64,7 @@ implemented locks are:
 | Legacy of Seergaze | Runecrafting `craft_blood_runes`, `bind_blood_tiara`, `feed_blood_talisman_to_hood`, `feed_blood_tiara_to_hood` |
 | Swan Song | Fishing `catch_monkfish` |
 | Tai Bwo Wannai Trio | Fishing `catch_karambwan` |
+| Shilo Village | Mining `gem_rocks` |
 
 Quest starts are strict. If a required skill is not implemented, or a
 prerequisite quest is incomplete or missing, the quest is impossible to start
@@ -97,10 +111,11 @@ Evidence:
   Mysteries and lists Rune Mysteries as the entry point to rune essence access:
   https://www.2011.rs/kb/runecrafting_the_basics
 
-## Implemented Content Missing Strong Quest Gates
+## Resolved Quest-Gate Candidates
 
-These are the best candidates for a first systematic migration after Rune
-Mysteries proves the quest data/state pattern.
+These audit candidates have been converted into completion gates. Generic route
+modeling still does not exist, but `gem_rocks` is deliberately treated as
+Shilo Village-locked for now by owner preference.
 
 | Quest | Skill | Implemented target/action IDs | Lock type | Why it should be gated |
 | --- | --- | --- | --- | --- |
@@ -111,6 +126,7 @@ Mysteries proves the quest data/state pattern.
 | Legacy of Seergaze | Runecrafting | `craft_blood_runes`, `bind_blood_tiara`, `feed_blood_talisman_to_hood`, `feed_blood_tiara_to_hood` | Completion unlock | The 2011 KB says blood runes require Legacy of Seergaze and locates the altar beneath Castle Drakan. |
 | Swan Song | Fishing | `catch_monkfish` | Completion unlock | `fishing_data.py:237-243` exposes monkfish. Raw monkfish can only be caught at Piscatoris Fishing Colony, which requires Swan Song completion. |
 | Tai Bwo Wannai Trio | Fishing | `catch_karambwan` | Partial-or-completion unlock | `fishing_data.py:244-251` exposes karambwan. Wiki evidence says catching raw karambwan requires at least partial Tai Bwo Wannai Trio completion. For AnkiScape's completion-only quest model, use full completion unless stage-aware quest state exists. |
+| Shilo Village | Mining | `gem_rocks` | Completion unlock | The generic AnkiScape target currently represents the useful gem-rock route. Use Shilo Village completion until a route/location model can distinguish Shilo from other gem-rock sources. |
 
 Source links:
 
@@ -124,6 +140,8 @@ Source links:
   https://runescape.fandom.com/wiki/Raw_monkfish
 - Raw karambwan:
   https://runescape.fandom.com/wiki/Raw_karambwan
+- Gem rock source used by the implementation:
+  https://runescape.wiki/w/Gem_rock?oldid=37044944
 
 ## Candidate Route Gates, Not Global Target Gates Yet
 
@@ -132,7 +150,6 @@ normal skill locks.
 
 | Quest or unlock | Current content | Current verdict | Reason |
 | --- | --- | --- | --- |
-| Shilo Village | Mining `gem_rocks` | Candidate route gate | Shilo Village surface gem mine requires Shilo Village, but gem rocks also exist in other locations in later eras. The current AnkiScape target is generic `gem_rocks`, not a Shilo-specific route. If we keep a global no-location model, leave it ungated. If we add mining locations, make Shilo mine route-locked. |
 | Priest in Peril / Nature Spirit | Fishing `catch_slimy_eel`; Cooking snail/eel rows; Utility snail gathering | Candidate route gate | Mort Myre access is quest-shaped, but slimy eels have alternate non-Morytania sources and Cooking from inventory should stay material-gated. Only route-specific gathering should care. |
 | The Fremennik Isles | Cooking `cook_yak`, Utility `scavenge_raw_yak_meat`, Firemaking `arctic_pine_logs` | Candidate route gate | Yak and arctic pine acquisition is Neitiznot/Fremennik Isles flavored. Cooking/burning from inventory should not be globally locked; source-real acquisition routes can be gated later. |
 | Karamja Diary / Shilo Village | Extra gem mine or diary access | Future route gate | Karamja hard diary grants underground gem mine access, but AnkiScape has no diary or location model. |
@@ -212,26 +229,25 @@ After backend lock reasons exist:
 ```text
 Create a Codex skill for AnkiScape quest-lock migrations. Read
 memory-bank/quest-unlock-audit-2026-06-17.md first. The skill must split backend
-and frontend work, add quest definitions before gates, separate completion
-unlock rules from route/location gates and quest-stage recipes, reuse
-quest_completed_pure for completion gates, update target-row lock reasons only
-after pure backend logic exists, add targeted unit/integration/Qt coverage, run
-the AnkiScape test pair, update the Memory Bank, and commit. The first pilot
-after Rune Mysteries should be Rune Mysteries -> Mining rune essence or the
-Runecrafting per-altar gates.
+and frontend work, add or correct quest definitions in the generator/override
+layer before gates, separate completion unlock rules from route/location gates
+and quest-stage recipes, reuse `quest_completed_pure` for completion gates,
+preserve strict quest starts for unimplemented skills, route generated XP lamps
+through Bank Claims, update target-row lock reasons only after pure backend
+logic exists, add targeted unit/integration/Qt coverage, run the AnkiScape test
+pair, update the Memory Bank, and commit.
 ```
 
-## Design Decisions To Grill Before Implementation
+## Resolved Design Decisions From This Pass
 
-1. Should quest-lock rules live beside `quest_data.py`, or beside each skill's
-   data module? Central registry is easier to audit; skill-local metadata is
-   easier to read while editing a skill.
-2. Do we accept completion-only approximation for partial quest unlocks such as
-   karambwan, or do we add stage-aware quest checks first?
-3. Do generic current targets represent "any valid route" or "the canonical
-   source route"? This decides whether `gem_rocks` stays ungated or becomes a
-   Shilo Village lock.
-4. Should route gates be modeled as future no-XP Utility/Activities acquisition
-   actions rather than direct skill target locks?
-5. Do FE lock reasons need a stable machine-readable `lock_kind="quest"` field,
-   or is display text enough for now?
+1. Quest-lock rules live centrally in `quest_data.py` via `QUEST_UNLOCK_RULES`.
+2. Partial quest unlocks use completion-only locks until stage-aware quest state
+   exists.
+3. `gem_rocks` is globally Shilo Village-gated until AnkiScape can model
+   mining routes/locations.
+4. Direct quest reward items and XP lamps are part of the generated reward
+   surface, not a later hand-authored LLM migration.
+5. XP lamps use one flattened Bank Claim interface with preserved skill options
+   and level requirements.
+6. Every generated quest row should have a source-backed journal/checklist stage
+   surface. Generated placeholder journals are a regression.

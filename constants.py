@@ -641,6 +641,7 @@ def _apply_equipment_metadata(extra_item_data):
 
 
 EXTRA_ITEM_DATA = _apply_equipment_metadata({
+    **QUEST_REWARD_ITEM_DATA,
     **WOODCUTTING_EXTRA_ITEM_DATA,
     **MINING_EXTRA_ITEM_DATA,
     **SMITHING_EXTRA_ITEM_DATA,
@@ -648,7 +649,6 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FISHING_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
-    **QUEST_REWARD_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,

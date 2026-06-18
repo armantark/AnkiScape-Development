@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pre-EOC Quest Catalog Second Pass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 32px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      background: var(--accent-glow);
+      color: #9ec1ff;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    h1 { font-size: clamp(2rem, 4vw, 3.25rem); line-height: 1; margin: 18px 0 12px; }
+    .subtitle { color: var(--text-dim); max-width: 840px; font-size: 1rem; line-height: 1.55; margin: 0 0 28px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0)), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      min-height: 230px;
+    }
+    .card h2 { margin: 8px 0 8px; font-size: 1.2rem; }
+    .card p { margin: 0 0 14px; color: var(--text-dim); line-height: 1.45; }
+    .priority { font: 600 0.68rem "JetBrains Mono", monospace; text-transform: uppercase; }
+    .critical { color: var(--red); }
+    .major { color: var(--amber); }
+    .medium { color: var(--green); }
+    .polish { color: var(--purple); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    code, .tag {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--surface-2);
+      color: #bfd4ff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 7px;
+      font-size: 0.72rem;
+    }
+    .mock {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid #263044;
+      border-radius: 8px;
+      padding: 9px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.025);
+    }
+    .row:last-child { margin-bottom: 0; }
+    .row small { color: var(--text-dim); font-family: "JetBrains Mono", monospace; }
+    .chip {
+      border-radius: 999px;
+      padding: 3px 8px;
+      background: rgba(74, 222, 128, 0.13);
+      color: #9cf7bd;
+      font: 600 0.68rem "JetBrains Mono", monospace;
+      white-space: nowrap;
+    }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #111620; }
+    .pane strong { display: block; margin-bottom: 8px; font: 600 0.68rem "JetBrains Mono", monospace; color: var(--text-dim); text-transform: uppercase; }
+    .line { height: 8px; border-radius: 99px; background: #344056; margin: 7px 0; }
+    .line.short { width: 58%; }
+    .line.mid { width: 76%; }
+    .line.full { width: 100%; }
+    .steps { margin-top: 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+    .step:last-child { border-bottom: 0; }
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-glow);
+      color: #9ec1ff;
+      font: 600 0.9rem "JetBrains Mono", monospace;
+    }
+    .step h3 { margin: 0 0 5px; font-size: 1rem; }
+    .step p { margin: 0; color: var(--text-dim); line-height: 1.45; }
+    @media (max-width: 900px) {
+      body { padding: 20px; }
+      .grid, .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Second pass plan</div>
+    <h1>Quest catalog moves from placeholders to authored progression.</h1>
+    <p class="subtitle">This pass tightens the broad pre-EOC quest import around the things the playable game now needs: source-backed journals, RFD subquests, complete reward records, and a simple claim-inbox path for constrained XP lamps.</p>
+
+    <section class="grid" aria-label="Implementation focus">
+      <article class="card">
+        <span class="priority critical">Critical</span>
+        <h2>Journals are real quest content.</h2>
+        <p>The current generated journal stages are generic. I am replacing that with scraped/parsed journal lines where the source exposes them, with explicit source notes when a fallback is used.</p>
+        <div class="split">
+          <div class="pane"><strong>Before</strong><div class="line short"></div><div class="line mid"></div><div class="line short"></div></div>
+          <div class="pane"><strong>After</strong><div class="line full"></div><div class="line mid"></div><div class="line full"></div></div>
+        </div>
+        <div class="tags"><span class="tag">quest_catalog_generated.py</span><span class="tag">quest_data.py</span></div>
+      </article>
+
+      <article class="card">
+        <span class="priority major">Major</span>
+        <h2>Recipe for Disaster is decomposed.</h2>
+        <p>RFD stops being one aggregate row. The cook intro, each freed guest, and the Culinaromancer fight become separate quest entries with their own requirements and rewards.</p>
+        <div class="mock">
+          <div class="row"><span>Recipe for Disaster: Helping the Cook</span><small>subquest</small></div>
+          <div class="row"><span>Recipe for Disaster: Freeing Pirate Pete</span><small>subquest</small></div>
+          <div class="row"><span>Recipe for Disaster: Defeating the Culinaromancer</span><small>finale</small></div>
+        </div>
+        <div class="tags"><span class="tag">tools/build_pre_eoc_quest_catalog.py</span></div>
+      </article>
+
+      <article class="card">
+        <span class="priority major">Major</span>
+        <h2>Rewards become claimable facts.</h2>
+        <p>Quest points, XP, direct items, unlock notes, and lamp rewards need to be stored separately. Direct XP still applies at quest completion; constrained lamps flow through Bank Claims.</p>
+        <div class="mock">
+          <div class="row"><span>Antique lamp</span><span class="chip">Pick skill</span></div>
+          <div class="row"><span>Wolfbane dagger</span><span class="chip">Item</span></div>
+          <div class="row"><span>Herblore XP</span><span class="chip">Pending if unbuilt</span></div>
+        </div>
+        <div class="tags"><span class="tag">logic_pure.py</span><span class="tag">ui.py</span><span class="tag">__init__.py</span></div>
+      </article>
+
+      <article class="card">
+        <span class="priority medium">Medium</span>
+        <h2>Quest locks stay strict.</h2>
+        <p>Prerequisite quests and unimplemented skills remain hard blockers. Route-only locks stay flat unless they control an implemented target, such as deciding whether the current gem-rock target is effectively Shilo Village.</p>
+        <div class="mock">
+          <div class="row"><span>Combat requirement</span><small>blocks start</small></div>
+          <div class="row"><span>Unbuilt skill requirement</span><small>blocks start</small></div>
+          <div class="row"><span>Pure location note</span><small>not global gate</small></div>
+        </div>
+        <div class="tags"><span class="tag">quest_data.py</span><span class="tag">mining_data.py</span></div>
+      </article>
+    </section>
+
+    <section class="steps" aria-label="Backend and frontend sequence">
+      <div class="step"><div class="num">1</div><div><h3>Backend audit and generator changes</h3><p>Teach the generator to emit journals, direct item rewards, lamp definitions, and RFD subquest rows without hand-editing the generated catalog.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h3>Pure reward mechanics</h3><p>Extend claim rows and claim application so item claims and XP lamp claims share the inbox while preserving one-time state and deferred XP behavior.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h3>Frontend claim and journal surfaces</h3><p>Keep the UI compact: collapsible journals for long quest lists and a small skill picker for lamps rather than reproducing every historical reward interface.</p></div></div>
+      <div class="step"><div class="num">4</div><div><h3>Tests, Memory Bank, commit</h3><p>Add signal tests for catalog integrity, RFD decomposition, reward items, lamps, strict locks, and Qt claim behavior before updating project notes and committing.</p></div></div>
+    </section>
+  </main>
+</body>
+</html>

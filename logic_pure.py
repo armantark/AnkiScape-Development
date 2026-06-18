@@ -812,6 +812,23 @@ def _apply_quest_xp_rewards(data, quest):
     }
 
 
+def _apply_skill_xp_reward(data, skill_id, amount):
+    skill = get_skill(skill_id)
+    exp_key = skill.exp_key if skill is not None else f"{skill_id}_exp"
+    implemented_exp_keys = _implemented_exp_keys()
+    if exp_key in implemented_exp_keys and skill is not None and skill.implemented:
+        data[exp_key] = data.get(exp_key, 0) + amount
+        return
+    pending = data.get("pending_skill_exp_rewards", {})
+    if not isinstance(pending, Mapping):
+        pending = {}
+    clean_pending = dict(pending)
+    clean_pending[exp_key] = float(clean_pending.get(exp_key, 0) or 0) + amount
+    data["pending_skill_exp_rewards"] = {
+        key: value for key, value in clean_pending.items() if value > 0
+    }
+
+
 def quest_journal_rows_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
     if not quest:
@@ -850,7 +867,7 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     if required_quest and not quest_completed_pure(player_data, str(required_quest)):
         reasons.append("quest")
     required_level = _positive_int(claim.get("required_runecrafting_level", 1), 1)
-    if _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
+    if required_level > 1 and _positive_int(player_data.get("runecrafting_level", 1), 1) < required_level:
         reasons.append(f"Runecrafting level {required_level}")
     return tuple(reasons)
 
@@ -865,8 +882,12 @@ def claim_rows_pure(player_data, claim_data):
             {
                 "claim_id": claim_id,
                 "display_name": claim.get("display_name", claim_id),
+                "claim_type": claim.get("claim_type", "item"),
                 "item_name": claim.get("item_name", claim_id),
                 "quantity": _positive_int(claim.get("quantity", 1), 1),
+                "xp_amount": float(claim.get("xp_amount", 0) or 0),
+                "skill_options": tuple(claim.get("skill_options", ()) or ()),
+                "minimum_level": _positive_int(claim.get("minimum_level", 1), 1),
                 "eligible": eligible,
                 "claimed": claimed,
                 "locked_reasons": reasons,
@@ -875,16 +896,38 @@ def claim_rows_pure(player_data, claim_data):
     return tuple(rows)
 
 
-def apply_claim_pure(player_data, claim_id, claim_data):
+def _skill_level_for_reward(player_data, skill_id):
+    skill = get_skill(skill_id)
+    level_key = skill.level_key if skill is not None else f"{skill_id}_level"
+    return _positive_int(player_data.get(level_key, 1), 1)
+
+
+def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
     if claim_locked_reasons_pure(player_data, claim_id, claim_data):
         return player_data, False
     claim = claim_data.get(claim_id)
     if not claim:
         return player_data, False
     data = _copy_player_data_with_nested(player_data)
-    item_name = str(claim.get("item_name", claim_id))
-    quantity = _positive_int(claim.get("quantity", 1), 1)
-    data["inventory"][item_name] = data["inventory"].get(item_name, 0) + quantity
+    claim_type = str(claim.get("claim_type", "item"))
+    if claim_type == "xp_lamp":
+        skill_id = selected_skill_id
+        if not isinstance(skill_id, str):
+            return player_data, False
+        skill_options = tuple(claim.get("skill_options", ()) or ())
+        if skill_options and skill_id not in skill_options:
+            return player_data, False
+        minimum_level = _positive_int(claim.get("minimum_level", 1), 1)
+        if _skill_level_for_reward(player_data, skill_id) < minimum_level:
+            return player_data, False
+        amount = float(claim.get("xp_amount", 0) or 0)
+        if amount <= 0:
+            return player_data, False
+        _apply_skill_xp_reward(data, skill_id, amount)
+    else:
+        item_name = str(claim.get("item_name", claim_id))
+        quantity = _positive_int(claim.get("quantity", 1), 1)
+        data["inventory"][item_name] = data["inventory"].get(item_name, 0) + quantity
     data.setdefault("claims", {}).setdefault(claim_id, {})["claimed"] = True
     return data, True
 

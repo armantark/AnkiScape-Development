@@ -8,7 +8,7 @@
 - Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
 - Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, and Runecrafting exist.
 - Rune Mysteries exists as a review-driven Quest action that unlocks Runecrafting.
-- The Quest catalog now contains all 185 RuneScape quests available before the 2012-11-20 EOC cutoff, generated from source-backed RuneScape Wiki old revisions with hand-audited overrides for unlock-critical quests.
+- The Quest catalog now contains 194 pre-EOC quest rows: all RuneScape quests available before the 2012-11-20 EOC cutoff, with Recipe for Disaster split into its 10 subquests. It is generated from source-backed RuneScape Wiki old revisions plus local 2011Scape journal text where available.
 - Items are stored in a shared inventory/bank.
 - Level-up and achievement flows exist.
 - Review HUD, floating XP, floating widget, main menu, stats, bank, settings, and achievements are present.
@@ -30,6 +30,7 @@
 - Fishing v1 is in place: source-backed `fishing_data.py`, stable `current_fishing` method IDs, storage config version 13 migration/defaults, review-scale catch chances, ordered mixed-output rolls, success-only material consumption, hidden Strength/Agility side XP for Barbarian fish, generic Fishing achievements, dedicated fish/material assets, a `fish` item category, and Gathering hub/Stats/Bank/HUD support.
 - Cooking v1 is in place: source-backed `cooking_data.py`, stable `current_cooking` target IDs, storage config version 14 migration/defaults, review-scale cook/burn chances, burn failures that consume raw inputs and produce burnt items, generic Cooking achievements, beef/bear sinew secondary targets, dedicated Cooking assets, a `food` item category, grouped Cooking target UI, grouped Utility/Activities prep UI, and confirmed Bank `Discard all` for every item.
 - Runecrafting v1 is in place: source-backed `runecrafting_data.py`, stable `current_runecrafting` target IDs, storage config version 15 migration/defaults, Rune Mysteries quest unlock, standard/combination rune crafting, tiara binding, Wicked hood claim/feed access, pouch capacity/degradation, Binding necklace charge counter, achievements, dedicated assets, a `runecrafting` item category, grouped Runecrafting target UI, Quests tab, Bank Claims, Stats/Bank/HUD support, action multiplier support, and undo rollback.
+- The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -194,21 +195,25 @@ Stats, Bank, and HUD. The source audit is
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 317 tests.
 
-Full pre-EOC Quest catalog completed on 2026-06-17. `tools/build_pre_eoc_quest_catalog.py`
-generates `quest_catalog_generated.py` with 185 quests available before the
-2012-11-20 Evolution of Combat cutoff, using cached RuneScape Wiki old revisions
-plus a current-page fallback only when old pages lack expanded quest requirement
-tables. `quest_data.py` imports that generated catalog and layers hand-audited
-overrides for Rune Mysteries, Lost City, Tai Bwo Wannai Trio, Mourning's End
-Part II, Swan Song, Lunar Diplomacy, and Legacy of Seergaze. Strict quest starts
-now block on incomplete prerequisite quests and on unimplemented required skills;
-generated XP rewards for unimplemented skills are parked in
-`pending_skill_exp_rewards`. The Quests tab renders the full catalog as
-collapsed sortable cards and now sorts release order by generated real-game
-order, not same-date alphabetical fallback. Verification: `python3 run_tests.py`
-passes with 331 tests (80 skipped), and
+Full pre-EOC Quest catalog second pass completed on 2026-06-17.
+`tools/build_pre_eoc_quest_catalog.py` generates `quest_catalog_generated.py`
+with 194 quest rows available before the 2012-11-20 Evolution of Combat cutoff,
+counting Recipe for Disaster as 10 separate subquests. The generated catalog
+uses cached RuneScape Wiki old revisions, local 2011Scape `QuestStage`
+journals where available, quick-guide checklist stages for most quests, and a
+source-page walkthrough fallback for Black Knights' Fortress so no quest ships
+with generated placeholder journals. `quest_data.py` imports the generated
+catalog, predeclares generated item rewards, and turns XP lamp rewards into
+Bank Claims with preserved skill choices and minimum-level requirements.
+Strict quest starts block on incomplete prerequisite quests and on
+unimplemented required skills; XP rewards for unimplemented skills are parked
+in `pending_skill_exp_rewards`. The Quests tab renders the full catalog as
+collapsed sortable cards and sorts release order by real-game release order.
+Shilo Village now gates the generic Mining `gem_rocks` target by owner choice
+until a route/location model exists. Verification: `python3 run_tests.py`
+passes with 336 tests (80 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passes with 331 tests.
+passes with 336 tests.
 
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
@@ -221,7 +226,8 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Cooking follow-ups: broader source-backed acquisition routes for remaining prep materials, only if explicitly prioritized.
 - Runecrafting follow-ups: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes, only if explicitly prioritized.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
-  records the completed 185-quest pre-EOC catalog, implemented completion gates,
-  and route/location checks that should stay ungated until a route model exists.
+  records the completed 194-row pre-EOC catalog, implemented completion gates,
+  the RFD subquest split, generated item/lamp rewards, and route/location checks
+  that should stay ungated until a route model exists.
   Use it before stage-aware partial unlocks, route/location gates, or new
   quest-unlocked skill targets.
