@@ -3,10 +3,17 @@ import unittest
 
 from constants import (
     BIRD_NEST_OPEN_TABLES,
+    BAR_IMAGES,
+    COOKING_DATA,
+    COOKING_ITEM_IMAGES,
+    CRAFTED_ITEM_IMAGES,
+    CRAFTING_DATA,
+    DEFAULT_COOKING_TARGET,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
     DEFAULT_MINING_TARGET,
     DEFAULT_RUNECRAFTING_TARGET,
+    DEFAULT_SMITHING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
     DEFAULT_WOODCUTTING_TARGET,
     FIREMAKING_DATA,
@@ -23,6 +30,7 @@ from constants import (
     RUNECRAFTING_DATA,
     RUNECRAFTING_ITEM_IMAGES,
     RUNECRAFTING_POUCH_DATA,
+    SMITHING_DATA,
     TREE_DATA,
     TREE_IMAGES,
     UTILITY_ACTIVITY_DATA,
@@ -31,11 +39,14 @@ from constants import (
 )
 from target_metadata import (
     TargetRowMetadata,
+    cooking_target_rows,
+    crafting_target_rows,
     firemaking_target_rows,
     fishing_target_rows,
     fletching_target_rows,
     mining_target_rows,
     runecrafting_target_rows,
+    smithing_target_rows,
     utility_activity_rows,
     woodcutting_target_rows,
 )
@@ -49,6 +60,93 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_smithing_grouped_rows_preserve_tier_sort_and_lock_reasons(self):
+        rows = smithing_target_rows(
+            {
+                "smithing_level": 33,
+                "inventory": {},
+                "current_smith": "smelt_bronze_bar",
+            },
+            SMITHING_DATA,
+            BAR_IMAGES,
+            DEFAULT_SMITHING_TARGET,
+        )
+
+        bronze = _row(rows, "smelt_bronze_bar")
+        rune_platebody = _row(rows, "forge_rune_platebody")
+
+        self.assertEqual(bronze.group, "Bronze")
+        self.assertTrue(bronze.current)
+        self.assertFalse(bronze.enabled)
+        self.assertIn("materials", bronze.locked_reasons)
+        self.assertIn("Copper ore x1 (you have 0)", bronze.tooltip)
+        self.assertEqual(bronze.sort_key[:2], (1, 0))
+        self.assertFalse(rune_platebody.enabled)
+        self.assertIn("level 99", rune_platebody.locked_reasons)
+        self.assertNotIn("hammer", bronze.tooltip.lower())
+
+    def test_crafting_grouped_rows_preserve_family_material_locks_and_live_targets(self):
+        rows = crafting_target_rows(
+            {
+                "crafting_level": 99,
+                "inventory": {},
+                "current_craft": "cut_dragonstone",
+            },
+            CRAFTING_DATA,
+            CRAFTED_ITEM_IMAGES,
+        )
+
+        dragonstone = _row(rows, "cut_dragonstone")
+        gold_ring = _row(rows, "jewellery_gold_ring")
+
+        self.assertEqual(dragonstone.group, "gems")
+        self.assertTrue(dragonstone.current)
+        self.assertFalse(dragonstone.enabled)
+        self.assertEqual(dragonstone.locked_reasons, ("materials",))
+        self.assertIn("Uncut dragonstone", dragonstone.tooltip)
+        self.assertNotIn("input-starved", dragonstone.label.lower())
+        self.assertNotIn("coming soon", dragonstone.tooltip.lower())
+        self.assertEqual(gold_ring.group, "jewellery")
+
+    def test_cooking_grouped_rows_apply_quest_unlock_rules_once(self):
+        player_data = {
+            "cooking_level": 99,
+            "inventory": {"Slimy eel": 1, "Raw yak meat": 1},
+            "quests": {},
+            "current_cooking": "cook_slimy_eel",
+        }
+        rows = cooking_target_rows(
+            player_data,
+            COOKING_DATA,
+            COOKING_ITEM_IMAGES,
+            DEFAULT_COOKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        slimy_eel = _row(rows, "cook_slimy_eel")
+        yak = _row(rows, "cook_yak")
+        self.assertEqual(slimy_eel.group, "eels")
+        self.assertTrue(slimy_eel.current)
+        self.assertFalse(slimy_eel.enabled)
+        self.assertEqual(slimy_eel.locked_reasons, ("Priest in Peril",))
+        self.assertIn("Locked due to: Priest in Peril", slimy_eel.tooltip)
+        self.assertFalse(yak.enabled)
+        self.assertEqual(yak.locked_reasons, ("The Fremennik Isles",))
+
+        player_data["quests"] = {
+            "priest_in_peril": {"started": True, "progress": 6, "completed": True},
+            "the_fremennik_isles": {"started": True, "progress": 6, "completed": True},
+        }
+        unlocked_rows = cooking_target_rows(
+            player_data,
+            COOKING_DATA,
+            COOKING_ITEM_IMAGES,
+            DEFAULT_COOKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked_rows, "cook_slimy_eel").enabled)
+        self.assertTrue(_row(unlocked_rows, "cook_yak").enabled)
+
     def test_mining_rows_preserve_current_icon_and_deferred_note_contract(self):
         rows = mining_target_rows(
             {
@@ -270,6 +368,9 @@ class TargetMetadataTest(unittest.TestCase):
         )
         cosmic = _row(rows, "craft_cosmic_runes")
         self.assertFalse(cosmic.enabled)
+        self.assertEqual(cosmic.locked_reasons, ("Lost City",))
+        self.assertEqual(cosmic.group, "standard")
+        self.assertEqual(cosmic.sort_key[:1], (27,))
         self.assertIn("Lost City", cosmic.tooltip)
 
         player_data["quests"]["lost_city"] = {"started": True, "progress": 6, "completed": True}

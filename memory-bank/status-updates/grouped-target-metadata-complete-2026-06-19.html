@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grouped Target Metadata Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 28px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      font-family: "JetBrains Mono", monospace;
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.32);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: 0; }
+    p { color: var(--text-dim); line-height: 1.55; margin: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      margin-top: 22px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .wide { grid-column: 1 / -1; }
+    .label {
+      display: inline-flex;
+      align-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+    .label.green { color: var(--green); }
+    .label.amber { color: var(--amber); }
+    h2 { font-size: 1.08rem; margin: 0 0 10px; letter-spacing: 0; }
+    .matrix {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .skill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 118px;
+    }
+    .skill strong { display: block; margin-bottom: 8px; }
+    .pill {
+      display: inline-flex;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 7px;
+      margin: 0 4px 6px 0;
+      background: rgba(255,255,255,0.03);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .box {
+      position: relative;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 108px;
+    }
+    .box:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      right: -11px;
+      top: 50%;
+      width: 12px;
+      border-top: 1px solid var(--accent);
+      opacity: 0.6;
+    }
+    .mono { font-family: "JetBrains Mono", monospace; font-size: 0.74rem; color: var(--text-dim); }
+    .tests {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .test {
+      border: 1px solid rgba(74,222,128,0.35);
+      background: rgba(74,222,128,0.08);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .test .num { font-size: 1.4rem; color: var(--green); font-weight: 700; }
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .grid, .matrix, .flow, .tests { grid-template-columns: 1fr; }
+      .box::after { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETED</span>
+    <h1>Grouped Target Metadata Cleanup</h1>
+    <p>Smithing, Crafting, Cooking, and Runecrafting now share the same pure grouped-row metadata path before Qt renders the tree. The behavior stayed stable: same save keys, same grouped appearance, same inert locked rows, same quest/material/level gates.</p>
+
+    <section class="grid" aria-label="Completion details">
+      <article class="card wide">
+        <div class="label green">Contract Flow</div>
+        <h2>One path from data to rendered tree</h2>
+        <div class="flow">
+          <div class="box"><strong>Skill data</strong><p class="mono">smithing_data.py<br>crafting_data.py<br>cooking_data.py<br>runecrafting_data.py</p></div>
+          <div class="box"><strong>Lock helpers</strong><p class="mono">level<br>materials<br>quest names</p></div>
+          <div class="box"><strong>Target metadata</strong><p class="mono">label<br>tooltip<br>group<br>sort key</p></div>
+          <div class="box"><strong>Shared renderer</strong><p class="mono">QTreeWidget<br>icons<br>disabled guard</p></div>
+          <div class="box"><strong>Player surface</strong><p class="mono">same grouped UI<br>same inert rows</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label">Migrated Trees</div>
+        <h2>Grouped skills now use metadata</h2>
+        <div class="matrix">
+          <div class="skill"><strong>Smithing</strong><span class="pill">metal tier</span><span class="pill">level/material</span><span class="pill">persisted expand</span></div>
+          <div class="skill"><strong>Crafting</strong><span class="pill">family</span><span class="pill">live high-tier rows</span><span class="pill">persisted expand</span></div>
+          <div class="skill"><strong>Cooking</strong><span class="pill">family</span><span class="pill">quest locks</span><span class="pill">burn output</span></div>
+          <div class="skill"><strong>Runecrafting</strong><span class="pill">altar group</span><span class="pill">quest locks</span><span class="pill">hood/feed rows</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label amber">Scope Held</div>
+        <h2>No gameplay churn</h2>
+        <p>No recipe data, assets, storage migration, XP math, item rewards, quest rules, or action-multiplier behavior changed. This was only the metadata and rendering boundary.</p>
+      </article>
+
+      <article class="card wide">
+        <div class="label green">Verification</div>
+        <h2>Full suites passed</h2>
+        <div class="tests">
+          <div class="test"><div class="num">345</div><p>`python3 run_tests.py` passed, with 83 Qt skips in the non-Qt environment.</p></div>
+          <div class="test"><div class="num">345</div><p>Offscreen Qt discovery passed with `.venv-qt` and `QT_QPA_PLATFORM=offscreen`.</p></div>
+          <div class="test"><div class="num">14</div><p>Pure target metadata tests now cover grouped Smithing, Crafting, Cooking, and Runecrafting rows.</p></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

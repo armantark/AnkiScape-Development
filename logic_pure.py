@@ -146,6 +146,28 @@ def can_smith_item_pure(smithing_level, inventory, target, smithing_data):
     return has_smithing_materials_pure(target, inventory, smithing_data)
 
 
+def smithing_target_locked_reasons_pure(player_data, target, smithing_data, quest_unlock_rules=()):
+    spec = smithing_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    smithing_level = _positive_int(player_data.get("smithing_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if smithing_level < required_level:
+        reasons.append(f"level {required_level}")
+    if not has_smithing_materials_pure(target, player_data.get("inventory", {}) or {}, smithing_data):
+        reasons.append("materials")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "smithing",
+            target,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
+
+
 def can_smith_any_pure(inventory, smithing_level, smithing_data):
     """Return True if any smelt or forge recipe can run right now."""
     return any(
@@ -1733,6 +1755,28 @@ def can_craft_item_pure(crafting_level, inventory, item, crafting_data):
     if crafting_level < spec.get("level", 1):
         return False
     return has_crafting_materials_pure(item, inventory, crafting_data)
+
+
+def crafting_target_locked_reasons_pure(player_data, target, crafting_data, quest_unlock_rules=()):
+    spec = crafting_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    crafting_level = _positive_int(player_data.get("crafting_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if crafting_level < required_level:
+        reasons.append(f"level {required_level}")
+    if not has_crafting_materials_pure(target, player_data.get("inventory", {}) or {}, crafting_data):
+        reasons.append("materials")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "crafting",
+            target,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
 
 
 def has_fletching_materials_pure(target, inventory, fletching_data):

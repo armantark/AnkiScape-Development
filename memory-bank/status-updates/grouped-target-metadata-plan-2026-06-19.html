@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grouped Target Metadata Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 28px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      font-family: "JetBrains Mono", monospace;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      letter-spacing: 0;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: 0; }
+    p { color: var(--text-dim); line-height: 1.55; margin: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: rgba(79, 140, 255, 0.45); }
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .label.high { color: var(--amber); }
+    .label.major { color: var(--accent); }
+    .label.safe { color: var(--green); }
+    .label.polish { color: var(--purple); }
+    h2 { font-size: 1.08rem; margin: 0 0 10px; letter-spacing: 0; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.65rem;
+    }
+    .mock {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .pane {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 142px;
+    }
+    .pane-title {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--text-dim);
+      font-size: 0.65rem;
+      margin-bottom: 9px;
+    }
+    .node {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 9px;
+      margin: 6px 0;
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+      font-size: 0.8rem;
+    }
+    .node.dim { color: var(--text-dim); }
+    .node.locked { border-color: rgba(251,191,36,0.35); color: #d7c383; }
+    .node.current { border-color: rgba(74,222,128,0.45); background: rgba(74,222,128,0.08); }
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent);
+      display: grid;
+      place-items: center;
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+      color: white;
+      font-size: 0.78rem;
+    }
+    .step strong { display: block; margin-bottom: 2px; }
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .grid, .mock { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+    <h1>Grouped Target Metadata Cleanup</h1>
+    <p>Move Smithing, Crafting, Cooking, and Runecrafting grouped tree rows behind one pure metadata contract while preserving flat save keys, row appearance, disabled-row inertness, and quest/material/level lock behavior.</p>
+
+    <section class="grid" aria-label="Implementation plan">
+      <article class="card">
+        <div class="label high">Backend Contract</div>
+        <h2>Compute lock reasons once</h2>
+        <p>Grouped rows should carry their label, tooltip, icon, group key, current state, and locked reasons before Qt sees them. Smithing and Crafting get pure locked-reason helpers; Cooking and Runecrafting reuse the existing quest-aware helpers.</p>
+        <div class="tags">
+          <span class="tag">target_metadata.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">quest_data.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label major">Frontend Migration</div>
+        <h2>Qt renders, it does not decide</h2>
+        <p>The tree builder will translate grouped metadata into parent/child `QTreeWidgetItem`s, leaving expand/collapse persistence and active-target auto-expand intact.</p>
+        <div class="mock" aria-label="Before and after tree mockup">
+          <div class="pane">
+            <div class="pane-title">BEFORE</div>
+            <div class="node current">Bronze (local group)</div>
+            <div class="node locked">Bronze bar computes material lock in UI</div>
+            <div class="node locked">Rune platebody computes level lock in UI</div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">AFTER</div>
+            <div class="node current">Bronze (metadata group)</div>
+            <div class="node locked">Bronze bar renders metadata lock</div>
+            <div class="node locked">Rune platebody renders metadata lock</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">QTreeWidget</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label safe">Verification</div>
+        <h2>Pure tests first, Qt behavior second</h2>
+        <p>Targeted tests should prove grouped metadata preserves stable IDs, group keys, lock reasons, tooltips, and disabled-row selection guards, then the existing full suites provide regression coverage.</p>
+        <div class="flow">
+          <div class="step"><span class="num">1</span><div><strong>Metadata tests</strong><p>Smithing, Crafting, Cooking, Runecrafting grouped rows.</p></div></div>
+          <div class="step"><span class="num">2</span><div><strong>Qt tests</strong><p>Tree rows remain inert while tooltips show concise lock reasons.</p></div></div>
+          <div class="step"><span class="num">3</span><div><strong>Full suites</strong><p>`python3 run_tests.py` and offscreen Qt discovery.</p></div></div>
+        </div>
+        <div class="tags">
+          <span class="tag">tests/test_target_metadata.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label polish">Scope Guard</div>
+        <h2>No new gameplay content</h2>
+        <p>This slice should not add recipes, assets, XP math, storage migrations, or quest rows. It is a metadata cleanup for already-live trees, especially the post-Cooking/Runecrafting lock propagation paths.</p>
+        <div class="tags">
+          <span class="tag">no storage migration</span>
+          <span class="tag">no asset scrape</span>
+          <span class="tag">no XP rebalance</span>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

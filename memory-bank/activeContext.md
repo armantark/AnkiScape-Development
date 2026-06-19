@@ -298,6 +298,19 @@ Verification: `python3 run_tests.py` passed with 342 tests (83 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passed
 with 342 tests.
 
+P0 grouped target-tree metadata cleanup is complete on 2026-06-19. Smithing,
+Crafting, Cooking, and Runecrafting now build their grouped Skills-hub rows
+through `target_metadata.py` before Qt renders them. The shared grouped
+`QTreeWidget` renderer in `ui.py` preserves existing parent role ids,
+Smithing/Crafting expand-state persistence, Cooking/Runecrafting current-target
+auto-expand, icons, tooltips, disabled-row click guards, and flat save keys.
+`logic_pure.py` now owns Smithing/Crafting locked-reason helpers, so
+level/material/quest reasons are computed once for row metadata instead of
+being reconstructed inside Qt. No recipe data, XP math, storage migration, item
+rewards, or quest rules changed. Verification: `python3 run_tests.py` passed
+with 345 tests (83 skipped), and the offscreen Qt discovery suite passed with
+345 tests.
+
 ## Current Risks
 - Skill behavior is still spread through hardcoded branches and dictionaries.
 - Adding many skills before refactoring would likely multiply duplication.
@@ -312,9 +325,9 @@ with 342 tests.
 Use `memory-bank/future-work-kanban.md` as the current future-thread source of truth.
 
 1. **Continue P0 only if the owner wants another architecture slice**: the next
-   useful boundary is grouped Smithing/Crafting target-tree metadata or
-   decomposing the remaining `__init__.py` runtime orchestration, not repeating
-   review handler dispatch or flat target-row metadata.
+   useful boundary is decomposing the remaining `__init__.py` runtime
+   orchestration or achievement metadata, not repeating review handler
+   dispatch, flat target-row metadata, or grouped target-tree metadata.
 2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.

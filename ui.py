@@ -182,22 +182,28 @@ except Exception:
 try:
     from .target_metadata import (
         TargetRowMetadata,
+        cooking_target_rows,
+        crafting_target_rows,
         firemaking_target_rows,
         fishing_target_rows,
         fletching_target_rows,
         mining_target_rows,
         runecrafting_target_rows,
+        smithing_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
 except Exception:
     from target_metadata import (  # type: ignore
         TargetRowMetadata,
+        cooking_target_rows,
+        crafting_target_rows,
         firemaking_target_rows,
         fishing_target_rows,
         fletching_target_rows,
         mining_target_rows,
         runecrafting_target_rows,
+        smithing_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
@@ -1607,6 +1613,100 @@ def show_main_menu(
         target_list.itemActivated.connect(_on_target_selected)
         return target_list
 
+    def _item_asset_paths() -> dict:
+        return {
+            storage_key: definition.asset_path
+            for storage_key, definition in _ITEM_DEFS_BY_KEY.items()
+            if definition.asset_path
+        }
+
+    def _build_grouped_target_tree(
+        rows: tuple[TargetRowMetadata, ...],
+        group_labels: dict,
+        group_role_prefix: str,
+        on_select=None,
+        group_order: Optional[list] = None,
+        expanded_groups: Optional[set] = None,
+        set_group_expanded=None,
+    ) -> QTreeWidget:
+        tree = QTreeWidget()
+        tree.setHeaderHidden(True)
+        tree.setIconSize(QSize(28, 28))
+        tree.setRootIsDecorated(True)
+        tree.setIndentation(14)
+        tree.setUniformRowHeights(True)
+        tree.setStyleSheet(
+            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
+            " background: palette(base); color: palette(text); padding: 4px; }"
+            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
+            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+        )
+
+        ordered_groups = list(group_order or [])
+        groups: dict = {group: [] for group in ordered_groups}
+        for row in rows:
+            group = row.group or "other"
+            if group not in groups:
+                groups[group] = []
+                ordered_groups.append(group)
+            groups[group].append(row)
+
+        selected_child = None
+        expanded_groups = expanded_groups or set()
+        for group in ordered_groups:
+            group_rows = groups.get(group, [])
+            if not group_rows:
+                continue
+            label = group_labels.get(group, str(group).replace("_", " ").title())
+            parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
+            parent.setData(0, Qt.ItemDataRole.UserRole, f"{group_role_prefix}{group}")
+            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+            font = parent.font(0)
+            font.setBold(True)
+            parent.setFont(0, font)
+            tree.addTopLevelItem(parent)
+
+            group_has_current = False
+            for row in sorted(group_rows, key=lambda r: r.sort_key or (r.label,)):
+                child = QTreeWidgetItem([row.label])
+                child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
+                if row.icon_path and os.path.exists(row.icon_path):
+                    child.setIcon(0, QIcon(row.icon_path))
+                if not row.enabled:
+                    child.setDisabled(True)
+                child.setToolTip(0, row.tooltip)
+                parent.addChild(child)
+                if row.current:
+                    selected_child = child
+                    group_has_current = True
+            parent.setExpanded(group in expanded_groups or group_has_current)
+
+        if selected_child is not None:
+            tree.setCurrentItem(selected_child)
+
+        def _on_target_clicked(item: "QTreeWidgetItem", _column: int = 0):
+            if item is None or item.isDisabled():
+                return
+            target_id = item.data(0, Qt.ItemDataRole.UserRole)
+            if not target_id or str(target_id).startswith(group_role_prefix):
+                return
+            if on_select is not None:
+                on_select(target_id)
+
+        def _group_id(item: "QTreeWidgetItem") -> Optional[str]:
+            role = item.data(0, Qt.ItemDataRole.UserRole)
+            if isinstance(role, str) and role.startswith(group_role_prefix):
+                return role[len(group_role_prefix):]
+            return None
+
+        tree.itemClicked.connect(_on_target_clicked)
+        tree.itemActivated.connect(_on_target_clicked)
+        if set_group_expanded is not None:
+            tree.itemExpanded.connect(lambda it: (_group_id(it) and set_group_expanded(_group_id(it), True)))
+            tree.itemCollapsed.connect(lambda it: (_group_id(it) and set_group_expanded(_group_id(it), False)))
+        return tree
+
     def _build_ore_list() -> QListWidget:
         return _build_flat_target_list(
             mining_target_rows(
@@ -1634,320 +1734,46 @@ def show_main_menu(
             on_set_tree,
         )
 
-    def _smith_tier_of(spec: dict) -> str:
-        # Metal-type label that unifies a smelt bar with the forge items made from
-        # it: smelt rows use their bar output, forge rows use their (single) bar
-        # requirement. "Bronze bar" / "Rune bar" -> "Bronze" / "Rune".
-        if spec.get("station") == "furnace":
-            return str(spec.get("output_item", "")).replace(" bar", "").strip() or "Other"
-        reqs = spec.get("requirements", {}) or {}
-        return str(next(iter(reqs), "")).replace(" bar", "").strip() or "Other"
-
     def _build_smith_list() -> QTreeWidget:
-        # SMITHING_DATA is one unified table keyed by stable recipe IDs
-        # ("smelt_bronze_bar", "forge_rune_platebody", ...). With ~166 recipes a
-        # flat list is a wall of rows, so this is a QTreeWidget grouped by metal
-        # type (Bronze, Iron, ... Rune): each tier is a collapsible parent holding
-        # its smelt bar first, then the forge items made from it. Groups are
-        # collapsed by default and the expand/collapse state is persisted per tier
-        # (smith_expanded_tiers / set_smith_tier_expanded); the group holding the
-        # current target is always expanded so the selection stays visible.
-        #
-        # The chosen recipe ID lives on the child item and is persisted via
-        # on_set_smith; the legacy on_set_bar (bar-name setter) is a smelt-only
-        # fallback. Lock reasons come straight from can_smith_item_pure: level or
-        # missing inputs only (no hammer/tool gate — the toolbelt is gathering-only).
-        tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
-            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-            # Locked/disabled rows: dim_text_css, NOT palette(mid) (which is a
-            # border role and renders near-black/invisible in dark mode).
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
-        lvl_have = player_data.get("smithing_level", 1)
-        inv = player_data.get("inventory", {})
-        current = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
-        cur_spec = SMITHING_DATA.get(current)
-        cur_tier = _smith_tier_of(cur_spec) if cur_spec else None
-        expanded = smith_expanded_tiers()
-
-        def _icon_for(output_item: str):
-            # Bars resolve via the registry (built with BAR_IMAGES); forged items
-            # resolve via SMITHING_EXTRA_ITEM_IMAGES. A missing asset leaves the
-            # row text-only.
-            definition = _ITEM_DEFS_BY_KEY.get(output_item)
-            return (definition.asset_path if definition and definition.asset_path else None) or BAR_IMAGES.get(output_item)
-
-        def _make_child(recipe_id: str, spec: dict) -> "QTreeWidgetItem":
-            display_name = str(spec.get("display_name", spec.get("output_item", recipe_id)))
-            lvl_req = spec.get("level", 1)
-            output_item = str(spec.get("output_item", display_name))
-            output_qty = spec.get("output_qty", 1) or 1
-            reqs = spec.get("requirements", {}) or {}
-            station_word = "Smelt" if spec.get("station") == "furnace" else "Forge"
-
-            label = f"{display_name} (Lvl {lvl_req})"
-            if output_qty > 1:
-                label += f" — makes {output_qty}"
-            child = QTreeWidgetItem([label])
-            child.setData(0, Qt.ItemDataRole.UserRole, recipe_id)
-
-            icon_path = _icon_for(output_item)
-            if icon_path and os.path.exists(icon_path):
-                child.setIcon(0, QIcon(icon_path))
-
-            mat_lines = [f"  {mat} x{amt} (you have {inv.get(mat, 0)})" for mat, amt in reqs.items()]
-            mat_text = "\n".join(mat_lines) if mat_lines else "  none"
-            tooltip = (
-                f"{station_word} · requires Smithing level {lvl_req}. You have {lvl_have}.\n"
-                f"Output: {output_item} x{output_qty}\n"
-                f"Base XP: {spec.get('exp', 0)} per action\n"
-                f"Materials:\n{mat_text}"
-            )
-            if not can_smith_item_pure(lvl_have, inv, recipe_id, SMITHING_DATA):
-                child.setDisabled(True)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if any(inv.get(mat, 0) < amt for mat, amt in reqs.items()):
-                    reason.append("materials")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            child.setToolTip(0, tooltip)
-            return child
-
-        # Group recipes by metal tier, preserving the smelt-bar progression order
-        # (Bronze, Blurite, Iron, Silver, Steel, Gold, Mithril, Adamant, Rune)
-        # that SMITHING_DATA already lists smelt rows in.
-        order: list = []
-        groups: dict = {}
-        for recipe_id, spec in SMITHING_DATA.items():
-            tier = _smith_tier_of(spec)
-            if tier not in groups:
-                groups[tier] = []
-                order.append(tier)
-            groups[tier].append((recipe_id, spec))
-
-        selected_child = None
-        for tier in order:
-            parent = QTreeWidgetItem([f"{tier}  ({len(groups[tier])})"])
-            parent.setData(0, Qt.ItemDataRole.UserRole, f"__tier__:{tier}")
-            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)  # selectable-off; expand still works
-            font = parent.font(0)
-            font.setBold(True)
-            parent.setFont(0, font)
-            tree.addTopLevelItem(parent)
-            # Within a metal group, order by required level (then smelt before
-            # forge on ties so the bar leads, then name) — a low→high progression
-            # reads far better than the source/BarProducts emit order.
-            ordered = sorted(
-                groups[tier],
-                key=lambda rs: (
-                    rs[1].get("level", 1),
-                    0 if rs[1].get("station") == "furnace" else 1,
-                    str(rs[1].get("display_name", "")),
-                ),
-            )
-            for recipe_id, spec in ordered:
-                child = _make_child(recipe_id, spec)
-                parent.addChild(child)
-                if recipe_id == current:
-                    selected_child = child
-            # Collapsed by default; expanded if the user previously expanded this
-            # tier or it holds the current target. Set before connecting the
-            # expand/collapse signals so building doesn't rewrite persisted state.
-            parent.setExpanded(tier in expanded or tier == cur_tier)
-
-        if selected_child is not None:
-            tree.setCurrentItem(selected_child)
-
-        def _on_smith_clicked(item: "QTreeWidgetItem", _column: int = 0):
-            # Skip locked rows: itemClicked fires on disabled items, so a locked
-            # recipe would otherwise become active and fail the next review.
-            if item is None or item.isDisabled():
-                return
-            recipe_id = item.data(0, Qt.ItemDataRole.UserRole)
-            if not recipe_id or str(recipe_id).startswith("__tier__"):
-                return
+        def _set_smith_target(recipe_id: str) -> None:
             if on_set_smith is not None:
                 on_set_smith(recipe_id)
-            else:
-                spec = SMITHING_DATA.get(recipe_id, {})
-                if spec.get("station") == "furnace":
-                    on_set_bar(spec.get("output_item", recipe_id))
+                return
+            spec = SMITHING_DATA.get(recipe_id, {})
+            if spec.get("station") == "furnace":
+                on_set_bar(spec.get("output_item", recipe_id))
 
-        def _tier_label(item: "QTreeWidgetItem") -> Optional[str]:
-            role = item.data(0, Qt.ItemDataRole.UserRole)
-            if isinstance(role, str) and role.startswith("__tier__:"):
-                return role.split(":", 1)[1]
-            return None
-
-        tree.itemClicked.connect(_on_smith_clicked)
-        tree.itemActivated.connect(_on_smith_clicked)
-        tree.itemExpanded.connect(
-            lambda it: (_tier_label(it) and set_smith_tier_expanded(_tier_label(it), True))
+        images = dict(BAR_IMAGES)
+        images.update(_item_asset_paths())
+        return _build_grouped_target_tree(
+            smithing_target_rows(
+                player_data,
+                SMITHING_DATA,
+                images,
+                DEFAULT_SMITHING_TARGET,
+                QUEST_UNLOCK_RULES,
+            ),
+            {},
+            "__tier__:",
+            _set_smith_target,
+            expanded_groups=set(smith_expanded_tiers()),
+            set_group_expanded=set_smith_tier_expanded,
         )
-        tree.itemCollapsed.connect(
-            lambda it: (_tier_label(it) and set_smith_tier_expanded(_tier_label(it), False))
-        )
-        return tree
 
     def _build_craft_list() -> QTreeWidget:
-        # CRAFTING_DATA is one table keyed by stable recipe IDs ("cut_emerald",
-        # "jewellery_sapphire_necklace", "form_pot_unfired", ...). Like Smithing,
-        # a flat list of ~60 recipes is a wall of rows, so this is a QTreeWidget
-        # grouped by CraftingRecipe.family (Gem cutting, Pottery, Jewellery, ...).
-        # Each family is a collapsible parent; the chosen recipe ID lives on the
-        # child's UserRole and persists via on_set_craft (== current_craft).
-        #
-        # Every source-backed recipe is rendered live and wired identically to
-        # every other recipe — including dragonstone/onyx cuts + jewellery,
-        # dragonhide bodies, glassblowing, and battlestaves. Nothing about them is
-        # special-cased: no tag, no "coming soon", no distinct visual state. They
-        # are simply, emergently un-runnable right now because you have 0 of a
-        # material whose acquisition route doesn't exist yet — exactly the same
-        # state as a Sapphire ring when you hold 0 sapphires. The only gate is the
-        # standard can_craft_item_pure level/material check. Utility/Activities
-        # (no-XP material prep) stay in their own hub category and never appear.
-        tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
-            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+        return _build_grouped_target_tree(
+            crafting_target_rows(
+                player_data,
+                CRAFTING_DATA,
+                CRAFTED_ITEM_IMAGES,
+                QUEST_UNLOCK_RULES,
+            ),
+            _CRAFT_FAMILY_LABELS,
+            "__family__:",
+            on_set_craft,
+            expanded_groups=set(craft_expanded_families()),
+            set_group_expanded=set_craft_family_expanded,
         )
-        lvl_have = player_data.get("crafting_level", 1)
-        inv = player_data.get("inventory", {})
-        current = player_data.get("current_craft")
-        cur_spec = CRAFTING_DATA.get(current) if current else None
-        cur_family = cur_spec.get("family") if cur_spec else None
-        expanded = craft_expanded_families()
-
-        def _make_child(recipe_id: str, spec: dict) -> "QTreeWidgetItem":
-            display_name = str(spec.get("display_name", recipe_id))
-            lvl_req = spec.get("level", 1)
-            output_item = str(spec.get("output_item", display_name))
-            output_qty = spec.get("output_qty", 1) or 1
-            reqs = spec.get("requirements", {}) or {}
-
-            label = f"{display_name} (Lvl {lvl_req})"
-            if output_qty > 1:
-                label += f" — makes {output_qty}"
-            child = QTreeWidgetItem([label])
-            child.setData(0, Qt.ItemDataRole.UserRole, recipe_id)
-
-            c_icon = CRAFTED_ITEM_IMAGES.get(output_item) or CRAFTED_ITEM_IMAGES.get(display_name)
-            if c_icon and os.path.exists(c_icon):
-                child.setIcon(0, QIcon(c_icon))
-
-            materials_ok = True
-            mat_lines = []
-            for mat, amt in reqs.items():
-                have = inv.get(mat, 0)
-                if have < amt:
-                    materials_ok = False
-                mat_lines.append(f"  {mat} x{amt} (you have {have})")
-            mat_text = "\n".join(mat_lines) if mat_lines else "  No materials required"
-            tooltip = (
-                f"Requires Crafting level {lvl_req}. You have {lvl_have}.\n"
-                f"Output: {output_item} x{output_qty}\n"
-                f"Base XP: {spec.get('exp', 0)} per action\n"
-                f"Materials:\n{mat_text}"
-            )
-            if not can_craft_item_pure(lvl_have, inv, recipe_id, CRAFTING_DATA):
-                child.setDisabled(True)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if not materials_ok:
-                    reason.append("materials")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
-            child.setToolTip(0, tooltip)
-            return child
-
-        # Group by family, preserving the first-appearance order CRAFTING_DATA
-        # already lists families in (gems, pottery, spinning, silver, jewellery,
-        # leather, glass, battlestaff, weaving, combination).
-        order: list = []
-        groups: dict = {}
-        for recipe_id, spec in CRAFTING_DATA.items():
-            family = str(spec.get("family", "other"))
-            if family not in groups:
-                groups[family] = []
-                order.append(family)
-            groups[family].append((recipe_id, spec))
-
-        selected_child = None
-        for family in order:
-            label = _CRAFT_FAMILY_LABELS.get(family, family.title())
-            parent = QTreeWidgetItem([f"{label}  ({len(groups[family])})"])
-            parent.setData(0, Qt.ItemDataRole.UserRole, f"__family__:{family}")
-            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)  # header: expand only, not selectable
-            font = parent.font(0)
-            font.setBold(True)
-            parent.setFont(0, font)
-            tree.addTopLevelItem(parent)
-            # Low -> high level within a family reads better than source emit order.
-            ordered = sorted(
-                groups[family],
-                key=lambda rs: (rs[1].get("level", 1), str(rs[1].get("display_name", ""))),
-            )
-            for recipe_id, spec in ordered:
-                child = _make_child(recipe_id, spec)
-                parent.addChild(child)
-                if recipe_id == current:
-                    selected_child = child
-            # Collapsed by default; expanded if previously expanded or it holds
-            # the current target. Set before wiring signals so building the tree
-            # doesn't rewrite persisted state.
-            parent.setExpanded(family in expanded or family == cur_family)
-
-        if selected_child is not None:
-            tree.setCurrentItem(selected_child)
-
-        def _on_craft_clicked(item: "QTreeWidgetItem", _column: int = 0):
-            # itemClicked fires even on disabled rows (the enabled flag gates
-            # selection, not the click signal), so a locked target would otherwise
-            # become the active craft and then fail the next review with a
-            # "you don't have X" dialog. Ignore locked/header rows here.
-            if item is None or item.isDisabled():
-                return
-            recipe_id = item.data(0, Qt.ItemDataRole.UserRole)
-            if not recipe_id or str(recipe_id).startswith("__family__"):
-                return
-            if on_set_craft is not None:
-                on_set_craft(recipe_id)
-
-        def _family_label(item: "QTreeWidgetItem") -> Optional[str]:
-            role = item.data(0, Qt.ItemDataRole.UserRole)
-            if isinstance(role, str) and role.startswith("__family__:"):
-                return role.split(":", 1)[1]
-            return None
-
-        tree.itemClicked.connect(_on_craft_clicked)
-        tree.itemActivated.connect(_on_craft_clicked)
-        tree.itemExpanded.connect(
-            lambda it: (_family_label(it) and set_craft_family_expanded(_family_label(it), True))
-        )
-        tree.itemCollapsed.connect(
-            lambda it: (_family_label(it) and set_craft_family_expanded(_family_label(it), False))
-        )
-        return tree
 
     def _build_fletch_list() -> QListWidget:
         return _build_flat_target_list(
@@ -1980,188 +1806,36 @@ def show_main_menu(
         )
 
     def _build_cooking_list() -> QTreeWidget:
-        tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
-            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
-        )
-        lvl_have = player_data.get("cooking_level", 1)
-        inv = player_data.get("inventory", {})
-        current = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
-        cur_spec = COOKING_DATA.get(current)
-        cur_family = cur_spec.get("family") if cur_spec else None
-
-        def _icon_for(item_name: str):
-            definition = _ITEM_DEFS_BY_KEY.get(item_name)
-            return (definition.asset_path if definition and definition.asset_path else None) or COOKING_ITEM_IMAGES.get(item_name)
-
-        def _make_child(target_id: str, spec: dict) -> "QTreeWidgetItem":
-            display_name = str(spec.get("display_name", target_id))
-            lvl_req = spec.get("level", 1)
-            output_item = str(spec.get("output_item", display_name))
-            burnt_item = str(spec.get("burnt_item", "Burnt food"))
-            reqs = spec.get("requirements", {}) or {}
-            label = f"{display_name} (Lvl {lvl_req})"
-            child = QTreeWidgetItem([label])
-            child.setData(0, Qt.ItemDataRole.UserRole, target_id)
-
-            icon_path = _icon_for(output_item)
-            if icon_path and os.path.exists(icon_path):
-                child.setIcon(0, QIcon(icon_path))
-
-            mat_lines = []
-            for mat, amt in reqs.items():
-                have = inv.get(mat, 0)
-                mat_lines.append(f"  {mat} x{amt} (you have {have})")
-            mat_text = "\n".join(mat_lines) if mat_lines else "  No materials required"
-            chance = calculate_cooking_success_probability_pure(lvl_have, spec) * 100.0
-            tooltip = (
-                f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n"
-                f"Success output: {output_item} x1\n"
-                f"Burn output: {burnt_item} x1, no XP\n"
-                f"Base XP: {spec.get('exp', 0)} on success\n"
-                f"Success chance: {chance:.0f}% per action\n"
-                f"Materials:\n{mat_text}"
-            )
-            locked_reasons = cooking_target_locked_reasons_pure(
+        images = dict(COOKING_ITEM_IMAGES)
+        images.update(_item_asset_paths())
+        return _build_grouped_target_tree(
+            cooking_target_rows(
                 player_data,
-                target_id,
                 COOKING_DATA,
+                images,
+                DEFAULT_COOKING_TARGET,
                 QUEST_UNLOCK_RULES,
-            )
-            if locked_reasons:
-                child.setDisabled(True)
-                tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
-            child.setToolTip(0, tooltip)
-            return child
-
-        order: list = []
-        groups: dict = {}
-        for target_id, spec in COOKING_DATA.items():
-            family = str(spec.get("family", "other"))
-            if family not in groups:
-                groups[family] = []
-                order.append(family)
-            groups[family].append((target_id, spec))
-
-        selected_child = None
-        for family in order:
-            label = _COOKING_FAMILY_LABELS.get(family, family.title())
-            parent = QTreeWidgetItem([f"{label}  ({len(groups[family])})"])
-            parent.setData(0, Qt.ItemDataRole.UserRole, f"__cooking_family__:{family}")
-            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            font = parent.font(0)
-            font.setBold(True)
-            parent.setFont(0, font)
-            tree.addTopLevelItem(parent)
-            ordered = sorted(groups[family], key=lambda rs: (rs[1].get("level", 1), str(rs[1].get("display_name", ""))))
-            for target_id, spec in ordered:
-                child = _make_child(target_id, spec)
-                parent.addChild(child)
-                if target_id == current:
-                    selected_child = child
-            parent.setExpanded(family == cur_family)
-
-        if selected_child is not None:
-            tree.setCurrentItem(selected_child)
-
-        def _on_cooking_clicked(item: "QTreeWidgetItem", _column: int = 0):
-            if item is None or item.isDisabled():
-                return
-            target_id = item.data(0, Qt.ItemDataRole.UserRole)
-            if not target_id or str(target_id).startswith("__cooking_family__"):
-                return
-            if on_set_cooking is not None:
-                on_set_cooking(target_id)
-
-        tree.itemClicked.connect(_on_cooking_clicked)
-        tree.itemActivated.connect(_on_cooking_clicked)
-        return tree
+            ),
+            _COOKING_FAMILY_LABELS,
+            "__cooking_family__:",
+            on_set_cooking,
+        )
 
     def _build_runecrafting_list() -> QTreeWidget:
-        tree = QTreeWidget()
-        tree.setHeaderHidden(True)
-        tree.setIconSize(QSize(28, 28))
-        tree.setRootIsDecorated(True)
-        tree.setIndentation(14)
-        tree.setUniformRowHeights(True)
-        tree.setStyleSheet(
-            "QTreeWidget { border: 1px solid palette(mid); border-radius: 8px;"
-            " background: palette(base); color: palette(text); padding: 4px; }"
-            " QTreeWidget::item { padding: 5px; border-radius: 6px; }"
-            " QTreeWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
-            f" QTreeWidget::item:disabled {{ color: {dim_text_css(tree)}; }}"
+        return _build_grouped_target_tree(
+            runecrafting_target_rows(
+                player_data,
+                RUNECRAFTING_DATA,
+                RUNECRAFTING_ITEM_IMAGES,
+                RUNECRAFTING_POUCH_DATA,
+                DEFAULT_RUNECRAFTING_TARGET,
+                QUEST_UNLOCK_RULES,
+            ),
+            RUNECRAFTING_GROUP_LABELS,
+            "__runecrafting_group__:",
+            on_set_runecrafting,
+            group_order=list(RUNECRAFTING_GROUP_LABELS),
         )
-        rows = runecrafting_target_rows(
-            player_data,
-            RUNECRAFTING_DATA,
-            RUNECRAFTING_ITEM_IMAGES,
-            RUNECRAFTING_POUCH_DATA,
-            DEFAULT_RUNECRAFTING_TARGET,
-            QUEST_UNLOCK_RULES,
-        )
-        current = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
-        ordered_groups = list(RUNECRAFTING_GROUP_LABELS)
-        groups = {group: [] for group in ordered_groups}
-        for row in rows:
-            group = row.group or "standard"
-            if group not in groups:
-                groups[group] = []
-                ordered_groups.append(group)
-            groups[group].append(row)
-
-        selected_child = None
-        for group in ordered_groups:
-            group_rows = groups.get(group, [])
-            if not group_rows:
-                continue
-            label = RUNECRAFTING_GROUP_LABELS.get(group, group.replace("_", " ").title())
-            parent = QTreeWidgetItem([f"{label}  ({len(group_rows)})"])
-            parent.setData(0, Qt.ItemDataRole.UserRole, f"__runecrafting_group__:{group}")
-            parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
-            font = parent.font(0)
-            font.setBold(True)
-            parent.setFont(0, font)
-            tree.addTopLevelItem(parent)
-            group_has_current = False
-            ordered = sorted(group_rows, key=lambda row: (RUNECRAFTING_DATA.get(row.target_id, {}).get("level", 1), row.label))
-            for row in ordered:
-                child = QTreeWidgetItem([row.label])
-                child.setData(0, Qt.ItemDataRole.UserRole, row.target_id)
-                if row.icon_path and os.path.exists(row.icon_path):
-                    child.setIcon(0, QIcon(row.icon_path))
-                if not row.enabled:
-                    child.setDisabled(True)
-                child.setToolTip(0, row.tooltip)
-                parent.addChild(child)
-                if row.target_id == current:
-                    selected_child = child
-                    group_has_current = True
-            parent.setExpanded(group_has_current)
-
-        if selected_child is not None:
-            tree.setCurrentItem(selected_child)
-
-        def _on_runecrafting_clicked(item: "QTreeWidgetItem", _column: int = 0):
-            if item is None or item.isDisabled():
-                return
-            target_id = item.data(0, Qt.ItemDataRole.UserRole)
-            if not target_id or str(target_id).startswith("__runecrafting_group__"):
-                return
-            if on_set_runecrafting is not None:
-                on_set_runecrafting(target_id)
-
-        tree.itemClicked.connect(_on_runecrafting_clicked)
-        tree.itemActivated.connect(_on_runecrafting_clicked)
-        return tree
 
     def _build_utility_list() -> QTreeWidget:
         tree = QTreeWidget()

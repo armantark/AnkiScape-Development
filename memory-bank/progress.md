@@ -15,7 +15,7 @@
 - Tests cover a meaningful portion of pure logic, migrations, settings, hooks, UI calculations, and integration smoke behavior.
 - A backend skill registry exists for current and planned 2011-era skills.
 - A pure review-action registry exists for levelled skills plus no-XP Utility/Activities aliases, without adding Utility as a fake skill.
-- A pure flat target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, Runecrafting, and Utility/Activities, so their Skills-hub rows are generated as shared metadata before Qt renders them.
+- A pure target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities, so Skills-hub row labels, tooltips, icons, groups, sort order, and lock reasons are generated before Qt renders them.
 - A backend item manifest exists for current ores, logs, fish, food, runes/access items, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for current review skills.
@@ -43,7 +43,7 @@
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 
 ## What Is Not Built Yet
-- Full target-list/action metadata beyond the current review-action dispatch registry and the flat target-row metadata contract. Grouped Smithing/Crafting target trees still need their own metadata seam if they are refactored.
+- Full action metadata beyond the current review-action dispatch registry and target-row metadata contract.
 - Combat training and combat encounters.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Formal balancing pass for long-term progression.
@@ -67,9 +67,9 @@
 - `__init__.py` owns too much runtime orchestration and skill dispatch.
 - `ui.py` is large and mixes many dialogs/surfaces.
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
-- The runtime answer handler map now uses registry handler keys, but grouped target-list metadata and handler internals are still partly hardcoded.
+- The runtime answer handler map now uses registry handler keys, but handler internals are still partly hardcoded.
 - The runtime answer path now uses `action_registry.py` for Skill/Utility handler-key resolution and a handler-keyed can-start map, but the individual handler bodies still live in `__init__.py`.
-- Flat target rows now use `target_metadata.py`, but grouped Smithing/Crafting trees and the grouped Runecrafting tree still carry local row-building logic because parent rows and expand/collapse state need a separate contract.
+- Flat and grouped target rows now use `target_metadata.py`; Qt still owns rendering, group expansion persistence, and click handling.
 - The current future-thread priority board lives in `memory-bank/future-work-kanban.md`.
 
 ## Current Status
@@ -131,6 +131,19 @@ on their grouped `QTreeWidget` builders for now. `python3 run_tests.py` passes
 with 287 tests (69 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 287 tests.
+
+P0 grouped target-tree metadata cleanup completed on 2026-06-19. `target_metadata.py`
+now also produces grouped `TargetRowMetadata` rows for Smithing, Crafting,
+Cooking, and Runecrafting, including group ids, sort keys, icon paths,
+current-target state, enabled state, and level/material/quest lock reasons.
+`logic_pure.py` added Smithing and Crafting locked-reason helpers to match the
+existing Cooking and Runecrafting quest-aware helpers. `ui.show_main_menu`
+renders those grouped rows through one shared `QTreeWidget` helper while
+preserving existing group role ids, Smithing/Crafting expand-state persistence,
+Cooking/Runecrafting current-target auto-expand, tooltips, icons, and
+disabled-row click guards. No save schema, recipe data, XP math, item rewards,
+or quest rules changed. `python3 run_tests.py` passes with 345 tests (83
+skipped), and the offscreen Qt discovery suite passes with 345 tests.
 
 P2 feather source completed on 2026-06-15. Added `Scavenge chicken feathers` as
 a no-input Utility/Activities action with a dedicated activity icon and
@@ -228,7 +241,7 @@ run_tests.py` passed with 342 tests (83 skipped), and `QT_QPA_PLATFORM=offscreen
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
-- Continue P0 only for a new architecture slice: grouped Smithing/Crafting target-tree metadata or further `__init__.py` decomposition. The review-action dispatch and flat target-row metadata slices are done.
+- Continue P0 only for a new architecture slice: further `__init__.py` runtime decomposition, achievement metadata, or another clearly scoped shared contract. The review-action dispatch, flat target-row metadata, and grouped target-tree metadata slices are done.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
 - Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.

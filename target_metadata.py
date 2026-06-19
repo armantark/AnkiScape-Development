@@ -1,4 +1,4 @@
-"""Pure target-list row metadata for Skills-hub flat target lists."""
+"""Pure target-list row metadata for Skills-hub target lists."""
 
 from __future__ import annotations
 
@@ -10,34 +10,40 @@ try:
     from .logic_pure import (
         best_mining_pickaxe_pure,
         best_woodcutting_axe_pure,
+        calculate_cooking_success_probability_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
         can_chop_woodcutting_target_pure,
         firemaking_target_locked_reasons_pure,
         can_fletch_item_pure,
         can_open_bird_nests_pure,
-        can_runecraft_target_pure,
+        cooking_target_locked_reasons_pure,
+        crafting_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
+        smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
     )
 except Exception:
     from logic_pure import (  # type: ignore
         best_mining_pickaxe_pure,
         best_woodcutting_axe_pure,
+        calculate_cooking_success_probability_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
         can_chop_woodcutting_target_pure,
         firemaking_target_locked_reasons_pure,
         can_fletch_item_pure,
         can_open_bird_nests_pure,
-        can_runecraft_target_pure,
+        cooking_target_locked_reasons_pure,
+        crafting_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
+        smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
     )
 
@@ -53,6 +59,8 @@ class TargetRowMetadata:
     current: bool = False
     icon_path: Optional[str] = None
     group: str = ""
+    locked_reasons: tuple[str, ...] = ()
+    sort_key: tuple[object, ...] = ()
 
 
 def _material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int]) -> tuple[bool, str]:
@@ -66,6 +74,192 @@ def _material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int
             ok = False
         lines.append(f"{material} x{amount} (you have {have})")
     return ok, "\n".join(lines)
+
+
+def _indented_material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int]) -> str:
+    if not requirements:
+        return "  No materials required"
+    return "\n".join(
+        f"  {material} x{amount} (you have {inventory.get(material, 0)})"
+        for material, amount in requirements.items()
+    )
+
+
+def _smithing_tier_of(spec: Mapping[str, object]) -> str:
+    if spec.get("station") == "furnace":
+        return str(spec.get("output_item", "")).replace(" bar", "").strip() or "Other"
+    reqs = spec.get("requirements", {}) or {}
+    requirements = reqs if isinstance(reqs, Mapping) else {}
+    return str(next(iter(requirements), "")).replace(" bar", "").strip() or "Other"
+
+
+def smithing_target_rows(
+    player_data: Mapping[str, object],
+    smithing_data: Mapping[str, Mapping[str, object]],
+    smithing_item_images: Mapping[str, str],
+    default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    lvl_have = int(player_data.get("smithing_level", 1) or 1)
+    inv = player_data.get("inventory", {})
+    inventory = inv if isinstance(inv, Mapping) else {}
+    current_target = player_data.get("current_smith", default_target)
+
+    for recipe_id, spec in smithing_data.items():
+        display_name = str(spec.get("display_name", spec.get("output_item", recipe_id)))
+        lvl_req = int(spec.get("level", 1) or 1)
+        output_item = str(spec.get("output_item", display_name))
+        output_qty = int(spec.get("output_qty", 1) or 1)
+        reqs = spec.get("requirements", {}) or {}
+        requirements = reqs if isinstance(reqs, Mapping) else {}
+        station_word = "Smelt" if spec.get("station") == "furnace" else "Forge"
+        group = _smithing_tier_of(spec)
+
+        label = f"{display_name} (Lvl {lvl_req})"
+        if output_qty > 1:
+            label += f" — makes {output_qty}"
+
+        locked_reasons = smithing_target_locked_reasons_pure(
+            player_data,
+            recipe_id,
+            smithing_data,
+            quest_unlock_rules,
+        )
+        tooltip = (
+            f"{station_word} · requires Smithing level {lvl_req}. You have {lvl_have}.\n"
+            f"Output: {output_item} x{output_qty}\n"
+            f"Base XP: {spec.get('exp', 0)} per action\n"
+            f"Materials:\n{_indented_material_lines(requirements, inventory)}"
+        )
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=recipe_id,
+                label=label,
+                tooltip=tooltip,
+                enabled=not locked_reasons,
+                current=recipe_id == current_target,
+                icon_path=smithing_item_images.get(output_item),
+                group=group,
+                locked_reasons=locked_reasons,
+                sort_key=(lvl_req, 0 if spec.get("station") == "furnace" else 1, display_name),
+            )
+        )
+    return tuple(rows)
+
+
+def crafting_target_rows(
+    player_data: Mapping[str, object],
+    crafting_data: Mapping[str, Mapping[str, object]],
+    crafted_item_images: Mapping[str, str],
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    lvl_have = int(player_data.get("crafting_level", 1) or 1)
+    inv = player_data.get("inventory", {})
+    inventory = inv if isinstance(inv, Mapping) else {}
+    current_target = player_data.get("current_craft")
+
+    for recipe_id, spec in crafting_data.items():
+        display_name = str(spec.get("display_name", recipe_id))
+        lvl_req = int(spec.get("level", 1) or 1)
+        output_item = str(spec.get("output_item", display_name))
+        output_qty = int(spec.get("output_qty", 1) or 1)
+        reqs = spec.get("requirements", {}) or {}
+        requirements = reqs if isinstance(reqs, Mapping) else {}
+        group = str(spec.get("family", "other"))
+
+        label = f"{display_name} (Lvl {lvl_req})"
+        if output_qty > 1:
+            label += f" — makes {output_qty}"
+
+        locked_reasons = crafting_target_locked_reasons_pure(
+            player_data,
+            recipe_id,
+            crafting_data,
+            quest_unlock_rules,
+        )
+        tooltip = (
+            f"Requires Crafting level {lvl_req}. You have {lvl_have}.\n"
+            f"Output: {output_item} x{output_qty}\n"
+            f"Base XP: {spec.get('exp', 0)} per action\n"
+            f"Materials:\n{_indented_material_lines(requirements, inventory)}"
+        )
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=recipe_id,
+                label=label,
+                tooltip=tooltip,
+                enabled=not locked_reasons,
+                current=recipe_id == current_target,
+                icon_path=crafted_item_images.get(output_item) or crafted_item_images.get(display_name),
+                group=group,
+                locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
+            )
+        )
+    return tuple(rows)
+
+
+def cooking_target_rows(
+    player_data: Mapping[str, object],
+    cooking_data: Mapping[str, Mapping[str, object]],
+    cooking_item_images: Mapping[str, str],
+    default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    lvl_have = int(player_data.get("cooking_level", 1) or 1)
+    inv = player_data.get("inventory", {})
+    inventory = inv if isinstance(inv, Mapping) else {}
+    current_target = player_data.get("current_cooking", default_target)
+
+    for target_id, spec in cooking_data.items():
+        display_name = str(spec.get("display_name", target_id))
+        lvl_req = int(spec.get("level", 1) or 1)
+        output_item = str(spec.get("output_item", display_name))
+        burnt_item = str(spec.get("burnt_item", "Burnt food"))
+        reqs = spec.get("requirements", {}) or {}
+        requirements = reqs if isinstance(reqs, Mapping) else {}
+        chance = calculate_cooking_success_probability_pure(lvl_have, spec) * 100.0
+        group = str(spec.get("family", "other"))
+        locked_reasons = cooking_target_locked_reasons_pure(
+            player_data,
+            target_id,
+            cooking_data,
+            quest_unlock_rules,
+        )
+        tooltip = (
+            f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n"
+            f"Success output: {output_item} x1\n"
+            f"Burn output: {burnt_item} x1, no XP\n"
+            f"Base XP: {spec.get('exp', 0)} on success\n"
+            f"Success chance: {chance:.0f}% per action\n"
+            f"Materials:\n{_indented_material_lines(requirements, inventory)}"
+        )
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=target_id,
+                label=f"{display_name} (Lvl {lvl_req})",
+                tooltip=tooltip,
+                enabled=not locked_reasons,
+                current=target_id == current_target,
+                icon_path=cooking_item_images.get(output_item),
+                group=group,
+                locked_reasons=locked_reasons,
+                sort_key=(lvl_req, display_name),
+            )
+        )
+    return tuple(rows)
 
 
 def mining_target_rows(
@@ -155,6 +349,7 @@ def mining_target_rows(
                 enabled=enabled,
                 current=target_id == current_target,
                 icon_path=icon_path,
+                locked_reasons=locked_reasons,
             )
         )
     return tuple(rows)
@@ -312,6 +507,7 @@ def firemaking_target_rows(
                 enabled=enabled,
                 current=target_key == current_target,
                 icon_path=firemaking_item_images.get(str(input_item)) or firemaking_item_images.get(output_item),
+                locked_reasons=locked_reasons,
             )
         )
     return tuple(rows)
@@ -463,6 +659,7 @@ def fishing_target_rows(
                 enabled=enabled,
                 current=target_key == current_target,
                 icon_path=fishing_item_images.get(icon_fish.get("output_item")) if isinstance(icon_fish, Mapping) else None,
+                locked_reasons=locked_reasons,
             )
         )
     return tuple(rows)
@@ -539,6 +736,8 @@ def utility_activity_rows(
                 enabled=enabled,
                 current=activity_key == current_activity,
                 icon_path=icon_path,
+                locked_reasons=locked_reasons,
+                sort_key=(label,),
             )
         )
     return tuple(rows)
@@ -599,13 +798,6 @@ def runecrafting_target_rows(
                 f"Materials: {input_item} ({inventory.get(input_item, 0)})"
             )
 
-        enabled = can_runecraft_target_pure(
-            player_data,
-            target_id,
-            runecrafting_data,
-            pouch_data,
-            quest_unlock_rules,
-        )
         reasons = runecrafting_locked_reasons_pure(
             player_data,
             target_id,
@@ -621,10 +813,12 @@ def runecrafting_target_rows(
                 target_id=target_id,
                 label=f"{display_name} (Lvl {lvl_req})" if lvl_req > 1 else display_name,
                 tooltip=tooltip,
-                enabled=enabled,
+                enabled=not reasons,
                 current=target_id == current_target,
                 icon_path=runecrafting_item_images.get(output_item) or runecrafting_item_images.get(str(spec.get("input_item", ""))),
                 group=group,
+                locked_reasons=reasons,
+                sort_key=(lvl_req, display_name),
             )
         )
     return tuple(rows)
