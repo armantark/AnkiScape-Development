@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QComboBox, QDialog, QLabel, QListWidget, QPushButton, QIcon, QImage, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QCheckBox, QComboBox, QDialog, QLabel, QListWidget, QPushButton, QIcon, QImage, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -1115,6 +1115,59 @@ class MainMenuWidgetTest(unittest.TestCase):
         toggle.click()
         QApplication.processEvents()
         self.assertFalse(body.isHidden())
+
+    def test_quests_tab_filters_completed_and_unable_to_start_cards(self) -> None:
+        pd = _make_player_data()
+        pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
+        dialog = self._open(pd)
+
+        hide_completed = dialog.findChild(QCheckBox, "questHideCompletedCheck")
+        hide_locked = dialog.findChild(QCheckBox, "questHideLockedCheck")
+        summary = dialog.findChild(QLabel, "questFilterSummaryLabel")
+        self.assertIsNotNone(hide_completed)
+        self.assertIsNotNone(hide_locked)
+        self.assertIsNotNone(summary)
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_rune_mysteries"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_lost_city"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
+
+        hide_completed.setChecked(True)
+        QApplication.processEvents()
+        self.assertIsNone(dialog.findChild(QWidget, "questCard_rune_mysteries"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_lost_city"))
+
+        hide_locked.setChecked(True)
+        QApplication.processEvents()
+        self.assertIsNone(dialog.findChild(QWidget, "questCard_lost_city"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
+        self.assertRegex(summary.text(), r"^Showing \d+/194$")
+
+    def test_quests_tab_filters_by_catalog_metadata(self) -> None:
+        dialog = self._open(_make_player_data())
+
+        access_filter = dialog.findChild(QComboBox, "questAccessFilterCombo")
+        difficulty_filter = dialog.findChild(QComboBox, "questDifficultyFilterCombo")
+        length_filter = dialog.findChild(QComboBox, "questLengthFilterCombo")
+        timeline_filter = dialog.findChild(QComboBox, "questTimelineFilterCombo")
+        self.assertIsNotNone(access_filter)
+        self.assertIsNotNone(difficulty_filter)
+        self.assertIsNotNone(length_filter)
+        self.assertIsNotNone(timeline_filter)
+        self.assertIn("Members quests", [access_filter.itemText(i) for i in range(access_filter.count())])
+        self.assertIn("Grandmaster", [difficulty_filter.itemText(i) for i in range(difficulty_filter.count())])
+        self.assertIn("Long", [length_filter.itemText(i) for i in range(length_filter.count())])
+        self.assertIn("Fifth Age", [timeline_filter.itemText(i) for i in range(timeline_filter.count())])
+
+        access_filter.setCurrentText("Free quests")
+        QApplication.processEvents()
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
+        self.assertIsNone(dialog.findChild(QWidget, "questCard_lost_city"))
+
+        access_filter.setCurrentText("All access")
+        difficulty_filter.setCurrentText("Grandmaster")
+        QApplication.processEvents()
+        self.assertIsNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_while_guthix_sleeps"))
 
     def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:
         pd = _make_player_data()

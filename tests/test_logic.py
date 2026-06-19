@@ -63,6 +63,7 @@ from logic_pure import (
     can_start_quest_pure,
     start_quest_pure,
     quest_locked_reasons_pure,
+    quest_availability_state_pure,
     quest_unlock_locked_reasons_pure,
     fletching_target_locked_reasons_pure,
     normalize_xp_rewards_pure,
@@ -1074,6 +1075,30 @@ class TestLogic(unittest.TestCase):
         self.assertIn("Herblore 5 (not implemented)", lunar_reasons)
         self.assertIn("Magic 65 (not implemented)", lunar_reasons)
         self.assertFalse(can_start_quest_pure(player_data, "lunar_diplomacy", QUEST_DATA))
+
+    def test_quest_availability_separates_start_locks_from_progress(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        self.assertEqual(
+            quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
+            "locked",
+        )
+        self.assertEqual(
+            quest_availability_state_pure(player_data, "cooks_assistant", QUEST_DATA),
+            "can_start",
+        )
+
+        player_data["quests"]["lost_city"] = {"started": True, "progress": 1, "completed": False}
+        self.assertEqual(
+            quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
+            "in_progress",
+        )
+
+        player_data["quests"]["lost_city"] = {"started": True, "progress": 6, "completed": True}
+        self.assertEqual(
+            quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
+            "completed",
+        )
 
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

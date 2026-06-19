@@ -747,6 +747,24 @@ def quest_locked_reasons_pure(player_data, quest_id, quest_data):
     return tuple(dict.fromkeys(reasons))
 
 
+def quest_availability_state_pure(player_data, quest_id, quest_data):
+    """Classify the current quest-list state without inventing stage gates.
+
+    Started quests are treated as in-progress because AnkiScape does not yet
+    model mid-quest action blockers separately from start requirements.
+    """
+    if not quest_data.get(quest_id):
+        return "unknown"
+    state = quest_state_pure(player_data, quest_id)
+    if state["completed"]:
+        return "completed"
+    if state["started"]:
+        return "in_progress"
+    if quest_locked_reasons_pure(player_data, quest_id, quest_data):
+        return "locked"
+    return "can_start"
+
+
 def ability_unlocked_pure(player_data, ability_id):
     abilities = player_data.get("unlocked_abilities", ())
     if isinstance(abilities, str):

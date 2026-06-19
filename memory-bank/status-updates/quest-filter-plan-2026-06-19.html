@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnkiScape Quest Filter Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 18% 12%, rgba(79, 140, 255, 0.16), transparent 34%), var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 34px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      background: var(--accent-glow);
+      color: #9dc0ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1; }
+    .subtitle { color: var(--text-dim); max-width: 780px; font-size: 1.05rem; line-height: 1.5; }
+    .grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 18px; margin-top: 26px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent 34%), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.26);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.15rem; }
+    .label { font: 600 0.68rem "JetBrains Mono", monospace; text-transform: uppercase; color: var(--text-dim); }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+    .state {
+      min-height: 94px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--surface-2);
+    }
+    .state strong { display: block; margin-bottom: 8px; }
+    .state p { margin: 0; color: var(--text-dim); font-size: 0.88rem; line-height: 1.35; }
+    .green { border-color: rgba(74, 222, 128, 0.45); }
+    .amber { border-color: rgba(251, 191, 36, 0.45); }
+    .purple { border-color: rgba(167, 139, 250, 0.45); }
+    .red { border-color: rgba(255, 92, 92, 0.45); }
+    .mock {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #11151c;
+    }
+    .mock-top, .mock-filters {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .mock-top span:first-child { margin-right: auto; font-weight: 700; }
+    .pill {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font: 400 0.72rem "JetBrains Mono", monospace;
+    }
+    .check { color: var(--green); }
+    .mock-list { padding: 10px; display: grid; gap: 8px; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .row small { display: block; color: var(--text-dim); margin-top: 3px; }
+    .button {
+      border-radius: 7px;
+      padding: 6px 9px;
+      background: rgba(79, 140, 255, 0.18);
+      color: #bcd3ff;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+    }
+    .button.off { background: rgba(255, 92, 92, 0.12); color: #ffaaaa; }
+    .steps { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+    .num {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font: 700 0.82rem "JetBrains Mono", monospace;
+    }
+    .step p { margin: 0; color: var(--text-dim); line-height: 1.4; }
+    .tags { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 7px; color: var(--text-dim); font: 400 0.68rem "JetBrains Mono", monospace; }
+    @media (max-width: 900px) {
+      body { padding: 20px; }
+      .grid, .flow { grid-template-columns: 1fr; }
+      .mock-top, .mock-filters { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Pre-Implementation Plan</div>
+    <h1>Quest list filters without muddying start vs finish</h1>
+    <p class="subtitle">The Quests tab needs practical filters for a 194-row catalog. The important contract is that "unable to start" means the current start lock model only; stage-aware finish blockers are a separate future model, not a hidden guess.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Quest Availability Model</h2>
+        <div class="flow">
+          <div class="state green">
+            <strong>Can start</strong>
+            <p>Not completed, not started, and no start lock reasons.</p>
+          </div>
+          <div class="state amber">
+            <strong>In progress</strong>
+            <p>Already started. Current AnkiScape quest reviews can continue it.</p>
+          </div>
+          <div class="state purple">
+            <strong>Completed</strong>
+            <p>Done and reward already paid. Hideable in the new view.</p>
+          </div>
+          <div class="state red">
+            <strong>Unable to start</strong>
+            <p>Blocked by prerequisite quests, quest points, items, or implemented skill level checks.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Frontend Surface</h2>
+        <div class="mock">
+          <div class="mock-top">
+            <span>Quest points: 12</span>
+            <span class="pill">Sort: Progress</span>
+          </div>
+          <div class="mock-filters">
+            <span class="pill check">Hide completed</span>
+            <span class="pill check">Hide unable to start</span>
+            <span class="pill">Free/Members</span>
+            <span class="pill">Difficulty</span>
+            <span class="pill">Length</span>
+            <span class="pill">Timeline</span>
+          </div>
+          <div class="mock-list">
+            <div class="row"><span>Rune Mysteries<small>Stage 3/6</small></span><span class="button">Continue</span></div>
+            <div class="row"><span>Lost City<small>Requires: Woodcutting 36</small></span><span class="button off">Filtered</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Implementation Split</h2>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><p>Add a pure quest availability classifier so filters use one tested definition.<span class="tags"><span class="tag">logic_pure.py</span><span class="tag">tests/test_logic.py</span></span></p></div>
+          <div class="step"><div class="num">2</div><p>Add Quests-tab controls for completed/start-locked hiding plus access, difficulty, length, and timeline filters.<span class="tags"><span class="tag">ui.py</span><span class="tag">tests/test_main_menu_widget.py</span></span></p></div>
+          <div class="step"><div class="num">3</div><p>Document that started-but-not-finishable quests need future stage/action gates, not a start-filter hack.<span class="tags"><span class="tag">memory-bank</span></span></p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Scope Boundary</h2>
+        <p style="color: var(--text-dim); line-height: 1.5; margin: 0;">This pass improves navigation and makes the current model explicit. It will not invent unsourced mid-quest blockers. If a quest can start in RuneScape but needs a later skill-gated action, that belongs in a future stage-aware quest requirement system.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

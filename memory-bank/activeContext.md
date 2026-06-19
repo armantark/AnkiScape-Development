@@ -321,6 +321,17 @@ Verification: `python3 run_tests.py` passed with 342 tests (83 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passed
 with 342 tests.
 
+Quest-list filtering is complete on 2026-06-19. `logic_pure.py` now exposes
+`quest_availability_state_pure()` with four UI-facing states: `can_start`,
+`in_progress`, `completed`, and `locked`. The Quests tab adds filters for Hide
+completed, Hide unable to start, Access, Difficulty, Length, and Timeline, plus a
+showing-count label. The current model intentionally treats already-started
+quests as `in_progress`; mid-quest skill/action blockers are not represented yet
+and should be handled by a future stage-aware quest requirement system instead
+of being folded into start filters. Verification: `python3 run_tests.py` passed
+with 366 tests (88 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 366 tests.
+
 P0 grouped target-tree metadata cleanup is complete on 2026-06-19. Smithing,
 Crafting, Cooking, and Runecrafting now build their grouped Skills-hub rows
 through `target_metadata.py` before Qt renders them. The shared grouped

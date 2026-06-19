@@ -81,7 +81,12 @@ The Quests tab is now collapsible and sortable. It defaults to real
 RuneScape release order, while also exposing the live-game sort modes
 Free/Members, Progress, Difficulty, Timeline, and Length. Completed quest
 bodies are collapsed by default, and the active in-progress quest remains
-expanded.
+expanded. As of 2026-06-19 it also filters by Hide completed, Hide unable to
+start, Access, Difficulty, Length, and Timeline. The "unable to start" filter is
+backed by `quest_availability_state_pure()` and only reflects the current strict
+start-lock model; already-started quests remain `in_progress`. Quests that can
+historically start before a later skill-gated action is completable still need a
+future stage-aware requirement model rather than a stronger start filter.
 
 ## Current Quest Surface
 

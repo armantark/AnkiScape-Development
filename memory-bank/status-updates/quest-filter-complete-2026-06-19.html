@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnkiScape Quest Filters Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(74, 222, 128, 0.08), transparent 28%),
+        radial-gradient(circle at 80% 10%, rgba(167, 139, 250, 0.14), transparent 34%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 34px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      background: rgba(74, 222, 128, 0.12);
+      color: #a7f3c5;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(2rem, 4vw, 3.55rem); line-height: 1; }
+    .subtitle { color: var(--text-dim); max-width: 760px; font-size: 1.05rem; line-height: 1.48; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 24px 0; }
+    .metric {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+    }
+    .metric strong { display: block; font-size: 1.9rem; line-height: 1; }
+    .metric span { color: var(--text-dim); font: 400 0.76rem "JetBrains Mono", monospace; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent 38%), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.26);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.14rem; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151c;
+      min-height: 210px;
+      overflow: hidden;
+    }
+    .pane-title {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      font: 600 0.68rem "JetBrains Mono", monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .toolbar, .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 9px;
+      border-bottom: 1px solid var(--border);
+    }
+    .pill {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-dim);
+      font: 400 0.68rem "JetBrains Mono", monospace;
+      padding: 5px 7px;
+    }
+    .pill.good { color: #a7f3c5; border-color: rgba(74, 222, 128, 0.45); }
+    .rows { padding: 9px; display: grid; gap: 8px; }
+    .quest {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(255,255,255,0.02);
+    }
+    .quest small { display: block; color: var(--text-dim); margin-top: 2px; }
+    .tag {
+      border-radius: 7px;
+      padding: 5px 7px;
+      font: 600 0.68rem "JetBrains Mono", monospace;
+      background: rgba(79, 140, 255, 0.16);
+      color: #bcd3ff;
+    }
+    .tag.hide { background: rgba(255, 92, 92, 0.13); color: #ffb8b8; }
+    .states { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .state {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+      min-height: 110px;
+    }
+    .state strong { display: block; margin-bottom: 8px; }
+    .state p { margin: 0; color: var(--text-dim); font-size: 0.88rem; line-height: 1.35; }
+    .steps { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 10px; }
+    .num {
+      width: 30px;
+      height: 30px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent);
+      font: 700 0.82rem "JetBrains Mono", monospace;
+    }
+    .step p { margin: 0; color: var(--text-dim); line-height: 1.4; }
+    code { color: #bcd3ff; font-family: "JetBrains Mono", monospace; font-size: 0.88em; }
+    @media (max-width: 900px) {
+      body { padding: 20px; }
+      .metrics, .grid, .split, .states { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Completed</div>
+    <h1>Quest filters landed cleanly</h1>
+    <p class="subtitle">The 194-row quest catalog is now navigable by availability and catalog metadata, while the code keeps "can start" separate from future "can finish" stage logic.</p>
+
+    <section class="metrics">
+      <div class="metric"><strong>194</strong><span>quest cards filtered</span></div>
+      <div class="metric"><strong>6</strong><span>new controls</span></div>
+      <div class="metric"><strong>366</strong><span>core tests passed</span></div>
+      <div class="metric"><strong>366</strong><span>Qt tests passed</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Before / After</h2>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="toolbar"><span class="pill">Sort: Release Order</span></div>
+            <div class="rows">
+              <div class="quest"><span>Rune Mysteries<small>Completed</small></span><span class="tag">Shown</span></div>
+              <div class="quest"><span>Lost City<small>Requires: Woodcutting 36</small></span><span class="tag">Shown</span></div>
+              <div class="quest"><span>Cook's Assistant<small>Not started</small></span><span class="tag">Shown</span></div>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">After</div>
+            <div class="toolbar"><span class="pill">Sort: Release Order</span></div>
+            <div class="filters"><span class="pill good">Hide completed</span><span class="pill good">Hide unable to start</span><span class="pill">Access</span><span class="pill">Difficulty</span><span class="pill">Length</span><span class="pill">Timeline</span></div>
+            <div class="rows">
+              <div class="quest"><span>Rune Mysteries<small>Completed</small></span><span class="tag hide">Hidden</span></div>
+              <div class="quest"><span>Lost City<small>Requires: Woodcutting 36</small></span><span class="tag hide">Hidden</span></div>
+              <div class="quest"><span>Cook's Assistant<small>Can start</small></span><span class="tag">Shown</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Availability Contract</h2>
+        <div class="states">
+          <div class="state"><strong>can_start</strong><p>Not started and no current start-lock reasons.</p></div>
+          <div class="state"><strong>in_progress</strong><p>Already started; current review model can continue it.</p></div>
+          <div class="state"><strong>completed</strong><p>Reward paid and hideable from the catalog.</p></div>
+          <div class="state"><strong>locked</strong><p>Cannot currently start due to quest, item, skill, or quest-point requirements.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Files Changed</h2>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><p><code>logic_pure.py</code> adds <code>quest_availability_state_pure()</code> so start-lock filters have a single tested definition.</p></div>
+          <div class="step"><div class="num">2</div><p><code>ui.py</code> adds hide toggles, Access/Difficulty/Length/Timeline filters, count text, and an empty filtered-state.</p></div>
+          <div class="step"><div class="num">3</div><p><code>tests/test_logic.py</code> and <code>tests/test_main_menu_widget.py</code> cover the pure state split and real Qt filtering behavior.</p></div>
+          <div class="step"><div class="num">4</div><p><code>memory-bank/</code> records that stage-aware finish blockers remain future work.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Open Boundary</h2>
+        <p style="margin: 0; color: var(--text-dim); line-height: 1.5;">Some historical quests can be started before a later skill-gated action can be completed. This pass does not pretend to solve that with filters. It documents and preserves the current strict-start model, and leaves those cases for a future stage-aware quest requirement layer.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -286,6 +286,16 @@ effectively represents the locked region route. Verification: `python3
 run_tests.py` passed with 342 tests (83 skipped), and `QT_QPA_PLATFORM=offscreen
 .venv-qt/bin/python -m unittest discover tests` passed with 342 tests.
 
+Quest-list filtering completed on 2026-06-19. `quest_availability_state_pure()`
+classifies quest cards as `can_start`, `in_progress`, `completed`, or `locked`,
+and the Quests tab can now hide completed quests, hide quests unable to start,
+and filter by Access, Difficulty, Length, and Timeline while preserving release
+order and other existing sorts. Started quests remain `in_progress` under the
+current review-driven quest model; start filters do not attempt to model future
+mid-quest completion blockers. Verification: `python3 run_tests.py` passed with
+366 tests (88 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 366 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 

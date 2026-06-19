@@ -163,10 +163,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -2294,6 +2294,68 @@ def show_main_menu(
     quest_top_layout.addWidget(quest_sort_combo)
     q_layout.addWidget(quest_top)
 
+    difficulty_order = {"Novice": 0, "Intermediate": 1, "Experienced": 2, "Master": 3, "Grandmaster": 4, "Special": 5}
+    length_order = {
+        "Short": 0,
+        "Short to Medium": 1,
+        "Medium": 2,
+        "Medium to Long": 3,
+        "Long": 4,
+        "Long to Very Long": 5,
+        "Very Long": 6,
+        "Very, Very Long": 7,
+    }
+    timeline_order = {"Fifth Age": 0, "Ambiguous": 1, "Sixth Age": 2}
+
+    quest_filter_row = QWidget()
+    quest_filter_layout = QHBoxLayout(quest_filter_row)
+    quest_filter_layout.setContentsMargins(0, 0, 0, 0)
+    quest_filter_layout.setSpacing(8)
+
+    hide_completed_cb = QCheckBox("Hide completed")
+    hide_completed_cb.setObjectName("questHideCompletedCheck")
+    hide_locked_cb = QCheckBox("Hide unable to start")
+    hide_locked_cb.setObjectName("questHideLockedCheck")
+
+    access_filter_combo = QComboBox()
+    access_filter_combo.setObjectName("questAccessFilterCombo")
+    access_filter_combo.addItems(("All access", "Free quests", "Members quests"))
+
+    difficulty_filter_combo = QComboBox()
+    difficulty_filter_combo.setObjectName("questDifficultyFilterCombo")
+    difficulty_filter_combo.addItems(("All difficulties", *difficulty_order.keys()))
+
+    length_filter_combo = QComboBox()
+    length_filter_combo.setObjectName("questLengthFilterCombo")
+    length_filter_combo.addItems(("All lengths", *length_order.keys()))
+
+    timeline_filter_combo = QComboBox()
+    timeline_filter_combo.setObjectName("questTimelineFilterCombo")
+    timeline_filter_combo.addItems(("All timelines", *timeline_order.keys()))
+
+    quest_filter_summary = QLabel("")
+    quest_filter_summary.setObjectName("questFilterSummaryLabel")
+    quest_filter_summary.setStyleSheet(f"color: {dim_text_css(quest_filter_summary)};")
+
+    def _quest_filter_label(text: str) -> QLabel:
+        label = QLabel(text)
+        label.setStyleSheet(f"color: {dim_text_css(label)};")
+        return label
+
+    quest_filter_layout.addWidget(hide_completed_cb)
+    quest_filter_layout.addWidget(hide_locked_cb)
+    for label_text, combo in (
+        ("Access", access_filter_combo),
+        ("Difficulty", difficulty_filter_combo),
+        ("Length", length_filter_combo),
+        ("Timeline", timeline_filter_combo),
+    ):
+        quest_filter_layout.addWidget(_quest_filter_label(label_text))
+        quest_filter_layout.addWidget(combo)
+    quest_filter_layout.addStretch(1)
+    quest_filter_layout.addWidget(quest_filter_summary)
+    q_layout.addWidget(quest_filter_row)
+
     quest_scroll = QScrollArea()
     quest_scroll.setWidgetResizable(True)
     quest_scroll.setStyleSheet("border: none;")
@@ -2316,18 +2378,6 @@ def show_main_menu(
             return "Continue quest"
         return "Start quest"
 
-    difficulty_order = {"Novice": 0, "Intermediate": 1, "Experienced": 2, "Master": 3, "Grandmaster": 4, "Special": 5}
-    length_order = {
-        "Short": 0,
-        "Short to Medium": 1,
-        "Medium": 2,
-        "Medium to Long": 3,
-        "Long": 4,
-        "Long to Very Long": 5,
-        "Very Long": 6,
-        "Very, Very Long": 7,
-    }
-    timeline_order = {"Fifth Age": 0, "Ambiguous": 1, "Sixth Age": 2}
     expanded_quests = {}
 
     def _quest_progress_rank(q_state: dict) -> int:
@@ -2363,6 +2413,32 @@ def show_main_menu(
         if extra > 0:
             shown.append(f"+{extra} more")
         return "Requires: " + ", ".join(shown)
+
+    def _quest_matches_filters(quest_id: str, quest: dict) -> bool:
+        availability = quest_availability_state_pure(player_data, quest_id, QUEST_DATA)
+        if hide_completed_cb.isChecked() and availability == "completed":
+            return False
+        if hide_locked_cb.isChecked() and availability == "locked":
+            return False
+
+        access_filter = access_filter_combo.currentText()
+        if access_filter == "Free quests" and quest.get("members"):
+            return False
+        if access_filter == "Members quests" and not quest.get("members"):
+            return False
+
+        difficulty_filter = difficulty_filter_combo.currentText()
+        if difficulty_filter != "All difficulties" and str(quest.get("difficulty", "")) != difficulty_filter:
+            return False
+
+        length_filter = length_filter_combo.currentText()
+        if length_filter != "All lengths" and str(quest.get("length", "")) != length_filter:
+            return False
+
+        timeline_filter = timeline_filter_combo.currentText()
+        if timeline_filter != "All timelines" and str(quest.get("timeline", "")) != timeline_filter:
+            return False
+        return True
 
     def _clear_quest_cards() -> None:
         while quest_content_layout.count():
@@ -2481,11 +2557,26 @@ def show_main_menu(
     def _rebuild_quest_cards() -> None:
         _clear_quest_cards()
         mode = quest_sort_combo.currentText() or "Release Order"
+        visible_count = 0
         for quest_id, quest in sorted(QUEST_DATA.items(), key=lambda item: _quest_sort_key(item, mode)):
+            if not _quest_matches_filters(quest_id, quest):
+                continue
             _add_quest_card(quest_id, quest)
+            visible_count += 1
+        if visible_count == 0:
+            empty_label = QLabel("No quests match the current filters.")
+            empty_label.setObjectName("questEmptyFilterLabel")
+            empty_label.setWordWrap(True)
+            empty_label.setStyleSheet(f"color: {dim_text_css(empty_label)};")
+            quest_content_layout.addWidget(empty_label)
+        quest_filter_summary.setText(f"Showing {visible_count}/{len(QUEST_DATA)}")
         quest_content_layout.addStretch(1)
 
     quest_sort_combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
+    hide_completed_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
+    hide_locked_cb.toggled.connect(lambda _checked: _rebuild_quest_cards())
+    for combo in (access_filter_combo, difficulty_filter_combo, length_filter_combo, timeline_filter_combo):
+        combo.currentTextChanged.connect(lambda _text: _rebuild_quest_cards())
     _rebuild_quest_cards()
     quest_scroll.setWidget(quest_content)
     q_layout.addWidget(quest_scroll, 1)
