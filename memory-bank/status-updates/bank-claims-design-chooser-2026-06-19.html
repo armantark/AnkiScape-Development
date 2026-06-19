@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bank Claims Design Chooser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --ink: #101319;
+      --panel: #232832;
+      --panel-2: #2c313a;
+      --line: #565d6b;
+      --soft: rgba(255, 255, 255, 0.055);
+      --choice: #e9d66b;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.08), transparent 38%),
+        linear-gradient(315deg, rgba(74, 222, 128, 0.07), transparent 42%),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 28px;
+    }
+
+    main {
+      max-width: 1380px;
+      margin: 0 auto;
+    }
+
+    a { color: var(--accent); }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero-copy,
+    .diagnosis,
+    .decision-card,
+    .preview-shell,
+    .brief-card {
+      background: rgba(22, 26, 33, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.22);
+    }
+
+    .hero-copy {
+      padding: 24px;
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-copy::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0 1px, transparent 1px 58px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0 1px, transparent 1px 42px);
+      mask-image: linear-gradient(135deg, black, transparent 72%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      color: var(--choice);
+      background: rgba(233, 214, 107, 0.1);
+      border: 1px solid rgba(233, 214, 107, 0.36);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      position: relative;
+      z-index: 1;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 4vw, 4.2rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+      max-width: 780px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sub {
+      color: var(--text-dim);
+      font-size: 1.02rem;
+      line-height: 1.55;
+      max-width: 760px;
+      margin: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .source-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.035);
+      color: var(--text-dim);
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    .diagnosis {
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+      min-height: 260px;
+    }
+
+    .mini-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--text);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .mini-title span {
+      color: var(--amber);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .before-window {
+      border: 1px solid var(--line);
+      background: #262626;
+      min-height: 175px;
+      border-radius: 8px;
+      padding: 10px;
+      display: grid;
+      grid-template-rows: auto 1fr auto auto;
+      gap: 7px;
+    }
+
+    .tiny-tabs {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      border-bottom: 1px solid #151515;
+      color: #a2a2a2;
+      font-size: 0.62rem;
+      font-weight: 700;
+    }
+
+    .tiny-tabs div {
+      padding: 5px 4px;
+      border: 1px solid #545454;
+      border-bottom: 0;
+      text-align: center;
+    }
+
+    .tiny-tabs .on {
+      color: #f0f0f0;
+      background: #333;
+    }
+
+    .empty-chasm {
+      position: relative;
+      min-height: 82px;
+      border: 1px dashed rgba(255,255,255,0.12);
+      background:
+        linear-gradient(90deg, transparent 0 84%, rgba(255,255,255,0.12) 84% 85%, transparent 85%),
+        #292929;
+    }
+
+    .empty-chasm::before {
+      content: "Bank Claims";
+      position: absolute;
+      left: 9px;
+      top: 8px;
+      color: #f2f2f2;
+      font-weight: 700;
+      font-size: 0.72rem;
+    }
+
+    .empty-chasm::after {
+      content: "";
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      width: 58px;
+      height: 72px;
+      background:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.25) 0 2px, transparent 2px 17px);
+      opacity: 0.8;
+    }
+
+    .tiny-bank,
+    .tiny-toolbelt {
+      border: 1px solid #171717;
+      background: #202020;
+      min-height: 34px;
+      padding: 6px;
+      color: #ddd;
+      font-size: 0.66rem;
+      overflow: hidden;
+    }
+
+    .tiny-bank strong,
+    .tiny-toolbelt strong {
+      display: block;
+      color: #888;
+      margin-bottom: 4px;
+    }
+
+    .tiny-row {
+      height: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #292929;
+      margin-top: 2px;
+      padding: 2px 5px;
+      border-radius: 2px;
+    }
+
+    .tiny-icon {
+      width: 13px;
+      height: 13px;
+      border-radius: 3px;
+      background: linear-gradient(135deg, #b58c4a, #4b3920);
+      flex: 0 0 auto;
+    }
+
+    .diagnosis p {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      line-height: 1.45;
+      margin: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1.05fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .decision-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .decision-card {
+      padding: 16px;
+    }
+
+    .decision-head {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .num {
+      width: 30px;
+      height: 30px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      color: var(--accent);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 600;
+      font-size: 0.78rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.02rem;
+      letter-spacing: 0;
+    }
+
+    .why {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.35;
+      margin: 4px 0 0;
+    }
+
+    .rec {
+      color: var(--green);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      border: 1px solid rgba(74, 222, 128, 0.28);
+      background: rgba(74, 222, 128, 0.1);
+      border-radius: 999px;
+      padding: 4px 7px;
+      white-space: nowrap;
+    }
+
+    .options {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .option {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 10px;
+      text-align: left;
+      padding: 11px;
+      min-height: 112px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 9px;
+      cursor: pointer;
+      font-family: "Outfit", sans-serif;
+      transition: border-color 160ms ease, transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .option:hover,
+    .option:focus-visible {
+      transform: translateY(-1px);
+      border-color: rgba(79, 140, 255, 0.7);
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+      outline: none;
+    }
+
+    .option.selected {
+      border-color: var(--choice);
+      background:
+        linear-gradient(180deg, rgba(233, 214, 107, 0.13), rgba(233, 214, 107, 0.04)),
+        var(--surface-2);
+      box-shadow: 0 0 0 1px rgba(233, 214, 107, 0.16), 0 14px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .option strong {
+      display: block;
+      font-size: 0.93rem;
+      line-height: 1.1;
+      letter-spacing: 0;
+    }
+
+    .option span {
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      line-height: 1.34;
+    }
+
+    .option .cost {
+      color: var(--amber);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.62rem;
+      text-transform: uppercase;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 18px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .preview-shell {
+      padding: 16px;
+      overflow: hidden;
+    }
+
+    .preview-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .preview-head h2 { font-size: 1.05rem; }
+
+    .score {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.28);
+      border-radius: 999px;
+      padding: 5px 8px;
+      white-space: nowrap;
+    }
+
+    .bank-preview {
+      border: 1px solid #3f454f;
+      background: #2b2b2b;
+      border-radius: 12px;
+      min-height: 510px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto auto;
+      overflow: hidden;
+    }
+
+    .window-top {
+      height: 30px;
+      background: #252525;
+      border-bottom: 1px solid #161616;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #aeb0b4;
+      font-weight: 700;
+      position: relative;
+    }
+
+    .lights {
+      position: absolute;
+      left: 12px;
+      display: flex;
+      gap: 7px;
+    }
+
+    .light {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--red);
+    }
+
+    .light:nth-child(2) { background: #5d626c; }
+    .light:nth-child(3) { background: #35c65f; }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      background: #252525;
+      padding: 8px 12px 0;
+      border-bottom: 1px solid #111;
+    }
+
+    .tab {
+      border: 1px solid #555;
+      border-bottom: 0;
+      color: #a0a0a0;
+      padding: 7px 5px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      min-width: 0;
+    }
+
+    .tab.active {
+      color: #fff;
+      background: #343434;
+    }
+
+    .claim-panel,
+    .inventory-panel,
+    .toolbelt-panel,
+    .history-panel {
+      margin: 12px 14px 0;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #232323;
+      border-radius: 7px;
+      overflow: hidden;
+    }
+
+    .claim-panel {
+      display: grid;
+      transition: min-height 160ms ease;
+    }
+
+    .claim-panel.inside {
+      margin-top: 0;
+      border-radius: 0;
+      border-left: 0;
+      border-right: 0;
+      border-top: 0;
+    }
+
+    .claim-panel.subtab {
+      border-style: dashed;
+      background: #292726;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      background: #282828;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: #e7e7e7;
+      font-weight: 700;
+      font-size: 0.78rem;
+    }
+
+    .panel-title small {
+      color: #9a9a9a;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.62rem;
+      font-weight: 600;
+    }
+
+    .claim-rows {
+      display: grid;
+      gap: 1px;
+      padding: 0;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .claim-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 9px;
+      align-items: center;
+      background: #2f2f2f;
+      padding: 8px 10px;
+      min-height: 40px;
+    }
+
+    .claim-row.tile-style {
+      margin: 7px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      background: #30343a;
+      min-height: 64px;
+    }
+
+    .claim-row.inline-style {
+      grid-template-columns: 1fr auto;
+      background: #2b2b2b;
+      min-height: 31px;
+      padding: 5px 9px;
+    }
+
+    .claim-row.locked {
+      opacity: 0.55;
+    }
+
+    .claim-row.history {
+      opacity: 0.66;
+    }
+
+    .claim-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #7fcb81, #1c5e36);
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,0.12);
+    }
+
+    .claim-copy strong {
+      display: block;
+      color: #f3f3f3;
+      font-size: 0.78rem;
+      line-height: 1.1;
+    }
+
+    .claim-copy span {
+      display: block;
+      color: #9fa4ac;
+      font-size: 0.62rem;
+      margin-top: 2px;
+    }
+
+    .claim-action {
+      border: 0;
+      border-radius: 6px;
+      padding: 6px 9px;
+      background: #70737a;
+      color: #fff;
+      font-weight: 700;
+      font-family: "Outfit", sans-serif;
+      font-size: 0.68rem;
+    }
+
+    .claim-action.good { background: #2e8d55; }
+    .claim-action.choice { background: #8b7027; }
+    .claim-action.disabled { background: #51545a; color: #aaa; }
+
+    .overflow-note {
+      padding: 6px 10px;
+      color: #b3b8c2;
+      background: #282828;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.62rem;
+    }
+
+    .inventory-panel {
+      min-height: 250px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .bank-list {
+      overflow: hidden;
+      background: #202020;
+    }
+
+    .bank-section {
+      color: #8f8f8f;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 5px 9px 3px;
+      background: #242424;
+    }
+
+    .bank-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: center;
+      min-height: 34px;
+      padding: 5px 10px;
+      color: #f1f1f1;
+      background: #2d2d2d;
+      font-size: 0.78rem;
+    }
+
+    .bank-row:nth-child(odd) { background: #282828; }
+
+    .item-icon {
+      width: 23px;
+      height: 23px;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #b0813d, #4a3a24);
+    }
+
+    .item-icon.log { background: linear-gradient(135deg, #8e6732, #332113); }
+    .item-icon.fish { background: linear-gradient(135deg, #7997b7, #38475c); }
+
+    .toolbelt-panel {
+      margin-bottom: 12px;
+    }
+
+    .tool-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 9px;
+      align-items: center;
+      padding: 8px 10px;
+      color: #f1f1f1;
+      background: #292929;
+      font-size: 0.78rem;
+    }
+
+    .tool-icon {
+      width: 23px;
+      height: 23px;
+      border-radius: 5px;
+      background: linear-gradient(135deg, #8b6535, #2b2114);
+      transform: rotate(-12deg);
+    }
+
+    .history-panel {
+      display: none;
+      padding: 8px 10px;
+      color: #9ea5b2;
+      font-size: 0.72rem;
+      background: #21252d;
+    }
+
+    .brief-card {
+      padding: 16px;
+    }
+
+    .brief-card h2 {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .brief-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .utility-button {
+      appearance: none;
+      border: 1px solid rgba(79, 140, 255, 0.48);
+      background: rgba(79, 140, 255, 0.12);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      cursor: pointer;
+    }
+
+    .utility-button:hover,
+    .utility-button:focus-visible {
+      outline: none;
+      border-color: var(--choice);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 245px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f1217;
+      color: var(--text);
+      padding: 12px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.74rem;
+      line-height: 1.5;
+    }
+
+    .guidance {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .guide-pill {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.035);
+      border-radius: 10px;
+      padding: 11px;
+      min-height: 94px;
+    }
+
+    .guide-pill strong {
+      display: block;
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .guide-pill p {
+      color: var(--text-dim);
+      font-size: 0.76rem;
+      line-height: 1.35;
+      margin: 0;
+    }
+
+    .toast {
+      position: fixed;
+      right: 22px;
+      bottom: 22px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: var(--ink);
+      background: var(--choice);
+      font-weight: 700;
+      opacity: 0;
+      transform: translateY(8px);
+      pointer-events: none;
+      transition: opacity 180ms ease, transform 180ms ease;
+      z-index: 10;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 1120px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .sticky {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      body { padding: 14px; }
+      .hero-copy { min-height: 0; }
+      .options { grid-template-columns: 1fr; }
+      .guidance { grid-template-columns: 1fr; }
+      .tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .bank-preview { min-height: 470px; }
+      .brief-card h2 { display: block; }
+      .brief-actions { margin-top: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <div>
+          <div class="eyebrow">Interactive design grill</div>
+          <h1>Bank Claims, decomposed into choices.</h1>
+          <p class="sub">Click the shape you want for each module. The preview updates immediately, and the implementation brief at the bottom turns your selections into a pasteable frontend handoff.</p>
+        </div>
+        <div class="source-strip" aria-label="Relevant source files">
+          <span class="tag">ui.py:2702</span>
+          <span class="tag">claim_rows_pure</span>
+          <span class="tag">Bank tab only</span>
+          <span class="tag">Frontend decision</span>
+        </div>
+      </div>
+
+      <aside class="diagnosis" aria-label="Current UI diagnosis">
+        <div class="mini-title">Why it feels mangled <span>Current symptom</span></div>
+        <div class="before-window" aria-hidden="true">
+          <div class="tiny-tabs">
+            <div>Skills</div><div>Quests</div><div class="on">Bank</div><div>Equip</div><div>Stats</div><div>Settings</div>
+          </div>
+          <div class="empty-chasm"></div>
+          <div class="tiny-bank"><strong>Ores</strong><div class="tiny-row"><span class="tiny-icon"></span>Tin ore x469</div></div>
+          <div class="tiny-toolbelt"><strong>Toolbelt</strong><div class="tiny-row"><span class="tiny-icon"></span>Pickaxe: Bronze pickaxe</div></div>
+        </div>
+        <p>The claim widget is conceptually correct, but the layout gives it a giant empty claim region before inventory appears. This chooser keeps the existing backend idea and only changes the visual contract.</p>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <div class="decision-stack" aria-label="Design decisions">
+        <article class="decision-card" data-section="placement">
+          <div class="decision-head">
+            <span class="num">01</span>
+            <div>
+              <h2>Where should claims live?</h2>
+              <p class="why">This controls whether claims read as pending actions, bank items, or a separate workflow.</p>
+            </div>
+            <span class="rec">Recommended</span>
+          </div>
+          <div class="options" role="radiogroup" aria-label="Placement options">
+            <button class="option selected" type="button" data-group="placement" data-choice="inbox" data-label="Compact inbox above inventory">
+              <strong>Inbox above inventory</strong>
+              <span>Claims stay action-like, while inventory remains the main scrollable area.</span>
+              <span class="cost">Best fit</span>
+            </button>
+            <button class="option" type="button" data-group="placement" data-choice="inside" data-label="Claims as first bank category">
+              <strong>First bank category</strong>
+              <span>Makes claims feel like rows in the bank, but keeps one scroll surface.</span>
+              <span class="cost">More compact</span>
+            </button>
+            <button class="option" type="button" data-group="placement" data-choice="subtab" data-label="Separate Claims subtab">
+              <strong>Claims subtab</strong>
+              <span>Clean separation, but a small one-time claim can become too hidden.</span>
+              <span class="cost">Most isolated</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="decision-card" data-section="height">
+          <div class="decision-head">
+            <span class="num">02</span>
+            <div>
+              <h2>How tall can the claim area get?</h2>
+              <p class="why">This is the decision that directly fixes the screenshot.</p>
+            </div>
+            <span class="rec">Recommended</span>
+          </div>
+          <div class="options" role="radiogroup" aria-label="Height options">
+            <button class="option selected" type="button" data-group="height" data-choice="capped" data-label="Capped to three rows with overflow">
+              <strong>Capped list</strong>
+              <span>Show at most three claim rows, then a small overflow affordance.</span>
+              <span class="cost">Stable layout</span>
+            </button>
+            <button class="option" type="button" data-group="height" data-choice="collapsed" data-label="Collapsed summary until opened">
+              <strong>Collapsed summary</strong>
+              <span>One line by default: pending count, primary claim, and expand control.</span>
+              <span class="cost">Smallest</span>
+            </button>
+            <button class="option" type="button" data-group="height" data-choice="expanded" data-label="Full claim list above inventory">
+              <strong>Full list</strong>
+              <span>Everything visible, but inventory can be pushed down again.</span>
+              <span class="cost">Risky</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="decision-card" data-section="row">
+          <div class="decision-head">
+            <span class="num">03</span>
+            <div>
+              <h2>What should a claim row look like?</h2>
+              <p class="why">The row has to carry item claims and XP lamps without becoming a card wall.</p>
+            </div>
+            <span class="rec">Recommended</span>
+          </div>
+          <div class="options" role="radiogroup" aria-label="Row shape options">
+            <button class="option selected" type="button" data-group="row" data-choice="compact" data-label="Icon, title, metadata, action button">
+              <strong>Compact action row</strong>
+              <span>Icon, label, source or requirement note, and one button on the right.</span>
+              <span class="cost">Clear</span>
+            </button>
+            <button class="option" type="button" data-group="row" data-choice="tiles" data-label="Small claim tiles">
+              <strong>Mini tiles</strong>
+              <span>More visual emphasis for rare rewards, at the cost of vertical space.</span>
+              <span class="cost">Showy</span>
+            </button>
+            <button class="option" type="button" data-group="row" data-choice="inline" data-label="Dense text row with inline action">
+              <strong>Dense inline</strong>
+              <span>Almost table-like. Good for many lamp claims, less special for rewards.</span>
+              <span class="cost">Dense</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="decision-card" data-section="visibility">
+          <div class="decision-head">
+            <span class="num">04</span>
+            <div>
+              <h2>Which claim states should be visible?</h2>
+              <p class="why">Locked and claimed rows are useful context, but they can clutter a small bank surface.</p>
+            </div>
+            <span class="rec">Recommended</span>
+          </div>
+          <div class="options" role="radiogroup" aria-label="Visibility options">
+            <button class="option selected" type="button" data-group="visibility" data-choice="actionable" data-label="Actionable rows plus a locked summary">
+              <strong>Actionable plus summary</strong>
+              <span>Show claimable rows. Summarize locked rows as count and tooltip detail.</span>
+              <span class="cost">Least clutter</span>
+            </button>
+            <button class="option" type="button" data-group="visibility" data-choice="all" data-label="All rows including locked claims">
+              <strong>Show all states</strong>
+              <span>Displays locked and claimed rows in place with disabled actions.</span>
+              <span class="cost">Transparent</span>
+            </button>
+            <button class="option" type="button" data-group="visibility" data-choice="eligible" data-label="Eligible claims only">
+              <strong>Eligible only</strong>
+              <span>Cleanest inbox, but hides future rewards and why they are unavailable.</span>
+              <span class="cost">Sparse</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="decision-card" data-section="lamp">
+          <div class="decision-head">
+            <span class="num">05</span>
+            <div>
+              <h2>How should XP lamp claims choose a skill?</h2>
+              <p class="why">The backend already supports selected_skill_id. This only picks the frontend affordance.</p>
+            </div>
+            <span class="rec">Recommended</span>
+          </div>
+          <div class="options" role="radiogroup" aria-label="XP lamp options">
+            <button class="option selected" type="button" data-group="lamp" data-choice="dialog" data-label="Keep Choose skill dialog">
+              <strong>Modal picker</strong>
+              <span>Current behavior, but launched from a cleaner claim row with better tooltip text.</span>
+              <span class="cost">Smallest diff</span>
+            </button>
+            <button class="option" type="button" data-group="lamp" data-choice="inline" data-label="Inline skill picker">
+              <strong>Inline picker</strong>
+              <span>Shows eligible skill chips inside the row before claiming.</span>
+              <span class="cost">Richer UI</span>
+            </button>
+            <button class="option" type="button" data-group="lamp" data-choice="active" data-label="Apply to active skill after confirmation">
+              <strong>Active skill default</strong>
+              <span>Fast, but risky because a mis-click spends a one-time quest reward.</span>
+              <span class="cost">Avoid</span>
+            </button>
+          </div>
+        </article>
+
+        <article class="decision-card" data-section="history">
+          <div class="decision-head">
+            <span class="num">06</span>
+            <div>
+              <h2>What happens after a claim is used?</h2>
+              <p class="why">History can reassure players, but it should not permanently occupy the Bank tab.</p>
+            </div>
+            <span class="rec">Recommended</span>
+          </div>
+          <div class="options" role="radiogroup" aria-label="Claim history options">
+            <button class="option selected" type="button" data-group="history" data-choice="hide" data-label="Remove claimed rows, show all caught up">
+              <strong>Hide claimed</strong>
+              <span>After claiming, rows disappear and the panel collapses to a quiet done state.</span>
+              <span class="cost">Clean</span>
+            </button>
+            <button class="option" type="button" data-group="history" data-choice="disclosure" data-label="Claimed history in a disclosure">
+              <strong>History disclosure</strong>
+              <span>Keeps a compact "claimed rewards" expander below the inbox.</span>
+              <span class="cost">Auditable</span>
+            </button>
+            <button class="option" type="button" data-group="history" data-choice="inline" data-label="Keep claimed rows inline">
+              <strong>Inline claimed rows</strong>
+              <span>Simple state display, but stale rows compete with real inventory.</span>
+              <span class="cost">Noisy</span>
+            </button>
+          </div>
+        </article>
+      </div>
+
+      <div class="sticky">
+        <section class="preview-shell" aria-label="Live preview">
+          <div class="preview-head">
+            <h2>Live Bank mockup</h2>
+            <span class="score" id="score">6 decisions selected</span>
+          </div>
+          <div class="bank-preview">
+            <div class="window-top"><div class="lights"><span class="light"></span><span class="light"></span><span class="light"></span></div>AnkiScape Menu</div>
+            <div class="tabs">
+              <div class="tab">Skills</div>
+              <div class="tab">Quests</div>
+              <div class="tab active">Bank</div>
+              <div class="tab">Equipment</div>
+              <div class="tab">Stats</div>
+              <div class="tab">Settings</div>
+            </div>
+            <div id="claimsHost"></div>
+            <div class="inventory-panel">
+              <div class="panel-title"><span id="inventoryTitle">Bank Inventory</span><small>main scroll area</small></div>
+              <div class="bank-list" id="bankList">
+                <div class="bank-section">Ores</div>
+                <div class="bank-row"><span class="item-icon"></span><span>Tin ore x469</span></div>
+                <div class="bank-section">Logs</div>
+                <div class="bank-row"><span class="item-icon log"></span><span>Logs x28</span></div>
+                <div class="bank-section">Food</div>
+                <div class="bank-row"><span class="item-icon fish"></span><span>Shrimps x12</span></div>
+              </div>
+            </div>
+            <div class="history-panel" id="historyPanel">Claimed rewards: Wicked hood, One Small Favour lamp. This can stay collapsed until needed.</div>
+            <div class="toolbelt-panel">
+              <div class="panel-title"><span>Toolbelt</span><small>fixed strip</small></div>
+              <div class="tool-row"><span class="tool-icon"></span><span>Pickaxe: Bronze pickaxe</span></div>
+              <div class="tool-row"><span class="tool-icon"></span><span>Hatchet: Bronze hatchet</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="brief-card" aria-label="Generated implementation brief">
+          <h2>
+            <span>Generated handoff</span>
+            <span class="brief-actions">
+              <button class="utility-button" type="button" id="copyBrief">Copy brief</button>
+              <button class="utility-button" type="button" id="resetChoices">Reset</button>
+            </span>
+          </h2>
+          <textarea id="brief" spellcheck="false" aria-label="Generated implementation brief"></textarea>
+          <div class="guidance">
+            <div class="guide-pill">
+              <strong>Backend scope</strong>
+              <p>No storage or claim contract change is implied by these choices. Existing rows already carry eligibility, locked reasons, type, quantity, and lamp skill options.</p>
+            </div>
+            <div class="guide-pill">
+              <strong>Frontend scope</strong>
+              <p>Change only the Bank tab claim rendering and Qt tests around layout, row state, and button behavior.</p>
+            </div>
+            <div class="guide-pill">
+              <strong>Acceptance check</strong>
+              <p>The inventory list should be visible without scrolling in a normal menu window whenever there are zero to three pending claims.</p>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite">Copied</div>
+
+  <script>
+    const defaults = {
+      placement: "inbox",
+      height: "capped",
+      row: "compact",
+      visibility: "actionable",
+      lamp: "dialog",
+      history: "hide"
+    };
+
+    const labels = {};
+    const stateKey = "ankiscape-bank-claims-design-chooser-v1";
+    let state = { ...defaults };
+
+    document.querySelectorAll(".option").forEach((button) => {
+      const group = button.dataset.group;
+      const choice = button.dataset.choice;
+      labels[`${group}:${choice}`] = button.dataset.label || button.textContent.trim();
+      button.setAttribute("role", "radio");
+      button.setAttribute("aria-checked", button.classList.contains("selected") ? "true" : "false");
+      button.addEventListener("click", () => selectOption(group, choice));
+      button.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectOption(group, choice);
+        }
+      });
+    });
+
+    function selectOption(group, choice) {
+      state[group] = choice;
+      localStorage.setItem(stateKey, JSON.stringify(state));
+      render();
+    }
+
+    function selectedLabel(group) {
+      return labels[`${group}:${state[group]}`] || state[group];
+    }
+
+    function claimRows() {
+      const rowClass = state.row === "tiles" ? "tile-style" : state.row === "inline" ? "inline-style" : "";
+      const showIcons = state.row !== "inline";
+      const meta = state.row === "inline" ? "" : "<span>Rune Mysteries complete, Runecrafting 5</span>";
+      const lampMeta = state.lamp === "inline"
+        ? "<span>Pick a skill chip before claiming</span>"
+        : state.lamp === "active"
+          ? "<span>Will confirm active skill before spend</span>"
+          : "<span>Opens eligible skill picker</span>";
+
+      const rows = [];
+      rows.push(`
+        <div class="claim-row ${rowClass}">
+          ${showIcons ? '<span class="claim-icon"></span>' : ""}
+          <span class="claim-copy"><strong>Wicked hood x1</strong>${meta}</span>
+          <button class="claim-action good" type="button">Claim</button>
+        </div>
+      `);
+      rows.push(`
+        <div class="claim-row ${rowClass}">
+          ${showIcons ? '<span class="claim-icon" style="background:linear-gradient(135deg,#c78df2,#5b3d87)"></span>' : ""}
+          <span class="claim-copy"><strong>Quest XP lamp</strong>${lampMeta}</span>
+          <button class="claim-action choice" type="button">${state.lamp === "inline" ? "Pick" : state.lamp === "active" ? "Confirm" : "Choose"}</button>
+        </div>
+      `);
+
+      if (state.visibility === "all") {
+        rows.push(`
+          <div class="claim-row ${rowClass} locked">
+            ${showIcons ? '<span class="claim-icon" style="background:linear-gradient(135deg,#7b8796,#343941)"></span>' : ""}
+            <span class="claim-copy"><strong>Locked altar claim</strong><span>Requires Lunar Diplomacy</span></span>
+            <button class="claim-action disabled" type="button">Locked</button>
+          </div>
+        `);
+      }
+
+      if (state.history === "inline") {
+        rows.push(`
+          <div class="claim-row ${rowClass} history">
+            ${showIcons ? '<span class="claim-icon" style="background:linear-gradient(135deg,#77a177,#343f34)"></span>' : ""}
+            <span class="claim-copy"><strong>Wicked hood claimed</strong><span>Stored in claims state</span></span>
+            <button class="claim-action disabled" type="button">Claimed</button>
+          </div>
+        `);
+      }
+
+      if (state.visibility === "eligible") {
+        return rows.slice(0, 1).join("");
+      }
+      return rows.join("");
+    }
+
+    function renderClaimPanel() {
+      const placementClass = state.placement === "inside" ? "inside" : state.placement === "subtab" ? "subtab" : "";
+      let title = "Bank Claims";
+      let hint = "pending rewards";
+      let extra = "";
+
+      if (state.placement === "inside") {
+        title = "Claims";
+        hint = "first bank category";
+      } else if (state.placement === "subtab") {
+        title = "Claims subtab preview";
+        hint = "separate surface";
+      }
+
+      if (state.height === "collapsed") {
+        extra = '<div class="overflow-note">2 pending rewards. Click to expand.</div>';
+        return `
+          <section class="claim-panel ${placementClass}" aria-label="Bank claims preview">
+            <div class="panel-title"><span>${title}</span><small>${hint}</small></div>
+            <div class="claim-rows">
+              <div class="claim-row ${state.row === "inline" ? "inline-style" : ""}">
+                ${state.row === "inline" ? "" : '<span class="claim-icon"></span>'}
+                <span class="claim-copy"><strong>2 claimable rewards</strong><span>Wicked hood, Quest XP lamp</span></span>
+                <button class="claim-action good" type="button">Open</button>
+              </div>
+            </div>
+            ${extra}
+          </section>
+        `;
+      }
+
+      if (state.height === "capped") {
+        extra = state.visibility === "actionable"
+          ? '<div class="overflow-note">1 locked reward hidden until requirements are met.</div>'
+          : '<div class="overflow-note">Panel capped at 3 rows. More rows scroll inside this claim area.</div>';
+      }
+
+      if (state.height === "expanded") {
+        extra = '<div class="overflow-note">Full claim list expands before inventory.</div>';
+      }
+
+      return `
+        <section class="claim-panel ${placementClass}" aria-label="Bank claims preview">
+          <div class="panel-title"><span>${title}</span><small>${hint}</small></div>
+          <div class="claim-rows">${claimRows()}</div>
+          ${extra}
+        </section>
+      `;
+    }
+
+    function renderPreview() {
+      const host = document.getElementById("claimsHost");
+      const bankList = document.getElementById("bankList");
+      const historyPanel = document.getElementById("historyPanel");
+      const inventoryTitle = document.getElementById("inventoryTitle");
+      const panel = renderClaimPanel();
+
+      host.innerHTML = "";
+      bankList.querySelectorAll(".claim-panel").forEach((node) => node.remove());
+
+      if (state.placement === "inside") {
+        bankList.insertAdjacentHTML("afterbegin", panel);
+      } else if (state.placement === "subtab") {
+        host.innerHTML = panel;
+        inventoryTitle.textContent = "Bank Inventory";
+      } else {
+        host.innerHTML = panel;
+        inventoryTitle.textContent = "Bank Inventory";
+      }
+
+      historyPanel.style.display = state.history === "disclosure" ? "block" : "none";
+    }
+
+    function implementationBrief() {
+      const lines = [
+        "Bank Claims UI decision brief",
+        "",
+        `1. Placement: ${selectedLabel("placement")}.`,
+        `2. Height behavior: ${selectedLabel("height")}.`,
+        `3. Row shape: ${selectedLabel("row")}.`,
+        `4. Visibility policy: ${selectedLabel("visibility")}.`,
+        `5. XP lamp interaction: ${selectedLabel("lamp")}.`,
+        `6. Claimed state: ${selectedLabel("history")}.`,
+        "",
+        "Frontend implementation notes:",
+        "- Keep the existing claim_rows_pure/apply_claim_pure data contract.",
+        "- Rework only the Bank tab claim rendering in ui.py; do not change storage or claim state.",
+        "- The claim surface must not reserve a large empty vertical region when there are few or no claim rows.",
+        "- The bank inventory list should remain the primary scroll surface and should be visible in a normal AnkiScape menu window.",
+        "- Preserve the current item claim behavior and selected_skill_id flow for XP lamps unless the selected lamp option says otherwise.",
+        "",
+        "Suggested tests:",
+        "- Qt test: eligible Wicked hood claim renders in the selected surface and clicking its action calls on_claim_reward('wicked_hood', None).",
+        "- Qt test: the claim surface has a bounded height when multiple claim rows are present.",
+        "- Qt test: bank inventory and toolbelt remain separate widgets and visible after claims are populated.",
+        "- Manual check: open AnkiScape Menu > Bank with zero, one, and several pending claims; confirm inventory is visible and no blank claim chasm appears."
+      ];
+      return lines.join("\n");
+    }
+
+    function renderButtons() {
+      document.querySelectorAll(".option").forEach((button) => {
+        const isSelected = state[button.dataset.group] === button.dataset.choice;
+        button.classList.toggle("selected", isSelected);
+        button.setAttribute("aria-checked", isSelected ? "true" : "false");
+      });
+      document.getElementById("score").textContent = `${Object.keys(state).length} decisions selected`;
+    }
+
+    function render() {
+      renderButtons();
+      renderPreview();
+      document.getElementById("brief").value = implementationBrief();
+    }
+
+    function showToast(text) {
+      const toast = document.getElementById("toast");
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.setTimeout(() => toast.classList.remove("show"), 1400);
+    }
+
+    document.getElementById("copyBrief").addEventListener("click", async () => {
+      const value = document.getElementById("brief").value;
+      try {
+        await navigator.clipboard.writeText(value);
+        showToast("Brief copied");
+      } catch (error) {
+        document.getElementById("brief").select();
+        showToast("Select and copy");
+      }
+    });
+
+    document.getElementById("resetChoices").addEventListener("click", () => {
+      state = { ...defaults };
+      localStorage.removeItem(stateKey);
+      render();
+      showToast("Reset");
+    });
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(stateKey) || "null");
+      if (saved && typeof saved === "object") {
+        state = { ...defaults, ...saved };
+      }
+    } catch (error) {
+      state = { ...defaults };
+    }
+
+    render();
+  </script>
+</body>
+</html>
