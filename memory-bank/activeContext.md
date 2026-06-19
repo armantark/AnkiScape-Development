@@ -267,6 +267,12 @@ talisman/tiara access items. Binding necklace uses one equipment item plus
 `item_charges["Binding necklace"]` (15 initial charges), not item variants; each
 combination trip consumes one charge and removes the worn necklace at zero.
 Assets are fetched into `runecraftingitems/` plus `icon/runecrafting_icon.png`.
+The Bank Claims frontend now treats claims as a compact action inbox above the
+inventory, not as bank items: eligible rows show icon/title/metadata/action,
+claimed rows disappear into an all-caught-up state, locked rows collapse into a
+summary, and the action list is capped to three visible rows so inventory remains
+the primary Bank surface. The focused Bank Claims Qt tests, `python3 run_tests.py`,
+and full offscreen Qt discovery all pass with this polish.
 Verification: `python3 run_tests.py` passed with 317 tests (79 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 317 tests.

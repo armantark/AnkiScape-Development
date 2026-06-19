@@ -307,6 +307,13 @@ def _find_gear_list(dialog: "QDialog") -> "QListWidget":
     raise AssertionError("gear list (toolbelt/equipped) not found")
 
 
+def _find_named_widget(dialog: "QDialog", object_name: str) -> "QWidget":
+    for widget in dialog.findChildren(QWidget):
+        if widget.objectName() == object_name:
+            return widget
+    raise AssertionError(f"widget {object_name!r} not found")
+
+
 def _find_equipment_list(dialog: "QDialog") -> "QListWidget":
     """The Equipment tab's worn-slot list, identified by its objectName."""
     for lw in dialog.findChildren(QListWidget):
@@ -1081,6 +1088,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Bank Claims", labels)
         self.assertIn("Wicked hood x1", labels)
+        self.assertIn("Ready to claim", labels)
+        self.assertTrue(any("locked reward" in label for label in labels), labels)
+        self.assertIsNotNone(_find_named_widget(dialog, "bankClaimsScrollArea"))
         claim_btn = next(
             btn for btn in dialog.findChildren(QPushButton)
             if btn.text() == "Claim"
@@ -1089,6 +1099,45 @@ class MainMenuWidgetTest(unittest.TestCase):
         claim_btn.click()
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
+
+    def test_bank_claims_collapse_locked_rows_into_summary(self) -> None:
+        pd = _make_player_data()
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Bank Claims", labels)
+        self.assertNotIn("Wicked hood x1", labels)
+        self.assertTrue(any("locked reward" in label for label in labels), labels)
+        self.assertFalse(
+            [w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"],
+            "locked claims should not render as individual action rows",
+        )
+
+    def test_bank_claims_inbox_is_capped_above_inventory(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Logs": 5}
+        original_claim_data = self._ui.CLAIM_DATA
+        self._ui.CLAIM_DATA = {
+            f"test_claim_{i}": {
+                "display_name": f"Test reward {i}",
+                "claim_type": "item",
+                "item_name": f"Test reward {i}",
+                "quantity": 1,
+            }
+            for i in range(5)
+        }
+        try:
+            dialog = self._open(pd)
+        finally:
+            self._ui.CLAIM_DATA = original_claim_data
+
+        claim_rows = [w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"]
+        self.assertEqual(len(claim_rows), 5)
+        scroll = _find_named_widget(dialog, "bankClaimsScrollArea")
+        claims_box = _find_named_widget(dialog, "bankClaimsBox")
+        self.assertLessEqual(scroll.maximumHeight(), 160)
+        self.assertLessEqual(claims_box.maximumHeight(), 210)
+        self.assertIsNot(_find_bank_list(dialog), _find_gear_list(dialog))
 
     def test_bank_groups_fletched_and_material_items_with_icons(self) -> None:
         pd = _make_player_data()

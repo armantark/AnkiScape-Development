@@ -36,6 +36,7 @@ try:
         QButtonGroup,
         QRadioButton,
         QScrollArea,
+        QSizePolicy,
         QProgressBar,
         QCheckBox,
         QSpinBox,
@@ -2700,6 +2701,8 @@ def show_main_menu(
                 bank_list.addItem(li)
 
     claims_box = QWidget()
+    claims_box.setObjectName("bankClaimsBox")
+    claims_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
     claims_layout = QVBoxLayout(claims_box)
     claims_layout.setContentsMargins(0, 0, 0, 0)
     claims_layout.setSpacing(6)
@@ -2729,6 +2732,20 @@ def show_main_menu(
             return f"Choose: {label}. Minimum level: {minimum_level}."
         return f"Choose: {label}."
 
+    def _claim_metadata(row: dict) -> str:
+        if str(row.get("claim_type", "item")) == "xp_lamp":
+            amount = row.get("xp_amount", 0)
+            amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
+            tooltip = _claim_skill_tooltip(row)
+            return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
+        return "Ready to claim"
+
+    def _claim_item_icon_path(row: dict) -> Optional[str]:
+        item_name = str(row.get("item_name", row.get("display_name", "")))
+        definition = _item_def_for(item_name)
+        asset_path = definition.asset_path if definition is not None else None
+        return _bank_icon_path(item_name, asset_path)
+
     def _choose_claim_skill(row: dict) -> Optional[str]:
         options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
         minimum_level = int(row.get("minimum_level", 1) or 1)
@@ -2748,37 +2765,73 @@ def show_main_menu(
     def _populate_claims() -> None:
         _clear_layout(claims_layout)
         rows = claim_rows_pure(player_data, CLAIM_DATA)
+        unclaimed = [row for row in rows if not row.get("claimed")]
+        actionable = [row for row in unclaimed if row.get("eligible")]
+        locked = [row for row in unclaimed if not row.get("eligible")]
         if not rows:
             claims_box.setVisible(False)
             return
         claims_box.setVisible(True)
         header = QLabel("Bank Claims")
+        header.setObjectName("bankClaimsHeader")
         header.setStyleSheet("font-weight: 600; color: palette(text);")
         claims_layout.addWidget(header)
-        for row in rows:
+        max_claim_height = header.sizeHint().height()
+
+        if not actionable and not locked:
+            empty = QLabel("All Bank Claims caught up.")
+            empty.setObjectName("bankClaimsCaughtUp")
+            empty.setStyleSheet("color: palette(mid);")
+            claims_layout.addWidget(empty)
+            claims_box.setMaximumHeight(max_claim_height + claims_layout.spacing() + empty.sizeHint().height() + 4)
+            return
+
+        rows_host = QWidget()
+        rows_host.setObjectName("bankClaimsRows")
+        rows_layout = QVBoxLayout(rows_host)
+        rows_layout.setContentsMargins(0, 0, 0, 0)
+        rows_layout.setSpacing(4)
+        rendered_rows = 0
+
+        for row in actionable:
             claim_row = QWidget()
+            claim_row.setObjectName("bankClaimRow")
             crl = QHBoxLayout(claim_row)
-            crl.setContentsMargins(0, 0, 0, 0)
+            crl.setContentsMargins(6, 4, 6, 4)
             crl.setSpacing(8)
             item_name = str(row.get("item_name", row.get("display_name", "")))
             claim_type = str(row.get("claim_type", "item"))
+            icon_label = QLabel()
+            icon_label.setObjectName("bankClaimIcon")
+            icon_label.setFixedSize(28, 28)
+            icon_label.setStyleSheet("background: rgba(255, 255, 255, 0.08); border: 1px solid palette(mid); border-radius: 4px;")
+            icon_path = _claim_item_icon_path(row)
+            if icon_path:
+                icon_label.setPixmap(QIcon(icon_path).pixmap(24, 24))
+                icon_label.setStyleSheet("")
             if claim_type == "xp_lamp":
-                label = QLabel(str(row.get("display_name", item_name)))
-                label.setToolTip(_claim_skill_tooltip(row))
+                title_text = str(row.get("display_name", item_name))
             else:
-                label = QLabel(f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}")
-            label.setStyleSheet("color: palette(text);")
+                title_text = f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}"
+            copy = QWidget()
+            copy_layout = QVBoxLayout(copy)
+            copy_layout.setContentsMargins(0, 0, 0, 0)
+            copy_layout.setSpacing(1)
+            label = QLabel(title_text)
+            label.setObjectName("bankClaimTitle")
+            label.setStyleSheet("color: palette(text); font-weight: 600;")
+            if claim_type == "xp_lamp":
+                label.setToolTip(_claim_skill_tooltip(row))
+            metadata = QLabel(_claim_metadata(row))
+            metadata.setObjectName("bankClaimMetadata")
+            metadata.setStyleSheet("color: palette(mid);")
+            if claim_type == "xp_lamp":
+                metadata.setToolTip(_claim_skill_tooltip(row))
+            copy_layout.addWidget(label)
+            copy_layout.addWidget(metadata)
             claim_btn = QPushButton("Claim")
-            locked = tuple(row.get("locked_reasons", ()))
-            if row.get("claimed"):
-                claim_btn.setText("Claimed")
-                claim_btn.setEnabled(False)
-            elif not row.get("eligible"):
-                claim_btn.setText("Locked")
-                claim_btn.setEnabled(False)
-                if locked:
-                    claim_btn.setToolTip("Requires: " + ", ".join(str(reason) for reason in locked))
-            elif claim_type == "xp_lamp":
+            claim_btn.setObjectName("bankClaimAction")
+            if claim_type == "xp_lamp":
                 claim_btn.setText("Choose skill")
                 claim_btn.setToolTip(_claim_skill_tooltip(row))
 
@@ -2795,10 +2848,39 @@ def show_main_menu(
                     _refresh_equipment_views()
 
             claim_btn.clicked.connect(_do_claim)
-            crl.addWidget(label)
+            crl.addWidget(icon_label)
+            crl.addWidget(copy)
             crl.addStretch(1)
             crl.addWidget(claim_btn)
-            claims_layout.addWidget(claim_row)
+            rows_layout.addWidget(claim_row)
+            rendered_rows += 1
+
+        if rendered_rows:
+            scroll = QScrollArea()
+            scroll.setObjectName("bankClaimsScrollArea")
+            scroll.setWidgetResizable(True)
+            scroll.setStyleSheet("QScrollArea#bankClaimsScrollArea { border: none; }")
+            scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            scroll.setWidget(rows_host)
+            row_height = max(rows_host.sizeHint().height() // rendered_rows, 42)
+            scroll_height = (row_height * 3) + 10
+            scroll.setMaximumHeight(scroll_height)
+            claims_layout.addWidget(scroll)
+            max_claim_height += claims_layout.spacing() + scroll_height
+        else:
+            rows_host.deleteLater()
+
+        if locked:
+            summary = QLabel(f"{len(locked)} locked reward{'s' if len(locked) != 1 else ''} hidden until requirements are met.")
+            summary.setObjectName("bankClaimsLockedSummary")
+            summary.setStyleSheet("color: palette(mid);")
+            unique_reasons = sorted({str(reason) for row in locked for reason in tuple(row.get("locked_reasons", ()))})
+            if unique_reasons:
+                summary.setToolTip("Requires: " + ", ".join(unique_reasons))
+            claims_layout.addWidget(summary)
+            max_claim_height += claims_layout.spacing() + summary.sizeHint().height()
+
+        claims_box.setMaximumHeight(max_claim_height + 4)
 
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
