@@ -445,12 +445,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             target_list.item(i) for i in range(target_list.count())
             if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_sardine_herring"
         )
+        mackerel_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_mackerel_cod_bass"
+        )
         crayfish_row = next(
             target_list.item(i) for i in range(target_list.count())
             if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "catch_crayfish"
         )
 
         self.assertTrue(crayfish_row.text().startswith("Catch crayfish"))
+        self.assertEqual(sardine_row.text(), "Catch sardine (Lvl 5)/herring (Lvl 10)")
+        self.assertEqual(mackerel_row.text(), "Catch mackerel (Lvl 16)/cod (Lvl 23)/bass (Lvl 46)")
         tip = sardine_row.toolTip()
         self.assertIn("Outputs: Raw sardine", tip)
         self.assertIn("Raw herring", tip)

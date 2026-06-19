@@ -178,8 +178,15 @@ class TargetMetadataTest(unittest.TestCase):
         )
 
         sardine = _row(rows, "catch_sardine_herring")
+        shrimp = _row(rows, "catch_shrimp_anchovies")
         leaping = _row(rows, "catch_leaping_fish")
 
+        self.assertEqual(shrimp.label, "Catch shrimp (Lvl 1)/anchovies (Lvl 15)")
+        self.assertEqual(sardine.label, "Catch sardine (Lvl 5)/herring (Lvl 10)")
+        self.assertEqual(
+            leaping.label,
+            "Catch leaping trout (Lvl 48)/leaping salmon (Lvl 58)/leaping sturgeon (Lvl 70)",
+        )
         self.assertFalse(sardine.enabled)
         self.assertIn("Materials: Fishing bait x1 (you have 0)", sardine.tooltip)
         self.assertIn("materials", sardine.tooltip)

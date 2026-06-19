@@ -352,6 +352,59 @@ def _fishing_side_req_text(fish_rows: Sequence[Mapping[str, object]]) -> str:
     return "; ".join(parts)
 
 
+def _fishing_fish_label_name(fish: Mapping[str, object]) -> str:
+    fish_id = str(fish.get("id", fish.get("output_item", ""))).strip().lower()
+    if fish_id.startswith("raw_"):
+        fish_id = fish_id[4:]
+    return fish_id.replace("_", " ")
+
+
+def _fishing_fish_aliases(fish: Mapping[str, object]) -> set[str]:
+    label = _fishing_fish_label_name(fish)
+    output = str(fish.get("output_item", "")).strip().lower()
+    if output.startswith("raw "):
+        output = output[4:]
+    aliases = {label, output}
+    for value in tuple(aliases):
+        if value.endswith("s"):
+            aliases.add(value[:-1])
+    return {value for value in aliases if value}
+
+
+def _ordered_fishing_label_fish(
+    display_name: str,
+    fish_rows: Sequence[Mapping[str, object]],
+) -> tuple[Mapping[str, object], ...]:
+    if "/" not in display_name or not display_name.startswith("Catch "):
+        return tuple(fish_rows)
+
+    tokens = [part.strip().lower() for part in display_name[len("Catch "):].split("/")]
+    remaining = list(fish_rows)
+    ordered = []
+    for token in tokens:
+        match = next((fish for fish in remaining if token in _fishing_fish_aliases(fish)), None)
+        if match is None:
+            return tuple(fish_rows)
+        ordered.append(match)
+        remaining.remove(match)
+    ordered.extend(remaining)
+    return tuple(ordered)
+
+
+def _fishing_row_label(display_name: str, fish_rows: Sequence[Mapping[str, object]], fallback_level: int) -> str:
+    if len(fish_rows) <= 1:
+        return f"{display_name} (Lvl {fallback_level})"
+
+    ordered = _ordered_fishing_label_fish(display_name, fish_rows)
+    parts = [
+        f"{_fishing_fish_label_name(fish)} (Lvl {int(fish.get('level', fallback_level) or fallback_level)})"
+        for fish in ordered
+    ]
+    if display_name.startswith("Catch "):
+        return "Catch " + "/".join(parts)
+    return f"{display_name} (" + ", ".join(parts) + ")"
+
+
 def fishing_target_rows(
     player_data: Mapping[str, object],
     fishing_data: Mapping[str, Mapping[str, object]],
@@ -404,7 +457,7 @@ def fishing_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_key,
-                label=f"{display_name} (Lvl {lvl_req})",
+                label=_fishing_row_label(display_name, fish_rows, lvl_req),
                 tooltip=tooltip,
                 enabled=enabled,
                 current=target_key == current_target,
