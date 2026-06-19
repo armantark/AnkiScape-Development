@@ -164,6 +164,35 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Success chance:", logs.tooltip)
         self.assertNotIn("FiremakingData.kt", logs.tooltip)
 
+    def test_firemaking_rows_apply_region_quest_unlock_rules(self):
+        player_data = {
+            "firemaking_level": 99,
+            "inventory": {"Arctic pine logs": 1},
+            "current_firemaking": "arctic_pine_logs",
+            "quests": {},
+        }
+        rows = firemaking_target_rows(
+            player_data,
+            FIREMAKING_DATA,
+            FIREMAKING_ITEM_IMAGES,
+            DEFAULT_FIREMAKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        arctic_pine = _row(rows, "arctic_pine_logs")
+        self.assertFalse(arctic_pine.enabled)
+        self.assertIn("The Fremennik Isles", arctic_pine.tooltip)
+
+        player_data["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
+        unlocked_rows = firemaking_target_rows(
+            player_data,
+            FIREMAKING_DATA,
+            FIREMAKING_ITEM_IMAGES,
+            DEFAULT_FIREMAKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked_rows, "arctic_pine_logs").enabled)
+
     def test_fishing_rows_preserve_material_and_side_level_gates(self):
         rows = fishing_target_rows(
             {
@@ -201,7 +230,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "fishing_level": 99,
                 "strength_level": 99,
                 "agility_level": 99,
-                "inventory": {},
+                "inventory": {"Fishing bait": 1},
             },
             FISHING_DATA,
             FISHING_ITEM_IMAGES,
@@ -211,10 +240,13 @@ class TargetMetadataTest(unittest.TestCase):
 
         monkfish = _row(rows, "catch_monkfish")
         karambwan = _row(rows, "catch_karambwan")
+        slimy_eel = _row(rows, "catch_slimy_eel")
         self.assertFalse(monkfish.enabled)
         self.assertIn("Swan Song", monkfish.tooltip)
         self.assertFalse(karambwan.enabled)
         self.assertIn("Tai Bwo Wannai Trio", karambwan.tooltip)
+        self.assertFalse(slimy_eel.enabled)
+        self.assertIn("Priest in Peril", slimy_eel.tooltip)
 
     def test_runecrafting_rows_apply_quest_unlock_rules(self):
         player_data = {
@@ -272,6 +304,40 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(nests.enabled)
         self.assertIn("No XP", nests.tooltip)
         self.assertIn("Locked: cut trees until a bird nest drops.", nests.tooltip)
+
+    def test_utility_rows_apply_region_quest_unlock_rules(self):
+        rows = utility_activity_rows(
+            {"inventory": {}, "current_utility": "gather_thin_snails"},
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+            QUEST_UNLOCK_RULES,
+        )
+
+        snails = _row(rows, "gather_thin_snails")
+        yak = _row(rows, "scavenge_raw_yak_meat")
+        self.assertFalse(snails.enabled)
+        self.assertIn("Priest in Peril", snails.tooltip)
+        self.assertFalse(yak.enabled)
+        self.assertIn("The Fremennik Isles", yak.tooltip)
+
+        unlocked_rows = utility_activity_rows(
+            {
+                "inventory": {},
+                "quests": {
+                    "priest_in_peril": {"started": True, "progress": 6, "completed": True},
+                    "the_fremennik_isles": {"started": True, "progress": 6, "completed": True},
+                },
+            },
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked_rows, "gather_thin_snails").enabled)
+        self.assertTrue(_row(unlocked_rows, "scavenge_raw_yak_meat").enabled)
 
 
 if __name__ == "__main__":

@@ -618,6 +618,47 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._firemaking_calls, [])
 
+    def test_firemaking_region_quest_locks_are_inert(self) -> None:
+        pd = _make_player_data()
+        pd["firemaking_level"] = 99
+        pd["inventory"] = {"Arctic pine logs": 1}
+        pd["current_firemaking"] = "arctic_pine_logs"
+        dialog = self._open(pd)
+        artisan = next(b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan")
+        artisan.click()
+        QApplication.processEvents()
+        skill_list = _find_artisan_skill_list(dialog)
+        fm_row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Firemaking")
+        skill_list.setCurrentRow(fm_row)
+        QApplication.processEvents()
+        target_list = _find_list_with_user_role(dialog, "arctic_pine_logs")
+        arctic_row = next(
+            target_list.item(i) for i in range(target_list.count())
+            if target_list.item(i).data(Qt.ItemDataRole.UserRole) == "arctic_pine_logs"
+        )
+
+        self.assertFalse(arctic_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("The Fremennik Isles", arctic_row.toolTip())
+        target_list.itemClicked.emit(arctic_row)
+        QApplication.processEvents()
+        self.assertEqual(self._firemaking_calls, [])
+
+        pd["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
+        unlocked_dialog = self._open(pd)
+        artisan = next(b for b in unlocked_dialog.findChildren(QPushButton) if b.text() == "Artisan")
+        artisan.click()
+        QApplication.processEvents()
+        unlocked_skill_list = _find_artisan_skill_list(unlocked_dialog)
+        unlocked_fm_row = next(i for i in range(unlocked_skill_list.count()) if unlocked_skill_list.item(i).text() == "Firemaking")
+        unlocked_skill_list.setCurrentRow(unlocked_fm_row)
+        QApplication.processEvents()
+        unlocked_list = _find_list_with_user_role(unlocked_dialog, "arctic_pine_logs")
+        unlocked_arctic = next(
+            unlocked_list.item(i) for i in range(unlocked_list.count())
+            if unlocked_list.item(i).data(Qt.ItemDataRole.UserRole) == "arctic_pine_logs"
+        )
+        self.assertTrue(unlocked_arctic.flags() & Qt.ItemFlag.ItemIsEnabled)
+
     def test_cooking_is_selectable_and_shows_grouped_source_targets(self) -> None:
         pd = _make_player_data()
         pd["cooking_level"] = 33
@@ -683,6 +724,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemActivated.emit(locked, 0)
         QApplication.processEvents()
         self.assertEqual(self._cooking_calls, before, "locked cooking target must not be selectable")
+
+    def test_cooking_region_quest_locks_are_inert(self) -> None:
+        pd = _make_player_data()
+        pd["cooking_level"] = 99
+        pd["inventory"] = {"Slimy eel": 1, "Raw yak meat": 1}
+        dialog = self._open(pd)
+        tree = _goto_cooking(dialog)
+
+        slimy_eel = _cooking_row(tree, "cook_slimy_eel")
+        yak = _cooking_row(tree, "cook_yak")
+        self.assertTrue(slimy_eel.isDisabled())
+        self.assertIn("Priest in Peril", slimy_eel.toolTip(0))
+        self.assertTrue(yak.isDisabled())
+        self.assertIn("The Fremennik Isles", yak.toolTip(0))
+
+        before = list(self._cooking_calls)
+        tree.itemClicked.emit(slimy_eel, 0)
+        tree.itemActivated.emit(yak, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._cooking_calls, before, "quest-locked cooking rows must not be selectable")
+
+        pd["quests"]["priest_in_peril"] = {"started": True, "progress": 6, "completed": True}
+        pd["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
+        unlocked_dialog = self._open(pd)
+        unlocked_tree = _goto_cooking(unlocked_dialog)
+        self.assertFalse(_cooking_row(unlocked_tree, "cook_slimy_eel").isDisabled())
+        self.assertFalse(_cooking_row(unlocked_tree, "cook_yak").isDisabled())
 
     def test_runecrafting_is_selectable_and_shows_grouped_targets(self) -> None:
         pd = _make_player_data()
@@ -1629,6 +1697,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
 
         self.assertEqual(self._utility_calls, ["scavenge_chicken_feathers"])
+
+    def test_utility_region_quest_locks_are_inert(self) -> None:
+        pd = _make_player_data()
+        pd["current_utility"] = "gather_thin_snails"
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+
+        snails = _utility_row(utility_tree, "gather_thin_snails")
+        yak = _utility_row(utility_tree, "scavenge_raw_yak_meat")
+        self.assertFalse(snails.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("Priest in Peril", snails.toolTip(0))
+        self.assertFalse(yak.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("The Fremennik Isles", yak.toolTip(0))
+
+        before = list(self._utility_calls)
+        utility_tree.itemClicked.emit(snails, 0)
+        utility_tree.itemActivated.emit(yak, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls, before, "quest-locked utility rows must not be selectable")
+
+        pd["quests"]["priest_in_peril"] = {"started": True, "progress": 6, "completed": True}
+        pd["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
+        unlocked_dialog = self._open(pd)
+        unlocked_tree = self._open_utility(unlocked_dialog)
+        self.assertTrue(_utility_row(unlocked_tree, "gather_thin_snails").flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertTrue(_utility_row(unlocked_tree, "scavenge_raw_yak_meat").flags() & Qt.ItemFlag.ItemIsEnabled)
 
     def test_hud_shows_utility_activity_without_xp(self) -> None:
         hud = self._ui.ReviewHUD(None)

@@ -12,16 +12,16 @@ try:
         best_woodcutting_axe_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
-        can_burn_firemaking_target_pure,
         can_chop_woodcutting_target_pure,
+        firemaking_target_locked_reasons_pure,
         can_fletch_item_pure,
         can_open_bird_nests_pure,
-        can_perform_utility_activity_pure,
         can_runecraft_target_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
+        utility_activity_locked_reasons_pure,
     )
 except Exception:
     from logic_pure import (  # type: ignore
@@ -29,16 +29,16 @@ except Exception:
         best_woodcutting_axe_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
-        can_burn_firemaking_target_pure,
         can_chop_woodcutting_target_pure,
+        firemaking_target_locked_reasons_pure,
         can_fletch_item_pure,
         can_open_bird_nests_pure,
-        can_perform_utility_activity_pure,
         can_runecraft_target_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
+        utility_activity_locked_reasons_pure,
     )
 
 
@@ -267,6 +267,7 @@ def firemaking_target_rows(
     firemaking_data: Mapping[str, Mapping[str, object]],
     firemaking_item_images: Mapping[str, str],
     default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     lvl_have = int(player_data.get("firemaking_level", 1) or 1)
@@ -293,15 +294,15 @@ def firemaking_target_rows(
             f"Output: {output_item} x{output_qty}\n"
             f"Success chance: {chance:.0%} per attempt"
         )
-        enabled = can_burn_firemaking_target_pure(lvl_have, inventory, target_key, firemaking_data)
+        locked_reasons = firemaking_target_locked_reasons_pure(
+            player_data,
+            target_key,
+            firemaking_data,
+            quest_unlock_rules,
+        )
+        enabled = not locked_reasons
         if not enabled:
-            reason = []
-            if lvl_have < lvl_req:
-                reason.append(f"level {lvl_req}")
-            if owned < input_qty:
-                reason.append("materials")
-            if reason:
-                tooltip += "\nLocked due to: " + ", ".join(reason)
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
         rows.append(
             TargetRowMetadata(
@@ -473,6 +474,7 @@ def utility_activity_rows(
     utility_item_images: Mapping[str, str],
     nest_open_tables: Mapping[str, Mapping[str, object]],
     default_activity: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     inv = player_data.get("inventory", {})
@@ -493,9 +495,17 @@ def utility_activity_rows(
                 "Rolls source seed / ring / egg contents into your bank.\n"
                 f"Bird nests held: {have_nests} (drop while Woodcutting)"
             )
-            enabled = can_open_bird_nests_pure(inventory, nest_open_tables)
-            if not enabled:
+            locked_reasons = utility_activity_locked_reasons_pure(
+                player_data,
+                activity_key,
+                utility_activity_data,
+                quest_unlock_rules,
+            )
+            enabled = can_open_bird_nests_pure(inventory, nest_open_tables) and not locked_reasons
+            if not enabled and "materials" in locked_reasons:
                 tooltip += "\nLocked: cut trees until a bird nest drops."
+            elif not enabled:
+                tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
         else:
             output_item = str(spec.get("output_item", label))
             if icon_path is None:
@@ -508,9 +518,18 @@ def utility_activity_rows(
                 f"Processes up to {batch_size} per successful card. No skill XP.\n"
                 f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
             )
-            enabled = can_perform_utility_activity_pure(inventory, activity_key, utility_activity_data)
+            locked_reasons = utility_activity_locked_reasons_pure(
+                player_data,
+                activity_key,
+                utility_activity_data,
+                quest_unlock_rules,
+            )
+            enabled = not locked_reasons
             if not enabled:
-                tooltip += "\nLocked: gather the required materials first."
+                if locked_reasons == ("materials",):
+                    tooltip += "\nLocked: gather the required materials first."
+                else:
+                    tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
         rows.append(
             TargetRowMetadata(

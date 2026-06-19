@@ -15,7 +15,9 @@ pattern.
 - Use RuneScape Wiki/Fandom only where the local source and 2011Scape archive do
   not expose a specific item acquisition rule.
 - Completion unlocks are not the same thing as route locks. Do not global-gate a
-  skill target just because one location or source NPC is quest-restricted.
+  skill target just because one location or source NPC is quest-restricted, unless
+  the current AnkiScape row effectively represents that route or region and would
+  otherwise make a locked area playable before its logical quest precedent.
 - Quest-stage recipes are not completion unlocks. They need stage-aware quest
   state before they should be copied into the normal `quest_completed_pure`
   pattern.
@@ -52,8 +54,8 @@ Seergaze keep bespoke compact journal stages, stricter 2011-era requirements,
 concrete item rewards, and unlock text.
 
 Strong completion gates now live in a central `QUEST_UNLOCK_RULES` registry and
-feed pure lock-reason helpers for Mining, Fishing, and Runecrafting. The
-implemented locks are:
+feed pure lock-reason helpers for Mining, Fishing, Cooking, Firemaking,
+Runecrafting, and Utility/Activities. The implemented locks are:
 
 | Quest | Targets now gated |
 | --- | --- |
@@ -65,6 +67,8 @@ implemented locks are:
 | Swan Song | Fishing `catch_monkfish` |
 | Tai Bwo Wannai Trio | Fishing `catch_karambwan` |
 | Shilo Village | Mining `gem_rocks` |
+| Priest in Peril | Fishing `catch_slimy_eel`; Cooking `cook_slimy_eel`, `cook_thin_snail`, `cook_lean_snail`, `cook_fat_snail`; Utility `gather_thin_snails`, `gather_lean_snails`, `gather_fat_snails` |
+| The Fremennik Isles | Firemaking `arctic_pine_logs`; Cooking `cook_yak`; Utility `scavenge_raw_yak_meat` |
 
 Quest starts are strict. If a required skill is not implemented, or a
 prerequisite quest is incomplete or missing, the quest is impossible to start
@@ -114,8 +118,9 @@ Evidence:
 ## Resolved Quest-Gate Candidates
 
 These audit candidates have been converted into completion gates. Generic route
-modeling still does not exist, but `gem_rocks` is deliberately treated as
-Shilo Village-locked for now by owner preference.
+modeling still does not exist, but route/location requirements can be flattened
+to logical quest precedents when the current AnkiScape row effectively represents
+that region route.
 
 | Quest | Skill | Implemented target/action IDs | Lock type | Why it should be gated |
 | --- | --- | --- | --- | --- |
@@ -127,6 +132,8 @@ Shilo Village-locked for now by owner preference.
 | Swan Song | Fishing | `catch_monkfish` | Completion unlock | `fishing_data.py:237-243` exposes monkfish. Raw monkfish can only be caught at Piscatoris Fishing Colony, which requires Swan Song completion. |
 | Tai Bwo Wannai Trio | Fishing | `catch_karambwan` | Partial-or-completion unlock | `fishing_data.py:244-251` exposes karambwan. Wiki evidence says catching raw karambwan requires at least partial Tai Bwo Wannai Trio completion. For AnkiScape's completion-only quest model, use full completion unless stage-aware quest state exists. |
 | Shilo Village | Mining | `gem_rocks` | Completion unlock | The generic AnkiScape target currently represents the useful gem-rock route. Use Shilo Village completion until a route/location model can distinguish Shilo from other gem-rock sources. |
+| Priest in Peril | Fishing/Cooking/Utility | `catch_slimy_eel`, `cook_slimy_eel`, `cook_thin_snail`, `cook_lean_snail`, `cook_fat_snail`, `gather_thin_snails`, `gather_lean_snails`, `gather_fat_snails` | Logical route precedent | The current slimy eel and snail rows make Morytania swamp content playable without a route model. Priest in Peril is the stable logical gate for entering Morytania; Nature Spirit can remain a future refinement if stage/area modeling gets deeper. |
+| The Fremennik Isles | Firemaking/Cooking/Utility | `arctic_pine_logs`, `cook_yak`, `scavenge_raw_yak_meat` | Logical route precedent | The current arctic pine and yak rows effectively represent Neitiznot content. Use The Fremennik Isles completion until AnkiScape has location-aware acquisition routes. |
 
 Source links:
 
@@ -142,6 +149,10 @@ Source links:
   https://runescape.fandom.com/wiki/Raw_karambwan
 - Gem rock source used by the implementation:
   https://runescape.wiki/w/Gem_rock?oldid=37044944
+- Priest in Peril route source:
+  https://runescape.wiki/w/Priest_in_Peril?oldid=6487728
+- The Fremennik Isles route source:
+  https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919
 
 ## Candidate Route Gates, Not Global Target Gates Yet
 
@@ -150,8 +161,6 @@ normal skill locks.
 
 | Quest or unlock | Current content | Current verdict | Reason |
 | --- | --- | --- | --- |
-| Priest in Peril / Nature Spirit | Fishing `catch_slimy_eel`; Cooking snail/eel rows; Utility snail gathering | Candidate route gate | Mort Myre access is quest-shaped, but slimy eels have alternate non-Morytania sources and Cooking from inventory should stay material-gated. Only route-specific gathering should care. |
-| The Fremennik Isles | Cooking `cook_yak`, Utility `scavenge_raw_yak_meat`, Firemaking `arctic_pine_logs` | Candidate route gate | Yak and arctic pine acquisition is Neitiznot/Fremennik Isles flavored. Cooking/burning from inventory should not be globally locked; source-real acquisition routes can be gated later. |
 | Karamja Diary / Shilo Village | Extra gem mine or diary access | Future route gate | Karamja hard diary grants underground gem mine access, but AnkiScape has no diary or location model. |
 | What Lies Below | Chaos altar safe tunnel | Route shortcut only | The 2011 KB describes a safe route, not chaos rune creation itself. Do not gate `craft_chaos_runes`. |
 
@@ -206,7 +215,9 @@ Do this backend-first when implementing the quest locks:
 
 3. Feed that registry into pure locked-reason functions for completion gates.
 4. Keep route gates out of target locks until a route/location/acquisition model
-   exists.
+   exists, except when the current generic target effectively represents that
+   locked region route and the logical quest precedent is the least misleading
+   gate.
 5. Keep quest-stage recipes out of completion locks until stage-aware quest
    checks are intentionally supported.
 6. Add undo-safe tests for the blocked and newly-unblocked paths before touching
@@ -221,8 +232,9 @@ After backend lock reasons exist:
 2. Show quest names as lock reasons, not generic "quest".
 3. For grouped Runecrafting targets, make sure standard runes, tiara binding,
    and hood feeding each show the correct quest lock independently.
-4. Do not invent new UI state for route gates; those should stay as Memory Bank
-   notes until the backend exposes a route model.
+4. Do not invent new UI state for unresolved route gates; when a route precedent
+   is promoted into `QUEST_UNLOCK_RULES`, surface it through the same disabled
+   row and concise tooltip contract as other quest locks.
 
 ## Copy-Paste Prompt For A Future Quest-Lock Skill
 
@@ -231,7 +243,9 @@ Create a Codex skill for AnkiScape quest-lock migrations. Read
 memory-bank/quest-unlock-audit-2026-06-17.md first. The skill must split backend
 and frontend work, add or correct quest definitions in the generator/override
 layer before gates, separate completion unlock rules from route/location gates
-and quest-stage recipes, reuse `quest_completed_pure` for completion gates,
+and quest-stage recipes, allow flattened logical precedents only when the current
+generic row effectively represents the locked route, reuse `quest_completed_pure`
+for completion gates,
 preserve strict quest starts for unimplemented skills, route generated XP lamps
 through Bank Claims, update target-row lock reasons only after pure backend
 logic exists, add targeted unit/integration/Qt coverage, run the AnkiScape test
@@ -245,9 +259,12 @@ pair, update the Memory Bank, and commit.
    exists.
 3. `gem_rocks` is globally Shilo Village-gated until AnkiScape can model
    mining routes/locations.
-4. Direct quest reward items and XP lamps are part of the generated reward
+4. Location requirements can be flattened to logical quest precedents when the
+   current generic target effectively represents the locked route: Morytania rows
+   use Priest in Peril and Neitiznot/yak/arctic pine rows use The Fremennik Isles.
+5. Direct quest reward items and XP lamps are part of the generated reward
    surface, not a later hand-authored LLM migration.
-5. XP lamps use one flattened Bank Claim interface with preserved skill options
+6. XP lamps use one flattened Bank Claim interface with preserved skill options
    and level requirements.
-6. Every generated quest row should have a source-backed journal/checklist stage
+7. Every generated quest row should have a source-backed journal/checklist stage
    surface. Generated placeholder journals are a regression.

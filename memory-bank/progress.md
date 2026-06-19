@@ -31,6 +31,7 @@
 - Cooking v1 is in place: source-backed `cooking_data.py`, stable `current_cooking` target IDs, storage config version 14 migration/defaults, review-scale cook/burn chances, burn failures that consume raw inputs and produce burnt items, generic Cooking achievements, beef/bear sinew secondary targets, dedicated Cooking assets, a `food` item category, grouped Cooking target UI, grouped Utility/Activities prep UI, and confirmed Bank `Discard all` for every item.
 - Runecrafting v1 is in place: source-backed `runecrafting_data.py`, stable `current_runecrafting` target IDs, storage config version 15 migration/defaults, Rune Mysteries quest unlock, standard/combination rune crafting, tiara binding, Wicked hood claim/feed access, pouch capacity/degradation, Binding necklace charge counter, achievements, dedicated assets, a `runecrafting` item category, grouped Runecrafting target UI, Quests tab, Bank Claims, Stats/Bank/HUD support, action multiplier support, and undo rollback.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
+- Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
 - Crafting frontend grouping/assets are in place: the Skills-hub Crafting panel groups stable recipe IDs by family, persists collapsed families, shows owned material counts, guards disabled-row clicks, and resolves the fetched `crafteditems/` icon set.
 - Woodcutting backend parity is in place: 2011Scape target/hatchet/bird-nest source data, stable target IDs, real log item outputs, toolbelt-aware hatchet RNG, Ivy no-output XP, bird nest drops, no-XP nest-opening Utility, and storage migration from legacy tree-named logs.
@@ -215,6 +216,15 @@ passes with 336 tests (80 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 336 tests.
 
+Quest route-precedent follow-up completed on 2026-06-18. Priest in Peril now
+gates Fishing `catch_slimy_eel`, Cooking slimy eel/snail rows, and Utility snail
+gathering; The Fremennik Isles now gates Firemaking `arctic_pine_logs`, Cooking
+`cook_yak`, and Utility `scavenge_raw_yak_meat`. This is a narrow exception to
+the old route-gate caution: the lock is allowed when the current generic target
+effectively represents the locked region route. Verification: `python3
+run_tests.py` passed with 342 tests (83 skipped), and `QT_QPA_PLATFORM=offscreen
+.venv-qt/bin/python -m unittest discover tests` passed with 342 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
@@ -227,7 +237,7 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Runecrafting follow-ups: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes, only if explicitly prioritized.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
   records the completed 194-row pre-EOC catalog, implemented completion gates,
-  the RFD subquest split, generated item/lamp rewards, and route/location checks
-  that should stay ungated until a route model exists.
+  route-precedent locks, the RFD subquest split, generated item/lamp rewards,
+  and route/location checks that should stay ungated until a route model exists.
   Use it before stage-aware partial unlocks, route/location gates, or new
   quest-unlocked skill targets.

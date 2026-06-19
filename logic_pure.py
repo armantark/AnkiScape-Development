@@ -269,6 +269,25 @@ def can_perform_utility_activity_pure(inventory, activity_key, utility_activity_
     return _max_batches_for_requirements(requirements, inventory, batch_size) > 0
 
 
+def utility_activity_locked_reasons_pure(player_data, activity_key, utility_activity_data, quest_unlock_rules=()):
+    spec = utility_activity_data.get(activity_key)
+    if not spec:
+        return ("unknown activity",)
+    reasons = []
+    inventory = player_data.get("inventory", {}) or {}
+    if not can_perform_utility_activity_pure(inventory, activity_key, utility_activity_data):
+        reasons.append("materials")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "utility",
+            activity_key,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
+
+
 def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
     """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
     spec = utility_activity_data.get(activity_key)
@@ -1777,6 +1796,28 @@ def can_cook_target_pure(cooking_level, inventory, target, cooking_data):
     return has_cooking_materials_pure(target, inventory, cooking_data)
 
 
+def cooking_target_locked_reasons_pure(player_data, target, cooking_data, quest_unlock_rules=()):
+    spec = cooking_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    cooking_level = _positive_int(player_data.get("cooking_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if cooking_level < required_level:
+        reasons.append(f"Cooking level {required_level}")
+    if not has_cooking_materials_pure(target, player_data.get("inventory", {}) or {}, cooking_data):
+        reasons.append("materials")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "cooking",
+            target,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
+
+
 def cooking_source_roll_chance_pure(cooking_level, target_spec):
     """Approximate the 2011Scape raw Cooking roll before Anki pacing."""
     low = float(target_spec.get("low_chance", 1))
@@ -1873,6 +1914,32 @@ def can_burn_firemaking_target_pure(firemaking_level, inventory, target, firemak
     if firemaking_level < spec.get("level", 1):
         return False
     return has_firemaking_materials_pure(target, inventory, firemaking_data)
+
+
+def firemaking_target_locked_reasons_pure(player_data, target, firemaking_data, quest_unlock_rules=()):
+    spec = firemaking_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    firemaking_level = _positive_int(player_data.get("firemaking_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if firemaking_level < required_level:
+        reasons.append(f"Firemaking level {required_level}")
+    if not has_firemaking_materials_pure(target, player_data.get("inventory", {}) or {}, firemaking_data):
+        reasons.append("materials")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "firemaking",
+            target,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
+
+
+def can_burn_firemaking_target_with_unlocks_pure(player_data, target, firemaking_data, quest_unlock_rules=()):
+    return not firemaking_target_locked_reasons_pure(player_data, target, firemaking_data, quest_unlock_rules)
 
 
 def can_burn_any_firemaking_target_pure(inventory, firemaking_level, firemaking_data):

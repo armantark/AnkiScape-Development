@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quest Route Precedent Locks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.08), transparent 35%),
+        radial-gradient(circle at 80% 10%, rgba(167, 139, 250, 0.12), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 44px 24px 56px; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      background: var(--accent-glow);
+      color: #b8ccff;
+      border-radius: 999px;
+      padding: 7px 12px;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 8px; font-size: clamp(2rem, 4vw, 3.2rem); line-height: 1.02; }
+    .lede { color: var(--text-dim); max-width: 820px; font-size: 1.02rem; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 28px; }
+    .card {
+      background: rgba(22, 26, 33, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.20);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    .tag {
+      display: inline-block;
+      margin: 4px 5px 4px 0;
+      padding: 4px 7px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font: 400 0.68rem "JetBrains Mono", monospace;
+    }
+    .lock-map { display: grid; gap: 10px; }
+    .route {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+    .quest {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.09);
+      color: #ffe3a0;
+      font-weight: 700;
+      text-align: center;
+    }
+    .targets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      align-items: center;
+      padding: 10px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      min-height: 62px;
+    }
+    .target {
+      border-radius: 7px;
+      padding: 6px 8px;
+      background: rgba(79, 140, 255, 0.10);
+      color: #c8d7ff;
+      font: 400 0.72rem "JetBrains Mono", monospace;
+    }
+    .before-after { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #11151d; }
+    .pane .label { padding: 8px 10px; color: var(--text-dim); background: var(--surface-2); font: 600 0.7rem "JetBrains Mono", monospace; }
+    .rows { padding: 10px; display: grid; gap: 8px; }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: rgba(255,255,255,0.04);
+      color: var(--text);
+      font-size: 0.82rem;
+    }
+    .row.locked { color: var(--text-dim); border: 1px solid rgba(255, 92, 92, 0.30); }
+    .reason { color: var(--red); font: 400 0.68rem "JetBrains Mono", monospace; white-space: nowrap; }
+    .ok { color: var(--green); }
+    .meter {
+      height: 10px;
+      border-radius: 999px;
+      background: #0f131a;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      margin: 10px 0 2px;
+    }
+    .meter > div { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); width: 100%; }
+    .tests { display: grid; gap: 12px; }
+    .test-line { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: center; }
+    .test-line code { font-family: "JetBrains Mono", monospace; color: #c8d7ff; font-size: 0.78rem; }
+    .pill { color: #baf6cb; background: rgba(74, 222, 128, 0.10); border: 1px solid rgba(74, 222, 128, 0.24); padding: 5px 8px; border-radius: 999px; font: 600 0.7rem "JetBrains Mono", monospace; }
+    .decision {
+      border-left: 3px solid var(--purple);
+      padding-left: 14px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+    @media (max-width: 850px) {
+      .grid, .before-after, .route { grid-template-columns: 1fr; }
+      main { padding: 28px 16px; }
+      .test-line { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed - Quest Lock Follow-Up</span>
+    <h1>Route Precedents Are Now Quest Locks</h1>
+    <p class="lede">
+      Priest in Peril and The Fremennik Isles now block the current region-shaped rows before the player can select them.
+      This is a narrow exception to the route-model caution: only generic targets that effectively stand in for a locked region route get flattened this way.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Backend Lock Map</h2>
+        <div class="lock-map">
+          <div class="route">
+            <div class="quest">Priest in Peril</div>
+            <div class="targets">
+              <span class="target">catch_slimy_eel</span>
+              <span class="target">cook_slimy_eel</span>
+              <span class="target">cook_thin_snail</span>
+              <span class="target">cook_lean_snail</span>
+              <span class="target">cook_fat_snail</span>
+              <span class="target">gather_*_snails</span>
+            </div>
+          </div>
+          <div class="route">
+            <div class="quest">The Fremennik Isles</div>
+            <div class="targets">
+              <span class="target">arctic_pine_logs</span>
+              <span class="target">cook_yak</span>
+              <span class="target">scavenge_raw_yak_meat</span>
+            </div>
+          </div>
+        </div>
+        <p class="decision">Rules live in <span class="tag">quest_data.py</span> and flow through pure locked-reason helpers instead of one-off UI checks.</p>
+      </article>
+
+      <article class="card">
+        <h2>Player-Facing Behavior</h2>
+        <div class="before-after">
+          <div class="pane">
+            <div class="label">BEFORE</div>
+            <div class="rows">
+              <div class="row"><span>Cook slimy eel</span><span class="ok">selectable</span></div>
+              <div class="row"><span>Cook raw yak meat</span><span class="ok">selectable</span></div>
+              <div class="row"><span>Arctic pine logs</span><span class="ok">selectable</span></div>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="label">AFTER</div>
+            <div class="rows">
+              <div class="row locked"><span>Cook slimy eel</span><span class="reason">Priest in Peril</span></div>
+              <div class="row locked"><span>Cook raw yak meat</span><span class="reason">Fremennik Isles</span></div>
+              <div class="row locked"><span>Arctic pine logs</span><span class="reason">Fremennik Isles</span></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Verification</h2>
+        <div class="tests">
+          <div class="test-line">
+            <code>python3 run_tests.py</code>
+            <span class="pill">342 OK, 83 skipped</span>
+          </div>
+          <div class="meter"><div></div></div>
+          <div class="test-line">
+            <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code>
+            <span class="pill">342 OK</span>
+          </div>
+          <div class="meter"><div></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Files Touched</h2>
+        <span class="tag">quest_data.py</span>
+        <span class="tag">logic_pure.py</span>
+        <span class="tag">target_metadata.py</span>
+        <span class="tag">ui.py</span>
+        <span class="tag">__init__.py</span>
+        <span class="tag">tests/test_logic.py</span>
+        <span class="tag">tests/test_target_metadata.py</span>
+        <span class="tag">tests/test_main_menu_widget.py</span>
+        <span class="tag">memory-bank/*.md</span>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -43,16 +43,19 @@ from logic_pure import (
     can_burn_any_firemaking_target_pure,
     can_burn_firemaking_target_pure,
     calculate_firemaking_success_probability_pure,
+    firemaking_target_locked_reasons_pure,
     firemaking_source_roll_chance_pure,
     fishing_source_roll_chance_pure,
     calculate_fishing_success_probability_pure,
     cooking_source_roll_chance_pure,
     calculate_cooking_success_probability_pure,
+    cooking_target_locked_reasons_pure,
     can_cook_target_pure,
     can_fish_method_pure,
     eligible_fishing_fish_pure,
     has_fishing_bait_pure,
     can_perform_utility_activity_pure,
+    utility_activity_locked_reasons_pure,
     can_runecraft_target_pure,
     binding_necklace_charges_pure,
     claim_rows_pure,
@@ -1129,6 +1132,94 @@ class TestLogic(unittest.TestCase):
         player_data["quests"]["shilo_village"] = {"started": True, "progress": 7, "completed": True}
         self.assertEqual(
             quest_unlock_locked_reasons_pure(player_data, "mining", "gem_rocks", QUEST_UNLOCK_RULES),
+            (),
+        )
+
+    def test_region_precedent_quest_locks_cover_morytania_and_neitiznot_targets(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["fishing_level"] = 99
+        player_data["cooking_level"] = 99
+        player_data["firemaking_level"] = 99
+        player_data["inventory"].update(
+            {
+                "Fishing bait": 1,
+                "Slimy eel": 1,
+                "Thin snail": 1,
+                "Raw yak meat": 1,
+                "Arctic pine logs": 1,
+            }
+        )
+
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_slimy_eel", QUEST_UNLOCK_RULES),
+            ("Priest in Peril",),
+        )
+        self.assertEqual(
+            cooking_target_locked_reasons_pure(player_data, "cook_slimy_eel", COOKING_DATA, QUEST_UNLOCK_RULES),
+            ("Priest in Peril",),
+        )
+        self.assertEqual(
+            cooking_target_locked_reasons_pure(player_data, "cook_thin_snail", COOKING_DATA, QUEST_UNLOCK_RULES),
+            ("Priest in Peril",),
+        )
+        self.assertEqual(
+            utility_activity_locked_reasons_pure(
+                player_data,
+                "gather_thin_snails",
+                UTILITY_ACTIVITY_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Priest in Peril",),
+        )
+        self.assertEqual(
+            firemaking_target_locked_reasons_pure(
+                player_data,
+                "arctic_pine_logs",
+                FIREMAKING_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("The Fremennik Isles",),
+        )
+        self.assertEqual(
+            cooking_target_locked_reasons_pure(player_data, "cook_yak", COOKING_DATA, QUEST_UNLOCK_RULES),
+            ("The Fremennik Isles",),
+        )
+        self.assertEqual(
+            utility_activity_locked_reasons_pure(
+                player_data,
+                "scavenge_raw_yak_meat",
+                UTILITY_ACTIVITY_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("The Fremennik Isles",),
+        )
+
+        player_data["quests"]["priest_in_peril"] = {"started": True, "progress": 6, "completed": True}
+        player_data["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_slimy_eel", QUEST_UNLOCK_RULES),
+            (),
+        )
+        self.assertEqual(
+            cooking_target_locked_reasons_pure(player_data, "cook_slimy_eel", COOKING_DATA, QUEST_UNLOCK_RULES),
+            (),
+        )
+        self.assertEqual(
+            firemaking_target_locked_reasons_pure(
+                player_data,
+                "arctic_pine_logs",
+                FIREMAKING_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            (),
+        )
+        self.assertEqual(
+            utility_activity_locked_reasons_pure(
+                player_data,
+                "scavenge_raw_yak_meat",
+                UTILITY_ACTIVITY_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
             (),
         )
 

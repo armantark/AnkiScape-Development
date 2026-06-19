@@ -158,10 +158,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, can_burn_any_firemaking_target_pure, can_burn_firemaking_target_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, can_cook_target_pure, calculate_cooking_success_probability_pure, can_perform_utility_activity_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, can_mine_target_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -1499,25 +1499,25 @@ def show_main_menu(
 
     def _firemaking_available() -> bool:
         try:
-            return can_burn_any_firemaking_target_pure(
-                player_data.get("inventory", {}),
-                player_data.get("firemaking_level", 1),
-                FIREMAKING_DATA,
+            return any(
+                not firemaking_target_locked_reasons_pure(player_data, target, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
+                for target in FIREMAKING_DATA
             )
         except Exception:
             return False
 
     def _cooking_available() -> bool:
         try:
-            level = player_data.get("cooking_level", 1)
-            inv = player_data.get("inventory", {})
-            return any(can_cook_target_pure(level, inv, target, COOKING_DATA) for target in COOKING_DATA)
+            return any(
+                not cooking_target_locked_reasons_pure(player_data, target, COOKING_DATA, QUEST_UNLOCK_RULES)
+                for target in COOKING_DATA
+            )
         except Exception:
             return False
 
     def _runecrafting_available() -> bool:
         try:
-            return can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA)
+            return can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA, QUEST_UNLOCK_RULES)
         except Exception:
             return False
 
@@ -1962,6 +1962,7 @@ def show_main_menu(
                 FIREMAKING_DATA,
                 FIREMAKING_ITEM_IMAGES,
                 DEFAULT_FIREMAKING_TARGET,
+                QUEST_UNLOCK_RULES,
             ),
             on_set_firemaking,
         )
@@ -2016,12 +2017,9 @@ def show_main_menu(
             if icon_path and os.path.exists(icon_path):
                 child.setIcon(0, QIcon(icon_path))
 
-            materials_ok = True
             mat_lines = []
             for mat, amt in reqs.items():
                 have = inv.get(mat, 0)
-                if have < amt:
-                    materials_ok = False
                 mat_lines.append(f"  {mat} x{amt} (you have {have})")
             mat_text = "\n".join(mat_lines) if mat_lines else "  No materials required"
             chance = calculate_cooking_success_probability_pure(lvl_have, spec) * 100.0
@@ -2033,15 +2031,15 @@ def show_main_menu(
                 f"Success chance: {chance:.0f}% per action\n"
                 f"Materials:\n{mat_text}"
             )
-            if not can_cook_target_pure(lvl_have, inv, target_id, COOKING_DATA):
+            locked_reasons = cooking_target_locked_reasons_pure(
+                player_data,
+                target_id,
+                COOKING_DATA,
+                QUEST_UNLOCK_RULES,
+            )
+            if locked_reasons:
                 child.setDisabled(True)
-                reason = []
-                if lvl_have < lvl_req:
-                    reason.append(f"level {lvl_req}")
-                if not materials_ok:
-                    reason.append("materials")
-                if reason:
-                    tooltip += "\nLocked due to: " + ", ".join(reason)
+                tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
             child.setToolTip(0, tooltip)
             return child
 
@@ -2185,6 +2183,7 @@ def show_main_menu(
             {**UTILITY_ITEM_IMAGES, **COOKING_ITEM_IMAGES},
             BIRD_NEST_OPEN_TABLES,
             DEFAULT_UTILITY_ACTIVITY,
+            QUEST_UNLOCK_RULES,
         )
         current = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
         ordered_groups = list(_UTILITY_GROUP_LABELS)

@@ -60,7 +60,7 @@ from .logic_pure import (
     has_crafting_materials_pure,
     can_craft_item_pure,
     can_fletch_item_pure,
-    can_cook_target_pure,
+    cooking_target_locked_reasons_pure,
     can_runecraft_any_pure,
     can_runecraft_target_pure,
     can_start_quest_pure,
@@ -70,9 +70,8 @@ from .logic_pure import (
     apply_runecrafting_action_pure,
     has_cooking_materials_pure,
     has_firemaking_materials_pure,
-    can_burn_any_firemaking_target_pure,
-    can_burn_firemaking_target_pure,
-    can_perform_utility_activity_pure,
+    firemaking_target_locked_reasons_pure,
+    utility_activity_locked_reasons_pure,
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_open_bird_nests_pure,
@@ -327,17 +326,16 @@ def _refresh_skill_availability() -> None:
             )
             for target_key in FLETCHING_DATA.keys()
         )
-        can_firemake_any = can_burn_any_firemaking_target_pure(
-            inventory,
-            player_data.get("firemaking_level", 1),
-            FIREMAKING_DATA,
+        can_firemake_any = any(
+            not firemaking_target_locked_reasons_pure(player_data, target_key, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
+            for target_key in FIREMAKING_DATA.keys()
         )
         can_cook_any = any(
-            can_cook_target_pure(
-                player_data.get("cooking_level", 1),
-                inventory,
+            not cooking_target_locked_reasons_pure(
+                player_data,
                 target_key,
                 COOKING_DATA,
+                QUEST_UNLOCK_RULES,
             )
             for target_key in COOKING_DATA.keys()
         )
@@ -631,7 +629,18 @@ def on_utility_answer():
     spec = UTILITY_ACTIVITY_DATA[activity_key]
     display_name = spec.get("display_name", activity_key)
 
-    if not can_perform_utility_activity_pure(player_data.get("inventory", {}), activity_key, UTILITY_ACTIVITY_DATA):
+    locked_reasons = utility_activity_locked_reasons_pure(player_data, activity_key, UTILITY_ACTIVITY_DATA, QUEST_UNLOCK_RULES)
+    quest_locked = tuple(reason for reason in locked_reasons if reason != "materials")
+    if quest_locked:
+        _deactivate_current_skill()
+        show_error_message(
+            "Activity locked",
+            f"{display_name} requires {', '.join(quest_locked)}, so it's been switched off. "
+            "Open the AnkiScape menu to pick another activity.",
+        )
+        return False
+
+    if locked_reasons:
         requirements = spec.get("requirements", {})
         # Out of materials: switch the activity off so it stops firing this error
         # on every card, and point the player back to the menu to pick another.
@@ -740,6 +749,18 @@ def on_firemaking_answer():
     spec = FIREMAKING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("firemaking_level", 1)
+    quest_locked = tuple(
+        reason
+        for reason in firemaking_target_locked_reasons_pure(player_data, target, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
+        if reason not in {"materials"} and not str(reason).startswith("Firemaking level")
+    )
+    if quest_locked:
+        _deactivate_current_skill()
+        show_error_message(
+            "Firemaking target locked",
+            f"{display_name} requires {', '.join(quest_locked)}, so Firemaking has been switched off.",
+        )
+        return False
 
     if player_level < spec["level"]:
         show_error_message("Insufficient level", f"You need level {spec['level']} Firemaking to burn {display_name}.")
@@ -853,6 +874,18 @@ def on_cooking_answer():
     spec = COOKING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("cooking_level", 1)
+    quest_locked = tuple(
+        reason
+        for reason in cooking_target_locked_reasons_pure(player_data, target, COOKING_DATA, QUEST_UNLOCK_RULES)
+        if reason not in {"materials"} and not str(reason).startswith("Cooking level")
+    )
+    if quest_locked:
+        _deactivate_current_skill()
+        show_error_message(
+            "Cooking target locked",
+            f"{display_name} requires {', '.join(quest_locked)}, so Cooking has been switched off.",
+        )
+        return False
 
     if player_level < spec.get("level", 1):
         show_error_message("Insufficient level", f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
@@ -1374,11 +1407,11 @@ def _can_start_fletching_action() -> bool:
 
 def _can_start_firemaking_action() -> bool:
     target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
-    return can_burn_firemaking_target_pure(
-        player_data.get("firemaking_level", 1),
-        player_data.get("inventory", {}),
+    return not firemaking_target_locked_reasons_pure(
+        player_data,
         target,
         FIREMAKING_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 
@@ -1393,11 +1426,11 @@ def _can_start_fishing_action() -> bool:
 
 def _can_start_cooking_action() -> bool:
     target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
-    return can_cook_target_pure(
-        player_data.get("cooking_level", 1),
-        player_data.get("inventory", {}),
+    return not cooking_target_locked_reasons_pure(
+        player_data,
         target,
         COOKING_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 
@@ -1439,10 +1472,11 @@ def _can_start_smithing_action() -> bool:
 
 def _can_start_utility_action() -> bool:
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-    return can_perform_utility_activity_pure(
-        player_data.get("inventory", {}),
+    return not utility_activity_locked_reasons_pure(
+        player_data,
         activity_key,
         UTILITY_ACTIVITY_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 

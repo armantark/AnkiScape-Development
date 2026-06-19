@@ -51,6 +51,10 @@ RUNE_ESSENCE_MINE_SOURCE = "https://www.2011.rs/kb/mining_the_rune_essence_mine"
 RAW_MONKFISH_SOURCE = "https://runescape.fandom.com/wiki/Raw_monkfish"
 RAW_KARAMBWAN_SOURCE = "https://runescape.fandom.com/wiki/Raw_karambwan"
 GEM_ROCK_SOURCE = "https://runescape.wiki/w/Gem_rock?oldid=37044944"
+PRIEST_IN_PERIL_ID = "priest_in_peril"
+PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
+THE_FREMENNIK_ISLES_ID = "the_fremennik_isles"
+THE_FREMENNIK_ISLES_SOURCE = "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919"
 
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
     "Ring of charos": "Ring of Charos",
@@ -703,6 +707,26 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     QuestUnlockRule(SWAN_SONG_ID, "target", "fishing", ("catch_monkfish",), "Swan Song", RAW_MONKFISH_SOURCE),
     QuestUnlockRule(TAI_BWO_WANNAI_TRIO_ID, "target", "fishing", ("catch_karambwan",), "Tai Bwo Wannai Trio", RAW_KARAMBWAN_SOURCE),
     QuestUnlockRule(SHILO_VILLAGE_ID, "target", "mining", ("gem_rocks",), "Shilo Village", GEM_ROCK_SOURCE),
+    QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "fishing", ("catch_slimy_eel",), "Priest in Peril", PRIEST_IN_PERIL_SOURCE),
+    QuestUnlockRule(
+        PRIEST_IN_PERIL_ID,
+        "target",
+        "cooking",
+        ("cook_slimy_eel", "cook_thin_snail", "cook_lean_snail", "cook_fat_snail"),
+        "Priest in Peril",
+        PRIEST_IN_PERIL_SOURCE,
+    ),
+    QuestUnlockRule(
+        PRIEST_IN_PERIL_ID,
+        "target",
+        "utility",
+        ("gather_thin_snails", "gather_lean_snails", "gather_fat_snails"),
+        "Priest in Peril",
+        PRIEST_IN_PERIL_SOURCE,
+    ),
+    QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "firemaking", ("arctic_pine_logs",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
+    QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "cooking", ("cook_yak",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
+    QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "utility", ("scavenge_raw_yak_meat",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
 )
 
 
