@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>P0 Burn-Down: Achievement Metadata</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 28px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      font-family: "JetBrains Mono", monospace;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.72rem;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 2rem; margin: 0 0 8px; letter-spacing: 0; }
+    p { color: var(--text-dim); line-height: 1.55; margin: 0; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+      margin-top: 22px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .label {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: var(--amber);
+    }
+    .label.done { color: var(--green); }
+    .label.next { color: var(--accent); }
+    .label.audit { color: var(--purple); }
+    h2 { font-size: 1.08rem; margin: 0 0 10px; letter-spacing: 0; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag {
+      font-family: "JetBrains Mono", monospace;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.65rem;
+    }
+    .lane {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .stage {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 116px;
+    }
+    .stage strong { display: block; font-size: 0.9rem; margin-bottom: 6px; }
+    .stage small {
+      display: block;
+      color: var(--text-dim);
+      line-height: 1.4;
+    }
+    .stage.complete { border-color: rgba(74, 222, 128, 0.35); }
+    .stage.active { border-color: rgba(79, 140, 255, 0.55); background: rgba(79, 140, 255, 0.08); }
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .pane {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 160px;
+    }
+    .pane-title {
+      font-family: "JetBrains Mono", monospace;
+      color: var(--text-dim);
+      font-size: 0.65rem;
+      margin-bottom: 9px;
+    }
+    .row {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 9px;
+      margin: 6px 0;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 0.8rem;
+    }
+    .row.dim { color: var(--text-dim); }
+    .row.accent { border-color: rgba(79, 140, 255, 0.45); }
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .check {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .box {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent-glow);
+      margin-top: 2px;
+    }
+    .wide { grid-column: 1 / -1; }
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .grid, .before-after, .lane { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">P0 BURN-DOWN PLAN</span>
+    <h1>Clear The Remaining Architecture Debt Before New Content</h1>
+    <p>The finished P0 slices moved review dispatch, runtime mutation handlers, flat target rows, and grouped target trees behind shared contracts. The next bounded slice is achievement metadata; after that, the only thing left is a focused audit of whether residual non-action orchestration is still P0 or merely ongoing maintenance.</p>
+
+    <section class="grid" aria-label="P0 burn-down plan">
+      <article class="card wide">
+        <div class="label done">Current P0 Map</div>
+        <h2>Done vs active vs audit</h2>
+        <div class="lane">
+          <div class="stage complete"><strong>Dispatch</strong><small>Action identity and handler keys are registry-backed.</small></div>
+          <div class="stage complete"><strong>Runtime</strong><small>Review mutation bodies live in runtime_actions.py.</small></div>
+          <div class="stage complete"><strong>Targets</strong><small>Flat and grouped target rows share metadata contracts.</small></div>
+          <div class="stage active"><strong>Achievements</strong><small>Definitions and grouping still sit in constants/UI. This is the current slice.</small></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label next">Backend Slice</div>
+        <h2>Typed achievement metadata</h2>
+        <p>Create a pure metadata module that owns achievement definitions, difficulty order, and grouping helpers while keeping the existing `ACHIEVEMENTS` dict export as the compatibility boundary.</p>
+        <div class="tags">
+          <span class="tag">achievement_metadata.py</span>
+          <span class="tag">constants.py</span>
+          <span class="tag">logic_pure.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label next">Frontend Slice</div>
+        <h2>Render from metadata helpers</h2>
+        <p>The main menu and legacy Achievements dialog should use the shared difficulty order and grouped rows instead of rebuilding difficulty buckets from a raw constants dictionary.</p>
+        <div class="before-after">
+          <div class="pane">
+            <div class="pane-title">BEFORE</div>
+            <div class="row">constants.ACHIEVEMENTS lambdas</div>
+            <div class="row dim">ui.py repeats difficulty order</div>
+            <div class="row dim">logic_pure iterates raw dict</div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">AFTER</div>
+            <div class="row accent">achievement_metadata definitions</div>
+            <div class="row">compat ACHIEVEMENTS dict</div>
+            <div class="row">shared grouping for Qt</div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="label audit">Completion Gate</div>
+        <h2>Do not call P0 done until the evidence says so</h2>
+        <div class="checklist">
+          <div class="check"><span class="box"></span><p>105 existing achievement names, descriptions, difficulty buckets, and completion behavior remain stable.</p></div>
+          <div class="check"><span class="box"></span><p>Pure tests cover metadata conversion, grouped rows, Living Legend behavior, and representative skill/quest achievements.</p></div>
+          <div class="check"><span class="box"></span><p>Qt tests prove the Achievements tab still renders counts and cards from metadata.</p></div>
+          <div class="check"><span class="box"></span><p>After the slice, re-read the board and code to decide whether non-action `__init__.py` cleanup is truly still P0.</p></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

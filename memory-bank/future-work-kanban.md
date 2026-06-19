@@ -1,6 +1,6 @@
 # Future Work Kanban
 
-Status: 2026-06-17
+Status: 2026-06-19
 
 Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
 
@@ -17,12 +17,12 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
 - Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18. Do not redo the priority gates or the 194-row catalog; use `memory-bank/quest-unlock-audit-2026-06-17.md` for the current implementation status and for future route/location or stage-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
-- P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, and runtime handler extraction is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks. Further P0 work should target achievement metadata, non-action `__init__.py` orchestration cleanup, or another clearly scoped shared contract.
+- P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
 
 ## Priority Board
 
-### P0 - Existing Skill Architecture And Old Debt
+### P0 - Existing Skill Architecture And Old Debt (Complete)
 
 User story: As a future skill implementer, I want existing skill and activity behavior to be driven by registry metadata and shared action plumbing, so adding the next skill does not require editing scattered UI, runtime, and review-dispatch branches.
 
@@ -48,22 +48,28 @@ Acceptance criteria:
 - Existing tests pass, and targeted tests cover any changed registry/action dispatch behavior.
 - Future skill or Firemaking-extension threads have fewer places to edit than the previous broad skill-expansion threads.
 
-Status 2026-06-19: Initial backend dispatch, flat target-list metadata,
-grouped target-tree metadata, and runtime handler extraction slices are
-complete. No storage shape, XP, item, undo, action multiplier, recipe data,
-target data, asset, frontend UI, or quest rule behavior changed. Mining,
-Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking,
-Runecrafting, and Utility/Activities now share pure row-metadata contracts.
-Mining, Woodcutting, Fletching, Firemaking, and Fishing use one Qt `QListWidget`
-renderer; Smithing, Crafting, Cooking, and Runecrafting use one grouped
-`QTreeWidget` renderer. `runtime_actions.py` owns review-action mutation bodies
-and handler-keyed can-start checks; `__init__.py` keeps hooks, global state,
-undo snapshots, UI/save callbacks, and thin compatibility wrappers.
+Status 2026-06-19: Complete for the current P0 architecture board. Initial
+backend dispatch, flat target-list metadata, grouped target-tree metadata,
+runtime handler extraction, achievement metadata, and final duplicated
+handler-plumbing cleanup are all done. No storage shape, XP, item, undo, action
+multiplier, recipe data, target data, asset, frontend UI, achievement name,
+completion-semantics, or quest rule behavior changed. Mining, Woodcutting,
+Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and
+Utility/Activities now share pure row-metadata contracts. Mining, Woodcutting,
+Fletching, Firemaking, and Fishing use one Qt `QListWidget` renderer; Smithing,
+Crafting, Cooking, and Runecrafting use one grouped `QTreeWidget` renderer.
+`runtime_actions.py` owns review-action mutation bodies and handler-keyed
+can-start checks; `achievement_metadata.py` owns achievement definitions,
+difficulty grouping, and progress helpers; `__init__.py` keeps hooks, global
+state, undo snapshots, UI/save callbacks, and thin compatibility wrappers.
+Verification passed with `python3 run_tests.py` at 352 tests (84 skipped) and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` at
+352 tests.
 
 Future thread prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Continue P0 only if the owner explicitly wants another architecture slice. The 2026-06-15 review-action dispatch cleanup, 2026-06-16 flat target-list metadata cleanup, 2026-06-19 grouped target-tree metadata cleanup, and 2026-06-19 runtime handler extraction are already done, so focus next on achievement metadata, further non-action __init__.py orchestration cleanup, or another clearly scoped shared contract without changing behavior. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
+In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Do not continue P0 by default: the current architecture board is complete as of 2026-06-19 across review-action dispatch, flat target-list metadata, grouped target-tree metadata, runtime handler extraction, achievement metadata, and final duplicated handler-plumbing cleanup. Only reopen P0 if the owner explicitly names a new concrete architecture boundary and acceptance criteria. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
 ```
 
 ### P1 - Quest Lock Registry And Copy-Forward Skill

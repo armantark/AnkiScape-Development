@@ -796,91 +796,14 @@ def on_discard_item(item_name):
     return True
 
 
-def _can_start_fletching_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "fletching")
-
-
-def _can_start_firemaking_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "firemaking")
-
-
-def _can_start_fishing_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "fishing")
-
-
-def _can_start_cooking_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "cooking")
-
-
-def _can_start_runecrafting_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "runecrafting")
-
-
-def _can_start_quest_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "quest")
-
-
-def _can_start_crafting_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "crafting")
-
-
-def _can_start_smithing_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "smithing")
-
-
-def _can_start_utility_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "utility")
-
-
-def _can_start_woodcutting_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "woodcutting")
-
-
-def _can_start_mining_action() -> bool:
-    return runtime_actions.can_start_action(_runtime_action_context(), "mining")
-
-
-_CAN_START_HANDLERS = {
-    "mining": _can_start_mining_action,
-    "woodcutting": _can_start_woodcutting_action,
-    "smithing": _can_start_smithing_action,
-    "crafting": _can_start_crafting_action,
-    "fletching": _can_start_fletching_action,
-    "firemaking": _can_start_firemaking_action,
-    "fishing": _can_start_fishing_action,
-    "cooking": _can_start_cooking_action,
-    "runecrafting": _can_start_runecrafting_action,
-    "utility": _can_start_utility_action,
-    "quest": _can_start_quest_action,
-}
-
-
 def _can_start_current_action() -> bool:
     handler_key = review_action_handler_key(current_skill)
-    checker = _CAN_START_HANDLERS.get(handler_key)
-    return checker() if checker is not None else True
-
-
-_REVIEW_HANDLERS = {
-    "mining": on_mining_answer,
-    "woodcutting": on_woodcutting_answer,
-    "smithing": on_smithing_answer,
-    "crafting": on_crafting_answer,
-    "fletching": on_fletching_answer,
-    "firemaking": on_firemaking_answer,
-    "fishing": on_fishing_answer,
-    "cooking": on_cooking_answer,
-    "runecrafting": on_runecrafting_answer,
-    "utility": on_utility_answer,
-    "quest": on_quest_answer,
-}
+    return runtime_actions.can_start_action(_runtime_action_context(), handler_key)
 
 
 def _registered_answer_handler(skill):
     handler_key = review_action_handler_key(skill)
-    if handler_key is None:
-        return None
-    return _REVIEW_HANDLERS.get(handler_key)
+    return runtime_actions.answer_handler_for_key(handler_key)
 
 
 def on_good_answer():
@@ -895,7 +818,7 @@ def on_good_answer():
             for tick_index in range(_review_action_multiplier()):
                 if tick_index > 0 and not _can_start_current_action():
                     break
-                result = handler()
+                result = handler(_runtime_action_context())
                 if result is False or current_skill == "None":
                     break
         finally:

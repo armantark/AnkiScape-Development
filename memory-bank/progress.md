@@ -17,6 +17,7 @@
 - A pure review-action registry exists for levelled skills plus no-XP Utility/Activities aliases, without adding Utility as a fake skill.
 - An Anki-free `runtime_actions.py` module owns review-action handler bodies and handler-keyed readiness checks, while `__init__.py` keeps hooks, global state, undo snapshots, UI/save callbacks, and thin compatibility wrappers.
 - A pure target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities, so Skills-hub row labels, tooltips, icons, groups, sort order, and lock reasons are generated before Qt renders them.
+- A pure achievement metadata contract owns achievement definitions, difficulty order, grouped achievement rows, and progress counts while preserving the existing completed-achievement name save contract.
 - A backend item manifest exists for current ores, logs, fish, food, runes/access items, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
 - Review eligibility and level-up key lookup are registry-backed for current review skills.
@@ -44,7 +45,7 @@
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 
 ## What Is Not Built Yet
-- Full action metadata beyond the current review-action dispatch registry, runtime handler contract, and target-row metadata contract.
+- Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat training and combat encounters.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Formal balancing pass for long-term progression.
@@ -63,13 +64,14 @@
 - Skills-hub clicks now correctly drive the target panel. A closure name collision (`_select_skill` redefined by the Stats tab in the same `show_main_menu` scope) had been shadowing the hub handler; the hub helper is now `_select_hub_skill`. Covered by offscreen Qt behavior tests.
 
 ## Known Technical Debt
-- Existing skills are still hardcoded in multiple frontend/UI places.
-- `constants.py` mixes paths, data tables, achievements, and progression constants.
-- `__init__.py` still owns too much Anki orchestration, menu callback wiring, and review transaction coordination, though review-action mutation bodies now live in `runtime_actions.py`.
+- Some existing skill assumptions still live in frontend/UI surfaces outside the target-row renderers, especially stats, icons, and large menu sections.
+- `constants.py` still mixes paths, data tables, and progression constants.
+- `__init__.py` still owns Anki orchestration, menu callback wiring, and review transaction coordination, though review-action mutation bodies and duplicated can-start/handler maps now live outside it.
 - `ui.py` is large and mixes many dialogs/surfaces.
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
 - The runtime answer path now uses `action_registry.py` for Skill/Utility handler-key resolution and `runtime_actions.py` for handler-keyed can-start checks plus review mutation bodies; broader action metadata is still incomplete.
 - Flat and grouped target rows now use `target_metadata.py`; Qt still owns rendering, group expansion persistence, and click handling.
+- Achievements now use `achievement_metadata.py`; future achievement additions should go through that contract instead of rebuilding grouped UI state by hand.
 - The current future-thread priority board lives in `memory-bank/future-work-kanban.md`.
 
 ## Current Status
@@ -155,6 +157,20 @@ callback wiring, and thin `on_<skill>_answer` wrappers that pass a
 rewards, quest rules, assets, or frontend UI changed. `python3 run_tests.py`
 passes with 347 tests (83 skipped), and the offscreen Qt discovery suite passes
 with 347 tests.
+
+P0 achievement metadata and final handler-plumbing cleanup completed on
+2026-06-19. `achievement_metadata.py` now owns the 105 achievement definitions,
+the shared difficulty order, grouped row models, and progress-count helpers,
+while `constants.ACHIEVEMENTS` remains a compatibility export for the legacy
+dict shape used by achievement checks. The main menu Achievements tab and the
+standalone achievement dialog render from the shared metadata helpers instead
+of rebuilding difficulty buckets locally. `__init__.py` no longer keeps duplicate
+per-skill can-start helpers or a private review-handler map; it resolves handler
+keys through `action_registry.py` and calls `runtime_actions.py` directly. No
+save schema, achievement names, completion semantics, XP math, item rewards,
+quest rules, target metadata, or visual behavior changed. `python3 run_tests.py`
+passes with 352 tests (84 skipped), and the offscreen Qt discovery suite passes
+with 352 tests.
 
 P2 feather source completed on 2026-06-15. Added `Scavenge chicken feathers` as
 a no-input Utility/Activities action with a dedicated activity icon and
@@ -252,10 +268,10 @@ run_tests.py` passed with 342 tests (83 skipped), and `QT_QPA_PLATFORM=offscreen
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
-- Continue P0 only for a new architecture slice: achievement metadata, further
-  non-action `__init__.py` orchestration cleanup, or another clearly scoped
-  shared contract. The review-action dispatch, runtime handler extraction, flat
-  target-row metadata, and grouped target-tree metadata slices are done.
+- The current P0 architecture board is complete. Do not continue P0 by default;
+  reopen architecture only if the owner names a new concrete acceptance boundary.
+- Next default work can move back to content/polish/"fun stuff" using the
+  parked and prioritized sections in the kanban.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
 - Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.

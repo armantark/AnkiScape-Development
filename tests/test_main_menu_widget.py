@@ -403,6 +403,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
 
+    def test_achievement_tab_renders_metadata_counts_and_completed_rows(self) -> None:
+        pd = _make_player_data()
+        pd["completed_achievements"] = ["First Steps", "Rune Mysteries"]
+        dialog = self._open(pd)
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+
+        self.assertTrue(
+            any(text.startswith("Easy") and "2/34 completed" in text for text in labels),
+            "Easy achievement count did not use metadata grouping",
+        )
+        self.assertIn("First Steps", labels)
+        self.assertIn("Rune Mysteries", labels)
+        self.assertIn("Completed: 2/105 (1.9%)", labels)
+
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)
         wc_row = next(

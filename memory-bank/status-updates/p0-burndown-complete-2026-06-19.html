@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape P0 Burn-Down Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --cyan: #22d3ee;
+      --ink: #090b10;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(79, 140, 255, 0.12), transparent 28rem),
+        radial-gradient(circle at 90% 8%, rgba(74, 222, 128, 0.08), transparent 22rem),
+        var(--bg);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      min-height: 100vh;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 42px 0 56px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 24px;
+      align-items: end;
+      margin-bottom: 24px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #a9c7ff;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2.1rem, 4vw, 4.8rem);
+      line-height: 0.94;
+      letter-spacing: 0;
+    }
+
+    .subhead {
+      margin: 0;
+      max-width: 66ch;
+      color: var(--text-dim);
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(30, 35, 44, 0.98), rgba(22, 26, 33, 0.98));
+      padding: 16px;
+      min-height: 112px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 2.1rem;
+      line-height: 1;
+      color: var(--green);
+    }
+
+    .metric span {
+      display: block;
+      margin-top: 9px;
+      color: var(--text-dim);
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    section {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.92);
+      box-shadow: 0 14px 48px rgba(0, 0, 0, 0.24);
+      overflow: hidden;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    .card h2 {
+      margin: 8px 0 10px;
+      font-size: 1.28rem;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .priority {
+      color: var(--amber);
+      font: 600 0.68rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .priority.done { color: var(--green); }
+    .priority.next { color: var(--purple); }
+    .priority.backend { color: var(--cyan); }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: #cbd5e1;
+      padding: 5px 8px;
+      font: 600 0.66rem "JetBrains Mono", monospace;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .node {
+      min-height: 86px;
+      border: 1px solid rgba(79, 140, 255, 0.28);
+      border-radius: 10px;
+      background: rgba(30, 35, 44, 0.9);
+      padding: 10px;
+      position: relative;
+    }
+
+    .node::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      width: 8px;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .node:last-child::after { display: none; }
+
+    .node b {
+      display: block;
+      color: var(--text);
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+    }
+
+    .node small {
+      color: var(--text-dim);
+      font: 400 0.68rem "JetBrains Mono", monospace;
+      line-height: 1.35;
+    }
+
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+      min-height: 190px;
+    }
+
+    .pane-label {
+      color: var(--text-dim);
+      font: 600 0.66rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+
+    .mock-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid rgba(139, 149, 168, 0.16);
+      border-radius: 8px;
+      background: rgba(12, 14, 18, 0.52);
+      padding: 8px;
+      margin-bottom: 8px;
+      color: #dbe5f3;
+      font-size: 0.82rem;
+    }
+
+    .mock-row .pill {
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: rgba(251, 191, 36, 0.13);
+      color: #f8d57a;
+      font: 600 0.62rem "JetBrains Mono", monospace;
+    }
+
+    .mock-row.ok .pill {
+      background: rgba(74, 222, 128, 0.15);
+      color: #8cf0af;
+    }
+
+    .mock-row.dim {
+      opacity: 0.55;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px;
+      border: 1px solid rgba(74, 222, 128, 0.22);
+      border-radius: 10px;
+      background: rgba(74, 222, 128, 0.06);
+    }
+
+    .box {
+      width: 24px;
+      height: 24px;
+      border-radius: 7px;
+      background: var(--green);
+      color: var(--ink);
+      display: grid;
+      place-items: center;
+      font: 700 0.9rem "JetBrains Mono", monospace;
+    }
+
+    .check span {
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    .check code,
+    pre {
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .check code {
+      color: #b9d0ff;
+      font-size: 0.72rem;
+    }
+
+    .prompt {
+      margin-top: 16px;
+      border: 1px solid rgba(167, 139, 250, 0.32);
+      border-radius: 10px;
+      background: rgba(167, 139, 250, 0.08);
+      overflow: hidden;
+    }
+
+    .prompt-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(167, 139, 250, 0.22);
+      color: #d8ccff;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    button {
+      border: 1px solid rgba(79, 140, 255, 0.6);
+      border-radius: 8px;
+      background: rgba(79, 140, 255, 0.14);
+      color: #c8dcff;
+      padding: 7px 10px;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      cursor: pointer;
+    }
+
+    button:hover,
+    button:focus-visible {
+      outline: none;
+      background: rgba(79, 140, 255, 0.24);
+    }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      color: #e9ddff;
+      white-space: pre-wrap;
+      font-size: 0.78rem;
+      line-height: 1.55;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .bars {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 140px 1fr 54px;
+      gap: 10px;
+      align-items: center;
+      font: 600 0.72rem "JetBrains Mono", monospace;
+      color: var(--text-dim);
+    }
+
+    .track {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    @media (max-width: 900px) {
+      header,
+      .grid,
+      .before-after {
+        grid-template-columns: 1fr;
+      }
+
+      .scoreboard {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .flow {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .node::after { display: none; }
+    }
+
+    @media (max-width: 540px) {
+      main { width: min(100vw - 20px, 1180px); }
+      .scoreboard,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+      .bar {
+        grid-template-columns: 1fr;
+      }
+      .check {
+        grid-template-columns: 28px 1fr;
+      }
+      .check code {
+        grid-column: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <span class="badge">Completed 2026-06-19</span>
+        <h1>P0 architecture board is closed.</h1>
+        <p class="subhead">The backend/frontend split that was blocking the next bigger skill is now burned down: review dispatch, target metadata, grouped trees, runtime handlers, achievements, and the last duplicated handler plumbing all have shared contracts.</p>
+      </div>
+      <div class="scoreboard" aria-label="Verification metrics">
+        <div class="metric"><strong>352</strong><span>Core tests</span></div>
+        <div class="metric"><strong>352</strong><span>Qt tests</span></div>
+        <div class="metric"><strong>0</strong><span>P0 carryover</span></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card wide">
+        <span class="priority done">Burn-down path</span>
+        <h2>What got moved behind shared contracts</h2>
+        <p>Each slice kept the flat save model and current behavior. The result is not a new engine; it is a smaller edit surface for the next real content thread.</p>
+        <div class="flow">
+          <div class="node"><b>Dispatch</b><small>action_registry.py maps skill/action names to handler keys</small></div>
+          <div class="node"><b>Flat rows</b><small>Mining, Woodcutting, Fletching, Firemaking, Fishing, Utility</small></div>
+          <div class="node"><b>Grouped rows</b><small>Smithing, Crafting, Cooking, Runecrafting tree metadata</small></div>
+          <div class="node"><b>Runtime</b><small>review mutations and can-start checks moved to runtime_actions.py</small></div>
+          <div class="node"><b>Achievements</b><small>105 definitions plus grouped progress helpers</small></div>
+          <div class="node"><b>Cleanup</b><small>__init__.py no longer carries duplicate handler maps</small></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <span class="priority backend">Backend handoff</span>
+        <h2>Shared metadata now owns the repeated decisions</h2>
+        <p>Achievement definitions and progress rows are computed once in a pure module. Review readiness and review handler lookup now resolve through registry keys and runtime maps instead of per-skill branches.</p>
+        <div class="tags">
+          <span class="tag">achievement_metadata.py</span>
+          <span class="tag">constants.py</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">__init__.py</span>
+        </div>
+        <div class="checklist">
+          <div class="check"><div class="box">✓</div><span>Legacy achievement save contract preserved.</span><code>completed_achievements names</code></div>
+          <div class="check"><div class="box">✓</div><span>Living Legend still keys off the final catalog size.</span><code>105 definitions</code></div>
+          <div class="check"><div class="box">✓</div><span>Runtime handler lookup now returns the central runtime function.</span><code>answer_handler_for_key</code></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <span class="priority">Frontend handoff</span>
+        <h2>Achievements render from the metadata view</h2>
+        <p>The main menu and standalone achievement dialog still look the same, but both read grouped rows and progress counts from one helper path.</p>
+        <div class="before-after">
+          <div class="pane" aria-label="Before achievement rendering">
+            <div class="pane-label">Before</div>
+            <div class="mock-row"><span>Easy tab</span><span class="pill">local filter</span></div>
+            <div class="mock-row"><span>Moderate tab</span><span class="pill">local count</span></div>
+            <div class="mock-row dim"><span>Dialog copy</span><span class="pill">repeats</span></div>
+          </div>
+          <div class="pane" aria-label="After achievement rendering">
+            <div class="pane-label">After</div>
+            <div class="mock-row ok"><span>Easy tab</span><span class="pill">2/34</span></div>
+            <div class="mock-row ok"><span>Rows</span><span class="pill">shared</span></div>
+            <div class="mock-row ok"><span>Total</span><span class="pill">2/105</span></div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <span class="priority done">Verification</span>
+        <h2>Signal that this was behavior-preserving</h2>
+        <p>The test count increased from targeted achievement and Qt coverage. Full core and offscreen Qt discovery both pass after the final handler cleanup.</p>
+        <div class="bars">
+          <div class="bar"><span>Core suite</span><div class="track"><div class="fill" style="width:100%"></div></div><span>352 OK</span></div>
+          <div class="bar"><span>Qt suite</span><div class="track"><div class="fill" style="width:100%"></div></div><span>352 OK</span></div>
+          <div class="bar"><span>P0 board</span><div class="track"><div class="fill" style="width:100%"></div></div><span>closed</span></div>
+        </div>
+        <div class="tags">
+          <span class="tag">python3 run_tests.py</span>
+          <span class="tag">QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <span class="priority next">Next work</span>
+        <h2>Default path is content again</h2>
+        <p>Do not continue P0 by default. Architecture can reopen later, but only with a concrete new boundary and acceptance criteria.</p>
+        <div class="prompt">
+          <div class="prompt-head">
+            <span>Copy-paste handoff</span>
+            <button type="button" data-copy="#handoff">Copy</button>
+          </div>
+          <pre id="handoff">In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Do not continue P0 by default: the current architecture board is complete as of 2026-06-19 across review-action dispatch, flat target-list metadata, grouped target-tree metadata, runtime handler extraction, achievement metadata, and final duplicated handler-plumbing cleanup. Pick the next content/polish slice from the kanban unless the owner explicitly names a new concrete architecture boundary and acceptance criteria. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.</pre>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    document.querySelectorAll("[data-copy]").forEach((button) => {
+      button.addEventListener("click", async () => {
+        const target = document.querySelector(button.dataset.copy);
+        if (!target) return;
+        await navigator.clipboard.writeText(target.textContent.trim());
+        const original = button.textContent;
+        button.textContent = "Copied";
+        setTimeout(() => { button.textContent = original; }, 1400);
+      });
+    });
+  </script>
+</body>
+</html>

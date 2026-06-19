@@ -563,11 +563,11 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_review_handler_lookup_uses_action_registry_for_skills_and_utility(self):
         addon = _load_addon_as_package("ankiscape_action_dispatch_lookup")
 
-        self.assertIs(addon._registered_answer_handler("Fletching"), addon.on_fletching_answer)
-        self.assertIs(addon._registered_answer_handler("Firemaking"), addon.on_firemaking_answer)
-        self.assertIs(addon._registered_answer_handler("Fishing"), addon.on_fishing_answer)
-        self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.on_utility_answer)
-        self.assertIs(addon._registered_answer_handler("Utility"), addon.on_utility_answer)
+        self.assertIs(addon._registered_answer_handler("Fletching"), addon.runtime_actions.handle_fletching_answer)
+        self.assertIs(addon._registered_answer_handler("Firemaking"), addon.runtime_actions.handle_firemaking_answer)
+        self.assertIs(addon._registered_answer_handler("Fishing"), addon.runtime_actions.handle_fishing_answer)
+        self.assertIs(addon._registered_answer_handler("Utility / Activities"), addon.runtime_actions.handle_utility_answer)
+        self.assertIs(addon._registered_answer_handler("Utility"), addon.runtime_actions.handle_utility_answer)
         self.assertIsNone(addon._registered_answer_handler("Thieving"))
 
     def test_can_start_current_action_uses_handler_keyed_readiness_checks(self):

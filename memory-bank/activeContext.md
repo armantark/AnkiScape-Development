@@ -142,7 +142,7 @@ The target economy is now a compressed 2011-era RuneScape-style skill set adapte
 
 Roadmap direction: add an optional fake Grand Exchange-style market later so the default experience does not have to be fully ironman. The GE **design is now fully grilled and parked** in `memory-bank/fake-grand-exchange-design.md` (engine = hidden true-price + stochastic fill model with no persisted order book; GP = convenience-abundant, gated by buy limits + market clock, never sells XP; undo rolls back the market tick via deterministic RNG + per-tick delta snapshot; 8 slots, partial fills, OSRS price improvement, 40-action buy-limit windows, 240-action guide-price days capped +/-5%, alch-anchored seeding). It is intentionally **blocked on item-economy breadth**: the GE only earns its keep once many more tradable items exist.
 
-Active priority (updated 2026-06-16): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. Existing-skill architecture and old debt remain the best cleanup target; Utility/Activities icons, the focused feather source, and Firemaking v1 are complete; the GE remains a later candidate, not the next default project.
+Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. The current P0 existing-skill architecture board is complete; Utility/Activities icons, the focused feather source, Firemaking v1, Fishing v1, Cooking v1, Runecrafting v1, the priority quest-lock catalog, and the route-precedent locks are complete. The GE remains a later candidate, not the next default project.
 
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,
@@ -151,9 +151,10 @@ aliases. Runtime review dispatch now uses that registry for answer eligibility
 and handler lookup, and `_can_start_current_action` delegates to a handler-keyed
 readiness map instead of a single long skill-name branch. Utility/Activities
 remains synthetic and outside `skill_registry.py`; no flat save keys or XP/item
-behavior changed. Frontend target-list builders in `ui.py` remain hardcoded by
-skill because the backend still does not expose enough target-widget metadata to
-migrate them safely; that is the next frontend boundary for continued P0 work.
+behavior changed. At this point, frontend target-list builders in `ui.py`
+remained hardcoded by skill because the backend still did not expose enough
+target-widget metadata; later P0 passes added the flat and grouped metadata
+contracts.
 Verification: `python3 run_tests.py` passed with 233 tests (57 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 233 tests.
@@ -322,26 +323,40 @@ frontend surfaces changed. Verification: `python3 run_tests.py` passed with
 347 tests (83 skipped), and the offscreen Qt discovery suite passed with 347
 tests.
 
+P0 achievement metadata and final handler-plumbing cleanup is complete on
+2026-06-19. `achievement_metadata.py` now owns the 105 achievement definitions,
+the shared difficulty order, grouped row models, and progress-count helpers while
+`constants.ACHIEVEMENTS` preserves the legacy dict export for achievement checks.
+The main menu Achievements tab and the standalone achievement dialog render from
+the same metadata helpers. `__init__.py` now resolves current-action readiness
+and review-answer handlers through `action_registry.py` plus `runtime_actions.py`
+instead of maintaining duplicate per-skill can-start helpers or a private handler
+map. No save schema, achievement names, completion semantics, XP math, item
+rewards, quest rules, target metadata, assets, or visual behavior changed.
+Verification: `python3 run_tests.py` passed with 352 tests (84 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 352 tests.
+
 ## Current Risks
-- Skill behavior is less concentrated in `__init__.py`, but shared action
-  metadata is still incomplete beyond dispatch keys, target rows, and runtime
-  handler wrappers.
-- Adding many skills before refactoring would likely multiply duplication.
+- The current P0 architecture board is closed, but a larger action-engine design
+  could still be justified later if a future feature needs behavior beyond the
+  current dispatch, runtime, target-row, and achievement metadata contracts.
+- Adding many skills will still add pressure to stats, icons, tests, and storage
+  migrations even though target/action duplication is lower than before.
 - Combat could sprawl if started before noncombat action patterns are generalized.
 - Anki config migration mistakes could affect persisted player progress.
 - Running both the upstream `1808450369` copy and the local `ankiscape_fork` copy at the same time could double-register menus/hooks.
-- The backend registry is only the first layer; the Qt menu is still per-skill/top-tab oriented and will overload once many skills become playable.
+- The Qt menu remains a large monolithic function; target rows are shared, but stats, achievements, bank, equipment, settings, and other surfaces are not fully componentized.
 - The asset scraper records provenance, but existing asset provenance is still unaudited until icons are re-fetched or manually cataloged.
 - Future game state stored outside `player_data` must be made undo-aware; the current rollback is intentionally scoped to review reward mutations in `player_data`.
 
 ## Next Recommended Work
 Use `memory-bank/future-work-kanban.md` as the current future-thread source of truth.
 
-1. **Continue P0 only if the owner wants another architecture slice**: the next
-   useful boundary is achievement metadata or further non-action
-   `__init__.py` orchestration cleanup, not repeating review handler dispatch,
-   runtime handler extraction, flat target-row metadata, or grouped target-tree
-   metadata.
+1. **Move past the current P0 architecture board**: dispatch, runtime handlers,
+   flat/grouped target metadata, achievement metadata, and the final duplicated
+   handler plumbing are done. Do not continue P0 by default unless the owner
+   names a new concrete architecture boundary.
 2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.

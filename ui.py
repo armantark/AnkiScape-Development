@@ -180,6 +180,21 @@ except Exception:
     from skill_registry import implemented_skill_definitions, implemented_review_skill_names, get_skill  # type: ignore
 
 try:
+    from .achievement_metadata import (
+        ACHIEVEMENT_DIFFICULTIES,
+        achievement_difficulty_progress,
+        achievement_progress,
+        achievement_rows_for_difficulty,
+    )
+except Exception:
+    from achievement_metadata import (  # type: ignore
+        ACHIEVEMENT_DIFFICULTIES,
+        achievement_difficulty_progress,
+        achievement_progress,
+        achievement_rows_for_difficulty,
+    )
+
+try:
     from .target_metadata import (
         TargetRowMetadata,
         cooking_target_rows,
@@ -3053,16 +3068,14 @@ def show_main_menu(
         )
         return card
 
-    difficulties = ["Easy", "Moderate", "Difficult", "Very Challenging"]
-    for difficulty in difficulties:
+    for difficulty in ACHIEVEMENT_DIFFICULTIES:
         tab = QWidget()
         tab_layout = QVBoxLayout(tab)
         tab_layout.setContentsMargins(0, 0, 0, 0)
         tab_layout.setSpacing(0)
-        # Count per difficulty
-        items = [(n, d) for n, d in ACHIEVEMENTS.items() if d.get("difficulty") == difficulty]
-        done = sum(1 for n, _ in items if n in player_data.get("completed_achievements", []))
-        header = QLabel(f"{difficulty} • {done}/{len(items)} completed")
+        rows = achievement_rows_for_difficulty(ACHIEVEMENTS, player_data, difficulty)
+        done, total = achievement_difficulty_progress(ACHIEVEMENTS, player_data, difficulty)
+        header = QLabel(f"{difficulty} • {done}/{total} completed")
         header.setStyleSheet("font-weight: 600; margin: 0 0 6px 0;")
         tab_layout.addWidget(header)
 
@@ -3073,8 +3086,8 @@ def show_main_menu(
         cl = QVBoxLayout(content)
         cl.setContentsMargins(0, 0, 0, 0)
         cl.setSpacing(8)
-        for name, data in items:
-            card = _make_achievement_card(name, data.get("description", ""), name in player_data.get("completed_achievements", []))
+        for row in rows:
+            card = _make_achievement_card(row.name, row.description, row.completed)
             cl.addWidget(card)
         cl.addStretch(1)
         scroll.setWidget(content)
@@ -3083,9 +3096,7 @@ def show_main_menu(
 
     a_layout.addWidget(a_tabs)
 
-    completed_count = len(player_data.get("completed_achievements", []))
-    total_count = len(ACHIEVEMENTS)
-    progress_percentage = (completed_count / max(1, total_count)) * 100
+    completed_count, total_count, progress_percentage = achievement_progress(ACHIEVEMENTS, player_data)
     progress_row = QWidget()
     prl = QHBoxLayout(progress_row)
     prl.setContentsMargins(0, 0, 0, 0)
@@ -3983,58 +3994,54 @@ def show_achievements(player_data: dict):
         """
     )
 
-    difficulties = ["Easy", "Moderate", "Difficult", "Very Challenging"]
-
-    for difficulty in difficulties:
+    for difficulty in ACHIEVEMENT_DIFFICULTIES:
         tab = QWidget()
         tab_layout = QVBoxLayout()
         scroll_area = QScrollArea()
         scroll_widget = QWidget()
         scroll_layout = QVBoxLayout()
 
-        for achievement, data in ACHIEVEMENTS.items():
-            if data["difficulty"] == difficulty:
-                achievement_widget = QWidget()
-                achievement_layout = QHBoxLayout()
+        for row in achievement_rows_for_difficulty(ACHIEVEMENTS, player_data, difficulty):
+            achievement_widget = QWidget()
+            achievement_layout = QHBoxLayout()
 
-                icon_label = QLabel()
-                icon_path = os.path.join(current_dir, "icon", f"{achievement.lower().replace(' ', '_')}.png")
-                if os.path.exists(icon_path):
-                    pixmap = QPixmap(icon_path)
-                else:
-                    pixmap = QPixmap(os.path.join(current_dir, "icon", "achievement_icon.png"))
-                icon_label.setPixmap(pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio))
-                achievement_layout.addWidget(icon_label)
+            icon_label = QLabel()
+            icon_path = os.path.join(current_dir, "icon", f"{row.name.lower().replace(' ', '_')}.png")
+            if os.path.exists(icon_path):
+                pixmap = QPixmap(icon_path)
+            else:
+                pixmap = QPixmap(os.path.join(current_dir, "icon", "achievement_icon.png"))
+            icon_label.setPixmap(pixmap.scaled(40, 40, Qt.AspectRatioMode.KeepAspectRatio))
+            achievement_layout.addWidget(icon_label)
 
-                info_widget = QWidget()
-                info_layout = QVBoxLayout()
-                name_label = QLabel(achievement)
-                name_label.setStyleSheet("font-weight: bold; color: #333333; font-size: 16px;")
-                desc_label = QLabel(data["description"])
-                desc_label.setWordWrap(True)
-                desc_label.setStyleSheet("color: #666666; font-size: 14px;")
-                info_layout.addWidget(name_label)
-                info_layout.addWidget(desc_label)
-                info_widget.setLayout(info_layout)
-                achievement_layout.addWidget(info_widget, stretch=1)
+            info_widget = QWidget()
+            info_layout = QVBoxLayout()
+            name_label = QLabel(row.name)
+            name_label.setStyleSheet("font-weight: bold; color: #333333; font-size: 16px;")
+            desc_label = QLabel(row.description)
+            desc_label.setWordWrap(True)
+            desc_label.setStyleSheet("color: #666666; font-size: 14px;")
+            info_layout.addWidget(name_label)
+            info_layout.addWidget(desc_label)
+            info_widget.setLayout(info_layout)
+            achievement_layout.addWidget(info_widget, stretch=1)
 
-                completed = achievement in player_data["completed_achievements"]
-                status_label = QLabel("✓" if completed else "")
-                status_label.setStyleSheet("color: #4CAF50; font-size: 24px; font-weight: bold;")
-                achievement_layout.addWidget(status_label)
+            status_label = QLabel("✓" if row.completed else "")
+            status_label.setStyleSheet("color: #4CAF50; font-size: 24px; font-weight: bold;")
+            achievement_layout.addWidget(status_label)
 
-                achievement_widget.setLayout(achievement_layout)
-                achievement_widget.setStyleSheet(
-                    f"""
-                    background-color: {'#e8f5e9' if completed else 'white'};
-                    border: 1px solid #e0e0e0;
-                    border-radius: 8px;
-                    padding: 12px;
-                    margin-bottom: 8px;
-                    """
-                )
+            achievement_widget.setLayout(achievement_layout)
+            achievement_widget.setStyleSheet(
+                f"""
+                background-color: {'#e8f5e9' if row.completed else 'white'};
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                padding: 12px;
+                margin-bottom: 8px;
+                """
+            )
 
-                scroll_layout.addWidget(achievement_widget)
+            scroll_layout.addWidget(achievement_widget)
 
         scroll_widget.setLayout(scroll_layout)
         scroll_area.setWidget(scroll_widget)
@@ -4047,9 +4054,7 @@ def show_achievements(player_data: dict):
 
     layout.addWidget(tabs)
 
-    completed_count = len(player_data["completed_achievements"])
-    total_count = len(ACHIEVEMENTS)
-    progress_percentage = (completed_count / total_count) * 100
+    completed_count, total_count, progress_percentage = achievement_progress(ACHIEVEMENTS, player_data)
     progress_label = QLabel(f"Completed: {completed_count}/{total_count} ({progress_percentage:.1f}%)")
     progress_label.setStyleSheet(
         """
