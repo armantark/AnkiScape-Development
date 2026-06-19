@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fletching Integration Start</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, rgba(79,140,255,0.12), transparent 42%), var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      padding: 30px;
+    }
+    main { max-width: 1220px; margin: 0 auto; }
+    .badge, .tag, .label, .num, code { font-family: "JetBrains Mono", monospace; }
+    .badge {
+      display: inline-flex;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.4);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 5vw, 3.6rem); line-height: 0.95; letter-spacing: 0; }
+    .sub { color: var(--text-dim); font-size: 1.04rem; line-height: 1.55; max-width: 860px; margin: 0 0 24px; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 16px 44px rgba(0,0,0,0.22);
+    }
+    .card h2 { margin: 0 0 9px; font-size: 1.12rem; letter-spacing: 0; }
+    .card p { color: var(--text-dim); line-height: 1.45; margin: 0; }
+    .wide { grid-column: 1 / -1; }
+    .label { font-size: 0.68rem; text-transform: uppercase; margin-bottom: 9px; }
+    .label.major { color: var(--amber); }
+    .label.backend { color: var(--accent); }
+    .label.frontend { color: var(--green); }
+    .label.assets { color: var(--purple); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 13px; }
+    .tag { background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border); border-radius: 999px; padding: 4px 8px; font-size: 0.65rem; }
+    .lanes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 14px; }
+    .lane {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      min-height: 128px;
+    }
+    .num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      color: #07111f;
+      background: var(--accent);
+      border-radius: 8px;
+      font-weight: 600;
+      margin-bottom: 9px;
+    }
+    .mini {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 10px;
+      margin-top: 14px;
+      background: #10141b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+    }
+    .rail, .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px; }
+    .rail div {
+      padding: 7px 8px;
+      color: var(--text-dim);
+      border-radius: 7px;
+      font-size: 0.78rem;
+    }
+    .rail .on { background: rgba(79,140,255,0.15); color: var(--text); }
+    .group {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+    .child {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text-dim);
+      margin-top: 7px;
+      padding-top: 7px;
+      border-top: 1px solid rgba(42,48,64,0.75);
+    }
+    .ok { color: var(--green); }
+    .warn { color: var(--amber); }
+    .lock { color: var(--red); }
+    .matrix { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+    .cell { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; min-height: 96px; }
+    .cell strong { display: block; margin-bottom: 6px; }
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .grid, .lanes, .matrix, .mini { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-Implementation Kickoff</span>
+    <h1>Fletching moves from starter chain to source-backed skill.</h1>
+    <p class="sub">This pass expands the table from the 2011Scape source, adds a generic reward and unlock substrate, keeps common tools implicit, and changes the player surface from a flat list to grouped target rows.</p>
+
+    <section class="grid" aria-label="Fletching implementation scope">
+      <article class="card">
+        <div class="label backend">Backend lane</div>
+        <h2>General substrate first</h2>
+        <p>Add multi-skill reward metadata and ability-based target locks, then migrate existing quest locks and Barbarian Fishing side XP without changing visible behavior.</p>
+        <div class="tags"><span class="tag">logic_pure.py</span><span class="tag">quest_data.py</span><span class="tag">storage_pure.py</span><span class="tag">fishing_data.py</span></div>
+      </article>
+      <article class="card">
+        <div class="label major">Fletching data</div>
+        <h2>One source module, stable IDs</h2>
+        <p>Move inline Fletching rows into <code>fletching_data.py</code> with audited IDs, groups, levels, materials, outputs, XP rewards, and unlock requirements.</p>
+        <div class="tags"><span class="tag">fletching_data.py</span><span class="tag">constants.py</span><span class="tag">item_registry.py</span></div>
+      </article>
+      <article class="card">
+        <div class="label frontend">Frontend lane</div>
+        <h2>Grouped target tree</h2>
+        <p>Render Whittling, Stringing, Arrows, Feathering, Bolts, Darts, and Specials as tree groups through target metadata. Disabled rows remain inert.</p>
+        <div class="mini" aria-label="Grouped Fletching mockup">
+          <div class="rail">
+            <div>Artisan</div>
+            <div class="on">Fletching</div>
+            <div>Cooking</div>
+            <div>Runecrafting</div>
+          </div>
+          <div class="panel">
+            <div class="group">Whittling<div class="child"><span>Oak longbow (u)</span><span class="ok">Lvl 25</span></div></div>
+            <div class="group">Bolts<div class="child"><span>Broad bolts</span><span class="lock">Broad Fletching</span></div></div>
+            <div class="group">Darts<div class="child"><span>Rune darts</span><span class="warn">Lvl 81</span></div></div>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <div class="label assets">Assets and evidence</div>
+        <h2>Audit before scraping</h2>
+        <p>Document local source rows first, pin any pre-EOC bolt-tip deltas before adding them, then derive the fetch manifest from the data table so icons cannot drift.</p>
+        <div class="tags"><span class="tag">source-audits/</span><span class="tag">tools/fetch_fletching_assets.py</span><span class="tag">assets_provenance.json</span></div>
+      </article>
+      <article class="card wide">
+        <h2>Execution order</h2>
+        <div class="lanes">
+          <div class="lane"><div class="num">1</div><p>Write the source audit and inventory current code paths.</p></div>
+          <div class="lane"><div class="num">2</div><p>Land reward and unlock substrate with Fishing as proof.</p></div>
+          <div class="lane"><div class="num">3</div><p>Expand Fletching backend rows, runtime, tests, and assets.</p></div>
+          <div class="lane"><div class="num">4</div><p>Render grouped UI, run full suites, write completion artifact, update memory, commit.</p></div>
+        </div>
+      </article>
+      <article class="card wide">
+        <h2>Verification matrix</h2>
+        <div class="matrix">
+          <div class="cell"><strong>Unit</strong><p>Reward normalization, ability locks, existing quest locks, leaping side XP, representative Fletching rows.</p></div>
+          <div class="cell"><strong>Integration</strong><p>Fletching review consumes inputs, awards XP, produces outputs, respects multiplier, and rolls back through undo.</p></div>
+          <div class="cell"><strong>Qt and manual</strong><p>Grouped rows render with icons, lock reasons, current state, disabled-click guards, and a review-loop smoke in Anki.</p></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -20,6 +20,7 @@ try:
         CRAFTING_DATA,
         DEFAULT_COOKING_TARGET,
         DEFAULT_FIREMAKING_TARGET,
+        DEFAULT_FLETCHING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_MINING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
@@ -60,7 +61,6 @@ try:
         best_woodcutting_axe_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
-        can_fletch_item_pure,
         can_runecraft_target_pure,
         can_smith_item_pure,
         can_start_quest_pure,
@@ -69,13 +69,16 @@ try:
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
+        fletching_target_locked_reasons_pure,
         has_cooking_materials_pure,
         has_crafting_materials_pure,
         has_firemaking_materials_pure,
         has_fishing_bait_pure,
         mining_target_locked_reasons_pure,
+        normalize_xp_rewards_pure,
         utility_activity_locked_reasons_pure,
     )
+    from .skill_registry import get_skill
     from .smithing_data import DEFAULT_SMITHING_TARGET
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
@@ -86,6 +89,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         CRAFTING_DATA,
         DEFAULT_COOKING_TARGET,
         DEFAULT_FIREMAKING_TARGET,
+        DEFAULT_FLETCHING_TARGET,
         DEFAULT_FISHING_TARGET,
         DEFAULT_MINING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
@@ -126,7 +130,6 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         best_woodcutting_axe_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
-        can_fletch_item_pure,
         can_runecraft_target_pure,
         can_smith_item_pure,
         can_start_quest_pure,
@@ -135,13 +138,16 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
+        fletching_target_locked_reasons_pure,
         has_cooking_materials_pure,
         has_crafting_materials_pure,
         has_firemaking_materials_pure,
         has_fishing_bait_pure,
         mining_target_locked_reasons_pure,
+        normalize_xp_rewards_pure,
         utility_activity_locked_reasons_pure,
     )
+    from skill_registry import get_skill  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
 
 
@@ -182,6 +188,34 @@ def fishing_materials_text(method_spec: dict[str, Any], inventory: dict[str, Any
         bait = bait_options[0]
         return f"1 {bait}"
     return "any of " + ", ".join(f"1 {bait}" for bait in bait_options)
+
+
+def _award_action_xp_rewards(ctx: RuntimeActionContext, xp_rewards: Any, owner_skill_id: str) -> float:
+    rewards = normalize_xp_rewards_pure({"xp_rewards": xp_rewards})
+    if not rewards:
+        return 0.0
+    primary_skill_id = owner_skill_id if any(reward.get("skill_id") == owner_skill_id for reward in rewards) else str(rewards[0].get("skill_id", ""))
+    primary_amount = 0.0
+    for reward in rewards:
+        skill_id = str(reward.get("skill_id", ""))
+        try:
+            amount = float(reward.get("amount", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            amount = 0.0
+        if not skill_id or amount <= 0:
+            continue
+        skill = get_skill(skill_id)
+        if skill is None:
+            continue
+        if skill.implemented:
+            gained = ctx.award_skill_exp(skill.exp_key, amount)
+            ctx.level_up_check(skill.display_name, ctx.player_data)
+        else:
+            ctx.award_hidden_skill_exp(skill.exp_key, skill.level_key, amount)
+            gained = amount
+        if skill_id == primary_skill_id:
+            primary_amount = gained
+    return primary_amount
 
 
 def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
@@ -327,13 +361,26 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
 
 def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
-    target = player_data.get("current_fletch", "arrow_shafts")
+    target = player_data.get("current_fletch", DEFAULT_FLETCHING_TARGET)
     if target not in FLETCHING_DATA:
-        target = "arrow_shafts"
+        target = DEFAULT_FLETCHING_TARGET
         player_data["current_fletch"] = target
     spec = FLETCHING_DATA[target]
     display_name = spec.get("display_name", target)
     player_level = player_data.get("fletching_level", 1)
+    locked_reasons = fletching_target_locked_reasons_pure(player_data, target, FLETCHING_DATA, QUEST_UNLOCK_RULES)
+    unlock_locked = tuple(
+        reason
+        for reason in locked_reasons
+        if reason not in {"materials"} and not str(reason).startswith("Fletching level")
+    )
+    if unlock_locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Fletching target locked",
+            f"{display_name} requires {', '.join(unlock_locked)}, so Fletching has been switched off.",
+        )
+        return False
 
     if player_level < spec["level"]:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")
@@ -341,15 +388,18 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
 
     new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
     if not ok:
-        for material, amount in spec.get("requirements", {}).items():
-            if player_data["inventory"].get(material, 0) < amount:
-                ctx.show_error_message("Insufficient materials", f"You need {amount} {material} to make {display_name}.")
-                break
+        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Out of materials",
+            f"You need {missing} to make {display_name}, so Fletching has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
         return False
 
     player_data["inventory"] = new_inv
-    exp_gained = ctx.award_skill_exp("fletching_exp", base_exp)
-    ctx.level_up_check("Fletching", player_data)
+    xp_rewards = normalize_xp_rewards_pure(spec, "fletching", base_exp)
+    exp_gained = _award_action_xp_rewards(ctx, xp_rewards, "fletching")
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
@@ -458,7 +508,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     rolls = [ctx.random_random() for _ in eligible]
-    new_inv, base_exp, ok, _output_item, side_exp = apply_fishing_action_pure(
+    new_inv, base_exp, ok, _output_item, xp_rewards = apply_fishing_action_pure(
         target,
         inventory,
         FISHING_DATA,
@@ -471,12 +521,11 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         return True
 
     player_data["inventory"] = new_inv
-    exp_gained = ctx.award_skill_exp("fishing_exp", base_exp)
-    if side_exp.get("strength_exp", 0) > 0:
-        ctx.award_hidden_skill_exp("strength_exp", "strength_level", side_exp["strength_exp"])
-    if side_exp.get("agility_exp", 0) > 0:
-        ctx.award_hidden_skill_exp("agility_exp", "agility_level", side_exp["agility_exp"])
-    ctx.level_up_check("Fishing", player_data)
+    exp_gained = _award_action_xp_rewards(
+        ctx,
+        xp_rewards or ({"skill_id": "fishing", "amount": base_exp},),
+        "fishing",
+    )
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
@@ -802,12 +851,12 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
 
 
 def _can_start_fletching_action(ctx: RuntimeActionContext) -> bool:
-    target = ctx.player_data.get("current_fletch", "arrow_shafts")
-    return can_fletch_item_pure(
-        ctx.player_data.get("fletching_level", 1),
-        ctx.player_data.get("inventory", {}),
+    target = ctx.player_data.get("current_fletch", DEFAULT_FLETCHING_TARGET)
+    return not fletching_target_locked_reasons_pure(
+        ctx.player_data,
         target,
         FLETCHING_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 

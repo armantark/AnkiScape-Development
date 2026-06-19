@@ -106,6 +106,15 @@ class TestFishingData(unittest.TestCase):
         self.assertEqual(data["catch_sardine_herring"]["requirements"], {"Fishing bait": 1})
         self.assertEqual(data["catch_leaping_fish"]["bait_options"], ("Feather", "Fishing bait", "Fish offcuts", "Roe", "Caviar"))
         self.assertEqual(data["catch_leaping_fish"]["fish"][0]["strength_level"], 15)
+        self.assertNotIn("strength_exp", data["catch_leaping_fish"]["fish"][0])
+        self.assertEqual(
+            data["catch_leaping_fish"]["fish"][0]["xp_rewards"],
+            (
+                {"skill_id": "fishing", "amount": 50.0},
+                {"skill_id": "strength", "amount": 5.0},
+                {"skill_id": "agility", "amount": 5.0},
+            ),
+        )
 
     def test_output_items_and_extra_materials_are_registered(self):
         self.assertIn("Raw crayfish", fishing_output_items())

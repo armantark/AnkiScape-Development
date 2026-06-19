@@ -663,6 +663,7 @@ def _copy_player_data_with_nested(player_data):
         for pouch_id, state in (player_data.get("runecrafting_pouches", {}) or {}).items()
     }
     copied["item_charges"] = dict(player_data.get("item_charges", {}) or {})
+    copied["unlocked_abilities"] = list(player_data.get("unlocked_abilities", []) or [])
     return copied
 
 
@@ -746,30 +747,129 @@ def quest_locked_reasons_pure(player_data, quest_id, quest_data):
     return tuple(dict.fromkeys(reasons))
 
 
-def quest_unlock_locked_reasons_pure(player_data, skill_id, target_id, quest_unlock_rules):
+def ability_unlocked_pure(player_data, ability_id):
+    abilities = player_data.get("unlocked_abilities", ())
+    if isinstance(abilities, str):
+        return abilities == ability_id
+    if isinstance(abilities, Iterable):
+        return ability_id in {ability for ability in abilities if isinstance(ability, str)}
+    return False
+
+
+def _target_ids_for_unlock_rule(rule):
+    target_ids = rule.get("target_ids", ())
+    if isinstance(target_ids, str):
+        return {target_ids}
+    if isinstance(target_ids, Iterable):
+        return {item for item in target_ids if isinstance(item, str)}
+    return set()
+
+
+def _requirements_for_unlock_rule(rule):
+    requirements = rule.get("requirements")
+    if isinstance(requirements, Mapping):
+        return (requirements,)
+    if isinstance(requirements, Iterable) and not isinstance(requirements, str):
+        return tuple(requirement for requirement in requirements if isinstance(requirement, Mapping))
+    quest_id = rule.get("quest_id")
+    if isinstance(quest_id, str):
+        return (
+            {
+                "kind": "quest_completed",
+                "quest_id": quest_id,
+                "reason": rule.get("reason") or quest_id.replace("_", " ").title(),
+                "source": rule.get("source", ""),
+            },
+        )
+    return tuple()
+
+
+def target_unlock_locked_reasons_pure(player_data, skill_id, target_id, target_unlock_rules):
     reasons = []
-    for rule in quest_unlock_rules or ():
+    for rule in target_unlock_rules or ():
         if not isinstance(rule, Mapping):
             continue
         if rule.get("gate_kind", "target") != "target":
             continue
         if rule.get("skill_id") != skill_id:
             continue
-        target_ids = rule.get("target_ids", ())
-        if isinstance(target_ids, str):
-            target_id_set = {target_ids}
-        elif isinstance(target_ids, Iterable):
-            target_id_set = {item for item in target_ids if isinstance(item, str)}
-        else:
-            target_id_set = set()
-        if target_id not in target_id_set:
+        if target_id not in _target_ids_for_unlock_rule(rule):
             continue
-        quest_id = rule.get("quest_id")
-        if not isinstance(quest_id, str) or quest_completed_pure(player_data, quest_id):
-            continue
-        reason = rule.get("reason") or quest_id.replace("_", " ").title()
-        reasons.append(str(reason))
+        for requirement in _requirements_for_unlock_rule(rule):
+            kind = requirement.get("kind", "quest_completed")
+            if kind == "quest_completed":
+                quest_id = requirement.get("quest_id")
+                if not isinstance(quest_id, str) or quest_completed_pure(player_data, quest_id):
+                    continue
+                reason = requirement.get("reason") or quest_id.replace("_", " ").title()
+                reasons.append(str(reason))
+            elif kind == "ability_unlocked":
+                ability_id = requirement.get("ability_id")
+                if not isinstance(ability_id, str) or ability_unlocked_pure(player_data, ability_id):
+                    continue
+                reason = requirement.get("reason") or ability_id.replace("_", " ").title()
+                reasons.append(str(reason))
     return tuple(dict.fromkeys(reasons))
+
+
+def quest_unlock_locked_reasons_pure(player_data, skill_id, target_id, quest_unlock_rules):
+    return target_unlock_locked_reasons_pure(player_data, skill_id, target_id, quest_unlock_rules)
+
+
+def normalize_xp_rewards_pure(action_spec, default_skill_id="", default_amount=None):
+    raw_rewards = action_spec.get("xp_rewards", ()) if isinstance(action_spec, Mapping) else ()
+    normalized = []
+    if isinstance(raw_rewards, Mapping):
+        raw_iter = (raw_rewards,)
+    elif isinstance(raw_rewards, Iterable) and not isinstance(raw_rewards, str):
+        raw_iter = raw_rewards
+    else:
+        raw_iter = ()
+
+    for reward in raw_iter:
+        if isinstance(reward, Mapping):
+            skill_id = reward.get("skill_id")
+            amount = reward.get("amount", 0)
+        elif isinstance(reward, (tuple, list)) and len(reward) >= 2:
+            skill_id, amount = reward[0], reward[1]
+        else:
+            continue
+        if not isinstance(skill_id, str) or not skill_id:
+            continue
+        try:
+            amount_float = float(amount)
+        except (TypeError, ValueError):
+            continue
+        if amount_float <= 0:
+            continue
+        normalized.append((skill_id, amount_float))
+
+    if not normalized and default_skill_id:
+        try:
+            amount_float = float(default_amount if default_amount is not None else 0)
+        except (TypeError, ValueError):
+            amount_float = 0.0
+        if amount_float > 0:
+            normalized.append((default_skill_id, amount_float))
+
+    ordered_skill_ids = []
+    totals = {}
+    for skill_id, amount in normalized:
+        if skill_id not in totals:
+            ordered_skill_ids.append(skill_id)
+            totals[skill_id] = 0.0
+        totals[skill_id] += amount
+    return tuple({"skill_id": skill_id, "amount": totals[skill_id]} for skill_id in ordered_skill_ids)
+
+
+def primary_xp_reward_amount_pure(xp_rewards, owner_skill_id):
+    normalized = normalize_xp_rewards_pure({"xp_rewards": xp_rewards})
+    if not normalized:
+        return 0.0
+    for reward in normalized:
+        if reward.get("skill_id") == owner_skill_id:
+            return float(reward.get("amount", 0.0) or 0.0)
+    return float(normalized[0].get("amount", 0.0) or 0.0)
 
 
 def can_start_quest_pure(player_data, quest_id, quest_data):
@@ -1553,14 +1653,14 @@ def apply_fishing_action_pure(
 ):
     """Apply one ordered source-shaped Fishing attempt.
 
-    Returns (inventory, base_fishing_exp, success, output_item, side_exp). Bait
-    is consumed only after a catch, mirroring the 2011Scape runtime.
+    Returns (inventory, base_fishing_exp, success, output_item, xp_rewards).
+    Bait is consumed only after a catch, mirroring the 2011Scape runtime.
     """
     method_spec = fishing_data.get(target_id)
     if not method_spec:
-        return inventory, 0, False, None, {}
+        return inventory, 0, False, None, tuple()
     if not can_fish_method_pure(fishing_level, inventory, target_id, fishing_data, strength_level, agility_level):
-        return inventory, 0, False, None, {}
+        return inventory, 0, False, None, tuple()
 
     roll_iter = iter(rolls or ())
     for fish in eligible_fishing_fish_pure(method_spec, fishing_level, strength_level, agility_level):
@@ -1581,16 +1681,10 @@ def apply_fishing_action_pure(
         if output_item:
             new_inv[output_item] = new_inv.get(output_item, 0) + 1
 
-        side_exp = {}
-        strength_exp = float(fish.get("strength_exp") or 0.0)
-        agility_exp = float(fish.get("agility_exp") or 0.0)
-        if strength_exp > 0:
-            side_exp["strength_exp"] = strength_exp
-        if agility_exp > 0:
-            side_exp["agility_exp"] = agility_exp
-        return new_inv, fish.get("exp", 0), True, output_item, side_exp
+        xp_rewards = normalize_xp_rewards_pure(fish, "fishing", fish.get("exp", 0))
+        return new_inv, primary_xp_reward_amount_pure(xp_rewards, "fishing"), True, output_item, xp_rewards
 
-    return inventory, 0, False, None, {}
+    return inventory, 0, False, None, tuple()
 
 
 def can_open_bird_nests_pure(inventory, nest_open_tables):
@@ -1798,6 +1892,28 @@ def can_fletch_item_pure(fletching_level, inventory, target, fletching_data):
     if fletching_level < spec.get("level", 1):
         return False
     return has_fletching_materials_pure(target, inventory, fletching_data)
+
+
+def fletching_target_locked_reasons_pure(player_data, target, fletching_data, target_unlock_rules=()):
+    spec = fletching_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    fletching_level = _positive_int(player_data.get("fletching_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if fletching_level < required_level:
+        reasons.append(f"Fletching level {required_level}")
+    if not has_fletching_materials_pure(target, player_data.get("inventory", {}) or {}, fletching_data):
+        reasons.append("materials")
+    reasons.extend(
+        target_unlock_locked_reasons_pure(
+            player_data,
+            "fletching",
+            target,
+            target_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
 
 
 def apply_fletching_pure(target, inventory, fletching_data):

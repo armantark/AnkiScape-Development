@@ -57,7 +57,19 @@ Backend registry implementation has started on `main` in a local git repository.
 
 Asset-fetch tooling now exists as a standalone developer CLI at `tools/fetch_assets.py`. It is not imported by the add-on runtime. It resolves one item icon at a time from the official RuneScape wikis, prefers OSRS with RS3 fallback, supports registry-key path resolution, normalizes PNG output when fetching, and records provenance.
 
-Fletching is now playable in the Skills hub and has had its first data-accuracy hardening pass. The target list uses stable recipe keys, includes tiered arrow-shaft yields, headless arrows, metal arrows through rune, and unstrung shortbows. Fletching output/material icons live under `fletcheditems/` and are recorded in `assets_provenance.json`.
+Fletching source integration is now complete. Inline `constants.FLETCHING_DATA`
+was replaced by source-backed `fletching_data.py`; `constants.FLETCHING_DATA`
+remains a compatibility export. The live table is grouped as Whittling,
+Stringing, Arrows, Feathering, Bolts, Darts, and Specials, with rows sourced
+from local 2011Scape rev 667 plus pinned 2011 KB bolt-tip/dart deltas. The old
+tiered arrow-shaft pilot rows were removed because the source only binds normal
+logs to arrow shafts. Broad arrows/bolts are visible disabled rows until the
+flat `unlocked_abilities` list contains `broad_fletching`; leaping fish now uses
+the same generic ability-lock substrate for `barbarian_fishing`. Fishing side XP
+is exported and awarded through normalized `xp_rewards` instead of ad hoc
+`strength_exp`/`agility_exp` fields. `tools/fetch_fletching_assets.py` derives
+its asset manifest from `fletching_data.py`, and the full Fletching output/input
+manifest resolves to icons under `fletcheditems/` with provenance.
 
 Review-answer XP/items now respect Anki undo. The runtime records changed `player_data` keys for each successful review reward and restores them when Anki emits `state_did_undo`, fixing the Command-Z case where the card was undone but XP remained.
 

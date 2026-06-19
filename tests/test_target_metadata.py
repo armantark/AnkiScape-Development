@@ -228,6 +228,7 @@ class TargetMetadataTest(unittest.TestCase):
             },
             FLETCHING_DATA,
             FLETCHED_ITEM_IMAGES,
+            QUEST_UNLOCK_RULES,
         )
 
         shafts = _row(rows, "arrow_shafts")
@@ -236,8 +237,37 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(shafts.current)
         self.assertFalse(shafts.enabled)
         self.assertEqual(shafts.icon_path, FLETCHED_ITEM_IMAGES["Arrow shafts"])
+        self.assertEqual(shafts.group, "whittling")
         self.assertIn("Logs x1 (you have 0)", shafts.tooltip)
         self.assertIn("Locked due to: materials", shafts.tooltip)
+
+    def test_fletching_rows_apply_broad_fletching_unlock_rule(self):
+        player_data = {
+            "fletching_level": 99,
+            "inventory": {
+                "Headless arrows": 15,
+                "Broad arrow heads": 15,
+                "Unfinished broad bolts": 10,
+                "Feather": 10,
+            },
+            "current_fletch": "broad_arrows",
+            "unlocked_abilities": [],
+        }
+        rows = fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES, QUEST_UNLOCK_RULES)
+
+        broad_arrows = _row(rows, "broad_arrows")
+        broad_bolts = _row(rows, "feather_broad_bolts")
+
+        self.assertEqual(broad_arrows.group, "arrows")
+        self.assertFalse(broad_arrows.enabled)
+        self.assertIn("Broad Fletching", broad_arrows.tooltip)
+        self.assertFalse(broad_bolts.enabled)
+        self.assertIn("Broad Fletching", broad_bolts.tooltip)
+
+        player_data["unlocked_abilities"] = ["broad_fletching"]
+        unlocked_rows = fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES, QUEST_UNLOCK_RULES)
+        self.assertTrue(_row(unlocked_rows, "broad_arrows").enabled)
+        self.assertTrue(_row(unlocked_rows, "feather_broad_bolts").enabled)
 
     def test_firemaking_rows_preserve_success_tooltip_and_default_current_target(self):
         rows = firemaking_target_rows(

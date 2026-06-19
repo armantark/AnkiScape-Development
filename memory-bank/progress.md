@@ -92,6 +92,26 @@ Fletching backend pilot completed on 2026-05-29. Fletching began backend-playabl
 
 Fletching data and asset hardening completed on 2026-05-29. Recipe targets now use stable keys, model per-log arrow-shaft yields, add headless arrows and bronze-through-rune arrows, include Fletching materials in inventory defaults, and scrape 21 normalized PNG icons into `fletcheditems/` with provenance. Suite passes with 100 tests via `.venv-qt` unittest discovery.
 
+Fletching source integration completed on 2026-06-19. The earlier per-log
+arrow-shaft pilot rows were corrected back to the local 2011Scape source shape:
+only normal logs make arrow shafts. Source-backed Fletching data now lives in
+`fletching_data.py` with grouped rows for whittling, stringing, arrows,
+feathering, bolts, darts, and specials; `constants.FLETCHING_DATA` remains an
+imported compatibility export. The table includes short/long bow stringing,
+crossbow stock carving, ogre shaft/flighted ogre rows, broad arrows/bolts,
+dragon arrows/darts, bolt feathering, gem/pearl bolt-tip cutting, tipped bolts,
+and mithril grapple attachment. Crossbow limb attachment/stringing, enchanted
+bolts, and commented comp ogre bow stringing remain excluded. Generic target
+unlock rules now support `quest_completed` and `ability_unlocked`, backed by
+flat `unlocked_abilities`; broad Fletching and Barbarian Fishing use that path.
+Fishing side XP moved to normalized `xp_rewards`, and runtime awards all reward
+entries through existing flat exp/level keys. Fletching now renders through the
+grouped target tree, and `tools/fetch_fletching_assets.py` fetched the generated
+manifest into `fletcheditems/`. Verification: `python3 run_tests.py` passes with
+363 tests (86 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 363 tests.
+
 Review undo rollback completed on 2026-05-29. `state_did_undo` restores the `player_data` keys changed by the latest review reward so undoing an answered card also removes the associated XP/items. Suite passes with 105 tests.
 
 AnkiScape skill expansion project skill created on 2026-05-29. It documents the required workflow for source audits, scope cuts, data modeling, asset scraping, mechanics, UI, achievements, tests, manual Anki checks, and memory updates.

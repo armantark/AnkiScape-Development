@@ -188,6 +188,29 @@ def _find_craft_tree(dialog: "QDialog") -> "QTreeWidget":
     raise AssertionError("craft tree (with recipe ids) not found")
 
 
+def _find_fletching_tree(dialog: "QDialog") -> "QTreeWidget":
+    """The Fletching target tree, identified by stable source-backed target ids."""
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == "arrow_shafts" for it in _tree_items(tw)):
+            return tw
+    raise AssertionError("fletching tree (with target ids) not found")
+
+
+def _fletching_row(tree: "QTreeWidget", target_id: str) -> "QTreeWidgetItem":
+    for it in _tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == target_id:
+            return it
+    raise AssertionError(f"fletching row {target_id!r} not found")
+
+
+def _fletching_group_node(tree: "QTreeWidget", group: str) -> "QTreeWidgetItem":
+    role = f"__fletching_group__:{group}"
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole) == role:
+            return tree.topLevelItem(i)
+    raise AssertionError(f"fletching group node {group!r} not found")
+
+
 def _craft_row(tree: "QTreeWidget", recipe_id: str) -> "QTreeWidgetItem":
     for it in _tree_items(tree):
         if it.data(0, Qt.ItemDataRole.UserRole) == recipe_id:
@@ -550,15 +573,17 @@ class MainMenuWidgetTest(unittest.TestCase):
             f"panel did not switch to Crafting; still shows {title!r}",
         )
 
-    def test_fletching_is_selectable_and_shows_its_target_list(self) -> None:
-        # Fletching's frontend handoff: it must appear under Artisan, switch the
-        # panel, and render its fletch targets (e.g. Arrow shafts).
-        artisan = next(
-            b for b in self.dialog.findChildren(QPushButton) if b.text() == "Artisan"
-        )
+    def test_fletching_is_selectable_and_shows_grouped_target_tree(self) -> None:
+        pd = _make_player_data()
+        pd["fletching_level"] = 99
+        pd["inventory"] = {"Logs": 1, "Headless arrows": 15, "Broad arrow heads": 15}
+        pd["current_fletch"] = "arrow_shafts"
+        dialog = self._open(pd)
+
+        artisan = next(b for b in dialog.findChildren(QPushButton) if b.text() == "Artisan")
         artisan.click()
         QApplication.processEvents()
-        skill_list = _find_artisan_skill_list(self.dialog)
+        skill_list = _find_artisan_skill_list(dialog)
         fletch_row = next(
             (i for i in range(skill_list.count()) if skill_list.item(i).text() == "Fletching"),
             None,
@@ -566,13 +591,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(fletch_row, "Fletching is missing from the Artisan skill list")
         skill_list.setCurrentRow(fletch_row)
         QApplication.processEvents()
-        title = _panel_title(self.dialog)
+        title = _panel_title(dialog)
         self.assertTrue(
             title.startswith("Fletching"),
             f"panel did not switch to Fletching; still shows {title!r}",
         )
-        target_list = _find_list_with_item_prefix(self.dialog, "Arrow shafts")
-        self.assertIsNotNone(target_list)
+        tree = _find_fletching_tree(dialog)
+        self.assertEqual(_fletching_group_node(tree, "whittling").text(0), "Whittling  (20)")
+        self.assertIs(_fletching_row(tree, "arrow_shafts"), tree.currentItem())
+        self.assertFalse(_fletching_row(tree, "arrow_shafts").isDisabled())
+        broad = _fletching_row(tree, "broad_arrows")
+        self.assertTrue(broad.isDisabled())
+        self.assertIn("Broad Fletching", broad.toolTip(0))
 
     def test_firemaking_is_selectable_and_shows_source_backed_target_list(self) -> None:
         pd = _make_player_data()

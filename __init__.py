@@ -36,7 +36,7 @@ from .logic_pure import (
     can_smith_any_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
-    can_fletch_item_pure,
+    fletching_target_locked_reasons_pure,
     cooking_target_locked_reasons_pure,
     can_runecraft_any_pure,
     start_quest_pure,
@@ -262,22 +262,21 @@ def _finish_review_feedback_context() -> None:
 def _refresh_skill_availability() -> None:
     """Recompute and refresh Smithing/Crafting availability in the menu."""
     try:
-        inventory = player_data.get("inventory", {})
         can_craft_any = any(
             can_craft_item_pure(
                 player_data.get("crafting_level", 1),
-                inventory,
+                player_data.get("inventory", {}),
                 item_name,
                 CRAFTING_DATA,
             )
             for item_name in CRAFTING_DATA.keys()
         )
         can_fletch_any = any(
-            can_fletch_item_pure(
-                player_data.get("fletching_level", 1),
-                inventory,
+            not fletching_target_locked_reasons_pure(
+                player_data,
                 target_key,
                 FLETCHING_DATA,
+                QUEST_UNLOCK_RULES,
             )
             for target_key in FLETCHING_DATA.keys()
         )

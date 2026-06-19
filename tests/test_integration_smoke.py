@@ -278,6 +278,7 @@ class TestIntegrationSmoke(unittest.TestCase):
                 "agility_exp": 0,
                 "current_fishing": "catch_leaping_fish",
                 "completed_achievements": [],
+                "unlocked_abilities": ["barbarian_fishing"],
             }
 
             addon.on_fishing_answer()
@@ -975,6 +976,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "agility_exp": 0,
             "current_fishing": "catch_leaping_fish",
             "completed_achievements": [],
+            "unlocked_abilities": ["barbarian_fishing"],
         }
         addon.current_skill = "Fishing"
         addon.card_turned = True

@@ -21,7 +21,10 @@ def _context(player_data, calls=None):
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
         deactivate_current_skill=lambda: calls.setdefault("deactivated", True),
         award_skill_exp=award_skill_exp,
-        award_hidden_skill_exp=lambda _exp_key, _level_key, _base_exp: None,
+        award_hidden_skill_exp=lambda exp_key, _level_key, base_exp: player_data.__setitem__(
+            exp_key,
+            player_data.get(exp_key, 0) + base_exp,
+        ),
         level_up_check=lambda _skill, _data: calls.setdefault("level_checks", []).append(_skill),
         check_achievements=lambda _data: calls.setdefault("achievement_checks", 0),
         save_player_data=lambda: calls.__setitem__("saves", calls.get("saves", 0) + 1),
@@ -69,6 +72,36 @@ class TestRuntimeActions(unittest.TestCase):
         player_data["inventory"] = {}
         self.assertFalse(can_start_action(_context(player_data), "fletching"))
         self.assertTrue(can_start_action(_context(player_data), "unknown"))
+
+    def test_broad_fletching_requires_ability_before_review_reward(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Headless arrows": 15, "Broad arrow heads": 15},
+            "fletching_level": 99,
+            "fletching_exp": 0,
+            "current_fletch": "broad_arrows",
+            "completed_achievements": [],
+            "unlocked_abilities": [],
+        }
+
+        ok = handle_fletching_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["inventory"]["Broad arrow heads"], 15)
+        self.assertEqual(player_data["fletching_exp"], 0)
+        self.assertEqual(calls["errors"][0][0], "Fletching target locked")
+        self.assertIn("Broad Fletching", calls["errors"][0][1])
+        self.assertTrue(calls["deactivated"])
+
+        player_data["unlocked_abilities"] = ["broad_fletching"]
+        calls = {"xp": [], "saves": 0, "errors": []}
+        ok = handle_fletching_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Headless arrows"], 0)
+        self.assertEqual(player_data["inventory"]["Broad arrows"], 15)
+        self.assertAlmostEqual(player_data["fletching_exp"], 150.0)
+        self.assertEqual(calls["xp"], [150.0])
 
 
 if __name__ == "__main__":

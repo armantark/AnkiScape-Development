@@ -55,6 +55,16 @@ PRIEST_IN_PERIL_ID = "priest_in_peril"
 PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
 THE_FREMENNIK_ISLES_ID = "the_fremennik_isles"
 THE_FREMENNIK_ISLES_SOURCE = "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919"
+BROAD_FLETCHING_ABILITY = "broad_fletching"
+BARBARIAN_FISHING_ABILITY = "barbarian_fishing"
+BROAD_FLETCHING_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/inter/slayer/slayer_rewards.plugin.kts"
+)
+BARBARIAN_FISHING_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/skills/fishing/Fishing.kt"
+)
 
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
     "Ring of charos": "Ring of Charos",
@@ -155,6 +165,23 @@ class QuestUnlockRule:
     target_ids: Tuple[str, ...]
     reason: str
     source: str
+
+
+@dataclass(frozen=True)
+class TargetUnlockRequirement:
+    kind: str
+    reason: str
+    source: str
+    quest_id: str = ""
+    ability_id: str = ""
+
+
+@dataclass(frozen=True)
+class TargetUnlockRule:
+    gate_kind: str
+    skill_id: str
+    target_ids: Tuple[str, ...]
+    requirements: Tuple[TargetUnlockRequirement, ...]
 
 
 def _clean_journal(*lines: str) -> Tuple[str, ...]:
@@ -734,6 +761,54 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
 )
 
 
+def _quest_target_unlock_rule(rule: QuestUnlockRule) -> TargetUnlockRule:
+    return TargetUnlockRule(
+        gate_kind=rule.gate_kind,
+        skill_id=rule.skill_id,
+        target_ids=rule.target_ids,
+        requirements=(
+            TargetUnlockRequirement(
+                kind="quest_completed",
+                reason=rule.reason,
+                source=rule.source,
+                quest_id=rule.quest_id,
+            ),
+        ),
+    )
+
+
+TARGET_UNLOCK_RULES: Tuple[TargetUnlockRule, ...] = tuple(
+    _quest_target_unlock_rule(rule) for rule in QUEST_UNLOCK_RULES
+) + (
+    TargetUnlockRule(
+        gate_kind="target",
+        skill_id="fletching",
+        target_ids=("broad_arrows", "feather_broad_bolts"),
+        requirements=(
+            TargetUnlockRequirement(
+                kind="ability_unlocked",
+                reason="Broad Fletching",
+                source=BROAD_FLETCHING_SOURCE,
+                ability_id=BROAD_FLETCHING_ABILITY,
+            ),
+        ),
+    ),
+    TargetUnlockRule(
+        gate_kind="target",
+        skill_id="fishing",
+        target_ids=("catch_leaping_fish",),
+        requirements=(
+            TargetUnlockRequirement(
+                kind="ability_unlocked",
+                reason="Barbarian Fishing",
+                source=BARBARIAN_FISHING_SOURCE,
+                ability_id=BARBARIAN_FISHING_ABILITY,
+            ),
+        ),
+    ),
+)
+
+
 def _lamp_claim_id(quest: QuestDefinition, index: int) -> str:
     return f"{quest.id}_xp_lamp_{index}"
 
@@ -845,18 +920,29 @@ def quest_references_as_dict() -> Dict[str, Dict[str, object]]:
     }
 
 
-def quest_unlock_rules_as_dict() -> Tuple[Dict[str, object], ...]:
+def target_unlock_rules_as_dict() -> Tuple[Dict[str, object], ...]:
     return tuple(
         {
-            "quest_id": rule.quest_id,
             "gate_kind": rule.gate_kind,
             "skill_id": rule.skill_id,
             "target_ids": rule.target_ids,
-            "reason": rule.reason,
-            "source": rule.source,
+            "requirements": tuple(
+                {
+                    "kind": requirement.kind,
+                    "quest_id": requirement.quest_id,
+                    "ability_id": requirement.ability_id,
+                    "reason": requirement.reason,
+                    "source": requirement.source,
+                }
+                for requirement in rule.requirements
+            ),
         }
-        for rule in QUEST_UNLOCK_RULES
+        for rule in TARGET_UNLOCK_RULES
     )
+
+
+def quest_unlock_rules_as_dict() -> Tuple[Dict[str, object], ...]:
+    return target_unlock_rules_as_dict()
 
 
 def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:

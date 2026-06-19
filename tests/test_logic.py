@@ -64,6 +64,8 @@ from logic_pure import (
     start_quest_pure,
     quest_locked_reasons_pure,
     quest_unlock_locked_reasons_pure,
+    fletching_target_locked_reasons_pure,
+    normalize_xp_rewards_pure,
 )
 from storage_pure import default_player_data
 from constants import (
@@ -79,6 +81,7 @@ from constants import (
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,
+    FLETCHING_DATA,
     COOKING_DATA,
     QUEST_DATA,
     QUEST_UNLOCK_RULES,
@@ -844,7 +847,7 @@ class TestLogic(unittest.TestCase):
     def test_fishing_ordered_rolls_and_bait_consumed_only_on_catch(self):
         inv = {"Fishing bait": 1}
 
-        dry_inv, dry_exp, dry_ok, dry_output, dry_side = apply_fishing_action_pure(
+        dry_inv, dry_exp, dry_ok, dry_output, dry_rewards = apply_fishing_action_pure(
             "catch_sardine_herring",
             inv,
             FISHING_DATA,
@@ -854,10 +857,10 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(dry_ok)
         self.assertEqual(dry_exp, 0)
         self.assertIsNone(dry_output)
-        self.assertEqual(dry_side, {})
+        self.assertEqual(dry_rewards, ())
         self.assertEqual(dry_inv["Fishing bait"], 1)
 
-        catch_inv, catch_exp, catch_ok, catch_output, side_exp = apply_fishing_action_pure(
+        catch_inv, catch_exp, catch_ok, catch_output, rewards = apply_fishing_action_pure(
             "catch_sardine_herring",
             inv,
             FISHING_DATA,
@@ -867,7 +870,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(catch_ok)
         self.assertEqual(catch_output, "Raw sardine")
         self.assertAlmostEqual(catch_exp, 20.0)
-        self.assertEqual(side_exp, {})
+        self.assertEqual(rewards, ({"skill_id": "fishing", "amount": 20.0},))
         self.assertEqual(catch_inv["Fishing bait"], 0)
         self.assertEqual(catch_inv["Raw sardine"], 1)
         self.assertEqual(inv["Fishing bait"], 1)
@@ -879,7 +882,7 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual([fish["output_item"] for fish in low_level_fish], ["Raw shrimps"])
 
-        inv, exp, ok, output_item, _side = apply_fishing_action_pure(
+        inv, exp, ok, output_item, _rewards = apply_fishing_action_pure(
             "catch_shrimp_anchovies",
             {},
             FISHING_DATA,
@@ -891,7 +894,7 @@ class TestLogic(unittest.TestCase):
         self.assertAlmostEqual(exp, 10.0)
         self.assertEqual(inv["Raw shrimps"], 1)
 
-        inv2, exp2, ok2, output_item2, _side2 = apply_fishing_action_pure(
+        inv2, exp2, ok2, output_item2, _rewards2 = apply_fishing_action_pure(
             "catch_shrimp_anchovies",
             {},
             FISHING_DATA,
@@ -903,12 +906,12 @@ class TestLogic(unittest.TestCase):
         self.assertAlmostEqual(exp2, 40.0)
         self.assertEqual(inv2["Raw anchovies"], 1)
 
-    def test_fishing_side_level_gates_and_hidden_side_xp_payload(self):
+    def test_fishing_side_level_gates_and_hidden_side_xp_rewards(self):
         self.assertFalse(can_fish_method_pure(48, {"Feather": 1}, "catch_leaping_fish", FISHING_DATA, 14, 15))
         self.assertFalse(can_fish_method_pure(48, {"Feather": 1}, "catch_leaping_fish", FISHING_DATA, 15, 14))
         self.assertTrue(can_fish_method_pure(48, {"Feather": 1}, "catch_leaping_fish", FISHING_DATA, 15, 15))
 
-        inv, exp, ok, output_item, side_exp = apply_fishing_action_pure(
+        inv, exp, ok, output_item, rewards = apply_fishing_action_pure(
             "catch_leaping_fish",
             {"Feather": 1},
             FISHING_DATA,
@@ -920,8 +923,38 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(output_item, "Leaping trout")
         self.assertAlmostEqual(exp, 50.0)
-        self.assertEqual(side_exp, {"strength_exp": 5.0, "agility_exp": 5.0})
+        self.assertEqual(
+            rewards,
+            (
+                {"skill_id": "fishing", "amount": 50.0},
+                {"skill_id": "strength", "amount": 5.0},
+                {"skill_id": "agility", "amount": 5.0},
+            ),
+        )
         self.assertEqual(inv["Feather"], 0)
+
+    def test_xp_rewards_normalization_combines_duplicate_skills_and_falls_back(self):
+        rewards = normalize_xp_rewards_pure(
+            {
+                "xp_rewards": (
+                    {"skill_id": "fishing", "amount": 10},
+                    {"skill_id": "fishing", "amount": 2.5},
+                    ("agility", 3),
+                    {"skill_id": "", "amount": 99},
+                )
+            }
+        )
+        self.assertEqual(
+            rewards,
+            (
+                {"skill_id": "fishing", "amount": 12.5},
+                {"skill_id": "agility", "amount": 3.0},
+            ),
+        )
+        self.assertEqual(
+            normalize_xp_rewards_pure({}, "fletching", 5),
+            ({"skill_id": "fletching", "amount": 5.0},),
+        )
 
     def test_fishing_material_gates_and_utility_bait_batch(self):
         self.assertTrue(has_fishing_bait_pure({"Fishing bait": 1}, FISHING_DATA["catch_sardine_herring"]))
@@ -1122,6 +1155,38 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_karambwan", QUEST_UNLOCK_RULES),
+            (),
+        )
+
+    def test_ability_unlock_rules_cover_barbarian_fishing_and_broad_fletching(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["fishing_level"] = 99
+        player_data["fletching_level"] = 99
+        player_data["inventory"].update(
+            {
+                "Feather": 10,
+                "Headless arrows": 15,
+                "Broad arrow heads": 15,
+                "Unfinished broad bolts": 10,
+            }
+        )
+
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_leaping_fish", QUEST_UNLOCK_RULES),
+            ("Barbarian Fishing",),
+        )
+        self.assertEqual(
+            fletching_target_locked_reasons_pure(player_data, "broad_arrows", FLETCHING_DATA, QUEST_UNLOCK_RULES),
+            ("Broad Fletching",),
+        )
+
+        player_data["unlocked_abilities"] = ["barbarian_fishing", "broad_fletching"]
+        self.assertEqual(
+            quest_unlock_locked_reasons_pure(player_data, "fishing", "catch_leaping_fish", QUEST_UNLOCK_RULES),
+            (),
+        )
+        self.assertEqual(
+            fletching_target_locked_reasons_pure(player_data, "broad_arrows", FLETCHING_DATA, QUEST_UNLOCK_RULES),
             (),
         )
 

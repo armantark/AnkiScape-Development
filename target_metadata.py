@@ -15,12 +15,12 @@ try:
         calculate_fishing_success_probability_pure,
         can_chop_woodcutting_target_pure,
         firemaking_target_locked_reasons_pure,
-        can_fletch_item_pure,
         can_open_bird_nests_pure,
         cooking_target_locked_reasons_pure,
         crafting_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
+        fletching_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -35,12 +35,12 @@ except Exception:
         calculate_fishing_success_probability_pure,
         can_chop_woodcutting_target_pure,
         firemaking_target_locked_reasons_pure,
-        can_fletch_item_pure,
         can_open_bird_nests_pure,
         cooking_target_locked_reasons_pure,
         crafting_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
+        fletching_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -415,6 +415,7 @@ def fletching_target_rows(
     player_data: Mapping[str, object],
     fletching_data: Mapping[str, Mapping[str, object]],
     fletched_item_images: Mapping[str, str],
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     lvl_have = int(player_data.get("fletching_level", 1) or 1)
@@ -429,20 +430,20 @@ def fletching_target_rows(
         lvl_req = int(spec.get("level", 1) or 1)
         requirements = spec.get("requirements", {})
         reqs = requirements if isinstance(requirements, Mapping) else {}
-        materials_ok, mat_text = _material_lines(reqs, inventory)
+        _materials_ok, mat_text = _material_lines(reqs, inventory)
         tooltip = (
             f"Requires Fletching level {lvl_req}. You have {lvl_have}.\n"
             f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
         )
-        enabled = can_fletch_item_pure(lvl_have, inventory, target_key, fletching_data)
-        if not enabled:
-            reason = []
-            if lvl_have < lvl_req:
-                reason.append(f"level {lvl_req}")
-            if not materials_ok:
-                reason.append("materials")
-            if reason:
-                tooltip += "\nLocked due to: " + ", ".join(reason)
+        locked_reasons = fletching_target_locked_reasons_pure(
+            player_data,
+            target_key,
+            fletching_data,
+            quest_unlock_rules,
+        )
+        enabled = not locked_reasons
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 
         rows.append(
             TargetRowMetadata(
@@ -452,6 +453,9 @@ def fletching_target_rows(
                 enabled=enabled,
                 current=target_key == current_target,
                 icon_path=fletched_item_images.get(output_item),
+                group=str(spec.get("group", "")),
+                locked_reasons=locked_reasons,
+                sort_key=tuple(spec.get("sort_key", ())),
             )
         )
     return tuple(rows)

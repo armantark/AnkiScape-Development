@@ -48,6 +48,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - Crafting now follows the source-data-module pattern at the backend layer (`crafting_data.py`). `current_craft` stores stable recipe IDs, inventory stores real item names, and the data intentionally includes live input-starved recipes so missing acquisition loops light up later without reshaping the recipe. XP-bearing Crafting ignores recipe `batch_size`; only no-XP Utility/Activities batch material prep.
 - Woodcutting now has a focused source-data module (`woodcutting_data.py`) rather than only ad hoc `constants.py` rows. Its stable target IDs are persisted in `current_tree`, while inventory uses real item output names such as `Logs` and `Oak logs`.
 - Fishing now follows the source-data-module pattern (`fishing_data.py`) as a Gathering skill. Its stable method IDs are persisted in `current_fishing`, while inventory uses real output item names such as `Raw crayfish`, `Raw salmon`, and `Raw shark`. Mixed-output rows preserve source order during rolls, consumable material is removed only after a successful catch, and Barbarian fish side XP updates hidden Strength/Agility state without exposing those skills in the UI yet.
+- Fletching now follows the source-data-module pattern (`fletching_data.py`) as
+  an Artisan processing skill. Stable target IDs are persisted in
+  `current_fletch`, while inventory uses real output and material item names.
+  `constants.FLETCHING_DATA` is only a compatibility export. Fletching target
+  metadata carries group/sort data for the shared grouped `QTreeWidget`
+  renderer. Common reusable tools remain ambient; only level, materials, and
+  generic target unlocks gate rows.
 - Cooking now follows the source-data-module pattern (`cooking_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_cooking`, while inventory uses real raw/cooked/burnt item names. Cooking failures are productive inventory mutations: the raw input is consumed, the source burnt item is added, and no XP is awarded. Source low/high chances stay in data and are adapted to review-scale probabilities in pure logic.
 - Runecrafting now follows the source-data-module pattern (`runecrafting_data.py`) as an Artisan skill. Its stable target IDs are persisted in `current_runecrafting`, while inventory uses real rune/access item names. Rune Mysteries quest state, Bank Claims, Wicked hood fed-altars, pouch degradation, and Binding necklace charges are explicit flat side-state keys in `player_data`. Quests are review actions through `action_registry.py`, not fake skills in `skill_registry.py`.
 - The broad quest catalog is generated, not hand-maintained. `tools/build_pre_eoc_quest_catalog.py` produces a 194-row pre-EOC catalog by real release order, with Recipe for Disaster split into separate subquests. Each row should carry source oldids, strict prerequisites, point/XP/item rewards, lamp rewards, and source-backed journal stages. Hand-audited overrides belong in `quest_data.py` when local 2011-era evidence is stricter than current wiki data.
@@ -55,7 +62,17 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.
 - The Wicked hood claim is intentionally gated by Rune Mysteries only in AnkiScape. Do not re-add a Runecrafting level 5 claim gate; historical 2012 evidence shows that level prompt was not a reliable hard claim requirement, and the hood's actual altar use still remains constrained by Runecrafting target gates.
-- Quest completion target locks live in `QUEST_UNLOCK_RULES`, not scattered through individual skill helpers. This registry currently feeds Mining, Fishing, Cooking, Firemaking, Runecrafting, and Utility/Activities lock reasons. Route/location gates normally stay out of global locks, but can be flattened to logical quest precedents when the current generic row effectively represents that locked route: Shilo Village gates `gem_rocks`, Priest in Peril gates Morytania-flavored slimy eel/snail rows, and The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows.
+- Generic target unlock locks are still exported as `QUEST_UNLOCK_RULES` for
+  compatibility, but the rule shape supports both `quest_completed` and
+  `ability_unlocked` requirements. This registry feeds Mining, Fishing,
+  Cooking, Firemaking, Runecrafting, Fletching, and Utility/Activities lock
+  reasons. Route/location gates normally stay out of global locks, but can be
+  flattened to logical quest precedents when the current generic row effectively
+  represents that locked route: Shilo Village gates `gem_rocks`, Priest in Peril
+  gates Morytania-flavored slimy eel/snail rows, and The Fremennik Isles gates
+  Neitiznot/yak/arctic pine rows. Ability gates are flat
+  `player_data["unlocked_abilities"]` ids, currently including
+  `broad_fletching` and `barbarian_fishing`.
 - Utility/Activities can now be grouped by `group` metadata in the Qt tree when an action family gets large. Cooking prep uses this to separate gathering, material processing, container/opening, and Cooking prep actions while staying outside the XP skill registry.
 - Mining now follows the same source-data-module pattern (`mining_data.py`). Its stable target IDs are persisted in `current_ore`, while inventory continues to use real item output names such as `Iron ore`, `Pure essence`, `Sandstone (10kg)`, and `Uncut opal`.
 - Smithing now follows the source-data-module pattern too (`smithing_data.py`). It is the first skill with two XP-bearing stations under one skill: smelt and forge are both recipes in `SMITHING_DATA`, selected by stable `current_smith` IDs, while `BAR_DATA` is only a compatibility view for old smelt-only UI paths. Runtime uses one pure processing helper for both stations and keeps hammer/tool requirements implicit; level and inventory materials are the only backend gates.

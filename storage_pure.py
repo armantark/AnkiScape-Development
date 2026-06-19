@@ -14,6 +14,7 @@ try:
     from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
+    from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -40,6 +41,7 @@ except ImportError:
     from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
+    from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -54,7 +56,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 16
+CURRENT_CONFIG_VERSION = 17
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -69,18 +71,6 @@ _EQUIPMENT_SLOT_IDS = {
     "feet",
     "ring",
 }
-
-_LEGACY_FLETCHING_TARGETS = {
-    "Arrow shafts": "arrow_shafts",
-    "Shortbow (u)": "shortbow_u",
-    "Oak shortbow (u)": "oak_shortbow_u",
-    "Willow shortbow (u)": "willow_shortbow_u",
-    "Maple shortbow (u)": "maple_shortbow_u",
-    "Yew shortbow (u)": "yew_shortbow_u",
-    "Magic shortbow (u)": "magic_shortbow_u",
-    "redwood_arrow_shafts": "arrow_shafts",
-}
-
 
 def _default_inventory(ORE_DATA: Dict[str, Any], item_definitions: Optional[Iterable[ItemDefinition]] = None) -> Dict[str, int]:
     if item_definitions is None:
@@ -128,6 +118,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["wicked_hood"] = {"fed_altars": []}
     data["runecrafting_pouches"] = {}
     data["item_charges"] = {}
+    data["unlocked_abilities"] = []
     return data
 
 
@@ -338,6 +329,26 @@ def _migrate_runecrafting_side_state(data: Dict[str, Any]) -> None:
     data["item_charges"] = clean_charges
 
 
+def _migrate_unlocked_abilities(data: Dict[str, Any]) -> None:
+    raw_abilities = data.get("unlocked_abilities")
+    if isinstance(raw_abilities, str):
+        abilities = [raw_abilities]
+    elif isinstance(raw_abilities, (list, tuple, set)):
+        abilities = [ability for ability in raw_abilities if isinstance(ability, str)]
+    else:
+        abilities = []
+    data["unlocked_abilities"] = sorted(set(abilities))
+
+
+def _migrate_fletching_target(data: Dict[str, Any]) -> None:
+    current_fletch = data.get("current_fletch")
+    if isinstance(current_fletch, str):
+        current_fletch = LEGACY_FLETCHING_TARGETS.get(current_fletch, current_fletch)
+    if not isinstance(current_fletch, str) or current_fletch not in FLETCHING_TARGETS_BY_ID:
+        current_fletch = DEFAULT_FLETCHING_TARGET
+    data["current_fletch"] = current_fletch
+
+
 def _migrate_legacy_log_inventory(inventory: Dict[str, int]) -> None:
     for legacy_key, new_key in LEGACY_LOG_STORAGE_MIGRATIONS.items():
         if legacy_key not in inventory:
@@ -444,30 +455,7 @@ def migrate_loaded_data(
     _migrate_legacy_woodcutting_target(data)
     _migrate_legacy_smithing_target(data)
     _migrate_legacy_crafting_target(data)
-    if isinstance(data.get("current_fletch"), str):
-        data["current_fletch"] = _LEGACY_FLETCHING_TARGETS.get(data["current_fletch"], data["current_fletch"])
-    if data.get("current_fletch") not in (
-        "arrow_shafts",
-        "oak_arrow_shafts",
-        "willow_arrow_shafts",
-        "maple_arrow_shafts",
-        "yew_arrow_shafts",
-        "magic_arrow_shafts",
-        "headless_arrows",
-        "bronze_arrows",
-        "iron_arrows",
-        "steel_arrows",
-        "mithril_arrows",
-        "adamant_arrows",
-        "rune_arrows",
-        "shortbow_u",
-        "oak_shortbow_u",
-        "willow_shortbow_u",
-        "maple_shortbow_u",
-        "yew_shortbow_u",
-        "magic_shortbow_u",
-    ):
-        data["current_fletch"] = "arrow_shafts"
+    _migrate_fletching_target(data)
     _migrate_firemaking_target(data)
     _migrate_fishing_target(data)
     _migrate_cooking_target(data)
@@ -476,6 +464,7 @@ def migrate_loaded_data(
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
     _migrate_runecrafting_side_state(data)
+    _migrate_unlocked_abilities(data)
     _migrate_toolbelt(data)
     _migrate_equipment(data)
 

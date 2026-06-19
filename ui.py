@@ -71,6 +71,8 @@ try:
         CRAFTING_DATA,
         COOKING_DATA,
         FLETCHING_DATA,
+        FLETCHING_GROUP_LABELS,
+        FLETCHING_GROUP_ORDER,
         FIREMAKING_DATA,
         FISHING_DATA,
         RUNECRAFTING_DATA,
@@ -125,6 +127,8 @@ except Exception:
         CRAFTING_DATA,
         COOKING_DATA,
         FLETCHING_DATA,
+        FLETCHING_GROUP_LABELS,
+        FLETCHING_GROUP_ORDER,
         FIREMAKING_DATA,
         FISHING_DATA,
         RUNECRAFTING_DATA,
@@ -159,10 +163,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, can_fletch_item_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_state_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -1513,9 +1517,10 @@ def show_main_menu(
 
     def _fletch_available() -> bool:
         try:
-            level = player_data.get("fletching_level", 1)
-            inv = player_data.get("inventory", {})
-            return any(can_fletch_item_pure(level, inv, n, FLETCHING_DATA) for n in FLETCHING_DATA)
+            return any(
+                not fletching_target_locked_reasons_pure(player_data, target, FLETCHING_DATA, QUEST_UNLOCK_RULES)
+                for target in FLETCHING_DATA
+            )
         except Exception:
             return False
 
@@ -1791,10 +1796,13 @@ def show_main_menu(
             set_group_expanded=set_craft_family_expanded,
         )
 
-    def _build_fletch_list() -> QListWidget:
-        return _build_flat_target_list(
-            fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES),
+    def _build_fletch_list() -> QTreeWidget:
+        return _build_grouped_target_tree(
+            fletching_target_rows(player_data, FLETCHING_DATA, FLETCHED_ITEM_IMAGES, QUEST_UNLOCK_RULES),
+            FLETCHING_GROUP_LABELS,
+            "__fletching_group__:",
             on_set_fletch,
+            group_order=list(FLETCHING_GROUP_ORDER),
         )
 
     def _build_firemaking_list() -> QListWidget:

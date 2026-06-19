@@ -319,6 +319,11 @@ DEFERRED_FISHING_CONTENT: Tuple[DeferredFishingContent, ...] = (
 
 
 def _fish_as_dict(fish: FishingFish) -> Dict[str, object]:
+    xp_rewards = [{"skill_id": "fishing", "amount": fish.base_exp}]
+    if fish.strength_exp > 0:
+        xp_rewards.append({"skill_id": "strength", "amount": fish.strength_exp})
+    if fish.agility_exp > 0:
+        xp_rewards.append({"skill_id": "agility", "amount": fish.agility_exp})
     return {
         "id": fish.id,
         "source_enum": fish.source_enum,
@@ -329,9 +334,8 @@ def _fish_as_dict(fish: FishingFish) -> Dict[str, object]:
         "max_chance": fish.max_chance,
         "exp": fish.base_exp,
         "strength_level": fish.strength_level,
-        "strength_exp": fish.strength_exp,
         "agility_level": fish.agility_level,
-        "agility_exp": fish.agility_exp,
+        "xp_rewards": tuple(xp_rewards),
         "source": fish.source,
         "tradeable": fish.tradeable,
     }

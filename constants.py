@@ -27,6 +27,14 @@ try:
         firemaking_output_items,
         firemaking_targets_as_dict,
     )
+    from .fletching_data import (
+        DEFAULT_FLETCHING_TARGET,
+        FLETCHING_GROUP_LABELS,
+        FLETCHING_GROUP_ORDER,
+        fletching_item_names,
+        fletching_output_items,
+        fletching_targets_as_dict,
+    )
     from .fishing_data import (
         DEFAULT_FISHING_TARGET,
         FISHING_BAIT_SHOP_SOURCE_PATH,
@@ -101,6 +109,14 @@ except ImportError:
         firemaking_input_items,
         firemaking_output_items,
         firemaking_targets_as_dict,
+    )
+    from fletching_data import (
+        DEFAULT_FLETCHING_TARGET,
+        FLETCHING_GROUP_LABELS,
+        FLETCHING_GROUP_ORDER,
+        fletching_item_names,
+        fletching_output_items,
+        fletching_targets_as_dict,
     )
     from fishing_data import (
         DEFAULT_FISHING_TARGET,
@@ -371,118 +387,8 @@ SMITHING_DATA = smithing_recipes_as_dict()
 BAR_DATA = smithing_bars_as_dict()
 SMITHING_OUTPUT_ITEMS = smithing_output_items()
 
-FLETCHING_DATA = {
-    "arrow_shafts": {
-        "display_name": "Arrow shafts (Logs)",
-        "level": 1,
-        "exp": 5.0,
-        "requirements": {"Logs": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 15,
-    },
-    "oak_arrow_shafts": {
-        "display_name": "Arrow shafts (Oak logs)",
-        "level": 15,
-        "exp": 10.0,
-        "requirements": {"Oak logs": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 30,
-    },
-    "willow_arrow_shafts": {
-        "display_name": "Arrow shafts (Willow logs)",
-        "level": 30,
-        "exp": 15.0,
-        "requirements": {"Willow logs": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 45,
-    },
-    "maple_arrow_shafts": {
-        "display_name": "Arrow shafts (Maple logs)",
-        "level": 45,
-        "exp": 20.0,
-        "requirements": {"Maple logs": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 60,
-    },
-    "yew_arrow_shafts": {
-        "display_name": "Arrow shafts (Yew logs)",
-        "level": 60,
-        "exp": 25.0,
-        "requirements": {"Yew logs": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 75,
-    },
-    "magic_arrow_shafts": {
-        "display_name": "Arrow shafts (Magic logs)",
-        "level": 75,
-        "exp": 30.0,
-        "requirements": {"Magic logs": 1},
-        "output_item": "Arrow shafts",
-        "output_qty": 90,
-    },
-    "headless_arrows": {
-        "display_name": "Headless arrows",
-        "level": 1,
-        "exp": 15.0,
-        "requirements": {"Arrow shafts": 15, "Feather": 15},
-        "output_item": "Headless arrows",
-        "output_qty": 15,
-    },
-    "bronze_arrows": {
-        "display_name": "Bronze arrows",
-        "level": 1,
-        "exp": 19.5,
-        "requirements": {"Headless arrows": 15, "Bronze arrowtips": 15},
-        "output_item": "Bronze arrows",
-        "output_qty": 15,
-    },
-    "iron_arrows": {
-        "display_name": "Iron arrows",
-        "level": 15,
-        "exp": 37.5,
-        "requirements": {"Headless arrows": 15, "Iron arrowtips": 15},
-        "output_item": "Iron arrows",
-        "output_qty": 15,
-    },
-    "steel_arrows": {
-        "display_name": "Steel arrows",
-        "level": 30,
-        "exp": 75.0,
-        "requirements": {"Headless arrows": 15, "Steel arrowtips": 15},
-        "output_item": "Steel arrows",
-        "output_qty": 15,
-    },
-    "mithril_arrows": {
-        "display_name": "Mithril arrows",
-        "level": 45,
-        "exp": 112.5,
-        "requirements": {"Headless arrows": 15, "Mithril arrowtips": 15},
-        "output_item": "Mithril arrows",
-        "output_qty": 15,
-    },
-    "adamant_arrows": {
-        "display_name": "Adamant arrows",
-        "level": 60,
-        "exp": 150.0,
-        "requirements": {"Headless arrows": 15, "Adamant arrowtips": 15},
-        "output_item": "Adamant arrows",
-        "output_qty": 15,
-    },
-    "rune_arrows": {
-        "display_name": "Rune arrows",
-        "level": 75,
-        "exp": 187.5,
-        "requirements": {"Headless arrows": 15, "Rune arrowtips": 15},
-        "output_item": "Rune arrows",
-        "output_qty": 15,
-    },
-    "shortbow_u": {"display_name": "Shortbow (u)", "level": 5, "exp": 5.0, "requirements": {"Logs": 1}, "output_item": "Shortbow (u)", "output_qty": 1},
-    "oak_shortbow_u": {"display_name": "Oak shortbow (u)", "level": 20, "exp": 16.5, "requirements": {"Oak logs": 1}, "output_item": "Oak shortbow (u)", "output_qty": 1},
-    "willow_shortbow_u": {"display_name": "Willow shortbow (u)", "level": 35, "exp": 33.3, "requirements": {"Willow logs": 1}, "output_item": "Willow shortbow (u)", "output_qty": 1},
-    "maple_shortbow_u": {"display_name": "Maple shortbow (u)", "level": 50, "exp": 50.0, "requirements": {"Maple logs": 1}, "output_item": "Maple shortbow (u)", "output_qty": 1},
-    "yew_shortbow_u": {"display_name": "Yew shortbow (u)", "level": 65, "exp": 67.5, "requirements": {"Yew logs": 1}, "output_item": "Yew shortbow (u)", "output_qty": 1},
-    "magic_shortbow_u": {"display_name": "Magic shortbow (u)", "level": 80, "exp": 83.3, "requirements": {"Magic logs": 1}, "output_item": "Magic shortbow (u)", "output_qty": 1},
-}
+FLETCHING_DATA = fletching_targets_as_dict()
+FLETCHING_OUTPUT_ITEMS = fletching_output_items()
 
 FIREMAKING_DATA = firemaking_targets_as_dict()
 FIREMAKING_LOG_ITEMS = firemaking_input_items()
@@ -526,19 +432,14 @@ for _item_name in _crafting_item_names:
         CRAFTED_ITEM_IMAGES[_item_name] = _path
 
 
-_FLETCHING_ITEM_NAMES = {
-    str(spec["output_item"])
-    for spec in FLETCHING_DATA.values()
-    if isinstance(spec.get("output_item"), str)
-}
-for _spec in FLETCHING_DATA.values():
-    _FLETCHING_ITEM_NAMES.update(str(requirement) for requirement in _spec.get("requirements", {}))
+_FLETCHING_ITEM_NAMES = set(fletching_item_names())
 _FLETCHING_ITEM_NAMES.difference_update(TREE_DATA)
 
-FLETCHED_ITEM_IMAGES = {
-    item_name: os.path.join(FLETCHED_ITEMS_FOLDER, f"{_asset_slug(item_name)}.png")
-    for item_name in _FLETCHING_ITEM_NAMES
-}
+FLETCHED_ITEM_IMAGES = {}
+for _item_name in _FLETCHING_ITEM_NAMES:
+    _path = os.path.join(FLETCHED_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        FLETCHED_ITEM_IMAGES[_item_name] = _path
 
 # Logs are item drops, but their art already ships in trees/ (the row sprite IS
 # the log icon). Re-key those files by log item name so the Bank/Stats item

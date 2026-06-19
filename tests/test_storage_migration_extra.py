@@ -45,6 +45,13 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(base["fishing_exp"], 0)
         self.assertEqual(base["agility_level"], 1)
         self.assertEqual(base["agility_exp"], 0)
+        self.assertEqual(base["unlocked_abilities"], [])
+
+    def test_migration_normalizes_unlocked_abilities_and_legacy_fletching_target(self):
+        data = {"current_fletch": "oak_arrow_shafts", "unlocked_abilities": ["broad_fletching", 42, "broad_fletching"]}
+        out = migrate_loaded_data(data, ORE_DATA)
+        self.assertEqual(out["current_fletch"], "arrow_shafts")
+        self.assertEqual(out["unlocked_abilities"], ["broad_fletching"])
 
 
 if __name__ == "__main__":

@@ -14,6 +14,14 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
+- Fletching source integration is complete as of 2026-06-19. Do not re-add the
+  old tiered arrow-shaft pilot rows; local 2011Scape only whittles normal logs
+  into arrow shafts. Broad arrows/bolts are implemented behind the
+  `broad_fletching` ability lock, and Barbarian Fishing uses the same
+  `unlocked_abilities` substrate via `barbarian_fishing`. Crossbow limb
+  attachment/stringing, enchanted bolts, and comp ogre bow stringing remain
+  excluded unless a future audit finds live source evidence for the specific
+  action and owner skill.
 - Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
 - Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18. Do not redo the priority gates or the 194-row catalog; use `memory-bank/quest-unlock-audit-2026-06-17.md` for the current implementation status and for future route/location or stage-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.

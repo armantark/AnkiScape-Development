@@ -84,6 +84,7 @@ class TestStoragePure(unittest.TestCase):
             "wicked_hood",
             "runecrafting_pouches",
             "item_charges",
+            "unlocked_abilities",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -108,6 +109,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["wicked_hood"], {"fed_altars": []})
         self.assertEqual(data["runecrafting_pouches"], {})
         self.assertEqual(data["item_charges"], {})
+        self.assertEqual(data["unlocked_abilities"], [])
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
