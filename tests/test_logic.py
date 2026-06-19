@@ -1009,6 +1009,8 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["rune_mysteries"]["progress"], 6)
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["inventory"]["Air talisman"], 1)
+        self.assertEqual(player_data["runecrafting_exp"], 250)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"magic_exp": 250.0})
 
         after_complete, ok, completed_again = apply_quest_progress_pure(
             player_data,
@@ -1019,6 +1021,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
         self.assertEqual(after_complete["inventory"]["Air talisman"], 1)
+        self.assertEqual(after_complete["runecrafting_exp"], 250)
+        self.assertEqual(after_complete["pending_skill_exp_rewards"], {"magic_exp": 250.0})
 
     def test_unlock_quests_enforce_strict_start_requirements(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -1223,12 +1227,11 @@ class TestLogic(unittest.TestCase):
             (),
         )
 
-    def test_wicked_hood_claim_requires_rune_mysteries_and_runecrafting_level_5(self):
+    def test_wicked_hood_claim_requires_rune_mysteries(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         rows = claim_rows_pure(player_data, CLAIM_DATA)
-        self.assertEqual(rows[0]["locked_reasons"], ("quest", "Runecrafting level 5"))
+        self.assertEqual(rows[0]["locked_reasons"], ("quest",))
 
-        player_data["runecrafting_level"] = 5
         player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         claimed_data, ok = apply_claim_pure(player_data, "wicked_hood", CLAIM_DATA)
         self.assertTrue(ok)

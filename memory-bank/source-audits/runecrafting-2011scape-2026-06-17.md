@@ -34,7 +34,7 @@
 
 - Quest progression is review-count based. Rune Mysteries advances one stage per successful quest review and caps at the remaining source stages; review multiplier never spills over after completion.
 - Quest rewards are fixed and direct on completion, not scaled by review multiplier.
-- Wicked hood is a one-time Bank Claim after Rune Mysteries and Runecrafting level 5. Daily essence, teleports, reclaim, and free rune behavior are deferred.
+- Wicked hood is a one-time Bank Claim after Rune Mysteries with no Runecrafting level claim gate. Daily essence, teleports, reclaim, and free rune behavior are deferred.
 - Wicked hood feeding is an explicit Runecrafting action. It consumes the fed talisman or tiara permanently and only grants standard altar access.
 - Binding necklace is one visible equipment item with `item_charges["Binding necklace"]`, not 15 item variants. A fresh worn necklace initializes to 15 charges on first combination use and is destroyed at zero.
 - Acquisition gaps remain natural inventory/material locks; player UI does not label those rows as future content.

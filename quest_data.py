@@ -329,6 +329,10 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         difficulty="Novice",
         length="Short",
         timeline="Fifth Age",
+        xp_rewards=(
+            QuestXpReward("magic", 250),
+            QuestXpReward("runecrafting", 250),
+        ),
         unlocks=("Ability to craft runes", "Ability to mine rune essence"),
     ),
     QuestDefinition(
@@ -765,7 +769,6 @@ CLAIMS: Tuple[ClaimDefinition, ...] = (
         source="https://runescape.wiki/w/Wicked_hood",
         item_name=WICKED_HOOD_ITEM,
         quantity=1,
-        required_runecrafting_level=5,
     ),
     *_quest_lamp_claims(),
 )

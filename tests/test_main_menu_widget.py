@@ -314,6 +314,13 @@ def _find_named_widget(dialog: "QDialog", object_name: str) -> "QWidget":
     raise AssertionError(f"widget {object_name!r} not found")
 
 
+def _find_named_label(dialog: "QDialog", object_name: str) -> "QLabel":
+    for label in dialog.findChildren(QLabel):
+        if label.objectName() == object_name:
+            return label
+    raise AssertionError(f"label {object_name!r} not found")
+
+
 def _find_equipment_list(dialog: "QDialog") -> "QListWidget":
     """The Equipment tab's worn-slot list, identified by its objectName."""
     for lw in dialog.findChildren(QListWidget):
@@ -1081,7 +1088,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_bank_claims_expose_eligible_wicked_hood_claim(self) -> None:
         pd = _make_player_data()
-        pd["runecrafting_level"] = 5
+        pd["runecrafting_level"] = 1
         pd["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         dialog = self._open(pd)
 
@@ -1091,6 +1098,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Ready to claim", labels)
         self.assertTrue(any("locked reward" in label for label in labels), labels)
         self.assertIsNotNone(_find_named_widget(dialog, "bankClaimsScrollArea"))
+        metadata = _find_named_label(dialog, "bankClaimMetadata")
+        self.assertNotIn("palette(mid)", metadata.styleSheet())
         claim_btn = next(
             btn for btn in dialog.findChildren(QPushButton)
             if btn.text() == "Claim"
@@ -1108,6 +1117,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Bank Claims", labels)
         self.assertNotIn("Wicked hood x1", labels)
         self.assertTrue(any("locked reward" in label for label in labels), labels)
+        summary = _find_named_label(dialog, "bankClaimsLockedSummary")
+        self.assertIn("Wicked hood requires: Rune Mysteries.", summary.text())
+        self.assertNotIn("palette(mid)", summary.styleSheet())
+        self.assertIn("Wicked hood: Rune Mysteries", summary.toolTip())
         self.assertFalse(
             [w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"],
             "locked claims should not render as individual action rows",

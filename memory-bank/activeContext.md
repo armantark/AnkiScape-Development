@@ -260,9 +260,10 @@ standard runes, combination runes, tiara binding, and Wicked hood feeding, plus
 storage config version 15 state for `quests`, `quest_points`, `claims`,
 `wicked_hood`, `runecrafting_pouches`, and `item_charges`. Rune Mysteries is a
 review action, not an XP skill: it advances through 6 successful quest reviews,
-awards 1 quest point plus an Air talisman, and unlocks Runecrafting. The Wicked
-hood is a one-time Bank Claim after Rune Mysteries and Runecrafting level 5;
-hood feeding is an explicit Runecrafting target that permanently consumes
+awards 1 quest point, an Air talisman, 250 Runecrafting XP, and 250 pending
+Magic XP, then unlocks Runecrafting. The Wicked hood is a one-time Bank Claim
+after Rune Mysteries with no Runecrafting level gate; hood feeding is an
+explicit Runecrafting target that permanently consumes
 talisman/tiara access items. Binding necklace uses one equipment item plus
 `item_charges["Binding necklace"]` (15 initial charges), not item variants; each
 combination trip consumes one charge and removes the worn necklace at zero.
@@ -271,8 +272,11 @@ The Bank Claims frontend now treats claims as a compact action inbox above the
 inventory, not as bank items: eligible rows show icon/title/metadata/action,
 claimed rows disappear into an all-caught-up state, locked rows collapse into a
 summary, and the action list is capped to three visible rows so inventory remains
-the primary Bank surface. The focused Bank Claims Qt tests, `python3 run_tests.py`,
-and full offscreen Qt discovery all pass with this polish.
+the primary Bank surface. The locked summary uses dark-mode-safe dim text and
+names the primary blocker, so a locked Wicked hood reads as requiring Rune
+Mysteries instead of hiding the reason in near-black text. The
+focused Bank Claims Qt tests, `python3 run_tests.py`, and full offscreen Qt
+discovery all pass with this polish.
 Verification: `python3 run_tests.py` passed with 317 tests (79 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 317 tests.

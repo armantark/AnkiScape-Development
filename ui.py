@@ -2746,6 +2746,35 @@ def show_main_menu(
         asset_path = definition.asset_path if definition is not None else None
         return _bank_icon_path(item_name, asset_path)
 
+    def _claim_requirement_text(row: dict) -> str:
+        claim_id = str(row.get("claim_id", ""))
+        claim = CLAIM_DATA.get(claim_id, {}) if isinstance(CLAIM_DATA, dict) else {}
+        parts = []
+        for reason in tuple(row.get("locked_reasons", ())):
+            if str(reason) == "quest":
+                quest_id = claim.get("required_quest") if isinstance(claim, dict) else None
+                quest = QUEST_DATA.get(str(quest_id), {}) if quest_id else {}
+                parts.append(str(quest.get("display_name") or "source quest"))
+            else:
+                parts.append(str(reason))
+        return ", ".join(parts) if parts else "requirements"
+
+    def _claim_locked_summary(locked_rows: list) -> tuple[str, str]:
+        primary = next((row for row in locked_rows if row.get("claim_id") == "wicked_hood"), locked_rows[0])
+        name = str(primary.get("display_name", primary.get("claim_id", "Reward")))
+        requirements = _claim_requirement_text(primary)
+        count = len(locked_rows)
+        text = f"{count} locked reward{'s' if count != 1 else ''}. {name} requires: {requirements}."
+        if count > 1:
+            text += f" {count - 1} more hidden."
+        detail_lines = [
+            f"{row.get('display_name', row.get('claim_id', 'Reward'))}: {_claim_requirement_text(row)}"
+            for row in locked_rows[:8]
+        ]
+        if count > len(detail_lines):
+            detail_lines.append(f"...and {count - len(detail_lines)} more")
+        return text, "\n".join(detail_lines)
+
     def _choose_claim_skill(row: dict) -> Optional[str]:
         options = tuple(str(skill_id) for skill_id in row.get("skill_options", ()) or ())
         minimum_level = int(row.get("minimum_level", 1) or 1)
@@ -2781,7 +2810,7 @@ def show_main_menu(
         if not actionable and not locked:
             empty = QLabel("All Bank Claims caught up.")
             empty.setObjectName("bankClaimsCaughtUp")
-            empty.setStyleSheet("color: palette(mid);")
+            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
             claims_layout.addWidget(empty)
             claims_box.setMaximumHeight(max_claim_height + claims_layout.spacing() + empty.sizeHint().height() + 4)
             return
@@ -2824,7 +2853,7 @@ def show_main_menu(
                 label.setToolTip(_claim_skill_tooltip(row))
             metadata = QLabel(_claim_metadata(row))
             metadata.setObjectName("bankClaimMetadata")
-            metadata.setStyleSheet("color: palette(mid);")
+            metadata.setStyleSheet(f"color: {dim_text_css(metadata)};")
             if claim_type == "xp_lamp":
                 metadata.setToolTip(_claim_skill_tooltip(row))
             copy_layout.addWidget(label)
@@ -2871,12 +2900,13 @@ def show_main_menu(
             rows_host.deleteLater()
 
         if locked:
-            summary = QLabel(f"{len(locked)} locked reward{'s' if len(locked) != 1 else ''} hidden until requirements are met.")
+            summary_text, summary_tooltip = _claim_locked_summary(locked)
+            summary = QLabel(summary_text)
             summary.setObjectName("bankClaimsLockedSummary")
-            summary.setStyleSheet("color: palette(mid);")
-            unique_reasons = sorted({str(reason) for row in locked for reason in tuple(row.get("locked_reasons", ()))})
-            if unique_reasons:
-                summary.setToolTip("Requires: " + ", ".join(unique_reasons))
+            summary.setWordWrap(True)
+            summary.setStyleSheet(f"color: {dim_text_css(summary)};")
+            if summary_tooltip:
+                summary.setToolTip(summary_tooltip)
             claims_layout.addWidget(summary)
             max_claim_height += claims_layout.spacing() + summary.sizeHint().height()
 
