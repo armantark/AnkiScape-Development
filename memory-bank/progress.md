@@ -15,6 +15,7 @@
 - Tests cover a meaningful portion of pure logic, migrations, settings, hooks, UI calculations, and integration smoke behavior.
 - A backend skill registry exists for current and planned 2011-era skills.
 - A pure review-action registry exists for levelled skills plus no-XP Utility/Activities aliases, without adding Utility as a fake skill.
+- An Anki-free `runtime_actions.py` module owns review-action handler bodies and handler-keyed readiness checks, while `__init__.py` keeps hooks, global state, undo snapshots, UI/save callbacks, and thin compatibility wrappers.
 - A pure target-row metadata contract exists for Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities, so Skills-hub row labels, tooltips, icons, groups, sort order, and lock reasons are generated before Qt renders them.
 - A backend item manifest exists for current ores, logs, fish, food, runes/access items, gems, bars, crafted items, Fletching outputs/materials, and Utility/Crafting pilot materials.
 - Storage defaults and migrations can seed registered item keys while preserving existing/custom inventory entries.
@@ -43,7 +44,7 @@
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 
 ## What Is Not Built Yet
-- Full action metadata beyond the current review-action dispatch registry and target-row metadata contract.
+- Full action metadata beyond the current review-action dispatch registry, runtime handler contract, and target-row metadata contract.
 - Combat training and combat encounters.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Formal balancing pass for long-term progression.
@@ -64,11 +65,10 @@
 ## Known Technical Debt
 - Existing skills are still hardcoded in multiple frontend/UI places.
 - `constants.py` mixes paths, data tables, achievements, and progression constants.
-- `__init__.py` owns too much runtime orchestration and skill dispatch.
+- `__init__.py` still owns too much Anki orchestration, menu callback wiring, and review transaction coordination, though review-action mutation bodies now live in `runtime_actions.py`.
 - `ui.py` is large and mixes many dialogs/surfaces.
 - The backend registry currently preserves flat save keys for safety; a deeper nested save model remains deferred.
-- The runtime answer handler map now uses registry handler keys, but handler internals are still partly hardcoded.
-- The runtime answer path now uses `action_registry.py` for Skill/Utility handler-key resolution and a handler-keyed can-start map, but the individual handler bodies still live in `__init__.py`.
+- The runtime answer path now uses `action_registry.py` for Skill/Utility handler-key resolution and `runtime_actions.py` for handler-keyed can-start checks plus review mutation bodies; broader action metadata is still incomplete.
 - Flat and grouped target rows now use `target_metadata.py`; Qt still owns rendering, group expansion persistence, and click handling.
 - The current future-thread priority board lives in `memory-bank/future-work-kanban.md`.
 
@@ -144,6 +144,17 @@ Cooking/Runecrafting current-target auto-expand, tooltips, icons, and
 disabled-row click guards. No save schema, recipe data, XP math, item rewards,
 or quest rules changed. `python3 run_tests.py` passes with 345 tests (83
 skipped), and the offscreen Qt discovery suite passes with 345 tests.
+
+P0 runtime handler extraction completed on 2026-06-19. `runtime_actions.py`
+now owns the review-action mutation bodies and handler-keyed readiness checks
+for Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking,
+Cooking, Runecrafting, Quests, and Utility/Activities. `__init__.py` keeps
+Anki hooks, global player state, review transaction/undo handling, menu
+callback wiring, and thin `on_<skill>_answer` wrappers that pass a
+`RuntimeActionContext`. No save schema, XP math, recipe/target data, item
+rewards, quest rules, assets, or frontend UI changed. `python3 run_tests.py`
+passes with 347 tests (83 skipped), and the offscreen Qt discovery suite passes
+with 347 tests.
 
 P2 feather source completed on 2026-06-15. Added `Scavenge chicken feathers` as
 a no-input Utility/Activities action with a dedicated activity icon and
@@ -241,7 +252,10 @@ run_tests.py` passed with 342 tests (83 skipped), and `QT_QPA_PLATFORM=offscreen
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
-- Continue P0 only for a new architecture slice: further `__init__.py` runtime decomposition, achievement metadata, or another clearly scoped shared contract. The review-action dispatch, flat target-row metadata, and grouped target-tree metadata slices are done.
+- Continue P0 only for a new architecture slice: achievement metadata, further
+  non-action `__init__.py` orchestration cleanup, or another clearly scoped
+  shared contract. The review-action dispatch, runtime handler extraction, flat
+  target-row metadata, and grouped target-tree metadata slices are done.
 - Later candidate: GE v1, only after explicit reprioritization, starting from `memory-bank/fake-grand-exchange-design.md`.
 - Parked: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content.
 - Fishing follow-ups: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing, only if explicitly prioritized.

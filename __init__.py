@@ -5,41 +5,22 @@ from .constants import (
     TREE_DATA,
     BAR_DATA,
     SMITHING_DATA,
-    GEM_DATA,
     CRAFTING_DATA,
     COOKING_DATA,
     FLETCHING_DATA,
     FIREMAKING_DATA,
-    FISHING_DATA,
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
     QUEST_DATA,
     QUEST_UNLOCK_RULES,
     CLAIM_DATA,
     UTILITY_ACTIVITY_DATA,
-    DEFAULT_FIREMAKING_TARGET,
-    DEFAULT_FISHING_TARGET,
-    DEFAULT_COOKING_TARGET,
-    DEFAULT_RUNECRAFTING_TARGET,
     DEFAULT_UTILITY_ACTIVITY,
-    DEFAULT_MINING_TARGET,
-    DEFAULT_WOODCUTTING_TARGET,
     EXP_TABLE,
-    MINING_PICKAXE_DATA,
-    MINING_BONUS_ITEM_DATA,
-    INCIDENTAL_GEM_DROP_CHANCE,
-    INCIDENTAL_GEM_DROP_TABLE,
-    GLORY_GEM_DROP_CHANCE,
-    WOODCUTTING_AXE_DATA,
-    BIRD_NEST_DROP_CHANCE,
-    BIRD_NEST_DROP_TABLE,
-    BIRD_NEST_OPEN_TABLES,
     ORE_IMAGES,
     TREE_IMAGES,
     BAR_IMAGES,
-    GEM_IMAGES,
     CRAFTED_ITEM_IMAGES,
-    FISHING_ITEM_IMAGES,
     EQUIPMENT_DATA,
 )
 from .smithing_data import DEFAULT_SMITHING_TARGET
@@ -52,48 +33,20 @@ import random
 import os
 import datetime
 from .logic_pure import (
-    calculate_probability_with_level,
-    pick_gem,
     can_smith_any_pure,
-    can_smith_item_pure,
-    create_soft_clay_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
     can_fletch_item_pure,
     cooking_target_locked_reasons_pure,
     can_runecraft_any_pure,
-    can_runecraft_target_pure,
-    can_start_quest_pure,
     start_quest_pure,
-    apply_quest_progress_pure,
     apply_claim_pure,
-    apply_runecrafting_action_pure,
-    has_cooking_materials_pure,
-    has_firemaking_materials_pure,
     firemaking_target_locked_reasons_pure,
-    utility_activity_locked_reasons_pure,
-    apply_crafting_pure,
     apply_utility_activity_pure,
-    apply_open_bird_nests_pure,
-    apply_smithing_pure,
-    apply_fletching_pure,
-    apply_cooking_action_pure,
-    apply_firemaking_action_pure,
-    apply_fishing_action_pure,
-    apply_woodcutting_action_pure,
-    apply_mining_action_pure,
     sanitize_review_action_multiplier,
-    eligible_fishing_fish_pure,
-    has_fishing_bait_pure,
-    can_chop_woodcutting_target_pure,
-    best_woodcutting_axe_pure,
-    best_mining_pickaxe_pure,
     can_equip_item_pure,
     equip_item_pure,
     unequip_item_pure,
-    equipment_bonus_state_pure,
-    mining_target_locked_reasons_pure,
-    fishing_method_locked_reasons_pure,
     calculate_new_level,
 )
 from .logic import level_up_check, check_achievements
@@ -119,6 +72,8 @@ from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .action_registry import is_review_action, review_action_handler_key
 from .skill_registry import implemented_skill_definitions
+from . import runtime_actions
+from .runtime_actions import RuntimeActionContext
 
 global card_turned, exp_awarded, answer_shown
 
@@ -395,6 +350,27 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
         _show_exp(total)
 
 
+def _runtime_action_context() -> RuntimeActionContext:
+    return RuntimeActionContext(
+        player_data=player_data,
+        random_random=random.random,
+        show_error_message=show_error_message,
+        deactivate_current_skill=_deactivate_current_skill,
+        award_skill_exp=_award_skill_exp,
+        award_hidden_skill_exp=_award_hidden_skill_exp,
+        level_up_check=level_up_check,
+        check_achievements=check_achievements,
+        save_player_data=save_player_data,
+        refresh_skill_availability=_refresh_skill_availability,
+        refresh_skill_availability_partial=refresh_skill_availability,
+        can_smith_any=can_smith_any,
+        show_exp=_show_exp,
+        show_activity_gain=_show_activity_gain,
+        implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
+        show_quest_exp_delta=_show_quest_exp_delta,
+    )
+
+
 def _capture_player_data_snapshot():
     return copy.deepcopy(player_data)
 
@@ -561,451 +537,35 @@ def has_crafting_materials(item):
     return has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA)
 
 def on_crafting_answer():
-    item = player_data.get("current_craft", "form_pot_unfired")
-    spec = CRAFTING_DATA.get(item)
-    display_name = spec.get("display_name", item) if spec else item
-    if not spec:
-        show_error_message("Unknown crafting target", "Choose a valid Crafting target before reviewing.")
-        return False
-
-    player_level = player_data.get("crafting_level", 1)
-    if player_level < spec["level"]:
-        show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
-        return False
-
-    # Check level and material requirements first. Name the *specific* missing
-    # material (e.g. "Pot" needs an "Unfired pot", not Soft clay directly) so the
-    # player understands the pottery/processing chain instead of seeing a generic
-    # "not enough materials" that contradicts a full bank of the wrong item.
-    if not has_crafting_materials(item):
-        missing = _missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
-        _deactivate_current_skill()
-        show_error_message(
-            "Out of materials",
-            f"You need {missing} to craft {display_name}, so Crafting has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    # Apply crafting via pure function (handles Soft clay and crafted items)
-    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
-    if not ok:
-        missing = _missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
-        _deactivate_current_skill()
-        show_error_message(
-            "Out of materials",
-            f"You need {missing} to craft {display_name}, so Crafting has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    # Update player data and UI
-    player_data["inventory"] = new_inv
-    exp_gained = _award_skill_exp("crafting_exp", base_exp)
-    level_up_check("Crafting", player_data)
-    check_achievements(player_data)
-    save_player_data()
-
-    # Refresh availability for Crafting/Smithing in the open menu (enables, never auto-selects)
-    try:
-        can_craft_any = any(
-            can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
-            for item_name in CRAFTING_DATA.keys()
-        )
-        refresh_skill_availability(can_smith_any(), can_craft_any)
-    except Exception:
-        pass
-
-    _refresh_skill_availability()
-    _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_crafting_answer(_runtime_action_context())
 
 
 def on_utility_answer():
-    activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-    if activity_key not in UTILITY_ACTIVITY_DATA:
-        activity_key = DEFAULT_UTILITY_ACTIVITY
-        player_data["current_utility"] = activity_key
-    spec = UTILITY_ACTIVITY_DATA[activity_key]
-    display_name = spec.get("display_name", activity_key)
-
-    locked_reasons = utility_activity_locked_reasons_pure(player_data, activity_key, UTILITY_ACTIVITY_DATA, QUEST_UNLOCK_RULES)
-    quest_locked = tuple(reason for reason in locked_reasons if reason != "materials")
-    if quest_locked:
-        _deactivate_current_skill()
-        show_error_message(
-            "Activity locked",
-            f"{display_name} requires {', '.join(quest_locked)}, so it's been switched off. "
-            "Open the AnkiScape menu to pick another activity.",
-        )
-        return False
-
-    if locked_reasons:
-        requirements = spec.get("requirements", {})
-        # Out of materials: switch the activity off so it stops firing this error
-        # on every card, and point the player back to the menu to pick another.
-        _deactivate_current_skill()
-        if requirements:
-            missing = _missing_materials_text(requirements, player_data.get("inventory", {}))
-            show_error_message(
-                "Out of materials",
-                f"You're out of {missing} for {display_name}, so it's been switched off. "
-                "Open the AnkiScape menu to pick another activity.",
-            )
-        else:
-            show_error_message(
-                "Activity switched off",
-                f"{display_name} can't run right now, so it's been switched off. "
-                "Open the AnkiScape menu to pick another activity.",
-            )
-        return False
-
-    if activity_key == "open_bird_nest":
-        batch_size = 28
-        try:
-            batch_size = max(int(spec.get("batch_size", 28)), 1)
-        except (TypeError, ValueError):
-            batch_size = 28
-        rolls = [random.random() for _ in range(batch_size)]
-        new_inv, ok, processed, _outputs = apply_open_bird_nests_pure(
-            player_data.get("inventory", {}),
-            BIRD_NEST_OPEN_TABLES,
-            rolls=rolls,
-            batch_size=batch_size,
-        )
-        if not ok:
-            show_error_message("Unavailable activity", f"{display_name} is not available right now.")
-            return False
-        player_data["inventory"] = new_inv
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        _show_activity_gain(f"Opened {processed} bird nest{'s' if processed != 1 else ''}")
-        return True
-
-    new_inv, _exp, ok, processed = apply_utility_activity_pure(
-        activity_key,
-        player_data.get("inventory", {}),
-        UTILITY_ACTIVITY_DATA,
-    )
-    if not ok:
-        show_error_message("Unavailable activity", f"{display_name} is not available right now.")
-        return False
-
-    player_data["inventory"] = new_inv
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-
-    # Confirm the action happened: utility earns no XP, so without this floating
-    # "+N <item>" the player gets no signal that the review did anything.
-    output_item = str(spec.get("output_item", activity_key))
-    try:
-        output_qty = max(int(spec.get("output_qty", 1)), 1)
-    except (TypeError, ValueError):
-        output_qty = 1
-    gained = output_qty * max(int(processed), 0)
-    if gained > 0:
-        _show_activity_gain(f"+{gained} {output_item}")
-    return True
+    return runtime_actions.handle_utility_answer(_runtime_action_context())
 
 
 def on_fletching_answer():
-    target = player_data.get("current_fletch", "arrow_shafts")
-    if target not in FLETCHING_DATA:
-        target = "arrow_shafts"
-        player_data["current_fletch"] = target
-    spec = FLETCHING_DATA[target]
-    display_name = spec.get("display_name", target)
-    player_level = player_data.get("fletching_level", 1)
-
-    if player_level < spec["level"]:
-        show_error_message("Insufficient level", f"You need level {spec['level']} Fletching to make {display_name}.")
-        return False
-
-    new_inv, base_exp, ok = apply_fletching_pure(target, player_data["inventory"], FLETCHING_DATA)
-    if not ok:
-        for material, amount in spec.get("requirements", {}).items():
-            if player_data["inventory"].get(material, 0) < amount:
-                show_error_message("Insufficient materials", f"You need {amount} {material} to make {display_name}.")
-                break
-        return False
-
-    player_data["inventory"] = new_inv
-    exp_gained = _award_skill_exp("fletching_exp", base_exp)
-    level_up_check("Fletching", player_data)
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-    _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_fletching_answer(_runtime_action_context())
 
 
 def on_firemaking_answer():
-    target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
-    if target not in FIREMAKING_DATA:
-        target = DEFAULT_FIREMAKING_TARGET
-        player_data["current_firemaking"] = target
-    spec = FIREMAKING_DATA[target]
-    display_name = spec.get("display_name", target)
-    player_level = player_data.get("firemaking_level", 1)
-    quest_locked = tuple(
-        reason
-        for reason in firemaking_target_locked_reasons_pure(player_data, target, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
-        if reason not in {"materials"} and not str(reason).startswith("Firemaking level")
-    )
-    if quest_locked:
-        _deactivate_current_skill()
-        show_error_message(
-            "Firemaking target locked",
-            f"{display_name} requires {', '.join(quest_locked)}, so Firemaking has been switched off.",
-        )
-        return False
-
-    if player_level < spec["level"]:
-        show_error_message("Insufficient level", f"You need level {spec['level']} Firemaking to burn {display_name}.")
-        return False
-
-    if not has_firemaking_materials_pure(target, player_data.get("inventory", {}), FIREMAKING_DATA):
-        missing = _missing_materials_text(spec.get("requirements", {}), player_data.get("inventory", {}))
-        _deactivate_current_skill()
-        show_error_message(
-            "Out of materials",
-            f"You need {missing} to burn {display_name}, so Firemaking has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    new_inv, base_exp, ok, _output_item = apply_firemaking_action_pure(
-        target,
-        player_data.get("inventory", {}),
-        FIREMAKING_DATA,
-        player_level,
-        random.random(),
-    )
-    if not ok:
-        return True
-
-    player_data["inventory"] = new_inv
-    exp_gained = _award_skill_exp("firemaking_exp", base_exp)
-    level_up_check("Firemaking", player_data)
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-    _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_firemaking_answer(_runtime_action_context())
 
 
 def on_fishing_answer():
-    target = player_data.get("current_fishing", DEFAULT_FISHING_TARGET)
-    if target not in FISHING_DATA:
-        target = DEFAULT_FISHING_TARGET
-        player_data["current_fishing"] = target
-    spec = FISHING_DATA[target]
-    display_name = spec.get("display_name", target)
-    player_level = player_data.get("fishing_level", 1)
-    strength_level = player_data.get("strength_level", 1)
-    agility_level = player_data.get("agility_level", 1)
-    inventory = player_data.get("inventory", {})
-
-    if player_level < spec.get("level", 1):
-        show_error_message("Insufficient level", f"You need level {spec['level']} Fishing to {str(display_name).lower()}.")
-        return False
-
-    if not has_fishing_bait_pure(inventory, spec):
-        missing = _fishing_materials_text(spec, inventory)
-        _deactivate_current_skill()
-        show_error_message(
-            "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so Fishing has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    eligible = eligible_fishing_fish_pure(spec, player_level, strength_level, agility_level)
-    if not eligible:
-        _deactivate_current_skill()
-        show_error_message(
-            "Insufficient level",
-            f"You do not meet the side-level requirements for {display_name}, so Fishing has been switched off.",
-        )
-        return False
-    locked_reasons = fishing_method_locked_reasons_pure(player_data, target, FISHING_DATA, QUEST_UNLOCK_RULES)
-    if locked_reasons:
-        _deactivate_current_skill()
-        show_error_message(
-            "Fishing target locked",
-            f"{display_name} requires {', '.join(locked_reasons)}, so Fishing has been switched off.",
-        )
-        return False
-
-    rolls = [random.random() for _ in eligible]
-    new_inv, base_exp, ok, _output_item, side_exp = apply_fishing_action_pure(
-        target,
-        inventory,
-        FISHING_DATA,
-        player_level,
-        strength_level,
-        agility_level,
-        rolls=rolls,
-    )
-    if not ok:
-        return True
-
-    player_data["inventory"] = new_inv
-    exp_gained = _award_skill_exp("fishing_exp", base_exp)
-    if side_exp.get("strength_exp", 0) > 0:
-        _award_hidden_skill_exp("strength_exp", "strength_level", side_exp["strength_exp"])
-    if side_exp.get("agility_exp", 0) > 0:
-        _award_hidden_skill_exp("agility_exp", "agility_level", side_exp["agility_exp"])
-    level_up_check("Fishing", player_data)
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-    _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_fishing_answer(_runtime_action_context())
 
 
 def on_cooking_answer():
-    target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
-    if target not in COOKING_DATA:
-        target = DEFAULT_COOKING_TARGET
-        player_data["current_cooking"] = target
-    spec = COOKING_DATA[target]
-    display_name = spec.get("display_name", target)
-    player_level = player_data.get("cooking_level", 1)
-    quest_locked = tuple(
-        reason
-        for reason in cooking_target_locked_reasons_pure(player_data, target, COOKING_DATA, QUEST_UNLOCK_RULES)
-        if reason not in {"materials"} and not str(reason).startswith("Cooking level")
-    )
-    if quest_locked:
-        _deactivate_current_skill()
-        show_error_message(
-            "Cooking target locked",
-            f"{display_name} requires {', '.join(quest_locked)}, so Cooking has been switched off.",
-        )
-        return False
-
-    if player_level < spec.get("level", 1):
-        show_error_message("Insufficient level", f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
-        return False
-
-    if not has_cooking_materials_pure(target, player_data.get("inventory", {}), COOKING_DATA):
-        missing = _missing_materials_text(spec.get("requirements", {}), player_data.get("inventory", {}))
-        _deactivate_current_skill()
-        show_error_message(
-            "Out of materials",
-            f"You need {missing} to {str(display_name).lower()}, so Cooking has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(
-        target,
-        player_data.get("inventory", {}),
-        COOKING_DATA,
-        player_level,
-        random.random(),
-    )
-    if not ok:
-        return False
-
-    player_data["inventory"] = new_inv
-    if burned:
-        player_data["cooking_burn_count"] = player_data.get("cooking_burn_count", 0) + 1
-        check_achievements(player_data)
-        save_player_data()
-        _refresh_skill_availability()
-        if output_item:
-            _show_activity_gain(f"+1 {output_item}")
-        return True
-
-    player_data["cooking_success_count"] = player_data.get("cooking_success_count", 0) + 1
-    exp_gained = _award_skill_exp("cooking_exp", base_exp)
-    level_up_check("Cooking", player_data)
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-    _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_cooking_answer(_runtime_action_context())
 
 
 def on_runecrafting_answer():
-    target = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
-    if target not in RUNECRAFTING_DATA:
-        target = DEFAULT_RUNECRAFTING_TARGET
-        player_data["current_runecrafting"] = target
-    spec = RUNECRAFTING_DATA[target]
-    display_name = spec.get("display_name", target)
-    player_level = player_data.get("runecrafting_level", 1)
-
-    if player_level < spec.get("level", 1):
-        show_error_message("Insufficient level", f"You need level {spec['level']} Runecrafting for {display_name}.")
-        return False
-
-    rolls = [random.random() for _ in range(64)]
-    new_data, base_exp, ok, message = apply_runecrafting_action_pure(
-        player_data,
-        target,
-        RUNECRAFTING_DATA,
-        RUNECRAFTING_POUCH_DATA,
-        rolls=rolls,
-        quest_unlock_rules=QUEST_UNLOCK_RULES,
-    )
-    if not ok:
-        _deactivate_current_skill()
-        show_error_message(
-            "Runecrafting unavailable",
-            f"{display_name} cannot run right now, so Runecrafting has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    player_data.update(new_data)
-    exp_gained = _award_skill_exp("runecrafting_exp", base_exp)
-    level_up_check("Runecrafting", player_data)
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-    if exp_gained > 0:
-        _show_exp(exp_gained)
-    elif message:
-        _show_activity_gain(str(message))
-    return True
+    return runtime_actions.handle_runecrafting_answer(_runtime_action_context())
 
 
 def on_quest_answer():
-    quest_id = player_data.get("current_quest", "rune_mysteries")
-    if quest_id not in QUEST_DATA:
-        quest_id = "rune_mysteries"
-        player_data["current_quest"] = quest_id
-    quest = QUEST_DATA[quest_id]
-    if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):
-        _deactivate_current_skill()
-        show_error_message(
-            "Quest unavailable",
-            f"{quest.get('display_name', quest_id)} cannot progress right now, so questing has been switched off.",
-        )
-        return False
-
-    exp_before = _implemented_exp_keys_snapshot()
-    new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
-    if not ok:
-        return False
-    player_data.update(new_data)
-    if completed_now:
-        _show_quest_exp_delta(exp_before)
-        _deactivate_current_skill()
-    check_achievements(player_data)
-    save_player_data()
-    _refresh_skill_availability()
-    if completed_now:
-        _show_activity_gain(f"{quest.get('display_name', quest_id)} complete")
-    else:
-        state = player_data.get("quests", {}).get(quest_id, {})
-        _show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
-    return True
+    return runtime_actions.handle_quest_answer(_runtime_action_context())
 
 def show_bar_selection():
     selected = ui.show_bar_selection_dialog(
@@ -1176,173 +736,14 @@ def initialize_menu():
 # Main functionality
 
 def on_smithing_answer():
-    target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
-    if target not in SMITHING_DATA:
-        target = DEFAULT_SMITHING_TARGET
-        player_data["current_smith"] = target
-    spec = SMITHING_DATA[target]
-    display_name = spec.get("display_name", spec.get("output_item", target))
-    player_level = player_data["smithing_level"]
-
-    if player_level < spec["level"]:
-        show_error_message("Insufficient level", f"You need level {spec['level']} Smithing to make {display_name}.")
-        return False
-
-    new_inv, base_exp, ok = apply_smithing_pure(target, player_data["inventory"], SMITHING_DATA)
-    if not ok:
-        missing = _missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
-        _deactivate_current_skill()
-        show_error_message(
-            "Out of materials",
-            f"You need {missing} to make {display_name}, so Smithing has been switched off. "
-            "Open the AnkiScape menu to pick another target.",
-        )
-        return False
-
-    player_data["inventory"] = new_inv
-    exp_gained = _award_skill_exp("smithing_exp", base_exp)
-    level_up_check("Smithing", player_data)
-    check_achievements(player_data)
-    save_player_data()
-
-    # Refresh availability for Crafting/Smithing in the open menu after processing.
-    try:
-        can_craft_any = any(
-            can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
-            for item_name in CRAFTING_DATA.keys()
-        )
-        refresh_skill_availability(can_smith_any(), can_craft_any)
-    except Exception:
-        pass
-
-    _refresh_skill_availability()
-    _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_smithing_answer(_runtime_action_context())
 
 
 def on_woodcutting_answer():
-    tree = player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET)
-    if tree not in TREE_DATA:
-        tree = DEFAULT_WOODCUTTING_TARGET
-        player_data["current_tree"] = tree
-    spec = TREE_DATA[tree]
-    player_level = player_data.get("woodcutting_level", 1)
-
-    if player_level < spec.get("level", 1):
-        show_error_message("Insufficient level", f"You need level {spec['level']} Woodcutting to chop {spec.get('display_name', tree)}.")
-        return False
-
-    axe_spec = best_woodcutting_axe_pure(
-        player_level,
-        player_data.get("inventory", {}),
-        player_data.get("toolbelt", {}),
-        WOODCUTTING_AXE_DATA,
-    )
-    if axe_spec is None:
-        _deactivate_current_skill()
-        show_error_message(
-            "No usable hatchet",
-            "You need a usable hatchet to train Woodcutting. Woodcutting has been switched off.",
-        )
-        return False
-
-    r_action = random.random()
-    r_nest_drop = random.random()
-    r_nest_type = random.random()
-    new_inv, base_exp, ok, _output_item, _nest_item = apply_woodcutting_action_pure(
-        tree,
-        player_data.get("inventory", {}),
-        TREE_DATA,
-        player_level,
-        axe_spec,
-        r_action,
-        r_nest_drop,
-        r_nest_type,
-        BIRD_NEST_DROP_TABLE,
-        BIRD_NEST_DROP_CHANCE,
-    )
-    if ok:
-        if "logs_cut_today" not in player_data:
-            player_data["logs_cut_today"] = 0
-        player_data["logs_cut_today"] += 1
-        player_data["inventory"] = new_inv
-        exp_gained = _award_skill_exp("woodcutting_exp", base_exp)
-        level_up_check("Woodcutting", player_data)
-        check_achievements(player_data)
-        save_player_data()
-
-    _show_exp(base_exp if not ok else exp_gained)
-    return True
+    return runtime_actions.handle_woodcutting_answer(_runtime_action_context())
 
 def on_mining_answer():
-    ore = player_data.get("current_ore", DEFAULT_MINING_TARGET)
-    if ore not in ORE_DATA:
-        ore = DEFAULT_MINING_TARGET
-        player_data["current_ore"] = ore
-    ore_spec = ORE_DATA[ore]
-    player_level = player_data["mining_level"]
-
-    if player_level < ore_spec.get("level", 1):
-        show_error_message("Insufficient level", f"You need level {ore_spec['level']} Mining to mine {ore_spec.get('display_name', ore)}.")
-        return False
-
-    pickaxe_spec = best_mining_pickaxe_pure(
-        player_level,
-        player_data.get("inventory", {}),
-        player_data.get("toolbelt", {}),
-        MINING_PICKAXE_DATA,
-    )
-    if pickaxe_spec is None:
-        _deactivate_current_skill()
-        show_error_message(
-            "Missing pickaxe",
-            "You need a usable pickaxe to train Mining. Mining has been switched off.",
-        )
-        return False
-    locked_reasons = mining_target_locked_reasons_pure(player_data, ore, ORE_DATA, MINING_PICKAXE_DATA, QUEST_UNLOCK_RULES)
-    if locked_reasons:
-        _deactivate_current_skill()
-        show_error_message(
-            "Mining target locked",
-            f"{ore_spec.get('display_name', ore)} requires {', '.join(locked_reasons)}, so Mining has been switched off.",
-        )
-        return False
-
-    bonus_state = equipment_bonus_state_pure(player_data.get("equipment", {}) or {}, MINING_BONUS_ITEM_DATA)
-    gem_drop_chance = GLORY_GEM_DROP_CHANCE if bonus_state["has_glory"] else INCIDENTAL_GEM_DROP_CHANCE
-    r_action = random.random()
-    r_output = random.random()
-    r_gem_chance = random.random()
-    r_gem_pick = random.random()
-
-    new_inv, base_exp, ok, _output_item, _gem, _extra_output = apply_mining_action_pure(
-        ore,
-        player_data.get("inventory", {}),
-        ORE_DATA,
-        player_level,
-        pickaxe_spec,
-        r_action,
-        r_output,
-        r_gem_chance,
-        r_gem_pick,
-        INCIDENTAL_GEM_DROP_TABLE,
-        gem_drop_chance,
-        bonus_state["varrock_armour_tier"],
-    )
-    if ok:
-        if "ores_mined_today" not in player_data:
-            player_data["ores_mined_today"] = 0
-        player_data["ores_mined_today"] += 1
-        player_data["inventory"] = new_inv
-        exp_gained = _award_skill_exp("mining_exp", base_exp)
-        level_up_check("Mining", player_data)
-        check_achievements(player_data)
-        save_player_data()
-
-        # If the main menu is open, auto-enable Smithing/Crafting when they become possible.
-        _refresh_skill_availability()
-        _show_exp(exp_gained)
-    return True
+    return runtime_actions.handle_mining_answer(_runtime_action_context())
 
 
 def on_equip_item(item_name):
@@ -1396,109 +797,47 @@ def on_discard_item(item_name):
 
 
 def _can_start_fletching_action() -> bool:
-    target = player_data.get("current_fletch", "arrow_shafts")
-    return can_fletch_item_pure(
-        player_data.get("fletching_level", 1),
-        player_data.get("inventory", {}),
-        target,
-        FLETCHING_DATA,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "fletching")
 
 
 def _can_start_firemaking_action() -> bool:
-    target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
-    return not firemaking_target_locked_reasons_pure(
-        player_data,
-        target,
-        FIREMAKING_DATA,
-        QUEST_UNLOCK_RULES,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "firemaking")
 
 
 def _can_start_fishing_action() -> bool:
-    return not fishing_method_locked_reasons_pure(
-        player_data,
-        player_data.get("current_fishing", DEFAULT_FISHING_TARGET),
-        FISHING_DATA,
-        QUEST_UNLOCK_RULES,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "fishing")
 
 
 def _can_start_cooking_action() -> bool:
-    target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
-    return not cooking_target_locked_reasons_pure(
-        player_data,
-        target,
-        COOKING_DATA,
-        QUEST_UNLOCK_RULES,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "cooking")
 
 
 def _can_start_runecrafting_action() -> bool:
-    target = player_data.get("current_runecrafting", DEFAULT_RUNECRAFTING_TARGET)
-    return can_runecraft_target_pure(
-        player_data,
-        target,
-        RUNECRAFTING_DATA,
-        RUNECRAFTING_POUCH_DATA,
-        QUEST_UNLOCK_RULES,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "runecrafting")
 
 
 def _can_start_quest_action() -> bool:
-    quest_id = player_data.get("current_quest", "rune_mysteries")
-    return can_start_quest_pure(player_data, quest_id, QUEST_DATA)
+    return runtime_actions.can_start_action(_runtime_action_context(), "quest")
 
 
 def _can_start_crafting_action() -> bool:
-    target = player_data.get("current_craft", "form_pot_unfired")
-    return can_craft_item_pure(
-        player_data.get("crafting_level", 1),
-        player_data.get("inventory", {}),
-        target,
-        CRAFTING_DATA,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "crafting")
 
 
 def _can_start_smithing_action() -> bool:
-    target = player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
-    return can_smith_item_pure(
-        player_data.get("smithing_level", 1),
-        player_data.get("inventory", {}),
-        target,
-        SMITHING_DATA,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "smithing")
 
 
 def _can_start_utility_action() -> bool:
-    activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
-    return not utility_activity_locked_reasons_pure(
-        player_data,
-        activity_key,
-        UTILITY_ACTIVITY_DATA,
-        QUEST_UNLOCK_RULES,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "utility")
 
 
 def _can_start_woodcutting_action() -> bool:
-    return can_chop_woodcutting_target_pure(
-        player_data.get("woodcutting_level", 1),
-        player_data.get("current_tree", DEFAULT_WOODCUTTING_TARGET),
-        TREE_DATA,
-        player_data.get("inventory", {}),
-        player_data.get("toolbelt", {}),
-        WOODCUTTING_AXE_DATA,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "woodcutting")
 
 
 def _can_start_mining_action() -> bool:
-    return not mining_target_locked_reasons_pure(
-        player_data,
-        player_data.get("current_ore", DEFAULT_MINING_TARGET),
-        ORE_DATA,
-        MINING_PICKAXE_DATA,
-        QUEST_UNLOCK_RULES,
-    )
+    return runtime_actions.can_start_action(_runtime_action_context(), "mining")
 
 
 _CAN_START_HANDLERS = {

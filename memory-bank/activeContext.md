@@ -311,8 +311,21 @@ rewards, or quest rules changed. Verification: `python3 run_tests.py` passed
 with 345 tests (83 skipped), and the offscreen Qt discovery suite passed with
 345 tests.
 
+P0 runtime handler extraction is complete on 2026-06-19. `runtime_actions.py`
+now owns the review-action mutation bodies and handler-keyed can-start checks
+for Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking,
+Cooking, Runecrafting, Quests, and Utility/Activities. `__init__.py` keeps
+Anki hooks, global state, save/HUD/UI callback wiring, undo snapshots, and thin
+`on_<skill>_answer` compatibility wrappers that build a `RuntimeActionContext`.
+No save schema, XP math, item rewards, target metadata, quest rules, assets, or
+frontend surfaces changed. Verification: `python3 run_tests.py` passed with
+347 tests (83 skipped), and the offscreen Qt discovery suite passed with 347
+tests.
+
 ## Current Risks
-- Skill behavior is still spread through hardcoded branches and dictionaries.
+- Skill behavior is less concentrated in `__init__.py`, but shared action
+  metadata is still incomplete beyond dispatch keys, target rows, and runtime
+  handler wrappers.
 - Adding many skills before refactoring would likely multiply duplication.
 - Combat could sprawl if started before noncombat action patterns are generalized.
 - Anki config migration mistakes could affect persisted player progress.
@@ -325,9 +338,10 @@ with 345 tests (83 skipped), and the offscreen Qt discovery suite passed with
 Use `memory-bank/future-work-kanban.md` as the current future-thread source of truth.
 
 1. **Continue P0 only if the owner wants another architecture slice**: the next
-   useful boundary is decomposing the remaining `__init__.py` runtime
-   orchestration or achievement metadata, not repeating review handler
-   dispatch, flat target-row metadata, or grouped target-tree metadata.
+   useful boundary is achievement metadata or further non-action
+   `__init__.py` orchestration cleanup, not repeating review handler dispatch,
+   runtime handler extraction, flat target-row metadata, or grouped target-tree
+   metadata.
 2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AnkiScape Runtime Handler Extraction Plan</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 0%, rgba(79, 140, 255, 0.11), transparent 28rem), var(--bg);
+      color: var(--text);
+      font-family: Outfit, sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 44px 0 56px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: var(--accent-glow);
+      color: #9fc0ff;
+      font: 600 0.72rem JetBrains Mono, monospace;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 5vw, 4rem); line-height: 0.95; letter-spacing: 0; }
+    .subtitle { max-width: 850px; color: var(--text-dim); font-size: 1.05rem; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; margin-top: 28px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.1rem; }
+    .tag-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .tag { border-radius: 7px; background: var(--surface-2); color: #c8d3e8; padding: 5px 8px; font: 400 0.7rem JetBrains Mono, monospace; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: #10141b; min-height: 215px; }
+    .pane-label { color: var(--text-dim); font: 600 0.68rem JetBrains Mono, monospace; letter-spacing: 0.08em; margin-bottom: 12px; text-transform: uppercase; }
+    .stack { display: grid; gap: 8px; }
+    .node {
+      border: 1px solid #32394b;
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: var(--surface-2);
+      font: 400 0.72rem JetBrains Mono, monospace;
+      color: #d9e2f2;
+    }
+    .node.hot { border-color: rgba(251, 191, 36, 0.55); box-shadow: inset 3px 0 0 var(--amber); }
+    .node.cool { border-color: rgba(74, 222, 128, 0.45); box-shadow: inset 3px 0 0 var(--green); }
+    .arrow { color: var(--text-dim); text-align: center; font: 600 0.8rem JetBrains Mono, monospace; }
+    .meter { display: grid; gap: 10px; }
+    .bar { display: grid; grid-template-columns: 120px 1fr 46px; align-items: center; gap: 10px; font-size: 0.85rem; color: var(--text-dim); }
+    .track { height: 9px; background: #10141b; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 999px; }
+    .checklist { display: grid; gap: 12px; margin-top: 4px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 12px; align-items: start; }
+    .num { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; background: var(--accent-glow); color: #aecaFF; font: 600 0.8rem JetBrains Mono, monospace; }
+    .step strong { display: block; margin-bottom: 2px; }
+    .step span { color: var(--text-dim); font-size: 0.9rem; }
+    .callout { border-left: 3px solid var(--green); padding-left: 14px; color: var(--text-dim); }
+    .scope { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 18px; }
+    .scope div { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+    .scope b { display: block; font-size: 0.8rem; color: var(--text); }
+    .scope span { color: var(--text-dim); font-size: 0.78rem; }
+    @media (max-width: 900px) {
+      .grid, .split, .scope { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Pre-implementation plan · P0 architecture</div>
+    <h1>Runtime Handler Extraction</h1>
+    <p class="subtitle">This pass keeps AnkiScape behavior stable while moving review-action mutation bodies out of <code>__init__.py</code> and behind the handler-key contract that already exists in <code>action_registry.py</code>.</p>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Before And After</h2>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-label">Before</div>
+            <div class="stack">
+              <div class="node hot">__init__.py: hooks + state</div>
+              <div class="arrow">↓</div>
+              <div class="node hot">handler maps + can-start logic</div>
+              <div class="arrow">↓</div>
+              <div class="node hot">Mining/Woodcutting/... bodies</div>
+              <div class="arrow">↓</div>
+              <div class="node">save, refresh, feedback</div>
+            </div>
+          </div>
+          <div class="pane">
+            <div class="pane-label">After</div>
+            <div class="stack">
+              <div class="node">__init__.py: hooks + state</div>
+              <div class="arrow">↓</div>
+              <div class="node cool">handler key lookup</div>
+              <div class="arrow">↓</div>
+              <div class="node cool">runtime_actions.py handlers</div>
+              <div class="arrow">↓</div>
+              <div class="node">same save, refresh, feedback</div>
+            </div>
+          </div>
+        </div>
+        <div class="tag-row">
+          <span class="tag">__init__.py</span>
+          <span class="tag">action_registry.py</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">tests/</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Behavior Budget</h2>
+        <div class="meter">
+          <div class="bar"><span>New content</span><div class="track"><div class="fill" style="width:0%"></div></div><span>0%</span></div>
+          <div class="bar"><span>Save migration</span><div class="track"><div class="fill" style="width:0%"></div></div><span>0%</span></div>
+          <div class="bar"><span>UI redesign</span><div class="track"><div class="fill" style="width:0%"></div></div><span>0%</span></div>
+          <div class="bar"><span>Handler move</span><div class="track"><div class="fill" style="width:88%"></div></div><span>high</span></div>
+        </div>
+        <p class="callout">Success means the same review action produces the same player-data mutation, message, level-up path, undo snapshot, and depletion behavior as before.</p>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Implementation Steps</h2>
+        <div class="checklist">
+          <div class="step"><div class="num">1</div><div><strong>Audit existing runtime seams</strong><span>Find current action bodies, readiness checks, handler maps, and tests that exercise review dispatch.</span></div></div>
+          <div class="step"><div class="num">2</div><div><strong>Add a runtime action contract</strong><span>Use a small context object or callback bundle so handlers can mutate player_data without importing Anki.</span></div></div>
+          <div class="step"><div class="num">3</div><div><strong>Move behavior without rewriting it</strong><span>Extract bodies in family chunks, keeping old messages, keys, XP math, and depletion rules intact.</span></div></div>
+          <div class="step"><div class="num">4</div><div><strong>Prove parity</strong><span>Run targeted handler tests, full unit/integration tests, and offscreen Qt discovery.</span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Backend / Frontend Split</h2>
+        <div class="scope">
+          <div><b>Backend</b><span>Runtime handler module, dispatch bridge, readiness parity, targeted tests.</span></div>
+          <div><b>Frontend</b><span>No visual change; existing callbacks and menu behavior remain stable.</span></div>
+          <div><b>Assets</b><span>No asset work; this is not a content expansion.</span></div>
+          <div><b>Balance</b><span>No XP, chance, batch, or reward value changes.</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
