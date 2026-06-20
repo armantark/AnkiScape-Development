@@ -9,7 +9,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Arrowtips are not an unresolved source gap. They are smithable through Smithing.
 - Feathers are no longer an unresolved Fletching input gap. P2 added a
   no-XP Utility/Activities bridge, `Scavenge chicken feathers`, on 2026-06-15.
-- The Grand Exchange is a valid future candidate, but it is not a high-priority next step.
+- The NPC shop system and the Grand Exchange are valid future economy
+  candidates, but neither is a high-priority next step. NPC shops are tracked
+  separately in `memory-bank/npc-shop-design-seed.md`; the parked GE design
+  remains in `memory-bank/fake-grand-exchange-design.md`.
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
@@ -223,6 +226,49 @@ Future replacement prompt:
 
 ```text
 In the AnkiScape repo, do not redo P2 feather sourcing. Feathers already have the temporary Utility/Activities bridge `Scavenge chicken feathers`. Only revisit feathers when Combat chicken drops or the Grand Exchange is explicitly in scope; then decide whether to keep, remove, or rebalance the bridge route.
+```
+
+### P3 - NPC Shops V1 Candidate
+
+User story: As a player, I want source-backed NPC shops, so tools, bait,
+materials, and shop-only rewards can enter play through authentic RuneScape
+interfaces instead of temporary Utility bridges.
+
+Why later: The design is promising, but it needs a deliberate economy-state
+model before implementation. It should not be folded into Hunter supply cleanup
+or the parked GE by accident.
+
+Backend-first scope:
+
+- Use `memory-bank/npc-shop-design-seed.md`; grill the open design decisions
+  before writing model code.
+- Source shop stock, shared-inventory groups, prices, and shop rules from local
+  2011Scape and local Darkan/2012scape, with historical wiki checks when they
+  conflict heavily.
+- Model shared stock by shared-shop group, not only by visible shop/NPC.
+- Preserve buy/sell behavior, consumed Coins, item transfer, and undo-aware
+  state changes.
+- Treat location and quest locks as first-class shop access data.
+
+Frontend follow-up scope:
+
+- Add the Shop menu surface only after backend contracts are real.
+- Show source-backed shop lists, stock rows, prices, owned Coins, buy and sell
+  flows, and lock reasons.
+- Keep temporary Utility bridges visible until the corresponding shop route is
+  implemented and intentionally replaced.
+
+Acceptance criteria:
+
+- At least one audited shop family proves source-backed stock, dynamic prices,
+  buy/sell flow, shared-stock persistence where relevant, and undo rollback.
+- Shop state is covered by unit and integration tests before Qt work starts.
+- Frontend work starts from a backend contract note, not guesswork.
+
+Future thread prompt:
+
+```text
+In the AnkiScape repo, use memory-bank/future-work-kanban.md and memory-bank/npc-shop-design-seed.md. Work on P3 only if the owner has explicitly reprioritized NPC shops. Grill the open design decisions first, then implement backend-first: shop registry, shared-stock state, source-backed prices, buy/sell item transfer, access locks, undo-aware review snapshots, and tests. Leave a frontend handoff note before any Shop menu UI thread starts.
 ```
 
 ### P3 - Grand Exchange V1 Candidate

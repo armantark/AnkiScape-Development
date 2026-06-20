@@ -402,6 +402,16 @@ interface is intentionally deferred to a later UX/economy pass. Verification:
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 377 tests.
 
+NPC shop design seed captured on 2026-06-20 in
+`memory-bank/npc-shop-design-seed.md`. The intended future system is a separate
+Shop menu surface, not the parked fake GE: source-backed in-game shop
+inventories, dynamic price/stock behavior, shared stock pools, buy/sell rules,
+and location/quest locks. Use local 2011Scape and local Darkan/2012scape as
+primary sources, with historical wiki revisions as conflict checks. Open design
+decisions still need grilling before implementation, especially navigation,
+location modeling, restock timing, exact price formulas, sell policies, and the
+first scope cut.
+
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
   could still be justified later if a future feature needs behavior beyond the
@@ -422,7 +432,11 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
    flat/grouped target metadata, achievement metadata, and the final duplicated
    handler plumbing are done. Do not continue P0 by default unless the owner
    names a new concrete architecture boundary.
-2. **P3 Grand Exchange candidate**: GE remains a valid future pressure valve, but it is not the next default priority. If reprioritized, start backend-first from `memory-bank/fake-grand-exchange-design.md`.
+2. **P3 economy candidates**: NPC shops and GE are both valid future pressure
+   valves, but neither is the next default priority. If NPC shops are
+   reprioritized, start backend-first from
+   `memory-bank/npc-shop-design-seed.md`; if GE is reprioritized, start
+   backend-first from `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.

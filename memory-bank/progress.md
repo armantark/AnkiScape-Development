@@ -346,6 +346,10 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   partial-route modeling for Regicide-start content, only if explicitly
   prioritized.
+- NPC shop follow-up: `memory-bank/npc-shop-design-seed.md` captures the
+  intended separate Shop surface, source-backed stock/prices, shared inventories,
+  buy/sell rules, and location/quest locks. Grill the open decisions before
+  backend implementation.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
   records the completed 194-row pre-EOC catalog, implemented completion gates,
   route-precedent locks, the RFD subquest split, generated item/lamp rewards,
