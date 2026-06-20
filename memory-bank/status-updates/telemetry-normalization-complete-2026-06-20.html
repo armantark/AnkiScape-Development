@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Telemetry + Review Odds Normalization Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101114;
+      --panel: #181c22;
+      --panel-2: #222832;
+      --line: #363d49;
+      --text: #f1f4f8;
+      --muted: #aab2c0;
+      --green: #38d485;
+      --blue: #6ab7ff;
+      --gold: #f4c95d;
+      --red: #ff716b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 24px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 35px;
+      line-height: 1.06;
+      margin-bottom: 12px;
+      letter-spacing: 0;
+    }
+    h2 { font-size: 18px; margin-bottom: 12px; }
+    h3 { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    p { color: var(--muted); }
+    header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: stretch;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 28px;
+      margin-bottom: 24px;
+    }
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .odds-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .odds-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .number {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .number strong {
+      display: block;
+      font-size: 32px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .number.before strong { color: var(--red); }
+    .number.after strong { color: var(--green); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 17px;
+      min-height: 180px;
+    }
+    .card p:last-child { margin-bottom: 0; }
+    .table {
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 0.8fr 0.8fr 1fr;
+      border-bottom: 1px solid var(--line);
+    }
+    .row:last-child { border-bottom: 0; }
+    .row > div {
+      padding: 12px 14px;
+      color: var(--muted);
+      min-width: 0;
+    }
+    .row.head > div {
+      background: #242a34;
+      color: var(--text);
+      font-weight: 700;
+    }
+    code {
+      color: var(--green);
+      background: #0c1511;
+      border: 1px solid #204f38;
+      border-radius: 4px;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+    .checks {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .check {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .check strong { color: var(--green); }
+    .handoff {
+      margin-top: 22px;
+      border-left: 3px solid var(--blue);
+      padding: 12px 0 12px 16px;
+      color: var(--text);
+    }
+    @media (max-width: 860px) {
+      header, .grid, .checks, .odds-grid { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .row > div { border-bottom: 1px solid var(--line); }
+      .row > div:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero-copy">
+        <h1>Telemetry is now durable, and review odds share one adapter.</h1>
+        <p>
+          Started review actions now leave a trace even when the result is dry.
+          The source-to-AnkiScape normalization path is explicit and shared across
+          probabilistic skills, so future tuning can happen in one place instead
+          of patching Fishing, Mining, Hunter, or Cooking separately.
+        </p>
+      </section>
+      <aside class="odds-panel">
+        <h2>Lv 18 big-net Fishing</h2>
+        <p>Only mackerel is eligible at Lv 18. Cod unlocks at Lv 23, bass at Lv 46.</p>
+        <div class="odds-grid">
+          <div class="number before"><strong>24.7%</strong><span>Before, per action tick</span></div>
+          <div class="number after"><strong>37.7%</strong><span>Now, per action tick</span></div>
+        </div>
+      </aside>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Shared normalization</h2>
+        <p><code>normalize_review_success_probability_pure</code> is now the default source-chance adapter for Mining, Woodcutting, Fishing, Hunter, and Cooking. Firemaking uses that same source adapter plus its existing log-tier cap.</p>
+      </article>
+      <article class="card">
+        <h2>Durable telemetry</h2>
+        <p><code>player_data["action_telemetry"]</code> stores attempts, successes, failures, expected successes, dry streaks, outputs, and failure kinds under stable <code>skill:action</code> keys.</p>
+      </article>
+      <article class="card">
+        <h2>Runtime behavior</h2>
+        <p>Blocked actions still do not count. Dry RNG outcomes now save telemetry, while deterministic processing, Utility, Runecrafting, and Quest actions record success after mutation.</p>
+      </article>
+    </section>
+
+    <section class="table">
+      <div class="row head">
+        <div>Action</div>
+        <div>Before</div>
+        <div>Now</div>
+        <div>Interpretation</div>
+      </div>
+      <div class="row">
+        <div>Big net at Fishing Lv 18</div>
+        <div>24.7%</div>
+        <div>37.7%</div>
+        <div>Still a real miss chance, but no longer feels like a game-tick roll.</div>
+      </div>
+      <div class="row">
+        <div>Big net at Fishing Lv 23</div>
+        <div>44.5%</div>
+        <div>62.2%</div>
+        <div>Cod joining the row makes mixed-output Fishing noticeably better.</div>
+      </div>
+      <div class="row">
+        <div>Big net at Fishing Lv 46</div>
+        <div>65.6%</div>
+        <div>81.7%</div>
+        <div>Bass joining the row makes the method feel mature without guaranteeing a catch.</div>
+      </div>
+    </section>
+
+    <section class="checks">
+      <div class="check"><strong>Passed</strong><p><code>python3 run_tests.py</code><br>382 tests, 89 skipped.</p></div>
+      <div class="check"><strong>Passed</strong><p><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code><br>382 tests.</p></div>
+    </section>
+
+    <p class="handoff">
+      Frontend follow-up: a Stats view can render observed vs expected success,
+      dry streaks, and output counts by consuming <code>summarize_action_telemetry_pure</code>.
+      Do not rederive the telemetry math in Qt.
+    </p>
+  </main>
+</body>
+</html>

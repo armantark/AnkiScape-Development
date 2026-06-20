@@ -62,6 +62,12 @@ try:
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
         best_woodcutting_axe_pure,
+        calculate_cooking_success_probability_pure,
+        calculate_firemaking_success_probability_pure,
+        calculate_fishing_success_probability_pure,
+        calculate_hunter_success_probability_pure,
+        calculate_mining_success_probability_pure,
+        calculate_woodcutting_success_probability_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
         can_runecraft_target_pure,
@@ -81,6 +87,7 @@ try:
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
+        record_action_telemetry_pure,
         utility_activity_locked_reasons_pure,
     )
     from .skill_registry import get_skill
@@ -136,6 +143,12 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
         best_woodcutting_axe_pure,
+        calculate_cooking_success_probability_pure,
+        calculate_firemaking_success_probability_pure,
+        calculate_fishing_success_probability_pure,
+        calculate_hunter_success_probability_pure,
+        calculate_mining_success_probability_pure,
+        calculate_woodcutting_success_probability_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
         can_runecraft_target_pure,
@@ -155,6 +168,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
+        record_action_telemetry_pure,
         utility_activity_locked_reasons_pure,
     )
     from skill_registry import get_skill  # type: ignore
@@ -228,6 +242,56 @@ def _award_action_xp_rewards(ctx: RuntimeActionContext, xp_rewards: Any, owner_s
     return primary_amount
 
 
+def _combined_success_probability(probabilities: Any) -> float:
+    dry_probability = 1.0
+    for probability in probabilities:
+        try:
+            chance = float(probability)
+        except (TypeError, ValueError):
+            chance = 0.0
+        dry_probability *= 1.0 - max(0.0, min(chance, 1.0))
+    return max(0.0, min(1.0 - dry_probability, 1.0))
+
+
+def _record_action(
+    ctx: RuntimeActionContext,
+    skill_id: str,
+    action_id: str,
+    success: bool,
+    *,
+    expected_success_chance: Optional[float] = None,
+    output_item: Optional[str] = None,
+    output_qty: int = 1,
+    output_items: Optional[dict[str, int]] = None,
+    failure_kind: Optional[str] = None,
+) -> None:
+    record_action_telemetry_pure(
+        ctx.player_data,
+        skill_id,
+        action_id,
+        success,
+        expected_success_chance=expected_success_chance,
+        output_item=output_item,
+        output_qty=output_qty,
+        output_items=output_items,
+        failure_kind=failure_kind,
+    )
+
+
+def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None) -> dict[str, int]:
+    outputs = spec.get("outputs")
+    if isinstance(outputs, dict) and outputs:
+        return {str(item): int(amount) for item, amount in outputs.items() if item and isinstance(amount, int) and amount > 0}
+    output_item = fallback_item or spec.get("output_item")
+    if not output_item:
+        return {}
+    try:
+        output_qty = int(spec.get("output_qty", 1))
+    except (TypeError, ValueError):
+        output_qty = 1
+    return {str(output_item): max(output_qty, 1)}
+
+
 def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     item = player_data.get("current_craft", "form_pot_unfired")
@@ -264,6 +328,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
+    _record_action(ctx, "crafting", item, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
     exp_gained = ctx.award_skill_exp("crafting_exp", base_exp)
     ctx.level_up_check("Crafting", player_data)
     ctx.check_achievements(player_data)
@@ -338,6 +403,7 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
             ctx.show_error_message("Unavailable activity", f"{display_name} is not available right now.")
             return False
         player_data["inventory"] = new_inv
+        _record_action(ctx, "utility", activity_key, True, expected_success_chance=1.0, output_items=_outputs)
         ctx.check_achievements(player_data)
         ctx.save_player_data()
         ctx.refresh_skill_availability()
@@ -354,6 +420,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
+    output_items = {item: amount * max(int(processed), 0) for item, amount in _spec_output_items(spec).items()}
+    _record_action(ctx, "utility", activity_key, True, expected_success_chance=1.0, output_items=output_items)
     if spec.get("deactivate_after_run"):
         ctx.deactivate_current_skill()
     ctx.check_achievements(player_data)
@@ -420,6 +488,7 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
+    _record_action(ctx, "fletching", target, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
     xp_rewards = normalize_xp_rewards_pure(spec, "fletching", base_exp)
     exp_gained = _award_action_xp_rewards(ctx, xp_rewards, "fletching")
     ctx.check_achievements(player_data)
@@ -465,6 +534,7 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    expected_success = calculate_firemaking_success_probability_pure(player_level, spec)
     new_inv, base_exp, ok, _output_item = apply_firemaking_action_pure(
         target,
         player_data.get("inventory", {}),
@@ -473,9 +543,19 @@ def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
         ctx.random_random(),
     )
     if not ok:
+        _record_action(ctx, "firemaking", target, False, expected_success_chance=expected_success, failure_kind="dry")
+        ctx.save_player_data()
         return True
 
     player_data["inventory"] = new_inv
+    _record_action(
+        ctx,
+        "firemaking",
+        target,
+        True,
+        expected_success_chance=expected_success,
+        output_item=_output_item,
+    )
     exp_gained = ctx.award_skill_exp("firemaking_exp", base_exp)
     ctx.level_up_check("Firemaking", player_data)
     ctx.check_achievements(player_data)
@@ -529,6 +609,10 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    expected_success = _combined_success_probability(
+        calculate_fishing_success_probability_pure(player_level, fish)
+        for fish in eligible
+    )
     rolls = [ctx.random_random() for _ in eligible]
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_fishing_action_pure(
         target,
@@ -540,9 +624,19 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
         rolls=rolls,
     )
     if not ok:
+        _record_action(ctx, "fishing", target, False, expected_success_chance=expected_success, failure_kind="dry")
+        ctx.save_player_data()
         return True
 
     player_data["inventory"] = new_inv
+    _record_action(
+        ctx,
+        "fishing",
+        target,
+        True,
+        expected_success_chance=expected_success,
+        output_item=_output_item,
+    )
     exp_gained = _award_action_xp_rewards(
         ctx,
         xp_rewards or ({"skill_id": "fishing", "amount": base_exp},),
@@ -594,6 +688,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    expected_success = calculate_hunter_success_probability_pure(player_level, spec)
     new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
         target,
         inventory,
@@ -602,9 +697,19 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         ctx.random_random(),
     )
     if not ok:
+        _record_action(ctx, "hunter", target, False, expected_success_chance=expected_success, failure_kind="dry")
+        ctx.save_player_data()
         return True
 
     player_data["inventory"] = new_inv
+    _record_action(
+        ctx,
+        "hunter",
+        target,
+        True,
+        expected_success_chance=expected_success,
+        output_items=_spec_output_items(spec, _output_item),
+    )
     player_data["hunter_success_count"] = player_data.get("hunter_success_count", 0) + 1
     exp_gained = _award_action_xp_rewards(
         ctx,
@@ -654,6 +759,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
+    expected_success = calculate_cooking_success_probability_pure(player_level, spec)
     new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(
         target,
         player_data.get("inventory", {}),
@@ -666,6 +772,15 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
 
     player_data["inventory"] = new_inv
     if burned:
+        _record_action(
+            ctx,
+            "cooking",
+            target,
+            False,
+            expected_success_chance=expected_success,
+            output_item=output_item,
+            failure_kind="burn",
+        )
         player_data["cooking_burn_count"] = player_data.get("cooking_burn_count", 0) + 1
         ctx.check_achievements(player_data)
         ctx.save_player_data()
@@ -674,6 +789,14 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
             ctx.show_activity_gain(f"+1 {output_item}")
         return True
 
+    _record_action(
+        ctx,
+        "cooking",
+        target,
+        True,
+        expected_success_chance=expected_success,
+        output_item=output_item,
+    )
     player_data["cooking_success_count"] = player_data.get("cooking_success_count", 0) + 1
     exp_gained = ctx.award_skill_exp("cooking_exp", base_exp)
     ctx.level_up_check("Cooking", player_data)
@@ -717,6 +840,7 @@ def handle_runecrafting_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data.update(new_data)
+    _record_action(ctx, "runecrafting", target, True, expected_success_chance=1.0)
     exp_gained = ctx.award_skill_exp("runecrafting_exp", base_exp)
     ctx.level_up_check("Runecrafting", player_data)
     ctx.check_achievements(player_data)
@@ -749,6 +873,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     if not ok:
         return False
     player_data.update(new_data)
+    _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
     if completed_now:
         ctx.show_quest_exp_delta(exp_before)
         ctx.deactivate_current_skill()
@@ -789,6 +914,7 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
+    _record_action(ctx, "smithing", target, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
     exp_gained = ctx.award_skill_exp("smithing_exp", base_exp)
     ctx.level_up_check("Smithing", player_data)
     ctx.check_achievements(player_data)
@@ -838,7 +964,8 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     r_action = ctx.random_random()
     r_nest_drop = ctx.random_random()
     r_nest_type = ctx.random_random()
-    new_inv, base_exp, ok, _output_item, _nest_item = apply_woodcutting_action_pure(
+    expected_success = calculate_woodcutting_success_probability_pure(player_level, spec, axe_spec)
+    new_inv, base_exp, ok, output_item, nest_item = apply_woodcutting_action_pure(
         tree,
         player_data.get("inventory", {}),
         TREE_DATA,
@@ -855,9 +982,24 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
             player_data["logs_cut_today"] = 0
         player_data["logs_cut_today"] += 1
         player_data["inventory"] = new_inv
+        output_items: dict[str, int] = {}
+        for item_name in (output_item, nest_item):
+            if item_name:
+                output_items[item_name] = output_items.get(item_name, 0) + 1
+        _record_action(
+            ctx,
+            "woodcutting",
+            tree,
+            True,
+            expected_success_chance=expected_success,
+            output_items=output_items,
+        )
         exp_gained = ctx.award_skill_exp("woodcutting_exp", base_exp)
         ctx.level_up_check("Woodcutting", player_data)
         ctx.check_achievements(player_data)
+        ctx.save_player_data()
+    else:
+        _record_action(ctx, "woodcutting", tree, False, expected_success_chance=expected_success, failure_kind="dry")
         ctx.save_player_data()
 
     ctx.show_exp(base_exp if not ok else exp_gained)
@@ -905,8 +1047,9 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
     r_output = ctx.random_random()
     r_gem_chance = ctx.random_random()
     r_gem_pick = ctx.random_random()
+    expected_success = calculate_mining_success_probability_pure(player_level, ore_spec, pickaxe_spec)
 
-    new_inv, base_exp, ok, _output_item, _gem, _extra_output = apply_mining_action_pure(
+    new_inv, base_exp, ok, output_item, gem, extra_output = apply_mining_action_pure(
         ore,
         player_data.get("inventory", {}),
         ORE_DATA,
@@ -925,6 +1068,18 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
             player_data["ores_mined_today"] = 0
         player_data["ores_mined_today"] += 1
         player_data["inventory"] = new_inv
+        output_items: dict[str, int] = {}
+        for item_name in (output_item, gem, extra_output):
+            if item_name:
+                output_items[item_name] = output_items.get(item_name, 0) + 1
+        _record_action(
+            ctx,
+            "mining",
+            ore,
+            True,
+            expected_success_chance=expected_success,
+            output_items=output_items,
+        )
         exp_gained = ctx.award_skill_exp("mining_exp", base_exp)
         ctx.level_up_check("Mining", player_data)
         ctx.check_achievements(player_data)
@@ -932,6 +1087,9 @@ def handle_mining_answer(ctx: RuntimeActionContext) -> bool:
 
         ctx.refresh_skill_availability()
         ctx.show_exp(exp_gained)
+    else:
+        _record_action(ctx, "mining", ore, False, expected_success_chance=expected_success, failure_kind="dry")
+        ctx.save_player_data()
     return True
 
 

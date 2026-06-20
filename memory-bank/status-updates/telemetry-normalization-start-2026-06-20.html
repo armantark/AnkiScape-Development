@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Telemetry + Review Odds Normalization</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101114;
+      --panel: #171a1f;
+      --panel-2: #20242b;
+      --line: #343a45;
+      --text: #eef1f5;
+      --muted: #aab2c0;
+      --green: #38d485;
+      --blue: #6ab7ff;
+      --gold: #f4c95d;
+      --red: #ff716b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 36px 24px 48px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 28px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 {
+      font-size: 36px;
+      line-height: 1.05;
+      margin-bottom: 14px;
+      letter-spacing: 0;
+    }
+    h2 { font-size: 18px; margin-bottom: 14px; }
+    h3 { font-size: 14px; margin-bottom: 8px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+    p { color: var(--muted); }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .badge {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 13px;
+    }
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 34px;
+      line-height: 1;
+      color: var(--gold);
+      margin-bottom: 8px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-height: 196px;
+    }
+    .card p:last-child { margin-bottom: 0; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .step {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      position: relative;
+    }
+    .step strong {
+      color: var(--blue);
+      display: block;
+      margin-bottom: 8px;
+    }
+    .table {
+      margin-top: 22px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr 0.8fr 1fr;
+      gap: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .row:last-child { border-bottom: 0; }
+    .row > div {
+      padding: 12px 14px;
+      color: var(--muted);
+      min-width: 0;
+    }
+    .row.head > div {
+      color: var(--text);
+      background: #232831;
+      font-weight: 700;
+    }
+    code {
+      color: var(--green);
+      background: #0c1511;
+      border: 1px solid #204f38;
+      border-radius: 4px;
+      padding: 1px 5px;
+      white-space: nowrap;
+    }
+    .note {
+      margin-top: 24px;
+      border-left: 3px solid var(--green);
+      padding: 12px 0 12px 16px;
+      color: var(--text);
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 24px;
+    }
+    .status {
+      color: var(--green);
+      font-weight: 700;
+    }
+    @media (max-width: 860px) {
+      header, .grid, .flow, .split { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+      .row > div { border-bottom: 1px solid var(--line); }
+      .row > div:last-child { border-bottom: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section>
+        <h1>Telemetry for every action, one shared review-odds adapter.</h1>
+        <p>
+          The mackerel/cod/bass row exposed a real observability gap: dry Fishing
+          attempts were valid gameplay but left no saved trace. This slice adds
+          per-action telemetry first, then routes probabilistic skills through
+          the same AnkiScape normalization curve so the add-on feels consistent
+          without copying harsh source tick odds directly.
+        </p>
+        <div class="badge-row">
+          <span class="badge">Backend-first</span>
+          <span class="badge">Undo-aware player data</span>
+          <span class="badge">Source facts preserved</span>
+          <span class="badge">Frontend handoff notes if needed</span>
+        </div>
+      </section>
+      <aside class="metric">
+        <strong>~25%</strong>
+        <p>Current Lv 18 big-net mackerel chance per action tick. One catch in 20 is unlucky but believable, and there is no telemetry today to prove it after the fact.</p>
+      </aside>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>What changes</h2>
+        <p>Each completed review action records attempts, successes, failures, expected successes, dry streaks, and produced outputs under one player-data telemetry key.</p>
+      </article>
+      <article class="card">
+        <h2>What stays source-backed</h2>
+        <p>Mining, Woodcutting, Fishing, Firemaking, Cooking, and Hunter keep their audited source low/high or catch data. The new layer adapts those facts to Anki review cadence.</p>
+      </article>
+      <article class="card">
+        <h2>What stays out</h2>
+        <p>This is not a full balancing UI. I will add durable backend summaries and targeted tests, then leave a clear frontend prompt if a richer stats screen should follow.</p>
+      </article>
+    </section>
+
+    <section class="flow">
+      <div class="step"><strong>1. Normalize</strong><p>Introduce one `normalize_review_success_probability_pure` function and have probabilistic skill helpers call it.</p></div>
+      <div class="step"><strong>2. Record</strong><p>Add pure telemetry helpers and record only real started actions, not level locks or missing-material blocks.</p></div>
+      <div class="step"><strong>3. Verify</strong><p>Unit-test the math and telemetry, then integration-test dry Fishing, productive failure, and deterministic success paths.</p></div>
+      <div class="step"><strong>4. Document</strong><p>Update Memory Bank patterns/progress and add a completion artifact with the before/after odds.</p></div>
+    </section>
+
+    <section class="split">
+      <article class="card">
+        <h3>Backend contract</h3>
+        <p><code>player_data["action_telemetry"]</code> will be the durable store. It should be safe to inspect, migrate, undo, and summarize without special log parsing.</p>
+        <p class="status">Active slice: implement and test this now.</p>
+      </article>
+      <article class="card">
+        <h3>Frontend contract</h3>
+        <p>The frontend can later render telemetry as observed vs expected success, dry streaks, and per-skill action rows. It should consume a pure summary, not duplicate storage math.</p>
+        <p class="status">Handoff only unless the backend diff stays very small.</p>
+      </article>
+    </section>
+
+    <section class="table">
+      <div class="row head">
+        <div>Skill family</div>
+        <div>Telemetry event</div>
+        <div>Expected chance</div>
+        <div>Notes</div>
+      </div>
+      <div class="row">
+        <div>Fishing / Mining / Woodcutting / Hunter</div>
+        <div>One event per action tick</div>
+        <div>Normalized source chance</div>
+        <div>Dry attempts finally persist.</div>
+      </div>
+      <div class="row">
+        <div>Cooking / Firemaking</div>
+        <div>Attempt plus success or burn/dry failure</div>
+        <div>Normalized source chance</div>
+        <div>Burns are failures with an output item.</div>
+      </div>
+      <div class="row">
+        <div>Crafting / Smithing / Fletching / Runecrafting / Utility / Quests</div>
+        <div>One success event after mutation</div>
+        <div>1.0</div>
+        <div>Blocked actions do not count as attempts.</div>
+      </div>
+    </section>
+
+    <p class="note">
+      The balancing intent is to make source-rarity visible without making an Anki card feel like
+      a low-value game tick. The first pass will use the Woodcutting-style adapter as the common
+      baseline, then tests will pin the expected Fishing lift.
+    </p>
+  </main>
+</body>
+</html>

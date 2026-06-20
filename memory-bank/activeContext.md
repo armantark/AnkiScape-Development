@@ -454,6 +454,8 @@ The Smithing frontend handoff is now complete (see the Smithing frontend + asset
 ## Testing Workflow Note
 UI-behavior regressions in the menu/HUD should be exercised with the offscreen Qt loop (`.venv-qt` + `aqt`, `QT_QPA_PLATFORM=offscreen`, see `tests/test_main_menu_widget.py`) before falling back to a manual Anki restart. Enable `ANKISCAPE_DEBUG=1` (or Developer Mode) and tail `ankiscape_debug.log` to read the `hub.*` navigation trace.
 
+Telemetry/normalization baseline completed on 2026-06-20. Backend owns durable `player_data["action_telemetry"]` rows plus the pure summary helper; future Stats/frontend work should consume `summarize_action_telemetry_pure` rather than reimplement observed-vs-expected math. Dry RNG outcomes now save telemetry even when no XP/item state changes, so manual QA should include at least one forced-dry Fishing or Firemaking review and confirm the save key changes.
+
 ## Handoff Notes
 - Backend work means Python game logic, storage, migrations, and tests.
 - Frontend work means Qt dialogs/HUD/menu/stats/bank UX and any injected web UI.

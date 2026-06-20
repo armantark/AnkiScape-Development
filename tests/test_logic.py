@@ -26,6 +26,7 @@ from logic_pure import (
     apply_mining_pure,
     apply_mining_action_pure,
     apply_open_bird_nests_pure,
+    action_telemetry_key_pure,
     best_woodcutting_axe_pure,
     best_mining_pickaxe_pure,
     bank_gear_rows_pure,
@@ -34,8 +35,13 @@ from logic_pure import (
     equip_item_pure,
     unequip_item_pure,
     equipment_stat_totals_pure,
+    normalize_review_success_probability_pure,
+    record_action_telemetry_pure,
+    summarize_action_telemetry_pure,
     calculate_woodcutting_success_probability_pure,
+    woodcutting_source_roll_chance_pure,
     calculate_mining_success_probability_pure,
+    mining_source_roll_chance_pure,
     can_mine_ore_pure,
     can_cut_tree_pure,
     can_craft_item_pure,
@@ -47,6 +53,8 @@ from logic_pure import (
     firemaking_source_roll_chance_pure,
     fishing_source_roll_chance_pure,
     calculate_fishing_success_probability_pure,
+    calculate_hunter_success_probability_pure,
+    hunter_source_roll_chance_pure,
     cooking_source_roll_chance_pure,
     calculate_cooking_success_probability_pure,
     cooking_target_locked_reasons_pure,
@@ -81,6 +89,7 @@ from constants import (
     MINING_PICKAXE_DATA,
     WOODCUTTING_AXE_DATA,
     ORE_DATA,
+    TREE_DATA,
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FISHING_DATA,
@@ -88,9 +97,9 @@ from constants import (
     COOKING_DATA,
     QUEST_DATA,
     QUEST_UNLOCK_RULES,
+    HUNTER_DATA,
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
-    HUNTER_DATA,
     UTILITY_ACTIVITY_DATA,
 )
 
@@ -776,6 +785,72 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, {})
 
+    def test_action_telemetry_records_expected_observed_and_outputs(self):
+        player_data = {}
+
+        record_action_telemetry_pure(
+            player_data,
+            "fishing",
+            "catch_mackerel_cod_bass",
+            False,
+            expected_success_chance=0.4,
+            failure_kind="dry",
+        )
+        record_action_telemetry_pure(
+            player_data,
+            "fishing",
+            "catch_mackerel_cod_bass",
+            True,
+            expected_success_chance=0.4,
+            output_item="Raw mackerel",
+        )
+
+        key = action_telemetry_key_pure("fishing", "catch_mackerel_cod_bass")
+        record = player_data["action_telemetry"]["actions"][key]
+        self.assertEqual(record["attempts"], 2)
+        self.assertEqual(record["successes"], 1)
+        self.assertEqual(record["failures"], 1)
+        self.assertAlmostEqual(record["expected_successes"], 0.8)
+        self.assertEqual(record["current_dry_streak"], 0)
+        self.assertEqual(record["longest_dry_streak"], 1)
+        self.assertEqual(record["outputs"], {"Raw mackerel": 1})
+        self.assertEqual(record["failure_kinds"], {"dry": 1})
+
+        summary = summarize_action_telemetry_pure(player_data)[0]
+        self.assertEqual(summary["key"], key)
+        self.assertAlmostEqual(summary["observed_success_rate"], 0.5)
+        self.assertAlmostEqual(summary["expected_success_rate"], 0.4)
+
+    def test_review_success_normalization_is_shared_for_source_odds(self):
+        mining_target = ORE_DATA["coal"]
+        rune_pickaxe = MINING_PICKAXE_DATA["rune_pickaxe"]
+        woodcutting_target = TREE_DATA["willow"]
+        rune_hatchet = WOODCUTTING_AXE_DATA["rune_hatchet"]
+        crayfish = FISHING_DATA["catch_crayfish"]["fish"][0]
+        kebbit = HUNTER_DATA["catch_wild_kebbit"]
+        shrimps = COOKING_DATA["cook_shrimps"]
+
+        self.assertAlmostEqual(
+            calculate_mining_success_probability_pure(60, mining_target, rune_pickaxe),
+            normalize_review_success_probability_pure(mining_source_roll_chance_pure(60, mining_target, rune_pickaxe)),
+        )
+        self.assertAlmostEqual(
+            calculate_woodcutting_success_probability_pure(60, woodcutting_target, rune_hatchet),
+            normalize_review_success_probability_pure(woodcutting_source_roll_chance_pure(60, woodcutting_target, rune_hatchet)),
+        )
+        self.assertAlmostEqual(
+            calculate_fishing_success_probability_pure(1, crayfish),
+            normalize_review_success_probability_pure(fishing_source_roll_chance_pure(1, crayfish)),
+        )
+        self.assertAlmostEqual(
+            calculate_hunter_success_probability_pure(23, kebbit),
+            normalize_review_success_probability_pure(hunter_source_roll_chance_pure(23, kebbit)),
+        )
+        self.assertAlmostEqual(
+            calculate_cooking_success_probability_pure(1, shrimps),
+            normalize_review_success_probability_pure(cooking_source_roll_chance_pure(1, shrimps)),
+        )
+
     def test_firemaking_source_chance_and_tier_curve(self):
         logs = FIREMAKING_DATA["logs"]
         magic = FIREMAKING_DATA["magic_logs"]
@@ -847,6 +922,8 @@ class TestLogic(unittest.TestCase):
         scaled = calculate_fishing_success_probability_pure(1, crayfish)
         self.assertGreater(scaled, fishing_source_roll_chance_pure(1, crayfish))
         self.assertLessEqual(calculate_fishing_success_probability_pure(99, crayfish), 0.95)
+        mackerel = FISHING_DATA["catch_mackerel_cod_bass"]["fish"][0]
+        self.assertGreater(calculate_fishing_success_probability_pure(18, mackerel), 0.35)
 
     def test_fishing_ordered_rolls_and_bait_consumed_only_on_catch(self):
         inv = {"Fishing bait": 1}

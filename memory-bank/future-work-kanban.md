@@ -17,6 +17,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
+- Review-action telemetry and shared review-odds normalization are complete as of 2026-06-20. Future balancing work should use `player_data["action_telemetry"]` / `summarize_action_telemetry_pure` and tune the shared adapter first, not per-skill one-off Fishing odds.
 - Fletching source integration is complete as of 2026-06-19. Do not re-add the
   old tiered arrow-shaft pilot rows; local 2011Scape only whittles normal logs
   into arrow shafts. Broad arrows/bolts are implemented behind the

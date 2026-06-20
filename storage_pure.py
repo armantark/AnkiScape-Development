@@ -16,6 +16,7 @@ try:
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from .hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
     from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
+    from .logic_pure import default_action_telemetry_pure, sanitize_action_telemetry_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -44,6 +45,7 @@ except ImportError:
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
     from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
+    from logic_pure import default_action_telemetry_pure, sanitize_action_telemetry_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -58,7 +60,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 18
+CURRENT_CONFIG_VERSION = 19
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -112,6 +114,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
     data["hunter_success_count"] = 0
+    data["action_telemetry"] = default_action_telemetry_pure()
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
     data["quests"] = default_quest_states()
@@ -496,6 +499,7 @@ def migrate_loaded_data(
     data.setdefault("cooking_success_count", 0)
     data.setdefault("cooking_burn_count", 0)
     data.setdefault("hunter_success_count", 0)
+    data["action_telemetry"] = sanitize_action_telemetry_pure(data.get("action_telemetry"))
 
     # Progress key retained (not critical)
     data.setdefault("progress_to_next", 0)

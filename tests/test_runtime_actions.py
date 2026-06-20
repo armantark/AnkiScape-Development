@@ -4,21 +4,30 @@ from runtime_actions import (
     RuntimeActionContext,
     answer_handler_for_key,
     can_start_action,
+    handle_cooking_answer,
+    handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
 )
 
 
-def _context(player_data, calls=None):
+def _context(player_data, calls=None, random_values=None):
     calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
+    random_iter = iter(random_values or ())
 
     def award_skill_exp(exp_key, base_exp):
         player_data[exp_key] = player_data.get(exp_key, 0) + base_exp
         return base_exp
 
+    def random_random():
+        try:
+            return next(random_iter)
+        except StopIteration:
+            return 0.0
+
     return RuntimeActionContext(
         player_data=player_data,
-        random_random=lambda: 0.0,
+        random_random=random_random,
         show_error_message=lambda title, message: calls["errors"].append((title, message)),
         deactivate_current_skill=lambda: calls.setdefault("deactivated", True),
         award_skill_exp=award_skill_exp,
@@ -56,6 +65,11 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Logs"], 0)
         self.assertEqual(player_data["inventory"]["Arrow shafts"], 15)
         self.assertAlmostEqual(player_data["fletching_exp"], 5.0)
+        telemetry = player_data["action_telemetry"]["actions"]["fletching:arrow_shafts"]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["outputs"], {"Arrow shafts": 15})
+        self.assertAlmostEqual(telemetry["expected_successes"], 1.0)
         self.assertEqual(calls["xp"], [5.0])
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
@@ -158,6 +172,55 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Hunter target locked")
         self.assertIn("Eagles' Peak", calls["errors"][0][1])
         self.assertTrue(calls["deactivated"])
+
+    def test_fishing_dry_attempt_records_telemetry_and_saves(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "fishing_level": 18,
+            "fishing_exp": 0,
+            "current_fishing": "catch_mackerel_cod_bass",
+            "completed_achievements": [],
+        }
+
+        ok = handle_fishing_answer(_context(player_data, calls, random_values=[1.0]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["fishing_exp"], 0)
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["saves"], 1)
+        telemetry = player_data["action_telemetry"]["actions"]["fishing:catch_mackerel_cod_bass"]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["failures"], 1)
+        self.assertEqual(telemetry["failure_kinds"], {"dry": 1})
+        self.assertGreater(telemetry["expected_successes"], 0.35)
+        self.assertEqual(telemetry["current_dry_streak"], 1)
+
+    def test_cooking_burn_records_failed_attempt_with_output(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Raw shrimps": 1},
+            "cooking_level": 1,
+            "cooking_exp": 0,
+            "current_cooking": "cook_shrimps",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_cooking_answer(_context(player_data, calls, random_values=[1.0]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Raw shrimps"], 0)
+        self.assertEqual(player_data["inventory"]["Burnt shrimp"], 1)
+        self.assertEqual(player_data["cooking_success_count"], 0)
+        self.assertEqual(player_data["cooking_burn_count"], 1)
+        self.assertEqual(calls["saves"], 1)
+        telemetry = player_data["action_telemetry"]["actions"]["cooking:cook_shrimps"]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["failures"], 1)
+        self.assertEqual(telemetry["failure_kinds"], {"burn": 1})
+        self.assertEqual(telemetry["outputs"], {"Burnt shrimp": 1})
 
 
 if __name__ == "__main__":

@@ -83,6 +83,7 @@ class TestStoragePure(unittest.TestCase):
             "cooking_success_count",
             "cooking_burn_count",
             "hunter_success_count",
+            "action_telemetry",
             "quests",
             "quest_points",
             "pending_skill_exp_rewards",
@@ -107,6 +108,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["current_runecrafting"], "craft_air_runes")
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
         self.assertEqual(data["hunter_success_count"], 0)
+        self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(data["current_quest"], "rune_mysteries")
         self.assertEqual(data["quest_points"], 0)
         self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
@@ -187,6 +189,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_runecrafting"], "craft_air_runes")
         self.assertEqual(migrated["current_hunter"], "catch_crimson_swift")
         self.assertEqual(migrated["hunter_success_count"], 0)
+        self.assertEqual(migrated["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(migrated["current_quest"], "rune_mysteries")
         self.assertEqual(migrated["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
         self.assertIn("swan_song", migrated["quests"])
@@ -201,6 +204,35 @@ class TestStoragePure(unittest.TestCase):
             self.assertIn(ore, migrated["inventory"])  # completed
         # Version bumped
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
+
+    def test_migrate_preserves_existing_action_telemetry_rows(self):
+        migrated = migrate_loaded_data(
+            {
+                "action_telemetry": {
+                    "version": 1,
+                    "actions": {
+                        "fishing:catch_mackerel_cod_bass": {
+                            "skill_id": "fishing",
+                            "action_id": "catch_mackerel_cod_bass",
+                            "attempts": 3,
+                            "successes": 1,
+                            "failures": 2,
+                            "expected_successes": 1.2,
+                            "current_dry_streak": 2,
+                            "longest_dry_streak": 2,
+                            "outputs": {"Raw mackerel": 1},
+                            "failure_kinds": {"dry": 2},
+                        }
+                    },
+                }
+            },
+            ORE_DATA,
+        )
+
+        telemetry = migrated["action_telemetry"]["actions"]["fishing:catch_mackerel_cod_bass"]
+        self.assertEqual(telemetry["attempts"], 3)
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["outputs"], {"Raw mackerel": 1})
 
     def test_migrate_can_seed_registered_items_without_losing_custom_entries(self):
         migrated = migrate_loaded_data(
