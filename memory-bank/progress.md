@@ -32,6 +32,7 @@
 - Fishing v1 is in place: source-backed `fishing_data.py`, stable `current_fishing` method IDs, storage config version 13 migration/defaults, review-scale catch chances, ordered mixed-output rolls, success-only material consumption, hidden Strength/Agility side XP for Barbarian fish, generic Fishing achievements, dedicated fish/material assets, a `fish` item category, and Gathering hub/Stats/Bank/HUD support.
 - Cooking v1 is in place: source-backed `cooking_data.py`, stable `current_cooking` target IDs, storage config version 14 migration/defaults, review-scale cook/burn chances, burn failures that consume raw inputs and produce burnt items, generic Cooking achievements, beef/bear sinew secondary targets, dedicated Cooking assets, a `food` item category, grouped Cooking target UI, grouped Utility/Activities prep UI, and confirmed Bank `Discard all` for every item.
 - Runecrafting v1 is in place: source-backed `runecrafting_data.py`, stable `current_runecrafting` target IDs, storage config version 15 migration/defaults, Rune Mysteries quest unlock with 250 Runecrafting XP, standard/combination rune crafting, tiara binding, Wicked hood claim/feed access with no Runecrafting level claim gate, pouch capacity/degradation, Binding necklace charge counter, achievements, dedicated assets, a `runecrafting` item category, grouped Runecrafting target UI, Quests tab, Bank Claims, Stats/Bank/HUD support, action multiplier support, and undo rollback.
+- Hunter v1 is in place: source-backed `hunter_data.py`, stable `current_hunter` target IDs, storage config version 18 migration/defaults, bird snaring, butterfly netting, deadfall, box trapping, net trapping, falconry, magic box, and Puro-Puro/world impling rows, generic Hunter achievements, dedicated assets, a `hunter` item category, grouped Hunter target UI, quest/route-precedent locks, Stats/Bank/HUD support, action multiplier support, and undo rollback.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -56,6 +57,7 @@
 - Fishing Dungeoneering fish, Fishing Trawler outputs, quest-only fish, Fish Flingers, and a real shop/GE material economy; they are intentionally deferred as separate systems rather than folded into ordinary Fishing v1.
 - Cooking follow-ups that need broader systems: cleaner Farming/Combat/shop/GE acquisition routes for some prep ingredients, and any recipe families not represented in the local `CookingData.kt` table.
 - Runecrafting follow-ups that need broader systems: Magic Imbue, Wicked hood daily essence/runes/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes.
+- Hunter follow-ups that need broader systems: tracking trails, pitfall trapping, rabbit snaring, barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and richer partial-route modeling for Regicide-start content.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -296,6 +298,24 @@ mid-quest completion blockers. Verification: `python3 run_tests.py` passed with
 366 tests (88 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 366 tests.
 
+Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
+skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
+butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,
+and both Puro-Puro/world impling rows. The local 2011Scape cache supplied
+canonical item names and ids, while 2011.rs guide rows supplied levels/XP and
+local 2012scape/Darkan Hunter code supplied mechanics/id parity where the local
+2011Scape checkout has no Hunter plugin. The implementation adds stable
+`current_hunter` IDs, storage config version 18, review-scale Hunter success
+probabilities, success-only material consumption, `hunter_success_count`
+achievements, Hunter item/icon registration, quest locks for Eagles' Peak, As a
+First Resort, Rocking Out, and Priest in Peril route precedent, grouped Hunter
+target UI, Stats/Bank/HUD support, action multiplier support, and undo
+rollback. Deferred Hunter systems are recorded in
+`memory-bank/source-audits/hunter-2011scape-2026-06-20.md`. Verification:
+`python3 run_tests.py` passed with 374 tests (89 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 374 tests.
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
@@ -309,6 +329,10 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Firemaking-specific follow-up: bonfires/fire spirits, only if explicitly prioritized.
 - Cooking follow-ups: broader source-backed acquisition routes for remaining prep materials, only if explicitly prioritized.
 - Runecrafting follow-ups: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes, only if explicitly prioritized.
+- Hunter follow-ups: tracking trails, pitfall trapping, rabbit snaring,
+  barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
+  partial-route modeling for Regicide-start content, only if explicitly
+  prioritized.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
   records the completed 194-row pre-EOC catalog, implemented completion gates,
   route-precedent locks, the RFD subquest split, generated item/lamp rewards,

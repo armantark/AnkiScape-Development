@@ -17,6 +17,8 @@ from constants import (
     COOKING_OUTPUT_ITEMS,
     FLETCHING_DATA,
     GEM_DATA,
+    HUNTER_DATA,
+    HUNTER_OUTPUT_ITEMS,
     ITEM_DEFINITIONS,
     MINING_OUTPUT_ITEMS,
     ORE_DATA,
@@ -43,6 +45,7 @@ class TestStoragePure(unittest.TestCase):
             "fishing_level",
             "cooking_level",
             "runecrafting_level",
+            "hunter_level",
             "mining_exp",
             "woodcutting_exp",
             "smithing_exp",
@@ -52,12 +55,14 @@ class TestStoragePure(unittest.TestCase):
             "fishing_exp",
             "cooking_exp",
             "runecrafting_exp",
+            "hunter_exp",
             "current_craft",
             "current_fletch",
             "current_firemaking",
             "current_fishing",
             "current_cooking",
             "current_runecrafting",
+            "current_hunter",
             "current_utility",
             "current_quest",
             "current_ore",
@@ -77,6 +82,7 @@ class TestStoragePure(unittest.TestCase):
             "constitution_level",
             "cooking_success_count",
             "cooking_burn_count",
+            "hunter_success_count",
             "quests",
             "quest_points",
             "pending_skill_exp_rewards",
@@ -99,6 +105,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["agility_exp"], 0)
         self.assertEqual(data["constitution_level"], 10)
         self.assertEqual(data["current_runecrafting"], "craft_air_runes")
+        self.assertEqual(data["current_hunter"], "catch_crimson_swift")
+        self.assertEqual(data["hunter_success_count"], 0)
         self.assertEqual(data["current_quest"], "rune_mysteries")
         self.assertEqual(data["quest_points"], 0)
         self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
@@ -121,6 +129,11 @@ class TestStoragePure(unittest.TestCase):
             if material not in WOODCUTTING_LOG_ITEMS
         ]
         utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values() if "output_item" in spec]
+        hunter_materials = [
+            material
+            for spec in HUNTER_DATA.values()
+            for material in spec.get("requirements", {})
+        ]
         for item_name in (
             list(MINING_OUTPUT_ITEMS)
             + list(WOODCUTTING_LOG_ITEMS)
@@ -137,6 +150,8 @@ class TestStoragePure(unittest.TestCase):
             + list(RUNECRAFTING_OUTPUT_ITEMS)
             + list(RUNECRAFTING_ACCESS_ITEMS)
             + list(RUNECRAFTING_EXTRA_ITEM_DATA)
+            + list(HUNTER_OUTPUT_ITEMS)
+            + hunter_materials
         ):
             self.assertIn(item_name, data["inventory"])
             self.assertEqual(data["inventory"][item_name], 0)
@@ -153,6 +168,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("woodcutting_exp", migrated)
         self.assertIn("smithing_exp", migrated)
         self.assertIn("crafting_exp", migrated)
+        self.assertIn("hunter_exp", migrated)
         # Ensure smithing/crafting defaults
         self.assertEqual(migrated["smithing_level"], 1)
         self.assertEqual(migrated["crafting_level"], 1)
@@ -162,6 +178,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_fishing"], "catch_crayfish")
         self.assertEqual(migrated["current_cooking"], "cook_shrimps")
         self.assertEqual(migrated["current_runecrafting"], "craft_air_runes")
+        self.assertEqual(migrated["current_hunter"], "catch_crimson_swift")
+        self.assertEqual(migrated["hunter_success_count"], 0)
         self.assertEqual(migrated["current_quest"], "rune_mysteries")
         self.assertEqual(migrated["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
         self.assertIn("swan_song", migrated["quests"])
@@ -199,6 +217,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Binding necklace", migrated["inventory"])
         self.assertIn("Wicked hood", migrated["inventory"])
         self.assertIn("Dramen staff", migrated["inventory"])
+        self.assertIn("Red feather", migrated["inventory"])
+        self.assertIn("Impling jar", migrated["inventory"])
+        self.assertIn("Imp-in-a-box (2)", migrated["inventory"])
         self.assertIn("Coins", migrated["inventory"])
         self.assertIn("Soft clay", migrated["inventory"])
         self.assertIn("Ashes", migrated["inventory"])
@@ -297,6 +318,21 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Shrimps", migrated["inventory"])
         self.assertIn("Burnt shrimp", migrated["inventory"])
         self.assertEqual(COOKING_DATA["cook_shrimps"]["output_item"], "Shrimps")
+
+    def test_migrate_hunter_target_to_stable_default_and_seeds_items(self):
+        migrated = migrate_loaded_data(
+            {"current_hunter": "Not a creature", "inventory": {"Mystery catch": 3}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["current_hunter"], "catch_crimson_swift")
+        self.assertEqual(migrated["inventory"]["Mystery catch"], 3)
+        self.assertIn("Red feather", migrated["inventory"])
+        self.assertIn("Butterfly jar", migrated["inventory"])
+        self.assertIn("Impling jar", migrated["inventory"])
+        self.assertIn("Imp-in-a-box (2)", migrated["inventory"])
+        self.assertEqual(HUNTER_DATA["catch_crimson_swift"]["output_item"], "Red feather")
 
     def test_migrate_legacy_woodcutting_target_and_logs(self):
         migrated = migrate_loaded_data(

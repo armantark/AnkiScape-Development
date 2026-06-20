@@ -14,6 +14,7 @@ try:
     from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
+    from .hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
     from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
@@ -41,6 +42,7 @@ except ImportError:
     from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
+    from hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
     from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
@@ -56,7 +58,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 17
+CURRENT_CONFIG_VERSION = 18
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -109,6 +111,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["current_quest"] = DEFAULT_QUEST_TARGET
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
+    data["hunter_success_count"] = 0
     data["toolbelt"] = _default_toolbelt()
     data["equipment"] = {}
     data["quests"] = default_quest_states()
@@ -206,6 +209,13 @@ def _migrate_fishing_target(data: Dict[str, Any]) -> None:
     if not isinstance(current_fishing, str) or current_fishing not in FISHING_METHODS_BY_ID:
         current_fishing = DEFAULT_FISHING_TARGET
     data["current_fishing"] = current_fishing
+
+
+def _migrate_hunter_target(data: Dict[str, Any]) -> None:
+    current_hunter = data.get("current_hunter")
+    if not isinstance(current_hunter, str) or current_hunter not in HUNTER_TARGETS_BY_ID:
+        current_hunter = DEFAULT_HUNTER_TARGET
+    data["current_hunter"] = current_hunter
 
 
 def _migrate_cooking_target(data: Dict[str, Any]) -> None:
@@ -458,6 +468,7 @@ def migrate_loaded_data(
     _migrate_fletching_target(data)
     _migrate_firemaking_target(data)
     _migrate_fishing_target(data)
+    _migrate_hunter_target(data)
     _migrate_cooking_target(data)
     _migrate_runecrafting_target(data)
     _migrate_quest_state(data)
@@ -484,6 +495,7 @@ def migrate_loaded_data(
     data.setdefault("completed_achievements", [])
     data.setdefault("cooking_success_count", 0)
     data.setdefault("cooking_burn_count", 0)
+    data.setdefault("hunter_success_count", 0)
 
     # Progress key retained (not critical)
     data.setdefault("progress_to_next", 0)

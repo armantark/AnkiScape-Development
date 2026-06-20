@@ -1,6 +1,6 @@
 # Future Work Kanban
 
-Status: 2026-06-19
+Status: 2026-06-20
 
 Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
 
@@ -23,6 +23,12 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   excluded unless a future audit finds live source evidence for the specific
   action and owner skill.
 - Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
+- Hunter v1 is complete as a separate Gathering skill-expansion thread. The
+  local 2011Scape cache/snapshot supplied item names/ids, but not a local Hunter
+  mechanics plugin, so v1 uses 2011.rs guide rows plus local 2012scape/Darkan
+  mechanics/id parity. Tracking trails, pitfall trapping, rabbit snaring,
+  barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
+  Regicide-start partial-route modeling are deferred system slices.
 - Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18 and Quests-tab availability filters added on 2026-06-19. Do not redo the priority gates, the 194-row catalog, or the completed filter surface; use `memory-bank/quest-unlock-audit-2026-06-17.md` for the current implementation status and for future route/location or stage-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
@@ -72,7 +78,8 @@ difficulty grouping, and progress helpers; `__init__.py` keeps hooks, global
 state, undo snapshots, UI/save callbacks, and thin compatibility wrappers.
 Verification passed with `python3 run_tests.py` at 352 tests (84 skipped) and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` at
-352 tests.
+352 tests. Hunter was added later and now also participates in the same
+runtime, target-row, achievement, item, and skill-registry patterns.
 
 Future thread prompt:
 

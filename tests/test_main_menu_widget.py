@@ -36,7 +36,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "fishing", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting"):
+    for skill in ("mining", "woodcutting", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -44,6 +44,7 @@ def _make_player_data() -> dict:
     # couldn't be exercised. Mirror that seed so Woodcutting and Mining rows unlock.
     data["toolbelt"] = {"woodcutting": ["bronze_hatchet"], "mining": ["bronze_pickaxe"]}
     data["equipment"] = {}
+    data["current_hunter"] = "catch_crimson_swift"
     data["current_runecrafting"] = "craft_air_runes"
     data["current_quest"] = "rune_mysteries"
     data["quests"] = default_quest_states()
@@ -60,7 +61,7 @@ def _panel_title(dialog: "QDialog") -> str:
 
     The header is the QLabel styled bold/large that reads e.g. "Woodcutting — Lv 33".
     """
-    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting)(\s+—\s+Lv\s+\d+)?$")
+    pattern = re.compile(r"^(Mining|Woodcutting|Fishing|Hunter|Smithing|Crafting|Fletching|Firemaking|Cooking|Runecrafting)(\s+—\s+Lv\s+\d+)?$")
     for lbl in dialog.findChildren(QLabel):
         text = lbl.text()
         if pattern.match(text):
@@ -209,6 +210,36 @@ def _fletching_group_node(tree: "QTreeWidget", group: str) -> "QTreeWidgetItem":
         if tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole) == role:
             return tree.topLevelItem(i)
     raise AssertionError(f"fletching group node {group!r} not found")
+
+
+def _find_hunter_tree(dialog: "QDialog") -> "QTreeWidget":
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == "catch_crimson_swift" for it in _tree_items(tw)):
+            return tw
+    raise AssertionError("hunter tree (with target ids) not found")
+
+
+def _hunter_row(tree: "QTreeWidget", target_id: str) -> "QTreeWidgetItem":
+    for it in _tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == target_id:
+            return it
+    raise AssertionError(f"hunter row {target_id!r} not found")
+
+
+def _hunter_group_node(tree: "QTreeWidget", group: str) -> "QTreeWidgetItem":
+    role = f"__hunter_group__:{group}"
+    for i in range(tree.topLevelItemCount()):
+        if tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole) == role:
+            return tree.topLevelItem(i)
+    raise AssertionError(f"hunter group node {group!r} not found")
+
+
+def _goto_hunter(dialog: "QDialog") -> "QTreeWidget":
+    skill_list = _find_skill_list(dialog)
+    row = next(i for i in range(skill_list.count()) if skill_list.item(i).text() == "Hunter")
+    skill_list.setCurrentRow(row)
+    QApplication.processEvents()
+    return _find_hunter_tree(dialog)
 
 
 def _craft_row(tree: "QTreeWidget", recipe_id: str) -> "QTreeWidgetItem":
@@ -383,6 +414,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._firemaking_calls: list = []
         # Same seam for Fishing target selection.
         self._fishing_calls: list = []
+        # Same seam for Hunter target selection.
+        self._hunter_calls: list = []
         # Same seam for Cooking target selection.
         self._cooking_calls: list = []
         # Same seam for Runecrafting target selection.
@@ -422,6 +455,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_fletch=lambda *a: None,
             on_set_firemaking=lambda target: self._firemaking_calls.append(target),
             on_set_fishing=lambda target: self._fishing_calls.append(target),
+            on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
@@ -447,12 +481,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/34 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/37 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/105 (1.9%)", labels)
+        self.assertIn("Completed: 2/113 (1.8%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)
@@ -551,6 +585,52 @@ class MainMenuWidgetTest(unittest.TestCase):
         target_list.itemClicked.emit(leaping_row)
         QApplication.processEvents()
         self.assertEqual(self._fishing_calls, [])
+
+    def test_hunter_is_selectable_and_shows_grouped_source_targets(self) -> None:
+        pd = _make_player_data()
+        pd["hunter_level"] = 99
+        pd["inventory"] = {"Logs": 1, "Impling jar": 1}
+        pd["current_hunter"] = "catch_wild_kebbit"
+        dialog = self._open(pd)
+        tree = _goto_hunter(dialog)
+
+        title = _panel_title(dialog)
+        self.assertTrue(
+            title.startswith("Hunter"),
+            f"panel did not switch to Hunter; still shows {title!r}",
+        )
+        group_roles = [
+            tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole)
+            for i in range(tree.topLevelItemCount())
+        ]
+        self.assertIn("__hunter_group__:bird_snaring", group_roles)
+        self.assertIn("__hunter_group__:deadfall", group_roles)
+        self.assertIn("__hunter_group__:impling_world", group_roles)
+        self.assertEqual(_hunter_group_node(tree, "deadfall").text(0), "Deadfall  (4)")
+
+        wild = _hunter_row(tree, "catch_wild_kebbit")
+        ferret = _hunter_row(tree, "catch_ferret")
+        pirate = _hunter_row(tree, "catch_pirate_impling_world")
+        self.assertIs(wild, tree.currentItem())
+        self.assertFalse(wild.isDisabled())
+        self.assertFalse(wild.icon(0).isNull(), "Hunter target row has no icon")
+        self.assertIn("Outputs: Bones x1, Kebbit claws x1", wild.toolTip(0))
+        self.assertIn("Base XP: 128.0 per successful catch", wild.toolTip(0))
+        self.assertIn("Success chance:", wild.toolTip(0))
+        self.assertIn("Logs x1 (you have 1)", wild.toolTip(0))
+        self.assertTrue(ferret.isDisabled())
+        self.assertIn("Eagles' Peak", ferret.toolTip(0))
+        self.assertTrue(pirate.isDisabled())
+        self.assertIn("Rocking Out", pirate.toolTip(0))
+
+        before = list(self._hunter_calls)
+        tree.itemClicked.emit(ferret, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._hunter_calls, before, "quest-locked hunter target must not be selectable")
+
+        tree.itemClicked.emit(wild, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._hunter_calls[-1], "catch_wild_kebbit")
 
     def test_switching_category_then_selecting_crafting_updates_panel(self) -> None:
         # The user reported the same stale-panel bug under Artisan -> Crafting,

@@ -75,6 +75,9 @@ try:
         FLETCHING_GROUP_ORDER,
         FIREMAKING_DATA,
         FISHING_DATA,
+        HUNTER_DATA,
+        HUNTER_GROUP_LABELS,
+        HUNTER_GROUP_ORDER,
         RUNECRAFTING_DATA,
         RUNECRAFTING_POUCH_DATA,
         QUEST_DATA,
@@ -87,6 +90,7 @@ try:
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_HUNTER_TARGET,
         DEFAULT_COOKING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
@@ -98,6 +102,7 @@ try:
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
+        HUNTER_ITEM_IMAGES,
         COOKING_ITEM_IMAGES,
         RUNECRAFTING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
@@ -131,6 +136,9 @@ except Exception:
         FLETCHING_GROUP_ORDER,
         FIREMAKING_DATA,
         FISHING_DATA,
+        HUNTER_DATA,
+        HUNTER_GROUP_LABELS,
+        HUNTER_GROUP_ORDER,
         RUNECRAFTING_DATA,
         RUNECRAFTING_POUCH_DATA,
         QUEST_DATA,
@@ -143,6 +151,7 @@ except Exception:
         UTILITY_ACTIVITY_DATA,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_HUNTER_TARGET,
         DEFAULT_COOKING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
@@ -154,6 +163,7 @@ except Exception:
         FLETCHED_ITEM_IMAGES,
         FIREMAKING_ITEM_IMAGES,
         FISHING_ITEM_IMAGES,
+        HUNTER_ITEM_IMAGES,
         COOKING_ITEM_IMAGES,
         RUNECRAFTING_ITEM_IMAGES,
         UTILITY_ITEM_IMAGES,
@@ -163,10 +173,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -207,6 +217,7 @@ try:
         firemaking_target_rows,
         fishing_target_rows,
         fletching_target_rows,
+        hunter_target_rows,
         mining_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
@@ -221,6 +232,7 @@ except Exception:
         firemaking_target_rows,
         fishing_target_rows,
         fletching_target_rows,
+        hunter_target_rows,
         mining_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
@@ -252,6 +264,7 @@ _MAIN_MENU_CTX = {
     "craft_btn": None,
     "fletch_btn": None,
     "firemaking_btn": None,
+    "hunter_btn": None,
     "cooking_btn": None,
     "runecrafting_btn": None,
     "warn_label": None,
@@ -264,7 +277,7 @@ _MAIN_MENU_CTX = {
 # four-skill branch. Icons follow the existing convention: icon/<skill_id>_icon.png.
 
 # Bank grouping order + labels. Categories come from item_registry.ItemCategory.
-_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "runecrafting", "material", "equipment", "smithed", "tool")
+_ITEM_CATEGORY_ORDER = ("ore", "log", "fish", "food", "gem", "bar", "crafted", "fletched", "hunter", "runecrafting", "material", "equipment", "smithed", "tool")
 _ITEM_CATEGORY_LABELS = {
     "ore": "Ores",
     "log": "Logs",
@@ -274,6 +287,7 @@ _ITEM_CATEGORY_LABELS = {
     "bar": "Bars",
     "crafted": "Crafted",
     "fletched": "Fletched",
+    "hunter": "Hunter",
     "runecrafting": "Runecrafting",
     "material": "Materials",
     "equipment": "Equipment",
@@ -718,6 +732,7 @@ def refresh_skill_availability(
     can_craft_any_item: bool,
     can_fletch_any_item: bool = False,
     can_firemake_any_item: bool = False,
+    can_hunt_any_item: bool = False,
     can_cook_any_item: bool = False,
     can_runecraft_any_item: bool = False,
 ):
@@ -748,6 +763,11 @@ def refresh_skill_availability(
         if fm_btn is not None and can_firemake_any_item and not fm_btn.isEnabled():
             fm_btn.setEnabled(True)
             fm_btn.setToolTip("Firemaking")
+        # Hunter
+        h_btn = _MAIN_MENU_CTX.get("hunter_btn")
+        if h_btn is not None and can_hunt_any_item and not h_btn.isEnabled():
+            h_btn.setEnabled(True)
+            h_btn.setToolTip("Hunter")
         # Cooking
         cook_btn = _MAIN_MENU_CTX.get("cooking_btn")
         if cook_btn is not None and can_cook_any_item and not cook_btn.isEnabled():
@@ -764,6 +784,7 @@ def refresh_skill_availability(
             or (c_btn is not None and c_btn.isEnabled())
             or (f_btn is not None and f_btn.isEnabled())
             or (fm_btn is not None and fm_btn.isEnabled())
+            or (h_btn is not None and h_btn.isEnabled())
             or (cook_btn is not None and cook_btn.isEnabled())
             or (rc_btn is not None and rc_btn.isEnabled())
         ):
@@ -830,6 +851,7 @@ _SKILL_TARGET_TABLES = {
     "fletching": FLETCHING_DATA,
     "firemaking": FIREMAKING_DATA,
     "fishing": FISHING_DATA,
+    "hunter": HUNTER_DATA,
     "cooking": COOKING_DATA,
     "runecrafting": RUNECRAFTING_DATA,
 }
@@ -1412,6 +1434,7 @@ def show_main_menu(
     on_set_fletch=None,
     on_set_firemaking=None,
     on_set_fishing=None,
+    on_set_hunter=None,
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_utility=None,
@@ -1533,6 +1556,15 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _hunter_available() -> bool:
+        try:
+            return any(
+                not hunter_target_locked_reasons_pure(player_data, target, HUNTER_DATA, QUEST_UNLOCK_RULES)
+                for target in HUNTER_DATA
+            )
+        except Exception:
+            return False
+
     def _cooking_available() -> bool:
         try:
             return any(
@@ -1557,6 +1589,8 @@ def show_main_menu(
             return _fletch_available()
         if display_name == "Firemaking":
             return _firemaking_available()
+        if display_name == "Hunter":
+            return _hunter_available()
         if display_name == "Cooking":
             return _cooking_available()
         if display_name == "Runecrafting":
@@ -1588,6 +1622,9 @@ def show_main_menu(
             return
         if display_name == "Firemaking" and not _firemaking_available():
             warn.setText("You can't burn anything yet. Cut or acquire logs first!")
+            return
+        if display_name == "Hunter" and not _hunter_available():
+            warn.setText("You can't hunt anything yet. Gather jars/materials, complete unlocks, or level up first!")
             return
         if display_name == "Runecrafting" and not _runecrafting_available():
             warn.setText("You can't runecraft anything yet. Complete Rune Mysteries and gather access items first!")
@@ -1829,6 +1866,21 @@ def show_main_menu(
             on_set_fishing,
         )
 
+    def _build_hunter_list() -> QTreeWidget:
+        return _build_grouped_target_tree(
+            hunter_target_rows(
+                player_data,
+                HUNTER_DATA,
+                HUNTER_ITEM_IMAGES,
+                DEFAULT_HUNTER_TARGET,
+                QUEST_UNLOCK_RULES,
+            ),
+            HUNTER_GROUP_LABELS,
+            "__hunter_group__:",
+            on_set_hunter,
+            group_order=list(HUNTER_GROUP_ORDER),
+        )
+
     def _build_cooking_list() -> QTreeWidget:
         images = dict(COOKING_ITEM_IMAGES)
         images.update(_item_asset_paths())
@@ -1946,6 +1998,7 @@ def show_main_menu(
         "Fletching": _build_fletch_list,
         "Firemaking": _build_firemaking_list,
         "Fishing": _build_fishing_list,
+        "Hunter": _build_hunter_list,
         "Cooking": _build_cooking_list,
         "Runecrafting": _build_runecrafting_list,
         _UTILITY_HUB_NAME: _build_utility_list,
@@ -1958,6 +2011,7 @@ def show_main_menu(
         "Fletching": "Select Item to Fletch",
         "Firemaking": "Select Logs to Burn",
         "Fishing": "Select Fish to Catch",
+        "Hunter": "Select Creature to Hunt",
         "Cooking": "Select Food to Cook",
         "Runecrafting": "Select Runecrafting Action",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
@@ -2091,6 +2145,7 @@ def show_main_menu(
         _MAIN_MENU_CTX["craft_btn"] = None
         _MAIN_MENU_CTX["fletch_btn"] = None
         _MAIN_MENU_CTX["firemaking_btn"] = None
+        _MAIN_MENU_CTX["hunter_btn"] = None
         _MAIN_MENU_CTX["cooking_btn"] = None
         _MAIN_MENU_CTX["runecrafting_btn"] = None
         name = state["skill"]
@@ -2152,6 +2207,8 @@ def show_main_menu(
                         train_btn.setToolTip("Cut logs or level up to fletch an item.")
                     elif name == "Firemaking":
                         train_btn.setToolTip("Cut or acquire logs before training Firemaking.")
+                    elif name == "Hunter":
+                        train_btn.setToolTip("Gather jars/materials, complete unlocks, or level up before training Hunter.")
                     elif name == "Cooking":
                         train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
                     elif name == "Runecrafting":
@@ -2166,6 +2223,8 @@ def show_main_menu(
                 _MAIN_MENU_CTX["fletch_btn"] = train_btn
             elif name == "Firemaking":
                 _MAIN_MENU_CTX["firemaking_btn"] = train_btn
+            elif name == "Hunter":
+                _MAIN_MENU_CTX["hunter_btn"] = train_btn
             elif name == "Cooking":
                 _MAIN_MENU_CTX["cooking_btn"] = train_btn
             elif name == "Runecrafting":
@@ -2245,6 +2304,7 @@ def show_main_menu(
                     "craft_btn": None,
                     "fletch_btn": None,
                     "firemaking_btn": None,
+                    "hunter_btn": None,
                     "cooking_btn": None,
                     "runecrafting_btn": None,
                     "warn_label": None,

@@ -1705,6 +1705,106 @@ def apply_fishing_action_pure(
     return inventory, 0, False, None, tuple()
 
 
+def _hunter_outputs_from_spec(spec):
+    raw_outputs = spec.get("outputs", {})
+    if isinstance(raw_outputs, Mapping):
+        return {
+            str(item): _positive_int(amount, 1)
+            for item, amount in raw_outputs.items()
+            if isinstance(item, str) and item
+        }
+    output_item = spec.get("output_item")
+    if isinstance(output_item, str) and output_item:
+        return {output_item: _positive_int(spec.get("output_qty", 1), 1)}
+    return {}
+
+
+def hunter_source_roll_chance_pure(hunter_level, target_spec):
+    """Approximate Darkan/2011-style Hunter catch odds before Anki pacing."""
+    if bool(target_spec.get("deterministic", False)):
+        return 1.0
+    low = float(target_spec.get("rate1", 128))
+    high = float(target_spec.get("rate99", 256))
+    level_progress = max(0.0, min((float(hunter_level) - 1.0) / 98.0, 1.0))
+    interpolated = low + ((high - low) * level_progress)
+    return max(0.0, min(interpolated / 256.0, 1.0))
+
+
+def calculate_hunter_success_probability_pure(hunter_level, target_spec, minimum=0.10, scale=0.70, cap=0.95):
+    """Translate source Hunter odds into one review-scale success probability."""
+    if bool(target_spec.get("deterministic", False)):
+        return 1.0
+    source_chance = hunter_source_roll_chance_pure(hunter_level, target_spec)
+    return max(0.0, min(minimum + (sqrt(source_chance) * scale), cap))
+
+
+def has_hunter_materials_pure(target, inventory, hunter_data):
+    """Return True when inventory satisfies a Hunter target's consumable needs."""
+    spec = hunter_data.get(target)
+    if not spec:
+        return False
+    requirements = spec.get("requirements", {})
+    if not isinstance(requirements, Mapping):
+        return True
+    for material, amount in requirements.items():
+        if inventory.get(material, 0) < _positive_int(amount, 1):
+            return False
+    return True
+
+
+def hunter_target_locked_reasons_pure(player_data, target, hunter_data, quest_unlock_rules=()):
+    spec = hunter_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    hunter_level = _positive_int(player_data.get("hunter_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if hunter_level < required_level:
+        reasons.append(f"Hunter level {required_level}")
+    if not has_hunter_materials_pure(target, player_data.get("inventory", {}) or {}, hunter_data):
+        reasons.append("materials")
+    reasons.extend(
+        quest_unlock_locked_reasons_pure(
+            player_data,
+            "hunter",
+            target,
+            quest_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
+
+
+def can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
+    spec = hunter_data.get(target)
+    if not spec:
+        return False
+    if hunter_level < _positive_int(spec.get("level", 1), 1):
+        return False
+    return has_hunter_materials_pure(target, inventory, hunter_data)
+
+
+def apply_hunter_action_pure(target, inventory, hunter_data, hunter_level, r_action):
+    """Apply one Hunter attempt and return inventory, XP, success, output, rewards."""
+    spec = hunter_data.get(target)
+    if not spec or not can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
+        return inventory, 0, False, None, tuple()
+    success_probability = calculate_hunter_success_probability_pure(hunter_level, spec)
+    if float(r_action) >= success_probability:
+        return inventory, 0, False, None, tuple()
+
+    new_inv = dict(inventory)
+    requirements = spec.get("requirements", {})
+    if isinstance(requirements, Mapping):
+        for material, amount in requirements.items():
+            new_inv[material] = new_inv.get(material, 0) - _positive_int(amount, 1)
+    outputs = _hunter_outputs_from_spec(spec)
+    for item_name, amount in outputs.items():
+        new_inv[item_name] = new_inv.get(item_name, 0) + amount
+    primary_output = spec.get("primary_output") or spec.get("output_item")
+    xp_rewards = normalize_xp_rewards_pure(spec, "hunter", spec.get("exp", 0))
+    return new_inv, primary_xp_reward_amount_pure(xp_rewards, "hunter"), True, primary_output, xp_rewards
+
+
 def can_open_bird_nests_pure(inventory, nest_open_tables):
     return any(inventory.get(input_item, 0) > 0 for input_item in nest_open_tables)
 

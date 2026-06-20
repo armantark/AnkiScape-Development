@@ -5,6 +5,7 @@ from runtime_actions import (
     answer_handler_for_key,
     can_start_action,
     handle_fletching_answer,
+    handle_hunter_answer,
 )
 
 
@@ -61,6 +62,7 @@ class TestRuntimeActions(unittest.TestCase):
 
     def test_handler_key_registry_and_readiness_share_runtime_module(self):
         self.assertIs(answer_handler_for_key("fletching"), handle_fletching_answer)
+        self.assertIs(answer_handler_for_key("hunter"), handle_hunter_answer)
 
         player_data = {
             "inventory": {"Logs": 1},
@@ -72,6 +74,16 @@ class TestRuntimeActions(unittest.TestCase):
         player_data["inventory"] = {}
         self.assertFalse(can_start_action(_context(player_data), "fletching"))
         self.assertTrue(can_start_action(_context(player_data), "unknown"))
+
+        hunter_data = {
+            "inventory": {"Logs": 1},
+            "hunter_level": 23,
+            "current_hunter": "catch_wild_kebbit",
+        }
+        self.assertTrue(can_start_action(_context(hunter_data), "hunter"))
+
+        hunter_data["inventory"] = {}
+        self.assertFalse(can_start_action(_context(hunter_data), "hunter"))
 
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
@@ -102,6 +114,50 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Broad arrows"], 15)
         self.assertAlmostEqual(player_data["fletching_exp"], 150.0)
         self.assertEqual(calls["xp"], [150.0])
+
+    def test_hunter_handler_consumes_materials_and_awards_outputs_on_success(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Logs": 1},
+            "hunter_level": 23,
+            "hunter_exp": 0,
+            "current_hunter": "catch_wild_kebbit",
+            "hunter_success_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_hunter_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Logs"], 0)
+        self.assertEqual(player_data["inventory"]["Bones"], 1)
+        self.assertEqual(player_data["inventory"]["Kebbit claws"], 1)
+        self.assertAlmostEqual(player_data["hunter_exp"], 128.0)
+        self.assertEqual(player_data["hunter_success_count"], 1)
+        self.assertEqual(calls["xp"], [128.0])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+
+    def test_hunter_quest_lock_deactivates_review_target(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "hunter_level": 99,
+            "hunter_exp": 0,
+            "current_hunter": "catch_ferret",
+            "hunter_success_count": 0,
+            "quests": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_hunter_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["hunter_exp"], 0)
+        self.assertEqual(player_data["hunter_success_count"], 0)
+        self.assertEqual(calls["errors"][0][0], "Hunter target locked")
+        self.assertIn("Eagles' Peak", calls["errors"][0][1])
+        self.assertTrue(calls["deactivated"])
 
 
 if __name__ == "__main__":

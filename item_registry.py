@@ -17,6 +17,7 @@ ItemCategory = Literal[
     "bar",
     "crafted",
     "fletched",
+    "hunter",
     "runecrafting",
     "material",
     "tool",
@@ -109,6 +110,8 @@ def build_item_definitions(
     crafted_item_images: Mapping[str, str],
     fletching_data: Optional[Mapping[str, Mapping[str, object]]] = None,
     fletched_item_images: Optional[Mapping[str, str]] = None,
+    hunter_data: Optional[Mapping[str, Mapping[str, object]]] = None,
+    hunter_item_images: Optional[Mapping[str, str]] = None,
     fishing_data: Optional[Mapping[str, Mapping[str, object]]] = None,
     fishing_item_images: Optional[Mapping[str, str]] = None,
     utility_activity_data: Optional[Mapping[str, Mapping[str, object]]] = None,
@@ -149,6 +152,7 @@ def build_item_definitions(
             "bar",
             "crafted",
             "fletched",
+            "hunter",
             "runecrafting",
             "material",
             "tool",
@@ -212,6 +216,20 @@ def build_item_definitions(
             for requirement_name in spec.get("requirements", {}):
                 if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                     add_material_definition(requirement_name, "Fletching material", image_map)
+    if hunter_data is not None:
+        image_map = hunter_item_images or {}
+        for target_key, spec in hunter_data.items():
+            outputs = spec.get("outputs", {})
+            if isinstance(outputs, Mapping):
+                output_items = tuple(item_name for item_name in outputs if isinstance(item_name, str))
+            else:
+                output_name = spec.get("output_item", target_key)
+                output_items = (output_name,) if isinstance(output_name, str) else ()
+            for output_name in output_items:
+                add_definition(_definition(output_name, "hunter", "Hunter", {output_name: spec}, image_map))
+            for requirement_name in spec.get("requirements", {}):
+                if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
+                    add_material_definition(requirement_name, "Hunter material", image_map)
     if fishing_data is not None:
         image_map = fishing_item_images or {}
         for target_key, spec in fishing_data.items():

@@ -9,6 +9,7 @@ from .constants import (
     COOKING_DATA,
     FLETCHING_DATA,
     FIREMAKING_DATA,
+    HUNTER_DATA,
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
     QUEST_DATA,
@@ -38,6 +39,7 @@ from .logic_pure import (
     can_craft_item_pure,
     fletching_target_locked_reasons_pure,
     cooking_target_locked_reasons_pure,
+    hunter_target_locked_reasons_pure,
     can_runecraft_any_pure,
     start_quest_pure,
     apply_claim_pure,
@@ -284,6 +286,15 @@ def _refresh_skill_availability() -> None:
             not firemaking_target_locked_reasons_pure(player_data, target_key, FIREMAKING_DATA, QUEST_UNLOCK_RULES)
             for target_key in FIREMAKING_DATA.keys()
         )
+        can_hunt_any = any(
+            not hunter_target_locked_reasons_pure(
+                player_data,
+                target_key,
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            )
+            for target_key in HUNTER_DATA.keys()
+        )
         can_cook_any = any(
             not cooking_target_locked_reasons_pure(
                 player_data,
@@ -294,7 +305,15 @@ def _refresh_skill_availability() -> None:
             for target_key in COOKING_DATA.keys()
         )
         can_runecraft_any = can_runecraft_any_pure(player_data, RUNECRAFTING_DATA, RUNECRAFTING_POUCH_DATA, QUEST_UNLOCK_RULES)
-        refresh_skill_availability(can_smith_any(), can_craft_any, can_fletch_any, can_firemake_any, can_cook_any, can_runecraft_any)
+        refresh_skill_availability(
+            can_smith_any(),
+            can_craft_any,
+            can_fletch_any,
+            can_firemake_any,
+            can_hunt_any,
+            can_cook_any,
+            can_runecraft_any,
+        )
     except Exception:
         pass
 
@@ -648,6 +667,7 @@ def _on_main_menu():
         on_set_fletch=lambda target: _set_value("current_fletch", target),
         on_set_firemaking=lambda target: _set_value("current_firemaking", target),
         on_set_fishing=lambda target: _set_value("current_fishing", target),
+        on_set_hunter=lambda target: _set_value("current_hunter", target),
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),

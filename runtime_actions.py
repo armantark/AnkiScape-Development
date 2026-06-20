@@ -22,12 +22,14 @@ try:
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FLETCHING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_HUNTER_TARGET,
         DEFAULT_MINING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         DEFAULT_WOODCUTTING_TARGET,
         FIREMAKING_DATA,
         FISHING_DATA,
+        HUNTER_DATA,
         FLETCHING_DATA,
         GLORY_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_CHANCE,
@@ -50,6 +52,7 @@ try:
         apply_firemaking_action_pure,
         apply_fishing_action_pure,
         apply_fletching_pure,
+        apply_hunter_action_pure,
         apply_mining_action_pure,
         apply_open_bird_nests_pure,
         apply_quest_progress_pure,
@@ -74,6 +77,8 @@ try:
         has_crafting_materials_pure,
         has_firemaking_materials_pure,
         has_fishing_bait_pure,
+        has_hunter_materials_pure,
+        hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         utility_activity_locked_reasons_pure,
@@ -91,12 +96,14 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FLETCHING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_HUNTER_TARGET,
         DEFAULT_MINING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         DEFAULT_WOODCUTTING_TARGET,
         FIREMAKING_DATA,
         FISHING_DATA,
+        HUNTER_DATA,
         FLETCHING_DATA,
         GLORY_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_CHANCE,
@@ -119,6 +126,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_firemaking_action_pure,
         apply_fishing_action_pure,
         apply_fletching_pure,
+        apply_hunter_action_pure,
         apply_mining_action_pure,
         apply_open_bird_nests_pure,
         apply_quest_progress_pure,
@@ -143,6 +151,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         has_crafting_materials_pure,
         has_firemaking_materials_pure,
         has_fishing_bait_pure,
+        has_hunter_materials_pure,
+        hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         utility_activity_locked_reasons_pure,
@@ -533,6 +543,69 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = player_data.get("current_hunter", DEFAULT_HUNTER_TARGET)
+    if target not in HUNTER_DATA:
+        target = DEFAULT_HUNTER_TARGET
+        player_data["current_hunter"] = target
+    spec = HUNTER_DATA[target]
+    display_name = spec.get("display_name", target)
+    player_level = player_data.get("hunter_level", 1)
+    inventory = player_data.get("inventory", {})
+
+    locked_reasons = hunter_target_locked_reasons_pure(player_data, target, HUNTER_DATA, QUEST_UNLOCK_RULES)
+    unlock_locked = tuple(
+        reason
+        for reason in locked_reasons
+        if reason not in {"materials"} and not str(reason).startswith("Hunter level")
+    )
+    if unlock_locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Hunter target locked",
+            f"{display_name} requires {', '.join(unlock_locked)}, so Hunter has been switched off.",
+        )
+        return False
+
+    if player_level < spec.get("level", 1):
+        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Hunter to {str(display_name).lower()}.")
+        return False
+
+    if not has_hunter_materials_pure(target, inventory, HUNTER_DATA):
+        missing = missing_materials_text(spec.get("requirements", {}), inventory)
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Out of materials",
+            f"You need {missing} to {str(display_name).lower()}, so Hunter has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
+
+    new_inv, base_exp, ok, _output_item, xp_rewards = apply_hunter_action_pure(
+        target,
+        inventory,
+        HUNTER_DATA,
+        player_level,
+        ctx.random_random(),
+    )
+    if not ok:
+        return True
+
+    player_data["inventory"] = new_inv
+    player_data["hunter_success_count"] = player_data.get("hunter_success_count", 0) + 1
+    exp_gained = _award_action_xp_rewards(
+        ctx,
+        xp_rewards or ({"skill_id": "hunter", "amount": base_exp},),
+        "hunter",
+    )
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(exp_gained)
+    return True
+
+
 def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
@@ -879,6 +952,15 @@ def _can_start_fishing_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_hunter_action(ctx: RuntimeActionContext) -> bool:
+    return not hunter_target_locked_reasons_pure(
+        ctx.player_data,
+        ctx.player_data.get("current_hunter", DEFAULT_HUNTER_TARGET),
+        HUNTER_DATA,
+        QUEST_UNLOCK_RULES,
+    )
+
+
 def _can_start_cooking_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_cooking", DEFAULT_COOKING_TARGET)
     return not cooking_target_locked_reasons_pure(
@@ -964,6 +1046,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "fletching": _can_start_fletching_action,
     "firemaking": _can_start_firemaking_action,
     "fishing": _can_start_fishing_action,
+    "hunter": _can_start_hunter_action,
     "cooking": _can_start_cooking_action,
     "runecrafting": _can_start_runecrafting_action,
     "utility": _can_start_utility_action,
@@ -979,6 +1062,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "fletching": handle_fletching_answer,
     "firemaking": handle_firemaking_answer,
     "fishing": handle_fishing_answer,
+    "hunter": handle_hunter_answer,
     "cooking": handle_cooking_answer,
     "runecrafting": handle_runecrafting_answer,
     "utility": handle_utility_answer,

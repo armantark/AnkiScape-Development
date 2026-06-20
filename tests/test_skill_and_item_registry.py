@@ -24,6 +24,10 @@ from constants import (
     FISHING_OUTPUT_ITEMS,
     FLETCHING_DATA,
     GEM_DATA,
+    HUNTER_DATA,
+    HUNTER_EXTRA_ITEM_DATA,
+    HUNTER_ITEM_IMAGES,
+    HUNTER_OUTPUT_ITEMS,
     ITEM_DEFINITIONS,
     MINING_BONUS_ITEM_DATA,
     MINING_OUTPUT_ITEMS,
@@ -73,6 +77,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Firemaking",
                 "Cooking",
                 "Runecrafting",
+                "Hunter",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -82,11 +87,13 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Firemaking"))
         self.assertTrue(is_review_skill("Cooking"))
         self.assertTrue(is_review_skill("Runecrafting"))
+        self.assertTrue(is_review_skill("Hunter"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
         self.assertEqual(review_handler_key("Cooking"), "cooking")
         self.assertEqual(review_handler_key("Runecrafting"), "runecrafting")
+        self.assertEqual(review_handler_key("Hunter"), "hunter")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
 
     def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
@@ -102,6 +109,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_action_handler_key("Firemaking"), "firemaking")
         self.assertEqual(review_action_handler_key("Cooking"), "cooking")
         self.assertEqual(review_action_handler_key("Runecrafting"), "runecrafting")
+        self.assertEqual(review_action_handler_key("Hunter"), "hunter")
         self.assertIsNone(review_action_handler_key("Thieving"))
         self.assertEqual(
             review_action_display_names(),
@@ -115,6 +123,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Firemaking",
                 "Cooking",
                 "Runecrafting",
+                "Hunter",
                 "Quests",
                 "Utility / Activities",
             ),
@@ -128,7 +137,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "magic",
             "summoning",
             "farming",
-            "hunter",
             "dungeoneering",
             "slayer",
             "thieving",
@@ -182,6 +190,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(runecrafting.default_target, "craft_air_runes")
         self.assertTrue(runecrafting.visible_in_skill_hub)
 
+    def test_hunter_is_current_and_playable(self):
+        hunter = get_skill("Hunter")
+        self.assertIsNotNone(hunter)
+        self.assertTrue(hunter.implemented)
+        self.assertTrue(hunter.participates_in_review)
+        self.assertEqual(hunter.current_target_key, "current_hunter")
+        self.assertEqual(hunter.default_target, "catch_crimson_swift")
+        self.assertTrue(hunter.visible_in_skill_hub)
+
     def test_registry_generates_current_flat_save_defaults(self):
         self.assertEqual(
             default_skill_state(),
@@ -204,6 +221,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "cooking_exp": 0,
                 "runecrafting_level": 1,
                 "runecrafting_exp": 0,
+                "hunter_level": 1,
+                "hunter_exp": 0,
             },
         )
         self.assertEqual(
@@ -218,6 +237,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_firemaking": "logs",
                 "current_cooking": "cook_shrimps",
                 "current_runecrafting": "craft_air_runes",
+                "current_hunter": "catch_crimson_swift",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")
@@ -237,6 +257,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             for spec in UTILITY_ACTIVITY_DATA.values()
             for material in spec.get("requirements", {})
             if material not in MINING_OUTPUT_ITEMS
+        ]
+        hunter_materials = [
+            material
+            for spec in HUNTER_DATA.values()
+            for material in spec.get("requirements", {})
         ]
         for item_name in (
             list(MINING_OUTPUT_ITEMS)
@@ -261,6 +286,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             + list(RUNECRAFTING_OUTPUT_ITEMS)
             + list(RUNECRAFTING_ACCESS_ITEMS)
             + list(RUNECRAFTING_EXTRA_ITEM_DATA)
+            + list(HUNTER_OUTPUT_ITEMS)
+            + hunter_materials
             + [spec["display_name"] for spec in WOODCUTTING_AXE_DATA.values()]
             + [spec["display_name"] for spec in MINING_PICKAXE_DATA.values()]
             + [spec["display_name"] for spec in MINING_BONUS_ITEM_DATA.values()]
@@ -302,6 +329,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Air tiara", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
         self.assertIn("Binding necklace", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
         self.assertIn("Wicked hood", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
+        self.assertIn("Red feather", item_storage_keys_by_category(ITEM_DEFINITIONS, "hunter"))
+        self.assertIn("Imp-in-a-box (2)", item_storage_keys_by_category(ITEM_DEFINITIONS, "hunter"))
+        self.assertIn("Butterfly jar", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
+        self.assertIn("Impling jar", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
         self.assertFalse(by_storage_key["Cursed magic logs"].tradeable)
         self.assertFalse(by_storage_key["Burnt fish"].tradeable)
@@ -543,6 +574,47 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(by_storage_key["Air rune"].category, "runecrafting")
         self.assertEqual(by_storage_key["Binding necklace"].equipment_slot, "neck")
         self.assertEqual(by_storage_key["Wicked hood"].equipment_slot, "head")
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_hunter_items_targets_and_assets_are_registered(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        self.assertEqual(len(HUNTER_DATA), 55)
+        self.assertEqual(HUNTER_DATA["catch_crimson_swift"]["outputs"]["Red feather"], 5)
+        self.assertEqual(HUNTER_DATA["catch_wild_kebbit"]["requirements"], {"Logs": 1})
+        self.assertEqual(HUNTER_DATA["catch_imp_magic_box"]["output_item"], "Imp-in-a-box (2)")
+        self.assertEqual(HUNTER_DATA["catch_gourmet_impling_world"]["output_item"], "Gourm' impling jar")
+        self.assertEqual(HUNTER_DATA["catch_essence_impling_puro_puro"]["output_item"], "Ess' impling jar")
+
+        for item_name in (
+            "Red feather",
+            "Stripy feather",
+            "Kebbit claws",
+            "Black salamander",
+            "Imp-in-a-box (2)",
+            "Gourm' impling jar",
+            "Ess' impling jar",
+            "Impling jar",
+            "Butterfly jar",
+            "Magic box",
+        ):
+            self.assertIn(item_name, by_storage_key)
+            self.assertIn(item_name, HUNTER_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[item_name]), f"{item_name} Hunter icon is missing")
+
+        self.assertEqual(by_storage_key["Red feather"].category, "hunter")
+        self.assertEqual(by_storage_key["Impling jar"].category, "material")
+        self.assertEqual(by_storage_key["Magic box"].category, "material")
+        self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Magic box"]["item_id"], 10025)
+
+        iconless = sorted(
+            item_name
+            for item_name in HUNTER_OUTPUT_ITEMS
+            if not (
+                item_name in by_storage_key
+                and by_storage_key[item_name].asset_path
+            )
+        )
+        self.assertEqual(iconless, [], f"Hunter outputs missing icons: {iconless}")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
 

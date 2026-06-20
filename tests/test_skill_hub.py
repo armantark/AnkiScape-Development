@@ -18,7 +18,7 @@ class TestSkillHubViewModel(unittest.TestCase):
 
         self.assertEqual(
             [card.display_name for card in by_id["gathering"].skills],
-            ["Mining", "Woodcutting", "Fishing"],
+            ["Mining", "Woodcutting", "Fishing", "Hunter"],
         )
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
@@ -56,6 +56,9 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertIn("runecrafting", cards)
         self.assertTrue(cards["runecrafting"].implemented)
         self.assertTrue(cards["runecrafting"].selectable_for_review)
+        self.assertIn("hunter", cards)
+        self.assertTrue(cards["hunter"].implemented)
+        self.assertTrue(cards["hunter"].selectable_for_review)
 
         # A genuinely unimplemented skill stays visible-but-unselectable here.
         self.assertIn("slayer", cards)

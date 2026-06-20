@@ -101,6 +101,7 @@ def build_achievement_definitions(
     runecrafting_output_items: Iterable[str],
     bar_items: Iterable[str],
     fishing_output_items: Iterable[str],
+    hunter_output_items: Iterable[str],
 ) -> tuple[AchievementDefinition, ...]:
     mining_output_items = tuple(mining_output_items)
     woodcutting_log_items = tuple(woodcutting_log_items)
@@ -108,6 +109,7 @@ def build_achievement_definitions(
     runecrafting_output_items = tuple(runecrafting_output_items)
     bar_items = tuple(bar_items)
     fishing_output_items = tuple(fishing_output_items)
+    hunter_output_items = tuple(hunter_output_items)
 
     definitions: list[AchievementDefinition] = []
     final_count = {"value": 0}
@@ -237,6 +239,15 @@ def build_achievement_definitions(
     add("Expert Angler", "Reach Fishing level 60", "Difficult", lambda player: _level(player, "fishing_level") >= 60)
     add("Fish Stockpile", "Catch 10,000 total fish", "Difficult", lambda player: _inventory_total(player, fishing_output_items) >= 10000)
     add("Master Angler", "Reach Fishing level 99", "Very Challenging", lambda player: _level(player, "fishing_level") >= 99)
+
+    add("First Hunt", "Catch your first Hunter creature", "Easy", lambda player: _level(player, "hunter_success_count", 0) >= 1 or _inventory_total(player, hunter_output_items) > 0)
+    add("Novice Hunter", "Reach Hunter level 10", "Easy", lambda player: _level(player, "hunter_level") >= 10)
+    add("Trap Starter", "Catch 100 Hunter creatures", "Easy", lambda player: _level(player, "hunter_success_count", 0) >= 100)
+    add("Intermediate Hunter", "Reach Hunter level 30", "Moderate", lambda player: _level(player, "hunter_level") >= 30)
+    add("Hunter Haul", "Catch 1,000 Hunter creatures", "Moderate", lambda player: _level(player, "hunter_success_count", 0) >= 1000)
+    add("Expert Hunter", "Reach Hunter level 60", "Difficult", lambda player: _level(player, "hunter_level") >= 60)
+    add("Hunter Stockpile", "Catch 10,000 Hunter creatures", "Difficult", lambda player: _level(player, "hunter_success_count", 0) >= 10000)
+    add("Master Hunter", "Reach Hunter level 99", "Very Challenging", lambda player: _level(player, "hunter_level") >= 99)
 
     add("First Cook", "Cook your first food", "Easy", lambda player: _level(player, "cooking_success_count", 0) >= 1)
     add("First Burn", "Burn your first food", "Easy", lambda player: _level(player, "cooking_burn_count", 0) >= 1)

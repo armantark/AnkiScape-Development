@@ -370,6 +370,25 @@ Verification: `python3 run_tests.py` passed with 352 tests (84 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 352 tests.
 
+Hunter v1 is complete on 2026-06-20. The local 2011Scape cache/snapshot was not
+missing Hunter item identity; it was missing a local Hunter mechanics plugin.
+The implemented scope therefore uses 2011.rs guide rows for levels/XP/rewards,
+local cache names/ids for inventory keys, and local 2012scape/Darkan Hunter
+code as mechanics/id parity evidence. `hunter_data.py` now drives 55 targets
+across bird snaring, butterfly netting, deadfall, box trapping, net trapping,
+falconry, magic boxes, and Puro-Puro/world implings. Hunter is a current
+Gathering review skill with stable `current_hunter`, storage config version 18,
+Hunter item/icon registration, `hunter_success_count` achievements, grouped
+target rows, Stats/Bank/HUD support, action multiplier support, and undo
+rollback. Quest locks cover Eagles' Peak, As a First Resort, Rocking Out, and
+Priest in Peril route precedent. Tracking, pitfall, rabbit snaring, barehand
+catches, Herblore Habitat/Jadinkos, grenwall herb drops, and Regicide-start
+partial-route modeling remain deferred. Source audit:
+`memory-bank/source-audits/hunter-2011scape-2026-06-20.md`. Verification:
+`python3 run_tests.py` passed with 374 tests (89 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 374 tests.
+
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
   could still be justified later if a future feature needs behavior beyond the
@@ -395,7 +414,8 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
 6. **Future Runecrafting extensions**: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss/abyssal creatures, talisman sourcing, and broader rune economy routes should stay separate from v1 until explicitly prioritized.
-7. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. Only reopen this area for stage-aware partial unlocks, route/location gates, new quest-unlocked skill targets, or generator/source corrections.
+7. **Future Hunter extensions**: tracking trails, pitfall trapping, rabbit snaring, barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and Regicide-start partial-route modeling should stay separate from v1 until explicitly prioritized.
+8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. Only reopen this area for stage-aware partial unlocks, route/location gates, new quest-unlocked skill targets, or generator/source corrections.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

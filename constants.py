@@ -42,6 +42,15 @@ try:
         fishing_methods_as_dict,
         fishing_output_items,
     )
+    from .hunter_data import (
+        DEFAULT_HUNTER_TARGET,
+        HUNTER_GROUP_LABELS,
+        HUNTER_GROUP_ORDER,
+        hunter_extra_items_as_dict,
+        hunter_item_names,
+        hunter_output_items,
+        hunter_targets_as_dict,
+    )
     from .item_registry import build_item_definitions
     from .quest_data import (
         CLAIMS_BY_ID,
@@ -125,6 +134,15 @@ except ImportError:
         fishing_methods_as_dict,
         fishing_output_items,
     )
+    from hunter_data import (
+        DEFAULT_HUNTER_TARGET,
+        HUNTER_GROUP_LABELS,
+        HUNTER_GROUP_ORDER,
+        hunter_extra_items_as_dict,
+        hunter_item_names,
+        hunter_output_items,
+        hunter_targets_as_dict,
+    )
     from item_registry import build_item_definitions
     from quest_data import (
         CLAIMS_BY_ID,
@@ -201,6 +219,7 @@ SMITHING_ITEMS_FOLDER = os.path.join(current_dir, "smithingitems")
 UTILITY_ACTIVITY_ICONS_FOLDER = os.path.join(current_dir, "activityicons")
 FIREMAKING_ITEMS_FOLDER = os.path.join(current_dir, "firemakingitems")
 FISHING_ITEMS_FOLDER = os.path.join(current_dir, "fishingitems")
+HUNTER_ITEMS_FOLDER = os.path.join(current_dir, "hunteritems")
 COOKING_ITEMS_FOLDER = os.path.join(current_dir, "cookingitems")
 RUNECRAFTING_ITEMS_FOLDER = os.path.join(current_dir, "runecraftingitems")
 
@@ -390,6 +409,9 @@ SMITHING_OUTPUT_ITEMS = smithing_output_items()
 FLETCHING_DATA = fletching_targets_as_dict()
 FLETCHING_OUTPUT_ITEMS = fletching_output_items()
 
+HUNTER_DATA = hunter_targets_as_dict()
+HUNTER_OUTPUT_ITEMS = hunter_output_items()
+
 FIREMAKING_DATA = firemaking_targets_as_dict()
 FIREMAKING_LOG_ITEMS = firemaking_input_items()
 FIREMAKING_OUTPUT_ITEMS = firemaking_output_items()
@@ -469,6 +491,13 @@ for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
     _path = os.path.join(FISHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
         FISHING_ITEM_IMAGES[_item_name] = _path
+
+HUNTER_EXTRA_ITEM_DATA = hunter_extra_items_as_dict()
+HUNTER_ITEM_IMAGES = {}
+for _item_name in set(hunter_item_names()) | set(HUNTER_OUTPUT_ITEMS) | set(HUNTER_EXTRA_ITEM_DATA):
+    _path = os.path.join(HUNTER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        HUNTER_ITEM_IMAGES[_item_name] = _path
 
 COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}
@@ -553,6 +582,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SMITHING_EXTRA_ITEM_DATA,
     **FIREMAKING_EXTRA_ITEM_DATA,
     **FISHING_EXTRA_ITEM_DATA,
+    **HUNTER_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
 })
@@ -562,6 +592,7 @@ EXTRA_ITEM_IMAGES = {
     **SMITHING_EXTRA_ITEM_IMAGES,
     **FIREMAKING_ITEM_IMAGES,
     **FISHING_ITEM_IMAGES,
+    **HUNTER_ITEM_IMAGES,
     **COOKING_ITEM_IMAGES,
     **RUNECRAFTING_ITEM_IMAGES,
 }
@@ -582,6 +613,8 @@ ITEM_DEFINITIONS = build_item_definitions(
     CRAFTED_ITEM_IMAGES,
     FLETCHING_DATA,
     FLETCHED_ITEM_IMAGES,
+    HUNTER_DATA,
+    HUNTER_ITEM_IMAGES,
     FISHING_DATA,
     FISHING_ITEM_IMAGES,
     UTILITY_ACTIVITY_DATA,
@@ -609,5 +642,6 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     RUNECRAFTING_OUTPUT_ITEMS,
     BAR_DATA,
     FISHING_OUTPUT_ITEMS,
+    HUNTER_OUTPUT_ITEMS,
 )
 ACHIEVEMENTS = achievements_as_dict(ACHIEVEMENT_DEFINITIONS)

@@ -154,6 +154,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="runecrafting",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="hunter",
+        display_name="Hunter",
+        category="gathering",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="gather",
+        level_key="hunter_level",
+        exp_key="hunter_exp",
+        current_target_key="current_hunter",
+        default_target="catch_crimson_swift",
+        review_handler_key="hunter",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -169,7 +183,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
     SkillDefinition("herblore", "Herblore", "artisan", False, False, "process", "herblore_level", "herblore_exp"),
     SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp"),
-    SkillDefinition("hunter", "Hunter", "gathering", False, False, "gather", "hunter_level", "hunter_exp"),
     SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp"),
     SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp"),

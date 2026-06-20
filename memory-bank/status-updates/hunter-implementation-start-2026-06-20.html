@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hunter Implementation Start</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0c0e12;
+            --surface: #161a21;
+            --surface-2: #1e232c;
+            --border: #2a3040;
+            --text: #e8ecf4;
+            --text-dim: #8b95a8;
+            --accent: #4f8cff;
+            --accent-glow: rgba(79, 140, 255, 0.15);
+            --red: #ff5c5c;
+            --green: #4ade80;
+            --amber: #fbbf24;
+            --purple: #a78bfa;
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                linear-gradient(180deg, rgba(79, 140, 255, 0.08), transparent 280px),
+                var(--bg);
+            color: var(--text);
+            font-family: "Outfit", sans-serif;
+            padding: 34px;
+        }
+
+        main {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(79, 140, 255, 0.34);
+            color: var(--accent);
+            font: 600 0.72rem "JetBrains Mono", monospace;
+            letter-spacing: 0.02em;
+        }
+
+        h1 {
+            margin: 18px 0 8px;
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            letter-spacing: 0;
+        }
+
+        .subtitle {
+            max-width: 860px;
+            margin: 0 0 26px;
+            color: var(--text-dim);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 18px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: 0 14px 45px rgba(0, 0, 0, 0.22);
+        }
+
+        .card h2 {
+            margin: 0 0 12px;
+            font-size: 1.08rem;
+        }
+
+        .label {
+            display: inline-block;
+            margin-bottom: 10px;
+            font: 600 0.68rem "JetBrains Mono", monospace;
+            text-transform: uppercase;
+            color: var(--amber);
+        }
+
+        .label.green { color: var(--green); }
+        .label.purple { color: var(--purple); }
+        .label.red { color: var(--red); }
+
+        p, li {
+            color: var(--text-dim);
+            line-height: 1.55;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .source-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .source {
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 9px;
+            background: var(--surface-2);
+        }
+
+        .source strong {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .file-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 13px;
+        }
+
+        .file-tag {
+            padding: 5px 8px;
+            border-radius: 999px;
+            background: var(--surface-2);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            font: 400 0.68rem "JetBrains Mono", monospace;
+        }
+
+        .decision {
+            border: 1px solid rgba(251, 191, 36, 0.35);
+            background: rgba(251, 191, 36, 0.08);
+        }
+
+        .decision h2 {
+            color: var(--amber);
+        }
+
+        .choice {
+            padding: 14px;
+            margin-top: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(74, 222, 128, 0.36);
+            background: rgba(74, 222, 128, 0.08);
+        }
+
+        .choice strong {
+            color: var(--green);
+        }
+
+        .scope-map {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .lane {
+            min-height: 150px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+        }
+
+        .lane-title {
+            color: var(--text);
+            font: 600 0.72rem "JetBrains Mono", monospace;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .chip {
+            display: block;
+            width: 100%;
+            padding: 8px 9px;
+            margin: 7px 0;
+            border-radius: 8px;
+            background: #11151d;
+            border: 1px solid #303849;
+            color: var(--text-dim);
+            font-size: 0.84rem;
+        }
+
+        .steps {
+            display: grid;
+            gap: 12px;
+        }
+
+        .step {
+            display: grid;
+            grid-template-columns: 34px 1fr;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .num {
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            background: var(--accent-glow);
+            color: var(--accent);
+            font: 600 0.8rem "JetBrains Mono", monospace;
+            border: 1px solid rgba(79, 140, 255, 0.32);
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            body { padding: 22px; }
+            .grid, .scope-map { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+        <h1>Hunter v1: Source Boundary Check</h1>
+        <p class="subtitle">
+            The current branch is isolated as <strong>codex/hunter-implementation</strong>. The first source pass found local 2011Scape item, NPC, shop, and spawn evidence for Hunter, but no local Hunter mechanics plugin with per-target XP tables. The implementation therefore needs one explicit source-policy decision before code lands.
+        </p>
+
+        <section class="grid">
+            <article class="card decision">
+                <span class="label">Major Decision</span>
+                <h2>Use archived 2011 knowledge-base tables for Hunter target XP?</h2>
+                <p>
+                    Hunter differs from Mining, Woodcutting, Fishing, Cooking, Fletching, and Runecrafting because the local emulator checkout has no dedicated <span class="file-tag">skills/hunter</span> plugin table. The archived 2011 knowledge-base pages provide direct level, XP, reward, and quest note tables for the normal Hunter methods.
+                </p>
+                <div class="choice">
+                    <strong>Recommended answer:</strong>
+                    Yes. Treat the archived 2011 knowledge-base Hunter pages as the source of record for target level, XP, and rewards, and use local 2011Scape files only to corroborate item IDs, NPC names, shops, and broad existence. Document the missing local mechanics plugin in the source audit.
+                </div>
+            </article>
+
+            <article class="card">
+                <span class="label green">Evidence</span>
+                <h2>What the audit already found</h2>
+                <div class="source-stack">
+                    <div class="source">
+                        <strong>Local 2011Scape checkout</strong>
+                        Has Hunter skill IDs, shops, item definitions, NPC names, and Hunter-related spawns, but no <span class="file-tag">content/skills/hunter</span> mechanics folder.
+                    </div>
+                    <div class="source">
+                        <strong>2011 archived game guide</strong>
+                        Has source tables for bird snaring, tracking, butterfly and impling netting, deadfall, box traps, rabbit snares, net traps, pitfall traps, falconry, and magical imp boxes.
+                    </div>
+                    <div class="source">
+                        <strong>Repo precedent</strong>
+                        Fletching already used pinned 2011 knowledge-base pages when the local plugin did not fully expose live historical rows.
+                    </div>
+                </div>
+            </article>
+
+            <article class="card">
+                <span class="label purple">V1 Shape</span>
+                <h2>Proposed implementation lanes</h2>
+                <div class="scope-map" aria-label="Hunter v1 scope lanes">
+                    <div class="lane">
+                        <div class="lane-title">Backend</div>
+                        <span class="chip">hunter_data.py</span>
+                        <span class="chip">current_hunter flat key</span>
+                        <span class="chip">XP/output action helper</span>
+                        <span class="chip">generic achievements</span>
+                    </div>
+                    <div class="lane">
+                        <div class="lane-title">Frontend</div>
+                        <span class="chip">Gathering skill row</span>
+                        <span class="chip">grouped target tree</span>
+                        <span class="chip">level/material/quest locks</span>
+                        <span class="chip">Stats, Bank, HUD</span>
+                    </div>
+                    <div class="lane">
+                        <div class="lane-title">Assets</div>
+                        <span class="chip">icon/hunter_icon.png</span>
+                        <span class="chip">hunteritems/*.png</span>
+                        <span class="chip">generated fetch manifest</span>
+                        <span class="chip">asset-path tests</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="card">
+                <span class="label red">Risk</span>
+                <h2>Items to keep honest</h2>
+                <ul>
+                    <li>Reusable Hunter tools should remain ambient like Fishing rods unless a later tool-storage design promotes them.</li>
+                    <li>Quest-only and route-only rows should use existing lock rules only when the current generic target represents that route.</li>
+                    <li>Jar-heavy impling and butterfly rows can be live normal rows, but missing jar sources should remain ordinary material locks.</li>
+                    <li>Jadinkos, charm sprites, looting tables, and Puro-Puro reward exchanges are separate systems unless this pass explicitly absorbs them.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section class="card" style="margin-top:18px;">
+            <span class="label green">Execution</span>
+            <h2>Planned sequence after the decision</h2>
+            <div class="steps">
+                <div class="step">
+                    <div class="num">1</div>
+                    <div>Write <span class="file-tag">memory-bank/source-audits/hunter-2011scape-2026-06-20.md</span> with exact source rows and exclusions.</div>
+                </div>
+                <div class="step">
+                    <div class="num">2</div>
+                    <div>Add Hunter data, item definitions, storage defaults, action registry, pure logic, runtime handler, and achievement metadata.</div>
+                </div>
+                <div class="step">
+                    <div class="num">3</div>
+                    <div>Add grouped target metadata, Skills hub exposure, Stats/Bank/HUD surfaces, and Qt disabled-row coverage.</div>
+                </div>
+                <div class="step">
+                    <div class="num">4</div>
+                    <div>Fetch skill/item assets, record provenance, run pure and offscreen Qt tests, then write the completion artifact and Memory Bank updates.</div>
+                </div>
+            </div>
+            <div class="file-tags">
+                <span class="file-tag">skill_registry.py</span>
+                <span class="file-tag">runtime_actions.py</span>
+                <span class="file-tag">logic_pure.py</span>
+                <span class="file-tag">target_metadata.py</span>
+                <span class="file-tag">item_registry.py</span>
+                <span class="file-tag">storage_pure.py</span>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -11,6 +11,7 @@ from constants import (
     DEFAULT_COOKING_TARGET,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
+    DEFAULT_HUNTER_TARGET,
     DEFAULT_MINING_TARGET,
     DEFAULT_RUNECRAFTING_TARGET,
     DEFAULT_SMITHING_TARGET,
@@ -23,6 +24,8 @@ from constants import (
     FLETCHED_ITEM_IMAGES,
     FLETCHING_DATA,
     GEM_IMAGES,
+    HUNTER_DATA,
+    HUNTER_ITEM_IMAGES,
     MINING_PICKAXE_DATA,
     ORE_DATA,
     ORE_IMAGES,
@@ -44,6 +47,7 @@ from target_metadata import (
     firemaking_target_rows,
     fishing_target_rows,
     fletching_target_rows,
+    hunter_target_rows,
     mining_target_rows,
     runecrafting_target_rows,
     smithing_target_rows,
@@ -375,6 +379,91 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Tai Bwo Wannai Trio", karambwan.tooltip)
         self.assertFalse(slimy_eel.enabled)
         self.assertIn("Priest in Peril", slimy_eel.tooltip)
+
+    def test_hunter_rows_preserve_material_locks_and_current_target(self):
+        rows = hunter_target_rows(
+            {
+                "hunter_level": 23,
+                "inventory": {"Logs": 1},
+                "current_hunter": "catch_wild_kebbit",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        wild_kebbit = _row(rows, "catch_wild_kebbit")
+        barb_tailed = _row(rows, "catch_barb_tailed_kebbit")
+
+        self.assertEqual(wild_kebbit.group, "deadfall")
+        self.assertTrue(wild_kebbit.current)
+        self.assertTrue(wild_kebbit.enabled)
+        self.assertEqual(wild_kebbit.icon_path, HUNTER_ITEM_IMAGES["Kebbit claws"])
+        self.assertIn("Outputs: Bones x1, Kebbit claws x1", wild_kebbit.tooltip)
+        self.assertIn("Base XP: 128.0 per successful catch", wild_kebbit.tooltip)
+        self.assertIn("Success chance:", wild_kebbit.tooltip)
+        self.assertIn("Logs x1 (you have 1)", wild_kebbit.tooltip)
+        self.assertFalse(barb_tailed.enabled)
+        self.assertEqual(barb_tailed.locked_reasons, ("Hunter level 33",))
+
+        locked_rows = hunter_target_rows(
+            {
+                "hunter_level": 23,
+                "inventory": {},
+                "current_hunter": "catch_wild_kebbit",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        locked_wild_kebbit = _row(locked_rows, "catch_wild_kebbit")
+        self.assertFalse(locked_wild_kebbit.enabled)
+        self.assertEqual(locked_wild_kebbit.locked_reasons, ("materials",))
+        self.assertIn("Locked due to: materials", locked_wild_kebbit.tooltip)
+
+    def test_hunter_rows_apply_quest_unlock_rules(self):
+        player_data = {
+            "hunter_level": 99,
+            "inventory": {"Impling jar": 1},
+            "quests": {},
+            "current_hunter": "catch_ferret",
+        }
+        rows = hunter_target_rows(
+            player_data,
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        ferret = _row(rows, "catch_ferret")
+        pirate = _row(rows, "catch_pirate_impling_world")
+        swamp_lizard = _row(rows, "catch_swamp_lizard")
+        self.assertFalse(ferret.enabled)
+        self.assertEqual(ferret.locked_reasons, ("Eagles' Peak",))
+        self.assertIn("Eagles' Peak", ferret.tooltip)
+        self.assertFalse(pirate.enabled)
+        self.assertIn("Rocking Out", pirate.tooltip)
+        self.assertFalse(swamp_lizard.enabled)
+        self.assertIn("Priest in Peril", swamp_lizard.tooltip)
+
+        player_data["quests"] = {
+            "eagles_peak": {"started": True, "progress": 6, "completed": True},
+            "rocking_out": {"started": True, "progress": 6, "completed": True},
+            "priest_in_peril": {"started": True, "progress": 6, "completed": True},
+        }
+        unlocked_rows = hunter_target_rows(
+            player_data,
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertTrue(_row(unlocked_rows, "catch_ferret").enabled)
+        self.assertTrue(_row(unlocked_rows, "catch_pirate_impling_world").enabled)
+        self.assertTrue(_row(unlocked_rows, "catch_swamp_lizard").enabled)
 
     def test_runecrafting_rows_apply_quest_unlock_rules(self):
         player_data = {

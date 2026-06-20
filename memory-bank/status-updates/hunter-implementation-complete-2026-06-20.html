@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hunter V1 Complete - AnkiScape</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(79, 140, 255, 0.18), transparent 34rem),
+        linear-gradient(135deg, #0c0e12 0%, #11141b 48%, #0c0e12 100%);
+      color: var(--text);
+      font-family: "Outfit", sans-serif;
+      padding: 32px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      color: #bcd4ff;
+      background: var(--accent-glow);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    h1 { font-size: clamp(34px, 5vw, 58px); line-height: 0.95; margin: 18px 0 14px; }
+    .sub { color: var(--text-dim); font-size: 18px; max-width: 780px; line-height: 1.45; margin: 0 0 26px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card {
+      background: rgba(22, 26, 33, 0.86);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.24);
+    }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-12 { grid-column: span 12; }
+    .label {
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .metric { font-size: 38px; font-weight: 700; margin: 0; }
+    .metric small { color: var(--text-dim); font-size: 15px; font-weight: 500; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: #cbd5e1;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      padding: 6px 9px;
+    }
+    .status-list { display: grid; gap: 10px; margin-top: 8px; }
+    .status {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+    }
+    .pill {
+      border-radius: 999px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 11px;
+      padding: 5px 8px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .green { color: #102216; background: var(--green); }
+    .amber { color: #281b03; background: var(--amber); }
+    .purple { color: #170e25; background: var(--purple); }
+    .source-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+    .pane {
+      min-height: 144px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 14px;
+    }
+    .pane h3 { margin: 0 0 8px; font-size: 17px; }
+    .pane p, .status p { color: var(--text-dim); margin: 0; line-height: 1.38; }
+    .target-map {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .target {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #111722;
+      padding: 12px;
+      min-height: 86px;
+    }
+    .target strong { display: block; margin-bottom: 6px; }
+    .target span { color: var(--text-dim); font-size: 13px; line-height: 1.35; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    button {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 12px;
+      padding: 8px 12px;
+    }
+    button.active { background: var(--accent); border-color: var(--accent); color: #061225; }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 11px;
+      background: #10141b;
+      color: var(--text-dim);
+      line-height: 1.35;
+    }
+    .check input { margin-top: 3px; accent-color: var(--accent); }
+    .bar-wrap { display: grid; gap: 10px; margin-top: 14px; }
+    .bar-row { display: grid; grid-template-columns: 120px 1fr 80px; gap: 10px; align-items: center; }
+    .bar-name, .bar-value { color: var(--text-dim); font-family: "JetBrains Mono", monospace; font-size: 12px; }
+    .bar-track { height: 12px; border-radius: 999px; background: #0d1118; overflow: hidden; border: 1px solid var(--border); }
+    .bar { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: inherit; }
+    .footnote { color: var(--text-dim); font-size: 13px; margin-top: 12px; line-height: 1.45; }
+    @media (max-width: 900px) {
+      body { padding: 20px; }
+      .span-4, .span-5, .span-7 { grid-column: span 12; }
+      .source-split, .target-map, .checks { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed - Hunter V1</span>
+    <h1>Hunter is playable now.</h1>
+    <p class="sub">Backend and frontend are both landed: source-backed Hunter targets, flat save keys, review rewards, assets, achievements, quest locks, grouped target UI, and verification.</p>
+
+    <section class="grid" aria-label="completion metrics">
+      <article class="card span-4">
+        <div class="label">Targets</div>
+        <p class="metric">55 <small>live rows</small></p>
+        <div class="tags">
+          <span class="tag">bird snaring</span><span class="tag">deadfall</span><span class="tag">implings</span><span class="tag">falconry</span>
+        </div>
+      </article>
+      <article class="card span-4">
+        <div class="label">Assets</div>
+        <p class="metric">46 <small>icons resolved</small></p>
+        <div class="tags">
+          <span class="tag">hunteritems/</span><span class="tag">icon/hunter_icon.png</span>
+        </div>
+      </article>
+      <article class="card span-4">
+        <div class="label">Verification</div>
+        <p class="metric">374 <small>tests x2</small></p>
+        <div class="tags">
+          <span class="tag">run_tests.py</span><span class="tag">offscreen Qt</span>
+        </div>
+      </article>
+
+      <article class="card span-7">
+        <div class="label">Snapshot Decision</div>
+        <div class="source-split">
+          <div class="pane">
+            <h3>What the cache gave us</h3>
+            <p>Canonical item names and ids for storage and display: `Red feather`, `Imp-in-a-box (2)`, `Gourm' impling jar`, `Ess' impling jar`, traps, jars, and outputs.</p>
+          </div>
+          <div class="pane">
+            <h3>What it did not give us</h3>
+            <p>No local 2011Scape Hunter mechanics plugin. Mechanics parity comes from local 2012scape/Darkan code; player-facing rows come from 2011.rs guide pages.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <div class="label">Gates Resolved</div>
+        <div class="status-list">
+          <div class="status"><span class="pill green">live</span><p>Eagles' Peak gates ferret.</p></div>
+          <div class="status"><span class="pill green">live</span><p>As a First Resort gates wimpy bird.</p></div>
+          <div class="status"><span class="pill green">live</span><p>Rocking Out gates pirate implings.</p></div>
+          <div class="status"><span class="pill amber">note</span><p>Regicide-start pawya/grenwall access stays noted, not globally gated.</p></div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="tabs" role="tablist" aria-label="implementation tabs">
+          <button class="active" data-tab="backend">Backend</button>
+          <button data-tab="frontend">Frontend</button>
+          <button data-tab="deferred">Deferred</button>
+        </div>
+        <div id="backend" class="tab-panel active">
+          <div class="target-map">
+            <div class="target"><strong>Data</strong><span>`hunter_data.py`, `constants.py`, source audit, cache names, 2011 guide rows.</span></div>
+            <div class="target"><strong>Runtime</strong><span>`handle_hunter_answer`, success-only material consumption, XP rewards, `hunter_success_count`.</span></div>
+            <div class="target"><strong>Storage</strong><span>Flat keys: `hunter_level`, `hunter_exp`, `current_hunter`, config version 18.</span></div>
+          </div>
+        </div>
+        <div id="frontend" class="tab-panel">
+          <div class="target-map">
+            <div class="target"><strong>Hub</strong><span>Hunter appears under Gathering and uses the shared grouped `QTreeWidget` renderer.</span></div>
+            <div class="target"><strong>Rows</strong><span>Tooltips show level, outputs, XP, chance, materials, notes, and lock reasons.</span></div>
+            <div class="target"><strong>Bank/Stats/HUD</strong><span>Hunter category items, stats details, target echo, and row icons are wired.</span></div>
+          </div>
+        </div>
+        <div id="deferred" class="tab-panel">
+          <div class="target-map">
+            <div class="target"><strong>Stateful Methods</strong><span>Tracking trails, pitfall, rabbit snaring, and barehand catches.</span></div>
+            <div class="target"><strong>Broader Systems</strong><span>Herblore Habitat/Jadinkos, Agility, route/location models, grenwall herb drops.</span></div>
+            <div class="target"><strong>Future Prompt</strong><span>Start from `memory-bank/source-audits/hunter-2011scape-2026-06-20.md`.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-7">
+        <div class="label">Coverage Shape</div>
+        <div class="bar-wrap">
+          <div class="bar-row"><span class="bar-name">pure tests</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span class="bar-value">374 OK</span></div>
+          <div class="bar-row"><span class="bar-name">Qt tests</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span class="bar-value">374 OK</span></div>
+          <div class="bar-row"><span class="bar-name">Hunter icons</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span class="bar-value">46/46</span></div>
+          <div class="bar-row"><span class="bar-name">source rows</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span class="bar-value">55/55</span></div>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <div class="label">Manual QA Checklist</div>
+        <div class="checks">
+          <label class="check"><input type="checkbox"> Open Skills -> Gathering -> Hunter and confirm grouped rows render.</label>
+          <label class="check"><input type="checkbox"> Select `Catch wild kebbit`; answer a card; verify Logs decrease and Kebbit claws/Bones appear.</label>
+          <label class="check"><input type="checkbox"> Try ferret before Eagles' Peak; confirm it is disabled and names the quest.</label>
+          <label class="check"><input type="checkbox"> Check Bank shows Hunter category with nonblank icons.</label>
+        </div>
+        <p class="footnote">No backend/frontend pass-off remains for Hunter v1. Future work is explicitly a new scoped extension, not cleanup of this slice.</p>
+      </article>
+    </section>
+  </main>
+  <script>
+    const buttons = document.querySelectorAll("button[data-tab]");
+    const panels = document.querySelectorAll(".tab-panel");
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        buttons.forEach((b) => b.classList.remove("active"));
+        panels.forEach((p) => p.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById(button.dataset.tab).classList.add("active");
+      });
+    });
+  </script>
+</body>
+</html>

@@ -33,6 +33,9 @@ DARKNESS_OF_HALLOWVALE_ID = "the_darkness_of_hallowvale"
 ONE_SMALL_FAVOUR_ID = "one_small_favour"
 GARDEN_OF_TRANQUILLITY_ID = "garden_of_tranquillity"
 JUNGLE_POTION_ID = "jungle_potion"
+EAGLES_PEAK_ID = "eagles_peak"
+AS_A_FIRST_RESORT_ID = "as_a_first_resort"
+ROCKING_OUT_ID = "rocking_out"
 
 LOST_CITY_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -65,6 +68,10 @@ BARBARIAN_FISHING_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/skills/fishing/Fishing.kt"
 )
+HUNTER_EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/hunter_box_trapping_level_27"
+HUNTER_AS_A_FIRST_RESORT_SOURCE = "https://www.2011.rs/kb/hunter_locations"
+HUNTER_ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
+HUNTER_PRIEST_IN_PERIL_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_29"
 
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
     "Ring of charos": "Ring of Charos",
@@ -758,6 +765,10 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "firemaking", ("arctic_pine_logs",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "cooking", ("cook_yak",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "utility", ("scavenge_raw_yak_meat",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
+    QuestUnlockRule(EAGLES_PEAK_ID, "target", "hunter", ("catch_ferret",), "Eagles' Peak", HUNTER_EAGLES_PEAK_SOURCE),
+    QuestUnlockRule(AS_A_FIRST_RESORT_ID, "target", "hunter", ("catch_wimpy_bird",), "As a First Resort", HUNTER_AS_A_FIRST_RESORT_SOURCE),
+    QuestUnlockRule(ROCKING_OUT_ID, "target", "hunter", ("catch_pirate_impling_puro_puro", "catch_pirate_impling_world"), "Rocking Out", HUNTER_ROCKING_OUT_SOURCE),
+    QuestUnlockRule(PRIEST_IN_PERIL_ID, "target", "hunter", ("catch_swamp_lizard",), "Priest in Peril", HUNTER_PRIEST_IN_PERIL_SOURCE),
 )
 
 

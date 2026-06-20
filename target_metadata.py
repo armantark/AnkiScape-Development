@@ -13,6 +13,7 @@ try:
         calculate_cooking_success_probability_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
+        calculate_hunter_success_probability_pure,
         can_chop_woodcutting_target_pure,
         firemaking_target_locked_reasons_pure,
         can_open_bird_nests_pure,
@@ -21,6 +22,7 @@ try:
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         fletching_target_locked_reasons_pure,
+        hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -33,6 +35,7 @@ except Exception:
         calculate_cooking_success_probability_pure,
         calculate_firemaking_success_probability_pure,
         calculate_fishing_success_probability_pure,
+        calculate_hunter_success_probability_pure,
         can_chop_woodcutting_target_pure,
         firemaking_target_locked_reasons_pure,
         can_open_bird_nests_pure,
@@ -41,6 +44,7 @@ except Exception:
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         fletching_target_locked_reasons_pure,
+        hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -664,6 +668,69 @@ def fishing_target_rows(
                 current=target_key == current_target,
                 icon_path=fishing_item_images.get(icon_fish.get("output_item")) if isinstance(icon_fish, Mapping) else None,
                 locked_reasons=locked_reasons,
+            )
+        )
+    return tuple(rows)
+
+
+def _hunter_output_text(outputs: Mapping[str, object]) -> str:
+    if not outputs:
+        return "none"
+    return ", ".join(f"{item_name} x{amount}" for item_name, amount in outputs.items())
+
+
+def hunter_target_rows(
+    player_data: Mapping[str, object],
+    hunter_data: Mapping[str, Mapping[str, object]],
+    hunter_item_images: Mapping[str, str],
+    default_target: str,
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    lvl_have = int(player_data.get("hunter_level", 1) or 1)
+    inv = player_data.get("inventory", {})
+    inventory = inv if isinstance(inv, Mapping) else {}
+    current_target = player_data.get("current_hunter", default_target)
+
+    for target_key, spec in hunter_data.items():
+        display_name = str(spec.get("display_name", target_key))
+        lvl_req = int(spec.get("level", 1) or 1)
+        requirements = spec.get("requirements", {})
+        reqs = requirements if isinstance(requirements, Mapping) else {}
+        outputs_raw = spec.get("outputs", {})
+        outputs = outputs_raw if isinstance(outputs_raw, Mapping) else {}
+        primary_output = str(spec.get("primary_output", spec.get("output_item", display_name)))
+        chance = calculate_hunter_success_probability_pure(lvl_have, spec)
+        locked_reasons = hunter_target_locked_reasons_pure(
+            player_data,
+            target_key,
+            hunter_data,
+            quest_unlock_rules,
+        )
+        tooltip = (
+            f"Requires Hunter level {lvl_req}. You have {lvl_have}.\n"
+            f"Outputs: {_hunter_output_text(outputs)}\n"
+            f"Base XP: {spec.get('exp', 0)} per successful catch\n"
+            f"Success chance: {chance:.0%} per attempt\n"
+            f"Materials:\n{_indented_material_lines(reqs, inventory)}"
+        )
+        notes = spec.get("notes")
+        if notes:
+            tooltip += f"\nNote: {notes}"
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=target_key,
+                label=f"{display_name} (Lvl {lvl_req})",
+                tooltip=tooltip,
+                enabled=not locked_reasons,
+                current=target_key == current_target,
+                icon_path=hunter_item_images.get(primary_output),
+                group=str(spec.get("group", "")),
+                locked_reasons=locked_reasons,
+                sort_key=tuple(spec.get("sort_key", (lvl_req, display_name))),
             )
         )
     return tuple(rows)

@@ -1,0 +1,730 @@
+"""2011-era Hunter target data for AnkiScape.
+
+Hunter mechanics are not implemented in the local 2011Scape rev-667 plugin
+checkout. The row contract therefore uses 2011.rs guide rows for player-facing
+levels/XP/rewards, with the local 2012scape/Darkan Hunter implementation used
+only to confirm item/NPC IDs and live mechanic families.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Dict, Mapping, Tuple
+
+
+DARKAN_HUNTER_SOURCE_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/hunter"
+)
+BOX_HUNTER_TYPE_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/BoxHunterType.java"
+BOX_TRAP_TYPE_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/BoxTrapType.java"
+FLYING_ENTITY_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/FlyingEntityHunter.java"
+FALCONRY_KEBBIT_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/falconry/Kebbit.java"
+
+HUNTER_BIRD_SNARING_SOURCE = "https://www.2011.rs/kb/hunter_bird_snaring_level_1"
+HUNTER_BUTTERFLY_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
+HUNTER_DEADFALL_SOURCE = "https://www.2011.rs/kb/hunter_deadfall_level_23"
+HUNTER_BOX_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_box_trapping_level_27"
+HUNTER_NET_TRAPPING_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_29"
+HUNTER_MAGIC_BOX_SOURCE = "https://www.2011.rs/kb/hunter_magical_imp_boxes_level_71"
+HUNTER_LOCATION_SOURCE = "https://www.2011.rs/kb/hunter_locations"
+
+EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/eagles_peak_members"
+ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/rocking_out_members"
+AS_A_FIRST_RESORT_SOURCE = "https://www.2011.rs/kb/as_a_first_resort_members"
+PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
+
+DEFAULT_HUNTER_TARGET = "catch_crimson_swift"
+
+HUNTER_GROUP_LABELS = {
+    "bird_snaring": "Bird snaring",
+    "butterfly_netting": "Butterfly netting",
+    "deadfall": "Deadfall",
+    "box_trapping": "Box trapping",
+    "net_trapping": "Net trapping",
+    "falconry": "Falconry",
+    "magic_box": "Magic boxes",
+    "impling_puro_puro": "Implings - Puro-Puro",
+    "impling_world": "Implings - world",
+}
+HUNTER_GROUP_ORDER = tuple(HUNTER_GROUP_LABELS.keys())
+_GROUP_SORT = {group_id: index for index, group_id in enumerate(HUNTER_GROUP_ORDER)}
+
+
+@dataclass(frozen=True)
+class HunterTarget:
+    id: str
+    display_name: str
+    group: str
+    level: int
+    base_exp: float
+    outputs: Tuple[Tuple[str, int], ...]
+    primary_output: str
+    requirements: Tuple[Tuple[str, int], ...] = ()
+    source: str = ""
+    mechanics_source: str = ""
+    source_enum: str = ""
+    source_npc_id: int = 0
+    source_item_id: int = 0
+    rate1: int = 128
+    rate99: int = 256
+    deterministic: bool = False
+    tradeable: bool = True
+    notes: str = ""
+    sort_order: int = 0
+
+
+def _req(*pairs: Tuple[str, int]) -> Tuple[Tuple[str, int], ...]:
+    return tuple(pairs)
+
+
+def _out(*pairs: Tuple[str, int]) -> Tuple[Tuple[str, int], ...]:
+    return tuple(pairs)
+
+
+def _target(
+    id: str,
+    display_name: str,
+    group: str,
+    level: int,
+    base_exp: float,
+    outputs: Tuple[Tuple[str, int], ...],
+    primary_output: str,
+    requirements: Tuple[Tuple[str, int], ...] = (),
+    source: str = "",
+    mechanics_source: str = BOX_HUNTER_TYPE_SOURCE,
+    source_enum: str = "",
+    source_npc_id: int = 0,
+    source_item_id: int = 0,
+    rate1: int = 128,
+    rate99: int = 256,
+    deterministic: bool = False,
+    tradeable: bool = True,
+    notes: str = "",
+    sort_order: int = 0,
+) -> HunterTarget:
+    return HunterTarget(
+        id=id,
+        display_name=display_name,
+        group=group,
+        level=level,
+        base_exp=base_exp,
+        outputs=outputs,
+        primary_output=primary_output,
+        requirements=requirements,
+        source=source,
+        mechanics_source=mechanics_source,
+        source_enum=source_enum,
+        source_npc_id=source_npc_id,
+        source_item_id=source_item_id,
+        rate1=rate1,
+        rate99=rate99,
+        deterministic=deterministic,
+        tradeable=tradeable,
+        notes=notes,
+        sort_order=sort_order,
+    )
+
+
+_BONES = ("Bones", 1)
+
+HUNTER_TARGETS: Tuple[HunterTarget, ...] = (
+    _target(
+        "catch_crimson_swift",
+        "Catch crimson swift",
+        "bird_snaring",
+        1,
+        34.0,
+        _out(_BONES, ("Raw bird meat", 1), ("Red feather", 5)),
+        "Red feather",
+        source=HUNTER_BIRD_SNARING_SOURCE,
+        source_enum="CRIMSON_SWIFT",
+        source_npc_id=5073,
+        rate1=73,
+        rate99=230,
+        sort_order=10,
+    ),
+    _target(
+        "catch_golden_warbler",
+        "Catch golden warbler",
+        "bird_snaring",
+        5,
+        48.0,
+        _out(_BONES, ("Raw bird meat", 1), ("Yellow feather", 5)),
+        "Yellow feather",
+        source=HUNTER_BIRD_SNARING_SOURCE,
+        source_enum="GOLDEN_WARBLER",
+        source_npc_id=5075,
+        rate1=60,
+        rate99=190,
+        sort_order=20,
+    ),
+    _target(
+        "catch_copper_longtail",
+        "Catch copper longtail",
+        "bird_snaring",
+        9,
+        62.0,
+        _out(_BONES, ("Raw bird meat", 1), ("Orange feather", 5)),
+        "Orange feather",
+        source=HUNTER_BIRD_SNARING_SOURCE,
+        source_enum="COPPER_LONGTAIL",
+        source_npc_id=5076,
+        rate1=60,
+        rate99=170,
+        notes="2011.rs lists 62 XP; the Darkan implementation uses 61 XP.",
+        sort_order=30,
+    ),
+    _target(
+        "catch_cerulean_twitch",
+        "Catch cerulean twitch",
+        "bird_snaring",
+        11,
+        64.0,
+        _out(_BONES, ("Raw bird meat", 1), ("Blue feather", 5)),
+        "Blue feather",
+        source=HUNTER_BIRD_SNARING_SOURCE,
+        source_enum="CERULEAN_TWITCH",
+        source_npc_id=5074,
+        rate1=50,
+        rate99=160,
+        notes="2011.rs rounds this row to 64 XP; the Darkan implementation uses 64.67 XP.",
+        sort_order=40,
+    ),
+    _target(
+        "catch_tropical_wagtail",
+        "Catch tropical wagtail",
+        "bird_snaring",
+        19,
+        95.0,
+        _out(_BONES, ("Raw bird meat", 1), ("Stripy feather", 5)),
+        "Stripy feather",
+        source=HUNTER_BIRD_SNARING_SOURCE,
+        source_enum="TROPICAL_WAGTAIL",
+        source_npc_id=5072,
+        rate1=45,
+        rate99=150,
+        notes="2011.rs rounds this row to 95 XP; the Darkan implementation uses 95.2 XP.",
+        sort_order=50,
+    ),
+    _target(
+        "catch_wimpy_bird",
+        "Catch wimpy bird",
+        "bird_snaring",
+        39,
+        167.0,
+        _out(_BONES, ("Raw bird meat", 1), ("Stripy feather", 5)),
+        "Stripy feather",
+        source=HUNTER_LOCATION_SOURCE,
+        source_enum="WIMPY_BIRD",
+        source_npc_id=7031,
+        rate1=42,
+        rate99=140,
+        notes="Route is tied to Oo'glog after As a First Resort.",
+        sort_order=60,
+    ),
+    _target(
+        "catch_ruby_harvest",
+        "Catch ruby harvest",
+        "butterfly_netting",
+        15,
+        24.0,
+        _out(("Ruby harvest", 1)),
+        "Ruby harvest",
+        _req(("Butterfly jar", 1)),
+        HUNTER_BUTTERFLY_SOURCE,
+        HUNTER_BUTTERFLY_SOURCE,
+        source_item_id=10020,
+        deterministic=True,
+        sort_order=10,
+    ),
+    _target(
+        "catch_sapphire_glacialis",
+        "Catch sapphire glacialis",
+        "butterfly_netting",
+        25,
+        34.0,
+        _out(("Sapphire glacialis", 1)),
+        "Sapphire glacialis",
+        _req(("Butterfly jar", 1)),
+        HUNTER_BUTTERFLY_SOURCE,
+        HUNTER_BUTTERFLY_SOURCE,
+        source_item_id=10018,
+        deterministic=True,
+        sort_order=20,
+    ),
+    _target(
+        "catch_snowy_knight",
+        "Catch snowy knight",
+        "butterfly_netting",
+        35,
+        44.0,
+        _out(("Snowy knight", 1)),
+        "Snowy knight",
+        _req(("Butterfly jar", 1)),
+        HUNTER_BUTTERFLY_SOURCE,
+        HUNTER_BUTTERFLY_SOURCE,
+        source_item_id=10016,
+        deterministic=True,
+        sort_order=30,
+    ),
+    _target(
+        "catch_black_warlock",
+        "Catch black warlock",
+        "butterfly_netting",
+        45,
+        54.0,
+        _out(("Black warlock", 1)),
+        "Black warlock",
+        _req(("Butterfly jar", 1)),
+        HUNTER_BUTTERFLY_SOURCE,
+        HUNTER_BUTTERFLY_SOURCE,
+        source_item_id=10014,
+        deterministic=True,
+        sort_order=40,
+    ),
+    _target(
+        "catch_wild_kebbit",
+        "Catch wild kebbit",
+        "deadfall",
+        23,
+        128.0,
+        _out(_BONES, ("Kebbit claws", 1)),
+        "Kebbit claws",
+        _req(("Logs", 1)),
+        HUNTER_DEADFALL_SOURCE,
+        BOX_HUNTER_TYPE_SOURCE,
+        "WILD_KEBBIT",
+        5089,
+        rate1=128,
+        rate99=256,
+        sort_order=10,
+    ),
+    _target(
+        "catch_barb_tailed_kebbit",
+        "Catch barb-tailed kebbit",
+        "deadfall",
+        33,
+        168.0,
+        _out(_BONES, ("Barb-tail harpoon", 1)),
+        "Barb-tail harpoon",
+        _req(("Logs", 1)),
+        HUNTER_DEADFALL_SOURCE,
+        BOX_HUNTER_TYPE_SOURCE,
+        "BARB_TAILED_KEBBIT",
+        5088,
+        rate1=110,
+        rate99=256,
+        sort_order=20,
+    ),
+    _target(
+        "catch_prickly_kebbit",
+        "Catch prickly kebbit",
+        "deadfall",
+        37,
+        204.0,
+        _out(_BONES, ("Kebbit spike", 1)),
+        "Kebbit spike",
+        _req(("Logs", 1)),
+        HUNTER_DEADFALL_SOURCE,
+        BOX_HUNTER_TYPE_SOURCE,
+        "PRICKLY_KEBBIT",
+        5086,
+        rate1=100,
+        rate99=240,
+        sort_order=30,
+    ),
+    _target(
+        "catch_sabre_toothed_kebbit",
+        "Catch sabre-toothed kebbit",
+        "deadfall",
+        51,
+        200.0,
+        _out(_BONES, ("Kebbit teeth", 1)),
+        "Kebbit teeth",
+        _req(("Logs", 1)),
+        HUNTER_DEADFALL_SOURCE,
+        BOX_HUNTER_TYPE_SOURCE,
+        "SABRE_TOOTHED_KEBBIT",
+        5087,
+        rate1=80,
+        rate99=220,
+        sort_order=40,
+    ),
+    _target(
+        "catch_ferret",
+        "Catch ferret",
+        "box_trapping",
+        27,
+        115.2,
+        _out(("Ferret", 1)),
+        "Ferret",
+        source=HUNTER_BOX_TRAPPING_SOURCE,
+        source_enum="FERRET",
+        source_npc_id=5081,
+        source_item_id=10092,
+        rate1=128,
+        rate99=256,
+        sort_order=10,
+    ),
+    _target(
+        "catch_chinchompa",
+        "Catch chinchompa",
+        "box_trapping",
+        53,
+        198.5,
+        _out(("Chinchompa", 1)),
+        "Chinchompa",
+        source=HUNTER_BOX_TRAPPING_SOURCE,
+        source_enum="CHINCHOMPA",
+        source_npc_id=5079,
+        source_item_id=10033,
+        rate1=95,
+        rate99=220,
+        sort_order=20,
+    ),
+    _target(
+        "catch_red_chinchompa",
+        "Catch red chinchompa",
+        "box_trapping",
+        63,
+        265.0,
+        _out(("Red chinchompa", 1)),
+        "Red chinchompa",
+        source=HUNTER_BOX_TRAPPING_SOURCE,
+        source_enum="CARNIVOROUS_CHINCHOMPA",
+        source_npc_id=5080,
+        source_item_id=10034,
+        rate1=75,
+        rate99=200,
+        sort_order=30,
+    ),
+    _target(
+        "catch_pawya",
+        "Catch pawya",
+        "box_trapping",
+        66,
+        400.0,
+        _out(_BONES, ("Raw pawya meat", 1)),
+        "Raw pawya meat",
+        source=HUNTER_BOX_TRAPPING_SOURCE,
+        source_enum="PAWYA",
+        source_npc_id=7012,
+        source_item_id=12535,
+        rate1=70,
+        rate99=190,
+        notes="Regicide-start route access is documented but not represented by the current quest-completion gate model.",
+        sort_order=40,
+    ),
+    _target(
+        "catch_grenwall",
+        "Catch grenwall",
+        "box_trapping",
+        77,
+        1100.0,
+        _out(_BONES, ("Grenwall spikes", 18)),
+        "Grenwall spikes",
+        source=HUNTER_BOX_TRAPPING_SOURCE,
+        source_enum="GRENWALL",
+        source_npc_id=7010,
+        source_item_id=12539,
+        rate1=60,
+        rate99=180,
+        notes="Source drop range is 18-21 spikes plus optional herbs; AnkiScape awards the guaranteed minimum.",
+        sort_order=50,
+    ),
+    _target(
+        "catch_swamp_lizard",
+        "Catch swamp lizard",
+        "net_trapping",
+        29,
+        152.0,
+        _out(("Swamp lizard", 1)),
+        "Swamp lizard",
+        source=HUNTER_NET_TRAPPING_SOURCE,
+        source_enum="SWAMP_LIZARD",
+        source_npc_id=5117,
+        source_item_id=10149,
+        rate1=128,
+        rate99=256,
+        sort_order=10,
+    ),
+    _target(
+        "catch_orange_salamander",
+        "Catch orange salamander",
+        "net_trapping",
+        47,
+        224.0,
+        _out(("Orange salamander", 1)),
+        "Orange salamander",
+        source=HUNTER_NET_TRAPPING_SOURCE,
+        source_enum="ORANGE_SALAMANDER",
+        source_npc_id=5114,
+        source_item_id=10146,
+        rate1=100,
+        rate99=240,
+        sort_order=20,
+    ),
+    _target(
+        "catch_red_salamander",
+        "Catch red salamander",
+        "net_trapping",
+        59,
+        272.0,
+        _out(("Red salamander", 1)),
+        "Red salamander",
+        source=HUNTER_NET_TRAPPING_SOURCE,
+        source_enum="RED_SALAMANDER",
+        source_npc_id=5115,
+        source_item_id=10147,
+        rate1=80,
+        rate99=220,
+        sort_order=30,
+    ),
+    _target(
+        "catch_black_salamander",
+        "Catch black salamander",
+        "net_trapping",
+        67,
+        319.2,
+        _out(("Black salamander", 1)),
+        "Black salamander",
+        source=HUNTER_NET_TRAPPING_SOURCE,
+        source_enum="BLACK_SALAMANDER",
+        source_npc_id=5116,
+        source_item_id=10148,
+        rate1=70,
+        rate99=200,
+        notes="2011.rs lists 304 XP; the Darkan implementation uses 319.2 XP.",
+        sort_order=40,
+    ),
+    _target(
+        "catch_spotted_kebbit",
+        "Catch spotted kebbit",
+        "falconry",
+        43,
+        42.0,
+        _out(_BONES, ("Spotted kebbit fur", 1)),
+        "Spotted kebbit fur",
+        source=FALCONRY_KEBBIT_SOURCE,
+        mechanics_source=FALCONRY_KEBBIT_SOURCE,
+        source_enum="SPOTTED",
+        source_npc_id=5098,
+        source_item_id=10125,
+        deterministic=True,
+        sort_order=10,
+    ),
+    _target(
+        "catch_dark_kebbit",
+        "Catch dark kebbit",
+        "falconry",
+        57,
+        99.0,
+        _out(_BONES, ("Dark kebbit fur", 1)),
+        "Dark kebbit fur",
+        source=FALCONRY_KEBBIT_SOURCE,
+        mechanics_source=FALCONRY_KEBBIT_SOURCE,
+        source_enum="DARK",
+        source_npc_id=5099,
+        source_item_id=10115,
+        deterministic=True,
+        sort_order=20,
+    ),
+    _target(
+        "catch_dashing_kebbit",
+        "Catch dashing kebbit",
+        "falconry",
+        69,
+        156.0,
+        _out(_BONES, ("Dashing kebbit fur", 1)),
+        "Dashing kebbit fur",
+        source=FALCONRY_KEBBIT_SOURCE,
+        mechanics_source=FALCONRY_KEBBIT_SOURCE,
+        source_enum="DASHING",
+        source_npc_id=5100,
+        source_item_id=10127,
+        deterministic=True,
+        sort_order=30,
+    ),
+    _target(
+        "catch_imp_magic_box",
+        "Catch imp with magic box",
+        "magic_box",
+        71,
+        450.0,
+        _out(("Imp-in-a-box (2)", 1)),
+        "Imp-in-a-box (2)",
+        _req(("Magic box", 1)),
+        HUNTER_MAGIC_BOX_SOURCE,
+        BOX_HUNTER_TYPE_SOURCE,
+        "IMP",
+        708,
+        10027,
+        rate1=70,
+        rate99=220,
+        sort_order=10,
+    ),
+)
+
+_IMPLINGS = (
+    ("baby", "Baby", 17, 20.0, 25.0, 11238, 1028),
+    ("young", "Young", 22, 48.0, 65.0, 11240, 1029),
+    ("gourmet", "Gourmet", 28, 82.0, 113.0, 11242, 1030),
+    ("earth", "Earth", 36, 126.0, 177.0, 11244, 1031),
+    ("essence", "Essence", 42, 160.0, 225.0, 11246, 1032),
+    ("eclectic", "Eclectic", 50, 205.0, 289.0, 11248, 1033),
+    ("spirit", "Spirit", 54, 227.0, 321.0, 15513, 7866),
+    ("nature", "Nature", 58, 250.0, 353.0, 11250, 1034),
+    ("magpie", "Magpie", 65, 289.0, 409.0, 11252, 1035),
+    ("ninja", "Ninja", 74, 339.0, 481.0, 11254, 6053),
+    ("pirate", "Pirate", 76, 350.0, 497.0, 13337, 7845),
+    ("dragon", "Dragon", 83, 390.0, 553.0, 11256, 6054),
+    ("zombie", "Zombie", 87, 412.0, 585.0, 15515, 7902),
+    ("kingly", "Kingly", 91, 434.0, 617.0, 15517, 7903),
+)
+
+
+def _impling_jar_name(label: str) -> str:
+    return {
+        "Gourmet": "Gourm' impling jar",
+        "Essence": "Ess' impling jar",
+    }.get(label, f"{label} impling jar")
+
+
+HUNTER_TARGETS += tuple(
+    _target(
+        f"catch_{slug}_impling_puro_puro",
+        f"Catch {label.lower()} impling (Puro-Puro)",
+        "impling_puro_puro",
+        level,
+        maze_xp,
+        _out((_impling_jar_name(label), 1)),
+        _impling_jar_name(label),
+        _req(("Impling jar", 1)),
+        HUNTER_BUTTERFLY_SOURCE,
+        FLYING_ENTITY_SOURCE,
+        label.upper(),
+        npc_id,
+        item_id,
+        rate1=110,
+        rate99=256,
+        sort_order=index * 10,
+    )
+    for index, (slug, label, level, maze_xp, _world_xp, item_id, npc_id) in enumerate(_IMPLINGS, start=1)
+)
+
+HUNTER_TARGETS += tuple(
+    _target(
+        f"catch_{slug}_impling_world",
+        f"Catch {label.lower()} impling (world)",
+        "impling_world",
+        level,
+        world_xp,
+        _out((_impling_jar_name(label), 1)),
+        _impling_jar_name(label),
+        _req(("Impling jar", 1)),
+        HUNTER_BUTTERFLY_SOURCE,
+        FLYING_ENTITY_SOURCE,
+        label.upper(),
+        npc_id,
+        item_id,
+        rate1=95,
+        rate99=230,
+        sort_order=index * 10,
+    )
+    for index, (slug, label, level, _maze_xp, world_xp, item_id, npc_id) in enumerate(_IMPLINGS, start=1)
+)
+
+HUNTER_TARGETS_BY_ID: Dict[str, HunterTarget] = {target.id: target for target in HUNTER_TARGETS}
+
+HUNTER_MATERIAL_ITEMS: Mapping[str, int] = {
+    "Butterfly jar": 10012,
+    "Impling jar": 11260,
+    "Magic box": 10025,
+}
+
+HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
+    "Bones": 526,
+    "Raw bird meat": 9978,
+    "Red feather": 10088,
+    "Yellow feather": 10090,
+    "Orange feather": 10091,
+    "Blue feather": 10089,
+    "Stripy feather": 10087,
+    "Butterfly jar": 10012,
+    "Impling jar": 11260,
+    "Magic box": 10025,
+}
+
+
+def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
+    return {
+        "id": target.id,
+        "display_name": target.display_name,
+        "group": target.group,
+        "level": target.level,
+        "exp": target.base_exp,
+        "base_exp": target.base_exp,
+        "requirements": dict(target.requirements),
+        "outputs": dict(target.outputs),
+        "output_item": target.primary_output,
+        "output_qty": dict(target.outputs).get(target.primary_output, 1),
+        "primary_output": target.primary_output,
+        "xp_rewards": ({"skill_id": "hunter", "amount": target.base_exp},),
+        "source": target.source,
+        "mechanics_source": target.mechanics_source,
+        "source_enum": target.source_enum,
+        "source_npc_id": target.source_npc_id,
+        "source_item_id": target.source_item_id,
+        "rate1": target.rate1,
+        "rate99": target.rate99,
+        "deterministic": target.deterministic,
+        "tradeable": target.tradeable,
+        "notes": target.notes,
+        "sort_key": (_GROUP_SORT.get(target.group, 999), target.sort_order, target.level, target.display_name),
+    }
+
+
+def hunter_targets_as_dict() -> Dict[str, Dict[str, object]]:
+    return {target.id: _target_as_dict(target) for target in HUNTER_TARGETS}
+
+
+def hunter_output_items() -> Tuple[str, ...]:
+    seen: Dict[str, None] = {}
+    for target in HUNTER_TARGETS:
+        for item_name, _amount in target.outputs:
+            seen.setdefault(item_name, None)
+    return tuple(seen.keys())
+
+
+def hunter_item_names() -> Tuple[str, ...]:
+    seen: Dict[str, None] = {}
+    for target in HUNTER_TARGETS:
+        for item_name, _amount in target.outputs:
+            seen.setdefault(item_name, None)
+        for material, _amount in target.requirements:
+            seen.setdefault(material, None)
+    return tuple(seen.keys())
+
+
+def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
+    rows: Dict[str, Dict[str, object]] = {}
+    for item_name, item_id in HUNTER_EXTRA_ITEM_IDS.items():
+        rows[item_name] = {
+            "category": "hunter" if item_name not in HUNTER_MATERIAL_ITEMS else "material",
+            "level": 1,
+            "exp": 0.0,
+            "source": BOX_HUNTER_TYPE_SOURCE,
+            "item_id": item_id,
+            "tradeable": True,
+        }
+    for item_name, item_id in HUNTER_MATERIAL_ITEMS.items():
+        rows[item_name] = {
+            "category": "material",
+            "level": 1,
+            "exp": 0.0,
+            "source": BOX_TRAP_TYPE_SOURCE if item_name == "Magic box" else FLYING_ENTITY_SOURCE,
+            "item_id": item_id,
+            "tradeable": True,
+        }
+    return rows
