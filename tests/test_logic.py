@@ -20,6 +20,7 @@ from logic_pure import (
     apply_quest_progress_pure,
     apply_runecrafting_action_pure,
     apply_smelt_pure,
+    apply_smithing_action_pure,
     apply_smithing_pure,
     apply_woodcutting_pure,
     apply_woodcutting_action_pure,
@@ -68,8 +69,12 @@ from logic_pure import (
     apply_hunter_action_pure,
     can_runecraft_target_pure,
     binding_necklace_charges_pure,
+    calculate_iron_smelting_success_probability_pure,
     claim_rows_pure,
+    consume_ring_of_forging_charge_pure,
+    has_ring_of_forging_pure,
     sanitize_review_action_multiplier,
+    smithing_success_probability_pure,
     can_start_quest_pure,
     start_quest_pure,
     quest_locked_reasons_pure,
@@ -248,6 +253,109 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(after_forge["Iron bar"], 0)
         self.assertEqual(after_forge["Iron pickaxe"], 1)
         self.assertEqual(inv["Iron bar"], 2)
+
+    def test_iron_smelting_success_probability_matches_source_curve(self):
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(15), 0.50)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(30), 0.65)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(45), 0.80)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(99), 0.80)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(15, has_ring_of_forging=True), 1.0)
+
+    def test_apply_smithing_action_pure_models_iron_failure_only(self):
+        smithing_data = {
+            "smelt_iron_bar": {
+                "level": 15,
+                "exp": 12.5,
+                "requirements": {"Iron ore": 1},
+                "output_item": "Iron bar",
+                "output_qty": 1,
+                "station": "furnace",
+            },
+            "smelt_bronze_bar": {
+                "level": 1,
+                "exp": 6.2,
+                "requirements": {"Tin ore": 1, "Copper ore": 1},
+                "output_item": "Bronze bar",
+                "output_qty": 1,
+                "station": "furnace",
+            },
+        }
+
+        failed_inv, failed_exp, processed, output_item, failed = apply_smithing_action_pure(
+            "smelt_iron_bar",
+            {"Iron ore": 1},
+            smithing_data,
+            15,
+            r_action=0.99,
+        )
+        self.assertTrue(processed)
+        self.assertTrue(failed)
+        self.assertEqual(failed_exp, 0)
+        self.assertIsNone(output_item)
+        self.assertEqual(failed_inv["Iron ore"], 0)
+        self.assertNotIn("Iron bar", failed_inv)
+
+        success_inv, success_exp, processed, output_item, failed = apply_smithing_action_pure(
+            "smelt_iron_bar",
+            {"Iron ore": 1},
+            smithing_data,
+            15,
+            r_action=0.0,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output_item, "Iron bar")
+        self.assertAlmostEqual(success_exp, 12.5)
+        self.assertEqual(success_inv["Iron ore"], 0)
+        self.assertEqual(success_inv["Iron bar"], 1)
+
+        bronze_inv, bronze_exp, processed, output_item, failed = apply_smithing_action_pure(
+            "smelt_bronze_bar",
+            {"Tin ore": 1, "Copper ore": 1},
+            smithing_data,
+            1,
+            r_action=1.0,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output_item, "Bronze bar")
+        self.assertAlmostEqual(bronze_exp, 6.2)
+        self.assertEqual(bronze_inv["Bronze bar"], 1)
+
+    def test_ring_of_forging_guarantees_iron_and_consumes_charges(self):
+        smithing_data = {
+            "smelt_iron_bar": {
+                "level": 15,
+                "exp": 12.5,
+                "requirements": {"Iron ore": 1},
+                "output_item": "Iron bar",
+                "output_qty": 1,
+                "station": "furnace",
+            },
+        }
+        player_data = {"equipment": {"ring": "Ring of forging"}, "item_charges": {"Ring of forging": 2}}
+        self.assertTrue(has_ring_of_forging_pure(player_data))
+        self.assertEqual(smithing_success_probability_pure("smelt_iron_bar", smithing_data["smelt_iron_bar"], 15, True), 1.0)
+
+        inv, exp, processed, output_item, failed = apply_smithing_action_pure(
+            "smelt_iron_bar",
+            {"Iron ore": 1},
+            smithing_data,
+            15,
+            r_action=0.99,
+            has_ring_of_forging=True,
+        )
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(output_item, "Iron bar")
+        self.assertAlmostEqual(exp, 12.5)
+        self.assertEqual(inv["Iron bar"], 1)
+
+        one_charge = consume_ring_of_forging_charge_pure(player_data)
+        self.assertEqual(one_charge["item_charges"]["Ring of forging"], 1)
+        crumbled = consume_ring_of_forging_charge_pure(one_charge)
+        self.assertNotIn("ring", crumbled["equipment"])
+        self.assertNotIn("Ring of forging", crumbled["item_charges"])
 
     def test_create_soft_clay_pure(self):
         inv = {"Clay": 2}

@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Iron Smelting RNG Start</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101114;
+      --panel: #191b20;
+      --panel-2: #202329;
+      --text: #f0f2f5;
+      --muted: #aab0bb;
+      --line: #343943;
+      --accent: #f08f3e;
+      --ok: #55c27a;
+      --warn: #e5b84b;
+      --bad: #e66a6a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(180deg, rgba(240, 143, 62, 0.10), transparent 280px),
+        var(--bg);
+      color: var(--text);
+    }
+    main {
+      width: min(1100px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 40px 0 48px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(30px, 5vw, 58px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .lede {
+      max-width: 760px;
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin: 28px 0;
+    }
+    .card {
+      background: linear-gradient(180deg, var(--panel-2), var(--panel));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-height: 172px;
+    }
+    .label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .metric {
+      margin-top: 10px;
+      font-size: 34px;
+      font-weight: 750;
+    }
+    .metric.ok { color: var(--ok); }
+    .metric.warn { color: var(--warn); }
+    .metric.bad { color: var(--bad); }
+    .card p {
+      margin: 10px 0 0;
+      color: var(--muted);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .panel {
+      background: rgba(25, 27, 32, 0.86);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    li { margin: 7px 0; }
+    .source {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 8px 14px;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+    }
+    .source strong {
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .tests {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: #15171c;
+      font-size: 13px;
+    }
+    @media (max-width: 760px) {
+      .grid, .flow { grid-template-columns: 1fr; }
+      main { width: min(100vw - 24px, 1100px); padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Iron Smelting RNG Correction</h1>
+    <p class="lede">Backend slice to align AnkiScape Smithing with the local 2011Scape source: iron bars can fail after consuming ore, while other furnace bars remain deterministic.</p>
+
+    <section class="grid" aria-label="scope metrics">
+      <article class="card">
+        <div class="label">Source chance</div>
+        <div class="metric warn">50%-80%</div>
+        <p>Iron bar success interpolates from Smithing level 15 to 45 in the local emulator.</p>
+      </article>
+      <article class="card">
+        <div class="label">Other smelting RNG</div>
+        <div class="metric ok">None</div>
+        <p>Bronze, blurite, silver, steel, gold, mithril, adamant, and rune do not have a smelt-fail roll in the audited source.</p>
+      </article>
+      <article class="card">
+        <div class="label">Current add-on</div>
+        <div class="metric bad">100%</div>
+        <p>The existing runtime treats iron like every other Smithing recipe, so it never loses impure ore.</p>
+      </article>
+    </section>
+
+    <section class="flow">
+      <article class="panel">
+        <h2>Implementation Plan</h2>
+        <ul>
+          <li>Add pure iron-smelting probability and action helpers.</li>
+          <li>Switch runtime Smithing to source-shaped iron failure only.</li>
+          <li>Record telemetry for success chance, outputs, and smelt-fail attempts.</li>
+          <li>Leave Ring of Forging acquisition/UI out of this slice unless already wired.</li>
+        </ul>
+      </article>
+      <article class="panel">
+        <h2>Source Evidence</h2>
+        <div class="source">
+          <strong>Fishing</strong><span>FishingTool.kt keeps ordered fish lists; Fishing.kt rolls eligible fish in order.</span>
+          <strong>Smithing</strong><span>SmeltingAction.kt removes ore, then rolls iron only; Ring of Forging bypasses that roll.</span>
+          <strong>Data</strong><span>SmeltingData.kt lists only furnace inputs and XP; no other bar has a random failure branch.</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel" style="margin-top: 16px;">
+      <h2>Verification Target</h2>
+      <div class="tests">
+        <span class="pill">pure probability boundaries</span>
+        <span class="pill">iron fail consumes ore</span>
+        <span class="pill">iron success awards bar + XP</span>
+        <span class="pill">bronze stays deterministic</span>
+        <span class="pill">runtime telemetry records smelt_fail</span>
+        <span class="pill">run_tests.py</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

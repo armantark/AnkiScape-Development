@@ -566,6 +566,95 @@ def apply_smithing_pure(target, inventory, smithing_data):
     new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
     return new_inv, spec.get("exp", 0), True
 
+
+RING_OF_FORGING_ITEM = "Ring of forging"
+RING_OF_FORGING_MAX_CHARGES = 140
+
+
+def _equipment_has_ring_of_forging_pure(player_data):
+    return (player_data.get("equipment", {}) or {}).get("ring") == RING_OF_FORGING_ITEM
+
+
+def ring_of_forging_charges_pure(player_data):
+    if not _equipment_has_ring_of_forging_pure(player_data):
+        return 0
+    charges = (player_data.get("item_charges", {}) or {}).get(RING_OF_FORGING_ITEM)
+    if charges is None:
+        return RING_OF_FORGING_MAX_CHARGES
+    return max(0, _positive_int(charges, 0))
+
+
+def has_ring_of_forging_pure(player_data):
+    return ring_of_forging_charges_pure(player_data) > 0
+
+
+def consume_ring_of_forging_charge_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    if not _equipment_has_ring_of_forging_pure(data):
+        return data
+    remaining = ring_of_forging_charges_pure(data) - 1
+    item_charges = data.setdefault("item_charges", {})
+    if remaining > 0:
+        item_charges[RING_OF_FORGING_ITEM] = remaining
+    else:
+        item_charges.pop(RING_OF_FORGING_ITEM, None)
+        data.setdefault("equipment", {}).pop("ring", None)
+    return data
+
+
+def calculate_iron_smelting_success_probability_pure(smithing_level, has_ring_of_forging=False):
+    if has_ring_of_forging:
+        return 1.0
+    level = max(15, min(_positive_int(smithing_level, 15), 45))
+    chance_percent = 50 + ((80 - 50) * (level - 15) // (45 - 15))
+    return chance_percent / 100.0
+
+
+def smithing_success_probability_pure(target, spec, smithing_level, has_ring_of_forging=False):
+    if target == "smelt_iron_bar" and (spec or {}).get("station") == "furnace":
+        return calculate_iron_smelting_success_probability_pure(smithing_level, has_ring_of_forging)
+    return 1.0
+
+
+def apply_smithing_action_pure(
+    target,
+    inventory,
+    smithing_data,
+    smithing_level,
+    r_action=0.0,
+    has_ring_of_forging=False,
+):
+    """Apply one source-shaped Smithing action.
+
+    Returns (inventory, base_exp, processed, output_item, failed). Iron smelting
+    failure consumes ore and processes the action, but gives no bar or XP.
+    """
+    spec = smithing_data.get(target)
+    if not spec or not has_smithing_materials_pure(target, inventory, smithing_data):
+        return inventory, 0, False, None, False
+
+    new_inv = dict(inventory)
+    for material, amount in _requirements_from_spec(spec).items():
+        new_inv[material] = new_inv.get(material, 0) - amount
+
+    success_probability = smithing_success_probability_pure(
+        target,
+        spec,
+        smithing_level,
+        has_ring_of_forging=has_ring_of_forging,
+    )
+    try:
+        roll = float(r_action)
+    except (TypeError, ValueError):
+        roll = 1.0
+    if success_probability < 1.0 and roll >= success_probability:
+        return new_inv, 0, True, None, True
+
+    output_item = spec.get("output_item", target)
+    output_qty = _positive_int(spec.get("output_qty", 1))
+    new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+    return new_inv, spec.get("exp", 0), True, output_item, False
+
 def apply_woodcutting_pure(tree_name, inventory, tree_data, r_action, success_probability):
     """
     Attempt a woodcutting action. Returns (new_inventory, exp_gained, success).

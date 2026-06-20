@@ -322,6 +322,44 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["xp"], [50.0])
 
+    def test_smithing_answer_iron_failure_consumes_ore_without_xp(self):
+        addon = _load_addon_as_package("ankiscape_smithing_iron_failure_integration")
+
+        calls = {"save": 0, "xp": [], "gains": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.refresh_skill_availability = lambda *_args, **_kwargs: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Iron ore": 1},
+            "smithing_level": 15,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "smelt_iron_bar",
+            "completed_achievements": [],
+        }
+
+        original_random = addon.random.random
+        addon.random.random = lambda: 0.99
+        try:
+            addon.on_smithing_answer()
+        finally:
+            addon.random.random = original_random
+
+        self.assertEqual(addon.player_data["inventory"]["Iron ore"], 0)
+        self.assertNotIn("Iron bar", addon.player_data["inventory"])
+        self.assertEqual(addon.player_data["smithing_exp"], 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["gains"], ["The ore was too impure"])
+        telemetry = addon.player_data["action_telemetry"]["actions"]["smithing:smelt_iron_bar"]
+        self.assertEqual(telemetry["failure_kinds"], {"smelt_fail": 1})
+
     def test_equipment_callbacks_equip_and_unequip_items(self):
         addon = _load_addon_as_package("ankiscape_equipment_callbacks")
 

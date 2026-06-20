@@ -57,7 +57,7 @@ try:
         apply_open_bird_nests_pure,
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
-        apply_smithing_pure,
+        apply_smithing_action_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -84,10 +84,13 @@ try:
         has_firemaking_materials_pure,
         has_fishing_bait_pure,
         has_hunter_materials_pure,
+        has_ring_of_forging_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         record_action_telemetry_pure,
+        consume_ring_of_forging_charge_pure,
+        smithing_success_probability_pure,
         utility_activity_locked_reasons_pure,
     )
     from .skill_registry import get_skill
@@ -138,7 +141,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_open_bird_nests_pure,
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
-        apply_smithing_pure,
+        apply_smithing_action_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -165,10 +168,13 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         has_firemaking_materials_pure,
         has_fishing_bait_pure,
         has_hunter_materials_pure,
+        has_ring_of_forging_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         record_action_telemetry_pure,
+        consume_ring_of_forging_charge_pure,
+        smithing_success_probability_pure,
         utility_activity_locked_reasons_pure,
     )
     from skill_registry import get_skill  # type: ignore
@@ -290,6 +296,20 @@ def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None
     except (TypeError, ValueError):
         output_qty = 1
     return {str(output_item): max(output_qty, 1)}
+
+
+def _refresh_smithing_and_crafting_availability(ctx: RuntimeActionContext) -> None:
+    player_data = ctx.player_data
+    try:
+        can_craft_any = any(
+            can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
+            for item_name in CRAFTING_DATA.keys()
+        )
+        ctx.refresh_skill_availability_partial(ctx.can_smith_any(), can_craft_any)
+    except Exception:
+        pass
+
+    ctx.refresh_skill_availability()
 
 
 def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
@@ -902,8 +922,23 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Smithing to make {display_name}.")
         return False
 
-    new_inv, base_exp, ok = apply_smithing_pure(target, player_data["inventory"], SMITHING_DATA)
-    if not ok:
+    has_forging_ring = has_ring_of_forging_pure(player_data)
+    expected_success_chance = smithing_success_probability_pure(
+        target,
+        spec,
+        player_level,
+        has_ring_of_forging=has_forging_ring,
+    )
+    roll = ctx.random_random() if expected_success_chance < 1.0 else 0.0
+    new_inv, base_exp, processed, output_item, failed = apply_smithing_action_pure(
+        target,
+        player_data["inventory"],
+        SMITHING_DATA,
+        player_level,
+        roll,
+        has_ring_of_forging=has_forging_ring,
+    )
+    if not processed:
         missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
         ctx.deactivate_current_skill()
         ctx.show_error_message(
@@ -914,22 +949,39 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
-    _record_action(ctx, "smithing", target, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
+    if target == "smelt_iron_bar" and has_forging_ring:
+        ring_data = consume_ring_of_forging_charge_pure(player_data)
+        player_data["equipment"] = ring_data.get("equipment", {}) or {}
+        player_data["item_charges"] = ring_data.get("item_charges", {}) or {}
+
+    if failed:
+        _record_action(
+            ctx,
+            "smithing",
+            target,
+            False,
+            expected_success_chance=expected_success_chance,
+            failure_kind="smelt_fail",
+        )
+        ctx.save_player_data()
+        _refresh_smithing_and_crafting_availability(ctx)
+        ctx.show_activity_gain("The ore was too impure")
+        return True
+
+    _record_action(
+        ctx,
+        "smithing",
+        target,
+        True,
+        expected_success_chance=expected_success_chance,
+        output_items=_spec_output_items(spec, output_item),
+    )
     exp_gained = ctx.award_skill_exp("smithing_exp", base_exp)
     ctx.level_up_check("Smithing", player_data)
     ctx.check_achievements(player_data)
     ctx.save_player_data()
 
-    try:
-        can_craft_any = any(
-            can_craft_item_pure(player_data.get("crafting_level", 1), player_data.get("inventory", {}), item_name, CRAFTING_DATA)
-            for item_name in CRAFTING_DATA.keys()
-        )
-        ctx.refresh_skill_availability_partial(ctx.can_smith_any(), can_craft_any)
-    except Exception:
-        pass
-
-    ctx.refresh_skill_availability()
+    _refresh_smithing_and_crafting_availability(ctx)
     ctx.show_exp(exp_gained)
     return True
 

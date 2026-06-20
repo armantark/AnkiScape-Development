@@ -107,11 +107,15 @@ platebody is level 18, Rune dagger 85, Rune platebody 99). Transcribe levels fro
   downstream use today — fine as bankable XP items.
 - Item ids that are raw ints must be mapped via `items.yml`; do not guess names.
 
-## Deferred / Not Modeled
+## Modeled Exceptions / Deferred Content
 
-- **Iron 50% smelt-fail** (`rollIronBar`, 50→80% over lvl 15–45) and **Ring of Forging**: documented,
-  NOT modeled. One successful card = one finished bar/item, consistent with Crafting/Mining (no fail
-  rolls in the review loop). Record `respawn`/fail data as notes only.
+- **Iron 50% smelt-fail** (`rollIronBar`, 50→80% over lvl 15–45) is now modeled as of
+  2026-06-20: an impure iron roll consumes `Iron ore`, awards no Smithing XP, adds no
+  `Iron bar`, and records telemetry with `failure_kind = "smelt_fail"`. Other furnace
+  bars remain deterministic because `SmeltingAction.kt` only branches for `Items.IRON_BAR`.
+  Ring of Forging is supported at the pure/runtime state level if `player_data["equipment"]["ring"]`
+  is `Ring of forging` with up to 140 charges, but acquisition/enchanting and visible item
+  registration remain future Magic/economy work.
 - **Cannonballs, Goldsmith gauntlets, Artisan's Workshop, blast furnace** — not in this plugin / out of
   era scope; `future_content`.
 - **Combat effects of forged gear** — gear can be banked and equipped now, but combat training and
@@ -165,5 +169,6 @@ under one skill); the rest follows the Mining/WC/Crafting precedent.
   `Adamantite bar`/`Runite bar` migrate to source item names `Adamant bar`/`Rune bar`. Unknown inventory
   entries are preserved.
 - Tests cover source-data integrity (166 recipes, smelt table, forge XP = bars×barXP, level/output
-  spot checks), pure smelt/forge mechanics, multi-bar forge deduction, runtime forge dispatch, storage
-  migration, item manifest coverage, and offscreen Qt import/UI smoke coverage.
+  spot checks), pure smelt/forge mechanics including iron smelt failure, multi-bar forge deduction,
+  runtime forge dispatch, storage migration, item manifest coverage, and offscreen Qt import/UI smoke
+  coverage.

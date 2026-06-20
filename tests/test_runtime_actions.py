@@ -8,6 +8,7 @@ from runtime_actions import (
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
+    handle_smithing_answer,
 )
 
 
@@ -221,6 +222,33 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["failures"], 1)
         self.assertEqual(telemetry["failure_kinds"], {"burn": 1})
         self.assertEqual(telemetry["outputs"], {"Burnt shrimp": 1})
+
+    def test_smithing_iron_failure_consumes_ore_and_records_telemetry(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Iron ore": 1},
+            "smithing_level": 15,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "smelt_iron_bar",
+            "completed_achievements": [],
+        }
+
+        ok = handle_smithing_answer(_context(player_data, calls, random_values=[0.99]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Iron ore"], 0)
+        self.assertNotIn("Iron bar", player_data["inventory"])
+        self.assertEqual(player_data["smithing_exp"], 0)
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["The ore was too impure"])
+        telemetry = player_data["action_telemetry"]["actions"]["smithing:smelt_iron_bar"]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["failures"], 1)
+        self.assertEqual(telemetry["failure_kinds"], {"smelt_fail": 1})
+        self.assertAlmostEqual(telemetry["expected_successes"], 0.5)
 
 
 if __name__ == "__main__":
