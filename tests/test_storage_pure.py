@@ -129,6 +129,12 @@ class TestStoragePure(unittest.TestCase):
             if material not in WOODCUTTING_LOG_ITEMS
         ]
         utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values() if "output_item" in spec]
+        utility_bundle_outputs = [
+            item_name
+            for spec in UTILITY_ACTIVITY_DATA.values()
+            if isinstance(spec.get("outputs"), dict)
+            for item_name in spec.get("outputs", {})
+        ]
         hunter_materials = [
             material
             for spec in HUNTER_DATA.values()
@@ -147,6 +153,7 @@ class TestStoragePure(unittest.TestCase):
             + list(FISHING_OUTPUT_ITEMS)
             + list(COOKING_OUTPUT_ITEMS)
             + utility_outputs
+            + utility_bundle_outputs
             + list(RUNECRAFTING_OUTPUT_ITEMS)
             + list(RUNECRAFTING_ACCESS_ITEMS)
             + list(RUNECRAFTING_EXTRA_ITEM_DATA)

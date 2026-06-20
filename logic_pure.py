@@ -310,6 +310,20 @@ def utility_activity_locked_reasons_pure(player_data, activity_key, utility_acti
     return tuple(dict.fromkeys(reasons))
 
 
+def _utility_outputs_from_spec(spec):
+    outputs = spec.get("outputs")
+    if isinstance(outputs, Mapping):
+        return {
+            str(item): _positive_int(amount, 1)
+            for item, amount in outputs.items()
+            if isinstance(item, str) and item
+        }
+    output_item = spec.get("output_item")
+    if isinstance(output_item, str) and output_item:
+        return {output_item: _positive_int(spec.get("output_qty", 1), 1)}
+    return {}
+
+
 def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
     """Apply a no-XP Utility/Activity and return (inventory, exp, success, processed)."""
     spec = utility_activity_data.get(activity_key)
@@ -324,9 +338,11 @@ def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
     new_inv = dict(inventory)
     for material, amount in requirements.items():
         new_inv[material] = new_inv.get(material, 0) - (_positive_int(amount) * batch_count)
-    output_item = spec.get("output_item", activity_key)
-    output_qty = _positive_int(spec.get("output_qty", 1))
-    new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)
+    outputs = _utility_outputs_from_spec(spec)
+    if not outputs:
+        outputs = {activity_key: 1}
+    for output_item, output_qty in outputs.items():
+        new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)
     return new_inv, 0, True, batch_count
 
 def apply_smelt_pure(bar_name, inventory, bar_data):
@@ -1752,6 +1768,26 @@ def has_hunter_materials_pure(target, inventory, hunter_data):
     return True
 
 
+def missing_hunter_tools_pure(target, inventory, hunter_data):
+    """Return reusable Hunter tools missing from inventory/bank state."""
+    spec = hunter_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    tools = spec.get("tools", {})
+    if not isinstance(tools, Mapping):
+        return tuple()
+    missing = []
+    for tool, amount in tools.items():
+        required = _positive_int(amount, 1)
+        if inventory.get(tool, 0) < required:
+            missing.append(str(tool))
+    return tuple(missing)
+
+
+def has_hunter_tools_pure(target, inventory, hunter_data):
+    return not missing_hunter_tools_pure(target, inventory, hunter_data)
+
+
 def hunter_target_locked_reasons_pure(player_data, target, hunter_data, quest_unlock_rules=()):
     spec = hunter_data.get(target)
     if not spec:
@@ -1763,6 +1799,7 @@ def hunter_target_locked_reasons_pure(player_data, target, hunter_data, quest_un
         reasons.append(f"Hunter level {required_level}")
     if not has_hunter_materials_pure(target, player_data.get("inventory", {}) or {}, hunter_data):
         reasons.append("materials")
+    reasons.extend(missing_hunter_tools_pure(target, player_data.get("inventory", {}) or {}, hunter_data))
     reasons.extend(
         quest_unlock_locked_reasons_pure(
             player_data,
@@ -1780,7 +1817,7 @@ def can_hunt_target_pure(hunter_level, inventory, target, hunter_data):
         return False
     if hunter_level < _positive_int(spec.get("level", 1), 1):
         return False
-    return has_hunter_materials_pure(target, inventory, hunter_data)
+    return has_hunter_materials_pure(target, inventory, hunter_data) and has_hunter_tools_pure(target, inventory, hunter_data)
 
 
 def apply_hunter_action_pure(target, inventory, hunter_data, hunter_level, r_action):

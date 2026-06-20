@@ -33,6 +33,7 @@
 - Cooking v1 is in place: source-backed `cooking_data.py`, stable `current_cooking` target IDs, storage config version 14 migration/defaults, review-scale cook/burn chances, burn failures that consume raw inputs and produce burnt items, generic Cooking achievements, beef/bear sinew secondary targets, dedicated Cooking assets, a `food` item category, grouped Cooking target UI, grouped Utility/Activities prep UI, and confirmed Bank `Discard all` for every item.
 - Runecrafting v1 is in place: source-backed `runecrafting_data.py`, stable `current_runecrafting` target IDs, storage config version 15 migration/defaults, Rune Mysteries quest unlock with 250 Runecrafting XP, standard/combination rune crafting, tiara binding, Wicked hood claim/feed access with no Runecrafting level claim gate, pouch capacity/degradation, Binding necklace charge counter, achievements, dedicated assets, a `runecrafting` item category, grouped Runecrafting target UI, Quests tab, Bank Claims, Stats/Bank/HUD support, action multiplier support, and undo rollback.
 - Hunter v1 is in place: source-backed `hunter_data.py`, stable `current_hunter` target IDs, storage config version 18 migration/defaults, bird snaring, butterfly netting, deadfall, box trapping, net trapping, falconry, magic box, and Puro-Puro/world impling rows, generic Hunter achievements, dedicated assets, a `hunter` item category, grouped Hunter target UI, quest/route-precedent locks, Stats/Bank/HUD support, action multiplier support, and undo rollback.
+- Hunter now has a temporary supply acquisition bridge: `Buy Hunter supplies` is a one-shot no-XP Utility/Activities row that spends `500 Coins`, grants reusable Hunter gear plus starter jars, and automatically switches AnkiScape off after the successful review. Hunter targets now distinguish reusable `tools` from consumed `requirements`, so snares/nets/traps gate methods without being deleted while jars, logs, and magic boxes still consume on successful catches.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -58,6 +59,7 @@
 - Cooking follow-ups that need broader systems: cleaner Farming/Combat/shop/GE acquisition routes for some prep ingredients, and any recipe families not represented in the local `CookingData.kt` table.
 - Runecrafting follow-ups that need broader systems: Magic Imbue, Wicked hood daily essence/runes/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes.
 - Hunter follow-ups that need broader systems: tracking trails, pitfall trapping, rabbit snaring, barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and richer partial-route modeling for Regicide-start content.
+- A compelling shop/GE interface is still not built. The Hunter supply row is deliberately a narrow bridge, not a final shopping UX or economy model.
 
 ## Frontend Progress
 - The main menu top bar now holds global sections only: Skills, Bank, Stats, Achievements, Settings. The four per-skill top tabs were removed.
@@ -258,6 +260,17 @@ Stats, Bank, and HUD. The source audit is
 `python3 run_tests.py` passes with 317 tests (79 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passes with 317 tests.
+
+Hunter supply bridge completed on 2026-06-20. `hunter_data.py` now carries
+reusable `tools` gates separately from consumed `requirements`, and
+`Buy Hunter supplies` is registered as a one-shot Utility/Activities bridge
+using source-backed Darkan shop stock plus a temporary `500 Coins` AnkiScape
+bundle price. Utility pure logic, target metadata, runtime dispatch, and the
+item manifest now support multi-output one-shot activities. Newly fetched Hunter
+gear icons live in `hunteritems/` with provenance. The broader shop/GE UX is
+still deferred. `python3 run_tests.py` passes with 377 tests (89 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passes with 377 tests.
 
 Full pre-EOC Quest catalog second pass completed on 2026-06-17.
 `tools/build_pre_eoc_quest_catalog.py` generates `quest_catalog_generated.py`

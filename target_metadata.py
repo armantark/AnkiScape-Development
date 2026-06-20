@@ -80,9 +80,13 @@ def _material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int
     return ok, "\n".join(lines)
 
 
-def _indented_material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int]) -> str:
+def _indented_material_lines(
+    requirements: Mapping[str, int],
+    inventory: Mapping[str, int],
+    empty_text: str = "No materials required",
+) -> str:
     if not requirements:
-        return "  No materials required"
+        return f"  {empty_text}"
     return "\n".join(
         f"  {material} x{amount} (you have {inventory.get(material, 0)})"
         for material, amount in requirements.items()
@@ -697,6 +701,8 @@ def hunter_target_rows(
         lvl_req = int(spec.get("level", 1) or 1)
         requirements = spec.get("requirements", {})
         reqs = requirements if isinstance(requirements, Mapping) else {}
+        tools_raw = spec.get("tools", {})
+        tools = tools_raw if isinstance(tools_raw, Mapping) else {}
         outputs_raw = spec.get("outputs", {})
         outputs = outputs_raw if isinstance(outputs_raw, Mapping) else {}
         primary_output = str(spec.get("primary_output", spec.get("output_item", display_name)))
@@ -712,7 +718,8 @@ def hunter_target_rows(
             f"Outputs: {_hunter_output_text(outputs)}\n"
             f"Base XP: {spec.get('exp', 0)} per successful catch\n"
             f"Success chance: {chance:.0%} per attempt\n"
-            f"Materials:\n{_indented_material_lines(reqs, inventory)}"
+            f"Materials:\n{_indented_material_lines(reqs, inventory)}\n"
+            f"Reusable tools:\n{_indented_material_lines(tools, inventory, 'No reusable tools required')}"
         )
         notes = spec.get("notes")
         if notes:
@@ -775,16 +782,30 @@ def utility_activity_rows(
             elif not enabled:
                 tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
         else:
-            output_item = str(spec.get("output_item", label))
-            if icon_path is None:
-                icon_path = utility_item_images.get(output_item)
-            output_qty = spec.get("output_qty", 1)
+            outputs_raw = spec.get("outputs", {})
+            outputs = outputs_raw if isinstance(outputs_raw, Mapping) else {}
+            if outputs:
+                icon_item = str(spec.get("icon_item", next(iter(outputs))))
+                if icon_path is None:
+                    icon_path = utility_item_images.get(icon_item)
+                output_text = "Outputs: " + ", ".join(f"{item} x{amount}" for item, amount in outputs.items())
+            else:
+                output_item = str(spec.get("output_item", label))
+                if icon_path is None:
+                    icon_path = utility_item_images.get(output_item)
+                output_qty = spec.get("output_qty", 1)
+                output_text = f"Output: {output_item} x{output_qty} per item"
             requirements = spec.get("requirements", {})
             reqs = requirements if isinstance(requirements, Mapping) else {}
             _, mat_text = _material_lines(reqs, inventory)
+            run_text = (
+                "Runs once, then switches off. No skill XP."
+                if spec.get("deactivate_after_run")
+                else f"Processes up to {batch_size} per successful card. No skill XP."
+            )
             tooltip = (
-                f"Processes up to {batch_size} per successful card. No skill XP.\n"
-                f"Output: {output_item} x{output_qty} per item\nMaterials:\n{mat_text}"
+                f"{run_text}\n"
+                f"{output_text}\nMaterials:\n{mat_text}"
             )
             locked_reasons = utility_activity_locked_reasons_pure(
                 player_data,

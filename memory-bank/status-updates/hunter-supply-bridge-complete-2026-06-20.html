@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hunter Supply Bridge Complete</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.12), transparent 34%),
+        linear-gradient(215deg, rgba(74, 222, 128, 0.08), transparent 36%),
+        var(--bg);
+      font-family: "Outfit", sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0 56px;
+    }
+
+    .badge, .tag, .label, .step-num, button {
+      font-family: "JetBrains Mono", monospace;
+    }
+
+    .badge {
+      display: inline-flex;
+      padding: 7px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 8px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      color: var(--text-dim);
+      font-size: 1rem;
+      line-height: 1.6;
+      margin: 0 0 30px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.92);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+    }
+
+    .card h2 {
+      margin: 8px 0 8px;
+      font-size: 1.25rem;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      line-height: 1.55;
+      margin: 0 0 14px;
+    }
+
+    .label {
+      color: var(--green);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .label.major { color: var(--amber); }
+    .label.future { color: var(--purple); }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--text-dim);
+      font-size: 0.68rem;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 44px 1fr;
+      gap: 10px;
+      align-items: stretch;
+      margin-top: 12px;
+    }
+
+    .pane {
+      min-height: 180px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+    }
+
+    .pane-title {
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      border: 1px solid #2b3343;
+      border-radius: 8px;
+      background: #171d27;
+      font-size: 0.82rem;
+    }
+
+    .row.dim { opacity: 0.55; }
+    .row.active { border-color: rgba(79, 140, 255, 0.75); box-shadow: 0 0 0 1px rgba(79, 140, 255, 0.18); }
+    .mini { color: var(--text-dim); font-family: "JetBrains Mono", monospace; font-size: 0.66rem; white-space: nowrap; }
+    .arrow { display: grid; place-items: center; color: var(--accent); font-size: 1.9rem; }
+
+    .bundle {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #111720;
+      font-size: 0.82rem;
+    }
+
+    .amount { color: var(--amber); font-family: "JetBrains Mono", monospace; }
+
+    .steps {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(30, 35, 44, 0.7);
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--accent);
+      color: #07101f;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .step strong { display: block; margin-bottom: 3px; }
+    .step span { color: var(--text-dim); line-height: 1.45; }
+
+    .meter {
+      display: grid;
+      grid-template-columns: 120px 1fr 42px;
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.76rem;
+      color: var(--text-dim);
+    }
+
+    .bar {
+      height: 9px;
+      border-radius: 999px;
+      background: #0d1118;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      width: var(--w);
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    details {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      background: #111720;
+    }
+
+    summary {
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    details p {
+      margin-top: 10px;
+      margin-bottom: 0;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); min-height: 30px; }
+      .bundle { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETED / HUNTER SUPPLY BRIDGE</span>
+    <h1>Hunter gear now has a narrow acquisition path</h1>
+    <p class="subtitle">
+      The final shop interface is still deferred. This pass adds the smallest live bridge: spend quest-scale coins once, receive source-backed Hunter supplies, and automatically switch off after the review.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label major">Design decision</div>
+        <h2>Tools are gates, not consumables</h2>
+        <p>
+          Hunter targets now split reusable gear from items that should disappear. Snares, nets, and box traps stay in inventory as capability checks; jars, logs, and magic boxes are still consumed only on successful catches.
+        </p>
+        <div class="flow">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="row dim"><span>Catch crimson swift</span><span class="mini">no snare gate</span></div>
+            <div class="row"><span>Catch ruby harvest</span><span class="mini">jar consumed</span></div>
+            <div class="row dim"><span>Catch swamp lizard</span><span class="mini">net gear absent</span></div>
+          </div>
+          <div class="arrow">></div>
+          <div class="pane">
+            <div class="pane-title">After</div>
+            <div class="row active"><span>Catch crimson swift</span><span class="mini">Bird snare gate</span></div>
+            <div class="row active"><span>Catch ruby harvest</span><span class="mini">net gate + jar consumed</span></div>
+            <div class="row active"><span>Catch swamp lizard</span><span class="mini">net + rope gates</span></div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">hunter_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">target_metadata.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label">Bridge behavior</div>
+        <h2>One review, then off</h2>
+        <p>
+          `Buy Hunter supplies` spends `500 Coins`, grants the bundle below, saves inventory, and flips `current_skill` to `None`. The action multiplier cannot buy multiple bundles on the same card.
+        </p>
+        <div class="bundle">
+          <div class="item"><span>Bird snare</span><span class="amount">x1</span></div>
+          <div class="item"><span>Box trap</span><span class="amount">x1</span></div>
+          <div class="item"><span>Butterfly net</span><span class="amount">x1</span></div>
+          <div class="item"><span>Butterfly jar</span><span class="amount">x10</span></div>
+          <div class="item"><span>Magic box</span><span class="amount">x1</span></div>
+          <div class="item"><span>Small fishing net</span><span class="amount">x1</span></div>
+          <div class="item"><span>Rope</span><span class="amount">x1</span></div>
+          <div class="item"><span>Impling jar</span><span class="amount">x10</span></div>
+        </div>
+        <details>
+          <summary>Why this is not the final shop</summary>
+          <p>
+            The bundle uses source-backed shop stock, but the exact per-item economy and a compelling shopping UX still belong to the later shop/GE pass. This is just enough to make Hunter trainable now.
+          </p>
+        </details>
+        <div class="tags">
+          <span class="tag">UTILITY_ACTIVITY_DATA</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">item_registry.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label">Coverage</div>
+        <h2>What changed</h2>
+        <div class="steps">
+          <div class="step"><span class="step-num">1</span><div><strong>Backend data</strong><span>Added Hunter supply bundle, source notes, reusable tool metadata, and tool/material item categories.</span></div></div>
+          <div class="step"><span class="step-num">2</span><div><strong>Pure logic</strong><span>Utility supports multi-output activities; Hunter checks tools without consuming them.</span></div></div>
+          <div class="step"><span class="step-num">3</span><div><strong>Runtime</strong><span>One-shot Utility activities deactivate after the successful review and show a purchase gain message.</span></div></div>
+          <div class="step"><span class="step-num">4</span><div><strong>UI metadata</strong><span>Rows show bundle outputs, coin locks, reusable tools, and target-specific missing gear.</span></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label future">Verification</div>
+        <h2>Signal added</h2>
+        <div class="meter"><span>Unit logic</span><div class="bar"><div class="fill" style="--w: 100%"></div></div><span>pass</span></div>
+        <div class="meter"><span>Target rows</span><div class="bar"><div class="fill" style="--w: 100%"></div></div><span>pass</span></div>
+        <div class="meter"><span>Registry</span><div class="bar"><div class="fill" style="--w: 100%"></div></div><span>pass</span></div>
+        <div class="meter"><span>Integration</span><div class="bar"><div class="fill" style="--w: 100%"></div></div><span>pass</span></div>
+        <p>
+          Full core and offscreen Qt suites passed: 377 tests in each run, with the core run skipping 89 Qt-only tests outside the Qt environment.
+        </p>
+        <div class="tags">
+          <span class="tag">tests/test_logic.py</span>
+          <span class="tag">tests/test_target_metadata.py</span>
+          <span class="tag">tests/test_integration_smoke.py</span>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

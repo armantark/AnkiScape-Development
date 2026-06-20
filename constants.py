@@ -49,6 +49,8 @@ try:
         hunter_extra_items_as_dict,
         hunter_item_names,
         hunter_output_items,
+        hunter_supply_activities_as_dict,
+        hunter_supply_item_names,
         hunter_targets_as_dict,
     )
     from .item_registry import build_item_definitions
@@ -141,6 +143,8 @@ except ImportError:
         hunter_extra_items_as_dict,
         hunter_item_names,
         hunter_output_items,
+        hunter_supply_activities_as_dict,
+        hunter_supply_item_names,
         hunter_targets_as_dict,
     )
     from item_registry import build_item_definitions
@@ -293,6 +297,7 @@ UTILITY_ACTIVITY_DATA = {
     },
 }
 UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(hunter_supply_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 
@@ -498,6 +503,10 @@ for _item_name in set(hunter_item_names()) | set(HUNTER_OUTPUT_ITEMS) | set(HUNT
     _path = os.path.join(HUNTER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
         HUNTER_ITEM_IMAGES[_item_name] = _path
+for _item_name in hunter_supply_item_names():
+    _path = HUNTER_ITEM_IMAGES.get(_item_name)
+    if _path:
+        UTILITY_ITEM_IMAGES[_item_name] = _path
 
 COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}

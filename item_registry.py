@@ -251,9 +251,15 @@ def build_item_definitions(
     if utility_activity_data is not None:
         image_map = utility_item_images or {}
         for spec in utility_activity_data.values():
-            output_name = spec.get("output_item")
-            if isinstance(output_name, str) and (extra_item_data is None or output_name not in extra_item_data):
-                add_material_definition(output_name, "Utility / Activities", image_map)
+            outputs = spec.get("outputs", {})
+            if isinstance(outputs, Mapping):
+                output_names = tuple(item_name for item_name in outputs if isinstance(item_name, str))
+            else:
+                output_name = spec.get("output_item")
+                output_names = (output_name,) if isinstance(output_name, str) else ()
+            for output_name in output_names:
+                if extra_item_data is None or output_name not in extra_item_data:
+                    add_material_definition(output_name, "Utility / Activities", image_map)
             for requirement_name in spec.get("requirements", {}):
                 if requirement_name not in seen_storage_keys and (extra_item_data is None or requirement_name not in extra_item_data):
                     add_material_definition(requirement_name, "Utility / Activities", image_map)

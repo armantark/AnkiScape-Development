@@ -252,6 +252,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             if material not in WOODCUTTING_LOG_ITEMS
         ]
         utility_outputs = [spec["output_item"] for spec in UTILITY_ACTIVITY_DATA.values() if "output_item" in spec]
+        utility_bundle_outputs = [
+            item_name
+            for spec in UTILITY_ACTIVITY_DATA.values()
+            if isinstance(spec.get("outputs"), dict)
+            for item_name in spec.get("outputs", {})
+        ]
         utility_materials = [
             material
             for spec in UTILITY_ACTIVITY_DATA.values()
@@ -282,6 +288,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 for material in spec.get("requirements", {})
             ]
             + utility_outputs
+            + utility_bundle_outputs
             + utility_materials
             + list(RUNECRAFTING_OUTPUT_ITEMS)
             + list(RUNECRAFTING_ACCESS_ITEMS)
@@ -331,6 +338,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("Wicked hood", item_storage_keys_by_category(ITEM_DEFINITIONS, "runecrafting"))
         self.assertIn("Red feather", item_storage_keys_by_category(ITEM_DEFINITIONS, "hunter"))
         self.assertIn("Imp-in-a-box (2)", item_storage_keys_by_category(ITEM_DEFINITIONS, "hunter"))
+        self.assertIn("Bird snare", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
+        self.assertIn("Box trap", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
+        self.assertIn("Butterfly net", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
+        self.assertIn("Small fishing net", item_storage_keys_by_category(ITEM_DEFINITIONS, "tool"))
         self.assertIn("Butterfly jar", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertIn("Impling jar", item_storage_keys_by_category(ITEM_DEFINITIONS, "material"))
         self.assertFalse(by_storage_key["Blurite ore"].tradeable)
@@ -415,6 +426,13 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("chicken_level_1.plugin.kts", feather_source)
         bait_source = UTILITY_ACTIVITY_DATA["gather_fishing_bait"]["source"]
         self.assertIn("lumbridge_fishing_supplies.plugin.kts", bait_source)
+        hunter_source = UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["source"]
+        self.assertIn("alecks_hunter_emporium.json", hunter_source)
+        self.assertIn("elnocks_backup_supply.json", hunter_source)
+        self.assertTrue(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["deactivate_after_run"])
+        self.assertEqual(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["requirements"], {"Coins": 500})
+        self.assertEqual(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["outputs"]["Bird snare"], 1)
+        self.assertEqual(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["outputs"]["Impling jar"], 10)
         self.assertIn("gather_grain", UTILITY_ACTIVITY_DATA)
         self.assertEqual(UTILITY_ACTIVITY_DATA["gather_grain"]["group"], "gathering")
         self.assertIn("assemble_uncooked_pizza", UTILITY_ACTIVITY_DATA)
@@ -580,6 +598,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         self.assertEqual(len(HUNTER_DATA), 55)
         self.assertEqual(HUNTER_DATA["catch_crimson_swift"]["outputs"]["Red feather"], 5)
+        self.assertEqual(HUNTER_DATA["catch_crimson_swift"]["tools"], {"Bird snare": 1})
+        self.assertEqual(HUNTER_DATA["catch_ferret"]["tools"], {"Box trap": 1})
+        self.assertEqual(HUNTER_DATA["catch_swamp_lizard"]["tools"], {"Small fishing net": 1, "Rope": 1})
+        self.assertEqual(HUNTER_DATA["catch_baby_impling_puro_puro"]["tools"], {"Butterfly net": 1})
+        self.assertEqual(HUNTER_DATA["catch_baby_impling_world"]["tools"], {})
         self.assertEqual(HUNTER_DATA["catch_wild_kebbit"]["requirements"], {"Logs": 1})
         self.assertEqual(HUNTER_DATA["catch_imp_magic_box"]["output_item"], "Imp-in-a-box (2)")
         self.assertEqual(HUNTER_DATA["catch_gourmet_impling_world"]["output_item"], "Gourm' impling jar")
@@ -596,15 +619,26 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Impling jar",
             "Butterfly jar",
             "Magic box",
+            "Bird snare",
+            "Box trap",
+            "Butterfly net",
+            "Small fishing net",
+            "Rope",
+            "Noose wand",
+            "Teasing stick",
+            "Rabbit snare",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertIn(item_name, HUNTER_ITEM_IMAGES)
             self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[item_name]), f"{item_name} Hunter icon is missing")
 
         self.assertEqual(by_storage_key["Red feather"].category, "hunter")
+        self.assertEqual(by_storage_key["Bird snare"].category, "tool")
+        self.assertEqual(by_storage_key["Box trap"].category, "tool")
         self.assertEqual(by_storage_key["Impling jar"].category, "material")
         self.assertEqual(by_storage_key["Magic box"].category, "material")
         self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Magic box"]["item_id"], 10025)
+        self.assertEqual(HUNTER_EXTRA_ITEM_DATA["Bird snare"]["item_id"], 10006)
 
         iconless = sorted(
             item_name

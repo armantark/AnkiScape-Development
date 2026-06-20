@@ -404,6 +404,8 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Base XP: 128.0 per successful catch", wild_kebbit.tooltip)
         self.assertIn("Success chance:", wild_kebbit.tooltip)
         self.assertIn("Logs x1 (you have 1)", wild_kebbit.tooltip)
+        self.assertIn("Reusable tools:", wild_kebbit.tooltip)
+        self.assertIn("No reusable tools required", wild_kebbit.tooltip)
         self.assertFalse(barb_tailed.enabled)
         self.assertEqual(barb_tailed.locked_reasons, ("Hunter level 33",))
 
@@ -423,10 +425,32 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(locked_wild_kebbit.locked_reasons, ("materials",))
         self.assertIn("Locked due to: materials", locked_wild_kebbit.tooltip)
 
+        bird_rows = hunter_target_rows(
+            {
+                "hunter_level": 1,
+                "inventory": {},
+                "current_hunter": "catch_crimson_swift",
+            },
+            HUNTER_DATA,
+            HUNTER_ITEM_IMAGES,
+            DEFAULT_HUNTER_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        crimson_swift = _row(bird_rows, "catch_crimson_swift")
+        self.assertFalse(crimson_swift.enabled)
+        self.assertEqual(crimson_swift.locked_reasons, ("Bird snare",))
+        self.assertIn("Bird snare x1 (you have 0)", crimson_swift.tooltip)
+
     def test_hunter_rows_apply_quest_unlock_rules(self):
         player_data = {
             "hunter_level": 99,
-            "inventory": {"Impling jar": 1},
+            "inventory": {
+                "Box trap": 1,
+                "Butterfly net": 1,
+                "Impling jar": 1,
+                "Small fishing net": 1,
+                "Rope": 1,
+            },
             "quests": {},
             "current_hunter": "catch_ferret",
         }
@@ -524,6 +548,25 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertFalse(nests.enabled)
         self.assertIn("No XP", nests.tooltip)
         self.assertIn("Locked: cut trees until a bird nest drops.", nests.tooltip)
+
+        hunter_supplies = _row(rows, "buy_hunter_supplies")
+        self.assertFalse(hunter_supplies.enabled)
+        self.assertIn("Runs once, then switches off", hunter_supplies.tooltip)
+        self.assertIn("Bird snare x1", hunter_supplies.tooltip)
+        self.assertIn("Butterfly jar x10", hunter_supplies.tooltip)
+        self.assertIn("Coins x500 (you have 0)", hunter_supplies.tooltip)
+
+        funded_rows = utility_activity_rows(
+            {"inventory": {"Coins": 500}, "current_utility": "buy_hunter_supplies"},
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        funded_hunter_supplies = _row(funded_rows, "buy_hunter_supplies")
+        self.assertTrue(funded_hunter_supplies.current)
+        self.assertTrue(funded_hunter_supplies.enabled)
+        self.assertEqual(os.path.basename(funded_hunter_supplies.icon_path or ""), "bird_snare.png")
 
     def test_utility_rows_apply_region_quest_unlock_rules(self):
         rows = utility_activity_rows(

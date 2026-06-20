@@ -56,6 +56,8 @@ from logic_pure import (
     has_fishing_bait_pure,
     can_perform_utility_activity_pure,
     utility_activity_locked_reasons_pure,
+    hunter_target_locked_reasons_pure,
+    apply_hunter_action_pure,
     can_runecraft_target_pure,
     binding_necklace_charges_pure,
     claim_rows_pure,
@@ -88,6 +90,7 @@ from constants import (
     QUEST_UNLOCK_RULES,
     RUNECRAFTING_DATA,
     RUNECRAFTING_POUCH_DATA,
+    HUNTER_DATA,
     UTILITY_ACTIVITY_DATA,
 )
 
@@ -973,6 +976,56 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 0)
         self.assertEqual(processed, 28)
         self.assertEqual(inv["Fishing bait"], 28)
+
+    def test_utility_activity_supports_one_shot_multi_output_purchase(self):
+        inv, exp, ok, processed = apply_utility_activity_pure(
+            "buy_hunter_supplies",
+            {"Coins": 500},
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 1)
+        self.assertEqual(inv["Coins"], 0)
+        self.assertEqual(inv["Bird snare"], 1)
+        self.assertEqual(inv["Box trap"], 1)
+        self.assertEqual(inv["Butterfly jar"], 10)
+        self.assertEqual(inv["Impling jar"], 10)
+
+    def test_hunter_reusable_tools_gate_targets_without_being_consumed(self):
+        self.assertEqual(
+            hunter_target_locked_reasons_pure(
+                {"hunter_level": 1, "inventory": {}},
+                "catch_crimson_swift",
+                HUNTER_DATA,
+                QUEST_UNLOCK_RULES,
+            ),
+            ("Bird snare",),
+        )
+
+        inv, exp, ok, _output_item, _rewards = apply_hunter_action_pure(
+            "catch_crimson_swift",
+            {"Bird snare": 1},
+            HUNTER_DATA,
+            1,
+            0.0,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 34.0)
+        self.assertEqual(inv["Bird snare"], 1)
+        self.assertEqual(inv["Red feather"], 5)
+
+        butterfly_inv, _exp, butterfly_ok, _output_item, _rewards = apply_hunter_action_pure(
+            "catch_ruby_harvest",
+            {"Butterfly net": 1, "Butterfly jar": 1},
+            HUNTER_DATA,
+            15,
+            0.0,
+        )
+        self.assertTrue(butterfly_ok)
+        self.assertEqual(butterfly_inv["Butterfly net"], 1)
+        self.assertEqual(butterfly_inv["Butterfly jar"], 0)
 
     def test_cooking_source_odds_and_scaled_probability(self):
         shrimps = COOKING_DATA["cook_shrimps"]

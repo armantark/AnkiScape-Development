@@ -389,6 +389,19 @@ partial-route modeling remain deferred. Source audit:
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 374 tests.
 
+Hunter supply bridge follow-up completed on 2026-06-20. Reusable Hunter gear is
+now modeled separately from consumed materials: target specs expose reusable
+`tools` gates for snares, box traps, butterfly nets, and tree-net gear, while
+`requirements` still represent items deleted on successful catches such as jars,
+logs, and magic boxes. `Buy Hunter supplies` is a temporary no-XP
+Utility/Activities bridge that spends `500 Coins` for a Darkan-stock-backed
+starter/restock bundle and then automatically switches AnkiScape off after one
+successful review, preventing action-multiplier repeats. The richer shop/GE
+interface is intentionally deferred to a later UX/economy pass. Verification:
+`python3 run_tests.py` passed with 377 tests (89 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 377 tests.
+
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
   could still be justified later if a future feature needs behavior beyond the

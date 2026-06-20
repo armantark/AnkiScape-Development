@@ -20,6 +20,26 @@ BOX_HUNTER_TYPE_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/BoxHunterType.java"
 BOX_TRAP_TYPE_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/BoxTrapType.java"
 FLYING_ENTITY_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/FlyingEntityHunter.java"
 FALCONRY_KEBBIT_SOURCE = f"{DARKAN_HUNTER_SOURCE_ROOT}/falconry/Kebbit.java"
+HUNTER_SUPPLY_SHOP_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/shops/alecks_hunter_emporium.json"
+)
+HUNTER_IMPLING_JAR_SHOP_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/shops/elnocks_backup_supply.json"
+)
+HUNTER_SMALL_NET_SHOP_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/shops/lumbridge_fishing_supplies.json"
+)
+HUNTER_ROPE_SHOP_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/shops/shantay_pass_shop.json"
+)
+HUNTER_SUPPLY_SHOP_PRICE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/engine/Shop.java"
+)
 
 HUNTER_BIRD_SNARING_SOURCE = "https://www.2011.rs/kb/hunter_bird_snaring_level_1"
 HUNTER_BUTTERFLY_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
@@ -35,6 +55,7 @@ AS_A_FIRST_RESORT_SOURCE = "https://www.2011.rs/kb/as_a_first_resort_members"
 PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
 
 DEFAULT_HUNTER_TARGET = "catch_crimson_swift"
+HUNTER_SUPPLY_BUNDLE_COST = 500
 
 HUNTER_GROUP_LABELS = {
     "bird_snaring": "Bird snaring",
@@ -49,6 +70,29 @@ HUNTER_GROUP_LABELS = {
 }
 HUNTER_GROUP_ORDER = tuple(HUNTER_GROUP_LABELS.keys())
 _GROUP_SORT = {group_id: index for index, group_id in enumerate(HUNTER_GROUP_ORDER)}
+HUNTER_REUSABLE_TOOLS_BY_GROUP = {
+    "bird_snaring": (("Bird snare", 1),),
+    "butterfly_netting": (("Butterfly net", 1),),
+    "box_trapping": (("Box trap", 1),),
+    "net_trapping": (("Small fishing net", 1), ("Rope", 1)),
+    "impling_puro_puro": (("Butterfly net", 1),),
+}
+HUNTER_REUSABLE_TOOLS_BY_TARGET = {
+    "catch_imp_magic_box": (),
+}
+HUNTER_SUPPLY_BUNDLE = (
+    ("Bird snare", 1),
+    ("Box trap", 1),
+    ("Butterfly net", 1),
+    ("Butterfly jar", 10),
+    ("Magic box", 1),
+    ("Small fishing net", 1),
+    ("Rope", 1),
+    ("Noose wand", 1),
+    ("Teasing stick", 1),
+    ("Rabbit snare", 1),
+    ("Impling jar", 10),
+)
 
 
 @dataclass(frozen=True)
@@ -61,6 +105,7 @@ class HunterTarget:
     outputs: Tuple[Tuple[str, int], ...]
     primary_output: str
     requirements: Tuple[Tuple[str, int], ...] = ()
+    tools: Tuple[Tuple[str, int], ...] = ()
     source: str = ""
     mechanics_source: str = ""
     source_enum: str = ""
@@ -103,6 +148,7 @@ def _target(
     notes: str = "",
     sort_order: int = 0,
 ) -> HunterTarget:
+    tools = HUNTER_REUSABLE_TOOLS_BY_TARGET.get(id, HUNTER_REUSABLE_TOOLS_BY_GROUP.get(group, ()))
     return HunterTarget(
         id=id,
         display_name=display_name,
@@ -112,6 +158,7 @@ def _target(
         outputs=outputs,
         primary_output=primary_output,
         requirements=requirements,
+        tools=tools,
         source=source,
         mechanics_source=mechanics_source,
         source_enum=source_enum,
@@ -643,6 +690,17 @@ HUNTER_MATERIAL_ITEMS: Mapping[str, int] = {
     "Magic box": 10025,
 }
 
+HUNTER_TOOL_ITEMS: Mapping[str, int] = {
+    "Bird snare": 10006,
+    "Box trap": 10008,
+    "Butterfly net": 10010,
+    "Noose wand": 10150,
+    "Teasing stick": 10029,
+    "Rabbit snare": 10031,
+    "Small fishing net": 303,
+    "Rope": 954,
+}
+
 HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Bones": 526,
     "Raw bird meat": 9978,
@@ -651,9 +709,8 @@ HUNTER_EXTRA_ITEM_IDS: Mapping[str, int] = {
     "Orange feather": 10091,
     "Blue feather": 10089,
     "Stripy feather": 10087,
-    "Butterfly jar": 10012,
-    "Impling jar": 11260,
-    "Magic box": 10025,
+    **HUNTER_MATERIAL_ITEMS,
+    **HUNTER_TOOL_ITEMS,
 }
 
 
@@ -666,6 +723,7 @@ def _target_as_dict(target: HunterTarget) -> Dict[str, object]:
         "exp": target.base_exp,
         "base_exp": target.base_exp,
         "requirements": dict(target.requirements),
+        "tools": dict(target.tools),
         "outputs": dict(target.outputs),
         "output_item": target.primary_output,
         "output_qty": dict(target.outputs).get(target.primary_output, 1),
@@ -704,26 +762,67 @@ def hunter_item_names() -> Tuple[str, ...]:
             seen.setdefault(item_name, None)
         for material, _amount in target.requirements:
             seen.setdefault(material, None)
+        for tool, _amount in target.tools:
+            seen.setdefault(tool, None)
+    for item_name, _amount in HUNTER_SUPPLY_BUNDLE:
+        seen.setdefault(item_name, None)
     return tuple(seen.keys())
+
+
+def hunter_supply_item_names() -> Tuple[str, ...]:
+    return tuple(item_name for item_name, _amount in HUNTER_SUPPLY_BUNDLE)
+
+
+def hunter_supply_activities_as_dict() -> Dict[str, Dict[str, object]]:
+    return {
+        "buy_hunter_supplies": {
+            "display_name": "Buy Hunter supplies",
+            "requirements": {"Coins": HUNTER_SUPPLY_BUNDLE_COST},
+            "outputs": dict(HUNTER_SUPPLY_BUNDLE),
+            "batch_size": 1,
+            "deactivate_after_run": True,
+            "icon_item": "Bird snare",
+            "group": "shopping",
+            "source": (
+                f"{HUNTER_SUPPLY_SHOP_SOURCE}: Aleck's Hunter Emporium stock; "
+                f"{HUNTER_IMPLING_JAR_SHOP_SOURCE}: Elnock's Backup Supply for impling jars; "
+                f"{HUNTER_SMALL_NET_SHOP_SOURCE}: small fishing net stock; "
+                f"{HUNTER_ROPE_SHOP_SOURCE}: rope stock; "
+                f"{HUNTER_SUPPLY_SHOP_PRICE_SOURCE}: coin shop pricing. "
+                "AnkiScape bridge price buys one starter/restock bundle until shops/GE get a full UI."
+            ),
+        },
+    }
+
+
+def _hunter_extra_category(item_name: str) -> str:
+    if item_name in HUNTER_TOOL_ITEMS:
+        return "tool"
+    if item_name in HUNTER_MATERIAL_ITEMS:
+        return "material"
+    return "hunter"
+
+
+def _hunter_extra_source(item_name: str) -> str:
+    if item_name == "Impling jar":
+        return HUNTER_IMPLING_JAR_SHOP_SOURCE
+    if item_name == "Small fishing net":
+        return HUNTER_SMALL_NET_SHOP_SOURCE
+    if item_name == "Rope":
+        return HUNTER_ROPE_SHOP_SOURCE
+    if item_name in HUNTER_TOOL_ITEMS or item_name in HUNTER_MATERIAL_ITEMS:
+        return HUNTER_SUPPLY_SHOP_SOURCE
+    return BOX_HUNTER_TYPE_SOURCE
 
 
 def hunter_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     rows: Dict[str, Dict[str, object]] = {}
     for item_name, item_id in HUNTER_EXTRA_ITEM_IDS.items():
         rows[item_name] = {
-            "category": "hunter" if item_name not in HUNTER_MATERIAL_ITEMS else "material",
+            "category": _hunter_extra_category(item_name),
             "level": 1,
             "exp": 0.0,
-            "source": BOX_HUNTER_TYPE_SOURCE,
-            "item_id": item_id,
-            "tradeable": True,
-        }
-    for item_name, item_id in HUNTER_MATERIAL_ITEMS.items():
-        rows[item_name] = {
-            "category": "material",
-            "level": 1,
-            "exp": 0.0,
-            "source": BOX_TRAP_TYPE_SOURCE if item_name == "Magic box" else FLYING_ENTITY_SOURCE,
+            "source": _hunter_extra_source(item_name),
             "item_id": item_id,
             "tradeable": True,
         }

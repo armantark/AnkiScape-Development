@@ -728,6 +728,39 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["+28 Fishing bait"])
 
+    def test_hunter_supply_purchase_runs_once_and_switches_off(self):
+        addon = _load_addon_as_package("ankiscape_hunter_supply_purchase_integration")
+
+        calls = {"save": 0, "gains": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 10}))
+        addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda text: calls["gains"].append(text))
+        addon.player_data = {
+            "inventory": {"Coins": 500},
+            "current_utility": "buy_hunter_supplies",
+            "completed_achievements": [],
+        }
+
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "None")
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Bird snare"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Box trap"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Butterfly jar"], 10)
+        self.assertEqual(addon.player_data["inventory"]["Impling jar"], 10)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Bought Hunter supplies"])
+
     def test_bad_review_action_multiplier_config_falls_back_to_one_tick(self):
         addon = _load_addon_as_package("ankiscape_bad_review_multiplier_integration")
 

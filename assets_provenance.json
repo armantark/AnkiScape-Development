@@ -4703,6 +4703,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:22Z"
   },
+  "hunteritems/bird_snare.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bird_snare.png",
+    "file_title": "Bird snare.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bird_snare.png?356fd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "581f548833f133b059994167717d9643ec0f64da",
+    "size": 537,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:27Z"
+  },
   "hunteritems/black_salamander.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_salamander.png",
     "file_title": "Black salamander.png",
@@ -4751,6 +4763,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:55Z"
   },
+  "hunteritems/box_trap.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Box_trap.png",
+    "file_title": "Box trap.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Box_trap.png?9ae5a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "74892d271fcab82be86bbcd57a8745c935181bd3",
+    "size": 470,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:56Z"
+  },
   "hunteritems/butterfly_jar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Butterfly_jar.png",
     "file_title": "Butterfly jar.png",
@@ -4762,6 +4786,18 @@
     "size": 689,
     "source_wiki": "osrs",
     "timestamp": "2024-09-29T19:13:00Z"
+  },
+  "hunteritems/butterfly_net.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Butterfly_net.png",
+    "file_title": "Butterfly net.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Butterfly_net.png?a3905",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "086b32cb9fb22da45402bd3a6e168ceb9ccade13",
+    "size": 418,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:24Z"
   },
   "hunteritems/chinchompa.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chinchompa.png",
@@ -5003,6 +5039,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:24Z"
   },
+  "hunteritems/noose_wand.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Noose_wand.png",
+    "file_title": "Noose wand.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Noose_wand.png?1bf3c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "75af10086cbf40142bc482bfb3c3259369a3ab7c",
+    "size": 334,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:24Z"
+  },
   "hunteritems/orange_feather.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Orange_feather.png",
     "file_title": "Orange feather.png",
@@ -5038,6 +5086,18 @@
     "size": 1052,
     "source_wiki": "rs3",
     "timestamp": "2022-03-24T21:26:53Z"
+  },
+  "hunteritems/rabbit_snare.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rabbit_snare.png",
+    "file_title": "Rabbit snare.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rabbit_snare.png?9a45f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0530a084245ce95bfcfc1b4e67e11c450b0b94ec",
+    "size": 410,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:54Z"
   },
   "hunteritems/raw_bird_meat.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Raw_bird_meat.png",
@@ -5099,6 +5159,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:30Z"
   },
+  "hunteritems/rope.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rope.png",
+    "file_title": "Rope.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rope.png?43f24",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ec560add87963267366116c9eb57b7d10954541c",
+    "size": 636,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:04:35Z"
+  },
   "hunteritems/ruby_harvest.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ruby_harvest.png",
     "file_title": "Ruby harvest.png",
@@ -5122,6 +5194,18 @@
     "size": 438404,
     "source_wiki": "osrs",
     "timestamp": "2019-09-10T00:02:58Z"
+  },
+  "hunteritems/small_fishing_net.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Small_fishing_net.png",
+    "file_title": "Small fishing net.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Small_fishing_net.png?aa0b3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "34e54fd358b6c217af5e8bd0f4c9db6152ea77e3",
+    "size": 917,
+    "source_wiki": "osrs",
+    "timestamp": "2024-09-01T20:05:38Z"
   },
   "hunteritems/snowy_knight.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Snowy_knight.png",
@@ -5182,6 +5266,18 @@
     "size": 263,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:42Z"
+  },
+  "hunteritems/teasing_stick.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Teasing_stick.png",
+    "file_title": "Teasing stick.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Teasing_stick.png?52875",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c174773d70022a66fce6d9eb3adcc24a51fd8243",
+    "size": 215,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:57Z"
   },
   "hunteritems/yellow_feather.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Yellow_feather.png",

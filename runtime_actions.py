@@ -354,18 +354,30 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     player_data["inventory"] = new_inv
+    if spec.get("deactivate_after_run"):
+        ctx.deactivate_current_skill()
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
 
-    output_item = str(spec.get("output_item", activity_key))
-    try:
-        output_qty = max(int(spec.get("output_qty", 1)), 1)
-    except (TypeError, ValueError):
-        output_qty = 1
-    gained = output_qty * max(int(processed), 0)
-    if gained > 0:
-        ctx.show_activity_gain(f"+{gained} {output_item}")
+    outputs = spec.get("outputs", {})
+    if isinstance(outputs, dict) and outputs:
+        if spec.get("deactivate_after_run"):
+            ctx.show_activity_gain(str(display_name).replace("Buy ", "Bought ", 1))
+        else:
+            total_outputs = sum(max(int(amount), 1) for amount in outputs.values() if isinstance(amount, int))
+            gained = total_outputs * max(int(processed), 0)
+            if gained > 0:
+                ctx.show_activity_gain(f"+{gained} items")
+    else:
+        output_item = str(spec.get("output_item", activity_key))
+        try:
+            output_qty = max(int(spec.get("output_qty", 1)), 1)
+        except (TypeError, ValueError):
+            output_qty = 1
+        gained = output_qty * max(int(processed), 0)
+        if gained > 0:
+            ctx.show_activity_gain(f"+{gained} {output_item}")
     return True
 
 
