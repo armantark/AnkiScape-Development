@@ -90,8 +90,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Mysteries, and Lost City with local source-backed item/action/route/combat
   chains. The Demon Slayer focused replacement then moved bucket water, bones,
   Silverlight keys, Silverlight, Delrith, and incantation requirements out of a
-  broad generated combat row. The live audit now reports 401 stage rows, 80
-  focused rows, 321 generated rows, and 14 produced-inventory rows. This is still broad
+  broad generated combat row. The early Darkan stage batch then replaced Goblin
+  Diplomacy, Ernest the Chicken, and Black Knights' Fortress with source-backed
+  item/action chains, and `logic_pure._has_quest_tool()` now lets quest-required
+  tools be satisfied by worn equipment for disguise stages. The live audit now
+  reports 412 stage rows, 93 focused rows, 319 generated rows, and 19
+  produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -104,6 +108,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-2011scape-intermediate-stage-batch-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-early-darkan-stage-batch-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten

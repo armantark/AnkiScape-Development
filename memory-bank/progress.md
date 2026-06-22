@@ -497,7 +497,7 @@ a required-action rage meter gate, then splits the fear, confusion,
 hopelessness, and Tolna rooms into sourced Darkan multi-count combat gates.
 Death to the Dorgeshuun's generated `Senior guard x3` row now maps to
 `Senior H.A.M. guard` with level 22 local Darkan combatdef stats. Current audit
-coverage is 174/283 resolver-ready combat rows with 109 statless rows still
+coverage at that slice was 174/283 resolver-ready combat rows with 109 statless rows still
 blocked; full minute-detail quest parity remains open.
 
 Historical wiki combat-stat source-tier audit completed on 2026-06-22. The new
@@ -582,6 +582,30 @@ Required full-suite verification passed: `python3 run_tests.py` passed with 465
 tests (108 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 465 tests.
+
+Early Darkan quest stage batch completed on 2026-06-22. Backend: `quest_data.py`
+now replaces generated rows for Goblin Diplomacy, Ernest the Chicken, and Black
+Knights' Fortress with focused Darkan-backed stage chains. Goblin Diplomacy
+consumes orange, blue, and regular goblin mail at their real hand-in stages;
+Ernest the Chicken produces and consumes poisoned fish food, pressure gauge,
+grimy key, rubber tube, and oil can through Oddenstein's machine-part flow; and
+Black Knights' Fortress uses the sourced 12 quest point start requirement, worn
+equipment support for the Iron chainbody/Bronze med helm disguise, the cabbage
+cauldron sabotage, and the Sir Amik report before completion. Frontend: the
+existing Quests tab blocker surface now has offscreen Qt coverage for Ernest's
+Fish food/Poison blocker. Assets: quest-stage item icons for the new goblin mail
+and Ernest machine-part blockers are registered with provenance. Shield of Arrav
+was audited but remains deferred until route-bundle and partner-exchange state
+can model Phoenix/Black Arm branches honestly. Post-slice audit reports 412
+stage rows, 93 focused rows, 319 generated rows, 283 combat encounters, 175
+resolver-ready combat encounters, 174 quests with item/tool blockers, and 119
+quests with combat blockers. Full all-quest minute-detail parity remains open.
+Source audit:
+`memory-bank/source-audits/quest-early-darkan-stage-batch-2026-06-22.md`.
+Focused verification passed:
+`python3 -m unittest tests.test_logic tests.test_runtime_actions tests.test_integration_smoke tests.test_skill_and_item_registry`
+and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget`.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

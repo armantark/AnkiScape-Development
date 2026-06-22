@@ -1255,6 +1255,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Bucket of water x1", action.toolTip())
 
+    def test_quests_tab_shows_ernest_machine_part_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "ernest_the_chicken"
+        pd["quests"]["ernest_the_chicken"] = {"started": True, "progress": 3, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Needs Fish food x1, Needs Poison x1"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_ernest_the_chicken")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Fish food x1", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

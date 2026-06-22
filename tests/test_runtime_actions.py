@@ -151,6 +151,28 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["errors"][0][1])
 
+    def test_quest_stage_progress_accepts_required_tools_from_equipment(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {"body": "Iron chainbody", "head": "Bronze med helm"},
+            "current_quest": "black_knights_fortress",
+            "quests": {"black_knights_fortress": {"started": True, "progress": 1, "completed": False}},
+            "quest_stage_actions": {"black_knights_fortress": ["Infiltrate the Black Knights' Fortress"]},
+            "quest_points": 12,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["black_knights_fortress"]["progress"], 2)
+        self.assertFalse(player_data["quests"]["black_knights_fortress"]["completed"])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Black Knights' Fortress 2/5"])
+
     def test_quest_answer_completes_priest_in_peril_only_after_essence_gate(self):
         blocked_calls = {"xp": [], "saves": 0, "errors": []}
         blocked_data = {

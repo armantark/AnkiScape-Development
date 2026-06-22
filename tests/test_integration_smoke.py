@@ -562,6 +562,42 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["dialogs"][0][1])
 
+    def test_quest_answer_progresses_black_knights_disguise_from_equipment(self):
+        addon = _load_addon_as_package("ankiscape_black_knights_stage_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "equipment": {"body": "Iron chainbody", "head": "Bronze med helm"},
+            "current_quest": "black_knights_fortress",
+            "quests": {"black_knights_fortress": {"started": True, "progress": 1, "completed": False}},
+            "quest_stage_actions": {"black_knights_fortress": ["Infiltrate the Black Knights' Fortress"]},
+            "quest_points": 12,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["black_knights_fortress"]["progress"], 2)
+        self.assertFalse(addon.player_data["quests"]["black_knights_fortress"]["completed"])
+        self.assertEqual(addon.player_data["quest_points"], 12)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Black Knights' Fortress 2/5"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_consumes_priest_in_peril_essence_at_completion_gate(self):
         addon = _load_addon_as_package("ankiscape_priest_in_peril_essence_integration")
 

@@ -1742,6 +1742,128 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(vampyre["quest_points"], 3)
         self.assertEqual(vampyre["pending_skill_exp_rewards"], {"attack_exp": 4825.0})
 
+    def test_early_darkan_quests_progress_through_source_backed_stage_gates(self):
+        goblin = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        goblin["quests"]["goblin_diplomacy"] = {"started": True, "progress": 1, "completed": False}
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(goblin, "goblin_diplomacy", QUEST_DATA),
+            ("Needs Orange goblin mail x1",),
+        )
+
+        goblin["inventory"].update({"Orange goblin mail": 1, "Blue goblin mail": 1, "Goblin mail": 1})
+        goblin, ok, completed_now = apply_quest_progress_pure(goblin, "goblin_diplomacy", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(goblin["inventory"]["Orange goblin mail"], 0)
+        self.assertEqual(goblin["quests"]["goblin_diplomacy"]["progress"], 2)
+
+        goblin, ok, completed_now = apply_quest_progress_pure(goblin, "goblin_diplomacy", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(goblin["inventory"]["Blue goblin mail"], 0)
+        self.assertEqual(goblin["quests"]["goblin_diplomacy"]["progress"], 3)
+
+        goblin, ok, completed_now = apply_quest_progress_pure(goblin, "goblin_diplomacy", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(goblin["inventory"]["Goblin mail"], 0)
+        self.assertEqual(goblin["inventory"]["Gold bar"], 1)
+        self.assertEqual(goblin["quest_points"], 5)
+        self.assertEqual(goblin["crafting_exp"], 200.0)
+
+        ernest = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        ernest["quests"]["ernest_the_chicken"] = {"started": True, "progress": 1, "completed": False}
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(ernest, "ernest_the_chicken", QUEST_DATA),
+            ("Action required: Ask Professor Oddenstein about Ernest",),
+        )
+        ernest["quest_stage_actions"] = {
+            "ernest_the_chicken": [
+                "Ask Professor Oddenstein about Ernest",
+                "Agree to retrieve Oddenstein's machine parts",
+            ]
+        }
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+
+        ernest["inventory"].update({"Fish food": 1, "Poison": 1, "Spade": 1})
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["inventory"]["Fish food"], 0)
+        self.assertEqual(ernest["inventory"]["Poison"], 0)
+        self.assertEqual(ernest["inventory"]["Poisoned fish food"], 1)
+
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["inventory"]["Poisoned fish food"], 0)
+        self.assertEqual(ernest["inventory"]["Pressure gauge"], 1)
+
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["inventory"]["Grimy key"], 1)
+
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["inventory"]["Rubber tube"], 1)
+
+        ernest["quest_stage_actions"]["ernest_the_chicken"].append("Solve the Draynor Manor basement lever puzzle")
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(ernest["inventory"]["Oil can"], 1)
+
+        ernest, ok, completed_now = apply_quest_progress_pure(ernest, "ernest_the_chicken", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(ernest["inventory"]["Pressure gauge"], 0)
+        self.assertEqual(ernest["inventory"]["Rubber tube"], 0)
+        self.assertEqual(ernest["inventory"]["Oil can"], 0)
+        self.assertEqual(ernest["inventory"]["Coins"], 3000)
+        self.assertEqual(ernest["inventory"]["Egg"], 10)
+        self.assertEqual(ernest["inventory"]["Feather"], 300)
+
+        black = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        black["quest_points"] = 11
+        self.assertFalse(can_start_quest_pure(black, "black_knights_fortress", QUEST_DATA))
+        self.assertEqual(quest_locked_reasons_pure(black, "black_knights_fortress", QUEST_DATA), ("12 quest points",))
+
+        black["quest_points"] = 12
+        black["quests"]["black_knights_fortress"] = {"started": True, "progress": 1, "completed": False}
+        black["equipment"] = {"body": "Iron chainbody", "head": "Bronze med helm"}
+        black["quest_stage_actions"] = {
+            "black_knights_fortress": [
+                "Infiltrate the Black Knights' Fortress",
+                "Listen at the grill above the Black Knights' meeting",
+                "Report the ruined potion to Sir Amik Varze",
+            ]
+        }
+        self.assertEqual(quest_current_stage_blockers_pure(black, "black_knights_fortress", QUEST_DATA), ())
+
+        black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        black["inventory"]["Cabbage"] = 1
+        black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(black["inventory"]["Cabbage"], 0)
+        black, ok, completed_now = apply_quest_progress_pure(black, "black_knights_fortress", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(black["quest_points"], 15)
+        self.assertEqual(black["inventory"]["Coins"], 2500)
+
     def test_quest_combat_resolver_uses_player_and_source_backed_npc_stats(self):
         self.assertEqual(
             player_combat_level_pure(

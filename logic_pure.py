@@ -1190,6 +1190,9 @@ def _has_quest_tool(player_data, tool_name, amount):
     inventory = player_data.get("inventory", {}) or {}
     if inventory.get(tool_name, 0) >= amount:
         return True
+    equipment = player_data.get("equipment", {}) or {}
+    if isinstance(equipment, Mapping) and tool_name in {str(item_name) for item_name in equipment.values()}:
+        return True
     lowered = tool_name.lower()
     toolbelt = player_data.get("toolbelt", {}) or {}
     if lowered == "pickaxe":

@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Parity - Early Darkan Batch</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1017;
+      --panel: #151b24;
+      --panel-2: #1c2532;
+      --ink: #edf2f7;
+      --muted: #9ca9b7;
+      --line: #2a3544;
+      --good: #45c486;
+      --warn: #f0b44c;
+      --bad: #ef6f6c;
+      --blue: #66a8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, rgba(102,168,255,.16), transparent 28rem), var(--bg);
+      color: var(--ink);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 34px 18px 42px; }
+    header {
+      display: grid;
+      grid-template-columns: 1.3fr .7fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    section, .hero, .metric {
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)), var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 18px 60px rgba(0,0,0,.28);
+    }
+    .hero { padding: 24px; }
+    .eyebrow { color: var(--blue); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 8px 0 10px; font-size: clamp(28px, 4vw, 48px); line-height: 1.05; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    .metrics { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    .metric { padding: 18px; }
+    .metric strong { display: block; font-size: 30px; line-height: 1; margin-bottom: 7px; }
+    .metric span { color: var(--muted); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0; }
+    section { padding: 18px; }
+    .quest {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 14px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+    .quest:first-of-type { border-top: 0; padding-top: 0; }
+    .tag {
+      width: max-content;
+      max-width: 100%;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--ink);
+      background: var(--panel-2);
+      font-size: 12px;
+      white-space: normal;
+    }
+    .tag.good { border-color: rgba(69,196,134,.45); color: var(--good); }
+    .tag.warn { border-color: rgba(240,180,76,.45); color: var(--warn); }
+    .tag.bad { border-color: rgba(239,111,108,.45); color: var(--bad); }
+    ul { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+    li { margin: 5px 0; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+    .step { background: var(--panel-2); border: 1px solid var(--line); border-radius: 8px; padding: 12px; min-height: 92px; }
+    .step b { display: block; margin-bottom: 6px; }
+    .risk { border-left: 4px solid var(--warn); padding-left: 14px; }
+    .footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 820px) {
+      header, .grid, .flow { grid-template-columns: 1fr; }
+      .quest { grid-template-columns: 1fr; }
+      main { padding: 20px 12px 32px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="hero">
+        <div class="eyebrow">Pre-work status · 2026-06-22</div>
+        <h1>Early Darkan Stage-Gate Batch</h1>
+        <p>
+          This pass continues the all-quest parity goal by replacing generated, quest-wide requirement rows with
+          source-backed stage blockers for the earliest Darkan-backed free quests that fit the current model.
+        </p>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong>321</strong><span>generated stage rows still remain after Demon Slayer</span></div>
+        <div class="metric"><strong>3</strong><span>safe source-backed replacements planned in this commit</span></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section>
+        <h2>Backend</h2>
+        <p>Focused `quest_data.py` overrides, no generated catalog hand edits.</p>
+        <ul>
+          <li>Consume Goblin mail colors at the generals' exact stages.</li>
+          <li>Produce and consume Ernest's machine parts in source order.</li>
+          <li>Gate Black Knights' disguise, eavesdropping, cabbage sabotage, and report-back separately.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Frontend</h2>
+        <p>Use the existing quest state surface unless blocker wording or icon paths expose a real UI gap.</p>
+        <ul>
+          <li>Verify compact blocker reasons in Qt/offscreen tests.</li>
+          <li>Keep can-start separate from blocked-at-stage.</li>
+          <li>Register quest-item icons only for newly visible items.</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Source Boundary</h2>
+        <p>Darkan quest implementations are the primary evidence for this batch; local 2011Scape item identity is used for item names.</p>
+        <ul>
+          <li>Goblin Diplomacy: `goblindiplomacy/GoblinDiplomacy.java`.</li>
+          <li>Ernest: `ernestthechicken/*` quest and dialogue files.</li>
+          <li>Black Knights: `blackknightsfortress/*` quest and dialogue files.</li>
+        </ul>
+      </section>
+    </div>
+
+    <section>
+      <h2>Quest Slices</h2>
+      <div class="quest">
+        <div class="tag good">Implement</div>
+        <div>
+          <b>Goblin Diplomacy</b>
+          <p>Replace dye/item alternatives with staged colored mail handoffs: orange, blue, then brown Goblin mail.</p>
+        </div>
+      </div>
+      <div class="quest">
+        <div class="tag good">Implement</div>
+        <div>
+          <b>Ernest the Chicken</b>
+          <p>Model poisoned fish food, grimy key, pressure gauge, rubber tube, oil can, and the Professor Oddenstein completion handoff.</p>
+        </div>
+      </div>
+      <div class="quest">
+        <div class="tag good">Implement</div>
+        <div>
+          <b>Black Knights' Fortress</b>
+          <p>Separate disguise/tools from infiltration actions and consume the cabbage only at the cauldron sabotage stage.</p>
+        </div>
+      </div>
+      <div class="quest">
+        <div class="tag warn">Audit only</div>
+        <div>
+          <b>Shield of Arrav</b>
+          <p>Do not flatten the Phoenix/Black Arm branch into start locks. The source uses branch and partner state, so this needs route-bundle semantics before implementation.</p>
+        </div>
+      </div>
+    </section>
+
+    <section style="margin-top:18px">
+      <h2>Expected Flow</h2>
+      <div class="flow">
+        <div class="step"><b>1. Source Read</b><p>Confirm Darkan stage constants, item IDs, consumption, produced items, and rewards.</p></div>
+        <div class="step"><b>2. Data Override</b><p>Add focused replacement rows and quest-item metadata in `quest_data.py`.</p></div>
+        <div class="step"><b>3. Test Surface</b><p>Unit, integration, Qt/offscreen, and asset-path tests prove blockers and icons.</p></div>
+        <div class="step"><b>4. Memory + Commit</b><p>Write source audit, update Memory Bank, run required suites, commit locally.</p></div>
+      </div>
+    </section>
+
+    <section style="margin-top:18px">
+      <h2>Known Risk</h2>
+      <p class="risk">
+        Shield of Arrav cannot be honestly represented with one linear generated row. If this pass reaches a clean route-bundle design, it can be added;
+        otherwise the commit will record it as explicit remaining parity debt instead of pretending the quest is done.
+      </p>
+    </section>
+
+    <div class="footer">
+      Artifact is self-contained for Postplan upload. No external fonts, scripts, or network assets.
+    </div>
+  </main>
+</body>
+</html>

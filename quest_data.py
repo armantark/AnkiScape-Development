@@ -26,6 +26,9 @@ VAMPYRE_SLAYER_ID = "vampyre_slayer"
 THE_RESTLESS_GHOST_ID = "the_restless_ghost"
 LOST_CITY_ID = "lost_city"
 DEMON_SLAYER_ID = "demon_slayer"
+GOBLIN_DIPLOMACY_ID = "goblin_diplomacy"
+ERNEST_THE_CHICKEN_ID = "ernest_the_chicken"
+BLACK_KNIGHTS_FORTRESS_ID = "black_knights_fortress"
 LUNAR_DIPLOMACY_ID = "lunar_diplomacy"
 MOURNINGS_END_PART_II_ID = "mournings_end_part_ii"
 LEGACY_OF_SEERGAZE_ID = "legacy_of_seergaze"
@@ -138,6 +141,13 @@ DARKAN_DEMON_SLAYER_DELRITH_SOURCE = f"{DARKAN_DEMON_SLAYER_SOURCE_ROOT}/Delrith
 DARKAN_DEMON_SLAYER_DELRITH_CONTROLLER_SOURCE = f"{DARKAN_DEMON_SLAYER_SOURCE_ROOT}/PlayerVSDelrithController.java"
 DARKAN_DEMON_SLAYER_INCANTATION_SOURCE = f"{DARKAN_DEMON_SLAYER_SOURCE_ROOT}/EncantationOptionsD.java"
 DARKAN_DEMON_SLAYER_DELRITH_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/delrith (nostats).json"
+DARKAN_GOBLIN_DIPLOMACY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/goblindiplomacy/GoblinDiplomacy.java"
+DARKAN_ERNEST_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/ernestthechicken"
+DARKAN_ERNEST_SOURCE = f"{DARKAN_ERNEST_SOURCE_ROOT}/ErnestTheChicken.java"
+DARKAN_ERNEST_ODDENSTEIN_SOURCE = f"{DARKAN_ERNEST_SOURCE_ROOT}/OddensteinErnestChickenD.java"
+DARKAN_BLACK_KNIGHTS_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/blackknightsfortress"
+DARKAN_BLACK_KNIGHTS_SOURCE = f"{DARKAN_BLACK_KNIGHTS_SOURCE_ROOT}/BlackKnightsFortress.java"
+DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE = f"{DARKAN_BLACK_KNIGHTS_SOURCE_ROOT}/SirAmikVarzeBlackKnightsFortressD.java"
 SCAPE_2011_ITEM_IDENTITY_SOURCE = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
 DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
@@ -667,6 +677,33 @@ DEMON_SLAYER_STAGES: Tuple[QuestStage, ...] = (
     ),
 )
 
+GOBLIN_DIPLOMACY_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "The goblin generals want to try orange goblin mail."),
+    _simple_stage(2, "The generals rejected orange goblin mail and now want blue goblin mail."),
+    _simple_stage(3, "The generals rejected blue goblin mail and now want regular brown goblin mail."),
+    _simple_stage(4, "The generals chose brown armour and rewarded me.", "Quest complete!"),
+)
+
+ERNEST_THE_CHICKEN_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Veronica asked me to find Ernest inside Draynor Manor."),
+    _simple_stage(2, "Professor Oddenstein says Ernest has been turned into a chicken."),
+    _simple_stage(3, "Oddenstein needs his pressure gauge, rubber tube, and oil can to repair the machine."),
+    _simple_stage(4, "I poisoned the fish food and can use it on the manor fountain."),
+    _simple_stage(5, "I recovered the pressure gauge from the fountain."),
+    _simple_stage(6, "A grimy key from the compost heap should open the room with the rubber tube."),
+    _simple_stage(7, "I recovered the rubber tube from the locked room."),
+    _simple_stage(8, "I recovered the oil can from the basement puzzle and should return all three parts to Oddenstein."),
+    _simple_stage(9, "Professor Oddenstein restored Ernest and rewarded me.", "Quest complete!"),
+)
+
+BLACK_KNIGHTS_FORTRESS_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Sir Amik Varze asked me to infiltrate the Black Knights' Fortress."),
+    _simple_stage(2, "I entered the fortress in disguise and need to learn the Black Knights' plan."),
+    _simple_stage(3, "The Black Knights' potion can be ruined by dropping the wrong cabbage into the cauldron."),
+    _simple_stage(4, "The potion is ruined. I should report back to Sir Amik Varze."),
+    _simple_stage(5, "Sir Amik Varze rewarded me for stopping the Black Knights.", "Quest complete!"),
+)
+
 TAI_BWO_WANNAI_TRIO_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Timfraku wants his three sons to return to Tai Bwo Wannai."),
     _simple_stage(2, "I helped Tiadeche learn the way to catch karambwan."),
@@ -825,6 +862,64 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         length="Short to Medium",
         timeline="Fifth Age",
         unlocks=("Silverlight",),
+    ),
+    QuestDefinition(
+        id=ERNEST_THE_CHICKEN_ID,
+        display_name="Ernest the Chicken",
+        stages=9,
+        point_reward=4,
+        rewards=(("Coins", 3000), ("Egg", 10), ("Feather", 300)),
+        start_point="Talk to Veronica south of Draynor Manor's gates.",
+        requirements=(
+            "Used during quest: Fish food x1, Poison x1, Spade x1, Pressure gauge x1, Rubber tube x1, Oil can x1",
+        ),
+        required_items=(),
+        combat="None required; dangerous manor enemies are avoidable.",
+        source=f"{DARKAN_ERNEST_SOURCE}; {DARKAN_ERNEST_ODDENSTEIN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        journal_stages=ERNEST_THE_CHICKEN_STAGES,
+        release_date="2001-01-21",
+        members=False,
+        difficulty="Novice",
+        length="Medium",
+        timeline="Fifth Age",
+    ),
+    QuestDefinition(
+        id=BLACK_KNIGHTS_FORTRESS_ID,
+        display_name="Black Knights' Fortress",
+        stages=5,
+        point_reward=3,
+        rewards=(("Coins", 2500),),
+        start_point="Speak to Sir Amik Varze on the 3rd floor of the White Knights' Castle's western tower.",
+        requirements=("12 Quest Points", "Used during quest: Iron chainbody x1, Bronze med helm x1, Cabbage x1"),
+        required_items=(),
+        combat="Ability to evade level 33 Black Knights; no required kill.",
+        source=f"{DARKAN_BLACK_KNIGHTS_SOURCE}; {DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        journal_stages=BLACK_KNIGHTS_FORTRESS_STAGES,
+        release_date="2001-04-06",
+        members=False,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        required_quest_points=12,
+    ),
+    QuestDefinition(
+        id=GOBLIN_DIPLOMACY_ID,
+        display_name="Goblin Diplomacy",
+        stages=4,
+        point_reward=5,
+        rewards=(("Gold bar", 1),),
+        start_point="Talk to General Bentnoze or General Wartface in Goblin Village.",
+        requirements=("Used during quest: Orange goblin mail x1, Blue goblin mail x1, Goblin mail x1",),
+        required_items=(),
+        combat="None.",
+        source=f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        journal_stages=GOBLIN_DIPLOMACY_STAGES,
+        release_date="2001-05-08",
+        members=False,
+        difficulty="Novice",
+        length="Short to Medium",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("crafting", 200),),
     ),
     QuestDefinition(
         id=VAMPYRE_SLAYER_ID,
@@ -1377,6 +1472,108 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Recite the incantation to banish Delrith.",
             f"{DARKAN_DEMON_SLAYER_GYPSY_SOURCE}; {DARKAN_DEMON_SLAYER_INCANTATION_SOURCE}",
             required_actions=("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
+        ),
+    ),
+    GOBLIN_DIPLOMACY_ID: (
+        _stage_req(
+            1,
+            "Give the goblin generals orange goblin mail.",
+            f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Orange goblin mail", 1),),
+        ),
+        _stage_req(
+            2,
+            "Give the goblin generals blue goblin mail.",
+            f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Blue goblin mail", 1),),
+        ),
+        _stage_req(
+            3,
+            "Give the goblin generals regular brown goblin mail.",
+            f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Goblin mail", 1),),
+        ),
+    ),
+    ERNEST_THE_CHICKEN_ID: (
+        _stage_req(
+            1,
+            "Find Professor Oddenstein and learn what happened to Ernest.",
+            f"{DARKAN_ERNEST_SOURCE}; {DARKAN_ERNEST_ODDENSTEIN_SOURCE}",
+            required_actions=("Ask Professor Oddenstein about Ernest",),
+        ),
+        _stage_req(
+            2,
+            "Agree to retrieve Oddenstein's missing machine parts.",
+            f"{DARKAN_ERNEST_ODDENSTEIN_SOURCE}",
+            required_actions=("Agree to retrieve Oddenstein's machine parts",),
+        ),
+        _stage_req(
+            3,
+            "Mix fish food with poison for the manor fountain.",
+            f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Fish food", 1), ("Poison", 1)),
+            produced_inventory=(("Poisoned fish food", 1),),
+        ),
+        _stage_req(
+            4,
+            "Use poisoned fish food on the fountain and recover the pressure gauge.",
+            f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Poisoned fish food", 1),),
+            produced_inventory=(("Pressure gauge", 1),),
+        ),
+        _stage_req(
+            5,
+            "Dig in the compost heap with a spade to find the grimy key.",
+            f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Spade", 1),),
+            produced_inventory=(("Grimy key", 1),),
+        ),
+        _stage_req(
+            6,
+            "Use the grimy key to reach and recover the rubber tube.",
+            f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Grimy key", 1),),
+            produced_inventory=(("Rubber tube", 1),),
+        ),
+        _stage_req(
+            7,
+            "Solve the basement lever puzzle and recover the oil can.",
+            f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Solve the Draynor Manor basement lever puzzle",),
+            produced_inventory=(("Oil can", 1),),
+        ),
+        _stage_req(
+            8,
+            "Give Oddenstein the pressure gauge, rubber tube, and oil can.",
+            f"{DARKAN_ERNEST_ODDENSTEIN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Pressure gauge", 1), ("Rubber tube", 1), ("Oil can", 1)),
+        ),
+    ),
+    BLACK_KNIGHTS_FORTRESS_ID: (
+        _stage_req(
+            1,
+            "Enter the Black Knights' Fortress in disguise.",
+            f"{DARKAN_BLACK_KNIGHTS_SOURCE}; {DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Iron chainbody", 1), ("Bronze med helm", 1)),
+            required_actions=("Infiltrate the Black Knights' Fortress",),
+        ),
+        _stage_req(
+            2,
+            "Listen at the grill and learn about the invincibility potion.",
+            DARKAN_BLACK_KNIGHTS_SOURCE,
+            required_actions=("Listen at the grill above the Black Knights' meeting",),
+        ),
+        _stage_req(
+            3,
+            "Drop a non-Draynor cabbage into the cauldron through the floor hole.",
+            DARKAN_BLACK_KNIGHTS_SOURCE,
+            consumed_inventory=(("Cabbage", 1),),
+        ),
+        _stage_req(
+            4,
+            "Report the ruined potion to Sir Amik Varze.",
+            DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE,
+            required_actions=("Report the ruined potion to Sir Amik Varze",),
         ),
     ),
     VAMPYRE_SLAYER_ID: (
@@ -3139,6 +3336,46 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Silverlight key": {
             "category": "material",
             "source": f"{DARKAN_DEMON_SLAYER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Orange goblin mail": {
+            "category": "material",
+            "source": f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Blue goblin mail": {
+            "category": "material",
+            "source": f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Goblin mail": {
+            "category": "material",
+            "source": f"{DARKAN_GOBLIN_DIPLOMACY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Fish food": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Poison": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Poisoned fish food": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Pressure gauge": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Grimy key": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Rubber tube": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Oil can": {
+            "category": "material",
+            "source": f"{DARKAN_ERNEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Rune spear (kp)": {"category": "equipment", "source": TAI_BWO_WANNAI_TRIO_SOURCE},
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},

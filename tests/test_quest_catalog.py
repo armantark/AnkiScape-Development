@@ -133,11 +133,29 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(count_draynor["npc_stats"]["hitpoints"], 350)
         self.assertTrue(count_draynor["npc_stats_source"].endswith("count_draynor_level_37.plugin.kts"))
 
-        goblin = data["goblin_diplomacy"]["stage_requirements"][0]
-        self.assertEqual(
-            goblin["required_inventory_options"],
-            (({"Coins": 5}, {"Blue dye": 1}), ({"Coins": 10}, {"Orange dye": 1})),
-        )
+        goblin = data["goblin_diplomacy"]
+        self.assertEqual(goblin["stages"], 4)
+        goblin_by_stage = {row["stage"]: row for row in goblin["stage_requirements"]}
+        self.assertEqual(goblin_by_stage[1]["consumed_inventory"], {"Orange goblin mail": 1})
+        self.assertEqual(goblin_by_stage[2]["consumed_inventory"], {"Blue goblin mail": 1})
+        self.assertEqual(goblin_by_stage[3]["consumed_inventory"], {"Goblin mail": 1})
+        self.assertEqual(goblin_by_stage[1]["required_inventory_options"], ())
+
+        ernest = data["ernest_the_chicken"]
+        self.assertEqual(ernest["stages"], 9)
+        ernest_by_stage = {row["stage"]: row for row in ernest["stage_requirements"]}
+        self.assertEqual(ernest_by_stage[3]["consumed_inventory"], {"Fish food": 1, "Poison": 1})
+        self.assertEqual(ernest_by_stage[3]["produced_inventory"], {"Poisoned fish food": 1})
+        self.assertEqual(ernest_by_stage[4]["consumed_inventory"], {"Poisoned fish food": 1})
+        self.assertEqual(ernest_by_stage[4]["produced_inventory"], {"Pressure gauge": 1})
+        self.assertEqual(ernest_by_stage[8]["consumed_inventory"], {"Pressure gauge": 1, "Rubber tube": 1, "Oil can": 1})
+
+        black_knights = data["black_knights_fortress"]
+        self.assertEqual(black_knights["stages"], 5)
+        self.assertEqual(black_knights["required_quest_points"], 12)
+        black_by_stage = {row["stage"]: row for row in black_knights["stage_requirements"]}
+        self.assertEqual(black_by_stage[1]["required_tools"], {"Iron chainbody": 1, "Bronze med helm": 1})
+        self.assertEqual(black_by_stage[3]["consumed_inventory"], {"Cabbage": 1})
 
         demon = data["demon_slayer"]
         self.assertEqual(demon["stages"], 9)
