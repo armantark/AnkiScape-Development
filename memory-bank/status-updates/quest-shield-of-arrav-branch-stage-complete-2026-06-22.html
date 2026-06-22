@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Shield of Arrav Stage Gates - Complete Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101418;
+      --panel: #171d22;
+      --panel-2: #20272d;
+      --text: #edf2f4;
+      --muted: #aeb8bf;
+      --line: #35414a;
+      --green: #77d68b;
+      --gold: #f0c260;
+      --red: #ff7b72;
+      --blue: #7bb7ff;
+      --ink: #0d1117;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 20% 0%, #1c2830 0, #101418 34rem);
+      color: var(--text);
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      display: grid;
+      gap: 14px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(23, 29, 34, .96), rgba(32, 39, 45, .92));
+      box-shadow: 0 22px 60px rgba(0, 0, 0, .32);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 4.6rem);
+      line-height: .95;
+      letter-spacing: 0;
+    }
+    h2 { margin: 0 0 14px; font-size: 1.05rem; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .eyebrow {
+      display: inline-flex;
+      gap: 10px;
+      align-items: center;
+      width: fit-content;
+      padding: 7px 10px;
+      border: 1px solid rgba(119, 214, 139, .36);
+      background: rgba(119, 214, 139, .1);
+      color: var(--green);
+      font-weight: 700;
+      font-size: .82rem;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-top: 16px;
+    }
+    section {
+      border: 1px solid var(--line);
+      background: rgba(23, 29, 34, .94);
+      padding: 18px;
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      display: grid;
+      gap: 8px;
+      min-height: 122px;
+    }
+    .metric strong {
+      display: block;
+      font-size: clamp(2rem, 7vw, 4.5rem);
+      line-height: .92;
+    }
+    .metric span { color: var(--muted); }
+    .green { color: var(--green); }
+    .gold { color: var(--gold); }
+    .red { color: var(--red); }
+    .blue { color: var(--blue); }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .route {
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+    }
+    .route h3 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+    ol, ul { margin: 0; padding-left: 1.2rem; color: var(--muted); line-height: 1.55; }
+    li + li { margin-top: 8px; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .step {
+      min-height: 98px;
+      border: 1px solid var(--line);
+      background: #13191e;
+      padding: 12px;
+      display: grid;
+      align-content: start;
+      gap: 6px;
+    }
+    .step b { color: var(--text); }
+    .step small { color: var(--muted); line-height: 1.35; }
+    .callout {
+      border-color: rgba(240, 194, 96, .42);
+      background: rgba(240, 194, 96, .09);
+    }
+    .danger {
+      border-color: rgba(255, 123, 114, .42);
+      background: rgba(255, 123, 114, .09);
+    }
+    code {
+      color: #d7e7ff;
+      background: rgba(123, 183, 255, .12);
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    @media (max-width: 850px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 16px; }
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .split { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Completed slice, not completed goal</div>
+      <h1>Shield of Arrav is now branch-aware.</h1>
+      <p>Backend and frontend work are split cleanly: the data/runtime layer now models Phoenix and Black Arm as route variants, and the Quest UI proves started quests show those route blockers. The all-quest parity goal remains active because 108 combat rows are still statless and broad per-stage extraction is not minute-detail complete.</p>
+    </header>
+
+    <div class="grid">
+      <section class="metric span-4">
+        <strong class="green">440</strong>
+        <span>machine-readable quest stage requirement rows after this slice</span>
+      </section>
+      <section class="metric span-4">
+        <strong class="blue">177 / 285</strong>
+        <span>combat encounters now resolver-ready with source-backed stats</span>
+      </section>
+      <section class="metric span-4 danger">
+        <strong class="red">108</strong>
+        <span>combat rows still statless and blocked; do not call all-quest parity done</span>
+      </section>
+
+      <section class="span-12">
+        <h2>Backend</h2>
+        <div class="flow">
+          <div class="step"><b>1</b><small>Find and read the Shield of Arrav book.</small></div>
+          <div class="step"><b>2-3</b><small>Ask Reldo, then bribe Baraek with 10 coins.</small></div>
+          <div class="step callout"><b>4</b><small>Select Phoenix or Black Arm route through `required_routes`.</small></div>
+          <div class="step"><b>5-6</b><small>Resolve route proof item and join the selected gang.</small></div>
+          <div class="step"><b>7-10</b><small>Retrieve shield half, authenticate it, then combine opposite half certificates.</small></div>
+          <div class="step"><b>11-12</b><small>Hand King Roald the full certificate and award 1,200 coins.</small></div>
+        </div>
+      </section>
+
+      <section class="span-6">
+        <h2>Route Variants</h2>
+        <div class="split">
+          <div class="route">
+            <h3>Phoenix Gang</h3>
+            <ul>
+              <li>Battle: Jonny the beard, level 2.</li>
+              <li>Produces Intel report.</li>
+              <li>Hand-in produces Weapon store key.</li>
+              <li>Produces Phoenix shield half and Phoenix half certificates.</li>
+            </ul>
+          </div>
+          <div class="route">
+            <h3>Black Arm Gang</h3>
+            <ul>
+              <li>Requires Weapon store key.</li>
+              <li>Battle: Weaponsmaster, level 23.</li>
+              <li>Produces two Phoenix crossbows.</li>
+              <li>Produces Black Arm shield half and Black Arm half certificates.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="span-6">
+        <h2>Frontend</h2>
+        <ul>
+          <li>The Quest tab keeps `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked` distinct.</li>
+          <li>At Shield stage 4 with no route selected, the UI shows both branch blockers.</li>
+          <li>Combat remains globally locked by `quest_combat_config.resolver_enabled` until battle support is intentionally enabled.</li>
+        </ul>
+      </section>
+
+      <section class="span-8">
+        <h2>Source Notes</h2>
+        <ul>
+          <li>2011Scape supplied Reldo dialogue and item identity evidence.</li>
+          <li>Darkan supplied the full quest behavior, reward amount, item transitions, and combat definitions.</li>
+          <li>The pinned historical wiki revision is retained for catalog metadata and combat prose cross-checks.</li>
+          <li>OSRS wiki files were used only for item sprites through the existing asset pipeline.</li>
+        </ul>
+      </section>
+
+      <section class="span-4 callout">
+        <h2>Still Open</h2>
+        <p>Every quest has at least one stage requirement, but that is broad coverage. Minute-detail parity still needs more exact generated-row extraction, route/location reconciliation, quest-item transformations, remaining branch/partner models, combat stat enrichment, and full combat simulation.</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

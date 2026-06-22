@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Shield of Arrav Branch Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c1016;
+      --panel: #131a24;
+      --panel-2: #182232;
+      --line: #2a3547;
+      --text: #edf3fb;
+      --muted: #9ba9bb;
+      --gold: #f0c36b;
+      --red: #f17472;
+      --green: #76d69a;
+      --blue: #78b7ff;
+      --ink: #0c1016;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(120, 183, 255, 0.16), transparent 30rem),
+        linear-gradient(135deg, #0c1016 0%, #101722 48%, #080b10 100%);
+      color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 46px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.35fr 0.65fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    .hero, .card {
+      border: 1px solid var(--line);
+      background: rgba(19, 26, 36, 0.88);
+      border-radius: 8px;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.28);
+    }
+    .hero { padding: 26px; }
+    .eyebrow {
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 52px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      max-width: 780px;
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .audit {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding: 14px;
+    }
+    .metric {
+      min-height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: var(--panel-2);
+    }
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .metric span { color: var(--muted); font-size: 13px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .card { padding: 20px; }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .timeline {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: var(--gold);
+      font-weight: 800;
+    }
+    .step p { margin: 0; color: var(--muted); }
+    .step b { color: var(--text); }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      background: #101722;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+    }
+    .lane {
+      border-left: 4px solid var(--blue);
+      padding: 8px 0 8px 14px;
+      margin-top: 12px;
+    }
+    .lane.frontend { border-color: var(--green); }
+    .lane strong { display: block; margin-bottom: 4px; }
+    .lane p { margin: 0; color: var(--muted); }
+    .warning {
+      border-color: rgba(241, 116, 114, 0.55);
+      background: rgba(241, 116, 114, 0.09);
+    }
+    .source {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: var(--muted);
+      overflow-wrap: anywhere;
+    }
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 860px) {
+      header, .grid { grid-template-columns: 1fr; }
+      .audit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100vw - 20px, 1120px); padding-top: 18px; }
+      .hero, .card { padding: 16px; }
+      .audit { grid-template-columns: 1fr; }
+      h1 { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero">
+        <div class="eyebrow">Pre-work status - June 22, 2026</div>
+        <h1>Every quest is not done yet.</h1>
+        <p class="subtitle">
+          The generic stage-gate layer now reaches every pre-EOC quest row, but the audit still has real parity debt:
+          combat stat gaps, exact branch state, partner exchanges, route/location gates, and quest-item transformations.
+          The next implementation slice is Shield of Arrav because it forces the Phoenix/Black Arm split instead of
+          hiding it inside prose.
+        </p>
+      </section>
+      <section class="audit card" aria-label="Current audit metrics">
+        <div class="metric"><strong>194/194</strong><span>quests with at least one machine-readable stage row</span></div>
+        <div class="metric"><strong>424</strong><span>stage requirement rows in the runtime catalog</span></div>
+        <div class="metric"><strong>283</strong><span>combat encounter rows that block progression until resolved</span></div>
+        <div class="metric"><strong>108</strong><span>statless combat rows still blocked by design</span></div>
+      </section>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Shield of Arrav Slice</h2>
+        <div class="timeline">
+          <div class="step">
+            <div class="badge">1</div>
+            <p><b>Book and Baraek:</b> gate the early route by finding and reading the Shield of Arrav book, then consuming the 10 coin Baraek bribe at the correct stage.</p>
+          </div>
+          <div class="step">
+            <div class="badge">2</div>
+            <p><b>Phoenix path:</b> require the Straven loyalty action, Jonny the Beard combat, the intelligence report hand-in, and produce the weapon-store key.</p>
+          </div>
+          <div class="step">
+            <div class="badge">3</div>
+            <p><b>Black Arm path:</b> require Charlie/Katrine route state, partner-supplied weapon key, two Phoenix crossbows, and consume the crossbows on join.</p>
+          </div>
+          <div class="step">
+            <div class="badge">4</div>
+            <p><b>Partner finish:</b> require the opposite certificate half before the final certificate can be handed to King Roald.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card warning">
+        <h2>What Stays Blocked</h2>
+        <p>
+          The plugin will not silently fabricate the second player. Branch and partner steps must be represented as
+          route/action side state or inventory before progression is allowed.
+        </p>
+        <div class="pills">
+          <span class="pill">Phoenix gang route</span>
+          <span class="pill">Black Arm gang route</span>
+          <span class="pill">weapon key handoff</span>
+          <span class="pill">opposite certificate half</span>
+          <span class="pill">combat locked globally</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Backend Work</h2>
+        <div class="lane">
+          <strong>Focused source-backed replacement</strong>
+          <p>Add a Shield of Arrav replacement in <span class="source">quest_data.py</span>; keep <span class="source">quest_catalog_generated.py</span> untouched.</p>
+        </div>
+        <div class="lane">
+          <strong>Tests</strong>
+          <p>Target route/action/item consumption, produced quest items, Jonny combat blocking, and reward-on-valid-completion only.</p>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Frontend Work</h2>
+        <div class="lane frontend">
+          <strong>Current UI contract</strong>
+          <p>The existing Quests tab already surfaces blocker kinds. This slice should only need tests unless the new labels expose a rendering gap.</p>
+        </div>
+        <div class="lane frontend">
+          <strong>Handoff note</strong>
+          <p>If labels need tuning, use compact player-facing text: missing item, route required, action required, or combat locked.</p>
+        </div>
+      </article>
+    </section>
+
+    <footer>
+      Sources for this slice: local 2011Scape item identity and Reldo TODO, Darkan ShieldOfArrav implementation,
+      plus the pinned historical RuneScape Wiki quest revision already in the generated catalog.
+    </footer>
+  </main>
+</body>
+</html>

@@ -1298,176 +1298,149 @@ def quest_combat_encounter_ready_pure(player_data, encounter):
     return True, "combat_ready"
 
 
-def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
-    quest = quest_data.get(quest_id)
-    if not quest:
-        return (_quest_blocker(0, "unknown", "Unknown quest"),)
-    state = quest_state_pure(player_data, quest_id)
-    if not state["started"] or state["completed"]:
-        return tuple()
+def _quest_stage_requirement_variant(requirement):
+    if not isinstance(requirement, Mapping):
+        return ""
+    return str(requirement.get("variant") or "").strip()
 
-    current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
-    inventory = player_data.get("inventory", {}) or {}
-    blockers = []
+
+def _quest_current_stage_rows(quest, current_stage):
+    rows = []
     for requirement in quest.get("stage_requirements", ()) or ():
         if not isinstance(requirement, Mapping):
             continue
-        stage = _positive_int(requirement.get("stage", 0), 0)
-        if stage != current_stage:
+        if _positive_int(requirement.get("stage", 0), 0) == current_stage:
+            rows.append(requirement)
+    return tuple(rows)
+
+
+def _dedupe_quest_blockers(blockers):
+    seen = set()
+    rows = []
+    for blocker in blockers:
+        key = (
+            blocker.get("stage"),
+            blocker.get("kind"),
+            blocker.get("reason"),
+            blocker.get("source"),
+            blocker.get("route_id"),
+            blocker.get("action_id"),
+            blocker.get("encounter_id"),
+            blocker.get("item_name"),
+            blocker.get("tool_name"),
+        )
+        if key in seen:
             continue
-        source = str(requirement.get("source", ""))
+        seen.add(key)
+        rows.append(blocker)
+    return tuple(rows)
 
-        required_items = {}
-        for item_name, amount in (
-            _quest_stage_item_pairs(requirement, "required_inventory")
-            + _quest_stage_item_pairs(requirement, "consumed_inventory")
-        ):
-            required_items[item_name] = max(required_items.get(item_name, 0), amount)
-        for item_name, amount in required_items.items():
-            owned = _positive_int(inventory.get(item_name, 0), 0)
-            if owned < amount:
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "missing_item",
-                        f"Needs {item_name} x{amount}",
-                        source,
-                        item_name=item_name,
-                        quantity=amount,
-                        owned=owned,
-                    )
-                )
 
-        seen_option_blockers = set()
-        for option_key in ("required_inventory_options", "consumed_inventory_options"):
-            for options in _quest_stage_item_option_groups(requirement, option_key):
-                option_met = any(
-                    _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
-                )
-                if option_met:
-                    continue
-                option_signature = tuple(options)
-                if option_signature in seen_option_blockers:
-                    continue
-                seen_option_blockers.add(option_signature)
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "missing_item_option",
-                        _quest_item_option_reason(options),
-                        source,
-                        options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
-                    )
-                )
+def _quest_requirement_blockers(player_data, quest_id, requirement):
+    stage = _positive_int(requirement.get("stage", 0), 0)
+    source = str(requirement.get("source", ""))
+    inventory = player_data.get("inventory", {}) or {}
+    blockers = []
 
-        for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
-            if not _has_quest_tool(player_data, tool_name, amount):
-                quantity = f" x{amount}" if amount > 1 else ""
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "missing_tool",
-                        f"Needs {tool_name}{quantity}",
-                        source,
-                        tool_name=tool_name,
-                        quantity=amount,
-                    )
-                )
-
-        for action_id in _quest_stage_strings(requirement, "required_actions"):
-            if not _quest_flag_completed(player_data, "quest_stage_actions", quest_id, action_id):
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "required_action",
-                        f"Action required: {action_id}",
-                        source,
-                        action_id=action_id,
-                    )
-                )
-
-        for route_id in _quest_stage_strings(requirement, "required_routes"):
-            if not _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "unmet_route",
-                        f"Route required: {route_id}",
-                        source,
-                        route_id=route_id,
-                    )
-                )
-
-        for encounter in requirement.get("combat_encounters", ()) or ():
-            if not isinstance(encounter, Mapping):
-                continue
-            encounter_id = encounter.get("encounter_id")
-            if not isinstance(encounter_id, str):
-                continue
-            display_name, level, quantity, level_text, _, encounter_source = _quest_combat_display(encounter, source)
-            completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
-            remaining_quantity = _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter)
-            if remaining_quantity <= 0:
-                continue
-            remaining_quantity_text = f" x{remaining_quantity}" if remaining_quantity > 1 else ""
-            if not quest_combat_resolver_enabled_pure(player_data):
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "combat_locked",
-                        f"Combat locked until battle support is enabled: {display_name}{level_text}{remaining_quantity_text}",
-                        encounter_source,
-                        encounter_id=encounter_id,
-                        display_name=display_name,
-                        level=level,
-                        quantity=remaining_quantity,
-                        total_quantity=quantity,
-                        completed_quantity=completed_quantity,
-                        remaining_quantity=remaining_quantity,
-                    )
-                )
-                continue
-            if not quest_combat_encounter_has_stats_pure(encounter):
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "combat_missing_stats",
-                        f"Combat stats required before battle support can resolve: {display_name}{level_text}{remaining_quantity_text}",
-                        encounter_source,
-                        encounter_id=encounter_id,
-                        display_name=display_name,
-                        level=level,
-                        quantity=remaining_quantity,
-                        total_quantity=quantity,
-                        completed_quantity=completed_quantity,
-                        remaining_quantity=remaining_quantity,
-                    )
-                )
-                continue
-            player_level = player_combat_level_pure(player_data)
-            if level > 0 and player_level < level:
-                blockers.append(
-                    _quest_blocker(
-                        stage,
-                        "combat_underpowered",
-                        f"Requires combat level {level} for battle: {display_name}{level_text}{remaining_quantity_text}",
-                        encounter_source,
-                        encounter_id=encounter_id,
-                        display_name=display_name,
-                        level=level,
-                        quantity=remaining_quantity,
-                        total_quantity=quantity,
-                        completed_quantity=completed_quantity,
-                        remaining_quantity=remaining_quantity,
-                        player_combat_level=player_level,
-                    )
-                )
-                continue
+    required_items = {}
+    for item_name, amount in (
+        _quest_stage_item_pairs(requirement, "required_inventory")
+        + _quest_stage_item_pairs(requirement, "consumed_inventory")
+    ):
+        required_items[item_name] = max(required_items.get(item_name, 0), amount)
+    for item_name, amount in required_items.items():
+        owned = _positive_int(inventory.get(item_name, 0), 0)
+        if owned < amount:
             blockers.append(
                 _quest_blocker(
                     stage,
-                    "combat_encounter",
-                    f"Battle required: {display_name}{level_text}{remaining_quantity_text}",
+                    "missing_item",
+                    f"Needs {item_name} x{amount}",
+                    source,
+                    item_name=item_name,
+                    quantity=amount,
+                    owned=owned,
+                )
+            )
+
+    seen_option_blockers = set()
+    for option_key in ("required_inventory_options", "consumed_inventory_options"):
+        for options in _quest_stage_item_option_groups(requirement, option_key):
+            option_met = any(
+                _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
+            )
+            if option_met:
+                continue
+            option_signature = tuple(options)
+            if option_signature in seen_option_blockers:
+                continue
+            seen_option_blockers.add(option_signature)
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "missing_item_option",
+                    _quest_item_option_reason(options),
+                    source,
+                    options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
+                )
+            )
+
+    for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
+        if not _has_quest_tool(player_data, tool_name, amount):
+            quantity = f" x{amount}" if amount > 1 else ""
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "missing_tool",
+                    f"Needs {tool_name}{quantity}",
+                    source,
+                    tool_name=tool_name,
+                    quantity=amount,
+                )
+            )
+
+    for action_id in _quest_stage_strings(requirement, "required_actions"):
+        if not _quest_flag_completed(player_data, "quest_stage_actions", quest_id, action_id):
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "required_action",
+                    f"Action required: {action_id}",
+                    source,
+                    action_id=action_id,
+                )
+            )
+
+    for route_id in _quest_stage_strings(requirement, "required_routes"):
+        if not _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "unmet_route",
+                    f"Route required: {route_id}",
+                    source,
+                    route_id=route_id,
+                )
+            )
+
+    for encounter in requirement.get("combat_encounters", ()) or ():
+        if not isinstance(encounter, Mapping):
+            continue
+        encounter_id = encounter.get("encounter_id")
+        if not isinstance(encounter_id, str):
+            continue
+        display_name, level, quantity, level_text, _, encounter_source = _quest_combat_display(encounter, source)
+        completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
+        remaining_quantity = _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter)
+        if remaining_quantity <= 0:
+            continue
+        remaining_quantity_text = f" x{remaining_quantity}" if remaining_quantity > 1 else ""
+        if not quest_combat_resolver_enabled_pure(player_data):
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "combat_locked",
+                    f"Combat locked until battle support is enabled: {display_name}{level_text}{remaining_quantity_text}",
                     encounter_source,
                     encounter_id=encounter_id,
                     display_name=display_name,
@@ -1478,7 +1451,118 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     remaining_quantity=remaining_quantity,
                 )
             )
+            continue
+        if not quest_combat_encounter_has_stats_pure(encounter):
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "combat_missing_stats",
+                    f"Combat stats required before battle support can resolve: {display_name}{level_text}{remaining_quantity_text}",
+                    encounter_source,
+                    encounter_id=encounter_id,
+                    display_name=display_name,
+                    level=level,
+                    quantity=remaining_quantity,
+                    total_quantity=quantity,
+                    completed_quantity=completed_quantity,
+                    remaining_quantity=remaining_quantity,
+                )
+            )
+            continue
+        player_level = player_combat_level_pure(player_data)
+        if level > 0 and player_level < level:
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "combat_underpowered",
+                    f"Requires combat level {level} for battle: {display_name}{level_text}{remaining_quantity_text}",
+                    encounter_source,
+                    encounter_id=encounter_id,
+                    display_name=display_name,
+                    level=level,
+                    quantity=remaining_quantity,
+                    total_quantity=quantity,
+                    completed_quantity=completed_quantity,
+                    remaining_quantity=remaining_quantity,
+                    player_combat_level=player_level,
+                )
+            )
+            continue
+        blockers.append(
+            _quest_blocker(
+                stage,
+                "combat_encounter",
+                f"Battle required: {display_name}{level_text}{remaining_quantity_text}",
+                encounter_source,
+                encounter_id=encounter_id,
+                display_name=display_name,
+                level=level,
+                quantity=remaining_quantity,
+                total_quantity=quantity,
+                completed_quantity=completed_quantity,
+                remaining_quantity=remaining_quantity,
+            )
+        )
     return tuple(blockers)
+
+
+def _quest_current_stage_selected_requirements(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not isinstance(quest, Mapping):
+        return tuple(), tuple()
+    current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
+    mandatory_rows = []
+    variant_rows_by_id = {}
+    for requirement in _quest_current_stage_rows(quest, current_stage):
+        variant = _quest_stage_requirement_variant(requirement)
+        if variant:
+            variant_rows_by_id.setdefault(variant, []).append(requirement)
+        else:
+            mandatory_rows.append(requirement)
+
+    mandatory_blockers = [
+        blocker
+        for requirement in mandatory_rows
+        for blocker in _quest_requirement_blockers(player_data, quest_id, requirement)
+    ]
+    if not variant_rows_by_id:
+        return tuple(mandatory_rows), _dedupe_quest_blockers(mandatory_blockers)
+
+    variant_results = []
+    for variant, variant_rows in variant_rows_by_id.items():
+        blockers = [
+            blocker
+            for requirement in variant_rows
+            for blocker in _quest_requirement_blockers(player_data, quest_id, requirement)
+        ]
+        route_blockers = tuple(blocker for blocker in blockers if blocker.get("kind") == "unmet_route")
+        variant_results.append((len(route_blockers), len(blockers), variant, tuple(variant_rows), tuple(blockers), route_blockers))
+
+    route_matched = [result for result in variant_results if result[0] == 0]
+    if route_matched:
+        _, _, _, selected_rows, selected_blockers, _ = min(route_matched, key=lambda row: (row[1], row[2]))
+        return (
+            tuple(mandatory_rows) + selected_rows,
+            _dedupe_quest_blockers((*mandatory_blockers, *selected_blockers)),
+        )
+
+    route_blockers = tuple(blocker for result in variant_results for blocker in result[5])
+    if route_blockers:
+        return tuple(mandatory_rows), _dedupe_quest_blockers((*mandatory_blockers, *route_blockers))
+
+    _, _, _, _, selected_blockers, _ = min(variant_results, key=lambda row: (row[1], row[2]))
+    return tuple(mandatory_rows), _dedupe_quest_blockers((*mandatory_blockers, *selected_blockers))
+
+
+def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return (_quest_blocker(0, "unknown", "Unknown quest"),)
+    state = quest_state_pure(player_data, quest_id)
+    if not state["started"] or state["completed"]:
+        return tuple()
+    _, blockers = _quest_current_stage_selected_requirements(player_data, quest_id, quest_data)
+    return blockers
 
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
@@ -1695,13 +1779,11 @@ def start_quest_pure(player_data, quest_id, quest_data):
 
 
 def _consume_quest_current_stage_items(data, quest_id, quest):
-    current_stage = quest_current_stage_pure(data, quest_id, {quest_id: quest})
     inventory = data["inventory"]
-    for requirement in quest.get("stage_requirements", ()) or ():
-        if not isinstance(requirement, Mapping):
-            continue
-        if _positive_int(requirement.get("stage", 0), 0) != current_stage:
-            continue
+    requirements, blockers = _quest_current_stage_selected_requirements(data, quest_id, {quest_id: quest})
+    if blockers:
+        return
+    for requirement in requirements:
         for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
             inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
         for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):
@@ -1717,12 +1799,8 @@ def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, enco
     quest = quest_data.get(quest_id)
     if not isinstance(quest, Mapping):
         return None
-    current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
-    for requirement in quest.get("stage_requirements", ()) or ():
-        if not isinstance(requirement, Mapping):
-            continue
-        if _positive_int(requirement.get("stage", 0), 0) != current_stage:
-            continue
+    requirements, _ = _quest_current_stage_selected_requirements(player_data, quest_id, quest_data)
+    for requirement in requirements:
         for encounter in requirement.get("combat_encounters", ()) or ():
             if isinstance(encounter, Mapping) and encounter.get("encounter_id") == encounter_id:
                 return encounter

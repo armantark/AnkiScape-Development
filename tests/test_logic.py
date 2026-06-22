@@ -1423,6 +1423,139 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Iron bar"], 0)
         self.assertEqual(player_data["inventory"]["Blurite bar"], 0)
 
+    def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}
+
+        blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("unmet_route", "unmet_route"))
+        self.assertEqual(
+            set(blocker["reason"] for blocker in blockers),
+            {"Route required: Join the Phoenix Gang", "Route required: Join the Black Arm Gang"},
+        )
+
+        player_data["quests"]["shield_of_arrav"]["progress"] = 5
+        player_data["quest_route_states"] = {"shield_of_arrav": ["Join the Phoenix Gang"]}
+        blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(
+            blockers[0]["reason"],
+            "Combat locked until battle support is enabled: Jonny the beard level 2",
+        )
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 20
+        player_data["strength_level"] = 20
+        player_data["defense_level"] = 20
+        player_data["constitution_level"] = 20
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "shield_of_arrav",
+            QUEST_DATA,
+            "shield_of_arrav_jonny_the_beard_2",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_resolved")
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["shield_of_arrav"]["progress"], 6)
+        self.assertEqual(player_data["inventory"]["Intel report"], 1)
+
+        player_data["quest_stage_actions"] = {"shield_of_arrav": ["Hand Straven Jonny's intelligence report"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Intel report"], 0)
+        self.assertEqual(player_data["inventory"]["Weapon store key"], 1)
+
+        player_data["quest_stage_actions"]["shield_of_arrav"].append("Search the Phoenix Gang shield chest")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Broken shield (Phoenix half)"], 1)
+
+        player_data["quest_stage_actions"]["shield_of_arrav"].append("Show King Roald the Phoenix shield half")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Broken shield (Phoenix half)"], 1)
+
+        player_data["quest_stage_actions"]["shield_of_arrav"].append(
+            "Have Curator Haig Halen authenticate the Phoenix shield half"
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Broken shield (Phoenix half)"], 0)
+        self.assertEqual(player_data["inventory"]["Half certificate (Phoenix)"], 2)
+
+        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertFalse(blocked["quests"]["shield_of_arrav"]["completed"])
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "shield_of_arrav", QUEST_DATA),
+            ("Needs Half certificate (Black Arm) x1",),
+        )
+
+        player_data["inventory"]["Half certificate (Black Arm)"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Half certificate (Phoenix)"], 1)
+        self.assertEqual(player_data["inventory"]["Half certificate (Black Arm)"], 0)
+        self.assertEqual(player_data["inventory"]["Certificate"], 1)
+
+        player_data["quest_stage_actions"]["shield_of_arrav"].append("Claim the Shield of Arrav reward from King Roald")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["shield_of_arrav"]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Certificate"], 0)
+        self.assertEqual(player_data["inventory"]["Coins"], 1200)
+
+    def test_shield_of_arrav_black_arm_route_requires_key_and_isolates_variant_rewards(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
+        player_data["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
+
+        blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_tool", "combat_locked"))
+        self.assertEqual(blockers[0]["reason"], "Needs Weapon store key")
+        self.assertEqual(
+            blockers[1]["reason"],
+            "Combat locked until battle support is enabled: Weaponsmaster level 23",
+        )
+
+        player_data["inventory"]["Weapon store key"] = 1
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 40
+        player_data["strength_level"] = 40
+        player_data["defense_level"] = 40
+        player_data["constitution_level"] = 40
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)),
+            ("combat_encounter",),
+        )
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "shield_of_arrav",
+            QUEST_DATA,
+            "shield_of_arrav_weaponsmaster_23",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_resolved")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Weapon store key"], 1)
+        self.assertEqual(player_data["inventory"]["Phoenix crossbow"], 2)
+        self.assertEqual(player_data["inventory"].get("Intel report", 0), 0)
+
     def test_stage_requirement_model_exposes_tool_action_route_and_combat_blockers(self):
         quest_data = {
             "proof_quest": {
@@ -1474,6 +1607,60 @@ class TestLogic(unittest.TestCase):
 
         player_data["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data), ())
+
+    def test_stage_requirement_variants_select_one_route_branch(self):
+        quest_data = {
+            "branch_quest": {
+                "stages": 2,
+                "point_reward": 0,
+                "rewards": {},
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "variant": "red",
+                        "required_routes": ("Red route",),
+                        "consumed_inventory": {"Red key": 1},
+                        "produced_inventory": {"Red token": 1},
+                        "source": "source",
+                    },
+                    {
+                        "stage": 1,
+                        "variant": "blue",
+                        "required_routes": ("Blue route",),
+                        "consumed_inventory": {"Blue key": 1},
+                        "produced_inventory": {"Blue token": 1},
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "quests": {"branch_quest": {"started": True, "progress": 1, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "branch_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("unmet_route", "unmet_route"))
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in blockers),
+            ("Route required: Red route", "Route required: Blue route"),
+        )
+
+        player_data["quest_route_states"] = {"branch_quest": ["Red route"]}
+        blockers = quest_current_stage_blockers_pure(player_data, "branch_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item",))
+        self.assertEqual(blockers[0]["reason"], "Needs Red key x1")
+
+        player_data["quest_route_states"] = {"branch_quest": ["Blue route"]}
+        player_data["inventory"]["Blue key"] = 1
+        completed, ok, completed_now = apply_quest_progress_pure(player_data, "branch_quest", quest_data)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(completed["inventory"]["Blue key"], 0)
+        self.assertEqual(completed["inventory"]["Blue token"], 1)
+        self.assertEqual(completed["inventory"].get("Red token", 0), 0)
 
     def test_stage_requirement_options_preserve_independent_alternative_groups(self):
         quest_data = {

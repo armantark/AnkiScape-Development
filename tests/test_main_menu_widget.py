@@ -1241,6 +1241,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_the_knights_sword"))
 
+    def test_quests_tab_shows_shield_of_arrav_route_branch_blockers(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "shield_of_arrav"
+        pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Route required: Join the Black Arm Gang, Route required: Join the Phoenix Gang"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_shield_of_arrav")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Join the Phoenix Gang", action.toolTip())
+
     def test_quests_tab_shows_demon_slayer_item_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "demon_slayer"

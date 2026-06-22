@@ -87,6 +87,54 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Redberry pie": 1})
         self.assertEqual(by_stage[6]["consumed_inventory"], {"Blurite ore": 1, "Iron bar": 2})
 
+    def test_shield_of_arrav_has_source_backed_route_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["shield_of_arrav"]
+
+        self.assertEqual(quest["stages"], 12)
+        self.assertEqual(quest["rewards"], {"Coins": 1200})
+        self.assertEqual(quest["required_items"], {})
+        self.assertIn("darkan-world-server", quest["source"])
+
+        stage4 = [row for row in quest["stage_requirements"] if row["stage"] == 4]
+        self.assertEqual({row["variant"] for row in stage4}, {"phoenix", "black_arm"})
+        self.assertEqual(
+            {
+                row["variant"]: row["required_routes"]
+                for row in stage4
+            },
+            {
+                "phoenix": ("Join the Phoenix Gang",),
+                "black_arm": ("Join the Black Arm Gang",),
+            },
+        )
+
+        combat_rows = [
+            encounter
+            for requirement in quest["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        jonny = next(encounter for encounter in combat_rows if encounter["display_name"] == "Jonny the beard")
+        self.assertEqual(jonny["level"], 2)
+        self.assertEqual(jonny["npc_stats"]["hitpoints"], 80)
+        self.assertEqual(jonny["npc_stats"]["attack"], 1)
+        self.assertEqual(jonny["npc_configs"]["max_hit"], 10)
+        self.assertTrue(jonny["npc_stats_source"].endswith("jonny_the_beard.json"))
+
+        weaponsmaster = next(encounter for encounter in combat_rows if encounter["display_name"] == "Weaponsmaster")
+        self.assertEqual(weaponsmaster["level"], 23)
+        self.assertEqual(weaponsmaster["npc_stats"]["hitpoints"], 200)
+        self.assertEqual(weaponsmaster["npc_stats"]["attack"], 21)
+        self.assertEqual(weaponsmaster["npc_configs"]["max_hit"], 50)
+        self.assertTrue(weaponsmaster["npc_stats_source"].endswith("weaponsmaster.json"))
+
+        stage10 = next(row for row in quest["stage_requirements"] if row["stage"] == 10)
+        self.assertEqual(
+            stage10["consumed_inventory"],
+            {"Half certificate (Phoenix)": 1, "Half certificate (Black Arm)": 1},
+        )
+        self.assertEqual(stage10["produced_inventory"], {"Certificate": 1})
+
     def test_generated_catalog_stage_requirements_cover_items_and_combat(self):
         data = quests_as_dict()
 

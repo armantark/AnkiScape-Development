@@ -5615,6 +5615,42 @@
     "source_wiki": "osrs",
     "timestamp": "2022-02-09T11:06:06Z"
   },
+  "questitems/broken_shield_black_arm_half.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Broken_shield_%28left%29.png",
+    "file_title": "Broken shield (left).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Broken_shield_%28left%29.png?05d25",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "103f4648da39d6bcfc2986674d5660195e16b2b0",
+    "size": 1037,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:59Z"
+  },
+  "questitems/broken_shield_phoenix_half.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Broken_shield_%28right%29.png",
+    "file_title": "Broken shield (right).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Broken_shield_%28right%29.png?bd75b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "26a29e004aa17139a5295c6964fe49f78e91800f",
+    "size": 768,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:00Z"
+  },
+  "questitems/certificate.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Certificate_%28Shield_of_Arrav%29.png",
+    "file_title": "Certificate (Shield of Arrav).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Certificate_%28Shield_of_Arrav%29.png?3caf6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c39073147253a7f7f3816e7d0d01697a5ede8c11",
+    "size": 321,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:14Z"
+  },
   "questitems/crandor_map.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crandor_map.png",
     "file_title": "Crandor map.png",
@@ -5687,6 +5723,30 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-26T08:40:47Z"
   },
+  "questitems/half_certificate_black_arm.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Half_certificate_%28left%29.png",
+    "file_title": "Half certificate (left).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Half_certificate_%28left%29.png?43cf2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b080151b4c276578d88104790874fbfa9f5050a1",
+    "size": 231,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:41Z"
+  },
+  "questitems/half_certificate_phoenix.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Half_certificate_%28right%29.png",
+    "file_title": "Half certificate (right).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Half_certificate_%28right%29.png?80b36",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4e0f2b89dd9216718c28ead8855dd8172038407d",
+    "size": 226,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:36Z"
+  },
   "questitems/hammer.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Hammer.png",
     "file_title": "Hammer.png",
@@ -5698,6 +5758,18 @@
     "size": 349,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:41Z"
+  },
+  "questitems/intel_report.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Intel_report.png",
+    "file_title": "Intel report.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Intel_report.png?19317",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "79b32139fff5935e1688153492d90dcd30ac616c",
+    "size": 816,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:50Z"
   },
   "questitems/lobster_pot.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lobster_pot.png",
@@ -5759,6 +5831,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:40Z"
   },
+  "questitems/phoenix_crossbow.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Phoenix_crossbow.png",
+    "file_title": "Phoenix crossbow.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Phoenix_crossbow.png?3a750",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b37d1403e396865b1a9c17c4ae0ef8f9746a1050",
+    "size": 451,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:03:02Z"
+  },
   "questitems/plank.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Plank.png",
     "file_title": "Plank.png",
@@ -5819,6 +5903,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:37Z"
   },
+  "questitems/shield_of_arrav_book.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Book_%28Shield_of_Arrav%29.png",
+    "file_title": "Book (Shield of Arrav).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Book_%28Shield_of_Arrav%29.png?3d026",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c6138fce55df502307d426a952943ba11d490015",
+    "size": 607,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:57Z"
+  },
   "questitems/silk.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Silk.png",
     "file_title": "Silk.png",
@@ -5854,6 +5950,18 @@
     "size": 483,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:40Z"
+  },
+  "questitems/weapon_store_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Weapon_store_key.png",
+    "file_title": "Weapon store key.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Weapon_store_key.png?7727e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2d7abc8f5c884c612ec4fd8ac81335a2e7a39689",
+    "size": 459,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:13:47Z"
   },
   "questitems/wizard_s_mind_bomb.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wizard%27s_mind_bomb.png",

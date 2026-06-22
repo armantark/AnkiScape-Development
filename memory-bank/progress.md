@@ -42,10 +42,10 @@
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
   with at least one stage requirement, 174 quests with item/tool/option
-  blockers, and 119 quests with combat blockers. Combat blockers are hard
+  blockers, and 120 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 175/283 source-backed NPC stat rows after local
+  combat now has 177/285 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -76,8 +76,11 @@
   incantation flow. Dragon Slayer now has a focused 16-stage replacement for the
   Oziach/Guildmaster setup, anti-dragon shield, Melzar's Maze combat, three
   Crandor map pieces, Oracle item door, Lady Lumbridge purchase/repair, Ned
-  route, Elvarg combat, and final Oziach report; 108 combat rows remain statless
-  and explicitly blocked.
+  route, Elvarg combat, and final Oziach report. Shield of Arrav now has
+  source-backed Phoenix Gang and Black Arm Gang route variants, Jonny the beard
+  and Weaponsmaster combat gates, route-specific shield/certificate halves, and
+  a partner half-certificate combine gate before King Roald's 1,200-coin
+  completion reward; 108 combat rows remain statless and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -105,7 +108,8 @@
   `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md`,
   and
   `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`.
+  `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -639,6 +643,35 @@ Required full-suite verification passed: `python3 run_tests.py` passed with 471
 tests (111 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 471 tests.
+
+Shield of Arrav focused branch-stage replacement completed on 2026-06-22.
+Backend: `QuestStageRequirement.variant` now supports mutually exclusive
+current-stage route rows without moving finish-only blockers into start locks,
+and `quest_data.py` replaces Shield of Arrav's generated branch prose with a
+source-backed 12-stage chain. Phoenix Gang and Black Arm Gang are separate
+route variants; Jonny the beard and the Weaponsmaster use Darkan combat stats;
+Intel report, Weapon store key, Phoenix crossbows, shield halves, half
+certificates, and the full certificate are produced/consumed at their real
+stages; the opposite half-certificate remains a finish-stage partner exchange
+gate; King Roald's valid completion reward is 1,200 coins. Frontend: the
+existing Quests tab blocker surface now has offscreen Qt coverage for the
+branch decision state. Assets: quest-stage item icons for Shield-specific items
+are registered with provenance. Post-slice audit reports 440 stage rows, 285
+combat encounters, 177 resolver-ready combat encounters, 174 quests with
+item/tool blockers, and 120 quests with combat blockers. Full all-quest
+minute-detail parity remains open, with 108 statless combat rows still blocked.
+Source audit:
+`memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`.
+Focused verification passed:
+`python3 -m unittest tests.test_logic tests.test_quest_catalog tests.test_skill_and_item_registry`
+and
+`python3 -m unittest tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_shield_of_arrav_route_combat_gate`
+and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_shield_of_arrav_route_branch_blockers`.
+Required full-suite verification passed: `python3 run_tests.py` passed with 477
+tests (112 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 477 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

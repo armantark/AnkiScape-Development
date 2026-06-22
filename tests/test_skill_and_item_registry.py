@@ -596,6 +596,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Plank",
             "Hammer",
             "Elvarg's head",
+            "Shield of Arrav book",
+            "Intel report",
+            "Weapon store key",
+            "Phoenix crossbow",
+            "Broken shield (Phoenix half)",
+            "Broken shield (Black Arm half)",
+            "Half certificate (Phoenix)",
+            "Half certificate (Black Arm)",
+            "Certificate",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

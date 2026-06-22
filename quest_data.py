@@ -19,6 +19,7 @@ except ImportError:  # pragma: no cover
 
 RUNE_MYSTERIES_ID = "rune_mysteries"
 COOKS_ASSISTANT_ID = "cooks_assistant"
+SHIELD_OF_ARRAV_ID = "shield_of_arrav"
 IMP_CATCHER_ID = "imp_catcher"
 DRUIDIC_RITUAL_ID = "druidic_ritual"
 PIRATES_TREASURE_ID = "pirates_treasure"
@@ -166,6 +167,28 @@ DARKAN_BLACK_KNIGHTS_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/blackknightsfort
 DARKAN_BLACK_KNIGHTS_SOURCE = f"{DARKAN_BLACK_KNIGHTS_SOURCE_ROOT}/BlackKnightsFortress.java"
 DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE = f"{DARKAN_BLACK_KNIGHTS_SOURCE_ROOT}/SirAmikVarzeBlackKnightsFortressD.java"
 SCAPE_2011_ITEM_IDENTITY_SOURCE = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
+SHIELD_OF_ARRAV_WIKI_SOURCE = "https://runescape.wiki/w/Shield_of_Arrav?oldid=6326184"
+SCAPE_2011_VARROCK_RELDO_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/varrock/reldo.plugin.kts"
+)
+DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/shieldofarrav"
+DARKAN_SHIELD_OF_ARRAV_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/ShieldOfArrav.java"
+DARKAN_SHIELD_OF_ARRAV_RELDO_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/ReldoShieldOfArravD.java"
+DARKAN_SHIELD_OF_ARRAV_BARAEK_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/BaraekShieldOfArravD.java"
+DARKAN_SHIELD_OF_ARRAV_CHARLIE_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/CharlieTheTrampArravD.java"
+DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/StravenShieldOfArravD.java"
+DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/KatrineShieldOfArravD.java"
+DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/MuseumCuratorArravD.java"
+DARKAN_SHIELD_OF_ARRAV_KING_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/KingRoaldShieldOfArravD.java"
+DARKAN_SHIELD_OF_ARRAV_BOOK_SOURCE = f"{DARKAN_SHIELD_OF_ARRAV_SOURCE_ROOT}/BookShieldOfArrav.java"
+DARKAN_SHIELD_OF_ARRAV_JONNY_DROPS_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/drops/johnny_the_beard.json"
+)
+DARKAN_SHIELD_OF_ARRAV_JONNY_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jonny_the_beard.json"
+DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/weaponsmaster.json"
+)
 DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
 DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
 DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
@@ -407,6 +430,7 @@ class QuestCombatEncounter:
 class QuestStageRequirement:
     stage: int
     description: str
+    variant: str = ""
     required_inventory: Tuple[Tuple[str, int], ...] = ()
     required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     consumed_inventory: Tuple[Tuple[str, int], ...] = ()
@@ -719,6 +743,260 @@ DEMON_SLAYER_STAGES: Tuple[QuestStage, ...] = (
     ),
 )
 
+SHIELD_ROUTE_PHOENIX = "Join the Phoenix Gang"
+SHIELD_ROUTE_BLACK_ARM = "Join the Black Arm Gang"
+SHIELD_VARIANT_PHOENIX = "phoenix"
+SHIELD_VARIANT_BLACK_ARM = "black_arm"
+
+SHIELD_OF_ARRAV_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "Reldo says the Shield of Arrav book in the Varrock palace library explains where to begin.",
+    ),
+    _simple_stage(
+        2,
+        "I read about the Shield of Arrav and should ask Reldo where the Phoenix Gang is hiding.",
+    ),
+    _simple_stage(
+        3,
+        "Reldo sent me to Baraek at Varrock market for information about the Phoenix Gang.",
+    ),
+    _simple_stage(
+        4,
+        "Baraek revealed the Phoenix hideout after I bribed him.",
+        "I must choose whether to join the Phoenix Gang or the Black Arm Gang.",
+    ),
+    _simple_stage(
+        5,
+        "My chosen gang needs proof of loyalty.",
+        "The Phoenix route needs Jonny the beard's intelligence report; the Black Arm route needs two Phoenix crossbows.",
+    ),
+    _simple_stage(
+        6,
+        "I have the proof item for my chosen gang and should hand it in.",
+    ),
+    _simple_stage(
+        7,
+        "I joined a gang and can retrieve that gang's half of the shield.",
+    ),
+    _simple_stage(
+        8,
+        "I found a shield half and should show it to King Roald.",
+    ),
+    _simple_stage(
+        9,
+        "King Roald sent me to Curator Haig Halen to authenticate the shield half.",
+    ),
+    _simple_stage(
+        10,
+        "The curator made duplicate half certificates.",
+        "I need the opposite certificate half from the other gang route before I can make the full certificate.",
+    ),
+    _simple_stage(
+        11,
+        "I have the full certificate and should give it to King Roald.",
+    ),
+    _simple_stage(12, "King Roald accepted the certificate and paid the reward.", "Quest complete!"),
+)
+
+SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
+    QuestStageRequirement(
+        stage=1,
+        description="Find and read the Shield of Arrav book in Reldo's library.",
+        required_actions=("Find and read the Shield of Arrav book",),
+        produced_inventory=(("Shield of Arrav book", 1),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_BOOK_SOURCE}; {SCAPE_2011_VARROCK_RELDO_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=2,
+        description="Ask Reldo where to find the Phoenix Gang.",
+        required_actions=("Ask Reldo about the Phoenix Gang",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_RELDO_SOURCE}; {SCAPE_2011_VARROCK_RELDO_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=3,
+        description="Bribe Baraek for the Phoenix hideout location.",
+        consumed_inventory=(("Coins", 10),),
+        required_actions=("Bribe Baraek for the Phoenix hideout",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_BARAEK_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=4,
+        description="Choose the Phoenix Gang route with Straven.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        required_actions=("Ask Straven for the Phoenix loyalty task",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=4,
+        description="Choose the Black Arm Gang route with Charlie and Katrine.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        required_actions=("Ask Charlie and Katrine for the Black Arm loyalty task",),
+        source=(
+            f"{DARKAN_SHIELD_OF_ARRAV_CHARLIE_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE}; "
+            f"{SHIELD_OF_ARRAV_WIKI_SOURCE}"
+        ),
+    ),
+    QuestStageRequirement(
+        stage=5,
+        description="Kill Jonny the beard and take his intelligence report.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        combat_encounters=(
+            QuestCombatEncounter(
+                encounter_id=f"{SHIELD_OF_ARRAV_ID}_jonny_the_beard_2",
+                display_name="Jonny the beard",
+                level=2,
+                source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_JONNY_DROPS_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+                source_text="Jonny the beard drops the intelligence report needed to prove Phoenix Gang loyalty.",
+                npc_stats=(
+                    ("hitpoints", 80),
+                    ("attack", 1),
+                    ("strength", 1),
+                    ("defence", 1),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 10),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "passive"),
+                ),
+                npc_stats_source=DARKAN_SHIELD_OF_ARRAV_JONNY_NPC_SOURCE,
+            ),
+        ),
+        produced_inventory=(("Intel report", 1),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_JONNY_DROPS_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_JONNY_NPC_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=5,
+        description="Use the weapon store key and steal two Phoenix crossbows.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        required_tools=(("Weapon store key", 1),),
+        combat_encounters=(
+            QuestCombatEncounter(
+                encounter_id=f"{SHIELD_OF_ARRAV_ID}_weaponsmaster_23",
+                display_name="Weaponsmaster",
+                level=23,
+                source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+                source_text="The weapon store is guarded by the Weaponsmaster before the Black Arm proof crossbows can be taken.",
+                npc_stats=(
+                    ("hitpoints", 200),
+                    ("attack", 21),
+                    ("strength", 21),
+                    ("defence", 21),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 50),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "passive"),
+                ),
+                npc_stats_source=DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE,
+            ),
+        ),
+        produced_inventory=(("Phoenix crossbow", 2),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=6,
+        description="Hand Straven Jonny's intelligence report to join the Phoenix Gang.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        consumed_inventory=(("Intel report", 1),),
+        produced_inventory=(("Weapon store key", 1),),
+        required_actions=("Hand Straven Jonny's intelligence report",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=6,
+        description="Hand Katrine two Phoenix crossbows to join the Black Arm Gang.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        consumed_inventory=(("Phoenix crossbow", 2),),
+        required_actions=("Hand Katrine two Phoenix crossbows",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=7,
+        description="Search the Phoenix Gang chest for the right shield half.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        required_actions=("Search the Phoenix Gang shield chest",),
+        produced_inventory=(("Broken shield (Phoenix half)", 1),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=7,
+        description="Search the Black Arm Gang cupboard for the left shield half.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        required_actions=("Search the Black Arm Gang cupboard",),
+        produced_inventory=(("Broken shield (Black Arm half)", 1),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=8,
+        description="Show King Roald the Phoenix shield half.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        required_inventory=(("Broken shield (Phoenix half)", 1),),
+        required_actions=("Show King Roald the Phoenix shield half",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=8,
+        description="Show King Roald the Black Arm shield half.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        required_inventory=(("Broken shield (Black Arm half)", 1),),
+        required_actions=("Show King Roald the Black Arm shield half",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=9,
+        description="Have Curator Haig Halen authenticate the Phoenix shield half.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        consumed_inventory=(("Broken shield (Phoenix half)", 1),),
+        produced_inventory=(("Half certificate (Phoenix)", 2),),
+        required_actions=("Have Curator Haig Halen authenticate the Phoenix shield half",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=9,
+        description="Have Curator Haig Halen authenticate the Black Arm shield half.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        consumed_inventory=(("Broken shield (Black Arm half)", 1),),
+        produced_inventory=(("Half certificate (Black Arm)", 2),),
+        required_actions=("Have Curator Haig Halen authenticate the Black Arm shield half",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=10,
+        description="Trade one duplicate half certificate with a partner and combine the two opposite halves.",
+        consumed_inventory=(("Half certificate (Phoenix)", 1), ("Half certificate (Black Arm)", 1)),
+        produced_inventory=(("Certificate", 1),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=11,
+        description="Give King Roald the full certificate to claim the reward.",
+        consumed_inventory=(("Certificate", 1),),
+        required_actions=("Claim the Shield of Arrav reward from King Roald",),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_SOURCE}",
+    ),
+)
+
 DRAGON_SLAYER_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "The Guildmaster says I need to prove myself before Oziach will sell me rune platebodies."),
     _simple_stage(2, "Oziach says I must slay Elvarg on Crandor to prove myself a hero."),
@@ -895,6 +1173,38 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         timeline="Fifth Age",
         xp_rewards=(QuestXpReward("cooking", 300),),
         unlocks=("Access to the Cook's range",),
+    ),
+    QuestDefinition(
+        id=SHIELD_OF_ARRAV_ID,
+        display_name="Shield of Arrav",
+        stages=12,
+        point_reward=1,
+        rewards=(("Coins", 1200),),
+        start_point="Talk to Reldo in the Varrock palace library.",
+        requirements=(
+            "Used during quest: Coins x10; partner route supplies the opposite certificate half.",
+            f"Route choice: {SHIELD_ROUTE_PHOENIX} or {SHIELD_ROUTE_BLACK_ARM}.",
+            "Black Arm route needs a Weapon store key supplied from the Phoenix route before stealing the crossbows.",
+        ),
+        required_items=(),
+        combat=(
+            "Phoenix route: Jonny the beard (level 2). "
+            "Black Arm route: Weaponsmaster (level 23) guards the Phoenix weapon store."
+        ),
+        source=(
+            f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_RELDO_SOURCE}; "
+            f"{DARKAN_SHIELD_OF_ARRAV_BARAEK_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; "
+            f"{DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; "
+            f"{DARKAN_SHIELD_OF_ARRAV_KING_SOURCE}; {SCAPE_2011_VARROCK_RELDO_SOURCE}; "
+            f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}"
+        ),
+        journal_stages=SHIELD_OF_ARRAV_STAGES,
+        release_date="2001-01-04",
+        members=False,
+        difficulty="Novice",
+        length="Medium",
+        timeline="Fifth Age",
+        stage_requirements=SHIELD_OF_ARRAV_STAGE_REQUIREMENTS,
     ),
     QuestDefinition(
         id=DEMON_SLAYER_ID,
@@ -1430,6 +1740,7 @@ def _stage_req(
     description: str,
     source: str,
     *,
+    variant: str = "",
     required_inventory: Tuple[Tuple[str, int], ...] = (),
     required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
     consumed_inventory: Tuple[Tuple[str, int], ...] = (),
@@ -1443,6 +1754,7 @@ def _stage_req(
     return QuestStageRequirement(
         stage=stage,
         description=description,
+        variant=variant,
         required_inventory=required_inventory,
         required_inventory_options=required_inventory_options,
         consumed_inventory=consumed_inventory,
@@ -3252,6 +3564,7 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
             QuestStageRequirement(
                 stage=stage,
                 description=str(raw.get("description", "Generated quest-stage requirement.")),
+                variant=str(raw.get("variant", "")),
                 required_inventory=_catalog_item_pairs(raw.get("required_inventory", {})),
                 required_inventory_options=_catalog_item_options(raw.get("required_inventory_options", ())),
                 consumed_inventory=_catalog_item_pairs(raw.get("consumed_inventory", {})),
@@ -3348,6 +3661,7 @@ def _dedupe_stage_requirements(requirements: Tuple[QuestStageRequirement, ...]) 
         key = (
             requirement.stage,
             requirement.description,
+            requirement.variant,
             requirement.required_inventory,
             requirement.required_inventory_options,
             requirement.consumed_inventory,
@@ -3628,6 +3942,7 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
     return {
         "stage": requirement.stage,
         "description": requirement.description,
+        "variant": requirement.variant,
         "required_inventory": dict(requirement.required_inventory),
         "required_inventory_options": tuple(
             tuple({item_name: amount} for item_name, amount in option_group)
@@ -3727,6 +4042,45 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             }
     generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},
+        "Shield of Arrav book": {
+            "category": "material",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_BOOK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Intel report": {
+            "category": "material",
+            "source": (
+                f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_JONNY_DROPS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+        },
+        "Weapon store key": {
+            "category": "tool",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Phoenix crossbow": {
+            "category": "equipment",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Broken shield (Phoenix half)": {
+            "category": "material",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Broken shield (Black Arm half)": {
+            "category": "material",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Half certificate (Phoenix)": {
+            "category": "material",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Half certificate (Black Arm)": {
+            "category": "material",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Certificate": {
+            "category": "material",
+            "source": f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
         "Dramen staff": {"category": "material", "source": LOST_CITY_SOURCE_PATH},
         "Silverlight": {
             "category": "equipment",

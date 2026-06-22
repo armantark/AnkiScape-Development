@@ -715,6 +715,52 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Delrith"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_resolves_shield_of_arrav_route_combat_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_shield_arrav_combat_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Weapon store key": 1},
+            "current_quest": "shield_of_arrav",
+            "quests": {"shield_of_arrav": {"started": True, "progress": 5, "completed": False}},
+            "quest_route_states": {"shield_of_arrav": ["Join the Black Arm Gang"]},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 40,
+            "constitution_level": 40,
+            "prayer_level": 1,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["shield_of_arrav"]["progress"], 5)
+        self.assertFalse(addon.player_data["quests"]["shield_of_arrav"]["completed"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounters"],
+            {"shield_of_arrav": ["shield_of_arrav_weaponsmaster_23"]},
+        )
+        self.assertEqual(addon.player_data["inventory"]["Weapon store key"], 1)
+        self.assertEqual(addon.player_data["inventory"].get("Phoenix crossbow", 0), 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Weaponsmaster"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_resolves_style_aware_magic_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_style_aware_magic_combat_integration")
 
