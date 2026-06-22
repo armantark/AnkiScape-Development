@@ -176,10 +176,18 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   the final King Arthur hand-in, and Tree Gnome Village consumes six logs,
   models tracker actions, two Khazard commanders, the Khazard warlord, orb/orbs
   hand-ins, and Gnome amulet reward while leaving spirit tree access as an
-  unlock. The live audit now reports 577 stage rows, 174 quests with
-  item/tool/option blockers, 120 quests with combat blockers, 104
-  produced-inventory rows, and 181/286 resolver-ready combat rows. This is still broad
-  machine-readable coverage overall, not proof of minute-detail stage parity.
+  unlock. A final all-catalog pass then made generated stage rows fail closed
+  with source-backed action/checkpoint blockers for every pre-EOC catalog quest,
+  fixed generated combat heading false positives, preserved prefix quantities
+  such as `3x Warped terrorbirds` and `4x Living rock brawler`, split Shilo
+  Village's Nazastarool into three sourced forms, set Legends' Quest's
+  Nezikchened to three kills, and added focused resolver-ready Tough guy and
+  Black Dragon rows. The live audit now reports 194/194 quests with stage
+  requirements, 1,107 stage rows, 174 quests with item/tool blockers, 190 quests
+  with action blockers, 18 quests with route blockers, 120 quests with combat
+  blockers, 104 produced-inventory rows, and 185/288 resolver-ready combat rows.
+  This is all-catalog machine-readable stage-gate coverage, not proof of
+  minute-detail historical simulation for every quest.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
   `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`, and
@@ -219,6 +227,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-holy-grail-tree-gnome-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-all-catalog-stage-gate-final-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -307,9 +317,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   from Darkan quest and combatdef evidence while keeping the other scorpion
   catches as route/action gates. Heroes' Quest now adds Ice Queen and Grip
   source-backed resolver rows while keeping Ice Queen lair access as a route
-  blocker rather than the old generated Jailer assumption. Current stat
-  coverage is 179/284 combat rows; the
-  remaining 105 statless rows
+  blocker rather than the old generated Jailer assumption. Shilo Village now
+  splits Nazastarool into three focused sourced forms, Legends' Quest preserves
+  Nezikchened as a three-kill encounter, The Feud adds Tough guy, and Recipe for
+  Disaster: Freeing Sir Amik Varze adds a resolver-ready Black Dragon while the
+  Evil Chicken stays missing-stats blocked. Current stat coverage is 185/288
+  combat rows; the remaining 103 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
   Historical RuneScape Wiki monster pages are now audited by

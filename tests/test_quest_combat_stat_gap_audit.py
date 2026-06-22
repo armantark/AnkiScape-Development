@@ -18,7 +18,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 105)
+        self.assertEqual(len(self.gaps), 103)
         self.assertEqual(
             counts,
             {
@@ -26,7 +26,7 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
                 "darkan_missing_resolver_stats": 18,
                 "darkan_same_name_wrong_level": 7,
                 "no_local_source_match": 10,
-                "parser_or_variant_level": 19,
+                "parser_or_variant_level": 17,
             },
         )
 
@@ -85,6 +85,12 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         self.assertNotIn(("a_souls_bane", "Tolna head"), self.by_quest_and_name)
         self.assertNotIn(("death_to_the_dorgeshuun", "Senior guard x3"), self.by_quest_and_name)
         self.assertNotIn(("death_to_the_dorgeshuun", "Senior H.A.M. guard"), self.by_quest_and_name)
+        self.assertNotIn(("shilo_village", "Nazastarool (Zombie)"), self.by_quest_and_name)
+        self.assertNotIn(("shilo_village", "Nazastarool (Skeleton)"), self.by_quest_and_name)
+        self.assertNotIn(("shilo_village", "Nazastarool (Ghost)"), self.by_quest_and_name)
+        self.assertNotIn(("legends_quest", "Nezikchened"), self.by_quest_and_name)
+        self.assertNotIn(("the_feud", "Tough guy"), self.by_quest_and_name)
+        self.assertNotIn(("recipe_for_disaster_freeing_sir_amik_varze", "Black Dragon"), self.by_quest_and_name)
 
 
 if __name__ == "__main__":
