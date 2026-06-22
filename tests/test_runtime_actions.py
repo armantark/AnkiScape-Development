@@ -498,6 +498,39 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"][0][0], "Quest complete")
 
+    def test_quest_answer_blocks_holy_grail_titan_stage_without_excalibur(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Magic whistle": 1},
+            "current_quest": "holy_grail",
+            "quests": {"holy_grail": {"started": True, "progress": 5, "completed": False}},
+            "quest_route_states": {
+                "holy_grail": ["Reach the Fisher Realm crossing at the six stone heads"]
+            },
+            "quest_stage_actions": {
+                "holy_grail": ["Blow the Magic whistle at the six stone heads"]
+            },
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 120,
+            "strength_level": 120,
+            "defense_level": 120,
+            "constitution_level": 120,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["holy_grail"]["progress"], 5)
+        self.assertFalse(player_data["quests"]["holy_grail"]["completed"])
+        self.assertNotIn("quest_combat_encounters", player_data)
+        self.assertEqual(player_data["inventory"].get("Grail bell", 0), 0)
+        self.assertEqual(calls["saves"], 0)
+        self.assertIn("Needs Excalibur", calls["errors"][0][1])
+
     def test_quest_answer_resolves_source_backed_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

@@ -93,6 +93,7 @@ try:
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
         quest_current_stage_blockers_pure,
+        quest_current_stage_resolvable_combat_blockers_pure,
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -182,6 +183,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
         quest_current_stage_blockers_pure,
+        quest_current_stage_resolvable_combat_blockers_pure,
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -891,7 +893,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         player_data["current_quest"] = quest_id
     quest = QUEST_DATA[quest_id]
     stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
-    combat_blockers = tuple(blocker for blocker in stage_blockers if blocker.get("kind") == "combat_encounter")
+    combat_blockers = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, QUEST_DATA)
     if combat_blockers:
         new_data, ok, result = apply_quest_combat_encounter_pure(
             player_data,

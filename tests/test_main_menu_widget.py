@@ -1452,6 +1452,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Yew shortbow x1", action.toolTip())
 
+    def test_quests_tab_shows_holy_grail_excalibur_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Magic whistle": 1}
+        pd["current_quest"] = "holy_grail"
+        pd["quests"]["holy_grail"] = {"started": True, "progress": 5, "completed": False}
+        pd["quest_route_states"] = {"holy_grail": ["Reach the Fisher Realm crossing at the six stone heads"]}
+        pd["quest_stage_actions"] = {"holy_grail": ["Blow the Magic whistle at the six stone heads"]}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertTrue(
+            any(label.startswith("Blocked: Needs Excalibur") for label in labels),
+            f"Expected Holy Grail Excalibur blocker in labels: {labels}",
+        )
+        action = dialog.findChild(QPushButton, "questAction_holy_grail")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Excalibur", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

@@ -169,9 +169,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   bow option, Winelda consumes 20 Limpwurt roots, the Guardian route produces an
   Armadyl pendant and requires Lucien combat, and the Lucien route requires a
   Guardian encounter before the Staff of Armadyl is consumed at the final hand-in.
-  The live audit now reports 564 stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, 97 produced-inventory rows, and
-  180/285 resolver-ready combat rows. This is still broad
+  Holy Grail and Tree Gnome Village then prove focused replacement rows can
+  correct generated false positives and source-only unlocks: Holy Grail removes
+  the false Brimhaven requirement, keeps Excalibur as the Black Knight Titan
+  stage tool, splits Magic whistle/Holy grail production and consumption before
+  the final King Arthur hand-in, and Tree Gnome Village consumes six logs,
+  models tracker actions, two Khazard commanders, the Khazard warlord, orb/orbs
+  hand-ins, and Gnome amulet reward while leaving spirit tree access as an
+  unlock. The live audit now reports 577 stage rows, 174 quests with
+  item/tool/option blockers, 120 quests with combat blockers, 104
+  produced-inventory rows, and 181/286 resolver-ready combat rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -210,6 +217,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-holy-grail-tree-gnome-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten

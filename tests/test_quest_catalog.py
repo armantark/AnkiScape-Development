@@ -319,6 +319,96 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(guardian_finish["combat_encounters"][0]["encounter_id"], "temple_of_ikov_lucien_14")
         self.assertEqual(lucien_finish["consumed_inventory"], {"Staff of armadyl": 1})
 
+    def test_holy_grail_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["holy_grail"]
+
+        self.assertEqual(quest["stages"], 11)
+        self.assertEqual(quest["required_items"], {})
+        self.assertEqual(quest["rewards"], {})
+        self.assertNotIn("Brimhaven", str(quest["stage_requirements"]))
+        self.assertIn("Black Knight Titan (level 120)", quest["combat"])
+        self.assertEqual(
+            tuple((requirement["skill_id"], requirement["level"]) for requirement in quest["required_skills"]),
+            (("attack", 20),),
+        )
+        self.assertEqual(
+            tuple(requirement["quest_id"] for requirement in quest["required_quests"]),
+            ("merlins_crystal",),
+        )
+        self.assertEqual(
+            quest["xp_rewards"],
+            ({"skill_id": "defense", "amount": 15300.0}, {"skill_id": "prayer", "amount": 11000.0}),
+        )
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertEqual(by_stage[3]["produced_inventory"], {"Holy table napkin": 1})
+        self.assertEqual(by_stage[4]["required_tools"], {"Holy table napkin": 1})
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Magic whistle": 2})
+        self.assertEqual(by_stage[5]["required_tools"], {"Magic whistle": 1, "Excalibur": 1})
+        self.assertEqual(by_stage[5]["produced_inventory"], {"Grail bell": 1})
+        self.assertEqual(by_stage[6]["required_tools"], {"Grail bell": 1})
+        self.assertEqual(by_stage[7]["produced_inventory"], {"Magic gold feather": 1})
+        self.assertEqual(by_stage[8]["consumed_inventory"], {"Magic whistle": 1})
+        self.assertEqual(by_stage[8]["required_tools"], {"Magic gold feather": 1})
+        self.assertEqual(by_stage[9]["produced_inventory"], {"Holy grail": 1})
+        self.assertEqual(by_stage[10]["consumed_inventory"], {"Holy grail": 1})
+
+        titan = by_stage[5]["combat_encounters"][0]
+        self.assertEqual(titan["encounter_id"], "holy_grail_black_knight_titan_120")
+        self.assertEqual(titan["display_name"], "Black Knight Titan")
+        self.assertEqual(titan["level"], 120)
+        self.assertEqual(
+            titan["npc_stats"],
+            {"hitpoints": 1420, "attack": 91, "strength": 100, "defence": 91, "magic": 1, "ranged": 1},
+        )
+        self.assertEqual(titan["npc_configs"]["max_hit"], 150)
+        self.assertEqual(titan["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(titan["npc_stats_source"].endswith("black_knight_titan.json"))
+
+    def test_tree_gnome_village_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["tree_gnome_village"]
+
+        self.assertEqual(quest["stages"], 8)
+        self.assertEqual(quest["required_items"], {})
+        self.assertEqual(quest["rewards"], {"Gnome amulet": 1})
+        self.assertNotIn("Spirit Tree", quest["rewards"])
+        self.assertIn("Two Khazard commanders (level 48)", quest["combat"])
+        self.assertIn("Khazard warlord (level 112)", quest["combat"])
+        self.assertEqual(quest["xp_rewards"], ({"skill_id": "attack", "amount": 11450.0},))
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertEqual(by_stage[1]["required_routes"], ("Reach Commander Montai on the battlefield",))
+        self.assertEqual(by_stage[2]["consumed_inventory"], {"Logs": 6})
+        self.assertEqual(
+            by_stage[4]["required_actions"],
+            (
+                "Get the first tracker coordinate",
+                "Get the second tracker coordinate",
+                "Get the third tracker coordinate",
+                "Fire the battlefield ballista at the Khazard stronghold",
+            ),
+        )
+        self.assertEqual(by_stage[5]["produced_inventory"], {"Orb of protection": 1})
+        self.assertEqual(by_stage[6]["consumed_inventory"], {"Orb of protection": 1})
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Orbs of protection": 1})
+        self.assertEqual(by_stage[7]["consumed_inventory"], {"Orbs of protection": 1})
+
+        commander = by_stage[5]["combat_encounters"][0]
+        self.assertEqual(commander["encounter_id"], "tree_gnome_village_khazard_commander_48")
+        self.assertEqual(commander["quantity"], 2)
+        self.assertEqual(commander["npc_stats"]["hitpoints"], 220)
+        self.assertEqual(commander["npc_configs"]["attack_bonus"], "stab_att")
+        self.assertTrue(commander["npc_stats_source"].endswith("khazard_commander (noanims).json"))
+
+        warlord = by_stage[6]["combat_encounters"][0]
+        self.assertEqual(warlord["encounter_id"], "tree_gnome_village_khazard_warlord_112")
+        self.assertEqual(warlord["level"], 112)
+        self.assertEqual(warlord["npc_stats"]["hitpoints"], 1690)
+        self.assertEqual(warlord["npc_configs"]["max_hit"], 92)
+        self.assertTrue(warlord["npc_stats_source"].endswith("khazard_warlord (noanims).json"))
+
     def test_shield_of_arrav_has_source_backed_route_stage_requirements(self):
         data = quests_as_dict()
         quest = data["shield_of_arrav"]

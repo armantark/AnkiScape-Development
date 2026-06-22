@@ -1618,6 +1618,45 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Dad"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_completes_holy_grail_final_handoff_and_consumes_grail(self):
+        addon = _load_addon_as_package("ankiscape_holy_grail_completion_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Holy grail": 1},
+            "current_quest": "holy_grail",
+            "quests": {"holy_grail": {"started": True, "progress": 10, "completed": False}},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertEqual(addon.player_data["quests"]["holy_grail"]["progress"], 11)
+        self.assertTrue(addon.player_data["quests"]["holy_grail"]["completed"])
+        self.assertEqual(addon.player_data["inventory"]["Holy grail"], 0)
+        self.assertEqual(addon.player_data["quest_points"], 2)
+        self.assertEqual(
+            addon.player_data["pending_skill_exp_rewards"],
+            {"defense_exp": 15300.0, "prayer_exp": 11000.0},
+        )
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Holy Grail complete"])
+        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
 

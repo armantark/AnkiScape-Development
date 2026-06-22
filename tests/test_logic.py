@@ -2406,6 +2406,199 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(lucien_data["inventory"]["Staff of armadyl"], 0)
         self.assertEqual(lucien_data["inventory"]["Shiny key"], 1)
 
+    def test_holy_grail_stage_gates_excalibur_titan_and_holy_grail_handin(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["holy_grail"] = {"started": True, "progress": 1, "completed": False}
+        player_data["quest_route_states"] = {
+            "holy_grail": [
+                "Travel to Entrana",
+                "Reach the Draynor Manor whistle room",
+                "Reach the Fisher Realm crossing at the six stone heads",
+            ]
+        }
+        player_data["quest_stage_actions"] = {
+            "holy_grail": [
+                "Ask Merlin about the Holy Grail",
+                "Ask the Entrana High Priest and crone about the Grail",
+                "Ask Sir Galahad for an artifact from the Fisher Realm",
+                "Find the Magic whistles in Draynor Manor",
+                "Blow the Magic whistle at the six stone heads",
+                "Ring the Grail bell and ask the Fisher King about Percival",
+                "Ask King Arthur about Sir Percival",
+                "Use the Magic gold feather to find Sir Percival",
+                "Free Sir Percival from the sack",
+                "Show Sir Percival the Magic whistle",
+                "Take the Holy grail from the restored Fisher Realm",
+            ]
+        }
+
+        for expected_progress in range(2, 6):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["holy_grail"]["progress"], expected_progress)
+
+        self.assertEqual(player_data["inventory"]["Holy table napkin"], 1)
+        self.assertEqual(player_data["inventory"]["Magic whistle"], 2)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "holy_grail", QUEST_DATA),
+            (
+                "Needs Excalibur",
+                "Combat locked until battle support is enabled: Black Knight Titan level 120",
+            ),
+        )
+
+        player_data["inventory"]["Excalibur"] = 1
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "holy_grail", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Black Knight Titan level 120",),
+        )
+        player_data["quest_combat_encounters"] = {"holy_grail": ["holy_grail_black_knight_titan_120"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["holy_grail"]["progress"], 6)
+        self.assertEqual(player_data["inventory"]["Grail bell"], 1)
+
+        for expected_progress in range(7, 10):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["holy_grail"]["progress"], expected_progress)
+
+        self.assertEqual(player_data["inventory"]["Magic whistle"], 1)
+        self.assertEqual(player_data["inventory"]["Magic gold feather"], 1)
+        self.assertEqual(player_data["inventory"].get("Holy grail", 0), 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["holy_grail"]["progress"], 10)
+        self.assertEqual(player_data["inventory"]["Holy grail"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "holy_grail", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["holy_grail"]["completed"])
+        self.assertEqual(player_data["inventory"]["Holy grail"], 0)
+        self.assertEqual(
+            player_data["pending_skill_exp_rewards"],
+            {"defense_exp": 15300.0, "prayer_exp": 11000.0},
+        )
+        self.assertEqual(player_data["quest_points"], 2)
+
+    def test_tree_gnome_village_requires_two_commanders_and_warlord_before_completion(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["tree_gnome_village"] = {"started": True, "progress": 1, "completed": False}
+        player_data["inventory"]["Logs"] = 6
+        player_data["quest_route_states"] = {
+            "tree_gnome_village": [
+                "Reach Commander Montai on the battlefield",
+                "Enter the Khazard stronghold through the broken wall",
+            ]
+        }
+        player_data["quest_stage_actions"] = {
+            "tree_gnome_village": [
+                "Ask Commander Montai how to help the gnome battlefield",
+                "Ask Commander Montai about the tracker gnomes",
+                "Get the first tracker coordinate",
+                "Get the second tracker coordinate",
+                "Get the third tracker coordinate",
+                "Fire the battlefield ballista at the Khazard stronghold",
+                "Search the stronghold chest for the first Orb of protection",
+                "Return the first Orb of protection to King Bolren",
+            ]
+        }
+
+        for expected_progress in range(2, 5):
+            player_data, ok, completed_now = apply_quest_progress_pure(
+                player_data,
+                "tree_gnome_village",
+                QUEST_DATA,
+            )
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], expected_progress)
+        self.assertEqual(player_data["inventory"]["Logs"], 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 5)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "tree_gnome_village", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Khazard commander level 48 x2",),
+        )
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data.update(
+            {
+                "attack_level": 120,
+                "strength_level": 120,
+                "defense_level": 120,
+                "constitution_level": 120,
+                "prayer_level": 1,
+            }
+        )
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "tree_gnome_village",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(result["remaining_quantity"], 1)
+        self.assertEqual(
+            player_data["quest_combat_encounter_counts"],
+            {"tree_gnome_village": {"tree_gnome_village_khazard_commander_48": 1}},
+        )
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "tree_gnome_village",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["completed_quantity"], 2)
+        self.assertEqual(result["remaining_quantity"], 0)
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"tree_gnome_village": ["tree_gnome_village_khazard_commander_48"]},
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 6)
+        self.assertEqual(player_data["inventory"]["Orb of protection"], 1)
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "tree_gnome_village", QUEST_DATA),
+            ("Battle required: Khazard warlord level 112",),
+        )
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "tree_gnome_village",
+            QUEST_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["display_name"], "Khazard warlord")
+        self.assertEqual(result["remaining_quantity"], 0)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["tree_gnome_village"]["progress"], 7)
+        self.assertEqual(player_data["inventory"]["Orb of protection"], 0)
+        self.assertEqual(player_data["inventory"]["Orbs of protection"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["tree_gnome_village"]["completed"])
+        self.assertEqual(player_data["inventory"]["Orbs of protection"], 0)
+        self.assertEqual(player_data["inventory"]["Gnome amulet"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"attack_exp": 11450.0})
+        self.assertEqual(player_data["quest_points"], 2)
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}

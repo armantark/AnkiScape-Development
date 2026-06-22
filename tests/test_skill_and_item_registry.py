@@ -726,6 +726,14 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Yew comp bow",
             "Magic comp bow",
             "Dark bow",
+            "Holy table napkin",
+            "Magic whistle",
+            "Grail bell",
+            "Magic gold feather",
+            "Holy grail",
+            "Orb of protection",
+            "Orbs of protection",
+            "Gnome amulet",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

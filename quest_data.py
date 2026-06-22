@@ -67,6 +67,8 @@ BIOHAZARD_ID = "biohazard"
 WATERFALL_QUEST_ID = "waterfall_quest"
 FAMILY_CREST_ID = "family_crest"
 TEMPLE_OF_IKOV_ID = "temple_of_ikov"
+HOLY_GRAIL_ID = "holy_grail"
+TREE_GNOME_VILLAGE_ID = "tree_gnome_village"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -437,6 +439,29 @@ TEMPLE_OF_IKOV_2011SCAPE_SPAWN_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/areas/spawns/spawns_10650.plugin.kts"
 )
+HOLY_GRAIL_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/holygrail"
+HOLY_GRAIL_DARKAN_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/HolyGrail.java"
+HOLY_GRAIL_TITAN_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/BlackKnightTitan.java"
+HOLY_GRAIL_KING_ARTHUR_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/KingArthurHolyGrailD.java"
+HOLY_GRAIL_MERLIN_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/MerlinHolyGrailD.java"
+HOLY_GRAIL_ENTRANA_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/EntranaHighPriestHolyGrailD.java"
+HOLY_GRAIL_GALAHAD_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/SirGalahadHolyGrailD.java"
+HOLY_GRAIL_FISHER_KING_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/TheFisherKingHolyGrailD.java"
+HOLY_GRAIL_PERCIVAL_SOURCE = f"{HOLY_GRAIL_SOURCE_ROOT}/dialogue/SirPercivalHolyGrailD.java"
+HOLY_GRAIL_TITAN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/black_knight_titan.json"
+TREE_GNOME_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/treegnomevillage"
+TREE_GNOME_DARKAN_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/TreeGnomeVillage.java"
+TREE_GNOME_BOLREN_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/dialogues/KingBolrenTreeGnomeVillageD.java"
+TREE_GNOME_MONTAI_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/dialogues/CommanderMontaiTreeGnomeVillageD.java"
+TREE_GNOME_TRACKER1_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/dialogues/Tracker1TreeGnomeVillageD.java"
+TREE_GNOME_TRACKER2_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/dialogues/Tracker2TreeGnomeVillageD.java"
+TREE_GNOME_TRACKER3_SOURCE = f"{TREE_GNOME_SOURCE_ROOT}/dialogues/Tracker3TreeGnomeVillageD.java"
+TREE_GNOME_KHAZARD_COMMANDER_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/khazard_commander (noanims).json"
+)
+TREE_GNOME_KHAZARD_WARLORD_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/khazard_warlord (noanims).json"
+)
 TAI_BWO_WANNAI_TRIO_JOGRE_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jogre/jogre_(53).json"
 SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/sea_troll_queen (noanims).json"
 PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE = (
@@ -518,6 +543,8 @@ DEATH_TO_DORGESHUUN_WIKI_SOURCE = "https://runescape.wiki/w/Death_to_the_Dorgesh
 HEROES_QUEST_WIKI_SOURCE = "https://runescape.wiki/w/Heroes'_Quest?oldid=6534275"
 FAMILY_CREST_WIKI_SOURCE = "https://runescape.wiki/w/Family_Crest?oldid=6548361"
 TEMPLE_OF_IKOV_WIKI_SOURCE = "https://runescape.wiki/w/Temple_of_Ikov?oldid=6538747"
+HOLY_GRAIL_WIKI_SOURCE = "https://runescape.wiki/w/Holy_Grail?oldid=6393193"
+TREE_GNOME_WIKI_SOURCE = "https://runescape.wiki/w/Tree_Gnome_Village?oldid=6541699"
 SPIRITS_OF_THE_ELID_WIKI_SOURCE = "https://runescape.wiki/w/Spirits_of_the_Elid?oldid=6326193"
 ANOTHER_SLICE_OF_H_A_M_WIKI_SOURCE = "https://runescape.wiki/w/Another_Slice_of_H.A.M.?oldid=6548739"
 JUNGLE_POTION_WIKI_SOURCE = "https://runescape.wiki/w/Jungle_Potion?oldid=6555418"
@@ -3423,8 +3450,41 @@ DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
 )
 
 
+HOLY_GRAIL_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "King Arthur sent me to Merlin for clues about the Holy Grail."),
+    _simple_stage(2, "Merlin believes the Grail passed through Entrana and Sir Galahad may know more."),
+    _simple_stage(3, "The Entrana High Priest and crone pointed me toward Sir Galahad and the Fisher Realm."),
+    _simple_stage(4, "Sir Galahad gave me a Holy table napkin from the Fisher Realm."),
+    _simple_stage(5, "The Holy table napkin should reveal the Magic whistles hidden in Draynor Manor."),
+    _simple_stage(
+        6,
+        "The Magic whistle can take me to the Fisher Realm from the six stone heads.",
+        "The Black Knight Titan blocks the castle and must be defeated with Excalibur.",
+    ),
+    _simple_stage(7, "The Black Knight Titan is defeated. I can enter the castle and speak to the Fisher King."),
+    _simple_stage(8, "The Fisher King asked me to find his son, Sir Percival."),
+    _simple_stage(9, "Sir Percival can restore the Fisher Realm if I free him and show him the Magic whistle."),
+    _simple_stage(10, "The Fisher Realm is restored. I should take the Holy grail to King Arthur."),
+    _simple_stage(11, "King Arthur has the Holy grail.", "Quest complete!"),
+)
+
+
+TREE_GNOME_VILLAGE_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "King Bolren sent me to Commander Montai on the battlefield."),
+    _simple_stage(2, "Commander Montai needs six normal logs to strengthen the gnome battlements."),
+    _simple_stage(3, "Commander Montai is ready to explain the next phase of the attack."),
+    _simple_stage(4, "I need coordinates from the three tracker gnomes so the ballista can hit the stronghold."),
+    _simple_stage(5, "The ballista broke the stronghold wall. I need the first Orb of protection from the chest."),
+    _simple_stage(6, "King Bolren took the first orb. A Khazard warlord has the remaining orbs."),
+    _simple_stage(7, "I recovered the remaining Orbs of protection and should return them to King Bolren."),
+    _simple_stage(8, "King Bolren replaced the orbs and rewarded me.", "Quest complete!"),
+)
+
+
 QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     DWARF_CANNON_ID: len(DWARF_CANNON_STAGES),
+    HOLY_GRAIL_ID: len(HOLY_GRAIL_STAGES),
+    TREE_GNOME_VILLAGE_ID: len(TREE_GNOME_VILLAGE_STAGES),
     FISHING_CONTEST_ID: len(FISHING_CONTEST_STAGES),
     GERTRUDES_CAT_ID: len(GERTRUDES_CAT_STAGES),
     CLOCK_TOWER_ID: len(CLOCK_TOWER_STAGES),
@@ -3440,6 +3500,8 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     DWARF_CANNON_ID: DWARF_CANNON_STAGES,
+    HOLY_GRAIL_ID: HOLY_GRAIL_STAGES,
+    TREE_GNOME_VILLAGE_ID: TREE_GNOME_VILLAGE_STAGES,
     FISHING_CONTEST_ID: FISHING_CONTEST_STAGES,
     GERTRUDES_CAT_ID: GERTRUDES_CAT_STAGES,
     CLOCK_TOWER_ID: CLOCK_TOWER_STAGES,
@@ -3455,6 +3517,11 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
 
 QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
     DWARF_CANNON_ID: "None.",
+    HOLY_GRAIL_ID: "Black Knight Titan (level 120), defeated only with Excalibur.",
+    TREE_GNOME_VILLAGE_ID: (
+        "Two Khazard commanders (level 48) can block the first orb; "
+        "the Khazard warlord (level 112) holds the remaining orbs."
+    ),
     FISHING_CONTEST_ID: "None.",
     GERTRUDES_CAT_ID: "None.",
     CLOCK_TOWER_ID: "None.",
@@ -3469,6 +3536,7 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
 
 
 QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
+    TREE_GNOME_VILLAGE_ID: (("Gnome amulet", 1),),
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
 }
 
@@ -3480,6 +3548,221 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Give the Lumbridge cook the three special cake ingredients.",
             f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}",
             consumed_inventory=(("Top-quality milk", 1), ("Extra fine flour", 1), ("Super large egg", 1)),
+        ),
+    ),
+    HOLY_GRAIL_ID: (
+        _stage_req(
+            1,
+            "Ask Merlin about the Holy Grail.",
+            f"{HOLY_GRAIL_KING_ARTHUR_SOURCE}; {HOLY_GRAIL_MERLIN_SOURCE}",
+            required_actions=("Ask Merlin about the Holy Grail",),
+        ),
+        _stage_req(
+            2,
+            "Ask the Entrana High Priest and crone about the Grail.",
+            f"{HOLY_GRAIL_MERLIN_SOURCE}; {HOLY_GRAIL_ENTRANA_SOURCE}",
+            required_routes=("Travel to Entrana",),
+            required_actions=("Ask the Entrana High Priest and crone about the Grail",),
+        ),
+        _stage_req(
+            3,
+            "Ask Sir Galahad for an artifact from the Fisher Realm.",
+            f"{HOLY_GRAIL_ENTRANA_SOURCE}; {HOLY_GRAIL_GALAHAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Ask Sir Galahad for an artifact from the Fisher Realm",),
+            produced_inventory=(("Holy table napkin", 1),),
+        ),
+        _stage_req(
+            4,
+            "Find the Magic whistles in Draynor Manor while carrying the Holy table napkin.",
+            f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Holy table napkin", 1),),
+            required_routes=("Reach the Draynor Manor whistle room",),
+            required_actions=("Find the Magic whistles in Draynor Manor",),
+            produced_inventory=(("Magic whistle", 2),),
+        ),
+        _stage_req(
+            5,
+            "Blow the Magic whistle at the six stone heads and defeat the Black Knight Titan with Excalibur.",
+            f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_TITAN_SOURCE}; {HOLY_GRAIL_TITAN_NPC_SOURCE}",
+            required_tools=(("Magic whistle", 1), ("Excalibur", 1)),
+            required_routes=("Reach the Fisher Realm crossing at the six stone heads",),
+            required_actions=("Blow the Magic whistle at the six stone heads",),
+            produced_inventory=(("Grail bell", 1),),
+            combat_encounters=(
+                _combat(
+                    HOLY_GRAIL_ID,
+                    "black_knight_titan_120",
+                    "Black Knight Titan",
+                    120,
+                    HOLY_GRAIL_WIKI_SOURCE,
+                    "Black Knight Titan (level 120), defeated only with Excalibur.",
+                    npc_stats=(
+                        ("hitpoints", 1420),
+                        ("attack", 91),
+                        ("strength", 100),
+                        ("defence", 91),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 150),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=HOLY_GRAIL_TITAN_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            6,
+            "Ring the Grail bell and ask the Fisher King about Percival.",
+            f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_FISHER_KING_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Grail bell", 1),),
+            required_actions=("Ring the Grail bell and ask the Fisher King about Percival",),
+        ),
+        _stage_req(
+            7,
+            "Ask King Arthur about Sir Percival and receive the Magic gold feather.",
+            f"{HOLY_GRAIL_KING_ARTHUR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Ask King Arthur about Sir Percival",),
+            produced_inventory=(("Magic gold feather", 1),),
+        ),
+        _stage_req(
+            8,
+            "Use the Magic gold feather to find Sir Percival, then show him a Magic whistle.",
+            f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_PERCIVAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Magic gold feather", 1),),
+            consumed_inventory=(("Magic whistle", 1),),
+            required_actions=(
+                "Use the Magic gold feather to find Sir Percival",
+                "Free Sir Percival from the sack",
+                "Show Sir Percival the Magic whistle",
+            ),
+        ),
+        _stage_req(
+            9,
+            "Take the Holy grail from the restored Fisher Realm.",
+            f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Take the Holy grail from the restored Fisher Realm",),
+            produced_inventory=(("Holy grail", 1),),
+        ),
+        _stage_req(
+            10,
+            "Give the Holy grail to King Arthur.",
+            f"{HOLY_GRAIL_KING_ARTHUR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Holy grail", 1),),
+        ),
+    ),
+    TREE_GNOME_VILLAGE_ID: (
+        _stage_req(
+            1,
+            "Reach Commander Montai on the battlefield.",
+            f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}",
+            required_routes=("Reach Commander Montai on the battlefield",),
+            required_actions=("Ask Commander Montai how to help the gnome battlefield",),
+        ),
+        _stage_req(
+            2,
+            "Give six normal logs to Commander Montai.",
+            f"{TREE_GNOME_MONTAI_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Logs", 6),),
+        ),
+        _stage_req(
+            3,
+            "Ask Commander Montai about the tracker gnomes.",
+            TREE_GNOME_MONTAI_SOURCE,
+            required_actions=("Ask Commander Montai about the tracker gnomes",),
+        ),
+        _stage_req(
+            4,
+            "Get all three tracker coordinates and fire the battlefield ballista.",
+            (
+                f"{TREE_GNOME_MONTAI_SOURCE}; {TREE_GNOME_TRACKER1_SOURCE}; {TREE_GNOME_TRACKER2_SOURCE}; "
+                f"{TREE_GNOME_TRACKER3_SOURCE}; {TREE_GNOME_DARKAN_SOURCE}"
+            ),
+            required_actions=(
+                "Get the first tracker coordinate",
+                "Get the second tracker coordinate",
+                "Get the third tracker coordinate",
+                "Fire the battlefield ballista at the Khazard stronghold",
+            ),
+        ),
+        _stage_req(
+            5,
+            "Enter the Khazard stronghold and recover the first Orb of protection.",
+            f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_MONTAI_SOURCE}; {TREE_GNOME_KHAZARD_COMMANDER_NPC_SOURCE}",
+            required_routes=("Enter the Khazard stronghold through the broken wall",),
+            required_actions=("Search the stronghold chest for the first Orb of protection",),
+            produced_inventory=(("Orb of protection", 1),),
+            combat_encounters=(
+                _combat(
+                    TREE_GNOME_VILLAGE_ID,
+                    "khazard_commander_48",
+                    "Khazard commander",
+                    48,
+                    TREE_GNOME_WIKI_SOURCE,
+                    "Two Khazard commanders (level 48) can block the first Orb of protection.",
+                    quantity=2,
+                    npc_stats=(
+                        ("hitpoints", 220),
+                        ("attack", 50),
+                        ("strength", 45),
+                        ("defence", 50),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 50),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "stab_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=TREE_GNOME_KHAZARD_COMMANDER_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            6,
+            "Return the first Orb of protection to King Bolren and recover the remaining orbs from the Khazard warlord.",
+            f"{TREE_GNOME_BOLREN_SOURCE}; {TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_KHAZARD_WARLORD_NPC_SOURCE}",
+            consumed_inventory=(("Orb of protection", 1),),
+            required_actions=("Return the first Orb of protection to King Bolren",),
+            produced_inventory=(("Orbs of protection", 1),),
+            combat_encounters=(
+                _combat(
+                    TREE_GNOME_VILLAGE_ID,
+                    "khazard_warlord_112",
+                    "Khazard warlord",
+                    112,
+                    TREE_GNOME_WIKI_SOURCE,
+                    "Khazard warlord (level 112) holds the remaining Orbs of protection.",
+                    npc_stats=(
+                        ("hitpoints", 1690),
+                        ("attack", 75),
+                        ("strength", 78),
+                        ("defence", 80),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 92),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=TREE_GNOME_KHAZARD_WARLORD_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            7,
+            "Return the remaining Orbs of protection to King Bolren.",
+            f"{TREE_GNOME_BOLREN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Orbs of protection", 1),),
         ),
     ),
     FISHING_CONTEST_ID: (
@@ -7298,6 +7581,47 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Excalibur": {
             "category": "equipment",
             "source": f"{MERLINS_CRYSTAL_LADY_SOURCE}; {MERLINS_CRYSTAL_BEGGAR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Holy table napkin": {
+            "category": "material",
+            "tradeable": False,
+            "source": f"{HOLY_GRAIL_GALAHAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Magic whistle": {
+            "category": "tool",
+            "tradeable": False,
+            "source": f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Grail bell": {
+            "category": "tool",
+            "tradeable": False,
+            "source": f"{HOLY_GRAIL_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Magic gold feather": {
+            "category": "tool",
+            "tradeable": False,
+            "source": f"{HOLY_GRAIL_KING_ARTHUR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Holy grail": {
+            "category": "material",
+            "tradeable": False,
+            "source": f"{HOLY_GRAIL_DARKAN_SOURCE}; {HOLY_GRAIL_KING_ARTHUR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Orb of protection": {
+            "category": "material",
+            "tradeable": False,
+            "source": f"{TREE_GNOME_DARKAN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Orbs of protection": {
+            "category": "material",
+            "tradeable": False,
+            "source": f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_BOLREN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Gnome amulet": {
+            "category": "equipment",
+            "equipment_slot": "neck",
+            "tradeable": False,
+            "source": f"{TREE_GNOME_DARKAN_SOURCE}; {TREE_GNOME_BOLREN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Bat bones": {
             "category": "material",

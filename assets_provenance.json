@@ -6275,6 +6275,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-23T20:43:34Z"
   },
+  "questitems/gnome_amulet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Gnome_amulet.png",
+    "file_title": "Gnome amulet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Gnome_amulet.png?caa5a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4f6a2c9c8d02516e8b1c1f7fefd04cb42e9dcce8",
+    "size": 429,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:23Z"
+  },
   "questitems/goblin_mail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goblin_mail.png",
     "file_title": "Goblin mail.png",
