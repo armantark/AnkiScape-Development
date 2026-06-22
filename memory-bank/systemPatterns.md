@@ -144,9 +144,14 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   The Blood Pact's Caitlin, Love Story's Pit scabarite, and Salt in the Wound's
   Forgotten mage/ranger prove these paths. Focused name-shape replacements now
   make Heroes' Quest's Entrana Fire Bird and Another Slice of H.A.M.'s
-  H.A.M. ranger resolver-ready from Darkan combat sources. Current stat
-  coverage is 169/287 combat rows; the remaining 118 statless rows are
-  classified by
+  H.A.M. ranger resolver-ready from Darkan combat sources. A Soul's Bane proves
+  that a focused full-stage replacement can remove bad generated anger-room
+  combat rows, keep the rage room as a required-action gate, and split later
+  Darkan-backed room fights into multi-count enemies. Death to the Dorgeshuun's
+  Senior H.A.M. guard proves focused generated-row replacement can preserve a
+  historical quantity while mapping to a local Darkan NPC/combatdef identity.
+  Current stat coverage is 174/283 combat rows; the remaining 109 statless rows
+  are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.

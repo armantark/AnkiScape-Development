@@ -45,7 +45,7 @@
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 169/287 source-backed NPC stat rows after local
+  combat now has 174/283 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -67,8 +67,10 @@
   completed-id list is written only after the required quantity is fully
   defeated. Focused name-shape replacements now make Heroes' Quest's Entrana
   Fire Bird, Spirits of the Elid's Black/White/Grey golems, and Another Slice
-  of H.A.M.'s H.A.M. ranger resolver-ready; 118 combat rows remain statless
-  and explicitly blocked.
+  of H.A.M.'s H.A.M. ranger resolver-ready. A Soul's Bane now has sourced
+  action/combat stage splits for the rage, fear, confusion, hopelessness, and
+  Tolna rooms, and Death to the Dorgeshuun's Senior H.A.M. guard x3 row is
+  resolver-ready; 109 combat rows remain statless and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -93,8 +95,9 @@
   `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`,
   `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`, and
   `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md`,
+  `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md`,
   and
-  `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md`.
+  `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -464,8 +467,9 @@ focused override layer also gained Darkan-backed Jogre stats for Tai Bwo Wannai
 Trio and Sea Troll Queen stats for Swan Song. The generator now preserves
 `required_inventory_options` as independent option groups, so source rows such
 as Goblin Diplomacy's dye alternatives do not become start locks or impossible
-all-item requirements. `python3 tools/audit_quest_stage_gate_coverage.py` now
-reports 169/287 combat encounters with source-backed stats after the Darkan
+all-item requirements. `python3 tools/audit_quest_stage_gate_coverage.py`
+reported 169/287 combat encounters with source-backed stats at that slice's
+close after the Darkan
 beast fallbacks and focused name-shape replacements; the remaining 118 rows are
 classified by `tools/audit_quest_combat_stat_gaps.py` as 51 Darkan
 hitpoints-only rows, 18 Darkan rows missing style-critical resolver stats, 9
@@ -482,6 +486,15 @@ and Another Slice of H.A.M.'s historical H.A.M. ranger row maps to Darkan's
 level 30 H.A.M. Archer ranged payload. Audit coverage is 169/287
 resolver-ready combat rows with 118 statless rows still blocked; full
 minute-detail quest parity remains open.
+
+A Soul's Bane and Death to the Dorgeshuun combat-stage follow-up completed on
+2026-06-22. A Soul's Bane now replaces bad generated anger-room combat rows with
+a required-action rage meter gate, then splits the fear, confusion,
+hopelessness, and Tolna rooms into sourced Darkan multi-count combat gates.
+Death to the Dorgeshuun's generated `Senior guard x3` row now maps to
+`Senior H.A.M. guard` with level 22 local Darkan combatdef stats. Current audit
+coverage is 174/283 resolver-ready combat rows with 109 statless rows still
+blocked; full minute-detail quest parity remains open.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

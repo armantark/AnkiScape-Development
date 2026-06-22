@@ -367,6 +367,70 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Witch's experiment (Skavid form)"])
 
+    def test_quest_answer_resolves_a_souls_bane_first_fear_reaper_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "a_souls_bane",
+            "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
+            "quest_stage_actions": {"a_souls_bane": ["Fill the rage meter with an anger weapon"]},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 100,
+            "strength_level": 100,
+            "defense_level": 100,
+            "constitution_level": 100,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["a_souls_bane"]["progress"], 3)
+        self.assertFalse(player_data["quests"]["a_souls_bane"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounter_counts"], {"a_souls_bane": {"a_souls_bane_fear_reaper_42": 1}})
+        self.assertEqual(player_data["quest_combat_encounters"], {})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Fear reaper"])
+
+    def test_quest_answer_resolves_death_to_dorgeshuun_senior_guard_quantity(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "death_to_the_dorgeshuun",
+            "quests": {"death_to_the_dorgeshuun": {"started": True, "progress": 5, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_combat_encounters": {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 100,
+            "strength_level": 100,
+            "defense_level": 100,
+            "constitution_level": 100,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["death_to_the_dorgeshuun"]["progress"], 5)
+        self.assertFalse(player_data["quests"]["death_to_the_dorgeshuun"]["completed"])
+        self.assertEqual(
+            player_data["quest_combat_encounter_counts"],
+            {"death_to_the_dorgeshuun": {"death_to_the_dorgeshuun_senior_ham_guard_22": 1}},
+        )
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]},
+        )
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Senior H.A.M. guard"])
+
     def test_quest_answer_resolves_conflict_overridden_dad_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

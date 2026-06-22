@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates: Source Batch Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(79, 140, 255, 0.12), transparent 32rem), var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      width: max-content;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #b9d2ff;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
+      padding: 7px 10px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 820px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent 36%), var(--surface);
+      padding: 18px;
+      box-shadow: 0 16px 44px rgba(0, 0, 0, 0.22);
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    .label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.74rem;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 99px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-glow);
+    }
+
+    .dot.red { background: var(--red); box-shadow: 0 0 0 4px rgba(255, 92, 92, 0.13); }
+    .dot.amber { background: var(--amber); box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.13); }
+    .dot.green { background: var(--green); box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.13); }
+    .dot.purple { background: var(--purple); box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.13); }
+
+    h2 {
+      margin: 10px 0 8px;
+      font-size: 1.14rem;
+      letter-spacing: 0;
+    }
+
+    p { margin: 0; color: var(--text-dim); }
+
+    .metric {
+      margin-top: 12px;
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .number {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      color: var(--text);
+    }
+
+    .unit {
+      color: var(--text-dim);
+      font-size: 0.92rem;
+    }
+
+    .bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .pane {
+      min-height: 150px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+    }
+
+    .pane-title {
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.7rem;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .quest-row {
+      display: grid;
+      grid-template-columns: 10px 1fr auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.025);
+      font-size: 0.82rem;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--amber);
+    }
+
+    .status-dot.lock { background: var(--red); }
+    .status-dot.ok { background: var(--green); }
+
+    .pill {
+      border-radius: 999px;
+      background: rgba(79, 140, 255, 0.11);
+      color: #b9d2ff;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.68rem;
+      padding: 4px 7px;
+      white-space: nowrap;
+    }
+
+    .lanes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .lane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+    }
+
+    .lane strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .lane ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .lane li { margin: 7px 0; }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 10px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 7px;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      padding: 4px 7px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    @media (max-width: 900px) {
+      .span-4, .span-6, .span-8, .span-12 { grid-column: span 12; }
+      .split, .lanes { grid-template-columns: 1fr; }
+      main { width: min(100vw - 22px, 1180px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="badge">Pre-implementation plan · quest stage gates</div>
+      <h1>Not done yet: the next batch attacks source-backed combat gaps.</h1>
+      <p class="subtitle">
+        The backend stage-gate layer is real across the quest catalog, but the audit still reports
+        combat rows that cannot resolve because local source stats or exact variant matches are missing.
+        This slice keeps the model honest: enrich what the local sources prove, and keep the rest blocked.
+      </p>
+    </header>
+
+    <section class="grid" aria-label="Quest gate batch plan">
+      <article class="card span-4">
+        <div class="label"><span class="dot green"></span> Catalog surface</div>
+        <h2>Stage rows exist for all quests</h2>
+        <div class="metric"><span class="number">194</span><span class="unit">of 194 quests</span></div>
+        <div class="bar" aria-hidden="true"><div class="fill" style="width:100%"></div></div>
+        <p>That means startability and finishability can now be separated in code and UI.</p>
+      </article>
+
+      <article class="card span-4">
+        <div class="label"><span class="dot amber"></span> Combat resolver</div>
+        <h2>Resolver-ready rows are still partial</h2>
+        <div class="metric"><span class="number">169</span><span class="unit">of 287 combat rows</span></div>
+        <div class="bar" aria-hidden="true"><div class="fill" style="width:59%"></div></div>
+        <p>The remaining rows stay hard blocked when combat is enabled unless source stats are added.</p>
+      </article>
+
+      <article class="card span-4">
+        <div class="label"><span class="dot red"></span> Open debt</div>
+        <h2>Current unresolved combat gap</h2>
+        <div class="metric"><span class="number">118</span><span class="unit">statless rows</span></div>
+        <div class="bar" aria-hidden="true"><div class="fill" style="width:41%; background: linear-gradient(90deg, var(--red), var(--amber));"></div></div>
+        <p>This is why full parity cannot be claimed yet.</p>
+      </article>
+
+      <article class="card span-8">
+        <div class="label"><span class="dot purple"></span> Player state model</div>
+        <h2>Preserve startability vs finishability</h2>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-title">Wrong model</div>
+            <div class="quest-row"><span class="status-dot lock"></span><span>The Knight's Sword</span><span class="pill">locked at start</span></div>
+            <div class="quest-row"><span class="status-dot lock"></span><span>A Soul's Bane</span><span class="pill">all-or-nothing</span></div>
+            <div class="quest-row"><span class="status-dot lock"></span><span>Combat quest</span><span class="pill">silent finish</span></div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">Current target model</div>
+            <div class="quest-row"><span class="status-dot ok"></span><span>Can start</span><span class="pill">start reqs only</span></div>
+            <div class="quest-row"><span class="status-dot"></span><span>Blocked at stage</span><span class="pill">item/tool/action</span></div>
+            <div class="quest-row"><span class="status-dot lock"></span><span>Combat encounter</span><span class="pill">global resolver off</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-4">
+        <div class="label"><span class="dot amber"></span> Batch target</div>
+        <h2>Source-backed only</h2>
+        <p>
+          The next pass starts from parser/variant-level rows where local Darkan combat definitions
+          and NPC lists prove the encounter identity. Rows without style-critical stats remain blocked.
+        </p>
+      </article>
+
+      <article class="card span-12">
+        <div class="label"><span class="dot"></span> Explicit work split</div>
+        <h2>Backend first, frontend contract preserved</h2>
+        <div class="lanes">
+          <div class="lane">
+            <strong>Backend</strong>
+            <ul>
+              <li>Inspect local 2011Scape first, then Darkan/2012scape for exact NPC identities.</li>
+              <li>Add focused quest-data replacements only where source evidence is clear.</li>
+              <li>Keep combat hard locked globally and no-stats encounters blocked.</li>
+            </ul>
+          </div>
+          <div class="lane">
+            <strong>Frontend</strong>
+            <ul>
+              <li>Keep existing quest state labels: can start, in progress, blocked at stage, completed, locked.</li>
+              <li>Do not expose internal audit language to players.</li>
+              <li>Use offscreen Qt coverage for visible blocker wording.</li>
+            </ul>
+          </div>
+          <div class="lane">
+            <strong>Verification</strong>
+            <ul>
+              <li>Target unit and integration tests around the enriched encounter rows.</li>
+              <li>Run full pure and Qt suites before commit.</li>
+              <li>Update Memory Bank and post a completion artifact with the new counts.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <div class="label"><span class="dot green"></span> Next implementation steps</div>
+        <h2>Planned sequence</h2>
+        <div class="steps">
+          <div class="step">
+            <span class="step-num">1</span>
+            <p>Source-audit the next parser/variant cluster from local game data and record exact NPC/combat evidence.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">2</span>
+            <p>Add focused backend replacements in the quest data override layer, not in the generated catalog.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">3</span>
+            <p>Update targeted catalog, pure logic, integration, and Qt/offscreen tests for the rows that are now resolver-ready.</p>
+          </div>
+          <div class="step">
+            <span class="step-num">4</span>
+            <p>Refresh the audits, Memory Bank, and full test suites, then commit the slice locally.</p>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">quest_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">tests/</span>
+          <span class="tag">memory-bank/source-audits/</span>
+          <span class="tag">memory-bank/future-work-kanban.md</span>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

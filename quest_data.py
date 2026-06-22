@@ -45,6 +45,8 @@ EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
 THE_KNIGHTS_SWORD_ID = "the_knights_sword"
+A_SOULS_BANE_ID = "a_souls_bane"
+DEATH_TO_THE_DORGESHUUN_ID = "death_to_the_dorgeshuun"
 HEROES_QUEST_ID = "heroes_quest"
 SPIRITS_OF_THE_ELID_ID = "spirits_of_the_elid"
 ANOTHER_SLICE_OF_H_A_M_ID = "another_slice_of_h_a_m"
@@ -97,6 +99,17 @@ TROLL_STRONGHOLD_DAD_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/death_plat
 SPIRITS_BLACK_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/black_golem (noanims).json"
 SPIRITS_WHITE_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/white_golem (noanims).json"
 SPIRITS_GREY_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/grey_golem (noanims).json"
+A_SOULS_BANE_FEAR_REAPER_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/fear_reaper/fear_reaper_(42) (noanims).json"
+A_SOULS_BANE_CONFUSION_BEAST_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/confusion_beast/confusion_beast_(43) (noanims).json"
+)
+A_SOULS_BANE_HOPELESS_CREATURE_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/hopeless_creature/hopeless_creature_(40) (noanims).json"
+)
+A_SOULS_BANE_TOLNA_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/tolna (noanims).json"
+DEATH_TO_DORGESHUUN_HAM_GUARD_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/h.a.m._guard/h.a.m._guard_(22) (noanims).json"
+)
 ANOTHER_SLICE_HAM_ARCHER_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/h.a.m._archer (noanims).json"
 WITCHS_HOUSE_WIKI_SOURCE = "https://runescape.wiki/w/Witch's_House?oldid=6474931"
 WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/witch's_experiment"
@@ -113,6 +126,9 @@ WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE = (
     f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(53) (noanims).json"
 )
 RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
+A_SOULS_BANE_WIKI_SOURCE = "https://runescape.wiki/w/A_Soul's_Bane?oldid=6514080"
+A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE = "https://wiki.darkan.org/A_Soul%27s_Bane/Quick_guide?oldid=120252"
+DEATH_TO_DORGESHUUN_WIKI_SOURCE = "https://runescape.wiki/w/Death_to_the_Dorgeshuun?oldid=6564288"
 HEROES_QUEST_WIKI_SOURCE = "https://runescape.wiki/w/Heroes'_Quest?oldid=6534275"
 SPIRITS_OF_THE_ELID_WIKI_SOURCE = "https://runescape.wiki/w/Spirits_of_the_Elid?oldid=6326193"
 ANOTHER_SLICE_OF_H_A_M_WIKI_SOURCE = "https://runescape.wiki/w/Another_Slice_of_H.A.M.?oldid=6548739"
@@ -809,6 +825,134 @@ QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatE
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    A_SOULS_BANE_ID: (
+        _stage_req(
+            1,
+            "Bring a rope and enter Tolna's rift.",
+            f"{A_SOULS_BANE_WIKI_SOURCE}; {A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}",
+            required_inventory=(("Rope", 1),),
+        ),
+        _stage_req(
+            2,
+            "Fill the rage meter with the correct anger weapon before leaving the rage room.",
+            f"{A_SOULS_BANE_WIKI_SOURCE}; {A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}",
+            required_actions=("Fill the rage meter with an anger weapon",),
+        ),
+        _stage_req(
+            3,
+            "Clear the fear, confusion, and hopelessness rooms.",
+            f"{A_SOULS_BANE_WIKI_SOURCE}; {A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}; {DARKAN_NPC_LIST_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    A_SOULS_BANE_ID,
+                    "fear_reaper_42",
+                    "Fear reaper",
+                    42,
+                    f"{A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {A_SOULS_BANE_FEAR_REAPER_NPC_SOURCE}",
+                    "Darkan quick guide says to kill five fear reapers; Darkan NPC id 3649 supplies the level 42 Fear reaper stats.",
+                    quantity=5,
+                    npc_stats=(
+                        ("hitpoints", 570),
+                        ("attack", 39),
+                        ("strength", 41),
+                        ("defence", 40),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 60),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "slash_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=A_SOULS_BANE_FEAR_REAPER_NPC_SOURCE,
+                ),
+                _combat(
+                    A_SOULS_BANE_ID,
+                    "confusion_beast_43",
+                    "Confusion beast",
+                    43,
+                    f"{A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {A_SOULS_BANE_CONFUSION_BEAST_NPC_SOURCE}",
+                    "Darkan quick guide says the real Confusion beast must be killed five times; Darkan NPC ids 3650-3654 supply level 43 stats.",
+                    quantity=5,
+                    npc_stats=(
+                        ("hitpoints", 640),
+                        ("attack", 42),
+                        ("strength", 41),
+                        ("defence", 40),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 50),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "slash_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=A_SOULS_BANE_CONFUSION_BEAST_NPC_SOURCE,
+                ),
+                _combat(
+                    A_SOULS_BANE_ID,
+                    "hopeless_creature_40",
+                    "Hopeless creature",
+                    40,
+                    f"{A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {A_SOULS_BANE_HOPELESS_CREATURE_NPC_SOURCE}",
+                    "Darkan quick guide says Hopeless creatures have three forms; Darkan NPC ids 3655-3657 supply level 40 form stats.",
+                    quantity=3,
+                    npc_stats=(
+                        ("hitpoints", 1),
+                        ("attack", 38),
+                        ("strength", 36),
+                        ("defence", 39),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 1),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "stab_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=A_SOULS_BANE_HOPELESS_CREATURE_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Defeat all three Tolna heads before speaking to Tolna on the surface.",
+            f"{A_SOULS_BANE_WIKI_SOURCE}; {A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}; {DARKAN_NPC_LIST_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    A_SOULS_BANE_ID,
+                    "tolna_head_46",
+                    "Tolna head",
+                    46,
+                    f"{A_SOULS_BANE_DARKAN_QUICK_GUIDE_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {A_SOULS_BANE_TOLNA_NPC_SOURCE}",
+                    "Darkan quick guide says all three Tolna heads must be killed; Darkan NPC ids 3658-3660 list Tolna level 46 and the Tolna combatdef supplies stats.",
+                    quantity=3,
+                    npc_stats=(
+                        ("hitpoints", 450),
+                        ("attack", 42),
+                        ("strength", 41),
+                        ("defence", 40),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 50),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "stab_att"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=A_SOULS_BANE_TOLNA_NPC_SOURCE,
+                ),
+            ),
+        ),
+    ),
     WITCHS_HOUSE_ID: (
         _stage_req(
             1,
@@ -1345,6 +1489,33 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
 
 
 QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounterReplacement]] = {
+    DEATH_TO_THE_DORGESHUUN_ID: {
+        "death_to_the_dorgeshuun_senior_guard_x3_22": _combat(
+            DEATH_TO_THE_DORGESHUUN_ID,
+            "senior_ham_guard_22",
+            "Senior H.A.M. guard",
+            22,
+            f"{DEATH_TO_DORGESHUUN_WIKI_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {DEATH_TO_DORGESHUUN_HAM_GUARD_NPC_SOURCE}",
+            "Historical quest details require three level 22 senior guards; Darkan NPC id 1712 supplies the level 22 H.A.M. Guard combat stats.",
+            quantity=3,
+            npc_stats=(
+                ("hitpoints", 300),
+                ("attack", 16),
+                ("strength", 20),
+                ("defence", 12),
+                ("magic", 1),
+                ("ranged", 1),
+            ),
+            npc_configs=(
+                ("max_hit", 26),
+                ("attack_range", -1),
+                ("attack_style", "melee"),
+                ("attack_bonus", "crush_att"),
+                ("aggressiveness_type", "passive"),
+            ),
+            npc_stats_source=DEATH_TO_DORGESHUUN_HAM_GUARD_NPC_SOURCE,
+        ),
+    },
     HEROES_QUEST_ID: {
         "heroes_quest_entrana_fire_bird_2": _combat(
             HEROES_QUEST_ID,

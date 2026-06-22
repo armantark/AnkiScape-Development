@@ -1800,6 +1800,90 @@ class TestLogic(unittest.TestCase):
             ("Battle required: White golem level 75", "Battle required: Grey golem level 75"),
         )
 
+    def test_a_souls_bane_splits_action_and_multi_count_combat_stages(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["a_souls_bane"] = {"started": True, "progress": 2, "completed": False}
+
+        blockers = quest_current_stage_blockers_pure(player_data, "a_souls_bane", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action",))
+        self.assertEqual(blockers[0]["reason"], "Action required: Fill the rage meter with an anger weapon")
+        self.assertFalse(can_attempt_quest_review_pure(player_data, "a_souls_bane", QUEST_DATA))
+
+        player_data["quests"]["a_souls_bane"] = {"started": True, "progress": 3, "completed": False}
+        player_data["quest_stage_actions"] = {"a_souls_bane": ["Fill the rage meter with an anger weapon"]}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 100
+        player_data["strength_level"] = 100
+        player_data["defense_level"] = 100
+        player_data["constitution_level"] = 100
+
+        blockers = quest_current_stage_blockers_pure(player_data, "a_souls_bane", QUEST_DATA)
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in blockers),
+            (
+                "Battle required: Fear reaper level 42 x5",
+                "Battle required: Confusion beast level 43 x5",
+                "Battle required: Hopeless creature level 40 x3",
+            ),
+        )
+        self.assertEqual(
+            tuple(blocker["encounter_id"] for blocker in quest_current_stage_resolvable_combat_blockers_pure(player_data, "a_souls_bane", QUEST_DATA)),
+            (
+                "a_souls_bane_fear_reaper_42",
+                "a_souls_bane_confusion_beast_43",
+                "a_souls_bane_hopeless_creature_40",
+            ),
+        )
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "a_souls_bane", QUEST_DATA))
+
+        first, ok, result = apply_quest_combat_encounter_pure(player_data, "a_souls_bane", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "a_souls_bane_fear_reaper_42")
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(result["remaining_quantity"], 4)
+        self.assertEqual(first["quest_combat_encounter_counts"], {"a_souls_bane": {"a_souls_bane_fear_reaper_42": 1}})
+        self.assertEqual(first["quest_combat_encounters"], {})
+
+        player_data["quests"]["a_souls_bane"] = {"started": True, "progress": 4, "completed": False}
+        player_data["quest_combat_encounter_counts"] = {}
+        blockers = quest_current_stage_blockers_pure(player_data, "a_souls_bane", QUEST_DATA)
+        self.assertEqual(tuple(blocker["reason"] for blocker in blockers), ("Battle required: Tolna head level 46 x3",))
+        tolna, ok, result = apply_quest_combat_encounter_pure(player_data, "a_souls_bane", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "a_souls_bane_tolna_head_46")
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(result["remaining_quantity"], 2)
+        self.assertEqual(tolna["quest_combat_encounter_counts"], {"a_souls_bane": {"a_souls_bane_tolna_head_46": 1}})
+
+    def test_death_to_dorgeshuun_senior_guards_are_multi_count_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["death_to_the_dorgeshuun"] = {"started": True, "progress": 5, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["quest_combat_encounters"] = {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]}
+        player_data["attack_level"] = 100
+        player_data["strength_level"] = 100
+        player_data["defense_level"] = 100
+        player_data["constitution_level"] = 100
+
+        blockers = quest_current_stage_blockers_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Senior H.A.M. guard level 22 x3")
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA))
+
+        first, ok, result = apply_quest_combat_encounter_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "death_to_the_dorgeshuun_senior_ham_guard_22")
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(result["remaining_quantity"], 2)
+        self.assertEqual(
+            first["quest_combat_encounter_counts"],
+            {"death_to_the_dorgeshuun": {"death_to_the_dorgeshuun_senior_ham_guard_22": 1}},
+        )
+        self.assertEqual(
+            first["quest_combat_encounters"],
+            {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]},
+        )
+
     def test_no_combat_levels_beast_stat_fight_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["forgiveness_of_a_chaos_dwarf"] = {"started": True, "progress": 4, "completed": False}

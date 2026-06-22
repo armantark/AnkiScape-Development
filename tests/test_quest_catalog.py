@@ -354,6 +354,39 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("Witch's_House?oldid=6474931", experiment_forms[0]["source"])
         self.assertTrue(experiment_forms[0]["npc_stats_source"].endswith("witch's_experiment_(19) (noanims).json"))
 
+        souls = data["a_souls_bane"]
+        souls_by_stage = {requirement["stage"]: requirement for requirement in souls["stage_requirements"]}
+        self.assertEqual(souls_by_stage[1]["required_inventory"], {"Rope": 1})
+        self.assertEqual(souls_by_stage[2]["required_actions"], ("Fill the rage meter with an anger weapon",))
+        self.assertEqual(
+            [encounter["display_name"] for encounter in souls_by_stage[3]["combat_encounters"]],
+            ["Fear reaper", "Confusion beast", "Hopeless creature"],
+        )
+        self.assertEqual(
+            [encounter["quantity"] for encounter in souls_by_stage[3]["combat_encounters"]],
+            [5, 5, 3],
+        )
+        fear, confusion, hopeless = souls_by_stage[3]["combat_encounters"]
+        self.assertEqual(fear["level"], 42)
+        self.assertEqual(fear["npc_stats"]["hitpoints"], 570)
+        self.assertEqual(fear["npc_stats"]["strength"], 41)
+        self.assertEqual(fear["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(fear["npc_stats_source"].endswith("fear_reaper_(42) (noanims).json"))
+        self.assertEqual(confusion["level"], 43)
+        self.assertEqual(confusion["npc_stats"]["hitpoints"], 640)
+        self.assertTrue(confusion["npc_stats_source"].endswith("confusion_beast_(43) (noanims).json"))
+        self.assertEqual(hopeless["level"], 40)
+        self.assertEqual(hopeless["npc_stats"]["hitpoints"], 1)
+        self.assertEqual(hopeless["npc_configs"]["max_hit"], 1)
+        self.assertTrue(hopeless["npc_stats_source"].endswith("hopeless_creature_(40) (noanims).json"))
+        tolna = souls_by_stage[4]["combat_encounters"][0]
+        self.assertEqual(tolna["display_name"], "Tolna head")
+        self.assertEqual(tolna["level"], 46)
+        self.assertEqual(tolna["quantity"], 3)
+        self.assertEqual(tolna["npc_stats"]["hitpoints"], 450)
+        self.assertEqual(tolna["npc_configs"]["attack_bonus"], "stab_att")
+        self.assertTrue(tolna["npc_stats_source"].endswith("tolna (noanims).json"))
+
         ham_mage = next(
             encounter
             for requirement in data["another_slice_of_h_a_m"]["stage_requirements"]
@@ -381,6 +414,20 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(ham_ranger["npc_configs"]["attack_style"], "range")
         self.assertIn("h.a.m._archer (noanims).json", ham_ranger["npc_stats_source"])
         self.assertTrue(ham_ranger["npc_stats_source"].endswith("developer-information/beasts.txt"))
+
+        senior_guard = next(
+            encounter
+            for requirement in data["death_to_the_dorgeshuun"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Senior H.A.M. guard"
+        )
+        self.assertEqual(senior_guard["level"], 22)
+        self.assertEqual(senior_guard["quantity"], 3)
+        self.assertEqual(senior_guard["npc_stats"]["hitpoints"], 300)
+        self.assertEqual(senior_guard["npc_stats"]["strength"], 20)
+        self.assertEqual(senior_guard["npc_configs"]["max_hit"], 26)
+        self.assertEqual(senior_guard["npc_configs"]["attack_bonus"], "crush_att")
+        self.assertTrue(senior_guard["npc_stats_source"].endswith("h.a.m._guard_(22) (noanims).json"))
 
         hand_cannoneer = next(
             encounter

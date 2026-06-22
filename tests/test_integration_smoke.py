@@ -733,6 +733,51 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Black golem"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_resolves_a_souls_bane_fear_reaper_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_a_souls_bane_combat_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "a_souls_bane",
+            "quests": {"a_souls_bane": {"started": True, "progress": 3, "completed": False}},
+            "quest_stage_actions": {"a_souls_bane": ["Fill the rage meter with an anger weapon"]},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 100,
+            "strength_level": 100,
+            "defense_level": 100,
+            "constitution_level": 100,
+            "prayer_level": 1,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["a_souls_bane"]["progress"], 3)
+        self.assertFalse(addon.player_data["quests"]["a_souls_bane"]["completed"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounter_counts"],
+            {"a_souls_bane": {"a_souls_bane_fear_reaper_42": 1}},
+        )
+        self.assertEqual(addon.player_data["quest_combat_encounters"], {})
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Fear reaper"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_resolves_identical_source_generated_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_identical_source_combat_integration")
 

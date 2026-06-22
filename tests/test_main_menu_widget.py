@@ -1470,6 +1470,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("spirits_of_the_elid", self._quest_calls)
 
+    def test_quests_tab_shows_a_souls_bane_split_combat_gates(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "a_souls_bane"
+        pd["quests"]["a_souls_bane"] = {"started": True, "progress": 3, "completed": False}
+        pd["quest_stage_actions"] = {"a_souls_bane": ["Fill the rage meter with an anger weapon"]}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 100
+        pd["strength_level"] = 100
+        pd["defense_level"] = 100
+        pd["constitution_level"] = 100
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Battle required: Fear reaper level 42 x5, "
+            "Battle required: Confusion beast level 43 x5, "
+            "Battle required: Hopeless creature level 40 x3"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_a_souls_bane")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("a_souls_bane", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}

@@ -18,15 +18,15 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 118)
+        self.assertEqual(len(self.gaps), 109)
         self.assertEqual(
             counts,
             {
                 "darkan_hitpoints_only_metadata": 51,
                 "darkan_missing_resolver_stats": 18,
                 "darkan_same_name_wrong_level": 9,
-                "no_local_source_match": 13,
-                "parser_or_variant_level": 27,
+                "no_local_source_match": 12,
+                "parser_or_variant_level": 19,
             },
         )
 
@@ -63,6 +63,16 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         self.assertNotIn(("witchs_house", "Witch's experiment (Spider form)"), self.by_quest_and_name)
         self.assertNotIn(("witchs_house", "Witch's experiment (Bear form)"), self.by_quest_and_name)
         self.assertNotIn(("witchs_house", "Witch's experiment (Wolf form)"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Angry unicorn"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Angry bear"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Angry giant rat"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Angry goblin"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Fear reaper"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Confusion beast"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Hopeless creature"), self.by_quest_and_name)
+        self.assertNotIn(("a_souls_bane", "Tolna head"), self.by_quest_and_name)
+        self.assertNotIn(("death_to_the_dorgeshuun", "Senior guard x3"), self.by_quest_and_name)
+        self.assertNotIn(("death_to_the_dorgeshuun", "Senior H.A.M. guard"), self.by_quest_and_name)
 
 
 if __name__ == "__main__":
