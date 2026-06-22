@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Partial Combat Metadata Plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, rgba(79,140,255,.18), transparent 360px), var(--bg);
+      color: var(--text);
+    }
+    main { width: min(1120px, calc(100% - 28px)); margin: 0 auto; padding: 34px 0 46px; }
+    .badge {
+      display: inline-block;
+      color: #bfd6ff;
+      background: rgba(79,140,255,.13);
+      border: 1px solid rgba(79,140,255,.35);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font: 700 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .08em;
+    }
+    h1 { margin: 16px 0 10px; font-size: clamp(34px, 5vw, 58px); line-height: 1; letter-spacing: 0; }
+    p { margin: 0; }
+    .subtitle { max-width: 800px; color: var(--text-dim); font-size: 18px; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; margin-top: 22px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    h2 { margin: 0 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 0 0 8px; color: var(--text-dim); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+    .big { font-size: 42px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+    .muted { color: var(--text-dim); line-height: 1.45; }
+    .stack { display: grid; gap: 10px; }
+    .line {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .line b { color: var(--amber); font-size: 20px; }
+    .rail {
+      height: 12px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      background: #111820;
+      margin: 12px 0;
+    }
+    .rail div { height: 100%; width: 58.4%; background: linear-gradient(90deg, var(--amber), var(--accent)); }
+    .steps { counter-reset: step; display: grid; gap: 10px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+    .step:before {
+      counter-increment: step;
+      content: counter(step);
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: rgba(79,140,255,.16);
+      color: #cfe0ff;
+      border: 1px solid rgba(79,140,255,.35);
+      font-weight: 800;
+    }
+    code {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      color: #d9e6ff;
+    }
+    .tag {
+      display: inline-block;
+      margin: 4px 4px 0 0;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font: 700 11px ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    @media (max-width: 820px) {
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      main { width: min(100% - 20px, 1120px); padding-top: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-SLICE PLAN</span>
+    <h1>Partial Metadata Is The Next Combat Gate</h1>
+    <p class="subtitle">The active goal is still all quests, not a smaller proof case. This pass starts with the largest remaining bucket: Darkan combat definitions with some evidence that are still not valid under the resolver's real-stat contract.</p>
+
+    <section class="grid">
+      <article class="card span-4">
+        <h3>Current Resolver Coverage</h3>
+        <div class="big">149 / 286</div>
+        <p class="muted">Combat rows have hitpoints, attack, strength, and defence. Everything else stays blocked.</p>
+        <div class="rail"><div></div></div>
+        <span class="tag">tools/audit_quest_stage_gate_coverage.py</span>
+      </article>
+      <article class="card span-4">
+        <h3>Largest Remaining Bucket</h3>
+        <div class="big">80</div>
+        <p class="muted">Rows are classified as Darkan partial metadata. This pass will separate usable source stats from insufficient rows.</p>
+      </article>
+      <article class="card span-4">
+        <h3>Guardrail</h3>
+        <div class="big">0</div>
+        <p class="muted">No prose-only fight should become completable. No row gets promoted without source-backed enemy stats.</p>
+      </article>
+
+      <article class="card span-6">
+        <h2>Backend Work</h2>
+        <div class="steps">
+          <div class="step"><p class="muted">Inspect representative partial Darkan files and identify why the strict payload parser rejects them.</p></div>
+          <div class="step"><p class="muted">If full hitpoints/attack/strength/defence exist, promote the generic parser or focused overrides with cited source paths.</p></div>
+          <div class="step"><p class="muted">If stats are incomplete, sharpen the audit classifications so the backlog names exactly what evidence is missing.</p></div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <h2>Frontend Work</h2>
+        <p class="muted">No speculative UI changes. The Quests tab should continue to show compact player-facing blockers, and only resolver-ready combat rows should be selectable when the global resolver is enabled.</p>
+        <div style="margin-top:12px">
+          <span class="tag">blocked_at_stage</span>
+          <span class="tag">combat_missing_stats</span>
+          <span class="tag">Battle required</span>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <h2>Done Means</h2>
+        <div class="stack">
+          <div class="line"><b>Audit</b><p class="muted">The partial-metadata bucket is smaller or better explained by stricter categories.</p></div>
+          <div class="line"><b>Tests</b><p class="muted">Unit, integration, and Qt/offscreen tests prove any promoted combat rows are resolver-ready and no incomplete rows complete.</p></div>
+          <div class="line"><b>Docs</b><p class="muted">Memory Bank source audit records exact files, counts, remaining gaps, and manual Anki smoke steps.</p></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

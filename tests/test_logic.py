@@ -1643,6 +1643,41 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "elemental_workshop_i", QUEST_DATA), ())
 
+    def test_witchs_house_experiment_forms_are_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["witchs_house"] = {"started": True, "progress": 2, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 60
+        player_data["strength_level"] = 60
+        player_data["defense_level"] = 60
+        player_data["constitution_level"] = 60
+
+        blockers = quest_current_stage_blockers_pure(player_data, "witchs_house", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",) * 4)
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in blockers),
+            (
+                "Battle required: Witch's experiment (Skavid form) level 19",
+                "Battle required: Witch's experiment (Spider form) level 30",
+                "Battle required: Witch's experiment (Bear form) level 42",
+                "Battle required: Witch's experiment (Wolf form) level 53",
+            ),
+        )
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "witchs_house", QUEST_DATA))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "witchs_house", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "witchs_house_witchs_experiment_first_form")
+        self.assertEqual(
+            resolved["quest_combat_encounters"],
+            {"witchs_house": ["witchs_house_witchs_experiment_first_form"]},
+        )
+        self.assertEqual(resolved["quests"]["witchs_house"]["progress"], 2)
+
+        blockers = quest_current_stage_blockers_pure(resolved, "witchs_house", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",) * 3)
+        self.assertEqual(blockers[0]["reason"], "Battle required: Witch's experiment (Spider form) level 30")
+
     def test_troll_stronghold_dad_conflict_override_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["inventory"] = {"Coins": 12}

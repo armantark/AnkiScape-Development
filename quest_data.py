@@ -40,6 +40,7 @@ WOLF_WHISTLE_ID = "wolf_whistle"
 SONG_FROM_THE_DEPTHS_ID = "song_from_the_depths"
 CARNILLEAN_RISING_ID = "carnillean_rising"
 SOME_LIKE_IT_COLD_ID = "some_like_it_cold"
+WITCHS_HOUSE_ID = "witchs_house"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -83,6 +84,20 @@ PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE = (
     f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/paterdomus/monk_of_zamorak/monk_of_zamorak_(30).json"
 )
 TROLL_STRONGHOLD_DAD_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/death_plateau/dad.json"
+WITCHS_HOUSE_WIKI_SOURCE = "https://runescape.wiki/w/Witch's_House?oldid=6474931"
+WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/witch's_experiment"
+WITCHS_HOUSE_EXPERIMENT_19_NPC_SOURCE = (
+    f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(19) (noanims).json"
+)
+WITCHS_HOUSE_EXPERIMENT_30_NPC_SOURCE = (
+    f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(30) (noanims).json"
+)
+WITCHS_HOUSE_EXPERIMENT_42_NPC_SOURCE = (
+    f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(42) (noanims).json"
+)
+WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE = (
+    f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(53) (noanims).json"
+)
 RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
 JUNGLE_POTION_WIKI_SOURCE = "https://runescape.wiki/w/Jungle_Potion?oldid=6555418"
 KENNITHS_CONCERNS_WIKI_SOURCE = "https://runescape.wiki/w/Kennith%27s_Concerns?oldid=6549837"
@@ -774,6 +789,117 @@ def _combat(
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    WITCHS_HOUSE_ID: (
+        _stage_req(
+            1,
+            "Gather the gloves and cheese needed to enter the Witch's House safely.",
+            WITCHS_HOUSE_WIKI_SOURCE,
+            required_inventory=(("Leather gloves", 1), ("Cheese", 1)),
+        ),
+        _stage_req(
+            2,
+            "Defeat the Witch's experiment through all four forms before retrieving the ball.",
+            WITCHS_HOUSE_WIKI_SOURCE,
+            combat_encounters=(
+                _combat(
+                    WITCHS_HOUSE_ID,
+                    "witchs_experiment_first_form",
+                    "Witch's experiment (Skavid form)",
+                    19,
+                    f"{WITCHS_HOUSE_WIKI_SOURCE}; {WITCHS_HOUSE_EXPERIMENT_19_NPC_SOURCE}",
+                    "Historical quest text says the experiment's first stage is a Skavid level 19; Darkan NPC id 897 supplies the Witch's experiment level 19 stats.",
+                    npc_stats=(
+                        ("hitpoints", 1130),
+                        ("attack", 18),
+                        ("strength", 10),
+                        ("defence", 19),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 100),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=WITCHS_HOUSE_EXPERIMENT_19_NPC_SOURCE,
+                ),
+                _combat(
+                    WITCHS_HOUSE_ID,
+                    "witchs_experiment_second_form",
+                    "Witch's experiment (Spider form)",
+                    30,
+                    f"{WITCHS_HOUSE_WIKI_SOURCE}; {WITCHS_HOUSE_EXPERIMENT_30_NPC_SOURCE}",
+                    "Historical quest text says the experiment's second stage is a Spider level 30; Darkan NPC id 898 supplies the Witch's experiment level 30 stats.",
+                    npc_stats=(
+                        ("hitpoints", 1225),
+                        ("attack", 28),
+                        ("strength", 20),
+                        ("defence", 29),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 125),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=WITCHS_HOUSE_EXPERIMENT_30_NPC_SOURCE,
+                ),
+                _combat(
+                    WITCHS_HOUSE_ID,
+                    "witchs_experiment_third_form",
+                    "Witch's experiment (Bear form)",
+                    42,
+                    f"{WITCHS_HOUSE_WIKI_SOURCE}; {WITCHS_HOUSE_EXPERIMENT_42_NPC_SOURCE}",
+                    "Historical quest text says the experiment's third stage is a Bear level 42; Darkan NPC id 899 supplies the Witch's experiment level 42 stats.",
+                    npc_stats=(
+                        ("hitpoints", 1325),
+                        ("attack", 38),
+                        ("strength", 30),
+                        ("defence", 39),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 135),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "slash_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=WITCHS_HOUSE_EXPERIMENT_42_NPC_SOURCE,
+                ),
+                _combat(
+                    WITCHS_HOUSE_ID,
+                    "witchs_experiment_fourth_form",
+                    "Witch's experiment (Wolf form)",
+                    53,
+                    f"{WITCHS_HOUSE_WIKI_SOURCE}; {WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE}",
+                    "Historical quest text says the experiment's final stage is a Wolf level 53; Darkan NPC id 900 supplies the Witch's experiment level 53 stats.",
+                    npc_stats=(
+                        ("hitpoints", 1425),
+                        ("attack", 48),
+                        ("strength", 40),
+                        ("defence", 49),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 150),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "stab_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE,
+                ),
+            ),
+        ),
+    ),
     LOST_CITY_ID: (
         _stage_req(
             1,

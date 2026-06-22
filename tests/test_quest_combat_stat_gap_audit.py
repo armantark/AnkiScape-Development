@@ -18,14 +18,15 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 137)
+        self.assertEqual(len(self.gaps), 132)
         self.assertEqual(
             counts,
             {
-                "darkan_partial_metadata_available": 80,
-                "darkan_same_name_wrong_level": 11,
-                "no_local_source_match": 18,
-                "parser_or_variant_level": 28,
+                "darkan_hitpoints_only_metadata": 74,
+                "darkan_missing_resolver_stats": 6,
+                "darkan_same_name_wrong_level": 9,
+                "no_local_source_match": 16,
+                "parser_or_variant_level": 27,
             },
         )
 
@@ -38,12 +39,17 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
         )
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("monkey_madness", "Jungle demon")], self.darkan_groups, self.partial_groups),
-            "darkan_partial_metadata_available",
+            "darkan_hitpoints_only_metadata",
         )
         self.assertEqual(
-            audit.classify_gap(self.by_quest_and_name[("witchs_house", "Witch's experiment")], self.darkan_groups, self.partial_groups),
-            "parser_or_variant_level",
+            audit.classify_gap(self.by_quest_and_name[("another_slice_of_h_a_m", "H.A.M. mage")], self.darkan_groups, self.partial_groups),
+            "darkan_missing_resolver_stats",
         )
+        self.assertNotIn(("witchs_house", "Witch's experiment"), self.by_quest_and_name)
+        self.assertNotIn(("witchs_house", "Witch's experiment (Skavid form)"), self.by_quest_and_name)
+        self.assertNotIn(("witchs_house", "Witch's experiment (Spider form)"), self.by_quest_and_name)
+        self.assertNotIn(("witchs_house", "Witch's experiment (Bear form)"), self.by_quest_and_name)
+        self.assertNotIn(("witchs_house", "Witch's experiment (Wolf form)"), self.by_quest_and_name)
 
 
 if __name__ == "__main__":

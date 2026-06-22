@@ -173,11 +173,29 @@ def classify_gap(
         return "darkan_identical_available"
     if len(signatures) > 1:
         return "darkan_conflict"
-    if partial_groups.get((normalized, gap.level), ()):
-        return "darkan_partial_metadata_available"
+    partial = partial_groups.get((normalized, gap.level), ())
+    if partial:
+        return _partial_metadata_classification(partial)
     if any(name == normalized for name, _level in set(darkan_groups) | set(partial_groups)):
         return "darkan_same_name_wrong_level"
     return "no_local_source_match"
+
+
+def _partial_metadata_classification(partial: Tuple[Tuple[str, str, str], ...]) -> str:
+    try:
+        payload = json.loads(partial[0][0])
+    except (IndexError, json.JSONDecodeError):
+        return "darkan_incomplete_metadata"
+    stats = payload.get("stats", {})
+    if not isinstance(stats, Mapping):
+        return "darkan_incomplete_metadata"
+    stat_keys = {str(key) for key in stats}
+    if stat_keys == {"hitpoints"}:
+        return "darkan_hitpoints_only_metadata"
+    missing_resolver_stats = {"attack", "strength", "defence"} - stat_keys
+    if missing_resolver_stats:
+        return "darkan_missing_resolver_stats"
+    return "darkan_incomplete_metadata"
 
 
 def print_summary(gaps: Sequence[CombatGap]) -> None:

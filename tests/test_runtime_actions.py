@@ -233,6 +233,36 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Earth Elemental"])
 
+    def test_quest_answer_resolves_witchs_house_first_form_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "witchs_house",
+            "quests": {"witchs_house": {"started": True, "progress": 2, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 60,
+            "strength_level": 60,
+            "defense_level": 60,
+            "constitution_level": 60,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 2)
+        self.assertFalse(player_data["quests"]["witchs_house"]["completed"])
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"witchs_house": ["witchs_house_witchs_experiment_first_form"]},
+        )
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Witch's experiment (Skavid form)"])
+
     def test_quest_answer_resolves_conflict_overridden_dad_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

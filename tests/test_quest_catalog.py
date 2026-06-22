@@ -251,6 +251,30 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(dad["npc_configs"]["max_hit"], 275)
         self.assertTrue(dad["npc_stats_source"].endswith("areas/death_plateau/dad.json"))
 
+        witch = data["witchs_house"]
+        experiment_forms = [
+            encounter
+            for requirement in witch["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        self.assertEqual(
+            [encounter["display_name"] for encounter in experiment_forms],
+            [
+                "Witch's experiment (Skavid form)",
+                "Witch's experiment (Spider form)",
+                "Witch's experiment (Bear form)",
+                "Witch's experiment (Wolf form)",
+            ],
+        )
+        self.assertEqual([encounter["level"] for encounter in experiment_forms], [19, 30, 42, 53])
+        self.assertEqual(experiment_forms[0]["npc_stats"]["hitpoints"], 1130)
+        self.assertEqual(experiment_forms[0]["npc_stats"]["attack"], 18)
+        self.assertEqual(experiment_forms[0]["npc_stats"]["strength"], 10)
+        self.assertEqual(experiment_forms[0]["npc_stats"]["defence"], 19)
+        self.assertEqual(experiment_forms[-1]["npc_configs"]["max_hit"], 150)
+        self.assertIn("Witch's_House?oldid=6474931", experiment_forms[0]["source"])
+        self.assertTrue(experiment_forms[0]["npc_stats_source"].endswith("witch's_experiment_(19) (noanims).json"))
+
         self.assertTrue(data["jungle_potion"]["stage_requirements"])
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])

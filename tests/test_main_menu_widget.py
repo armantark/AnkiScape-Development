@@ -1323,6 +1323,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("elemental_workshop_i", self._quest_calls)
 
+    def test_quests_tab_allows_witchs_house_form_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "witchs_house"
+        pd["quests"]["witchs_house"] = {"started": True, "progress": 2, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 60
+        pd["strength_level"] = 60
+        pd["defense_level"] = 60
+        pd["constitution_level"] = 60
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Battle required: Witch's experiment (Skavid form) level 19, "
+            "Battle required: Witch's experiment (Spider form) level 30, "
+            "Battle required: Witch's experiment (Bear form) level 42, +1 more"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_witchs_house")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("witchs_house", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}

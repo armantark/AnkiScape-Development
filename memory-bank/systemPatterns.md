@@ -104,9 +104,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   fallback, and Elemental Workshop's Earth Elemental proves the identical
   duplicate-source path, while Priest in Peril's Monk of Zamorak and Troll
   Stronghold's Dad prove focused conflict resolution from area-specific Darkan
-  quest/combat sources. Current stat coverage is 149/286 combat rows; the
-  remaining 137 statless rows are classified by
-  `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
+  quest/combat sources. Witch's House proves a focused replacement can split an
+  ambiguous generated fight into four resolver-ready Darkan-backed forms.
+  Current stat coverage is 153/285 combat rows; the remaining 132 statless rows
+  are classified by `tools/audit_quest_combat_stat_gaps.py` and remain active
+  quest debt. Hitpoints-only Darkan files are not resolver-ready until
+  attack/strength/defence evidence exists.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.

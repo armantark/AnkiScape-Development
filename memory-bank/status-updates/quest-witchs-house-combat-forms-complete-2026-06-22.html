@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Witch's House Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1020;
+      --panel: #121a2d;
+      --panel-2: #17223a;
+      --line: #263653;
+      --text: #eef4ff;
+      --muted: #a9b7cf;
+      --good: #59d498;
+      --warn: #f5bf65;
+      --bad: #ff7a7a;
+      --blue: #7bb5ff;
+      --violet: #c4a2ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(123, 181, 255, 0.16), transparent 32rem),
+        linear-gradient(135deg, #09101f 0%, #0f1426 52%, #101827 100%);
+      color: var(--text);
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 40px 0 56px;
+    }
+    .hero {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(145deg, rgba(18, 26, 45, 0.92), rgba(18, 28, 48, 0.72));
+      padding: 30px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+    }
+    .eyebrow {
+      color: var(--blue);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-size: 12px;
+    }
+    h1 {
+      margin: 10px 0 12px;
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .lead {
+      color: var(--muted);
+      max-width: 820px;
+      font-size: 18px;
+      margin: 0;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+      margin-top: 22px;
+    }
+    .card {
+      grid-column: span 4;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(18, 26, 45, 0.82);
+      padding: 18px;
+      min-height: 152px;
+    }
+    .wide { grid-column: span 8; }
+    .full { grid-column: 1 / -1; }
+    h2 {
+      margin: 0 0 12px;
+      font-size: 19px;
+      letter-spacing: 0;
+    }
+    .metric {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .num {
+      font-size: 38px;
+      line-height: 1;
+      font-weight: 800;
+    }
+    .label { color: var(--muted); }
+    .good { color: var(--good); }
+    .warn { color: var(--warn); }
+    .bad { color: var(--bad); }
+    .blue { color: var(--blue); }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: #202b42;
+      overflow: hidden;
+      margin: 14px 0 8px;
+      border: 1px solid #2e3d5b;
+    }
+    .fill {
+      height: 100%;
+      width: 53.7%;
+      background: linear-gradient(90deg, var(--good), var(--blue));
+    }
+    .rows {
+      display: grid;
+      gap: 10px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) auto;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 8px 0;
+    }
+    .row:last-child { border-bottom: 0; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      margin: 3px 6px 3px 0;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 13px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .mini {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .mini strong { display: block; margin-bottom: 8px; }
+    code {
+      color: #d8e9ff;
+      background: rgba(123, 181, 255, 0.12);
+      border: 1px solid rgba(123, 181, 255, 0.2);
+      border-radius: 6px;
+      padding: 2px 5px;
+      font-size: 0.92em;
+    }
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    li { margin: 5px 0; }
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 0 5px rgba(89, 212, 152, 0.12);
+      margin-top: 2px;
+    }
+    .footer {
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 14px;
+    }
+    @media (max-width: 820px) {
+      main { width: min(100% - 20px, 1160px); padding-top: 20px; }
+      .hero { padding: 22px; }
+      .card, .wide { grid-column: 1 / -1; }
+      .split { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="eyebrow">Post-slice status - June 22, 2026</div>
+      <h1>Witch's House is no longer a prose-only combat gate.</h1>
+      <p class="lead">
+        This slice replaced the ambiguous generated Witch's experiment row with four
+        source-backed Darkan form encounters, tightened the combat-stat backlog, and
+        proved the backend, runtime, integration, and Qt in-progress blocker paths.
+        It does not complete every quest to minute-detail parity.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Stage Coverage</h2>
+        <div class="metric"><span class="num good">194/194</span></div>
+        <div class="label">Quests still have at least one machine-readable stage requirement.</div>
+        <div class="bar"><div class="fill" style="width:100%"></div></div>
+      </article>
+
+      <article class="card">
+        <h2>Combat Rows</h2>
+        <div class="metric"><span class="num blue">153/285</span></div>
+        <div class="label">Combat rows now have resolver-ready source stats.</div>
+        <div class="bar"><div class="fill"></div></div>
+      </article>
+
+      <article class="card">
+        <h2>Remaining Debt</h2>
+        <div class="metric"><span class="num warn">132</span></div>
+        <div class="label">Statless combat rows still fail closed.</div>
+        <div class="tag">not complete</div><div class="tag">audited backlog</div>
+      </article>
+
+      <article class="card wide">
+        <h2>Backend Delta</h2>
+        <div class="split">
+          <div class="mini">
+            <strong>Before</strong>
+            <ul>
+              <li>Witch's House had one ambiguous generated experiment row.</li>
+              <li>The audit grouped partial Darkan rows into a vague bucket.</li>
+              <li>149 of 286 combat rows were resolver-ready.</li>
+            </ul>
+          </div>
+          <div class="mini">
+            <strong>After</strong>
+            <ul>
+              <li>Stage 2 has Skavid, Spider, Bear, and Wolf form encounters.</li>
+              <li>Hitpoints-only and missing-resolver-stat Darkan rows are separate.</li>
+              <li>153 of 285 combat rows are resolver-ready.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Frontend Delta</h2>
+        <p class="label">
+          The Quests tab keeps Witch's House in progress and displays the compact
+          multi-battle blocker summary. The row is selectable only when the global
+          resolver is enabled and player combat level is sufficient.
+        </p>
+        <div class="tag">blocked_at_stage</div>
+        <div class="tag">Battle required</div>
+      </article>
+
+      <article class="card full">
+        <h2>Current Combat Gap Buckets</h2>
+        <div class="rows">
+          <div class="row"><span>Darkan hitpoints-only metadata</span><strong class="warn">74</strong></div>
+          <div class="row"><span>Darkan metadata missing attack/strength/defence</span><strong class="warn">6</strong></div>
+          <div class="row"><span>Same name, wrong local level</span><strong class="warn">9</strong></div>
+          <div class="row"><span>No local source match</span><strong class="bad">16</strong></div>
+          <div class="row"><span>Parser or variant-level issue</span><strong class="bad">27</strong></div>
+        </div>
+      </article>
+
+      <article class="card full">
+        <h2>Verification</h2>
+        <div class="timeline">
+          <div class="step"><div class="dot"></div><div><strong>Targeted tests</strong><br><span class="label"><code>python3 -m unittest tests.test_quest_combat_stat_gap_audit tests.test_quest_catalog tests.test_logic tests.test_runtime_actions tests.test_integration_smoke tests.test_main_menu_widget</code></span></div></div>
+          <div class="step"><div class="dot"></div><div><strong>Full backend/core suite</strong><br><span class="label"><code>python3 run_tests.py</code> passed with 425 tests, 99 skipped.</span></div></div>
+          <div class="step"><div class="dot"></div><div><strong>Full Qt/offscreen suite</strong><br><span class="label"><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> passed with 425 tests.</span></div></div>
+        </div>
+      </article>
+    </section>
+
+    <p class="footer">
+      Next honest state: the generic model is real, Witch's House is another proof case,
+      and the remaining 132 combat gaps stay blocked until source-backed stats or
+      quest-specific modeling land.
+    </p>
+  </main>
+</body>
+</html>
