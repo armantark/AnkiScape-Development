@@ -1616,6 +1616,37 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(quest_combat_encounter_has_stats_pure(ranged_encounter))
         self.assertFalse(quest_combat_encounter_has_stats_pure(incomplete_melee))
 
+    def test_beast_stat_fallback_ranged_rows_are_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 50
+        player_data["strength_level"] = 50
+        player_data["defense_level"] = 50
+        player_data["constitution_level"] = 50
+        player_data["prayer_level"] = 1
+
+        blockers = quest_current_stage_blockers_pure(player_data, "toktz_ket_dill", QUEST_DATA)
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in blockers),
+            ("combat_missing_stats", "combat_encounter", "combat_missing_stats"),
+        )
+        self.assertEqual(blockers[1]["reason"], "Battle required: Lava monster level 47")
+        self.assertEqual(
+            tuple(blocker["encounter_id"] for blocker in quest_current_stage_resolvable_combat_blockers_pure(player_data, "toktz_ket_dill", QUEST_DATA)),
+            ("toktz_ket_dill_lava_monster_47",),
+        )
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "toktz_ket_dill", QUEST_DATA))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "toktz_ket_dill", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "toktz_ket_dill_lava_monster_47")
+        self.assertEqual(resolved["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in quest_current_stage_blockers_pure(resolved, "toktz_ket_dill", QUEST_DATA)),
+            ("combat_missing_stats", "combat_missing_stats"),
+        )
+
     def test_another_slice_ham_magic_fight_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["another_slice_of_h_a_m"] = {"started": True, "progress": 4, "completed": False}

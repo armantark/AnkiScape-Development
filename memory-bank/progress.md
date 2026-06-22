@@ -45,7 +45,7 @@
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 157/285 source-backed NPC stat rows after local
+  combat now has 159/285 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -56,7 +56,10 @@
   resolver-ready Darkan-backed forms. The style-aware resolver pass also
   accepts source-backed magic/ranged rows with zero melee Strength, adding
   H.A.M. mage, The Void Stares Back Torcher/Defiler, and The Elder Kiln
-  TokHaar-Xil.
+  TokHaar-Xil. The Darkan `beasts.txt` fallback then raised generated coverage
+  by filling exact/unambiguous missing attack/defence/magic/ranged values for
+  TokTz-Ket-Dill's Lava monster and Nomad's Requiem's Nomad, while still
+  leaving melee rows without sourced Strength blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -80,7 +83,9 @@
   still tracked in
   `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`,
   `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md`.
+  `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md`,
+  and
+  `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.

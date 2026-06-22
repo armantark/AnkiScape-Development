@@ -156,6 +156,17 @@ Roadmap direction: add an optional fake Grand Exchange-style market later so the
 
 Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. The current P0 existing-skill architecture board is complete; Utility/Activities icons, the focused feather source, Firemaking v1, Fishing v1, Cooking v1, Runecrafting v1, the priority quest-lock catalog, and the route-precedent locks are complete. The GE remains a later candidate, not the next default project.
 
+Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
+194 pre-EOC quests have at least one machine-readable stage requirement and 119
+quests have combat blockers, but only 159/285 combat encounters have
+resolver-ready source-backed stats. The latest quest slice added a conservative
+Darkan `developer-information/beasts.txt` fallback in
+`tools/build_pre_eoc_quest_catalog.py`: it can fill missing/zero attack,
+defence, magic, and ranged values for exact-ID or unambiguous name/level Darkan
+combatdefs, but it does not infer Strength. This makes TokTz-Ket-Dill's Lava
+monster and Nomad's Requiem's Nomad resolver-ready; 126 statless combat rows
+remain hard-blocked and classified by `tools/audit_quest_combat_stat_gaps.py`.
+
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,
 Woodcutting, Smithing, Crafting, Fletching, and the no-XP Utility/Activities

@@ -733,6 +733,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Earth Elemental"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_resolves_beast_fallback_ranged_combat_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_beast_fallback_combat_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "toktz_ket_dill",
+            "quests": {"toktz_ket_dill": {"started": True, "progress": 6, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 50,
+            "strength_level": 50,
+            "defense_level": 50,
+            "constitution_level": 50,
+            "prayer_level": 1,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["toktz_ket_dill"]["progress"], 6)
+        self.assertFalse(addon.player_data["quests"]["toktz_ket_dill"]["completed"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounters"],
+            {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]},
+        )
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Lava monster"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_resolves_witchs_house_first_form_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_witchs_house_combat_integration")
 

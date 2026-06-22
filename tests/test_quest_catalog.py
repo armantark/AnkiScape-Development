@@ -164,6 +164,41 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(elvarg["npc_configs"]["max_hit"], 100)
         self.assertTrue(elvarg["npc_stats_source"].endswith("elvarg.json"))
 
+        toktz = data["toktz_ket_dill"]
+        lava_monster = next(
+            encounter
+            for requirement in toktz["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["encounter_id"] == "toktz_ket_dill_lava_monster_47"
+        )
+        self.assertEqual(lava_monster["npc_stats"]["hitpoints"], 260)
+        self.assertEqual(lava_monster["npc_stats"]["attack"], 28)
+        self.assertEqual(lava_monster["npc_stats"]["strength"], 0)
+        self.assertEqual(lava_monster["npc_stats"]["defence"], 38)
+        self.assertEqual(lava_monster["npc_stats"]["ranged"], 38)
+        self.assertEqual(lava_monster["npc_configs"]["attack_style"], "range")
+        self.assertEqual(lava_monster["npc_configs"]["max_hit"], 80)
+        self.assertIn("lava_monster_(47) (nostats) (noanims).json", lava_monster["npc_stats_source"])
+        self.assertTrue(lava_monster["npc_stats_source"].endswith("developer-information/beasts.txt"))
+
+        nomad = data["nomads_requiem"]
+        nomad_boss = next(
+            encounter
+            for requirement in nomad["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["encounter_id"] == "nomads_requiem_nomad_699"
+        )
+        self.assertEqual(nomad_boss["npc_stats"]["hitpoints"], 10000)
+        self.assertEqual(nomad_boss["npc_stats"]["attack"], 75)
+        self.assertEqual(nomad_boss["npc_stats"]["strength"], 0)
+        self.assertEqual(nomad_boss["npc_stats"]["defence"], 75)
+        self.assertEqual(nomad_boss["npc_stats"]["magic"], 75)
+        self.assertEqual(nomad_boss["npc_stats"]["ranged"], 75)
+        self.assertEqual(nomad_boss["npc_configs"]["attack_style"], "range")
+        self.assertEqual(nomad_boss["npc_configs"]["max_hit"], 322)
+        self.assertIn("nomad (nostats) (noanims).json", nomad_boss["npc_stats_source"])
+        self.assertTrue(nomad_boss["npc_stats_source"].endswith("developer-information/beasts.txt"))
+
         restless = data["the_restless_ghost"]
         restless_combat = [
             encounter
@@ -286,7 +321,8 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(ham_mage["npc_stats"]["strength"], 0)
         self.assertEqual(ham_mage["npc_stats"]["magic"], 30)
         self.assertEqual(ham_mage["npc_configs"]["attack_style"], "magic")
-        self.assertTrue(ham_mage["npc_stats_source"].endswith("h.a.m._mage (noanims).json"))
+        self.assertIn("h.a.m._mage (noanims).json", ham_mage["npc_stats_source"])
+        self.assertTrue(ham_mage["npc_stats_source"].endswith("developer-information/beasts.txt"))
 
         void_fights = [
             encounter
@@ -313,7 +349,8 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(tokhaar_xil["quantity"], 8)
         self.assertEqual(tokhaar_xil["npc_stats"]["ranged"], 140)
         self.assertEqual(tokhaar_xil["npc_configs"]["attack_style"], "range")
-        self.assertTrue(tokhaar_xil["npc_stats_source"].endswith("fight_kiln/tokhaar-xil.json"))
+        self.assertIn("fight_kiln/tokhaar-xil.json", tokhaar_xil["npc_stats_source"])
+        self.assertTrue(tokhaar_xil["npc_stats_source"].endswith("developer-information/beasts.txt"))
 
         self.assertTrue(data["jungle_potion"]["stage_requirements"])
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])

@@ -113,8 +113,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   as TokHaar-Mej, but hitpoints-only Darkan files still stay blocked until
   style-critical combat stat evidence exists. H.A.M. mage, The Void Stares
   Back's Torcher/Defiler, and The Elder Kiln's TokHaar-Xil prove the
-  style-aware generated path. Current stat coverage is 157/285 combat rows; the
-  remaining 128 statless rows are classified by
+  style-aware generated path. The Darkan `developer-information/beasts.txt`
+  fallback may fill missing or zero generated Darkan combatdef attack,
+  defence, magic, and ranged values only when the combatdef has an exact ID
+  match or an unambiguous name/level identity and the merged payload satisfies
+  the same attack-style-aware resolver contract. It must not infer melee
+  Strength from beast metadata, and `npc_stats_source` should mention
+  `beasts.txt` only when a beast value actually contributed to the generated
+  payload. TokTz-Ket-Dill's Lava monster and Nomad's Requiem's Nomad prove this
+  path. Current stat coverage is 159/285 combat rows; the remaining 126
+  statless rows are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.

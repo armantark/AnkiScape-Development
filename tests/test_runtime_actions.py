@@ -269,6 +269,33 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Earth Elemental"])
 
+    def test_quest_answer_resolves_beast_fallback_ranged_combat_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "toktz_ket_dill",
+            "quests": {"toktz_ket_dill": {"started": True, "progress": 6, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 50,
+            "strength_level": 50,
+            "defense_level": 50,
+            "constitution_level": 50,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["toktz_ket_dill"]["progress"], 6)
+        self.assertFalse(player_data["quests"]["toktz_ket_dill"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Lava monster"])
+
     def test_quest_answer_resolves_witchs_house_first_form_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

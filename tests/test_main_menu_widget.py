@@ -1323,6 +1323,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("elemental_workshop_i", self._quest_calls)
 
+    def test_quests_tab_allows_beast_fallback_ranged_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "toktz_ket_dill"
+        pd["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 50
+        pd["strength_level"] = 50
+        pd["defense_level"] = 50
+        pd["constitution_level"] = 50
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "Battle required: Lava monster level 47, "
+            "Combat stats required before battle support can resolve: Fire monster level 47"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_toktz_ket_dill")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("toktz_ket_dill", self._quest_calls)
+
     def test_quests_tab_allows_witchs_house_form_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "witchs_house"

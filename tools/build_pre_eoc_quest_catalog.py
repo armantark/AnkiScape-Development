@@ -43,6 +43,7 @@ SCAPE_2011_NPC_DEFINITION_DIR = (
 )
 DARKAN_WORLD_SERVER_DIR = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server")
 DARKAN_NPC_LIST_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/npcList.txt"
+DARKAN_BEASTS_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/beasts.txt"
 DARKAN_NPC_COMBATDEF_DIR = DARKAN_WORLD_SERVER_DIR / "data/npcs/combatdefs"
 
 # These rows are marked former today, but they still existed as quests just
@@ -1454,7 +1455,50 @@ def _combat_payload_has_resolver_stats(stats: Mapping[str, object], configs: Map
     return False
 
 
-def _load_darkan_npc_list() -> Tuple[Dict[int, Dict[str, object]], Dict[str, Tuple[int, ...]]]:
+def _load_darkan_beast_stats() -> Dict[int, Dict[str, int]]:
+    if not DARKAN_BEASTS_PATH.exists():
+        return {}
+    rows: Dict[int, Dict[str, int]] = {}
+    for line in DARKAN_BEASTS_PATH.read_text(encoding="utf-8", errors="replace").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            data = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        npc_id = _parse_optional_int(data.get("id"))
+        if npc_id is None:
+            continue
+        stats: Dict[str, int] = {}
+        for source_key, stat_key in (
+            ("attack", "attack"),
+            ("defence", "defence"),
+            ("magic", "magic"),
+            ("ranged", "ranged"),
+        ):
+            value = _parse_optional_int(data.get(source_key))
+            if value is not None:
+                stats[stat_key] = value
+        if stats:
+            rows[npc_id] = stats
+    return rows
+
+
+_DARKAN_BEAST_STATS: Optional[Dict[int, Dict[str, int]]] = None
+
+
+def _darkan_beast_stats() -> Dict[int, Dict[str, int]]:
+    global _DARKAN_BEAST_STATS
+    if _DARKAN_BEAST_STATS is None:
+        _DARKAN_BEAST_STATS = _load_darkan_beast_stats()
+    return _DARKAN_BEAST_STATS
+
+
+_DARKAN_NPC_LIST: Optional[Tuple[Dict[int, Dict[str, object]], Dict[str, Tuple[int, ...]]]] = None
+
+
+def _load_darkan_npc_list_uncached() -> Tuple[Dict[int, Dict[str, object]], Dict[str, Tuple[int, ...]]]:
     if not DARKAN_NPC_LIST_PATH.exists():
         return {}, {}
     by_id: Dict[int, Dict[str, object]] = {}
@@ -1473,6 +1517,50 @@ def _load_darkan_npc_list() -> Tuple[Dict[int, Dict[str, object]], Dict[str, Tup
         if level > 0:
             levels_by_name.setdefault(_normalize_npc_lookup_name(name), set()).add(level)
     return by_id, {name: tuple(sorted(levels)) for name, levels in levels_by_name.items()}
+
+
+def _load_darkan_npc_list() -> Tuple[Dict[int, Dict[str, object]], Dict[str, Tuple[int, ...]]]:
+    global _DARKAN_NPC_LIST
+    if _DARKAN_NPC_LIST is None:
+        _DARKAN_NPC_LIST = _load_darkan_npc_list_uncached()
+    return _DARKAN_NPC_LIST
+
+
+def _darkan_beast_stats_for_combatdef(data: Mapping[str, object]) -> Dict[str, int]:
+    beast_stats_by_id = _darkan_beast_stats()
+    by_id, levels_by_name = _load_darkan_npc_list()
+    candidates: List[Dict[str, int]] = []
+
+    for raw_id in data.get("ids", ()) or ():
+        npc_id = _parse_optional_int(raw_id)
+        if npc_id is None:
+            continue
+        stats = beast_stats_by_id.get(npc_id)
+        if stats:
+            candidates.append(stats)
+
+    if not candidates:
+        for raw_name in data.get("names", ()) or ():
+            if not isinstance(raw_name, str):
+                continue
+            display_name = clean_markup(raw_name).strip()
+            levels = levels_by_name.get(_normalize_npc_lookup_name(display_name), ())
+            if len(levels) != 1:
+                continue
+            level = levels[0]
+            for npc_id, npc in by_id.items():
+                if int(npc["level"]) != level:
+                    continue
+                if _normalize_npc_lookup_name(str(npc["display_name"])) != _normalize_npc_lookup_name(display_name):
+                    continue
+                stats = beast_stats_by_id.get(npc_id)
+                if stats:
+                    candidates.append(stats)
+
+    signatures = {json.dumps(candidate, sort_keys=True) for candidate in candidates}
+    if len(signatures) != 1:
+        return {}
+    return dict(candidates[0])
 
 
 def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
@@ -1516,9 +1604,19 @@ def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
     aggressiveness = data.get("agressivenessType") or data.get("aggressivenessType")
     if isinstance(aggressiveness, str) and aggressiveness:
         configs["aggressiveness_type"] = aggressiveness.lower()
+    beast_stats = _darkan_beast_stats_for_combatdef(data)
+    merged_beast_stats = False
+    if beast_stats:
+        for key, value in beast_stats.items():
+            if _parse_optional_int(stats.get(key)) in (None, 0) and value > 0:
+                stats[key] = value
+                merged_beast_stats = True
     if not _combat_payload_has_resolver_stats(stats, configs):
         return None
-    return {"stats": stats, "configs": configs, "source": str(path)}
+    source = str(path)
+    if merged_beast_stats:
+        source = f"{source}; {DARKAN_BEASTS_PATH}"
+    return {"stats": stats, "configs": configs, "source": source}
 
 
 def _darkan_name_level_pairs(
