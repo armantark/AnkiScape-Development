@@ -17,6 +17,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from quest_data import quests_as_dict
+from logic_pure import quest_combat_encounter_has_stats_pure
 
 
 def main() -> None:
@@ -79,15 +80,7 @@ def main() -> None:
 
 
 def _has_resolver_stats(encounter):
-    stats = encounter.get("npc_stats") or {}
-    return all(_positive_int(stats.get(key, 0)) > 0 for key in ("hitpoints", "attack", "strength", "defence"))
-
-
-def _positive_int(value):
-    try:
-        return int(value)
-    except (TypeError, ValueError):
-        return 0
+    return quest_combat_encounter_has_stats_pure(encounter)
 
 
 if __name__ == "__main__":

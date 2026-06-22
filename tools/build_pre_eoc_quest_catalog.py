@@ -1431,6 +1431,29 @@ def _parse_optional_int(value: object) -> Optional[int]:
     return None
 
 
+def _combat_payload_attack_style(configs: Mapping[str, object]) -> str:
+    attack_style = str(configs.get("attack_style", "")).lower()
+    if attack_style in {"range", "ranged"}:
+        return "ranged"
+    if attack_style in {"magic", "melee"}:
+        return attack_style
+    return ""
+
+
+def _combat_payload_has_resolver_stats(stats: Mapping[str, object], configs: Mapping[str, object]) -> bool:
+    style = _combat_payload_attack_style(configs)
+    required = {
+        "magic": ("hitpoints", "defence", "magic"),
+        "ranged": ("hitpoints", "defence", "ranged"),
+    }.get(style, ("hitpoints", "attack", "strength", "defence"))
+    if all((_parse_optional_int(stats.get(key)) or 0) > 0 for key in required):
+        return True
+    if style:
+        melee_fallback = ("hitpoints", "attack", "strength", "defence")
+        return all((_parse_optional_int(stats.get(key)) or 0) > 0 for key in melee_fallback)
+    return False
+
+
 def _load_darkan_npc_list() -> Tuple[Dict[int, Dict[str, object]], Dict[str, Tuple[int, ...]]]:
     if not DARKAN_NPC_LIST_PATH.exists():
         return {}, {}
@@ -1461,23 +1484,21 @@ def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
     if not isinstance(levels, Mapping):
         return None
     hitpoints = _parse_optional_int(data.get("hitpoints"))
-    attack = _parse_optional_int(levels.get("ATTACK"))
-    strength = _parse_optional_int(levels.get("STRENGTH"))
-    defence = _parse_optional_int(levels.get("DEFENSE"))
-    if not hitpoints or not attack or not strength or not defence:
+    if not hitpoints:
         return None
     stats: Dict[str, int] = {
         "hitpoints": hitpoints,
-        "attack": attack,
-        "strength": strength,
-        "defence": defence,
     }
-    magic = _parse_optional_int(levels.get("MAGE"))
-    if magic is not None:
-        stats["magic"] = magic
-    ranged = _parse_optional_int(levels.get("RANGE"))
-    if ranged is not None:
-        stats["ranged"] = ranged
+    for source_key, stat_key in (
+        ("ATTACK", "attack"),
+        ("STRENGTH", "strength"),
+        ("DEFENSE", "defence"),
+        ("MAGE", "magic"),
+        ("RANGE", "ranged"),
+    ):
+        value = _parse_optional_int(levels.get(source_key))
+        if value is not None:
+            stats[stat_key] = value
 
     configs: Dict[str, object] = {}
     max_hit = _parse_optional_int(data.get("maxHit"))
@@ -1495,6 +1516,8 @@ def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
     aggressiveness = data.get("agressivenessType") or data.get("aggressivenessType")
     if isinstance(aggressiveness, str) and aggressiveness:
         configs["aggressiveness_type"] = aggressiveness.lower()
+    if not _combat_payload_has_resolver_stats(stats, configs):
+        return None
     return {"stats": stats, "configs": configs, "source": str(path)}
 
 

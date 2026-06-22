@@ -1349,6 +1349,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("witchs_house", self._quest_calls)
 
+    def test_quests_tab_allows_style_aware_magic_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "another_slice_of_h_a_m"
+        pd["quests"]["another_slice_of_h_a_m"] = {"started": True, "progress": 4, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["quest_combat_encounters"] = {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]}
+        pd["attack_level"] = 40
+        pd["strength_level"] = 40
+        pd["defense_level"] = 40
+        pd["constitution_level"] = 40
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Battle required: H.A.M. mage level 30, "
+            "Combat stats required before battle support can resolve: H.A.M. ranger level 30"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_another_slice_of_h_a_m")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("another_slice_of_h_a_m", self._quest_calls)
+
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Coins": 12}

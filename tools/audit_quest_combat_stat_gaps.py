@@ -128,7 +128,7 @@ def _partial_darkan_metadata_payload(path: Path) -> Dict[str, object]:
             ("RANGE", "ranged"),
         ):
             value = catalog_builder._parse_optional_int(levels.get(source_key))
-            if value is not None and value > 0:
+            if value is not None:
                 stats[stat_key] = value
 
     configs: Dict[str, object] = {}
@@ -192,8 +192,15 @@ def _partial_metadata_classification(partial: Tuple[Tuple[str, str, str], ...]) 
     stat_keys = {str(key) for key in stats}
     if stat_keys == {"hitpoints"}:
         return "darkan_hitpoints_only_metadata"
-    missing_resolver_stats = {"attack", "strength", "defence"} - stat_keys
-    if missing_resolver_stats:
+    configs = payload.get("configs", {})
+    if not isinstance(configs, Mapping):
+        configs = {}
+    style = catalog_builder._combat_payload_attack_style(configs)
+    required_stats = {
+        "magic": {"hitpoints", "defence", "magic"},
+        "ranged": {"hitpoints", "defence", "ranged"},
+    }.get(style, {"hitpoints", "attack", "strength", "defence"})
+    if required_stats - stat_keys or not catalog_builder._combat_payload_has_resolver_stats(stats, configs):
         return "darkan_missing_resolver_stats"
     return "darkan_incomplete_metadata"
 

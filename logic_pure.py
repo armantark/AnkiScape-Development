@@ -1199,10 +1199,39 @@ def _quest_combat_stats(encounter):
     return stats if isinstance(stats, Mapping) else {}
 
 
+def _quest_combat_configs(encounter):
+    configs = encounter.get("npc_configs", {}) if isinstance(encounter, Mapping) else {}
+    return configs if isinstance(configs, Mapping) else {}
+
+
+def _quest_combat_attack_style(encounter):
+    attack_style = str(_quest_combat_configs(encounter).get("attack_style", "")).lower()
+    if attack_style in {"range", "ranged"}:
+        return "ranged"
+    if attack_style == "magic":
+        return "magic"
+    if attack_style == "melee":
+        return "melee"
+    return ""
+
+
+def _quest_combat_required_stat_keys(encounter):
+    style = _quest_combat_attack_style(encounter)
+    if style == "magic":
+        return ("hitpoints", "defence", "magic")
+    if style == "ranged":
+        return ("hitpoints", "defence", "ranged")
+    return ("hitpoints", "attack", "strength", "defence")
+
+
 def quest_combat_encounter_has_stats_pure(encounter):
     stats = _quest_combat_stats(encounter)
-    required = ("hitpoints", "attack", "strength", "defence")
-    return all(_positive_int(stats.get(key, 0), 0) > 0 for key in required)
+    if all(_positive_int(stats.get(key, 0), 0) > 0 for key in _quest_combat_required_stat_keys(encounter)):
+        return True
+    if _quest_combat_attack_style(encounter):
+        melee_fallback = ("hitpoints", "attack", "strength", "defence")
+        return all(_positive_int(stats.get(key, 0), 0) > 0 for key in melee_fallback)
+    return False
 
 
 def _quest_combat_display(encounter, source=""):

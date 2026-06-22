@@ -203,6 +203,42 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Delrith"])
 
+    def test_quest_answer_resolves_style_aware_magic_combat_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "another_slice_of_h_a_m",
+            "quests": {"another_slice_of_h_a_m": {"started": True, "progress": 4, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_combat_encounters": {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 40,
+            "constitution_level": 40,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["another_slice_of_h_a_m"]["progress"], 4)
+        self.assertFalse(player_data["quests"]["another_slice_of_h_a_m"]["completed"])
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {
+                "another_slice_of_h_a_m": [
+                    "another_slice_of_h_a_m_h_a_m_mage_30",
+                    "another_slice_of_h_a_m_sigmund_64",
+                ]
+            },
+        )
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated H.A.M. mage"])
+
     def test_quest_answer_resolves_identical_source_generated_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

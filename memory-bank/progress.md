@@ -45,7 +45,7 @@
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 153/285 source-backed NPC stat rows after local
+  combat now has 157/285 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -53,7 +53,10 @@
   generated Darkan rows such as Delrith, Elvarg, and Earth Elemental, plus
   Priest in Peril's Monk of Zamorak and Troll Stronghold's Dad. Witch's House
   now replaces one ambiguous generated experiment fight with four
-  resolver-ready Darkan-backed forms.
+  resolver-ready Darkan-backed forms. The style-aware resolver pass also
+  accepts source-backed magic/ranged rows with zero melee Strength, adding
+  H.A.M. mage, The Void Stares Back Torcher/Defiler, and The Elder Kiln
+  TokHaar-Xil.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -75,8 +78,9 @@
   reconciliation, route flags, required action flags, partner/branch state,
   quest-specific item transformations, and broad combat stat enrichment are
   still tracked in
-  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` and
-  `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`.
+  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`,
+  `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -438,11 +442,12 @@ Trio and Sea Troll Queen stats for Swan Song. The generator now preserves
 `required_inventory_options` as independent option groups, so source rows such
 as Goblin Diplomacy's dye alternatives do not become start locks or impossible
 all-item requirements. `python3 tools/audit_quest_stage_gate_coverage.py` now
-reports 153/285 combat encounters with source-backed stats; the remaining 132
-rows are classified by `tools/audit_quest_combat_stat_gaps.py` as 74 Darkan
-hitpoints-only rows, 6 Darkan rows missing resolver-critical
-attack/strength/defence stats, 9 same-name/wrong-level rows, 16
-no-local-source rows, and 27 parser/variant-level rows.
+reports 157/285 combat encounters with source-backed stats after the
+style-aware magic/ranged resolver follow-up; the remaining 128 rows are
+classified by `tools/audit_quest_combat_stat_gaps.py` as 56 Darkan
+hitpoints-only rows, 20 Darkan rows missing style-critical resolver stats, 9
+same-name/wrong-level rows, 16 no-local-source rows, and 27
+parser/variant-level rows.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

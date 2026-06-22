@@ -83,6 +83,7 @@ from logic_pure import (
     quest_current_stage_blockers_pure,
     quest_current_stage_blocker_reasons_pure,
     quest_current_stage_resolvable_combat_blockers_pure,
+    quest_combat_encounter_has_stats_pure,
     quest_locked_reasons_pure,
     quest_availability_state_pure,
     quest_unlock_locked_reasons_pure,
@@ -1575,6 +1576,72 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(result["encounter_id"], "count_draynor")
         self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["count_draynor"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "proof_quest", quest_data), ())
+
+    def test_quest_combat_stats_are_style_aware_for_magic_and_ranged_enemies(self):
+        magic_encounter = {
+            "npc_stats": {
+                "hitpoints": 350,
+                "attack": 0,
+                "strength": 0,
+                "defence": 30,
+                "magic": 30,
+                "ranged": 1,
+            },
+            "npc_configs": {"attack_style": "magic"},
+        }
+        ranged_encounter = {
+            "npc_stats": {
+                "hitpoints": 450,
+                "attack": 0,
+                "strength": 0,
+                "defence": 29,
+                "magic": 0,
+                "ranged": 66,
+            },
+            "npc_configs": {"attack_style": "range"},
+        }
+        incomplete_melee = {
+            "npc_stats": {
+                "hitpoints": 8000,
+                "attack": 0,
+                "strength": 0,
+                "defence": 180,
+                "magic": 180,
+                "ranged": 0,
+            },
+            "npc_configs": {"attack_style": "melee"},
+        }
+
+        self.assertTrue(quest_combat_encounter_has_stats_pure(magic_encounter))
+        self.assertTrue(quest_combat_encounter_has_stats_pure(ranged_encounter))
+        self.assertFalse(quest_combat_encounter_has_stats_pure(incomplete_melee))
+
+    def test_another_slice_ham_magic_fight_is_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["another_slice_of_h_a_m"] = {"started": True, "progress": 4, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["quest_combat_encounters"] = {"another_slice_of_h_a_m": ["another_slice_of_h_a_m_sigmund_64"]}
+        player_data["attack_level"] = 40
+        player_data["strength_level"] = 40
+        player_data["defense_level"] = 40
+        player_data["constitution_level"] = 40
+
+        blockers = quest_current_stage_blockers_pure(player_data, "another_slice_of_h_a_m", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter", "combat_missing_stats"))
+        self.assertEqual(blockers[0]["reason"], "Battle required: H.A.M. mage level 30")
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "another_slice_of_h_a_m", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "another_slice_of_h_a_m_h_a_m_mage_30")
+        self.assertEqual(
+            resolved["quest_combat_encounters"],
+            {
+                "another_slice_of_h_a_m": [
+                    "another_slice_of_h_a_m_h_a_m_mage_30",
+                    "another_slice_of_h_a_m_sigmund_64",
+                ]
+            },
+        )
 
     def test_restless_ghost_skeleton_warlock_override_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

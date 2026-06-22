@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Style-Aware Combat Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel-2: #1b2430;
+      --line: #303946;
+      --text: #ecf2f8;
+      --muted: #a7b2bf;
+      --green: #73d79b;
+      --gold: #f0c86a;
+      --red: #ff8c7a;
+      --blue: #79b8ff;
+      --violet: #c4a7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, rgba(121,184,255,.18), transparent 28rem), var(--bg);
+      color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+    }
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 5vw, 52px);
+      line-height: 1.02;
+      letter-spacing: 0;
+      max-width: 920px;
+    }
+    .subhead {
+      color: var(--muted);
+      max-width: 830px;
+      font-size: 17px;
+    }
+    .status-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(21, 27, 35, .88);
+      border-radius: 999px;
+      padding: 7px 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .pill strong { color: var(--text); font-weight: 700; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(27,36,48,.96), rgba(21,27,35,.96));
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+      box-shadow: 0 18px 42px rgba(0,0,0,.22);
+    }
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    h3 {
+      color: var(--muted);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 8px;
+    }
+    .metric-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-top: 1px solid rgba(48,57,70,.7);
+    }
+    .metric-row:first-of-type { border-top: 0; }
+    .metric-label { color: var(--muted); }
+    .metric-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .metric-value.good { color: var(--green); }
+    .metric-value.warn { color: var(--gold); }
+    .bar {
+      height: 13px;
+      background: #0f141b;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+      width: 55.09%;
+    }
+    .delta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--green);
+      font-weight: 700;
+      margin-top: 10px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+    li + li { margin-top: 8px; }
+    code {
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(48,57,70,.8);
+      border-radius: 5px;
+      padding: 2px 5px;
+      color: #d7e7ff;
+      font-size: .92em;
+    }
+    .note {
+      border-left: 3px solid var(--gold);
+      padding-left: 12px;
+      color: var(--muted);
+    }
+    .tests {
+      display: grid;
+      gap: 10px;
+    }
+    .test-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid rgba(48,57,70,.8);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: rgba(13,17,23,.45);
+    }
+    .pass { color: var(--green); font-weight: 800; }
+    .gap-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+    .gap {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: rgba(13,17,23,.38);
+      min-height: 90px;
+    }
+    .gap b {
+      display: block;
+      font-size: 24px;
+      color: var(--red);
+      line-height: 1;
+      margin-bottom: 7px;
+    }
+    .gap span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .copybox {
+      display: grid;
+      gap: 10px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 150px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f141b;
+      color: var(--text);
+      padding: 12px;
+      font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    footer {
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 13px;
+    }
+    @media (max-width: 820px) {
+      .span-7, .span-5, .span-4, .span-6, .span-12 { grid-column: span 12; }
+      .split, .gap-list { grid-template-columns: 1fr; }
+      .test-line { display: grid; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Style-aware combat gates are real, but every-quest parity is still open.</h1>
+      <p class="subhead">This slice fixes the false "missing stats" treatment for sourced magic and ranged quest enemies, proves it through Another Slice of H.A.M., and leaves the remaining statless combat backlog explicit.</p>
+      <div class="status-strip">
+        <span class="pill"><strong>Backend:</strong> style-aware resolver and generator</span>
+        <span class="pill"><strong>Frontend:</strong> existing blocked-at-stage surface verified</span>
+        <span class="pill"><strong>Commit scope:</strong> not full quest parity</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <article class="panel span-7">
+        <h2>Coverage Moved, Not Closed</h2>
+        <div class="metric-row">
+          <div>
+            <div class="metric-label">Combat encounters with resolver-ready stats</div>
+            <div class="bar" aria-label="157 of 285 resolver-ready"><span></span></div>
+            <div class="delta">+4 rows in this slice</div>
+          </div>
+          <div class="metric-value good">157 / 285</div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-label">Statless combat encounters still blocked</div>
+          <div class="metric-value warn">128</div>
+        </div>
+        <div class="metric-row">
+          <div class="metric-label">Quests with at least one machine-readable stage row</div>
+          <div class="metric-value good">194 / 194</div>
+        </div>
+        <p class="note">The stage row count does not mean minute-detail parity. It means every quest now has at least one blocker row, while exact per-stage placement, route state, puzzle state, transformations, and many combat stats remain active work.</p>
+      </article>
+
+      <article class="panel span-5">
+        <h2>Proof Rows Added</h2>
+        <ul>
+          <li><code>another_slice_of_h_a_m_h_a_m_mage_30</code> now resolves as magic.</li>
+          <li><code>the_void_stares_back_torcher_63</code> now resolves as magic.</li>
+          <li><code>the_void_stares_back_defiler_50</code> now resolves as ranged.</li>
+          <li><code>the_elder_kiln_tokhaar_xil_140</code> now resolves as ranged.</li>
+        </ul>
+      </article>
+
+      <article class="panel span-6">
+        <h2>Backend Slice</h2>
+        <ul>
+          <li><code>logic_pure.py</code> now checks combat stats by attack style: magic, ranged, or melee/unknown.</li>
+          <li><code>tools/build_pre_eoc_quest_catalog.py</code> preserves zero-valued combat stats and accepts style-complete Darkan rows.</li>
+          <li>Audit tools now share the same readiness rule as runtime, so gap numbers match real behavior.</li>
+        </ul>
+      </article>
+
+      <article class="panel span-6">
+        <h2>Frontend Surface</h2>
+        <ul>
+          <li>No new UI state was added; this uses the existing <code>blocked_at_stage</code> quest status.</li>
+          <li>The Quests tab can show H.A.M. mage as battle-ready while H.A.M. ranger remains missing stats.</li>
+          <li>The global combat resolver lock remains the write-once/write-everywhere safety gate.</li>
+        </ul>
+      </article>
+
+      <article class="panel span-12">
+        <h2>Remaining Combat Gap Classification</h2>
+        <div class="gap-list">
+          <div class="gap"><b>56</b><span>Darkan hitpoints-only metadata</span></div>
+          <div class="gap"><b>20</b><span>Darkan rows missing style-critical resolver stats</span></div>
+          <div class="gap"><b>9</b><span>Same-name, wrong-level rows</span></div>
+          <div class="gap"><b>16</b><span>No local source match</span></div>
+          <div class="gap"><b>27</b><span>Parser or variant-level rows</span></div>
+        </div>
+      </article>
+
+      <article class="panel span-6">
+        <h2>Verification</h2>
+        <div class="tests">
+          <div class="test-line"><span>Focused quest/combat/UI suite</span><span class="pass">255 passed, 100 skipped</span></div>
+          <div class="test-line"><span><code>python3 run_tests.py</code></span><span class="pass">430 passed, 100 skipped</span></div>
+          <div class="test-line"><span><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code></span><span class="pass">430 passed</span></div>
+        </div>
+      </article>
+
+      <article class="panel span-6">
+        <h2>Manual Anki Smoke</h2>
+        <ul>
+          <li>Seed Another Slice of H.A.M. at progress 4 with Sigmund already resolved and resolver enabled.</li>
+          <li>Open Quests and expect: <code>Battle required: H.A.M. mage level 30</code> plus H.A.M. ranger missing stats.</li>
+          <li>Answer one Quest review and expect H.A.M. mage to record without advancing the stage.</li>
+        </ul>
+      </article>
+
+      <article class="panel span-12 copybox">
+        <h2>Next Quest-Combat Prompt</h2>
+        <textarea id="nextPrompt" spellcheck="false">Continue the AnkiScape quest-stage goal from the committed style-aware combat slice. Do not claim every quest is done. Use memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md, tools/audit_quest_combat_stat_gaps.py, and tools/audit_quest_stage_gate_coverage.py. Current state: 194/194 quests have at least one machine-readable stage row, 157/285 combat rows have resolver-ready stats, and 128 combat rows remain statless. Keep combat globally locked by quest_combat_config.resolver_enabled until full combat exists. Pick the next source-backed combat/stat or minute-detail stage batch from the remaining audit gaps, split backend/frontend work explicitly, add targeted unit/integration/Qt tests, update Memory Bank/status artifacts, and commit locally.</textarea>
+      </article>
+    </section>
+
+    <footer>
+      Artifact: memory-bank/status-updates/quest-style-aware-combat-complete-2026-06-22.html
+    </footer>
+  </main>
+</body>
+</html>

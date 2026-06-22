@@ -87,7 +87,7 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `player_data["quest_combat_config"]["resolver_enabled"]`. It defaults to
   `False`, so incomplete encounters produce `combat_locked` blockers instead of
   silently progressing. When the resolver is enabled, current-stage encounters
-  still require source-backed NPC hitpoints/attack/strength/defence stats and a
+  still require source-backed NPC stats for the encounter's attack style and a
   player combat level at least as high as the encounter level before
   `apply_quest_combat_encounter_pure()` writes the completed encounter id into
   `player_data["quest_combat_encounters"]`. Encounters missing stats remain
@@ -106,10 +106,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Stronghold's Dad prove focused conflict resolution from area-specific Darkan
   quest/combat sources. Witch's House proves a focused replacement can split an
   ambiguous generated fight into four resolver-ready Darkan-backed forms.
-  Current stat coverage is 153/285 combat rows; the remaining 132 statless rows
-  are classified by `tools/audit_quest_combat_stat_gaps.py` and remain active
-  quest debt. Hitpoints-only Darkan files are not resolver-ready until
-  attack/strength/defence evidence exists.
+  Resolver readiness is attack-style aware: magic encounters require
+  hitpoints, defence, and magic; ranged encounters require hitpoints, defence,
+  and ranged; melee/unknown encounters require hitpoints, attack, strength, and
+  defence. A complete melee fallback handles inconsistent style metadata such
+  as TokHaar-Mej, but hitpoints-only Darkan files still stay blocked until
+  style-critical combat stat evidence exists. H.A.M. mage, The Void Stares
+  Back's Torcher/Defiler, and The Elder Kiln's TokHaar-Xil prove the
+  style-aware generated path. Current stat coverage is 157/285 combat rows; the
+  remaining 128 statless rows are classified by
+  `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.

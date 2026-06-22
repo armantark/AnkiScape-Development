@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat: Style-Aware Resolver Slice</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.12), transparent 36%),
+        radial-gradient(circle at 82% 12%, rgba(251, 191, 36, 0.09), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 34px 0 44px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1; letter-spacing: 0; }
+    .subtitle { margin: 0; max-width: 850px; color: var(--text-dim); font-size: 1rem; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 28px 0; }
+    .metric {
+      padding: 18px;
+      background: rgba(22, 26, 33, 0.82);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+    .metric strong { display: block; font-size: 2rem; line-height: 1; }
+    .metric span { color: var(--text-dim); font-size: 0.82rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card {
+      background: rgba(22, 26, 33, 0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 16px 42px rgba(0, 0, 0, 0.18);
+    }
+    .card h2 { margin: 0 0 10px; font-size: 1.08rem; letter-spacing: 0; }
+    .label {
+      display: inline-flex;
+      margin-bottom: 10px;
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      color: var(--amber);
+    }
+    .label.green { color: var(--green); }
+    .label.red { color: var(--red); }
+    .label.purple { color: var(--purple); }
+    p { color: var(--text-dim); margin: 0 0 14px; }
+    .flow { display: grid; grid-template-columns: 1fr 36px 1fr; gap: 10px; align-items: stretch; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 12px; min-height: 150px; }
+    .pane-title {
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid rgba(42, 48, 64, 0.72); }
+    .row:first-of-type { border-top: 0; }
+    .row b { font-weight: 650; }
+    .row span { color: var(--text-dim); }
+    .arrow { display: grid; place-items: center; color: var(--accent); font-size: 1.5rem; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .chip {
+      padding: 6px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 0.7rem;
+    }
+    .todo { display: grid; gap: 10px; }
+    .todo-item { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: start; }
+    .num { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 8px; background: var(--accent); color: #fff; font-weight: 700; }
+    .todo-item div:last-child { color: var(--text-dim); }
+    .bar { height: 10px; border-radius: 999px; overflow: hidden; background: var(--surface-2); border: 1px solid var(--border); margin-top: 12px; }
+    .bar span { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); width: 53.7%; }
+    code { color: var(--text); background: var(--surface-2); padding: 2px 5px; border-radius: 5px; }
+    @media (max-width: 900px) {
+      .metrics, .grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .arrow { transform: rotate(90deg); min-height: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">PRE-IMPLEMENTATION PLAN · 2026-06-22</div>
+    <h1>Quest combat is still not done for every quest.</h1>
+    <p class="subtitle">This slice targets a real remaining backend defect: sourced magic/ranged encounters are being treated as statless because the resolver requires melee Strength for every enemy. The fix keeps hitpoints-only enemies blocked while promoting source-backed style-specific fights.</p>
+
+    <section class="metrics" aria-label="Current audit metrics">
+      <div class="metric"><strong>194/194</strong><span>quests have at least one stage row</span></div>
+      <div class="metric"><strong>153/285</strong><span>combat encounters are resolver-ready now</span></div>
+      <div class="metric"><strong>132</strong><span>combat encounters remain statless/blocked</span></div>
+      <div class="metric"><strong>6</strong><span>style-aware candidates in this slice</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label red">Current Failure Mode</div>
+        <h2>Real ranged/magic stats are rejected</h2>
+        <div class="flow">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="row"><b>H.A.M. mage</b><span>Magic 30, Strength 0</span></div>
+            <div class="row"><b>Defiler</b><span>Range 66, Strength 0</span></div>
+            <div class="row"><b>TokHaar-Xil</b><span>Range 140, Strength 0</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="pane">
+            <div class="pane-title">Wrong Result</div>
+            <div class="row"><b>combat_missing_stats</b><span>because Strength is zero</span></div>
+            <div class="row"><b>Quest stuck</b><span>despite sourced combatLevels</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label green">Backend Slice</div>
+        <h2>Make readiness style-aware</h2>
+        <p>Use `npc_configs.attack_style` to determine the required offensive stat: melee needs Attack and Strength, ranged needs Ranged, and magic needs Magic. All still require hitpoints and defence.</p>
+        <div class="chips">
+          <span class="chip">logic_pure.py</span>
+          <span class="chip">tools/build_pre_eoc_quest_catalog.py</span>
+          <span class="chip">tools/audit_quest_combat_stat_gaps.py</span>
+          <span class="chip">quest_data.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label purple">Frontend Contract</div>
+        <h2>No new UI state unless tests prove it</h2>
+        <p>The player-facing states remain `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. This change should only move specific current-stage blockers from “stats missing” to “battle required” when combat resolver is enabled.</p>
+        <div class="bar"><span></span></div>
+        <p style="margin-top:10px;">Resolver-ready combat coverage target after the slice: roughly 159/285, not parity.</p>
+      </article>
+
+      <article class="card">
+        <div class="label">Implementation Steps</div>
+        <h2>Backend first, frontend verified</h2>
+        <div class="todo">
+          <div class="todo-item"><span class="num">1</span><div>Patch style-aware stat readiness and regenerate/import the eligible Darkan rows.</div></div>
+          <div class="todo-item"><span class="num">2</span><div>Add targeted unit/integration/Qt tests for magic and ranged quest blockers.</div></div>
+          <div class="todo-item"><span class="num">3</span><div>Update Memory Bank audit notes with the new coverage and the still-deferred gaps.</div></div>
+          <div class="todo-item"><span class="num">4</span><div>Run full required suites, create the post artifact, and commit locally.</div></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

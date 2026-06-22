@@ -275,6 +275,46 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("Witch's_House?oldid=6474931", experiment_forms[0]["source"])
         self.assertTrue(experiment_forms[0]["npc_stats_source"].endswith("witch's_experiment_(19) (noanims).json"))
 
+        ham_mage = next(
+            encounter
+            for requirement in data["another_slice_of_h_a_m"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "H.A.M. mage"
+        )
+        self.assertEqual(ham_mage["level"], 30)
+        self.assertEqual(ham_mage["npc_stats"]["hitpoints"], 350)
+        self.assertEqual(ham_mage["npc_stats"]["strength"], 0)
+        self.assertEqual(ham_mage["npc_stats"]["magic"], 30)
+        self.assertEqual(ham_mage["npc_configs"]["attack_style"], "magic")
+        self.assertTrue(ham_mage["npc_stats_source"].endswith("h.a.m._mage (noanims).json"))
+
+        void_fights = [
+            encounter
+            for requirement in data["the_void_stares_back"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        torcher = next(encounter for encounter in void_fights if encounter["display_name"] == "Torcher")
+        defiler = next(encounter for encounter in void_fights if encounter["display_name"] == "Defiler")
+        self.assertEqual(torcher["npc_stats"]["magic"], 85)
+        self.assertEqual(torcher["npc_configs"]["attack_style"], "magic")
+        self.assertTrue(torcher["npc_stats_source"].endswith("torcher_(63) (nostats).json"))
+        self.assertEqual(defiler["npc_stats"]["ranged"], 66)
+        self.assertEqual(defiler["npc_stats"]["strength"], 0)
+        self.assertEqual(defiler["npc_configs"]["attack_style"], "range")
+        self.assertTrue(defiler["npc_stats_source"].endswith("defiler_(50) (nostats).json"))
+
+        tokhaar_xil = next(
+            encounter
+            for requirement in data["the_elder_kiln"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "TokHaar-Xil"
+        )
+        self.assertEqual(tokhaar_xil["level"], 140)
+        self.assertEqual(tokhaar_xil["quantity"], 8)
+        self.assertEqual(tokhaar_xil["npc_stats"]["ranged"], 140)
+        self.assertEqual(tokhaar_xil["npc_configs"]["attack_style"], "range")
+        self.assertTrue(tokhaar_xil["npc_stats_source"].endswith("fight_kiln/tokhaar-xil.json"))
+
         self.assertTrue(data["jungle_potion"]["stage_requirements"])
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
