@@ -18,11 +18,11 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 126)
+        self.assertEqual(len(self.gaps), 121)
         self.assertEqual(
             counts,
             {
-                "darkan_hitpoints_only_metadata": 56,
+                "darkan_hitpoints_only_metadata": 51,
                 "darkan_missing_resolver_stats": 18,
                 "darkan_same_name_wrong_level": 9,
                 "no_local_source_match": 16,

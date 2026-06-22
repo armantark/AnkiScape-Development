@@ -1349,6 +1349,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("toktz_ket_dill", self._quest_calls)
 
+    def test_quests_tab_allows_no_combat_levels_beast_stat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "forgiveness_of_a_chaos_dwarf"
+        pd["quests"]["forgiveness_of_a_chaos_dwarf"] = {"started": True, "progress": 4, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 80
+        pd["strength_level"] = 80
+        pd["defense_level"] = 80
+        pd["constitution_level"] = 80
+        pd["prayer_level"] = 80
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Chaos dwarf hand cannoneer level 100"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_forgiveness_of_a_chaos_dwarf")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("forgiveness_of_a_chaos_dwarf", self._quest_calls)
+
     def test_quests_tab_shows_remaining_combat_quantity_after_partial_resolution(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "toktz_ket_dill"

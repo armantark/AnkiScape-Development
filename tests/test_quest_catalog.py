@@ -341,6 +341,53 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("h.a.m._mage (noanims).json", ham_mage["npc_stats_source"])
         self.assertTrue(ham_mage["npc_stats_source"].endswith("developer-information/beasts.txt"))
 
+        hand_cannoneer = next(
+            encounter
+            for requirement in data["forgiveness_of_a_chaos_dwarf"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Chaos dwarf hand cannoneer"
+        )
+        self.assertEqual(hand_cannoneer["level"], 100)
+        self.assertEqual(hand_cannoneer["npc_stats"]["hitpoints"], 1220)
+        self.assertEqual(hand_cannoneer["npc_stats"]["defence"], 50)
+        self.assertEqual(hand_cannoneer["npc_stats"]["ranged"], 50)
+        self.assertEqual(hand_cannoneer["npc_configs"]["attack_style"], "range")
+        self.assertIn("chaos_dwarf_hand_cannoneer (nostats).json", hand_cannoneer["npc_stats_source"])
+        self.assertTrue(hand_cannoneer["npc_stats_source"].endswith("developer-information/beasts.txt"))
+
+        caitlin = next(
+            encounter
+            for requirement in data["the_blood_pact"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Caitlin"
+        )
+        self.assertEqual(caitlin["npc_stats"]["hitpoints"], 20)
+        self.assertEqual(caitlin["npc_stats"]["magic"], 1)
+        self.assertEqual(caitlin["npc_configs"]["attack_style"], "magic")
+        self.assertIn("caitlin (nostats) (noanims).json", caitlin["npc_stats_source"])
+
+        salt_fights = [
+            encounter
+            for requirement in data["salt_in_the_wound"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        forgotten_mage = next(encounter for encounter in salt_fights if encounter["display_name"] == "Forgotten mage")
+        forgotten_ranger = next(encounter for encounter in salt_fights if encounter["display_name"] == "Forgotten ranger")
+        self.assertEqual(forgotten_mage["level"], 74)
+        self.assertEqual(forgotten_mage["npc_stats"]["magic"], 70)
+        self.assertEqual(forgotten_mage["npc_configs"]["attack_style"], "magic")
+        self.assertEqual(forgotten_ranger["level"], 75)
+        self.assertEqual(forgotten_ranger["npc_stats"]["ranged"], 70)
+        self.assertEqual(forgotten_ranger["npc_configs"]["attack_style"], "range")
+
+        pit_iron_dragon = next(
+            encounter
+            for requirement in data["love_story"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Pit iron dragon"
+        )
+        self.assertEqual(pit_iron_dragon["npc_stats"], {})
+
         void_fights = [
             encounter
             for requirement in data["the_void_stares_back"]["stage_requirements"]

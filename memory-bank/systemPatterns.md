@@ -131,9 +131,15 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   the same attack-style-aware resolver contract. It must not infer melee
   Strength from beast metadata, and `npc_stats_source` should mention
   `beasts.txt` only when a beast value actually contributed to the generated
-  payload. TokTz-Ket-Dill's Lava monster and Nomad's Requiem's Nomad prove this
-  path. Current stat coverage is 159/285 combat rows; the remaining 126
-  statless rows are classified by
+  payload. Darkan combatdefs without `combatLevels` may still become
+  resolver-ready when their hitpoints/configs plus an exact name/level
+  `beasts.txt` signature satisfy the style-aware contract; multi-id combatdefs
+  must be merged per matched name/level so one dungeoneering file cannot smear
+  stats across unrelated levels. TokTz-Ket-Dill's Lava monster, Nomad's
+  Requiem's Nomad, Forgiveness of a Chaos Dwarf's Chaos dwarf hand cannoneer,
+  The Blood Pact's Caitlin, Love Story's Pit scabarite, and Salt in the Wound's
+  Forgotten mage/ranger prove these paths. Current stat coverage is 164/285
+  combat rows; the remaining 121 statless rows are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.

@@ -1763,6 +1763,30 @@ class TestLogic(unittest.TestCase):
             },
         )
 
+    def test_no_combat_levels_beast_stat_fight_is_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["forgiveness_of_a_chaos_dwarf"] = {"started": True, "progress": 4, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 80
+        player_data["strength_level"] = 80
+        player_data["defense_level"] = 80
+        player_data["constitution_level"] = 80
+        player_data["prayer_level"] = 80
+
+        blockers = quest_current_stage_blockers_pure(player_data, "forgiveness_of_a_chaos_dwarf", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Chaos dwarf hand cannoneer level 100")
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "forgiveness_of_a_chaos_dwarf", QUEST_DATA))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "forgiveness_of_a_chaos_dwarf", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "forgiveness_of_a_chaos_dwarf_chaos_dwarf_hand_cannoneer_100")
+        self.assertEqual(
+            resolved["quest_combat_encounters"],
+            {"forgiveness_of_a_chaos_dwarf": ["forgiveness_of_a_chaos_dwarf_chaos_dwarf_hand_cannoneer_100"]},
+        )
+        self.assertEqual(quest_current_stage_blockers_pure(resolved, "forgiveness_of_a_chaos_dwarf", QUEST_DATA), ())
+
     def test_restless_ghost_skeleton_warlock_override_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["the_restless_ghost"] = {"started": True, "progress": 3, "completed": False}

@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat Gates - Pre-Slice Status</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --panel: #121923;
+      --panel-2: #182230;
+      --text: #eef4fb;
+      --muted: #9fb0c3;
+      --line: #2a394c;
+      --red: #f06464;
+      --amber: #f4b860;
+      --green: #6bd89a;
+      --blue: #73b7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 15% 0%, #172334 0, transparent 34rem), var(--bg);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    header {
+      display: grid;
+      gap: 14px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 24px;
+      margin-bottom: 24px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(30px, 5vw, 54px); line-height: 1; letter-spacing: 0; }
+    h2 { font-size: 20px; margin-bottom: 12px; }
+    h3 { font-size: 15px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+    .lede { max-width: 850px; color: var(--muted); font-size: 17px; }
+    .status {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(240, 100, 100, .45);
+      background: rgba(240, 100, 100, .12);
+      color: #ffd6d6;
+      border-radius: 8px;
+      font-weight: 700;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 18px rgba(240, 100, 100, .85);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+    }
+    section, .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)), var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      display: grid;
+      gap: 6px;
+    }
+    .metric strong {
+      font-size: 38px;
+      line-height: 1;
+    }
+    .metric span { color: var(--muted); }
+    .bar {
+      height: 12px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #263346;
+      margin-top: 12px;
+    }
+    .bar > i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber), var(--red));
+      border-radius: inherit;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .lane {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+    li + li { margin-top: 7px; }
+    code {
+      color: #d7e9ff;
+      background: rgba(115, 183, 255, .12);
+      border: 1px solid rgba(115, 183, 255, .18);
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+    .rows {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1.1fr 1.1fr .7fr .7fr;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #0f151e;
+      color: var(--muted);
+    }
+    .row b { color: var(--text); }
+    .tag {
+      display: inline-flex;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 2px 8px;
+      border: 1px solid rgba(107, 216, 154, .35);
+      background: rgba(107, 216, 154, .10);
+      color: #b9f3ce;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .warn {
+      border-color: rgba(244, 184, 96, .35);
+      background: rgba(244, 184, 96, .10);
+      color: #ffe0aa;
+    }
+    @media (max-width: 820px) {
+      .grid, .split { grid-template-columns: 1fr; }
+      .span-4, .span-6, .span-8, .span-12 { grid-column: auto; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="status"><span class="dot"></span>Not complete for every quest yet</div>
+      <h1>Quest stage gates: next audit-backed combat slice</h1>
+      <p class="lede">
+        The model is present and The Knight's Sword proves item consumption at the correct stage, but parity is not done while source-backed combat rows still lack resolver stats. This slice targets local Darkan beast-stat evidence without weakening the global combat lock.
+      </p>
+    </header>
+
+    <div class="grid">
+      <section class="span-4 metric">
+        <h3>Catalog scope</h3>
+        <strong>194</strong>
+        <span>quests now have stage requirement rows.</span>
+      </section>
+      <section class="span-4 metric">
+        <h3>Combat rows</h3>
+        <strong>285</strong>
+        <span>machine-readable combat encounters are cataloged.</span>
+      </section>
+      <section class="span-4 metric">
+        <h3>Remaining stat gaps</h3>
+        <strong>126</strong>
+        <span>rows are still hard-blocked until stats can be sourced.</span>
+        <div class="bar" aria-label="126 unresolved of 285 combat rows"><i style="width:44%"></i></div>
+      </section>
+
+      <section class="span-12">
+        <h2>Backend and frontend split</h2>
+        <div class="split">
+          <div class="lane">
+            <h3>Backend slice now</h3>
+            <ul>
+              <li>Use local Darkan <code>combatdefs</code> plus <code>beasts.txt</code> only when the name, level, and style-specific stats are unambiguous.</li>
+              <li>Convert those rows from generic blocked encounters into real battle gates that still respect the global combat-ready config.</li>
+              <li>Leave ambiguous rows blocked with audit reasons rather than inventing stats.</li>
+            </ul>
+          </div>
+          <div class="lane">
+            <h3>Frontend contract remains</h3>
+            <ul>
+              <li>Quest UI continues to show <code>can_start</code>, <code>in_progress</code>, <code>blocked_at_stage</code>, <code>completed</code>, and <code>locked</code>.</li>
+              <li>In-progress rows should expose player-facing blocker text for missing items, required actions, routes, and combat encounters.</li>
+              <li>No new UI wording should claim full parity until the audit reaches zero unresolved rows or documents every deferral.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="span-12">
+        <h2>Rows this slice can honestly move</h2>
+        <div class="rows">
+          <div class="row">
+            <b>Forgiveness of a Chaos Dwarf</b>
+            <span>Chaos dwarf hand cannoneer</span>
+            <span class="tag">Darkan + beast stats</span>
+            <span>ranged gate</span>
+          </div>
+          <div class="row">
+            <b>The Blood Pact</b>
+            <span>Caitlin</span>
+            <span class="tag">Darkan + beast stats</span>
+            <span>magic gate</span>
+          </div>
+          <div class="row">
+            <b>Love Story</b>
+            <span>Pit scabarite</span>
+            <span class="tag">Darkan + beast stats</span>
+            <span>ranged gate</span>
+          </div>
+          <div class="row">
+            <b>Salt in the Wound</b>
+            <span>Forgotten mage / Forgotten ranger</span>
+            <span class="tag">level-aware beast stats</span>
+            <span>magic/ranged gates</span>
+          </div>
+          <div class="row">
+            <b>Still blocked by design</b>
+            <span>Fire monster, Lava monster, Pit iron dragon</span>
+            <span class="tag warn">ambiguous or style mismatch</span>
+            <span>no guessed stats</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="span-12">
+        <h2>Completion bar</h2>
+        <p class="lede">
+          This is not a completion report. The goal remains active until every quest has either stage-aware source-backed gates or a documented hard blocker with a specific source/audit reason.
+        </p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1563,30 +1563,56 @@ def _darkan_beast_stats_for_combatdef(data: Mapping[str, object]) -> Dict[str, i
     return dict(candidates[0])
 
 
-def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
-        return None
+def _darkan_beast_stats_for_name_level(display_name: str, level: int) -> Dict[str, int]:
+    if level <= 0:
+        return {}
+    beast_stats_by_id = _darkan_beast_stats()
+    by_id, _ = _load_darkan_npc_list()
+    normalized_name = _normalize_npc_lookup_name(display_name)
+    candidates = [
+        stats
+        for npc_id, npc in by_id.items()
+        if int(npc["level"]) == level
+        and _normalize_npc_lookup_name(str(npc["display_name"])) == normalized_name
+        for stats in (beast_stats_by_id.get(npc_id),)
+        if stats
+    ]
+    signatures = {json.dumps(candidate, sort_keys=True) for candidate in candidates}
+    if len(signatures) != 1:
+        return {}
+    return dict(candidates[0])
+
+
+def _darkan_combat_payload(
+    path: Path,
+    data: Optional[Mapping[str, object]] = None,
+    *,
+    match_name: str = "",
+    match_level: int = 0,
+) -> Optional[Dict[str, object]]:
+    if data is None:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+            return None
     levels = data.get("combatLevels")
-    if not isinstance(levels, Mapping):
-        return None
     hitpoints = _parse_optional_int(data.get("hitpoints"))
     if not hitpoints:
         return None
     stats: Dict[str, int] = {
         "hitpoints": hitpoints,
     }
-    for source_key, stat_key in (
-        ("ATTACK", "attack"),
-        ("STRENGTH", "strength"),
-        ("DEFENSE", "defence"),
-        ("MAGE", "magic"),
-        ("RANGE", "ranged"),
-    ):
-        value = _parse_optional_int(levels.get(source_key))
-        if value is not None:
-            stats[stat_key] = value
+    if isinstance(levels, Mapping):
+        for source_key, stat_key in (
+            ("ATTACK", "attack"),
+            ("STRENGTH", "strength"),
+            ("DEFENSE", "defence"),
+            ("MAGE", "magic"),
+            ("RANGE", "ranged"),
+        ):
+            value = _parse_optional_int(levels.get(source_key))
+            if value is not None:
+                stats[stat_key] = value
 
     configs: Dict[str, object] = {}
     max_hit = _parse_optional_int(data.get("maxHit"))
@@ -1605,6 +1631,8 @@ def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
     if isinstance(aggressiveness, str) and aggressiveness:
         configs["aggressiveness_type"] = aggressiveness.lower()
     beast_stats = _darkan_beast_stats_for_combatdef(data)
+    if not beast_stats and match_name and match_level:
+        beast_stats = _darkan_beast_stats_for_name_level(match_name, match_level)
     merged_beast_stats = False
     if beast_stats:
         for key, value in beast_stats.items():
@@ -1660,14 +1688,14 @@ def _load_darkan_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
     by_id, levels_by_name = _load_darkan_npc_list()
     rows: Dict[Tuple[str, int], List[Dict[str, object]]] = {}
     for path in DARKAN_NPC_COMBATDEF_DIR.rglob("*.json"):
-        payload = _darkan_combat_payload(path)
-        if not payload:
-            continue
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError, UnicodeDecodeError):
             continue
         for display_name, level in _darkan_name_level_pairs(data, by_id, levels_by_name):
+            payload = _darkan_combat_payload(path, data, match_name=display_name, match_level=level)
+            if not payload:
+                continue
             key = (_normalize_npc_lookup_name(display_name), level)
             rows.setdefault(key, []).append(
                 {

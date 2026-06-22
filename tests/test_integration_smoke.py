@@ -794,6 +794,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Lava monster", "Defeated Lava monster"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_resolves_no_combat_levels_beast_stat_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_no_combat_levels_beast_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "forgiveness_of_a_chaos_dwarf",
+            "quests": {"forgiveness_of_a_chaos_dwarf": {"started": True, "progress": 4, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 80,
+            "strength_level": 80,
+            "defense_level": 80,
+            "constitution_level": 80,
+            "prayer_level": 80,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["forgiveness_of_a_chaos_dwarf"]["progress"], 4)
+        self.assertFalse(addon.player_data["quests"]["forgiveness_of_a_chaos_dwarf"]["completed"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounters"],
+            {"forgiveness_of_a_chaos_dwarf": ["forgiveness_of_a_chaos_dwarf_chaos_dwarf_hand_cannoneer_100"]},
+        )
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Chaos dwarf hand cannoneer"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_resolves_witchs_house_first_form_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_witchs_house_combat_integration")
 
