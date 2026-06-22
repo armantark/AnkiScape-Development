@@ -322,15 +322,18 @@ Verification: `python3 run_tests.py` passed with 342 tests (83 skipped), and
 with 342 tests.
 
 Quest-list filtering is complete on 2026-06-19. `logic_pure.py` now exposes
-`quest_availability_state_pure()` with four UI-facing states: `can_start`,
-`in_progress`, `completed`, and `locked`. The Quests tab adds filters for Hide
+`quest_availability_state_pure()` with UI-facing states: `can_start`,
+`in_progress`, `blocked_at_stage`, `completed`, and `locked`. The Quests tab adds filters for Hide
 completed, Hide unable to start, Access, Difficulty, Length, and Timeline, plus a
-showing-count label. The current model intentionally treats already-started
-quests as `in_progress`; mid-quest skill/action blockers are not represented yet
-and should be handled by a future stage-aware quest requirement system instead
-of being folded into start filters. Verification: `python3 run_tests.py` passed
-with 366 tests (88 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passed with 366 tests.
+showing-count label. As of 2026-06-22, started quests can surface
+`blocked_at_stage` when current-stage machine-readable blockers exist; Hide
+unable to start still only hides `locked` quests so in-progress blockers stay
+visible. The Knight's Sword is the first source-backed stage-gate proof case,
+with Redberry pie and later Blurite ore/Iron bar blockers modeled separately
+from its Mining 10 start lock. Verification for the stage-gate slice:
+`python3 run_tests.py` passed with 396 tests (91 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 396 tests.
 
 Quest completion UX now mirrors depletion handling. When a review completes the
 active quest, `runtime_actions.handle_quest_answer()` still awards rewards,
@@ -450,7 +453,7 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
 6. **Future Runecrafting extensions**: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss/abyssal creatures, talisman sourcing, and broader rune economy routes should stay separate from v1 until explicitly prioritized.
 7. **Future Hunter extensions**: tracking trails, pitfall trapping, rabbit snaring, barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and Regicide-start partial-route modeling should stay separate from v1 until explicitly prioritized.
-8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. Only reopen this area for stage-aware partial unlocks, route/location gates, new quest-unlocked skill targets, or generator/source corrections.
+8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` records the stage-aware foundation and The Knight's Sword proof case. Only reopen this area for catalog-wide stage requirements, route/location gates, combat/action blockers, new quest-unlocked skill targets, or generator/source corrections.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

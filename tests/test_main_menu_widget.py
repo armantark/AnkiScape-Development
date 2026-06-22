@@ -1222,6 +1222,36 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_cooks_assistant"))
         self.assertRegex(summary.text(), r"^Showing \d+/194$")
 
+    def test_quests_tab_shows_stage_blockers_without_hiding_started_quests(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "the_knights_sword"
+        pd["quests"]["the_knights_sword"] = {"started": True, "progress": 2, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Needs Redberry pie x1", labels)
+        action = dialog.findChild(QPushButton, "questAction_the_knights_sword")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Redberry pie x1", action.toolTip())
+
+        hide_locked = dialog.findChild(QCheckBox, "questHideLockedCheck")
+        self.assertIsNotNone(hide_locked)
+        hide_locked.setChecked(True)
+        QApplication.processEvents()
+        self.assertIsNotNone(dialog.findChild(QWidget, "questCard_the_knights_sword"))
+
+    def test_quests_tab_lists_stage_items_before_knights_sword_start(self) -> None:
+        pd = _make_player_data()
+        pd["mining_level"] = 10
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn(
+            "Requires: Mining 10, Used during quest: Redberry pie x1, Blurite ore x1, Iron bar x2",
+            labels,
+        )
+
     def test_quests_tab_filters_by_catalog_metadata(self) -> None:
         dialog = self._open(_make_player_data())
 

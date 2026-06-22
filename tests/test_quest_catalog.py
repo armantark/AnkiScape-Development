@@ -76,6 +76,17 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(ordered[-1]["display_name"], "What's Mine is Yours")
         self.assertEqual(data["rune_mysteries"]["release_order"], 45)
 
+    def test_knights_sword_stage_requirements_are_machine_readable_override_data(self):
+        data = quests_as_dict()
+        quest = data["the_knights_sword"]
+
+        self.assertEqual(quest["stages"], 7)
+        self.assertEqual(quest["required_items"], {})
+        self.assertIn("Used during quest: Redberry pie x1, Blurite ore x1, Iron bar x2", quest["requirements"])
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertEqual(by_stage[2]["consumed_inventory"], {"Redberry pie": 1})
+        self.assertEqual(by_stage[6]["consumed_inventory"], {"Blurite ore": 1, "Iron bar": 2})
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 

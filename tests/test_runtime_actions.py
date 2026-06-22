@@ -124,6 +124,30 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertIn("Rune Mysteries is complete", calls["errors"][0][1])
         self.assertIn("questing has been switched off", calls["errors"][0][1])
 
+    def test_quest_stage_blocker_deactivates_without_progress_or_reward(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "the_knights_sword",
+            "quests": {"the_knights_sword": {"started": True, "progress": 2, "completed": False}},
+            "quest_points": 0,
+            "smithing_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["the_knights_sword"]["progress"], 2)
+        self.assertFalse(player_data["quests"]["the_knights_sword"]["completed"])
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(player_data["smithing_exp"], 0)
+        self.assertEqual(calls["saves"], 0)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Needs Redberry pie x1", calls["errors"][0][1])
+
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

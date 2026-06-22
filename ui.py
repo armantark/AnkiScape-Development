@@ -173,10 +173,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_availability_state_pure, quest_state_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_availability_state_pure, quest_state_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_availability_state_pure, quest_state_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -2424,10 +2424,24 @@ def show_main_menu(
     quest_content_layout.setContentsMargins(0, 0, 0, 0)
     quest_content_layout.setSpacing(10)
 
-    def _quest_status_text(state: dict, quest: dict) -> str:
+    def _short_stage_blocker_text(reasons: tuple) -> str:
+        if not reasons:
+            return ""
+        shown = [str(reason) for reason in reasons[:3]]
+        extra = len(reasons) - len(shown)
+        if extra > 0:
+            shown.append(f"+{extra} more")
+        return "Blocked: " + ", ".join(shown)
+
+    def _quest_status_text(quest_id: str, state: dict, quest: dict) -> str:
         if state.get("completed"):
             return "Completed"
         if state.get("started"):
+            blocker_text = _short_stage_blocker_text(
+                quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
+            )
+            if blocker_text:
+                return blocker_text
             return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
         return "Not started"
 
@@ -2510,6 +2524,8 @@ def show_main_menu(
     def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel) -> None:
         if quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA):
             return
+        if quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA):
+            return
         if on_set_quest is not None and on_set_quest(quest_id) is False:
             return
         state["active"] = "Quests"
@@ -2519,12 +2535,14 @@ def show_main_menu(
         quest = QUEST_DATA.get(quest_id, {})
         button.setText("Currently active")
         button.setEnabled(False)
-        status_label.setText(_quest_status_text(q_state, quest))
+        status_label.setText(_quest_status_text(quest_id, q_state, quest))
 
     def _add_quest_card(quest_id: str, quest: dict) -> None:
         q_state = quest_state_pure(player_data, quest_id)
         lock_reasons = () if q_state.get("completed") else quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA)
         lock_text = _short_lock_text(lock_reasons)
+        stage_blocker_reasons = () if q_state.get("completed") else quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
+        stage_blocker_text = _short_stage_blocker_text(stage_blocker_reasons)
         active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
         default_expanded = bool(q_state.get("started") and not q_state.get("completed") and active_this_quest)
         expanded = expanded_quests.get(quest_id, default_expanded)
@@ -2545,15 +2563,23 @@ def show_main_menu(
         toggle_btn.setToolTip("Show or hide quest journal")
         title = QLabel(str(quest.get("display_name", quest_id)))
         title.setStyleSheet("font-weight: 700; color: palette(text);")
-        title.setToolTip(lock_text or str(quest.get("source", "")))
-        status = QLabel(_quest_status_text(q_state, quest))
+        title.setToolTip(stage_blocker_text or lock_text or str(quest.get("source", "")))
+        status = QLabel(_quest_status_text(quest_id, q_state, quest))
         status.setStyleSheet(f"color: {dim_text_css(status)};")
         quest_btn = QPushButton(_quest_button_text(q_state))
         quest_btn.setObjectName(f"questAction_{quest_id}")
-        quest_btn.setEnabled(not q_state.get("completed") and state["active"] != "Quests" and not lock_reasons)
+        quest_btn.setEnabled(
+            not q_state.get("completed")
+            and state["active"] != "Quests"
+            and not lock_reasons
+            and not stage_blocker_reasons
+        )
         if lock_text:
             quest_btn.setToolTip(lock_text)
             header.setToolTip(lock_text)
+        if stage_blocker_text:
+            quest_btn.setToolTip(stage_blocker_text)
+            header.setToolTip(stage_blocker_text)
         if active_this_quest:
             quest_btn.setText("Currently active")
             quest_btn.setEnabled(False)

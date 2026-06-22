@@ -76,7 +76,10 @@ from logic_pure import (
     sanitize_review_action_multiplier,
     smithing_success_probability_pure,
     can_start_quest_pure,
+    can_progress_quest_pure,
     start_quest_pure,
+    quest_current_stage_blockers_pure,
+    quest_current_stage_blocker_reasons_pure,
     quest_locked_reasons_pure,
     quest_availability_state_pure,
     quest_unlock_locked_reasons_pure,
@@ -1337,6 +1340,117 @@ class TestLogic(unittest.TestCase):
             quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
             "completed",
         )
+
+    def test_knights_sword_blocks_and_consumes_redberry_pie_at_thurgo_stage(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["mining_level"] = 10
+
+        player_data, ok = start_quest_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertTrue(ok)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["the_knights_sword"]["progress"], 2)
+        self.assertEqual(
+            quest_availability_state_pure(player_data, "the_knights_sword", QUEST_DATA),
+            "blocked_at_stage",
+        )
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "the_knights_sword", QUEST_DATA),
+            ("Needs Redberry pie x1",),
+        )
+        self.assertFalse(can_progress_quest_pure(player_data, "the_knights_sword", QUEST_DATA))
+
+        blocked_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertFalse(blocked_data["quests"]["the_knights_sword"]["completed"])
+        self.assertEqual(blocked_data["quests"]["the_knights_sword"]["progress"], 2)
+        self.assertEqual(blocked_data["smithing_exp"], 0)
+
+        player_data["inventory"]["Redberry pie"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Redberry pie"], 0)
+        self.assertEqual(player_data["quests"]["the_knights_sword"]["progress"], 3)
+
+    def test_knights_sword_requires_later_materials_before_completion_reward(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["mining_level"] = 10
+        player_data["inventory"]["Redberry pie"] = 1
+
+        for _ in range(6):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+
+        self.assertEqual(player_data["quests"]["the_knights_sword"]["progress"], 6)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "the_knights_sword", QUEST_DATA),
+            ("Needs Blurite ore x1", "Needs Iron bar x2"),
+        )
+        blocked_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked_data["quest_points"], 0)
+        self.assertEqual(blocked_data["smithing_exp"], 0)
+
+        player_data["inventory"]["Blurite ore"] = 1
+        player_data["inventory"]["Iron bar"] = 2
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["the_knights_sword"]["completed"])
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["smithing_exp"], 12725)
+        self.assertEqual(player_data["inventory"]["Blurite ore"], 0)
+        self.assertEqual(player_data["inventory"]["Iron bar"], 0)
+        self.assertEqual(player_data["inventory"]["Blurite bar"], 0)
+
+    def test_stage_requirement_model_exposes_tool_action_route_and_combat_blockers(self):
+        quest_data = {
+            "proof_quest": {
+                "stages": 3,
+                "stage_requirements": (
+                    {
+                        "stage": 2,
+                        "required_tools": {"Rope": 1},
+                        "required_actions": ("Mine blurite ore",),
+                        "required_routes": ("Reach Thurgo's cave",),
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "ice_giant",
+                                "display_name": "Ice giant",
+                                "level": 53,
+                                "source": "source",
+                            },
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "quests": {"proof_quest": {"started": True, "progress": 2, "completed": False}},
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in blockers),
+            ("missing_tool", "required_action", "unmet_route", "combat_encounter"),
+        )
+        self.assertEqual(blockers[-1]["reason"], "Combat required: Ice giant level 53")
+
+        player_data["inventory"]["Rope"] = 1
+        player_data["quest_stage_actions"] = {"proof_quest": ["Mine blurite ore"]}
+        player_data["quest_route_states"] = {"proof_quest": ["Reach Thurgo's cave"]}
+        player_data["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
+        self.assertEqual(quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data), ())
 
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

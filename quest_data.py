@@ -36,6 +36,7 @@ JUNGLE_POTION_ID = "jungle_potion"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
+THE_KNIGHTS_SWORD_ID = "the_knights_sword"
 
 LOST_CITY_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -71,6 +72,18 @@ BARBARIAN_FISHING_SOURCE = (
 HUNTER_EAGLES_PEAK_SOURCE = "https://www.2011.rs/kb/hunter_box_trapping_level_27"
 HUNTER_AS_A_FIRST_RESORT_SOURCE = "https://www.2011.rs/kb/hunter_locations"
 HUNTER_ROCKING_OUT_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
+KNIGHTS_SWORD_QUEST_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/TheKnightsSword.kt"
+)
+KNIGHTS_SWORD_THURGO_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/asgarnia/thurgo.plugin.kts"
+)
+KNIGHTS_SWORD_SQUIRE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/falador/squire.plugin.kts"
+)
 HUNTER_PRIEST_IN_PERIL_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_29"
 
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
@@ -82,6 +95,27 @@ QUEST_REWARD_ITEM_NAME_OVERRIDES = {
 class QuestStage:
     stage: int
     journal: Tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class QuestCombatEncounter:
+    encounter_id: str
+    display_name: str
+    level: int = 0
+    source: str = ""
+
+
+@dataclass(frozen=True)
+class QuestStageRequirement:
+    stage: int
+    description: str
+    required_inventory: Tuple[Tuple[str, int], ...] = ()
+    consumed_inventory: Tuple[Tuple[str, int], ...] = ()
+    required_tools: Tuple[Tuple[str, int], ...] = ()
+    required_actions: Tuple[str, ...] = ()
+    required_routes: Tuple[str, ...] = ()
+    combat_encounters: Tuple[QuestCombatEncounter, ...] = ()
+    source: str = ""
 
 
 @dataclass(frozen=True)
@@ -139,6 +173,7 @@ class QuestDefinition:
     lamp_rewards: Tuple[QuestLampReward, ...] = ()
     unlocks: Tuple[str, ...] = ()
     release_order: int = 0
+    stage_requirements: Tuple[QuestStageRequirement, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -321,6 +356,51 @@ LEGACY_OF_SEERGAZE_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(7, "The blood altar and columbarium rewards are now available.", "Quest complete!"),
 )
 
+KNIGHTS_SWORD_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "I told the Squire I would help replace the sword he lost.",
+        "Reldo in Varrock Palace library may know where to find Imcando dwarves.",
+    ),
+    _simple_stage(
+        2,
+        "Reldo said some Imcando dwarves live on the southern peninsula of Asgarnia.",
+        "They dislike strangers and love redberry pies.",
+    ),
+    _simple_stage(
+        3,
+        "I found Thurgo and gave him a Redberry pie.",
+        "He will help now that he trusts me.",
+    ),
+    _simple_stage(4, "Thurgo needs a picture of the sword before he can make a replacement."),
+    _simple_stage(5, "The Squire told me about a portrait in Sir Vyvin's room that shows the sword."),
+    _simple_stage(
+        6,
+        "Thurgo needs two Iron bars and some Blurite ore to make the replica sword.",
+        "Blurite ore is found below the cliff near Thurgo's house.",
+    ),
+    _simple_stage(
+        7,
+        "Thurgo made a replica of Sir Vyvin's sword and I returned it to the Squire.",
+        "Quest complete!",
+    ),
+)
+
+KNIGHTS_SWORD_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
+    QuestStageRequirement(
+        stage=2,
+        description="Give Thurgo a Redberry pie.",
+        consumed_inventory=(("Redberry pie", 1),),
+        source=f"{KNIGHTS_SWORD_QUEST_SOURCE_PATH}; {KNIGHTS_SWORD_THURGO_SOURCE_PATH}",
+    ),
+    QuestStageRequirement(
+        stage=6,
+        description="Give Thurgo the materials for the replica sword.",
+        consumed_inventory=(("Blurite ore", 1), ("Iron bar", 2)),
+        source=f"{KNIGHTS_SWORD_QUEST_SOURCE_PATH}; {KNIGHTS_SWORD_THURGO_SOURCE_PATH}",
+    ),
+)
+
 
 QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
     QuestDefinition(
@@ -368,6 +448,27 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
             QuestXpReward("runecrafting", 250),
         ),
         unlocks=("Ability to craft runes", "Ability to mine rune essence"),
+    ),
+    QuestDefinition(
+        id=THE_KNIGHTS_SWORD_ID,
+        display_name="The Knight's Sword",
+        stages=7,
+        point_reward=1,
+        rewards=(),
+        start_point="Speak to the Squire in the courtyard of the White Knights' Castle in southern Falador.",
+        requirements=("Mining 10", "Used during quest: Redberry pie x1, Blurite ore x1, Iron bar x2"),
+        required_items=(),
+        combat="Ability to evade level 54 Ice Warriors and level 53 Ice Giants.",
+        source=f"{KNIGHTS_SWORD_QUEST_SOURCE_PATH}; {KNIGHTS_SWORD_SQUIRE_SOURCE_PATH}; {KNIGHTS_SWORD_THURGO_SOURCE_PATH}",
+        journal_stages=KNIGHTS_SWORD_STAGES,
+        release_date="2001-04-06",
+        members=False,
+        difficulty="Intermediate",
+        length="Medium",
+        timeline="Fifth Age",
+        required_skills=(QuestSkillRequirement("mining", "Mining", 10),),
+        xp_rewards=(QuestXpReward("smithing", 12725),),
+        stage_requirements=KNIGHTS_SWORD_STAGE_REQUIREMENTS,
     ),
     QuestDefinition(
         id=TAI_BWO_WANNAI_TRIO_ID,
@@ -893,6 +994,29 @@ def _lamp_reward_dict(reward: QuestLampReward) -> Dict[str, object]:
     }
 
 
+def _combat_encounter_dict(encounter: QuestCombatEncounter) -> Dict[str, object]:
+    return {
+        "encounter_id": encounter.encounter_id,
+        "display_name": encounter.display_name,
+        "level": encounter.level,
+        "source": encounter.source,
+    }
+
+
+def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, object]:
+    return {
+        "stage": requirement.stage,
+        "description": requirement.description,
+        "required_inventory": dict(requirement.required_inventory),
+        "consumed_inventory": dict(requirement.consumed_inventory),
+        "required_tools": dict(requirement.required_tools),
+        "required_actions": requirement.required_actions,
+        "required_routes": requirement.required_routes,
+        "combat_encounters": tuple(_combat_encounter_dict(encounter) for encounter in requirement.combat_encounters),
+        "source": requirement.source,
+    }
+
+
 def quests_as_dict() -> Dict[str, Dict[str, object]]:
     return {
         quest.id: {
@@ -919,6 +1043,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "timeline": quest.timeline,
             "unlocks": quest.unlocks,
             "journal_stages": {stage.stage: stage.journal for stage in quest.journal_stages},
+            "stage_requirements": tuple(_stage_requirement_dict(req) for req in quest.stage_requirements),
         }
         for quest in QUESTS
     }

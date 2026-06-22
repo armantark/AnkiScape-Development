@@ -70,6 +70,7 @@ try:
         calculate_woodcutting_success_probability_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
+        can_progress_quest_pure,
         can_runecraft_target_pure,
         can_smith_item_pure,
         can_start_quest_pure,
@@ -88,6 +89,7 @@ try:
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
+        quest_current_stage_blocker_reasons_pure,
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -154,6 +156,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         calculate_woodcutting_success_probability_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
+        can_progress_quest_pure,
         can_runecraft_target_pure,
         can_smith_item_pure,
         can_start_quest_pure,
@@ -172,6 +175,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
+        quest_current_stage_blocker_reasons_pure,
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -880,6 +884,15 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         quest_id = "rune_mysteries"
         player_data["current_quest"] = quest_id
     quest = QUEST_DATA[quest_id]
+    stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
+    if stage_blocker_reasons:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Quest blocked",
+            f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. "
+            "Questing has been switched off until the current stage requirements are met.",
+        )
+        return False
     if not can_start_quest_pure(player_data, quest_id, QUEST_DATA):
         ctx.deactivate_current_skill()
         ctx.show_error_message(
@@ -891,6 +904,14 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     exp_before = ctx.implemented_exp_keys_snapshot()
     new_data, ok, completed_now = apply_quest_progress_pure(player_data, quest_id, QUEST_DATA)
     if not ok:
+        stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
+        if stage_blocker_reasons:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Quest blocked",
+                f"{quest.get('display_name', quest_id)} is blocked: {', '.join(stage_blocker_reasons)}. "
+                "Questing has been switched off until the current stage requirements are met.",
+            )
         return False
     player_data.update(new_data)
     _record_action(ctx, "quest", quest_id, True, expected_success_chance=1.0)
@@ -1212,7 +1233,7 @@ def _can_start_runecrafting_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_quest_action(ctx: RuntimeActionContext) -> bool:
     quest_id = ctx.player_data.get("current_quest", "rune_mysteries")
-    return can_start_quest_pure(ctx.player_data, quest_id, QUEST_DATA)
+    return can_progress_quest_pure(ctx.player_data, quest_id, QUEST_DATA)
 
 
 def _can_start_crafting_action(ctx: RuntimeActionContext) -> bool:

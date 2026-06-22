@@ -561,9 +561,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             )
         )
         self.assertEqual(iconless, [], f"Cooking items missing icons: {iconless}")
-        for item_name in ("Cooking apple", "Burnt fish", "Cooked meat", "Raw wild pie"):
+        for item_name in ("Cooking apple", "Burnt fish", "Cooked meat", "Raw wild pie", "Redberry pie"):
             self.assertIn(item_name, COOKING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
+        for item_name in ("Redberry pie", "Blurite ore", "Iron bar"):
+            self.assertIn(item_name, by_storage_key)
+            self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
     def test_runecrafting_items_targets_and_assets_are_registered(self):

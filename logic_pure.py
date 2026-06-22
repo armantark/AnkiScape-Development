@@ -1030,18 +1030,200 @@ def quest_locked_reasons_pure(player_data, quest_id, quest_data):
     return tuple(dict.fromkeys(reasons))
 
 
-def quest_availability_state_pure(player_data, quest_id, quest_data):
-    """Classify the current quest-list state without inventing stage gates.
+def quest_current_stage_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return 0
+    state = quest_state_pure(player_data, quest_id)
+    if not state["started"]:
+        return 0
+    total_stages = _positive_int(quest.get("stages", 1), 1)
+    if state["completed"]:
+        return total_stages
+    return min(total_stages, max(1, state["progress"]))
 
-    Started quests are treated as in-progress because AnkiScape does not yet
-    model mid-quest action blockers separately from start requirements.
-    """
+
+def _quest_stage_item_pairs(requirement, key):
+    raw_items = requirement.get(key, {}) if isinstance(requirement, Mapping) else {}
+    if isinstance(raw_items, Mapping):
+        return tuple((str(name), _positive_int(amount, 1)) for name, amount in raw_items.items())
+    if isinstance(raw_items, Iterable) and not isinstance(raw_items, str):
+        pairs = []
+        for item in raw_items:
+            if isinstance(item, Mapping):
+                name = item.get("item_name") or item.get("display_name")
+                amount = item.get("quantity", item.get("amount", 1))
+            elif isinstance(item, (tuple, list)) and len(item) >= 2:
+                name, amount = item[0], item[1]
+            else:
+                continue
+            if isinstance(name, str):
+                pairs.append((name, _positive_int(amount, 1)))
+        return tuple(pairs)
+    return tuple()
+
+
+def _quest_stage_strings(requirement, key):
+    raw_values = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
+    if isinstance(raw_values, str):
+        return (raw_values,)
+    if isinstance(raw_values, Iterable):
+        return tuple(str(value) for value in raw_values if str(value))
+    return tuple()
+
+
+def _quest_flag_completed(player_data, collection_key, quest_id, flag_id):
+    raw_collection = player_data.get(collection_key, {})
+    if isinstance(raw_collection, Mapping):
+        quest_flags = raw_collection.get(quest_id, ())
+        if isinstance(quest_flags, Mapping):
+            return bool(quest_flags.get(flag_id, False))
+        if isinstance(quest_flags, str):
+            return quest_flags == flag_id
+        if isinstance(quest_flags, Iterable):
+            return flag_id in {flag for flag in quest_flags if isinstance(flag, str)}
+    elif isinstance(raw_collection, Iterable) and not isinstance(raw_collection, str):
+        return flag_id in {flag for flag in raw_collection if isinstance(flag, str)}
+    return False
+
+
+def _has_quest_tool(player_data, tool_name, amount):
+    inventory = player_data.get("inventory", {}) or {}
+    if inventory.get(tool_name, 0) >= amount:
+        return True
+    lowered = tool_name.lower()
+    if lowered == "pickaxe":
+        toolbelt = player_data.get("toolbelt", {}) or {}
+        mining_tools = toolbelt.get("mining", ()) if isinstance(toolbelt, Mapping) else ()
+        if isinstance(mining_tools, str):
+            mining_tools = (mining_tools,)
+        if isinstance(mining_tools, Iterable) and any(str(tool) for tool in mining_tools):
+            return True
+        return any(str(name).lower().endswith("pickaxe") and count >= amount for name, count in inventory.items())
+    return False
+
+
+def _quest_blocker(stage, kind, reason, source="", **extra):
+    row = {"stage": stage, "kind": kind, "reason": reason, "source": source}
+    row.update(extra)
+    return row
+
+
+def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return (_quest_blocker(0, "unknown", "Unknown quest"),)
+    state = quest_state_pure(player_data, quest_id)
+    if not state["started"] or state["completed"]:
+        return tuple()
+
+    current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
+    inventory = player_data.get("inventory", {}) or {}
+    blockers = []
+    for requirement in quest.get("stage_requirements", ()) or ():
+        if not isinstance(requirement, Mapping):
+            continue
+        stage = _positive_int(requirement.get("stage", 0), 0)
+        if stage != current_stage:
+            continue
+        source = str(requirement.get("source", ""))
+
+        required_items = {}
+        for item_name, amount in (
+            _quest_stage_item_pairs(requirement, "required_inventory")
+            + _quest_stage_item_pairs(requirement, "consumed_inventory")
+        ):
+            required_items[item_name] = max(required_items.get(item_name, 0), amount)
+        for item_name, amount in required_items.items():
+            owned = _positive_int(inventory.get(item_name, 0), 0)
+            if owned < amount:
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "missing_item",
+                        f"Needs {item_name} x{amount}",
+                        source,
+                        item_name=item_name,
+                        quantity=amount,
+                        owned=owned,
+                    )
+                )
+
+        for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
+            if not _has_quest_tool(player_data, tool_name, amount):
+                quantity = f" x{amount}" if amount > 1 else ""
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "missing_tool",
+                        f"Needs {tool_name}{quantity}",
+                        source,
+                        tool_name=tool_name,
+                        quantity=amount,
+                    )
+                )
+
+        for action_id in _quest_stage_strings(requirement, "required_actions"):
+            if not _quest_flag_completed(player_data, "quest_stage_actions", quest_id, action_id):
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "required_action",
+                        f"Needs {action_id}",
+                        source,
+                        action_id=action_id,
+                    )
+                )
+
+        for route_id in _quest_stage_strings(requirement, "required_routes"):
+            if not _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "unmet_route",
+                        f"Needs {route_id}",
+                        source,
+                        route_id=route_id,
+                    )
+                )
+
+        for encounter in requirement.get("combat_encounters", ()) or ():
+            if not isinstance(encounter, Mapping):
+                continue
+            encounter_id = encounter.get("encounter_id")
+            display_name = str(encounter.get("display_name") or encounter_id or "combat encounter")
+            if not isinstance(encounter_id, str) or _quest_flag_completed(player_data, "quest_combat_encounters", quest_id, encounter_id):
+                continue
+            level = _positive_int(encounter.get("level", 0), 0)
+            level_text = f" level {level}" if level > 0 else ""
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "combat_encounter",
+                    f"Combat required: {display_name}{level_text}",
+                    str(encounter.get("source") or source),
+                    encounter_id=encounter_id,
+                    display_name=display_name,
+                    level=level,
+                )
+            )
+    return tuple(blockers)
+
+
+def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
+    return tuple(str(blocker.get("reason")) for blocker in quest_current_stage_blockers_pure(player_data, quest_id, quest_data))
+
+
+def quest_availability_state_pure(player_data, quest_id, quest_data):
+    """Classify quest list state while preserving start locks vs stage blockers."""
     if not quest_data.get(quest_id):
         return "unknown"
     state = quest_state_pure(player_data, quest_id)
     if state["completed"]:
         return "completed"
     if state["started"]:
+        if quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
+            return "blocked_at_stage"
         return "in_progress"
     if quest_locked_reasons_pure(player_data, quest_id, quest_data):
         return "locked"
@@ -1185,6 +1367,18 @@ def can_start_quest_pure(player_data, quest_id, quest_data):
     return not quest_locked_reasons_pure(player_data, quest_id, quest_data)
 
 
+def can_progress_quest_pure(player_data, quest_id, quest_data):
+    quest = quest_data.get(quest_id)
+    if not quest:
+        return False
+    state = quest_state_pure(player_data, quest_id)
+    if state["completed"]:
+        return False
+    if not state["started"]:
+        return can_start_quest_pure(player_data, quest_id, quest_data)
+    return not quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
+
+
 def start_quest_pure(player_data, quest_id, quest_data):
     if not can_start_quest_pure(player_data, quest_id, quest_data):
         return player_data, False
@@ -1203,6 +1397,18 @@ def start_quest_pure(player_data, quest_id, quest_data):
     return data, True
 
 
+def _consume_quest_current_stage_items(data, quest_id, quest):
+    current_stage = quest_current_stage_pure(data, quest_id, {quest_id: quest})
+    inventory = data["inventory"]
+    for requirement in quest.get("stage_requirements", ()) or ():
+        if not isinstance(requirement, Mapping):
+            continue
+        if _positive_int(requirement.get("stage", 0), 0) != current_stage:
+            continue
+        for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
+            inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
+
+
 def apply_quest_progress_pure(player_data, quest_id, quest_data):
     data, ok = start_quest_pure(player_data, quest_id, quest_data)
     if not ok:
@@ -1211,6 +1417,9 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
     state = quest_state_pure(data, quest_id)
     if state["completed"]:
         return data, False, False
+    if quest_current_stage_blockers_pure(data, quest_id, quest_data):
+        return player_data, False, False
+    _consume_quest_current_stage_items(data, quest_id, quest)
     total_stages = _positive_int(quest.get("stages", 1), 1)
     state["progress"] = min(total_stages, state["progress"] + 1)
     completed_now = state["progress"] >= total_stages

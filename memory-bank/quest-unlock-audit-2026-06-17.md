@@ -83,10 +83,13 @@ Free/Members, Progress, Difficulty, Timeline, and Length. Completed quest
 bodies are collapsed by default, and the active in-progress quest remains
 expanded. As of 2026-06-19 it also filters by Hide completed, Hide unable to
 start, Access, Difficulty, Length, and Timeline. The "unable to start" filter is
-backed by `quest_availability_state_pure()` and only reflects the current strict
-start-lock model; already-started quests remain `in_progress`. Quests that can
-historically start before a later skill-gated action is completable still need a
-future stage-aware requirement model rather than a stronger start filter.
+backed by `quest_availability_state_pure()` and only reflects the strict
+start-lock model. As of 2026-06-22, `blocked_at_stage` is a separate state for
+started quests whose current stage has machine-readable blockers. The first
+proof case is The Knight's Sword, recorded in
+`memory-bank/source-audits/quest-stage-gates-2026-06-22.md`; full catalog-wide
+stage parity, combat blockers, route flags, and required action flags remain
+future work rather than a completed claim.
 
 ## Current Quest Surface
 

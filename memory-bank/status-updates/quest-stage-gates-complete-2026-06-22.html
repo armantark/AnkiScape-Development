@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates Complete</title>
+  <style>
+    :root {
+      --bg: #0b0d10;
+      --panel: #151a20;
+      --panel-2: #1c222b;
+      --line: #2c3543;
+      --text: #eef3fa;
+      --muted: #9aa7b8;
+      --green: #58d68d;
+      --blue: #68a7ff;
+      --amber: #f6c56f;
+      --red: #ff6b6b;
+      --violet: #b48cff;
+      --radius: 10px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(104, 167, 255, 0.14), transparent 32%),
+        linear-gradient(180deg, #10141a 0%, var(--bg) 62%);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      border: 1px solid rgba(88, 214, 141, 0.36);
+      border-radius: 999px;
+      padding: 6px 10px;
+      color: #a7f3c4;
+      background: rgba(88, 214, 141, 0.12);
+      font: 800 0.72rem/1.1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 880px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.03;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 920px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(21, 26, 32, 0.94);
+      padding: 16px;
+      box-shadow: 0 18px 52px rgba(0, 0, 0, 0.25);
+    }
+
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .metric {
+      display: grid;
+      gap: 4px;
+      min-height: 100px;
+      align-content: center;
+    }
+
+    .metric strong {
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.35;
+    }
+
+    .green { color: var(--green); }
+    .blue { color: var(--blue); }
+    .amber { color: var(--amber); }
+    .red { color: var(--red); }
+    .violet { color: var(--violet); }
+
+    .lane {
+      display: grid;
+      gap: 8px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+      padding: 10px 11px;
+      display: grid;
+      gap: 4px;
+    }
+
+    .step b {
+      font-size: 0.86rem;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .node {
+      min-height: 95px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #11161d;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .node .state {
+      width: fit-content;
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font: 800 0.62rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .node b { font-size: 0.82rem; }
+    .node span { color: var(--muted); font-size: 0.74rem; line-height: 1.35; }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .quest-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #11161d;
+      padding: 12px;
+    }
+
+    .quest-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .pill {
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      padding: 4px 8px;
+      color: #ced8e7;
+      font: 800 0.64rem/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+      white-space: nowrap;
+    }
+
+    .requirements {
+      display: grid;
+      gap: 6px;
+    }
+
+    .req-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 8px;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .req-row span:first-child {
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    li { margin: 4px 0; }
+
+    code {
+      color: #dbe7ff;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.88em;
+    }
+
+    .prompt {
+      border-left: 3px solid var(--violet);
+      background: #11161d;
+      border-radius: 8px;
+      padding: 12px;
+      color: #dfe7f5;
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 860px) {
+      .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .flow, .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Complete slice - 2026-06-22</div>
+      <h1>Quest stage gates are real now, with The Knight's Sword as the proof case.</h1>
+      <p class="lede">
+        The old start-only quest model now has a stage-aware blocker layer. The player can start a quest when start requirements are met, but cannot advance the current stage until the source-backed stage requirements are satisfied.
+      </p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-4 metric">
+        <strong class="green">396</strong>
+        <span>Unit/integration tests passed through <code>python3 run_tests.py</code>.</span>
+      </article>
+      <article class="card span-4 metric">
+        <strong class="blue">396</strong>
+        <span>Qt/offscreen tests passed through the <code>.venv-qt</code> discover run.</span>
+      </article>
+      <article class="card span-4 metric">
+        <strong class="amber">1</strong>
+        <span>Quest fully proven with source-backed stage requirements; catalog-wide parity remains explicit backlog.</span>
+      </article>
+
+      <article class="card span-6">
+        <h2>Backend Landed</h2>
+        <div class="lane">
+          <div class="step">
+            <b>Structured stage requirements</b>
+            <span><code>QuestStageRequirement</code> covers required inventory, consumed inventory, tools, required actions, route flags, and combat encounters.</span>
+          </div>
+          <div class="step">
+            <b>Progress gate</b>
+            <span><code>can_progress_quest_pure()</code> separates startability from finishability and powers runtime readiness checks.</span>
+          </div>
+          <div class="step">
+            <b>Stage-local consumption</b>
+            <span><code>apply_quest_progress_pure()</code> now refuses blocked stages and consumes stage items only when the stage advances.</span>
+          </div>
+          <div class="step">
+            <b>Reward safety</b>
+            <span>Quest points, item rewards, and XP rewards still fire once, and only after legitimate final-stage completion.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <h2>Frontend Landed</h2>
+        <div class="lane">
+          <div class="step">
+            <b>New visible state</b>
+            <span>The Quests tab can show <code>Blocked: Needs Redberry pie x1</code> for a started quest.</span>
+          </div>
+          <div class="step">
+            <b>Filters preserved</b>
+            <span>Hide unable to start still hides only true start locks, so in-progress blocked quests stay visible.</span>
+          </div>
+          <div class="step">
+            <b>Up-front requirements</b>
+            <span>The Knight's Sword lists Mining 10 plus the items used later in the quest before the player starts.</span>
+          </div>
+          <div class="step">
+            <b>Compact player wording</b>
+            <span>Blocker reasons name the missing item, tool, action, route, or combat encounter without internal implementation terms.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <h2>The Knight's Sword Flow</h2>
+        <div class="flow">
+          <div class="node">
+            <div class="state green">can_start</div>
+            <b>Mining 10</b>
+            <span>Start lock remains source-backed and strict.</span>
+          </div>
+          <div class="node">
+            <div class="state blue">in_progress</div>
+            <b>Reldo path</b>
+            <span>Early stages still advance through quest reviews.</span>
+          </div>
+          <div class="node">
+            <div class="state amber">blocked_at_stage</div>
+            <b>Thurgo pie</b>
+            <span>Missing Redberry pie stops progress without completion.</span>
+          </div>
+          <div class="node">
+            <div class="state amber">blocked_at_stage</div>
+            <b>Replica materials</b>
+            <span>Blurite ore and two Iron bars are required later, not at start.</span>
+          </div>
+          <div class="node">
+            <div class="state green">completed</div>
+            <b>Reward fires once</b>
+            <span>1 quest point and 12,725 Smithing XP on valid completion.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-8">
+        <h2>Player-Facing Quest Card</h2>
+        <div class="split">
+          <div class="quest-card">
+            <div class="quest-title">
+              <b>The Knight's Sword</b>
+              <span class="pill">Before start</span>
+            </div>
+            <div class="requirements">
+              <div class="req-row"><span>Status</span><b>Not started</b></div>
+              <div class="req-row"><span>Requires</span><b>Mining 10, Used during quest: Redberry pie x1, Blurite ore x1, Iron bar x2</b></div>
+              <div class="req-row"><span>Action</span><b>Start quest</b></div>
+            </div>
+          </div>
+          <div class="quest-card">
+            <div class="quest-title">
+              <b>The Knight's Sword</b>
+              <span class="pill">At Thurgo</span>
+            </div>
+            <div class="requirements">
+              <div class="req-row"><span>Status</span><b class="amber">Blocked: Needs Redberry pie x1</b></div>
+              <div class="req-row"><span>Action</span><b>Disabled until current-stage requirements are met</b></div>
+              <div class="req-row"><span>Reward</span><b>No quest points or Smithing XP yet</b></div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-4">
+        <h2>Not Claimed Complete</h2>
+        <ul>
+          <li>Full all-quest stage parity is still open.</li>
+          <li>Combat prose needs source-backed <code>QuestCombatEncounter</code> extraction.</li>
+          <li>Route and required-action blockers need explicit source-backed flags.</li>
+          <li>Quest-only intermediate items can be modeled later if they become visible inventory state.</li>
+        </ul>
+      </article>
+
+      <article class="card span-12">
+        <h2>Future Work Prompt</h2>
+        <div class="prompt">In the AnkiScape repo, continue quest-stage parity from memory-bank/source-audits/quest-stage-gates-2026-06-22.md. Do not redo The Knight's Sword proof slice. Work backend-first: source-audit a small batch of pre-EOC quests, add stage_requirements through tools/build_pre_eoc_quest_catalog.py or quest_data.py overrides, convert prose-only combat into QuestCombatEncounter blockers unless combat is implemented, then update the Quests tab only after pure blocker data exists. Preserve start locks vs stage blockers, keep quest XP one-time on valid completion, add unit/integration/Qt/manual coverage, update the Memory Bank, and commit locally.</div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -322,6 +322,23 @@ tests.test_runtime_actions`, `python3 -m unittest tests.test_integration_smoke`,
 `python3 run_tests.py`, and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m
 unittest discover tests` all pass.
 
+Quest stage-gate foundation completed on 2026-06-22. `quest_data.py` now has
+structured `QuestStageRequirement` and `QuestCombatEncounter` models layered
+through the override path, `logic_pure.py` exposes current-stage blocker helpers
+and `can_progress_quest_pure()`, `runtime_actions.handle_quest_answer()` refuses
+blocked quest reviews without applying rewards, and the Quests tab shows
+`blocked_at_stage` reasons while preserving start-lock filters. The Knight's
+Sword is the proof case: Mining 10 remains the only start lock, the Requirements
+line lists Redberry pie, Blurite ore, and two Iron bars as used during the quest,
+Redberry pie is consumed at Thurgo's stage, Blurite ore and Iron bars are
+consumed at the later materials stage, and 12,725 Smithing XP only fires on
+valid completion. Full all-quest stage parity, route/action extraction, and
+combat blockers remain deferred in
+`memory-bank/source-audits/quest-stage-gates-2026-06-22.md`. Verification:
+`python3 run_tests.py` passed with 396 tests (91 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 396 tests.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,
@@ -365,5 +382,6 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   records the completed 194-row pre-EOC catalog, implemented completion gates,
   route-precedent locks, the RFD subquest split, generated item/lamp rewards,
   and route/location checks that should stay ungated until a route model exists.
-  Use it before stage-aware partial unlocks, route/location gates, or new
-  quest-unlocked skill targets.
+  Use it with `memory-bank/source-audits/quest-stage-gates-2026-06-22.md`
+  before stage-aware partial unlocks, route/location gates, combat/action
+  blockers, or new quest-unlocked skill targets.

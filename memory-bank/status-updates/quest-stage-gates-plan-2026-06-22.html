@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(79, 140, 255, 0.12), transparent 30%),
+        linear-gradient(180deg, #10141c 0%, var(--bg) 44%, #090b0f 100%);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+
+    header {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+
+    .badge {
+      width: fit-content;
+      border: 1px solid rgba(79, 140, 255, 0.32);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: var(--accent-glow);
+      color: #9dbdff;
+      font: 700 0.72rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 840px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 880px;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 1rem;
+      line-height: 1.65;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.92);
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.24);
+    }
+
+    .card h2 {
+      margin: 8px 0 10px;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font: 800 0.68rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .label:before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: currentColor;
+    }
+
+    .critical { color: var(--red); }
+    .high { color: var(--amber); }
+    .medium { color: var(--green); }
+    .polish { color: var(--purple); }
+
+    p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      padding: 5px 8px;
+      color: #b9c3d6;
+      font: 700 0.66rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .node {
+      min-height: 72px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .node strong {
+      font-size: 0.78rem;
+    }
+
+    .node span {
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      line-height: 1.35;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151d;
+      padding: 12px;
+    }
+
+    .pane-title {
+      color: var(--text-dim);
+      font: 800 0.65rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .quest-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 8px;
+      align-items: center;
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 6px;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--green);
+    }
+
+    .dot.blocked { background: var(--amber); }
+    .dot.locked { background: var(--red); }
+
+    .row-title {
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+
+    .row-sub {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #07111f;
+      font: 900 0.8rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.88rem;
+    }
+
+    .step span {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.45;
+    }
+
+    .handoff {
+      width: 100%;
+      min-height: 122px;
+      margin-top: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0d1118;
+      color: #c9d4e8;
+      padding: 12px;
+      resize: vertical;
+      font: 0.78rem/1.45 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+    }
+
+    button {
+      margin-top: 10px;
+      border: 1px solid rgba(79, 140, 255, 0.5);
+      border-radius: 9px;
+      background: rgba(79, 140, 255, 0.14);
+      color: #bcd2ff;
+      padding: 9px 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .split,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="badge">Pre-implementation plan</div>
+      <h1>Quest stage gates without collapsing quest starts</h1>
+      <p class="subtitle">
+        The slice makes The Knight's Sword prove the new model: Mining 10 remains a start requirement, Redberry pie becomes a Thurgo-stage requirement, the pie is consumed only when that stage advances, and Smithing XP fires only on legitimate completion.
+      </p>
+    </header>
+
+    <section class="grid" aria-label="Implementation tracks">
+      <article class="card">
+        <div class="label critical">Backend</div>
+        <h2>Real stage blocker contract</h2>
+        <p>Introduce structured stage requirements for inventory, consumed items, tools, actions, route state, and combat encounters. Current-stage blockers must stop advancement without completing the quest.</p>
+        <div class="flow" aria-label="Quest flow">
+          <div class="node"><strong>Can start</strong><span>Strict prerequisites only.</span></div>
+          <div class="node"><strong>In progress</strong><span>Quest has started and stage is tracked.</span></div>
+          <div class="node"><strong>Blocked</strong><span>Current stage has missing requirements.</span></div>
+          <div class="node"><strong>Advance</strong><span>Consume stage items at the right point.</span></div>
+          <div class="node"><strong>Complete</strong><span>One-time audited rewards.</span></div>
+        </div>
+        <div class="tags">
+          <span class="tag">quest_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">storage_pure.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label high">Frontend</div>
+        <h2>Compact quest states</h2>
+        <p>The Quests tab keeps the existing filters but can now distinguish blocked in-progress quests from locked or completed rows, with player-facing reasons instead of internal implementation terms.</p>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="quest-row"><span class="dot"></span><div><div class="row-title">The Knight's Sword</div><div class="row-sub">In progress</div></div></div>
+            <div class="quest-row"><span class="dot"></span><div><div class="row-title">Reward</div><div class="row-sub">Completes on review tick</div></div></div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">After</div>
+            <div class="quest-row"><span class="dot blocked"></span><div><div class="row-title">The Knight's Sword</div><div class="row-sub">Blocked: Redberry pie x1</div></div></div>
+            <div class="quest-row"><span class="dot"></span><div><div class="row-title">Reward</div><div class="row-sub">After all stages pass</div></div></div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label medium">Source and assets</div>
+        <h2>Use overrides, not generated-file edits</h2>
+        <p>The generated catalog stays generated. The first proof data lives in a focused override/stage layer, with a source note tied to pre-EOC evidence. Item icons only change if a newly surfaced required item has no registered asset path.</p>
+        <div class="steps">
+          <div class="step"><span class="num">1</span><div><strong>Source audit</strong><span>Check local 2011Scape first, then Darkan/2012scape, then pinned historical wiki only if needed.</span></div></div>
+          <div class="step"><span class="num">2</span><div><strong>Catalog path</strong><span>Update generator or quest_data override layers; never hand-edit the generated quest catalog.</span></div></div>
+          <div class="step"><span class="num">3</span><div><strong>Backlog</strong><span>Record unmodeled combat and route blockers as audited data, not fake completion parity.</span></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label polish">Verification</div>
+        <h2>Proof before commit</h2>
+        <p>Testing covers pure blocker evaluation, review-action mutation and undo compatibility, Qt state display, and manual Anki checks for blocked, advanced, completed, wrong-answer, and undo paths.</p>
+        <div class="tags">
+          <span class="tag">python3 run_tests.py</span>
+          <span class="tag">QT_QPA_PLATFORM=offscreen</span>
+          <span class="tag">manual Anki checklist</span>
+          <span class="tag">local commit only</span>
+        </div>
+        <textarea class="handoff" aria-label="Frontend handoff prompt">Frontend handoff: Consume the backend quest availability/status contract and show can_start, in_progress, blocked_at_stage, completed, and locked. Keep existing filters. For in-progress blockers, show compact player-facing reasons such as "Needs Redberry pie x1", "Needs a combat encounter", or "Needs a route step". Do not surface internal terms.</textarea>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
