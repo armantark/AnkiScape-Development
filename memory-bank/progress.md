@@ -41,7 +41,7 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 501 stage rows, 58 produced-inventory
+  with at least one stage requirement, 519 stage rows, 68 produced-inventory
   rows, 174 quests with item/tool/option blockers, and 120 quests with combat
   blockers. Combat blockers are hard locked by default through
   `quest_combat_config.resolver_enabled = False`;
@@ -138,7 +138,8 @@
   `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`, and
   `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`, and
   `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`.
+  `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -780,6 +781,24 @@ rows, 285 combat encounters, 180 resolver-ready combat encounters, 174 quests
 with item/tool blockers, 120 quests with combat blockers, and 105 statless
 combat rows. Source audit:
 `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`.
+
+Plague City and Waterfall Quest focused stage replacements completed on
+2026-06-22. Plague City now uses local Darkan-backed current-stage gates for
+dwellberries producing the gas mask, Edmond's mud/sewer sequence, Jethick and
+the Rehnisons, Bravek's hangover cure recipe, cure mixing with pestle-and-mortar
+tooling, warrant production, prison-house access, Elena's cell key, and the
+final Edmond report; the gas mask is no longer duplicated as a final reward.
+Waterfall Quest now uses local Darkan-backed stage gates for Hudon, the
+Baxtorian book, Golrie's old key and Glarial's pebble, Glarial's tomb amulet and
+urn recovery, rune/amulet waterfall completion, and pending Attack/Strength XP
+delivery while those combat skills are unimplemented. New quest item icons were
+fetched with provenance, including disambiguated `Old key` and `Large old key`
+entries for Darkan's two quest `A key` IDs. Frontend work was limited to targeted
+Quests-tab blocked-at-stage coverage. Post-slice audit reports 519 stage rows,
+68 produced-inventory rows, 285 combat encounters, 180 resolver-ready combat
+encounters, 174 quests with item/tool blockers, 120 quests with combat blockers,
+and 105 statless combat rows. Source audit:
+`memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

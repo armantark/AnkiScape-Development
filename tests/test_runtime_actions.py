@@ -299,6 +299,29 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Sheep Herder 2/4"])
 
+    def test_quest_answer_progresses_waterfall_book_gate(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "waterfall_quest",
+            "quests": {"waterfall_quest": {"started": True, "progress": 2, "completed": False}},
+            "quest_stage_actions": {"waterfall_quest": ["Search the Baxtorian bookcase", "Read the Book on Baxtorian"]},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertFalse(player_data["quests"]["waterfall_quest"]["completed"])
+        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 3)
+        self.assertEqual(player_data["inventory"]["Book on Baxtorian"], 1)
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Waterfall Quest 3/6"])
+
     def test_quest_answer_completes_priest_in_peril_only_after_essence_gate(self):
         blocked_calls = {"xp": [], "saves": 0, "errors": []}
         blocked_data = {

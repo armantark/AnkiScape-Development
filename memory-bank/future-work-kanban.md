@@ -33,7 +33,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   mechanics/id parity. Tracking trails, pitfall trapping, rabbit snaring,
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   Regicide-start partial-route modeling are deferred system slices.
-- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad, and Sheep Herder proves stage-local noncombat disposal gates for poisoned sheep feed, clothing/tools, and four sheep-bone incinerations. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
+- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad, Sheep Herder proves stage-local noncombat disposal gates for poisoned sheep feed, clothing/tools, and four sheep-bone incinerations, and Plague City/Waterfall Quest prove mid-quest reward correction plus future-skill pending XP through detailed stage chains. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
@@ -284,7 +284,12 @@ flow, and Scorpion Catcher scorpion cage plus the level 39 jailer combat gate.
 Sheep Herder then replaced the generated quick-guide row with Darkan-backed
 poisoned feed, Doctor Orbon clothing, cattleprod/tool, coloured sheep-bone
 incineration, and Councillor Halgrive report gates.
-Post-slice audit reports 501 stage rows, 58 produced-inventory rows, 285 combat
+Plague City and Waterfall Quest then replaced generated/broad rows with
+Darkan-backed stage chains for gas-mask production, Edmond sewer entry,
+Rehnison/Bravek prison access, hangover cure, warrant/key rescue, Baxtorian
+book, Golrie, Glarial's tomb items, rune/amulet waterfall completion, and
+pending Attack/Strength XP.
+Post-slice audit reports 519 stage rows, 68 produced-inventory rows, 285 combat
 encounters, 180 resolver-ready combat encounters, 174 quests with item/tool
 blockers, 120 quests with combat blockers, and 105 statless combat rows.
 Full minute-detail parity, exact generated per-stage extraction, quest-item
@@ -337,6 +342,8 @@ and
 `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
 and
 `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`
+and
+`memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`
 have no explicit gaps left for their scoped slices; the all-quest parity goal
 still has the generated-row and combat-stat gaps listed above.
 
@@ -403,11 +410,12 @@ Slayer, Shield of Arrav, Fight Arena, Witch's House, Merlin's Crystal, the
 generated combat name-matching parser pass, or the Dwarf Cannon focused
 noncombat replacement, or the local Darkan batch for Fishing Contest,
 Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion
-Catcher, or the Sheep Herder focused stage replacement. `quest_catalog_generated.py`
+Catcher, the Sheep Herder focused stage replacement, or the Plague City and
+Waterfall Quest focused stage replacements. `quest_catalog_generated.py`
 already contains 194 pre-EOC quest rows available before the 2012-11-20 EOC
 cutoff, with Recipe for Disaster split into separate subquests, generated by
 `tools/build_pre_eoc_quest_catalog.py`. Runtime quest data now reports 194/194
-quests with at least one machine-readable stage requirement, 501 stage rows, 58
+quests with at least one machine-readable stage requirement, 519 stage rows, 68
 produced-inventory transitions, quest-start inventory grants, required-action
 blockers, route blockers, route-variant branch rows, grouped item-option
 blockers, globally locked combat blockers, and a resolver-enabled path that

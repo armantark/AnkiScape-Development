@@ -62,6 +62,8 @@ MONKS_FRIEND_ID = "monks_friend"
 TRIBAL_TOTEM_ID = "tribal_totem"
 SCORPION_CATCHER_ID = "scorpion_catcher"
 SHEEP_HERDER_ID = "sheep_herder"
+PLAGUE_CITY_ID = "plague_city"
+WATERFALL_QUEST_ID = "waterfall_quest"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -229,6 +231,34 @@ DARKAN_SHEEP_HERDER_DOCTOR_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/dialogue
 DARKAN_SHEEP_HERDER_FARMER_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/dialogues/FarmerBrumtyD.kt"
 DARKAN_SHEEP_HERDER_UTILS_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/utils/SheepHerderUtils.kt"
 DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/utils/SheepHerderConstants.kt"
+DARKAN_PLAGUE_CITY_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/plague_city"
+DARKAN_PLAGUE_CITY_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/PlagueCity.kt"
+DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/utils/PlagueCityConstants.kt"
+DARKAN_PLAGUE_CITY_UTILS_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/utils/PlagueCityUtils.kt"
+DARKAN_PLAGUE_CITY_CUTSCENE_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/cutscene/PlagueCityCutscene.kt"
+DARKAN_PLAGUE_CITY_EDMOND_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/EdmondD.kt"
+DARKAN_PLAGUE_CITY_ALRENA_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/AlrenaD.kt"
+DARKAN_PLAGUE_CITY_JETHICK_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/JethickD.kt"
+DARKAN_PLAGUE_CITY_REHNISON_DOOR_SOURCE = (
+    f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/objects/RehnisonDoorD.kt"
+)
+DARKAN_PLAGUE_CITY_MARTHA_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/MarthaRehnisonD.kt"
+DARKAN_PLAGUE_CITY_MILLI_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/MilliRehnisonD.kt"
+DARKAN_PLAGUE_CITY_PRISON_DOOR_SOURCE = (
+    f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/objects/PrisonHouseDoorsD.kt"
+)
+DARKAN_PLAGUE_CITY_CLERK_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/ClerkD.kt"
+DARKAN_PLAGUE_CITY_BRAVEK_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/BravekD.kt"
+DARKAN_PLAGUE_CITY_ELENA_DOOR_SOURCE = (
+    f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/objects/ElenaPrisonDoorD.kt"
+)
+DARKAN_PLAGUE_CITY_ELENA_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/ElenaD.kt"
+DARKAN_WATERFALL_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/waterfallquest"
+DARKAN_WATERFALL_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/WaterfallQuest.java"
+DARKAN_WATERFALL_ALMERA_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/AlmeraD.java"
+DARKAN_WATERFALL_HUDON_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/HudonD.java"
+DARKAN_WATERFALL_GOLRIE_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/GolrieD.java"
+DARKAN_WATERFALL_BOOK_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/books/BookOnBaxtorian.java"
 DARKAN_FIGHT_ARENA_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/fightarena"
 DARKAN_FIGHT_ARENA_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArena.java"
 DARKAN_FIGHT_ARENA_CUTSCENE_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArenaFightCutsceneController.java"
@@ -2256,6 +2286,105 @@ SHEEP_HERDER_STAGES: Tuple[QuestStage, ...] = (
 )
 
 
+PLAGUE_CITY_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "Edmond asked me to help find Elena and sent me to Alrena for plague protection.",
+        "Alrena needs dwellberries to finish the gas mask.",
+    ),
+    _simple_stage(
+        2,
+        "Alrena made me a gas mask.",
+        "Edmond should explain how to dig into the sewers.",
+    ),
+    _simple_stage(
+        3,
+        "Edmond said to soften the soil with water.",
+        "I need four buckets of water for the mud patch.",
+    ),
+    _simple_stage(4, "The soil is soft enough to dig.", "I should use a spade on the mud patch."),
+    _simple_stage(
+        5,
+        "I dug into the Ardougne sewers.",
+        "The sewer grill blocks the pipe to West Ardougne.",
+    ),
+    _simple_stage(
+        6,
+        "The grill is too secure to pull off alone.",
+        "Edmond suggested tying rope to the grill.",
+    ),
+    _simple_stage(7, "I tied rope to the sewer grill.", "Edmond should help pull it off."),
+    _simple_stage(
+        8,
+        "Edmond and I removed the grill.",
+        "I should wear the gas mask, enter West Ardougne, and find Jethick.",
+    ),
+    _simple_stage(
+        9,
+        "Jethick needs a picture of Elena.",
+        "Showing him a picture should point me to the Rehnison family.",
+    ),
+    _simple_stage(10, "Jethick gave me a book to return.", "Ted Rehnison is expecting the book."),
+    _simple_stage(
+        11,
+        "I returned the book to Ted Rehnison.",
+        "The Rehnisons should know what happened to Elena.",
+    ),
+    _simple_stage(
+        12,
+        "Martha Rehnison sent me to Milli.",
+        "Milli saw Elena taken into a plague-marked house.",
+    ),
+    _simple_stage(
+        13,
+        "The mourners refused entry to the prison house.",
+        "The Clerk may let me speak to Bravek for permission.",
+    ),
+    _simple_stage(
+        14,
+        "Bravek gave me a scruffy note for a hangover cure.",
+        "I need to mix a hangover cure from milk, chocolate dust, and snape grass.",
+    ),
+    _simple_stage(
+        15,
+        "I made the hangover cure.",
+        "Bravek should take the cure and give me a warrant.",
+    ),
+    _simple_stage(
+        16,
+        "Bravek gave me a warrant for the plague house.",
+        "I need to sneak in, find the small key, unlock Elena's cell, and report to Edmond.",
+    ),
+    _simple_stage(17, "Edmond rewarded me for rescuing Elena.", "Quest complete!"),
+)
+
+
+WATERFALL_QUEST_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Almera is worried about Hudon.", "I should find Hudon by the waterfall."),
+    _simple_stage(
+        2,
+        "Hudon mentioned treasure inside the waterfall.",
+        "A book nearby may explain Baxtorian's treasure.",
+    ),
+    _simple_stage(
+        3,
+        "The book points to Golrie under Tree Gnome Village.",
+        "I need the old key to free Golrie.",
+    ),
+    _simple_stage(
+        4,
+        "Golrie gave me Glarial's pebble.",
+        "The pebble should open Glarial's tomb so I can recover her amulet and urn.",
+    ),
+    _simple_stage(
+        5,
+        "I recovered Glarial's amulet and urn.",
+        "The waterfall tomb needs six water, air, and earth runes plus Glarial's amulet and urn.",
+    ),
+    _simple_stage(6, "I took Baxtorian's treasure safely.", "Quest complete!"),
+)
+
+
 DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Captain Lawgof needs the Black Guard camp railings repaired."),
     _simple_stage(2, "The six broken railings have been repaired. I should report back to Captain Lawgof."),
@@ -2280,6 +2409,8 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     TRIBAL_TOTEM_ID: len(TRIBAL_TOTEM_STAGES),
     SCORPION_CATCHER_ID: len(SCORPION_CATCHER_STAGES),
     SHEEP_HERDER_ID: len(SHEEP_HERDER_STAGES),
+    PLAGUE_CITY_ID: len(PLAGUE_CITY_STAGES),
+    WATERFALL_QUEST_ID: len(WATERFALL_QUEST_STAGES),
 }
 
 
@@ -2292,6 +2423,8 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     TRIBAL_TOTEM_ID: TRIBAL_TOTEM_STAGES,
     SCORPION_CATCHER_ID: SCORPION_CATCHER_STAGES,
     SHEEP_HERDER_ID: SHEEP_HERDER_STAGES,
+    PLAGUE_CITY_ID: PLAGUE_CITY_STAGES,
+    WATERFALL_QUEST_ID: WATERFALL_QUEST_STAGES,
 }
 
 
@@ -2304,6 +2437,13 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
     TRIBAL_TOTEM_ID: "None.",
     SCORPION_CATCHER_ID: "You will need to defeat a level 39 jailer.",
     SHEEP_HERDER_ID: "None.",
+    PLAGUE_CITY_ID: "None.",
+    WATERFALL_QUEST_ID: "None required, but the Waterfall Dungeon contains aggressive skeletons and spiders.",
+}
+
+
+QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
+    PLAGUE_CITY_ID: (("A magic scroll", 1),),
 }
 
 
@@ -2635,6 +2775,198 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 "Report the incinerated sheep to Councillor Halgrive",
             ),
             required_routes=("Reach the Ardougne sheep enclosure",),
+        ),
+    ),
+    PLAGUE_CITY_ID: (
+        _stage_req(
+            1,
+            "Give Alrena dwellberries so she can finish the gas mask.",
+            f"{DARKAN_PLAGUE_CITY_ALRENA_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Dwellberries", 1),),
+            produced_inventory=(("Gas mask", 1),),
+        ),
+        _stage_req(
+            2,
+            "Talk to Edmond with the gas mask and learn the sewer plan.",
+            f"{DARKAN_PLAGUE_CITY_EDMOND_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
+            required_inventory=(("Gas mask", 1),),
+            required_actions=("Talk to Edmond with the gas mask",),
+        ),
+        _stage_req(
+            3,
+            "Pour four buckets of water on the mud patch.",
+            f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Bucket of water", 4),),
+            produced_inventory=(("Bucket", 4),),
+            required_actions=("Soften Edmond's mud patch with four buckets of water",),
+        ),
+        _stage_req(
+            4,
+            "Dig through the softened mud patch into the sewers.",
+            f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Spade", 1),),
+            required_actions=("Dig through Edmond's softened mud patch",),
+        ),
+        _stage_req(
+            5,
+            "Pull the sewer grill and learn that Edmond must help.",
+            f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_EDMOND_SOURCE}",
+            required_actions=("Pull the sewer grill", "Ask Edmond for help with the grill"),
+        ),
+        _stage_req(
+            6,
+            "Tie rope to the sewer grill.",
+            f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Rope", 1),),
+            required_actions=("Tie rope to the sewer grill",),
+        ),
+        _stage_req(
+            7,
+            "Ask Edmond to pull the rope and remove the grill.",
+            f"{DARKAN_PLAGUE_CITY_EDMOND_SOURCE}; {DARKAN_PLAGUE_CITY_CUTSCENE_SOURCE}",
+            required_actions=("Ask Edmond to pull the sewer grill rope",),
+        ),
+        _stage_req(
+            8,
+            "Wear the gas mask, enter West Ardougne through the sewer, and speak to Jethick.",
+            f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
+            required_tools=(("Gas mask", 1),),
+            required_routes=("Reach West Ardougne through the sewer pipe",),
+            required_actions=("Speak to Jethick about Elena",),
+        ),
+        _stage_req(
+            9,
+            "Show Jethick a picture of Elena and take the Rehnison book.",
+            f"{DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_inventory=(("Picture of Elena", 1),),
+            produced_inventory=(("Turnip growing for beginners", 1),),
+            required_actions=("Show Jethick the picture of Elena", "Agree to return Jethick's book"),
+        ),
+        _stage_req(
+            10,
+            "Return Jethick's book to Ted Rehnison.",
+            f"{DARKAN_PLAGUE_CITY_REHNISON_DOOR_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
+            consumed_inventory=(("Turnip growing for beginners", 1),),
+            required_actions=("Return Jethick's book to Ted Rehnison",),
+        ),
+        _stage_req(
+            11,
+            "Ask Martha Rehnison where Elena went.",
+            f"{DARKAN_PLAGUE_CITY_MARTHA_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}",
+            required_actions=("Ask Martha Rehnison about Elena",),
+        ),
+        _stage_req(
+            12,
+            "Ask Milli about Elena and challenge the mourners at the prison house.",
+            (
+                f"{DARKAN_PLAGUE_CITY_MILLI_SOURCE}; {DARKAN_PLAGUE_CITY_PRISON_DOOR_SOURCE}; "
+                f"{DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}"
+            ),
+            required_actions=(
+                "Ask Milli Rehnison where Elena was taken",
+                "Ask the mourners for prison house clearance",
+            ),
+        ),
+        _stage_req(
+            13,
+            "Convince the Clerk to let you speak to Bravek and take Bravek's scruffy note.",
+            (
+                f"{DARKAN_PLAGUE_CITY_CLERK_SOURCE}; {DARKAN_PLAGUE_CITY_BRAVEK_SOURCE}; "
+                f"{DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            produced_inventory=(("Scruffy note", 1),),
+            required_actions=("Convince the Clerk to let you speak to Bravek", "Ask Bravek for his cure recipe"),
+        ),
+        _stage_req(
+            14,
+            "Mix Bravek's hangover cure.",
+            f"{DARKAN_PLAGUE_CITY_SOURCE}; {DARKAN_PLAGUE_CITY_ALRENA_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Chocolate dust", 1), ("Bucket of milk", 1), ("Snape grass", 1)),
+            produced_inventory=(("Hangover cure", 1),),
+            required_tools=(("Pestle and mortar", 1),),
+            required_actions=("Mix chocolate dust with milk and snape grass",),
+        ),
+        _stage_req(
+            15,
+            "Give Bravek the hangover cure and obtain a warrant.",
+            f"{DARKAN_PLAGUE_CITY_BRAVEK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Hangover cure", 1),),
+            produced_inventory=(("Warrant", 1),),
+            required_actions=("Give Bravek the hangover cure", "Ask Bravek for a prison house warrant"),
+        ),
+        _stage_req(
+            16,
+            "Use the warrant, find the small key, free Elena, and report back to Edmond.",
+            (
+                f"{DARKAN_PLAGUE_CITY_PRISON_DOOR_SOURCE}; {DARKAN_PLAGUE_CITY_UTILS_SOURCE}; "
+                f"{DARKAN_PLAGUE_CITY_ELENA_DOOR_SOURCE}; {DARKAN_PLAGUE_CITY_ELENA_SOURCE}; "
+                f"{DARKAN_PLAGUE_CITY_EDMOND_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            required_inventory=(("Warrant", 1),),
+            produced_inventory=(("A small key", 1),),
+            required_actions=(
+                "Enter the prison house with Bravek's warrant",
+                "Search the barrel for the small key",
+                "Unlock Elena's cell",
+                "Free Elena and report to Edmond",
+            ),
+        ),
+    ),
+    WATERFALL_QUEST_ID: (
+        _stage_req(
+            1,
+            "Find Hudon after speaking to Almera.",
+            f"{DARKAN_WATERFALL_ALMERA_SOURCE}; {DARKAN_WATERFALL_HUDON_SOURCE}",
+            required_actions=("Speak to Hudon by the waterfall",),
+        ),
+        _stage_req(
+            2,
+            "Search for and read the Book on Baxtorian.",
+            f"{DARKAN_WATERFALL_SOURCE}; {DARKAN_WATERFALL_BOOK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            produced_inventory=(("Book on Baxtorian", 1),),
+            required_actions=("Search the Baxtorian bookcase", "Read the Book on Baxtorian"),
+        ),
+        _stage_req(
+            3,
+            "Free Golrie and receive Glarial's pebble.",
+            f"{DARKAN_WATERFALL_SOURCE}; {DARKAN_WATERFALL_GOLRIE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            produced_inventory=(("Old key", 1), ("Glarial's pebble", 1)),
+            required_actions=("Search the Tree Gnome Village crate for the old key", "Unlock Golrie's prison"),
+            required_routes=("Reach Golrie under Tree Gnome Village",),
+        ),
+        _stage_req(
+            4,
+            "Use Glarial's pebble to enter the tomb and recover Glarial's amulet and urn.",
+            f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_inventory=(("Glarial's pebble", 1),),
+            produced_inventory=(("Large old key", 1), ("Glarial's amulet", 1), ("Glarial's urn", 1)),
+            required_tools=(("Rope", 1),),
+            required_actions=(
+                "Search the waterfall crate for the large old key",
+                "Use Glarial's pebble on Glarial's tomb",
+                "Search Glarial's tomb for the amulet and urn",
+            ),
+        ),
+        _stage_req(
+            5,
+            "Place the runes and Glarial's amulet, then use Glarial's urn on the chalice.",
+            f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_inventory=(("Glarial's urn", 1),),
+            consumed_inventory=(
+                ("Water rune", 6),
+                ("Air rune", 6),
+                ("Earth rune", 6),
+                ("Glarial's amulet", 1),
+            ),
+            required_tools=(("Rope", 1),),
+            required_actions=(
+                "Place six water runes on the pillars",
+                "Place six air runes on the pillars",
+                "Place six earth runes on the pillars",
+                "Place Glarial's amulet on Glarial's statue",
+                "Use Glarial's urn on the chalice",
+            ),
         ),
     ),
     DWARF_CANNON_ID: (
@@ -4689,11 +5021,14 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         for reward in row.get("xp_rewards", ()) or ()
         if isinstance(reward, dict) and reward.get("skill_id")
     )
-    item_rewards = tuple(
-        (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
-        for reward in row.get("item_rewards", ()) or ()
-        if isinstance(reward, dict) and reward.get("item_name")
-    )
+    quest_id = str(row.get("id"))
+    item_rewards = QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID.get(quest_id)
+    if item_rewards is None:
+        item_rewards = tuple(
+            (_quest_reward_item_name(reward.get("item_name")), _catalog_int(reward, "quantity", 1))
+            for reward in row.get("item_rewards", ()) or ()
+            if isinstance(reward, dict) and reward.get("item_name")
+        )
     lamp_rewards = tuple(
         QuestLampReward(
             str(reward.get("display_name", "XP lamp")),
@@ -4708,7 +5043,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         if isinstance(reward, dict) and reward.get("amount")
     )
     return QuestDefinition(
-        id=str(row.get("id")),
+        id=quest_id,
         display_name=display_name,
         stages=stages,
         point_reward=_catalog_int(row, "point_reward", 0),
@@ -5256,6 +5591,78 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Yellow sheep bones": {
             "category": "material",
             "source": f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Dwellberries": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Picture of Elena": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Turnip growing for beginners": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_JETHICK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Scruffy note": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_BRAVEK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Hangover cure": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Warrant": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_BRAVEK_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "A small key": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Chocolate dust": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Snape grass": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_SOURCE}; {DARKAN_PLAGUE_CITY_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Bucket": {
+            "category": "material",
+            "source": f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Pestle and mortar": {
+            "category": "tool",
+            "source": f"{DARKAN_PLAGUE_CITY_ALRENA_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Spade": {
+            "category": "tool",
+            "source": f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Book on Baxtorian": {
+            "category": "material",
+            "source": f"{DARKAN_WATERFALL_BOOK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Old key": {
+            "category": "material",
+            "source": f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Large old key": {
+            "category": "material",
+            "source": f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Glarial's pebble": {
+            "category": "material",
+            "source": f"{DARKAN_WATERFALL_GOLRIE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Glarial's amulet": {
+            "category": "equipment",
+            "source": f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Glarial's urn": {
+            "category": "material",
+            "source": f"{DARKAN_WATERFALL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Railing": {
             "category": "material",

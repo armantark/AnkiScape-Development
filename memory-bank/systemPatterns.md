@@ -142,9 +142,15 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Sheep Herder then proves the same pattern for noncombat animal-disposal
   quest stages: poisoned sheep feed is produced and retained, Doctor Orbon's
   clothing is bought mid-quest, cattleprod/clothing are required tools, and the
-  four coloured sheep bones are consumed at the incineration stage. The live
-  audit now reports 501 stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, and 58 produced-inventory rows. This is still broad
+  four coloured sheep bones are consumed at the incineration stage. Plague City
+  then proves that generated item rewards can be narrowed when stronger local
+  stage evidence produces a quest item mid-quest: the gas mask is produced by
+  Alrena and only `A magic scroll` remains a final item reward. Waterfall Quest
+  proves that future combat-skill XP rewards stay structured in
+  `pending_skill_exp_rewards` while the stage chain still handles book/key,
+  Glarial item, rune, amulet, and urn gates. The live
+  audit now reports 519 stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, and 68 produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -177,6 +183,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten

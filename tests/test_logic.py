@@ -1713,6 +1713,175 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Yellow sheep bones"], 0)
         self.assertEqual(player_data["inventory"]["Coins"], 3100)
 
+    def test_plague_city_stage_gates_gas_mask_hangover_cure_and_rescue(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["plague_city"] = {"started": True, "progress": 1, "completed": False}
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "plague_city", QUEST_DATA),
+            ("Needs Dwellberries x1",),
+        )
+        player_data["inventory"].update(
+            {
+                "Dwellberries": 1,
+                "Bucket of water": 4,
+                "Spade": 1,
+                "Rope": 1,
+                "Picture of Elena": 1,
+                "Chocolate dust": 1,
+                "Bucket of milk": 1,
+                "Snape grass": 1,
+                "Pestle and mortar": 1,
+            }
+        )
+        player_data["quest_route_states"] = {"plague_city": ["Reach West Ardougne through the sewer pipe"]}
+        player_data["quest_stage_actions"] = {
+            "plague_city": [
+                "Talk to Edmond with the gas mask",
+                "Soften Edmond's mud patch with four buckets of water",
+                "Dig through Edmond's softened mud patch",
+                "Pull the sewer grill",
+                "Ask Edmond for help with the grill",
+                "Tie rope to the sewer grill",
+                "Ask Edmond to pull the sewer grill rope",
+                "Speak to Jethick about Elena",
+                "Show Jethick the picture of Elena",
+                "Agree to return Jethick's book",
+                "Return Jethick's book to Ted Rehnison",
+                "Ask Martha Rehnison about Elena",
+                "Ask Milli Rehnison where Elena was taken",
+                "Ask the mourners for prison house clearance",
+                "Convince the Clerk to let you speak to Bravek",
+                "Ask Bravek for his cure recipe",
+                "Mix chocolate dust with milk and snape grass",
+                "Give Bravek the hangover cure",
+                "Ask Bravek for a prison house warrant",
+                "Enter the prison house with Bravek's warrant",
+                "Search the barrel for the small key",
+                "Unlock Elena's cell",
+                "Free Elena and report to Edmond",
+            ]
+        }
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Dwellberries"], 0)
+        self.assertEqual(player_data["inventory"]["Gas mask"], 1)
+
+        for expected_progress in range(3, 14):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["plague_city"]["progress"], expected_progress)
+
+        self.assertEqual(player_data["inventory"]["Bucket of water"], 0)
+        self.assertEqual(player_data["inventory"]["Bucket"], 4)
+        self.assertEqual(player_data["inventory"]["Rope"], 0)
+        self.assertEqual(player_data["inventory"]["Turnip growing for beginners"], 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 14)
+        self.assertEqual(player_data["inventory"]["Scruffy note"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 15)
+        self.assertEqual(player_data["inventory"]["Hangover cure"], 1)
+        self.assertEqual(player_data["inventory"]["Chocolate dust"], 0)
+        self.assertEqual(player_data["inventory"]["Bucket of milk"], 0)
+        self.assertEqual(player_data["inventory"]["Snape grass"], 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 16)
+        self.assertEqual(player_data["inventory"]["Hangover cure"], 0)
+        self.assertEqual(player_data["inventory"]["Warrant"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "plague_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["plague_city"]["completed"])
+        self.assertEqual(player_data["quests"]["plague_city"]["progress"], 17)
+        self.assertEqual(player_data["inventory"]["A small key"], 1)
+        self.assertEqual(player_data["inventory"]["A magic scroll"], 1)
+        self.assertEqual(player_data["inventory"]["Gas mask"], 1)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["mining_exp"], 2425.0)
+
+    def test_waterfall_quest_stage_gates_book_pebble_runes_and_rewards(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["waterfall_quest"] = {"started": True, "progress": 1, "completed": False}
+        player_data["inventory"].update({"Rope": 1, "Water rune": 6, "Air rune": 6, "Earth rune": 6})
+        player_data["quest_route_states"] = {"waterfall_quest": ["Reach Golrie under Tree Gnome Village"]}
+        player_data["quest_stage_actions"] = {
+            "waterfall_quest": [
+                "Speak to Hudon by the waterfall",
+                "Search the Baxtorian bookcase",
+                "Read the Book on Baxtorian",
+                "Search the Tree Gnome Village crate for the old key",
+                "Unlock Golrie's prison",
+                "Search the waterfall crate for the large old key",
+                "Use Glarial's pebble on Glarial's tomb",
+                "Search Glarial's tomb for the amulet and urn",
+                "Place six water runes on the pillars",
+                "Place six air runes on the pillars",
+                "Place six earth runes on the pillars",
+                "Place Glarial's amulet on Glarial's statue",
+                "Use Glarial's urn on the chalice",
+            ]
+        }
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 2)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Book on Baxtorian"], 1)
+        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 3)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Old key"], 1)
+        self.assertEqual(player_data["inventory"]["Glarial's pebble"], 1)
+        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 4)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Large old key"], 1)
+        self.assertEqual(player_data["inventory"]["Glarial's amulet"], 1)
+        self.assertEqual(player_data["inventory"]["Glarial's urn"], 1)
+        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 5)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "waterfall_quest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["waterfall_quest"]["completed"])
+        self.assertEqual(player_data["quests"]["waterfall_quest"]["progress"], 6)
+        self.assertEqual(player_data["inventory"]["Water rune"], 0)
+        self.assertEqual(player_data["inventory"]["Air rune"], 0)
+        self.assertEqual(player_data["inventory"]["Earth rune"], 0)
+        self.assertEqual(player_data["inventory"]["Glarial's amulet"], 0)
+        self.assertEqual(player_data["inventory"]["Glarial's urn"], 1)
+        self.assertEqual(player_data["inventory"]["Rope"], 1)
+        self.assertEqual(player_data["inventory"]["Diamond"], 2)
+        self.assertEqual(player_data["inventory"]["Gold bar"], 2)
+        self.assertEqual(player_data["inventory"]["Mithril seeds"], 40)
+        self.assertEqual(
+            player_data["pending_skill_exp_rewards"],
+            {"attack_exp": 13750.0, "strength_exp": 13750.0},
+        )
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}

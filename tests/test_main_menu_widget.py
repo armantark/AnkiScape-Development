@@ -1339,6 +1339,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Needs Red sheep bones x1", action.toolTip())
         self.assertIn("+8 more", action.toolTip())
 
+    def test_quests_tab_shows_plague_city_hangover_cure_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bucket of milk": 1}
+        pd["current_quest"] = "plague_city"
+        pd["quests"]["plague_city"] = {"started": True, "progress": 14, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Needs Chocolate dust x1, Needs Snape grass x1, "
+            "Needs Pestle and mortar, +1 more"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_plague_city")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Chocolate dust x1", action.toolTip())
+        self.assertIn("+1 more", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

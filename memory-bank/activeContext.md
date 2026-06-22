@@ -181,9 +181,13 @@ scorpion cages. Scorpion Catcher now has a source-backed level 39 jailer combat
 gate at the Taverley Dungeon scorpion stage. A Sheep Herder focused replacement
 then models poisoned sheep feed, Doctor Orbon clothing, the cattleprod route,
 and all four sheep-bone incinerations as stage-local gates instead of start
-locks. Post-batch audit reports 501 stage
-rows, 58 produced-inventory rows, 285 combat encounters, and 180 resolver-ready
-combat encounters. The remaining 105 statless combat rows
+locks. A Plague City and Waterfall Quest focused replacement then models
+dwellberries-to-gas-mask, Edmond sewer entry, Jethick/Rehnison/Bravek prison
+steps, hangover cure mixing, warrant/key rescue, Baxtorian book, Golrie,
+Glarial's tomb items, rune/amulet waterfall completion, and Waterfall's pending
+Attack/Strength XP rewards as source-backed stage-local gates. Post-batch audit
+reports 519 stage rows, 68 produced-inventory rows, 285 combat encounters, and
+180 resolver-ready combat encounters. The remaining 105 statless combat rows
 stay hard-blocked and are classified by
 `tools/audit_quest_combat_stat_gaps.py` as 51 Darkan hitpoints-only rows, 18
 Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level rows,
@@ -409,16 +413,18 @@ Generated item alternatives now preserve
 independent option groups, so stage gates such as Goblin Diplomacy dye
 alternatives remain finishability blockers instead of being flattened into
 impossible all-item requirements.
-The live stage audit now reports 501 stage rows and 58 produced-inventory rows
+The live stage audit now reports 519 stage rows and 68 produced-inventory rows
 after the Demon Slayer, early Darkan, Dragon Slayer, Shield of Arrav, Fight
 Arena, Witch's House, Merlin's Crystal, Dwarf Cannon, the local noncombat
-Darkan batch, and Sheep Herder focused replacements. This is broad blocker
+Darkan batch, Sheep Herder, Plague City, and Waterfall Quest focused
+replacements. This is broad blocker
 coverage, not minute-detail parity for every quest; use
 `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` and
 `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md` plus
 `memory-bank/source-audits/quest-early-darkan-stage-batch-2026-06-22.md` plus
 `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md` plus
 `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md` plus
+`memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md` plus
 `tools/audit_quest_stage_gate_coverage.py` before making completion claims.
 
 Quest completion UX now mirrors depletion handling. When a review completes the
@@ -547,8 +553,10 @@ Shield of Arrav, Fight Arena, `memory-bank/source-audits/quest-witchs-house-stag
 `memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`, and
 `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`,
 plus `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`,
+plus
+`memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`,
 supersede the older generated-row debt count above. The live audit now reports
-501 stage rows, 58 produced-inventory rows, 285 combat encounters, and 180
+519 stage rows, 68 produced-inventory rows, 285 combat encounters, and 180
 resolver-ready combat encounters; full all-quest minute-detail parity remains
 open until remaining generated rows, route/location state, quest-item
 transformations, optional branches, combat stat gaps, and real combat simulation
