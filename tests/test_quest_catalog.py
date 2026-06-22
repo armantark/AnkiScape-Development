@@ -177,6 +177,62 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(bouncer["npc_configs"]["max_hit"], 140)
         self.assertTrue(bouncer["npc_stats_source"].endswith("bouncer_(137).json"))
 
+    def test_merlins_crystal_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["merlins_crystal"]
+
+        self.assertEqual(quest["stages"], 8)
+        self.assertEqual(quest["rewards"], {})
+        self.assertEqual(quest["required_items"], {})
+        self.assertIn("darkan-world-server", quest["source"])
+        self.assertIn("Thrantax is bound through ritual dialogue rather than killed", quest["combat"])
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertEqual(by_stage[1]["required_inventory"], {})
+        self.assertEqual(
+            by_stage[1]["required_actions"],
+            ("Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
+        )
+        self.assertEqual(by_stage[2]["required_routes"], ("Reach Keep Le Faye through the Catherby crate delivery",))
+
+        mordred = by_stage[3]["combat_encounters"][0]
+        self.assertEqual(mordred["encounter_id"], "merlins_crystal_sir_mordred_39")
+        self.assertEqual(mordred["display_name"], "Sir Mordred")
+        self.assertEqual(mordred["level"], 39)
+        self.assertEqual(
+            mordred["npc_stats"],
+            {"hitpoints": 500, "attack": 33, "strength": 33, "defence": 33, "magic": 1, "ranged": 1},
+        )
+        self.assertEqual(mordred["npc_configs"]["max_hit"], 57)
+        self.assertEqual(mordred["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(mordred["npc_stats_source"].endswith("sir_mordred (noanims).json"))
+
+        self.assertEqual(by_stage[4]["required_inventory"], {"Bucket": 1, "Insect repellent": 1})
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Bucket": 1})
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Bucket of wax": 1})
+        self.assertEqual(
+            by_stage[4]["required_actions"],
+            ("Question Morgan Le Faye about Excalibur and the binding words",),
+        )
+        self.assertEqual(by_stage[5]["consumed_inventory"], {"Bucket of wax": 1})
+        self.assertEqual(by_stage[5]["produced_inventory"], {"Black candle": 1})
+        self.assertEqual(by_stage[6]["consumed_inventory"], {"Bread": 1})
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Excalibur": 1})
+        self.assertEqual(by_stage[7]["required_inventory"], {"Bat bones": 1, "Black candle": 1})
+        self.assertEqual(by_stage[7]["consumed_inventory"], {"Bat bones": 1, "Black candle": 1})
+        self.assertEqual(by_stage[7]["produced_inventory"], {"Lit black candle": 1})
+        self.assertEqual(by_stage[7]["required_tools"], {"Tinderbox": 1, "Excalibur": 1})
+        self.assertEqual(
+            by_stage[7]["required_actions"],
+            (
+                "Read the chaos altar inscription",
+                "Bind Thrantax with Snarthon Candtrick Termanto",
+                "Shatter Merlin's crystal with Excalibur",
+                "Report Merlin's freedom to King Arthur",
+            ),
+        )
+        self.assertNotIn(8, by_stage)
+
     def test_generated_catalog_stage_requirements_cover_items_and_combat(self):
         data = quests_as_dict()
 

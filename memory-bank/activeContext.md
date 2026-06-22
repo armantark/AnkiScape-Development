@@ -157,15 +157,18 @@ Roadmap direction: add an optional fake Grand Exchange-style market later so the
 Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. The current P0 existing-skill architecture board is complete; Utility/Activities icons, the focused feather source, Firemaking v1, Fishing v1, Cooking v1, Runecrafting v1, the priority quest-lock catalog, and the route-precedent locks are complete. The GE remains a later candidate, not the next default project.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
-194 pre-EOC quests have at least one machine-readable stage requirement and 119
-quests have combat blockers. Current resolver-ready source-backed combat
-coverage is 175/283 rows after generator enrichment, style-aware magic/ranged
-handling, Darkan `beasts.txt` fallbacks, no-`combatLevels` fallbacks, focused
-`quest_data.py` name-shape replacements, A Soul's Bane's full-stage combat
-split, and Death to the Dorgeshuun's Senior H.A.M. guard quantity replacement.
-The remaining 108 statless combat rows stay hard-blocked and are classified by
-`tools/audit_quest_combat_stat_gaps.py` as
-51 Darkan hitpoints-only rows, 18 Darkan rows missing style-critical resolver
+194 pre-EOC quests have at least one machine-readable stage requirement, 174
+quests have item/tool/option blockers, and 120 quests have combat blockers.
+Current resolver-ready source-backed combat coverage is 177/285 rows after
+generator enrichment, style-aware magic/ranged handling, Darkan `beasts.txt`
+fallbacks, no-`combatLevels` fallbacks, focused `quest_data.py` name-shape
+replacements, A Soul's Bane's full-stage combat split, Death to the Dorgeshuun's
+Senior H.A.M. guard quantity replacement, and focused full-stage replacements up
+through Fight Arena, Witch's House, and Merlin's Crystal. Merlin's Crystal now
+keeps quest-used items out of start locks, resolves Sir Mordred as combat, and
+treats Thrantax as ritual dialogue/action. The remaining 108 statless combat rows
+stay hard-blocked and are classified by `tools/audit_quest_combat_stat_gaps.py`
+as 51 Darkan hitpoints-only rows, 18 Darkan rows missing style-critical resolver
 stats, 7 same-name/wrong-level rows, 13 no-local-source rows, and 19
 parser/variant-level rows. Combat quantities count one enemy per review action:
 `tools/build_pre_eoc_quest_catalog.py` extracts written quantities, runtime

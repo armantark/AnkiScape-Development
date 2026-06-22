@@ -297,6 +297,33 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Delrith"])
 
+    def test_quest_answer_resolves_merlins_crystal_mordred_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "merlins_crystal",
+            "quests": {"merlins_crystal": {"started": True, "progress": 3, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 50,
+            "strength_level": 50,
+            "defense_level": 50,
+            "constitution_level": 50,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 3)
+        self.assertFalse(player_data["quests"]["merlins_crystal"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounters"], {"merlins_crystal": ["merlins_crystal_sir_mordred_39"]})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Sir Mordred"])
+
     def test_quest_answer_resolves_style_aware_magic_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

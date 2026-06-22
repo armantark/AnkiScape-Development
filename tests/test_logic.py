@@ -1837,6 +1837,138 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Ball"], 0)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {"constitution_exp": 6325.0})
 
+    def test_merlins_crystal_stage_gates_items_route_combat_and_reward(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+
+        player_data, ok = start_quest_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 0)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            ("Action required: Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
+        )
+
+        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked["quests"]["merlins_crystal"]["progress"], 0)
+        self.assertEqual(blocked["quest_points"], 0)
+
+        player_data["quest_stage_actions"] = {
+            "merlins_crystal": ["Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot"]
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 2)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            ("Route required: Reach Keep Le Faye through the Catherby crate delivery",),
+        )
+
+        player_data["quest_route_states"] = {"merlins_crystal": ["Reach Keep Le Faye through the Catherby crate delivery"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 3)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Sir Mordred level 39",),
+        )
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 50
+        player_data["strength_level"] = 50
+        player_data["defense_level"] = 50
+        player_data["constitution_level"] = 50
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "merlins_crystal",
+            QUEST_DATA,
+            "merlins_crystal_sir_mordred_39",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_resolved")
+        self.assertEqual(result["display_name"], "Sir Mordred")
+        self.assertEqual(player_data["quest_combat_encounters"], {"merlins_crystal": ["merlins_crystal_sir_mordred_39"]})
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 4)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            (
+                "Needs Bucket x1",
+                "Needs Insect repellent x1",
+                "Action required: Question Morgan Le Faye about Excalibur and the binding words",
+            ),
+        )
+
+        player_data["inventory"]["Bucket"] = 1
+        player_data["inventory"]["Insect repellent"] = 1
+        player_data["quest_stage_actions"]["merlins_crystal"].append(
+            "Question Morgan Le Faye about Excalibur and the binding words"
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Bucket"], 0)
+        self.assertEqual(player_data["inventory"]["Insect repellent"], 1)
+        self.assertEqual(player_data["inventory"]["Bucket of wax"], 1)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 5)
+
+        player_data["quest_stage_actions"]["merlins_crystal"].append("Ask the Catherby candle-maker for a black candle")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Bucket of wax"], 0)
+        self.assertEqual(player_data["inventory"]["Black candle"], 1)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 6)
+
+        player_data["inventory"]["Bread"] = 1
+        player_data["quest_stage_actions"]["merlins_crystal"].extend(
+            ["Accept the Lady of the Lake's test in Taverley", "Give bread to the Port Sarim beggar"]
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Bread"], 0)
+        self.assertEqual(player_data["inventory"]["Excalibur"], 1)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 7)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "merlins_crystal", QUEST_DATA),
+            (
+                "Needs Bat bones x1",
+                "Needs Tinderbox",
+                "Action required: Read the chaos altar inscription",
+                "Action required: Bind Thrantax with Snarthon Candtrick Termanto",
+                "Action required: Shatter Merlin's crystal with Excalibur",
+                "Action required: Report Merlin's freedom to King Arthur",
+            ),
+        )
+
+        player_data["inventory"]["Bat bones"] = 1
+        player_data["inventory"]["Tinderbox"] = 1
+        player_data["quest_stage_actions"]["merlins_crystal"].extend(
+            [
+                "Read the chaos altar inscription",
+                "Bind Thrantax with Snarthon Candtrick Termanto",
+                "Shatter Merlin's crystal with Excalibur",
+                "Report Merlin's freedom to King Arthur",
+            ]
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "merlins_crystal", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(player_data["inventory"]["Bat bones"], 0)
+        self.assertEqual(player_data["inventory"]["Black candle"], 0)
+        self.assertEqual(player_data["inventory"]["Lit black candle"], 1)
+        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 8)
+        self.assertTrue(player_data["quests"]["merlins_crystal"]["completed"])
+        self.assertEqual(player_data["quest_points"], 6)
+        self.assertEqual(player_data["inventory"]["Excalibur"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
     def test_stage_requirement_model_exposes_tool_action_route_and_combat_blockers(self):
         quest_data = {
             "proof_quest": {

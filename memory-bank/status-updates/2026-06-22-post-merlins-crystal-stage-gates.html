@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Merlin's Crystal Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101216;
+      --panel: #181c24;
+      --panel-2: #202633;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --line: #334155;
+      --green: #49d18f;
+      --amber: #f7c66a;
+      --blue: #68a8ff;
+      --red: #f47174;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 30px 0 42px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    section, .hero, .metric, .stage {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .hero {
+      padding: 24px;
+      background: linear-gradient(135deg, #182333 0%, #181c24 55%, #1b2722 100%);
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.05;
+      letter-spacing: 0;
+      max-width: 780px;
+    }
+    h2 {
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+    h3 {
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .sub {
+      color: var(--muted);
+      max-width: 780px;
+      margin-top: 14px;
+      font-size: 16px;
+    }
+    .callout {
+      border-left: 4px solid var(--amber);
+      background: rgba(247, 198, 106, 0.08);
+      padding: 12px 14px;
+      margin-top: 18px;
+      color: #fde7b1;
+      border-radius: 4px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .metric { padding: 16px; }
+    .metric strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      color: var(--green);
+    }
+    .metric span { color: var(--muted); font-size: 13px; }
+    section { padding: 20px; margin-top: 18px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .panel {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 150px;
+    }
+    ul { padding-left: 18px; margin: 8px 0 0; }
+    li { margin: 5px 0; }
+    .stages {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .stage {
+      padding: 12px;
+      min-height: 116px;
+      background: #151a22;
+    }
+    .stage b {
+      display: inline-block;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+    .stage small {
+      color: var(--muted);
+      display: block;
+    }
+    .pass { color: var(--green); }
+    .warn { color: var(--amber); }
+    .fail { color: var(--red); }
+    code {
+      background: #0b0f14;
+      border: 1px solid #283241;
+      border-radius: 5px;
+      padding: 2px 5px;
+      color: #dceafe;
+    }
+    .footer {
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 13px;
+    }
+    @media (max-width: 900px) {
+      header, .grid { grid-template-columns: 1fr; }
+      .stages { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      main { width: min(100vw - 20px, 1180px); padding-top: 16px; }
+      .metrics, .stages { grid-template-columns: 1fr; }
+      .hero, section { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="hero">
+        <h1>Merlin's Crystal is now a real stage-gated quest slice.</h1>
+        <p class="sub">The implementation does not claim all-quest minute parity. It turns one more quest from broad generated requirements into source-backed current-stage blockers with item transforms, route/action gates, and resolver-ready combat.</p>
+        <div class="callout">All-quest broad coverage remains: 194/194 quests have stage rows. Minute-detail parity is still open and documented.</div>
+      </div>
+      <div class="metrics">
+        <div class="metric"><strong>463</strong><span>stage requirement rows after this slice</span></div>
+        <div class="metric"><strong>120</strong><span>quests with combat blockers</span></div>
+        <div class="metric"><strong>177/285</strong><span>resolver-ready combat rows</span></div>
+        <div class="metric"><strong>491</strong><span>tests passed in each required suite</span></div>
+      </div>
+    </header>
+
+    <section>
+      <h2>Backend Contract</h2>
+      <div class="grid">
+        <div class="panel">
+          <h3>Stage Model</h3>
+          <p>Stage 8 is the completion marker, so the final playable gate lives on stage 7. This avoids unreachable final-stage requirements in the existing quest progression engine.</p>
+        </div>
+        <div class="panel">
+          <h3>Items</h3>
+          <p>Bucket, Bucket of wax, Black candle, Bread, Bat bones, and Lit black candle now move at their source stages. Excalibur is produced during the quest and retained.</p>
+        </div>
+        <div class="panel">
+          <h3>Combat</h3>
+          <p>Sir Mordred is a resolver-ready Darkan-stat combat gate. Thrantax is a ritual dialogue/action gate, not invented combat.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Merlin Stage Path</h2>
+      <div class="stages">
+        <div class="stage"><b>1</b><small>Round-table investigation with Gawain, Lucan, and Lancelot.</small></div>
+        <div class="stage"><b>2</b><small>Catherby crate route into Keep Le Faye.</small></div>
+        <div class="stage"><b>3</b><small>Sir Mordred combat, gated by global battle config and player stats.</small></div>
+        <div class="stage"><b>4</b><small>Morgan questioning, Bucket plus Insect repellent, Bucket of wax output.</small></div>
+        <div class="stage"><b>5</b><small>Bucket of wax becomes Black candle.</small></div>
+        <div class="stage"><b>6</b><small>Bread is handed to the beggar and Excalibur is produced.</small></div>
+        <div class="stage"><b>7</b><small>Bat bones, Black candle, Tinderbox, Excalibur, ritual, crystal smash, Arthur report.</small></div>
+        <div class="stage"><b>8</b><small>Completion marker: 6 quest points, no duplicate Excalibur reward.</small></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Frontend Proof</h2>
+      <div class="grid">
+        <div class="panel">
+          <h3>Blocked Item Stage</h3>
+          <p>Started Merlin cards stay visible and blocked with player-facing text like <code>Needs Insect repellent x1</code>.</p>
+        </div>
+        <div class="panel">
+          <h3>Combat Selection</h3>
+          <p>With resolver support enabled and stats high enough, the Quests tab shows <code>Battle required: Sir Mordred level 39</code> and allows the review action.</p>
+        </div>
+        <div class="panel">
+          <h3>Icons</h3>
+          <p>Six new quest item icons are wired through <code>QUEST_ITEM_IMAGES</code> with provenance and registry tests.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Verification</h2>
+      <ul>
+        <li><span class="pass">Passed</span>: targeted catalog, pure logic, runtime, integration, asset, audit, and Qt checks.</li>
+        <li><span class="pass">Passed</span>: <code>python3 run_tests.py</code> with 491 tests, 116 skipped.</li>
+        <li><span class="pass">Passed</span>: <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> with 491 tests.</li>
+        <li><span class="warn">Deferred</span>: 108 statless combat rows remain hard-blocked. Full all-quest minute parity is not claimed.</li>
+      </ul>
+    </section>
+
+    <p class="footer">Backend/frontend notes and manual Anki instructions are recorded in memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md.</p>
+  </main>
+</body>
+</html>

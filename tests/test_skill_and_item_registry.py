@@ -613,6 +613,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Magnet",
             "Backroom key",
             "Ball",
+            "Insect repellent",
+            "Bucket of wax",
+            "Black candle",
+            "Lit black candle",
+            "Excalibur",
+            "Bat bones",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

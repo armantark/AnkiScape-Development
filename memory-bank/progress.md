@@ -41,9 +41,10 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 174 quests with item/tool/option
-  blockers, and 120 quests with combat blockers. Combat blockers are hard
-  locked by default through `quest_combat_config.resolver_enabled = False`;
+  with at least one stage requirement, 463 stage rows, 46 produced-inventory
+  rows, 174 quests with item/tool/option blockers, and 120 quests with combat
+  blockers. Combat blockers are hard locked by default through
+  `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
   combat now has 177/285 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
@@ -81,7 +82,14 @@
   source-backed Phoenix Gang and Black Arm Gang route variants, Jonny the beard
   and Weaponsmaster combat gates, route-specific shield/certificate halves, and
   a partner half-certificate combine gate before King Roald's 1,200-coin
-  completion reward; 108 combat rows remain statless and explicitly blocked.
+  completion reward. Fight Arena now has a 12-stage Darkan chain for Khazard
+  disguise, Khali brew, cell keys, mandatory arena fights, and Lady Servil.
+  Witch's House now has a 12-stage Darkan chain for keys, Magnet, Cheese, patrol,
+  gloves, experiment forms, Ball pickup, and Harvey. Merlin's Crystal now has an
+  8-stage Darkan/local-2011Scape chain for the round-table investigation, crate
+  route, Sir Mordred, Morgan/wax, black candle, bread-to-Excalibur, ritual,
+  crystal smash, and Arthur report; Thrantax is an action/dialogue gate rather
+  than invented combat. 108 combat rows remain statless and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -110,7 +118,8 @@
   and
   `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md`, and
   `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`.
+  `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.

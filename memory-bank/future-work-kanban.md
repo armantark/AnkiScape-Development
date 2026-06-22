@@ -247,6 +247,18 @@ pickup, and Harvey hand-in. The experiment forms were already resolver-ready, so
 combat coverage stays 177/285; post-slice audit reports 458 stage rows, 42
 produced-inventory rows, 285 combat encounters, 174 quests with item/tool
 blockers, and 120 quests with combat blockers.
+Merlin's Crystal then replaced generated front-loaded item/combat prose with an
+8-stage Darkan/local-2011Scape chain: round-table investigation, Catherby crate
+route, Sir Mordred combat, Morgan questioning plus beehive wax collection, black
+candle exchange, Lady of the Lake/Port Sarim beggar bread test, and a final
+stage-7 ritual/crystal/Arthur gate before the stage-8 completion marker. Bucket,
+Bucket of wax, Black candle, Bread, Bat bones, and the ritual candle are consumed
+or produced at their source-backed stages; Excalibur is produced during the quest
+and retained. Thrantax remains a ritual dialogue/action gate because local Darkan
+binds him through dialogue rather than combat. Post-slice audit reports 463 stage
+rows, 46 produced-inventory rows, 285 combat encounters, 177 resolver-ready
+combat encounters, 174 quests with item/tool blockers, and 120 quests with combat
+blockers.
 Full minute-detail parity, exact generated per-stage extraction, quest-item
 transformations, route flags, partner/branch state, puzzle state, broad combat
 stat enrichment, and full combat simulation remain open;
@@ -287,6 +299,8 @@ and
 `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`
 and
 `memory-bank/source-audits/quest-fight-arena-stage-detail-2026-06-22.md`
+and
+`memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
 have no explicit gaps left for their scoped slices; the all-quest parity goal
 still has the generated-row and combat-stat gaps listed above.
 

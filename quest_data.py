@@ -53,6 +53,7 @@ SONG_FROM_THE_DEPTHS_ID = "song_from_the_depths"
 CARNILLEAN_RISING_ID = "carnillean_rising"
 SOME_LIKE_IT_COLD_ID = "some_like_it_cold"
 WITCHS_HOUSE_ID = "witchs_house"
+MERLINS_CRYSTAL_ID = "merlins_crystal"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -246,6 +247,36 @@ WITCHS_HOUSE_EXPERIMENT_42_NPC_SOURCE = (
 )
 WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE = (
     f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(53) (noanims).json"
+)
+MERLINS_CRYSTAL_WIKI_SOURCE = "https://runescape.wiki/w/Merlin's_Crystal?oldid=6569685"
+MERLINS_CRYSTAL_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/merlinscrystal"
+MERLINS_CRYSTAL_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/MerlinsCrystal.java"
+MERLINS_CRYSTAL_KING_ARTHUR_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/KingArthurMerlinsCrystalD.java"
+MERLINS_CRYSTAL_LADY_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/LadyOfLakeMerlinsCrystalD.java"
+MERLINS_CRYSTAL_BEGGAR_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/BeggarMerlinsCrystalD.java"
+MERLINS_CRYSTAL_MORGAN_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/MorganMerlinsCrystalD.java"
+MERLINS_CRYSTAL_MORDRED_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/MordredMob.java"
+MERLINS_CRYSTAL_KEEP_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/KeepLaFayeMerlinsCrystalLoc.java"
+MERLINS_CRYSTAL_CRATE_SCENE_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/MerlinsCrystalCrateScene.java"
+MERLINS_CRYSTAL_RITUAL_SCENE_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/MerlinsCrystalRitualScene.java"
+MERLINS_CRYSTAL_THRANTAX_SOURCE = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/ThrantaxMerlinsCrystalD.java"
+MERLINS_CRYSTAL_ROUND_TABLE_SOURCE_ROOT = f"{MERLINS_CRYSTAL_SOURCE_ROOT}/knightsroundtable"
+MERLINS_CRYSTAL_SIR_LANCELOT_SOURCE = f"{MERLINS_CRYSTAL_ROUND_TABLE_SOURCE_ROOT}/SirLancelotMerlinsCrystalD.java"
+MERLINS_CRYSTAL_SIR_LUCAN_SOURCE = f"{MERLINS_CRYSTAL_ROUND_TABLE_SOURCE_ROOT}/SirLucanMerlinsCrystalD.java"
+MERLINS_CRYSTAL_SIR_GAWAIN_SOURCE = f"{MERLINS_CRYSTAL_ROUND_TABLE_SOURCE_ROOT}/SirGawainMerlinsCrystalD.java"
+MERLINS_CRYSTAL_MORDRED_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/sir_mordred (noanims).json"
+MERLINS_CRYSTAL_THRANTAX_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/thrantax_the_mighty (noanims).json"
+MERLINS_CRYSTAL_BEEHIVE_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
+    "com/rs/game/content/world/areas/seers_village/SeersVillage.java"
+)
+MERLINS_CRYSTAL_BEEKEEPER_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
+    "com/rs/game/content/world/areas/catherby/npcs/Beekeeper.java"
+)
+MERLINS_CRYSTAL_2011SCAPE_CATHERBY_SPAWN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/spawns/spawns_11061.plugin.kts"
 )
 RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
 DEMON_SLAYER_WIKI_SOURCE = "https://runescape.wiki/w/Demon_Slayer_(historical)?oldid=6448395"
@@ -1081,6 +1112,145 @@ FIGHT_ARENA_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(12, "Lady Servil rewarded me for rescuing her family.", "Quest complete!"),
 )
 
+MERLINS_CRYSTAL_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "King Arthur asked me to find out how Merlin was trapped.",
+        "The knights of the round table may know how to reach Morgan Le Faye's stronghold and free Merlin.",
+    ),
+    _simple_stage(
+        2,
+        "Sir Lancelot says Morgan Le Faye's stronghold can be entered by sea.",
+        "I should hide in a delivery crate near the Catherby candle-maker.",
+    ),
+    _simple_stage(
+        3,
+        "I reached Keep Le Faye.",
+        "Sir Mordred guards the stronghold, and Morgan may reveal how to break Merlin's crystal if he is defeated.",
+    ),
+    _simple_stage(
+        4,
+        "Morgan Le Faye told me the ritual needs bat bones, a lit black candle, the binding words, and Excalibur.",
+        "I need wax for the candle-maker before I can get a black candle.",
+    ),
+    _simple_stage(
+        5,
+        "The candle-maker made a black candle.",
+        "The Lady of the Lake has Excalibur and wants me to prove I am worthy.",
+    ),
+    _simple_stage(
+        6,
+        "The Lady of the Lake gave me Excalibur after I helped the beggar.",
+        "I must summon and bind Thrantax at the chaos altar with bat bones and a lit black candle.",
+    ),
+    _simple_stage(
+        7,
+        "Thrantax is bound.",
+        "Merlin's crystal can now be shattered with Excalibur.",
+    ),
+    _simple_stage(8, "I freed Merlin and King Arthur made me a knight of the round table.", "Quest complete!"),
+)
+
+
+MERLINS_CRYSTAL_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
+    QuestStageRequirement(
+        stage=1,
+        description="Investigate Merlin's crystal with the relevant round-table knights.",
+        required_actions=("Complete the round-table investigation with Sir Gawain, Sir Lucan, and Sir Lancelot",),
+        source=(
+            f"{MERLINS_CRYSTAL_SOURCE}; {MERLINS_CRYSTAL_SIR_GAWAIN_SOURCE}; "
+            f"{MERLINS_CRYSTAL_SIR_LUCAN_SOURCE}; {MERLINS_CRYSTAL_SIR_LANCELOT_SOURCE}"
+        ),
+    ),
+    QuestStageRequirement(
+        stage=2,
+        description="Hide in the Catherby delivery crate to enter Keep Le Faye.",
+        required_routes=("Reach Keep Le Faye through the Catherby crate delivery",),
+        source=f"{MERLINS_CRYSTAL_KEEP_SOURCE}; {MERLINS_CRYSTAL_CRATE_SCENE_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=3,
+        description="Defeat Sir Mordred in Keep Le Faye.",
+        combat_encounters=(
+            QuestCombatEncounter(
+                encounter_id=f"{MERLINS_CRYSTAL_ID}_sir_mordred_39",
+                display_name="Sir Mordred",
+                level=39,
+                source=f"{MERLINS_CRYSTAL_KEEP_SOURCE}; {MERLINS_CRYSTAL_MORDRED_SOURCE}; {MERLINS_CRYSTAL_MORDRED_NPC_SOURCE}",
+                source_text="Sir Mordred is attacked in Keep Le Faye and Morgan appears after he is defeated.",
+                npc_stats=(
+                    ("hitpoints", 500),
+                    ("attack", 33),
+                    ("strength", 33),
+                    ("defence", 33),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 57),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "slash_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=MERLINS_CRYSTAL_MORDRED_NPC_SOURCE,
+            ),
+        ),
+        source=(
+            f"{MERLINS_CRYSTAL_KEEP_SOURCE}; {MERLINS_CRYSTAL_MORDRED_SOURCE}; "
+            f"{MERLINS_CRYSTAL_MORGAN_SOURCE}; {MERLINS_CRYSTAL_MORDRED_NPC_SOURCE}"
+        ),
+    ),
+    QuestStageRequirement(
+        stage=4,
+        description="Question Morgan Le Faye and collect wax safely from a beehive.",
+        required_inventory=(("Bucket", 1), ("Insect repellent", 1)),
+        consumed_inventory=(("Bucket", 1),),
+        produced_inventory=(("Bucket of wax", 1),),
+        required_actions=("Question Morgan Le Faye about Excalibur and the binding words",),
+        source=(
+            f"{MERLINS_CRYSTAL_MORGAN_SOURCE}; {MERLINS_CRYSTAL_BEEHIVE_SOURCE}; {MERLINS_CRYSTAL_BEEKEEPER_SOURCE}; "
+            f"{MERLINS_CRYSTAL_2011SCAPE_CATHERBY_SPAWN_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+        ),
+    ),
+    QuestStageRequirement(
+        stage=5,
+        description="Exchange the bucket of wax for a black candle.",
+        consumed_inventory=(("Bucket of wax", 1),),
+        produced_inventory=(("Black candle", 1),),
+        required_actions=("Ask the Catherby candle-maker for a black candle",),
+        source=f"{MERLINS_CRYSTAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=6,
+        description="Pass the Lady of the Lake's Port Sarim test and receive Excalibur.",
+        consumed_inventory=(("Bread", 1),),
+        produced_inventory=(("Excalibur", 1),),
+        required_actions=("Accept the Lady of the Lake's test in Taverley", "Give bread to the Port Sarim beggar"),
+        source=f"{MERLINS_CRYSTAL_LADY_SOURCE}; {MERLINS_CRYSTAL_BEGGAR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=7,
+        description="Bind Thrantax, shatter Merlin's crystal with Excalibur, and report to King Arthur.",
+        required_inventory=(("Bat bones", 1), ("Black candle", 1)),
+        consumed_inventory=(("Bat bones", 1), ("Black candle", 1)),
+        produced_inventory=(("Lit black candle", 1),),
+        required_tools=(("Tinderbox", 1), ("Excalibur", 1)),
+        required_actions=(
+            "Read the chaos altar inscription",
+            "Bind Thrantax with Snarthon Candtrick Termanto",
+            "Shatter Merlin's crystal with Excalibur",
+            "Report Merlin's freedom to King Arthur",
+        ),
+        source=(
+            f"{MERLINS_CRYSTAL_SOURCE}; {MERLINS_CRYSTAL_RITUAL_SCENE_SOURCE}; "
+            f"{MERLINS_CRYSTAL_THRANTAX_SOURCE}; {MERLINS_CRYSTAL_THRANTAX_NPC_SOURCE}; "
+            f"{MERLINS_CRYSTAL_KING_ARTHUR_SOURCE}; "
+            f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}; {MERLINS_CRYSTAL_WIKI_SOURCE}"
+        ),
+    ),
+)
+
 WITCHS_HOUSE_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Harvey asked me to get his ball back from the witch's garden."),
     _simple_stage(2, "I found the front door key under a potted plant."),
@@ -1316,6 +1486,37 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         length="Short",
         timeline="Fifth Age",
         xp_rewards=(QuestXpReward("constitution", 6325),),
+    ),
+    QuestDefinition(
+        id=MERLINS_CRYSTAL_ID,
+        display_name="Merlin's Crystal",
+        stages=8,
+        point_reward=6,
+        rewards=(),
+        start_point="Talk to King Arthur in Camelot.",
+        requirements=(
+            "Used during quest: Bucket x1, Insect repellent x1, Bucket of wax x1, Black candle x1, "
+            "Bread x1, Bat bones x1, Tinderbox x1, Excalibur x1"
+        ),
+        required_items=(),
+        combat="Sir Mordred (level 39) must be defeated; Thrantax is bound through ritual dialogue rather than killed.",
+        source=(
+            f"{MERLINS_CRYSTAL_SOURCE}; {MERLINS_CRYSTAL_KING_ARTHUR_SOURCE}; "
+            f"{MERLINS_CRYSTAL_SIR_GAWAIN_SOURCE}; {MERLINS_CRYSTAL_SIR_LUCAN_SOURCE}; "
+            f"{MERLINS_CRYSTAL_SIR_LANCELOT_SOURCE}; {MERLINS_CRYSTAL_KEEP_SOURCE}; "
+            f"{MERLINS_CRYSTAL_CRATE_SCENE_SOURCE}; {MERLINS_CRYSTAL_MORDRED_SOURCE}; "
+            f"{MERLINS_CRYSTAL_MORGAN_SOURCE}; {MERLINS_CRYSTAL_LADY_SOURCE}; "
+            f"{MERLINS_CRYSTAL_BEGGAR_SOURCE}; {MERLINS_CRYSTAL_RITUAL_SCENE_SOURCE}; "
+            f"{MERLINS_CRYSTAL_THRANTAX_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {MERLINS_CRYSTAL_WIKI_SOURCE}"
+        ),
+        journal_stages=MERLINS_CRYSTAL_STAGES,
+        release_date="2002-02-27",
+        members=True,
+        difficulty="Intermediate",
+        length="Medium",
+        timeline="Fifth Age",
+        unlocks=("Excalibur", "Honorary Knight of the Round Table"),
+        stage_requirements=MERLINS_CRYSTAL_STAGE_REQUIREMENTS,
     ),
     QuestDefinition(
         id=DEMON_SLAYER_ID,
@@ -4508,6 +4709,33 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Ball": {
             "category": "material",
             "source": f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Insect repellent": {
+            "category": "tool",
+            "source": (
+                f"{MERLINS_CRYSTAL_BEEKEEPER_SOURCE}; {MERLINS_CRYSTAL_2011SCAPE_CATHERBY_SPAWN_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+        },
+        "Bucket of wax": {
+            "category": "material",
+            "source": f"{MERLINS_CRYSTAL_BEEHIVE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Black candle": {
+            "category": "material",
+            "source": f"{MERLINS_CRYSTAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Lit black candle": {
+            "category": "material",
+            "source": f"{MERLINS_CRYSTAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Excalibur": {
+            "category": "equipment",
+            "source": f"{MERLINS_CRYSTAL_LADY_SOURCE}; {MERLINS_CRYSTAL_BEGGAR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Bat bones": {
+            "category": "material",
+            "source": f"{MERLINS_CRYSTAL_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Rune spear (kp)": {"category": "equipment", "source": TAI_BWO_WANNAI_TRIO_SOURCE},
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},

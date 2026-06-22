@@ -72,6 +72,15 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   pickup, and Harvey hand-in. Cheese is consumed at the mouse stage, Ball is
   consumed only at Harvey, and 6,325 Constitution XP remains pending until that
   skill exists.
+- Merlin's Crystal is an 8-stage Darkan/local-2011Scape focused replacement. It
+  keeps quest-used items out of start locks, routes through the round-table
+  investigation and Catherby crate, resolves Sir Mordred as a source-backed
+  combat encounter, then gates Morgan questioning, Bucket/Insect repellent wax,
+  Bucket of wax to Black candle, Bread to Excalibur, Bat bones/Black candle plus
+  Tinderbox, Excalibur crystal smash, and King Arthur report at their current
+  stages. Stage 8 is the completed state, so the ritual, crystal smash, and
+  Arthur report all live on stage 7. Thrantax is intentionally an action/dialogue
+  gate, not a combat gate, because local Darkan binds him through ritual dialogue.
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
@@ -113,8 +122,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   reward. Witch's House then superseded the old combat-only proof with a
   12-stage Darkan-backed chain for keys, Magnet, Cheese, witch patrol, Leather
   gloves, experiment forms, Ball pickup, and Harvey hand-in. The live audit now
-  reports 458 stage rows, 174 quests with item/tool/option blockers, 120 quests
-  with combat blockers, and 42
+  reports 463 stage rows, 174 quests with item/tool/option blockers, 120 quests
+  with combat blockers, and 46
   produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
@@ -138,6 +147,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-fight-arena-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -214,7 +225,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Bouncer as a Darkan resolver-ready focused stage row while keeping the
   Khazard ogre and Khazard scorpion blocked as missing-stats encounters because
   their available Darkan combatdefs carry hitpoints/max-hit metadata but no
-  style-critical melee stats. Current stat coverage is 177/285 combat rows; the
+  style-critical melee stats. Merlin's Crystal adds Sir Mordred as a
+  Darkan-stat-backed resolver encounter while treating Thrantax as a ritual
+  action instead of an invented battle. Current stat coverage is 177/285 combat
+  rows; the
   remaining 108 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.

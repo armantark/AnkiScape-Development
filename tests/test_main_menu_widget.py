@@ -1361,6 +1361,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Needs Cheese x1", action.toolTip())
         self.assertIn("Use cheese on the mouse hole", action.toolTip())
 
+    def test_quests_tab_shows_merlins_crystal_wax_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bucket": 1}
+        pd["current_quest"] = "merlins_crystal"
+        pd["quests"]["merlins_crystal"] = {"started": True, "progress": 4, "completed": False}
+        pd["quest_stage_actions"] = {
+            "merlins_crystal": ["Question Morgan Le Faye about Excalibur and the binding words"]
+        }
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Needs Insect repellent x1"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_merlins_crystal")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Insect repellent x1", action.toolTip())
+
     def test_quests_tab_allows_demon_slayer_source_backed_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Silverlight": 1}
@@ -1383,6 +1401,28 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("demon_slayer", self._quest_calls)
+
+    def test_quests_tab_allows_merlins_crystal_mordred_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "merlins_crystal"
+        pd["quests"]["merlins_crystal"] = {"started": True, "progress": 3, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 50
+        pd["strength_level"] = 50
+        pd["defense_level"] = 50
+        pd["constitution_level"] = 50
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Sir Mordred level 39"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_merlins_crystal")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("merlins_crystal", self._quest_calls)
 
     def test_quests_tab_allows_dragon_slayer_elvarg_combat_gate_selection(self) -> None:
         pd = _make_player_data()

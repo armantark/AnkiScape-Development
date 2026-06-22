@@ -5627,6 +5627,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:18Z"
   },
+  "questitems/bat_bones.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bat_bones.png",
+    "file_title": "Bat bones.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bat_bones.png?3be33",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de8cbf0c869617e5aa101516211946a048ef14be",
+    "size": 535,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:24Z"
+  },
   "questitems/blue_goblin_mail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blue_goblin_mail.png",
     "file_title": "Blue goblin mail.png",
@@ -5662,6 +5674,18 @@
     "size": 768,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:00Z"
+  },
+  "questitems/bucket_of_wax.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bucket_of_wax.png",
+    "file_title": "Bucket of wax.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bucket_of_wax.png?c50c3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6c27a8f6a4eeefc0ebdf214a37416dfddc9d4215",
+    "size": 756,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:04Z"
   },
   "questitems/certificate.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Certificate_%28Shield_of_Arrav%29.png",
