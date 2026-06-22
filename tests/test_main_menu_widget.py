@@ -1269,6 +1269,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Fish food x1", action.toolTip())
 
+    def test_quests_tab_shows_dragon_slayer_oracle_item_option_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Wizard's mind bomb": 1,
+            "Silk": 1,
+            "Bowl (unfired)": 1,
+        }
+        pd["current_quest"] = "dragon_slayer"
+        pd["quests"]["dragon_slayer"] = {"started": True, "progress": 8, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Needs Crayfish cage x1 or Lobster pot x1"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_dragon_slayer")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Crayfish cage x1 or Lobster pot x1", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}
@@ -1331,6 +1350,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("demon_slayer", self._quest_calls)
+
+    def test_quests_tab_allows_dragon_slayer_elvarg_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Anti-dragon shield": 1}
+        pd["current_quest"] = "dragon_slayer"
+        pd["quests"]["dragon_slayer"] = {"started": True, "progress": 14, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 99
+        pd["strength_level"] = 99
+        pd["defense_level"] = 99
+        pd["constitution_level"] = 99
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Elvarg level 83"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_dragon_slayer")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("dragon_slayer", self._quest_calls)
 
     def test_quests_tab_allows_identical_source_generated_combat_gate_selection(self) -> None:
         pd = _make_player_data()

@@ -73,7 +73,11 @@
   Tolna rooms, and Death to the Dorgeshuun's Senior H.A.M. guard x3 row is
   resolver-ready. Demon Slayer now has a focused nine-stage replacement for the
   coin, bucket water, bones, Silverlight keys, Silverlight, Delrith, and
-  incantation flow; 108 combat rows remain statless and explicitly blocked.
+  incantation flow. Dragon Slayer now has a focused 16-stage replacement for the
+  Oziach/Guildmaster setup, anti-dragon shield, Melzar's Maze combat, three
+  Crandor map pieces, Oracle item door, Lady Lumbridge purchase/repair, Ned
+  route, Elvarg combat, and final Oziach report; 108 combat rows remain statless
+  and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -606,6 +610,35 @@ Focused verification passed:
 `python3 -m unittest tests.test_logic tests.test_runtime_actions tests.test_integration_smoke tests.test_skill_and_item_registry`
 and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget`.
+
+Dragon Slayer focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces Dragon Slayer's generated quest-wide row with a
+source-backed 16-stage chain: 32 quest points stays a start lock, Oziach and the
+Guildmaster are action gates, Maze key and Anti-dragon shield are produced at
+their real stages, Melzar's Maze resolves the sourced combat chain before
+producing a `Map part`, Wormbrain uses the deterministic 10,000 coin paid route,
+the Oracle door consumes `Wizard's mind bomb`, `Silk`, `Bowl (unfired)`, and one
+of `Crayfish cage`/`Lobster pot`, the three `Map part` items become `Crandor
+map`, the Lady Lumbridge consumes 2,000 coins plus planks/nails/hammer, Ned's
+route consumes the map, Elvarg requires an Anti-dragon shield and produces
+`Elvarg's head`, and final completion requires reporting to Oziach. Frontend:
+the existing Quest tab blocker surface now has offscreen Qt coverage for the
+Oracle item-option blocker and Elvarg's resolver-ready battle button. Assets:
+quest-stage item icons for the new Dragon Slayer blockers are registered with
+provenance. Post-slice audit reports 424 stage rows, 283 combat encounters, 175
+resolver-ready combat encounters, 174 quests with item/tool blockers, and 119
+quests with combat blockers. Full all-quest minute-detail parity remains open.
+Source audit:
+`memory-bank/source-audits/quest-dragon-slayer-stage-detail-2026-06-22.md`.
+Focused verification passed:
+`python3 -m unittest tests.test_quest_catalog.TestQuestCatalog.test_generated_catalog_stage_requirements_cover_items_and_combat`
+`python3 -m unittest tests.test_logic.TestLogic.test_dragon_slayer_stage_gates_items_combat_and_completion_rewards`
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_dragon_slayer_oracle_item_option_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_dragon_slayer_elvarg_combat_gate_selection`
+`python3 -m unittest tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
+Required full-suite verification passed: `python3 run_tests.py` passed with 471
+tests (111 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 471 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

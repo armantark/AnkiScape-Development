@@ -2594,35 +2594,91 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["runecrafting_exp"], 5000)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {"magic_exp": 5000.0})
 
-    def test_generated_quest_blocks_on_requirements_and_parks_unimplemented_xp(self):
+    def test_dragon_slayer_stage_gates_items_combat_and_completion_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
 
         reasons = quest_locked_reasons_pure(player_data, "dragon_slayer", QUEST_DATA)
-        self.assertIn("33 quest points", reasons)
+        self.assertIn("32 quest points", reasons)
         self.assertFalse(can_start_quest_pure(player_data, "dragon_slayer", QUEST_DATA))
 
-        player_data["quest_points"] = 33
-        player_data["quests"]["dragon_slayer"] = {
+        player_data["quest_points"] = 32
+        self.assertTrue(can_start_quest_pure(player_data, "dragon_slayer", QUEST_DATA))
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["dragon_slayer"]["progress"], 2)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "dragon_slayer", QUEST_DATA),
+            ("Action required: Accept Oziach's dragon-slaying challenge",),
+        )
+
+        oracle = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        oracle["quest_points"] = 32
+        oracle["quests"]["dragon_slayer"] = {
             "started": True,
-            "progress": QUEST_DATA["dragon_slayer"]["stages"] - 1,
+            "progress": 8,
             "completed": False,
         }
+        oracle["inventory"].update({
+            "Wizard's mind bomb": 1,
+            "Silk": 1,
+            "Bowl (unfired)": 1,
+        })
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(oracle, "dragon_slayer", QUEST_DATA),
+            ("Needs Crayfish cage x1 or Lobster pot x1",),
+        )
+        oracle["inventory"]["Lobster pot"] = 1
+        oracle, ok, completed_now = apply_quest_progress_pure(oracle, "dragon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(oracle["quests"]["dragon_slayer"]["progress"], 9)
+        self.assertEqual(oracle["inventory"]["Wizard's mind bomb"], 0)
+        self.assertEqual(oracle["inventory"]["Silk"], 0)
+        self.assertEqual(oracle["inventory"]["Bowl (unfired)"], 0)
+        self.assertEqual(oracle["inventory"]["Lobster pot"], 0)
+        self.assertEqual(oracle["inventory"]["Map part"], 1)
+
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_points"] = 32
+        player_data["quests"]["dragon_slayer"] = {
+            "started": True,
+            "progress": 14,
+            "completed": False,
+        }
+        player_data["inventory"]["Anti-dragon shield"] = 1
         blockers = quest_current_stage_blockers_pure(player_data, "dragon_slayer", QUEST_DATA)
-        self.assertTrue(blockers)
-        self.assertTrue(all(blocker["kind"] == "combat_locked" for blocker in blockers))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
 
         player_data["quest_combat_config"] = {"resolver_enabled": True}
-        encounter_ids = [
-            encounter["encounter_id"]
-            for requirement in QUEST_DATA["dragon_slayer"]["stage_requirements"]
-            for encounter in requirement.get("combat_encounters", ())
-        ]
-        player_data["quest_combat_encounters"] = {"dragon_slayer": encounter_ids}
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
+        player_data["attack_level"] = 99
+        player_data["strength_level"] = 99
+        player_data["defense_level"] = 99
+        player_data["constitution_level"] = 99
+        blockers = quest_current_stage_blockers_pure(player_data, "dragon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["display_name"], "Elvarg")
 
+        player_data, ok, result = apply_quest_combat_encounter_pure(player_data, "dragon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "dragon_slayer_elvarg_83")
+        self.assertEqual(player_data["quest_combat_encounters"], {"dragon_slayer": ["dragon_slayer_elvarg_83"]})
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["dragon_slayer"]["progress"], 15)
+        self.assertEqual(player_data["inventory"]["Elvarg's head"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "dragon_slayer", QUEST_DATA),
+            ("Action required: Report Elvarg's death to Oziach",),
+        )
+
+        player_data["quest_stage_actions"] = {"dragon_slayer": ["Report Elvarg's death to Oziach"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
-        self.assertEqual(player_data["quest_points"], 35)
+        self.assertEqual(player_data["quest_points"], 34)
         self.assertEqual(
             player_data["pending_skill_exp_rewards"],
             {"defense_exp": 18650.0, "strength_exp": 18650.0},

@@ -585,10 +585,22 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Grimy key",
             "Rubber tube",
             "Oil can",
+            "Maze key",
+            "Anti-dragon shield",
+            "Map part",
+            "Crandor map",
+            "Wizard's mind bomb",
+            "Silk",
+            "Crayfish cage",
+            "Lobster pot",
+            "Plank",
+            "Hammer",
+            "Elvarg's head",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))
             self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].asset_path, QUEST_ITEM_IMAGES[item_name])
             self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 

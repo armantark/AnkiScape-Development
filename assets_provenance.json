@@ -5591,6 +5591,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:21Z"
   },
+  "questitems/anti_dragon_shield.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Anti-dragon_shield.png",
+    "file_title": "Anti-dragon shield.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Anti-dragon_shield.png?0b6b6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eb55863b62dc07525c640462240135e6ba01ccef",
+    "size": 788,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:04Z"
+  },
   "questitems/blue_goblin_mail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blue_goblin_mail.png",
     "file_title": "Blue goblin mail.png",
@@ -5602,6 +5614,42 @@
     "size": 765,
     "source_wiki": "osrs",
     "timestamp": "2022-02-09T11:06:06Z"
+  },
+  "questitems/crandor_map.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crandor_map.png",
+    "file_title": "Crandor map.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Crandor_map.png?5352a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d6007470a15b302939a3341c1ad0b733fadabc94",
+    "size": 415,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:14Z"
+  },
+  "questitems/crayfish_cage.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crayfish_cage.png",
+    "file_title": "Crayfish cage.png",
+    "image_url": "https://runescape.wiki/images/Crayfish_cage.png?b3bf0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fdcba3214bb3619a7fbac3b22de2347268dcde6a",
+    "size": 744,
+    "source_wiki": "rs3",
+    "timestamp": "2024-11-20T04:08:51Z"
+  },
+  "questitems/elvarg_s_head.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Elvarg%27s_head.png",
+    "file_title": "Elvarg's head.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Elvarg%27s_head.png?c85b3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eebbab7c673b413d6923d1324a6259d0e451cad1",
+    "size": 691,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:42Z"
   },
   "questitems/fish_food.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fish_food.png",
@@ -5639,6 +5687,54 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-26T08:40:47Z"
   },
+  "questitems/hammer.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Hammer.png",
+    "file_title": "Hammer.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Hammer.png?43cf2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f1112739ae7169360bd1b0ac7d763b08005232ec",
+    "size": 349,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:41Z"
+  },
+  "questitems/lobster_pot.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lobster_pot.png",
+    "file_title": "Lobster pot.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Lobster_pot.png?8cc7e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "960922e38742784ee8cde4e0bd433a90a9ea25de",
+    "size": 558,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:48Z"
+  },
+  "questitems/map_part.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Map_part_%28Melzar%29.png",
+    "file_title": "Map part (Melzar).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Map_part_%28Melzar%29.png?ed6d0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "46c4ad4a7aebaedb4030fa57820dbdab3a3ce8e5",
+    "size": 190,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:54Z"
+  },
+  "questitems/maze_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Maze_key.png",
+    "file_title": "Maze key.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Maze_key.png?23ebf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "673db4e1fcadad11a0538436fc2f78ee30905fd3",
+    "size": 437,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:58Z"
+  },
   "questitems/oil_can.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Oil_can.png",
     "file_title": "Oil can.png",
@@ -5662,6 +5758,18 @@
     "size": 838,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:40Z"
+  },
+  "questitems/plank.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Plank.png",
+    "file_title": "Plank.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Plank.png?f976b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2c7571daa6b19e6616160868d3ac7fd7217a66d",
+    "size": 396,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:48Z"
   },
   "questitems/poison.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Poison_%28item%29.png",
@@ -5711,6 +5819,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:37Z"
   },
+  "questitems/silk.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Silk.png",
+    "file_title": "Silk.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Silk.png?3caa3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d5107f109524e0bae0d2531d1f06fe1b4f718209",
+    "size": 369,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:38Z"
+  },
   "questitems/silverlight.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Silverlight.png",
     "file_title": "Silverlight.png",
@@ -5734,6 +5854,18 @@
     "size": 483,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:40Z"
+  },
+  "questitems/wizard_s_mind_bomb.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wizard%27s_mind_bomb.png",
+    "file_title": "Wizard's mind bomb.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Wizard%27s_mind_bomb.png?d2390",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8f822c7fa501b12034ad6fc73531af57ffb76be0",
+    "size": 612,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:13:59Z"
   },
   "runecraftingitems/air_rune.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Air_rune.png",

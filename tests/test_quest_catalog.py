@@ -192,14 +192,46 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(delrith["npc_stats_source"].endswith("delrith (nostats).json"))
 
         dragon_slayer = data["dragon_slayer"]
+        self.assertEqual(dragon_slayer["stages"], 16)
+        self.assertEqual(dragon_slayer["required_quest_points"], 32)
+        dragon_by_stage = {row["stage"]: row for row in dragon_slayer["stage_requirements"]}
+        self.assertEqual(dragon_by_stage[3]["produced_inventory"], {"Maze key": 1})
+        self.assertEqual(dragon_by_stage[4]["produced_inventory"], {"Anti-dragon shield": 1})
+        self.assertEqual(dragon_by_stage[5]["required_tools"], {"Maze key": 1})
+        self.assertEqual(dragon_by_stage[5]["produced_inventory"], {"Map part": 1})
+        self.assertEqual(dragon_by_stage[6]["consumed_inventory"], {"Coins": 10000})
+        self.assertEqual(dragon_by_stage[6]["produced_inventory"], {"Map part": 1})
+        self.assertEqual(
+            dragon_by_stage[8]["consumed_inventory"],
+            {"Wizard's mind bomb": 1, "Silk": 1, "Bowl (unfired)": 1},
+        )
+        self.assertEqual(
+            dragon_by_stage[8]["consumed_inventory_options"],
+            (({"Crayfish cage": 1}, {"Lobster pot": 1}),),
+        )
+        self.assertEqual(dragon_by_stage[9]["consumed_inventory"], {"Map part": 3})
+        self.assertEqual(dragon_by_stage[9]["produced_inventory"], {"Crandor map": 1})
+        self.assertEqual(dragon_by_stage[10]["consumed_inventory"], {"Coins": 2000})
+        self.assertEqual(dragon_by_stage[11]["consumed_inventory"], {"Plank": 3, "Steel nails": 90})
+        self.assertEqual(dragon_by_stage[11]["required_tools"], {"Hammer": 1})
+        self.assertEqual(dragon_by_stage[12]["consumed_inventory"], {"Crandor map": 1})
+        self.assertEqual(dragon_by_stage[14]["required_tools"], {"Anti-dragon shield": 1})
+        self.assertEqual(dragon_by_stage[14]["produced_inventory"], {"Elvarg's head": 1})
+        self.assertEqual(dragon_by_stage[15]["required_inventory"], {"Elvarg's head": 1})
+
         combat_rows = [
             encounter
             for requirement in dragon_slayer["stage_requirements"]
             for encounter in requirement["combat_encounters"]
         ]
+        self.assertEqual(
+            [encounter["display_name"] for encounter in dragon_by_stage[5]["combat_encounters"]],
+            ["Zombie rat", "Ghost", "Skeleton", "Zombie", "Melzar the Mad", "Lesser demon"],
+        )
         self.assertIn("Elvarg", {encounter["display_name"] for encounter in combat_rows})
         lesser_demon = next(encounter for encounter in combat_rows if encounter["display_name"] == "Lesser demon")
         self.assertEqual(lesser_demon["npc_stats"]["hitpoints"], 790)
+        self.assertTrue(lesser_demon["npc_stats_source"].endswith("lesser_demon_lvl_82.plugin.kts"))
         elvarg = next(encounter for encounter in combat_rows if encounter["display_name"] == "Elvarg")
         self.assertEqual(elvarg["npc_stats"]["hitpoints"], 800)
         self.assertEqual(elvarg["npc_stats"]["attack"], 70)

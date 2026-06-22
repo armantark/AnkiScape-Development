@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dragon Slayer Stage-Gate Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.12), transparent 36%),
+        linear-gradient(315deg, rgba(251, 191, 36, 0.08), transparent 42%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 34px 0 44px; }
+    .badge {
+      display: inline-block;
+      padding: 7px 10px;
+      border: 1px solid rgba(79,140,255,0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #b9d6ff;
+      font: 700 12px ui-monospace, "SFMono-Regular", monospace;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 { margin: 16px 0 10px; max-width: 900px; font-size: clamp(32px, 6vw, 64px); line-height: 1.02; letter-spacing: 0; }
+    .subtitle { max-width: 860px; color: var(--text-dim); font-size: 18px; margin: 0 0 24px; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 60px rgba(0,0,0,0.22);
+    }
+    .card h2, .card h3 { margin: 0 0 12px; letter-spacing: 0; }
+    .card p { color: var(--text-dim); margin: 0; }
+    .metric { font-size: 42px; font-weight: 800; line-height: 1; margin-bottom: 8px; }
+    .metric.amber { color: var(--amber); }
+    .metric.green { color: var(--green); }
+    .metric.purple { color: var(--purple); }
+    .flow { display: grid; gap: 10px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .num {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: rgba(79,140,255,0.18);
+      color: #b9d6ff;
+      font: 800 14px ui-monospace, "SFMono-Regular", monospace;
+    }
+    .step strong { display: block; margin-bottom: 2px; }
+    .step span { color: var(--text-dim); font-size: 14px; }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 18px; }
+    .mini {
+      min-height: 190px;
+      background: #10141b;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .mini-label {
+      color: var(--text-dim);
+      font: 700 11px ui-monospace, "SFMono-Regular", monospace;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .row {
+      padding: 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 8px;
+      color: var(--text-dim);
+      font-size: 13px;
+    }
+    .row.blocked { color: #ffdba6; border-color: rgba(251,191,36,0.36); background: rgba(251,191,36,0.08); }
+    .row.combat { color: #ffb6b6; border-color: rgba(255,92,92,0.38); background: rgba(255,92,92,0.08); }
+    .row.done { color: #baf7cf; border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.08); }
+    code {
+      color: #c9e3ff;
+      background: rgba(79,140,255,0.12);
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+    .foot { color: var(--text-dim); font-size: 13px; margin-top: 18px; }
+    @media (max-width: 880px) {
+      main { width: min(100vw - 20px, 1180px); padding-top: 20px; }
+      .grid, .cards, .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">pre-implementation plan</span>
+    <h1>Dragon Slayer is the next source-backed stage gate.</h1>
+    <p class="subtitle">The catalog already knows Dragon Slayer has items and combat, but it is still broad generated data. This slice will move the quest into focused Darkan-backed stages so map pieces, Melzar's Maze, boat repair, shield prep, and Elvarg are not collapsed into one finish gate.</p>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Backend Scope</h2>
+        <div class="flow">
+          <div class="step"><div class="num">1</div><div><strong>Audit Darkan quest files</strong><span>Use `dragonslayer/DragonSlayer.java`, dialogue files, Melzar maze, boat scene, Wormbrain, and Elvarg sources.</span></div></div>
+          <div class="step"><div class="num">2</div><div><strong>Replace generated broad rows</strong><span>Add a focused `QuestDefinition` and per-stage `QuestStageRequirement` rows in `quest_data.py`, not `quest_catalog_generated.py`.</span></div></div>
+          <div class="step"><div class="num">3</div><div><strong>Keep combat fail-closed</strong><span>Elvarg and required maze fights remain battle gates behind the global combat resolver config.</span></div></div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Frontend Scope</h2>
+        <p>Use the existing Quest UI states. Add Qt/offscreen coverage for a Dragon Slayer stage blocker and a combat-stage blocker rather than creating new UI state.</p>
+        <div class="split">
+          <div class="mini">
+            <div class="mini-label">Before</div>
+            <div class="row blocked">Blocked: Needs Anti-dragon shield x1, Maze key x1, Unfired bowl x1...</div>
+            <div class="row combat">Combat mixed into broad generated row</div>
+          </div>
+          <div class="mini">
+            <div class="mini-label">After</div>
+            <div class="row blocked">Blocked: Needs Maze key x1</div>
+            <div class="row done">Boat repaired, map assembled</div>
+            <div class="row combat">Blocked: Battle required: Elvarg level 83</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="cards">
+      <article class="card"><div class="metric amber">319</div><p>generated rows remain before this slice. Dragon Slayer should reduce broad-row debt, not close the whole goal.</p></article>
+      <article class="card"><div class="metric green">194/194</div><p>quests already have at least one machine-readable row. The work now is minute-detail source placement.</p></article>
+      <article class="card"><div class="metric purple">1 enemy/review</div><p>Combat stays consistent with the global resolver contract and real NPC/player stats.</p></article>
+    </section>
+
+    <section class="card" style="margin-top:18px">
+      <h2>Explicit Non-Claims</h2>
+      <p>This will not make every quest complete. It will make Dragon Slayer more true and update the live audit/backlog. Shield of Arrav still needs branch and partner-state modeling; absent replaced quests such as Doric's Quest remain a catalog-era policy issue unless that policy is changed deliberately.</p>
+      <p class="foot">Postplan-safe: no secrets, no external assets, no private data.</p>
+    </section>
+  </main>
+</body>
+</html>

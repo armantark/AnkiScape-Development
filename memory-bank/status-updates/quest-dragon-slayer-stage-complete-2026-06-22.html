@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Dragon Slayer Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #151b24;
+      --panel-2: #1d2530;
+      --text: #e6edf3;
+      --muted: #98a6b3;
+      --line: #2b3442;
+      --good: #59d98e;
+      --warn: #f6c85f;
+      --bad: #ff7b72;
+      --blue: #74b7ff;
+      --violet: #b99cff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1160px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+
+    .top {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .hero {
+      min-height: 260px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-color: #334257;
+      background:
+        linear-gradient(135deg, rgba(116, 183, 255, 0.12), transparent 42%),
+        linear-gradient(315deg, rgba(246, 200, 95, 0.12), transparent 48%),
+        var(--panel);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .lead {
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 16px;
+      margin: 14px 0 0;
+    }
+
+    .flag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .flag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 7px 10px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .flag.good { color: var(--good); border-color: rgba(89, 217, 142, 0.4); }
+    .flag.warn { color: var(--warn); border-color: rgba(246, 200, 95, 0.42); }
+    .flag.bad { color: var(--bad); border-color: rgba(255, 123, 114, 0.42); }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      height: 100%;
+    }
+
+    .metric {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 112px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      line-height: 1;
+      margin-bottom: 7px;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .section {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    ul {
+      padding-left: 18px;
+      margin: 0;
+      color: var(--muted);
+    }
+
+    li + li { margin-top: 8px; }
+
+    .stage-map {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+    }
+
+    .stage {
+      min-height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #111821;
+    }
+
+    .stage b {
+      display: block;
+      color: var(--blue);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .stage span {
+      display: block;
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .stage small {
+      display: block;
+      color: var(--muted);
+      margin-top: 5px;
+      font-size: 11px;
+    }
+
+    .stage.combat { border-color: rgba(255, 123, 114, 0.55); }
+    .stage.item { border-color: rgba(246, 200, 95, 0.55); }
+    .stage.action { border-color: rgba(116, 183, 255, 0.55); }
+    .stage.done { border-color: rgba(89, 217, 142, 0.55); }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .callout {
+      border-left: 4px solid var(--bad);
+      background: #16171f;
+      padding: 12px;
+      border-radius: 6px;
+      color: var(--muted);
+    }
+
+    .callout strong { color: var(--text); }
+
+    .test-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .test-row:first-of-type { border-top: 0; }
+    .status {
+      color: var(--good);
+      border: 1px solid rgba(89, 217, 142, 0.4);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab-control {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .tab-label {
+      display: inline-block;
+      border: 1px solid var(--line);
+      background: #101721;
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 13px;
+    }
+
+    #tab-tests:checked ~ .tabs label[for="tab-tests"],
+    #tab-deferred:checked ~ .tabs label[for="tab-deferred"],
+    #tab-manual:checked ~ .tabs label[for="tab-manual"] {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: rgba(116, 183, 255, 0.1);
+    }
+
+    .tab-panel { display: none; }
+    #tab-tests:checked ~ .tab-panels #tests,
+    #tab-deferred:checked ~ .tab-panels #deferred,
+    #tab-manual:checked ~ .tab-panels #manual { display: block; }
+
+    code {
+      color: #d2e5ff;
+      background: #0a0f15;
+      border: 1px solid var(--line);
+      padding: 2px 5px;
+      border-radius: 5px;
+      word-break: break-word;
+    }
+
+    .footer {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 920px) {
+      .top, .section, .split { grid-template-columns: 1fr; }
+      .stage-map { grid-template-columns: repeat(2, 1fr); }
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="top">
+      <section class="panel hero">
+        <div>
+          <p class="eyebrow">Quest stage-gate slice complete</p>
+          <h1>Dragon Slayer now has real current-stage blockers.</h1>
+          <p class="lead">
+            This slice proves the model on a high-risk quest: startability stays at 32 quest points, while the shield, map pieces, Oracle items, ship repair, Elvarg, and the final Oziach report are finishability gates.
+          </p>
+        </div>
+        <div class="flag-row">
+          <span class="flag good">Backend slice complete</span>
+          <span class="flag good">Qt blocker tests pass</span>
+          <span class="flag good">Assets wired</span>
+          <span class="flag warn">All-quest minute parity still open</span>
+        </div>
+      </section>
+
+      <aside class="score-grid">
+        <div class="metric"><strong>16</strong><span>Dragon Slayer journal stages</span></div>
+        <div class="metric"><strong>14</strong><span>Machine-readable Dragon Slayer gate rows</span></div>
+        <div class="metric"><strong>424</strong><span>Total catalog stage rows after slice</span></div>
+        <div class="metric"><strong>108</strong><span>Combat rows still statless and blocked</span></div>
+      </aside>
+    </div>
+
+    <div class="section">
+      <section class="panel">
+        <h2>Backend</h2>
+        <ul>
+          <li>`quest_data.py` now owns a focused Dragon Slayer replacement.</li>
+          <li>Stage advancement consumes and produces quest items at their source-backed points.</li>
+          <li>Elvarg is a required combat encounter and produces `Elvarg's head` only after combat is resolved.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Frontend</h2>
+        <ul>
+          <li>No production UI rewrite was needed.</li>
+          <li>Existing Quest cards display the Oracle item-option blocker.</li>
+          <li>Existing Quest action button enables the Elvarg battle only when resolver-ready.</li>
+        </ul>
+      </section>
+
+      <section class="panel">
+        <h2>Assets</h2>
+        <ul>
+          <li>11 Dragon Slayer quest item icons were fetched with provenance.</li>
+          <li>`Map part` uses Melzar's map-piece icon as the canonical representative.</li>
+          <li>Asset-path tests now cover every new quest-stage item.</li>
+        </ul>
+      </section>
+
+      <section class="panel full">
+        <h2>Stage Map</h2>
+        <div class="stage-map">
+          <div class="stage action"><b>2</b><span>Oziach challenge</span><small>Action gate</small></div>
+          <div class="stage action"><b>3</b><span>Guildmaster briefing</span><small>Produces Maze key</small></div>
+          <div class="stage item"><b>4</b><span>Duke Horacio</span><small>Produces shield</small></div>
+          <div class="stage combat"><b>5</b><span>Melzar's Maze</span><small>6 sourced fights + map part</small></div>
+          <div class="stage item"><b>6</b><span>Wormbrain</span><small>10,000 coin paid route</small></div>
+          <div class="stage item"><b>8</b><span>Oracle door</span><small>Mind bomb, silk, bowl, cage/pot</small></div>
+          <div class="stage item"><b>11</b><span>Repair ship</span><small>Planks, nails, hammer</small></div>
+          <div class="stage combat"><b>14</b><span>Elvarg</span><small>Shield + battle required</small></div>
+          <div class="stage action done"><b>15</b><span>Report to Oziach</span><small>Requires Elvarg's head</small></div>
+        </div>
+      </section>
+
+      <section class="panel full">
+        <input class="tab-control" type="radio" name="status-tab" id="tab-tests" checked>
+        <input class="tab-control" type="radio" name="status-tab" id="tab-deferred">
+        <input class="tab-control" type="radio" name="status-tab" id="tab-manual">
+        <div class="tabs">
+          <label class="tab-label" for="tab-tests">Tests</label>
+          <label class="tab-label" for="tab-deferred">Deferred</label>
+          <label class="tab-label" for="tab-manual">Manual Anki</label>
+        </div>
+
+        <div class="tab-panels">
+          <div id="tests" class="tab-panel">
+            <div class="test-row"><span><code>python3 run_tests.py</code></span><span class="status">471 passed</span></div>
+            <div class="test-row"><span><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code></span><span class="status">471 passed</span></div>
+            <div class="test-row"><span>Targeted catalog, logic, Qt, and asset-registry tests</span><span class="status">passed</span></div>
+          </div>
+
+          <div id="deferred" class="tab-panel">
+            <div class="split">
+              <div class="callout"><strong>Not complete:</strong> this does not finish every quest in the plugin. It finishes Dragon Slayer as the next source-backed proof slice.</div>
+              <div class="callout"><strong>Still open:</strong> generated-row replacement, branch/partner state, route flags, puzzle state, Wormbrain kill-vs-pay branching, 108 statless combat rows, and full combat simulation.</div>
+            </div>
+          </div>
+
+          <div id="manual" class="tab-panel">
+            <ul>
+              <li>Start Dragon Slayer only after 32 quest points; confirm quest-use items do not block start.</li>
+              <li>At Oracle stage, confirm missing cage/pot blocks while mind bomb, silk, and unfired bowl alone are insufficient.</li>
+              <li>At Elvarg stage, confirm combat is globally locked until resolver config is enabled.</li>
+              <li>Resolve Elvarg, then confirm the next normal quest review produces `Elvarg's head` without completing the quest.</li>
+              <li>Report to Oziach and confirm exactly 2 quest points plus Strength/Defence XP are awarded once.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <p class="footer">
+      Source audit: <code>memory-bank/source-audits/quest-dragon-slayer-stage-detail-2026-06-22.md</code>
+    </p>
+  </main>
+</body>
+</html>
