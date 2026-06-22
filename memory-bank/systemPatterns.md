@@ -64,7 +64,7 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - The broad quest catalog is generated, not hand-maintained. `tools/build_pre_eoc_quest_catalog.py` produces a 194-row pre-EOC catalog by real release order, with Recipe for Disaster split into separate subquests. Each row should carry source oldids, strict prerequisites, point/XP/item rewards, lamp rewards, and source-backed journal stages. Hand-audited overrides belong in `quest_data.py` when local 2011-era evidence is stricter than current wiki data.
 - Quest starts are strict. A quest with incomplete prerequisite quests or unimplemented required skills must be impossible to start. Completion XP for implemented skills is granted immediately; XP for unimplemented skills is stored in `pending_skill_exp_rewards` and applied by migration when the skill becomes implemented.
 - Quest-list availability should flow through `quest_availability_state_pure()`, not ad hoc UI checks. Its states are `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. `locked` means the quest cannot start; `blocked_at_stage` means a started quest is waiting on current-stage inventory, tools, actions, routes, or combat. Keep that separation: stage requirements are not start locks.
-- Stage-aware quest requirements live in `QuestDefinition.stage_requirements` data, serialized by `quests_as_dict()` and enforced by pure helpers in `logic_pure.py`. Use `quest_current_stage_blockers_pure()` / `quest_current_stage_blocker_reasons_pure()` for display, `can_progress_quest_pure()` for review readiness, and `apply_quest_progress_pure()` for stage advancement and stage-local consumed/produced items. The first proof case is The Knight's Sword: Mining 10 remains a start requirement, Redberry pie is consumed at Thurgo's stage, Blurite ore plus two Iron bars are consumed at the later Thurgo materials stage, and the 12,725 Smithing XP reward fires only on valid completion. A later 2011Scape starter batch added `produced_inventory` for quest intermediates such as Druidic Ritual enchanted meats, Pirate's Treasure chest key/message, and Vampyre Slayer stake/stake hammer. A follow-up intermediate batch added `start_inventory` and source-backed produced/consumed chains for Rune Mysteries, The Restless Ghost, and Lost City, including Ghostspeak amulet, Muddy skull, Air talisman, Research package, Research notes, Dramen branch, and Dramen staff. The Quests tab may show "Used during quest" item requirements before start, but those items must not block starting unless the source says they are start requirements.
+- Stage-aware quest requirements live in `QuestDefinition.stage_requirements` data, serialized by `quests_as_dict()` and enforced by pure helpers in `logic_pure.py`. Use `quest_current_stage_blockers_pure()` / `quest_current_stage_blocker_reasons_pure()` for display, `can_progress_quest_pure()` for review readiness, and `apply_quest_progress_pure()` for stage advancement and stage-local consumed/produced items. The first proof case is The Knight's Sword: Mining 10 remains a start requirement, Redberry pie is consumed at Thurgo's stage, Blurite ore plus two Iron bars are consumed at the later Thurgo materials stage, and the 12,725 Smithing XP reward fires only on valid completion. A later 2011Scape starter batch added `produced_inventory` for quest intermediates such as Druidic Ritual enchanted meats, Pirate's Treasure chest key/message, and Vampyre Slayer stake/stake hammer. A follow-up intermediate batch added `start_inventory` and source-backed produced/consumed chains for Rune Mysteries, The Restless Ghost, and Lost City, including Ghostspeak amulet, Muddy skull, Air talisman, Research package, Research notes, Dramen branch, and Dramen staff. Demon Slayer is now a Darkan-backed focused replacement: it uses a nine-stage internal model so bucket water, 25 bones, three Silverlight keys, Silverlight, Delrith, and the incantation all gate at their source-backed stages before completion. The Quests tab may show "Used during quest" item requirements before start, but those items must not block starting unless the source says they are start requirements.
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
@@ -88,8 +88,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer.
   The 2011Scape intermediate batch then replaced The Restless Ghost, Rune
   Mysteries, and Lost City with local source-backed item/action/route/combat
-  chains, bringing the live audit to 396 stage rows, 73 focused rows, 323
-  generated rows, and 10 produced-inventory rows. This is still broad
+  chains. The Demon Slayer focused replacement then moved bucket water, bones,
+  Silverlight keys, Silverlight, Delrith, and incantation requirements out of a
+  broad generated combat row. The live audit now reports 401 stage rows, 80
+  focused rows, 321 generated rows, and 14 produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -100,6 +102,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-2011scape-starter-stage-batch-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-2011scape-intermediate-stage-batch-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -129,8 +133,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   NPC name plus combat level. Darkan duplicates can be accepted only when all
   captured battle stats/configs agree; conflicting duplicates stay statless.
   The Restless Ghost Skeleton Warlock is the focused override proof case;
-  Demon Slayer's Delrith and Dragon Slayer's Elvarg prove the generated Darkan
-  fallback, and Elemental Workshop's Earth Elemental proves the identical
+  Demon Slayer's Delrith is now a focused Darkan stage replacement, Dragon
+  Slayer's Elvarg proves the generated Darkan fallback, and Elemental Workshop's Earth Elemental proves the identical
   duplicate-source path, while Priest in Peril's Monk of Zamorak and Troll
   Stronghold's Dad prove focused conflict resolution from area-specific Darkan
   quest/combat sources. Witch's House proves a focused replacement can split an

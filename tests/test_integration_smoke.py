@@ -639,7 +639,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Count Draynor"])
         self.assertEqual(calls["dialogs"], [])
 
-    def test_quest_answer_resolves_darkan_backed_generated_combat_gate(self):
+    def test_quest_answer_resolves_source_backed_demon_slayer_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_darkan_combat_integration")
 
         calls = {"save": 0, "gains": [], "dialogs": []}
@@ -651,9 +651,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol({}))
         addon.current_skill = "Quests"
         addon.player_data = {
-            "inventory": {},
+            "inventory": {"Silverlight": 1},
             "current_quest": "demon_slayer",
-            "quests": {"demon_slayer": {"started": True, "progress": 3, "completed": False}},
+            "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
@@ -672,7 +672,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.on_quest_answer()
 
         self.assertEqual(addon.current_skill, "Quests")
-        self.assertEqual(addon.player_data["quests"]["demon_slayer"]["progress"], 3)
+        self.assertEqual(addon.player_data["quests"]["demon_slayer"]["progress"], 7)
         self.assertFalse(addon.player_data["quests"]["demon_slayer"]["completed"])
         self.assertEqual(addon.player_data["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
         self.assertEqual(calls["save"], 1)

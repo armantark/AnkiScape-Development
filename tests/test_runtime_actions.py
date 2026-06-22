@@ -224,12 +224,12 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Count Draynor"])
 
-    def test_quest_answer_resolves_darkan_backed_generated_combat_before_stage_progress(self):
+    def test_quest_answer_resolves_source_backed_demon_slayer_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {"Silverlight": 1},
             "current_quest": "demon_slayer",
-            "quests": {"demon_slayer": {"started": True, "progress": 3, "completed": False}},
+            "quests": {"demon_slayer": {"started": True, "progress": 7, "completed": False}},
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "pending_skill_exp_rewards": {},
@@ -244,7 +244,7 @@ class TestRuntimeActions(unittest.TestCase):
         ok = handle_quest_answer(_context(player_data, calls))
 
         self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 3)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 7)
         self.assertFalse(player_data["quests"]["demon_slayer"]["completed"])
         self.assertEqual(player_data["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
         self.assertEqual(calls["saves"], 1)

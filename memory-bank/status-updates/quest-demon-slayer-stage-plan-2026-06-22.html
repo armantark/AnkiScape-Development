@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demon Slayer Stage Gate Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(145deg, #0c0e12 0%, #121824 52%, #0c0e12 100%);
+      color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 30px 0 46px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.55);
+      border-radius: 999px;
+      color: var(--accent);
+      background: rgba(79, 140, 255, 0.1);
+      font: 700 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.04em;
+    }
+    h1 {
+      margin: 12px 0 10px;
+      font-size: 34px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    p { color: var(--text-dim); margin: 0; }
+    .hero, .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+    }
+    .hero { padding: 26px; margin-bottom: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .card { padding: 18px; }
+    h2 { margin: 0 0 12px; font-size: 18px; }
+    .lane {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: rgba(79, 140, 255, 0.16);
+      color: var(--accent);
+      font-weight: 800;
+    }
+    .title { color: var(--text); font-weight: 700; }
+    .meta { color: var(--text-dim); font-size: 13px; margin-top: 3px; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+    }
+    .metric b {
+      display: block;
+      font-size: 26px;
+      margin-bottom: 2px;
+    }
+    .metric span { color: var(--text-dim); font-size: 12px; }
+    .amber b { color: var(--amber); }
+    .green b { color: var(--green); }
+    .red b { color: var(--red); }
+    .purple b { color: var(--purple); }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .pane {
+      min-height: 170px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10151d;
+    }
+    .pane h3 {
+      margin: 0 0 10px;
+      font: 700 12px ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .pill {
+      display: inline-block;
+      margin: 0 5px 6px 0;
+      padding: 4px 7px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+    }
+    .pill.ok { border-color: rgba(74, 222, 128, 0.5); color: var(--green); }
+    .pill.warn { border-color: rgba(251, 191, 36, 0.5); color: var(--amber); }
+    .pill.bad { border-color: rgba(255, 92, 92, 0.5); color: var(--red); }
+    @media (max-width: 860px) {
+      .grid, .metrics, .compare { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+      <h1>Next quest-stage batch: Demon Slayer</h1>
+      <p>
+        The all-quest goal is still not complete. This slice targets one early,
+        high-signal quest whose current row is too broad: Demon Slayer has
+        start-style item buckets where the real quest has key collection,
+        Silverlight acquisition, and Delrith combat.
+      </p>
+    </section>
+
+    <section class="metrics">
+      <div class="metric green"><b>194/194</b><span>quests with at least one stage row</span></div>
+      <div class="metric amber"><b>323</b><span>generated rows still need source-stage audit</span></div>
+      <div class="metric red"><b>108</b><span>statless combat rows still blocked</span></div>
+      <div class="metric purple"><b>1</b><span>focused quest in this next slice</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Backend</h2>
+        <div class="lane">
+          <div class="step"><div class="num">1</div><div><div class="title">Audit Darkan quest implementation</div><div class="meta">Use DemonSlayer.java plus Gypsy Aris, Sir Prysin, Captain Rovin, Traiborn, Delrith, and controller sources.</div></div></div>
+          <div class="step"><div class="num">2</div><div><div class="title">Replace generated broad rows</div><div class="meta">Move Coins, Bones, Bucket of water, three Silverlight keys, and Silverlight to their real current-stage transitions.</div></div></div>
+          <div class="step"><div class="num">3</div><div><div class="title">Preserve combat lock</div><div class="meta">Delrith remains a battle gate, globally locked by default and resolver-ready only through sourced stats.</div></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Frontend</h2>
+        <div class="lane">
+          <div class="step"><div class="num">1</div><div><div class="title">Reuse current blocker UI</div><div class="meta">No new widget contract unless the data exposes a blocker the current compact wording cannot explain.</div></div></div>
+          <div class="step"><div class="num">2</div><div><div class="title">Add Qt coverage if needed</div><div class="meta">Started Demon Slayer should show current-stage blockers rather than becoming a start lock.</div></div></div>
+          <div class="step"><div class="num">3</div><div><div class="title">Document manual Anki flow</div><div class="meta">Checklist must prove Silverlight is produced before Delrith and XP/rewards only fire on completion.</div></div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>Before / After Contract</h2>
+      <div class="compare">
+        <div class="pane">
+          <h3>Current broad row</h3>
+          <span class="pill bad">Coins x1</span>
+          <span class="pill bad">Bones x25</span>
+          <span class="pill bad">Bucket/Bucket of water</span>
+          <span class="pill warn">Delrith combat at stage 3</span>
+          <p>Useful as a blocker, but not real stage state.</p>
+        </div>
+        <div class="pane">
+          <h3>Target source-backed flow</h3>
+          <span class="pill ok">Gypsy Aris action</span>
+          <span class="pill ok">Sir Prysin action</span>
+          <span class="pill ok">Silverlight key x3</span>
+          <span class="pill ok">Silverlight produced</span>
+          <span class="pill warn">Delrith battle</span>
+          <p>Stage advancement should reflect actual quest artifacts and fail closed at combat.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

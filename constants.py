@@ -226,6 +226,7 @@ FISHING_ITEMS_FOLDER = os.path.join(current_dir, "fishingitems")
 HUNTER_ITEMS_FOLDER = os.path.join(current_dir, "hunteritems")
 COOKING_ITEMS_FOLDER = os.path.join(current_dir, "cookingitems")
 RUNECRAFTING_ITEMS_FOLDER = os.path.join(current_dir, "runecraftingitems")
+QUEST_ITEMS_FOLDER = os.path.join(current_dir, "questitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -565,6 +566,11 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
     _path = os.path.join(SMITHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
+QUEST_ITEM_IMAGES = {}
+for _item_name in QUEST_REWARD_ITEM_DATA:
+    _path = os.path.join(QUEST_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        QUEST_ITEM_IMAGES[_item_name] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 
 
@@ -604,6 +610,7 @@ EXTRA_ITEM_IMAGES = {
     **HUNTER_ITEM_IMAGES,
     **COOKING_ITEM_IMAGES,
     **RUNECRAFTING_ITEM_IMAGES,
+    **QUEST_ITEM_IMAGES,
 }
 
 ITEM_DEFINITIONS = build_item_definitions(

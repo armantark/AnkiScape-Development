@@ -41,17 +41,18 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 171 quests with item/tool/option
+  with at least one stage requirement, 174 quests with item/tool/option
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 174/283 source-backed NPC stat rows after local
+  combat now has 175/283 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
   local 2011Scape Skeleton Warlock focused override for The Restless Ghost,
-  generated Darkan rows such as Delrith, Elvarg, and Earth Elemental, plus
-  Priest in Peril's Monk of Zamorak and Troll Stronghold's Dad. Witch's House
+  Demon Slayer's focused Delrith stage row, generated Darkan rows such as
+  Elvarg and Earth Elemental, plus Priest in Peril's Monk of Zamorak and Troll
+  Stronghold's Dad. Witch's House
   now replaces one ambiguous generated experiment fight with four
   resolver-ready Darkan-backed forms. The style-aware resolver pass also
   accepts source-backed magic/ranged rows with zero melee Strength, adding
@@ -70,7 +71,9 @@
   of H.A.M.'s H.A.M. ranger resolver-ready. A Soul's Bane now has sourced
   action/combat stage splits for the rage, fear, confusion, hopelessness, and
   Tolna rooms, and Death to the Dorgeshuun's Senior H.A.M. guard x3 row is
-  resolver-ready; 109 combat rows remain statless and explicitly blocked.
+  resolver-ready. Demon Slayer now has a focused nine-stage replacement for the
+  coin, bucket water, bones, Silverlight keys, Silverlight, Delrith, and
+  incantation flow; 108 combat rows remain statless and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -97,7 +100,8 @@
   `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md`,
   `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md`,
   and
-  `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md`.
+  `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -551,6 +555,33 @@ Source audit:
 Verification: `python3 run_tests.py` passed with 463 tests (108 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 463 tests.
+
+Demon Slayer focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces Demon Slayer's broad generated row with a
+Darkan-backed nine-stage flow: coin at Gypsy Aris, bucket water and drained key,
+25 bones for Traiborn, Captain Rovin's key, three keys converted into
+Silverlight, Delrith fought with Silverlight, and the incantation action before
+the completion marker. Silverlight is produced during the quest and is not
+duplicated as a completion reward. Delrith uses Darkan combat stats and remains
+globally locked unless `quest_combat_config.resolver_enabled` is true; supporting
+Dark wizards are recorded as source detail until full battle metadata can model
+non-required supporting attackers. Frontend: the existing Quests tab blocker
+surface now shows Demon Slayer's bucket-water blocker at stage 3 and Delrith as
+the stage 7 combat blocker. Assets: `questitems/silverlight.png` and
+`questitems/silverlight_key.png` are registered with provenance. Post-slice audit
+reports 401 stage rows, 80 focused rows, 321 generated rows, 283 combat
+encounters, 175 resolver-ready combat encounters, 174 quests with item/tool
+blockers, and 119 quests with combat blockers. Full all-quest minute-detail
+parity remains open. Source audit:
+`memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`.
+Focused verification passed:
+`python3 -m unittest tests.test_quest_catalog tests.test_logic tests.test_runtime_actions tests.test_integration_smoke`
+and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget tests.test_skill_and_item_registry`.
+Required full-suite verification passed: `python3 run_tests.py` passed with 465
+tests (108 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 465 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

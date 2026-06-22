@@ -5591,6 +5591,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:21Z"
   },
+  "questitems/silverlight.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Silverlight.png",
+    "file_title": "Silverlight.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Silverlight.png?0df0a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4d5d7fbd9dd385de20427d1756696dbaf5aaf268",
+    "size": 524,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:40Z"
+  },
+  "questitems/silverlight_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Silverlight_key_%28Captain_Rovin%29.png",
+    "file_title": "Silverlight key (Captain Rovin).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Silverlight_key_%28Captain_Rovin%29.png?0df0a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e58fa944fb43fc394f12ed1026f2450c5319d3c5",
+    "size": 483,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:40Z"
+  },
   "runecraftingitems/air_rune.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Air_rune.png",
     "file_title": "Air rune.png",

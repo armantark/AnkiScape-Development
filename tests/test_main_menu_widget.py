@@ -1241,19 +1241,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_the_knights_sword"))
 
-    def test_quests_tab_shows_generated_combat_gate_as_stage_blocker(self) -> None:
+    def test_quests_tab_shows_demon_slayer_item_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "demon_slayer"
         pd["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Combat locked until battle support is enabled: Delrith level 27"
+        expected = "Blocked: Needs Bucket of water x1"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_demon_slayer")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Delrith level 27", action.toolTip())
+        self.assertIn("Bucket of water x1", action.toolTip())
 
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
@@ -1295,10 +1295,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Top-quality milk x1", action.toolTip())
 
-    def test_quests_tab_allows_darkan_backed_generated_combat_gate_selection(self) -> None:
+    def test_quests_tab_allows_demon_slayer_source_backed_combat_gate_selection(self) -> None:
         pd = _make_player_data()
+        pd["inventory"] = {"Silverlight": 1}
         pd["current_quest"] = "demon_slayer"
-        pd["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
+        pd["quests"]["demon_slayer"] = {"started": True, "progress": 7, "completed": False}
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 30
         pd["strength_level"] = 30

@@ -140,6 +140,23 @@ class TestQuestCatalog(unittest.TestCase):
         )
 
         demon = data["demon_slayer"]
+        self.assertEqual(demon["stages"], 9)
+        self.assertEqual(demon["point_reward"], 3)
+        self.assertEqual(demon["rewards"], {})
+        demon_requirements = {requirement["stage"]: requirement for requirement in demon["stage_requirements"]}
+        self.assertEqual(demon_requirements[1]["consumed_inventory"], {"Coins": 1})
+        self.assertEqual(demon_requirements[3]["consumed_inventory"], {"Bucket of water": 1})
+        self.assertEqual(demon_requirements[3]["produced_inventory"], {"Bucket": 1, "Silverlight key": 1})
+        self.assertEqual(demon_requirements[4]["consumed_inventory"], {"Bones": 25})
+        self.assertEqual(demon_requirements[4]["produced_inventory"], {"Silverlight key": 1})
+        self.assertEqual(demon_requirements[5]["produced_inventory"], {"Silverlight key": 1})
+        self.assertEqual(demon_requirements[6]["consumed_inventory"], {"Silverlight key": 3})
+        self.assertEqual(demon_requirements[6]["produced_inventory"], {"Silverlight": 1})
+        self.assertEqual(demon_requirements[7]["required_tools"], {"Silverlight": 1})
+        self.assertEqual(
+            demon_requirements[8]["required_actions"],
+            ("Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",),
+        )
         delrith = next(
             encounter
             for requirement in demon["stage_requirements"]

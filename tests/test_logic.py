@@ -2172,9 +2172,109 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "the_restless_ghost", QUEST_DATA), ())
 
-    def test_demon_slayer_delrith_generated_darkan_stats_are_resolver_ready(self):
+    def test_demon_slayer_source_backed_stage_chain_blocks_and_completes_in_order(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
+        player_data["quests"]["demon_slayer"] = {"started": True, "progress": 1, "completed": False}
+        player_data["inventory"]["Coins"] = 1
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Coins"], 0)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 3)
+
+        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item",))
+        self.assertEqual(blockers[0]["reason"], "Needs Bucket of water x1")
+
+        player_data["inventory"]["Bucket of water"] = 1
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 4)
+        self.assertEqual(player_data["inventory"]["Bucket of water"], 0)
+        self.assertEqual(player_data["inventory"]["Bucket"], 1)
+        self.assertEqual(player_data["inventory"]["Silverlight key"], 1)
+
+        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item",))
+        self.assertEqual(blockers[0]["reason"], "Needs Bones x25")
+
+        player_data["inventory"]["Bones"] = 25
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 5)
+        self.assertEqual(player_data["inventory"]["Bones"], 0)
+        self.assertEqual(player_data["inventory"]["Silverlight key"], 2)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 6)
+        self.assertEqual(player_data["inventory"]["Silverlight key"], 3)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 7)
+        self.assertEqual(player_data["inventory"]["Silverlight key"], 0)
+        self.assertEqual(player_data["inventory"]["Silverlight"], 1)
+
+        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(
+            blockers[0]["reason"],
+            "Combat locked until battle support is enabled: Delrith level 27",
+        )
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 30
+        player_data["strength_level"] = 30
+        player_data["defense_level"] = 30
+        player_data["constitution_level"] = 30
+        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Delrith level 27")
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "demon_slayer_delrith_27")
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 7)
+        self.assertFalse(player_data["quests"]["demon_slayer"]["completed"])
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 8)
+
+        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action",))
+        self.assertEqual(
+            blockers[0]["reason"],
+            "Action required: Recite Aber, Gabindo, Purchai, Camerinthum, Carlem",
+        )
+
+        player_data["quest_stage_actions"] = {
+            "demon_slayer": ["Recite Aber, Gabindo, Purchai, Camerinthum, Carlem"],
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["demon_slayer"]["completed"])
+        self.assertEqual(player_data["quest_points"], 3)
+        self.assertEqual(player_data["inventory"]["Silverlight"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+
+    def test_demon_slayer_delrith_source_backed_stats_are_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"]["Silverlight"] = 1
+        player_data["quests"]["demon_slayer"] = {"started": True, "progress": 7, "completed": False}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 30
         player_data["strength_level"] = 30

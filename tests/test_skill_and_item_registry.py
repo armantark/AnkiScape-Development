@@ -33,6 +33,7 @@ from constants import (
     MINING_OUTPUT_ITEMS,
     MINING_PICKAXE_DATA,
     ORE_DATA,
+    QUEST_ITEM_IMAGES,
     RUNECRAFTING_ACCESS_ITEMS,
     RUNECRAFTING_DATA,
     RUNECRAFTING_EXTRA_ITEM_DATA,
@@ -565,6 +566,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIn(item_name, COOKING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
         for item_name in ("Redberry pie", "Blurite ore", "Iron bar"):
+            self.assertIn(item_name, by_storage_key)
+            self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_quest_stage_items_resolve_icons(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in ("Silverlight", "Silverlight key"):
+            self.assertIn(item_name, QUEST_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))
             self.assertIn(item_name, by_storage_key)
             self.assertIsNotNone(by_storage_key[item_name].asset_path, f"{item_name} should have a quest-stage icon")
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())

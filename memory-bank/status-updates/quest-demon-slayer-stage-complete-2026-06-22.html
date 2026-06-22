@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demon Slayer Stage Gate Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #090b10;
+      --panel: #121722;
+      --panel-2: #171e2b;
+      --line: #273244;
+      --text: #f4f7fb;
+      --muted: #aab4c3;
+      --accent: #60d394;
+      --warn: #f6c85f;
+      --danger: #ff6b6b;
+      --blue: #74b9ff;
+      --violet: #b8a1ff;
+      --shadow: 0 22px 70px rgba(0,0,0,.35);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(96,211,148,.14), transparent 26rem),
+        radial-gradient(circle at 78% 6%, rgba(116,185,255,.14), transparent 22rem),
+        linear-gradient(180deg, #090b10 0%, #0b1018 55%, #090b10 100%);
+      color: var(--text);
+      font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 34px 20px 52px; }
+    header {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 { font-size: clamp(2.15rem, 5vw, 4.25rem); line-height: .98; letter-spacing: 0; }
+    h2 { font-size: 1.08rem; letter-spacing: 0; }
+    h3 { font-size: .9rem; color: var(--muted); font-weight: 650; text-transform: uppercase; }
+    .hero, .panel {
+      background: linear-gradient(180deg, rgba(23,30,43,.94), rgba(14,19,29,.94));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+    .hero { padding: 28px; display: grid; gap: 22px; min-height: 300px; }
+    .lede { max-width: 780px; color: var(--muted); font-size: 1.03rem; }
+    .answer {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: #10151d;
+      background: var(--warn);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-weight: 800;
+      width: fit-content;
+    }
+    .answer::before { content: "No"; color: #10151d; font-weight: 900; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .stat {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.03);
+    }
+    .stat strong { display: block; font-size: 1.7rem; line-height: 1; }
+    .stat span { color: var(--muted); font-size: .84rem; }
+    .grid { display: grid; gap: 18px; grid-template-columns: minmax(0, 1fr) minmax(310px, .75fr); }
+    .panel { padding: 18px; }
+    .timeline { display: grid; gap: 10px; margin-top: 14px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.025);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .num {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: #1e2a3c;
+      color: var(--blue);
+      font-weight: 800;
+    }
+    .step b { display: block; }
+    .step small { color: var(--muted); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(96,211,148,.14);
+      color: var(--accent);
+      border: 1px solid rgba(96,211,148,.35);
+      font-size: .78rem;
+      white-space: nowrap;
+    }
+    .pill.warn { background: rgba(246,200,95,.13); color: var(--warn); border-color: rgba(246,200,95,.35); }
+    .pill.danger { background: rgba(255,107,107,.12); color: var(--danger); border-color: rgba(255,107,107,.35); }
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: rgba(255,255,255,.025);
+      min-height: 118px;
+    }
+    .card p { color: var(--muted); margin-top: 7px; }
+    code, textarea {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    }
+    .tests { display: grid; gap: 10px; margin-top: 14px; }
+    .test {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: rgba(255,255,255,.025);
+    }
+    .dot { width: 10px; height: 10px; margin-top: 6px; border-radius: 50%; background: var(--accent); flex: 0 0 auto; }
+    .test span { color: var(--muted); }
+    .bars { display: grid; gap: 12px; margin-top: 14px; }
+    .bar label { display: flex; justify-content: space-between; color: var(--muted); font-size: .86rem; margin-bottom: 6px; }
+    .track { height: 12px; border-radius: 999px; background: #0c111a; border: 1px solid var(--line); overflow: hidden; }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--blue)); }
+    .fill.warn { background: linear-gradient(90deg, var(--warn), var(--danger)); }
+    .prompt {
+      margin-top: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 168px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      color: var(--text);
+      background: #0b1018;
+      line-height: 1.45;
+    }
+    button {
+      border: 1px solid rgba(96,211,148,.45);
+      background: rgba(96,211,148,.14);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-weight: 750;
+      cursor: pointer;
+      width: fit-content;
+    }
+    button:hover { background: rgba(96,211,148,.22); }
+    @media (max-width: 860px) {
+      header, .grid, .split { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+      .step { grid-template-columns: 34px minmax(0, 1fr); }
+      .step .pill { grid-column: 2; width: fit-content; }
+    }
+    @media (max-width: 520px) {
+      main { padding: 22px 12px 40px; }
+      .hero, .panel { padding: 15px; }
+      .stats { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero">
+        <div class="answer">not every quest yet</div>
+        <div>
+          <h1>Demon Slayer is source-backed now. The full quest goal is still open.</h1>
+          <p class="lede">This slice moves one more quest from broad generated blockers to stage-aware source gates: coin, bucket water, bones, Silverlight keys, Silverlight, Delrith, and the incantation all happen at their own stage.</p>
+        </div>
+      </section>
+      <aside class="panel">
+        <h2>Current Scoreboard</h2>
+        <div class="stats">
+          <div class="stat"><strong>194/194</strong><span>quests have at least one stage row</span></div>
+          <div class="stat"><strong>401</strong><span>stage requirement rows</span></div>
+          <div class="stat"><strong>321</strong><span>generated rows still need source detail</span></div>
+          <div class="stat"><strong>108</strong><span>statless combat rows still blocked</span></div>
+        </div>
+      </aside>
+    </header>
+
+    <section class="grid">
+      <article class="panel">
+        <h2>Demon Slayer Flow</h2>
+        <div class="timeline">
+          <div class="step"><div class="num">1</div><div><b>Gypsy Aris</b><small>Cross palm with silver.</small></div><span class="pill">consumes Coins x1</span></div>
+          <div class="step"><div class="num">3</div><div><b>Drain key</b><small>Wash Sir Prysin's key into the sewers.</small></div><span class="pill">Bucket of water -> Bucket + key</span></div>
+          <div class="step"><div class="num">4</div><div><b>Traiborn key</b><small>Ritual requires regular bones.</small></div><span class="pill">Bones x25 -> key</span></div>
+          <div class="step"><div class="num">5</div><div><b>Rovin key</b><small>Captain Rovin hands over the third key.</small></div><span class="pill">produces key</span></div>
+          <div class="step"><div class="num">6</div><div><b>Silverlight</b><small>Sir Prysin opens the special box.</small></div><span class="pill">3 keys -> Silverlight</span></div>
+          <div class="step"><div class="num">7</div><div><b>Delrith</b><small>Silverlight is required; global combat lock still fails closed.</small></div><span class="pill warn">battle gate</span></div>
+          <div class="step"><div class="num">8</div><div><b>Incantation</b><small>Aber, Gabindo, Purchai, Camerinthum, Carlem.</small></div><span class="pill">action gate</span></div>
+          <div class="step"><div class="num">9</div><div><b>Completion</b><small>3 quest points; no duplicate Silverlight reward.</small></div><span class="pill">complete</span></div>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <h2>What Changed</h2>
+        <div class="split">
+          <div class="card">
+            <h3>Backend</h3>
+            <p>`quest_data.py` has the focused override, Delrith stats, produced inventory, and nine-stage completion shape.</p>
+          </div>
+          <div class="card">
+            <h3>Frontend</h3>
+            <p>The existing Quests tab now proves bucket-water and Delrith blockers without turning them into start locks.</p>
+          </div>
+          <div class="card">
+            <h3>Assets</h3>
+            <p>`questitems/silverlight.png` and `questitems/silverlight_key.png` are registered with provenance.</p>
+          </div>
+          <div class="card">
+            <h3>Open</h3>
+            <p>Supporting Dark wizards are recorded as source detail; full battle metadata is still deferred.</p>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="grid" style="margin-top:18px">
+      <article class="panel">
+        <h2>Verification</h2>
+        <div class="tests">
+          <div class="test"><span class="dot"></span><div><b>Focused backend/runtime</b><br><span>175 tests passed.</span></div></div>
+          <div class="test"><span class="dot"></span><div><b>Focused Qt/assets</b><br><span>134 tests passed.</span></div></div>
+          <div class="test"><span class="dot"></span><div><b>Required run_tests.py</b><br><span>465 tests passed, 108 skipped.</span></div></div>
+          <div class="test"><span class="dot"></span><div><b>Required Qt discover</b><br><span>465 tests passed.</span></div></div>
+        </div>
+      </article>
+
+      <aside class="panel">
+        <h2>Remaining Debt</h2>
+        <div class="bars">
+          <div class="bar">
+            <label><span>Focused stage rows</span><span>80 / 401</span></label>
+            <div class="track"><div class="fill" style="width:19.95%"></div></div>
+          </div>
+          <div class="bar">
+            <label><span>Generated stage rows still broad</span><span>321</span></label>
+            <div class="track"><div class="fill warn" style="width:80.05%"></div></div>
+          </div>
+          <div class="bar">
+            <label><span>Resolver-ready combat rows</span><span>175 / 283</span></label>
+            <div class="track"><div class="fill" style="width:61.84%"></div></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="panel" style="margin-top:18px">
+      <h2>Next Backend Prompt</h2>
+      <div class="prompt">
+        <textarea id="prompt" readonly>Continue the AnkiScape all-quest stage parity goal from the committed Demon Slayer focused replacement. Do not claim every quest is done. Use memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md, memory-bank/future-work-kanban.md, memory-bank/systemPatterns.md, tools/audit_quest_stage_gate_coverage.py, and tools/audit_quest_combat_stat_gaps.py. Current state: 194/194 quests have at least one stage row, 401 stage rows total, 80 focused rows, 321 generated rows remain, 283 combat rows, 175 resolver-ready combat rows, and 108 statless combat rows remain blocked. Preserve startability vs finishability, keep combat globally locked by default, use local 2011Scape before Darkan/2012scape before pinned historical wiki revisions, do not hand-edit quest_catalog_generated.py, split backend/frontend work explicitly, add targeted unit/integration/Qt/manual coverage, update Memory Bank/status artifacts, and commit locally.</textarea>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
