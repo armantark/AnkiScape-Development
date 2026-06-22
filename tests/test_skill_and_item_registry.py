@@ -714,6 +714,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Glarial's amulet",
             "Glarial's urn",
             "A magic scroll",
+            "Light source",
+            "Limpwurt root",
+            "Ice arrows",
+            "Lever",
+            "Staff of armadyl",
+            "Shiny key",
+            "Pendant of lucien",
+            "Armadyl pendant",
+            "Boots of lightness",
+            "Yew comp bow",
+            "Magic comp bow",
+            "Dark bow",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

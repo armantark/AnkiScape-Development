@@ -282,6 +282,29 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Ruby x2", calls["errors"][0][1])
 
+    def test_quest_answer_blocks_temple_of_ikov_fire_warrior_without_bow_option(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Ice arrows": 1},
+            "current_quest": "temple_of_ikov",
+            "quests": {"temple_of_ikov": {"started": True, "progress": 7, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["temple_of_ikov"]["progress"], 7)
+        self.assertFalse(player_data["quests"]["temple_of_ikov"]["completed"])
+        self.assertEqual(player_data["inventory"]["Ice arrows"], 1)
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(calls["saves"], 0)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Needs Yew shortbow x1 or Yew longbow x1", calls["errors"][0][1])
+
     def test_quest_stage_progress_accepts_required_tools_from_equipment(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

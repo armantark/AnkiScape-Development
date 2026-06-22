@@ -258,6 +258,67 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(chronozon["npc_configs"]["attack_style"], "melee")
         self.assertTrue(chronozon["npc_stats_source"].endswith("chronozon (noanims).json"))
 
+    def test_temple_of_ikov_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["temple_of_ikov"]
+
+        self.assertEqual(quest["stages"], 11)
+        self.assertEqual(quest["required_items"], {})
+        self.assertEqual(quest["rewards"], {"Shiny key": 1})
+        self.assertEqual(
+            tuple((requirement["skill_id"], requirement["level"]) for requirement in quest["required_skills"]),
+            (("thieving", 42),),
+        )
+        self.assertIn("Fire Warrior of Lesarkus (level 84)", quest["combat"])
+        self.assertIn("Guardian of Armadyl (level 45)", quest["combat"])
+        self.assertIn("Lucien (level 14)", quest["combat"])
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"] if not row["variant"]}
+        by_stage_variant = {(row["stage"], row["variant"]): row for row in quest["stage_requirements"]}
+
+        self.assertEqual(by_stage[1]["required_inventory"], {"Light source": 1})
+        self.assertEqual(by_stage[1]["required_tools"], {"Pendant of lucien": 1})
+        self.assertEqual(by_stage[2]["required_tools"], {"Knife": 1})
+        self.assertEqual(by_stage[2]["produced_inventory"], {"Boots of lightness": 1})
+        self.assertEqual(by_stage[3]["produced_inventory"], {"Lever": 1})
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Lever": 1})
+        self.assertEqual(by_stage[5]["produced_inventory"], {"Ice arrows": 1})
+        self.assertEqual(by_stage[7]["required_tools"], {"Ice arrows": 1})
+        self.assertEqual(
+            by_stage[7]["required_inventory_options"],
+            ((
+                {"Yew shortbow": 1},
+                {"Yew longbow": 1},
+                {"Yew comp bow": 1},
+                {"Magic shortbow": 1},
+                {"Magic longbow": 1},
+                {"Magic comp bow": 1},
+                {"Dark bow": 1},
+            ),),
+        )
+        self.assertEqual(by_stage[8]["consumed_inventory"], {"Limpwurt root": 20})
+
+        fire_warrior = by_stage[7]["combat_encounters"][0]
+        self.assertEqual(fire_warrior["encounter_id"], "temple_of_ikov_fire_warrior_of_lesarkus_84")
+        self.assertEqual(fire_warrior["display_name"], "Fire Warrior of Lesarkus")
+        self.assertEqual(fire_warrior["level"], 84)
+        self.assertEqual(fire_warrior["npc_stats"]["hitpoints"], 590)
+        self.assertEqual(fire_warrior["npc_configs"]["attack_style"], "magic")
+
+        guardian_branch = by_stage_variant[(9, "guardians")]
+        lucien_branch = by_stage_variant[(9, "lucien")]
+        self.assertEqual(guardian_branch["required_routes"], ("Side with the Guardians of Armadyl",))
+        self.assertEqual(guardian_branch["produced_inventory"], {"Armadyl pendant": 1})
+        self.assertEqual(lucien_branch["required_routes"], ("Side with Lucien",))
+        self.assertEqual(lucien_branch["produced_inventory"], {"Staff of armadyl": 1})
+        self.assertEqual(lucien_branch["combat_encounters"][0]["encounter_id"], "temple_of_ikov_guardian_of_armadyl_45")
+
+        guardian_finish = by_stage_variant[(10, "guardians")]
+        lucien_finish = by_stage_variant[(10, "lucien")]
+        self.assertEqual(guardian_finish["required_tools"], {"Armadyl pendant": 1})
+        self.assertEqual(guardian_finish["combat_encounters"][0]["encounter_id"], "temple_of_ikov_lucien_14")
+        self.assertEqual(lucien_finish["consumed_inventory"], {"Staff of armadyl": 1})
+
     def test_shield_of_arrav_has_source_backed_route_stage_requirements(self):
         data = quests_as_dict()
         quest = data["shield_of_arrav"]
@@ -949,7 +1010,7 @@ class TestQuestCatalog(unittest.TestCase):
             for requirement in data["temple_of_ikov"]["stage_requirements"]
             for encounter in requirement["combat_encounters"]
         ]
-        guardians = next(encounter for encounter in temple_combat if encounter["display_name"] == "Guardians of Armadyl")
+        guardians = next(encounter for encounter in temple_combat if encounter["display_name"] == "Guardian of Armadyl")
         self.assertEqual(guardians["level"], 45)
         self.assertEqual(guardians["npc_stats"]["attack"], 37)
         self.assertEqual(guardians["npc_stats"]["strength"], 37)

@@ -214,7 +214,18 @@ chain for Caleb's fish salad, Avan's perfect-gold jewellery, Boot/Witchaven
 perfect gold routing, Johnathon's antipoison, Chronozon's blast-spell combat,
 crest-piece combination, and Dimintheis' final hand-in. Post-Family-Crest audit
 reports 554 stage rows, 92 produced-inventory rows, 284 combat encounters, and
-179 resolver-ready combat encounters. The user clarified that
+179 resolver-ready combat encounters. Temple of Ikov then replaces its
+generated broad start item/combat row with an 11-stage, 12-row Darkan-backed
+chain for Lucien's pendant, light-source entry, web/Boots of lightness, lever
+and ice-arrow route, Fire Warrior bow/ammo combat, Winelda's 20 limpwurt-root
+teleport, Guardian/Lucien route variants, Staff of Armadyl hand-in, and Shiny
+key reward. The Fire Warrior, Guardian of Armadyl, and Lucien rows all carry
+resolver-ready Darkan stats, while the Guardian chamber remains modeled as one
+blocking Guardian because Darkan uses line-of-sight rather than a fixed kill
+count. Post-Temple audit reports 564 stage rows, 97 produced-inventory rows,
+285 combat encounters, and 180 resolver-ready combat encounters. Source audit:
+`memory-bank/source-audits/quest-temple-of-ikov-stage-detail-2026-06-22.md`.
+The user clarified that
 `memory-bank/status-updates/` artifacts should stay paused until every quest in
 the catalog is updated to minute-detail stage parity.
 

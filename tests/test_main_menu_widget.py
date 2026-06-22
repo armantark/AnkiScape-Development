@@ -1434,6 +1434,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Ruby x2", action.toolTip())
 
+    def test_quests_tab_shows_temple_of_ikov_fire_warrior_bow_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Ice arrows": 1}
+        pd["current_quest"] = "temple_of_ikov"
+        pd["quests"]["temple_of_ikov"] = {"started": True, "progress": 7, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected_prefix = "Blocked: Needs Yew shortbow x1 or Yew longbow x1"
+        self.assertTrue(
+            any(label.startswith(expected_prefix) for label in labels),
+            f"Expected Temple bow blocker in labels: {labels}",
+        )
+        action = dialog.findChild(QPushButton, "questAction_temple_of_ikov")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Yew shortbow x1", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

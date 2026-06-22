@@ -567,8 +567,14 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
 QUEST_ITEM_IMAGES = {}
+QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
+    "Lever": "temple_lever.png",
+}
 for _item_name in QUEST_REWARD_ITEM_DATA:
-    _path = os.path.join(QUEST_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    _path = os.path.join(
+        QUEST_ITEMS_FOLDER,
+        QUEST_ITEM_IMAGE_FILE_OVERRIDES.get(_item_name, f"{_asset_slug(_item_name)}.png"),
+    )
     if os.path.exists(_path):
         QUEST_ITEM_IMAGES[_item_name] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()

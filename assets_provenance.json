@@ -5663,6 +5663,18 @@
     "source_wiki": "rs3",
     "timestamp": "2025-06-01T07:17:11Z"
   },
+  "questitems/armadyl_pendant.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Armadyl_pendant.png",
+    "file_title": "Armadyl pendant.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Armadyl_pendant.png?e56f0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "236680621ed03641a55c4a44fdd87b34996120c1",
+    "size": 741,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:14Z"
+  },
   "questitems/avan_crest.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crest_part_%28Avan%29.png",
     "file_title": "Crest part (Avan).png",
@@ -6371,6 +6383,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:43Z"
   },
+  "questitems/ice_arrows.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ice_arrows_5.png",
+    "file_title": "Ice arrows 5.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Ice_arrows_5.png?a089b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "694c8aef3fb09bd9a744b6c440d8e53d07dc1920",
+    "size": 4184,
+    "source_wiki": "osrs",
+    "timestamp": "2014-05-05T11:33:06Z"
+  },
   "questitems/ice_gloves.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ice_gloves.png",
     "file_title": "Ice gloves.png",
@@ -6515,6 +6539,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:44Z"
   },
+  "questitems/light_source.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lit_candle.png",
+    "file_title": "Lit candle.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Lit_candle.png?6dc61",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5f6e484ef5bc28f803d257c1cd8a90e2f3058093",
+    "size": 417,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:42Z"
+  },
   "questitems/liquid_honey.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Liquid_honey.png",
     "file_title": "Liquid honey.png",
@@ -6538,6 +6574,18 @@
     "size": 558,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:48Z"
+  },
+  "questitems/magic_comp_bow.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Magic_comp_bow.png",
+    "file_title": "Magic comp bow.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Magic_comp_bow.png?8bd5a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "73b2ba04b8c3709af16bae3c0a06a740e60f0cd4",
+    "size": 497,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:51Z"
   },
   "questitems/magnet.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Magnet_%28Witch%27s_House%29.png",

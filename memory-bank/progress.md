@@ -841,6 +841,21 @@ produced-inventory rows, 284 combat encounters, 179 resolver-ready combat
 encounters, 174 quests with item/tool blockers, 120 quests with combat blockers,
 and 105 statless combat rows. Source audit:
 `memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`.
+
+Temple of Ikov focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces generated/broad rows with a Darkan-backed
+11-stage chain for Lucien's pendant, light-source entry, web cutting and Boots
+of lightness pickup, lava-bridge lever routing, ice-arrow gathering, trapped
+Fire Warrior lever handling, Fire Warrior bow/ammo combat, Winelda's 20
+limpwurt-root teleport, Guardian/Lucien route variants, and the final Staff of
+Armadyl or Lucien combat ending. The quest keeps strict startability at Thieving
+42 while keeping all used-during items and combat as current-stage blockers.
+Frontend work was limited to targeted Quests-tab blocked-at-stage coverage. New
+Temple quest item and bow-variant icons were fetched with provenance. Post-slice
+audit reports 564 stage rows, 97 produced-inventory rows, 285 combat encounters,
+180 resolver-ready combat encounters, 174 quests with item/tool blockers, 120
+quests with combat blockers, and 105 statless combat rows. Source audit:
+`memory-bank/source-audits/quest-temple-of-ikov-stage-detail-2026-06-22.md`.
 Do not create `memory-bank/status-updates/` artifacts again until every quest in
 the catalog is updated to the requested minute-detail parity level.
 

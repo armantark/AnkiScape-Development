@@ -164,10 +164,14 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   cooked fish, perfect gold ore/bars, perfect ruby jewellery, crest pieces,
   Johnathon's antipoison, Chronozon's blast-spell combat, and the final Family
   crest hand-in all gate at their current stages while Crafting 40, Magic 59,
-  Mining 40, and Smithing 40 remain start locks. The live audit now reports 554
-  stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, 92 produced-inventory rows, and
-  179/284 resolver-ready combat rows. This is still broad
+  Mining 40, and Smithing 40 remain start locks. Temple of Ikov then proves a
+  true ending branch: the Fire Warrior requires ice arrows plus one compatible
+  bow option, Winelda consumes 20 Limpwurt roots, the Guardian route produces an
+  Armadyl pendant and requires Lucien combat, and the Lucien route requires a
+  Guardian encounter before the Staff of Armadyl is consumed at the final hand-in.
+  The live audit now reports 564 stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, 97 produced-inventory rows, and
+  180/285 resolver-ready combat rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,

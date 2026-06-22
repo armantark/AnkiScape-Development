@@ -1,3 +1,4 @@
+import copy
 import unittest
 from logic_pure import (
     get_exp_to_next_level,
@@ -2287,6 +2288,123 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"].get("Cooking gauntlets", 0), 0)
         self.assertEqual(player_data["inventory"].get("Goldsmith gauntlets", 0), 0)
         self.assertEqual(player_data["inventory"].get("Chaos gauntlets", 0), 0)
+
+    def test_temple_of_ikov_stage_gates_bow_combat_and_branch_endings(self):
+        def ready_for_branch_choice():
+            player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+            self.assertFalse(can_start_quest_pure(player_data, "temple_of_ikov", QUEST_DATA))
+
+            player_data["thieving_level"] = 42
+            player_data["inventory"].update({
+                "Light source": 1,
+                "Knife": 1,
+                "Pendant of lucien": 1,
+                "Yew shortbow": 1,
+                "Limpwurt root": 20,
+            })
+            self.assertFalse(can_start_quest_pure(player_data, "temple_of_ikov", QUEST_DATA))
+            player_data["quests"]["temple_of_ikov"] = {"started": True, "progress": 1, "completed": False}
+            player_data["quest_route_states"] = {
+                "temple_of_ikov": [
+                    "Enter the Temple of Ikov",
+                    "Cross the Temple of Ikov lava bridge at low weight",
+                ]
+            }
+            player_data["quest_stage_actions"] = {
+                "temple_of_ikov": [
+                    "Cut through the Temple of Ikov web",
+                    "Pick up the Boots of lightness",
+                    "Pick up the Temple of Ikov lever",
+                    "Place and pull the Temple of Ikov lever near the entrance",
+                    "Search the Temple of Ikov ice-arrow chests",
+                    "Search and disarm the trapped Fire Warrior lever",
+                    "Pull the disarmed Fire Warrior lever",
+                    "Ask Winelda to teleport across the lava",
+                ]
+            }
+            self.assertEqual(player_data["quests"]["temple_of_ikov"]["progress"], 1)
+            self.assertEqual(player_data["inventory"]["Pendant of lucien"], 1)
+
+            for expected_progress in range(2, 8):
+                player_data, ok, completed_now = apply_quest_progress_pure(
+                    player_data,
+                    "temple_of_ikov",
+                    QUEST_DATA,
+                )
+                self.assertTrue(ok)
+                self.assertFalse(completed_now)
+                self.assertEqual(player_data["quests"]["temple_of_ikov"]["progress"], expected_progress)
+
+            self.assertEqual(player_data["inventory"]["Boots of lightness"], 1)
+            self.assertEqual(player_data["inventory"]["Lever"], 0)
+            self.assertEqual(player_data["inventory"]["Ice arrows"], 1)
+            self.assertEqual(
+                quest_current_stage_blocker_reasons_pure(player_data, "temple_of_ikov", QUEST_DATA),
+                ("Combat locked until battle support is enabled: Fire Warrior of Lesarkus level 84",),
+            )
+
+            player_data["quest_combat_encounters"] = {
+                "temple_of_ikov": ["temple_of_ikov_fire_warrior_of_lesarkus_84"]
+            }
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "temple_of_ikov", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["temple_of_ikov"]["progress"], 8)
+
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "temple_of_ikov", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["inventory"]["Limpwurt root"], 0)
+            self.assertEqual(player_data["quests"]["temple_of_ikov"]["progress"], 9)
+            self.assertEqual(
+                set(quest_current_stage_blocker_reasons_pure(player_data, "temple_of_ikov", QUEST_DATA)),
+                {
+                    "Route required: Side with the Guardians of Armadyl",
+                    "Route required: Side with Lucien",
+                },
+            )
+            return player_data
+
+        guardians_data = ready_for_branch_choice()
+        guardians_data["quest_route_states"]["temple_of_ikov"].append("Side with the Guardians of Armadyl")
+        guardians_data["quest_stage_actions"]["temple_of_ikov"].append(
+            "Remove the Pendant of lucien and accept the Guardian cleansing"
+        )
+        guardians_data, ok, completed_now = apply_quest_progress_pure(guardians_data, "temple_of_ikov", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(guardians_data["inventory"]["Armadyl pendant"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(guardians_data, "temple_of_ikov", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Lucien level 14",),
+        )
+        guardians_data["quest_combat_encounters"]["temple_of_ikov"].append("temple_of_ikov_lucien_14")
+        guardians_data, ok, completed_now = apply_quest_progress_pure(guardians_data, "temple_of_ikov", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(guardians_data["quests"]["temple_of_ikov"]["progress"], 11)
+        self.assertEqual(guardians_data["quest_points"], 1)
+        self.assertEqual(guardians_data["inventory"]["Shiny key"], 1)
+
+        lucien_data = copy.deepcopy(ready_for_branch_choice())
+        lucien_data["quest_route_states"]["temple_of_ikov"].append("Side with Lucien")
+        lucien_data["quest_stage_actions"]["temple_of_ikov"].append("Take the Staff of Armadyl from the guarded chamber")
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(lucien_data, "temple_of_ikov", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Guardian of Armadyl level 45",),
+        )
+        lucien_data["quest_combat_encounters"]["temple_of_ikov"].append("temple_of_ikov_guardian_of_armadyl_45")
+        lucien_data, ok, completed_now = apply_quest_progress_pure(lucien_data, "temple_of_ikov", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(lucien_data["inventory"]["Staff of armadyl"], 1)
+
+        lucien_data["quest_stage_actions"]["temple_of_ikov"].append("Give the Staff of Armadyl to Lucien in Varrock")
+        lucien_data, ok, completed_now = apply_quest_progress_pure(lucien_data, "temple_of_ikov", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(lucien_data["inventory"]["Staff of armadyl"], 0)
+        self.assertEqual(lucien_data["inventory"]["Shiny key"], 1)
 
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

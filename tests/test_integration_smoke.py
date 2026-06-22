@@ -1002,6 +1002,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
+        addon.level_up_check = lambda _skill, _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda text: calls["gains"].append(text)
@@ -1068,6 +1069,48 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["quest_points"], 1)
         self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
         self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+
+    def test_quest_answer_completes_temple_of_ikov_lucien_branch_and_consumes_staff(self):
+        addon = _load_addon_as_package("ankiscape_temple_of_ikov_lucien_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.level_up_check = lambda _skill, _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Staff of armadyl": 1},
+            "current_quest": "temple_of_ikov",
+            "quests": {"temple_of_ikov": {"started": True, "progress": 10, "completed": False}},
+            "quest_route_states": {"temple_of_ikov": ["Side with Lucien"]},
+            "quest_stage_actions": {"temple_of_ikov": ["Give the Staff of Armadyl to Lucien in Varrock"]},
+            "quest_points": 0,
+            "thieving_level": 42,
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertTrue(addon.player_data["quests"]["temple_of_ikov"]["completed"])
+        self.assertEqual(addon.player_data["quests"]["temple_of_ikov"]["progress"], 11)
+        self.assertEqual(addon.player_data["inventory"]["Staff of armadyl"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Shiny key"], 1)
+        self.assertEqual(addon.player_data["quest_points"], 1)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Temple of Ikov complete"])
         self.assertEqual(calls["dialogs"][0][0], "Quest complete")
 
     def test_quest_answer_resolves_stat_backed_combat_gate(self):
