@@ -153,6 +153,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Current stat coverage is 174/283 combat rows; the remaining 109 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
+  Historical RuneScape Wiki monster pages are now audited by
+  `tools/audit_quest_historical_wiki_combat_stats.py` as a separate source tier:
+  LP, max hit, and attack-style prose are useful metadata, but they must not be
+  counted as resolver-ready hidden combat stats. The 2026-06-22 pass found 77
+  metadata-only pages, 32 rows without monster metadata, and 0 remaining rows
+  with resolver-ready historical-wiki hidden stats.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.

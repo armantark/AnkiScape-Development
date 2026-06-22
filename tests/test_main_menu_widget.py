@@ -1392,6 +1392,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertIn(expected, labels)
 
+    def test_quests_tab_keeps_historical_metadata_only_combat_rows_blocked(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Armour": 1}
+        pd["current_quest"] = "fight_arena"
+        pd["quests"]["fight_arena"] = {"started": True, "progress": 2, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 150
+        pd["strength_level"] = 150
+        pd["defense_level"] = 150
+        pd["constitution_level"] = 150
+        pd["prayer_level"] = 150
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Combat stats required before battle support can resolve: Khazard scorpion level 44, "
+            "Combat stats required before battle support can resolve: Khazard ogre level 63, "
+            "Battle required: Bouncer level 137"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_fight_arena")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
     def test_quests_tab_allows_witchs_house_form_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "witchs_house"

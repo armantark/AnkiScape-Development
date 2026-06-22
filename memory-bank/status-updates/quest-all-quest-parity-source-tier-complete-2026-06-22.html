@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Parity Source-Tier Slice Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101216;
+      --panel: #181c22;
+      --panel-2: #20262e;
+      --text: #f3f7fb;
+      --muted: #9ba8b7;
+      --line: #303946;
+      --ok: #53dc93;
+      --warn: #f1b65f;
+      --bad: #ff6c72;
+      --blue: #73bbff;
+      --ink: #0b0d10;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 34px 20px 50px;
+    }
+    header {
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 22px;
+    }
+    .eyebrow {
+      color: var(--blue);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 800;
+    }
+    h1 {
+      margin: 10px 0 8px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    .lead {
+      max-width: 840px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      font-size: 34px;
+      font-weight: 850;
+      line-height: 1;
+    }
+    .metric-label {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .bar {
+      height: 9px;
+      background: #0b0d11;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 13px;
+      border: 1px solid #27303b;
+    }
+    .bar > span { display: block; height: 100%; background: var(--ok); }
+    h2 {
+      font-size: 16px;
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    p { margin: 0 0 12px; }
+    .muted { color: var(--muted); }
+    .checklist {
+      display: grid;
+      gap: 10px;
+    }
+    .item {
+      display: grid;
+      grid-template-columns: 26px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+    .mark {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font-weight: 900;
+      background: var(--ok);
+      line-height: 1;
+    }
+    .mark.warn { background: var(--warn); }
+    .mark.bad { background: var(--bad); }
+    .item b { display: block; margin-bottom: 3px; }
+    .item span { color: var(--muted); font-size: 14px; }
+    .table {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1.1fr .6fr 1.5fr;
+      gap: 12px;
+      padding: 11px 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .row:first-child {
+      border-top: 0;
+      background: #232a33;
+      color: var(--text);
+      font-weight: 700;
+    }
+    code {
+      color: #d9eaff;
+      background: #10141a;
+      border: 1px solid #27313d;
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-size: 13px;
+    }
+    .callout {
+      border-left: 4px solid var(--warn);
+      background: #201a13;
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      color: #f7dfc0;
+    }
+    @media (max-width: 820px) {
+      .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="eyebrow">Post-slice checkpoint · 2026-06-22</div>
+      <h1>The remaining combat backlog is now source-tier audited.</h1>
+      <p class="lead">
+        This is not full all-quest parity. It is a durability slice: the next allowed source tier
+        has been checked, metadata-only pages are documented, and unresolved combat debt remains
+        visible rather than being converted into false battle readiness.
+      </p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-3">
+        <div class="metric">109</div>
+        <div class="metric-label">combat rows still blocked by missing resolver stats</div>
+        <div class="bar"><span style="width:38.5%; background: var(--warn)"></span></div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">77</div>
+        <div class="metric-label">historical wiki pages with metadata only</div>
+        <div class="bar"><span style="width:70.6%; background: var(--blue)"></span></div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">32</div>
+        <div class="metric-label">rows with no historical monster metadata found</div>
+        <div class="bar"><span style="width:29.4%; background: var(--warn)"></span></div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">0</div>
+        <div class="metric-label">remaining rows unlocked by historical hidden stats</div>
+        <div class="bar"><span style="width:0%; background: var(--bad)"></span></div>
+      </article>
+
+      <article class="card span-8">
+        <h2>Changed</h2>
+        <div class="checklist">
+          <div class="item">
+            <div class="mark">✓</div>
+            <div><b>Backend audit tool</b><span>Added `tools/audit_quest_historical_wiki_combat_stats.py` with cached, retried pinned-revision fetches and parser logic.</span></div>
+          </div>
+          <div class="item">
+            <div class="mark">✓</div>
+            <div><b>Debt definition</b><span>`tools/audit_quest_combat_stat_gaps.py` now treats unresolved combat as "not resolver-ready," not just "empty stats."</span></div>
+          </div>
+          <div class="item">
+            <div class="mark">✓</div>
+            <div><b>Frontend regression</b><span>Added a Qt/offscreen Fight Arena test proving metadata-only Khazard rows remain missing-stat blockers while Bouncer is selectable.</span></div>
+          </div>
+          <div class="item">
+            <div class="mark warn">!</div>
+            <div><b>Parity status</b><span>All-quest minute-detail parity remains open. This slice prevents a false-positive completion claim.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card span-4">
+        <h2>Backend / Frontend Split</h2>
+        <p><strong>Backend:</strong> source-tier audit, resolver-debt semantics, parser tests, Memory Bank audit note.</p>
+        <p><strong>Frontend:</strong> no UI rewrite; added Qt proof that current blocker language remains compact and player-facing for mixed Fight Arena blockers.</p>
+        <p><strong>Assets:</strong> no new item or NPC icons were introduced.</p>
+      </aside>
+
+      <article class="card span-6">
+        <h2>Audit Commands</h2>
+        <div class="table">
+          <div class="row"><span>Command</span><span>Status</span><span>Signal</span></div>
+          <div class="row"><code>tools/audit_quest_combat_stat_gaps.py</code><span>Done</span><span>109 unresolved rows remain classified.</span></div>
+          <div class="row"><code>tools/audit_quest_historical_wiki_combat_stats.py</code><span>Done</span><span>77 metadata-only, 32 no metadata, 0 resolver-ready.</span></div>
+          <div class="row"><code>tests.test_quest_historical_wiki_combat_stats</code><span>Done</span><span>Parser and fake-fetch integration behavior pass.</span></div>
+          <div class="row"><code>test_quests_tab_keeps_historical_metadata_only...</code><span>Done</span><span>Qt/offscreen Fight Arena card behavior pass.</span></div>
+        </div>
+      </article>
+
+      <article class="card span-6">
+        <h2>Remaining Goal Work</h2>
+        <p class="callout">
+          The goal remains active: route/location gates, quest-item transformations, puzzle/follower/branch state,
+          remaining combat stat enrichment from a new trustworthy source class, and full combat simulation are still open.
+        </p>
+        <p class="muted">
+          Future resolver-ready combat fills must come from local 2011Scape, local Darkan/2012scape, or a historical
+          source that actually exposes the style-critical hidden stats. LP, max hit, and attack-style text alone are not enough.
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

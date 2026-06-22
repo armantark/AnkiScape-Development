@@ -496,6 +496,18 @@ Death to the Dorgeshuun's generated `Senior guard x3` row now maps to
 coverage is 174/283 resolver-ready combat rows with 109 statless rows still
 blocked; full minute-detail quest parity remains open.
 
+Historical wiki combat-stat source-tier audit completed on 2026-06-22. The new
+`tools/audit_quest_historical_wiki_combat_stats.py` checks the remaining 109
+unresolved combat rows against pinned historical RuneScape Wiki monster pages
+through the 2012-11-19 cutoff, with cached/retried API fetches. It found 77
+metadata-only pages and 32 rows without monster metadata, but 0 rows with the
+hidden resolver stats needed to unblock combat. `tools/audit_quest_combat_stat_gaps.py`
+now treats unresolved combat debt as "not resolver-ready" rather than merely
+"empty `npc_stats`", so future HP-only metadata cannot hide remaining blockers.
+Fight Arena's Khazard scorpion/ogre are the Qt regression example: their
+historical pages expose LP/style/max-hit only, so they stay blocked while
+Bouncer remains resolvable.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Classify quest combat encounters that still lack source-backed NPC stats."""
+"""Classify quest combat encounters that still lack resolver-ready NPC stats."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from logic_pure import quest_combat_encounter_has_stats_pure
 from quest_data import QUESTS, QuestCombatEncounter, QuestDefinition, QuestStageRequirement
 from tools import build_pre_eoc_quest_catalog as catalog_builder
 
@@ -43,9 +44,24 @@ def _statless_gaps_for_requirement(
     requirement: QuestStageRequirement,
 ) -> Iterable[CombatGap]:
     for encounter in requirement.combat_encounters:
-        if dict(encounter.npc_stats):
+        if quest_combat_encounter_has_stats_pure(_encounter_mapping(encounter)):
             continue
         yield _gap_from_encounter(quest, requirement, encounter)
+
+
+def _encounter_mapping(encounter: QuestCombatEncounter) -> Dict[str, object]:
+    return {
+        "encounter_id": encounter.encounter_id,
+        "display_name": encounter.display_name,
+        "level": encounter.level,
+        "quantity": encounter.quantity,
+        "source": encounter.source,
+        "source_text": encounter.source_text,
+        "npc_stats": dict(encounter.npc_stats),
+        "npc_bonuses": dict(encounter.npc_bonuses),
+        "npc_configs": dict(encounter.npc_configs),
+        "npc_stats_source": encounter.npc_stats_source,
+    }
 
 
 def _gap_from_encounter(

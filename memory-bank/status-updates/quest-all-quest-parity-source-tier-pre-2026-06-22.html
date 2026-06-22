@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Parity Source-Tier Checkpoint</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #111317;
+      --panel: #191d23;
+      --panel-2: #20262d;
+      --text: #edf2f7;
+      --muted: #9aa7b7;
+      --line: #303845;
+      --ok: #51d88a;
+      --warn: #f0b35a;
+      --bad: #ff6b6b;
+      --blue: #6fb7ff;
+      --violet: #a98bff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    .shell {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 22px;
+    }
+    .eyebrow {
+      color: var(--blue);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-weight: 700;
+    }
+    h1 {
+      margin: 10px 0 8px;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    .lead {
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .metric-label {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .bar {
+      height: 9px;
+      background: #0c0e12;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 13px;
+      border: 1px solid #272d36;
+    }
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: var(--ok);
+    }
+    h2 {
+      font-size: 16px;
+      margin: 0 0 14px;
+      letter-spacing: 0;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid var(--line);
+      padding-top: 11px;
+      margin-top: 11px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .row strong { color: var(--text); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      color: var(--muted);
+      margin: 3px 4px 3px 0;
+      background: var(--panel-2);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warn);
+      flex: 0 0 auto;
+    }
+    .dot.ok { background: var(--ok); }
+    .dot.bad { background: var(--bad); }
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .step b {
+      color: var(--blue);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    .step p { margin: 0; color: var(--muted); }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    code {
+      color: #d7e7ff;
+      background: #10141a;
+      border: 1px solid #26303a;
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-size: 13px;
+    }
+    .callout {
+      border-left: 4px solid var(--warn);
+      background: #211b13;
+      padding: 14px 16px;
+      border-radius: 0 8px 8px 0;
+      color: #f6dcc0;
+    }
+    @media (max-width: 820px) {
+      .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .split { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="eyebrow">Pre-slice checkpoint · 2026-06-22 04:30 PDT</div>
+      <h1>All-quest parity is still active, not done.</h1>
+      <p class="lead">
+        The stage-gate model exists across the full catalog, but the goal is not complete while
+        source-backed minute-detail blockers and unresolved combat rows remain. This slice focuses on
+        preserving that truth with a reusable source-tier audit before any new data is merged.
+      </p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-3">
+        <div class="metric">194 / 194</div>
+        <div class="metric-label">quests with at least one machine-readable stage requirement</div>
+        <div class="bar"><span style="width:100%"></span></div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">174 / 283</div>
+        <div class="metric-label">combat rows with resolver-ready stats</div>
+        <div class="bar"><span style="width:61.5%"></span></div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">109</div>
+        <div class="metric-label">combat rows still hard-blocked by missing resolver stats</div>
+        <div class="bar"><span style="width:38.5%; background: var(--warn)"></span></div>
+      </article>
+      <article class="card span-3">
+        <div class="metric">0</div>
+        <div class="metric-label">historical wiki pages found with hidden melee stats in the sampled gap scan</div>
+        <div class="bar"><span style="width:0%; background: var(--bad)"></span></div>
+      </article>
+
+      <article class="card span-8">
+        <h2>Backend Slice</h2>
+        <div class="timeline">
+          <div class="step">
+            <b>Audit</b>
+            <p>Keep the current `tools/audit_quest_stage_gate_coverage.py` and `tools/audit_quest_combat_stat_gaps.py` numbers as the scoreboard.</p>
+          </div>
+          <div class="step">
+            <b>Source Tier</b>
+            <p>Add a durable historical-wiki source-tier check for remaining combat rows, with retries and cache-friendly output, so "no stats found" is explicit evidence.</p>
+          </div>
+          <div class="step">
+            <b>Data Rule</b>
+            <p>Do not turn life points, max hit, or prose attack style into fake resolver readiness. Missing Strength stays blocked for melee.</p>
+          </div>
+          <div class="step">
+            <b>Tests</b>
+            <p>Add targeted unit coverage for the audit/parser behavior, then rerun both full requested suites before committing.</p>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card span-4">
+        <h2>Frontend Slice</h2>
+        <p class="callout">
+          No widget rewrite is planned in this batch. The existing Quests tab must continue to show
+          started quests as blocked at the current stage, with combat rows staying selectable only
+          when a resolver-ready encounter exists.
+        </p>
+        <div style="margin-top: 14px">
+          <span class="pill"><span class="dot ok"></span>Keep can_start separate</span>
+          <span class="pill"><span class="dot"></span>Show current blocker reason</span>
+          <span class="pill"><span class="dot bad"></span>Do not hide statless combat</span>
+        </div>
+      </aside>
+
+      <article class="card span-6">
+        <h2>Source Outcomes So Far</h2>
+        <div class="row"><strong>Local 2011Scape</strong><span>preferred when quest/NPC mechanics exist</span></div>
+        <div class="row"><strong>Darkan/2012scape</strong><span>174 resolver-ready rows after prior focused passes</span></div>
+        <div class="row"><strong>Historical wiki monster pages</strong><span>HP/style/max-hit available; hidden melee stats absent in sampled scan</span></div>
+        <div class="row"><strong>OSRS wiki</strong><span>cross-check only, not primary data</span></div>
+      </article>
+
+      <article class="card span-6">
+        <h2>Hard Line</h2>
+        <p>
+          The answer to "is every quest done?" is <strong>no</strong>. The current plugin can block
+          every catalog quest through the stage system, but remaining per-stage detail extraction,
+          route/puzzle state, quest-item transformations, and 109 unresolved combat rows are still
+          active goal work.
+        </p>
+        <p>
+          This slice is designed to stop the remaining backlog from becoming ambiguous: every future
+          resolver-ready row must come from source data that actually provides the required stats.
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
