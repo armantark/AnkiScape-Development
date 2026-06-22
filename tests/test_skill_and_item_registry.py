@@ -605,6 +605,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Half certificate (Phoenix)",
             "Half certificate (Black Arm)",
             "Certificate",
+            "Khazard helmet",
+            "Khazard armour",
+            "Khali brew",
+            "Khazard cell keys",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

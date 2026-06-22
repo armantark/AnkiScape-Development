@@ -1556,6 +1556,130 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Phoenix crossbow"], 2)
         self.assertEqual(player_data["inventory"].get("Intel report", 0), 0)
 
+    def test_fight_arena_stage_gates_items_combat_and_reward(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"]["Coins"] = 5
+
+        player_data, ok = start_quest_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Khazard helmet"], 1)
+        self.assertEqual(player_data["inventory"]["Khazard armour"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 3)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
+            ("Action required: Talk to Jeremy about the key holder",),
+        )
+
+        player_data["quest_stage_actions"] = {
+            "fight_arena": [
+                "Talk to Jeremy about the key holder",
+                "Steal the Khazard cell keys from the lazy guard",
+                "Use the Khazard cell keys on Jeremy's cell",
+            ]
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 4)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Coins"], 0)
+        self.assertEqual(player_data["inventory"]["Khali brew"], 1)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 5)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Khali brew"], 0)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 6)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Khazard cell keys"], 1)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 7)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 8)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Khazard ogre level 63",),
+        )
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 150
+        player_data["strength_level"] = 150
+        player_data["defense_level"] = 150
+        player_data["constitution_level"] = 150
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
+            ("Combat stats required before battle support can resolve: Khazard ogre level 63",),
+        )
+        blocked_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked_data["quests"]["fight_arena"]["progress"], 8)
+        self.assertEqual(blocked_data.get("attack_exp", 0), 0)
+        self.assertEqual(blocked_data.get("thieving_exp", 0), 0)
+
+        player_data["quest_combat_encounters"] = {"fight_arena": ["fight_arena_khazard_ogre_63"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 9)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
+            ("Combat stats required before battle support can resolve: Khazard scorpion level 44",),
+        )
+
+        player_data["quest_combat_encounters"]["fight_arena"].append("fight_arena_khazard_scorpion_44")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 10)
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in quest_current_stage_blockers_pure(player_data, "fight_arena", QUEST_DATA)),
+            ("combat_encounter",),
+        )
+
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "fight_arena",
+            QUEST_DATA,
+            "fight_arena_bouncer_137",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_resolved")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fight_arena"]["progress"], 11)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fight_arena", QUEST_DATA),
+            ("Action required: Return to Lady Servil for the reward",),
+        )
+
+        player_data["quest_stage_actions"]["fight_arena"].append("Return to Lady Servil for the reward")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["fight_arena"]["completed"])
+        self.assertEqual(player_data["quest_points"], 2)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"attack_exp": 12175.0, "thieving_exp": 2175.0})
+        self.assertEqual(player_data["inventory"]["Coins"], 1000)
+
     def test_stage_requirement_model_exposes_tool_action_route_and_combat_blockers(self):
         quest_data = {
             "proof_quest": {

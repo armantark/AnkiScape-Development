@@ -562,6 +562,51 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["dialogs"][0][1])
 
+    def test_quest_answer_blocks_fight_arena_statless_combat(self):
+        addon = _load_addon_as_package("ankiscape_fight_arena_missing_stats_integration")
+
+        calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon._show_exp = lambda amount: calls["xp"].append(amount)
+        addon.level_up_check = lambda _skill, _data: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Khazard helmet": 1, "Khazard armour": 1, "Khazard cell keys": 1},
+            "current_quest": "fight_arena",
+            "quests": {"fight_arena": {"started": True, "progress": 8, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 150,
+            "strength_level": 150,
+            "defense_level": 150,
+            "constitution_level": 150,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "None")
+        self.assertFalse(addon.player_data["quests"]["fight_arena"]["completed"])
+        self.assertEqual(addon.player_data["quests"]["fight_arena"]["progress"], 8)
+        self.assertEqual(addon.player_data["quest_points"], 0)
+        self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(calls["save"], 0)
+        self.assertEqual(calls["gains"], [])
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
+        self.assertIn("Combat stats required before battle support can resolve: Khazard ogre level 63", calls["dialogs"][0][1])
+
     def test_quest_answer_progresses_black_knights_disguise_from_equipment(self):
         addon = _load_addon_as_package("ankiscape_black_knights_stage_integration")
 

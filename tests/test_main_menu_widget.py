@@ -1481,9 +1481,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_quests_tab_keeps_historical_metadata_only_combat_rows_blocked(self) -> None:
         pd = _make_player_data()
-        pd["inventory"] = {"Armour": 1}
         pd["current_quest"] = "fight_arena"
-        pd["quests"]["fight_arena"] = {"started": True, "progress": 2, "completed": False}
+        pd["quests"]["fight_arena"] = {"started": True, "progress": 8, "completed": False}
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 150
         pd["strength_level"] = 150
@@ -1493,11 +1492,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = (
-            "Blocked: Combat stats required before battle support can resolve: Khazard scorpion level 44, "
-            "Combat stats required before battle support can resolve: Khazard ogre level 63, "
-            "Battle required: Bouncer level 137"
-        )
+        expected = "Blocked: Combat stats required before battle support can resolve: Khazard ogre level 63"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_fight_arena")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+
+    def test_quests_tab_allows_fight_arena_bouncer_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "fight_arena"
+        pd["quests"]["fight_arena"] = {"started": True, "progress": 10, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["quest_combat_encounters"] = {
+            "fight_arena": ["fight_arena_khazard_ogre_63", "fight_arena_khazard_scorpion_44"]
+        }
+        pd["attack_level"] = 150
+        pd["strength_level"] = 150
+        pd["defense_level"] = 150
+        pd["constitution_level"] = 150
+        pd["prayer_level"] = 150
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Bouncer level 137"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_fight_arena")
         self.assertIsNotNone(action)

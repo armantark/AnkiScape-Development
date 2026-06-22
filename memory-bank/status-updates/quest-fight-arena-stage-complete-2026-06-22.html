@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Fight Arena Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(79, 140, 255, .08), transparent 260px),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 30px 0 42px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.35fr .65fr;
+      gap: 18px;
+      align-items: end;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 22px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(30px, 5vw, 56px);
+      line-height: 1.03;
+      letter-spacing: 0;
+      max-width: 780px;
+    }
+    h2 { font-size: 18px; }
+    h3 { font-size: 13px; color: var(--text-dim); text-transform: uppercase; letter-spacing: .08em; }
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 4px 10px;
+      border: 1px solid rgba(74, 222, 128, .35);
+      border-radius: 999px;
+      background: rgba(74, 222, 128, .1);
+      color: #c9f8dd;
+      font: 700 12px/1.4 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 12px;
+    }
+    .lede {
+      color: var(--text-dim);
+      font-size: 17px;
+      max-width: 820px;
+      margin-top: 12px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,.025), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, .16);
+    }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      display: grid;
+      gap: 6px;
+      min-height: 100%;
+    }
+    .metric strong {
+      font-size: clamp(32px, 5vw, 50px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .metric .green { color: var(--green); }
+    .metric .amber { color: var(--amber); }
+    .metric .red { color: var(--red); }
+    .muted { color: var(--text-dim); }
+    .rail {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .num {
+      display: grid;
+      place-items: center;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      color: #cfe0ff;
+      font: 800 13px/1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #121720;
+      color: var(--text-dim);
+      font: 700 12px/1.4 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin: 0 6px 6px 0;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .pane {
+      min-height: 238px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #111720;
+      overflow: hidden;
+    }
+    .pane header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #18202b;
+    }
+    .pane h3 { color: var(--text); }
+    .quest-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 11px 12px;
+      border-bottom: 1px solid rgba(42, 48, 64, .72);
+    }
+    .quest-row:last-child { border-bottom: 0; }
+    .state {
+      font: 800 11px/1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .state.red { color: #ffaaaa; }
+    .state.green { color: #bdf5cf; }
+    .state.blue { color: #b7ccff; }
+    .state.amber { color: #ffe0a3; }
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #10151d;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+    details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    details[open] {
+      border-color: rgba(79, 140, 255, .55);
+      box-shadow: inset 0 0 0 1px rgba(79, 140, 255, .08);
+    }
+    summary {
+      cursor: pointer;
+      padding: 10px 12px;
+      color: var(--text);
+      font-weight: 800;
+      list-style-position: inside;
+    }
+    details pre {
+      border: 0;
+      border-top: 1px solid var(--border);
+      border-radius: 0;
+    }
+    pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      color: #d7e4ff;
+      background: #10151d;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      font: 12px/1.5 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .warnbox {
+      border-color: rgba(251, 191, 36, .45);
+      background: rgba(251, 191, 36, .08);
+    }
+    @media (max-width: 900px) {
+      header { grid-template-columns: 1fr; align-items: start; }
+      .span-3, .span-4, .span-5, .span-7, .span-8 { grid-column: span 12; }
+      .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <span class="badge">Completed focused slice</span>
+        <h1>Fight Arena now has real stage gates. The all-quest goal is still open.</h1>
+        <p class="lede">This pass proves another source-backed quest replacement without pretending 194/194 stage-row coverage means minute-detail parity. Fight Arena now blocks and consumes at the correct stages; Bouncer is resolver-ready; Khazard ogre and scorpion remain blocked until better combat-stat evidence exists.</p>
+      </div>
+      <section class="card warnbox">
+        <h2>Manager answer</h2>
+        <p class="lede">No: this is not done for every single quest. It is a committed implementation slice that makes Fight Arena honest and leaves the broader quest parity debt visible.</p>
+      </section>
+    </header>
+
+    <section class="grid">
+      <article class="card span-3 metric">
+        <h3>Stage coverage</h3>
+        <strong class="green">194/194</strong>
+        <p class="muted">Every quest has at least one machine-readable stage row.</p>
+      </article>
+      <article class="card span-3 metric">
+        <h3>Stage rows</h3>
+        <strong>449</strong>
+        <p class="muted">Up from 440 after replacing Fight Arena generated rows.</p>
+      </article>
+      <article class="card span-3 metric">
+        <h3>Resolver-ready combat</h3>
+        <strong class="amber">177/285</strong>
+        <p class="muted">Bouncer is ready. Ogre/scorpion are not.</p>
+      </article>
+      <article class="card span-3 metric">
+        <h3>Statless debt</h3>
+        <strong class="red">108</strong>
+        <p class="muted">Still blocked by design, not silently completable.</p>
+      </article>
+
+      <article class="card span-7">
+        <h2>Backend work</h2>
+        <div class="rail">
+          <div class="step"><span class="num">01</span><p>Added a 12-stage Fight Arena override in <span class="pill">quest_data.py</span> with sourced journal stages and no false start lock for disguise, brew, or keys.</p></div>
+          <div class="step"><span class="num">02</span><p>Modeled stage-local inventory: Khazard disguise production, `Coins x5` consumption, `Khali brew` production/consumption, and `Khazard cell keys` production/use.</p></div>
+          <div class="step"><span class="num">03</span><p>Added combat gates for Khazard ogre, Khazard scorpion, and Bouncer. Ogre/scorpion fail closed as missing-stats rows; Bouncer carries full Darkan resolver stats.</p></div>
+          <div class="step"><span class="num">04</span><p>Preserved sourced rewards: `Coins x1000`, 2 quest points, and pending unimplemented-skill XP for Attack and Thieving.</p></div>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <h2>Frontend and assets</h2>
+        <div class="rail">
+          <div class="step"><span class="num">UI</span><p>Qt/offscreen tests prove started Fight Arena surfaces `blocked_at_stage` for the ogre missing-stats row and allows Bouncer selection once earlier fights are complete.</p></div>
+          <div class="step"><span class="num">IMG</span><p>Fetched and provenance-recorded icons for Khazard helmet, Khazard armour, Khali brew, and Khazard cell keys.</p></div>
+          <div class="step"><span class="num">DOC</span><p>Added a Fight Arena source audit plus Memory Bank guidance that says all-quest parity remains unfinished.</p></div>
+        </div>
+      </article>
+
+      <article class="card span-8">
+        <h2>Before and after</h2>
+        <div class="split">
+          <div class="pane">
+            <header><h3>Before</h3><span class="state red">Generated</span></header>
+            <div class="quest-row"><p>Fight Arena</p><span class="state red">Prose gate</span></div>
+            <div class="quest-row"><p>Khali brew and disguise were not staged as real item transitions.</p><span class="state red">Loose</span></div>
+            <div class="quest-row"><p>Enemies could appear as combat text without enough machine-readable blocker detail.</p><span class="state red">Risk</span></div>
+            <div class="bar"><div class="fill" style="width: 20%"></div></div>
+          </div>
+          <div class="pane">
+            <header><h3>After</h3><span class="state green">Focused</span></header>
+            <div class="quest-row"><p>Disguise, Jeremy, Angor, lazy guard, keys, arena fights, Lady return.</p><span class="state green">12 stages</span></div>
+            <div class="quest-row"><p>Current-stage items are produced and consumed at source-backed points.</p><span class="state green">Gated</span></div>
+            <div class="quest-row"><p>Bouncer resolves; ogre/scorpion remain blocked with clear missing-stat reasons.</p><span class="state amber">Honest</span></div>
+            <div class="bar"><div class="fill" style="width: 88%"></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card span-4">
+        <h2>Still deferred</h2>
+        <div class="rail">
+          <div class="step"><span class="num">!</span><p>Full generated-row replacement for every quest is not done.</p></div>
+          <div class="step"><span class="num">!</span><p>108 combat rows still lack resolver-ready source stats.</p></div>
+          <div class="step"><span class="num">!</span><p>Real combat simulation, route/location state, puzzle state, and action-flag UI remain future work.</p></div>
+        </div>
+      </article>
+
+      <article class="card span-12">
+        <h2>Verification</h2>
+        <details open>
+          <summary>Tests</summary>
+          <pre>python3 run_tests.py
+Result: 481 tests passed, 113 expected Qt skips.
+
+QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
+Result: 481 tests passed.
+
+Focused tests also cover Fight Arena pure stage gates, catalog shape, integration blocker behavior, quest item icon paths, and Qt blocker/selection states.</pre>
+        </details>
+        <details>
+          <summary>Manual Anki</summary>
+          <pre>Manual Anki checklist:
+1. Start Fight Arena with no disguise/brew/key start lock.
+2. Confirm first Quest review produces Khazard helmet and Khazard armour only.
+3. Confirm missing disguise item blocks progress at stage 2.
+4. Confirm Coins x5 becomes Khali brew, then Khali brew is consumed.
+5. Confirm cell-key action produces Khazard cell keys and key use gates the arena.
+6. Confirm ogre is globally locked when resolver is off.
+7. Confirm ogre remains missing-stats blocked when resolver is on.
+8. Simulate ogre/scorpion completion, resolve Bouncer, then return to Lady Servil.
+9. Confirm 2 quest points, Coins x1000, and pending Attack/Thieving XP fire once.</pre>
+        </details>
+        <details>
+          <summary>Sources</summary>
+          <pre>Primary identity:
+/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml
+
+Primary mechanics for this quest:
+/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/fightarena/
+
+Combat definitions:
+bouncer_(137).json
+khazard_ogre (nostats).json
+khazard_scorpion (nostats) (noanims).json
+
+Historical cross-check:
+https://runescape.wiki/w/Fight_Arena?oldid=6516173</pre>
+        </details>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

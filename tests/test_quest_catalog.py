@@ -135,6 +135,48 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertEqual(stage10["produced_inventory"], {"Certificate": 1})
 
+    def test_fight_arena_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["fight_arena"]
+
+        self.assertEqual(quest["stages"], 12)
+        self.assertEqual(quest["rewards"], {"Coins": 1000})
+        self.assertEqual(quest["required_items"], {})
+        self.assertIn("darkan-world-server", quest["source"])
+        self.assertIn("General Khazard is optional", quest["combat"])
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertEqual(by_stage[1]["produced_inventory"], {"Khazard helmet": 1, "Khazard armour": 1})
+        self.assertEqual(by_stage[2]["required_tools"], {"Khazard helmet": 1, "Khazard armour": 1})
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Coins": 5})
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Khali brew": 1})
+        self.assertEqual(by_stage[5]["consumed_inventory"], {"Khali brew": 1})
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Khazard cell keys": 1})
+        self.assertEqual(by_stage[7]["required_tools"], {"Khazard cell keys": 1})
+        self.assertEqual(by_stage[11]["required_actions"], ("Return to Lady Servil for the reward",))
+
+        ogre = by_stage[8]["combat_encounters"][0]
+        self.assertEqual(ogre["display_name"], "Khazard ogre")
+        self.assertEqual(ogre["level"], 63)
+        self.assertEqual(ogre["npc_stats"], {"hitpoints": 600})
+        self.assertEqual(ogre["npc_configs"]["max_hit"], 1)
+        self.assertTrue(ogre["npc_stats_source"].endswith("khazard_ogre (nostats).json"))
+
+        scorpion = by_stage[9]["combat_encounters"][0]
+        self.assertEqual(scorpion["display_name"], "Khazard scorpion")
+        self.assertEqual(scorpion["level"], 44)
+        self.assertEqual(scorpion["npc_stats"], {"hitpoints": 400})
+        self.assertEqual(scorpion["npc_configs"]["max_hit"], 50)
+        self.assertTrue(scorpion["npc_stats_source"].endswith("khazard_scorpion (nostats) (noanims).json"))
+
+        bouncer = by_stage[10]["combat_encounters"][0]
+        self.assertEqual(bouncer["display_name"], "Bouncer")
+        self.assertEqual(bouncer["level"], 137)
+        self.assertEqual(bouncer["npc_stats"]["attack"], 120)
+        self.assertEqual(bouncer["npc_stats"]["strength"], 120)
+        self.assertEqual(bouncer["npc_configs"]["max_hit"], 140)
+        self.assertTrue(bouncer["npc_stats_source"].endswith("bouncer_(137).json"))
+
     def test_generated_catalog_stage_requirements_cover_items_and_combat(self):
         data = quests_as_dict()
 

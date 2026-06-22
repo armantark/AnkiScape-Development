@@ -5771,6 +5771,54 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:50Z"
   },
+  "questitems/khali_brew.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Khali_brew.png",
+    "file_title": "Khali brew.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Khali_brew.png?2aa89",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e5e8dbda0894c166aa24161c8f14082f94125be8",
+    "size": 444,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:36Z"
+  },
+  "questitems/khazard_armour.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Khazard_armour.png",
+    "file_title": "Khazard armour.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Khazard_armour.png?2aa89",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8e6ce3aaf04fde31f5c2487220fdb9c731e458da",
+    "size": 601,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:36Z"
+  },
+  "questitems/khazard_cell_keys.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Khazard_cell_keys.png",
+    "file_title": "Khazard cell keys.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Khazard_cell_keys.png?2aa89",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "416553a6b59c14d2dd24b74eea83340e9d8c8af1",
+    "size": 313,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:36Z"
+  },
+  "questitems/khazard_helmet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Khazard_helmet.png",
+    "file_title": "Khazard helmet.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Khazard_helmet.png?2aa89",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e6d235535b58903bd2db749aab96b08adae62db1",
+    "size": 535,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:36Z"
+  },
   "questitems/lobster_pot.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lobster_pot.png",
     "file_title": "Lobster pot.png",
