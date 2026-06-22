@@ -1547,6 +1547,103 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "dwarf_cannon", QUEST_DATA), ())
 
+    def test_fishing_contest_stage_gates_pass_garlic_catch_and_trophy(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["fishing_contest"] = {"started": True, "progress": 1, "completed": False}
+        player_data["inventory"].update(
+            {
+                "Coins": 5,
+                "Garlic": 1,
+                "Fishing rod": 1,
+                "Red vine worm": 1,
+            }
+        )
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fishing_contest", QUEST_DATA),
+            ("Action required: Receive a fishing pass from Austri or Vestri",),
+        )
+        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked["quests"]["fishing_contest"]["progress"], 1)
+        self.assertEqual(blocked["fishing_exp"], 0)
+
+        player_data["quest_stage_actions"] = {
+            "fishing_contest": ["Receive a fishing pass from Austri or Vestri"]
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Fishing pass"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 3)
+        self.assertEqual(player_data["inventory"]["Coins"], 0)
+        self.assertEqual(player_data["inventory"]["Fishing pass"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Garlic"], 0)
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 4)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "fishing_contest", QUEST_DATA),
+            ("Action required: Catch the winning giant carp",),
+        )
+
+        player_data["quest_stage_actions"]["fishing_contest"].append("Catch the winning giant carp")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Red vine worm"], 0)
+        self.assertEqual(player_data["inventory"]["Raw giant carp"], 1)
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 5)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Raw giant carp"], 0)
+        self.assertEqual(player_data["inventory"]["Fishing trophy"], 1)
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 6)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fishing_contest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["fishing_contest"]["completed"])
+        self.assertEqual(player_data["inventory"]["Fishing trophy"], 0)
+        self.assertEqual(player_data["fishing_exp"], 2437.0)
+
+    def test_scorpion_catcher_stage_exposes_source_backed_jailer_combat_gate(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["scorpion_catcher"] = {"started": True, "progress": 3, "completed": False}
+        player_data["inventory"]["Scorpion cage"] = 1
+        player_data["quest_route_states"] = {"scorpion_catcher": ["Reach the Taverley Dungeon scorpion room"]}
+        player_data["quest_stage_actions"] = {
+            "scorpion_catcher": ["Catch the Taverley Dungeon Kharid scorpion"]
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "scorpion_catcher", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "scorpion_catcher", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Jailer level 39",),
+        )
+        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "scorpion_catcher", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked["quests"]["scorpion_catcher"]["progress"], 3)
+        self.assertEqual(blocked["strength_exp"], 0)
+
+        player_data["quest_combat_encounters"] = {"scorpion_catcher": ["scorpion_catcher_jailer"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "scorpion_catcher", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["scorpion_catcher"]["progress"], 4)
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}

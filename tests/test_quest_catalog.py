@@ -814,6 +814,81 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[9]["consumed_inventory"], {"Ammo mould": 1, "Nulodion's notes": 1})
         self.assertIn("DwarfCannon.java", by_stage[1]["source"])
 
+    def test_local_source_batch_quest_stage_replacements_are_structured(self):
+        data = quests_as_dict()
+
+        fishing = data["fishing_contest"]
+        fishing_by_stage = {row["stage"]: row for row in fishing["stage_requirements"]}
+        self.assertEqual(fishing["stages"], 7)
+        self.assertEqual(fishing["combat"], "None.")
+        self.assertEqual(fishing_by_stage[1]["produced_inventory"], {"Fishing pass": 1})
+        self.assertEqual(fishing_by_stage[2]["required_inventory"], {"Fishing pass": 1})
+        self.assertEqual(fishing_by_stage[2]["consumed_inventory"], {"Coins": 5})
+        self.assertEqual(fishing_by_stage[3]["consumed_inventory"], {"Garlic": 1})
+        self.assertEqual(fishing_by_stage[4]["required_tools"], {"Fishing rod": 1})
+        self.assertEqual(
+            fishing_by_stage[4]["consumed_inventory_options"],
+            (({"Red vine worm": 1}, {"Fishing bait": 1}),),
+        )
+        self.assertEqual(fishing_by_stage[4]["produced_inventory"], {"Raw giant carp": 1})
+        self.assertEqual(fishing_by_stage[5]["consumed_inventory"], {"Raw giant carp": 1})
+        self.assertEqual(fishing_by_stage[5]["produced_inventory"], {"Fishing trophy": 1})
+        self.assertEqual(fishing_by_stage[6]["consumed_inventory"], {"Fishing trophy": 1})
+
+        gertrude = data["gertrudes_cat"]
+        gertrude_by_stage = {row["stage"]: row for row in gertrude["stage_requirements"]}
+        self.assertEqual(gertrude["stages"], 10)
+        self.assertEqual(gertrude["combat"], "None.")
+        self.assertEqual(gertrude_by_stage[2]["consumed_inventory"], {"Coins": 100})
+        self.assertEqual(gertrude_by_stage[3]["required_routes"], ("Reach Fluffs in the Varrock Lumber Yard",))
+        self.assertEqual(gertrude_by_stage[4]["consumed_inventory"], {"Bucket of milk": 1})
+        self.assertEqual(gertrude_by_stage[4]["produced_inventory"], {"Bucket": 1})
+        self.assertEqual(gertrude_by_stage[5]["consumed_inventory"], {"Raw sardine": 1, "Doogle leaves": 1})
+        self.assertEqual(gertrude_by_stage[5]["produced_inventory"], {"Doogle sardine": 1})
+        self.assertEqual(gertrude_by_stage[6]["consumed_inventory"], {"Doogle sardine": 1})
+        self.assertEqual(gertrude_by_stage[7]["produced_inventory"], {"Three little kittens": 1})
+        self.assertEqual(gertrude_by_stage[8]["consumed_inventory"], {"Three little kittens": 1})
+
+        clock = data["clock_tower"]
+        clock_by_stage = {row["stage"]: row for row in clock["stage_requirements"]}
+        self.assertEqual(clock["stages"], 4)
+        self.assertEqual(clock["combat"], "None.")
+        self.assertEqual(clock_by_stage[1]["consumed_inventory"], {"Rat poison": 1})
+        self.assertEqual(clock_by_stage[2]["required_inventory_options"], (({"Bucket of water": 1}, {"Ice gloves": 1}),))
+        self.assertEqual(
+            clock_by_stage[2]["consumed_inventory"],
+            {"White cog": 1, "Black cog": 1, "Blue cog": 1, "Red cog": 1},
+        )
+
+        monks = data["monks_friend"]
+        monks_by_stage = {row["stage"]: row for row in monks["stage_requirements"]}
+        self.assertEqual(monks["stages"], 6)
+        self.assertEqual(monks["combat"], "Optional: two level 21 thieves and a level 25 head thief.")
+        self.assertEqual(monks_by_stage[1]["consumed_inventory"], {"Child's blanket": 1})
+        self.assertEqual(monks_by_stage[3]["consumed_inventory"], {"Jug of water": 1})
+        self.assertEqual(monks_by_stage[4]["consumed_inventory"], {"Logs": 1})
+
+        tribal = data["tribal_totem"]
+        tribal_by_stage = {row["stage"]: row for row in tribal["stage_requirements"]}
+        self.assertEqual(tribal["stages"], 6)
+        self.assertEqual(tribal["combat"], "None.")
+        self.assertEqual(tribal_by_stage[2]["required_routes"], ("Reach the Ardougne RPDT depot",))
+        self.assertEqual(tribal_by_stage[2]["produced_inventory"], {"Address label": 1})
+        self.assertEqual(tribal_by_stage[3]["consumed_inventory"], {"Address label": 1})
+        self.assertEqual(tribal_by_stage[4]["produced_inventory"], {"Totem": 1})
+        self.assertEqual(tribal_by_stage[5]["consumed_inventory"], {"Totem": 1})
+
+        scorpion = data["scorpion_catcher"]
+        scorpion_by_stage = {row["stage"]: row for row in scorpion["stage_requirements"]}
+        self.assertEqual(scorpion["stages"], 7)
+        self.assertEqual(scorpion["combat"], "You will need to defeat a level 39 jailer.")
+        jailer = scorpion_by_stage[3]["combat_encounters"][0]
+        self.assertEqual(jailer["display_name"], "Jailer")
+        self.assertEqual(jailer["level"], 39)
+        self.assertEqual(jailer["npc_stats"]["hitpoints"], 470)
+        self.assertTrue(jailer["npc_stats_source"].endswith("jailer.json"))
+        self.assertEqual(scorpion_by_stage[6]["consumed_inventory"], {"Scorpion cage": 1})
+
     def test_source_backed_starter_quest_stage_overrides_replace_generated_guesses(self):
         data = quests_as_dict()
 

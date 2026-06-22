@@ -224,6 +224,45 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Dwarf Cannon 2/11"])
 
+    def test_quest_answer_blocks_and_progresses_fishing_contest_pass_gate(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "fishing_contest",
+            "quests": {"fishing_contest": {"started": True, "progress": 1, "completed": False}},
+            "quest_points": 0,
+            "fishing_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 1)
+        self.assertEqual(player_data["inventory"], {})
+        self.assertEqual(player_data["fishing_exp"], 0)
+        self.assertEqual(calls["saves"], 0)
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Receive a fishing pass from Austri or Vestri", calls["errors"][0][1])
+
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data["quest_stage_actions"] = {
+            "fishing_contest": ["Receive a fishing pass from Austri or Vestri"]
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertFalse(player_data["quests"]["fishing_contest"]["completed"])
+        self.assertEqual(player_data["quests"]["fishing_contest"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Fishing pass"], 1)
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(player_data["fishing_exp"], 0)
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Fishing Contest 2/7"])
+
     def test_quest_answer_completes_priest_in_peril_only_after_essence_gate(self):
         blocked_calls = {"xp": [], "saves": 0, "errors": []}
         blocked_data = {

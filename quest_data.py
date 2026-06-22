@@ -55,6 +55,12 @@ SOME_LIKE_IT_COLD_ID = "some_like_it_cold"
 WITCHS_HOUSE_ID = "witchs_house"
 MERLINS_CRYSTAL_ID = "merlins_crystal"
 DWARF_CANNON_ID = "dwarf_cannon"
+FISHING_CONTEST_ID = "fishing_contest"
+GERTRUDES_CAT_ID = "gertrudes_cat"
+CLOCK_TOWER_ID = "clock_tower"
+MONKS_FRIEND_ID = "monks_friend"
+TRIBAL_TOTEM_ID = "tribal_totem"
+SCORPION_CATCHER_ID = "scorpion_catcher"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -174,6 +180,47 @@ DARKAN_DWARF_CANNON_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/DwarfCannon.jav
 DARKAN_DWARF_CANNON_LAWGOF_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/CaptainLawgofD.java"
 DARKAN_DWARF_CANNON_LOLLK_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/LollkD.java"
 DARKAN_DWARF_CANNON_NULODION_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/NulodionD.java"
+DARKAN_FISHING_SOURCE_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
+    "com/rs/game/content/skills/fishing"
+)
+DARKAN_FISHING_SKILL_SOURCE = f"{DARKAN_FISHING_SOURCE_ROOT}/Fishing.java"
+DARKAN_FISHING_FISH_SOURCE = f"{DARKAN_FISHING_SOURCE_ROOT}/Fish.java"
+DARKAN_FISHING_SPOT_SOURCE = f"{DARKAN_FISHING_SOURCE_ROOT}/FishingSpot.java"
+DARKAN_FISHING_CONTEST_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/fishingcontest"
+DARKAN_FISHING_CONTEST_SOURCE = f"{DARKAN_FISHING_CONTEST_SOURCE_ROOT}/FishingContest.java"
+DARKAN_FISHING_CONTEST_DWARF_BROTHERS_SOURCE = (
+    f"{DARKAN_FISHING_CONTEST_SOURCE_ROOT}/DwarfBrothersFishingContestD.java"
+)
+DARKAN_FISHING_CONTEST_BONZO_SOURCE = f"{DARKAN_FISHING_CONTEST_SOURCE_ROOT}/BonzoFishingContestD.java"
+DARKAN_FISHING_CONTEST_GRANDPA_JACK_SOURCE = (
+    f"{DARKAN_FISHING_CONTEST_SOURCE_ROOT}/GrandpaJackFishingContestD.java"
+)
+DARKAN_FISHING_CONTEST_MORRIS_SOURCE = f"{DARKAN_FISHING_CONTEST_SOURCE_ROOT}/MorrisFishingContestD.java"
+DARKAN_FISHING_CONTEST_WIKI_SOURCE = "https://runescape.wiki/w/Fishing_Contest?oldid=6326002"
+DARKAN_GERTRUDES_CAT_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/gertrudescat"
+DARKAN_GERTRUDES_CAT_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudesCat.java"
+DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/GertrudeD.java"
+DARKAN_GERTRUDES_CAT_CHILDREN_SOURCE = f"{DARKAN_GERTRUDES_CAT_SOURCE_ROOT}/ShilopWiloughD.java"
+DARKAN_CLOCK_TOWER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/clocktower"
+DARKAN_CLOCK_TOWER_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTower.java"
+DARKAN_CLOCK_TOWER_DUNGEON_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/ClockTowerDungeon.java"
+DARKAN_CLOCK_TOWER_KOJO_SOURCE = f"{DARKAN_CLOCK_TOWER_SOURCE_ROOT}/BrotherKojoClockTowerD.java"
+DARKAN_MONKS_FRIEND_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/monksfriend"
+DARKAN_MONKS_FRIEND_SOURCE = f"{DARKAN_MONKS_FRIEND_SOURCE_ROOT}/MonksFriend.java"
+DARKAN_MONKS_FRIEND_OMAD_SOURCE = f"{DARKAN_MONKS_FRIEND_SOURCE_ROOT}/dialogues/BrotherOmadMonksFriendD.java"
+DARKAN_MONKS_FRIEND_CEDRIC_SOURCE = f"{DARKAN_MONKS_FRIEND_SOURCE_ROOT}/dialogues/BrotherCedricMonksFriendD.java"
+DARKAN_TRIBAL_TOTEM_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/tribaltotem"
+DARKAN_TRIBAL_TOTEM_SOURCE = f"{DARKAN_TRIBAL_TOTEM_SOURCE_ROOT}/TribalTotem.java"
+DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE = f"{DARKAN_TRIBAL_TOTEM_SOURCE_ROOT}/KangaiMauTribalTotemD.java"
+DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE = f"{DARKAN_TRIBAL_TOTEM_SOURCE_ROOT}/WizardCrompertyTribalTotemD.java"
+DARKAN_TRIBAL_TOTEM_RPDT_SOURCE = f"{DARKAN_TRIBAL_TOTEM_SOURCE_ROOT}/RPDTEmployeeTribalTotemD.java"
+DARKAN_SCORPION_CATCHER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/scorpioncatcher"
+DARKAN_SCORPION_CATCHER_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}/ScorpionCatcher.java"
+DARKAN_SCORPION_CATCHER_THORMAC_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}/ThormacScorpionCatcherD.java"
+DARKAN_SCORPION_CATCHER_SEER_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}/SeerScorpionCatcherD.java"
+DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}/KhazScorp.java"
+DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jailer.json"
 DARKAN_FIGHT_ARENA_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/fightarena"
 DARKAN_FIGHT_ARENA_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArena.java"
 DARKAN_FIGHT_ARENA_CUTSCENE_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArenaFightCutsceneController.java"
@@ -2117,6 +2164,70 @@ def _combat(
 QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatEncounter, ...]]
 
 
+FISHING_CONTEST_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Austri or Vestri can give me a pass for the Hemenster Fishing Contest."),
+    _simple_stage(2, "I have a fishing pass and need to enter the contest."),
+    _simple_stage(3, "The contest has started. I need to move the stranger away from the best fishing spot."),
+    _simple_stage(4, "The stranger left the best spot. I need to catch the winning fish."),
+    _simple_stage(5, "I caught a raw giant carp and should claim the trophy from Bonzo."),
+    _simple_stage(6, "I have the fishing trophy and should return it to the dwarf brothers."),
+    _simple_stage(7, "The dwarf brothers opened the White Wolf Mountain shortcut.", "Quest complete!"),
+)
+
+
+GERTRUDES_CAT_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Gertrude asked me to find Shilop and Wilough in Varrock Marketplace."),
+    _simple_stage(2, "Shilop and Wilough know where Fluffs is hiding, but they want coins."),
+    _simple_stage(3, "Fluffs is in the Lumber Yard and will not come down yet."),
+    _simple_stage(4, "Fluffs is thirsty and needs milk."),
+    _simple_stage(5, "Fluffs is still hungry. Doogle leaves can season a raw sardine."),
+    _simple_stage(6, "I made a doogle sardine and should feed it to Fluffs."),
+    _simple_stage(7, "Fluffs is worried about her kittens somewhere in the Lumber Yard."),
+    _simple_stage(8, "I found the kittens and need to return them to Fluffs."),
+    _simple_stage(9, "Fluffs has gone home. Gertrude should hear what happened."),
+    _simple_stage(10, "Gertrude gave me a kitten.", "Quest complete!"),
+)
+
+
+CLOCK_TOWER_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Brother Kojo needs the Clock Tower's missing cogs replaced."),
+    _simple_stage(2, "The dungeon rats are dealt with. I need the four cogs on their spindles."),
+    _simple_stage(3, "The clock is repaired. I should report back to Brother Kojo."),
+    _simple_stage(4, "Brother Kojo rewarded me for repairing the tower.", "Quest complete!"),
+)
+
+
+MONKS_FRIEND_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Brother Omad needs the child's blanket recovered from the thieves' hideout."),
+    _simple_stage(2, "Brother Omad can tell me what else is needed for the birthday party."),
+    _simple_stage(3, "Brother Cedric is lost outside the monastery and needs a jug of water."),
+    _simple_stage(4, "Brother Cedric needs logs to repair his cart."),
+    _simple_stage(5, "Brother Cedric is returning. I should tell Brother Omad and join the party."),
+    _simple_stage(6, "Brother Omad's party is underway.", "Quest complete!"),
+)
+
+
+TRIBAL_TOTEM_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Kangai Mau asked me to recover the Rantuki totem from Lord Handelmort."),
+    _simple_stage(2, "Wizard Cromperty's teleport block can reach the RPDT depot."),
+    _simple_stage(3, "I took the address label for Handelmort Mansion from the RPDT crate."),
+    _simple_stage(4, "The teleport block has been redirected to Handelmort Mansion."),
+    _simple_stage(5, "I found the Rantuki totem and need to return it to Kangai Mau."),
+    _simple_stage(6, "Kangai Mau received the Rantuki totem.", "Quest complete!"),
+)
+
+
+SCORPION_CATCHER_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Thormac needs his three lesser Kharid scorpions recovered."),
+    _simple_stage(2, "Thormac gave me a scorpion cage. The Seer can locate the missing scorpions."),
+    _simple_stage(3, "The first scorpion is in Taverley Dungeon."),
+    _simple_stage(4, "The second scorpion is at the Barbarian Outpost."),
+    _simple_stage(5, "The third scorpion is upstairs in Edgeville Monastery."),
+    _simple_stage(6, "All three scorpions are caged. I should return to Thormac."),
+    _simple_stage(7, "Thormac has his scorpions back.", "Quest complete!"),
+)
+
+
 DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Captain Lawgof needs the Black Guard camp railings repaired."),
     _simple_stage(2, "The six broken railings have been repaired. I should report back to Captain Lawgof."),
@@ -2134,16 +2245,34 @@ DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
 
 QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     DWARF_CANNON_ID: len(DWARF_CANNON_STAGES),
+    FISHING_CONTEST_ID: len(FISHING_CONTEST_STAGES),
+    GERTRUDES_CAT_ID: len(GERTRUDES_CAT_STAGES),
+    CLOCK_TOWER_ID: len(CLOCK_TOWER_STAGES),
+    MONKS_FRIEND_ID: len(MONKS_FRIEND_STAGES),
+    TRIBAL_TOTEM_ID: len(TRIBAL_TOTEM_STAGES),
+    SCORPION_CATCHER_ID: len(SCORPION_CATCHER_STAGES),
 }
 
 
 QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     DWARF_CANNON_ID: DWARF_CANNON_STAGES,
+    FISHING_CONTEST_ID: FISHING_CONTEST_STAGES,
+    GERTRUDES_CAT_ID: GERTRUDES_CAT_STAGES,
+    CLOCK_TOWER_ID: CLOCK_TOWER_STAGES,
+    MONKS_FRIEND_ID: MONKS_FRIEND_STAGES,
+    TRIBAL_TOTEM_ID: TRIBAL_TOTEM_STAGES,
+    SCORPION_CATCHER_ID: SCORPION_CATCHER_STAGES,
 }
 
 
 QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
     DWARF_CANNON_ID: "None.",
+    FISHING_CONTEST_ID: "None.",
+    GERTRUDES_CAT_ID: "None.",
+    CLOCK_TOWER_ID: "None.",
+    MONKS_FRIEND_ID: "Optional: two level 21 thieves and a level 25 head thief.",
+    TRIBAL_TOTEM_ID: "None.",
+    SCORPION_CATCHER_ID: "You will need to defeat a level 39 jailer.",
 }
 
 
@@ -2154,6 +2283,286 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Give the Lumbridge cook the three special cake ingredients.",
             f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}",
             consumed_inventory=(("Top-quality milk", 1), ("Extra fine flour", 1), ("Super large egg", 1)),
+        ),
+    ),
+    FISHING_CONTEST_ID: (
+        _stage_req(
+            1,
+            "Receive a fishing pass from Austri or Vestri.",
+            f"{DARKAN_FISHING_CONTEST_SOURCE}; {DARKAN_FISHING_CONTEST_DWARF_BROTHERS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Receive a fishing pass from Austri or Vestri",),
+            produced_inventory=(("Fishing pass", 1),),
+        ),
+        _stage_req(
+            2,
+            "Show the fishing pass and pay Bonzo's contest entry fee.",
+            f"{DARKAN_FISHING_CONTEST_MORRIS_SOURCE}; {DARKAN_FISHING_CONTEST_BONZO_SOURCE}",
+            required_inventory=(("Fishing pass", 1),),
+            consumed_inventory=(("Coins", 5),),
+        ),
+        _stage_req(
+            3,
+            "Put garlic in the pipe beside the stranger's fishing spot.",
+            f"{DARKAN_FISHING_CONTEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Garlic", 1),),
+        ),
+        _stage_req(
+            4,
+            "Catch the winning giant carp at Hemenster.",
+            (
+                f"{DARKAN_FISHING_CONTEST_SOURCE}; {DARKAN_FISHING_CONTEST_GRANDPA_JACK_SOURCE}; "
+                f"{DARKAN_FISHING_SKILL_SOURCE}; {DARKAN_FISHING_FISH_SOURCE}; "
+                f"{DARKAN_FISHING_SPOT_SOURCE}; {DARKAN_FISHING_CONTEST_WIKI_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            consumed_inventory_options=((("Red vine worm", 1), ("Fishing bait", 1)),),
+            produced_inventory=(("Raw giant carp", 1),),
+            required_tools=(("Fishing rod", 1),),
+            required_actions=("Catch the winning giant carp",),
+        ),
+        _stage_req(
+            5,
+            "Claim the Hemenster fishing trophy from Bonzo.",
+            f"{DARKAN_FISHING_CONTEST_BONZO_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Raw giant carp", 1),),
+            produced_inventory=(("Fishing trophy", 1),),
+        ),
+        _stage_req(
+            6,
+            "Give the fishing trophy to Austri or Vestri.",
+            f"{DARKAN_FISHING_CONTEST_DWARF_BROTHERS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Fishing trophy", 1),),
+        ),
+    ),
+    GERTRUDES_CAT_ID: (
+        _stage_req(
+            1,
+            "Speak to Shilop or Wilough in Varrock Marketplace.",
+            DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE,
+            required_actions=("Speak to Shilop and Wilough in Varrock Marketplace",),
+        ),
+        _stage_req(
+            2,
+            "Pay Shilop and Wilough for Fluffs' location.",
+            DARKAN_GERTRUDES_CAT_CHILDREN_SOURCE,
+            consumed_inventory=(("Coins", 100),),
+        ),
+        _stage_req(
+            3,
+            "Find Fluffs in the Lumber Yard and learn she is thirsty.",
+            DARKAN_GERTRUDES_CAT_SOURCE,
+            required_routes=("Reach Fluffs in the Varrock Lumber Yard",),
+            required_actions=("Try to pick up Fluffs in the Lumber Yard",),
+        ),
+        _stage_req(
+            4,
+            "Give Fluffs a bucket of milk.",
+            f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Bucket of milk", 1),),
+            produced_inventory=(("Bucket", 1),),
+        ),
+        _stage_req(
+            5,
+            "Season a raw sardine with doogle leaves.",
+            f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Raw sardine", 1), ("Doogle leaves", 1)),
+            produced_inventory=(("Doogle sardine", 1),),
+        ),
+        _stage_req(
+            6,
+            "Feed Fluffs the doogle sardine.",
+            f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Doogle sardine", 1),),
+        ),
+        _stage_req(
+            7,
+            "Find Fluffs' kittens in the Lumber Yard.",
+            f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Search the shaking crate for Fluffs' kittens",),
+            produced_inventory=(("Three little kittens", 1),),
+        ),
+        _stage_req(
+            8,
+            "Return Fluffs' kittens to her.",
+            f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Three little kittens", 1),),
+        ),
+        _stage_req(
+            9,
+            "Tell Gertrude that Fluffs and the kittens are safe.",
+            DARKAN_GERTRUDES_CAT_GERTRUDE_SOURCE,
+            required_actions=("Tell Gertrude that Fluffs and the kittens are safe",),
+        ),
+    ),
+    CLOCK_TOWER_ID: (
+        _stage_req(
+            1,
+            "Poison the Clock Tower dungeon rats to open the blocked door.",
+            f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Rat poison", 1),),
+            required_actions=("Poison the Clock Tower dungeon rats",),
+        ),
+        _stage_req(
+            2,
+            "Place the four Clock Tower cogs on their matching spindles.",
+            f"{DARKAN_CLOCK_TOWER_SOURCE}; {DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_inventory_options=(((("Bucket of water", 1), ("Ice gloves", 1)),)),
+            consumed_inventory=(("White cog", 1), ("Black cog", 1), ("Blue cog", 1), ("Red cog", 1)),
+            required_actions=("Place the four Clock Tower cogs",),
+        ),
+        _stage_req(
+            3,
+            "Report the repaired clock to Brother Kojo.",
+            DARKAN_CLOCK_TOWER_KOJO_SOURCE,
+            required_actions=("Report the repaired clock to Brother Kojo",),
+        ),
+    ),
+    MONKS_FRIEND_ID: (
+        _stage_req(
+            1,
+            "Return the child's blanket to Brother Omad.",
+            f"{DARKAN_MONKS_FRIEND_SOURCE}; {DARKAN_MONKS_FRIEND_OMAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Child's blanket", 1),),
+        ),
+        _stage_req(
+            2,
+            "Ask Brother Omad about Brother Cedric and the party.",
+            DARKAN_MONKS_FRIEND_OMAD_SOURCE,
+            required_actions=("Ask Brother Omad about Brother Cedric and the party",),
+        ),
+        _stage_req(
+            3,
+            "Give Brother Cedric a jug of water.",
+            f"{DARKAN_MONKS_FRIEND_CEDRIC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Jug of water", 1),),
+        ),
+        _stage_req(
+            4,
+            "Give Brother Cedric logs to repair his cart.",
+            f"{DARKAN_MONKS_FRIEND_CEDRIC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Logs", 1),),
+        ),
+        _stage_req(
+            5,
+            "Return to Brother Omad and join the birthday party.",
+            DARKAN_MONKS_FRIEND_OMAD_SOURCE,
+            required_actions=("Return to Brother Omad and join the birthday party",),
+        ),
+    ),
+    TRIBAL_TOTEM_ID: (
+        _stage_req(
+            1,
+            "Ask Wizard Cromperty about his teleportation block.",
+            f"{DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}",
+            required_actions=("Ask Wizard Cromperty about the teleportation block",),
+        ),
+        _stage_req(
+            2,
+            "Take Lord Handelmort's address label from the RPDT crate.",
+            f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_routes=("Reach the Ardougne RPDT depot",),
+            required_actions=("Take Lord Handelmort's address label from the RPDT crate",),
+            produced_inventory=(("Address label", 1),),
+        ),
+        _stage_req(
+            3,
+            "Switch the RPDT crate address labels and request delivery.",
+            f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_RPDT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Address label", 1),),
+            required_actions=("Switch the RPDT crate address labels and request delivery",),
+        ),
+        _stage_req(
+            4,
+            "Teleport into Handelmort Mansion, bypass the traps, and loot the Rantuki totem.",
+            f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {DARKAN_TRIBAL_TOTEM_WIZARD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=(
+                "Teleport into Handelmort Mansion",
+                "Disarm Handelmort's trapped stairs",
+                "Solve Handelmort's lock with KURT",
+                "Loot the Rantuki totem",
+            ),
+            produced_inventory=(("Totem", 1),),
+        ),
+        _stage_req(
+            5,
+            "Return the Rantuki totem to Kangai Mau.",
+            f"{DARKAN_TRIBAL_TOTEM_KANGAI_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Totem", 1),),
+        ),
+    ),
+    SCORPION_CATCHER_ID: (
+        _stage_req(
+            1,
+            "Accept Thormac's scorpion cage.",
+            f"{DARKAN_SCORPION_CATCHER_THORMAC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Accept Thormac's scorpion cage",),
+            produced_inventory=(("Scorpion cage", 1),),
+        ),
+        _stage_req(
+            2,
+            "Ask the Seer for all three scorpion locations.",
+            f"{DARKAN_SCORPION_CATCHER_SEER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
+            required_actions=("Ask the Seer for all three scorpion locations",),
+        ),
+        _stage_req(
+            3,
+            "Catch the Taverley Dungeon scorpion.",
+            (
+                f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}; "
+                f"{DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE}"
+            ),
+            required_tools=(("Scorpion cage", 1),),
+            required_routes=("Reach the Taverley Dungeon scorpion room",),
+            required_actions=("Catch the Taverley Dungeon Kharid scorpion",),
+            combat_encounters=(
+                _combat(
+                    SCORPION_CATCHER_ID,
+                    "jailer",
+                    "Jailer",
+                    39,
+                    f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE}",
+                    "The Scorpion Catcher quest details require a level 39 jailer for the Taverley Dungeon key route.",
+                    npc_stats=(
+                        ("hitpoints", 470),
+                        ("attack", 40),
+                        ("strength", 40),
+                        ("defence", 40),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 50),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Catch the Barbarian Outpost scorpion.",
+            f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
+            required_tools=(("Scorpion cage", 1),),
+            required_routes=("Reach the Barbarian Outpost scorpion room",),
+            required_actions=("Catch the Barbarian Outpost Kharid scorpion",),
+        ),
+        _stage_req(
+            5,
+            "Catch the Edgeville Monastery scorpion.",
+            f"{DARKAN_SCORPION_CATCHER_SOURCE}; {DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE}",
+            required_tools=(("Scorpion cage", 1),),
+            required_routes=("Reach the Edgeville Monastery scorpion room",),
+            required_actions=("Catch the Edgeville Monastery Kharid scorpion",),
+        ),
+        _stage_req(
+            6,
+            "Return the caged scorpions to Thormac.",
+            f"{DARKAN_SCORPION_CATCHER_THORMAC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Scorpion cage", 1),),
+            required_actions=("Return the caged scorpions to Thormac",),
         ),
     ),
     DWARF_CANNON_ID: (
@@ -4656,6 +5065,94 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             }
     generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},
+        "Fishing pass": {
+            "category": "material",
+            "source": f"{DARKAN_FISHING_CONTEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Red vine worm": {
+            "category": "material",
+            "source": f"{DARKAN_FISHING_CONTEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Raw giant carp": {
+            "category": "fish",
+            "source": f"{DARKAN_FISHING_FISH_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Fishing trophy": {
+            "category": "material",
+            "source": f"{DARKAN_FISHING_CONTEST_BONZO_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Garlic": {
+            "category": "material",
+            "source": f"{DARKAN_FISHING_CONTEST_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Fishing rod": {
+            "category": "tool",
+            "source": f"{DARKAN_FISHING_SPOT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Bucket of milk": {
+            "category": "material",
+            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Doogle leaves": {
+            "category": "material",
+            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Doogle sardine": {
+            "category": "food",
+            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Three little kittens": {
+            "category": "material",
+            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Pet kitten": {
+            "category": "material",
+            "source": f"{DARKAN_GERTRUDES_CAT_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "White cog": {
+            "category": "material",
+            "source": f"{DARKAN_CLOCK_TOWER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Black cog": {
+            "category": "material",
+            "source": f"{DARKAN_CLOCK_TOWER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Blue cog": {
+            "category": "material",
+            "source": f"{DARKAN_CLOCK_TOWER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Red cog": {
+            "category": "material",
+            "source": f"{DARKAN_CLOCK_TOWER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Rat poison": {
+            "category": "material",
+            "source": f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Ice gloves": {
+            "category": "equipment",
+            "source": f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Child's blanket": {
+            "category": "material",
+            "source": f"{DARKAN_MONKS_FRIEND_OMAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Jug of water": {
+            "category": "material",
+            "source": f"{DARKAN_MONKS_FRIEND_CEDRIC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Address label": {
+            "category": "material",
+            "source": f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Totem": {
+            "category": "material",
+            "source": f"{DARKAN_TRIBAL_TOTEM_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Scorpion cage": {
+            "category": "tool",
+            "source": f"{DARKAN_SCORPION_CATCHER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
         "Railing": {
             "category": "material",
             "source": f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",

@@ -158,8 +158,8 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
-quests have item/tool/option blockers, and 119 quests have combat blockers.
-Current resolver-ready source-backed combat coverage is 179/284 rows after
+quests have item/tool/option blockers, and 120 quests have combat blockers.
+Current resolver-ready source-backed combat coverage is 180/285 rows after
 generator enrichment, style-aware magic/ranged handling, Darkan `beasts.txt`
 fallbacks, no-`combatLevels` fallbacks, focused `quest_data.py` name-shape
 replacements, A Soul's Bane's full-stage combat split, Death to the Dorgeshuun's
@@ -171,7 +171,16 @@ then made safe token/plural/alias matches for Temple of Ikov's Guardians of
 Armadyl and Observatory Quest's Poisonous Spider. Dwarf Cannon then replaced the
 generated level-2 Goblins row with Darkan-backed noncombat rail, remains,
 hideout, Lollk, toolkit, cannon repair, Nulodion, and Lawgof gates because the
-local quest handler marks combat as none. The remaining 105 statless combat rows
+local quest handler marks combat as none. A local Darkan quest-stage batch then
+replaced broad generated rows for Fishing Contest, Gertrude's Cat, Clock Tower,
+Monk's Friend, Tribal Totem, and Scorpion Catcher. It adds stage-local
+item production/consumption for fishing passes, garlic, raw giant carp, fishing
+trophies, milk buckets, doogle sardines, kittens, Clock Tower cogs, child
+blankets, Cedric's supplies, RPDT address labels, the Rantuki totem, and
+scorpion cages. Scorpion Catcher now has a source-backed level 39 jailer combat
+gate at the Taverley Dungeon scorpion stage. Post-batch audit reports 499 stage
+rows, 56 produced-inventory rows, 285 combat encounters, and 180 resolver-ready
+combat encounters. The remaining 105 statless combat rows
 stay hard-blocked and are classified by
 `tools/audit_quest_combat_stat_gaps.py` as 51 Darkan hitpoints-only rows, 18
 Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level rows,
@@ -380,14 +389,14 @@ Cheese, witch patrol, Leather gloves, Backroom key, four experiment forms, Ball,
 and Harvey hand-in. A style-aware resolver pass then made source-backed magic/ranged
 rows with zero melee Strength resolver-ready, adding H.A.M. mage, The Void
 Stares Back Torcher/Defiler, and The Elder Kiln TokHaar-Xil. Combat stat
-coverage is now 179/284 rows after the Darkan beast fallbacks, focused
+coverage is now 180/285 rows after the Darkan beast fallbacks, focused
 name-shape replacements, A Soul's Bane's split combat stages, Death to the
 Dorgeshuun's Senior H.A.M. guard quantity replacement, Demon Slayer's focused
 Delrith row, Witch's House's four form chain, Merlin's Crystal's Sir Mordred,
 the generated safe-name matches for Temple of Ikov's Guardians of Armadyl and
 Observatory Quest's Poisonous Spider, and Dwarf Cannon's Darkan-backed
-noncombat replacement that removes the generated goblin blocker. The remaining
-105 statless rows are
+noncombat replacement that removes the generated goblin blocker, plus Scorpion
+Catcher's Darkan-backed level 39 jailer gate. The remaining 105 statless rows are
 classified by
 `tools/audit_quest_combat_stat_gaps.py` as 51 hitpoints-only Darkan rows, 18
 Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level
@@ -529,10 +538,11 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 
 Current quest-work addendum: later 2026-06-22 focused audits for Dragon Slayer,
 Shield of Arrav, Fight Arena, `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`,
-`memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`, and
-`memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
+`memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`,
+`memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`, and
+`memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
 supersede the older generated-row debt count above. The live audit now reports
-471 stage rows, 47 produced-inventory rows, 284 combat encounters, and 179
+499 stage rows, 56 produced-inventory rows, 285 combat encounters, and 180
 resolver-ready combat encounters; full all-quest minute-detail parity remains
 open until remaining generated rows, route/location state, quest-item
 transformations, optional branches, combat stat gaps, and real combat simulation

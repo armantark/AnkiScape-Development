@@ -1302,6 +1302,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Crayfish cage x1 or Lobster pot x1", action.toolTip())
 
+    def test_quests_tab_shows_fishing_contest_current_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Fishing rod": 1}
+        pd["current_quest"] = "fishing_contest"
+        pd["quests"]["fishing_contest"] = {"started": True, "progress": 4, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Needs Red vine worm x1 or Fishing bait x1, "
+            "Action required: Catch the winning giant carp"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_fishing_contest")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Catch the winning giant carp", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

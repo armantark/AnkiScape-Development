@@ -606,6 +606,50 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_progresses_fishing_contest_pass_gate(self):
+        addon = _load_addon_as_package("ankiscape_fishing_contest_stage_integration")
+
+        calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon._show_exp = lambda amount: calls["xp"].append(amount)
+        addon.level_up_check = lambda _skill, _data: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "fishing_contest",
+            "quests": {"fishing_contest": {"started": True, "progress": 1, "completed": False}},
+            "quest_stage_actions": {
+                "fishing_contest": ["Receive a fishing pass from Austri or Vestri"]
+            },
+            "quest_points": 0,
+            "fishing_exp": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertFalse(addon.player_data["quests"]["fishing_contest"]["completed"])
+        self.assertEqual(addon.player_data["quests"]["fishing_contest"]["progress"], 2)
+        self.assertEqual(addon.player_data["inventory"]["Fishing pass"], 1)
+        self.assertEqual(addon.player_data["quest_points"], 0)
+        self.assertEqual(addon.player_data["fishing_exp"], 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Fishing Contest 2/7"])
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item(self):
         addon = _load_addon_as_package("ankiscape_witchs_house_mouse_gate_integration")
 

@@ -1,6 +1,6 @@
 # Future Work Kanban
 
-Status: 2026-06-20
+Status: 2026-06-22
 
 Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
 
@@ -33,7 +33,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   mechanics/id parity. Tracking trails, pitfall trapping, rabbit snaring,
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   Regicide-start partial-route modeling are deferred system slices.
-- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, and Dwarf Cannon now proves source-backed false-positive combat removal with a noncombat stage chain. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
+- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, and the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
@@ -275,10 +275,15 @@ completion state: rail repairs, Lawgof report, Gilob's remains, goblin hideout
 route, Lollk rescue, toolkit production, cannon repair, Nulodion handoff, and
 Lawgof's final recommendation. This removes the false live Goblins combat row,
 sets Dwarf Cannon's combat summary to `None.`, and registers the relevant quest
-item icons. Post-slice audit reports 471 stage rows, 47 produced-inventory rows,
-284 combat encounters, 179 resolver-ready combat encounters, 174 quests with
-item/tool blockers, 119 quests with combat blockers, and 105 statless combat
-rows.
+item icons. A local Darkan quest-stage batch then replaced generated/broad rows
+for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem,
+and Scorpion Catcher. It models fishing pass/fee/garlic/giant-carp/trophy
+transforms, Gertrude's milk/doogle/kittens flow, Clock Tower rat poison and
+cogs, Monk's Friend blanket/Cedric supplies, Tribal Totem RPDT label/totem
+flow, and Scorpion Catcher scorpion cage plus the level 39 jailer combat gate.
+Post-slice audit reports 499 stage rows, 56 produced-inventory rows, 285 combat
+encounters, 180 resolver-ready combat encounters, 174 quests with item/tool
+blockers, 120 quests with combat blockers, and 105 statless combat rows.
 Full minute-detail parity, exact generated per-stage extraction, quest-item
 transformations, route flags, partner/branch state, puzzle state, broad combat
 stat enrichment, and full combat simulation remain open;
@@ -323,6 +328,10 @@ and
 `memory-bank/source-audits/quest-fight-arena-stage-detail-2026-06-22.md`
 and
 `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
+and
+`memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
+and
+`memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
 have no explicit gaps left for their scoped slices; the all-quest parity goal
 still has the generated-row and combat-stat gaps listed above.
 
@@ -387,17 +396,19 @@ replacement, the 2011Scape starter batch, the 2011Scape intermediate batch, the
 Demon Slayer focused stage replacement, the early Darkan stage batch, Dragon
 Slayer, Shield of Arrav, Fight Arena, Witch's House, Merlin's Crystal, the
 generated combat name-matching parser pass, or the Dwarf Cannon focused
-noncombat replacement. `quest_catalog_generated.py`
+noncombat replacement, or the local Darkan batch for Fishing Contest,
+Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion
+Catcher. `quest_catalog_generated.py`
 already contains 194 pre-EOC quest rows available before the 2012-11-20 EOC
 cutoff, with Recipe for Disaster split into separate subquests, generated by
 `tools/build_pre_eoc_quest_catalog.py`. Runtime quest data now reports 194/194
-quests with at least one machine-readable stage requirement, 471 stage rows, 47
+quests with at least one machine-readable stage requirement, 499 stage rows, 56
 produced-inventory transitions, quest-start inventory grants, required-action
 blockers, route blockers, route-variant branch rows, grouped item-option
 blockers, globally locked combat blockers, and a resolver-enabled path that
 resolves one sourced enemy per Quest review via `quest_combat_encounter_counts`
 before writing legacy completed encounter ids. Current combat stat coverage is
-179/284 resolver-ready rows; 105 statless rows remain blocked and classified by
+180/285 resolver-ready rows; 105 statless rows remain blocked and classified by
 `tools/audit_quest_combat_stat_gaps.py`. `tools/audit_quest_historical_wiki_combat_stats.py` checked
 remaining rows against pinned historical RuneScape Wiki monster pages and found
 metadata-only pages or no monster metadata, so LP/max-hit/style prose must not

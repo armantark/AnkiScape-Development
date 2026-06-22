@@ -5591,6 +5591,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:21Z"
   },
+  "questitems/address_label.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Address_label.png",
+    "file_title": "Address label.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Address_label.png?ae609",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2a55d00976c7f4e133bd982a1579c98ce7cb05ef",
+    "size": 263,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:51:53Z"
+  },
   "questitems/ammo_mould.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ammo_mould.png",
     "file_title": "Ammo mould.png",
@@ -5651,6 +5663,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:24Z"
   },
+  "questitems/black_cog.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_cog.png",
+    "file_title": "Black cog.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_cog.png?0a33f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "984b08f7254c69879e559e40cfdea4bdc6aa1d1c",
+    "size": 237,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:30Z"
+  },
+  "questitems/blue_cog.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blue_cog.png",
+    "file_title": "Blue cog.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Blue_cog.png?3b913",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c77077d48ee62adaa738a19f6cb05721e2cf6f84",
+    "size": 238,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:41Z"
+  },
   "questitems/blue_goblin_mail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blue_goblin_mail.png",
     "file_title": "Blue goblin mail.png",
@@ -5687,6 +5723,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:00Z"
   },
+  "questitems/bucket_of_milk.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bucket_of_milk.png",
+    "file_title": "Bucket of milk.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bucket_of_milk.png?c50c3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "631e42296f4c596505bc9f48bacb0feb131a511d",
+    "size": 757,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:04Z"
+  },
   "questitems/bucket_of_wax.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bucket_of_wax.png",
     "file_title": "Bucket of wax.png",
@@ -5711,6 +5759,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:14Z"
   },
+  "questitems/child_s_blanket.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Child%27s_blanket.png",
+    "file_title": "Child's blanket.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Child%27s_blanket.png?36657",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d5107f109524e0bae0d2531d1f06fe1b4f718209",
+    "size": 369,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:26Z"
+  },
   "questitems/crandor_map.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crandor_map.png",
     "file_title": "Crandor map.png",
@@ -5734,6 +5794,30 @@
     "size": 744,
     "source_wiki": "rs3",
     "timestamp": "2024-11-20T04:08:51Z"
+  },
+  "questitems/doogle_leaves.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Doogle_leaves.png",
+    "file_title": "Doogle leaves.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Doogle_leaves.png?cb9aa",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7146f616dbddd771bc75dc55b7583f2bf4bfd4d7",
+    "size": 432,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:32Z"
+  },
+  "questitems/doogle_sardine.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Doogle_sardine.png",
+    "file_title": "Doogle sardine.png",
+    "image_url": "https://runescape.wiki/images/Doogle_sardine.png?7a8d8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "345b5de77af1109b0c3d1095cb2abff49a129db4",
+    "size": 915,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T03:04:10Z"
   },
   "questitems/door_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Door_key_%28Witch%27s_House%29.png",
@@ -5782,6 +5866,54 @@
     "size": 796,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:56:59Z"
+  },
+  "questitems/fishing_pass.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fishing_pass.png",
+    "file_title": "Fishing pass.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Fishing_pass.png?4a487",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "630b23089aeeef3bcb6bbf3b9659946ee68a947d",
+    "size": 501,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:01Z"
+  },
+  "questitems/fishing_rod.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fishing_rod.png",
+    "file_title": "Fishing rod.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Fishing_rod.png?2632b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ad1f486bfdd1ca31c8a3f0f025b1f3ab75d9f914",
+    "size": 493,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:02Z"
+  },
+  "questitems/fishing_trophy.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fishing_trophy.png",
+    "file_title": "Fishing trophy.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Fishing_trophy.png?2632b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4beb50915c6242bf20a215e64a19e21616e448a7",
+    "size": 785,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:02Z"
+  },
+  "questitems/garlic.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Garlic.png",
+    "file_title": "Garlic.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Garlic.png?33486",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e297342025dd135a42cd3174f90e421096c71478",
+    "size": 446,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:13Z"
   },
   "questitems/goblin_mail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goblin_mail.png",
@@ -5843,6 +5975,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:41Z"
   },
+  "questitems/ice_gloves.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ice_gloves.png",
+    "file_title": "Ice gloves.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Ice_gloves.png?7331d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5b98c811c311d39352c54d43b458a37474b25883",
+    "size": 760,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:48Z"
+  },
   "questitems/intel_report.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Intel_report.png",
     "file_title": "Intel report.png",
@@ -5854,6 +5998,18 @@
     "size": 816,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:50Z"
+  },
+  "questitems/jug_of_water.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jug_of_water.png",
+    "file_title": "Jug of water.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Jug_of_water.png?be618",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8598f21ab9dbfe6f573679e16449ccf20f1b5b1c",
+    "size": 798,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:27Z"
   },
   "questitems/khali_brew.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Khali_brew.png",
@@ -5987,6 +6143,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:40Z"
   },
+  "questitems/pet_kitten.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pet_kitten_%28white%29_pet.png",
+    "file_title": "Pet kitten (white) pet.png",
+    "image_url": "https://runescape.wiki/images/Pet_kitten_%28white%29_pet.png?e07a1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "40c3099cb009b4321dc8c00147f81b608d5e259d",
+    "size": 33039,
+    "source_wiki": "rs3",
+    "timestamp": "2010-09-22T17:14:55Z"
+  },
   "questitems/phoenix_crossbow.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Phoenix_crossbow.png",
     "file_title": "Phoenix crossbow.png",
@@ -6059,6 +6227,54 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:54Z"
   },
+  "questitems/rat_poison.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rat_poison.png",
+    "file_title": "Rat poison.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rat_poison.png?b7fbb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bbdeae950ae1cda5c30a1794e36492472adbebe9",
+    "size": 387,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:56Z"
+  },
+  "questitems/raw_giant_carp.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Raw_giant_carp.png",
+    "file_title": "Raw giant carp.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Raw_giant_carp.png?3a750",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "aff128b781e716cbb349ba090e9219098deea93a",
+    "size": 399,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:03:02Z"
+  },
+  "questitems/red_cog.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Red_cog.png",
+    "file_title": "Red cog.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Red_cog.png?cb76b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d8b4bad68d2b33b1c72d4280c6af8d965e2842ed",
+    "size": 239,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:04:29Z"
+  },
+  "questitems/red_vine_worm.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Red_vine_worm.png",
+    "file_title": "Red vine worm.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Red_vine_worm.png?2e2e3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8678eba0e359b7ccdf71d1e31c4d1108eda7e2a5",
+    "size": 785,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:04:31Z"
+  },
   "questitems/rubber_tube.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rubber_tube.png",
     "file_title": "Rubber tube.png",
@@ -6070,6 +6286,18 @@
     "size": 695,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:37Z"
+  },
+  "questitems/scorpion_cage.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Scorpion_cage.png",
+    "file_title": "Scorpion cage.png",
+    "image_url": "https://runescape.wiki/images/Scorpion_cage.png?1ba7e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "eb945e8388fb14f81b475f01454ad9ed2e19e444",
+    "size": 694,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T07:25:26Z"
   },
   "questitems/shield_of_arrav_book.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Book_%28Shield_of_Arrav%29.png",
@@ -6119,6 +6347,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:40Z"
   },
+  "questitems/three_little_kittens.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Three_little_kittens.png",
+    "file_title": "Three little kittens.png",
+    "image_url": "https://runescape.wiki/images/Three_little_kittens.png?8437f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c449083387fa3cc5f86800d0e0448086614c3e00",
+    "size": 916,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:41:44Z"
+  },
   "questitems/toolkit.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Toolkit.png",
     "file_title": "Toolkit.png",
@@ -6131,6 +6371,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:58Z"
   },
+  "questitems/totem.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Totem.png",
+    "file_title": "Totem.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Totem.png?79f0d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c345cfa2cde014897cb2a1105ddb71c146ffde1a",
+    "size": 256,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:07:04Z"
+  },
   "questitems/weapon_store_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Weapon_store_key.png",
     "file_title": "Weapon store key.png",
@@ -6142,6 +6394,18 @@
     "size": 459,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:13:47Z"
+  },
+  "questitems/white_cog.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:White_cog.png",
+    "file_title": "White cog.png",
+    "image_url": "https://oldschool.runescape.wiki/images/White_cog.png?db3e5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0afe38716fb937284b9d153c6d2f24b2adbd03e5",
+    "size": 237,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:13:51Z"
   },
   "questitems/wizard_s_mind_bomb.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wizard%27s_mind_bomb.png",

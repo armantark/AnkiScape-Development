@@ -131,9 +131,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   production/use, Khazard ogre, Khazard scorpion, Bouncer, and Lady Servil
   reward. Witch's House then superseded the old combat-only proof with a
   12-stage Darkan-backed chain for keys, Magnet, Cheese, witch patrol, Leather
-  gloves, experiment forms, Ball pickup, and Harvey hand-in. The live audit now
-  reports 471 stage rows, 174 quests with item/tool/option blockers, 119 quests
-  with combat blockers, and 47 produced-inventory rows. This is still broad
+  gloves, experiment forms, Ball pickup, and Harvey hand-in. A local Darkan
+  quest-stage batch then replaced Fishing Contest, Gertrude's Cat, Clock Tower,
+  Monk's Friend, Tribal Totem, and Scorpion Catcher with focused item/action/
+  route chains. It proves that generated detail rows should be replaced when
+  local quest handlers provide finer item transformations: fishing pass and
+  trophy stages, milk bucket and doogle sardine stages, Clock Tower cog
+  placement, Cedric supply stages, RPDT label/totem stages, and scorpion-cage
+  stages all advance independently instead of being flattened into start locks.
+  The live audit now reports 499 stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, and 56 produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -162,6 +169,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -246,7 +255,9 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   source says a generated combat row is a false positive, replace the live stage
   chain instead of carrying the false row: Dwarf Cannon proves this by replacing
   generated level-2 Goblins with a Darkan-backed noncombat chain and `combat:
-  None.` Current stat coverage is 179/284 combat rows; the
+  None.` Scorpion Catcher then adds a source-backed level 39 jailer combat gate
+  from Darkan quest and combatdef evidence while keeping the other scorpion
+  catches as route/action gates. Current stat coverage is 180/285 combat rows; the
   remaining 105 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
