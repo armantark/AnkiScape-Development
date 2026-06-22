@@ -131,6 +131,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["quest_points"] = 0
     data["quest_combat_config"] = default_quest_combat_config_pure()
     data["quest_combat_encounters"] = {}
+    data["quest_combat_encounter_counts"] = {}
     data["quest_stage_actions"] = {}
     data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
@@ -299,9 +300,32 @@ def _migrate_quest_flag_collection(data: Dict[str, Any], key: str) -> None:
     data[key] = clean
 
 
+def _migrate_quest_combat_encounter_counts(data: Dict[str, Any]) -> None:
+    raw_collection = data.get("quest_combat_encounter_counts")
+    clean: Dict[str, Dict[str, int]] = {}
+    if isinstance(raw_collection, dict):
+        for quest_id, raw_counts in raw_collection.items():
+            if not isinstance(quest_id, str) or not isinstance(raw_counts, dict):
+                continue
+            quest_counts: Dict[str, int] = {}
+            for encounter_id, raw_count in raw_counts.items():
+                if not isinstance(encounter_id, str):
+                    continue
+                try:
+                    count = int(raw_count)
+                except (TypeError, ValueError):
+                    continue
+                if count > 0:
+                    quest_counts[encounter_id] = count
+            if quest_counts:
+                clean[quest_id] = quest_counts
+    data["quest_combat_encounter_counts"] = clean
+
+
 def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
     data["quest_combat_config"] = sanitize_quest_combat_config_pure(data.get("quest_combat_config"))
     _migrate_quest_flag_collection(data, "quest_combat_encounters")
+    _migrate_quest_combat_encounter_counts(data)
     _migrate_quest_flag_collection(data, "quest_stage_actions")
     _migrate_quest_flag_collection(data, "quest_route_states")
 

@@ -88,6 +88,7 @@ class TestStoragePure(unittest.TestCase):
             "quest_points",
             "quest_combat_config",
             "quest_combat_encounters",
+            "quest_combat_encounter_counts",
             "quest_stage_actions",
             "quest_route_states",
             "pending_skill_exp_rewards",
@@ -120,6 +121,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("lunar_diplomacy", data["quests"])
         self.assertEqual(data["quest_combat_config"], {"version": 1, "resolver_enabled": False})
         self.assertEqual(data["quest_combat_encounters"], {})
+        self.assertEqual(data["quest_combat_encounter_counts"], {})
         self.assertEqual(data["quest_stage_actions"], {})
         self.assertEqual(data["quest_route_states"], {})
         self.assertEqual(data["pending_skill_exp_rewards"], {})
@@ -247,6 +249,7 @@ class TestStoragePure(unittest.TestCase):
             {
                 "quest_combat_config": {"resolver_enabled": True},
                 "quest_combat_encounters": {"dragon_slayer": {"elvarg": True, "unused": False}},
+                "quest_combat_encounter_counts": {"toktz_ket_dill": {"lava_monster": "1", "bad": 0, 123: 1}},
                 "quest_stage_actions": {"the_knights_sword": "Mine blurite ore"},
                 "quest_route_states": {"heroes_quest": ["member_route", 123]},
             },
@@ -256,6 +259,7 @@ class TestStoragePure(unittest.TestCase):
 
         self.assertEqual(migrated["quest_combat_config"], {"version": 1, "resolver_enabled": True})
         self.assertEqual(migrated["quest_combat_encounters"], {"dragon_slayer": ["elvarg"]})
+        self.assertEqual(migrated["quest_combat_encounter_counts"], {"toktz_ket_dill": {"lava_monster": 1}})
         self.assertEqual(migrated["quest_stage_actions"], {"the_knights_sword": ["Mine blurite ore"]})
         self.assertEqual(migrated["quest_route_states"], {"heroes_quest": ["member_route"]})
 

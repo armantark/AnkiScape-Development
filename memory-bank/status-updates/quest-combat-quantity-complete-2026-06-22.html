@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat Quantity Slice Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101217;
+      --panel: #171b23;
+      --panel-2: #202632;
+      --text: #eff3f8;
+      --muted: #a8b2c3;
+      --line: #313948;
+      --ok: #5fd18b;
+      --warn: #f5c05a;
+      --bad: #f46d75;
+      --blue: #69a7ff;
+      --cyan: #66d9e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 28px 18px 40px; }
+    h1 { margin: 0; font-size: clamp(30px, 5vw, 56px); line-height: 1.03; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    .panel {
+      background: linear-gradient(180deg, var(--panel), #141821);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 14px;
+      align-items: stretch;
+      margin-bottom: 14px;
+    }
+    .stamp { display: inline-flex; align-items: center; gap: 8px; color: var(--ok); font-weight: 800; }
+    .stamp::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--ok); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 14px 0; }
+    .metric { min-height: 126px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric strong { font-size: 34px; line-height: 1; }
+    .metric span { color: var(--muted); }
+    .bar { height: 10px; border: 1px solid var(--line); background: #0f131b; border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--ok), var(--blue)); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .step {
+      display: grid;
+      gap: 6px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .tag { width: fit-content; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+    .backend { background: rgba(105, 167, 255, .13); color: var(--blue); border: 1px solid rgba(105, 167, 255, .4); }
+    .frontend { background: rgba(102, 217, 232, .13); color: var(--cyan); border: 1px solid rgba(102, 217, 232, .4); }
+    .passed { background: rgba(95, 209, 139, .13); color: var(--ok); border: 1px solid rgba(95, 209, 139, .4); }
+    .deferred { background: rgba(245, 192, 90, .13); color: var(--warn); border: 1px solid rgba(245, 192, 90, .4); }
+    code { background: #0d1017; border: 1px solid var(--line); border-radius: 6px; padding: 1px 5px; color: #d8e7ff; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 12px; }
+    .flow div { min-height: 96px; background: #121720; border: 1px solid var(--line); border-radius: 8px; padding: 12px; }
+    .flow b { display: block; margin-bottom: 6px; }
+    .checks { display: grid; gap: 8px; margin-top: 8px; }
+    .check { display: grid; grid-template-columns: auto 1fr; gap: 10px; padding: 10px; background: #121720; border: 1px solid var(--line); border-radius: 8px; }
+    .check i { width: 18px; height: 18px; border-radius: 50%; background: var(--ok); margin-top: 2px; }
+    footer { margin-top: 16px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 850px) {
+      header, .grid, .two, .flow { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <section class="panel">
+        <div class="stamp">Post-slice status · 2026-06-22</div>
+        <h1>Combat quantity is now real progress, not a one-click group clear.</h1>
+        <p>The all-quest goal is still active. This slice fixes a concrete catalog-wide class: source quantities now serialize correctly, and runtime requires one Quest review per sourced enemy before a combat encounter is marked complete.</p>
+      </section>
+      <section class="panel">
+        <h2>Completion boundary</h2>
+        <p>This is not full quest parity. The plugin still has 126 statless combat encounters, plus remaining minute-detail stage and route extraction debt. Those rows stay blocked instead of silently completing.</p>
+      </section>
+    </header>
+
+    <section class="grid">
+      <div class="panel metric"><span>Quest rows with stage blockers</span><strong>194/194</strong><div class="bar"><i style="width:100%"></i></div></div>
+      <div class="panel metric"><span>Combat rows with resolver stats</span><strong>159/285</strong><div class="bar"><i style="width:55.8%"></i></div></div>
+      <div class="panel metric"><span>Statless rows still blocked</span><strong>126</strong><div class="bar"><i style="width:44.2%; background:linear-gradient(90deg,var(--warn),var(--bad));"></i></div></div>
+      <div class="panel metric"><span>Required suites</span><strong>2/2</strong><div class="bar"><i style="width:100%"></i></div></div>
+    </section>
+
+    <section class="two">
+      <div class="panel">
+        <h2>Backend</h2>
+        <div class="step"><span class="tag backend">Generator</span><p><code>tools/build_pre_eoc_quest_catalog.py</code> parses written quantities through ten, including "Two Lava monsters", then regenerates <code>quest_catalog_generated.py</code>.</p></div>
+        <div class="step"><span class="tag backend">Save model</span><p><code>quest_combat_encounter_counts</code> stores partial per-enemy progress. The legacy <code>quest_combat_encounters</code> completed-id list is written only when the sourced quantity is fully resolved.</p></div>
+        <div class="step"><span class="tag backend">Compatibility</span><p>Old saves with a completed encounter id still satisfy the blocker, so existing quest-combat progress remains save-safe.</p></div>
+      </div>
+      <div class="panel">
+        <h2>Frontend</h2>
+        <div class="step"><span class="tag frontend">No widget rewrite</span><p>The Quests tab already renders backend blocker reasons. The frontend-facing change is that blocker quantity now means remaining enemies.</p></div>
+        <div class="step"><span class="tag frontend">Verified states</span><p>Qt/offscreen coverage verifies initial <code>x2</code> wording and partial-progress wording after one Lava monster is recorded.</p></div>
+        <div class="step"><span class="tag frontend">Player wording</span><p>The activity message remains compact: each review says "Defeated Lava monster" because one review defeats one enemy.</p></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:14px">
+      <h2>TokTz proof flow</h2>
+      <div class="flow">
+        <div><b>Before</b><p>Source text said two Lava monsters, but generated quantity was 1.</p></div>
+        <div><b>Generated</b><p>The row is now <code>quantity: 2</code>, from the builder.</p></div>
+        <div><b>First review</b><p>Count becomes 1/2. The stage still shows a Lava monster blocker.</p></div>
+        <div><b>Second review</b><p>Count becomes 2/2. Only then is the encounter id marked complete.</p></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:14px">
+      <h2>Verification</h2>
+      <div class="checks">
+        <div class="check"><i></i><p><code>python3 run_tests.py</code> passed: 436 tests, 102 skipped.</p></div>
+        <div class="check"><i></i><p><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> passed: 436 tests.</p></div>
+        <div class="check"><i></i><p>Audits remain honest: 194/194 quests with stage rows, 159/285 resolver-ready combat rows, 126 statless rows still blocked.</p></div>
+      </div>
+    </section>
+
+    <footer>
+      Manual Anki check: enable quest combat resolver in player data, set TokTz-Ket-Dill to stage 6 with sufficient combat levels, answer Quest twice, and confirm the first answer leaves the Lava monster blocker while the second clears only that encounter.
+    </footer>
+  </main>
+</body>
+</html>

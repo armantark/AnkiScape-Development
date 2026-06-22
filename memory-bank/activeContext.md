@@ -166,6 +166,13 @@ defence, magic, and ranged values for exact-ID or unambiguous name/level Darkan
 combatdefs, but it does not infer Strength. This makes TokTz-Ket-Dill's Lava
 monster and Nomad's Requiem's Nomad resolver-ready; 126 statless combat rows
 remain hard-blocked and classified by `tools/audit_quest_combat_stat_gaps.py`.
+A follow-up on the same date made generated combat quantities count one enemy
+per review action: `tools/build_pre_eoc_quest_catalog.py` now extracts written
+combat quantities such as "Two Lava monsters" and "Five Ice Trolls", and
+runtime stores partial encounter progress in
+`player_data["quest_combat_encounter_counts"]` before writing the legacy
+completed id to `quest_combat_encounters` only when the source quantity is
+fully resolved.
 
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,

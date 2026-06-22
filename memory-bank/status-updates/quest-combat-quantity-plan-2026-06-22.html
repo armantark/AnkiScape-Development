@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Parity: Combat Quantity Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101217;
+      --panel: #171b23;
+      --panel-2: #202632;
+      --text: #eff3f8;
+      --muted: #a8b2c3;
+      --line: #313948;
+      --ok: #5fd18b;
+      --warn: #f5c05a;
+      --bad: #f46d75;
+      --blue: #69a7ff;
+      --cyan: #66d9e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .wrap { max-width: 1160px; margin: 0 auto; padding: 28px 18px 40px; }
+    header {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1.35fr .65fr;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    h1 { margin: 0; font-size: clamp(30px, 5vw, 58px); line-height: 1.02; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 18px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    .panel {
+      background: linear-gradient(180deg, var(--panel), #141821);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .stamp { display: inline-flex; gap: 8px; align-items: center; color: var(--cyan); font-weight: 700; }
+    .stamp::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--cyan); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
+    .metric { min-height: 128px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric strong { font-size: 36px; line-height: 1; }
+    .metric span { color: var(--muted); }
+    .bar {
+      height: 10px;
+      background: #0f131b;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+    .bar > i { display: block; height: 100%; background: linear-gradient(90deg, var(--ok), var(--blue)); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .lane { display: grid; gap: 10px; }
+    .step {
+      display: grid;
+      gap: 5px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .tag { width: fit-content; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; }
+    .tag.backend { background: rgba(105, 167, 255, .13); color: var(--blue); border: 1px solid rgba(105, 167, 255, .4); }
+    .tag.frontend { background: rgba(102, 217, 232, .13); color: var(--cyan); border: 1px solid rgba(102, 217, 232, .4); }
+    .tag.blocked { background: rgba(244, 109, 117, .13); color: var(--bad); border: 1px solid rgba(244, 109, 117, .4); }
+    .tag.ready { background: rgba(95, 209, 139, .13); color: var(--ok); border: 1px solid rgba(95, 209, 139, .4); }
+    code {
+      background: #0d1017;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 1px 5px;
+      color: #d8e7ff;
+    }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+    .flow div {
+      min-height: 94px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #121720;
+      position: relative;
+    }
+    .flow b { display: block; color: var(--text); margin-bottom: 5px; }
+    .flow div:not(:last-child)::after {
+      content: ">";
+      position: absolute;
+      right: -10px;
+      top: 34px;
+      color: var(--muted);
+      font-weight: 900;
+      z-index: 2;
+    }
+    .table { display: grid; gap: 8px; margin-top: 10px; }
+    .row {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr .8fr;
+      gap: 10px;
+      padding: 10px 12px;
+      background: #121720;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      align-items: center;
+    }
+    .row strong { color: var(--text); }
+    .row span { color: var(--muted); }
+    footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 850px) {
+      header, .two, .grid, .flow { grid-template-columns: 1fr; }
+      .flow div:not(:last-child)::after { content: ""; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <section class="panel">
+        <div class="stamp">Pre-slice status · 2026-06-22</div>
+        <h1>Quest parity is not complete yet.</h1>
+        <p>The current stage-gate model exists across the catalog, but minute-detail quest parity still has open combat resolution and quantity fidelity work. This slice makes multi-enemy combat count one real enemy at a time and fixes generator extraction where written quantities are lost.</p>
+      </section>
+      <section class="panel">
+        <h2>Manager answer</h2>
+        <p>No: all 194 catalog quests now have stage requirement rows, but only 159 of 285 combat encounters currently have resolver stats. The remaining 126 are explicitly blocked or waiting for source-backed stats, not silently complete.</p>
+      </section>
+    </header>
+
+    <section class="grid">
+      <div class="panel metric"><span>Catalog quests with stage rows</span><strong>194/194</strong><div class="bar"><i style="width: 100%"></i></div></div>
+      <div class="panel metric"><span>Combat encounters present</span><strong>285</strong><div class="bar"><i style="width: 100%"></i></div></div>
+      <div class="panel metric"><span>Resolver-ready combat rows</span><strong>159</strong><div class="bar"><i style="width: 55.8%"></i></div></div>
+      <div class="panel metric"><span>Statless or unresolved combat rows</span><strong>126</strong><div class="bar"><i style="width: 44.2%; background: linear-gradient(90deg, var(--warn), var(--bad));"></i></div></div>
+    </section>
+
+    <section class="two">
+      <div class="panel">
+        <h2>Backend slice</h2>
+        <div class="lane">
+          <div class="step"><span class="tag backend">Model</span><p>Add a flat save-safe <code>quest_combat_encounter_counts</code> map so one combat review records one enemy defeated while the old completed-encounter list remains compatibility state.</p></div>
+          <div class="step"><span class="tag backend">Rules</span><p>Stage blockers remain active until the completed count reaches the encounter quantity. Legacy completed flags continue to satisfy the blocker.</p></div>
+          <div class="step"><span class="tag backend">Generator</span><p>Parse worded combat quantities such as “Two Lava monsters” into machine-readable quantity rows through <code>tools/build_pre_eoc_quest_catalog.py</code>, then regenerate the catalog.</p></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Frontend contract</h2>
+        <div class="lane">
+          <div class="step"><span class="tag frontend">Display</span><p>Existing in-progress blocker rows should show the remaining enemy quantity, not only the total source quantity.</p></div>
+          <div class="step"><span class="tag frontend">Action</span><p>When the user resolves a combat blocker, the row remains until the last enemy in that encounter has been completed.</p></div>
+          <div class="step"><span class="tag frontend">Config</span><p>The global combat lock stays write-once/write-everywhere: unresolved or disabled combat blocks quest advancement with player-facing wording.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:14px">
+      <h2>Expected flow after this slice</h2>
+      <div class="flow">
+        <div><b>Source row</b><p>“Two Lava monsters - level 47” is parsed as quantity 2.</p></div>
+        <div><b>Catalog</b><p>The stage carries one encounter with <code>quantity: 2</code> and resolver stats.</p></div>
+        <div><b>First review</b><p>Count becomes 1/2. The quest remains blocked at the same stage.</p></div>
+        <div><b>Second review</b><p>Count becomes 2/2. The legacy completed flag is written.</p></div>
+        <div><b>Advance</b><p>Only now can the stage requirement stop blocking progression.</p></div>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-top:14px">
+      <h2>Current unresolved combat classes</h2>
+      <div class="table">
+        <div class="row"><strong>Darkan hitpoints-only metadata</strong><span>56 rows</span><span class="tag blocked">blocked until stats source</span></div>
+        <div class="row"><strong>Missing resolver stats despite Darkan identity</strong><span>18 rows</span><span class="tag blocked">needs data mapping</span></div>
+        <div class="row"><strong>Parser or variant-level gaps</strong><span>27 rows</span><span class="tag backend">generator work</span></div>
+        <div class="row"><strong>Same-name wrong-level source matches</strong><span>9 rows</span><span class="tag backend">manual audit</span></div>
+        <div class="row"><strong>No local source match</strong><span>16 rows</span><span class="tag blocked">external historical source needed</span></div>
+      </div>
+    </section>
+
+    <footer>
+      Artifact is self-contained for Postplan upload. It contains audit counts and implementation plan only; generated catalog and save data changes happen through code and tests, not hand edits.
+    </footer>
+  </main>
+</body>
+</html>

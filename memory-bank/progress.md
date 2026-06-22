@@ -59,7 +59,13 @@
   TokHaar-Xil. The Darkan `beasts.txt` fallback then raised generated coverage
   by filling exact/unambiguous missing attack/defence/magic/ranged values for
   TokTz-Ket-Dill's Lava monster and Nomad's Requiem's Nomad, while still
-  leaving melee rows without sourced Strength blocked.
+  leaving melee rows without sourced Strength blocked. Combat quantities now
+  resolve one enemy per Quest review: written-number source rows such as
+  "Two Lava monsters", "Five Ice Trolls", and "Three Earth Elementals" are
+  extracted by the catalog builder, partial progress is stored in
+  `quest_combat_encounter_counts`, and the old `quest_combat_encounters`
+  completed-id list is written only after the required quantity is fully
+  defeated.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -403,9 +409,18 @@ missing-stat, underpowered, and globally locked blockers disabled. This is not
 full combat parity: broad NPC stat enrichment, hit chance/max-hit/equipment/
 food/prayer/death simulation, and quest-specific mechanics remain deferred in
 `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`.
-Verification: `python3 run_tests.py` passed with 404 tests (94 skipped), and
+
+Quest combat quantity slice completed on 2026-06-22. The generator now parses
+worded combat quantities into `quantity` rows, and runtime uses
+`quest_combat_encounter_counts` so one Quest review resolves one enemy. For
+example, TokTz-Ket-Dill's sourced "Two Lava monsters" row now remains blocked
+after the first Lava monster and only writes
+`quest_combat_encounters["toktz_ket_dill"] = ["toktz_ket_dill_lava_monster_47"]`
+after the second. Stat coverage remains 159/285; the 126 statless rows are
+still hard blockers, not completed content.
+Verification: `python3 run_tests.py` passed with 436 tests (102 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passed with 404 tests.
+passed with 436 tests.
 
 Quest combat stat enrichment follow-up completed on 2026-06-22. The Restless
 Ghost Skeleton Warlock focused stage addition now carries local 2011Scape NPC

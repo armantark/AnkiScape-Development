@@ -1577,6 +1577,78 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["count_draynor"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "proof_quest", quest_data), ())
 
+    def test_quest_combat_quantity_resolves_one_enemy_per_review(self):
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "ice_giant",
+                                "display_name": "Ice giant",
+                                "level": 2,
+                                "quantity": 2,
+                                "npc_stats": {
+                                    "hitpoints": 100,
+                                    "attack": 1,
+                                    "strength": 1,
+                                    "defence": 1,
+                                },
+                                "source": "source",
+                            },
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+            "attack_level": 10,
+            "strength_level": 10,
+            "defense_level": 10,
+            "constitution_level": 10,
+            "prayer_level": 1,
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
+        self.assertEqual(blockers[0]["reason"], "Battle required: Ice giant level 2 x2")
+        self.assertEqual(blockers[0]["quantity"], 2)
+        self.assertEqual(blockers[0]["total_quantity"], 2)
+        self.assertEqual(blockers[0]["completed_quantity"], 0)
+        self.assertEqual(blockers[0]["remaining_quantity"], 2)
+
+        first, ok, result = apply_quest_combat_encounter_pure(player_data, "proof_quest", quest_data)
+        self.assertTrue(ok)
+        self.assertEqual(result["quantity"], 1)
+        self.assertEqual(result["total_quantity"], 2)
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(result["remaining_quantity"], 1)
+        self.assertEqual(first["quest_combat_encounter_counts"], {"proof_quest": {"ice_giant": 1}})
+        self.assertEqual(first["quest_combat_encounters"], {})
+        blockers = quest_current_stage_blockers_pure(first, "proof_quest", quest_data)
+        self.assertEqual(blockers[0]["reason"], "Battle required: Ice giant level 2")
+        self.assertEqual(blockers[0]["quantity"], 1)
+        self.assertEqual(blockers[0]["total_quantity"], 2)
+        self.assertEqual(blockers[0]["completed_quantity"], 1)
+        self.assertEqual(blockers[0]["remaining_quantity"], 1)
+
+        second, ok, result = apply_quest_combat_encounter_pure(first, "proof_quest", quest_data)
+        self.assertTrue(ok)
+        self.assertEqual(result["completed_quantity"], 2)
+        self.assertEqual(result["remaining_quantity"], 0)
+        self.assertEqual(second["quest_combat_encounter_counts"], {"proof_quest": {"ice_giant": 2}})
+        self.assertEqual(second["quest_combat_encounters"], {"proof_quest": ["ice_giant"]})
+        self.assertEqual(quest_current_stage_blockers_pure(second, "proof_quest", quest_data), ())
+
+        legacy = dict(player_data)
+        legacy["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
+        self.assertEqual(quest_current_stage_blockers_pure(legacy, "proof_quest", quest_data), ())
+
     def test_quest_combat_stats_are_style_aware_for_magic_and_ranged_enemies(self):
         magic_encounter = {
             "npc_stats": {
@@ -1631,16 +1703,33 @@ class TestLogic(unittest.TestCase):
             tuple(blocker["kind"] for blocker in blockers),
             ("combat_missing_stats", "combat_encounter", "combat_missing_stats"),
         )
-        self.assertEqual(blockers[1]["reason"], "Battle required: Lava monster level 47")
+        self.assertEqual(blockers[1]["reason"], "Battle required: Lava monster level 47 x2")
+        self.assertEqual(blockers[1]["quantity"], 2)
+        self.assertEqual(blockers[1]["total_quantity"], 2)
         self.assertEqual(
             tuple(blocker["encounter_id"] for blocker in quest_current_stage_resolvable_combat_blockers_pure(player_data, "toktz_ket_dill", QUEST_DATA)),
             ("toktz_ket_dill_lava_monster_47",),
         )
         self.assertTrue(can_attempt_quest_review_pure(player_data, "toktz_ket_dill", QUEST_DATA))
 
-        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "toktz_ket_dill", QUEST_DATA)
+        first, ok, result = apply_quest_combat_encounter_pure(player_data, "toktz_ket_dill", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(result["encounter_id"], "toktz_ket_dill_lava_monster_47")
+        self.assertEqual(result["completed_quantity"], 1)
+        self.assertEqual(result["remaining_quantity"], 1)
+        self.assertEqual(first["quest_combat_encounter_counts"], {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 1}})
+        self.assertEqual(first["quest_combat_encounters"], {})
+        blockers = quest_current_stage_blockers_pure(first, "toktz_ket_dill", QUEST_DATA)
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in blockers),
+            ("combat_missing_stats", "combat_encounter", "combat_missing_stats"),
+        )
+        self.assertEqual(blockers[1]["reason"], "Battle required: Lava monster level 47")
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(first, "toktz_ket_dill", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["completed_quantity"], 2)
+        self.assertEqual(result["remaining_quantity"], 0)
         self.assertEqual(resolved["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
         self.assertEqual(
             tuple(blocker["kind"] for blocker in quest_current_stage_blockers_pure(resolved, "toktz_ket_dill", QUEST_DATA)),

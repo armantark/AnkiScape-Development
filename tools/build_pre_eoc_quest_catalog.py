@@ -1760,6 +1760,13 @@ def _combat_quantity_from_line(line: str) -> int:
     match = re.match(r"\s*at least\s+(\d+)\b", clean, flags=re.I)
     if match:
         return parse_int(match.group(1), 1)
+    match = re.match(
+        r"\s*(?:at least\s+)?(a|an|one|two|three|four|five|six|seven|eight|nine|ten)\b",
+        clean,
+        flags=re.I,
+    )
+    if match:
+        return _quantity_word(match.group(1)) or 1
     match = re.search(r"\bx\s*(\d+)\b", clean, flags=re.I)
     if match:
         return parse_int(match.group(1), 1)
@@ -1771,7 +1778,12 @@ def _combat_display_name_from_line(line: str) -> str:
     if links:
         return str(links[0]["item_name"])
     clean = clean_markup(line)
-    clean = re.sub(r"^\s*(?:\d+\s+)?", "", clean)
+    clean = re.sub(
+        r"^\s*(?:(?:at least\s+)?(?:\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten)\s+)?",
+        "",
+        clean,
+        flags=re.I,
+    )
     clean = re.split(r"\s*(?:[-–]\s*)?\(?\s*(?:level|lvl)\b", clean, maxsplit=1, flags=re.I)[0]
     clean = clean.strip(" -*:;,.()")
     return clean[:1].upper() + clean[1:] if clean else "Combat encounter"

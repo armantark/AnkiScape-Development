@@ -83,16 +83,27 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`, and
   `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` before
   claiming a quest-stage pass is complete.
+- Generated combat quantity rows should preserve source quantities. Numeric
+  prefixes, `xN` suffixes, "at least N", and written quantities through ten
+  are parsed in `tools/build_pre_eoc_quest_catalog.py`; do not collapse rows
+  such as "Two Lava monsters" or "Five Ice Trolls" to a single combat
+  completion.
 - Quest combat encounters fail closed through one global flat save config:
   `player_data["quest_combat_config"]["resolver_enabled"]`. It defaults to
   `False`, so incomplete encounters produce `combat_locked` blockers instead of
   silently progressing. When the resolver is enabled, current-stage encounters
   still require source-backed NPC stats for the encounter's attack style and a
   player combat level at least as high as the encounter level before
-  `apply_quest_combat_encounter_pure()` writes the completed encounter id into
-  `player_data["quest_combat_encounters"]`. Encounters missing stats remain
-  blocked as `combat_missing_stats`; this keeps the global switch from turning
-  no-stats prose rows into completable fights. Focused `quest_data.py`
+  `apply_quest_combat_encounter_pure()` can resolve combat. Combat quantities
+  are per-enemy progress, not group-complete flags: one Quest review increments
+  `player_data["quest_combat_encounter_counts"][quest_id][encounter_id]`, and
+  only when the count reaches the sourced `QuestCombatEncounter.quantity` does
+  the runtime write the completed encounter id into
+  `player_data["quest_combat_encounters"]` for compatibility with older saves.
+  Existing saves that already have the completed id still satisfy the blocker.
+  Encounters missing stats remain blocked as `combat_missing_stats`; this keeps
+  the global switch from turning no-stats prose rows into completable fights.
+  Focused `quest_data.py`
   stage-addition combat rows may carry local 2011Scape NPC stats directly when
   the source path is recorded, and the catalog generator may enrich generated
   encounters from local source data in strict precedence order: 2011Scape NPC

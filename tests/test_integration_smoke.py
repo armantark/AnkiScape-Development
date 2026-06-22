@@ -769,11 +769,29 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["quests"]["toktz_ket_dill"]["progress"], 6)
         self.assertFalse(addon.player_data["quests"]["toktz_ket_dill"]["completed"])
         self.assertEqual(
+            addon.player_data["quest_combat_encounter_counts"],
+            {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 1}},
+        )
+        self.assertEqual(addon.player_data["quest_combat_encounters"], {})
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Lava monster"])
+        self.assertEqual(calls["dialogs"], [])
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["toktz_ket_dill"]["progress"], 6)
+        self.assertFalse(addon.player_data["quests"]["toktz_ket_dill"]["completed"])
+        self.assertEqual(
             addon.player_data["quest_combat_encounters"],
             {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]},
         )
-        self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["Defeated Lava monster"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounter_counts"],
+            {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 2}},
+        )
+        self.assertEqual(calls["save"], 2)
+        self.assertEqual(calls["gains"], ["Defeated Lava monster", "Defeated Lava monster"])
         self.assertEqual(calls["dialogs"], [])
 
     def test_quest_answer_resolves_witchs_house_first_form_combat_gate(self):

@@ -291,10 +291,21 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["toktz_ket_dill"]["progress"], 6)
         self.assertFalse(player_data["quests"]["toktz_ket_dill"]["completed"])
-        self.assertEqual(player_data["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
+        self.assertEqual(player_data["quest_combat_encounter_counts"], {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 1}})
+        self.assertEqual(player_data["quest_combat_encounters"], {})
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Lava monster"])
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["toktz_ket_dill"]["progress"], 6)
+        self.assertFalse(player_data["quests"]["toktz_ket_dill"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounter_counts"], {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 2}})
+        self.assertEqual(player_data["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
+        self.assertEqual(calls["saves"], 2)
+        self.assertEqual(calls["activity"], ["Defeated Lava monster", "Defeated Lava monster"])
 
     def test_quest_answer_resolves_witchs_house_first_form_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}

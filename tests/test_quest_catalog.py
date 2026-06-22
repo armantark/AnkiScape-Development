@@ -176,10 +176,27 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(lava_monster["npc_stats"]["strength"], 0)
         self.assertEqual(lava_monster["npc_stats"]["defence"], 38)
         self.assertEqual(lava_monster["npc_stats"]["ranged"], 38)
+        self.assertEqual(lava_monster["quantity"], 2)
         self.assertEqual(lava_monster["npc_configs"]["attack_style"], "range")
         self.assertEqual(lava_monster["npc_configs"]["max_hit"], 80)
         self.assertIn("lava_monster_(47) (nostats) (noanims).json", lava_monster["npc_stats_source"])
         self.assertTrue(lava_monster["npc_stats_source"].endswith("developer-information/beasts.txt"))
+        fire_monster = next(
+            encounter
+            for requirement in toktz["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["encounter_id"] == "toktz_ket_dill_fire_monster_47"
+        )
+        self.assertEqual(fire_monster["quantity"], 2)
+
+        desert_treasure = data["desert_treasure"]
+        ice_troll = next(
+            encounter
+            for requirement in desert_treasure["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["encounter_id"] == "desert_treasure_ice_troll_ice_path_120"
+        )
+        self.assertEqual(ice_troll["quantity"], 5)
 
         nomad = data["nomads_requiem"]
         nomad_boss = next(

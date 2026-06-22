@@ -1337,8 +1337,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
-            "Battle required: Lava monster level 47, "
-            "Combat stats required before battle support can resolve: Fire monster level 47"
+            "Battle required: Lava monster level 47 x2, "
+            "Combat stats required before battle support can resolve: Fire monster level 47 x2"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_toktz_ket_dill")
@@ -1348,6 +1348,26 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("toktz_ket_dill", self._quest_calls)
+
+    def test_quests_tab_shows_remaining_combat_quantity_after_partial_resolution(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "toktz_ket_dill"
+        pd["quests"]["toktz_ket_dill"] = {"started": True, "progress": 6, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["quest_combat_encounter_counts"] = {"toktz_ket_dill": {"toktz_ket_dill_lava_monster_47": 1}}
+        pd["attack_level"] = 50
+        pd["strength_level"] = 50
+        pd["defense_level"] = 50
+        pd["constitution_level"] = 50
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "Battle required: Lava monster level 47, "
+            "Combat stats required before battle support can resolve: Fire monster level 47 x2"
+        )
+        self.assertIn(expected, labels)
 
     def test_quests_tab_allows_witchs_house_form_combat_gate_selection(self) -> None:
         pd = _make_player_data()

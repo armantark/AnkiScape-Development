@@ -946,6 +946,20 @@ def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
 
 
 def _copy_player_data_with_nested(player_data):
+    def _copy_quest_side_state(key):
+        raw_collection = player_data.get(key, {}) or {}
+        if not isinstance(raw_collection, Mapping):
+            return {}
+        copied_collection = {}
+        for quest_id, raw_values in raw_collection.items():
+            if isinstance(raw_values, Mapping):
+                copied_collection[str(quest_id)] = dict(raw_values)
+            elif isinstance(raw_values, (list, tuple, set)):
+                copied_collection[str(quest_id)] = list(raw_values)
+            else:
+                copied_collection[str(quest_id)] = raw_values
+        return copied_collection
+
     copied = dict(player_data)
     copied["inventory"] = dict(player_data.get("inventory", {}) or {})
     copied["equipment"] = dict(player_data.get("equipment", {}) or {})
@@ -962,6 +976,10 @@ def _copy_player_data_with_nested(player_data):
         str(pouch_id): dict(state) if isinstance(state, Mapping) else {}
         for pouch_id, state in (player_data.get("runecrafting_pouches", {}) or {}).items()
     }
+    copied["quest_combat_encounters"] = _copy_quest_side_state("quest_combat_encounters")
+    copied["quest_combat_encounter_counts"] = _copy_quest_side_state("quest_combat_encounter_counts")
+    copied["quest_stage_actions"] = _copy_quest_side_state("quest_stage_actions")
+    copied["quest_route_states"] = _copy_quest_side_state("quest_route_states")
     copied["item_charges"] = dict(player_data.get("item_charges", {}) or {})
     copied["unlocked_abilities"] = list(player_data.get("unlocked_abilities", []) or [])
     return copied
@@ -1144,6 +1162,28 @@ def _quest_flag_completed(player_data, collection_key, quest_id, flag_id):
     elif isinstance(raw_collection, Iterable) and not isinstance(raw_collection, str):
         return flag_id in {flag for flag in raw_collection if isinstance(flag, str)}
     return False
+
+
+def _quest_combat_total_quantity(encounter):
+    return _positive_int(encounter.get("quantity", 1), 1)
+
+
+def _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter):
+    quantity = _quest_combat_total_quantity(encounter)
+    if _quest_flag_completed(player_data, "quest_combat_encounters", quest_id, encounter_id):
+        return quantity
+    raw_counts = player_data.get("quest_combat_encounter_counts", {})
+    if not isinstance(raw_counts, Mapping):
+        return 0
+    quest_counts = raw_counts.get(quest_id, {})
+    if not isinstance(quest_counts, Mapping):
+        return 0
+    return min(quantity, _positive_int(quest_counts.get(encounter_id, 0), 0))
+
+
+def _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter):
+    quantity = _quest_combat_total_quantity(encounter)
+    return max(0, quantity - _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter))
 
 
 def _has_quest_tool(player_data, tool_name, amount):
@@ -1351,20 +1391,28 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
             if not isinstance(encounter, Mapping):
                 continue
             encounter_id = encounter.get("encounter_id")
-            if not isinstance(encounter_id, str) or _quest_flag_completed(player_data, "quest_combat_encounters", quest_id, encounter_id):
+            if not isinstance(encounter_id, str):
                 continue
-            display_name, level, quantity, level_text, quantity_text, encounter_source = _quest_combat_display(encounter, source)
+            display_name, level, quantity, level_text, _, encounter_source = _quest_combat_display(encounter, source)
+            completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
+            remaining_quantity = _quest_combat_remaining_count(player_data, quest_id, encounter_id, encounter)
+            if remaining_quantity <= 0:
+                continue
+            remaining_quantity_text = f" x{remaining_quantity}" if remaining_quantity > 1 else ""
             if not quest_combat_resolver_enabled_pure(player_data):
                 blockers.append(
                     _quest_blocker(
                         stage,
                         "combat_locked",
-                        f"Combat locked until battle support is enabled: {display_name}{level_text}{quantity_text}",
+                        f"Combat locked until battle support is enabled: {display_name}{level_text}{remaining_quantity_text}",
                         encounter_source,
                         encounter_id=encounter_id,
                         display_name=display_name,
                         level=level,
-                        quantity=quantity,
+                        quantity=remaining_quantity,
+                        total_quantity=quantity,
+                        completed_quantity=completed_quantity,
+                        remaining_quantity=remaining_quantity,
                     )
                 )
                 continue
@@ -1373,12 +1421,15 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     _quest_blocker(
                         stage,
                         "combat_missing_stats",
-                        f"Combat stats required before battle support can resolve: {display_name}{level_text}{quantity_text}",
+                        f"Combat stats required before battle support can resolve: {display_name}{level_text}{remaining_quantity_text}",
                         encounter_source,
                         encounter_id=encounter_id,
                         display_name=display_name,
                         level=level,
-                        quantity=quantity,
+                        quantity=remaining_quantity,
+                        total_quantity=quantity,
+                        completed_quantity=completed_quantity,
+                        remaining_quantity=remaining_quantity,
                     )
                 )
                 continue
@@ -1388,12 +1439,15 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     _quest_blocker(
                         stage,
                         "combat_underpowered",
-                        f"Requires combat level {level} for battle: {display_name}{level_text}{quantity_text}",
+                        f"Requires combat level {level} for battle: {display_name}{level_text}{remaining_quantity_text}",
                         encounter_source,
                         encounter_id=encounter_id,
                         display_name=display_name,
                         level=level,
-                        quantity=quantity,
+                        quantity=remaining_quantity,
+                        total_quantity=quantity,
+                        completed_quantity=completed_quantity,
+                        remaining_quantity=remaining_quantity,
                         player_combat_level=player_level,
                     )
                 )
@@ -1402,12 +1456,15 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                 _quest_blocker(
                     stage,
                     "combat_encounter",
-                    f"Battle required: {display_name}{level_text}{quantity_text}",
+                    f"Battle required: {display_name}{level_text}{remaining_quantity_text}",
                     encounter_source,
                     encounter_id=encounter_id,
                     display_name=display_name,
                     level=level,
-                    quantity=quantity,
+                    quantity=remaining_quantity,
+                    total_quantity=quantity,
+                    completed_quantity=completed_quantity,
+                    remaining_quantity=remaining_quantity,
                 )
             )
     return tuple(blockers)
@@ -1667,7 +1724,18 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
     ready, reason = quest_combat_encounter_ready_pure(player_data, encounter)
     if not ready:
         return player_data, False, {"reason": reason}
+    quantity = _quest_combat_total_quantity(encounter)
+    completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
+    if completed_quantity >= quantity:
+        return player_data, False, {"reason": "combat_already_resolved"}
     data = _copy_player_data_with_nested(player_data)
+    quest_counts = data.setdefault("quest_combat_encounter_counts", {}).setdefault(quest_id, {})
+    if not isinstance(quest_counts, Mapping):
+        quest_counts = {}
+    completed_quantity = min(quantity, completed_quantity + 1)
+    quest_counts[encounter_id] = completed_quantity
+    data["quest_combat_encounter_counts"][quest_id] = dict(quest_counts)
+
     quest_flags = data.setdefault("quest_combat_encounters", {}).setdefault(quest_id, [])
     if isinstance(quest_flags, str):
         quest_flags = [quest_flags]
@@ -1677,17 +1745,24 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
         quest_flags = [flag for flag in quest_flags if isinstance(flag, str)]
     else:
         quest_flags = []
-    if encounter_id not in quest_flags:
+    remaining_quantity = max(0, quantity - completed_quantity)
+    if remaining_quantity <= 0 and encounter_id not in quest_flags:
         quest_flags.append(encounter_id)
-    data["quest_combat_encounters"][quest_id] = sorted(set(quest_flags))
-    display_name, level, quantity, _, quantity_text, source = _quest_combat_display(encounter)
+    if quest_flags:
+        data["quest_combat_encounters"][quest_id] = sorted(set(quest_flags))
+    else:
+        data["quest_combat_encounters"].pop(quest_id, None)
+    display_name, level, quantity, _, _, source = _quest_combat_display(encounter)
     return data, True, {
         "reason": "combat_resolved",
         "encounter_id": encounter_id,
         "display_name": display_name,
         "level": level,
-        "quantity": quantity,
-        "quantity_text": quantity_text,
+        "quantity": 1,
+        "quantity_text": "",
+        "total_quantity": quantity,
+        "completed_quantity": completed_quantity,
+        "remaining_quantity": remaining_quantity,
         "player_combat_level": player_combat_level_pure(player_data),
         "source": source,
     }
