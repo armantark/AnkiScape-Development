@@ -8,6 +8,7 @@ from runtime_actions import (
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
+    handle_quest_answer,
     handle_smithing_answer,
 )
 
@@ -99,6 +100,29 @@ class TestRuntimeActions(unittest.TestCase):
 
         hunter_data["inventory"] = {}
         self.assertFalse(can_start_action(_context(hunter_data), "hunter"))
+
+    def test_quest_completion_warns_and_switches_off(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "rune_mysteries",
+            "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
+            "quest_points": 0,
+            "runecrafting_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertTrue(player_data["quests"]["rune_mysteries"]["completed"])
+        self.assertEqual(calls["saves"], 1)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["activity"], ["Rune Mysteries complete"])
+        self.assertEqual(calls["errors"][0][0], "Quest complete")
+        self.assertIn("Rune Mysteries is complete", calls["errors"][0][1])
+        self.assertIn("questing has been switched off", calls["errors"][0][1])
 
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}

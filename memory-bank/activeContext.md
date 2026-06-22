@@ -332,6 +332,14 @@ of being folded into start filters. Verification: `python3 run_tests.py` passed
 with 366 tests (88 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 366 tests.
 
+Quest completion UX now mirrors depletion handling. When a review completes the
+active quest, `runtime_actions.handle_quest_answer()` still awards rewards,
+records telemetry, switches `current_skill` to `None`, saves, refreshes
+availability, and emits the floating completion gain; it also opens a modal
+`Quest complete` dialog through the existing warning-dialog helper so the player
+gets a clear stop point instead of silently continuing with Quest training off.
+Focused runtime/integration tests cover the dialog title/body and deactivation.
+
 P0 grouped target-tree metadata cleanup is complete on 2026-06-19. Smithing,
 Crafting, Cooking, and Runecrafting now build their grouped Skills-hub rows
 through `target_metadata.py` before Qt renders them. The shared grouped

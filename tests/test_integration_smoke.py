@@ -477,7 +477,7 @@ class TestIntegrationSmoke(unittest.TestCase):
     def test_quest_answer_completes_rune_mysteries_and_switches_off(self):
         addon = _load_addon_as_package("ankiscape_quest_integration")
 
-        calls = {"save": 0, "gains": [], "xp": []}
+        calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
         addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
         addon._refresh_skill_availability = lambda: None
@@ -485,7 +485,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._show_exp = lambda amount: calls["xp"].append(amount)
         addon.level_up_check = lambda _skill, _data: None
         addon.update_review_hud = lambda _data, _skill: None
-        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
         addon.mw = _DummyMW(_DummyCol({}))
         addon.current_skill = "Quests"
         addon.player_data = {
@@ -514,6 +514,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Rune Mysteries complete"])
         self.assertEqual(calls["xp"], [250.0])
+        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+        self.assertIn("Rune Mysteries is complete", calls["dialogs"][0][1])
+        self.assertIn("questing has been switched off", calls["dialogs"][0][1])
 
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")

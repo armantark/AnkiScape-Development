@@ -36,6 +36,7 @@
 - Hunter now has a temporary supply acquisition bridge: `Buy Hunter supplies` is a one-shot no-XP Utility/Activities row that spends `500 Coins`, grants reusable Hunter gear plus starter jars, and automatically switches AnkiScape off after the successful review. Hunter targets now distinguish reusable `tools` from consumed `requirements`, so snares/nets/traps gate methods without being deleted while jars, logs, and magic boxes still consume on successful catches.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
+- Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
 - Crafting backend parity foundation is in place: source-backed `crafting_data.py`, stable `current_craft` recipe IDs, corrected 2011Scape XP values, live input-starved high/dependency targets, storage config version 11 migration, and no XP-bearing Crafting batching.
@@ -311,6 +312,15 @@ current review-driven quest model; start filters do not attempt to model future
 mid-quest completion blockers. Verification: `python3 run_tests.py` passed with
 366 tests (88 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 366 tests.
+
+Quest completion modal UX completed on 2026-06-22. `runtime_actions.handle_quest_answer()`
+now shows a `Quest complete` dialog after a quest reaches its final stage,
+reusing the same centralized warning-dialog path as material depletion while
+preserving reward application, telemetry, save/refresh, floating completion
+feedback, and `current_skill -> "None"`. Verification: `python3 -m unittest
+tests.test_runtime_actions`, `python3 -m unittest tests.test_integration_smoke`,
+`python3 run_tests.py`, and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m
+unittest discover tests` all pass.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

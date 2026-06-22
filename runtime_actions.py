@@ -901,7 +901,13 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     if completed_now:
-        ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} complete")
+        display_name = str(quest.get("display_name", quest_id))
+        ctx.show_activity_gain(f"{display_name} complete")
+        ctx.show_error_message(
+            "Quest complete",
+            f"{display_name} is complete, so questing has been switched off. "
+            "Open the AnkiScape menu to pick another quest.",
+        )
     else:
         state = player_data.get("quests", {}).get(quest_id, {})
         ctx.show_activity_gain(f"{quest.get('display_name', quest_id)} {state.get('progress', 0)}/{quest.get('stages', 1)}")
