@@ -41,12 +41,12 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 519 stage rows, 68 produced-inventory
+  with at least one stage requirement, 542 stage rows, 85 produced-inventory
   rows, 174 quests with item/tool/option blockers, and 120 quests with combat
   blockers. Combat blockers are hard locked by default through
   `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 180/285 source-backed NPC stat rows after local
+  combat now has 179/284 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -109,7 +109,11 @@
   feed and Pigeon cage production/use, rotten apple stew poisoning, Doctors'
   gown production, the level 13 Mourner and Distillator recovery, Elena's reagent
   vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 Guidor entry,
-  and Elena/King Lathas report actions. 105 combat rows remain statless
+  and Elena/King Lathas report actions. Heroes' Quest now has a source-backed
+  13-stage chain for Blamish oil/oily fishing rod prep, lava eel, Ice gloves,
+  Fire feather, Black Arm/Phoenix candlestick route variants, armband exchange,
+  and the final Achietties proof hand-in while preserving strict 56 quest point,
+  quest prerequisite, and skill start locks. 105 combat rows remain statless
   and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
@@ -145,7 +149,8 @@
   `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`, and
   `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`, and
   `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-biohazard-stage-detail-2026-06-22.md`.
+  `memory-bank/source-audits/quest-biohazard-stage-detail-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -805,6 +810,22 @@ Quests-tab blocked-at-stage coverage. Post-slice audit reports 519 stage rows,
 encounters, 174 quests with item/tool blockers, 120 quests with combat blockers,
 and 105 statless combat rows. Source audit:
 `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`.
+
+Heroes' Quest focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces generated/broad rows with a Darkan-backed
+13-stage chain for Achietties' challenge, Gerrant's Blamish snail slime,
+Blamish oil mixing, oily fishing rod creation, raw/cooked lava eel handling,
+Ice Queen/Ice gloves, Entrana Fire feather, Black Arm and Phoenix route variants,
+ScarFace Pete's candlestick, Thieves' armband, and the final Lava eel/Fire
+feather/armband hand-in. The quest keeps its strict start locks: 56 quest
+points, Shield of Arrav, Lost City, Dragon Slayer, Merlin's Crystal, Druidic
+Ritual, and the sourced Cooking/Fishing/Herblore/Defence/Mining levels.
+Frontend work was limited to targeted Quests-tab blocked-at-stage coverage. New
+quest item icons were fetched with provenance. Post-slice audit reports 542
+stage rows, 85 produced-inventory rows, 284 combat encounters, 179
+resolver-ready combat encounters, 174 quests with item/tool blockers, 120
+quests with combat blockers, and 105 statless combat rows. Source audit:
+`memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

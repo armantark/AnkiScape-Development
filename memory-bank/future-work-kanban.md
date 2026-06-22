@@ -33,7 +33,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   mechanics/id parity. Tracking trails, pitfall trapping, rabbit snaring,
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   Regicide-start partial-route modeling are deferred system slices.
-- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad, Sheep Herder proves stage-local noncombat disposal gates for poisoned sheep feed, clothing/tools, and four sheep-bone incinerations, Plague City/Waterfall Quest prove mid-quest reward correction plus future-skill pending XP through detailed stage chains, and Biohazard proves a longer West Ardougne route/item/combat/smuggling chain with the Mourner hard-blocked unless combat resolving is enabled. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
+- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad, Sheep Herder proves stage-local noncombat disposal gates for poisoned sheep feed, clothing/tools, and four sheep-bone incinerations, Plague City/Waterfall Quest prove mid-quest reward correction plus future-skill pending XP through detailed stage chains, Biohazard proves a longer West Ardougne route/item/combat/smuggling chain with the Mourner hard-blocked unless combat resolving is enabled, and Heroes' Quest proves a long branch-and-proof chain with strict start locks, stage-local lava eel/Fire feather/armband proof items, Black Arm/Phoenix route variants, and no forced Jailer route. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
@@ -292,6 +292,20 @@ pending Attack/Strength XP.
 Post-slice audit reports 519 stage rows, 68 produced-inventory rows, 285 combat
 encounters, 180 resolver-ready combat encounters, 174 quests with item/tool
 blockers, 120 quests with combat blockers, and 105 statless combat rows.
+Biohazard then added a 13-stage Darkan-backed chain for Jerico/Omart wall
+routing, Bird feed and Pigeon cage production/use, rotten-apple stew poisoning,
+Doctors' gown production, the level 13 Mourner, Distillator recovery, Elena's
+reagent vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 for
+Guidor, and Elena/King Lathas reports. Heroes' Quest then replaced generated
+front-loaded proof rows with a 13-stage source-backed chain for Blamish oil,
+oily fishing rod, raw/cooked lava eel, Ice Queen/Ice gloves, Entrana Fire
+feather, Black Arm/Phoenix candlestick variants, Thieves' armband, and the
+final Achietties hand-in. The Ice Queen lair stays a route blocker rather than
+a forced Jailer combat row because the source allows alternate access.
+Post-Heroes audit reports 542 stage rows, 85 produced-inventory rows, 284
+combat encounters, 179 resolver-ready combat encounters, 174 quests with
+item/tool blockers, 120 quests with combat blockers, and 105 statless combat
+rows.
 Full minute-detail parity, exact generated per-stage extraction, quest-item
 transformations, route flags, partner/branch state, puzzle state, broad combat
 stat enrichment, and full combat simulation remain open;
@@ -412,17 +426,17 @@ noncombat replacement, or the local Darkan batch for Fishing Contest,
 Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion
 Catcher, the Sheep Herder focused stage replacement, the Plague City and
 Waterfall Quest focused stage replacements, or the Biohazard focused stage
-replacement. `quest_catalog_generated.py`
+replacement, or the Heroes' Quest focused stage replacement. `quest_catalog_generated.py`
 already contains 194 pre-EOC quest rows available before the 2012-11-20 EOC
 cutoff, with Recipe for Disaster split into separate subquests, generated by
 `tools/build_pre_eoc_quest_catalog.py`. Runtime quest data now reports 194/194
-quests with at least one machine-readable stage requirement, 529 stage rows, 73
+quests with at least one machine-readable stage requirement, 542 stage rows, 85
 produced-inventory transitions, quest-start inventory grants, required-action
 blockers, route blockers, route-variant branch rows, grouped item-option
 blockers, globally locked combat blockers, and a resolver-enabled path that
 resolves one sourced enemy per Quest review via `quest_combat_encounter_counts`
 before writing legacy completed encounter ids. Current combat stat coverage is
-180/285 resolver-ready rows; 105 statless rows remain blocked and classified by
+179/284 resolver-ready rows; 105 statless rows remain blocked and classified by
 `tools/audit_quest_combat_stat_gaps.py`. `tools/audit_quest_historical_wiki_combat_stats.py` checked
 remaining rows against pinned historical RuneScape Wiki monster pages and found
 metadata-only pages or no monster metadata, so LP/max-hit/style prose must not

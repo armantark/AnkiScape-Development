@@ -153,9 +153,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   routing, Bird feed and Pigeon cage production/use, rotten-apple stew poisoning,
   Doctors' gown production, the level 13 Mourner, Distillator recovery, Elena's
   reagent vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 for
-  Guidor, and Elena/King Lathas reports are all current-stage gates. The live
-  audit now reports 529 stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, and 73 produced-inventory rows. This is still broad
+  Guidor, and Elena/King Lathas reports are all current-stage gates. Heroes'
+  Quest then proves a long branch-and-proof replacement: Blamish oil and oily
+  fishing rod preparation, raw/cooked lava eel handling, Ice Queen/Ice gloves,
+  Entrana Fire feather, Black Arm/Phoenix route-variant candlestick rows,
+  armband exchange, and final Achietties proof items are current-stage gates.
+  The Ice Queen lair access is a route blocker rather than a mandatory Jailer
+  combat row because the source allows a Dusty key route or Agility shortcut.
+  The live audit now reports 542 stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, 85 produced-inventory rows, and
+  179/284 resolver-ready combat rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -190,6 +197,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -276,7 +285,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   generated level-2 Goblins with a Darkan-backed noncombat chain and `combat:
   None.` Scorpion Catcher then adds a source-backed level 39 jailer combat gate
   from Darkan quest and combatdef evidence while keeping the other scorpion
-  catches as route/action gates. Current stat coverage is 180/285 combat rows; the
+  catches as route/action gates. Heroes' Quest now adds Ice Queen and Grip
+  source-backed resolver rows while keeping Ice Queen lair access as a route
+  blocker rather than the old generated Jailer assumption. Current stat
+  coverage is 179/284 combat rows; the
   remaining 105 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.

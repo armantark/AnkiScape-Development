@@ -130,6 +130,77 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(mourner["npc_configs"]["attack_style"], "melee")
         self.assertTrue(mourner["npc_stats_source"].endswith("mourner_(13).json"))
 
+    def test_heroes_quest_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["heroes_quest"]
+
+        self.assertEqual(quest["stages"], 13)
+        self.assertEqual(quest["required_items"], {})
+        self.assertEqual(quest["required_quest_points"], 56)
+        self.assertIn("Used during quest: Blamish snail slime x1", quest["requirements"][11])
+        self.assertEqual(
+            tuple(requirement["quest_id"] for requirement in quest["required_quests"]),
+            ("shield_of_arrav", "lost_city", "dragon_slayer", "merlins_crystal", "druidic_ritual"),
+        )
+        self.assertEqual(
+            tuple((requirement["skill_id"], requirement["level"]) for requirement in quest["required_skills"]),
+            (("cooking", 53), ("fishing", 53), ("herblore", 25), ("defense", 25), ("mining", 50)),
+        )
+
+        rows = quest["stage_requirements"]
+        by_stage = {row["stage"]: row for row in rows if not row["variant"]}
+        by_stage_variant = {(row["stage"], row["variant"]): row for row in rows if row["variant"]}
+        self.assertEqual(by_stage[2]["produced_inventory"], {"Blamish snail slime": 1})
+        self.assertEqual(
+            by_stage[3]["consumed_inventory"],
+            {"Blamish snail slime": 1, "Harralander potion (unf)": 1},
+        )
+        self.assertEqual(by_stage[3]["produced_inventory"], {"Blamish oil": 1})
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Blamish oil": 1, "Fishing rod": 1})
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Oily fishing rod": 1})
+        self.assertEqual(by_stage[5]["required_tools"], {"Oily fishing rod": 1})
+        self.assertEqual(by_stage[5]["consumed_inventory"], {"Fishing bait": 1})
+        self.assertEqual(by_stage[5]["produced_inventory"], {"Raw lava eel": 1})
+        self.assertEqual(by_stage[6]["consumed_inventory"], {"Raw lava eel": 1})
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Lava eel": 1})
+        self.assertEqual(by_stage[7]["required_tools"], {"Pickaxe": 1})
+        self.assertEqual(by_stage[7]["produced_inventory"], {"Ice gloves": 1})
+        self.assertEqual(by_stage[8]["required_tools"], {"Ice gloves": 1})
+        self.assertEqual(by_stage[8]["produced_inventory"], {"Fire feather": 1})
+
+        ice_queen = by_stage[7]["combat_encounters"][0]
+        self.assertEqual(ice_queen["encounter_id"], "heroes_quest_ice_queen_111")
+        self.assertEqual(ice_queen["npc_stats"]["hitpoints"], 1050)
+        self.assertTrue(ice_queen["npc_stats_source"].endswith("ice_queen.json"))
+        firebird = by_stage[8]["combat_encounters"][0]
+        self.assertEqual(firebird["encounter_id"], "heroes_quest_entrana_fire_bird_2")
+        self.assertTrue(firebird["npc_stats_source"].endswith("entrana_firebird.json"))
+
+        black_arm_setup = by_stage_variant[(9, "black_arm")]
+        phoenix_setup = by_stage_variant[(9, "phoenix")]
+        self.assertEqual(black_arm_setup["produced_inventory"], {"Id papers": 1})
+        self.assertEqual(black_arm_setup["required_routes"], ("Join the Black Arm Gang",))
+        self.assertEqual(phoenix_setup["required_routes"], ("Join the Phoenix Gang",))
+
+        black_arm_mansion = by_stage_variant[(10, "black_arm")]
+        self.assertEqual(
+            black_arm_mansion["required_tools"],
+            {"Black full helm": 1, "Black platebody": 1, "Black platelegs": 1},
+        )
+        self.assertEqual(black_arm_mansion["consumed_inventory"], {"Id papers": 1})
+        self.assertEqual(black_arm_mansion["produced_inventory"], {"Pete's candlestick": 1})
+        phoenix_mansion = by_stage_variant[(10, "phoenix")]
+        self.assertEqual(phoenix_mansion["consumed_inventory"], {"Coins": 1000})
+        self.assertEqual(phoenix_mansion["produced_inventory"], {"Pete's candlestick": 1})
+        self.assertEqual(phoenix_mansion["combat_encounters"][0]["encounter_id"], "heroes_quest_grip_22")
+
+        self.assertEqual(by_stage_variant[(11, "black_arm")]["produced_inventory"], {"Thieves' armband": 1})
+        self.assertEqual(by_stage_variant[(11, "phoenix")]["produced_inventory"], {"Thieves' armband": 1})
+        self.assertEqual(
+            by_stage[12]["consumed_inventory"],
+            {"Lava eel": 1, "Thieves' armband": 1, "Fire feather": 1},
+        )
+
     def test_shield_of_arrav_has_source_backed_route_stage_requirements(self):
         data = quests_as_dict()
         quest = data["shield_of_arrav"]

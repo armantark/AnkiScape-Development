@@ -220,6 +220,34 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Priest gown x2", calls["errors"][0][1])
 
+    def test_quest_answer_blocks_heroes_final_without_fire_feather(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Lava eel": 1, "Thieves' armband": 1},
+            "current_quest": "heroes_quest",
+            "quests": {"heroes_quest": {"started": True, "progress": 12, "completed": False}},
+            "quest_stage_actions": {
+                "heroes_quest": ["Hand Achietties the Lava eel, Thieves' armband, and Fire feather"]
+            },
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["heroes_quest"]["progress"], 12)
+        self.assertFalse(player_data["quests"]["heroes_quest"]["completed"])
+        self.assertEqual(player_data["inventory"]["Lava eel"], 1)
+        self.assertEqual(player_data["inventory"]["Thieves' armband"], 1)
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(calls["saves"], 0)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Needs Fire feather x1", calls["errors"][0][1])
+
     def test_quest_stage_progress_accepts_required_tools_from_equipment(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

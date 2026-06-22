@@ -5711,6 +5711,66 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:30Z"
   },
+  "questitems/black_full_helm.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_full_helm.png",
+    "file_title": "Black full helm.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_full_helm.png?db3d9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "59618d7c93d0df65d883023bacb44ac583609f43",
+    "size": 392,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:31Z"
+  },
+  "questitems/black_platebody.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_platebody.png",
+    "file_title": "Black platebody.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_platebody.png?65161",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cc047094b4a00a382420b010582bc1d9ec2569d3",
+    "size": 338,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:29Z"
+  },
+  "questitems/black_platelegs.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_platelegs.png",
+    "file_title": "Black platelegs.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_platelegs.png?65161",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8155da823bca5911f5e2e969ec3856c087fd76cf",
+    "size": 211,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:29Z"
+  },
+  "questitems/blamish_oil.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blamish_oil.png",
+    "file_title": "Blamish oil.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Blamish_oil.png?cab41",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ae531645d2b18440644d9ae4cd4a195ce8ad1ff9",
+    "size": 734,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:35Z"
+  },
+  "questitems/blamish_snail_slime.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blamish_snail_slime.png",
+    "file_title": "Blamish snail slime.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Blamish_snail_slime.png?cab41",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5f697fa2c9dd15fa2f2b765b85631ff470537848",
+    "size": 659,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:35Z"
+  },
   "questitems/blue_cog.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blue_cog.png",
     "file_title": "Blue cog.png",
@@ -5999,6 +6059,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:55Z"
   },
+  "questitems/fire_feather.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_feather.png",
+    "file_title": "Fire feather.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Fire_feather.png?3859a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "26bffe4510c2ad3b19dfcffa054e53650bbfd7fc",
+    "size": 341,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:59Z"
+  },
   "questitems/fish_food.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fish_food.png",
     "file_title": "Fish food.png",
@@ -6191,6 +6263,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:42Z"
   },
+  "questitems/harralander_potion_unf.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Harralander_potion_%28unf%29.png",
+    "file_title": "Harralander potion (unf).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Harralander_potion_%28unf%29.png?bfea5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bf30c9392dcfc95c26fe263f9e39343be09e465f",
+    "size": 753,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:43Z"
+  },
   "questitems/ice_gloves.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ice_gloves.png",
     "file_title": "Ice gloves.png",
@@ -6202,6 +6286,18 @@
     "size": 760,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:48Z"
+  },
+  "questitems/id_papers.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:ID_papers.png",
+    "file_title": "ID papers.png",
+    "image_url": "https://runescape.wiki/images/ID_papers.png?2b2da",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2ec5191482a99805d7be114873c641201afd7b1d",
+    "size": 1486,
+    "source_wiki": "rs3",
+    "timestamp": "2021-11-02T21:39:02Z"
   },
   "questitems/intel_report.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Intel_report.png",
@@ -6299,6 +6395,18 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-26T08:40:33Z"
   },
+  "questitems/lava_eel.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Lava_eel.png",
+    "file_title": "Lava eel.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Lava_eel.png?1f4ab",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "94c34a885836dbd888f56a1787a22425403c5e05",
+    "size": 438,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:44Z"
+  },
   "questitems/liquid_honey.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Liquid_honey.png",
     "file_title": "Liquid honey.png",
@@ -6383,6 +6491,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:34Z"
   },
+  "questitems/oily_fishing_rod.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Oily_fishing_rod.png",
+    "file_title": "Oily fishing rod.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Oily_fishing_rod.png?b175e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ad1f486bfdd1ca31c8a3f0f025b1f3ab75d9f914",
+    "size": 493,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:35Z"
+  },
   "questitems/old_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:A_key.png",
     "file_title": "A key.png",
@@ -6430,6 +6550,18 @@
     "size": 33039,
     "source_wiki": "rs3",
     "timestamp": "2010-09-22T17:14:55Z"
+  },
+  "questitems/pete_s_candlestick.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Pete%27s_candlestick.png",
+    "file_title": "Pete's candlestick.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Pete%27s_candlestick.png?e3d63",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1f4d4028abffdc192f096a637a03bc8824cd8b60",
+    "size": 466,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:57Z"
   },
   "questitems/phoenix_crossbow.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Phoenix_crossbow.png",
@@ -6598,6 +6730,18 @@
     "size": 399,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:03:02Z"
+  },
+  "questitems/raw_lava_eel.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Raw_lava_eel.png",
+    "file_title": "Raw lava eel.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Raw_lava_eel.png?e3d63",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3389e64fabd9a13b6816dc1a3f5fdab6f8401c94",
+    "size": 495,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:57Z"
   },
   "questitems/red_cog.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Red_cog.png",
@@ -6778,6 +6922,18 @@
     "size": 761,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:35Z"
+  },
+  "questitems/thieves_armband.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thieves%27_armband.png",
+    "file_title": "Thieves' armband.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Thieves%27_armband.png?c9227",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f74fc8efc826f1295c67318c4188776e0a85c4bf",
+    "size": 386,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:07:01Z"
   },
   "questitems/three_little_kittens.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Three_little_kittens.png",

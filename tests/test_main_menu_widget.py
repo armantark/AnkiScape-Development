@@ -1393,6 +1393,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Priest gown x2", action.toolTip())
 
+    def test_quests_tab_shows_heroes_black_arm_disguise_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Id papers": 1}
+        pd["equipment"] = {"head": "Black full helm", "body": "Black platebody"}
+        pd["current_quest"] = "heroes_quest"
+        pd["quests"]["heroes_quest"] = {"started": True, "progress": 10, "completed": False}
+        pd["quest_route_states"] = {"heroes_quest": ["Join the Black Arm Gang"]}
+        pd["quest_stage_actions"] = {
+            "heroes_quest": ["Show the Id papers to Garv", "Search Scarface Pete's candlestick chest"]
+        }
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Needs Black platelegs", labels)
+        action = dialog.findChild(QPushButton, "questAction_heroes_quest")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Black platelegs", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}
