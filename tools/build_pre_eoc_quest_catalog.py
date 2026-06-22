@@ -1324,6 +1324,55 @@ def _normalize_npc_lookup_name(name: str) -> str:
     return normalized.strip()
 
 
+NPC_NAME_ALIASES: Mapping[str, Tuple[str, ...]] = {
+    "poisonous spider": ("poison spider",),
+}
+
+
+def _singularize_npc_token(token: str) -> str:
+    if len(token) > 4 and token.endswith("ies"):
+        return f"{token[:-3]}y"
+    if len(token) > 3 and token.endswith("s") and not token.endswith("ss"):
+        return token[:-1]
+    return token
+
+
+def _npc_lookup_name_variants(display_name: str) -> Tuple[str, ...]:
+    normalized = _normalize_npc_lookup_name(display_name)
+    if not normalized:
+        return ()
+    variants = [normalized]
+    variants.extend(NPC_NAME_ALIASES.get(normalized, ()))
+
+    tokens = normalized.split()
+    for index, token in enumerate(tokens):
+        singular = _singularize_npc_token(token)
+        if singular == token:
+            continue
+        candidate_tokens = list(tokens)
+        candidate_tokens[index] = singular
+        variants.append(" ".join(candidate_tokens))
+
+    seen = set()
+    ordered = []
+    for variant in variants:
+        if variant and variant not in seen:
+            seen.add(variant)
+            ordered.append(variant)
+    return tuple(ordered)
+
+
+def _token_sequence_contains(haystack: str, needle: str) -> bool:
+    haystack_tokens = haystack.split()
+    needle_tokens = needle.split()
+    if not haystack_tokens or not needle_tokens or len(needle_tokens) > len(haystack_tokens):
+        return False
+    for index in range(0, len(haystack_tokens) - len(needle_tokens) + 1):
+        if haystack_tokens[index : index + len(needle_tokens)] == needle_tokens:
+            return True
+    return False
+
+
 def _parse_kts_assignment_int(block: str, key: str) -> Optional[int]:
     match = re.search(rf"\b{re.escape(key)}\s*=\s*(-?\d+)", block)
     if not match:
@@ -1380,7 +1429,7 @@ def _load_local_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
             if style_match:
                 configs["attack_style"] = style_match.group(1).lower()
         if stats or bonuses or configs:
-            key = (display_name.lower(), level)
+            key = (_normalize_npc_lookup_name(display_name), level)
             rows[key] = {
                 "display_name": display_name,
                 "level": level,
@@ -1404,14 +1453,20 @@ def _local_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
 
 def _matching_local_npc_stats(display_name: str, level: int) -> Dict[str, object]:
     stats = _local_npc_stats()
-    key = (display_name.lower(), level)
-    if key in stats:
-        return stats[key]
+    for normalized in _npc_lookup_name_variants(display_name):
+        key = (normalized, level)
+        if key in stats:
+            return stats[key]
     if level:
+        search_variants = _npc_lookup_name_variants(display_name)
         loose = [
             value
             for (name, row_level), value in stats.items()
-            if row_level == level and (name == display_name.lower() or display_name.lower() in name or name in display_name.lower())
+            if row_level == level
+            and any(
+                _token_sequence_contains(name, variant) or _token_sequence_contains(variant, name)
+                for variant in search_variants
+            )
         ]
         if len(loose) == 1:
             return loose[0]
@@ -1738,7 +1793,12 @@ def _darkan_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
 def _matching_darkan_npc_stats(display_name: str, level: int) -> Dict[str, object]:
     if level <= 0:
         return {}
-    return _darkan_npc_stats().get((_normalize_npc_lookup_name(display_name), level), {})
+    stats = _darkan_npc_stats()
+    for normalized in _npc_lookup_name_variants(display_name):
+        row = stats.get((normalized, level))
+        if row:
+            return row
+    return {}
 
 
 def _matching_source_npc_stats(display_name: str, level: int) -> Dict[str, object]:
@@ -1806,8 +1866,9 @@ def _combat_display_name_from_line(line: str) -> str:
     if links:
         return str(links[0]["item_name"])
     clean = clean_markup(line)
+    clean = re.sub(r"^\s*(?:level|lvl)\s*[- ]?\s*\d+(?:\s*[-–]\s*\d+)?\s+", "", clean, flags=re.I)
     clean = re.sub(
-        r"^\s*(?:(?:at least\s+)?(?:\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten)\s+)?",
+        r"^\s*(?:(?:at least\s+)?(?:\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|several)\s+)?",
         "",
         clean,
         flags=re.I,

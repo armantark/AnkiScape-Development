@@ -46,7 +46,7 @@
   blockers. Combat blockers are hard locked by default through
   `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 177/285 source-backed NPC stat rows after local
+  combat now has 179/285 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -89,7 +89,15 @@
   8-stage Darkan/local-2011Scape chain for the round-table investigation, crate
   route, Sir Mordred, Morgan/wax, black candle, bread-to-Excalibur, ritual,
   crystal smash, and Arthur report; Thrantax is an action/dialogue gate rather
-  than invented combat. 108 combat rows remain statless and explicitly blocked.
+  than invented combat. A generated-catalog parser follow-up now uses token-safe
+  NPC name matching instead of raw substring matching, adds the safe
+  `Poisonous Spider` -> `Poison Spider` alias, handles plural source text such
+  as `Guardians of Armadyl`, and parses level-prefixed rows such as `Lvl 2
+  Goblins`. Temple of Ikov's Guardians of Armadyl and Observatory Quest's
+  Poisonous Spider are now resolver-ready from local source data; Dwarf
+  Cannon's level-2 Goblins are still blocked because the local goblin source
+  has ID-dependent attack/defence values that need a focused quest-spawn row.
+  106 combat rows remain statless and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -119,7 +127,8 @@
   `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md`, and
   `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md`, and
   `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`.
+  `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.

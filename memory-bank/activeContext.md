@@ -159,17 +159,22 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
 quests have item/tool/option blockers, and 120 quests have combat blockers.
-Current resolver-ready source-backed combat coverage is 177/285 rows after
+Current resolver-ready source-backed combat coverage is 179/285 rows after
 generator enrichment, style-aware magic/ranged handling, Darkan `beasts.txt`
 fallbacks, no-`combatLevels` fallbacks, focused `quest_data.py` name-shape
 replacements, A Soul's Bane's full-stage combat split, Death to the Dorgeshuun's
 Senior H.A.M. guard quantity replacement, and focused full-stage replacements up
 through Fight Arena, Witch's House, and Merlin's Crystal. Merlin's Crystal now
 keeps quest-used items out of start locks, resolves Sir Mordred as combat, and
-treats Thrantax as ritual dialogue/action. The remaining 108 statless combat rows
-stay hard-blocked and are classified by `tools/audit_quest_combat_stat_gaps.py`
-as 51 Darkan hitpoints-only rows, 18 Darkan rows missing style-critical resolver
-stats, 7 same-name/wrong-level rows, 13 no-local-source rows, and 19
+treats Thrantax as ritual dialogue/action. A generator/source-matching follow-up
+then made safe token/plural/alias matches for Temple of Ikov's Guardians of
+Armadyl and Observatory Quest's Poisonous Spider, while preserving Dwarf
+Cannon's level-2 Goblins as a partial local-source blocker because the local
+2011Scape goblin definition has ID-dependent attack/defence expressions. The
+remaining 106 statless combat rows stay hard-blocked and are classified by
+`tools/audit_quest_combat_stat_gaps.py` as 51 Darkan hitpoints-only rows, 18
+Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level rows,
+1 local exact but incomplete source row, 10 no-local-source rows, and 19
 parser/variant-level rows. Combat quantities count one enemy per review action:
 `tools/build_pre_eoc_quest_catalog.py` extracts written quantities, runtime
 stores partial encounter progress in `quest_combat_encounter_counts`, and the
@@ -375,15 +380,18 @@ Cheese, witch patrol, Leather gloves, Backroom key, four experiment forms, Ball,
 and Harvey hand-in. A style-aware resolver pass then made source-backed magic/ranged
 rows with zero melee Strength resolver-ready, adding H.A.M. mage, The Void
 Stares Back Torcher/Defiler, and The Elder Kiln TokHaar-Xil. Combat stat
-coverage is now 177/285 rows after the Darkan beast fallbacks, focused
-name-shape replacements, A Soul's Bane's split combat stages, and Death to the
+coverage is now 179/285 rows after the Darkan beast fallbacks, focused
+name-shape replacements, A Soul's Bane's split combat stages, Death to the
 Dorgeshuun's Senior H.A.M. guard quantity replacement, Demon Slayer's focused
-Delrith row, and Witch's House's four form chain. The remaining 108
-statless rows are classified by
+Delrith row, Witch's House's four form chain, Merlin's Crystal's Sir Mordred,
+and the generated safe-name matches for Temple of Ikov's Guardians of Armadyl
+and Observatory Quest's Poisonous Spider. The remaining 106 statless rows are
+classified by
 `tools/audit_quest_combat_stat_gaps.py` as 51 hitpoints-only Darkan rows, 18
 Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level
-rows, 13 no-local-source rows, and 19 parser/variant-level rows; remaining NPC
-stat enrichment and full combat simulation remain open.
+rows, 1 local exact but incomplete source row, 10 no-local-source rows, and 19
+parser/variant-level rows; remaining NPC stat enrichment and full combat
+simulation remain open.
 Generated item alternatives now preserve
 independent option groups, so stage gates such as Goblin Diplomacy dye
 alternatives remain finishability blockers instead of being flattened into

@@ -770,6 +770,39 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
 
+    def test_generated_catalog_enriches_safe_combat_name_matches(self):
+        data = quests_as_dict()
+
+        temple_combat = [
+            encounter
+            for requirement in data["temple_of_ikov"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        guardians = next(encounter for encounter in temple_combat if encounter["display_name"] == "Guardians of Armadyl")
+        self.assertEqual(guardians["level"], 45)
+        self.assertEqual(guardians["npc_stats"]["attack"], 37)
+        self.assertEqual(guardians["npc_stats"]["strength"], 37)
+        self.assertTrue(guardians["npc_stats_source"].endswith("guardian_of_armadyl_(45).json"))
+
+        observatory = next(
+            encounter
+            for requirement in data["observatory_quest"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Poisonous Spider"
+        )
+        self.assertEqual(observatory["npc_stats"]["attack"], 28)
+        self.assertTrue(observatory["npc_stats_source"].endswith("poison_spider_lvl_31.plugin.kts"))
+
+        dwarf_cannon = next(
+            encounter
+            for requirement in data["dwarf_cannon"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Goblins"
+        )
+        self.assertEqual(dwarf_cannon["level"], 2)
+        self.assertEqual(dwarf_cannon["npc_stats"]["hitpoints"], 50)
+        self.assertNotIn("attack", dwarf_cannon["npc_stats"])
+
     def test_source_backed_starter_quest_stage_overrides_replace_generated_guesses(self):
         data = quests_as_dict()
 

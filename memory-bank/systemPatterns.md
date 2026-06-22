@@ -81,6 +81,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   stages. Stage 8 is the completed state, so the ritual, crystal smash, and
   Arthur report all live on stage 7. Thrantax is intentionally an action/dialogue
   gate, not a combat gate, because local Darkan binds him through ritual dialogue.
+- Generated combat source matching is token-safe, not raw substring based.
+  `tools/build_pre_eoc_quest_catalog.py` supports explicit aliases such as
+  `Poisonous Spider` -> `Poison Spider`, and singularizes plural source names as
+  full tokens only. Temple of Ikov's generated `Guardians of Armadyl` row now
+  resolves to Darkan's level 45 `Guardian of Armadyl` combatdef, and Observatory
+  Quest's `Poisonous Spider` resolves to local 2011Scape's level 31 `Poison
+  Spider`. This also prevents false positives such as `Bear` matching `Johnny
+  The Beard`. `Lvl 2 Goblins` now parses as `Goblins`, but remains a
+  missing-stats blocker because the local goblin source has ID-dependent
+  attack/defence expressions.
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
@@ -149,6 +159,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -227,9 +239,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   their available Darkan combatdefs carry hitpoints/max-hit metadata but no
   style-critical melee stats. Merlin's Crystal adds Sir Mordred as a
   Darkan-stat-backed resolver encounter while treating Thrantax as a ritual
-  action instead of an invented battle. Current stat coverage is 177/285 combat
+  action instead of an invented battle. The generated combat parser now also
+  resolves safe historical-name mismatches for Temple of Ikov's Guardians of
+  Armadyl and Observatory Quest's Poisonous Spider while leaving Dwarf Cannon's
+  partial local Goblins row blocked until exact attack/defence evidence is
+  modeled. Current stat coverage is 179/285 combat
   rows; the
-  remaining 108 statless rows
+  remaining 106 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
   Historical RuneScape Wiki monster pages are now audited by
