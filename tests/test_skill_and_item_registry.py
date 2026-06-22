@@ -575,6 +575,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in (
             "Silverlight",
             "Silverlight key",
+            "Railing",
+            "Dwarf remains",
+            "Toolkit",
+            "Nulodion's notes",
+            "Ammo mould",
             "Orange goblin mail",
             "Blue goblin mail",
             "Goblin mail",

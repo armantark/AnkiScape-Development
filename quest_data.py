@@ -54,6 +54,7 @@ CARNILLEAN_RISING_ID = "carnillean_rising"
 SOME_LIKE_IT_COLD_ID = "some_like_it_cold"
 WITCHS_HOUSE_ID = "witchs_house"
 MERLINS_CRYSTAL_ID = "merlins_crystal"
+DWARF_CANNON_ID = "dwarf_cannon"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -168,6 +169,11 @@ DARKAN_ERNEST_ODDENSTEIN_SOURCE = f"{DARKAN_ERNEST_SOURCE_ROOT}/OddensteinErnest
 DARKAN_BLACK_KNIGHTS_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/blackknightsfortress"
 DARKAN_BLACK_KNIGHTS_SOURCE = f"{DARKAN_BLACK_KNIGHTS_SOURCE_ROOT}/BlackKnightsFortress.java"
 DARKAN_BLACK_KNIGHTS_SIR_AMIK_SOURCE = f"{DARKAN_BLACK_KNIGHTS_SOURCE_ROOT}/SirAmikVarzeBlackKnightsFortressD.java"
+DARKAN_DWARF_CANNON_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/dwarfcannon"
+DARKAN_DWARF_CANNON_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/DwarfCannon.java"
+DARKAN_DWARF_CANNON_LAWGOF_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/CaptainLawgofD.java"
+DARKAN_DWARF_CANNON_LOLLK_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/LollkD.java"
+DARKAN_DWARF_CANNON_NULODION_SOURCE = f"{DARKAN_DWARF_CANNON_SOURCE_ROOT}/NulodionD.java"
 DARKAN_FIGHT_ARENA_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/fightarena"
 DARKAN_FIGHT_ARENA_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArena.java"
 DARKAN_FIGHT_ARENA_CUTSCENE_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArenaFightCutsceneController.java"
@@ -2111,6 +2117,36 @@ def _combat(
 QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatEncounter, ...]]
 
 
+DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Captain Lawgof needs the Black Guard camp railings repaired."),
+    _simple_stage(2, "The six broken railings have been repaired. I should report back to Captain Lawgof."),
+    _simple_stage(3, "Captain Lawgof asked me to find Gilob's remains near the watchtower."),
+    _simple_stage(4, "Captain Lawgof found a child hidden in the goblin cave south-east of the camp."),
+    _simple_stage(5, "I found Lollk in the goblin hideout and need to get him to safety."),
+    _simple_stage(6, "Lollk is safe. Captain Lawgof has a toolkit for repairing the sabotaged cannon."),
+    _simple_stage(7, "The cannon still needs to be repaired with Captain Lawgof's toolkit."),
+    _simple_stage(8, "The cannon is repaired. Captain Lawgof wants help from Nulodion."),
+    _simple_stage(9, "Nulodion gave me an ammo mould and notes to take back to Captain Lawgof."),
+    _simple_stage(10, "Captain Lawgof accepted Nulodion's parts. I should receive his cannon recommendation."),
+    _simple_stage(11, "Captain Lawgof gave his recommendation.", "Quest complete!"),
+)
+
+
+QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
+    DWARF_CANNON_ID: len(DWARF_CANNON_STAGES),
+}
+
+
+QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
+    DWARF_CANNON_ID: DWARF_CANNON_STAGES,
+}
+
+
+QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
+    DWARF_CANNON_ID: "None.",
+}
+
+
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
     COOKS_ASSISTANT_ID: (
         _stage_req(
@@ -2118,6 +2154,71 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             "Give the Lumbridge cook the three special cake ingredients.",
             f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}",
             consumed_inventory=(("Top-quality milk", 1), ("Extra fine flour", 1), ("Super large egg", 1)),
+        ),
+    ),
+    DWARF_CANNON_ID: (
+        _stage_req(
+            1,
+            "Repair the six broken railings around the Black Guard camp.",
+            f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Railing", 6),),
+            required_tools=(("Hammer", 1),),
+        ),
+        _stage_req(
+            2,
+            "Report the repaired stockade to Captain Lawgof.",
+            DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
+            required_actions=("Report the repaired stockade to Captain Lawgof",),
+        ),
+        _stage_req(
+            3,
+            "Find Gilob's remains at the watchtower and return them to Captain Lawgof.",
+            f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Dwarf remains", 1),),
+        ),
+        _stage_req(
+            4,
+            "Find the goblin hideout south-east of the camp.",
+            DARKAN_DWARF_CANNON_SOURCE,
+            required_routes=("Reach the Dwarf Cannon goblin hideout",),
+        ),
+        _stage_req(
+            5,
+            "Rescue Lollk from the goblin hideout.",
+            f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LOLLK_SOURCE}",
+            required_actions=("Rescue Lollk from the goblin hideout",),
+        ),
+        _stage_req(
+            6,
+            "Return to Captain Lawgof after rescuing Lollk.",
+            DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
+            required_actions=("Tell Captain Lawgof that Lollk is safe",),
+            produced_inventory=(("Toolkit", 1),),
+        ),
+        _stage_req(
+            7,
+            "Repair the sabotaged cannon with Captain Lawgof's toolkit.",
+            f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Toolkit", 1),),
+            required_actions=("Repair the sabotaged cannon",),
+        ),
+        _stage_req(
+            8,
+            "Tell Captain Lawgof that the cannon is repaired.",
+            DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
+            required_actions=("Tell Captain Lawgof that the cannon is repaired",),
+        ),
+        _stage_req(
+            9,
+            "Speak to Nulodion and bring Captain Lawgof the ammo mould and notes.",
+            f"{DARKAN_DWARF_CANNON_NULODION_SOURCE}; {DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Ammo mould", 1), ("Nulodion's notes", 1)),
+        ),
+        _stage_req(
+            10,
+            "Receive Captain Lawgof's recommendation to buy and use a multicannon.",
+            DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
+            required_actions=("Receive Captain Lawgof's cannon recommendation",),
         ),
     ),
     FIGHT_ARENA_ID: (
@@ -4225,9 +4326,18 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         quest.id,
         _dedupe_stage_requirements((*base, *additions)),
     )
-    if requirements == quest.stage_requirements:
+    max_requirement_stage = max((requirement.stage for requirement in requirements), default=quest.stages)
+    stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, max(quest.stages, max_requirement_stage))
+    journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
+    combat = QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID.get(quest.id, quest.combat)
+    if (
+        requirements == quest.stage_requirements
+        and stages == quest.stages
+        and journal_stages == quest.journal_stages
+        and combat == quest.combat
+    ):
         return quest
-    return replace(quest, stage_requirements=requirements)
+    return replace(quest, stages=stages, journal_stages=journal_stages, combat=combat, stage_requirements=requirements)
 
 
 QUESTS: Tuple[QuestDefinition, ...] = tuple(
@@ -4546,6 +4656,26 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
             }
     generated_items.update({
         "Coins": {"category": "material", "source": "RuneScape currency"},
+        "Railing": {
+            "category": "material",
+            "source": f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Dwarf remains": {
+            "category": "material",
+            "source": f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Toolkit": {
+            "category": "tool",
+            "source": f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Nulodion's notes": {
+            "category": "material",
+            "source": f"{DARKAN_DWARF_CANNON_NULODION_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Ammo mould": {
+            "category": "tool",
+            "source": f"{DARKAN_DWARF_CANNON_NULODION_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
         "Shield of Arrav book": {
             "category": "material",
             "source": f"{DARKAN_SHIELD_OF_ARRAV_BOOK_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",

@@ -197,6 +197,33 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Black Knights' Fortress 2/5"])
 
+    def test_quest_answer_progresses_dwarf_cannon_repairs_without_goblin_gate(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Railing": 6, "Hammer": 1},
+            "current_quest": "dwarf_cannon",
+            "quests": {"dwarf_cannon": {"started": True, "progress": 1, "completed": False}},
+            "quest_points": 0,
+            "crafting_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 2)
+        self.assertFalse(player_data["quests"]["dwarf_cannon"]["completed"])
+        self.assertEqual(player_data["inventory"]["Railing"], 0)
+        self.assertEqual(player_data["inventory"]["Hammer"], 1)
+        self.assertEqual(player_data["quest_combat_encounters"], {})
+        self.assertEqual(player_data["quest_combat_encounter_counts"], {})
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(player_data["crafting_exp"], 0)
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Dwarf Cannon 2/11"])
+
     def test_quest_answer_completes_priest_in_peril_only_after_essence_gate(self):
         blocked_calls = {"xp": [], "saves": 0, "errors": []}
         blocked_data = {

@@ -132,9 +132,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   reward. Witch's House then superseded the old combat-only proof with a
   12-stage Darkan-backed chain for keys, Magnet, Cheese, witch patrol, Leather
   gloves, experiment forms, Ball pickup, and Harvey hand-in. The live audit now
-  reports 463 stage rows, 174 quests with item/tool/option blockers, 120 quests
-  with combat blockers, and 46
-  produced-inventory rows. This is still broad
+  reports 471 stage rows, 174 quests with item/tool/option blockers, 119 quests
+  with combat blockers, and 47 produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -159,6 +158,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`
   before claiming a quest-stage pass is complete.
@@ -241,11 +242,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Darkan-stat-backed resolver encounter while treating Thrantax as a ritual
   action instead of an invented battle. The generated combat parser now also
   resolves safe historical-name mismatches for Temple of Ikov's Guardians of
-  Armadyl and Observatory Quest's Poisonous Spider while leaving Dwarf Cannon's
-  partial local Goblins row blocked until exact attack/defence evidence is
-  modeled. Current stat coverage is 179/285 combat
-  rows; the
-  remaining 106 statless rows
+  Armadyl and Observatory Quest's Poisonous Spider. When stronger local quest
+  source says a generated combat row is a false positive, replace the live stage
+  chain instead of carrying the false row: Dwarf Cannon proves this by replacing
+  generated level-2 Goblins with a Darkan-backed noncombat chain and `combat:
+  None.` Current stat coverage is 179/284 combat rows; the
+  remaining 105 statless rows
   are classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
   Historical RuneScape Wiki monster pages are now audited by

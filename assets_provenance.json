@@ -5591,6 +5591,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:21Z"
   },
+  "questitems/ammo_mould.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ammo_mould.png",
+    "file_title": "Ammo mould.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Ammo_mould.png?8d9e1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f154f6da9fd7f2f5f266b42b0c8042984c966df3",
+    "size": 740,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:51:54Z"
+  },
   "questitems/anti_dragon_shield.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Anti-dragon_shield.png",
     "file_title": "Anti-dragon shield.png",
@@ -5734,6 +5746,18 @@
     "size": 433,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:41Z"
+  },
+  "questitems/dwarf_remains.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dwarf_remains.png",
+    "file_title": "Dwarf remains.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Dwarf_remains.png?5eb13",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c865c78429a24acd7a8902959421a94c11daf71a",
+    "size": 578,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:47Z"
   },
   "questitems/elvarg_s_head.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Elvarg%27s_head.png",
@@ -5927,6 +5951,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:58Z"
   },
+  "questitems/nulodion_s_notes.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Nulodion%27s_notes.png",
+    "file_title": "Nulodion's notes.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Nulodion%27s_notes.png?b81d4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8c22dba58a5fb3a55e05441af3a9d92bc8f6df17",
+    "size": 508,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:26Z"
+  },
   "questitems/oil_can.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Oil_can.png",
     "file_title": "Oil can.png",
@@ -6011,6 +6047,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:24Z"
   },
+  "questitems/railing.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Railing.png",
+    "file_title": "Railing.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Railing.png?9a45f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "36765483a49e5dd36748ca88139df9d3af4628af",
+    "size": 267,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:54Z"
+  },
   "questitems/rubber_tube.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rubber_tube.png",
     "file_title": "Rubber tube.png",
@@ -6070,6 +6118,18 @@
     "size": 483,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:40Z"
+  },
+  "questitems/toolkit.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Toolkit.png",
+    "file_title": "Toolkit.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Toolkit.png?b77a4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c84fc0d9eb18093a62c39e8341d3677da39ddbec",
+    "size": 607,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:58Z"
   },
   "questitems/weapon_store_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Weapon_store_key.png",

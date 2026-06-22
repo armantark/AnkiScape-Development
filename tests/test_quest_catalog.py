@@ -793,15 +793,26 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(observatory["npc_stats"]["attack"], 28)
         self.assertTrue(observatory["npc_stats_source"].endswith("poison_spider_lvl_31.plugin.kts"))
 
-        dwarf_cannon = next(
-            encounter
-            for requirement in data["dwarf_cannon"]["stage_requirements"]
-            for encounter in requirement["combat_encounters"]
-            if encounter["display_name"] == "Goblins"
-        )
-        self.assertEqual(dwarf_cannon["level"], 2)
-        self.assertEqual(dwarf_cannon["npc_stats"]["hitpoints"], 50)
-        self.assertNotIn("attack", dwarf_cannon["npc_stats"])
+    def test_dwarf_cannon_has_source_backed_noncombat_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["dwarf_cannon"]
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+
+        self.assertEqual(quest["stages"], 11)
+        self.assertEqual(quest["combat"], "None.")
+        self.assertEqual(quest["xp_rewards"], ({"skill_id": "crafting", "amount": 750.0},))
+        self.assertEqual(quest["journal_stages"][11], ("Captain Lawgof gave his recommendation.", "Quest complete!"))
+        self.assertEqual(len(quest["stage_requirements"]), 10)
+        self.assertTrue(all(not row["combat_encounters"] for row in quest["stage_requirements"]))
+        self.assertEqual(by_stage[1]["consumed_inventory"], {"Railing": 6})
+        self.assertEqual(by_stage[1]["required_tools"], {"Hammer": 1})
+        self.assertEqual(by_stage[3]["consumed_inventory"], {"Dwarf remains": 1})
+        self.assertEqual(by_stage[4]["required_routes"], ("Reach the Dwarf Cannon goblin hideout",))
+        self.assertEqual(by_stage[5]["required_actions"], ("Rescue Lollk from the goblin hideout",))
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Toolkit": 1})
+        self.assertEqual(by_stage[7]["required_tools"], {"Toolkit": 1})
+        self.assertEqual(by_stage[9]["consumed_inventory"], {"Ammo mould": 1, "Nulodion's notes": 1})
+        self.assertIn("DwarfCannon.java", by_stage[1]["source"])
 
     def test_source_backed_starter_quest_stage_overrides_replace_generated_guesses(self):
         data = quests_as_dict()

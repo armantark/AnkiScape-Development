@@ -158,24 +158,24 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
-quests have item/tool/option blockers, and 120 quests have combat blockers.
-Current resolver-ready source-backed combat coverage is 179/285 rows after
+quests have item/tool/option blockers, and 119 quests have combat blockers.
+Current resolver-ready source-backed combat coverage is 179/284 rows after
 generator enrichment, style-aware magic/ranged handling, Darkan `beasts.txt`
 fallbacks, no-`combatLevels` fallbacks, focused `quest_data.py` name-shape
 replacements, A Soul's Bane's full-stage combat split, Death to the Dorgeshuun's
 Senior H.A.M. guard quantity replacement, and focused full-stage replacements up
-through Fight Arena, Witch's House, and Merlin's Crystal. Merlin's Crystal now
-keeps quest-used items out of start locks, resolves Sir Mordred as combat, and
-treats Thrantax as ritual dialogue/action. A generator/source-matching follow-up
+through Fight Arena, Witch's House, Merlin's Crystal, and Dwarf Cannon. Merlin's
+Crystal now keeps quest-used items out of start locks, resolves Sir Mordred as
+combat, and treats Thrantax as ritual dialogue/action. A generator/source-matching follow-up
 then made safe token/plural/alias matches for Temple of Ikov's Guardians of
-Armadyl and Observatory Quest's Poisonous Spider, while preserving Dwarf
-Cannon's level-2 Goblins as a partial local-source blocker because the local
-2011Scape goblin definition has ID-dependent attack/defence expressions. The
-remaining 106 statless combat rows stay hard-blocked and are classified by
+Armadyl and Observatory Quest's Poisonous Spider. Dwarf Cannon then replaced the
+generated level-2 Goblins row with Darkan-backed noncombat rail, remains,
+hideout, Lollk, toolkit, cannon repair, Nulodion, and Lawgof gates because the
+local quest handler marks combat as none. The remaining 105 statless combat rows
+stay hard-blocked and are classified by
 `tools/audit_quest_combat_stat_gaps.py` as 51 Darkan hitpoints-only rows, 18
 Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level rows,
-1 local exact but incomplete source row, 10 no-local-source rows, and 19
-parser/variant-level rows. Combat quantities count one enemy per review action:
+10 no-local-source rows, and 19 parser/variant-level rows. Combat quantities count one enemy per review action:
 `tools/build_pre_eoc_quest_catalog.py` extracts written quantities, runtime
 stores partial encounter progress in `quest_combat_encounter_counts`, and the
 legacy completed id is written to `quest_combat_encounters` only when the
@@ -359,7 +359,7 @@ from its Mining 10 start lock. A catalog-wide generator follow-up now extracts
 quest-wide item/tool/option requirements and combat encounters, and a focused
 no-stage closure pass adds source-backed overrides/additions so the audit now
 reports 194/194 quests with at least one machine-readable stage requirement.
-120 quests currently carry combat blockers, and combat fails closed through
+119 quests currently carry combat blockers, and combat fails closed through
 `player_data["quest_combat_config"]["resolver_enabled"] == False` by default.
 The first resolver-enabled write path exists for current-stage stat-backed
 encounters. The Restless Ghost Skeleton Warlock is the current focused
@@ -380,17 +380,18 @@ Cheese, witch patrol, Leather gloves, Backroom key, four experiment forms, Ball,
 and Harvey hand-in. A style-aware resolver pass then made source-backed magic/ranged
 rows with zero melee Strength resolver-ready, adding H.A.M. mage, The Void
 Stares Back Torcher/Defiler, and The Elder Kiln TokHaar-Xil. Combat stat
-coverage is now 179/285 rows after the Darkan beast fallbacks, focused
+coverage is now 179/284 rows after the Darkan beast fallbacks, focused
 name-shape replacements, A Soul's Bane's split combat stages, Death to the
 Dorgeshuun's Senior H.A.M. guard quantity replacement, Demon Slayer's focused
 Delrith row, Witch's House's four form chain, Merlin's Crystal's Sir Mordred,
-and the generated safe-name matches for Temple of Ikov's Guardians of Armadyl
-and Observatory Quest's Poisonous Spider. The remaining 106 statless rows are
+the generated safe-name matches for Temple of Ikov's Guardians of Armadyl and
+Observatory Quest's Poisonous Spider, and Dwarf Cannon's Darkan-backed
+noncombat replacement that removes the generated goblin blocker. The remaining
+105 statless rows are
 classified by
 `tools/audit_quest_combat_stat_gaps.py` as 51 hitpoints-only Darkan rows, 18
 Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level
-rows, 1 local exact but incomplete source row, 10 no-local-source rows, and 19
-parser/variant-level rows; remaining NPC stat enrichment and full combat
+rows, 10 no-local-source rows, and 19 parser/variant-level rows; remaining NPC stat enrichment and full combat
 simulation remain open.
 Generated item alternatives now preserve
 independent option groups, so stage gates such as Goblin Diplomacy dye
@@ -527,9 +528,11 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` records the stage-aware foundation and The Knight's Sword proof case; `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` records the generated catalog-wide blocker layer; `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` records the 194/194 no-stage closure; `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md` records the first resolver-enabled stat-backed combat write path; `memory-bank/source-audits/quest-darkan-combat-stat-enrichment-2026-06-22.md` records the local 2011Scape-first plus Darkan/2012scape exact-match generated combat stat enrichment; `memory-bank/source-audits/quest-identical-combat-source-enrichment-2026-06-22.md` records the identical duplicate-source/focused override stat follow-up; `memory-bank/source-audits/quest-conflict-combat-stat-enrichment-2026-06-22.md` records grouped item-option repair, Monk/Dad conflict resolution, and the classified 137-row combat backlog; `memory-bank/source-audits/quest-witchs-house-combat-forms-2026-06-22.md` records the Witch's House four-form replacement and refined 132-row combat backlog; `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md` records style-aware magic/ranged combat stat readiness; `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md` and `memory-bank/source-audits/quest-darkan-no-combatlevels-beast-stat-fallback-2026-06-22.md` record the Darkan beast-stat fallbacks; `memory-bank/source-audits/quest-focused-combat-row-splits-2026-06-22.md` records the 118-row backlog after focused name-shape replacements; `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md` records the 109-row backlog after A Soul's Bane and Death to the Dorgeshuun focused replacements; `memory-bank/source-audits/quest-historical-wiki-combat-stat-audit-2026-06-22.md` records the historical-wiki source-tier pass that found 77 metadata-only pages, 32 pages without monster metadata, and 0 remaining rows with resolver-ready hidden stats; `memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md` records the Priest in Peril full-stage replacement, consumed essence alternatives, corrected nine-stage completion, and remaining Temple guardian dog stat gap; `memory-bank/source-audits/quest-2011scape-starter-stage-batch-2026-06-22.md` records the produced-inventory contract and the Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer source-backed replacement batch; `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md` records the Demon Slayer focused replacement; `memory-bank/source-audits/quest-early-darkan-stage-batch-2026-06-22.md` records the Goblin Diplomacy, Ernest the Chicken, and Black Knights' Fortress focused replacement batch. Current quest-stage debt is still 319 generated rows plus the explicit combat/stat and branch/route gaps; only reopen this area for remaining minute-detail per-stage extraction, route/location gates, remaining combat stat enrichment, full combat simulation, quest-item transformations, puzzle/follower/branch state, new quest-unlocked skill targets, or generator/source corrections.
 
 Current quest-work addendum: later 2026-06-22 focused audits for Dragon Slayer,
-Shield of Arrav, Fight Arena, and `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
+Shield of Arrav, Fight Arena, `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`,
+`memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`, and
+`memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`
 supersede the older generated-row debt count above. The live audit now reports
-458 stage rows, 42 produced-inventory rows, 285 combat encounters, and 177
+471 stage rows, 47 produced-inventory rows, 284 combat encounters, and 179
 resolver-ready combat encounters; full all-quest minute-detail parity remains
 open until remaining generated rows, route/location state, quest-item
 transformations, optional branches, combat stat gaps, and real combat simulation

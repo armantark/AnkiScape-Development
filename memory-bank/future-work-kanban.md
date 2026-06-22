@@ -33,7 +33,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   mechanics/id parity. Tracking trails, pitfall trapping, rabbit snaring,
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   Regicide-start partial-route modeling are deferred system slices.
-- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and the first stage-aware quest blocker proof slice added on 2026-06-22 for The Knight's Sword. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or The Knight's Sword stage-gate foundation; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` for future route/location, stage-aware, or combat-aware quest work.
+- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers starting on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, and Dwarf Cannon now proves source-backed false-positive combat removal with a noncombat stage chain. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md` plus `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
@@ -264,12 +264,21 @@ matching token-safe, added the safe `Poisonous Spider` -> `Poison Spider` alias,
 singularized plural source names only as whole tokens, and parsed level-prefixed
 rows such as `Lvl 2 Goblins`. Temple of Ikov's Guardians of Armadyl and
 Observatory Quest's Poisonous Spider are now resolver-ready from local source
-data. Dwarf Cannon's level-2 Goblins now carry the right display name and partial
-local 2011Scape source metadata, but remain blocked because the source uses
-ID-dependent attack/defence expressions that need a focused quest-spawn row.
+data. At that point, Dwarf Cannon's level-2 Goblins row carried the right
+display name and partial local 2011Scape source metadata, but remained blocked
+because the source uses ID-dependent attack/defence expressions.
 Post-slice audit reports 463 stage rows, 46 produced-inventory rows, 285 combat
 encounters, 179 resolver-ready combat encounters, 174 quests with item/tool
 blockers, 120 quests with combat blockers, and 106 statless combat rows.
+Dwarf Cannon then added ten source-backed noncombat gate rows plus an 11th
+completion state: rail repairs, Lawgof report, Gilob's remains, goblin hideout
+route, Lollk rescue, toolkit production, cannon repair, Nulodion handoff, and
+Lawgof's final recommendation. This removes the false live Goblins combat row,
+sets Dwarf Cannon's combat summary to `None.`, and registers the relevant quest
+item icons. Post-slice audit reports 471 stage rows, 47 produced-inventory rows,
+284 combat encounters, 179 resolver-ready combat encounters, 174 quests with
+item/tool blockers, 119 quests with combat blockers, and 105 statless combat
+rows.
 Full minute-detail parity, exact generated per-stage extraction, quest-item
 transformations, route flags, partner/branch state, puzzle state, broad combat
 stat enrichment, and full combat simulation remain open;
@@ -376,20 +385,20 @@ quest-combat resolver contract, the combat-quantity count slice, the
 historical-wiki remaining combat stat audit, the Priest in Peril full-stage
 replacement, the 2011Scape starter batch, the 2011Scape intermediate batch, the
 Demon Slayer focused stage replacement, the early Darkan stage batch, Dragon
-Slayer, Shield of Arrav, Fight Arena, Witch's House, Merlin's Crystal, or the
-generated combat name-matching parser pass. `quest_catalog_generated.py`
+Slayer, Shield of Arrav, Fight Arena, Witch's House, Merlin's Crystal, the
+generated combat name-matching parser pass, or the Dwarf Cannon focused
+noncombat replacement. `quest_catalog_generated.py`
 already contains 194 pre-EOC quest rows available before the 2012-11-20 EOC
 cutoff, with Recipe for Disaster split into separate subquests, generated by
 `tools/build_pre_eoc_quest_catalog.py`. Runtime quest data now reports 194/194
-quests with at least one machine-readable stage requirement, 463 stage rows, 46
+quests with at least one machine-readable stage requirement, 471 stage rows, 47
 produced-inventory transitions, quest-start inventory grants, required-action
 blockers, route blockers, route-variant branch rows, grouped item-option
 blockers, globally locked combat blockers, and a resolver-enabled path that
 resolves one sourced enemy per Quest review via `quest_combat_encounter_counts`
 before writing legacy completed encounter ids. Current combat stat coverage is
-179/285 resolver-ready rows; 106 statless rows remain blocked and classified by
-`tools/audit_quest_combat_stat_gaps.py`, including Dwarf Cannon's partial
-level-2 Goblins row. `tools/audit_quest_historical_wiki_combat_stats.py` checked
+179/284 resolver-ready rows; 105 statless rows remain blocked and classified by
+`tools/audit_quest_combat_stat_gaps.py`. `tools/audit_quest_historical_wiki_combat_stats.py` checked
 remaining rows against pinned historical RuneScape Wiki monster pages and found
 metadata-only pages or no monster metadata, so LP/max-hit/style prose must not
 be merged as combat-ready stats. `tools/audit_quest_stage_gate_coverage.py`

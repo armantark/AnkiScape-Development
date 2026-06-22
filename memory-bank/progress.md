@@ -41,12 +41,12 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 463 stage rows, 46 produced-inventory
-  rows, 174 quests with item/tool/option blockers, and 120 quests with combat
+  with at least one stage requirement, 471 stage rows, 47 produced-inventory
+  rows, 174 quests with item/tool/option blockers, and 119 quests with combat
   blockers. Combat blockers are hard locked by default through
   `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 179/285 source-backed NPC stat rows after local
+  combat now has 179/284 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -89,15 +89,18 @@
   8-stage Darkan/local-2011Scape chain for the round-table investigation, crate
   route, Sir Mordred, Morgan/wax, black candle, bread-to-Excalibur, ritual,
   crystal smash, and Arthur report; Thrantax is an action/dialogue gate rather
-  than invented combat. A generated-catalog parser follow-up now uses token-safe
+  than invented combat. Dwarf Cannon now has an 11-state Darkan-backed
+  noncombat chain for rail repairs, Gilob's remains, the goblin hideout route,
+  Lollk rescue, toolkit/cannon repair, Nulodion's parts, and Captain Lawgof's
+  final recommendation. A generated-catalog parser follow-up now uses token-safe
   NPC name matching instead of raw substring matching, adds the safe
   `Poisonous Spider` -> `Poison Spider` alias, handles plural source text such
   as `Guardians of Armadyl`, and parses level-prefixed rows such as `Lvl 2
   Goblins`. Temple of Ikov's Guardians of Armadyl and Observatory Quest's
-  Poisonous Spider are now resolver-ready from local source data; Dwarf
-  Cannon's level-2 Goblins are still blocked because the local goblin source
-  has ID-dependent attack/defence values that need a focused quest-spawn row.
-  106 combat rows remain statless and explicitly blocked.
+  Poisonous Spider are now resolver-ready from local source data; the generated
+  Dwarf Cannon Goblins row is no longer live because stronger Darkan quest
+  evidence says combat is none. 105 combat rows remain statless and explicitly
+  blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -719,6 +722,25 @@ Required full-suite verification passed: `python3 run_tests.py` passed with 485
 tests (114 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 485 tests.
+
+Dwarf Cannon focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces the generated level-2 Goblins combat blocker with
+a Darkan-backed noncombat stage chain because the local quest handler says
+combat is none. The quest has ten source-backed gates plus an 11th completion
+state: six railings with a hammer, Lawgof repair report, Gilob's remains,
+goblin hideout route, Lollk rescue, toolkit production, cannon repair, repaired
+cannon report, Nulodion's ammo mould and notes, and Lawgof's recommendation.
+The generated quest reward surface is preserved: one quest point and 750
+Crafting XP fire only on valid completion. Assets for `Railing`, `Dwarf
+remains`, `Toolkit`, `Nulodion's notes`, and `Ammo mould` are registered with
+provenance. Post-slice audit reports 471 stage rows, 47 produced-inventory rows,
+284 combat encounters, 179 resolver-ready combat encounters, 174 quests with
+item/tool blockers, 119 quests with combat blockers, and 105 statless combat
+rows. Full all-quest minute-detail parity remains open. Source audit:
+`memory-bank/source-audits/quest-dwarf-cannon-stage-detail-2026-06-22.md`.
+Required verification passed: `python3 run_tests.py` passed with 498 tests (116
+skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest
+discover tests` passed with 498 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
