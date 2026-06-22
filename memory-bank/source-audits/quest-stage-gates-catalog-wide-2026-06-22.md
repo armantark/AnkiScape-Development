@@ -18,6 +18,12 @@ Coverage from `python3 tools/audit_quest_stage_gate_coverage.py`:
 - 274 combat encounter rows.
 - 15 combat encounter rows matched local 2011Scape NPC combat stats.
 
+Follow-up note: `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md`
+closed the explicit no-stage list later on 2026-06-22. The current audit tool
+state after that follow-up is 194/194 quests with at least one
+machine-readable stage requirement, 382 runtime stage rows, 119 quests with
+combat blockers, and 0 quests without stage requirements.
+
 ## Source Policy Used
 
 - Primary catalog fields are pinned RuneScape Wiki revisions before the
@@ -69,16 +75,10 @@ extraction, not a completed hand audit of every stage action.
 
 Known gaps:
 
-- 15 runtime quest rows currently have no stage requirements:
-  `the_restless_ghost`, `lost_city`, `jungle_potion`, `rune_mysteries`,
-  `tai_bwo_wannai_trio`, `mournings_end_part_ii`, `swan_song`,
-  `lunar_diplomacy`, `kenniths_concerns`, `legacy_of_seergaze`,
-  `deadliest_catch`, `wolf_whistle`, `song_from_the_depths`,
-  `carnillean_rising`, and `some_like_it_cold`.
-- Several of those are hand-audited overrides in `quest_data.py`; generated
-  stage rows should be merged or replaced only after checking the local
-  2011Scape/source hierarchy, because overrides may intentionally be stricter
-  than wiki prose.
+- The 15-row no-stage list from this pass was closed by
+  `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md`.
+  Do not reopen those rows merely because this earlier note lists the prior
+  state.
 - Exact per-stage placement still needs manual/source-backed audit for many
   quests. The generator infers item stages from journal text and otherwise uses
   a conservative stage row; it does not prove minute-by-minute quest scripting.

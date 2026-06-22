@@ -64,16 +64,23 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - The broad quest catalog is generated, not hand-maintained. `tools/build_pre_eoc_quest_catalog.py` produces a 194-row pre-EOC catalog by real release order, with Recipe for Disaster split into separate subquests. Each row should carry source oldids, strict prerequisites, point/XP/item rewards, lamp rewards, and source-backed journal stages. Hand-audited overrides belong in `quest_data.py` when local 2011-era evidence is stricter than current wiki data.
 - Quest starts are strict. A quest with incomplete prerequisite quests or unimplemented required skills must be impossible to start. Completion XP for implemented skills is granted immediately; XP for unimplemented skills is stored in `pending_skill_exp_rewards` and applied by migration when the skill becomes implemented.
 - Quest-list availability should flow through `quest_availability_state_pure()`, not ad hoc UI checks. Its states are `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. `locked` means the quest cannot start; `blocked_at_stage` means a started quest is waiting on current-stage inventory, tools, actions, routes, or combat. Keep that separation: stage requirements are not start locks.
-- Stage-aware quest requirements live in `QuestDefinition.stage_requirements` override data, serialized by `quests_as_dict()` and enforced by pure helpers in `logic_pure.py`. Use `quest_current_stage_blockers_pure()` / `quest_current_stage_blocker_reasons_pure()` for display, `can_progress_quest_pure()` for review readiness, and `apply_quest_progress_pure()` for stage advancement and stage-local consumed items. The first proof case is The Knight's Sword: Mining 10 remains a start requirement, Redberry pie is consumed at Thurgo's stage, Blurite ore plus two Iron bars are consumed at the later Thurgo materials stage, and the 12,725 Smithing XP reward fires only on valid completion. The Quests tab may show "Used during quest" item requirements before start, but those items must not block starting unless the source says they are start requirements.
+- Stage-aware quest requirements live in `QuestDefinition.stage_requirements` data, serialized by `quests_as_dict()` and enforced by pure helpers in `logic_pure.py`. Use `quest_current_stage_blockers_pure()` / `quest_current_stage_blocker_reasons_pure()` for display, `can_progress_quest_pure()` for review readiness, and `apply_quest_progress_pure()` for stage advancement and stage-local consumed items. The first proof case is The Knight's Sword: Mining 10 remains a start requirement, Redberry pie is consumed at Thurgo's stage, Blurite ore plus two Iron bars are consumed at the later Thurgo materials stage, and the 12,725 Smithing XP reward fires only on valid completion. The Quests tab may show "Used during quest" item requirements before start, but those items must not block starting unless the source says they are start requirements.
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
   `required_tools`, and `combat_encounters`; `quest_data.py` deserializes them
-  into the same `QuestStageRequirement` contract used by hand overrides. Treat
-  this as broad machine-readable coverage, not proof of minute-detail stage
-  parity. Use `tools/audit_quest_stage_gate_coverage.py` and
-  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`
-  before claiming a quest-stage pass is complete.
+  into the same `QuestStageRequirement` contract used by hand overrides.
+  `quest_data.py` then combines generated rows, hand-authored stage rows,
+  focused replacement rows, and focused addition rows; use replacements when
+  generated data conflicts with stronger 2011Scape/Darkan evidence, and use
+  additions when a source-backed quest action exists but the generated item or
+  combat parser cannot infer it. The current audit reports 194/194 quests with
+  at least one stage requirement, but this is still broad machine-readable
+  coverage, not proof of minute-detail stage parity. Use
+  `tools/audit_quest_stage_gate_coverage.py`,
+  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` before
+  claiming a quest-stage pass is complete.
 - Quest combat encounters fail closed through one global flat save config:
   `player_data["quest_combat_config"]["resolver_enabled"]`. It defaults to
   `False`, so incomplete encounters produce `combat_locked` blockers instead of

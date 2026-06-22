@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest No-Stage Closure Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #121722 0%, var(--bg) 52%, #07090d 100%);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+
+    .badge {
+      width: fit-content;
+      border: 1px solid rgba(251, 191, 36, 0.42);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: rgba(251, 191, 36, 0.12);
+      color: #ffd873;
+      font: 800 0.72rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 980px;
+      margin: 12px 0;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 910px;
+      margin: 0 0 22px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric, .card, .quest {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.95);
+    }
+
+    .metric {
+      padding: 16px;
+      min-height: 116px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 1.9rem;
+      line-height: 1;
+    }
+
+    .metric span {
+      color: var(--text-dim);
+      font-size: 0.83rem;
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 16px;
+    }
+
+    .card {
+      padding: 18px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font: 800 0.68rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .label:before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: currentColor;
+    }
+
+    .critical { color: var(--red); }
+    .major { color: var(--amber); }
+    .ready { color: var(--green); }
+    .handoff { color: var(--purple); }
+
+    h2 {
+      margin: 9px 0 10px;
+      font-size: 1.08rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .quest-list {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .quest {
+      padding: 10px;
+      min-height: 72px;
+      background: var(--surface-2);
+    }
+
+    .quest strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.78rem;
+      margin-bottom: 5px;
+    }
+
+    .quest span {
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      line-height: 1.32;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: start;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151d;
+      padding: 12px;
+    }
+
+    .num {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent-glow);
+      color: #aac4ff;
+      font: 800 0.78rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 0.84rem;
+      margin-bottom: 4px;
+    }
+
+    .step span {
+      color: var(--text-dim);
+      font-size: 0.77rem;
+      line-height: 1.38;
+    }
+
+    code {
+      font-family: JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      color: #bdd0ff;
+      background: rgba(79, 140, 255, 0.09);
+      border: 1px solid rgba(79, 140, 255, 0.18);
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-size: 0.78em;
+    }
+
+    @media (max-width: 900px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid, .quest-list { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+    }
+
+    @media (max-width: 520px) {
+      main { width: min(100vw - 22px, 1180px); padding-top: 22px; }
+      .metrics { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">PRE-WORK PLAN</div>
+    <h1>Close the current no-stage quest rows without pretending parity is finished.</h1>
+    <p class="subtitle">
+      The next slice targets the 15 quests that still have no machine-readable stage requirements after the catalog-wide pass. Backend work leads; frontend changes only happen if the existing blocker-state surface cannot represent the new data.
+    </p>
+
+    <section class="metrics" aria-label="Starting audit state">
+      <div class="metric"><strong>194</strong><span>Total pre-EOC quest rows in AnkiScape.</span></div>
+      <div class="metric"><strong>179</strong><span>Rows currently carrying stage requirements.</span></div>
+      <div class="metric"><strong>15</strong><span>No-stage rows to audit in this slice.</span></div>
+      <div class="metric"><strong>0</strong><span>Allowed new start-lock flattening. These must remain stage blockers or explicit audit gaps.</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card wide">
+        <div class="label critical">Target Gap Set</div>
+        <h2>Current no-stage rows</h2>
+        <div class="quest-list">
+          <div class="quest"><strong>The Restless Ghost</strong><span>Likely item/action path: skull retrieval and return.</span></div>
+          <div class="quest"><strong>Lost City</strong><span>Needs source reconciliation around Entrana, dramen branch, and tree-spirit combat.</span></div>
+          <div class="quest"><strong>Jungle Potion</strong><span>Herb gathering/action requirements need pre-EOC placement.</span></div>
+          <div class="quest"><strong>Rune Mysteries</strong><span>Mostly route/message delivery; avoid false start locks.</span></div>
+          <div class="quest"><strong>Tai Bwo Wannai Trio</strong><span>Complex cooking/fishing substeps need staged blockers.</span></div>
+          <div class="quest"><strong>Mourning's End Part II</strong><span>Large puzzle/action requirements; source-backed partial blockers are acceptable.</span></div>
+          <div class="quest"><strong>Swan Song</strong><span>Combat and material checks must fail closed.</span></div>
+          <div class="quest"><strong>Lunar Diplomacy</strong><span>Route, outfit, ritual, and combat gates need careful staging.</span></div>
+          <div class="quest"><strong>Kennith's Concerns</strong><span>Object/action stage gates likely dominate.</span></div>
+          <div class="quest"><strong>Legacy of Seergaze</strong><span>Combat-heavy stages should use global locked encounters.</span></div>
+          <div class="quest"><strong>Deadliest Catch</strong><span>Tools and boss encounter need machine-readable gates.</span></div>
+          <div class="quest"><strong>Wolf Whistle</strong><span>Item handoff and route-state stage checks.</span></div>
+          <div class="quest"><strong>Song from the Depths</strong><span>Combat/puzzle gates need pre-EOC source rows.</span></div>
+          <div class="quest"><strong>Carnillean Rising</strong><span>Item and staged action requirements.</span></div>
+          <div class="quest"><strong>Some Like It Cold</strong><span>Penguin route/action gates; avoid overclaiming exact scripting.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label ready">Backend First</div>
+        <h2>Implementation path</h2>
+        <div class="steps">
+          <div class="step"><div class="num">1</div><div><strong>Compare overrides to generated source fields</strong><span>Find why generated requirements disappeared for override quests and merge only source-backed rows.</span></div></div>
+          <div class="step"><div class="num">2</div><div><strong>Patch focused override data</strong><span>Use `quest_data.py` override layers or the generator, never hand-edit `quest_catalog_generated.py`.</span></div></div>
+          <div class="step"><div class="num">3</div><div><strong>Keep combat globally locked</strong><span>Combat blockers remain unresolved unless `quest_combat_config.resolver_enabled` and completed encounter ids exist.</span></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label handoff">Frontend Boundary</div>
+        <h2>Expected UI impact</h2>
+        <p>
+          The Quests tab already renders `blocked_at_stage` and compact blocker reasons. This slice should not need a new UI model unless a new blocker kind cannot be shown with existing player-facing wording.
+        </p>
+        <div class="steps">
+          <div class="step"><div class="num">A</div><div><strong>Preserve filters</strong><span>Started quests with blockers stay visible when only unable-to-start quests are hidden.</span></div></div>
+          <div class="step"><div class="num">B</div><div><strong>Test one new row</strong><span>Add or update Qt/offscreen coverage only where the UI receives newly modeled blocker data.</span></div></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

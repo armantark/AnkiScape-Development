@@ -1255,6 +1255,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Delrith level 27", action.toolTip())
 
+    def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "the_restless_ghost"
+        pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 1, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Action required: Receive the ghostspeak amulet from Father Urhney"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_the_restless_ghost")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Receive the ghostspeak amulet", action.toolTip())
+
     def test_quests_tab_lists_stage_items_before_knights_sword_start(self) -> None:
         pd = _make_player_data()
         pd["mining_level"] = 10

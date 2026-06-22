@@ -109,7 +109,7 @@ class TestQuestCatalog(unittest.TestCase):
             )
         ]
 
-        self.assertGreaterEqual(len(quests_with_stage_requirements), 175)
+        self.assertEqual(len(quests_with_stage_requirements), 194)
         self.assertGreaterEqual(len(quests_with_combat), 110)
         self.assertGreaterEqual(len(quests_with_item_requirements), 160)
 
@@ -136,6 +136,29 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("Elvarg", {encounter["display_name"] for encounter in combat_rows})
         lesser_demon = next(encounter for encounter in combat_rows if encounter["display_name"] == "Lesser demon")
         self.assertEqual(lesser_demon["npc_stats"]["hitpoints"], 790)
+
+        restless = data["the_restless_ghost"]
+        restless_combat = [
+            encounter
+            for requirement in restless["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        self.assertEqual(restless_combat[0]["display_name"], "Skeleton warlock")
+        self.assertEqual(restless_combat[0]["level"], 11)
+
+        lost_city = data["lost_city"]
+        lost_city_combat = [
+            encounter
+            for requirement in lost_city["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        self.assertEqual(lost_city_combat[0]["display_name"], "Tree spirit")
+        self.assertEqual(lost_city_combat[0]["level"], 63)
+        self.assertNotIn(101, {encounter["level"] for encounter in lost_city_combat})
+
+        self.assertTrue(data["jungle_potion"]["stage_requirements"])
+        self.assertTrue(data["wolf_whistle"]["stage_requirements"])
+        self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
 
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()

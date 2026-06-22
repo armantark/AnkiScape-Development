@@ -18,6 +18,7 @@ except ImportError:  # pragma: no cover
 
 
 RUNE_MYSTERIES_ID = "rune_mysteries"
+THE_RESTLESS_GHOST_ID = "the_restless_ghost"
 LOST_CITY_ID = "lost_city"
 LUNAR_DIPLOMACY_ID = "lunar_diplomacy"
 MOURNINGS_END_PART_II_ID = "mournings_end_part_ii"
@@ -33,11 +34,21 @@ DARKNESS_OF_HALLOWVALE_ID = "the_darkness_of_hallowvale"
 ONE_SMALL_FAVOUR_ID = "one_small_favour"
 GARDEN_OF_TRANQUILLITY_ID = "garden_of_tranquillity"
 JUNGLE_POTION_ID = "jungle_potion"
+KENNITHS_CONCERNS_ID = "kenniths_concerns"
+DEADLIEST_CATCH_ID = "deadliest_catch"
+WOLF_WHISTLE_ID = "wolf_whistle"
+SONG_FROM_THE_DEPTHS_ID = "song_from_the_depths"
+CARNILLEAN_RISING_ID = "carnillean_rising"
+SOME_LIKE_IT_COLD_ID = "some_like_it_cold"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
 THE_KNIGHTS_SWORD_ID = "the_knights_sword"
 
+RESTLESS_GHOST_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/TheRestlessGhost.kt"
+)
 LOST_CITY_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/LostCity.kt"
@@ -48,6 +59,22 @@ MOURNINGS_END_PART_II_SOURCE = "https://www.2011.rs/kb/mourning_s_ends_part_ii_t
 LEGACY_OF_SEERGAZE_SOURCE = "https://2011.rs/kb/legacy_of_seergaze_members"
 SWAN_SONG_SOURCE = "https://www.2011.rs/kb/swan_song_members"
 TAI_BWO_WANNAI_TRIO_SOURCE = "https://www.2011.rs/kb/tai_bwo_wannai_trio_members"
+DARKAN_QUEST_SOURCE_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
+    "com/rs/game/content/quests"
+)
+DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
+DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
+DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
+RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
+JUNGLE_POTION_WIKI_SOURCE = "https://runescape.wiki/w/Jungle_Potion?oldid=6555418"
+KENNITHS_CONCERNS_WIKI_SOURCE = "https://runescape.wiki/w/Kennith%27s_Concerns?oldid=6549837"
+DEADLIEST_CATCH_WIKI_SOURCE = "https://runescape.wiki/w/Deadliest_Catch?oldid=6295312"
+WOLF_WHISTLE_WIKI_SOURCE = "https://runescape.wiki/w/Wolf_Whistle?oldid=6327531"
+SONG_FROM_THE_DEPTHS_WIKI_SOURCE = "https://runescape.wiki/w/Song_from_the_Depths?oldid=6467675"
+CARNILLEAN_RISING_WIKI_SOURCE = "https://runescape.wiki/w/Carnillean_Rising?oldid=6534490"
+SOME_LIKE_IT_COLD_WIKI_SOURCE = "https://runescape.wiki/w/Some_Like_It_Cold?oldid=6545099"
+SWAN_SONG_WIKI_SOURCE = "https://runescape.wiki/w/Swan_Song?oldid=6548264"
 RUNE_MYSTERIES_RELEASE_SOURCE = "https://runescape.salmoneus.net/runescape-2007/quests/rune-mysteries.html"
 RUNECRAFTING_BASICS_SOURCE = "https://www.2011.rs/kb/runecrafting_the_basics"
 RUNECRAFTING_ALTARS_SOURCE = "https://www.2011.rs/kb/runecrafting_locating_the_altars"
@@ -673,6 +700,418 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
 QUEST_OVERRIDES_BY_ID: Dict[str, QuestDefinition] = {quest.id: quest for quest in QUEST_OVERRIDES}
 
 
+def _stage_req(
+    stage: int,
+    description: str,
+    source: str,
+    *,
+    required_inventory: Tuple[Tuple[str, int], ...] = (),
+    required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
+    consumed_inventory: Tuple[Tuple[str, int], ...] = (),
+    required_tools: Tuple[Tuple[str, int], ...] = (),
+    required_actions: Tuple[str, ...] = (),
+    required_routes: Tuple[str, ...] = (),
+    combat_encounters: Tuple[QuestCombatEncounter, ...] = (),
+) -> QuestStageRequirement:
+    return QuestStageRequirement(
+        stage=stage,
+        description=description,
+        required_inventory=required_inventory,
+        required_inventory_options=required_inventory_options,
+        consumed_inventory=consumed_inventory,
+        required_tools=required_tools,
+        required_actions=required_actions,
+        required_routes=required_routes,
+        combat_encounters=combat_encounters,
+        source=source,
+    )
+
+
+def _combat(
+    quest_id: str,
+    encounter_id: str,
+    display_name: str,
+    level: int,
+    source: str,
+    source_text: str,
+    *,
+    quantity: int = 1,
+) -> QuestCombatEncounter:
+    return QuestCombatEncounter(
+        encounter_id=f"{quest_id}_{encounter_id}",
+        display_name=display_name,
+        level=level,
+        quantity=quantity,
+        source=source,
+        source_text=source_text,
+    )
+
+
+QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    LOST_CITY_ID: (
+        _stage_req(
+            1,
+            "Find Shamus in the Lumbridge Swamp tree.",
+            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}; {LOST_CITY_KB_SOURCE}",
+            required_actions=("Find Shamus in the Lumbridge Swamp tree",),
+        ),
+        _stage_req(
+            3,
+            "Reach Entrana, defeat the tree spirit, and prepare to cut the Dramen tree.",
+            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}; {LOST_CITY_KB_SOURCE}",
+            required_tools=(("Hatchet", 1),),
+            required_routes=("Reach Entrana without combat gear",),
+            combat_encounters=(
+                _combat(
+                    LOST_CITY_ID,
+                    "tree_spirit",
+                    "Tree spirit",
+                    63,
+                    f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}",
+                    "2011Scape and Darkan Lost City quest text describe the required tree-spirit fight as level 63.",
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Cut a dramen branch from the Dramen tree.",
+            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}",
+            required_tools=(("Hatchet", 1),),
+            required_actions=("Cut a dramen branch",),
+        ),
+        _stage_req(
+            5,
+            "Craft the dramen staff and enter Zanaris through the Lumbridge Swamp shed.",
+            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}",
+            required_tools=(("Knife", 1),),
+            required_actions=("Craft a dramen staff", "Enter Zanaris through the Lumbridge Swamp shed"),
+        ),
+    ),
+    TAI_BWO_WANNAI_TRIO_ID: (
+        _stage_req(
+            2,
+            "Help Tiadeche with the karambwan catching setup.",
+            TAI_BWO_WANNAI_TRIO_SOURCE,
+            required_inventory=(("Raw karambwan", 2),),
+            required_tools=(("Small fishing net", 1),),
+            required_actions=("Catch karambwanji for Tiadeche",),
+        ),
+        _stage_req(
+            3,
+            "Prepare Tamayu to fight the Shaikahan.",
+            TAI_BWO_WANNAI_TRIO_SOURCE,
+            required_inventory=(("Agility potion (4)", 1), ("Steel spear", 1)),
+            required_actions=("Repair and poison Tamayu's spear",),
+            combat_encounters=(
+                _combat(
+                    TAI_BWO_WANNAI_TRIO_ID,
+                    "monkey",
+                    "Monkey",
+                    3,
+                    "https://runescape.wiki/w/Tai_Bwo_Wannai_Trio?oldid=6529797",
+                    "Quest details require killing a level 3 monkey.",
+                ),
+                _combat(
+                    TAI_BWO_WANNAI_TRIO_ID,
+                    "jogre",
+                    "Jogre",
+                    53,
+                    "https://runescape.wiki/w/Tai_Bwo_Wannai_Trio?oldid=6529797",
+                    "Jogre bones can be obtained during the quest by fighting a level 53 jogre.",
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Prepare Tinsay's unusual food requests.",
+            TAI_BWO_WANNAI_TRIO_SOURCE,
+            required_inventory=(("Karamjan rum", 1), ("Seaweed", 1), ("Banana", 1), ("Jogre bones", 1)),
+            required_tools=(("Knife", 1), ("Tinderbox", 1), ("Pestle and mortar", 1)),
+            required_actions=("Prepare the sliced banana in rum", "Burn and grind the jogre bones"),
+        ),
+    ),
+}
+
+
+QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    THE_RESTLESS_GHOST_ID: (
+        _stage_req(
+            1,
+            "Receive the ghostspeak amulet from Father Urhney.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
+            required_actions=("Receive the ghostspeak amulet from Father Urhney",),
+        ),
+        _stage_req(
+            2,
+            "Speak to the restless ghost while wearing the ghostspeak amulet.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
+            required_inventory=(("Ghostspeak amulet", 1),),
+            required_actions=("Speak to the restless ghost",),
+        ),
+        _stage_req(
+            3,
+            "Search the Lumbridge Swamp mining spot for the muddy skull.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
+            required_actions=("Search the mining spot for the ghost's skull",),
+            combat_encounters=(
+                _combat(
+                    THE_RESTLESS_GHOST_ID,
+                    "skeleton_warlock",
+                    "Skeleton warlock",
+                    11,
+                    f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
+                    "The skull search spawns a level 11 skeleton warlock in the 2011Scape quest data.",
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Return the muddy skull to the ghost's coffin.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
+            consumed_inventory=(("Muddy skull", 1),),
+        ),
+    ),
+    JUNGLE_POTION_ID: (
+        _stage_req(
+            1,
+            "Bring Trufitus clean snake weed.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean snake weed", 1),),
+        ),
+        _stage_req(
+            2,
+            "Bring Trufitus clean ardrigal.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean ardrigal", 1),),
+        ),
+        _stage_req(
+            3,
+            "Bring Trufitus clean sito foil.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean sito foil", 1),),
+        ),
+        _stage_req(
+            4,
+            "Bring Trufitus clean volencia moss and clean rogue's purse.",
+            f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
+            consumed_inventory=(("Clean volencia moss", 1), ("Clean rogue's purse", 1)),
+        ),
+    ),
+    RUNE_MYSTERIES_ID: (
+        _stage_req(
+            1,
+            "Deliver the strange talisman to Sedridor.",
+            RUNEMYSTERIES_SOURCE_PATH,
+            required_actions=("Deliver the strange talisman to Sedridor",),
+        ),
+        _stage_req(
+            3,
+            "Deliver Sedridor's package to Aubury.",
+            RUNEMYSTERIES_SOURCE_PATH,
+            required_actions=("Deliver Sedridor's package to Aubury",),
+        ),
+        _stage_req(
+            5,
+            "Return Aubury's research notes to Sedridor.",
+            RUNEMYSTERIES_SOURCE_PATH,
+            required_actions=("Return Aubury's research notes to Sedridor",),
+        ),
+    ),
+    SWAN_SONG_ID: (
+        _stage_req(
+            5,
+            "Defeat the Sea Troll Queen.",
+            f"{SWAN_SONG_SOURCE}; {SWAN_SONG_WIKI_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    SWAN_SONG_ID,
+                    "sea_troll_queen",
+                    "Sea Troll Queen",
+                    170,
+                    SWAN_SONG_WIKI_SOURCE,
+                    "Quest details require the level 170 Sea Troll Queen after the sea troll waves.",
+                ),
+            ),
+        ),
+    ),
+    KENNITHS_CONCERNS_ID: (
+        _stage_req(
+            1,
+            "Investigate the Witchaven tunnels and speak to a villager.",
+            KENNITHS_CONCERNS_WIKI_SOURCE,
+            required_tools=(("Pickaxe", 1),),
+            required_routes=("Reach the Witchaven shrine tunnels",),
+            required_actions=("Talk to a villager past the rocks",),
+        ),
+        _stage_req(
+            2,
+            "Warn Kennith and speak to Kent.",
+            KENNITHS_CONCERNS_WIKI_SOURCE,
+            required_actions=("Warn Kennith", "Speak to Kent near the Legends' Guild"),
+        ),
+        _stage_req(
+            3,
+            "Trap the possessed villagers in the church.",
+            KENNITHS_CONCERNS_WIKI_SOURCE,
+            required_actions=("Trap the possessed villagers in the church",),
+        ),
+        _stage_req(
+            4,
+            "Mine rubium and fill the steam vents.",
+            KENNITHS_CONCERNS_WIKI_SOURCE,
+            required_tools=(("Pickaxe", 1),),
+            required_actions=("Mine rubium and fill the steam vents",),
+        ),
+        _stage_req(
+            5,
+            "Find the toy train and rescue Kennith.",
+            KENNITHS_CONCERNS_WIKI_SOURCE,
+            required_actions=("Find Kennith's toy train", "Use the toy train on Kennith"),
+        ),
+    ),
+    DEADLIEST_CATCH_ID: (
+        _stage_req(
+            1,
+            "Pickpocket the Master fisher for the sea chart.",
+            DEADLIEST_CATCH_WIKI_SOURCE,
+            required_actions=("Pickpocket the Master fisher for the sea chart",),
+        ),
+        _stage_req(
+            2,
+            "Recruit Linza and prepare the giant harpoon.",
+            DEADLIEST_CATCH_WIKI_SOURCE,
+            required_actions=("Recruit Linza", "Prepare the giant harpoon"),
+        ),
+        _stage_req(
+            3,
+            "Track the Thalassus and rescue Jones.",
+            DEADLIEST_CATCH_WIKI_SOURCE,
+            required_actions=("Track the Thalassus", "Rescue Jones"),
+        ),
+    ),
+    WOLF_WHISTLE_ID: (
+        _stage_req(
+            1,
+            "Find Scalectrix at the Taverley well.",
+            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
+            required_actions=("Find Scalectrix at the Taverley well",),
+        ),
+        _stage_req(
+            2,
+            "Collect the wolpertinger pouch materials.",
+            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
+            required_actions=("Collect the ancient wolf bone amulet", "Collect the embroidered pouch", "Collect the white hare meat"),
+        ),
+        _stage_req(
+            3,
+            "Infuse the giant wolpertinger pouch and save Bowloftrix.",
+            f"{DARKAN_WOLF_WHISTLE_SOURCE}; {WOLF_WHISTLE_WIKI_SOURCE}",
+            required_actions=("Infuse the giant wolpertinger pouch", "Take the pouch to Scalectrix"),
+        ),
+    ),
+    SONG_FROM_THE_DEPTHS_ID: (
+        _stage_req(
+            1,
+            "Drink the restless sleep potion and follow the souls to the cave.",
+            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
+            required_actions=("Drink the restless sleep potion", "Follow the souls to the cave entrance"),
+        ),
+        _stage_req(
+            2,
+            "Work through the dream cave puzzles.",
+            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
+            required_actions=("Complete the maze doors", "Solve the symbol rooms", "Move the saplings through the dream rooms"),
+        ),
+        _stage_req(
+            3,
+            "Escape the dragon's stomach and return to Lucille.",
+            SONG_FROM_THE_DEPTHS_WIKI_SOURCE,
+            required_actions=("Escape the dragon's stomach", "Return to Lucille"),
+        ),
+    ),
+    CARNILLEAN_RISING_ID: (
+        _stage_req(
+            1,
+            "Accept Xenia's request and speak to Ceril Carnillean.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            required_actions=("Speak to Xenia", "Speak to Ceril Carnillean"),
+        ),
+        _stage_req(
+            2,
+            "Gather the mansion props for Philipe's quest.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            required_actions=("Collect the Carnillean family book", "Gather the mansion props"),
+        ),
+        _stage_req(
+            3,
+            "Build the cellar quest scene.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            required_actions=("Build the cave quest hotspots", "Recruit Sarsaparilla and Claus"),
+        ),
+        _stage_req(
+            4,
+            "Guide Philipe through the staged quest.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            required_actions=("Guide Philipe through the cellar quest",),
+            combat_encounters=(
+                _combat(
+                    CARNILLEAN_RISING_ID,
+                    "cave_wolf_matriarch",
+                    "Cave wolf matriarch",
+                    283,
+                    CARNILLEAN_RISING_WIKI_SOURCE,
+                    "Historical guide text describes dodging a level 283 monster during Philipe's staged quest.",
+                ),
+            ),
+        ),
+        _stage_req(
+            5,
+            "Report back to Philipe, Ceril, and Xenia.",
+            CARNILLEAN_RISING_WIKI_SOURCE,
+            required_actions=("Report back to Philipe", "Report back to Ceril and Xenia"),
+        ),
+    ),
+    SOME_LIKE_IT_COLD_ID: (
+        _stage_req(
+            1,
+            "Reach the seals and learn how to enter the Iceberg.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            required_actions=("Speak to Chuck again for teleport", "Entertain the seal", "Travel to the Iceberg"),
+        ),
+        _stage_req(
+            2,
+            "Build Ping and Pong's rock costumes.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            required_actions=("Build Ping and Pong's rock costumes", "Give Ping and Pong their costumes"),
+        ),
+        _stage_req(
+            3,
+            "Infiltrate the Walrus camp and recover the egg.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            required_actions=("Distract the Walrus", "Steal the egg from the table"),
+        ),
+        _stage_req(
+            4,
+            "Collect supplies and repair the submarine engine.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            required_actions=("Collect camp repair supplies", "Repair the submarine engine"),
+        ),
+        _stage_req(
+            5,
+            "Win the Battlefish games.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            required_actions=("Defeat Astoria in Battlefish", "Defeat the seals in Battlefish"),
+        ),
+        _stage_req(
+            6,
+            "Escape the Walrus camp.",
+            SOME_LIKE_IT_COLD_WIKI_SOURCE,
+            required_actions=("Escape in the submarine",),
+        ),
+    ),
+}
+
+
 _STAGE_COUNT_BY_LENGTH = {
     "Short": 3,
     "Short to Medium": 4,
@@ -907,10 +1346,52 @@ def _quest_catalog_row_id(row: Dict[str, object]) -> str:
     return str(row.get("id", ""))
 
 
+def _dedupe_stage_requirements(requirements: Tuple[QuestStageRequirement, ...]) -> Tuple[QuestStageRequirement, ...]:
+    seen = set()
+    rows = []
+    for requirement in sorted(requirements, key=lambda row: (row.stage, row.description, row.source)):
+        key = (
+            requirement.stage,
+            requirement.description,
+            requirement.required_inventory,
+            requirement.required_inventory_options,
+            requirement.consumed_inventory,
+            requirement.required_tools,
+            requirement.required_actions,
+            requirement.required_routes,
+            tuple(encounter.encounter_id for encounter in requirement.combat_encounters),
+            requirement.source,
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(requirement)
+    return tuple(rows)
+
+
+def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:
+    replacements = QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID.get(quest.id)
+    if replacements is not None:
+        base = replacements
+    elif quest.stage_requirements:
+        base = quest.stage_requirements
+    else:
+        base = _catalog_stage_requirements(row.get("stage_requirements", ()))
+
+    additions = QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID.get(quest.id, ())
+    requirements = _dedupe_stage_requirements((*base, *additions))
+    if requirements == quest.stage_requirements:
+        return quest
+    return replace(quest, stage_requirements=requirements)
+
+
 QUESTS: Tuple[QuestDefinition, ...] = tuple(
-    replace(QUEST_OVERRIDES_BY_ID[row_id], release_order=_catalog_int(row, "release_order", 9999))
-    if row_id in QUEST_OVERRIDES_BY_ID
-    else _quest_from_catalog(row)
+    _quest_with_stage_requirements(
+        replace(QUEST_OVERRIDES_BY_ID[row_id], release_order=_catalog_int(row, "release_order", 9999))
+        if row_id in QUEST_OVERRIDES_BY_ID
+        else _quest_from_catalog(row),
+        row,
+    )
     for row in PRE_EOC_QUEST_CATALOG
     for row_id in (_quest_catalog_row_id(row),)
 )

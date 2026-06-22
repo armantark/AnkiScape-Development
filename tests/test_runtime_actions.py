@@ -107,6 +107,7 @@ class TestRuntimeActions(unittest.TestCase):
             "inventory": {},
             "current_quest": "rune_mysteries",
             "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
+            "quest_stage_actions": {"rune_mysteries": ["Return Aubury's research notes to Sedridor"]},
             "quest_points": 0,
             "runecrafting_exp": 0,
             "pending_skill_exp_rewards": {},

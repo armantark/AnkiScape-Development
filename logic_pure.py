@@ -1143,14 +1143,24 @@ def _has_quest_tool(player_data, tool_name, amount):
     if inventory.get(tool_name, 0) >= amount:
         return True
     lowered = tool_name.lower()
+    toolbelt = player_data.get("toolbelt", {}) or {}
     if lowered == "pickaxe":
-        toolbelt = player_data.get("toolbelt", {}) or {}
         mining_tools = toolbelt.get("mining", ()) if isinstance(toolbelt, Mapping) else ()
         if isinstance(mining_tools, str):
             mining_tools = (mining_tools,)
         if isinstance(mining_tools, Iterable) and any(str(tool) for tool in mining_tools):
             return True
         return any(str(name).lower().endswith("pickaxe") and count >= amount for name, count in inventory.items())
+    if lowered in {"hatchet", "axe"}:
+        woodcutting_tools = toolbelt.get("woodcutting", ()) if isinstance(toolbelt, Mapping) else ()
+        if isinstance(woodcutting_tools, str):
+            woodcutting_tools = (woodcutting_tools,)
+        if isinstance(woodcutting_tools, Iterable) and any(str(tool) for tool in woodcutting_tools):
+            return True
+        return any(
+            (str(name).lower().endswith("hatchet") or str(name).lower().endswith(" axe")) and count >= amount
+            for name, count in inventory.items()
+        )
     return False
 
 
@@ -1234,7 +1244,7 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     _quest_blocker(
                         stage,
                         "required_action",
-                        f"Needs {action_id}",
+                        f"Action required: {action_id}",
                         source,
                         action_id=action_id,
                     )
@@ -1246,7 +1256,7 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     _quest_blocker(
                         stage,
                         "unmet_route",
-                        f"Needs {route_id}",
+                        f"Route required: {route_id}",
                         source,
                         route_id=route_id,
                     )

@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Stage Gate Coverage Slice Complete</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(140deg, rgba(79, 140, 255, 0.12), transparent 34%),
+        radial-gradient(circle at 80% 20%, rgba(74, 222, 128, 0.09), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0 56px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #bcd3ff;
+      background: var(--accent-glow);
+      font: 700 0.72rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 20px 0 10px;
+      max-width: 920px;
+      font-size: clamp(2rem, 5vw, 4.25rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 820px;
+      color: var(--text-dim);
+      font-size: 1rem;
+      margin: 0 0 28px;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 30px 0;
+    }
+
+    .metric {
+      min-height: 132px;
+      background: rgba(22, 26, 33, 0.88);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: clamp(1.8rem, 4vw, 3.1rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .metric span {
+      color: var(--text-dim);
+      font-size: 0.86rem;
+    }
+
+    .metric.complete strong {
+      color: var(--green);
+    }
+
+    .metric.warn strong {
+      color: var(--amber);
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background: rgba(22, 26, 33, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.18);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      margin: 0 0 14px;
+      color: var(--text-dim);
+      font-size: 0.94rem;
+    }
+
+    .label {
+      display: inline-flex;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font: 700 0.65rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .label.green {
+      color: #bbf7d0;
+      background: rgba(74, 222, 128, 0.14);
+      border: 1px solid rgba(74, 222, 128, 0.28);
+    }
+
+    .label.amber {
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+    }
+
+    .label.red {
+      color: #fecaca;
+      background: rgba(255, 92, 92, 0.12);
+      border: 1px solid rgba(255, 92, 92, 0.26);
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tag {
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: #c6d0e2;
+      padding: 5px 8px;
+      font: 700 0.68rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 12px;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px;
+      min-height: 160px;
+    }
+
+    .pane-title {
+      color: var(--text-dim);
+      font: 700 0.64rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .quest-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      border-radius: 8px;
+      background: var(--surface-2);
+      margin-top: 8px;
+      padding: 9px 10px;
+      font-size: 0.78rem;
+    }
+
+    .state {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 4px 7px;
+      font: 700 0.58rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .state.locked {
+      color: #fecaca;
+      background: rgba(255, 92, 92, 0.12);
+    }
+
+    .state.blocked {
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.12);
+    }
+
+    .state.ok {
+      color: #bbf7d0;
+      background: rgba(74, 222, 128, 0.12);
+    }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font: 900 1.4rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .bar {
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #0f131a;
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: inherit;
+    }
+
+    .fill.full {
+      width: 100%;
+    }
+
+    .fill.partial {
+      width: 5.3%;
+      background: linear-gradient(90deg, var(--amber), var(--red));
+    }
+
+    .split-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #10141b;
+    }
+
+    .mini b {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .mini span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px 14px;
+      margin-top: 10px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    details p {
+      margin-top: 10px;
+    }
+
+    .foot {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      border-radius: var(--radius);
+      background: rgba(251, 191, 36, 0.08);
+      color: #f8e8b0;
+    }
+
+    @media (max-width: 900px) {
+      .metric-grid,
+      .card-grid,
+      .split-list,
+      .lane {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        min-height: 28px;
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed Slice · Quest Stage Gates</span>
+    <h1>Every quest now has a machine-readable stage gate. That is not full parity.</h1>
+    <p class="lede">
+      This pass closes the old “start-only quest” hole by giving all 194 pre-EOC catalog quests at least one structured stage requirement row. It proves the stage-aware model across source-backed examples, but it deliberately does not claim minute-by-minute quest parity.
+    </p>
+
+    <section class="metric-grid" aria-label="Coverage metrics">
+      <div class="metric complete">
+        <strong>194/194</strong>
+        <span>quests with at least one machine-readable stage requirement</span>
+      </div>
+      <div class="metric complete">
+        <strong>382</strong>
+        <span>stage requirement rows after replacements and additions</span>
+      </div>
+      <div class="metric warn">
+        <strong>119</strong>
+        <span>quests with combat gates that fail closed until combat exists</span>
+      </div>
+      <div class="metric warn">
+        <strong>15</strong>
+        <span>combat encounters currently backed by local stat evidence</span>
+      </div>
+    </section>
+
+    <section class="card-grid">
+      <article class="card">
+        <span class="label green">Backend</span>
+        <h2>Startability and finishability are separated</h2>
+        <p>
+          Stage requirements now layer on top of quest start locks. A quest can be startable while the current stage still blocks progress for a missing item, required action, route state, or combat encounter.
+        </p>
+        <div class="lane" aria-label="Before and after quest gate behavior">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="quest-row"><span>The Knight's Sword</span><span class="state ok">complete</span></div>
+            <div class="quest-row"><span>Redberry pie</span><span class="state locked">prose only</span></div>
+            <div class="quest-row"><span>Smithing XP</span><span class="state ok">paid</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="pane">
+            <div class="pane-title">After</div>
+            <div class="quest-row"><span>Start quest</span><span class="state ok">allowed</span></div>
+            <div class="quest-row"><span>Thurgo stage</span><span class="state blocked">pie required</span></div>
+            <div class="quest-row"><span>Smithing XP</span><span class="state locked">completion only</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label green">Frontend</span>
+        <h2>Existing quest UI exposes the new blockers</h2>
+        <p>
+          No broad UI rewrite was needed in this slice. The existing quest list now receives richer backend state and has an offscreen Qt test proving an in-progress quest can display a compact required-action blocker.
+        </p>
+        <div class="pane">
+          <div class="pane-title">Player-facing blocker examples</div>
+          <div class="quest-row"><span>The Restless Ghost</span><span class="state blocked">Action required</span></div>
+          <div class="quest-row"><span>Lost City</span><span class="state blocked">Combat encounter</span></div>
+          <div class="quest-row"><span>The Knight's Sword</span><span class="state blocked">Missing item</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Audit Result</span>
+        <h2>No-stage gap is closed</h2>
+        <p>
+          The prior 15 quests with no stage rows now have audited action, route, item, tool, or combat rows. Two generated rows were replaced where prose extraction was wrong or too loose.
+        </p>
+        <div class="bar" aria-label="Quest stage coverage">
+          <div class="fill full"></div>
+        </div>
+        <div class="split-list">
+          <div class="mini">
+            <b>Corrected</b>
+            <span>Lost City tree spirit uses level 63, not generated level 101.</span>
+          </div>
+          <div class="mini">
+            <b>Corrected</b>
+            <span>Tai Bwo Wannai Trio no longer treats “Monkey” as inventory.</span>
+          </div>
+          <div class="mini">
+            <b>Added</b>
+            <span>Restless Ghost, Jungle Potion, Rune Mysteries, Swan Song, Kennith's Concerns.</span>
+          </div>
+          <div class="mini">
+            <b>Added</b>
+            <span>Deadliest Catch, Wolf Whistle, Song from the Depths, Carnillean Rising, Some Like It Cold.</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label red">Not Done</span>
+        <h2>Minute-detail parity remains a real backlog</h2>
+        <p>
+          This slice makes the model real and removes silent completion for every catalog quest, but the audit still calls out the work needed before saying every quest is modeled down to the smallest step.
+        </p>
+        <div class="bar" aria-label="Local combat stat enrichment">
+          <div class="fill partial"></div>
+        </div>
+        <details open>
+          <summary>Deferred parity gaps</summary>
+          <p>
+            Full per-stage generated extraction, quest item transformations, route and puzzle state, follower and partner logic, branch choices, complete local combat stats, and a real combat resolver are still separate work.
+          </p>
+        </details>
+      </article>
+    </section>
+
+    <section class="card-grid">
+      <article class="card">
+        <span class="label green">Verification</span>
+        <h2>Required suites passed</h2>
+        <div class="split-list">
+          <div class="mini">
+            <b>Pure runner</b>
+            <span>python3 run_tests.py · 400 tests · 93 skipped · OK</span>
+          </div>
+          <div class="mini">
+            <b>Qt offscreen</b>
+            <span>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests · 400 tests · OK</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Next Slice</span>
+        <h2>Do not redo 194/194 coverage</h2>
+        <p>
+          The next work should use the new audit as the floor and move quest-by-quest toward exact per-stage semantics. The highest leverage start is combat stats plus route/puzzle state, because those are where current rows intentionally fail closed.
+        </p>
+        <div class="tag-row">
+          <span class="tag">quest_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">test_quest_catalog.py</span>
+          <span class="tag">quest-stage-no-stage-closure audit</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="foot">
+      This is a backend-first completion slice with one frontend verification test. It fixes the category of failure that let a quest finish from start-only data; it does not end the broader goal.
+    </div>
+  </main>
+</body>
+</html>

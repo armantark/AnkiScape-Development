@@ -352,6 +352,22 @@ combat blockers remain deferred in
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 396 tests.
 
+Quest no-stage closure slice completed on 2026-06-22. `quest_data.py` now
+combines generated stage rows with focused source-backed replacement/addition
+rows so the audit reports 194/194 quests with at least one machine-readable
+stage requirement. The slice closes the prior no-stage list, corrects Lost City
+to the local/Darkan level 63 Tree spirit gate instead of the generated level
+101 row, adds required-action blockers for source-backed delivery/puzzle/route
+steps such as Rune Mysteries, The Restless Ghost, Deadliest Catch, Wolf Whistle,
+Song from the Depths, Carnillean Rising, and Some Like It Cold, and keeps combat
+globally fail-closed. Full minute-detail parity remains open: generated
+per-stage extraction, quest-item transformations, route/puzzle/follower state,
+combat stat enrichment, and the real combat resolver still need more source
+work. Focused verification passed with `python3 -m unittest
+tests.test_quest_catalog tests.test_logic tests.test_runtime_actions
+tests.test_integration_smoke`, four targeted Qt quest-tab tests, and
+`python3 tools/audit_quest_stage_gate_coverage.py`.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,

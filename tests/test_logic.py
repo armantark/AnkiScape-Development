@@ -1265,6 +1265,13 @@ class TestLogic(unittest.TestCase):
 
     def test_rune_mysteries_progresses_on_reviews_and_rewards_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quest_stage_actions"] = {
+            "rune_mysteries": [
+                "Deliver the strange talisman to Sedridor",
+                "Deliver Sedridor's package to Aubury",
+                "Return Aubury's research notes to Sedridor",
+            ]
+        }
 
         player_data, ok = start_quest_pure(player_data, "rune_mysteries", QUEST_DATA)
         self.assertTrue(ok)
@@ -1332,7 +1339,7 @@ class TestLogic(unittest.TestCase):
         player_data["quests"]["lost_city"] = {"started": True, "progress": 1, "completed": False}
         self.assertEqual(
             quest_availability_state_pure(player_data, "lost_city", QUEST_DATA),
-            "in_progress",
+            "blocked_at_stage",
         )
 
         player_data["quests"]["lost_city"] = {"started": True, "progress": 6, "completed": True}
@@ -1470,9 +1477,48 @@ class TestLogic(unittest.TestCase):
             ("Lost City",),
         )
 
-        for _ in range(6):
-            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
-            self.assertTrue(ok)
+        player_data, ok = start_quest_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 0)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
+            ("Action required: Find Shamus in the Lumbridge Swamp tree",),
+        )
+
+        player_data["quest_stage_actions"] = {"lost_city": ["Find Shamus in the Lumbridge Swamp tree"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 1)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 3)
+
+        self.assertIn(
+            "Combat locked until battle support is enabled: Tree spirit level 63",
+            quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
+        )
+        player_data["quest_route_states"] = {"lost_city": ["Reach Entrana without combat gear"]}
+        player_data["quest_combat_encounters"] = {"lost_city": ["lost_city_tree_spirit"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+
+        player_data["quest_stage_actions"]["lost_city"].append("Cut a dramen branch")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+
+        player_data["inventory"]["Knife"] = 1
+        player_data["quest_stage_actions"]["lost_city"].extend(
+            ["Craft a dramen staff", "Enter Zanaris through the Lumbridge Swamp shed"]
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
+        self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["lost_city"]["completed"])
         self.assertEqual(player_data["quest_points"], 3)
