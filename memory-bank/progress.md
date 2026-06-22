@@ -45,8 +45,10 @@
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 16/286 source-backed NPC stat rows, including the local
-  2011Scape Skeleton Warlock focused override for The Restless Ghost.
+  combat now has 141/286 source-backed NPC stat rows after local
+  2011Scape-first plus Darkan/2012scape exact name+level enrichment, including
+  the local 2011Scape Skeleton Warlock focused override for The Restless Ghost
+  and generated Darkan rows such as Delrith and Elvarg.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -399,12 +401,25 @@ combat rows can become resolver-ready without hand-editing
 `quest_catalog_generated.py`: after the skull-search action flag is present,
 the Quests tab shows `Blocked: Battle required: Skeleton warlock level 11` and
 the Quest review writes `the_restless_ghost_skeleton_warlock` before stage
-advancement. `python3 tools/audit_quest_stage_gate_coverage.py` now reports
-16/286 combat encounters with local stats; the remaining 270 statless rows are
+advancement. `python3 tools/audit_quest_stage_gate_coverage.py` then reported
+16/286 combat encounters with local stats; the remaining statless rows were
 explicit broad combat enrichment debt. Verification: `python3 run_tests.py`
 passed with 406 tests (95 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 406 tests.
+
+Quest Darkan combat stat enrichment follow-up completed on 2026-06-22. The
+catalog generator now keeps local 2011Scape NPC definitions as the first source
+for generated combat encounters, then falls back to Darkan/2012scape combatdef
+JSON plus `developer-information/npcList.txt` for exact unambiguous NPC
+name+combat-level matches. Ambiguous duplicate sources and wrong-level matches
+stay statless, so the global combat resolver still blocks them as missing
+stats. The proof cases are Demon Slayer's Delrith and Dragon Slayer's Elvarg,
+while Lost City's level 63 Tree spirit and Elemental Workshop's level 35 Earth
+Elemental remain blocked because the local sources do not provide safe exact
+matches. `python3 tools/audit_quest_stage_gate_coverage.py` now reports
+141/286 combat encounters with source-backed stats; the remaining 145 rows are
+explicit combat stat/source reconciliation debt.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

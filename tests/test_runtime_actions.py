@@ -176,6 +176,33 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Count Draynor"])
 
+    def test_quest_answer_resolves_darkan_backed_generated_combat_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "demon_slayer",
+            "quests": {"demon_slayer": {"started": True, "progress": 3, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 30,
+            "strength_level": 30,
+            "defense_level": 30,
+            "constitution_level": 30,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 3)
+        self.assertFalse(player_data["quests"]["demon_slayer"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Delrith"])
+
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

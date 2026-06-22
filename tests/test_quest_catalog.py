@@ -127,6 +127,23 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(count_draynor["npc_stats"]["hitpoints"], 350)
         self.assertTrue(count_draynor["npc_stats_source"].endswith("count_draynor_level_37.plugin.kts"))
 
+        demon = data["demon_slayer"]
+        delrith = next(
+            encounter
+            for requirement in demon["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Delrith"
+        )
+        self.assertEqual(delrith["level"], 27)
+        self.assertEqual(delrith["npc_stats"]["hitpoints"], 70)
+        self.assertEqual(delrith["npc_stats"]["attack"], 11)
+        self.assertEqual(delrith["npc_stats"]["strength"], 10)
+        self.assertEqual(delrith["npc_stats"]["defence"], 5)
+        self.assertEqual(delrith["npc_configs"]["max_hit"], 30)
+        self.assertEqual(delrith["npc_configs"]["attack_style"], "melee")
+        self.assertIn("darkan-world-server", delrith["npc_stats_source"])
+        self.assertTrue(delrith["npc_stats_source"].endswith("delrith (nostats).json"))
+
         dragon_slayer = data["dragon_slayer"]
         combat_rows = [
             encounter
@@ -136,6 +153,11 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("Elvarg", {encounter["display_name"] for encounter in combat_rows})
         lesser_demon = next(encounter for encounter in combat_rows if encounter["display_name"] == "Lesser demon")
         self.assertEqual(lesser_demon["npc_stats"]["hitpoints"], 790)
+        elvarg = next(encounter for encounter in combat_rows if encounter["display_name"] == "Elvarg")
+        self.assertEqual(elvarg["npc_stats"]["hitpoints"], 800)
+        self.assertEqual(elvarg["npc_stats"]["attack"], 70)
+        self.assertEqual(elvarg["npc_configs"]["max_hit"], 100)
+        self.assertTrue(elvarg["npc_stats_source"].endswith("elvarg.json"))
 
         restless = data["the_restless_ghost"]
         restless_combat = [
@@ -158,7 +180,18 @@ class TestQuestCatalog(unittest.TestCase):
         ]
         self.assertEqual(lost_city_combat[0]["display_name"], "Tree spirit")
         self.assertEqual(lost_city_combat[0]["level"], 63)
+        self.assertEqual(lost_city_combat[0]["npc_stats"], {})
         self.assertNotIn(101, {encounter["level"] for encounter in lost_city_combat})
+
+        elemental_i = data["elemental_workshop_i"]
+        earth_elemental = next(
+            encounter
+            for requirement in elemental_i["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Earth Elemental"
+        )
+        self.assertEqual(earth_elemental["level"], 35)
+        self.assertEqual(earth_elemental["npc_stats"], {})
 
         self.assertTrue(data["jungle_potion"]["stage_requirements"])
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])

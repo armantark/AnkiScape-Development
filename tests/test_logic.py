@@ -1568,6 +1568,26 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "the_restless_ghost", QUEST_DATA), ())
 
+    def test_demon_slayer_delrith_generated_darkan_stats_are_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 30
+        player_data["strength_level"] = 30
+        player_data["defense_level"] = 30
+        player_data["constitution_level"] = 30
+
+        blockers = quest_current_stage_blockers_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Delrith level 27")
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "demon_slayer", QUEST_DATA))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "demon_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "demon_slayer_delrith_27")
+        self.assertEqual(resolved["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
+        self.assertEqual(quest_current_stage_blockers_pure(resolved, "demon_slayer", QUEST_DATA), ())
+
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["crafting_level"] = 31

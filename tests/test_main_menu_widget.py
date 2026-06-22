@@ -1279,6 +1279,28 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("vampyre_slayer", self._quest_calls)
 
+    def test_quests_tab_allows_darkan_backed_generated_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "demon_slayer"
+        pd["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 30
+        pd["strength_level"] = 30
+        pd["defense_level"] = 30
+        pd["constitution_level"] = 30
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Delrith level 27"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_demon_slayer")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("demon_slayer", self._quest_calls)
+
     def test_quests_tab_allows_source_backed_focused_combat_override(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "the_restless_ghost"

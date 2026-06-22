@@ -41,6 +41,9 @@ SCAPE_2011_NPC_DEFINITION_DIR = (
     Path("/Users/ArmanTarkhanian1/Downloads/game-main")
     / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
 )
+DARKAN_WORLD_SERVER_DIR = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server")
+DARKAN_NPC_LIST_PATH = DARKAN_WORLD_SERVER_DIR / "developer-information/npcList.txt"
+DARKAN_NPC_COMBATDEF_DIR = DARKAN_WORLD_SERVER_DIR / "data/npcs/combatdefs"
 
 # These rows are marked former today, but they still existed as quests just
 # before the Evolution of Combat release. The current release list is a present
@@ -1313,6 +1316,13 @@ def _npc_file_display_name(path: Path) -> Tuple[str, int]:
     return name.title(), level
 
 
+def _normalize_npc_lookup_name(name: str) -> str:
+    normalized = name.lower().replace("&", "and")
+    normalized = re.sub(r"\([^)]*\)", "", normalized)
+    normalized = re.sub(r"[^a-z0-9]+", " ", normalized)
+    return normalized.strip()
+
+
 def _parse_kts_assignment_int(block: str, key: str) -> Optional[int]:
     match = re.search(rf"\b{re.escape(key)}\s*=\s*(-?\d+)", block)
     if not match:
@@ -1407,6 +1417,190 @@ def _matching_local_npc_stats(display_name: str, level: int) -> Dict[str, object
     return {}
 
 
+def _parse_optional_int(value: object) -> Optional[int]:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        match = re.search(r"-?\d+", value)
+        if match:
+            return parse_int(match.group(0), 0)
+    return None
+
+
+def _load_darkan_npc_list() -> Tuple[Dict[int, Dict[str, object]], Dict[str, Tuple[int, ...]]]:
+    if not DARKAN_NPC_LIST_PATH.exists():
+        return {}, {}
+    by_id: Dict[int, Dict[str, object]] = {}
+    levels_by_name: Dict[str, set] = {}
+    row_re = re.compile(r"^\s*(\d+)\s+-\s+(.*?)\s+\((\d+)\)\s*$")
+    for line in DARKAN_NPC_LIST_PATH.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = row_re.match(line)
+        if not match:
+            continue
+        npc_id = parse_int(match.group(1), -1)
+        name = clean_markup(match.group(2)).strip()
+        level = parse_int(match.group(3), 0)
+        if npc_id < 0 or not name:
+            continue
+        by_id[npc_id] = {"display_name": name, "level": level}
+        if level > 0:
+            levels_by_name.setdefault(_normalize_npc_lookup_name(name), set()).add(level)
+    return by_id, {name: tuple(sorted(levels)) for name, levels in levels_by_name.items()}
+
+
+def _darkan_combat_payload(path: Path) -> Optional[Dict[str, object]]:
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+        return None
+    levels = data.get("combatLevels")
+    if not isinstance(levels, Mapping):
+        return None
+    hitpoints = _parse_optional_int(data.get("hitpoints"))
+    attack = _parse_optional_int(levels.get("ATTACK"))
+    strength = _parse_optional_int(levels.get("STRENGTH"))
+    defence = _parse_optional_int(levels.get("DEFENSE"))
+    if not hitpoints or not attack or not strength or not defence:
+        return None
+    stats: Dict[str, int] = {
+        "hitpoints": hitpoints,
+        "attack": attack,
+        "strength": strength,
+        "defence": defence,
+    }
+    magic = _parse_optional_int(levels.get("MAGE"))
+    if magic is not None:
+        stats["magic"] = magic
+    ranged = _parse_optional_int(levels.get("RANGE"))
+    if ranged is not None:
+        stats["ranged"] = ranged
+
+    configs: Dict[str, object] = {}
+    max_hit = _parse_optional_int(data.get("maxHit"))
+    if max_hit is not None:
+        configs["max_hit"] = max_hit
+    attack_range = _parse_optional_int(data.get("attackRange"))
+    if attack_range is not None:
+        configs["attack_range"] = attack_range
+    attack_style = data.get("attackStyle")
+    if isinstance(attack_style, str) and attack_style:
+        configs["attack_style"] = attack_style.lower()
+    attack_bonus = data.get("attackBonus")
+    if isinstance(attack_bonus, str) and attack_bonus:
+        configs["attack_bonus"] = attack_bonus.lower()
+    aggressiveness = data.get("agressivenessType") or data.get("aggressivenessType")
+    if isinstance(aggressiveness, str) and aggressiveness:
+        configs["aggressiveness_type"] = aggressiveness.lower()
+    return {"stats": stats, "configs": configs, "source": str(path)}
+
+
+def _darkan_name_level_pairs(
+    data: Mapping[str, object],
+    by_id: Mapping[int, Mapping[str, object]],
+    levels_by_name: Mapping[str, Tuple[int, ...]],
+) -> Tuple[Tuple[str, int], ...]:
+    pairs = []
+    seen = set()
+
+    def add_pair(display_name: str, level: int) -> None:
+        if not display_name or level <= 0:
+            return
+        key = (_normalize_npc_lookup_name(display_name), level)
+        if key in seen:
+            return
+        seen.add(key)
+        pairs.append((display_name, level))
+
+    for raw_id in data.get("ids", ()) or ():
+        npc_id = _parse_optional_int(raw_id)
+        if npc_id is None:
+            continue
+        npc = by_id.get(npc_id)
+        if npc:
+            add_pair(str(npc["display_name"]), int(npc["level"]))
+
+    for raw_name in data.get("names", ()) or ():
+        if not isinstance(raw_name, str):
+            continue
+        display_name = clean_markup(raw_name).strip()
+        for level in levels_by_name.get(_normalize_npc_lookup_name(display_name), ()):
+            add_pair(display_name, level)
+
+    return tuple(pairs)
+
+
+def _load_darkan_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
+    if not DARKAN_NPC_COMBATDEF_DIR.exists():
+        return {}
+    by_id, levels_by_name = _load_darkan_npc_list()
+    rows: Dict[Tuple[str, int], List[Dict[str, object]]] = {}
+    for path in DARKAN_NPC_COMBATDEF_DIR.rglob("*.json"):
+        payload = _darkan_combat_payload(path)
+        if not payload:
+            continue
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError, UnicodeDecodeError):
+            continue
+        for display_name, level in _darkan_name_level_pairs(data, by_id, levels_by_name):
+            key = (_normalize_npc_lookup_name(display_name), level)
+            rows.setdefault(key, []).append(
+                {
+                    "display_name": display_name,
+                    "level": level,
+                    "stats": payload["stats"],
+                    "bonuses": {},
+                    "configs": payload["configs"],
+                    "source": payload["source"],
+                }
+            )
+
+    unambiguous: Dict[Tuple[str, int], Dict[str, object]] = {}
+    for key, candidates in rows.items():
+        unique = []
+        seen = set()
+        for candidate in candidates:
+            signature = (
+                str(candidate["source"]),
+                json.dumps(candidate["stats"], sort_keys=True),
+                json.dumps(candidate["configs"], sort_keys=True),
+            )
+            if signature in seen:
+                continue
+            seen.add(signature)
+            unique.append(candidate)
+        if len(unique) == 1:
+            unambiguous[key] = unique[0]
+    return unambiguous
+
+
+_DARKAN_NPC_STATS: Optional[Dict[Tuple[str, int], Dict[str, object]]] = None
+
+
+def _darkan_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
+    global _DARKAN_NPC_STATS
+    if _DARKAN_NPC_STATS is None:
+        _DARKAN_NPC_STATS = _load_darkan_npc_stats()
+    return _DARKAN_NPC_STATS
+
+
+def _matching_darkan_npc_stats(display_name: str, level: int) -> Dict[str, object]:
+    if level <= 0:
+        return {}
+    return _darkan_npc_stats().get((_normalize_npc_lookup_name(display_name), level), {})
+
+
+def _matching_source_npc_stats(display_name: str, level: int) -> Dict[str, object]:
+    local_stats = _matching_local_npc_stats(display_name, level)
+    if local_stats:
+        return local_stats
+    return _matching_darkan_npc_stats(display_name, level)
+
+
 def _skip_combat_line(line: str) -> bool:
     lower = clean_markup(line).lower()
     if not lower:
@@ -1485,7 +1679,7 @@ def parse_combat_encounters(combat_wikitext: str, source: str, quest_id: str) ->
         if level <= 0 and len(clean_markup(line)) > 80:
             continue
         quantity = _combat_quantity_from_line(line)
-        local_stats = _matching_local_npc_stats(display_name, level)
+        source_stats = _matching_source_npc_stats(display_name, level)
         base_id = quest_id_from_name(f"{quest_id} {display_name} {level or len(encounters) + 1}")
         encounter_id = base_id
         suffix = 2
@@ -1501,11 +1695,11 @@ def parse_combat_encounters(combat_wikitext: str, source: str, quest_id: str) ->
             "source": source,
             "source_text": clean_markup(line),
         }
-        if local_stats:
-            row["npc_stats"] = local_stats.get("stats", {})
-            row["npc_bonuses"] = local_stats.get("bonuses", {})
-            row["npc_configs"] = local_stats.get("configs", {})
-            row["npc_stats_source"] = local_stats.get("source", "")
+        if source_stats:
+            row["npc_stats"] = source_stats.get("stats", {})
+            row["npc_bonuses"] = source_stats.get("bonuses", {})
+            row["npc_configs"] = source_stats.get("configs", {})
+            row["npc_stats_source"] = source_stats.get("source", "")
         encounters.append(row)
     return tuple(encounters)
 

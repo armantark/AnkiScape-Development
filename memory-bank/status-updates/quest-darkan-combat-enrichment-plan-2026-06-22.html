@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Darkan Combat Enrichment Plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 0%, rgba(79,140,255,.18), transparent 34rem), var(--bg);
+      color: var(--text);
+      font: 15px/1.5 Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1160px; margin: 0 auto; padding: 34px 18px 52px; }
+    .badge {
+      display: inline-block;
+      padding: 6px 10px;
+      border: 1px solid rgba(79,140,255,.45);
+      border-radius: 999px;
+      color: #b8d5ff;
+      background: rgba(79,140,255,.1);
+      font: 700 12px/1 JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: .08em;
+    }
+    h1 { margin: 16px 0 8px; font-size: clamp(30px, 4.5vw, 50px); line-height: 1.05; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 16px; color: var(--text-dim); letter-spacing: .07em; text-transform: uppercase; }
+    p { margin: 0; color: var(--text-dim); max-width: 820px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 22px; }
+    .card {
+      grid-column: span 4;
+      background: linear-gradient(180deg, var(--surface), #11151c);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 16px 44px rgba(0,0,0,.28);
+    }
+    .wide { grid-column: span 8; }
+    .full { grid-column: span 12; }
+    .metric { font-size: 42px; line-height: 1; font-weight: 800; margin-bottom: 8px; }
+    .metric small { font-size: 18px; color: var(--text-dim); }
+    .bar { height: 12px; margin-top: 14px; background: #252b36; border-radius: 999px; overflow: hidden; border: 1px solid #394252; }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); }
+    .fill.warn { background: linear-gradient(90deg, var(--amber), var(--red)); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .pane { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; }
+    .pane strong { color: var(--text); }
+    code { color: #d5e7ff; background: #10141b; border: 1px solid #2f3948; border-radius: 5px; padding: 1px 5px; }
+    ul { margin: 0; padding-left: 19px; color: var(--text-dim); }
+    li { margin: 7px 0; }
+    .step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-top: 1px solid var(--border); }
+    .step:first-child { border-top: 0; padding-top: 0; }
+    .num { flex: 0 0 auto; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 7px; background: var(--accent); color: white; font-weight: 800; }
+    @media (max-width: 860px) {
+      .grid { grid-template-columns: 1fr; }
+      .card, .wide, .full { grid-column: 1; }
+      .split { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+    <h1>Use Darkan combat definitions to unblock a large source-backed quest-combat batch.</h1>
+    <p>The current stage model is broad, but combat parity is still shallow. Darkan has exact NPC combat JSON and a cache-derived NPC list; exact name + combat-level joins can enrich many generated quest encounters while preserving fail-closed behavior for ambiguous or missing data.</p>
+
+    <section class="grid" aria-label="Planned metrics">
+      <div class="card">
+        <div class="metric">16<small>/286</small></div>
+        <p><strong>Current stat-backed combat rows.</strong> Local 2011Scape plus the Restless Ghost focused override.</p>
+        <div class="bar"><div class="fill warn" style="width:5.6%"></div></div>
+      </div>
+      <div class="card">
+        <div class="metric">129</div>
+        <p><strong>Unambiguous Darkan candidates.</strong> Exact normalized NPC name plus source combat level, with required stats present.</p>
+        <div class="bar"><div class="fill" style="width:45%"></div></div>
+      </div>
+      <div class="card">
+        <div class="metric">6</div>
+        <p><strong>Ambiguous exact matches.</strong> These stay blocked until a narrower quest-specific source resolves them.</p>
+        <div class="bar"><div class="fill warn" style="width:12%"></div></div>
+      </div>
+      <div class="card wide">
+        <h2>Backend</h2>
+        <div class="step"><span class="num">1</span><span>Add Darkan parser helpers to <code>tools/build_pre_eoc_quest_catalog.py</code> for <code>developer-information/npcList.txt</code> and <code>data/npcs/combatdefs/**/*.json</code>.</span></div>
+        <div class="step"><span class="num">2</span><span>Keep local 2011Scape precedence, then use Darkan only for exact single source-backed matches that carry hitpoints, attack, strength, and defence.</span></div>
+        <div class="step"><span class="num">3</span><span>Regenerate <code>quest_catalog_generated.py</code> through the builder; do not hand-edit generated rows.</span></div>
+      </div>
+      <div class="card">
+        <h2>Frontend</h2>
+        <p>Existing UI behavior should improve automatically: more in-progress combat rows can show <strong>Battle required</strong> instead of <strong>Combat stats required</strong> when the global resolver is enabled and the player is strong enough.</p>
+      </div>
+      <div class="card full">
+        <h2>Guardrails</h2>
+        <div class="split">
+          <div class="pane"><strong>Do enrich</strong><ul><li>Generated combat rows with one exact Darkan match.</li><li>Rows whose stats satisfy the current resolver's minimum contract.</li><li>Rows whose source path is recorded in machine-readable catalog data.</li></ul></div>
+          <div class="pane"><strong>Do not enrich</strong><ul><li>Ambiguous exact matches.</li><li>Rows with no hitpoints or missing core combatLevels.</li><li>Quest-specific mechanics such as required weapons, transformations, or safespots.</li></ul></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

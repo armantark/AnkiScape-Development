@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat Gate Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --panel: #121922;
+      --panel-2: #182231;
+      --text: #ecf4ff;
+      --muted: #9aa9ba;
+      --line: #243246;
+      --blue: #66b3ff;
+      --green: #54d184;
+      --amber: #ffc857;
+      --red: #ff6b6b;
+      --ink: #081018;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 18% 10%, rgba(102, 179, 255, 0.14), transparent 28rem),
+        radial-gradient(circle at 82% 0%, rgba(84, 209, 132, 0.1), transparent 24rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1160px; margin: 0 auto; padding: 32px 18px 42px; }
+    header {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    h1 { font-size: clamp(2rem, 5vw, 4.7rem); line-height: 0.95; margin: 0 0 14px; letter-spacing: 0; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; }
+    p { margin: 0; color: var(--muted); }
+    .hero, .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(24, 34, 49, 0.94), rgba(18, 25, 34, 0.94));
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+    }
+    .status {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255, 107, 107, 0.13);
+      color: #ffd7d7;
+      border: 1px solid rgba(255, 107, 107, 0.3);
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 16px var(--red); }
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 18px 0; }
+    .metric {
+      padding: 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+    }
+    .metric strong { display: block; font-size: 1.8rem; line-height: 1.1; }
+    .metric span { color: var(--muted); font-size: 0.85rem; }
+    .layout { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .wide { grid-column: 1 / -1; }
+    .bar {
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--line);
+      margin: 10px 0 6px;
+    }
+    .fill { height: 100%; width: var(--w); background: linear-gradient(90deg, var(--blue), var(--green)); }
+    .compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
+    .pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(102, 179, 255, 0.14);
+      border: 1px solid rgba(102, 179, 255, 0.28);
+      color: #d9edff;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .arrow { color: var(--amber); font-weight: 800; }
+    ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+    li + li { margin-top: 6px; }
+    code {
+      color: #d8ecff;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--line);
+      padding: 1px 5px;
+      border-radius: 5px;
+    }
+    .gate {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.035);
+      margin-top: 10px;
+    }
+    .gate b { color: var(--text); }
+    .gate small { display: block; color: var(--muted); }
+    .danger { color: #ffd7d7; }
+    .ok { color: #d5ffe3; }
+    details {
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.035);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    details + details { margin-top: 10px; }
+    summary { cursor: pointer; color: var(--text); font-weight: 800; }
+    .test-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .test { padding: 12px; border: 1px solid rgba(84, 209, 132, 0.35); background: rgba(84, 209, 132, 0.08); border-radius: 8px; }
+    .test b { display: block; color: #dcffe7; }
+    @media (max-width: 860px) {
+      header, .layout, .metric-grid, .test-grid { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .arrow { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero">
+        <div class="status"><span class="dot"></span> Goal not complete yet</div>
+        <h1>Quest stage gates moved closer to source parity.</h1>
+        <p>This slice does not finish every single quest. It broadens generated combat gates through local source data, proves Demon Slayer and Dragon Slayer fights, and keeps unsafe rows blocked.</p>
+      </section>
+      <section class="card">
+        <h2>Current Audit</h2>
+        <div class="metric-grid" style="grid-template-columns:1fr 1fr">
+          <div class="metric"><strong>194/194</strong><span>quests with stage rows</span></div>
+          <div class="metric"><strong>141/286</strong><span>combat rows with stats</span></div>
+          <div class="metric"><strong>145</strong><span>statless combat rows left</span></div>
+          <div class="metric"><strong>410</strong><span>tests per suite</span></div>
+        </div>
+      </section>
+    </header>
+
+    <section class="layout">
+      <article class="card">
+        <h2>Coverage Delta</h2>
+        <div class="compare">
+          <div>
+            <span class="pill">Before this slice</span>
+            <div class="bar"><div class="fill" style="--w:5.6%"></div></div>
+            <p>16/286 source-backed combat rows. Mostly local 2011Scape plus focused overrides.</p>
+          </div>
+          <div class="arrow">to</div>
+          <div>
+            <span class="pill">After this slice</span>
+            <div class="bar"><div class="fill" style="--w:49.3%"></div></div>
+            <p>141/286 source-backed combat rows. 2011Scape remains first, Darkan fills exact safe matches.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Source Rule</h2>
+        <div class="gate"><b>1. Local 2011Scape</b><small>Existing `.plugin.kts` NPC definitions keep precedence.</small></div>
+        <div class="gate"><b>2. Darkan/2012scape</b><small>Combatdef JSON plus `npcList.txt`, exact name and combat level only.</small></div>
+        <div class="gate"><b>3. Still blocked</b><small>Ambiguous, level 0, missing-core-stat, or wrong-level encounters stay unresolved.</small></div>
+      </article>
+
+      <article class="card wide">
+        <h2>Proof, Blocks, And Handoff</h2>
+        <details open>
+          <summary>Proof Cases</summary>
+          <ul>
+            <li><span class="ok">Demon Slayer:</span> Delrith level 27 gets Darkan-backed stats and becomes resolver-ready when combat is globally enabled.</li>
+            <li><span class="ok">Dragon Slayer:</span> Elvarg level 83 gets Darkan-backed stats while existing local 2011Scape matches still win for other fights.</li>
+            <li><span class="ok">Frontend:</span> the Quests tab shows `Blocked: Battle required: Delrith level 27` and leaves the action selectable when the player is ready.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Intentional Blocks</summary>
+          <ul>
+            <li><span class="danger">Lost City:</span> Tree spirit level 63 stays statless because the available local rows are level 14 or 101, not 63.</li>
+            <li><span class="danger">Elemental Workshop:</span> Earth Elemental level 35 stays statless because exact-match Darkan sources are duplicated.</li>
+            <li><span class="danger">Global switch:</span> no-stats combat rows still block as missing stats even if `quest_combat_config.resolver_enabled` is true.</li>
+          </ul>
+        </details>
+        <details>
+          <summary>Next Gaps</summary>
+          <ul>
+            <li>145 combat encounters still need source reconciliation.</li>
+            <li>Generated stage rows are broad quest-detail gates, not minute-by-minute walkthrough parity.</li>
+            <li>Combat remains a hard resolver gate, not a full fight simulation with hit chance, equipment, food, prayer, death, and scripted mechanics.</li>
+          </ul>
+        </details>
+      </article>
+
+      <article class="card wide">
+        <h2>Verification</h2>
+        <div class="test-grid">
+          <div class="test"><b>Backend</b><span>`python3 run_tests.py` passed, 410 tests, 96 skipped.</span></div>
+          <div class="test"><b>Frontend</b><span>`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` passed, 410 tests.</span></div>
+          <div class="test"><b>Audit</b><span>`tools/audit_quest_stage_gate_coverage.py` reports 141/286 stat-backed combat rows.</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

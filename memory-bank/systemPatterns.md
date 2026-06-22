@@ -92,9 +92,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   blocked as `combat_missing_stats`; this keeps the global switch from turning
   no-stats prose rows into completable fights. Focused `quest_data.py`
   stage-addition combat rows may carry local 2011Scape NPC stats directly when
-  the source path is recorded; The Restless Ghost Skeleton Warlock is the first
-  such proof case beyond generated stat matches. Current stat coverage is
-  16/286 combat rows, so broad combat stat enrichment remains active quest debt.
+  the source path is recorded, and the catalog generator may enrich generated
+  encounters from local source data in strict precedence order: 2011Scape NPC
+  definitions first, then Darkan/2012scape combat definitions keyed by exact
+  unambiguous NPC name plus combat level. The Restless Ghost Skeleton Warlock is
+  the focused override proof case; Demon Slayer's Delrith and Dragon Slayer's
+  Elvarg prove the generated Darkan fallback. Current stat coverage is 141/286
+  combat rows, so remaining stat enrichment is still active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.
