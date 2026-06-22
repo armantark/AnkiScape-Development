@@ -1342,6 +1342,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Top-quality milk x1", action.toolTip())
 
+    def test_quests_tab_shows_witchs_house_mouse_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Magnet": 1}
+        pd["current_quest"] = "witchs_house"
+        pd["quests"]["witchs_house"] = {"started": True, "progress": 4, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Needs Cheese x1, "
+            "Action required: Use cheese on the mouse hole and attach the magnet to the mouse"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_witchs_house")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Cheese x1", action.toolTip())
+        self.assertIn("Use cheese on the mouse hole", action.toolTip())
+
     def test_quests_tab_allows_demon_slayer_source_backed_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Silverlight": 1}
@@ -1523,7 +1542,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_quests_tab_allows_witchs_house_form_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "witchs_house"
-        pd["quests"]["witchs_house"] = {"started": True, "progress": 2, "completed": False}
+        pd["quests"]["witchs_house"] = {"started": True, "progress": 9, "completed": False}
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 60
         pd["strength_level"] = 60

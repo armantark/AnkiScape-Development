@@ -609,6 +609,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Khazard armour",
             "Khali brew",
             "Khazard cell keys",
+            "Door key",
+            "Magnet",
+            "Backroom key",
+            "Ball",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

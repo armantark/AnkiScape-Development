@@ -65,6 +65,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - Quest starts are strict. A quest with incomplete prerequisite quests or unimplemented required skills must be impossible to start. Completion XP for implemented skills is granted immediately; XP for unimplemented skills is stored in `pending_skill_exp_rewards` and applied by migration when the skill becomes implemented.
 - Quest-list availability should flow through `quest_availability_state_pure()`, not ad hoc UI checks. Its states are `can_start`, `in_progress`, `blocked_at_stage`, `completed`, and `locked`. `locked` means the quest cannot start; `blocked_at_stage` means a started quest is waiting on current-stage inventory, tools, actions, routes, or combat. Keep that separation: stage requirements are not start locks.
 - Stage-aware quest requirements live in `QuestDefinition.stage_requirements` data, serialized by `quests_as_dict()` and enforced by pure helpers in `logic_pure.py`. Use `quest_current_stage_blockers_pure()` / `quest_current_stage_blocker_reasons_pure()` for display, `can_progress_quest_pure()` for review readiness, and `apply_quest_progress_pure()` for stage advancement and stage-local consumed/produced items. The first proof case is The Knight's Sword: Mining 10 remains a start requirement, Redberry pie is consumed at Thurgo's stage, Blurite ore plus two Iron bars are consumed at the later Thurgo materials stage, and the 12,725 Smithing XP reward fires only on valid completion. A later 2011Scape starter batch added `produced_inventory` for quest intermediates such as Druidic Ritual enchanted meats, Pirate's Treasure chest key/message, and Vampyre Slayer stake/stake hammer. A follow-up intermediate batch added `start_inventory` and source-backed produced/consumed chains for Rune Mysteries, The Restless Ghost, and Lost City, including Ghostspeak amulet, Muddy skull, Air talisman, Research package, Research notes, Dramen branch, and Dramen staff. Demon Slayer is now a Darkan-backed focused replacement: it uses a nine-stage internal model so bucket water, 25 bones, three Silverlight keys, Silverlight, Delrith, and the incantation all gate at their source-backed stages before completion. Dragon Slayer is now a Darkan/local-2011Scape-backed focused replacement: 32 quest points remains the start lock, then Oziach, Guildmaster, anti-dragon shield, Melzar's Maze combat, Wormbrain's paid map piece, Oracle items, Crandor map assembly, Lady Lumbridge purchase/repair, Ned's route, Elvarg, and the Oziach report are separate current-stage gates. `QuestStageRequirement.variant` now models mutually exclusive route rows on the same stage; rows with no variant are mandatory, and route-matched variant rows are the only branch rows that can block, consume, produce, or resolve combat. Shield of Arrav proves this with Phoenix Gang and Black Arm Gang branches, Jonny the beard and Weaponsmaster combat gates, route-specific shield/certificate halves, and the partner half-certificate combine stage. Fight Arena now proves a Darkan-backed non-branch replacement where disguise production/equipment, Khali brew purchase/consumption, key theft/use, mandatory arena fights, and the Lady Servil return are stage gates rather than start locks. The Quests tab may show "Used during quest" item requirements before start, but those items must not block starting unless the source says they are start requirements.
+- Witch's House now supersedes its earlier two-row combat proof with a full
+  12-stage Darkan-backed chain: potted-plant Door key, door entry, cupboard
+  Magnet, Cheese/Magnet mouse-hole mechanism, witch patrol route, Leather gloves
+  electric gate, fountain Backroom key, shed door, four experiment forms, Ball
+  pickup, and Harvey hand-in. Cheese is consumed at the mouse stage, Ball is
+  consumed only at Harvey, and 6,325 Constitution XP remains pending until that
+  skill exists.
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
@@ -103,8 +110,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   12-stage Darkan-backed chain for Khazard disguise production/equipment,
   Jeremy/lazy guard actions, Khali brew purchase/consumption, cell-key
   production/use, Khazard ogre, Khazard scorpion, Bouncer, and Lady Servil
-  reward. The live audit now reports 449 stage rows, 174 quests with
-  item/tool/option blockers, 120 quests with combat blockers, and 38
+  reward. Witch's House then superseded the old combat-only proof with a
+  12-stage Darkan-backed chain for keys, Magnet, Cheese, witch patrol, Leather
+  gloves, experiment forms, Ball pickup, and Harvey hand-in. The live audit now
+  reports 458 stage rows, 174 quests with item/tool/option blockers, 120 quests
+  with combat blockers, and 42
   produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
@@ -126,6 +136,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-fight-arena-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
@@ -159,8 +171,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Slayer's Elvarg proves the generated Darkan fallback, and Elemental Workshop's Earth Elemental proves the identical
   duplicate-source path, while Priest in Peril's Monk of Zamorak and Troll
   Stronghold's Dad prove focused conflict resolution from area-specific Darkan
-  quest/combat sources. Witch's House proves a focused replacement can split an
-  ambiguous generated fight into four resolver-ready Darkan-backed forms.
+  quest/combat sources. Witch's House first proved a focused replacement can
+  split an ambiguous generated fight into four resolver-ready Darkan-backed
+  forms; its current full-stage replacement keeps those forms at stage 9 after
+  keys, Magnet, Cheese, patrol, glove, and shed-door gates.
   Focused combat replacements may also expand one generated row into multiple
   source-backed encounters without replacing the quest's other stage
   requirements; Spirits of the Elid's generic `Golem x3` row now expands into

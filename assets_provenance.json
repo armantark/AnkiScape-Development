@@ -5603,6 +5603,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:04Z"
   },
+  "questitems/backroom_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Key_%28Witch%27s_House%29.png",
+    "file_title": "Key (Witch's House).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Key_%28Witch%27s_House%29.png?fcd52",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4f391c8b7e0ced1c94548d9405798039c087eda5",
+    "size": 458,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:35Z"
+  },
+  "questitems/ball.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ball.png",
+    "file_title": "Ball.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Ball.png?588c9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2f4ed256cc1445fe7903dd7cee6da1bcd0356107",
+    "size": 798,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:18Z"
+  },
   "questitems/blue_goblin_mail.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blue_goblin_mail.png",
     "file_title": "Blue goblin mail.png",
@@ -5674,6 +5698,18 @@
     "size": 744,
     "source_wiki": "rs3",
     "timestamp": "2024-11-20T04:08:51Z"
+  },
+  "questitems/door_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Door_key_%28Witch%27s_House%29.png",
+    "file_title": "Door key (Witch's House).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Door_key_%28Witch%27s_House%29.png?e2602",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bde0b2ae72e06b2f52450c4ea5d92308086d29f2",
+    "size": 433,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:41Z"
   },
   "questitems/elvarg_s_head.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Elvarg%27s_head.png",
@@ -5830,6 +5866,18 @@
     "size": 558,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:48Z"
+  },
+  "questitems/magnet.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Magnet_%28Witch%27s_House%29.png",
+    "file_title": "Magnet (Witch's House).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Magnet_%28Witch%27s_House%29.png?60046",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "5556d1d6d321ddd6aa1ed652603246b4a13d060c",
+    "size": 611,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:42Z"
   },
   "questitems/map_part.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Map_part_%28Melzar%29.png",

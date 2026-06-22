@@ -52,9 +52,10 @@
   local 2011Scape Skeleton Warlock focused override for The Restless Ghost,
   Demon Slayer's focused Delrith stage row, generated Darkan rows such as
   Elvarg and Earth Elemental, plus Priest in Peril's Monk of Zamorak and Troll
-  Stronghold's Dad. Witch's House
-  now replaces one ambiguous generated experiment fight with four
-  resolver-ready Darkan-backed forms. The style-aware resolver pass also
+  Stronghold's Dad. Witch's House now supersedes that combat-only proof with a
+  full 12-stage Darkan-backed chain for Door key, Magnet, Cheese, witch patrol,
+  Leather gloves, Backroom key, four experiment forms, Ball pickup, and Harvey
+  hand-in. The style-aware resolver pass also
   accepts source-backed magic/ranged rows with zero melee Strength, adding
   H.A.M. mage, The Void Stares Back Torcher/Defiler, and The Elder Kiln
   TokHaar-Xil. The Darkan `beasts.txt` fallback then raised generated coverage
@@ -672,6 +673,34 @@ Required full-suite verification passed: `python3 run_tests.py` passed with 477
 tests (112 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 477 tests.
+
+Witch's House full-stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now supersedes the earlier two-row Witch's House combat proof
+with a 12-stage Darkan-backed chain: potted-plant Door key, door-entry action,
+cupboard Magnet, Cheese/Magnet mouse-hole mechanism, witch patrol route, Leather
+gloves electric gate, fountain Backroom key, shed-door action, four Witch's
+experiment forms, Ball pickup, and Harvey hand-in. The quest remains startable
+without Cheese, gloves, keys, Magnet, or Ball; Cheese and Ball are consumed at
+their real stages, and the sourced 4 quest points plus 6,325 Constitution XP
+fire only after Harvey receives the Ball. Frontend: the existing Quest tab
+blocker surface now has offscreen Qt coverage for the mouse-hole missing
+Cheese/action stage and the stage-9 experiment combat button. Assets:
+`questitems/door_key.png`, `questitems/magnet.png`,
+`questitems/backroom_key.png`, and `questitems/ball.png` are registered with
+provenance. Post-slice audit reports 458 stage rows, 42 produced-inventory rows,
+285 combat encounters, 177 resolver-ready combat encounters, 174 quests with
+item/tool blockers, and 120 quests with combat blockers. Full all-quest
+minute-detail parity remains open, with generated-row and combat-stat gaps still
+tracked. Source audit:
+`memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`.
+Focused verification passed:
+`python3 -m unittest tests.test_quest_catalog.TestQuestCatalog tests.test_logic.TestLogic.test_witchs_house_stage_gates_items_route_combat_and_reward tests.test_logic.TestLogic.test_witchs_house_experiment_forms_are_resolver_ready tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item tests.test_integration_smoke.TestIntegrationSmoke.test_quest_answer_resolves_witchs_house_first_form_combat_gate tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item tests.test_runtime_actions.TestRuntimeActions.test_quest_answer_resolves_witchs_house_first_form_before_stage_progress tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_quest_stage_items_resolve_icons`
+and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_witchs_house_mouse_stage_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_witchs_house_form_combat_gate_selection`.
+Required full-suite verification passed: `python3 run_tests.py` passed with 485
+tests (114 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 485 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

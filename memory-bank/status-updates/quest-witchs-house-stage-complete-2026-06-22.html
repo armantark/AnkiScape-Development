@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Witch's House Checkpoint</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1117;
+      --panel: #151b23;
+      --panel-2: #1d2633;
+      --text: #e6edf3;
+      --muted: #9da7b3;
+      --line: #303948;
+      --good: #6ee7a8;
+      --warn: #f6c76a;
+      --bad: #ff7b72;
+      --blue: #78c7ff;
+      --violet: #c5a3ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(120, 199, 255, 0.12), transparent 32rem),
+        linear-gradient(135deg, #0d1117 0%, #111827 54%, #0d1117 100%);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 46px;
+    }
+    header {
+      display: grid;
+      gap: 18px;
+      padding: 26px;
+      border: 1px solid var(--line);
+      background: rgba(21, 27, 35, 0.92);
+      border-radius: 10px;
+      box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(30px, 5vw, 58px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    h2 { font-size: 20px; margin-bottom: 14px; }
+    h3 { font-size: 15px; color: var(--blue); margin-bottom: 8px; }
+    .eyebrow {
+      color: var(--warn);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+    }
+    .lede {
+      color: var(--muted);
+      max-width: 850px;
+      font-size: 18px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 112px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric span { color: var(--muted); font-size: 13px; }
+    section {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      background: rgba(21, 27, 35, 0.88);
+      border-radius: 10px;
+      padding: 22px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+    .step {
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 86px;
+    }
+    .step b {
+      display: block;
+      color: var(--good);
+      margin-bottom: 4px;
+    }
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .lane {
+      display: grid;
+      gap: 10px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 132px 1fr;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: #111822;
+      border-radius: 8px;
+    }
+    .tag {
+      width: max-content;
+      max-width: 100%;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 9px;
+      border: 1px solid rgba(120, 199, 255, 0.45);
+      border-radius: 999px;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .row div:last-child { color: var(--muted); }
+    .bar {
+      height: 14px;
+      border-radius: 999px;
+      background: #0b1220;
+      overflow: hidden;
+      border: 1px solid var(--line);
+    }
+    .bar > i {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--good), var(--blue));
+    }
+    .status {
+      display: grid;
+      gap: 10px;
+    }
+    .callout {
+      border-left: 4px solid var(--bad);
+      background: rgba(255, 123, 114, 0.08);
+      padding: 14px 16px;
+      border-radius: 8px;
+      color: #ffd5d2;
+    }
+    code {
+      color: #d2e9ff;
+      background: #0b1220;
+      border: 1px solid #263246;
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-size: 0.92em;
+    }
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+    li { margin: 6px 0; }
+    @media (max-width: 860px) {
+      main { width: min(100vw - 20px, 1180px); padding-top: 14px; }
+      header, section { padding: 16px; }
+      .grid, .steps, .split { grid-template-columns: 1fr; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">Goal status: still open</div>
+      <h1>Witch's House is now full-stage gated. The whole quest catalog is not done yet.</h1>
+      <p class="lede">
+        This checkpoint replaces Witch's House's old combat-only proof with a source-backed 12-stage chain.
+        It moves Cheese, Magnet, witch patrol, Leather gloves, Backroom key, the four experiment forms, Ball pickup,
+        and Harvey hand-in into current-stage blockers without making them start locks.
+      </p>
+      <div class="grid">
+        <div class="metric"><strong>458</strong><span>machine-readable stage rows after this slice</span></div>
+        <div class="metric"><strong>42</strong><span>produced-inventory transitions now tracked</span></div>
+        <div class="metric"><strong>177/285</strong><span>combat rows resolver-ready; unchanged by this slice</span></div>
+        <div class="metric"><strong>open</strong><span>all-quest minute-detail parity remains active</span></div>
+      </div>
+    </header>
+
+    <section class="split">
+      <div>
+        <h2>Backend</h2>
+        <div class="steps">
+          <div class="step"><b>1</b><span>Door key from potted plant.</span></div>
+          <div class="step"><b>2</b><span>Door key plus entry action.</span></div>
+          <div class="step"><b>3</b><span>Magnet from cupboard.</span></div>
+          <div class="step"><b>4</b><span>Cheese consumed with mouse-hole action.</span></div>
+          <div class="step"><b>5</b><span>Witch patrol route blocker.</span></div>
+          <div class="step"><b>6</b><span>Leather gloves gate the electric fence.</span></div>
+          <div class="step"><b>7-8</b><span>Backroom key produced, then used on the shed.</span></div>
+          <div class="step"><b>9-12</b><span>Four forms, Ball pickup, Harvey hand-in, reward.</span></div>
+        </div>
+      </div>
+      <div class="status">
+        <h2>Catalog Debt</h2>
+        <div>
+          <p>Stage row coverage</p>
+          <div class="bar"><i style="width: 100%"></i></div>
+        </div>
+        <p class="callout">
+          194/194 quests have at least one machine-readable stage row, but that is broad coverage, not minute-detail parity.
+          The active goal stays open for generated-row cleanup, route/location state, quest-item transformations, optional branches,
+          no-stats combat rows, and real combat simulation.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Frontend And Assets</h2>
+      <div class="lane">
+        <div class="row"><span class="tag">Quest UI</span><div>Existing <code>blocked_at_stage</code> rendering now shows Witch's House mouse-stage blockers and stage-9 combat blockers at the correct stage.</div></div>
+        <div class="row"><span class="tag">Assets</span><div><code>Door key</code>, <code>Magnet</code>, <code>Backroom key</code>, and <code>Ball</code> icons are in <code>questitems/</code> with provenance.</div></div>
+        <div class="row"><span class="tag">Tests</span><div>Unit, integration, runtime, registry, Qt targeted tests, <code>python3 run_tests.py</code>, and full offscreen Qt discovery all passed.</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What Is Still Deferred</h2>
+      <ul>
+        <li>Every remaining generated/coarse quest row still needs source reconciliation before claiming full parity.</li>
+        <li>There is still no player-facing UI to record arbitrary quest action or route flags.</li>
+        <li>No-stats combat rows remain blocked even when the global combat resolver is enabled.</li>
+        <li>Real combat simulation is still future work; resolver-ready encounters are one sourced enemy per Quest review.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>

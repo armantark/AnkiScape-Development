@@ -516,9 +516,30 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(dad["npc_stats_source"].endswith("areas/death_plateau/dad.json"))
 
         witch = data["witchs_house"]
+        self.assertEqual(witch["stages"], 12)
+        self.assertEqual(witch["required_items"], {})
+        witch_by_stage = {requirement["stage"]: requirement for requirement in witch["stage_requirements"]}
+        self.assertEqual(witch_by_stage[1]["produced_inventory"], {"Door key": 1})
+        self.assertEqual(witch_by_stage[2]["required_tools"], {"Door key": 1})
+        self.assertEqual(witch_by_stage[2]["required_actions"], ("Enter the Witch's house with the door key",))
+        self.assertEqual(witch_by_stage[3]["produced_inventory"], {"Magnet": 1})
+        self.assertEqual(witch_by_stage[4]["consumed_inventory"], {"Cheese": 1})
+        self.assertEqual(witch_by_stage[4]["required_tools"], {"Magnet": 1})
+        self.assertEqual(
+            witch_by_stage[4]["required_actions"],
+            ("Use cheese on the mouse hole and attach the magnet to the mouse",),
+        )
+        self.assertEqual(witch_by_stage[5]["required_routes"], ("Avoid the witch's patrol through the house",))
+        self.assertEqual(witch_by_stage[6]["required_tools"], {"Leather gloves": 1})
+        self.assertEqual(witch_by_stage[7]["produced_inventory"], {"Backroom key": 1})
+        self.assertEqual(witch_by_stage[8]["required_tools"], {"Backroom key": 1})
+        self.assertEqual(witch_by_stage[8]["required_actions"], ("Unlock the Witch's shed door with the backroom key",))
+        self.assertEqual(witch_by_stage[10]["produced_inventory"], {"Ball": 1})
+        self.assertEqual(witch_by_stage[11]["consumed_inventory"], {"Ball": 1})
+        self.assertEqual(witch_by_stage[11]["required_actions"], ("Return the ball to Harvey",))
         experiment_forms = [
             encounter
-            for requirement in witch["stage_requirements"]
+            for requirement in (witch_by_stage[9],)
             for encounter in requirement["combat_encounters"]
         ]
         self.assertEqual(

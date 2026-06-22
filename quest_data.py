@@ -229,6 +229,11 @@ DEATH_TO_DORGESHUUN_HAM_GUARD_NPC_SOURCE = (
 )
 ANOTHER_SLICE_HAM_ARCHER_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/h.a.m._archer (noanims).json"
 WITCHS_HOUSE_WIKI_SOURCE = "https://runescape.wiki/w/Witch's_House?oldid=6474931"
+WITCHS_HOUSE_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/witchshouse"
+WITCHS_HOUSE_SOURCE = f"{WITCHS_HOUSE_SOURCE_ROOT}/WitchsHouse.java"
+WITCHS_HOUSE_BOY_SOURCE = f"{WITCHS_HOUSE_SOURCE_ROOT}/BoyWitchsHouseD.java"
+WITCHS_HOUSE_DIARY_SOURCE = f"{WITCHS_HOUSE_SOURCE_ROOT}/WitchsDiary.java"
+WITCHS_HOUSE_WITCH_SENTRY_SOURCE = f"{WITCHS_HOUSE_SOURCE_ROOT}/WitchSentry.java"
 WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/witch's_experiment"
 WITCHS_HOUSE_EXPERIMENT_19_NPC_SOURCE = (
     f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(19) (noanims).json"
@@ -1076,6 +1081,21 @@ FIGHT_ARENA_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(12, "Lady Servil rewarded me for rescuing her family.", "Quest complete!"),
 )
 
+WITCHS_HOUSE_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Harvey asked me to get his ball back from the witch's garden."),
+    _simple_stage(2, "I found the front door key under a potted plant."),
+    _simple_stage(3, "I entered the Witch's house and need to investigate the security system."),
+    _simple_stage(4, "I found a magnet in the cupboard."),
+    _simple_stage(5, "The mouse-hole mechanism needs cheese and the magnet."),
+    _simple_stage(6, "The back of the house is open, but the witch patrols the hall."),
+    _simple_stage(7, "I reached the electric gate and need gloves before touching it."),
+    _simple_stage(8, "I passed the electric gate and should search the fountain for the shed key."),
+    _simple_stage(9, "I found the backroom key and can unlock the shed."),
+    _simple_stage(10, "The Witch's experiment is guarding the ball in the shed."),
+    _simple_stage(11, "The experiment is defeated. I can pick up the ball and return it to Harvey."),
+    _simple_stage(12, "Harvey got his ball back.", "Quest complete!"),
+)
+
 TAI_BWO_WANNAI_TRIO_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Timfraku wants his three sons to return to Tai Bwo Wannai."),
     _simple_stage(2, "I helped Tiadeche learn the way to catch karambwan."),
@@ -1268,6 +1288,34 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         length="Short",
         timeline="Fifth Age",
         xp_rewards=(QuestXpReward("attack", 12175), QuestXpReward("thieving", 2175)),
+    ),
+    QuestDefinition(
+        id=WITCHS_HOUSE_ID,
+        display_name="Witch's House",
+        stages=12,
+        point_reward=4,
+        rewards=(),
+        start_point="Talk to Harvey, the crying boy west of Falador.",
+        requirements=(
+            "Used during quest: Cheese x1, Leather gloves x1, Door key x1, Magnet x1, Backroom key x1, Ball x1.",
+            "The keys, magnet, and ball are found during the quest rather than required to start it.",
+        ),
+        required_items=(),
+        combat=(
+            "The Witch's experiment must be defeated through four forms: "
+            "Skavid level 19, Spider level 30, Bear level 42, and Wolf level 53."
+        ),
+        source=(
+            f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_BOY_SOURCE}; {WITCHS_HOUSE_DIARY_SOURCE}; "
+            f"{WITCHS_HOUSE_WITCH_SENTRY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_WIKI_SOURCE}"
+        ),
+        journal_stages=WITCHS_HOUSE_STAGES,
+        release_date="2002-02-27",
+        members=True,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("constitution", 6325),),
     ),
     QuestDefinition(
         id=DEMON_SLAYER_ID,
@@ -2923,14 +2971,60 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     WITCHS_HOUSE_ID: (
         _stage_req(
             1,
-            "Gather the gloves and cheese needed to enter the Witch's House safely.",
-            WITCHS_HOUSE_WIKI_SOURCE,
-            required_inventory=(("Leather gloves", 1), ("Cheese", 1)),
+            "Search the potted plant outside the Witch's house for the front door key.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_WIKI_SOURCE}",
+            produced_inventory=(("Door key", 1),),
         ),
         _stage_req(
             2,
+            "Use the door key to enter the Witch's house.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_WIKI_SOURCE}",
+            required_tools=(("Door key", 1),),
+            required_actions=("Enter the Witch's house with the door key",),
+        ),
+        _stage_req(
+            3,
+            "Search the cupboard for the magnet.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_DIARY_SOURCE}",
+            produced_inventory=(("Magnet", 1),),
+        ),
+        _stage_req(
+            4,
+            "Use cheese and the magnet to unlock the mouse-hole security mechanism.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_DIARY_SOURCE}",
+            consumed_inventory=(("Cheese", 1),),
+            required_tools=(("Magnet", 1),),
+            required_actions=("Use cheese on the mouse hole and attach the magnet to the mouse",),
+        ),
+        _stage_req(
+            5,
+            "Cross the Witch's house hallway without being seen by the witch.",
+            f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_WITCH_SENTRY_SOURCE}",
+            required_routes=("Avoid the witch's patrol through the house",),
+        ),
+        _stage_req(
+            6,
+            "Use leather gloves to pass the electric gate.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Leather gloves", 1),),
+        ),
+        _stage_req(
+            7,
+            "Search the fountain in the garden for the backroom key.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}; {WITCHS_HOUSE_DIARY_SOURCE}",
+            produced_inventory=(("Backroom key", 1),),
+        ),
+        _stage_req(
+            8,
+            "Use the backroom key to unlock the shed door.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_tools=(("Backroom key", 1),),
+            required_actions=("Unlock the Witch's shed door with the backroom key",),
+        ),
+        _stage_req(
+            9,
             "Defeat the Witch's experiment through all four forms before retrieving the ball.",
-            WITCHS_HOUSE_WIKI_SOURCE,
+            f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_WIKI_SOURCE}",
             combat_encounters=(
                 _combat(
                     WITCHS_HOUSE_ID,
@@ -3029,6 +3123,19 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                     npc_stats_source=WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE,
                 ),
             ),
+        ),
+        _stage_req(
+            10,
+            "Pick up Harvey's ball from the shed.",
+            f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            produced_inventory=(("Ball", 1),),
+        ),
+        _stage_req(
+            11,
+            "Return the ball to Harvey.",
+            f"{WITCHS_HOUSE_SOURCE}; {WITCHS_HOUSE_BOY_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Ball", 1),),
+            required_actions=("Return the ball to Harvey",),
         ),
     ),
     LOST_CITY_ID: (
@@ -4385,6 +4492,22 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Khazard cell keys": {
             "category": "tool",
             "source": f"{DARKAN_FIGHT_ARENA_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Door key": {
+            "category": "tool",
+            "source": f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Magnet": {
+            "category": "tool",
+            "source": f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Backroom key": {
+            "category": "tool",
+            "source": f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Ball": {
+            "category": "material",
+            "source": f"{WITCHS_HOUSE_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Rune spear (kp)": {"category": "equipment", "source": TAI_BWO_WANNAI_TRIO_SOURCE},
         "Ivandis flail": {"category": "equipment", "source": LEGACY_OF_SEERGAZE_SOURCE},

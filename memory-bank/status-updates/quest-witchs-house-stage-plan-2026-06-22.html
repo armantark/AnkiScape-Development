@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Witch's House Plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 0%, rgba(167, 139, 250, .12), transparent 34rem), var(--bg);
+      color: var(--text);
+      font: 15px/1.5 Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 30px 0 44px;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 22px;
+      display: grid;
+      gap: 12px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1.05;
+      letter-spacing: 0;
+      max-width: 840px;
+    }
+    h2 { font-size: 18px; }
+    h3 {
+      font-size: 12px;
+      color: var(--text-dim);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(251, 191, 36, .12);
+      color: #ffe4a6;
+      border: 1px solid rgba(251, 191, 36, .35);
+      font: 800 12px/1.4 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+    .lede {
+      color: var(--text-dim);
+      font-size: 17px;
+      max-width: 860px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,.025), transparent), var(--surface);
+      padding: 16px;
+    }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-12 { grid-column: span 12; }
+    .metric strong {
+      display: block;
+      margin-top: 8px;
+      font-size: clamp(32px, 5vw, 48px);
+      line-height: 1;
+    }
+    .green { color: var(--green); }
+    .amber { color: var(--amber); }
+    .red { color: var(--red); }
+    .muted { color: var(--text-dim); }
+    .timeline {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .stage {
+      display: grid;
+      grid-template-columns: 78px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .stage:last-child { border-bottom: 0; }
+    .stage b {
+      color: #cfe0ff;
+      font: 800 12px/1.2 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 10px;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      margin-top: 10px;
+    }
+    .num {
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      color: #cfe0ff;
+      font: 800 12px/1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .pill {
+      display: inline-flex;
+      width: fit-content;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #111720;
+      color: var(--text-dim);
+      font: 700 12px/1.4 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      margin: 7px 6px 0 0;
+    }
+    @media (max-width: 820px) {
+      .span-4, .span-5, .span-7 { grid-column: span 12; }
+      .stage { grid-template-columns: 1fr; gap: 3px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="badge">Pre-work status</span>
+      <h1>Next parity slice: expand Witch's House from two blockers into a sourced stage chain.</h1>
+      <p class="lede">The quest already has resolver-ready experiment forms, but the stage model still collapses the house puzzle into one item row and one combat row. This slice turns the Darkan source handlers into current-stage gates without turning cheese, gloves, keys, or combat into start locks.</p>
+    </header>
+
+    <section class="grid">
+      <article class="card span-4 metric">
+        <h3>Current total</h3>
+        <strong class="green">449</strong>
+        <p class="muted">Machine-readable quest stage rows before this slice.</p>
+      </article>
+      <article class="card span-4 metric">
+        <h3>Combat coverage</h3>
+        <strong class="amber">177/285</strong>
+        <p class="muted">Witch's House forms are already resolver-ready.</p>
+      </article>
+      <article class="card span-4 metric">
+        <h3>Remaining statless</h3>
+        <strong class="red">108</strong>
+        <p class="muted">This slice targets stage detail, not combat-stat count.</p>
+      </article>
+
+      <article class="card span-7">
+        <h2>Backend Stage Plan</h2>
+        <div class="timeline">
+          <div class="stage"><b>1</b><p>Search the potted plant after talking to Harvey and produce the Witch's house door key.</p></div>
+          <div class="stage"><b>2</b><p>Use the door key to enter the house.</p></div>
+          <div class="stage"><b>3</b><p>Search the cupboard and produce the magnet.</p></div>
+          <div class="stage"><b>4</b><p>Use cheese plus magnet to solve the mouse-door security mechanism.</p></div>
+          <div class="stage"><b>5</b><p>Cross the witch's patrol route without being seen.</p></div>
+          <div class="stage"><b>6</b><p>Use leather gloves to pass the electric gate.</p></div>
+          <div class="stage"><b>7</b><p>Search the fountain and produce the backroom/shed key.</p></div>
+          <div class="stage"><b>8</b><p>Use that key on the shed door to spawn the experiment.</p></div>
+          <div class="stage"><b>9</b><p>Resolve the four experiment combat forms through the existing global combat lock/resolver.</p></div>
+          <div class="stage"><b>10-11</b><p>Pick up the ball, return it to Harvey, then award the sourced Constitution XP once.</p></div>
+        </div>
+      </article>
+
+      <article class="card span-5">
+        <h2>Frontend, Assets, Tests</h2>
+        <div class="step"><span class="num">UI</span><p>Started Witch's House should show compact current-stage blockers for missing cheese/gloves, required route/action flags, and combat.</p></div>
+        <div class="step"><span class="num">IMG</span><p>Fetch and provenance-record icons for Door key, Magnet, Backroom key, and Ball if they are not already wired.</p></div>
+        <div class="step"><span class="num">QA</span><p>Add focused pure, catalog, integration, asset, and Qt/offscreen coverage, then run both required full suites before committing.</p></div>
+        <span class="pill">quest_data.py</span>
+        <span class="pill">tests/test_logic.py</span>
+        <span class="pill">tests/test_main_menu_widget.py</span>
+        <span class="pill">memory-bank/source-audits</span>
+      </article>
+
+      <article class="card span-12">
+        <h2>Scope Guard</h2>
+        <p class="lede">This still will not make every quest complete. It removes one more broad generated-style stage surface and updates the all-quest backlog honestly. The active goal remains open after this slice unless all 194 quests are proven minute-detail complete.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
