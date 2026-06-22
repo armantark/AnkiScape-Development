@@ -22,8 +22,10 @@ noncombat stage flow, while keeping the generated pre-EOC quest reward surface.
 - The Darkan implementation advances through rail repairs, Lawgof reports,
   Gilob's remains, goblin hideout route, Lollk rescue, toolkit/cannon repair,
   Nulodion handoff, and Lawgof completion dialogue.
-- The rail repair step consumes six `Railing` items and requires a hammer/tool.
-- The remains step consumes `Dwarf remains`.
+- Captain Lawgof gives six `Railing` items before the rail repair step consumes
+  them and requires a hammer/tool.
+- The watchtower route produces `Dwarf remains` before the Captain Lawgof
+  hand-in consumes them.
 - Lawgof gives a `Toolkit`; the cannon repair step requires it but does not
   consume it.
 - Nulodion gives `Ammo mould` and `Nulodion's notes`; Captain Lawgof consumes
@@ -34,12 +36,12 @@ noncombat stage flow, while keeping the generated pre-EOC quest reward surface.
 ## Implementation
 
 - Added a focused `QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID["dwarf_cannon"]`
-  chain in `quest_data.py` with ten source-backed gate rows and no combat
+  chain in `quest_data.py` with thirteen source-backed gate rows and no combat
   encounters.
 - Added Dwarf Cannon metadata replacement support so focused stage replacements
   can override generated stage count, journal stages, and combat summary.
-- Dwarf Cannon now has 11 total quest states: ten active gates plus a final
-  completion state, matching the existing focused-quest convention.
+- Dwarf Cannon now has 14 total quest states: thirteen active gates plus a
+  final completion state, matching the existing focused-quest convention.
 - Added quest item registry entries and fetched icons for `Railing`,
   `Dwarf remains`, `Toolkit`, `Nulodion's notes`, and `Ammo mould`.
 - `assets_provenance.json` records these new `questitems/` PNGs. The art source
@@ -91,18 +93,29 @@ Manual Anki smoke checklist:
    Quests tab.
 2. Confirm the quest card shows combat as `None.` and does not show a goblin
    battle as the current blocker.
-3. With fewer than six `Railing` or without a `Hammer`, answer one Quest review
-   and confirm questing turns off with the relevant missing item/tool blocker.
-4. Add `Railing x6` and `Hammer x1`, answer one Quest review, and confirm the
-   quest advances to `Dwarf Cannon 2/11`, consumes the railings, keeps the
+3. Answer the first Quest review and confirm Captain Lawgof gives
+   `Railing x6`, moving the quest to `Dwarf Cannon 2/14`.
+4. At `Dwarf Cannon 2/14`, remove the railings or hammer, answer one Quest
+   review, and confirm questing turns off with the relevant missing item/tool
+   blocker.
+5. Restore `Railing x6` and `Hammer x1`, answer one Quest review, and confirm
+   the quest advances to `Dwarf Cannon 3/14`, consumes the railings, keeps the
    hammer, and does not create a combat encounter.
-5. Walk the remaining stage blockers by adding the required action/route flags
+6. Walk the remaining stage blockers by adding the required action/route flags
    and items in order: Lawgof repair report, `Dwarf remains`, goblin hideout
    route, Lollk rescue, Lollk safe report, cannon repair, cannon repaired
    report, `Ammo mould` plus `Nulodion's notes`, and final recommendation.
-6. Confirm `Toolkit` is produced before the cannon repair stage and retained.
-7. Confirm `750 Crafting XP` and one quest point are awarded only after the
+7. Confirm `Dwarf remains`, `Toolkit`, `Ammo mould`, and `Nulodion's notes` are
+   produced before their later stages require or consume them.
+8. Confirm `750 Crafting XP` and one quest point are awarded only after the
    final recommendation stage completes.
+
+## Quest-Only Item Follow-Up
+
+A later same-day correction split the old repair/remains/Nulodion hand-ins so
+the quest first produces `Railing`, `Dwarf remains`, `Ammo mould`, and
+`Nulodion's notes`. These items are still real blockers at their current
+stages, but they are not treated as impossible external inventory requirements.
 
 ## Deferred
 

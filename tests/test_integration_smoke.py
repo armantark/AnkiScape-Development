@@ -579,7 +579,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.player_data = {
             "inventory": {"Railing": 6, "Hammer": 1},
             "current_quest": "dwarf_cannon",
-            "quests": {"dwarf_cannon": {"started": True, "progress": 1, "completed": False}},
+            "quests": {"dwarf_cannon": {"started": True, "progress": 2, "completed": False}},
             "quest_points": 0,
             "crafting_exp": 0,
             "claims": {"wicked_hood": {"claimed": False}},
@@ -594,7 +594,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.current_skill, "Quests")
         self.assertFalse(addon.player_data["quests"]["dwarf_cannon"]["completed"])
-        self.assertEqual(addon.player_data["quests"]["dwarf_cannon"]["progress"], 2)
+        self.assertEqual(addon.player_data["quests"]["dwarf_cannon"]["progress"], 3)
         self.assertEqual(addon.player_data["inventory"]["Railing"], 0)
         self.assertEqual(addon.player_data["inventory"]["Hammer"], 1)
         self.assertEqual(addon.player_data["quest_combat_encounters"], {})
@@ -602,7 +602,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["quest_points"], 0)
         self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["Dwarf Cannon 2/11"])
+        self.assertEqual(calls["gains"], ["Dwarf Cannon 3/14"])
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 
@@ -688,7 +688,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Sheep feed"], 1)
         self.assertEqual(addon.player_data["quest_points"], 0)
         self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["Sheep Herder 2/4"])
+        self.assertEqual(calls["gains"], ["Sheep Herder 2/6"])
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 
@@ -775,7 +775,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Pigeon cage"], 1)
         self.assertEqual(addon.player_data["quest_points"], 0)
         self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["Biohazard 4/13"])
+        self.assertEqual(calls["gains"], ["Biohazard 4/14"])
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 

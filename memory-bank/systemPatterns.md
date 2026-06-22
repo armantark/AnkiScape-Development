@@ -112,6 +112,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   fixes its generated stage-61/prose-parser row into nine source-backed stages.
   The 2011Scape starter batch then replaced bad generated rows for Cook's
   Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer.
+  Quest-only products must be produced by earlier quest stages before a later
+  hand-in consumes or requires them; Cook's Assistant proves this by producing
+  Super large egg, Top-quality milk, and Extra fine flour in stages, with only
+  Bucket and Empty pot acting as external inventory blockers. The same rule now
+  protects Clock Tower rat poison/cogs, Monk's Friend blanket, Dwarf Cannon
+  railings/remains/Nulodion items, Sheep Herder cattleprod/bones, and
+  Biohazard's rotten apple.
   The 2011Scape intermediate batch then replaced The Restless Ghost, Rune
   Mysteries, and Lost City with local source-backed item/action/route/combat
   chains. The Demon Slayer focused replacement then moved bucket water, bones,
@@ -141,8 +148,9 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   stages all advance independently instead of being flattened into start locks.
   Sheep Herder then proves the same pattern for noncombat animal-disposal
   quest stages: poisoned sheep feed is produced and retained, Doctor Orbon's
-  clothing is bought mid-quest, cattleprod/clothing are required tools, and the
-  four coloured sheep bones are consumed at the incineration stage. Plague City
+  clothing is bought mid-quest, the cattleprod and coloured sheep bones are
+  produced before later stages require or consume them, and the clothing remains
+  a reusable tool gate. Plague City
   then proves that generated item rewards can be narrowed when stronger local
   stage evidence produces a quest item mid-quest: the gas mask is produced by
   Alrena and only `A magic scroll` remains a final item reward. Waterfall Quest

@@ -4,7 +4,7 @@ Date: 2026-06-22
 
 ## Scope
 
-Backend-focused quest-stage replacement for Sheep Herder. This replaces the generated 7-stage quick-guide placeholder with a local Darkan-backed 4-stage chain that preserves startability versus finishability.
+Backend-focused quest-stage replacement for Sheep Herder. This replaces the generated 7-stage quick-guide placeholder with a local Darkan-backed 6-stage chain that preserves startability versus finishability.
 
 Frontend change is limited to test coverage of the existing Quests tab blocked-at-stage display. No UI behavior was redesigned in this slice.
 
@@ -26,9 +26,11 @@ Frontend change is limited to test coverage of the existing Quests tab blocked-a
 | --- | --- | --- |
 | 1 | Accept poisoned sheep feed from Councillor Halgrive. | Produces `Sheep feed x1`. |
 | 2 | Buy protective clothing from Doctor Orbon. | Consumes `Coins x100`; produces `Plague jacket x1` and `Plague trousers x1`. |
-| 3 | Herd, poison, incinerate, and report all four infected sheep. | Requires `Sheep feed x1`; requires tools/equipment `Plague jacket`, `Plague trousers`, `Cattleprod`; consumes `Red sheep bones`, `Green sheep bones`, `Blue sheep bones`, and `Yellow sheep bones`; requires the Ardougne sheep enclosure route plus per-colour sheep action flags and the Halgrive report action. |
+| 3 | Find the cattleprod at the Ardougne sheep enclosure. | Produces `Cattleprod x1` through a route/action gate. |
+| 4 | Herd and poison all four infected sheep. | Requires `Sheep feed x1`; requires tools/equipment `Plague jacket`, `Plague trousers`, and `Cattleprod`; produces `Red sheep bones`, `Green sheep bones`, `Blue sheep bones`, and `Yellow sheep bones`; requires the Ardougne sheep enclosure route plus per-colour sheep action flags. |
+| 5 | Incinerate all four sets of sheep bones and report back. | Consumes `Red sheep bones`, `Green sheep bones`, `Blue sheep bones`, and `Yellow sheep bones`; requires the Halgrive report action. |
 
-`Sheep feed` is required but not consumed because the local Darkan implementation does not delete it when used on sheep. The cattleprod is modeled as a required tool, not a produced quest item, because Darkan points the player to the barn through Farmer Brumty dialogue instead of granting it through quest dialogue.
+`Sheep feed` is required but not consumed because the local Darkan implementation does not delete it when used on sheep. The cattleprod and coloured sheep bones are quest-route products, so they are produced before the later stages require or consume them rather than being treated as bank requirements.
 
 ## Assets
 
@@ -66,6 +68,23 @@ Audit after this slice:
 - produced_inventory rows: 58
 - statless_combat_encounters: 105
 
+## Quest-Only Item Follow-Up
+
+A later same-day correction split the old all-in-one herding/incineration row
+into route production and hand-in stages. The player should not be blocked on
+pre-owning `Cattleprod` or coloured sheep bones: the quest creates those items
+before the disposal stage consumes them.
+
+Current audit after this follow-up:
+
+- stage_requirement_rows: 1,119
+- produced_inventory rows: 116
+- combat_encounter_rows: 288
+- combat_encounters_with_resolver_stats: 185
+- statless_combat_encounters: 103
+
 ## Remaining Quest-Parity Gap
 
-This slice updates Sheep Herder only. The all-quest goal remains active: 168 quests still lack explicit source-backed `QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID` rows and continue to rely on generated catalog blockers or focused combat additions until audited.
+This slice updates Sheep Herder only. The all-quest goal remains active: broad
+generated rows still need minute-detail source reconciliation even though every
+quest now has at least one machine-readable current-stage blocker.

@@ -38,13 +38,14 @@ Coverage after this slice from `python3 tools/audit_quest_stage_gate_coverage.py
 
 ## Backend Changes
 
-- `quest_data.py` adds a focused 13-stage Biohazard journal/stage model.
+- `quest_data.py` adds a focused 14-stage Biohazard journal/stage model.
 - Stage-local gates now model:
   - Jerico and Omart route actions before crossing the wall.
   - Bird feed and Pigeon cage production at Jerico's house.
   - Bird feed consumption and retained Pigeon cage use at the release tile.
   - West Ardougne rope-ladder route state.
-  - Rotten apple consumption and Doctors' gown production at Mourner HQ.
+  - Rotten apple production from the Mourner HQ garden, then rotten apple
+    consumption and Doctors' gown production at Mourner HQ.
   - Doctors' gown tool requirement, level 13 Mourner combat, Key production,
     cage unlocking, and Distillator production.
   - Distillator hand-in to Elena, producing Liquid honey, Ethenea, Sulphuric
@@ -92,19 +93,31 @@ Use a throwaway Anki profile or back up the current AnkiScape save first.
    `Bird feed x1` and `Pigeon cage x1`.
 3. At progress 4, remove Bird feed and confirm the quest is blocked with the
    missing item/tool/route/action reason and does not mark complete.
-4. At progress 7, keep combat resolver disabled and confirm the Mourner stage is
+4. At progress 6, answer the garden stage and confirm `Rotten apple x1` is
+   produced before any Mourner HQ stew hand-in consumes it.
+5. At progress 7, remove the rotten apple and confirm the stew stage blocks
+   without producing `Doctors' gown`.
+6. Restore `Rotten apple x1`, advance the stew stage, then keep combat resolver
+   disabled and confirm the Mourner stage is
    blocked as combat-locked, with no XP or completion reward.
-5. Enable `quest_combat_config.resolver_enabled`, give the test save sufficient
+7. Enable `quest_combat_config.resolver_enabled`, give the test save sufficient
    combat stats, resolve `biohazard_mourner_13`, and confirm the next valid
    stage progress produces Key and Distillator without completing the quest.
-6. At progress 10, remove `Priest gown` and confirm the Guidor stage blocks
+8. At progress 11, remove `Priest gown` and confirm the Guidor stage blocks
    without consuming Liquid honey, Ethenea, Sulphuric broline, Plague sample, or
    Touch paper.
-7. Restore `Priest gown x2`, route state, and errand-boy actions. Confirm stage
-   10 consumes the vials/sample/touch paper and advances.
-8. Complete the Elena and King Lathas report stages. Confirm Biohazard awards 3
+9. Restore `Priest gown x2`, route state, and errand-boy actions. Confirm stage
+   11 consumes the vials/sample/touch paper and advances.
+10. Complete the Elena and King Lathas report stages. Confirm Biohazard awards 3
    quest points, adds `Combat Training Camp x1`, and queues `thieving_exp:
    1250.0` exactly once.
+
+## Quest-Only Item Follow-Up
+
+A later same-day correction split the Mourner HQ garden pickup from the stew
+poisoning step. The rotten apple is now produced by Biohazard before it is
+consumed, so the player is not blocked on a quest-specific item that cannot be
+obtained outside the quest route.
 
 ## Verification
 

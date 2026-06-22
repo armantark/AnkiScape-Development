@@ -196,9 +196,10 @@ combat gates to their real stages, and kept Wolfbane/1,406 Prayer XP behind
 valid completion. A 2011Scape starter-quest batch then added
 `produced_inventory` stage transitions and replaced bad generated rows for
 Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre
-Slayer: special Cook ingredients are consumed at completion, Imp Catcher
-consumes only the four beads and no longer grants generated coins, Druidic
-Ritual transforms raw meats into enchanted meats before Sanfew/Kaqemeex,
+Slayer: Cook's Assistant produces its quest-only cake ingredients in quest
+stages and only blocks on Bucket/Empty pot before the final hand-in consumes
+them, Imp Catcher consumes only the four beads and no longer grants generated
+coins, Druidic Ritual transforms raw meats into enchanted meats before Sanfew/Kaqemeex,
 Pirate's Treasure produces Chest key and Pirate message, and Vampyre Slayer
 produces stake/stake hammer, keeps garlic optional, resolves Count Draynor at
 stage 3, consumes the stake after the battle gate, and requires the Morgan
@@ -274,20 +275,22 @@ because the source uses ID-dependent attack/defence expressions.
 Post-slice audit reports 463 stage rows, 46 produced-inventory rows, 285 combat
 encounters, 179 resolver-ready combat encounters, 174 quests with item/tool
 blockers, 120 quests with combat blockers, and 106 statless combat rows.
-Dwarf Cannon then added ten source-backed noncombat gate rows plus an 11th
-completion state: rail repairs, Lawgof report, Gilob's remains, goblin hideout
-route, Lollk rescue, toolkit production, cannon repair, Nulodion handoff, and
-Lawgof's final recommendation. This removes the false live Goblins combat row,
-sets Dwarf Cannon's combat summary to `None.`, and registers the relevant quest
-item icons. A local Darkan quest-stage batch then replaced generated/broad rows
+Dwarf Cannon then added thirteen source-backed noncombat gate rows plus a 14th
+completion state: Lawgof's railing grant, rail repairs, Lawgof report, Gilob's
+remains pickup and hand-in, goblin hideout route, Lollk rescue, toolkit
+production, cannon repair, Nulodion item grant and hand-in, and Lawgof's final
+recommendation. This removes the false live Goblins combat row, sets Dwarf
+Cannon's combat summary to `None.`, and registers the relevant quest item icons.
+A local Darkan quest-stage batch then replaced generated/broad rows
 for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem,
 and Scorpion Catcher. It models fishing pass/fee/garlic/giant-carp/trophy
 transforms, Gertrude's milk/doogle/kittens flow, Clock Tower rat poison and
-cogs, Monk's Friend blanket/Cedric supplies, Tribal Totem RPDT label/totem
-flow, and Scorpion Catcher scorpion cage plus the level 39 jailer combat gate.
+cogs as quest-produced items before consumption, Monk's Friend blanket/Cedric
+supplies, Tribal Totem RPDT label/totem flow, and Scorpion Catcher scorpion cage
+plus the level 39 jailer combat gate.
 Sheep Herder then replaced the generated quick-guide row with Darkan-backed
-poisoned feed, Doctor Orbon clothing, cattleprod/tool, coloured sheep-bone
-incineration, and Councillor Halgrive report gates.
+poisoned feed, Doctor Orbon clothing, cattleprod production, coloured sheep-bone
+production/incineration, and Councillor Halgrive report gates.
 Plague City and Waterfall Quest then replaced generated/broad rows with
 Darkan-backed stage chains for gas-mask production, Edmond sewer entry,
 Rehnison/Bravek prison access, hangover cure, warrant/key rescue, Baxtorian
@@ -332,8 +335,11 @@ quest has at least one source-backed current-stage gate, parser heading false
 positives are skipped, prefix combat quantities are preserved, Shilo Village's
 Nazastarool forms are split, Legends' Quest's Nezikchened quantity is sourced,
 The Feud has a Tough guy combat row, and Recipe for Disaster: Freeing Sir Amik
-Varze has a resolver-ready Black Dragon row. Current audit output is 194/194
-quests with stage requirements, 1,107 stage rows, 104 produced-inventory rows,
+Varze has a resolver-ready Black Dragon row. A quest-only item cleanup then
+ensured same-quest products are produced before later stage consumption for
+Cook's Assistant, Clock Tower, Monk's Friend, Sheep Herder, Biohazard, and Dwarf
+Cannon, with a regression invariant for the stage graph. Current audit output is
+194/194 quests with stage requirements, 1,119 stage rows, 116 produced-inventory rows,
 288 combat encounters, 185 resolver-ready combat encounters, 174 quests with
 item/tool blockers, 190 quests with action blockers, 18 quests with route
 blockers, 120 quests with combat blockers, and 103 statless combat rows.
@@ -345,6 +351,17 @@ partner/branch state, puzzle state, broad combat stat enrichment, and full
 combat simulation remain future work; those gaps fail closed through blockers
 and are tracked in
 `memory-bank/source-audits/quest-all-catalog-stage-gate-final-2026-06-22.md`.
+The low-reasoning subagent audit also flagged generated/prose rows that need
+focused source replacement rather than blind unblock: Monkey Madness dentures/
+mould/talisman, Elemental Workshop II's slashed book, Enlightened Journey's
+sandbags/willow branch route, Icthlarin's Little Helper's bucket of sap, King's
+Ransom's animate rock scroll, The Fremennik Isles yak-hide/shield route,
+Shield of Arrav partner key handoff, and parser-shaped pseudo-inventory rows
+such as Lletya, Oronwen, Rimmington, Love Story, Crafting table 3, Agility
+Pyramid, random bronze equipment, Tears of Guthix cavern, Thieving, and Mining.
+Keep these blocked until source-backed stage replacements or parser route/action
+conversions exist; do not silently remove them just because the current blocker
+looks quest-specific.
 
 User story: As a future quest implementer, I want quest unlock rules recorded in
 one auditable pattern, so adding Lost City, Swan Song, Tai Bwo Wannai Trio, and
@@ -412,13 +429,13 @@ Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion
 Catcher, the Sheep Herder focused stage replacement, the Plague City and
 Waterfall Quest focused stage replacements, or the Biohazard focused stage
 replacement, the Heroes' Quest focused stage replacement, or the Family Crest
-focused stage replacement, the Temple of Ikov focused stage replacement, or the
-  Holy Grail/Tree Gnome Village focused stage replacement, or the final
-  all-catalog stage-gate pass. `quest_catalog_generated.py`
+focused stage replacement, the Temple of Ikov focused stage replacement, the
+Holy Grail/Tree Gnome Village focused stage replacement, the final all-catalog
+stage-gate pass, or the quest-only item cleanup pass. `quest_catalog_generated.py`
 already contains 194 pre-EOC quest rows available before the 2012-11-20 EOC
 cutoff, with Recipe for Disaster split into separate subquests, generated by
 `tools/build_pre_eoc_quest_catalog.py`. Runtime quest data now reports 194/194
-quests with at least one machine-readable stage requirement, 1,107 stage rows, 104
+quests with at least one machine-readable stage requirement, 1,119 stage rows, 116
 produced-inventory transitions, quest-start inventory grants, required-action
 blockers, route blockers, route-variant branch rows, grouped item-option
 blockers, globally locked combat blockers, and a resolver-enabled path that

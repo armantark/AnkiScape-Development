@@ -91,7 +91,7 @@ class TestQuestCatalog(unittest.TestCase):
         data = quests_as_dict()
         quest = data["biohazard"]
 
-        self.assertEqual(quest["stages"], 13)
+        self.assertEqual(quest["stages"], 14)
         self.assertEqual(quest["required_items"], {})
         self.assertEqual(quest["combat"], "You will need to defeat a level 13 mourner.")
         self.assertEqual(
@@ -100,25 +100,26 @@ class TestQuestCatalog(unittest.TestCase):
         )
 
         by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
-        self.assertIn("darkan-world-server", by_stage[7]["source"])
+        self.assertIn("darkan-world-server", by_stage[8]["source"])
         self.assertEqual(by_stage[1]["required_inventory_options"], ())
         self.assertEqual(by_stage[3]["produced_inventory"], {"Bird feed": 1, "Pigeon cage": 1})
         self.assertEqual(by_stage[4]["consumed_inventory"], {"Bird feed": 1})
         self.assertEqual(by_stage[4]["required_tools"], {"Pigeon cage": 1})
-        self.assertEqual(by_stage[6]["consumed_inventory"], {"Rotten apple": 1})
-        self.assertEqual(by_stage[6]["produced_inventory"], {"Doctors' gown": 1})
-        self.assertEqual(by_stage[8]["consumed_inventory"], {"Distillator": 1})
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Rotten apple": 1})
+        self.assertEqual(by_stage[7]["consumed_inventory"], {"Rotten apple": 1})
+        self.assertEqual(by_stage[7]["produced_inventory"], {"Doctors' gown": 1})
+        self.assertEqual(by_stage[9]["consumed_inventory"], {"Distillator": 1})
         self.assertEqual(
-            by_stage[8]["produced_inventory"],
+            by_stage[9]["produced_inventory"],
             {"Liquid honey": 1, "Ethenea": 1, "Sulphuric broline": 1, "Plague sample": 1},
         )
-        self.assertEqual(by_stage[10]["required_tools"], {"Priest gown": 2})
+        self.assertEqual(by_stage[11]["required_tools"], {"Priest gown": 2})
         self.assertEqual(
-            by_stage[10]["consumed_inventory"],
+            by_stage[11]["consumed_inventory"],
             {"Liquid honey": 1, "Ethenea": 1, "Sulphuric broline": 1, "Plague sample": 1, "Touch paper": 1},
         )
 
-        mourner = by_stage[7]["combat_encounters"][0]
+        mourner = by_stage[8]["combat_encounters"][0]
         self.assertEqual(mourner["encounter_id"], "biohazard_mourner_13")
         self.assertEqual(mourner["display_name"], "Mourner")
         self.assertEqual(mourner["level"], 13)
@@ -593,10 +594,18 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertLess(len(hazeel_stage_1["required_actions"][0]), 80)
         self.assertIn("oldid=6579784", hazeel_stage_1["source"])
 
-        cooks = data["cooks_assistant"]["stage_requirements"][0]
-        self.assertEqual(cooks["stage"], 1)
+        cooks_by_stage = {row["stage"]: row for row in data["cooks_assistant"]["stage_requirements"]}
+        self.assertEqual(data["cooks_assistant"]["stages"], 5)
+        self.assertEqual(set(cooks_by_stage), {1, 2, 3, 4})
+        self.assertEqual(cooks_by_stage[1]["produced_inventory"], {"Super large egg": 1})
+        self.assertEqual(cooks_by_stage[2]["required_inventory"], {"Bucket": 1})
+        self.assertEqual(cooks_by_stage[2]["consumed_inventory"], {"Bucket": 1})
+        self.assertEqual(cooks_by_stage[2]["produced_inventory"], {"Top-quality milk": 1})
+        self.assertEqual(cooks_by_stage[3]["required_inventory"], {"Empty pot": 1})
+        self.assertEqual(cooks_by_stage[3]["consumed_inventory"], {"Empty pot": 1})
+        self.assertEqual(cooks_by_stage[3]["produced_inventory"], {"Extra fine flour": 1})
         self.assertEqual(
-            cooks["consumed_inventory"],
+            cooks_by_stage[4]["consumed_inventory"],
             {"Top-quality milk": 1, "Extra fine flour": 1, "Super large egg": 1},
         )
 
@@ -1145,6 +1154,31 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
 
+    def test_same_quest_products_are_not_consumed_before_they_are_produced(self):
+        violations = []
+        for quest_id, quest in quests_as_dict().items():
+            stage_requirements = quest["stage_requirements"]
+            quest_products = {
+                item_name
+                for requirement in stage_requirements
+                for item_name in requirement["produced_inventory"]
+            }
+            produced = set(quest["start_inventory"])
+            for requirement in sorted(
+                stage_requirements,
+                key=lambda row: (row["stage"], row["variant"], row["description"]),
+            ):
+                consumed = set(requirement["consumed_inventory"])
+                for option_group in requirement["consumed_inventory_options"]:
+                    for option in option_group:
+                        consumed.update(option)
+                for item_name in sorted(consumed & quest_products):
+                    if item_name not in produced:
+                        violations.append((quest_id, requirement["stage"], item_name))
+                produced.update(requirement["produced_inventory"])
+
+        self.assertEqual(violations, [])
+
     def test_generated_catalog_enriches_safe_combat_name_matches(self):
         data = quests_as_dict()
 
@@ -1173,21 +1207,24 @@ class TestQuestCatalog(unittest.TestCase):
         quest = data["dwarf_cannon"]
         by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
 
-        self.assertEqual(quest["stages"], 11)
+        self.assertEqual(quest["stages"], 14)
         self.assertEqual(quest["combat"], "None.")
         self.assertEqual(quest["xp_rewards"], ({"skill_id": "crafting", "amount": 750.0},))
-        self.assertEqual(quest["journal_stages"][11], ("Captain Lawgof gave his recommendation.", "Quest complete!"))
-        self.assertEqual(len(quest["stage_requirements"]), 10)
+        self.assertEqual(quest["journal_stages"][14], ("Captain Lawgof gave his recommendation.", "Quest complete!"))
+        self.assertEqual(len(quest["stage_requirements"]), 13)
         self.assertTrue(all(not row["combat_encounters"] for row in quest["stage_requirements"]))
-        self.assertEqual(by_stage[1]["consumed_inventory"], {"Railing": 6})
-        self.assertEqual(by_stage[1]["required_tools"], {"Hammer": 1})
-        self.assertEqual(by_stage[3]["consumed_inventory"], {"Dwarf remains": 1})
-        self.assertEqual(by_stage[4]["required_routes"], ("Reach the Dwarf Cannon goblin hideout",))
-        self.assertEqual(by_stage[5]["required_actions"], ("Rescue Lollk from the goblin hideout",))
-        self.assertEqual(by_stage[6]["produced_inventory"], {"Toolkit": 1})
-        self.assertEqual(by_stage[7]["required_tools"], {"Toolkit": 1})
-        self.assertEqual(by_stage[9]["consumed_inventory"], {"Ammo mould": 1, "Nulodion's notes": 1})
-        self.assertIn("DwarfCannon.java", by_stage[1]["source"])
+        self.assertEqual(by_stage[1]["produced_inventory"], {"Railing": 6})
+        self.assertEqual(by_stage[2]["consumed_inventory"], {"Railing": 6})
+        self.assertEqual(by_stage[2]["required_tools"], {"Hammer": 1})
+        self.assertEqual(by_stage[4]["produced_inventory"], {"Dwarf remains": 1})
+        self.assertEqual(by_stage[5]["consumed_inventory"], {"Dwarf remains": 1})
+        self.assertEqual(by_stage[6]["required_routes"], ("Reach the Dwarf Cannon goblin hideout",))
+        self.assertEqual(by_stage[7]["required_actions"], ("Rescue Lollk from the goblin hideout",))
+        self.assertEqual(by_stage[8]["produced_inventory"], {"Toolkit": 1})
+        self.assertEqual(by_stage[9]["required_tools"], {"Toolkit": 1})
+        self.assertEqual(by_stage[11]["produced_inventory"], {"Ammo mould": 1, "Nulodion's notes": 1})
+        self.assertEqual(by_stage[12]["consumed_inventory"], {"Ammo mould": 1, "Nulodion's notes": 1})
+        self.assertIn("DwarfCannon.java", by_stage[2]["source"])
 
     def test_local_source_batch_quest_stage_replacements_are_structured(self):
         data = quests_as_dict()
@@ -1226,22 +1263,28 @@ class TestQuestCatalog(unittest.TestCase):
 
         clock = data["clock_tower"]
         clock_by_stage = {row["stage"]: row for row in clock["stage_requirements"]}
-        self.assertEqual(clock["stages"], 4)
+        self.assertEqual(clock["stages"], 6)
         self.assertEqual(clock["combat"], "None.")
-        self.assertEqual(clock_by_stage[1]["consumed_inventory"], {"Rat poison": 1})
-        self.assertEqual(clock_by_stage[2]["required_inventory_options"], (({"Bucket of water": 1}, {"Ice gloves": 1}),))
+        self.assertEqual(clock_by_stage[1]["produced_inventory"], {"Rat poison": 1})
+        self.assertEqual(clock_by_stage[2]["consumed_inventory"], {"Rat poison": 1})
         self.assertEqual(
-            clock_by_stage[2]["consumed_inventory"],
+            clock_by_stage[3]["produced_inventory"],
+            {"White cog": 1, "Black cog": 1, "Blue cog": 1, "Red cog": 1},
+        )
+        self.assertEqual(clock_by_stage[4]["required_inventory_options"], (({"Bucket of water": 1}, {"Ice gloves": 1}),))
+        self.assertEqual(
+            clock_by_stage[4]["consumed_inventory"],
             {"White cog": 1, "Black cog": 1, "Blue cog": 1, "Red cog": 1},
         )
 
         monks = data["monks_friend"]
         monks_by_stage = {row["stage"]: row for row in monks["stage_requirements"]}
-        self.assertEqual(monks["stages"], 6)
+        self.assertEqual(monks["stages"], 7)
         self.assertEqual(monks["combat"], "Optional: two level 21 thieves and a level 25 head thief.")
-        self.assertEqual(monks_by_stage[1]["consumed_inventory"], {"Child's blanket": 1})
-        self.assertEqual(monks_by_stage[3]["consumed_inventory"], {"Jug of water": 1})
-        self.assertEqual(monks_by_stage[4]["consumed_inventory"], {"Logs": 1})
+        self.assertEqual(monks_by_stage[1]["produced_inventory"], {"Child's blanket": 1})
+        self.assertEqual(monks_by_stage[2]["consumed_inventory"], {"Child's blanket": 1})
+        self.assertEqual(monks_by_stage[4]["consumed_inventory"], {"Jug of water": 1})
+        self.assertEqual(monks_by_stage[5]["consumed_inventory"], {"Logs": 1})
 
         tribal = data["tribal_totem"]
         tribal_by_stage = {row["stage"]: row for row in tribal["stage_requirements"]}
@@ -1266,22 +1309,27 @@ class TestQuestCatalog(unittest.TestCase):
 
         sheep = data["sheep_herder"]
         sheep_by_stage = {row["stage"]: row for row in sheep["stage_requirements"]}
-        self.assertEqual(sheep["stages"], 4)
+        self.assertEqual(sheep["stages"], 6)
         self.assertEqual(sheep["combat"], "None.")
         self.assertEqual(sheep_by_stage[1]["produced_inventory"], {"Sheep feed": 1})
         self.assertEqual(sheep_by_stage[2]["consumed_inventory"], {"Coins": 100})
         self.assertEqual(sheep_by_stage[2]["produced_inventory"], {"Plague jacket": 1, "Plague trousers": 1})
-        self.assertEqual(sheep_by_stage[3]["required_inventory"], {"Sheep feed": 1})
+        self.assertEqual(sheep_by_stage[3]["produced_inventory"], {"Cattleprod": 1})
+        self.assertEqual(sheep_by_stage[4]["required_inventory"], {"Sheep feed": 1})
         self.assertEqual(
-            sheep_by_stage[3]["consumed_inventory"],
+            sheep_by_stage[4]["required_tools"],
+            {"Plague jacket": 1, "Plague trousers": 1, "Cattleprod": 1},
+        )
+        self.assertEqual(
+            sheep_by_stage[4]["produced_inventory"],
             {"Red sheep bones": 1, "Green sheep bones": 1, "Blue sheep bones": 1, "Yellow sheep bones": 1},
         )
         self.assertEqual(
-            sheep_by_stage[3]["required_tools"],
-            {"Plague jacket": 1, "Plague trousers": 1, "Cattleprod": 1},
+            sheep_by_stage[5]["consumed_inventory"],
+            {"Red sheep bones": 1, "Green sheep bones": 1, "Blue sheep bones": 1, "Yellow sheep bones": 1},
         )
-        self.assertEqual(sheep_by_stage[3]["required_routes"], ("Reach the Ardougne sheep enclosure",))
-        self.assertIn("SheepHerder.kt", sheep_by_stage[3]["source"])
+        self.assertEqual(sheep_by_stage[4]["required_routes"], ("Reach the Ardougne sheep enclosure",))
+        self.assertIn("SheepHerder.kt", sheep_by_stage[4]["source"])
 
         plague = data["plague_city"]
         plague_by_stage = {row["stage"]: row for row in plague["stage_requirements"]}
@@ -1359,8 +1407,11 @@ class TestQuestCatalog(unittest.TestCase):
         cooks = data["cooks_assistant"]
         self.assertEqual(cooks["rewards"]["Coins"], 500)
         self.assertEqual(cooks["rewards"]["Sardine"], 20)
-        self.assertGreaterEqual(len(cooks["journal_stages"]), 2)
-        self.assertIn("top-quality milk", " ".join(cooks["journal_stages"][1]))
+        self.assertGreaterEqual(len(cooks["journal_stages"]), 5)
+        joined_cook_journal = " ".join(" ".join(stage) for stage in cooks["journal_stages"].values())
+        self.assertIn("top-quality milk", joined_cook_journal)
+        self.assertIn("extra fine flour", joined_cook_journal)
+        self.assertIn("super large egg", joined_cook_journal)
 
         one_small_favour = data["one_small_favour"]
         self.assertEqual(one_small_favour["lamp_rewards"][0]["quantity"], 2)

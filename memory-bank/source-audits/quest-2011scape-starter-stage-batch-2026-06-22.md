@@ -43,9 +43,11 @@ Slayer.
   mutation.
 - Replaced generated rows through `quest_data.py`, not
   `quest_catalog_generated.py`.
-- Cook's Assistant now consumes `Top-quality milk`, `Extra fine flour`, and
-  `Super large egg` at the finish gate. The old generated `Bucket` and
-  `Empty pot` blocker is gone.
+- Cook's Assistant now produces quest-only cake ingredients during quest
+  stages: `Super large egg` is picked up, `Bucket` is consumed to produce
+  `Top-quality milk`, and `Empty pot` is consumed to produce `Extra fine
+  flour`. The finish gate consumes the three special ingredients only after the
+  quest has produced them.
 - Imp Catcher now consumes the four beads and awards only the Amulet of
   accuracy plus 875 Magic XP. The generated 5,000 coin reward is gone.
 - Druidic Ritual now models the Sanfew action, raw meat to enchanted meat
@@ -65,9 +67,9 @@ Slayer.
 
 - No new widget path was required. The existing Quests tab consumes the same
   blocker reasons from `quest_current_stage_blocker_reasons_pure`.
-- Added offscreen Qt coverage for Cook's Assistant showing the combined
-  source-backed missing ingredient blocker while keeping the quest in progress
-  rather than start-locked.
+- Added offscreen Qt coverage for Cook's Assistant showing the real stage
+  blocker (`Bucket` or `Empty pot`) while confirming stage 1 is not blocked on
+  quest-only cake ingredients.
 - Updated existing Vampyre Slayer UI/runtime/integration tests to use the new
   combat stage 3 and the source-backed stake/stake hammer gate.
 
@@ -125,20 +127,25 @@ QT offscreen discover: Ran 463 tests in 93.919s - OK
 
 1. Restart Anki with this add-on enabled and open AnkiScape.
 2. Set current skill to Quests.
-3. Start Cook's Assistant, leave all three special ingredients missing, and
-   confirm the Quests tab shows `Blocked: Needs Top-quality milk x1, Needs
-   Extra fine flour x1, Needs Super large egg x1`.
-4. Add the three ingredients to `player_data["inventory"]`, answer a Quest
-   review, and confirm they are consumed, `Coins x500` and `Sardine x20` are
-   awarded, 1 quest point is added, and Cooking XP increases by 300.
-5. For Druidic Ritual, move the save through stages with the matching
+3. Start Cook's Assistant with no special cake ingredients and confirm stage 1
+   can advance, producing `Super large egg`.
+4. Confirm stage 2 blocks only on `Bucket`; add `Bucket`, answer a Quest
+   review, and confirm the bucket is consumed and `Top-quality milk` is
+   produced.
+5. Confirm stage 3 blocks only on `Empty pot`; add `Empty pot`, answer a Quest
+   review, and confirm the empty pot is consumed and `Extra fine flour` is
+   produced.
+6. Answer the final hand-in review and confirm the three special ingredients
+   are consumed, `Coins x500` and `Sardine x20` are awarded, 1 quest point is
+   added, and Cooking XP increases by 300.
+7. For Druidic Ritual, move the save through stages with the matching
    `quest_stage_actions` flags. Confirm raw meats are consumed and enchanted
    meats are produced at the Cauldron stage, then enchanted meats are consumed
    before completion.
-6. For Pirate's Treasure, confirm Karamja rum produces Chest key, Chest key
+8. For Pirate's Treasure, confirm Karamja rum produces Chest key, Chest key
    produces Pirate message, and the final Spade/message dig awards only the
    casket and 2 quest points.
-7. For Vampyre Slayer, confirm stage 2 consumes Beer and produces Stake plus
+9. For Vampyre Slayer, confirm stage 2 consumes Beer and produces Stake plus
    Stake hammer; stage 3 blocks on combat while the global resolver is disabled;
    enabling the resolver with sufficient combat stats resolves Count Draynor
    without completing the quest; a later review consumes Stake and advances to
@@ -147,12 +154,13 @@ QT offscreen discover: Ran 463 tests in 93.919s - OK
 
 ## Remaining Gaps
 
-- Full all-quest minute-detail parity remains open. The plugin still has 325
-  generated stage rows that need source-backed per-stage extraction or explicit
-  blocker notes.
+- Full all-quest minute-detail parity remains open. The plugin now has
+  machine-readable current-stage blockers for every catalog quest, but many
+  generated rows still need source-backed per-stage extraction or explicit
+  blocker notes before the broad pass is historically complete.
 - Route/location gates, follower/partner state, puzzle state, and branch state
   are still broad quest-system backlog items.
 - Many quests still have generated item buckets that are useful blockers but not
   exact current-stage source evidence.
-- Combat remains globally locked by default and 109 statless combat rows remain
+- Combat remains globally locked by default and 103 statless combat rows remain
   blocked pending a new source class or full combat simulation.

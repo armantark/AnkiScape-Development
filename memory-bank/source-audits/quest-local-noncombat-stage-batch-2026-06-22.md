@@ -63,9 +63,10 @@ instruction is to stop status artifacts until the all-quest update is complete.
   - `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/clocktower/ClockTower.java`
   - `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/clocktower/ClockTowerDungeon.java`
   - `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/clocktower/BrotherKojoClockTowerD.java`
-- Stages now consume rat poison for the blocked door, require bucket of water
-  or ice gloves for cog handling, consume all four cogs, and require reporting
-  the repair to Brother Kojo.
+- Stages now produce rat poison before the blocked-door stage consumes it,
+  produce all four cogs before the spindle stage consumes them, require bucket
+  of water or ice gloves for cog handling, and require reporting the repair to
+  Brother Kojo.
 
 ### Monk's Friend
 
@@ -73,9 +74,10 @@ instruction is to stop status artifacts until the all-quest update is complete.
   - `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/monksfriend/MonksFriend.java`
   - `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/monksfriend/dialogues/BrotherOmadMonksFriendD.java`
   - `/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content/quests/monksfriend/dialogues/BrotherCedricMonksFriendD.java`
-- Stages now consume the child's blanket, jug of water, and logs at the points
-  where the local handlers advance quest state. Optional thieves remain prose,
-  not hard combat blockers.
+- Stages now produce the child's blanket before Brother Omad's hand-in consumes
+  it, then consume the jug of water and logs at the points where the local
+  handlers advance quest state. Optional thieves remain prose, not hard combat
+  blockers.
 
 ### Tribal Totem
 
@@ -116,6 +118,15 @@ Fetched quest item icons into `questitems/` with provenance entries:
 
 `Pet kitten` uses the RuneScape Wiki file title `Pet kitten (white) pet.png` as
 a generic kitten icon because there is no generic `Pet kitten.png` file.
+
+## Quest-Only Item Follow-Up
+
+A later same-day correction tightened this batch against the "quest-only item"
+bug class: if an item is obtained inside the same quest, the stage graph must
+produce it before a later stage can require or consume it. Clock Tower now
+produces rat poison and all four cogs before consuming them. Monk's Friend now
+produces the child's blanket before consuming it. This keeps those blockers as
+quest-route progression, not impossible bank requirements.
 
 ## Verification
 

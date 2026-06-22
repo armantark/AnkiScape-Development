@@ -1320,24 +1320,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Catch the winning giant carp", action.toolTip())
 
-    def test_quests_tab_shows_sheep_herder_current_stage_blocker(self) -> None:
+    def test_quests_tab_shows_sheep_herder_produced_bones_stage_blocker(self) -> None:
         pd = _make_player_data()
-        pd["inventory"] = {"Sheep feed": 1, "Plague jacket": 1, "Plague trousers": 1}
+        pd["inventory"] = {"Sheep feed": 1, "Plague jacket": 1, "Plague trousers": 1, "Cattleprod": 1}
         pd["current_quest"] = "sheep_herder"
-        pd["quests"]["sheep_herder"] = {"started": True, "progress": 3, "completed": False}
+        pd["quests"]["sheep_herder"] = {"started": True, "progress": 4, "completed": False}
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
-            "Blocked: Needs Red sheep bones x1, Needs Green sheep bones x1, "
-            "Needs Blue sheep bones x1, +8 more"
+            "Blocked: Action required: Herd and poison the red sheep, "
+            "Action required: Herd and poison the green sheep, "
+            "Action required: Herd and poison the blue sheep, +2 more"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_sheep_herder")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Needs Red sheep bones x1", action.toolTip())
-        self.assertIn("+8 more", action.toolTip())
+        self.assertIn("Action required: Herd and poison the red sheep", action.toolTip())
+        self.assertIn("+2 more", action.toolTip())
 
     def test_quests_tab_shows_plague_city_hangover_cure_blocker(self) -> None:
         pd = _make_player_data()
@@ -1368,7 +1369,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             "Touch paper": 1,
         }
         pd["current_quest"] = "biohazard"
-        pd["quests"]["biohazard"] = {"started": True, "progress": 10, "completed": False}
+        pd["quests"]["biohazard"] = {"started": True, "progress": 11, "completed": False}
         pd["quest_route_states"] = {
             "biohazard": ["Reach Guidor's house without Varrock guards confiscating the vials"]
         }
@@ -1495,21 +1496,36 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("vampyre_slayer", self._quest_calls)
 
-    def test_quests_tab_shows_source_backed_item_stage_blocker(self) -> None:
+    def test_quests_tab_shows_cooks_assistant_container_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "cooks_assistant"
         pd["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        self.assertIn(
+        self.assertNotIn(
             "Blocked: Needs Top-quality milk x1, Needs Extra fine flour x1, Needs Super large egg x1",
             labels,
         )
         action = dialog.findChild(QPushButton, "questAction_cooks_assistant")
         self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        dialog.close()
+        pd = _make_player_data()
+        pd["current_quest"] = "cooks_assistant"
+        pd["quests"]["cooks_assistant"] = {"started": True, "progress": 2, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn(
+            "Blocked: Needs Bucket x1",
+            labels,
+        )
+        action = dialog.findChild(QPushButton, "questAction_cooks_assistant")
+        self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Top-quality milk x1", action.toolTip())
+        self.assertIn("Bucket x1", action.toolTip())
 
     def test_quests_tab_shows_witchs_house_mouse_stage_blocker(self) -> None:
         pd = _make_player_data()

@@ -1426,18 +1426,29 @@ class TestLogic(unittest.TestCase):
 
     def test_dwarf_cannon_stage_gates_noncombat_items_actions_and_reward(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["inventory"].update({"Railing": 6, "Hammer": 1})
+        player_data["inventory"].update({"Hammer": 1})
 
         player_data, ok = start_quest_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 0)
-        self.assertTrue(can_progress_quest_pure(player_data, "dwarf_cannon", QUEST_DATA))
+        self.assertFalse(can_progress_quest_pure(player_data, "dwarf_cannon", QUEST_DATA))
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
+            ("Action required: Accept replacement railings from Captain Lawgof",),
+        )
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "dwarf_cannon", QUEST_DATA), ())
 
+        player_data["quest_stage_actions"] = {"dwarf_cannon": ["Accept replacement railings from Captain Lawgof"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Railing"], 6)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 3)
         self.assertEqual(player_data["inventory"]["Railing"], 0)
         self.assertEqual(player_data["inventory"]["Hammer"], 1)
         self.assertEqual(
@@ -1448,25 +1459,31 @@ class TestLogic(unittest.TestCase):
         blocked, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertFalse(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(blocked["quests"]["dwarf_cannon"]["progress"], 2)
+        self.assertEqual(blocked["quests"]["dwarf_cannon"]["progress"], 3)
         self.assertEqual(blocked["crafting_exp"], 0)
 
-        player_data["quest_stage_actions"] = {"dwarf_cannon": ["Report the repaired stockade to Captain Lawgof"]}
+        player_data["quest_stage_actions"]["dwarf_cannon"].append("Report the repaired stockade to Captain Lawgof")
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 3)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 4)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Needs Dwarf remains x1",),
+            ("Action required: Take Gilob's remains from the watchtower",),
         )
 
-        player_data["inventory"]["Dwarf remains"] = 1
+        player_data["quest_stage_actions"]["dwarf_cannon"].append("Take Gilob's remains from the watchtower")
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 5)
+        self.assertEqual(player_data["inventory"]["Dwarf remains"], 1)
+
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Dwarf remains"], 0)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 4)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 6)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
             ("Route required: Reach the Dwarf Cannon goblin hideout",),
@@ -1476,7 +1493,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 5)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 7)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
             ("Action required: Rescue Lollk from the goblin hideout",),
@@ -1486,7 +1503,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 6)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 8)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
             ("Action required: Tell Captain Lawgof that Lollk is safe",),
@@ -1496,7 +1513,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 7)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 9)
         self.assertEqual(player_data["inventory"]["Toolkit"], 1)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
@@ -1507,7 +1524,7 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 8)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 10)
         self.assertEqual(player_data["inventory"]["Toolkit"], 1)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
@@ -1518,18 +1535,24 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 9)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 11)
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "dwarf_cannon", QUEST_DATA),
-            ("Needs Ammo mould x1", "Needs Nulodion's notes x1"),
+            ("Action required: Speak to Nulodion about Captain Lawgof's cannon",),
         )
 
-        player_data["inventory"]["Ammo mould"] = 1
-        player_data["inventory"]["Nulodion's notes"] = 1
+        player_data["quest_stage_actions"]["dwarf_cannon"].append("Speak to Nulodion about Captain Lawgof's cannon")
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 10)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 12)
+        self.assertEqual(player_data["inventory"]["Ammo mould"], 1)
+        self.assertEqual(player_data["inventory"]["Nulodion's notes"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dwarf_cannon", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 13)
         self.assertEqual(player_data["inventory"]["Ammo mould"], 0)
         self.assertEqual(player_data["inventory"]["Nulodion's notes"], 0)
         self.assertEqual(
@@ -1542,7 +1565,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["dwarf_cannon"]["completed"])
-        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 11)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 14)
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["crafting_exp"], 750)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
@@ -1677,26 +1700,46 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Plague jacket"], 1)
         self.assertEqual(player_data["inventory"]["Plague trousers"], 1)
 
-        self.assertIn(
-            "Needs Red sheep bones x1",
+        self.assertEqual(
             quest_current_stage_blocker_reasons_pure(player_data, "sheep_herder", QUEST_DATA),
-        )
-        player_data["inventory"].update(
-            {
-                "Cattleprod": 1,
-                "Red sheep bones": 1,
-                "Green sheep bones": 1,
-                "Blue sheep bones": 1,
-                "Yellow sheep bones": 1,
-            }
+            (
+                "Action required: Pick up the cattleprod from the sheep enclosure barn",
+                "Route required: Reach the Ardougne sheep enclosure",
+            ),
         )
         player_data["quest_route_states"] = {"sheep_herder": ["Reach the Ardougne sheep enclosure"]}
+        player_data["quest_stage_actions"]["sheep_herder"].append(
+            "Pick up the cattleprod from the sheep enclosure barn"
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 4)
+        self.assertEqual(player_data["inventory"]["Cattleprod"], 1)
+
         player_data["quest_stage_actions"]["sheep_herder"].extend(
             [
                 "Herd and poison the red sheep",
                 "Herd and poison the green sheep",
                 "Herd and poison the blue sheep",
                 "Herd and poison the yellow sheep",
+            ]
+        )
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 5)
+        self.assertEqual(player_data["inventory"]["Red sheep bones"], 1)
+        self.assertEqual(player_data["inventory"]["Green sheep bones"], 1)
+        self.assertEqual(player_data["inventory"]["Blue sheep bones"], 1)
+        self.assertEqual(player_data["inventory"]["Yellow sheep bones"], 1)
+
+        player_data["quest_stage_actions"]["sheep_herder"].extend(
+            [
+                "Incinerate the red sheep bones",
+                "Incinerate the green sheep bones",
+                "Incinerate the blue sheep bones",
+                "Incinerate the yellow sheep bones",
                 "Report the incinerated sheep to Councillor Halgrive",
             ]
         )
@@ -1705,7 +1748,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["sheep_herder"]["completed"])
-        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 4)
+        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 6)
         self.assertEqual(player_data["quest_points"], 4)
         self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
         self.assertEqual(player_data["inventory"]["Red sheep bones"], 0)
@@ -1892,7 +1935,7 @@ class TestLogic(unittest.TestCase):
             ("Action required: Ask Jerico about crossing the West Ardougne wall",),
         )
 
-        player_data["inventory"].update({"Rotten apple": 1, "Priest gown": 2})
+        player_data["inventory"].update({"Priest gown": 2})
         player_data["quest_route_states"] = {
             "biohazard": [
                 "Reach Jerico's pigeon release tile",
@@ -1911,6 +1954,7 @@ class TestLogic(unittest.TestCase):
                 "Scatter bird feed on the watchtower fence",
                 "Open the pigeon cage at Jerico's release tile",
                 "Cross the West Ardougne wall with Omart and Kilron",
+                "Pick up a rotten apple from the Mourner HQ garden",
                 "Put the rotten apple in the Mourner HQ cauldron",
                 "Search the box for a doctors' gown",
                 "Enter Mourner HQ wearing the doctors' gown",
@@ -1960,11 +2004,18 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["biohazard"]["progress"], 6)
+        self.assertEqual(player_data["inventory"].get("Rotten apple", 0), 0)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["biohazard"]["progress"], 7)
+        self.assertEqual(player_data["inventory"]["Rotten apple"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 8)
         self.assertEqual(player_data["inventory"]["Rotten apple"], 0)
         self.assertEqual(player_data["inventory"]["Doctors' gown"], 1)
 
@@ -1989,14 +2040,14 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 8)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 9)
         self.assertEqual(player_data["inventory"]["Key"], 1)
         self.assertEqual(player_data["inventory"]["Distillator"], 1)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 9)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 10)
         self.assertEqual(player_data["inventory"]["Distillator"], 0)
         self.assertEqual(player_data["inventory"]["Liquid honey"], 1)
         self.assertEqual(player_data["inventory"]["Ethenea"], 1)
@@ -2006,13 +2057,13 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 10)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 11)
         self.assertEqual(player_data["inventory"]["Touch paper"], 1)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 11)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 12)
         self.assertEqual(player_data["inventory"]["Liquid honey"], 0)
         self.assertEqual(player_data["inventory"]["Ethenea"], 0)
         self.assertEqual(player_data["inventory"]["Sulphuric broline"], 0)
@@ -2023,13 +2074,13 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 12)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 13)
 
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["biohazard"]["completed"])
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 13)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 14)
         self.assertEqual(player_data["quest_points"], 3)
         self.assertEqual(player_data["inventory"]["Combat Training Camp"], 1)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {"thieving_exp": 1250.0})
@@ -3392,9 +3443,35 @@ class TestLogic(unittest.TestCase):
         cook["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
         self.assertEqual(
             quest_current_stage_blocker_reasons_pure(cook, "cooks_assistant", QUEST_DATA),
-            ("Needs Top-quality milk x1", "Needs Extra fine flour x1", "Needs Super large egg x1"),
+            (),
         )
-        cook["inventory"].update({"Top-quality milk": 1, "Extra fine flour": 1, "Super large egg": 1})
+        cook, ok, completed_now = apply_quest_progress_pure(cook, "cooks_assistant", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(cook["quests"]["cooks_assistant"]["progress"], 2)
+        self.assertEqual(cook["inventory"]["Super large egg"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(cook, "cooks_assistant", QUEST_DATA),
+            ("Needs Bucket x1",),
+        )
+        cook["inventory"]["Bucket"] = 1
+        cook, ok, completed_now = apply_quest_progress_pure(cook, "cooks_assistant", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(cook["quests"]["cooks_assistant"]["progress"], 3)
+        self.assertEqual(cook["inventory"]["Bucket"], 0)
+        self.assertEqual(cook["inventory"]["Top-quality milk"], 1)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(cook, "cooks_assistant", QUEST_DATA),
+            ("Needs Empty pot x1",),
+        )
+        cook["inventory"]["Empty pot"] = 1
+        cook, ok, completed_now = apply_quest_progress_pure(cook, "cooks_assistant", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(cook["quests"]["cooks_assistant"]["progress"], 4)
+        self.assertEqual(cook["inventory"]["Empty pot"], 0)
+        self.assertEqual(cook["inventory"]["Extra fine flour"], 1)
         cook, ok, completed_now = apply_quest_progress_pure(cook, "cooks_assistant", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
@@ -4662,7 +4739,7 @@ class TestLogic(unittest.TestCase):
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
+        player_data["quests"]["cooks_assistant"] = {"started": True, "progress": 4, "completed": False}
         player_data["inventory"]["Top-quality milk"] = 1
         player_data["inventory"]["Extra fine flour"] = 1
         player_data["inventory"]["Super large egg"] = 1

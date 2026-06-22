@@ -186,7 +186,7 @@ class TestRuntimeActions(unittest.TestCase):
                 "Touch paper": 1,
             },
             "current_quest": "biohazard",
-            "quests": {"biohazard": {"started": True, "progress": 10, "completed": False}},
+            "quests": {"biohazard": {"started": True, "progress": 11, "completed": False}},
             "quest_route_states": {
                 "biohazard": ["Reach Guidor's house without Varrock guards confiscating the vials"]
             },
@@ -210,7 +210,7 @@ class TestRuntimeActions(unittest.TestCase):
         ok = handle_quest_answer(_context(player_data, calls))
 
         self.assertFalse(ok)
-        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 10)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 11)
         self.assertFalse(player_data["quests"]["biohazard"]["completed"])
         self.assertEqual(player_data["inventory"]["Liquid honey"], 1)
         self.assertEqual(player_data["inventory"]["Touch paper"], 1)
@@ -330,9 +330,10 @@ class TestRuntimeActions(unittest.TestCase):
     def test_quest_answer_progresses_dwarf_cannon_repairs_without_goblin_gate(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Railing": 6, "Hammer": 1},
+            "inventory": {"Hammer": 1},
             "current_quest": "dwarf_cannon",
             "quests": {"dwarf_cannon": {"started": True, "progress": 1, "completed": False}},
+            "quest_stage_actions": {"dwarf_cannon": ["Accept replacement railings from Captain Lawgof"]},
             "quest_points": 0,
             "crafting_exp": 0,
             "pending_skill_exp_rewards": {},
@@ -344,7 +345,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 2)
         self.assertFalse(player_data["quests"]["dwarf_cannon"]["completed"])
-        self.assertEqual(player_data["inventory"]["Railing"], 0)
+        self.assertEqual(player_data["inventory"]["Railing"], 6)
         self.assertEqual(player_data["inventory"]["Hammer"], 1)
         self.assertEqual(player_data["quest_combat_encounters"], {})
         self.assertEqual(player_data["quest_combat_encounter_counts"], {})
@@ -352,7 +353,18 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["crafting_exp"], 0)
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Dwarf Cannon 2/11"])
+        self.assertEqual(calls["activity"], ["Dwarf Cannon 2/14"])
+
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data["quest_stage_actions"] = {"dwarf_cannon": []}
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 3)
+        self.assertEqual(player_data["inventory"]["Railing"], 0)
+        self.assertEqual(player_data["inventory"]["Hammer"], 1)
+        self.assertEqual(calls["activity"], ["Dwarf Cannon 3/14"])
 
     def test_quest_answer_blocks_and_progresses_fishing_contest_pass_gate(self):
         calls = {"xp": [], "saves": 0, "errors": []}
@@ -427,7 +439,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["quest_points"], 0)
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Sheep Herder 2/4"])
+        self.assertEqual(calls["activity"], ["Sheep Herder 2/6"])
 
     def test_quest_answer_progresses_waterfall_book_gate(self):
         calls = {"xp": [], "saves": 0, "errors": []}

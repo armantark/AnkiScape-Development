@@ -670,6 +670,10 @@ COOKS_ASSISTANT_MILLIE_MILLER_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/areas/lumbridge/millie_miller.plugin.kts"
 )
+COOKS_ASSISTANT_FLOUR_BIN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/objs/mill/flour_bin.plugin.kts"
+)
 IMP_CATCHER_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/ImpCatcher.kt"
@@ -954,10 +958,22 @@ RUNE_MYSTERIES_STAGES: Tuple[QuestStage, ...] = (
 COOKS_ASSISTANT_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(
         1,
-        "The Lumbridge cook needs top-quality milk, extra fine flour, and a super large egg for the Duke's cake.",
+        "I need to collect a super large egg near Lumbridge for the Duke's cake.",
     ),
     _simple_stage(
         2,
+        "I need a bucket so I can milk the prized dairy cow for top-quality milk.",
+    ),
+    _simple_stage(
+        3,
+        "I need an empty pot so Millie's mill can produce extra fine flour.",
+    ),
+    _simple_stage(
+        4,
+        "I have the special egg, milk, and flour. I should give them to the cook.",
+    ),
+    _simple_stage(
+        5,
         "I brought the cook all three ingredients and he made the birthday cake.",
         "Quest complete!",
     ),
@@ -2287,16 +2303,17 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
     QuestDefinition(
         id=COOKS_ASSISTANT_ID,
         display_name="Cook's Assistant",
-        stages=2,
+        stages=5,
         point_reward=1,
         rewards=(("Coins", 500), ("Sardine", 20)),
         start_point="Speak to the cook in Lumbridge Castle kitchen.",
-        requirements=("Used during quest: Top-quality milk x1, Extra fine flour x1, Super large egg x1",),
+        requirements=("Used during quest: Bucket x1, Empty pot x1",),
         required_items=(),
         combat="No specific combat.",
         source=(
             f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}; "
-            f"{COOKS_ASSISTANT_PRIZED_DAIRY_COW_SOURCE}; {COOKS_ASSISTANT_MILLIE_MILLER_SOURCE}"
+            f"{COOKS_ASSISTANT_PRIZED_DAIRY_COW_SOURCE}; {COOKS_ASSISTANT_MILLIE_MILLER_SOURCE}; "
+            f"{COOKS_ASSISTANT_FLOUR_BIN_SOURCE}"
         ),
         journal_stages=COOKS_ASSISTANT_STAGES,
         release_date="2001-01-04",
@@ -3232,19 +3249,22 @@ GERTRUDES_CAT_STAGES: Tuple[QuestStage, ...] = (
 
 CLOCK_TOWER_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Brother Kojo needs the Clock Tower's missing cogs replaced."),
-    _simple_stage(2, "The dungeon rats are dealt with. I need the four cogs on their spindles."),
-    _simple_stage(3, "The clock is repaired. I should report back to Brother Kojo."),
-    _simple_stage(4, "Brother Kojo rewarded me for repairing the tower.", "Quest complete!"),
+    _simple_stage(2, "I found rat poison in the Clock Tower dungeon and should use it on the rats."),
+    _simple_stage(3, "The dungeon rats are dealt with. I need to find the four cogs."),
+    _simple_stage(4, "I found the four cogs. They need to be placed on their matching spindles."),
+    _simple_stage(5, "The clock is repaired. I should report back to Brother Kojo."),
+    _simple_stage(6, "Brother Kojo rewarded me for repairing the tower.", "Quest complete!"),
 )
 
 
 MONKS_FRIEND_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Brother Omad needs the child's blanket recovered from the thieves' hideout."),
-    _simple_stage(2, "Brother Omad can tell me what else is needed for the birthday party."),
-    _simple_stage(3, "Brother Cedric is lost outside the monastery and needs a jug of water."),
-    _simple_stage(4, "Brother Cedric needs logs to repair his cart."),
-    _simple_stage(5, "Brother Cedric is returning. I should tell Brother Omad and join the party."),
-    _simple_stage(6, "Brother Omad's party is underway.", "Quest complete!"),
+    _simple_stage(2, "I recovered the child's blanket and should return it to Brother Omad."),
+    _simple_stage(3, "Brother Omad can tell me what else is needed for the birthday party."),
+    _simple_stage(4, "Brother Cedric is lost outside the monastery and needs a jug of water."),
+    _simple_stage(5, "Brother Cedric needs logs to repair his cart."),
+    _simple_stage(6, "Brother Cedric is returning. I should tell Brother Omad and join the party."),
+    _simple_stage(7, "Brother Omad's party is underway.", "Quest complete!"),
 )
 
 
@@ -3278,14 +3298,22 @@ SHEEP_HERDER_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(
         2,
         "Doctor Orbon sold me a plague jacket and plague trousers.",
-        "I need the protective clothing and cattleprod to herd, poison, and incinerate all four sheep.",
+        "I need a cattleprod from the Ardougne sheep enclosure before handling the infected sheep.",
     ),
     _simple_stage(
         3,
+        "I found the cattleprod. I need to herd and poison the red, green, blue, and yellow sheep.",
+    ),
+    _simple_stage(
+        4,
+        "The infected sheep bones need to be incinerated.",
+    ),
+    _simple_stage(
+        5,
         "I incinerated the red, green, blue, and yellow sheep bones.",
         "Councillor Halgrive should hear that the infected sheep are gone.",
     ),
-    _simple_stage(4, "Councillor Halgrive paid me for clearing the infected sheep.", "Quest complete!"),
+    _simple_stage(6, "Councillor Halgrive paid me for clearing the infected sheep.", "Quest complete!"),
 )
 
 
@@ -3395,35 +3423,40 @@ BIOHAZARD_STAGES: Tuple[QuestStage, ...] = (
     ),
     _simple_stage(
         7,
+        "I found a rotten apple in the Mourner HQ garden.",
+        "The apple can spoil the mourners' stew.",
+    ),
+    _simple_stage(
+        8,
         "A rotten apple poisoned the Mourner HQ stew.",
         "A doctors' gown should let me enter and recover the distillator.",
     ),
     _simple_stage(
-        8,
+        9,
         "I recovered Elena's distillator from the Mourner HQ.",
         "Elena needs it back so she can prepare the plague sample reagents.",
     ),
     _simple_stage(
-        9,
+        10,
         "Elena gave me three vials and a plague sample for Guidor.",
         "The Rimmington chemist should provide more touch paper.",
     ),
     _simple_stage(
-        10,
+        11,
         "The chemist gave me touch paper and warned me about Varrock checks.",
         "His errand boys can smuggle the vials to the Dancing Donkey Inn.",
     ),
     _simple_stage(
-        11,
+        12,
         "Guidor found that the plague sample is harmless.",
         "Elena should hear that the plague may be a hoax.",
     ),
     _simple_stage(
-        12,
+        13,
         "Elena told me to take the news straight to King Lathas.",
         "King Lathas should explain what happens next.",
     ),
-    _simple_stage(13, "King Lathas rewarded me for exposing the hoax.", "Quest complete!"),
+    _simple_stage(14, "King Lathas rewarded me for exposing the hoax.", "Quest complete!"),
 )
 
 
@@ -3455,16 +3488,19 @@ WATERFALL_QUEST_STAGES: Tuple[QuestStage, ...] = (
 
 DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Captain Lawgof needs the Black Guard camp railings repaired."),
-    _simple_stage(2, "The six broken railings have been repaired. I should report back to Captain Lawgof."),
-    _simple_stage(3, "Captain Lawgof asked me to find Gilob's remains near the watchtower."),
-    _simple_stage(4, "Captain Lawgof found a child hidden in the goblin cave south-east of the camp."),
-    _simple_stage(5, "I found Lollk in the goblin hideout and need to get him to safety."),
-    _simple_stage(6, "Lollk is safe. Captain Lawgof has a toolkit for repairing the sabotaged cannon."),
-    _simple_stage(7, "The cannon still needs to be repaired with Captain Lawgof's toolkit."),
-    _simple_stage(8, "The cannon is repaired. Captain Lawgof wants help from Nulodion."),
-    _simple_stage(9, "Nulodion gave me an ammo mould and notes to take back to Captain Lawgof."),
-    _simple_stage(10, "Captain Lawgof accepted Nulodion's parts. I should receive his cannon recommendation."),
-    _simple_stage(11, "Captain Lawgof gave his recommendation.", "Quest complete!"),
+    _simple_stage(2, "Captain Lawgof gave me six railings. The broken stockade needs repair."),
+    _simple_stage(3, "The six broken railings have been repaired. I should report back to Captain Lawgof."),
+    _simple_stage(4, "Captain Lawgof asked me to find Gilob's remains near the watchtower."),
+    _simple_stage(5, "I found Gilob's remains and should return them to Captain Lawgof."),
+    _simple_stage(6, "Captain Lawgof found a child hidden in the goblin cave south-east of the camp."),
+    _simple_stage(7, "I found Lollk in the goblin hideout and need to get him to safety."),
+    _simple_stage(8, "Lollk is safe. Captain Lawgof has a toolkit for repairing the sabotaged cannon."),
+    _simple_stage(9, "The cannon still needs to be repaired with Captain Lawgof's toolkit."),
+    _simple_stage(10, "The cannon is repaired. Captain Lawgof wants help from Nulodion."),
+    _simple_stage(11, "Nulodion gave me an ammo mould and notes to take back to Captain Lawgof."),
+    _simple_stage(12, "Captain Lawgof needs Nulodion's ammo mould and notes."),
+    _simple_stage(13, "Captain Lawgof accepted Nulodion's parts. I should receive his cannon recommendation."),
+    _simple_stage(14, "Captain Lawgof gave his recommendation.", "Quest complete!"),
 )
 
 
@@ -3563,6 +3599,28 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     COOKS_ASSISTANT_ID: (
         _stage_req(
             1,
+            "Pick up the super large egg for the Duke's cake.",
+            COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE,
+            produced_inventory=(("Super large egg", 1),),
+        ),
+        _stage_req(
+            2,
+            "Milk the prized dairy cow for top-quality milk.",
+            COOKS_ASSISTANT_PRIZED_DAIRY_COW_SOURCE,
+            required_inventory=(("Bucket", 1),),
+            consumed_inventory=(("Bucket", 1),),
+            produced_inventory=(("Top-quality milk", 1),),
+        ),
+        _stage_req(
+            3,
+            "Ask Millie to prepare extra fine flour and collect it from the flour bin.",
+            f"{COOKS_ASSISTANT_MILLIE_MILLER_SOURCE}; {COOKS_ASSISTANT_FLOUR_BIN_SOURCE}",
+            required_inventory=(("Empty pot", 1),),
+            consumed_inventory=(("Empty pot", 1),),
+            produced_inventory=(("Extra fine flour", 1),),
+        ),
+        _stage_req(
+            4,
             "Give the Lumbridge cook the three special cake ingredients.",
             f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}",
             consumed_inventory=(("Top-quality milk", 1), ("Extra fine flour", 1), ("Super large egg", 1)),
@@ -3895,13 +3953,27 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     CLOCK_TOWER_ID: (
         _stage_req(
             1,
+            "Find rat poison in the Clock Tower dungeon.",
+            f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Pick up rat poison in the Clock Tower dungeon",),
+            produced_inventory=(("Rat poison", 1),),
+        ),
+        _stage_req(
+            2,
             "Poison the Clock Tower dungeon rats to open the blocked door.",
             f"{DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Rat poison", 1),),
             required_actions=("Poison the Clock Tower dungeon rats",),
         ),
         _stage_req(
-            2,
+            3,
+            "Find the four Clock Tower cogs.",
+            f"{DARKAN_CLOCK_TOWER_SOURCE}; {DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Find the white, black, blue, and red Clock Tower cogs",),
+            produced_inventory=(("White cog", 1), ("Black cog", 1), ("Blue cog", 1), ("Red cog", 1)),
+        ),
+        _stage_req(
+            4,
             "Place the four Clock Tower cogs on their matching spindles.",
             f"{DARKAN_CLOCK_TOWER_SOURCE}; {DARKAN_CLOCK_TOWER_DUNGEON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_inventory_options=(((("Bucket of water", 1), ("Ice gloves", 1)),)),
@@ -3909,7 +3981,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Place the four Clock Tower cogs",),
         ),
         _stage_req(
-            3,
+            5,
             "Report the repaired clock to Brother Kojo.",
             DARKAN_CLOCK_TOWER_KOJO_SOURCE,
             required_actions=("Report the repaired clock to Brother Kojo",),
@@ -3918,30 +3990,37 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     MONKS_FRIEND_ID: (
         _stage_req(
             1,
+            "Recover the child's blanket from the thieves' hideout.",
+            f"{DARKAN_MONKS_FRIEND_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            produced_inventory=(("Child's blanket", 1),),
+            required_actions=("Recover the child's blanket from the thieves' hideout",),
+        ),
+        _stage_req(
+            2,
             "Return the child's blanket to Brother Omad.",
             f"{DARKAN_MONKS_FRIEND_SOURCE}; {DARKAN_MONKS_FRIEND_OMAD_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Child's blanket", 1),),
         ),
         _stage_req(
-            2,
+            3,
             "Ask Brother Omad about Brother Cedric and the party.",
             DARKAN_MONKS_FRIEND_OMAD_SOURCE,
             required_actions=("Ask Brother Omad about Brother Cedric and the party",),
         ),
         _stage_req(
-            3,
+            4,
             "Give Brother Cedric a jug of water.",
             f"{DARKAN_MONKS_FRIEND_CEDRIC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Jug of water", 1),),
         ),
         _stage_req(
-            4,
+            5,
             "Give Brother Cedric logs to repair his cart.",
             f"{DARKAN_MONKS_FRIEND_CEDRIC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Logs", 1),),
         ),
         _stage_req(
-            5,
+            6,
             "Return to Brother Omad and join the birthday party.",
             DARKAN_MONKS_FRIEND_OMAD_SOURCE,
             required_actions=("Return to Brother Omad and join the birthday party",),
@@ -4080,25 +4159,59 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         ),
         _stage_req(
             3,
-            "Herd, poison, incinerate, and report all four infected sheep.",
+            "Pick up the cattleprod from the Ardougne sheep enclosure.",
+            (
+                f"{DARKAN_SHEEP_HERDER_SOURCE}; {DARKAN_SHEEP_HERDER_FARMER_SOURCE}; "
+                f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            required_routes=("Reach the Ardougne sheep enclosure",),
+            required_actions=("Pick up the cattleprod from the sheep enclosure barn",),
+            produced_inventory=(("Cattleprod", 1),),
+        ),
+        _stage_req(
+            4,
+            "Herd and poison all four infected sheep.",
             (
                 f"{DARKAN_SHEEP_HERDER_SOURCE}; {DARKAN_SHEEP_HERDER_FARMER_SOURCE}; "
                 f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
                 f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
             ),
             required_inventory=(("Sheep feed", 1),),
+            required_tools=(("Plague jacket", 1), ("Plague trousers", 1), ("Cattleprod", 1)),
+            required_routes=("Reach the Ardougne sheep enclosure",),
+            required_actions=(
+                "Herd and poison the red sheep",
+                "Herd and poison the green sheep",
+                "Herd and poison the blue sheep",
+                "Herd and poison the yellow sheep",
+            ),
+            produced_inventory=(
+                ("Red sheep bones", 1),
+                ("Green sheep bones", 1),
+                ("Blue sheep bones", 1),
+                ("Yellow sheep bones", 1),
+            ),
+        ),
+        _stage_req(
+            5,
+            "Incinerate the sheep bones and report all four infected sheep.",
+            (
+                f"{DARKAN_SHEEP_HERDER_SOURCE}; {DARKAN_SHEEP_HERDER_FARMER_SOURCE}; "
+                f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
             consumed_inventory=(
                 ("Red sheep bones", 1),
                 ("Green sheep bones", 1),
                 ("Blue sheep bones", 1),
                 ("Yellow sheep bones", 1),
             ),
-            required_tools=(("Plague jacket", 1), ("Plague trousers", 1), ("Cattleprod", 1)),
             required_actions=(
-                "Herd and poison the red sheep",
-                "Herd and poison the green sheep",
-                "Herd and poison the blue sheep",
-                "Herd and poison the yellow sheep",
+                "Incinerate the red sheep bones",
+                "Incinerate the green sheep bones",
+                "Incinerate the blue sheep bones",
+                "Incinerate the yellow sheep bones",
                 "Report the incinerated sheep to Councillor Halgrive",
             ),
             required_routes=("Reach the Ardougne sheep enclosure",),
@@ -4291,6 +4404,17 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         ),
         _stage_req(
             6,
+            "Pick up a rotten apple from the Mourner HQ garden.",
+            (
+                f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            required_routes=("Reach the Mourner HQ garden in West Ardougne",),
+            required_actions=("Pick up a rotten apple from the Mourner HQ garden",),
+            produced_inventory=(("Rotten apple", 1),),
+        ),
+        _stage_req(
+            7,
             "Poison the Mourner HQ stew and take a doctors' gown from the nearby box.",
             (
                 f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_MOURNER_HQ_DOORS_SOURCE}; "
@@ -4302,7 +4426,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Put the rotten apple in the Mourner HQ cauldron", "Search the box for a doctors' gown"),
         ),
         _stage_req(
-            7,
+            8,
             "Enter Mourner HQ as a doctor, defeat the key mourner, and recover Elena's distillator.",
             (
                 f"{DARKAN_BIOHAZARD_MOURNER_HQ_DOORS_SOURCE}; {DARKAN_BIOHAZARD_MOURNER_SOURCE}; "
@@ -4344,7 +4468,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
         ),
         _stage_req(
-            8,
+            9,
             "Return Elena's distillator so she can prepare Guidor's vials and plague sample.",
             (
                 f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_UTILS_SOURCE}; "
@@ -4360,7 +4484,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Return Elena's distillator",),
         ),
         _stage_req(
-            9,
+            10,
             "Ask the Rimmington chemist for touch paper without exposing the plague sample.",
             (
                 f"{DARKAN_BIOHAZARD_CHEMIST_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; "
@@ -4376,7 +4500,7 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Ask the Rimmington chemist for touch paper for Guidor",),
         ),
         _stage_req(
-            10,
+            11,
             "Smuggle the vials through the chemist's errand boys and give Guidor the full test set.",
             (
                 f"{DARKAN_BIOHAZARD_RIMMINGTON_HOPS_SOURCE}; {DARKAN_BIOHAZARD_RIMMINGTON_DA_VINCI_SOURCE}; "
@@ -4407,13 +4531,13 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             ),
         ),
         _stage_req(
-            11,
+            12,
             "Tell Elena that Guidor found the plague sample harmless.",
             f"{DARKAN_BIOHAZARD_GUIDOR_SOURCE}; {DARKAN_BIOHAZARD_ELENA_SOURCE}",
             required_actions=("Tell Elena that Guidor found no plague",),
         ),
         _stage_req(
-            12,
+            13,
             "Report Elena's news to King Lathas.",
             f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_KING_SOURCE}",
             required_actions=("Report the plague hoax to King Lathas",),
@@ -4478,63 +4602,84 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
     DWARF_CANNON_ID: (
         _stage_req(
             1,
+            "Accept replacement railings from Captain Lawgof.",
+            f"{DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Accept replacement railings from Captain Lawgof",),
+            produced_inventory=(("Railing", 6),),
+        ),
+        _stage_req(
+            2,
             "Repair the six broken railings around the Black Guard camp.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Railing", 6),),
             required_tools=(("Hammer", 1),),
         ),
         _stage_req(
-            2,
+            3,
             "Report the repaired stockade to Captain Lawgof.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
             required_actions=("Report the repaired stockade to Captain Lawgof",),
         ),
         _stage_req(
-            3,
-            "Find Gilob's remains at the watchtower and return them to Captain Lawgof.",
+            4,
+            "Find Gilob's remains at the watchtower.",
+            f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Take Gilob's remains from the watchtower",),
+            produced_inventory=(("Dwarf remains", 1),),
+        ),
+        _stage_req(
+            5,
+            "Return Gilob's remains to Captain Lawgof.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Dwarf remains", 1),),
         ),
         _stage_req(
-            4,
+            6,
             "Find the goblin hideout south-east of the camp.",
             DARKAN_DWARF_CANNON_SOURCE,
             required_routes=("Reach the Dwarf Cannon goblin hideout",),
         ),
         _stage_req(
-            5,
+            7,
             "Rescue Lollk from the goblin hideout.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {DARKAN_DWARF_CANNON_LOLLK_SOURCE}",
             required_actions=("Rescue Lollk from the goblin hideout",),
         ),
         _stage_req(
-            6,
+            8,
             "Return to Captain Lawgof after rescuing Lollk.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
             required_actions=("Tell Captain Lawgof that Lollk is safe",),
             produced_inventory=(("Toolkit", 1),),
         ),
         _stage_req(
-            7,
+            9,
             "Repair the sabotaged cannon with Captain Lawgof's toolkit.",
             f"{DARKAN_DWARF_CANNON_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             required_tools=(("Toolkit", 1),),
             required_actions=("Repair the sabotaged cannon",),
         ),
         _stage_req(
-            8,
+            10,
             "Tell Captain Lawgof that the cannon is repaired.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
             required_actions=("Tell Captain Lawgof that the cannon is repaired",),
         ),
         _stage_req(
-            9,
-            "Speak to Nulodion and bring Captain Lawgof the ammo mould and notes.",
+            11,
+            "Speak to Nulodion for the ammo mould and notes.",
+            f"{DARKAN_DWARF_CANNON_NULODION_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Speak to Nulodion about Captain Lawgof's cannon",),
+            produced_inventory=(("Ammo mould", 1), ("Nulodion's notes", 1)),
+        ),
+        _stage_req(
+            12,
+            "Bring Captain Lawgof the ammo mould and notes.",
             f"{DARKAN_DWARF_CANNON_NULODION_SOURCE}; {DARKAN_DWARF_CANNON_LAWGOF_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Ammo mould", 1), ("Nulodion's notes", 1)),
         ),
         _stage_req(
-            10,
+            13,
             "Receive Captain Lawgof's recommendation to buy and use a multicannon.",
             DARKAN_DWARF_CANNON_LAWGOF_SOURCE,
             required_actions=("Receive Captain Lawgof's cannon recommendation",),
