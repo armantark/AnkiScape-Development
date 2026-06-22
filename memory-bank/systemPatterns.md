@@ -117,6 +117,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Stronghold's Dad prove focused conflict resolution from area-specific Darkan
   quest/combat sources. Witch's House proves a focused replacement can split an
   ambiguous generated fight into four resolver-ready Darkan-backed forms.
+  Focused combat replacements may also expand one generated row into multiple
+  source-backed encounters without replacing the quest's other stage
+  requirements; Spirits of the Elid's generic `Golem x3` row now expands into
+  Black, White, and Grey golems while preserving its generated item/tool rows.
   Resolver readiness is attack-style aware: magic encounters require
   hitpoints, defence, and magic; ranged encounters require hitpoints, defence,
   and ranged; melee/unknown encounters require hitpoints, attack, strength, and
@@ -138,8 +142,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   stats across unrelated levels. TokTz-Ket-Dill's Lava monster, Nomad's
   Requiem's Nomad, Forgiveness of a Chaos Dwarf's Chaos dwarf hand cannoneer,
   The Blood Pact's Caitlin, Love Story's Pit scabarite, and Salt in the Wound's
-  Forgotten mage/ranger prove these paths. Current stat coverage is 164/285
-  combat rows; the remaining 121 statless rows are classified by
+  Forgotten mage/ranger prove these paths. Focused name-shape replacements now
+  make Heroes' Quest's Entrana Fire Bird and Another Slice of H.A.M.'s
+  H.A.M. ranger resolver-ready from Darkan combat sources. Current stat
+  coverage is 169/287 combat rows; the remaining 118 statless rows are
+  classified by
   `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.

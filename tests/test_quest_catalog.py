@@ -277,6 +277,33 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(queen["npc_stats"]["hitpoints"], 2000)
         self.assertTrue(queen["npc_stats_source"].endswith("sea_troll_queen (noanims).json"))
 
+        firebird = next(
+            encounter
+            for requirement in data["heroes_quest"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Entrana Fire Bird"
+        )
+        self.assertEqual(firebird["level"], 2)
+        self.assertEqual(firebird["npc_stats"]["hitpoints"], 50)
+        self.assertEqual(firebird["npc_stats"]["strength"], 1)
+        self.assertEqual(firebird["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(firebird["npc_stats_source"].endswith("entrana_firebird.json"))
+
+        spirits = [
+            encounter
+            for requirement in data["spirits_of_the_elid"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        self.assertEqual(
+            [encounter["display_name"] for encounter in spirits],
+            ["Black golem", "White golem", "Grey golem"],
+        )
+        self.assertEqual([encounter["quantity"] for encounter in spirits], [1, 1, 1])
+        self.assertEqual(spirits[0]["npc_stats"]["hitpoints"], 800)
+        self.assertEqual(spirits[0]["npc_stats"]["strength"], 30)
+        self.assertEqual(spirits[0]["npc_configs"]["max_hit"], 90)
+        self.assertTrue(spirits[0]["npc_stats_source"].endswith("black_golem (noanims).json"))
+
         monk = next(
             encounter
             for requirement in data["priest_in_peril"]["stage_requirements"]
@@ -340,6 +367,20 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(ham_mage["npc_configs"]["attack_style"], "magic")
         self.assertIn("h.a.m._mage (noanims).json", ham_mage["npc_stats_source"])
         self.assertTrue(ham_mage["npc_stats_source"].endswith("developer-information/beasts.txt"))
+
+        ham_ranger = next(
+            encounter
+            for requirement in data["another_slice_of_h_a_m"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "H.A.M. ranger"
+        )
+        self.assertEqual(ham_ranger["level"], 30)
+        self.assertEqual(ham_ranger["npc_stats"]["hitpoints"], 350)
+        self.assertEqual(ham_ranger["npc_stats"]["strength"], 0)
+        self.assertEqual(ham_ranger["npc_stats"]["ranged"], 30)
+        self.assertEqual(ham_ranger["npc_configs"]["attack_style"], "range")
+        self.assertIn("h.a.m._archer (noanims).json", ham_ranger["npc_stats_source"])
+        self.assertTrue(ham_ranger["npc_stats_source"].endswith("developer-information/beasts.txt"))
 
         hand_cannoneer = next(
             encounter

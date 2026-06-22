@@ -158,21 +158,20 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement and 119
-quests have combat blockers, but only 159/285 combat encounters have
-resolver-ready source-backed stats. The latest quest slice added a conservative
-Darkan `developer-information/beasts.txt` fallback in
-`tools/build_pre_eoc_quest_catalog.py`: it can fill missing/zero attack,
-defence, magic, and ranged values for exact-ID or unambiguous name/level Darkan
-combatdefs, but it does not infer Strength. This makes TokTz-Ket-Dill's Lava
-monster and Nomad's Requiem's Nomad resolver-ready; 126 statless combat rows
-remain hard-blocked and classified by `tools/audit_quest_combat_stat_gaps.py`.
-A follow-up on the same date made generated combat quantities count one enemy
-per review action: `tools/build_pre_eoc_quest_catalog.py` now extracts written
-combat quantities such as "Two Lava monsters" and "Five Ice Trolls", and
-runtime stores partial encounter progress in
-`player_data["quest_combat_encounter_counts"]` before writing the legacy
-completed id to `quest_combat_encounters` only when the source quantity is
-fully resolved.
+quests have combat blockers. Current resolver-ready source-backed combat
+coverage is 169/287 rows after generator enrichment, style-aware magic/ranged
+handling, Darkan `beasts.txt` fallbacks, no-`combatLevels` fallbacks, and
+focused `quest_data.py` name-shape replacements for Heroes' Quest's Entrana
+Fire Bird, Spirits of the Elid's Black/White/Grey golems, and Another Slice of
+H.A.M.'s H.A.M. ranger. The remaining 118 statless combat rows stay
+hard-blocked and are classified by `tools/audit_quest_combat_stat_gaps.py` as
+51 Darkan hitpoints-only rows, 18 Darkan rows missing style-critical resolver
+stats, 9 same-name/wrong-level rows, 13 no-local-source rows, and 27
+parser/variant-level rows. Combat quantities count one enemy per review action:
+`tools/build_pre_eoc_quest_catalog.py` extracts written quantities, runtime
+stores partial encounter progress in `quest_combat_encounter_counts`, and the
+legacy completed id is written to `quest_combat_encounters` only when the
+source quantity is fully resolved.
 
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,
@@ -369,10 +368,12 @@ ambiguous generated experiment row with four source-backed Darkan form
 encounters. A style-aware resolver pass then made source-backed magic/ranged
 rows with zero melee Strength resolver-ready, adding H.A.M. mage, The Void
 Stares Back Torcher/Defiler, and The Elder Kiln TokHaar-Xil. Combat stat
-coverage is 157/285 rows. The remaining 128 statless rows are classified by
-`tools/audit_quest_combat_stat_gaps.py` as 56 hitpoints-only Darkan rows, 20
+coverage is now 169/287 rows after the Darkan beast fallbacks and focused
+name-shape replacements for Entrana Fire Bird, Spirits of the Elid golems, and
+H.A.M. ranger. The remaining 118 statless rows are classified by
+`tools/audit_quest_combat_stat_gaps.py` as 51 hitpoints-only Darkan rows, 18
 Darkan rows missing style-critical resolver stats, 9 same-name/wrong-level
-rows, 16 no-local-source rows, and 27 parser/variant-level rows; remaining NPC
+rows, 13 no-local-source rows, and 27 parser/variant-level rows; remaining NPC
 stat enrichment and full combat simulation remain open.
 Generated item alternatives now preserve
 independent option groups, so stage gates such as Goblin Diplomacy dye
@@ -500,7 +501,7 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.
 6. **Future Runecrafting extensions**: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss/abyssal creatures, talisman sourcing, and broader rune economy routes should stay separate from v1 until explicitly prioritized.
 7. **Future Hunter extensions**: tracking trails, pitfall trapping, rabbit snaring, barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and Regicide-start partial-route modeling should stay separate from v1 until explicitly prioritized.
-8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` records the stage-aware foundation and The Knight's Sword proof case; `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` records the generated catalog-wide blocker layer; `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` records the 194/194 no-stage closure; `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md` records the first resolver-enabled stat-backed combat write path; `memory-bank/source-audits/quest-darkan-combat-stat-enrichment-2026-06-22.md` records the local 2011Scape-first plus Darkan/2012scape exact-match generated combat stat enrichment; `memory-bank/source-audits/quest-identical-combat-source-enrichment-2026-06-22.md` records the identical duplicate-source/focused override stat follow-up; `memory-bank/source-audits/quest-conflict-combat-stat-enrichment-2026-06-22.md` records grouped item-option repair, Monk/Dad conflict resolution, and the classified 137-row combat backlog; `memory-bank/source-audits/quest-witchs-house-combat-forms-2026-06-22.md` records the Witch's House four-form replacement and refined 132-row combat backlog; `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md` records style-aware magic/ranged combat stat readiness and the current 128-row backlog. Only reopen this area for remaining minute-detail per-stage extraction, route/location gates, remaining combat stat enrichment, full combat simulation, quest-item transformations, puzzle/follower/branch state, new quest-unlocked skill targets, or generator/source corrections.
+8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` records the stage-aware foundation and The Knight's Sword proof case; `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` records the generated catalog-wide blocker layer; `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` records the 194/194 no-stage closure; `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md` records the first resolver-enabled stat-backed combat write path; `memory-bank/source-audits/quest-darkan-combat-stat-enrichment-2026-06-22.md` records the local 2011Scape-first plus Darkan/2012scape exact-match generated combat stat enrichment; `memory-bank/source-audits/quest-identical-combat-source-enrichment-2026-06-22.md` records the identical duplicate-source/focused override stat follow-up; `memory-bank/source-audits/quest-conflict-combat-stat-enrichment-2026-06-22.md` records grouped item-option repair, Monk/Dad conflict resolution, and the classified 137-row combat backlog; `memory-bank/source-audits/quest-witchs-house-combat-forms-2026-06-22.md` records the Witch's House four-form replacement and refined 132-row combat backlog; `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md` records style-aware magic/ranged combat stat readiness; `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md` and `memory-bank/source-audits/quest-darkan-no-combatlevels-beast-stat-fallback-2026-06-22.md` record the Darkan beast-stat fallbacks; `memory-bank/source-audits/quest-focused-combat-row-splits-2026-06-22.md` records the current 118-row backlog after focused name-shape replacements. Only reopen this area for remaining minute-detail per-stage extraction, route/location gates, remaining combat stat enrichment, full combat simulation, quest-item transformations, puzzle/follower/branch state, new quest-unlocked skill targets, or generator/source corrections.
 
 ## Frontend Handoff Status
 The first frontend slice is done: the consolidated menu now uses a global top bar (Skills, Bank, Stats, Achievements, Settings) and a registry-backed Skills hub (`skill_hub.py` view-model + `ui.show_main_menu` three-pane category/skill/target layout). Developer mode reveals planned skills as disabled entries. Skills-hub click routing is fixed and now covered by an offscreen Qt behavior test. Fletching is now a fully playable hub skill (target panel, gating, `on_set_fletch`, OSRS `(detail)` icon), completing the backend pilot's frontend handoff.

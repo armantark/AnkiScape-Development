@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, replace
-from typing import Dict, Mapping, Tuple
+from typing import Dict, Mapping, Tuple, Union
 
 try:
     from .quest_catalog_generated import PRE_EOC_QUEST_CATALOG
@@ -45,6 +45,9 @@ EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
 THE_KNIGHTS_SWORD_ID = "the_knights_sword"
+HEROES_QUEST_ID = "heroes_quest"
+SPIRITS_OF_THE_ELID_ID = "spirits_of_the_elid"
+ANOTHER_SLICE_OF_H_A_M_ID = "another_slice_of_h_a_m"
 
 RESTLESS_GHOST_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -75,15 +78,26 @@ DARKAN_QUEST_SOURCE_ROOT = (
 DARKAN_NPC_COMBATDEF_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs"
 )
+DARKAN_DEVELOPER_INFO_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/developer-information"
+)
+DARKAN_NPC_LIST_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/npcList.txt"
+DARKAN_BEASTS_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/beasts.txt"
+DARKAN_ENUMS_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/enums.txt"
 DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
 DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
 DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
+HEROES_QUEST_ENTRANA_FIREBIRD_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/entrana_firebird.json"
 TAI_BWO_WANNAI_TRIO_JOGRE_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jogre/jogre_(53).json"
 SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/sea_troll_queen (noanims).json"
 PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE = (
     f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/paterdomus/monk_of_zamorak/monk_of_zamorak_(30).json"
 )
 TROLL_STRONGHOLD_DAD_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/death_plateau/dad.json"
+SPIRITS_BLACK_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/black_golem (noanims).json"
+SPIRITS_WHITE_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/white_golem (noanims).json"
+SPIRITS_GREY_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/grey_golem (noanims).json"
+ANOTHER_SLICE_HAM_ARCHER_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/h.a.m._archer (noanims).json"
 WITCHS_HOUSE_WIKI_SOURCE = "https://runescape.wiki/w/Witch's_House?oldid=6474931"
 WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/witch's_experiment"
 WITCHS_HOUSE_EXPERIMENT_19_NPC_SOURCE = (
@@ -99,6 +113,9 @@ WITCHS_HOUSE_EXPERIMENT_53_NPC_SOURCE = (
     f"{WITCHS_HOUSE_EXPERIMENT_NPC_SOURCE_ROOT}/witch's_experiment_(53) (noanims).json"
 )
 RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
+HEROES_QUEST_WIKI_SOURCE = "https://runescape.wiki/w/Heroes'_Quest?oldid=6534275"
+SPIRITS_OF_THE_ELID_WIKI_SOURCE = "https://runescape.wiki/w/Spirits_of_the_Elid?oldid=6326193"
+ANOTHER_SLICE_OF_H_A_M_WIKI_SOURCE = "https://runescape.wiki/w/Another_Slice_of_H.A.M.?oldid=6548739"
 JUNGLE_POTION_WIKI_SOURCE = "https://runescape.wiki/w/Jungle_Potion?oldid=6555418"
 KENNITHS_CONCERNS_WIKI_SOURCE = "https://runescape.wiki/w/Kennith%27s_Concerns?oldid=6549837"
 DEADLIEST_CATCH_WIKI_SOURCE = "https://runescape.wiki/w/Deadliest_Catch?oldid=6295312"
@@ -788,6 +805,9 @@ def _combat(
     )
 
 
+QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatEncounter, ...]]
+
+
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
     WITCHS_HOUSE_ID: (
         _stage_req(
@@ -1324,7 +1344,134 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
 }
 
 
-QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounter]] = {
+QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounterReplacement]] = {
+    HEROES_QUEST_ID: {
+        "heroes_quest_entrana_fire_bird_2": _combat(
+            HEROES_QUEST_ID,
+            "entrana_fire_bird_2",
+            "Entrana Fire Bird",
+            2,
+            f"{HEROES_QUEST_WIKI_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {HEROES_QUEST_ENTRANA_FIREBIRD_NPC_SOURCE}",
+            "Historical quest details require the Entrana Fire Bird level 2; Darkan NPC id 6108 and the Entrana firebird combatdef supply these stats.",
+            npc_stats=(
+                ("hitpoints", 50),
+                ("attack", 1),
+                ("strength", 1),
+                ("defence", 1),
+                ("magic", 1),
+                ("ranged", 1),
+            ),
+            npc_configs=(
+                ("max_hit", 10),
+                ("attack_range", -1),
+                ("attack_style", "melee"),
+                ("attack_bonus", "stab_att"),
+                ("aggressiveness_type", "passive"),
+            ),
+            npc_stats_source=HEROES_QUEST_ENTRANA_FIREBIRD_NPC_SOURCE,
+        ),
+    },
+    SPIRITS_OF_THE_ELID_ID: {
+        "spirits_of_the_elid_golem_75": (
+            _combat(
+                SPIRITS_OF_THE_ELID_ID,
+                "black_golem_75",
+                "Black golem",
+                75,
+                f"{SPIRITS_OF_THE_ELID_WIKI_SOURCE}; {DARKAN_ENUMS_SOURCE}; {SPIRITS_BLACK_GOLEM_NPC_SOURCE}",
+                "Historical quest details require three level 75 golems; Darkan enum 2791 identifies the Black golem for Spirits of the Elid and the Black golem combatdef supplies these stats.",
+                npc_stats=(
+                    ("hitpoints", 800),
+                    ("attack", 80),
+                    ("strength", 30),
+                    ("defence", 80),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 90),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=SPIRITS_BLACK_GOLEM_NPC_SOURCE,
+            ),
+            _combat(
+                SPIRITS_OF_THE_ELID_ID,
+                "white_golem_75",
+                "White golem",
+                75,
+                f"{SPIRITS_OF_THE_ELID_WIKI_SOURCE}; {DARKAN_ENUMS_SOURCE}; {SPIRITS_WHITE_GOLEM_NPC_SOURCE}",
+                "Historical quest details require three level 75 golems; Darkan enum 2791 identifies the White golem for Spirits of the Elid and the White golem combatdef supplies these stats.",
+                npc_stats=(
+                    ("hitpoints", 800),
+                    ("attack", 80),
+                    ("strength", 30),
+                    ("defence", 80),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 40),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=SPIRITS_WHITE_GOLEM_NPC_SOURCE,
+            ),
+            _combat(
+                SPIRITS_OF_THE_ELID_ID,
+                "grey_golem_75",
+                "Grey golem",
+                75,
+                f"{SPIRITS_OF_THE_ELID_WIKI_SOURCE}; {DARKAN_ENUMS_SOURCE}; {SPIRITS_GREY_GOLEM_NPC_SOURCE}",
+                "Historical quest details require three level 75 golems; Darkan enum 2791 identifies the Grey golem for Spirits of the Elid and the Grey golem combatdef supplies these stats.",
+                npc_stats=(
+                    ("hitpoints", 800),
+                    ("attack", 80),
+                    ("strength", 30),
+                    ("defence", 80),
+                    ("magic", 1),
+                    ("ranged", 1),
+                ),
+                npc_configs=(
+                    ("max_hit", 40),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=SPIRITS_GREY_GOLEM_NPC_SOURCE,
+            ),
+        ),
+    },
+    ANOTHER_SLICE_OF_H_A_M_ID: {
+        "another_slice_of_h_a_m_h_a_m_ranger_30": _combat(
+            ANOTHER_SLICE_OF_H_A_M_ID,
+            "h_a_m_ranger_30",
+            "H.A.M. ranger",
+            30,
+            f"{ANOTHER_SLICE_OF_H_A_M_WIKI_SOURCE}; {DARKAN_NPC_LIST_SOURCE}; {DARKAN_BEASTS_SOURCE}; {ANOTHER_SLICE_HAM_ARCHER_NPC_SOURCE}",
+            "Historical quest details name a level 30 H.A.M. ranger; Darkan names the ranged level 30 NPC H.A.M. Archer id 5859 and the archer combatdef supplies the ranged payload.",
+            npc_stats=(
+                ("hitpoints", 350),
+                ("attack", 15),
+                ("strength", 0),
+                ("defence", 30),
+                ("magic", 0),
+                ("ranged", 30),
+            ),
+            npc_configs=(
+                ("max_hit", 40),
+                ("attack_range", -1),
+                ("attack_style", "range"),
+                ("aggressiveness_type", "aggressive"),
+            ),
+            npc_stats_source=f"{ANOTHER_SLICE_HAM_ARCHER_NPC_SOURCE}; {DARKAN_BEASTS_SOURCE}",
+        ),
+    },
     PRIEST_IN_PERIL_ID: {
         "priest_in_peril_monk_of_zamorak_30": _combat(
             PRIEST_IN_PERIL_ID,
@@ -1655,10 +1802,16 @@ def _apply_combat_encounter_replacements(
     changed = False
     rows = []
     for requirement in requirements:
-        combat_encounters = tuple(
-            replacements.get(encounter.encounter_id, encounter)
-            for encounter in requirement.combat_encounters
-        )
+        replacement_rows = []
+        for encounter in requirement.combat_encounters:
+            replacement = replacements.get(encounter.encounter_id)
+            if replacement is None:
+                replacement_rows.append(encounter)
+            elif isinstance(replacement, tuple):
+                replacement_rows.extend(replacement)
+            else:
+                replacement_rows.append(replacement)
+        combat_encounters = tuple(replacement_rows)
         if combat_encounters != requirement.combat_encounters:
             changed = True
             requirement = replace(requirement, combat_encounters=combat_encounters)

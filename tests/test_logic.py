@@ -1747,8 +1747,9 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 40
 
         blockers = quest_current_stage_blockers_pure(player_data, "another_slice_of_h_a_m", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter", "combat_missing_stats"))
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter", "combat_encounter"))
         self.assertEqual(blockers[0]["reason"], "Battle required: H.A.M. mage level 30")
+        self.assertEqual(blockers[1]["reason"], "Battle required: H.A.M. ranger level 30")
 
         resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "another_slice_of_h_a_m", QUEST_DATA)
         self.assertTrue(ok)
@@ -1761,6 +1762,42 @@ class TestLogic(unittest.TestCase):
                     "another_slice_of_h_a_m_sigmund_64",
                 ]
             },
+        )
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in quest_current_stage_blockers_pure(resolved, "another_slice_of_h_a_m", QUEST_DATA)),
+            ("Battle required: H.A.M. ranger level 30",),
+        )
+
+    def test_spirits_of_the_elid_golems_are_split_into_named_combat_gates(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["spirits_of_the_elid"] = {"started": True, "progress": 4, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 90
+        player_data["strength_level"] = 90
+        player_data["defense_level"] = 90
+        player_data["constitution_level"] = 90
+
+        blockers = quest_current_stage_blockers_pure(player_data, "spirits_of_the_elid", QUEST_DATA)
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in blockers),
+            (
+                "Battle required: Black golem level 75",
+                "Battle required: White golem level 75",
+                "Battle required: Grey golem level 75",
+            ),
+        )
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "spirits_of_the_elid", QUEST_DATA))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "spirits_of_the_elid", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "spirits_of_the_elid_black_golem_75")
+        self.assertEqual(
+            resolved["quest_combat_encounters"],
+            {"spirits_of_the_elid": ["spirits_of_the_elid_black_golem_75"]},
+        )
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in quest_current_stage_blockers_pure(resolved, "spirits_of_the_elid", QUEST_DATA)),
+            ("Battle required: White golem level 75", "Battle required: Grey golem level 75"),
         )
 
     def test_no_combat_levels_beast_stat_fight_is_resolver_ready(self):

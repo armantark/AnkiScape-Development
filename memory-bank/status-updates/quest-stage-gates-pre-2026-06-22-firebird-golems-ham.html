@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates: Pre-Slice</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101317;
+      --panel: #181d24;
+      --panel-2: #202733;
+      --ink: #f3f5f1;
+      --muted: #aab3bd;
+      --line: #313a45;
+      --gold: #f0c45c;
+      --green: #78d08f;
+      --blue: #77b7ff;
+      --red: #ff8a7a;
+      --shadow: rgba(0, 0, 0, 0.32);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 24px;
+      align-items: end;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    .eyebrow {
+      color: var(--gold);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    .stamp {
+      min-width: 230px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 18px 40px var(--shadow);
+    }
+    .stamp div:first-child {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+    .stamp strong {
+      font-size: 17px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .metric, .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 14px 34px var(--shadow);
+    }
+    .metric .value {
+      font-size: 34px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .metric .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .band {
+      margin-top: 16px;
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #2a1414;
+    }
+    .band span {
+      display: block;
+      height: 100%;
+      width: 57.5%;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+    }
+    .sections {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .quest-row {
+      display: grid;
+      grid-template-columns: 170px minmax(0, 1fr) 95px;
+      gap: 14px;
+      padding: 13px 0;
+      border-top: 1px solid var(--line);
+      align-items: center;
+    }
+    .quest-row:first-of-type { border-top: 0; }
+    .quest-row strong { color: var(--ink); }
+    .quest-row p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 28px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 12px;
+      text-align: center;
+    }
+    .pill.green { color: #bff0ca; border-color: rgba(120, 208, 143, 0.42); }
+    .pill.blue { color: #c7e0ff; border-color: rgba(119, 183, 255, 0.42); }
+    .pill.red { color: #ffc5bd; border-color: rgba(255, 138, 122, 0.42); }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 32px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 13px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #2b3848;
+      color: var(--blue);
+      font-weight: 800;
+    }
+    .step strong { display: block; margin-bottom: 2px; }
+    .step span { color: var(--muted); font-size: 13px; }
+    footer {
+      margin-top: 18px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      font-size: 13px;
+    }
+    code {
+      color: #d9eaff;
+      background: #17202b;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 1px 5px;
+    }
+    @media (max-width: 860px) {
+      header, .sections { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .quest-row { grid-template-columns: 1fr; gap: 6px; }
+      .stamp { min-width: 0; }
+    }
+    @media (max-width: 520px) {
+      main { width: min(100vw - 20px, 1180px); padding-top: 22px; }
+      .grid { grid-template-columns: 1fr; }
+      .metric .value { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">Backend slice boundary</div>
+        <h1>Quest stage gates are not complete for every quest yet.</h1>
+      </div>
+      <aside class="stamp">
+        <div>Pre-slice snapshot</div>
+        <strong>2026-06-22</strong>
+        <div style="margin-top: 8px;">Branch: <code>codex/quest-stage-gates</code></div>
+      </aside>
+    </header>
+
+    <section class="grid" aria-label="Audit counts">
+      <div class="metric">
+        <div class="value">194</div>
+        <div class="label">quests with stage rows</div>
+      </div>
+      <div class="metric">
+        <div class="value">285</div>
+        <div class="label">combat encounter rows</div>
+      </div>
+      <div class="metric">
+        <div class="value">164</div>
+        <div class="label">resolver-ready encounters</div>
+      </div>
+      <div class="metric">
+        <div class="value" style="color: var(--red);">121</div>
+        <div class="label">statless combat gaps</div>
+      </div>
+    </section>
+
+    <div class="band" aria-label="Resolver coverage bar"><span></span></div>
+
+    <section class="sections">
+      <article class="card">
+        <h2>Source-backed rows selected</h2>
+        <div class="quest-row">
+          <div><strong>Heroes' Quest</strong><p>Stage 5</p></div>
+          <div>Replace the generated Entrana Fire Bird blocker with the Darkan <code>entrana_firebird.json</code> combat payload.</div>
+          <span class="pill green">single enemy</span>
+        </div>
+        <div class="quest-row">
+          <div><strong>Spirits of the Elid</strong><p>Stage 4</p></div>
+          <div>Split generic <code>Golem x3</code> into Black, White, and Grey golems using Darkan NPC metadata and local combatdefs.</div>
+          <span class="pill blue">3 variants</span>
+        </div>
+        <div class="quest-row">
+          <div><strong>Another Slice of H.A.M.</strong><p>Stage 4</p></div>
+          <div>Map the historical H.A.M. ranger row to Darkan's level 30 H.A.M. Archer ranged combat payload.</div>
+          <span class="pill green">ranged</span>
+        </div>
+      </article>
+
+      <aside class="card">
+        <h2>Work split</h2>
+        <div class="flow">
+          <div class="step">
+            <div class="dot">1</div>
+            <div><strong>Backend</strong><span>Add focused quest_data overrides, preserve source text, and keep combat resolver gating one enemy per review.</span></div>
+          </div>
+          <div class="step">
+            <div class="dot">2</div>
+            <div><strong>Tests</strong><span>Add catalog assertions, pure logic flow coverage, audit count updates, and Qt/offscreen coverage for the visible blocker text.</span></div>
+          </div>
+          <div class="step">
+            <div class="dot">3</div>
+            <div><strong>Frontend</strong><span>No new controls are expected in this slice. Existing in-progress blocker rendering should display the new player-facing battle reasons.</span></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <footer>
+      Deferred parity is explicit: this slice reduces known combat-stat gaps, but it does not complete all 121 remaining rows or claim full quest parity.
+    </footer>
+  </main>
+</body>
+</html>

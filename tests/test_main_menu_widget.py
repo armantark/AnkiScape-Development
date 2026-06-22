@@ -1433,7 +1433,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
             "Blocked: Battle required: H.A.M. mage level 30, "
-            "Combat stats required before battle support can resolve: H.A.M. ranger level 30"
+            "Battle required: H.A.M. ranger level 30"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_another_slice_of_h_a_m")
@@ -1443,6 +1443,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("another_slice_of_h_a_m", self._quest_calls)
+
+    def test_quests_tab_shows_split_golem_combat_gates(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "spirits_of_the_elid"
+        pd["quests"]["spirits_of_the_elid"] = {"started": True, "progress": 4, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 90
+        pd["strength_level"] = 90
+        pd["defense_level"] = 90
+        pd["constitution_level"] = 90
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Battle required: Black golem level 75, "
+            "Battle required: White golem level 75, "
+            "Battle required: Grey golem level 75"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_spirits_of_the_elid")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("spirits_of_the_elid", self._quest_calls)
 
     def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
         pd = _make_player_data()

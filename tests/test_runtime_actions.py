@@ -239,6 +239,36 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated H.A.M. mage"])
 
+    def test_quest_answer_resolves_split_golem_combat_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "spirits_of_the_elid",
+            "quests": {"spirits_of_the_elid": {"started": True, "progress": 4, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 90,
+            "strength_level": 90,
+            "defense_level": 90,
+            "constitution_level": 90,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["spirits_of_the_elid"]["progress"], 4)
+        self.assertFalse(player_data["quests"]["spirits_of_the_elid"]["completed"])
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"spirits_of_the_elid": ["spirits_of_the_elid_black_golem_75"]},
+        )
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Black golem"])
+
     def test_quest_answer_resolves_identical_source_generated_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

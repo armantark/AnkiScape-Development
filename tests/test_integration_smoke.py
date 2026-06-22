@@ -690,6 +690,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated H.A.M. mage"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_resolves_split_golem_combat_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_split_golem_combat_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {},
+            "current_quest": "spirits_of_the_elid",
+            "quests": {"spirits_of_the_elid": {"started": True, "progress": 4, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 90,
+            "strength_level": 90,
+            "defense_level": 90,
+            "constitution_level": 90,
+            "prayer_level": 1,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["spirits_of_the_elid"]["progress"], 4)
+        self.assertFalse(addon.player_data["quests"]["spirits_of_the_elid"]["completed"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounters"],
+            {"spirits_of_the_elid": ["spirits_of_the_elid_black_golem_75"]},
+        )
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Black golem"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_resolves_identical_source_generated_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_identical_source_combat_integration")
 

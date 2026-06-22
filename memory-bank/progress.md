@@ -45,7 +45,7 @@
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 159/285 source-backed NPC stat rows after local
+  combat now has 169/287 source-backed NPC stat rows after local
   2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
   duplicate-source acceptance, focused override enrichment, and focused
   conflict resolution for area-specific Darkan combat sources, including the
@@ -65,7 +65,10 @@
   extracted by the catalog builder, partial progress is stored in
   `quest_combat_encounter_counts`, and the old `quest_combat_encounters`
   completed-id list is written only after the required quantity is fully
-  defeated.
+  defeated. Focused name-shape replacements now make Heroes' Quest's Entrana
+  Fire Bird, Spirits of the Elid's Black/White/Grey golems, and Another Slice
+  of H.A.M.'s H.A.M. ranger resolver-ready; 118 combat rows remain statless
+  and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -462,12 +465,23 @@ Trio and Sea Troll Queen stats for Swan Song. The generator now preserves
 `required_inventory_options` as independent option groups, so source rows such
 as Goblin Diplomacy's dye alternatives do not become start locks or impossible
 all-item requirements. `python3 tools/audit_quest_stage_gate_coverage.py` now
-reports 157/285 combat encounters with source-backed stats after the
-style-aware magic/ranged resolver follow-up; the remaining 128 rows are
-classified by `tools/audit_quest_combat_stat_gaps.py` as 56 Darkan
-hitpoints-only rows, 20 Darkan rows missing style-critical resolver stats, 9
-same-name/wrong-level rows, 16 no-local-source rows, and 27
+reports 169/287 combat encounters with source-backed stats after the Darkan
+beast fallbacks and focused name-shape replacements; the remaining 118 rows are
+classified by `tools/audit_quest_combat_stat_gaps.py` as 51 Darkan
+hitpoints-only rows, 18 Darkan rows missing style-critical resolver stats, 9
+same-name/wrong-level rows, 13 no-local-source rows, and 27
 parser/variant-level rows.
+
+Quest focused combat row-split follow-up completed on 2026-06-22. The focused
+combat replacement layer in `quest_data.py` can now replace one generated
+combat encounter with multiple source-backed encounters without replacing the
+quest's other generated stage rows. Heroes' Quest's Entrana Fire Bird now uses
+Darkan `entrana_firebird.json`, Spirits of the Elid's generated `Golem x3` row
+splits into Black, White, and Grey golems from Darkan enum/combatdef evidence,
+and Another Slice of H.A.M.'s historical H.A.M. ranger row maps to Darkan's
+level 30 H.A.M. Archer ranged payload. Audit coverage is 169/287
+resolver-ready combat rows with 118 statless rows still blocked; full
+minute-detail quest parity remains open.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

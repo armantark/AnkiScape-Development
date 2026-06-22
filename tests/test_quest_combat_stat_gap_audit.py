@@ -18,14 +18,14 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 121)
+        self.assertEqual(len(self.gaps), 118)
         self.assertEqual(
             counts,
             {
                 "darkan_hitpoints_only_metadata": 51,
                 "darkan_missing_resolver_stats": 18,
                 "darkan_same_name_wrong_level": 9,
-                "no_local_source_match": 16,
+                "no_local_source_match": 13,
                 "parser_or_variant_level": 27,
             },
         )
@@ -55,10 +55,9 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
             audit.classify_gap(self.by_quest_and_name[("fight_arena", "Khazard scorpion")], self.darkan_groups, self.partial_groups),
             "darkan_missing_resolver_stats",
         )
-        self.assertEqual(
-            audit.classify_gap(self.by_quest_and_name[("another_slice_of_h_a_m", "H.A.M. ranger")], self.darkan_groups, self.partial_groups),
-            "no_local_source_match",
-        )
+        self.assertNotIn(("heroes_quest", "Entrana Fire Bird"), self.by_quest_and_name)
+        self.assertNotIn(("spirits_of_the_elid", "Golem"), self.by_quest_and_name)
+        self.assertNotIn(("another_slice_of_h_a_m", "H.A.M. ranger"), self.by_quest_and_name)
         self.assertNotIn(("witchs_house", "Witch's experiment"), self.by_quest_and_name)
         self.assertNotIn(("witchs_house", "Witch's experiment (Skavid form)"), self.by_quest_and_name)
         self.assertNotIn(("witchs_house", "Witch's experiment (Spider form)"), self.by_quest_and_name)
