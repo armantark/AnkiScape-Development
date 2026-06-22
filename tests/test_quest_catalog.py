@@ -145,6 +145,10 @@ class TestQuestCatalog(unittest.TestCase):
         ]
         self.assertEqual(restless_combat[0]["display_name"], "Skeleton warlock")
         self.assertEqual(restless_combat[0]["level"], 11)
+        self.assertEqual(restless_combat[0]["npc_stats"]["hitpoints"], 180)
+        self.assertEqual(restless_combat[0]["npc_stats"]["magic"], 8)
+        self.assertEqual(restless_combat[0]["npc_configs"]["attack_style"], "magic")
+        self.assertTrue(restless_combat[0]["npc_stats_source"].endswith("skeleton_warlock_lvl_11.plugin.kts"))
 
         lost_city = data["lost_city"]
         lost_city_combat = [

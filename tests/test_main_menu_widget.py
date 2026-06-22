@@ -1279,6 +1279,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("vampyre_slayer", self._quest_calls)
 
+    def test_quests_tab_allows_source_backed_focused_combat_override(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "the_restless_ghost"
+        pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 3, "completed": False}
+        pd["quest_stage_actions"] = {"the_restless_ghost": ["Search the mining spot for the ghost's skull"]}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 20
+        pd["strength_level"] = 20
+        pd["defense_level"] = 20
+        pd["constitution_level"] = 20
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Skeleton warlock level 11"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_the_restless_ghost")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("the_restless_ghost", self._quest_calls)
+
     def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "the_restless_ghost"

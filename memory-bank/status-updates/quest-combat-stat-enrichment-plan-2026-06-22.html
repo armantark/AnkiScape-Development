@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat Stat Enrichment Plan</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101114;
+      --panel: #181b20;
+      --panel-2: #20242b;
+      --text: #f2efe7;
+      --muted: #a8b0ba;
+      --line: #343a44;
+      --ok: #69d391;
+      --warn: #f0bd5e;
+      --bad: #ef7e73;
+      --blue: #7cb7ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #1f2630 0, #101114 36rem);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 32px 18px 48px; }
+    header { display: grid; gap: 12px; margin-bottom: 24px; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 48px); line-height: 1.05; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 17px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    p { margin: 0; color: var(--muted); max-width: 780px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card {
+      background: linear-gradient(180deg, var(--panel), #15171c);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.24);
+    }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-8 { grid-column: span 8; }
+    .span-12 { grid-column: span 12; }
+    .metric { font-size: 42px; line-height: 1; margin-bottom: 8px; font-weight: 750; }
+    .metric small { color: var(--muted); font-size: 18px; font-weight: 600; }
+    .bar {
+      height: 12px;
+      background: #2a3039;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 14px;
+      border: 1px solid #3b4350;
+    }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--ok), var(--blue)); }
+    .fill.warn { background: linear-gradient(90deg, var(--warn), var(--bad)); }
+    .lane { display: grid; gap: 10px; }
+    .row {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 14px;
+      padding: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .tag { color: var(--text); font-weight: 700; }
+    .pill {
+      display: inline-block;
+      margin: 0 8px 8px 0;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: #14171c;
+      font-size: 13px;
+    }
+    .todo { margin: 0; padding-left: 20px; color: var(--muted); }
+    .todo li { margin: 8px 0; }
+    strong { color: var(--text); }
+    code { color: #c8e1ff; background: #111419; border: 1px solid #303743; border-radius: 5px; padding: 1px 5px; }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+      .span-4, .span-6, .span-8, .span-12 { grid-column: 1; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Quest parity is not done: this pass targets source-backed combat stat gaps.</h1>
+      <p>The current model has stage gates for every quest, but combat encounters are still mostly fail-closed because only a small subset has local 2011Scape NPC stats. This slice keeps that distinction explicit and improves the resolver-backed path without pretending the catalog is fully simulated.</p>
+    </header>
+
+    <section class="grid" aria-label="Current coverage">
+      <div class="card span-4">
+        <div class="metric">194<small>/194</small></div>
+        <p><strong>Quests with stage rows.</strong> The start-only model has been replaced by a stage-aware layer across the catalog.</p>
+        <div class="bar"><div class="fill" style="width:100%"></div></div>
+      </div>
+      <div class="card span-4">
+        <div class="metric">119</div>
+        <p><strong>Quests with combat blockers.</strong> These are now blocked until either combat stats and resolver rules are available or the global combat config is unlocked.</p>
+        <div class="bar"><div class="fill warn" style="width:61%"></div></div>
+      </div>
+      <div class="card span-4">
+        <div class="metric">15<small>/286</small></div>
+        <p><strong>Combat rows with local NPC stats.</strong> This is the current parity bottleneck and the focus of the next source-backed enrichment pass.</p>
+        <div class="bar"><div class="fill warn" style="width:5.2%"></div></div>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top:16px" aria-label="Backend frontend split">
+      <div class="card span-6">
+        <h2>Backend</h2>
+        <div class="lane">
+          <div class="row"><div class="tag">Source path</div><div>Prefer local 2011Scape quest/NPC definitions, then Darkan/2012Scape, then pinned historical wiki revisions when local source is absent.</div></div>
+          <div class="row"><div class="tag">Code path</div><div>Use <code>quest_data.py</code> focused overrides or <code>tools/build_pre_eoc_quest_catalog.py</code>; do not hand-edit generated catalog rows.</div></div>
+          <div class="row"><div class="tag">Resolver rule</div><div>Stat-backed encounters can become battle-required; missing-stat encounters remain blocked with player-facing reasons.</div></div>
+        </div>
+      </div>
+      <div class="card span-6">
+        <h2>Frontend</h2>
+        <div class="lane">
+          <div class="row"><div class="tag">States</div><div>Keep <strong>can_start</strong>, <strong>in_progress</strong>, <strong>blocked_at_stage</strong>, <strong>completed</strong>, and <strong>locked</strong> visibly distinct.</div></div>
+          <div class="row"><div class="tag">Copy</div><div>Use compact blocker text: missing item/tool, required action, route lock, combat stats needed, or battle required.</div></div>
+          <div class="row"><div class="tag">Tests</div><div>Qt/offscreen tests should assert the visible blocker state, not just backend data structures.</div></div>
+        </div>
+      </div>
+      <div class="card span-12">
+        <h2>Next checklist</h2>
+        <span class="pill">audit exact missing combat rows</span>
+        <span class="pill">enrich local 2011Scape matches</span>
+        <span class="pill">preserve fail-closed missing stats</span>
+        <span class="pill">add unit/integration/Qt coverage</span>
+        <span class="pill">update Memory Bank</span>
+        <span class="pill">run full test commands</span>
+        <ul class="todo">
+          <li>Prove at least one non-generated focused combat addition can carry machine-readable NPC stats without flattening to start locks.</li>
+          <li>Leave an audited backlog for rows whose 2011/pre-EOC combat stats are not locally present, so parity gaps are explicit.</li>
+          <li>Commit the slice locally; do not push.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

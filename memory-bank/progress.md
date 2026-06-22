@@ -36,13 +36,17 @@
 - Hunter now has a temporary supply acquisition bridge: `Buy Hunter supplies` is a one-shot no-XP Utility/Activities row that spends `500 Coins`, grants reusable Hunter gear plus starter jars, and automatically switches AnkiScape off after the successful review. Hunter targets now distinguish reusable `tools` from consumed `requirements`, so snares/nets/traps gate methods without being deleted while jars, logs, and magic boxes still consume on successful catches.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
-- The quest stage-gate surface now has broad generated coverage. The pre-EOC
-  catalog builder emits machine-readable stage blockers from quest-wide item,
-  tool, item-alternative, and combat fields; current coverage is 179/194 quests
-  with at least one stage requirement, 163 quests with item/tool/option
-  blockers, and 112 quests with combat blockers. Combat blockers are hard
+- The quest stage-gate surface now has broad generated/focused coverage. The
+  pre-EOC catalog builder emits machine-readable stage blockers from
+  quest-wide item, tool, item-alternative, and combat fields, and focused
+  source-backed rows in `quest_data.py` close quests whose details are only in
+  local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
+  with at least one stage requirement, 171 quests with item/tool/option
+  blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
-  they do not silently complete while combat is unimplemented.
+  they do not silently complete while combat is unimplemented. Resolver-enabled
+  combat now has 16/286 source-backed NPC stat rows, including the local
+  2011Scape Skeleton Warlock focused override for The Restless Ghost.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -62,9 +66,10 @@
 - Full quest-stage minute-detail parity. The generator now preserves broad
   quest-wide source fields, but exact per-stage placement, override merge/source
   reconciliation, route flags, required action flags, partner/branch state,
-  quest-specific item transformations, and the remaining no-stage-requirement
-  quest rows are still tracked in
-  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`.
+  quest-specific item transformations, and broad combat stat enrichment are
+  still tracked in
+  `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` and
+  `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -385,6 +390,21 @@ food/prayer/death simulation, and quest-specific mechanics remain deferred in
 Verification: `python3 run_tests.py` passed with 404 tests (94 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 404 tests.
+
+Quest combat stat enrichment follow-up completed on 2026-06-22. The Restless
+Ghost Skeleton Warlock focused stage addition now carries local 2011Scape NPC
+stats from `skeleton_warlock_lvl_11.plugin.kts`, with quest text and skull
+object spawn behavior cited in `quest_data.py`. This proves focused override
+combat rows can become resolver-ready without hand-editing
+`quest_catalog_generated.py`: after the skull-search action flag is present,
+the Quests tab shows `Blocked: Battle required: Skeleton warlock level 11` and
+the Quest review writes `the_restless_ghost_skeleton_warlock` before stage
+advancement. `python3 tools/audit_quest_stage_gate_coverage.py` now reports
+16/286 combat encounters with local stats; the remaining 270 statless rows are
+explicit broad combat enrichment debt. Verification: `python3 run_tests.py`
+passed with 406 tests (95 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 406 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

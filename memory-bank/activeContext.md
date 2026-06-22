@@ -331,14 +331,17 @@ unable to start still only hides `locked` quests so in-progress blockers stay
 visible. The Knight's Sword is the first source-backed stage-gate proof case,
 with Redberry pie and later Blurite ore/Iron bar blockers modeled separately
 from its Mining 10 start lock. A catalog-wide generator follow-up now extracts
-quest-wide item/tool/option requirements and combat encounters into generated
-stage blockers for 179/194 quests; 112 quests currently carry combat blockers,
-and combat fails closed through
+quest-wide item/tool/option requirements and combat encounters, and a focused
+no-stage closure pass adds source-backed overrides/additions so the audit now
+reports 194/194 quests with at least one machine-readable stage requirement.
+119 quests currently carry combat blockers, and combat fails closed through
 `player_data["quest_combat_config"]["resolver_enabled"] == False` by default.
 The first resolver-enabled write path exists for current-stage stat-backed
-encounters, but broad NPC stat enrichment and full combat simulation remain
-open. This is broad blocker coverage, not minute-detail parity for every quest;
-use
+encounters. The Restless Ghost Skeleton Warlock is the current focused
+proof that a hand-authored stage addition can carry local 2011Scape NPC stats
+and become `Battle required` in the UI, bringing combat stat coverage to
+16/286 rows. Broad NPC stat enrichment and full combat simulation remain open.
+This is broad blocker coverage, not minute-detail parity for every quest; use
 `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` and
 `tools/audit_quest_stage_gate_coverage.py` before making completion claims.
 

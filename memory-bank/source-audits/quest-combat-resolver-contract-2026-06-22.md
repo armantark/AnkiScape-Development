@@ -22,6 +22,14 @@ combat work can replace or deepen without changing every quest row.
   `quest_catalog_generated.py` row for Vampyre Slayer / Count Draynor, generated
   from historical RuneScape Wiki oldid `6326248` and enriched from local
   2011Scape Count Draynor NPC combat definition.
+- Focused stat-backed override:
+  `quest_data.py` row for The Restless Ghost / Skeleton Warlock, sourced from
+  local 2011Scape quest text
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl/TheRestlessGhost.kt`,
+  local skull-object spawn behavior
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/areas/lumbridge/rock_with_skull.plugin.kts`,
+  and local NPC combat definition
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/undeads/skeleton_warlock_lvl_11.plugin.kts`.
 
 ## Backend Changes
 
@@ -53,12 +61,19 @@ combat work can replace or deepen without changing every quest row.
   Quest review target.
 - Missing items, tools, actions, routes, missing combat stats, underpowered
   combat, and globally locked combat continue to disable selection.
+- The Restless Ghost now proves the same frontend behavior for a focused
+  hand-authored stage addition, not only generated catalog encounters: after the
+  skull-search action flag is present, the Skeleton Warlock row shows
+  `Battle required` and can be selected when the resolver is enabled and the
+  player's combat level is sufficient.
 
 ## Explicit Remaining Gaps
 
-- Only 15 combat encounter rows currently carry local 2011Scape NPC stats. The
+- Only 16 combat encounter rows currently carry local 2011Scape NPC stats. The
   rest remain `combat_missing_stats` after the resolver is enabled and need
   source-backed stat enrichment before they can be fought.
+- The audit still reports 286 combat encounter rows total, leaving 270 rows
+  without local stat data after the Skeleton Warlock enrichment.
 - The resolver uses a deterministic combat-level gate, not a full pre-EOC hit
   chance, max-hit, prayer, equipment, style, food, special attack, multi-enemy,
   or death/resource simulation.
@@ -91,12 +106,22 @@ Use a throwaway Anki profile or back up the current AnkiScape save first.
 6. Repeat with low combat stats and confirm the quest blocks as underpowered.
 7. Repeat with a combat quest whose encounter lacks `npc_stats` and confirm it
    stays blocked as requiring combat stats.
+8. Start The Restless Ghost, set progress to stage 3, add
+   `Search the mining spot for the ghost's skull` to
+   `quest_stage_actions["the_restless_ghost"]`, enable the resolver, and set
+   combat stats high enough for combat level 11. Confirm the Quests tab shows
+   `Blocked: Battle required: Skeleton warlock level 11`, can select the quest,
+   and one successful review writes
+   `the_restless_ghost_skeleton_warlock` without advancing the stage on that
+   same review.
 
 ## Verification
 
 - `python3 -m unittest tests.test_logic tests.test_runtime_actions tests.test_integration_smoke`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_shows_generated_combat_gate_as_stage_blocker tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_resolver_ready_combat_gate_selection`
+- `python3 -m unittest tests.test_quest_catalog tests.test_logic.TestLogic.test_restless_ghost_skeleton_warlock_override_is_resolver_ready`
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_quests_tab_allows_source_backed_focused_combat_override`
 - `python3 tools/audit_quest_stage_gate_coverage.py`
-- `python3 run_tests.py` passed with 404 tests and 94 skipped.
+- `python3 run_tests.py` passed with 406 tests and 95 skipped.
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-  passed with 404 tests.
+  passed with 406 tests.

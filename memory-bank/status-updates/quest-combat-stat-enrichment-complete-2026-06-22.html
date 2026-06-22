@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat Stat Enrichment Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --panel: #171b21;
+      --panel-2: #202630;
+      --text: #f4f0e8;
+      --muted: #aab3bd;
+      --line: #343d49;
+      --ok: #68d391;
+      --blue: #8ec5ff;
+      --warn: #efbe63;
+      --bad: #ef8074;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: linear-gradient(140deg, #141820 0%, var(--bg) 42%, #12151a 100%);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1120px; margin: 0 auto; padding: 34px 18px 48px; }
+    header { margin-bottom: 22px; display: grid; gap: 10px; }
+    h1 { margin: 0; font-size: clamp(28px, 4vw, 46px); line-height: 1.08; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 16px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+    p { margin: 0; color: var(--muted); max-width: 820px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--panel), #14171c);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 18px 42px rgba(0,0,0,.28);
+    }
+    .span-3 { grid-column: span 3; }
+    .span-4 { grid-column: span 4; }
+    .span-6 { grid-column: span 6; }
+    .span-12 { grid-column: span 12; }
+    .metric { font-size: 38px; line-height: 1; font-weight: 760; margin-bottom: 8px; }
+    .metric small { font-size: 18px; color: var(--muted); }
+    .status {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 10px;
+      border: 1px solid #31533f;
+      border-radius: 999px;
+      background: #102019;
+      color: #b8f3cc;
+      font-weight: 700;
+      width: fit-content;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+    .bar {
+      height: 12px;
+      background: #29313b;
+      border: 1px solid #3a4653;
+      border-radius: 999px;
+      margin-top: 14px;
+      overflow: hidden;
+    }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--ok), var(--blue)); }
+    .fill.warn { background: linear-gradient(90deg, var(--warn), var(--bad)); }
+    .timeline { display: grid; gap: 10px; }
+    .step {
+      display: grid;
+      grid-template-columns: 134px 1fr;
+      gap: 14px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel-2);
+    }
+    .label { font-weight: 750; color: var(--text); }
+    code { color: #cce4ff; background: #11151a; border: 1px solid #303944; border-radius: 5px; padding: 1px 5px; }
+    ul { margin: 0; padding-left: 20px; color: var(--muted); }
+    li { margin: 7px 0; }
+    strong { color: var(--text); }
+    @media (max-width: 840px) {
+      .grid { grid-template-columns: 1fr; }
+      .span-3, .span-4, .span-6, .span-12 { grid-column: 1; }
+      .step { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="status"><span class="dot"></span>Committed-slice ready</span>
+      <h1>Focused combat stat enrichment landed for The Restless Ghost.</h1>
+      <p>This does not claim full quest parity. It moves one source-backed focused stage addition from statless combat blocker to resolver-ready battle gate, and leaves the remaining statless combat rows explicit.</p>
+    </header>
+
+    <section class="grid" aria-label="Results">
+      <div class="card span-3">
+        <div class="metric">194<small>/194</small></div>
+        <p><strong>Stage-gated quests.</strong> No regression in catalog-wide machine-readable stage coverage.</p>
+        <div class="bar"><div class="fill" style="width:100%"></div></div>
+      </div>
+      <div class="card span-3">
+        <div class="metric">16<small>/286</small></div>
+        <p><strong>Stat-backed combat rows.</strong> Up from 15 after Skeleton Warlock enrichment.</p>
+        <div class="bar"><div class="fill warn" style="width:5.6%"></div></div>
+      </div>
+      <div class="card span-3">
+        <div class="metric">270</div>
+        <p><strong>Combat rows still statless.</strong> These stay blocked when the resolver is enabled.</p>
+        <div class="bar"><div class="fill warn" style="width:94.4%"></div></div>
+      </div>
+      <div class="card span-3">
+        <div class="metric">406</div>
+        <p><strong>Tests passed.</strong> Both full runner and Qt/offscreen discovery completed cleanly.</p>
+        <div class="bar"><div class="fill" style="width:100%"></div></div>
+      </div>
+    </section>
+
+    <section class="grid" style="margin-top:16px" aria-label="Implementation split">
+      <div class="card span-6">
+        <h2>Backend</h2>
+        <div class="timeline">
+          <div class="step"><div class="label">Source evidence</div><div>Used local 2011Scape quest text, Lumbridge skull-object spawn behavior, and <code>skeleton_warlock_lvl_11.plugin.kts</code> NPC combat stats.</div></div>
+          <div class="step"><div class="label">Data path</div><div>Extended the focused <code>quest_data.py</code> combat helper to accept NPC stats/bonuses/configs. The generated catalog remains untouched.</div></div>
+          <div class="step"><div class="label">Runtime effect</div><div>The Skeleton Warlock gate can now resolve through the existing global-combat-config path, writing <code>the_restless_ghost_skeleton_warlock</code> before stage progress.</div></div>
+        </div>
+      </div>
+      <div class="card span-6">
+        <h2>Frontend</h2>
+        <div class="timeline">
+          <div class="step"><div class="label">Visible state</div><div>The Restless Ghost stage 3 now shows <strong>Blocked: Battle required: Skeleton warlock level 11</strong> when the route/action flags are present and combat is enabled.</div></div>
+          <div class="step"><div class="label">Selection</div><div>The Quests tab can select this resolver-ready focused override, matching the generated Count Draynor behavior.</div></div>
+          <div class="step"><div class="label">Unchanged</div><div>Missing items, required actions, route blockers, globally locked combat, missing combat stats, and underpowered combat still disable quest selection.</div></div>
+        </div>
+      </div>
+      <div class="card span-12">
+        <h2>Deferred Gaps</h2>
+        <ul>
+          <li>Full quest parity is still open: 270 combat rows lack source-backed NPC stats and remain blocked rather than silently completable.</li>
+          <li>The resolver is still a combat-level gate, not a hit chance, max-hit, food, prayer, equipment, death, multi-enemy, or quest-specific mechanics simulator.</li>
+          <li>Quest routes, transformations, branch state, followers, puzzles, and exact per-stage extraction remain active backlog items in the Memory Bank.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

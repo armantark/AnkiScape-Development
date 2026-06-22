@@ -49,6 +49,14 @@ RESTLESS_GHOST_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/TheRestlessGhost.kt"
 )
+RESTLESS_GHOST_SKULL_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/rock_with_skull.plugin.kts"
+)
+RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/npcs/definitions/undeads/skeleton_warlock_lvl_11.plugin.kts"
+)
 LOST_CITY_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/LostCity.kt"
@@ -736,6 +744,10 @@ def _combat(
     source_text: str,
     *,
     quantity: int = 1,
+    npc_stats: Tuple[Tuple[str, object], ...] = (),
+    npc_bonuses: Tuple[Tuple[str, object], ...] = (),
+    npc_configs: Tuple[Tuple[str, object], ...] = (),
+    npc_stats_source: str = "",
 ) -> QuestCombatEncounter:
     return QuestCombatEncounter(
         encounter_id=f"{quest_id}_{encounter_id}",
@@ -744,6 +756,10 @@ def _combat(
         quantity=quantity,
         source=source,
         source_text=source_text,
+        npc_stats=npc_stats,
+        npc_bonuses=npc_bonuses,
+        npc_configs=npc_configs,
+        npc_stats_source=npc_stats_source,
     )
 
 
@@ -851,7 +867,10 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
         _stage_req(
             3,
             "Search the Lumbridge Swamp mining spot for the muddy skull.",
-            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
+            (
+                f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
+                f"{RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}"
+            ),
             required_actions=("Search the mining spot for the ghost's skull",),
             combat_encounters=(
                 _combat(
@@ -859,8 +878,33 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
                     "skeleton_warlock",
                     "Skeleton warlock",
                     11,
-                    f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
-                    "The skull search spawns a level 11 skeleton warlock in the 2011Scape quest data.",
+                    (
+                        f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
+                        f"{RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}"
+                    ),
+                    (
+                        "The 2011Scape quest text requires facing a level 11 skeleton warlock; "
+                        "the Lumbridge skull object spawns Npcs.SKELETON_WARLOCK, whose local "
+                        "combat definition supplies these stats."
+                    ),
+                    npc_stats=(
+                        ("hitpoints", 180),
+                        ("attack", 1),
+                        ("strength", 1),
+                        ("defence", 1),
+                        ("magic", 8),
+                    ),
+                    npc_bonuses=(
+                        ("attackStab", 0),
+                        ("attackCrush", 0),
+                        ("defenceStab", 0),
+                        ("defenceSlash", 0),
+                        ("defenceCrush", 0),
+                        ("defenceMagic", 5),
+                        ("defenceRanged", 0),
+                    ),
+                    npc_configs=(("attack_speed", 4), ("attack_style", "magic")),
+                    npc_stats_source=RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH,
                 ),
             ),
         ),
