@@ -233,6 +233,45 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Earth Elemental"])
 
+    def test_quest_answer_resolves_conflict_overridden_dad_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Coins": 12},
+            "current_quest": "troll_stronghold",
+            "quests": {"troll_stronghold": {"started": True, "progress": 2, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_combat_encounters": {
+                "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
+            },
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 100,
+            "strength_level": 100,
+            "defense_level": 100,
+            "constitution_level": 100,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["troll_stronghold"]["progress"], 2)
+        self.assertFalse(player_data["quests"]["troll_stronghold"]["completed"])
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {
+                "troll_stronghold": [
+                    "troll_stronghold_dad_101",
+                    "troll_stronghold_troll_general_171",
+                    "troll_stronghold_twig_troll_71",
+                ]
+            },
+        )
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Dad"])
+
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

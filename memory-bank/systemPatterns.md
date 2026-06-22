@@ -68,8 +68,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
-  `required_tools`, and `combat_encounters`; `quest_data.py` deserializes them
-  into the same `QuestStageRequirement` contract used by hand overrides.
+  `required_tools`, and `combat_encounters`; `required_inventory_options` must
+  preserve independent option groups instead of flattening alternatives into
+  separate hard requirements. `quest_data.py` deserializes them into the same
+  `QuestStageRequirement` contract used by hand overrides.
   `quest_data.py` then combines generated rows, hand-authored stage rows,
   focused replacement rows, and focused addition rows; use replacements when
   generated data conflicts with stronger 2011Scape/Darkan evidence, and use
@@ -100,8 +102,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   The Restless Ghost Skeleton Warlock is the focused override proof case;
   Demon Slayer's Delrith and Dragon Slayer's Elvarg prove the generated Darkan
   fallback, and Elemental Workshop's Earth Elemental proves the identical
-  duplicate-source path. Current stat coverage is 147/286 combat rows, so
-  remaining stat enrichment is still active quest debt.
+  duplicate-source path, while Priest in Peril's Monk of Zamorak and Troll
+  Stronghold's Dad prove focused conflict resolution from area-specific Darkan
+  quest/combat sources. Current stat coverage is 149/286 combat rows; the
+  remaining 137 statless rows are classified by
+  `tools/audit_quest_combat_stat_gaps.py` and remain active quest debt.
 - Completed quest reviews intentionally turn Quest training off and show a modal `Quest complete` stop-point dialog through the same centralized warning-dialog helper used by material depletion. Keep that paired with the existing floating completion gain so the player sees both immediate feedback and a clear action stop.
 - XP lamps from quest rewards are flattened into Bank Claims. Preserve the source amount, quantity, skill option set, and minimum level, but use one consistent `Choose skill` claim flow instead of copying every historical quest-specific lamp/chatbox interface.
 - Bank Claims are a compact action inbox above the Bank inventory, not an item category. The frontend should render eligible rows only, summarize locked rewards, hide claimed rewards behind the all-caught-up state, and cap the rows to keep the inventory list as the main scroll surface.

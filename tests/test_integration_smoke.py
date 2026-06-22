@@ -684,6 +684,58 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["gains"], ["Defeated Earth Elemental"])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_resolves_conflict_overridden_dad_combat_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_conflict_override_combat_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Coins": 12},
+            "current_quest": "troll_stronghold",
+            "quests": {"troll_stronghold": {"started": True, "progress": 2, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_combat_encounters": {
+                "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
+            },
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 100,
+            "strength_level": 100,
+            "defense_level": 100,
+            "constitution_level": 100,
+            "prayer_level": 1,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["troll_stronghold"]["progress"], 2)
+        self.assertFalse(addon.player_data["quests"]["troll_stronghold"]["completed"])
+        self.assertEqual(
+            addon.player_data["quest_combat_encounters"],
+            {
+                "troll_stronghold": [
+                    "troll_stronghold_dad_101",
+                    "troll_stronghold_troll_general_171",
+                    "troll_stronghold_twig_troll_71",
+                ]
+            },
+        )
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Dad"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
 

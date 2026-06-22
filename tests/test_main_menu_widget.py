@@ -1323,6 +1323,32 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn("elemental_workshop_i", self._quest_calls)
 
+    def test_quests_tab_allows_conflict_overridden_dad_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Coins": 12}
+        pd["current_quest"] = "troll_stronghold"
+        pd["quests"]["troll_stronghold"] = {"started": True, "progress": 2, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["quest_combat_encounters"] = {
+            "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
+        }
+        pd["attack_level"] = 100
+        pd["strength_level"] = 100
+        pd["defense_level"] = 100
+        pd["constitution_level"] = 100
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Dad level 101"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_troll_stronghold")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("troll_stronghold", self._quest_calls)
+
     def test_quests_tab_allows_source_backed_focused_combat_override(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "the_restless_ghost"

@@ -119,13 +119,18 @@ class TestQuestCatalog(unittest.TestCase):
 
         vampyre = data["vampyre_slayer"]["stage_requirements"][0]
         self.assertEqual(vampyre["required_inventory"], {"Garlic": 1})
-        self.assertIn({"Coins": 2}, vampyre["required_inventory_options"])
-        self.assertIn({"Beer": 1}, vampyre["required_inventory_options"])
+        self.assertEqual(vampyre["required_inventory_options"], (({"Coins": 2}, {"Beer": 1}),))
         count_draynor = vampyre["combat_encounters"][0]
         self.assertEqual(count_draynor["display_name"], "Count Draynor")
         self.assertEqual(count_draynor["level"], 37)
         self.assertEqual(count_draynor["npc_stats"]["hitpoints"], 350)
         self.assertTrue(count_draynor["npc_stats_source"].endswith("count_draynor_level_37.plugin.kts"))
+
+        goblin = data["goblin_diplomacy"]["stage_requirements"][0]
+        self.assertEqual(
+            goblin["required_inventory_options"],
+            (({"Coins": 5}, {"Blue dye": 1}), ({"Coins": 10}, {"Orange dye": 1})),
+        )
 
         demon = data["demon_slayer"]
         delrith = next(
@@ -226,7 +231,12 @@ class TestQuestCatalog(unittest.TestCase):
             for encounter in requirement["combat_encounters"]
             if encounter["display_name"] == "Monk of Zamorak"
         )
-        self.assertEqual(monk["npc_stats"], {})
+        self.assertEqual(monk["npc_stats"]["hitpoints"], 250)
+        self.assertEqual(monk["npc_stats"]["attack"], 25)
+        self.assertEqual(monk["npc_stats"]["strength"], 25)
+        self.assertEqual(monk["npc_stats"]["defence"], 25)
+        self.assertEqual(monk["npc_configs"]["attack_style"], "magic")
+        self.assertTrue(monk["npc_stats_source"].endswith("monk_of_zamorak_(30).json"))
 
         dad = next(
             encounter
@@ -234,7 +244,12 @@ class TestQuestCatalog(unittest.TestCase):
             for encounter in requirement["combat_encounters"]
             if encounter["display_name"] == "Dad"
         )
-        self.assertEqual(dad["npc_stats"], {})
+        self.assertEqual(dad["npc_stats"]["hitpoints"], 1200)
+        self.assertEqual(dad["npc_stats"]["attack"], 60)
+        self.assertEqual(dad["npc_stats"]["strength"], 120)
+        self.assertEqual(dad["npc_stats"]["defence"], 50)
+        self.assertEqual(dad["npc_configs"]["max_hit"], 275)
+        self.assertTrue(dad["npc_stats_source"].endswith("areas/death_plateau/dad.json"))
 
         self.assertTrue(data["jungle_potion"]["stage_requirements"])
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])

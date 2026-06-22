@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Parity Gap Audit Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(79, 140, 255, 0.18), transparent 28rem),
+        linear-gradient(180deg, #0c0e12 0%, #11151c 100%);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 40px 18px 56px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.5);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #cfe0ff;
+      font: 700 12px/1.1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      max-width: 880px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 860px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 28px 0;
+    }
+
+    .metric, .card, .lane {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.88);
+      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.22);
+    }
+
+    .metric {
+      padding: 18px;
+      min-height: 118px;
+    }
+
+    .metric .value {
+      display: block;
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .metric .label {
+      display: block;
+      margin-top: 8px;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .metric.good .value { color: var(--green); }
+    .metric.warn .value { color: var(--amber); }
+    .metric.danger .value { color: var(--red); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .card {
+      padding: 20px;
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.08rem;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      margin: 0 0 14px;
+    }
+
+    .bars {
+      display: grid;
+      gap: 10px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: minmax(160px, 1fr) 90px;
+      gap: 12px;
+      align-items: center;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+    }
+
+    .track {
+      overflow: hidden;
+      height: 13px;
+      border-radius: 999px;
+      background: #0e1219;
+      border: 1px solid var(--border);
+    }
+
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--amber));
+      border-radius: inherit;
+    }
+
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: var(--accent-glow);
+      color: #cfe0ff;
+      font-weight: 800;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .lane strong { display: block; }
+    .lane span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      margin-top: 2px;
+    }
+
+    .tag {
+      display: inline-flex;
+      white-space: nowrap;
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: #c5ccda;
+      font: 700 11px/1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: #11151c;
+      min-height: 170px;
+    }
+
+    .pane-label {
+      color: var(--text-dim);
+      font: 700 11px/1 "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .quest-row {
+      margin-top: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #171c24;
+    }
+
+    .quest-row .state {
+      display: inline-flex;
+      margin-top: 8px;
+      padding: 5px 8px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .state.bad { background: rgba(255, 92, 92, 0.13); color: #ffb3b3; }
+    .state.ok { background: rgba(74, 222, 128, 0.12); color: #b9f5cf; }
+
+    .footer {
+      margin-top: 18px;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+    }
+
+    @media (max-width: 900px) {
+      .metrics, .grid, .split { grid-template-columns: 1fr; }
+      .lane { grid-template-columns: 34px 1fr; }
+      .lane .tag { grid-column: 2; width: max-content; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Quest Goal Checkpoint</div>
+    <h1>Every quest is not done yet. The next slice makes that impossible to hide.</h1>
+    <p class="subtitle">The plugin now has a real stage-gate layer across the catalog, but source-backed minute-detail parity is still open. This continuation audits the remaining combat rows and keeps unresolved fights hard-blocked instead of promoting guessed data into completable quest progress.</p>
+
+    <section class="metrics" aria-label="Current quest coverage">
+      <div class="metric good"><span class="value">194/194</span><span class="label">quests with machine-readable stage rows</span></div>
+      <div class="metric warn"><span class="value">286</span><span class="label">combat encounter rows extracted or added</span></div>
+      <div class="metric good"><span class="value">147</span><span class="label">combat rows currently resolver-ready with local stats</span></div>
+      <div class="metric danger"><span class="value">139</span><span class="label">combat rows still blocked or source-classified debt</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Gap Types To Pin</h2>
+        <p>The audit classifies every statless combat row so the remaining work is accountable per encounter rather than buried in quest prose.</p>
+        <div class="bars">
+          <div class="bar-row"><span>no local source match</span><div class="track"><div class="fill" style="width:74%"></div></div><strong>103</strong></div>
+          <div class="bar-row"><span>parser or variant-level rows</span><div class="track"><div class="fill" style="width:20%"></div></div><strong>28</strong></div>
+          <div class="bar-row"><span>Darkan same-name wrong-level</span><div class="track"><div class="fill" style="width:4%"></div></div><strong>6</strong></div>
+          <div class="bar-row"><span>Darkan conflicting stat sources</span><div class="track"><div class="fill" style="width:2%"></div></div><strong>2</strong></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Backend / Frontend Split</h2>
+        <div class="flow">
+          <div class="lane"><div class="num">1</div><div><strong>Backend audit</strong><span>Add a repeatable combat-gap script and tests that pin current debt.</span></div><span class="tag">tools/</span></div>
+          <div class="lane"><div class="num">2</div><div><strong>Backend enrichment</strong><span>Use local 2011Scape, Darkan, then pinned historical wiki revisions before making any row resolver-ready.</span></div><span class="tag">quest_data.py</span></div>
+          <div class="lane"><div class="num">3</div><div><strong>Frontend handoff</strong><span>Only adjust UI wording if the backend exposes a new blocker reason or source class.</span></div><span class="tag">ui/tests</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>Player-Facing Contract</h2>
+      <div class="split">
+        <div class="pane">
+          <div class="pane-label">Not acceptable</div>
+          <div class="quest-row">
+            <strong>Quest review succeeds</strong>
+            <div>Fight row exists only as prose or has no source-backed combat stats.</div>
+            <span class="state bad">silently progresses</span>
+          </div>
+        </div>
+        <div class="pane">
+          <div class="pane-label">Required behavior</div>
+          <div class="quest-row">
+            <strong>Started quest stops at fight</strong>
+            <div>Combat is globally locked, or the encounter has unresolved stats.</div>
+            <span class="state ok">blocked_at_stage</span>
+          </div>
+        </div>
+      </div>
+      <p class="footer">Completion remains deliberately unavailable until every stage blocker is either source-backed and modeled or explicitly audited as blocked. The goal is parity, not a broad “start-only plus prose” approximation.</p>
+    </section>
+  </main>
+</body>
+</html>

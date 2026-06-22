@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Parity Gap Status</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #091014;
+      --panel: #111b20;
+      --panel-2: #17242b;
+      --ink: #eef7f4;
+      --muted: #9db1ac;
+      --line: #294047;
+      --green: #68d391;
+      --blue: #7dd3fc;
+      --amber: #f6c453;
+      --red: #fb7185;
+      --violet: #c4b5fd;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        linear-gradient(180deg, rgba(104, 211, 145, 0.08), transparent 360px),
+        var(--bg);
+      color: var(--ink);
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(34px, 5vw, 64px);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+    h2 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    h3 {
+      font-size: 15px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .lede {
+      margin-top: 18px;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+    }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.015)), var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.24);
+    }
+    .truth {
+      display: grid;
+      gap: 12px;
+    }
+    .truth .badge {
+      display: inline-flex;
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(251, 113, 133, 0.12);
+      color: #fecdd3;
+      border: 1px solid rgba(251, 113, 133, 0.38);
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .metric {
+      padding: 16px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    .metric b {
+      display: block;
+      font-size: 30px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .bar {
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #26363d;
+      border: 1px solid var(--line);
+      margin: 14px 0 10px;
+    }
+    .bar > div {
+      height: 100%;
+      width: 52.1%;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+    }
+    .legend {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 54px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.025);
+    }
+    .num {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--amber);
+      text-align: center;
+    }
+    .row p {
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 14px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 0 4px rgba(104, 211, 145, 0.12);
+    }
+    .workstreams {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+    code, .prompt {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 13px;
+    }
+    .prompt {
+      white-space: pre-wrap;
+      color: #d9f99d;
+      background: #101a12;
+      border: 1px solid #31533a;
+      border-radius: 8px;
+      padding: 14px;
+      line-height: 1.45;
+    }
+    button {
+      margin-top: 10px;
+      color: var(--ink);
+      background: #1c2b32;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    button:focus { outline: 2px solid var(--blue); outline-offset: 2px; }
+    footer {
+      color: var(--muted);
+      margin-top: 18px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    @media (max-width: 860px) {
+      main { width: min(100% - 20px, 1180px); padding-top: 18px; }
+      header, .split, .workstreams { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="card">
+        <h3>Quest Goal Status</h3>
+        <h1>Not Done For Every Quest Yet</h1>
+        <p class="lede">
+          The stage-gate model is real and catalog-wide, but full minute-detail source parity is still open. This slice made the remaining gap set harder to hand-wave: 149 combat rows are resolver-ready, 137 remain blocked and classified.
+        </p>
+      </section>
+      <aside class="card truth">
+        <span class="badge">Parity claim blocked</span>
+        <p>Every quest has machine-readable stage rows. That is structural coverage, not proof that every individual quest step, branch, enemy, item transformation, route, and puzzle is complete.</p>
+        <div class="bar"><div></div></div>
+        <div class="legend"><span>149 stat-backed combat rows</span><span>137 statless rows</span></div>
+      </aside>
+    </header>
+
+    <section class="metric-grid">
+      <div class="metric"><b>194/194</b><span>quests with at least one stage requirement row</span></div>
+      <div class="metric"><b>382</b><span>machine-readable stage requirement rows</span></div>
+      <div class="metric"><b>286</b><span>quest combat encounter rows in the catalog</span></div>
+      <div class="metric"><b>137</b><span>combat encounters still blocked pending source/stat work</span></div>
+    </section>
+
+    <section class="split">
+      <article class="card">
+        <h2>Completed In This Slice</h2>
+        <div class="list">
+          <div class="row"><div class="num">1</div><p>Fixed generated item alternatives so groups stay grouped. Goblin Diplomacy now has two option groups, not four impossible requirements.</p></div>
+          <div class="row"><div class="num">2</div><p>Resolved Priest in Peril Monk of Zamorak level 30 with Paterdomus Darkan quest/combat evidence.</p></div>
+          <div class="row"><div class="num">3</div><p>Resolved Troll Stronghold Dad level 101 with area-specific Darkan quest/combat evidence.</p></div>
+          <div class="row"><div class="num">4</div><p>Prevented combat review actions from appearing while same-stage item, tool, action, or route blockers are unmet.</p></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Remaining Combat Backlog</h2>
+        <div class="list">
+          <div class="row"><div class="num">80</div><p>Darkan partial metadata exists, but full resolver stats are not yet accepted.</p></div>
+          <div class="row"><div class="num">28</div><p>Parser or variant-level rows need quest-specific modeling for forms, ranges, or branch fights.</p></div>
+          <div class="row"><div class="num">18</div><p>No local source match has been found yet.</p></div>
+          <div class="row"><div class="num">11</div><p>Same-name Darkan rows exist at the wrong combat level and need reconciliation.</p></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="workstreams">
+      <article class="card">
+        <h2>Backend Handoff</h2>
+        <p class="status"><span class="dot"></span>Active goal remains open</p>
+        <p class="lede">Next backend work should use <code>tools/audit_quest_combat_stat_gaps.py</code> as the queue, then promote rows only when local 2011Scape, Darkan/2012scape, or historical wiki evidence supports them.</p>
+      </article>
+      <article class="card">
+        <h2>Frontend Handoff</h2>
+        <p class="status"><span class="dot"></span>No new UI surface required in this slice</p>
+        <p class="lede">The existing Quests tab already shows the compact blocker text. Future frontend work should focus on clearer multi-blocker detail only after backend stage data becomes more granular.</p>
+      </article>
+    </section>
+
+    <section class="card" style="margin-top:16px">
+      <h2>Copy Prompt For Next Quest Backend Pass</h2>
+      <div id="prompt" class="prompt">In the AnkiScape repo, continue the active quest parity goal from memory-bank/source-audits/quest-conflict-combat-stat-enrichment-2026-06-22.md. Do not claim all-quest parity. Use tools/audit_quest_combat_stat_gaps.py as the queue, preserve startability vs finishability, keep combat globally locked unless resolver-ready stats exist, and promote rows only with local 2011Scape first, Darkan/2012scape second, and pinned historical runescape.wiki revisions through 2012-11-19 third. Add targeted unit, integration, Qt/offscreen, and manual Anki test instructions, update the Memory Bank, and commit locally.</div>
+    </section>
+
+    <footer>
+      Artifacts updated: source audit, Memory Bank active/progress/patterns/kanban, generated catalog, backend tests, integration tests, focused Qt test, and the required full suites. `python3 run_tests.py` passed with 421 tests and 98 skipped; full Qt/offscreen discovery passed with 421 tests.
+    </footer>
+  </main>
+</body>
+</html>

@@ -79,6 +79,10 @@ DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePo
 DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
 TAI_BWO_WANNAI_TRIO_JOGRE_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jogre/jogre_(53).json"
 SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/sea_troll_queen (noanims).json"
+PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/paterdomus/monk_of_zamorak/monk_of_zamorak_(30).json"
+)
+TROLL_STRONGHOLD_DAD_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/death_plateau/dad.json"
 RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
 JUNGLE_POTION_WIKI_SOURCE = "https://runescape.wiki/w/Jungle_Potion?oldid=6555418"
 KENNITHS_CONCERNS_WIKI_SOURCE = "https://runescape.wiki/w/Kennith%27s_Concerns?oldid=6549837"
@@ -97,6 +101,7 @@ RAW_KARAMBWAN_SOURCE = "https://runescape.fandom.com/wiki/Raw_karambwan"
 GEM_ROCK_SOURCE = "https://runescape.wiki/w/Gem_rock?oldid=37044944"
 PRIEST_IN_PERIL_ID = "priest_in_peril"
 PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
+TROLL_STRONGHOLD_ID = "troll_stronghold"
 THE_FREMENNIK_ISLES_ID = "the_fremennik_isles"
 THE_FREMENNIK_ISLES_SOURCE = "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919"
 BROAD_FLETCHING_ABILITY = "broad_fletching"
@@ -1193,6 +1198,62 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
 }
 
 
+QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounter]] = {
+    PRIEST_IN_PERIL_ID: {
+        "priest_in_peril_monk_of_zamorak_30": _combat(
+            PRIEST_IN_PERIL_ID,
+            "monk_of_zamorak_30",
+            "Monk of Zamorak",
+            30,
+            f"{PRIEST_IN_PERIL_SOURCE}; {DARKAN_QUEST_SOURCE_ROOT}/priestinperil/PriestInPeril.java; {PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE}",
+            "Priest in Peril kills use the Paterdomus Zamorak monk NPC ids 1044-1046; the level 30 id 1046 combatdef supplies these stats.",
+            npc_stats=(
+                ("hitpoints", 250),
+                ("attack", 25),
+                ("strength", 25),
+                ("defence", 25),
+                ("magic", 40),
+                ("ranged", 1),
+            ),
+            npc_configs=(
+                ("max_hit", 20),
+                ("attack_range", -1),
+                ("attack_style", "magic"),
+                ("attack_bonus", "crush_att"),
+                ("aggressiveness_type", "aggressive"),
+            ),
+            npc_stats_source=PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE,
+        ),
+    },
+    TROLL_STRONGHOLD_ID: {
+        "troll_stronghold_dad_101": _combat(
+            TROLL_STRONGHOLD_ID,
+            "dad_101",
+            "Dad",
+            101,
+            f"https://runescape.wiki/w/Troll_Stronghold?oldid=6552397; {DARKAN_QUEST_SOURCE_ROOT}/troll_stronghold/TrollStronghold.kt; {TROLL_STRONGHOLD_DAD_NPC_SOURCE}",
+            "Darkan Troll Stronghold instantiates DAD for the arena fight; the area-specific Dad combatdef supplies these stats.",
+            npc_stats=(
+                ("hitpoints", 1200),
+                ("attack", 60),
+                ("strength", 120),
+                ("defence", 50),
+                ("magic", 0),
+                ("ranged", 0),
+            ),
+            npc_configs=(
+                ("max_hit", 275),
+                ("attack_range", -1),
+                ("attack_style", "melee"),
+                ("attack_bonus", "crush_att"),
+                ("aggressiveness_type", "passive"),
+            ),
+            npc_stats_source=TROLL_STRONGHOLD_DAD_NPC_SOURCE,
+        ),
+    },
+}
+
+
 _STAGE_COUNT_BY_LENGTH = {
     "Short": 3,
     "Short to Medium": 4,
@@ -1264,6 +1325,12 @@ def _catalog_item_pairs(value: object) -> Tuple[Tuple[str, int], ...]:
             if isinstance(item, Mapping):
                 name = item.get("item_name") or item.get("display_name")
                 amount = item.get("quantity", item.get("amount", 1))
+                if not isinstance(name, str) or not name:
+                    for item_name, item_amount in item.items():
+                        if item_name in {"item_name", "display_name", "quantity", "amount"}:
+                            continue
+                        pairs.append((str(item_name), _catalog_int({"value": item_amount}, "value", 1)))
+                    continue
             elif isinstance(item, (tuple, list)) and len(item) >= 2:
                 name, amount = item[0], item[1]
             else:
@@ -1277,6 +1344,8 @@ def _catalog_item_pairs(value: object) -> Tuple[Tuple[str, int], ...]:
 def _catalog_item_options(value: object) -> Tuple[Tuple[Tuple[str, int], ...], ...]:
     if not isinstance(value, (tuple, list)):
         return ()
+    if value and all(isinstance(group, Mapping) for group in value):
+        return (_catalog_item_pairs(value),)
     groups = []
     for group in value:
         options = _catalog_item_pairs(group)
@@ -1450,6 +1519,27 @@ def _dedupe_stage_requirements(requirements: Tuple[QuestStageRequirement, ...]) 
     return tuple(rows)
 
 
+def _apply_combat_encounter_replacements(
+    quest_id: str,
+    requirements: Tuple[QuestStageRequirement, ...],
+) -> Tuple[QuestStageRequirement, ...]:
+    replacements = QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID.get(quest_id, {})
+    if not replacements:
+        return requirements
+    changed = False
+    rows = []
+    for requirement in requirements:
+        combat_encounters = tuple(
+            replacements.get(encounter.encounter_id, encounter)
+            for encounter in requirement.combat_encounters
+        )
+        if combat_encounters != requirement.combat_encounters:
+            changed = True
+            requirement = replace(requirement, combat_encounters=combat_encounters)
+        rows.append(requirement)
+    return tuple(rows) if changed else requirements
+
+
 def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:
     replacements = QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID.get(quest.id)
     if replacements is not None:
@@ -1460,7 +1550,10 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
         base = _catalog_stage_requirements(row.get("stage_requirements", ()))
 
     additions = QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID.get(quest.id, ())
-    requirements = _dedupe_stage_requirements((*base, *additions))
+    requirements = _apply_combat_encounter_replacements(
+        quest.id,
+        _dedupe_stage_requirements((*base, *additions)),
+    )
     if requirements == quest.stage_requirements:
         return quest
     return replace(quest, stage_requirements=requirements)
@@ -1683,7 +1776,10 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
         "stage": requirement.stage,
         "description": requirement.description,
         "required_inventory": dict(requirement.required_inventory),
-        "required_inventory_options": tuple(dict(option_group) for option_group in requirement.required_inventory_options),
+        "required_inventory_options": tuple(
+            tuple({item_name: amount} for item_name, amount in option_group)
+            for option_group in requirement.required_inventory_options
+        ),
         "consumed_inventory": dict(requirement.consumed_inventory),
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,

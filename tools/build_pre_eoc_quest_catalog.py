@@ -1772,7 +1772,7 @@ def build_stage_requirements(
             item_names = tuple(str(name) for option in options for name in option)
             stage = _infer_item_requirement_stage(journal_stages, item_names)
             row = row_for_stage(stage, "Generated from pre-EOC Quest details item alternatives.")
-            row["required_inventory_options"] = tuple(row["required_inventory_options"]) + options
+            row["required_inventory_options"] = tuple(row["required_inventory_options"]) + (options,)
 
     if combat_encounters:
         stage = max(1, min(stages, stages - 1 if stages > 1 else 1))

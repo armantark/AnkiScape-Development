@@ -24,7 +24,8 @@ def main() -> None:
     total = len(data)
     stage_rows = 0
     combat_rows = 0
-    combat_with_stats = 0
+    combat_with_any_stats = 0
+    combat_with_resolver_stats = 0
     item_quests = 0
     combat_quests = 0
     no_stage_requirements = []
@@ -54,7 +55,8 @@ def main() -> None:
             if encounters:
                 quest_has_combat = True
                 combat_rows += len(encounters)
-                combat_with_stats += sum(1 for encounter in encounters if encounter.get("npc_stats"))
+                combat_with_any_stats += sum(1 for encounter in encounters if encounter.get("npc_stats"))
+                combat_with_resolver_stats += sum(1 for encounter in encounters if _has_resolver_stats(encounter))
         if quest_has_item:
             item_quests += 1
         if quest_has_combat:
@@ -66,13 +68,26 @@ def main() -> None:
     print(f"quests_with_item_or_tool_blockers: {item_quests}")
     print(f"quests_with_combat_blockers: {combat_quests}")
     print(f"combat_encounter_rows: {combat_rows}")
-    print(f"combat_encounters_with_local_stats: {combat_with_stats}")
+    print(f"combat_encounters_with_any_stats: {combat_with_any_stats}")
+    print(f"combat_encounters_with_resolver_stats: {combat_with_resolver_stats}")
     print("requirement_row_kinds:")
     for key in sorted(kinds):
         print(f"  {key}: {kinds[key]}")
     print("quests_without_stage_requirements:")
     for quest_id, display_name in no_stage_requirements:
         print(f"  {quest_id}: {display_name}")
+
+
+def _has_resolver_stats(encounter):
+    stats = encounter.get("npc_stats") or {}
+    return all(_positive_int(stats.get(key, 0)) > 0 for key in ("hitpoints", "attack", "strength", "defence"))
+
+
+def _positive_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 
 if __name__ == "__main__":

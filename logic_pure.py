@@ -1086,6 +1086,14 @@ def _quest_stage_item_option_groups(requirement, key):
         return (_quest_stage_item_pairs({key: raw_groups}, key),)
     if not isinstance(raw_groups, Iterable) or isinstance(raw_groups, str):
         return tuple()
+    raw_groups = tuple(raw_groups)
+    if raw_groups and all(isinstance(raw_group, Mapping) for raw_group in raw_groups):
+        pairs = tuple(
+            (str(name), _positive_int(amount, 1))
+            for raw_group in raw_groups
+            for name, amount in raw_group.items()
+        )
+        return (pairs,) if pairs else tuple()
     groups = []
     for raw_group in raw_groups:
         if isinstance(raw_group, Mapping):
@@ -1381,9 +1389,19 @@ def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
 
 
 def quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data):
+    blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
+    noncombat_blocker_kinds = {
+        "missing_item",
+        "missing_item_option",
+        "missing_tool",
+        "required_action",
+        "unmet_route",
+    }
+    if any(blocker.get("kind") in noncombat_blocker_kinds for blocker in blockers):
+        return tuple()
     return tuple(
         blocker
-        for blocker in quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
+        for blocker in blockers
         if blocker.get("kind") == "combat_encounter"
     )
 

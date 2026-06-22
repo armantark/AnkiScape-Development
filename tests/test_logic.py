@@ -82,6 +82,7 @@ from logic_pure import (
     start_quest_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_blocker_reasons_pure,
+    quest_current_stage_resolvable_combat_blockers_pure,
     quest_locked_reasons_pure,
     quest_availability_state_pure,
     quest_unlock_locked_reasons_pure,
@@ -1455,6 +1456,8 @@ class TestLogic(unittest.TestCase):
             tuple(blocker["kind"] for blocker in blockers),
             ("missing_item_option", "missing_tool", "required_action", "unmet_route", "combat_locked"),
         )
+        self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "proof_quest", quest_data), ())
+        self.assertFalse(can_attempt_quest_review_pure(player_data, "proof_quest", quest_data))
         self.assertEqual(blockers[0]["reason"], "Needs Redberry pie x1 or Cake x1")
         self.assertEqual(blockers[-1]["reason"], "Combat locked until battle support is enabled: Ice giant level 53")
 
@@ -1465,10 +1468,39 @@ class TestLogic(unittest.TestCase):
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
         self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
+        self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "proof_quest", quest_data), ())
         self.assertEqual(blockers[0]["reason"], "Combat stats required before battle support can resolve: Ice giant level 53")
 
         player_data["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data), ())
+
+    def test_stage_requirement_options_preserve_independent_alternative_groups(self):
+        quest_data = {
+            "dye_quest": {
+                "stages": 1,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "required_inventory_options": (
+                            ({"Coins": 5}, {"Blue dye": 1}),
+                            ({"Coins": 10}, {"Orange dye": 1}),
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {"Blue dye": 1},
+            "quests": {"dye_quest": {"started": True, "progress": 1, "completed": False}},
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "dye_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item_option",))
+        self.assertEqual(blockers[0]["reason"], "Needs Coins x10 or Orange dye x1")
+
+        player_data["inventory"]["Orange dye"] = 1
+        self.assertEqual(quest_current_stage_blockers_pure(player_data, "dye_quest", quest_data), ())
 
     def test_quest_combat_resolver_uses_player_and_source_backed_npc_stats(self):
         self.assertEqual(
@@ -1610,6 +1642,43 @@ class TestLogic(unittest.TestCase):
             {"elemental_workshop_i": ["elemental_workshop_i_earth_elemental_35"]},
         )
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "elemental_workshop_i", QUEST_DATA), ())
+
+    def test_troll_stronghold_dad_conflict_override_is_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"] = {"Coins": 12}
+        player_data["quests"]["troll_stronghold"] = {"started": True, "progress": 2, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["quest_combat_encounters"] = {
+            "troll_stronghold": ["troll_stronghold_twig_troll_71", "troll_stronghold_troll_general_171"]
+        }
+        player_data["attack_level"] = 100
+        player_data["strength_level"] = 100
+        player_data["defense_level"] = 100
+        player_data["constitution_level"] = 100
+
+        blockers = quest_current_stage_blockers_pure(player_data, "troll_stronghold", QUEST_DATA)
+        dad_blocker = next(blocker for blocker in blockers if blocker.get("encounter_id") == "troll_stronghold_dad_101")
+        self.assertEqual(dad_blocker["kind"], "combat_encounter")
+        self.assertEqual(dad_blocker["reason"], "Battle required: Dad level 101")
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "troll_stronghold",
+            QUEST_DATA,
+            "troll_stronghold_dad_101",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "troll_stronghold_dad_101")
+        self.assertEqual(
+            resolved["quest_combat_encounters"],
+            {
+                "troll_stronghold": [
+                    "troll_stronghold_dad_101",
+                    "troll_stronghold_troll_general_171",
+                    "troll_stronghold_twig_troll_71",
+                ]
+            },
+        )
 
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
