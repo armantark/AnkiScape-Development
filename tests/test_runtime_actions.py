@@ -175,6 +175,51 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertIn("Needs Cheese x1", calls["errors"][0][1])
         self.assertIn("Use cheese on the mouse hole", calls["errors"][0][1])
 
+    def test_quest_answer_blocks_biohazard_guidor_without_priest_gown(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {
+                "Liquid honey": 1,
+                "Ethenea": 1,
+                "Sulphuric broline": 1,
+                "Plague sample": 1,
+                "Touch paper": 1,
+            },
+            "current_quest": "biohazard",
+            "quests": {"biohazard": {"started": True, "progress": 10, "completed": False}},
+            "quest_route_states": {
+                "biohazard": ["Reach Guidor's house without Varrock guards confiscating the vials"]
+            },
+            "quest_stage_actions": {
+                "biohazard": [
+                    "Give sulphuric broline to Hops",
+                    "Give ethenea to Da Vinci",
+                    "Give liquid honey to Chancy",
+                    "Collect the sulphuric broline from Hops in Varrock",
+                    "Collect the ethenea from Da Vinci in Varrock",
+                    "Collect the liquid honey from Chancy in Varrock",
+                    "Enter Guidor's room wearing priest gowns",
+                    "Give Guidor the vials, plague sample, and touch paper",
+                ]
+            },
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 10)
+        self.assertFalse(player_data["quests"]["biohazard"]["completed"])
+        self.assertEqual(player_data["inventory"]["Liquid honey"], 1)
+        self.assertEqual(player_data["inventory"]["Touch paper"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(calls["saves"], 0)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Needs Priest gown x2", calls["errors"][0][1])
+
     def test_quest_stage_progress_accepts_required_tools_from_equipment(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

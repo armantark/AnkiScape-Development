@@ -63,6 +63,7 @@ TRIBAL_TOTEM_ID = "tribal_totem"
 SCORPION_CATCHER_ID = "scorpion_catcher"
 SHEEP_HERDER_ID = "sheep_herder"
 PLAGUE_CITY_ID = "plague_city"
+BIOHAZARD_ID = "biohazard"
 WATERFALL_QUEST_ID = "waterfall_quest"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
@@ -253,6 +254,70 @@ DARKAN_PLAGUE_CITY_ELENA_DOOR_SOURCE = (
     f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/objects/ElenaPrisonDoorD.kt"
 )
 DARKAN_PLAGUE_CITY_ELENA_SOURCE = f"{DARKAN_PLAGUE_CITY_SOURCE_ROOT}/dialogues/npcs/ElenaD.kt"
+DARKAN_BIOHAZARD_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/biohazard"
+DARKAN_BIOHAZARD_SOURCE = f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/Biohazard.kt"
+DARKAN_BIOHAZARD_CONSTANTS_SOURCE = f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/utils/BiohazardConstants.kt"
+DARKAN_BIOHAZARD_UTILS_SOURCE = f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/utils/BiohazardUtils.kt"
+DARKAN_BIOHAZARD_ELENA_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_ardougne/ElenaD.kt"
+)
+DARKAN_BIOHAZARD_JERICO_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_ardougne/JericoD.kt"
+)
+DARKAN_BIOHAZARD_OMART_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_ardougne/OmartD.kt"
+)
+DARKAN_BIOHAZARD_KING_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_ardougne/KingLathasD.kt"
+)
+DARKAN_BIOHAZARD_KILRON_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/west_ardougne/KilronD.kt"
+)
+DARKAN_BIOHAZARD_CHEMIST_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/rimmington/ChemistD.kt"
+)
+DARKAN_BIOHAZARD_RIMMINGTON_HOPS_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/rimmington/HopsD.kt"
+)
+DARKAN_BIOHAZARD_RIMMINGTON_DA_VINCI_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/rimmington/DaVinciD.kt"
+)
+DARKAN_BIOHAZARD_RIMMINGTON_CHANCY_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/rimmington/ChancyD.kt"
+)
+DARKAN_BIOHAZARD_VARROCK_HOPS_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_varrock/HopsD.kt"
+)
+DARKAN_BIOHAZARD_VARROCK_DA_VINCI_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_varrock/DaVinciD.kt"
+)
+DARKAN_BIOHAZARD_VARROCK_CHANCY_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_varrock/ChancyD.kt"
+)
+DARKAN_BIOHAZARD_GUIDOR_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_varrock/GuidorD.kt"
+)
+DARKAN_BIOHAZARD_GUIDOR_WIFE_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_varrock/GuidorWifeD.kt"
+)
+DARKAN_BIOHAZARD_VARROCK_GUARD_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/npcs/east_varrock/GuardD.kt"
+)
+DARKAN_BIOHAZARD_GUIDOR_DOOR_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/objects/east_varrock/GuidorDoorD.kt"
+)
+DARKAN_BIOHAZARD_VARROCK_GATE_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/objects/east_varrock/GuardGateD.kt"
+)
+DARKAN_BIOHAZARD_MOURNER_HQ_DOORS_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/dialogue/objects/west_ardougne/MournerHQDoorsD.kt"
+)
+DARKAN_BIOHAZARD_MOURNER_SOURCE = (
+    f"{DARKAN_BIOHAZARD_SOURCE_ROOT}/instances/npcs/MournerWithKey.kt"
+)
+DARKAN_BIOHAZARD_MOURNER_NPC_SOURCE = (
+    f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/west_ardougne/mourner/mourner_(13).json"
+)
 DARKAN_WATERFALL_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/waterfallquest"
 DARKAN_WATERFALL_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/WaterfallQuest.java"
 DARKAN_WATERFALL_ALMERA_SOURCE = f"{DARKAN_WATERFALL_SOURCE_ROOT}/AlmeraD.java"
@@ -2359,6 +2424,71 @@ PLAGUE_CITY_STAGES: Tuple[QuestStage, ...] = (
 )
 
 
+BIOHAZARD_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "Elena needs her distillator back from West Ardougne.",
+        "Jerico may know another way over the city wall.",
+    ),
+    _simple_stage(
+        2,
+        "Jerico arranged help with a rope ladder.",
+        "Omart is waiting by the south end of the West Ardougne wall.",
+    ),
+    _simple_stage(
+        3,
+        "Omart needs the watchtower mourners distracted.",
+        "Jerico may have an idea involving his messenger pigeons.",
+    ),
+    _simple_stage(
+        4,
+        "Jerico suggested using his pigeons.",
+        "I need bird feed and a pigeon cage to distract the mourners.",
+    ),
+    _simple_stage(
+        5,
+        "The mourners are distracted by Jerico's pigeons.",
+        "Omart and Kilron should help me cross the wall.",
+    ),
+    _simple_stage(
+        6,
+        "I crossed into West Ardougne.",
+        "Elena's distillator is in the Mourner HQ, but the mourners are still inside.",
+    ),
+    _simple_stage(
+        7,
+        "A rotten apple poisoned the Mourner HQ stew.",
+        "A doctors' gown should let me enter and recover the distillator.",
+    ),
+    _simple_stage(
+        8,
+        "I recovered Elena's distillator from the Mourner HQ.",
+        "Elena needs it back so she can prepare the plague sample reagents.",
+    ),
+    _simple_stage(
+        9,
+        "Elena gave me three vials and a plague sample for Guidor.",
+        "The Rimmington chemist should provide more touch paper.",
+    ),
+    _simple_stage(
+        10,
+        "The chemist gave me touch paper and warned me about Varrock checks.",
+        "His errand boys can smuggle the vials to the Dancing Donkey Inn.",
+    ),
+    _simple_stage(
+        11,
+        "Guidor found that the plague sample is harmless.",
+        "Elena should hear that the plague may be a hoax.",
+    ),
+    _simple_stage(
+        12,
+        "Elena told me to take the news straight to King Lathas.",
+        "King Lathas should explain what happens next.",
+    ),
+    _simple_stage(13, "King Lathas rewarded me for exposing the hoax.", "Quest complete!"),
+)
+
+
 WATERFALL_QUEST_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Almera is worried about Hudon.", "I should find Hudon by the waterfall."),
     _simple_stage(
@@ -2410,6 +2540,7 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     SCORPION_CATCHER_ID: len(SCORPION_CATCHER_STAGES),
     SHEEP_HERDER_ID: len(SHEEP_HERDER_STAGES),
     PLAGUE_CITY_ID: len(PLAGUE_CITY_STAGES),
+    BIOHAZARD_ID: len(BIOHAZARD_STAGES),
     WATERFALL_QUEST_ID: len(WATERFALL_QUEST_STAGES),
 }
 
@@ -2424,6 +2555,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     SCORPION_CATCHER_ID: SCORPION_CATCHER_STAGES,
     SHEEP_HERDER_ID: SHEEP_HERDER_STAGES,
     PLAGUE_CITY_ID: PLAGUE_CITY_STAGES,
+    BIOHAZARD_ID: BIOHAZARD_STAGES,
     WATERFALL_QUEST_ID: WATERFALL_QUEST_STAGES,
 }
 
@@ -2438,6 +2570,7 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
     SCORPION_CATCHER_ID: "You will need to defeat a level 39 jailer.",
     SHEEP_HERDER_ID: "None.",
     PLAGUE_CITY_ID: "None.",
+    BIOHAZARD_ID: "You will need to defeat a level 13 mourner.",
     WATERFALL_QUEST_ID: "None required, but the Waterfall Dungeon contains aggressive skeletons and spiders.",
 }
 
@@ -2911,6 +3044,185 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 "Unlock Elena's cell",
                 "Free Elena and report to Edmond",
             ),
+        ),
+    ),
+    BIOHAZARD_ID: (
+        _stage_req(
+            1,
+            "Ask Jerico for a route back into West Ardougne.",
+            f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_JERICO_SOURCE}",
+            required_actions=("Ask Jerico about crossing the West Ardougne wall",),
+        ),
+        _stage_req(
+            2,
+            "Meet Omart at the south end of the West Ardougne wall.",
+            f"{DARKAN_BIOHAZARD_JERICO_SOURCE}; {DARKAN_BIOHAZARD_OMART_SOURCE}",
+            required_actions=("Ask Omart about the rope ladder",),
+        ),
+        _stage_req(
+            3,
+            "Ask Jerico about distracting the watchtower mourners.",
+            (
+                f"{DARKAN_BIOHAZARD_JERICO_SOURCE}; {DARKAN_BIOHAZARD_UTILS_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            produced_inventory=(("Bird feed", 1), ("Pigeon cage", 1)),
+            required_actions=(
+                "Ask Jerico about using messenger pigeons",
+                "Search Jerico's cupboard for bird feed",
+                "Take a pigeon cage from Jerico's house",
+            ),
+        ),
+        _stage_req(
+            4,
+            "Use bird feed and Jerico's pigeons to distract the watchtower mourners.",
+            (
+                f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            consumed_inventory=(("Bird feed", 1),),
+            required_tools=(("Pigeon cage", 1),),
+            required_routes=("Reach Jerico's pigeon release tile",),
+            required_actions=(
+                "Scatter bird feed on the watchtower fence",
+                "Open the pigeon cage at Jerico's release tile",
+            ),
+        ),
+        _stage_req(
+            5,
+            "Cross the West Ardougne wall with Omart and Kilron's rope ladder.",
+            f"{DARKAN_BIOHAZARD_OMART_SOURCE}; {DARKAN_BIOHAZARD_KILRON_SOURCE}; {DARKAN_BIOHAZARD_UTILS_SOURCE}",
+            required_routes=("Reach Omart by the south West Ardougne wall",),
+            required_actions=("Cross the West Ardougne wall with Omart and Kilron",),
+        ),
+        _stage_req(
+            6,
+            "Poison the Mourner HQ stew and take a doctors' gown from the nearby box.",
+            (
+                f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_MOURNER_HQ_DOORS_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            consumed_inventory=(("Rotten apple", 1),),
+            produced_inventory=(("Doctors' gown", 1),),
+            required_routes=("Reach the Mourner HQ garden in West Ardougne",),
+            required_actions=("Put the rotten apple in the Mourner HQ cauldron", "Search the box for a doctors' gown"),
+        ),
+        _stage_req(
+            7,
+            "Enter Mourner HQ as a doctor, defeat the key mourner, and recover Elena's distillator.",
+            (
+                f"{DARKAN_BIOHAZARD_MOURNER_HQ_DOORS_SOURCE}; {DARKAN_BIOHAZARD_MOURNER_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_MOURNER_NPC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            produced_inventory=(("Key", 1), ("Distillator", 1)),
+            required_tools=(("Doctors' gown", 1),),
+            required_actions=(
+                "Enter Mourner HQ wearing the doctors' gown",
+                "Defeat and search the level 13 mourner",
+                "Unlock the distillator cage with the key",
+                "Search the crate for Elena's distillator",
+            ),
+            combat_encounters=(
+                _combat(
+                    BIOHAZARD_ID,
+                    "mourner_13",
+                    "Mourner",
+                    13,
+                    f"{DARKAN_BIOHAZARD_SOURCE}; {DARKAN_BIOHAZARD_MOURNER_SOURCE}; {DARKAN_BIOHAZARD_MOURNER_NPC_SOURCE}",
+                    "The Biohazard quest details require a level 13 mourner in Mourner HQ.",
+                    npc_stats=(
+                        ("hitpoints", 190),
+                        ("attack", 24),
+                        ("strength", 24),
+                        ("defence", 24),
+                        ("magic", 1),
+                        ("ranged", 0),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 20),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("aggressiveness_type", "passive"),
+                    ),
+                    npc_stats_source=DARKAN_BIOHAZARD_MOURNER_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            8,
+            "Return Elena's distillator so she can prepare Guidor's vials and plague sample.",
+            (
+                f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_UTILS_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            consumed_inventory=(("Distillator", 1),),
+            produced_inventory=(
+                ("Liquid honey", 1),
+                ("Ethenea", 1),
+                ("Sulphuric broline", 1),
+                ("Plague sample", 1),
+            ),
+            required_actions=("Return Elena's distillator",),
+        ),
+        _stage_req(
+            9,
+            "Ask the Rimmington chemist for touch paper without exposing the plague sample.",
+            (
+                f"{DARKAN_BIOHAZARD_CHEMIST_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            required_inventory=(
+                ("Liquid honey", 1),
+                ("Ethenea", 1),
+                ("Sulphuric broline", 1),
+                ("Plague sample", 1),
+            ),
+            produced_inventory=(("Touch paper", 1),),
+            required_actions=("Ask the Rimmington chemist for touch paper for Guidor",),
+        ),
+        _stage_req(
+            10,
+            "Smuggle the vials through the chemist's errand boys and give Guidor the full test set.",
+            (
+                f"{DARKAN_BIOHAZARD_RIMMINGTON_HOPS_SOURCE}; {DARKAN_BIOHAZARD_RIMMINGTON_DA_VINCI_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_RIMMINGTON_CHANCY_SOURCE}; {DARKAN_BIOHAZARD_VARROCK_HOPS_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_VARROCK_DA_VINCI_SOURCE}; {DARKAN_BIOHAZARD_VARROCK_CHANCY_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_GUIDOR_SOURCE}; {DARKAN_BIOHAZARD_GUIDOR_WIFE_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_GUIDOR_DOOR_SOURCE}; {DARKAN_BIOHAZARD_VARROCK_GATE_SOURCE}; "
+                f"{DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            consumed_inventory=(
+                ("Liquid honey", 1),
+                ("Ethenea", 1),
+                ("Sulphuric broline", 1),
+                ("Plague sample", 1),
+                ("Touch paper", 1),
+            ),
+            required_tools=(("Priest gown", 2),),
+            required_routes=("Reach Guidor's house without Varrock guards confiscating the vials",),
+            required_actions=(
+                "Give sulphuric broline to Hops",
+                "Give ethenea to Da Vinci",
+                "Give liquid honey to Chancy",
+                "Collect the sulphuric broline from Hops in Varrock",
+                "Collect the ethenea from Da Vinci in Varrock",
+                "Collect the liquid honey from Chancy in Varrock",
+                "Enter Guidor's room wearing priest gowns",
+                "Give Guidor the vials, plague sample, and touch paper",
+            ),
+        ),
+        _stage_req(
+            11,
+            "Tell Elena that Guidor found the plague sample harmless.",
+            f"{DARKAN_BIOHAZARD_GUIDOR_SOURCE}; {DARKAN_BIOHAZARD_ELENA_SOURCE}",
+            required_actions=("Tell Elena that Guidor found no plague",),
+        ),
+        _stage_req(
+            12,
+            "Report Elena's news to King Lathas.",
+            f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_KING_SOURCE}",
+            required_actions=("Report the plague hoax to King Lathas",),
         ),
     ),
     WATERFALL_QUEST_ID: (
@@ -5639,6 +5951,54 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Spade": {
             "category": "tool",
             "source": f"{DARKAN_PLAGUE_CITY_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Bird feed": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Pigeon cage": {
+            "category": "tool",
+            "source": f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Rotten apple": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Doctors' gown": {
+            "category": "equipment",
+            "source": f"{DARKAN_BIOHAZARD_UTILS_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Key": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_MOURNER_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Distillator": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Liquid honey": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Ethenea": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Sulphuric broline": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Plague sample": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_ELENA_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Touch paper": {
+            "category": "material",
+            "source": f"{DARKAN_BIOHAZARD_CHEMIST_SOURCE}; {DARKAN_BIOHAZARD_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Priest gown": {
+            "category": "equipment",
+            "source": f"{DARKAN_BIOHAZARD_GUIDOR_WIFE_SOURCE}; {DARKAN_BIOHAZARD_GUIDOR_DOOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Book on Baxtorian": {
             "category": "material",

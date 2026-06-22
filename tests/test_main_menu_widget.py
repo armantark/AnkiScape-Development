@@ -1358,6 +1358,41 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Needs Chocolate dust x1", action.toolTip())
         self.assertIn("+1 more", action.toolTip())
 
+    def test_quests_tab_shows_biohazard_guidor_disguise_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Liquid honey": 1,
+            "Ethenea": 1,
+            "Sulphuric broline": 1,
+            "Plague sample": 1,
+            "Touch paper": 1,
+        }
+        pd["current_quest"] = "biohazard"
+        pd["quests"]["biohazard"] = {"started": True, "progress": 10, "completed": False}
+        pd["quest_route_states"] = {
+            "biohazard": ["Reach Guidor's house without Varrock guards confiscating the vials"]
+        }
+        pd["quest_stage_actions"] = {
+            "biohazard": [
+                "Give sulphuric broline to Hops",
+                "Give ethenea to Da Vinci",
+                "Give liquid honey to Chancy",
+                "Collect the sulphuric broline from Hops in Varrock",
+                "Collect the ethenea from Da Vinci in Varrock",
+                "Collect the liquid honey from Chancy in Varrock",
+                "Enter Guidor's room wearing priest gowns",
+                "Give Guidor the vials, plague sample, and touch paper",
+            ]
+        }
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Needs Priest gown x2", labels)
+        action = dialog.findChild(QPushButton, "questAction_biohazard")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Priest gown x2", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

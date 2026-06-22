@@ -104,7 +104,12 @@
   Darkan-backed focused stage chains for their item transforms, route/action
   gates, and the Scorpion Catcher jailer fight. Sheep Herder now has a local
   Darkan-backed focused chain for poisoned sheep feed, Doctor Orbon clothing,
-  cattleprod/tool routing, and all four sheep-bone incinerations. 105 combat rows remain statless
+  cattleprod/tool routing, and all four sheep-bone incinerations. Biohazard now
+  has a local Darkan-backed 13-stage chain for Jerico/Omart wall routing, Bird
+  feed and Pigeon cage production/use, rotten apple stew poisoning, Doctors'
+  gown production, the level 13 Mourner and Distillator recovery, Elena's reagent
+  vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 Guidor entry,
+  and Elena/King Lathas report actions. 105 combat rows remain statless
   and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
@@ -139,7 +144,8 @@
   `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`, and
   `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`, and
   `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`.
+  `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-biohazard-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.

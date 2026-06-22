@@ -148,9 +148,14 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Alrena and only `A magic scroll` remains a final item reward. Waterfall Quest
   proves that future combat-skill XP rewards stay structured in
   `pending_skill_exp_rewards` while the stage chain still handles book/key,
-  Glarial item, rune, amulet, and urn gates. The live
-  audit now reports 519 stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, and 68 produced-inventory rows. This is still broad
+  Glarial item, rune, amulet, and urn gates. Biohazard then proves the same
+  focused replacement pattern on a longer route chain: Jerico/Omart wall
+  routing, Bird feed and Pigeon cage production/use, rotten-apple stew poisoning,
+  Doctors' gown production, the level 13 Mourner, Distillator recovery, Elena's
+  reagent vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 for
+  Guidor, and Elena/King Lathas reports are all current-stage gates. The live
+  audit now reports 529 stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, and 73 produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,

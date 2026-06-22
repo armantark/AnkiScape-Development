@@ -1882,6 +1882,157 @@ class TestLogic(unittest.TestCase):
             {"attack_exp": 13750.0, "strength_exp": 13750.0},
         )
 
+    def test_biohazard_stage_gates_pigeons_mourner_distillator_and_guidor(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["biohazard"] = {"started": True, "progress": 1, "completed": False}
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "biohazard", QUEST_DATA),
+            ("Action required: Ask Jerico about crossing the West Ardougne wall",),
+        )
+
+        player_data["inventory"].update({"Rotten apple": 1, "Priest gown": 2})
+        player_data["quest_route_states"] = {
+            "biohazard": [
+                "Reach Jerico's pigeon release tile",
+                "Reach Omart by the south West Ardougne wall",
+                "Reach the Mourner HQ garden in West Ardougne",
+                "Reach Guidor's house without Varrock guards confiscating the vials",
+            ]
+        }
+        player_data["quest_stage_actions"] = {
+            "biohazard": [
+                "Ask Jerico about crossing the West Ardougne wall",
+                "Ask Omart about the rope ladder",
+                "Ask Jerico about using messenger pigeons",
+                "Search Jerico's cupboard for bird feed",
+                "Take a pigeon cage from Jerico's house",
+                "Scatter bird feed on the watchtower fence",
+                "Open the pigeon cage at Jerico's release tile",
+                "Cross the West Ardougne wall with Omart and Kilron",
+                "Put the rotten apple in the Mourner HQ cauldron",
+                "Search the box for a doctors' gown",
+                "Enter Mourner HQ wearing the doctors' gown",
+                "Defeat and search the level 13 mourner",
+                "Unlock the distillator cage with the key",
+                "Search the crate for Elena's distillator",
+                "Return Elena's distillator",
+                "Ask the Rimmington chemist for touch paper for Guidor",
+                "Give sulphuric broline to Hops",
+                "Give ethenea to Da Vinci",
+                "Give liquid honey to Chancy",
+                "Collect the sulphuric broline from Hops in Varrock",
+                "Collect the ethenea from Da Vinci in Varrock",
+                "Collect the liquid honey from Chancy in Varrock",
+                "Enter Guidor's room wearing priest gowns",
+                "Give Guidor the vials, plague sample, and touch paper",
+                "Tell Elena that Guidor found no plague",
+                "Report the plague hoax to King Lathas",
+            ]
+        }
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 2)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 3)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 4)
+        self.assertEqual(player_data["inventory"]["Bird feed"], 1)
+        self.assertEqual(player_data["inventory"]["Pigeon cage"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 5)
+        self.assertEqual(player_data["inventory"]["Bird feed"], 0)
+        self.assertEqual(player_data["inventory"]["Pigeon cage"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 6)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 7)
+        self.assertEqual(player_data["inventory"]["Rotten apple"], 0)
+        self.assertEqual(player_data["inventory"]["Doctors' gown"], 1)
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "biohazard", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Mourner level 13",),
+        )
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 30
+        player_data["strength_level"] = 30
+        player_data["defense_level"] = 30
+        player_data["constitution_level"] = 30
+        player_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "biohazard",
+            QUEST_DATA,
+            "biohazard_mourner_13",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_resolved")
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 8)
+        self.assertEqual(player_data["inventory"]["Key"], 1)
+        self.assertEqual(player_data["inventory"]["Distillator"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 9)
+        self.assertEqual(player_data["inventory"]["Distillator"], 0)
+        self.assertEqual(player_data["inventory"]["Liquid honey"], 1)
+        self.assertEqual(player_data["inventory"]["Ethenea"], 1)
+        self.assertEqual(player_data["inventory"]["Sulphuric broline"], 1)
+        self.assertEqual(player_data["inventory"]["Plague sample"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 10)
+        self.assertEqual(player_data["inventory"]["Touch paper"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 11)
+        self.assertEqual(player_data["inventory"]["Liquid honey"], 0)
+        self.assertEqual(player_data["inventory"]["Ethenea"], 0)
+        self.assertEqual(player_data["inventory"]["Sulphuric broline"], 0)
+        self.assertEqual(player_data["inventory"]["Plague sample"], 0)
+        self.assertEqual(player_data["inventory"]["Touch paper"], 0)
+        self.assertEqual(player_data["inventory"]["Priest gown"], 2)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 12)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "biohazard", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["biohazard"]["completed"])
+        self.assertEqual(player_data["quests"]["biohazard"]["progress"], 13)
+        self.assertEqual(player_data["quest_points"], 3)
+        self.assertEqual(player_data["inventory"]["Combat Training Camp"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"thieving_exp": 1250.0})
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}

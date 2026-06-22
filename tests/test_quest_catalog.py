@@ -87,6 +87,49 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Redberry pie": 1})
         self.assertEqual(by_stage[6]["consumed_inventory"], {"Blurite ore": 1, "Iron bar": 2})
 
+    def test_biohazard_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["biohazard"]
+
+        self.assertEqual(quest["stages"], 13)
+        self.assertEqual(quest["required_items"], {})
+        self.assertEqual(quest["combat"], "You will need to defeat a level 13 mourner.")
+        self.assertEqual(
+            tuple(requirement["display_name"] for requirement in quest["required_skills"]),
+            ("Agility", "Magic"),
+        )
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertIn("darkan-world-server", by_stage[7]["source"])
+        self.assertEqual(by_stage[1]["required_inventory_options"], ())
+        self.assertEqual(by_stage[3]["produced_inventory"], {"Bird feed": 1, "Pigeon cage": 1})
+        self.assertEqual(by_stage[4]["consumed_inventory"], {"Bird feed": 1})
+        self.assertEqual(by_stage[4]["required_tools"], {"Pigeon cage": 1})
+        self.assertEqual(by_stage[6]["consumed_inventory"], {"Rotten apple": 1})
+        self.assertEqual(by_stage[6]["produced_inventory"], {"Doctors' gown": 1})
+        self.assertEqual(by_stage[8]["consumed_inventory"], {"Distillator": 1})
+        self.assertEqual(
+            by_stage[8]["produced_inventory"],
+            {"Liquid honey": 1, "Ethenea": 1, "Sulphuric broline": 1, "Plague sample": 1},
+        )
+        self.assertEqual(by_stage[10]["required_tools"], {"Priest gown": 2})
+        self.assertEqual(
+            by_stage[10]["consumed_inventory"],
+            {"Liquid honey": 1, "Ethenea": 1, "Sulphuric broline": 1, "Plague sample": 1, "Touch paper": 1},
+        )
+
+        mourner = by_stage[7]["combat_encounters"][0]
+        self.assertEqual(mourner["encounter_id"], "biohazard_mourner_13")
+        self.assertEqual(mourner["display_name"], "Mourner")
+        self.assertEqual(mourner["level"], 13)
+        self.assertEqual(
+            mourner["npc_stats"],
+            {"hitpoints": 190, "attack": 24, "strength": 24, "defence": 24, "magic": 1, "ranged": 0},
+        )
+        self.assertEqual(mourner["npc_configs"]["max_hit"], 20)
+        self.assertEqual(mourner["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(mourner["npc_stats_source"].endswith("mourner_(13).json"))
+
     def test_shield_of_arrav_has_source_backed_route_stage_requirements(self):
         data = quests_as_dict()
         quest = data["shield_of_arrav"]
