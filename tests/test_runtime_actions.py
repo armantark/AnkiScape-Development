@@ -104,7 +104,7 @@ class TestRuntimeActions(unittest.TestCase):
     def test_quest_completion_warns_and_switches_off(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {"Research notes": 1},
             "current_quest": "rune_mysteries",
             "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
             "quest_stage_actions": {"rune_mysteries": ["Return Aubury's research notes to Sedridor"]},
@@ -118,6 +118,8 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertTrue(player_data["quests"]["rune_mysteries"]["completed"])
+        self.assertEqual(player_data["inventory"]["Air talisman"], 1)
+        self.assertEqual(player_data["inventory"]["Research notes"], 0)
         self.assertEqual(calls["saves"], 1)
         self.assertTrue(calls["deactivated"])
         self.assertEqual(calls["activity"], ["Rune Mysteries complete"])

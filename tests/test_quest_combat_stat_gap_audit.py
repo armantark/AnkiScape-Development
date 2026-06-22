@@ -18,13 +18,13 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
     def test_gap_classification_summary_matches_current_catalog_debt(self):
         counts = Counter(audit.classify_gap(gap, self.darkan_groups, self.partial_groups) for gap in self.gaps)
 
-        self.assertEqual(len(self.gaps), 109)
+        self.assertEqual(len(self.gaps), 108)
         self.assertEqual(
             counts,
             {
                 "darkan_hitpoints_only_metadata": 51,
                 "darkan_missing_resolver_stats": 18,
-                "darkan_same_name_wrong_level": 8,
+                "darkan_same_name_wrong_level": 7,
                 "no_local_source_match": 13,
                 "parser_or_variant_level": 19,
             },
@@ -41,8 +41,9 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
             "no_local_source_match",
         )
         self.assertNotIn(("troll_stronghold", "Dad"), self.by_quest_and_name)
+        self.assertNotIn(("lost_city", "Tree spirit"), self.by_quest_and_name)
         self.assertEqual(
-            audit.classify_gap(self.by_quest_and_name[("lost_city", "Tree spirit")], self.darkan_groups, self.partial_groups),
+            audit.classify_gap(self.by_quest_and_name[("wanted", "Black Knight")], self.darkan_groups, self.partial_groups),
             "darkan_same_name_wrong_level",
         )
         self.assertEqual(

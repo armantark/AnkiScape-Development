@@ -1566,8 +1566,9 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_quests_tab_allows_source_backed_focused_combat_override(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "the_restless_ghost"
-        pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 3, "completed": False}
-        pd["quest_stage_actions"] = {"the_restless_ghost": ["Search the mining spot for the ghost's skull"]}
+        pd["inventory"]["Muddy skull"] = 1
+        pd["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
+        pd["quest_stage_actions"] = {"the_restless_ghost": ["Return the muddy skull to the ghost's coffin"]}
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 20
         pd["strength_level"] = 20

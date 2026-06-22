@@ -1681,6 +1681,8 @@ def start_quest_pure(player_data, quest_id, quest_data):
         inventory = data["inventory"]
         for item_name, amount in (quest.get("required_items", {}) or {}).items():
             inventory[item_name] = inventory.get(item_name, 0) - amount
+        for item_name, amount in (quest.get("start_inventory", {}) or {}).items():
+            inventory[item_name] = inventory.get(item_name, 0) + _positive_int(amount, 1)
         state["started"] = True
         state["progress"] = 0
         state["completed"] = False
@@ -1793,9 +1795,10 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
         return data, False, False
     if quest_current_stage_blockers_pure(data, quest_id, quest_data):
         return player_data, False, False
+    current_stage = quest_current_stage_pure(data, quest_id, quest_data)
     _consume_quest_current_stage_items(data, quest_id, quest)
     total_stages = _positive_int(quest.get("stages", 1), 1)
-    state["progress"] = min(total_stages, state["progress"] + 1)
+    state["progress"] = min(total_stages, current_stage + 1)
     completed_now = state["progress"] >= total_stages
     if completed_now:
         state["completed"] = True

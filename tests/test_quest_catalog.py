@@ -244,7 +244,12 @@ class TestQuestCatalog(unittest.TestCase):
         ]
         self.assertEqual(lost_city_combat[0]["display_name"], "Tree spirit")
         self.assertEqual(lost_city_combat[0]["level"], 63)
-        self.assertEqual(lost_city_combat[0]["npc_stats"], {})
+        self.assertEqual(lost_city_combat[0]["npc_stats"]["hitpoints"], 220)
+        self.assertEqual(lost_city_combat[0]["npc_stats"]["attack"], 90)
+        self.assertEqual(lost_city_combat[0]["npc_stats"]["strength"], 95)
+        self.assertEqual(lost_city_combat[0]["npc_stats"]["defence"], 80)
+        self.assertEqual(lost_city_combat[0]["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(lost_city_combat[0]["npc_stats_source"].endswith("tree_spirit_lv_101.plugin.kts"))
         self.assertNotIn(101, {encounter["level"] for encounter in lost_city_combat})
 
         elemental_i = data["elemental_workshop_i"]

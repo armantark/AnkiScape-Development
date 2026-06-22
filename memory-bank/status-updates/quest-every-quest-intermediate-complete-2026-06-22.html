@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Intermediate Batch</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0f14;
+      --panel: #121922;
+      --panel-2: #172231;
+      --text: #edf3fb;
+      --muted: #9db0c5;
+      --line: #2d3c4e;
+      --green: #48d597;
+      --amber: #ffce67;
+      --red: #ff756c;
+      --blue: #64b5ff;
+      --violet: #b19cff;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(100, 181, 255, 0.14), transparent 32rem),
+        linear-gradient(180deg, #0b0f14 0%, #101722 58%, #0b0f14 100%);
+      color: var(--text);
+      font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+
+    header {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+
+    .hero, .panel {
+      border: 1px solid var(--line);
+      background: rgba(18, 25, 34, 0.92);
+      border-radius: 8px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+    }
+
+    .hero { padding: 28px; }
+    .eyebrow {
+      color: var(--blue);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 8px 0 12px;
+      font-size: 38px;
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+
+    p { margin: 0; color: var(--muted); }
+    strong { color: var(--text); }
+
+    .truth {
+      display: grid;
+      gap: 10px;
+      padding: 20px;
+    }
+
+    .truth .answer {
+      color: var(--red);
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    .truth .done {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .metric {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 116px;
+    }
+
+    .metric .value {
+      font-size: 30px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .metric.good .value { color: var(--green); }
+    .metric.warn .value { color: var(--amber); }
+    .metric.info .value { color: var(--blue); }
+    .metric.risk .value { color: var(--red); }
+
+    .sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .panel { padding: 20px; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .quest {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+    }
+
+    .quest h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 9px;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 12px;
+    }
+
+    .chip.green { border-color: rgba(72, 213, 151, 0.55); color: var(--green); }
+    .chip.amber { border-color: rgba(255, 206, 103, 0.55); color: var(--amber); }
+    .chip.blue { border-color: rgba(100, 181, 255, 0.55); color: var(--blue); }
+
+    .bar {
+      height: 12px;
+      background: #0c1219;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0 6px;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      border-radius: 999px;
+    }
+
+    .ledger {
+      display: grid;
+      gap: 8px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .row:first-child { border-top: 0; }
+    .row .key { color: var(--muted); }
+
+    .tests {
+      display: grid;
+      gap: 10px;
+    }
+
+    .test {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .pass {
+      color: var(--green);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .note {
+      border-left: 3px solid var(--amber);
+      padding-left: 12px;
+      color: var(--muted);
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: #071019;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      color: #cfe3f8;
+      overflow: auto;
+      max-height: 360px;
+    }
+
+    @media (max-width: 900px) {
+      header, .sections, .grid { grid-template-columns: 1fr; }
+      h1 { font-size: 30px; }
+      .row { grid-template-columns: 1fr; gap: 2px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero">
+        <div class="eyebrow">June 22, 2026 - source-backed quest stage gates</div>
+        <h1>Intermediate all-quest pass: honest status</h1>
+        <p>
+          This commit-ready slice makes the stage-gate model more real across
+          The Restless Ghost, Rune Mysteries, and Lost City. It is not full
+          minute-detail parity for every quest in the plugin.
+        </p>
+      </section>
+      <section class="panel truth">
+        <div class="answer">No, not every quest is done yet.</div>
+        <p class="done">What is done: another source-backed batch, full tests, and refreshed Memory Bank guidance.</p>
+        <p>What remains: 323 generated stage rows, 108 statless combat rows, route/branch/puzzle state, and full combat simulation.</p>
+      </section>
+    </header>
+
+    <section class="grid" aria-label="Audit metrics">
+      <div class="metric good">
+        <div class="value">194/194</div>
+        <div class="label">quests have at least one machine-readable stage requirement</div>
+      </div>
+      <div class="metric info">
+        <div class="value">396</div>
+        <div class="label">current stage requirement rows</div>
+      </div>
+      <div class="metric warn">
+        <div class="value">73 / 323</div>
+        <div class="label">focused rows versus generated rows</div>
+      </div>
+      <div class="metric risk">
+        <div class="value">108</div>
+        <div class="label">combat rows still blocked by missing resolver stats</div>
+      </div>
+    </section>
+
+    <section class="sections">
+      <div class="panel">
+        <h2>Backend Slice</h2>
+        <div class="flow">
+          <article class="quest">
+            <h3>Rune Mysteries</h3>
+            <p>Quest start now grants Air talisman. Sedridor consumes it into Research package, Aubury converts that into Research notes, and completion consumes notes before awarding Air talisman once. False Magic/Runecrafting XP is gone.</p>
+            <div class="chips">
+              <span class="chip green">start_inventory</span>
+              <span class="chip green">produced_inventory</span>
+              <span class="chip amber">no false XP</span>
+            </div>
+          </article>
+          <article class="quest">
+            <h3>The Restless Ghost</h3>
+            <p>Father Urhney produces Ghostspeak amulet, the ghost requires it, skull search produces Muddy skull, and the coffin stage consumes it only after Skeleton warlock combat is resolved.</p>
+            <div class="chips">
+              <span class="chip green">Ghostspeak amulet</span>
+              <span class="chip green">Muddy skull</span>
+              <span class="chip blue">Skeleton warlock stats</span>
+            </div>
+          </article>
+          <article class="quest">
+            <h3>Lost City</h3>
+            <p>Shamus, Entrana route state, Tree spirit, Dramen branch, and Dramen staff are now staged. The local Tree spirit NPC definition makes the level 63 combat gate resolver-ready without duplicating Dramen staff as a final reward.</p>
+            <div class="chips">
+              <span class="chip blue">route blocker</span>
+              <span class="chip blue">Tree spirit stats</span>
+              <span class="chip green">Dramen staff once</span>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Frontend And Verification</h2>
+        <div class="ledger">
+          <div class="row">
+            <div class="key">Frontend</div>
+            <div>Existing Quests tab contract still works: can_start, in_progress, blocked_at_stage, completed, and locked remain distinct.</div>
+          </div>
+          <div class="row">
+            <div class="key">Qt coverage</div>
+            <div>Restless Ghost combat action is enabled only at the muddy-skull/coffin stage when the resolver is enabled.</div>
+          </div>
+          <div class="row">
+            <div class="key">Memory Bank</div>
+            <div>Updated future-work kanban, system patterns, and a new source audit note with current counts and manual Anki instructions.</div>
+          </div>
+          <div class="row">
+            <div class="key">Hard truth</div>
+            <div>Do not call the all-quest goal complete. This is a tested continuation slice.</div>
+          </div>
+        </div>
+
+        <h2 style="margin-top: 20px;">Audit Progress</h2>
+        <p>Resolver-ready combat rows: 175 of 283</p>
+        <div class="bar"><span style="width: 61.8%"></span></div>
+        <p>Focused stage rows: 73 of 396</p>
+        <div class="bar"><span style="width: 18.4%"></span></div>
+      </div>
+    </section>
+
+    <section class="sections">
+      <div class="panel">
+        <h2>Tests Run</h2>
+        <div class="tests">
+          <div class="test"><span>python3 -m unittest tests.test_quest_catalog tests.test_logic</span><span class="pass">PASS</span></div>
+          <div class="test"><span>python3 -m unittest tests.test_runtime_actions tests.test_integration_smoke</span><span class="pass">PASS</span></div>
+          <div class="test"><span>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget</span><span class="pass">PASS</span></div>
+          <div class="test"><span>python3 run_tests.py</span><span class="pass">463 OK</span></div>
+          <div class="test"><span>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</span><span class="pass">463 OK</span></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Manual Anki Checklist</h2>
+        <p class="note">These are documented in the source-audit file and should be run in a real Anki profile before calling gameplay parity complete.</p>
+        <pre id="manual">1. Start Rune Mysteries and confirm Air talisman is granted at start.
+2. Progress Sedridor -> Aubury -> Sedridor and confirm Air talisman, Research package, and Research notes are consumed/produced at the right stages with no false XP.
+3. Start The Restless Ghost, produce Ghostspeak amulet, then Muddy skull, and confirm Skeleton warlock blocks the coffin stage while combat is globally locked.
+4. Enable the combat resolver with sufficient combat stats, resolve Skeleton warlock, and confirm Muddy skull is consumed and Prayer XP is parked.
+5. Start Lost City with Crafting 31 and Woodcutting 36. Confirm Shamus/Entrana route blockers, Tree spirit combat, Dramen branch production, and single Dramen staff production.</pre>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

@@ -489,7 +489,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol({}))
         addon.current_skill = "Quests"
         addon.player_data = {
-            "inventory": {},
+            "inventory": {"Research notes": 1},
             "current_quest": "rune_mysteries",
             "quests": {"rune_mysteries": {"started": True, "progress": 5, "completed": False}},
             "quest_stage_actions": {"rune_mysteries": ["Return Aubury's research notes to Sedridor"]},
@@ -510,11 +510,12 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(addon.player_data["quests"]["rune_mysteries"]["completed"])
         self.assertEqual(addon.player_data["quest_points"], 1)
         self.assertEqual(addon.player_data["inventory"]["Air talisman"], 1)
-        self.assertEqual(addon.player_data["runecrafting_exp"], 250)
-        self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {"magic_exp": 250.0})
+        self.assertEqual(addon.player_data["inventory"]["Research notes"], 0)
+        self.assertEqual(addon.player_data["runecrafting_exp"], 0)
+        self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Rune Mysteries complete"])
-        self.assertEqual(calls["xp"], [250.0])
+        self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"][0][0], "Quest complete")
         self.assertIn("Rune Mysteries is complete", calls["dialogs"][0][1])
         self.assertIn("questing has been switched off", calls["dialogs"][0][1])

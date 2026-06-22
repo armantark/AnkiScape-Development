@@ -64,6 +64,18 @@ RESTLESS_GHOST_SKULL_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/areas/lumbridge/rock_with_skull.plugin.kts"
 )
+RESTLESS_GHOST_FATHER_URHNEY_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/father_urhney.plugin.kts"
+)
+RESTLESS_GHOST_DIALOGUE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/restless_ghost.plugin.kts"
+)
+RESTLESS_GHOST_COFFIN_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/ghost_coffin.plugin.kts"
+)
 RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/npcs/definitions/undeads/skeleton_warlock_lvl_11.plugin.kts"
@@ -71,6 +83,30 @@ RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH = (
 LOST_CITY_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/quests/impl/LostCity.kt"
+)
+LOST_CITY_WARRIOR_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/warrior.plugin.kts"
+)
+LOST_CITY_TREE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/lostcity_tree.plugin.kts"
+)
+LOST_CITY_SHAMUS_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/shamus.plugin.kts"
+)
+LOST_CITY_ENTRANA_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/entrana/entrana.plugin.kts"
+)
+LOST_CITY_SHED_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/lostcity_shed.plugin.kts"
+)
+LOST_CITY_TREE_SPIRIT_NPC_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/npcs/definitions/undeads/tree_spirit_lv_101.plugin.kts"
 )
 LOST_CITY_KB_SOURCE = "https://2011.rs/kb/lost_city_members"
 LUNAR_DIPLOMACY_SOURCE = "https://www.2011.rs/kb/sym_lunar_diplomacy_members_a_m"
@@ -147,6 +183,18 @@ CARNILLEAN_RISING_WIKI_SOURCE = "https://runescape.wiki/w/Carnillean_Rising?oldi
 SOME_LIKE_IT_COLD_WIKI_SOURCE = "https://runescape.wiki/w/Some_Like_It_Cold?oldid=6545099"
 SWAN_SONG_WIKI_SOURCE = "https://runescape.wiki/w/Swan_Song?oldid=6548264"
 RUNE_MYSTERIES_RELEASE_SOURCE = "https://runescape.salmoneus.net/runescape-2007/quests/rune-mysteries.html"
+RUNE_MYSTERIES_DUKE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/duke_horacio.plugin.kts"
+)
+RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/draynor/sedridor.plugin.kts"
+)
+RUNE_MYSTERIES_AUBURY_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/varrock/aubury.plugin.kts"
+)
 RUNECRAFTING_BASICS_SOURCE = "https://www.2011.rs/kb/runecrafting_the_basics"
 RUNECRAFTING_ALTARS_SOURCE = "https://www.2011.rs/kb/runecrafting_locating_the_altars"
 RUNE_ESSENCE_MINE_SOURCE = "https://www.2011.rs/kb/mining_the_rune_essence_mine"
@@ -362,6 +410,7 @@ class QuestDefinition:
     unlocks: Tuple[str, ...] = ()
     release_order: int = 0
     stage_requirements: Tuple[QuestStageRequirement, ...] = ()
+    start_inventory: Tuple[Tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -542,6 +591,14 @@ VAMPYRE_SLAYER_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(5, "Morgan rewarded me for slaying Count Draynor.", "Quest complete!"),
 )
 
+RESTLESS_GHOST_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Father Aereck asked me to speak to Father Urhney in Lumbridge Swamp."),
+    _simple_stage(2, "Father Urhney gave me a ghostspeak amulet so I can talk to the ghost."),
+    _simple_stage(3, "The ghost told me his skull was stolen near the mine south of Lumbridge graveyard."),
+    _simple_stage(4, "I found the muddy skull and a skeleton warlock appeared."),
+    _simple_stage(5, "I returned the skull to the ghost's coffin.", "Quest complete!"),
+)
+
 LOST_CITY_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "The adventurers in Lumbridge Swamp are searching for Zanaris.", "I should find out what they know."),
     _simple_stage(2, "I found Shamus hiding in a swamp tree.", "He says Zanaris is reached through the shed while carrying a dramen staff."),
@@ -706,6 +763,29 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         xp_rewards=(QuestXpReward("attack", 4825),),
     ),
     QuestDefinition(
+        id=THE_RESTLESS_GHOST_ID,
+        display_name="The Restless Ghost",
+        stages=5,
+        point_reward=1,
+        rewards=(("Ancient bones", 5),),
+        start_point="Speak to Father Aereck in the chapel south-east of Lumbridge Castle.",
+        requirements=("Used during quest: Ghostspeak amulet x1, Muddy skull x1",),
+        required_items=(),
+        combat="Skeleton warlock (level 11) after taking the ghost's skull.",
+        source=(
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_FATHER_URHNEY_SOURCE_PATH}; "
+            f"{RESTLESS_GHOST_DIALOGUE_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
+            f"{RESTLESS_GHOST_COFFIN_SOURCE_PATH}; {RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}"
+        ),
+        journal_stages=RESTLESS_GHOST_STAGES,
+        release_date="2001-01-04",
+        members=False,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("prayer", 125),),
+    ),
+    QuestDefinition(
         id=IMP_CATCHER_ID,
         display_name="Imp Catcher",
         stages=2,
@@ -747,12 +827,16 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         display_name="Lost City",
         stages=6,
         point_reward=3,
-        rewards=(("Dramen staff", 1),),
+        rewards=(),
         start_point="Talk to the warrior adventurer in Lumbridge Swamp.",
-        requirements=("Crafting 31", "Woodcutting 36"),
+        requirements=("Crafting 31", "Woodcutting 36", "Used during quest: Hatchet x1, Knife x1"),
         required_items=(),
         combat="Must be able to kill a level 63 Tree spirit.",
-        source=f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_KB_SOURCE}",
+        source=(
+            f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_WARRIOR_SOURCE_PATH}; {LOST_CITY_TREE_SOURCE_PATH}; "
+            f"{LOST_CITY_SHAMUS_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}; {LOST_CITY_SHED_SOURCE_PATH}; "
+            f"{LOST_CITY_TREE_SPIRIT_NPC_SOURCE_PATH}"
+        ),
         journal_stages=LOST_CITY_STAGES,
         release_date="2002-02-27",
         members=True,
@@ -798,20 +882,20 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         point_reward=1,
         rewards=(("Air talisman", 1),),
         start_point="Speak to Duke Horacio, upstairs in Lumbridge Castle.",
-        requirements=(),
+        requirements=("Used during quest: Air talisman x1, Research package x1, Research notes x1",),
         required_items=(),
         combat="None.",
-        source=f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_RELEASE_SOURCE}",
+        source=(
+            f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_DUKE_SOURCE_PATH}; "
+            f"{RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}; {RUNE_MYSTERIES_AUBURY_SOURCE_PATH}"
+        ),
         journal_stages=RUNE_MYSTERIES_STAGES,
         release_date="2003-12-01",
         members=False,
         difficulty="Novice",
         length="Short",
         timeline="Fifth Age",
-        xp_rewards=(
-            QuestXpReward("magic", 250),
-            QuestXpReward("runecrafting", 250),
-        ),
+        start_inventory=(("Air talisman", 1),),
         unlocks=("Ability to craft runes", "Ability to mine rune essence"),
     ),
     QuestDefinition(
@@ -1182,6 +1266,75 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             required_actions=("Tell Morgan that Count Draynor is dead",),
         ),
     ),
+    THE_RESTLESS_GHOST_ID: (
+        _stage_req(
+            1,
+            "Receive the ghostspeak amulet from Father Urhney.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_FATHER_URHNEY_SOURCE_PATH}",
+            required_actions=("Receive the ghostspeak amulet from Father Urhney",),
+            produced_inventory=(("Ghostspeak amulet", 1),),
+        ),
+        _stage_req(
+            2,
+            "Speak to the restless ghost while wearing the ghostspeak amulet.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_DIALOGUE_SOURCE_PATH}",
+            required_inventory=(("Ghostspeak amulet", 1),),
+            required_actions=("Speak to the restless ghost",),
+        ),
+        _stage_req(
+            3,
+            "Search the Lumbridge Swamp mining spot for the muddy skull.",
+            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}",
+            required_actions=("Search the mining spot for the ghost's skull",),
+            produced_inventory=(("Muddy skull", 1),),
+        ),
+        _stage_req(
+            4,
+            "Defeat the skeleton warlock and return the muddy skull to the ghost's coffin.",
+            (
+                f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
+                f"{RESTLESS_GHOST_COFFIN_SOURCE_PATH}; {RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}"
+            ),
+            required_inventory=(("Muddy skull", 1),),
+            consumed_inventory=(("Muddy skull", 1),),
+            required_actions=("Return the muddy skull to the ghost's coffin",),
+            combat_encounters=(
+                _combat(
+                    THE_RESTLESS_GHOST_ID,
+                    "skeleton_warlock",
+                    "Skeleton warlock",
+                    11,
+                    (
+                        f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
+                        f"{RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}"
+                    ),
+                    (
+                        "The Lumbridge skull object gives the muddy skull and spawns "
+                        "Npcs.SKELETON_WARLOCK; the local combat definition supplies "
+                        "the magic-style battle stats."
+                    ),
+                    npc_stats=(
+                        ("hitpoints", 180),
+                        ("attack", 1),
+                        ("strength", 1),
+                        ("defence", 1),
+                        ("magic", 8),
+                    ),
+                    npc_bonuses=(
+                        ("attackStab", 0),
+                        ("attackCrush", 0),
+                        ("defenceStab", 0),
+                        ("defenceSlash", 0),
+                        ("defenceCrush", 0),
+                        ("defenceMagic", 5),
+                        ("defenceRanged", 0),
+                    ),
+                    npc_configs=(("attack_speed", 4), ("attack_style", "magic")),
+                    npc_stats_source=RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH,
+                ),
+            ),
+        ),
+    ),
     IMP_CATCHER_ID: (
         _stage_req(
             1,
@@ -1252,6 +1405,31 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                 ("Enchanted chicken", 1),
             ),
             required_actions=("Give Sanfew the enchanted meats and return to Kaqemeex",),
+        ),
+    ),
+    RUNE_MYSTERIES_ID: (
+        _stage_req(
+            1,
+            "Deliver the strange talisman to Sedridor and receive his research package.",
+            f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_DUKE_SOURCE_PATH}; {RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}",
+            consumed_inventory=(("Air talisman", 1),),
+            produced_inventory=(("Research package", 1),),
+            required_actions=("Deliver the strange talisman to Sedridor",),
+        ),
+        _stage_req(
+            3,
+            "Deliver Sedridor's package to Aubury and receive his research notes.",
+            f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}; {RUNE_MYSTERIES_AUBURY_SOURCE_PATH}",
+            consumed_inventory=(("Research package", 1),),
+            produced_inventory=(("Research notes", 1),),
+            required_actions=("Deliver Sedridor's package to Aubury",),
+        ),
+        _stage_req(
+            5,
+            "Return Aubury's research notes to Sedridor.",
+            f"{RUNEMYSTERIES_SOURCE_PATH}; {RUNE_MYSTERIES_SEDRIDOR_SOURCE_PATH}; {RUNE_MYSTERIES_AUBURY_SOURCE_PATH}",
+            consumed_inventory=(("Research notes", 1),),
+            required_actions=("Return Aubury's research notes to Sedridor",),
         ),
     ),
     PRIEST_IN_PERIL_ID: (
@@ -1583,37 +1761,61 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         _stage_req(
             1,
             "Find Shamus in the Lumbridge Swamp tree.",
-            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}; {LOST_CITY_KB_SOURCE}",
+            f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_WARRIOR_SOURCE_PATH}; {LOST_CITY_TREE_SOURCE_PATH}",
             required_actions=("Find Shamus in the Lumbridge Swamp tree",),
         ),
         _stage_req(
-            3,
-            "Reach Entrana, defeat the tree spirit, and prepare to cut the Dramen tree.",
-            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}; {LOST_CITY_KB_SOURCE}",
-            required_tools=(("Hatchet", 1),),
+            2,
+            "Speak to Shamus about the dramen staff and reach Entrana.",
+            f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_SHAMUS_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}",
+            required_actions=("Speak to Shamus about the dramen staff",),
             required_routes=("Reach Entrana without combat gear",),
+        ),
+        _stage_req(
+            3,
+            "Defeat the tree spirit guarding the Dramen tree.",
+            f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}; {LOST_CITY_TREE_SPIRIT_NPC_SOURCE_PATH}",
             combat_encounters=(
                 _combat(
                     LOST_CITY_ID,
                     "tree_spirit",
                     "Tree spirit",
                     63,
-                    f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}",
-                    "2011Scape and Darkan Lost City quest text describe the required tree-spirit fight as level 63.",
+                    f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}; {LOST_CITY_TREE_SPIRIT_NPC_SOURCE_PATH}",
+                    "2011Scape Lost City text requires killing the level 63 Tree spirit; the local NPC definition supplies the melee combat stats.",
+                    npc_stats=(
+                        ("hitpoints", 220),
+                        ("attack", 90),
+                        ("strength", 95),
+                        ("defence", 80),
+                    ),
+                    npc_bonuses=(
+                        ("defenceStab", 5),
+                        ("defenceSlash", 5),
+                        ("defenceCrush", 5),
+                        ("defenceMagic", 0),
+                        ("defenceRanged", 5),
+                    ),
+                    npc_configs=(("attack_speed", 4), ("attack_style", "melee")),
+                    npc_stats_source=LOST_CITY_TREE_SPIRIT_NPC_SOURCE_PATH,
                 ),
             ),
         ),
         _stage_req(
             4,
             "Cut a dramen branch from the Dramen tree.",
-            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}",
+            f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}",
             required_tools=(("Hatchet", 1),),
             required_actions=("Cut a dramen branch",),
+            produced_inventory=(("Dramen branch", 1),),
         ),
         _stage_req(
             5,
             "Craft the dramen staff and enter Zanaris through the Lumbridge Swamp shed.",
-            f"{LOST_CITY_SOURCE_PATH}; {DARKAN_LOST_CITY_SOURCE}",
+            f"{LOST_CITY_SOURCE_PATH}; {LOST_CITY_ENTRANA_SOURCE_PATH}; {LOST_CITY_SHED_SOURCE_PATH}",
+            required_inventory=(("Dramen branch", 1),),
+            consumed_inventory=(("Dramen branch", 1),),
+            produced_inventory=(("Dramen staff", 1),),
             required_tools=(("Knife", 1),),
             required_actions=("Craft a dramen staff", "Enter Zanaris through the Lumbridge Swamp shed"),
         ),
@@ -1681,71 +1883,6 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
 
 
 QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
-    THE_RESTLESS_GHOST_ID: (
-        _stage_req(
-            1,
-            "Receive the ghostspeak amulet from Father Urhney.",
-            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
-            required_actions=("Receive the ghostspeak amulet from Father Urhney",),
-        ),
-        _stage_req(
-            2,
-            "Speak to the restless ghost while wearing the ghostspeak amulet.",
-            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
-            required_inventory=(("Ghostspeak amulet", 1),),
-            required_actions=("Speak to the restless ghost",),
-        ),
-        _stage_req(
-            3,
-            "Search the Lumbridge Swamp mining spot for the muddy skull.",
-            (
-                f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
-                f"{RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}"
-            ),
-            required_actions=("Search the mining spot for the ghost's skull",),
-            combat_encounters=(
-                _combat(
-                    THE_RESTLESS_GHOST_ID,
-                    "skeleton_warlock",
-                    "Skeleton warlock",
-                    11,
-                    (
-                        f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_SKULL_SOURCE_PATH}; "
-                        f"{RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}"
-                    ),
-                    (
-                        "The 2011Scape quest text requires facing a level 11 skeleton warlock; "
-                        "the Lumbridge skull object spawns Npcs.SKELETON_WARLOCK, whose local "
-                        "combat definition supplies these stats."
-                    ),
-                    npc_stats=(
-                        ("hitpoints", 180),
-                        ("attack", 1),
-                        ("strength", 1),
-                        ("defence", 1),
-                        ("magic", 8),
-                    ),
-                    npc_bonuses=(
-                        ("attackStab", 0),
-                        ("attackCrush", 0),
-                        ("defenceStab", 0),
-                        ("defenceSlash", 0),
-                        ("defenceCrush", 0),
-                        ("defenceMagic", 5),
-                        ("defenceRanged", 0),
-                    ),
-                    npc_configs=(("attack_speed", 4), ("attack_style", "magic")),
-                    npc_stats_source=RESTLESS_GHOST_SKELETON_WARLOCK_NPC_SOURCE_PATH,
-                ),
-            ),
-        ),
-        _stage_req(
-            4,
-            "Return the muddy skull to the ghost's coffin.",
-            f"{RESTLESS_GHOST_SOURCE_PATH}; {RESTLESS_GHOST_WIKI_SOURCE}",
-            consumed_inventory=(("Muddy skull", 1),),
-        ),
-    ),
     JUNGLE_POTION_ID: (
         _stage_req(
             1,
@@ -1770,26 +1907,6 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             "Bring Trufitus clean volencia moss and clean rogue's purse.",
             f"{DARKAN_JUNGLE_POTION_SOURCE}; {JUNGLE_POTION_WIKI_SOURCE}",
             consumed_inventory=(("Clean volencia moss", 1), ("Clean rogue's purse", 1)),
-        ),
-    ),
-    RUNE_MYSTERIES_ID: (
-        _stage_req(
-            1,
-            "Deliver the strange talisman to Sedridor.",
-            RUNEMYSTERIES_SOURCE_PATH,
-            required_actions=("Deliver the strange talisman to Sedridor",),
-        ),
-        _stage_req(
-            3,
-            "Deliver Sedridor's package to Aubury.",
-            RUNEMYSTERIES_SOURCE_PATH,
-            required_actions=("Deliver Sedridor's package to Aubury",),
-        ),
-        _stage_req(
-            5,
-            "Return Aubury's research notes to Sedridor.",
-            RUNEMYSTERIES_SOURCE_PATH,
-            required_actions=("Return Aubury's research notes to Sedridor",),
         ),
     ),
     SWAN_SONG_ID: (
@@ -2450,6 +2567,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         unlocks=tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ())),
         release_order=_catalog_int(row, "release_order", 9999),
         stage_requirements=_catalog_stage_requirements(row.get("stage_requirements", ())),
+        start_inventory=_catalog_item_pairs(row.get("start_inventory", {})),
     )
 
 
@@ -2774,6 +2892,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "start_point": quest.start_point,
             "requirements": quest.requirements,
             "required_items": dict(quest.required_items),
+            "start_inventory": dict(quest.start_inventory),
             "required_quests": tuple(_quest_requirement_dict(req) for req in quest.required_quests),
             "required_skills": tuple(_skill_requirement_dict(req) for req in quest.required_skills),
             "required_quest_points": quest.required_quest_points,

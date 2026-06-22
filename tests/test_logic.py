@@ -1281,9 +1281,10 @@ class TestLogic(unittest.TestCase):
         player_data, ok = start_quest_pure(player_data, "rune_mysteries", QUEST_DATA)
         self.assertTrue(ok)
         self.assertEqual(player_data["current_quest"], "rune_mysteries")
+        self.assertEqual(player_data["inventory"]["Air talisman"], 1)
 
         completed_now = False
-        for _ in range(6):
+        for _ in range(5):
             player_data, ok, completed_now = apply_quest_progress_pure(
                 player_data,
                 "rune_mysteries",
@@ -1296,8 +1297,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["rune_mysteries"]["progress"], 6)
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["inventory"]["Air talisman"], 1)
-        self.assertEqual(player_data["runecrafting_exp"], 250)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"magic_exp": 250.0})
+        self.assertEqual(player_data["inventory"]["Research package"], 0)
+        self.assertEqual(player_data["inventory"]["Research notes"], 0)
+        self.assertEqual(player_data["runecrafting_exp"], 0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
         after_complete, ok, completed_again = apply_quest_progress_pure(
             player_data,
@@ -1308,8 +1311,8 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_again)
         self.assertEqual(after_complete["quest_points"], 1)
         self.assertEqual(after_complete["inventory"]["Air talisman"], 1)
-        self.assertEqual(after_complete["runecrafting_exp"], 250)
-        self.assertEqual(after_complete["pending_skill_exp_rewards"], {"magic_exp": 250.0})
+        self.assertEqual(after_complete["runecrafting_exp"], 0)
+        self.assertEqual(after_complete["pending_skill_exp_rewards"], {})
 
     def test_unlock_quests_enforce_strict_start_requirements(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -1362,9 +1365,6 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["the_knights_sword"]["progress"], 2)
         self.assertEqual(
             quest_availability_state_pure(player_data, "the_knights_sword", QUEST_DATA),
@@ -1395,7 +1395,7 @@ class TestLogic(unittest.TestCase):
         player_data["mining_level"] = 10
         player_data["inventory"]["Redberry pie"] = 1
 
-        for _ in range(6):
+        for _ in range(5):
             player_data, ok, completed_now = apply_quest_progress_pure(player_data, "the_knights_sword", QUEST_DATA)
             self.assertTrue(ok)
             self.assertFalse(completed_now)
@@ -2149,8 +2149,9 @@ class TestLogic(unittest.TestCase):
 
     def test_restless_ghost_skeleton_warlock_override_is_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["quests"]["the_restless_ghost"] = {"started": True, "progress": 3, "completed": False}
-        player_data["quest_stage_actions"] = {"the_restless_ghost": ["Search the mining spot for the ghost's skull"]}
+        player_data["inventory"]["Muddy skull"] = 1
+        player_data["quests"]["the_restless_ghost"] = {"started": True, "progress": 4, "completed": False}
+        player_data["quest_stage_actions"] = {"the_restless_ghost": ["Return the muddy skull to the ghost's coffin"]}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 20
         player_data["strength_level"] = 20
@@ -2308,10 +2309,16 @@ class TestLogic(unittest.TestCase):
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
-        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 1)
-        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["lost_city"]["progress"], 2)
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
+            (
+                "Action required: Speak to Shamus about the dramen staff",
+                "Route required: Reach Entrana without combat gear",
+            ),
+        )
+        player_data["quest_stage_actions"]["lost_city"].append("Speak to Shamus about the dramen staff")
+        player_data["quest_route_states"] = {"lost_city": ["Reach Entrana without combat gear"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
@@ -2321,16 +2328,17 @@ class TestLogic(unittest.TestCase):
             "Combat locked until battle support is enabled: Tree spirit level 63",
             quest_current_stage_blocker_reasons_pure(player_data, "lost_city", QUEST_DATA),
         )
-        player_data["quest_route_states"] = {"lost_city": ["Reach Entrana without combat gear"]}
         player_data["quest_combat_encounters"] = {"lost_city": ["lost_city_tree_spirit"]}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
 
+        player_data["inventory"]["Hatchet"] = 1
         player_data["quest_stage_actions"]["lost_city"].append("Cut a dramen branch")
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "lost_city", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Dramen branch"], 1)
 
         player_data["inventory"]["Knife"] = 1
         player_data["quest_stage_actions"]["lost_city"].extend(
@@ -2341,6 +2349,7 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["lost_city"]["completed"])
         self.assertEqual(player_data["quest_points"], 3)
+        self.assertEqual(player_data["inventory"]["Dramen branch"], 0)
         self.assertEqual(player_data["inventory"]["Dramen staff"], 1)
         self.assertEqual(
             quest_unlock_locked_reasons_pure(player_data, "runecrafting", "craft_cosmic_runes", QUEST_UNLOCK_RULES),
