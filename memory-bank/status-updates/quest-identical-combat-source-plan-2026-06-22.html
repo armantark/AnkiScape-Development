@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Combat Source Pass</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(120deg, rgba(79, 140, 255, 0.14), transparent 34rem),
+        radial-gradient(circle at 88% 12%, rgba(251, 191, 36, 0.11), transparent 28rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1100px; margin: 0 auto; padding: 34px 18px; }
+    .badge {
+      display: inline-block;
+      color: #dbeaff;
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      background: rgba(79, 140, 255, 0.14);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: 700 0.78rem ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 14px 0 10px; font-size: clamp(2.1rem, 5vw, 4.4rem); line-height: 0.95; letter-spacing: 0; }
+    h2 { margin: 0 0 10px; font-size: 1.05rem; }
+    p { margin: 0; color: var(--text-dim); }
+    .hero, .card {
+      background: linear-gradient(180deg, rgba(30, 35, 44, 0.94), rgba(22, 26, 33, 0.94));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 20px 44px rgba(0, 0, 0, 0.25);
+    }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 18px; }
+    .metric { border: 1px solid var(--border); border-radius: 10px; padding: 14px; background: rgba(255, 255, 255, 0.035); }
+    .metric strong { display: block; font-size: 2rem; line-height: 1; }
+    .metric span { color: var(--text-dim); font-size: 0.85rem; }
+    .flow { display: grid; gap: 10px; margin-top: 12px; }
+    .step { display: grid; grid-template-columns: 82px 1fr; gap: 12px; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.035); }
+    .step b { color: var(--text); }
+    .step em { color: var(--amber); font-style: normal; }
+    ul { margin: 10px 0 0; padding-left: 18px; color: var(--text-dim); }
+    li + li { margin-top: 6px; }
+    code { color: #e3efff; background: rgba(255, 255, 255, 0.06); border: 1px solid var(--border); padding: 1px 5px; border-radius: 5px; }
+    .warn { color: #ffd7d7; }
+    .ok { color: #d8ffe6; }
+    @media (max-width: 800px) {
+      .grid, .metrics { grid-template-columns: 1fr; }
+      .step { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <span class="badge">Pre-implementation plan</span>
+      <h1>Next quest-combat slice: safe duplicate sources.</h1>
+      <p>The previous pass reached 141/286 stat-backed combat encounters. This pass targets the subset where Darkan has multiple exact name+level files but their machine stats agree, so the generated gate can use shared stats while still rejecting real conflicts.</p>
+      <div class="metrics">
+        <div class="metric"><strong>141</strong><span>stat-backed rows now</span></div>
+        <div class="metric"><strong>145</strong><span>statless rows left</span></div>
+        <div class="metric"><strong>0</strong><span>guesswork allowed</span></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Backend</h2>
+        <div class="flow">
+          <div class="step"><b>Audit</b><span>List current statless rows and Darkan exact duplicate candidates.</span></div>
+          <div class="step"><b>Rule</b><span>If all candidate source rows share identical core stats/config, emit one stats payload and record all sources.</span></div>
+          <div class="step"><b>Guard</b><span><em>Do not</em> resolve rows with conflicting stats, wrong levels, or level 0.</span></div>
+          <div class="step"><b>Build</b><span>Regenerate <code>quest_catalog_generated.py</code> through the builder only.</span></div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Frontend</h2>
+        <ul>
+          <li>The existing Quests tab should need no production UI change.</li>
+          <li>Qt/offscreen tests should prove a newly resolver-ready duplicate-source fight becomes selectable.</li>
+          <li>Rows that still lack stats must continue showing blocked stage reasons, never silent progression.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>Acceptance</h2>
+        <ul>
+          <li><span class="ok">Increase</span> source-backed combat coverage from 141/286.</li>
+          <li><span class="ok">Preserve</span> 2011Scape-first precedence.</li>
+          <li><span class="warn">Reject</span> non-identical duplicates and unsupported wiki-prose guesses.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>Verification</h2>
+        <ul>
+          <li><code>python3 tools/audit_quest_stage_gate_coverage.py</code></li>
+          <li><code>python3 run_tests.py</code></li>
+          <li><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code></li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

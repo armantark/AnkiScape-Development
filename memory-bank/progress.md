@@ -45,10 +45,11 @@
   blockers, and 119 quests with combat blockers. Combat blockers are hard
   locked by default through `quest_combat_config.resolver_enabled = False`;
   they do not silently complete while combat is unimplemented. Resolver-enabled
-  combat now has 141/286 source-backed NPC stat rows after local
-  2011Scape-first plus Darkan/2012scape exact name+level enrichment, including
+  combat now has 147/286 source-backed NPC stat rows after local
+  2011Scape-first, Darkan/2012scape exact name+level enrichment, identical
+  duplicate-source acceptance, and focused override enrichment, including
   the local 2011Scape Skeleton Warlock focused override for The Restless Ghost
-  and generated Darkan rows such as Delrith and Elvarg.
+  and generated Darkan rows such as Delrith, Elvarg, and Earth Elemental.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -420,6 +421,18 @@ Elemental remain blocked because the local sources do not provide safe exact
 matches. `python3 tools/audit_quest_stage_gate_coverage.py` now reports
 141/286 combat encounters with source-backed stats; the remaining 145 rows are
 explicit combat stat/source reconciliation debt.
+
+Quest identical combat-source enrichment follow-up completed on 2026-06-22.
+The Darkan generator fallback now treats duplicate exact name+combat-level
+sources as usable only when all captured battle stats/configs are identical,
+and records every contributing source path in `npc_stats_source`. This makes
+Elemental Workshop's Earth Elemental rows resolver-ready without accepting
+genuine conflicts: Priest in Peril's Monk of Zamorak and Troll Stronghold's Dad
+stay statless because their duplicate Darkan candidates disagree. The focused
+override layer also gained Darkan-backed Jogre stats for Tai Bwo Wannai Trio and
+Sea Troll Queen stats for Swan Song. `python3 tools/audit_quest_stage_gate_coverage.py`
+now reports 147/286 combat encounters with source-backed stats; the remaining
+139 rows are explicit combat stat/source reconciliation debt.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

@@ -1561,20 +1561,18 @@ def _load_darkan_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
 
     unambiguous: Dict[Tuple[str, int], Dict[str, object]] = {}
     for key, candidates in rows.items():
-        unique = []
-        seen = set()
+        groups: Dict[Tuple[str, str], List[Dict[str, object]]] = {}
         for candidate in candidates:
             signature = (
-                str(candidate["source"]),
                 json.dumps(candidate["stats"], sort_keys=True),
                 json.dumps(candidate["configs"], sort_keys=True),
             )
-            if signature in seen:
-                continue
-            seen.add(signature)
-            unique.append(candidate)
-        if len(unique) == 1:
-            unambiguous[key] = unique[0]
+            groups.setdefault(signature, []).append(candidate)
+        if len(groups) == 1:
+            unique_sources = sorted({str(candidate["source"]) for candidate in candidates})
+            row = dict(sorted(candidates, key=lambda candidate: str(candidate["source"]))[0])
+            row["source"] = "; ".join(unique_sources)
+            unambiguous[key] = row
     return unambiguous
 
 

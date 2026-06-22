@@ -191,7 +191,50 @@ class TestQuestCatalog(unittest.TestCase):
             if encounter["display_name"] == "Earth Elemental"
         )
         self.assertEqual(earth_elemental["level"], 35)
-        self.assertEqual(earth_elemental["npc_stats"], {})
+        self.assertEqual(earth_elemental["npc_stats"]["hitpoints"], 350)
+        self.assertEqual(earth_elemental["npc_stats"]["attack"], 20)
+        self.assertEqual(earth_elemental["npc_stats"]["strength"], 35)
+        self.assertEqual(earth_elemental["npc_stats"]["defence"], 35)
+        self.assertIn("earth_elemental.json", earth_elemental["npc_stats_source"])
+        self.assertIn("earth_elemental_rock.json", earth_elemental["npc_stats_source"])
+
+        tai_bwo = data["tai_bwo_wannai_trio"]
+        jogre = next(
+            encounter
+            for requirement in tai_bwo["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Jogre"
+        )
+        self.assertEqual(jogre["level"], 53)
+        self.assertEqual(jogre["npc_stats"]["hitpoints"], 600)
+        self.assertTrue(jogre["npc_stats_source"].endswith("jogre_(53).json"))
+
+        swan_song = data["swan_song"]
+        queen = next(
+            encounter
+            for requirement in swan_song["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Sea Troll Queen"
+        )
+        self.assertEqual(queen["level"], 170)
+        self.assertEqual(queen["npc_stats"]["hitpoints"], 2000)
+        self.assertTrue(queen["npc_stats_source"].endswith("sea_troll_queen (noanims).json"))
+
+        monk = next(
+            encounter
+            for requirement in data["priest_in_peril"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Monk of Zamorak"
+        )
+        self.assertEqual(monk["npc_stats"], {})
+
+        dad = next(
+            encounter
+            for requirement in data["troll_stronghold"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Dad"
+        )
+        self.assertEqual(dad["npc_stats"], {})
 
         self.assertTrue(data["jungle_potion"]["stage_requirements"])
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])

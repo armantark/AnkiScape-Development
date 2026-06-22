@@ -71,9 +71,14 @@ DARKAN_QUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/quests"
 )
+DARKAN_NPC_COMBATDEF_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs"
+)
 DARKAN_LOST_CITY_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/lostcity/LostCity.java"
 DARKAN_JUNGLE_POTION_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/junglepotion/JunglePotion.java"
 DARKAN_WOLF_WHISTLE_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/wolfwhistle/WolfWhistle.java"
+TAI_BWO_WANNAI_TRIO_JOGRE_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jogre/jogre_(53).json"
+SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/sea_troll_queen (noanims).json"
 RESTLESS_GHOST_WIKI_SOURCE = "https://runescape.wiki/w/The_Restless_Ghost?oldid=6355778"
 JUNGLE_POTION_WIKI_SOURCE = "https://runescape.wiki/w/Jungle_Potion?oldid=6555418"
 KENNITHS_CONCERNS_WIKI_SOURCE = "https://runescape.wiki/w/Kennith%27s_Concerns?oldid=6549837"
@@ -832,8 +837,24 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
                     "jogre",
                     "Jogre",
                     53,
-                    "https://runescape.wiki/w/Tai_Bwo_Wannai_Trio?oldid=6529797",
+                    f"https://runescape.wiki/w/Tai_Bwo_Wannai_Trio?oldid=6529797; {TAI_BWO_WANNAI_TRIO_JOGRE_NPC_SOURCE}",
                     "Jogre bones can be obtained during the quest by fighting a level 53 jogre.",
+                    npc_stats=(
+                        ("hitpoints", 600),
+                        ("attack", 43),
+                        ("strength", 43),
+                        ("defence", 43),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 73),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=TAI_BWO_WANNAI_TRIO_JOGRE_NPC_SOURCE,
                 ),
             ),
         ),
@@ -972,8 +993,24 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
                     "sea_troll_queen",
                     "Sea Troll Queen",
                     170,
-                    SWAN_SONG_WIKI_SOURCE,
+                    f"{SWAN_SONG_WIKI_SOURCE}; {SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE}",
                     "Quest details require the level 170 Sea Troll Queen after the sea troll waves.",
+                    npc_stats=(
+                        ("hitpoints", 2000),
+                        ("attack", 100),
+                        ("strength", 70),
+                        ("defence", 100),
+                        ("magic", 150),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 2345),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE,
                 ),
             ),
         ),

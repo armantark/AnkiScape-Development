@@ -56,9 +56,12 @@ combatdef sources and wrong-level rows stay statless.
 - Lost City's generated level 63 Tree spirit stays statless. Darkan only has
   local level 14/101 Tree spirit rows in the available list, and those must not
   be forced onto the quest's level 63 encounter.
-- Elemental Workshop's level 35 Earth Elemental stays statless because the local
-  Darkan combatdefs have duplicate exact-match sources. The safer behavior is
-  to keep it blocked until a focused source decision is made.
+- Historical note from the first Darkan pass: Elemental Workshop's level 35
+  Earth Elemental initially stayed statless because local Darkan combatdefs had
+  duplicate exact-match sources. The follow-up
+  `quest-identical-combat-source-enrichment-2026-06-22.md` resolved this narrow
+  case by accepting duplicate exact sources only when all captured stats/configs
+  agree.
 - Level 0 or source-unknown encounters remain blocked as missing stats even
   when the global combat resolver is enabled.
 
@@ -76,8 +79,8 @@ combat_encounter_rows: 286
 combat_encounters_with_local_stats: 141
 ```
 
-This is not all-quest combat parity. The remaining 145 statless generated
-encounters are explicit source reconciliation debt, not completed content.
+This was not all-quest combat parity. The remaining 145 statless generated
+encounters were explicit source reconciliation debt, not completed content.
 
 ## Tests Added
 

@@ -1588,6 +1588,29 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"demon_slayer": ["demon_slayer_delrith_27"]})
         self.assertEqual(quest_current_stage_blockers_pure(resolved, "demon_slayer", QUEST_DATA), ())
 
+    def test_elemental_workshop_identical_darkan_sources_are_resolver_ready(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["elemental_workshop_i"] = {"started": True, "progress": 2, "completed": False}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        player_data["attack_level"] = 40
+        player_data["strength_level"] = 40
+        player_data["defense_level"] = 40
+        player_data["constitution_level"] = 40
+
+        blockers = quest_current_stage_blockers_pure(player_data, "elemental_workshop_i", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Earth Elemental level 35")
+        self.assertTrue(can_attempt_quest_review_pure(player_data, "elemental_workshop_i", QUEST_DATA))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "elemental_workshop_i", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "elemental_workshop_i_earth_elemental_35")
+        self.assertEqual(
+            resolved["quest_combat_encounters"],
+            {"elemental_workshop_i": ["elemental_workshop_i_earth_elemental_35"]},
+        )
+        self.assertEqual(quest_current_stage_blockers_pure(resolved, "elemental_workshop_i", QUEST_DATA), ())
+
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["crafting_level"] = 31

@@ -203,6 +203,36 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Delrith"])
 
+    def test_quest_answer_resolves_identical_source_generated_combat_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "elemental_workshop_i",
+            "quests": {"elemental_workshop_i": {"started": True, "progress": 2, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 40,
+            "constitution_level": 40,
+            "prayer_level": 1,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["elemental_workshop_i"]["progress"], 2)
+        self.assertFalse(player_data["quests"]["elemental_workshop_i"]["completed"])
+        self.assertEqual(
+            player_data["quest_combat_encounters"],
+            {"elemental_workshop_i": ["elemental_workshop_i_earth_elemental_35"]},
+        )
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Earth Elemental"])
+
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
