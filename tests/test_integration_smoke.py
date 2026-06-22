@@ -819,6 +819,53 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [])
         self.assertEqual(calls["dialogs"], [])
 
+    def test_quest_answer_progresses_family_crest_caleb_fish_gate(self):
+        addon = _load_addon_as_package("ankiscape_family_crest_stage_integration")
+
+        calls = {"save": 0, "gains": [], "xp": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon._show_exp = lambda amount: calls["xp"].append(amount)
+        addon.level_up_check = lambda _skill, _data: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {
+                "Shrimps": 1,
+                "Salmon": 1,
+                "Tuna": 1,
+                "Bass": 1,
+                "Swordfish": 1,
+            },
+            "current_quest": "family_crest",
+            "quests": {"family_crest": {"started": True, "progress": 3, "completed": False}},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertFalse(addon.player_data["quests"]["family_crest"]["completed"])
+        self.assertEqual(addon.player_data["quests"]["family_crest"]["progress"], 4)
+        self.assertEqual(addon.player_data["inventory"]["Shrimps"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Swordfish"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Caleb crest"], 1)
+        self.assertEqual(addon.player_data["quest_points"], 0)
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Family Crest 4/16"])
+        self.assertEqual(calls["xp"], [])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item(self):
         addon = _load_addon_as_package("ankiscape_witchs_house_mouse_gate_integration")
 

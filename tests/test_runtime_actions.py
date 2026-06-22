@@ -248,6 +248,40 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Fire feather x1", calls["errors"][0][1])
 
+    def test_quest_answer_blocks_family_crest_jewellery_without_two_rubies(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {
+                "Perfect gold bar": 2,
+                "Ruby": 1,
+                "Ring mould": 1,
+                "Necklace mould": 1,
+            },
+            "current_quest": "family_crest",
+            "quests": {"family_crest": {"started": True, "progress": 10, "completed": False}},
+            "quest_stage_actions": {
+                "family_crest": ["Craft the perfect ruby ring and perfect ruby necklace"]
+            },
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["family_crest"]["progress"], 10)
+        self.assertFalse(player_data["quests"]["family_crest"]["completed"])
+        self.assertEqual(player_data["inventory"]["Perfect gold bar"], 2)
+        self.assertEqual(player_data["inventory"]["Ruby"], 1)
+        self.assertEqual(player_data["inventory"].get("Perfect ruby ring", 0), 0)
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
+        self.assertEqual(calls["saves"], 0)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Needs Ruby x2", calls["errors"][0][1])
+
     def test_quest_stage_progress_accepts_required_tools_from_equipment(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

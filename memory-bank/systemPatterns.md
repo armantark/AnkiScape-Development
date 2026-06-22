@@ -160,8 +160,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   armband exchange, and final Achietties proof items are current-stage gates.
   The Ice Queen lair access is a route blocker rather than a mandatory Jailer
   combat row because the source allows a Dusty key route or Agility shortcut.
-  The live audit now reports 542 stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, 85 produced-inventory rows, and
+  Family Crest then proves a source-backed long item-transformation chain where
+  cooked fish, perfect gold ore/bars, perfect ruby jewellery, crest pieces,
+  Johnathon's antipoison, Chronozon's blast-spell combat, and the final Family
+  crest hand-in all gate at their current stages while Crafting 40, Magic 59,
+  Mining 40, and Smithing 40 remain start locks. The live audit now reports 554
+  stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, 92 produced-inventory rows, and
   179/284 resolver-ready combat rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
@@ -199,6 +204,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten

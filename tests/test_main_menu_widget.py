@@ -1412,6 +1412,28 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Needs Black platelegs", action.toolTip())
 
+    def test_quests_tab_shows_family_crest_jewellery_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {
+            "Perfect gold bar": 2,
+            "Ruby": 1,
+            "Ring mould": 1,
+            "Necklace mould": 1,
+        }
+        pd["current_quest"] = "family_crest"
+        pd["quests"]["family_crest"] = {"started": True, "progress": 10, "completed": False}
+        pd["quest_stage_actions"] = {
+            "family_crest": ["Craft the perfect ruby ring and perfect ruby necklace"]
+        }
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Blocked: Needs Ruby x2", labels)
+        action = dialog.findChild(QPushButton, "questAction_family_crest")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Ruby x2", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

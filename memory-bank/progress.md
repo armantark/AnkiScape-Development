@@ -41,7 +41,7 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 542 stage rows, 85 produced-inventory
+  with at least one stage requirement, 554 stage rows, 92 produced-inventory
   rows, 174 quests with item/tool/option blockers, and 120 quests with combat
   blockers. Combat blockers are hard locked by default through
   `quest_combat_config.resolver_enabled = False`;
@@ -826,6 +826,23 @@ stage rows, 85 produced-inventory rows, 284 combat encounters, 179
 resolver-ready combat encounters, 174 quests with item/tool blockers, 120
 quests with combat blockers, and 105 statless combat rows. Source audit:
 `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`.
+
+Family Crest focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces generated/broad rows with a Darkan-backed
+16-stage chain for Caleb's cooked fish salad, Avan's perfect-gold ruby ring
+and necklace, Boot/Witchaven perfect gold routing, Johnathon's antipoison,
+Chronozon's all-four-blast-spell combat, crest-piece combination, and
+Dimintheis' final Family crest hand-in. The quest keeps strict start locks for
+Crafting 40, Magic 59, Mining 40, and Smithing 40; used-during items remain
+stage blockers rather than start locks. Frontend work was limited to targeted
+Quests-tab blocked-at-stage coverage. New quest item and gauntlet icons were
+fetched with provenance. Post-slice audit reports 554 stage rows, 92
+produced-inventory rows, 284 combat encounters, 179 resolver-ready combat
+encounters, 174 quests with item/tool blockers, 120 quests with combat blockers,
+and 105 statless combat rows. Source audit:
+`memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`.
+Do not create `memory-bank/status-updates/` artifacts again until every quest in
+the catalog is updated to the requested minute-detail parity level.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

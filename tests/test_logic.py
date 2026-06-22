@@ -2170,6 +2170,124 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"]["defense_exp"], 3075.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"]["herblore_exp"], 1325.0)
 
+    def test_family_crest_stage_gates_fish_jewellery_chronozon_and_final_reward(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["family_crest"] = {"started": True, "progress": 2, "completed": False}
+        player_data["inventory"].update({
+            "Shrimps": 1,
+            "Salmon": 1,
+            "Tuna": 1,
+            "Bass": 1,
+            "Swordfish": 1,
+            "Bronze pickaxe": 1,
+            "Ruby": 2,
+            "Ring mould": 1,
+            "Necklace mould": 1,
+            "Antipoison": 1,
+        })
+        player_data["quest_route_states"] = {
+            "family_crest": [
+                "Reach the Witchaven perfect gold mine",
+                "Reach Chronozon's lair in Edgeville Dungeon",
+            ]
+        }
+        player_data["quest_stage_actions"] = {
+            "family_crest": [
+                "Ask Caleb about the fish salad",
+                "Ask Caleb where Avan is searching for treasure",
+                "Ask the Al Kharid gem trader about Avan",
+                "Ask Avan about perfect gold jewellery",
+                "Ask Boot about perfect gold",
+                "Solve the Witchaven dungeon lever puzzle",
+                "Mine two perfect gold ores",
+                "Smelt the perfect gold ore in a furnace",
+                "Craft the perfect ruby ring and perfect ruby necklace",
+                "Use an unnoted antipoison on Johnathon",
+                "Ask Johnathon about Chronozon",
+                "Hit Chronozon with Air, Water, Earth, and Fire Blast",
+                "Combine the three crest parts",
+            ]
+        }
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["family_crest"]["progress"], 3)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Shrimps"], 0)
+        self.assertEqual(player_data["inventory"]["Swordfish"], 0)
+        self.assertEqual(player_data["inventory"]["Caleb crest"], 1)
+
+        for expected_progress in range(5, 9):
+            player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+            self.assertTrue(ok)
+            self.assertFalse(completed_now)
+            self.assertEqual(player_data["quests"]["family_crest"]["progress"], expected_progress)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Perfect gold ore"], 2)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Perfect gold ore"], 0)
+        self.assertEqual(player_data["inventory"]["Perfect gold bar"], 2)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Perfect gold bar"], 0)
+        self.assertEqual(player_data["inventory"]["Ruby"], 0)
+        self.assertEqual(player_data["inventory"]["Perfect ruby ring"], 1)
+        self.assertEqual(player_data["inventory"]["Perfect ruby necklace"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Perfect ruby ring"], 0)
+        self.assertEqual(player_data["inventory"]["Perfect ruby necklace"], 0)
+        self.assertEqual(player_data["inventory"]["Avan crest"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Antipoison"], 1)
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "family_crest", QUEST_DATA),
+            ("Combat locked until battle support is enabled: Chronozon level 170",),
+        )
+        player_data["quest_combat_encounters"] = {"family_crest": ["family_crest_chronozon_170"]}
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Johnathon crest"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["inventory"]["Caleb crest"], 0)
+        self.assertEqual(player_data["inventory"]["Avan crest"], 0)
+        self.assertEqual(player_data["inventory"]["Johnathon crest"], 0)
+        self.assertEqual(player_data["inventory"]["Family crest"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "family_crest", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["family_crest"]["completed"])
+        self.assertEqual(player_data["quests"]["family_crest"]["progress"], 16)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["inventory"]["Family crest"], 0)
+        self.assertEqual(player_data["inventory"]["Family gauntlets"], 1)
+        self.assertEqual(player_data["inventory"].get("Cooking gauntlets", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Goldsmith gauntlets", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Chaos gauntlets", 0), 0)
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}

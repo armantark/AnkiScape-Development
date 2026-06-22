@@ -5651,6 +5651,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:04Z"
   },
+  "questitems/antipoison.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antipoison_%284%29.png",
+    "file_title": "Antipoison (4).png",
+    "image_url": "https://runescape.wiki/images/Antipoison_%284%29.png?f3c52",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0a223c2fb1e5cd34ea5b42744db7095b0324b650",
+    "size": 829,
+    "source_wiki": "rs3",
+    "timestamp": "2025-06-01T07:17:11Z"
+  },
+  "questitems/avan_crest.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crest_part_%28Avan%29.png",
+    "file_title": "Crest part (Avan).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Crest_part_%28Avan%29.png?6069a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0072fefabb86a1853cdb231ecc8b21198b9682cc",
+    "size": 184,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:15Z"
+  },
   "questitems/backroom_key.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Key_%28Witch%27s_House%29.png",
     "file_title": "Key (Witch's House).png",
@@ -5879,6 +5903,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:04Z"
   },
+  "questitems/caleb_crest.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crest_part_%28Caleb%29.png",
+    "file_title": "Crest part (Caleb).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Crest_part_%28Caleb%29.png?6069a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "69287d0446e82d6929cd6576fcef54815c014ee8",
+    "size": 197,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:15Z"
+  },
   "questitems/cattleprod.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cattleprod.png",
     "file_title": "Cattleprod.png",
@@ -5903,6 +5939,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:14Z"
   },
+  "questitems/chaos_gauntlets.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chaos_gauntlets.png",
+    "file_title": "Chaos gauntlets.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Chaos_gauntlets.png?3fbd5",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9060cf57ffec9047a5f209c23780a074ac36f9d8",
+    "size": 545,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:55Z"
+  },
   "questitems/child_s_blanket.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Child%27s_blanket.png",
     "file_title": "Child's blanket.png",
@@ -5926,6 +5974,18 @@
     "size": 285,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:15Z"
+  },
+  "questitems/cooking_gauntlets.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cooking_gauntlets.png",
+    "file_title": "Cooking gauntlets.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Cooking_gauntlets.png?2aac1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "77508965eee29407c78a63e2612713e10b24d444",
+    "size": 824,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:21Z"
   },
   "questitems/crandor_map.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crandor_map.png",
@@ -6059,6 +6119,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:55Z"
   },
+  "questitems/family_crest.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Family_crest_%28item%29.png",
+    "file_title": "Family crest (item).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Family_crest_%28item%29.png?5abba",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a99952804b8d9863965207de639e66e79ebeede3",
+    "size": 297,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:32Z"
+  },
+  "questitems/family_gauntlets.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Family_gauntlets.png",
+    "file_title": "Family gauntlets.png",
+    "image_url": "https://runescape.wiki/images/Family_gauntlets.png?d1ab3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6a2ea6aa59636ce14a9af3e86bddfb126b68aa8b",
+    "size": 5144,
+    "source_wiki": "rs3",
+    "timestamp": "2023-03-02T20:51:35Z"
+  },
   "questitems/fire_feather.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_feather.png",
     "file_title": "Fire feather.png",
@@ -6191,6 +6275,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:24Z"
   },
+  "questitems/goldsmith_gauntlets.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goldsmith_gauntlets.png",
+    "file_title": "Goldsmith gauntlets.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Goldsmith_gauntlets.png?3d117",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6c74aca2ae815ac0f25765a12619e6e7dfc13fa6",
+    "size": 761,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:29Z"
+  },
   "questitems/green_sheep_bones.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sheep_bones_%282%29.png",
     "file_title": "Sheep bones (2).png",
@@ -6310,6 +6406,18 @@
     "size": 816,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:50Z"
+  },
+  "questitems/johnathon_crest.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Crest_part_%28Johnathon%29.png",
+    "file_title": "Crest part (Johnathon).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Crest_part_%28Johnathon%29.png?6069a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b51df1543b4b2aa6eb3d3cb0bb876576b45beae6",
+    "size": 219,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:15Z"
   },
   "questitems/jug_of_water.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jug_of_water.png",
@@ -6467,6 +6575,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:58Z"
   },
+  "questitems/necklace_mould.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Necklace_mould.png",
+    "file_title": "Necklace mould.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Necklace_mould.png?c4b91",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c9b6fb111c51461c8f14b82a9dd5b979962e5b05",
+    "size": 512,
+    "source_wiki": "osrs",
+    "timestamp": "2013-11-23T19:38:32Z"
+  },
   "questitems/nulodion_s_notes.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Nulodion%27s_notes.png",
     "file_title": "Nulodion's notes.png",
@@ -6526,6 +6646,54 @@
     "size": 838,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:40Z"
+  },
+  "questitems/perfect_gold_bar.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:%27perfect%27_gold_bar.png",
+    "file_title": "'perfect' gold bar.png",
+    "image_url": "https://oldschool.runescape.wiki/images/%27perfect%27_gold_bar.png?060ef",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "53123f7a488267b5c8f6d61a6ef151c06f23ca20",
+    "size": 216,
+    "source_wiki": "osrs",
+    "timestamp": "2018-05-17T18:33:23Z"
+  },
+  "questitems/perfect_gold_ore.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:%27perfect%27_gold_ore.png",
+    "file_title": "'perfect' gold ore.png",
+    "image_url": "https://oldschool.runescape.wiki/images/%27perfect%27_gold_ore.png?b9efc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d5afac9288fd61734772535245ef5c2bf0ea8d7d",
+    "size": 688,
+    "source_wiki": "osrs",
+    "timestamp": "2018-05-17T18:35:42Z"
+  },
+  "questitems/perfect_ruby_necklace.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:%27perfect%27_necklace.png",
+    "file_title": "'perfect' necklace.png",
+    "image_url": "https://oldschool.runescape.wiki/images/%27perfect%27_necklace.png?3dda6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e7885fee56ba478a67d0e709f068ad65098aca39",
+    "size": 763,
+    "source_wiki": "osrs",
+    "timestamp": "2018-02-22T17:44:55Z"
+  },
+  "questitems/perfect_ruby_ring.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:%27perfect%27_ring.png",
+    "file_title": "'perfect' ring.png",
+    "image_url": "https://oldschool.runescape.wiki/images/%27perfect%27_ring.png?991ec",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "c46c7068f6d0ee97bf34c5e8a4f01810bf883130",
+    "size": 1438,
+    "source_wiki": "osrs",
+    "timestamp": "2013-08-28T21:57:43Z"
   },
   "questitems/pestle_and_mortar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Pestle_and_mortar.png",
@@ -6778,6 +6946,18 @@
     "size": 785,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:31Z"
+  },
+  "questitems/ring_mould.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Ring_mould.png",
+    "file_title": "Ring mould.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Ring_mould.png?4e1b1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9a32b29c9265addb00ae0c4cb721e7d57e2bdde3",
+    "size": 529,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:04:33Z"
   },
   "questitems/rotten_apple.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rotten_apple.png",

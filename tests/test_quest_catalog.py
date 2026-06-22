@@ -201,6 +201,63 @@ class TestQuestCatalog(unittest.TestCase):
             {"Lava eel": 1, "Thieves' armband": 1, "Fire feather": 1},
         )
 
+    def test_family_crest_has_source_backed_stage_requirements(self):
+        data = quests_as_dict()
+        quest = data["family_crest"]
+
+        self.assertEqual(quest["stages"], 16)
+        self.assertEqual(quest["required_items"], {})
+        self.assertEqual(quest["rewards"], {"Family gauntlets": 1})
+        self.assertIn("Used during quest: Shrimps x1", quest["requirements"][4])
+        self.assertIn("Ruby x2", quest["requirements"][4])
+        self.assertIn("level 170", quest["combat"])
+        self.assertIn("level 84", quest["combat"])
+        self.assertEqual(
+            tuple((requirement["skill_id"], requirement["level"]) for requirement in quest["required_skills"]),
+            (("crafting", 40), ("magic", 59), ("mining", 40), ("smithing", 40)),
+        )
+
+        by_stage = {row["stage"]: row for row in quest["stage_requirements"]}
+        self.assertIn("darkan-world-server", by_stage[3]["source"])
+        self.assertEqual(
+            by_stage[3]["consumed_inventory"],
+            {"Shrimps": 1, "Salmon": 1, "Tuna": 1, "Bass": 1, "Swordfish": 1},
+        )
+        self.assertEqual(by_stage[3]["produced_inventory"], {"Caleb crest": 1})
+        self.assertEqual(by_stage[8]["required_tools"], {"Pickaxe": 1})
+        self.assertEqual(by_stage[8]["produced_inventory"], {"Perfect gold ore": 2})
+        self.assertEqual(by_stage[9]["consumed_inventory"], {"Perfect gold ore": 2})
+        self.assertEqual(by_stage[9]["produced_inventory"], {"Perfect gold bar": 2})
+        self.assertEqual(by_stage[10]["consumed_inventory"], {"Perfect gold bar": 2, "Ruby": 2})
+        self.assertEqual(by_stage[10]["required_tools"], {"Ring mould": 1, "Necklace mould": 1})
+        self.assertEqual(
+            by_stage[10]["produced_inventory"],
+            {"Perfect ruby ring": 1, "Perfect ruby necklace": 1},
+        )
+        self.assertEqual(by_stage[11]["consumed_inventory"], {"Perfect ruby ring": 1, "Perfect ruby necklace": 1})
+        self.assertEqual(by_stage[11]["produced_inventory"], {"Avan crest": 1})
+        self.assertEqual(by_stage[12]["required_inventory"], {"Antipoison": 1})
+        self.assertEqual(by_stage[12]["required_tools"], {"Caleb crest": 1, "Avan crest": 1})
+        self.assertEqual(by_stage[13]["produced_inventory"], {"Johnathon crest": 1})
+        self.assertEqual(
+            by_stage[14]["consumed_inventory"],
+            {"Caleb crest": 1, "Avan crest": 1, "Johnathon crest": 1},
+        )
+        self.assertEqual(by_stage[14]["produced_inventory"], {"Family crest": 1})
+        self.assertEqual(by_stage[15]["consumed_inventory"], {"Family crest": 1})
+
+        chronozon = by_stage[13]["combat_encounters"][0]
+        self.assertEqual(chronozon["encounter_id"], "family_crest_chronozon_170")
+        self.assertEqual(chronozon["display_name"], "Chronozon")
+        self.assertEqual(chronozon["level"], 170)
+        self.assertEqual(
+            chronozon["npc_stats"],
+            {"hitpoints": 600, "attack": 173, "strength": 172, "defence": 173, "magic": 1, "ranged": 1},
+        )
+        self.assertEqual(chronozon["npc_configs"]["max_hit"], 180)
+        self.assertEqual(chronozon["npc_configs"]["attack_style"], "melee")
+        self.assertTrue(chronozon["npc_stats_source"].endswith("chronozon (noanims).json"))
+
     def test_shield_of_arrav_has_source_backed_route_stage_requirements(self):
         data = quests_as_dict()
         quest = data["shield_of_arrav"]

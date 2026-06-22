@@ -209,6 +209,14 @@ Darkan rows missing style-critical resolver stats, 7 same-name/wrong-level rows,
 stores partial encounter progress in `quest_combat_encounter_counts`, and the
 legacy completed id is written to `quest_combat_encounters` only when the
 source quantity is fully resolved.
+Family Crest then replaces generated/broad rows with a 16-stage source-backed
+chain for Caleb's fish salad, Avan's perfect-gold jewellery, Boot/Witchaven
+perfect gold routing, Johnathon's antipoison, Chronozon's blast-spell combat,
+crest-piece combination, and Dimintheis' final hand-in. Post-Family-Crest audit
+reports 554 stage rows, 92 produced-inventory rows, 284 combat encounters, and
+179 resolver-ready combat encounters. The user clarified that
+`memory-bank/status-updates/` artifacts should stay paused until every quest in
+the catalog is updated to minute-detail stage parity.
 
 P0 architecture cleanup first pass is complete on 2026-06-15. A new pure
 `action_registry.py` resolves review-action handler keys for Mining,
@@ -427,11 +435,12 @@ Generated item alternatives now preserve
 independent option groups, so stage gates such as Goblin Diplomacy dye
 alternatives remain finishability blockers instead of being flattened into
 impossible all-item requirements.
-The live stage audit now reports 542 stage rows and 85 produced-inventory rows
+The live stage audit now reports 554 stage rows and 92 produced-inventory rows
 after the Demon Slayer, early Darkan, Dragon Slayer, Shield of Arrav, Fight
 Arena, Witch's House, Merlin's Crystal, Dwarf Cannon, the local noncombat
 Darkan batch, Sheep Herder, Plague City, Waterfall Quest, and Biohazard focused
-replacements, plus Heroes' Quest's source-backed branch-and-proof chain. This is broad blocker
+replacements, plus Heroes' Quest's source-backed branch-and-proof chain and
+Family Crest's source-backed fish/jewellery/Chronozon chain. This is broad blocker
 coverage, not minute-detail parity for every quest; use
 `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` and
 `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md` plus
@@ -441,6 +450,7 @@ coverage, not minute-detail parity for every quest; use
 `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md` plus
 `memory-bank/source-audits/quest-biohazard-stage-detail-2026-06-22.md` plus
 `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md` plus
+`memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md` plus
 `tools/audit_quest_stage_gate_coverage.py` before making completion claims.
 
 Quest completion UX now mirrors depletion handling. When a review completes the
@@ -573,8 +583,9 @@ plus
 `memory-bank/source-audits/quest-plague-city-waterfall-stage-detail-2026-06-22.md`,
 plus `memory-bank/source-audits/quest-biohazard-stage-detail-2026-06-22.md`,
 plus `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md`,
+plus `memory-bank/source-audits/quest-family-crest-stage-detail-2026-06-22.md`,
 supersede the older generated-row debt count above. The live audit now reports
-542 stage rows, 85 produced-inventory rows, 284 combat encounters, and 179
+554 stage rows, 92 produced-inventory rows, 284 combat encounters, and 179
 resolver-ready combat encounters; full all-quest minute-detail parity remains
 open until remaining generated rows, route/location state, quest-item
 transformations, optional branches, combat stat gaps, and real combat simulation
