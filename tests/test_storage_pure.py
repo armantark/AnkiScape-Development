@@ -86,6 +86,10 @@ class TestStoragePure(unittest.TestCase):
             "action_telemetry",
             "quests",
             "quest_points",
+            "quest_combat_config",
+            "quest_combat_encounters",
+            "quest_stage_actions",
+            "quest_route_states",
             "pending_skill_exp_rewards",
             "claims",
             "wicked_hood",
@@ -114,6 +118,10 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
         self.assertIn("lost_city", data["quests"])
         self.assertIn("lunar_diplomacy", data["quests"])
+        self.assertEqual(data["quest_combat_config"], {"version": 1, "resolver_enabled": False})
+        self.assertEqual(data["quest_combat_encounters"], {})
+        self.assertEqual(data["quest_stage_actions"], {})
+        self.assertEqual(data["quest_route_states"], {})
         self.assertEqual(data["pending_skill_exp_rewards"], {})
         self.assertEqual(data["claims"]["wicked_hood"], {"claimed": False})
         self.assertEqual(data["wicked_hood"], {"fed_altars": []})
@@ -233,6 +241,23 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(telemetry["attempts"], 3)
         self.assertEqual(telemetry["successes"], 1)
         self.assertEqual(telemetry["outputs"], {"Raw mackerel": 1})
+
+    def test_migrate_sanitizes_quest_stage_side_state(self):
+        migrated = migrate_loaded_data(
+            {
+                "quest_combat_config": {"resolver_enabled": True},
+                "quest_combat_encounters": {"dragon_slayer": {"elvarg": True, "unused": False}},
+                "quest_stage_actions": {"the_knights_sword": "Mine blurite ore"},
+                "quest_route_states": {"heroes_quest": ["member_route", 123]},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+
+        self.assertEqual(migrated["quest_combat_config"], {"version": 1, "resolver_enabled": True})
+        self.assertEqual(migrated["quest_combat_encounters"], {"dragon_slayer": ["elvarg"]})
+        self.assertEqual(migrated["quest_stage_actions"], {"the_knights_sword": ["Mine blurite ore"]})
+        self.assertEqual(migrated["quest_route_states"], {"heroes_quest": ["member_route"]})
 
     def test_migrate_can_seed_registered_items_without_losing_custom_entries(self):
         migrated = migrate_loaded_data(

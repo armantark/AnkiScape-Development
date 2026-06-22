@@ -17,6 +17,23 @@ except ImportError:
 REVIEW_SUCCESS_MINIMUM = 0.20
 REVIEW_SUCCESS_SCALE = 0.72
 REVIEW_SUCCESS_CAP = 0.95
+QUEST_COMBAT_CONFIG_VERSION = 1
+QUEST_COMBAT_RESOLVER_ENABLED_KEY = "resolver_enabled"
+
+
+def default_quest_combat_config_pure():
+    return {"version": QUEST_COMBAT_CONFIG_VERSION, QUEST_COMBAT_RESOLVER_ENABLED_KEY: False}
+
+
+def sanitize_quest_combat_config_pure(raw_config):
+    config = default_quest_combat_config_pure()
+    if isinstance(raw_config, Mapping):
+        config[QUEST_COMBAT_RESOLVER_ENABLED_KEY] = bool(raw_config.get(QUEST_COMBAT_RESOLVER_ENABLED_KEY, False))
+    return config
+
+
+def quest_combat_resolver_enabled_pure(player_data):
+    return bool(sanitize_quest_combat_config_pure(player_data.get("quest_combat_config")).get(QUEST_COMBAT_RESOLVER_ENABLED_KEY))
 
 def get_exp_to_next_level(player_data, EXP_TABLE):
     """Return exp needed to reach the next level for Mining.
@@ -1063,6 +1080,40 @@ def _quest_stage_item_pairs(requirement, key):
     return tuple()
 
 
+def _quest_stage_item_option_groups(requirement, key):
+    raw_groups = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
+    if isinstance(raw_groups, Mapping):
+        return (_quest_stage_item_pairs({key: raw_groups}, key),)
+    if not isinstance(raw_groups, Iterable) or isinstance(raw_groups, str):
+        return tuple()
+    groups = []
+    for raw_group in raw_groups:
+        if isinstance(raw_group, Mapping):
+            pairs = tuple((str(name), _positive_int(amount, 1)) for name, amount in raw_group.items())
+        elif isinstance(raw_group, Iterable) and not isinstance(raw_group, str):
+            pairs = []
+            for option in raw_group:
+                if isinstance(option, Mapping):
+                    pairs.extend((str(name), _positive_int(amount, 1)) for name, amount in option.items())
+                elif isinstance(option, (tuple, list)) and len(option) >= 2:
+                    pairs.append((str(option[0]), _positive_int(option[1], 1)))
+            pairs = tuple(pairs)
+        else:
+            pairs = tuple()
+        if pairs:
+            groups.append(pairs)
+    return tuple(groups)
+
+
+def _quest_item_requirement_text(item_name, amount):
+    quantity = f" x{amount}" if amount > 1 else " x1"
+    return f"{item_name}{quantity}"
+
+
+def _quest_item_option_reason(options):
+    return "Needs " + " or ".join(_quest_item_requirement_text(item_name, amount) for item_name, amount in options)
+
+
 def _quest_stage_strings(requirement, key):
     raw_values = requirement.get(key, ()) if isinstance(requirement, Mapping) else ()
     if isinstance(raw_values, str):
@@ -1149,6 +1200,20 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     )
                 )
 
+        for options in _quest_stage_item_option_groups(requirement, "required_inventory_options"):
+            option_met = any(_positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options)
+            if option_met:
+                continue
+            blockers.append(
+                _quest_blocker(
+                    stage,
+                    "missing_item_option",
+                    _quest_item_option_reason(options),
+                    source,
+                    options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
+                )
+            )
+
         for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
             if not _has_quest_tool(player_data, tool_name, amount):
                 quantity = f" x{amount}" if amount > 1 else ""
@@ -1195,16 +1260,33 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
             if not isinstance(encounter_id, str) or _quest_flag_completed(player_data, "quest_combat_encounters", quest_id, encounter_id):
                 continue
             level = _positive_int(encounter.get("level", 0), 0)
+            quantity = _positive_int(encounter.get("quantity", 1), 1)
             level_text = f" level {level}" if level > 0 else ""
+            quantity_text = f" x{quantity}" if quantity > 1 else ""
+            if not quest_combat_resolver_enabled_pure(player_data):
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "combat_locked",
+                        f"Combat locked until battle support is enabled: {display_name}{level_text}{quantity_text}",
+                        str(encounter.get("source") or source),
+                        encounter_id=encounter_id,
+                        display_name=display_name,
+                        level=level,
+                        quantity=quantity,
+                    )
+                )
+                continue
             blockers.append(
                 _quest_blocker(
                     stage,
                     "combat_encounter",
-                    f"Combat required: {display_name}{level_text}",
+                    f"Battle required: {display_name}{level_text}{quantity_text}",
                     str(encounter.get("source") or source),
                     encounter_id=encounter_id,
                     display_name=display_name,
                     level=level,
+                    quantity=quantity,
                 )
             )
     return tuple(blockers)

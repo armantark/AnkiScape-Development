@@ -1241,6 +1241,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIsNotNone(dialog.findChild(QWidget, "questCard_the_knights_sword"))
 
+    def test_quests_tab_shows_generated_combat_gate_as_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "demon_slayer"
+        pd["quests"]["demon_slayer"] = {"started": True, "progress": 3, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Combat locked until battle support is enabled: Delrith level 27"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_demon_slayer")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Delrith level 27", action.toolTip())
+
     def test_quests_tab_lists_stage_items_before_knights_sword_start(self) -> None:
         pd = _make_player_data()
         pd["mining_level"] = 10

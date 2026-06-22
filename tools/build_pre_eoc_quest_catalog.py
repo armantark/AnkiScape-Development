@@ -37,6 +37,10 @@ SCAPE_2011_QUEST_IMPL_DIR = (
     Path("/Users/ArmanTarkhanian1/Downloads/game-main")
     / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/quests/impl"
 )
+SCAPE_2011_NPC_DEFINITION_DIR = (
+    Path("/Users/ArmanTarkhanian1/Downloads/game-main")
+    / "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions"
+)
 
 # These rows are marked former today, but they still existed as quests just
 # before the Evolution of Combat release. The current release list is a present
@@ -188,6 +192,36 @@ _REWARD_ITEM_CATEGORY_HINTS = (
     "sword",
     "wand",
 )
+
+_QUEST_STAGE_TOOL_NAMES = {
+    "axe",
+    "crayfish cage",
+    "hammer",
+    "knife",
+    "lobster pot",
+    "needle",
+    "pickaxe",
+    "saw",
+    "secateurs",
+    "shears",
+    "spade",
+    "tinderbox",
+}
+
+_QUEST_REQUIREMENT_LINK_SKIP_TITLES = {
+    "black arm gang",
+    "champions' guild",
+    "falador",
+    "grand exchange",
+    "karamja",
+    "magic",
+    "members",
+    "phoenix gang",
+    "ranged",
+    "taverley dungeon",
+    "toolbelt",
+    "wormbrain",
+}
 
 
 @dataclass(frozen=True)
@@ -1082,6 +1116,490 @@ def _clean_anchor_item_name(anchor: Mapping[str, str]) -> str:
     return name
 
 
+def _clean_wikilink_name(target: str, label: str = "") -> str:
+    name = clean_markup(target.split("#", 1)[0]) or clean_markup(label)
+    name = re.sub(r"\s+\((?:item|object|historical|quest|monster)\)$", "", name, flags=re.I)
+    if name.lower() in {"coins", "coin"}:
+        return "Coins"
+    return name[:1].upper() + name[1:] if name else ""
+
+
+def _inside_parenthetical(text: str, index: int) -> bool:
+    depth = 0
+    for char in text[:index]:
+        if char == "(":
+            depth += 1
+        elif char == ")" and depth:
+            depth -= 1
+    return depth > 0
+
+
+def _iter_wikilink_items(line: str) -> Iterator[Dict[str, object]]:
+    for match in re.finditer(r"\[\[([^|\]#]+)(?:#[^|\]]*)?(?:\|([^\]]+))?\]\]", line):
+        if _inside_parenthetical(line, match.start()):
+            continue
+        target = match.group(1)
+        label = match.group(2) or target
+        name = _clean_wikilink_name(target, label)
+        if not name:
+            continue
+        yield {
+            "item_name": name,
+            "label": clean_markup(label) or name,
+            "quantity": _quantity_for_item(clean_markup(line), name, clean_markup(label) or name),
+            "start": match.start(),
+            "end": match.end(),
+        }
+
+
+def _quest_detail_lines(value: str) -> Iterator[str]:
+    for raw_line in re.split(r"[\r\n]+", value or ""):
+        line = raw_line.strip()
+        if not line:
+            continue
+        yield line.lstrip("*#:; ").strip()
+
+
+def _skip_requirement_line(line: str) -> bool:
+    lower = clean_markup(line).lower()
+    if not lower:
+        return True
+    if lower.startswith("for ") and "members" in lower:
+        return True
+    if lower.startswith("to kill "):
+        return True
+    if "recommended" in lower:
+        return True
+    if "optional" in lower:
+        return True
+    if "only if" in lower:
+        return True
+    if "if you wish" in lower or "if you want" in lower or "if you do not" in lower:
+        return True
+    if "not necessary" in lower or "not required" in lower:
+        return True
+    return False
+
+
+def _requirement_parse_segment(line: str) -> str:
+    segment = re.split(r"\.\s+", line, maxsplit=1)[0]
+    if " (found in " in segment.lower():
+        segment = re.split(r"\s+\(found in\s+", segment, maxsplit=1, flags=re.I)[0]
+    if " (obtained " in segment.lower() and "[[" not in segment.split(" (obtained ", 1)[0]:
+        return segment
+    return segment
+
+
+def _is_tool_requirement(item_name: str, source_line: str) -> bool:
+    lower = item_name.lower()
+    line = clean_markup(source_line).lower()
+    if lower in _QUEST_STAGE_TOOL_NAMES:
+        return True
+    if "toolbelt" in line:
+        return True
+    return False
+
+
+def _merge_item_count(target: Dict[str, int], item_name: str, quantity: int) -> None:
+    target[item_name] = max(target.get(item_name, 0), max(1, int(quantity)))
+
+
+def _is_alternative_line(line: str, items: Sequence[Mapping[str, object]]) -> bool:
+    if len(items) < 2:
+        return False
+    if len(items) > 3:
+        return False
+    lower = clean_markup(line).lower()
+    return bool(re.search(r"\b(?:or|either|alternatively)\b", lower))
+
+
+def _plain_requirement_item(line: str) -> Tuple[str, int]:
+    if "[[" in line or "{{" in line or "'''" in line:
+        return "", 0
+    clean = clean_markup(line).strip()
+    if "(" not in clean:
+        return "", 0
+    name = clean.split("(", 1)[0].strip(" -*:;. ")
+    if not name or name.lower().startswith("for "):
+        return "", 0
+    quantity = 1
+    quantity_match = re.match(r"([0-9][0-9,]*)\s+(.+)", name)
+    if quantity_match:
+        quantity = parse_int(quantity_match.group(1), 1)
+        name = quantity_match.group(2)
+    words = re.findall(r"[A-Za-z0-9']+", name)
+    if not 1 <= len(words) <= 5:
+        return "", 0
+    return name[:1].upper() + name[1:], quantity
+
+
+def parse_stage_item_requirements(items_wikitext: str) -> Dict[str, object]:
+    required_inventory: Dict[str, int] = {}
+    required_tools: Dict[str, int] = {}
+    required_inventory_options: List[Tuple[Dict[str, int], ...]] = []
+
+    in_recommended_block = False
+    for line in _quest_detail_lines(items_wikitext):
+        lower = clean_markup(line).lower()
+        if "recommended" in lower:
+            in_recommended_block = True
+            continue
+        if in_recommended_block:
+            continue
+        if _skip_requirement_line(line):
+            continue
+        parse_line = _requirement_parse_segment(line)
+        items = tuple(
+            item
+            for item in _iter_wikilink_items(parse_line)
+            if str(item["item_name"]).lower() not in _QUEST_REQUIREMENT_LINK_SKIP_TITLES
+        )
+        coin_match = re.search(r"\b([0-9][0-9,]*)\s+coins?\b", clean_markup(parse_line), flags=re.I)
+        if coin_match and items and re.search(r"\b(?:or|either|alternatively)\b", clean_markup(parse_line), flags=re.I):
+            options = [{"Coins": parse_int(coin_match.group(1), 1)}]
+            for item in items:
+                item_name = str(item["item_name"])
+                if item_name == "Coins" or _is_tool_requirement(item_name, line):
+                    continue
+                candidate = {item_name: int(item.get("quantity", 1) or 1)}
+                if candidate not in options:
+                    options.append(candidate)
+            if options:
+                required_inventory_options.append(tuple(options))
+            continue
+        if not items:
+            item_name, quantity = _plain_requirement_item(parse_line)
+            if item_name:
+                if _is_tool_requirement(item_name, line):
+                    _merge_item_count(required_tools, item_name, quantity)
+                else:
+                    _merge_item_count(required_inventory, item_name, quantity)
+            if coin_match:
+                _merge_item_count(required_inventory, "Coins", parse_int(coin_match.group(1), 1))
+            continue
+        if _is_alternative_line(parse_line, items):
+            options = []
+            for item in items:
+                item_name = str(item["item_name"])
+                if _is_tool_requirement(item_name, line):
+                    continue
+                options.append({item_name: int(item.get("quantity", 1) or 1)})
+            if options:
+                required_inventory_options.append(tuple(options))
+            continue
+        for item in items:
+            item_name = str(item["item_name"])
+            quantity = int(item.get("quantity", 1) or 1)
+            if _is_tool_requirement(item_name, line):
+                _merge_item_count(required_tools, item_name, quantity)
+            else:
+                _merge_item_count(required_inventory, item_name, quantity)
+
+    return {
+        "required_inventory": required_inventory,
+        "required_tools": required_tools,
+        "required_inventory_options": tuple(required_inventory_options),
+    }
+
+
+def _npc_file_display_name(path: Path) -> Tuple[str, int]:
+    stem = path.stem.replace(".plugin", "")
+    level = 0
+    match = re.search(r"_(?:level|lvl|lv)_?(\d+)", stem, flags=re.I)
+    if match:
+        level = parse_int(match.group(1), 0)
+        stem = stem[: match.start()] + stem[match.end() :]
+    name = re.sub(r"[_\s]+", " ", stem).strip()
+    return name.title(), level
+
+
+def _parse_kts_assignment_int(block: str, key: str) -> Optional[int]:
+    match = re.search(rf"\b{re.escape(key)}\s*=\s*(-?\d+)", block)
+    if not match:
+        return None
+    return parse_int(match.group(1), 0)
+
+
+def _load_local_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
+    if not SCAPE_2011_NPC_DEFINITION_DIR.exists():
+        return {}
+    rows: Dict[Tuple[str, int], Dict[str, object]] = {}
+    stat_keys = ("hitpoints", "attack", "strength", "defence", "magic", "ranged")
+    bonus_keys = (
+        "attackStab",
+        "attackSlash",
+        "attackCrush",
+        "attackMagic",
+        "attackRanged",
+        "defenceStab",
+        "defenceSlash",
+        "defenceCrush",
+        "defenceMagic",
+        "defenceRanged",
+    )
+    for path in SCAPE_2011_NPC_DEFINITION_DIR.rglob("*.plugin.kts"):
+        try:
+            text = path.read_text(encoding="utf-8")
+        except UnicodeDecodeError:
+            text = path.read_text(encoding="latin-1")
+        if "set_combat_def" not in text:
+            continue
+        display_name, level = _npc_file_display_name(path)
+        stats_block = re.search(r"\bstats\s*\{(?P<body>.*?)\n\s*\}", text, flags=re.S)
+        configs_block = re.search(r"\bconfigs\s*\{(?P<body>.*?)\n\s*\}", text, flags=re.S)
+        bonuses_block = re.search(r"\bbonuses\s*\{(?P<body>.*?)\n\s*\}", text, flags=re.S)
+        stats = {}
+        if stats_block:
+            for key in stat_keys:
+                value = _parse_kts_assignment_int(stats_block.group("body"), key)
+                if value is not None:
+                    stats[key] = value
+        bonuses = {}
+        if bonuses_block:
+            for key in bonus_keys:
+                value = _parse_kts_assignment_int(bonuses_block.group("body"), key)
+                if value is not None:
+                    bonuses[key] = value
+        configs = {}
+        if configs_block:
+            attack_speed = _parse_kts_assignment_int(configs_block.group("body"), "attackSpeed")
+            if attack_speed is not None:
+                configs["attack_speed"] = attack_speed
+            style_match = re.search(r"\battackStyle\s*=\s*StyleType\.([A-Z_]+)", configs_block.group("body"))
+            if style_match:
+                configs["attack_style"] = style_match.group(1).lower()
+        if stats or bonuses or configs:
+            key = (display_name.lower(), level)
+            rows[key] = {
+                "display_name": display_name,
+                "level": level,
+                "stats": stats,
+                "bonuses": bonuses,
+                "configs": configs,
+                "source": str(path),
+            }
+    return rows
+
+
+_LOCAL_NPC_STATS: Optional[Dict[Tuple[str, int], Dict[str, object]]] = None
+
+
+def _local_npc_stats() -> Dict[Tuple[str, int], Dict[str, object]]:
+    global _LOCAL_NPC_STATS
+    if _LOCAL_NPC_STATS is None:
+        _LOCAL_NPC_STATS = _load_local_npc_stats()
+    return _LOCAL_NPC_STATS
+
+
+def _matching_local_npc_stats(display_name: str, level: int) -> Dict[str, object]:
+    stats = _local_npc_stats()
+    key = (display_name.lower(), level)
+    if key in stats:
+        return stats[key]
+    if level:
+        loose = [
+            value
+            for (name, row_level), value in stats.items()
+            if row_level == level and (name == display_name.lower() or display_name.lower() in name or name in display_name.lower())
+        ]
+        if len(loose) == 1:
+            return loose[0]
+    return {}
+
+
+def _skip_combat_line(line: str) -> bool:
+    lower = clean_markup(line).lower()
+    if not lower:
+        return True
+    if lower.startswith("note:") or lower.startswith("see "):
+        return True
+    if lower in {"none", "n/a", "no"} or lower.startswith("none"):
+        return True
+    if "see the source guide" in lower:
+        return True
+    if "optional" in lower or "not required" in lower:
+        return True
+    if "possibly" in lower:
+        return True
+    if "if you join" in lower or "can kill" in lower or "can still help" in lower:
+        return True
+    if "evade" in lower or "avoid" in lower:
+        return True
+    if "no direct boss" in lower:
+        return True
+    return False
+
+
+def _combat_level_from_line(line: str) -> int:
+    match = re.search(r"\blevel\s*[- ]?\s*(\d+)", line, flags=re.I)
+    if not match:
+        match = re.search(r"\blvl\s*[- ]?\s*(\d+)", line, flags=re.I)
+    if not match:
+        match = re.search(r"\((\d+)\)", line)
+    return parse_int(match.group(1), 0) if match else 0
+
+
+def _combat_quantity_from_line(line: str) -> int:
+    clean = clean_markup(line)
+    match = re.match(r"\s*(\d+)\b", clean)
+    if match:
+        return parse_int(match.group(1), 1)
+    match = re.match(r"\s*at least\s+(\d+)\b", clean, flags=re.I)
+    if match:
+        return parse_int(match.group(1), 1)
+    match = re.search(r"\bx\s*(\d+)\b", clean, flags=re.I)
+    if match:
+        return parse_int(match.group(1), 1)
+    return 1
+
+
+def _combat_display_name_from_line(line: str) -> str:
+    links = tuple(_iter_wikilink_items(line))
+    if links:
+        return str(links[0]["item_name"])
+    clean = clean_markup(line)
+    clean = re.sub(r"^\s*(?:\d+\s+)?", "", clean)
+    clean = re.split(r"\s*(?:[-–]\s*)?\(?\s*(?:level|lvl)\b", clean, maxsplit=1, flags=re.I)[0]
+    clean = clean.strip(" -*:;,.()")
+    return clean[:1].upper() + clean[1:] if clean else "Combat encounter"
+
+
+def parse_combat_encounters(combat_wikitext: str, source: str, quest_id: str) -> Tuple[Dict[str, object], ...]:
+    encounters = []
+    seen = set()
+    optional_block = False
+    for line in _quest_detail_lines(combat_wikitext):
+        clean_line = clean_markup(line)
+        lower_line = clean_line.lower()
+        if "optional" in lower_line and ("kills" in lower_line or not _combat_level_from_line(line)):
+            optional_block = True
+            continue
+        if optional_block and _combat_level_from_line(line):
+            continue
+        if _skip_combat_line(line):
+            continue
+        display_name = _combat_display_name_from_line(line)
+        if not display_name:
+            continue
+        level = _combat_level_from_line(line)
+        if level <= 0 and len(clean_markup(line)) > 80:
+            continue
+        quantity = _combat_quantity_from_line(line)
+        local_stats = _matching_local_npc_stats(display_name, level)
+        base_id = quest_id_from_name(f"{quest_id} {display_name} {level or len(encounters) + 1}")
+        encounter_id = base_id
+        suffix = 2
+        while encounter_id in seen:
+            encounter_id = f"{base_id}_{suffix}"
+            suffix += 1
+        seen.add(encounter_id)
+        row: Dict[str, object] = {
+            "encounter_id": encounter_id,
+            "display_name": display_name,
+            "level": level,
+            "quantity": quantity,
+            "source": source,
+            "source_text": clean_markup(line),
+        }
+        if local_stats:
+            row["npc_stats"] = local_stats.get("stats", {})
+            row["npc_bonuses"] = local_stats.get("bonuses", {})
+            row["npc_configs"] = local_stats.get("configs", {})
+            row["npc_stats_source"] = local_stats.get("source", "")
+        encounters.append(row)
+    return tuple(encounters)
+
+
+def _item_mentions_in_stage(stage: Mapping[str, object], item_names: Sequence[str]) -> bool:
+    text = " ".join(str(line) for line in (stage.get("journal", ()) or ())).lower()
+    for item_name in item_names:
+        lower = item_name.lower()
+        if lower and lower in text:
+            return True
+        words = [word for word in re.findall(r"[a-z0-9]+", lower) if len(word) > 2]
+        if words and all(word in text for word in words[:3]):
+            return True
+    return False
+
+
+def _infer_item_requirement_stage(journal_stages: Sequence[Mapping[str, object]], item_names: Sequence[str]) -> int:
+    for stage in journal_stages:
+        if not isinstance(stage, Mapping):
+            continue
+        if _item_mentions_in_stage(stage, item_names):
+            return parse_int(stage.get("stage"), 1)
+    return 1
+
+
+def build_stage_requirements(
+    *,
+    quest_id: str,
+    stages: int,
+    journal_stages: Sequence[Mapping[str, object]],
+    item_requirements: Mapping[str, object],
+    combat_encounters: Sequence[Mapping[str, object]],
+    source: str,
+) -> Tuple[Dict[str, object], ...]:
+    rows_by_stage: Dict[int, Dict[str, object]] = {}
+
+    def row_for_stage(stage: int, description: str) -> Dict[str, object]:
+        if stage not in rows_by_stage:
+            rows_by_stage[stage] = {
+                "stage": stage,
+                "description": description,
+                "required_inventory": {},
+                "required_tools": {},
+                "required_inventory_options": (),
+                "combat_encounters": (),
+                "source": source,
+            }
+        return rows_by_stage[stage]
+
+    required_inventory = item_requirements.get("required_inventory", {})
+    if isinstance(required_inventory, Mapping):
+        for item_name, quantity in required_inventory.items():
+            stage = _infer_item_requirement_stage(journal_stages, (str(item_name),))
+            row = row_for_stage(stage, "Generated from pre-EOC Quest details item requirements.")
+            row["required_inventory"][str(item_name)] = int(quantity)
+
+    required_tools = item_requirements.get("required_tools", {})
+    if isinstance(required_tools, Mapping):
+        for item_name, quantity in required_tools.items():
+            stage = _infer_item_requirement_stage(journal_stages, (str(item_name),))
+            row = row_for_stage(stage, "Generated from pre-EOC Quest details item requirements.")
+            row["required_tools"][str(item_name)] = int(quantity)
+
+    option_groups = item_requirements.get("required_inventory_options", ())
+    if isinstance(option_groups, Iterable) and not isinstance(option_groups, (str, bytes, Mapping)):
+        for option_group in option_groups:
+            if not isinstance(option_group, Iterable) or isinstance(option_group, (str, bytes, Mapping)):
+                continue
+            options = tuple(option for option in option_group if isinstance(option, Mapping))
+            if not options:
+                continue
+            item_names = tuple(str(name) for option in options for name in option)
+            stage = _infer_item_requirement_stage(journal_stages, item_names)
+            row = row_for_stage(stage, "Generated from pre-EOC Quest details item alternatives.")
+            row["required_inventory_options"] = tuple(row["required_inventory_options"]) + options
+
+    if combat_encounters:
+        stage = max(1, min(stages, stages - 1 if stages > 1 else 1))
+        row = row_for_stage(stage, "Generated combat gate from pre-EOC Quest details.")
+        row["combat_encounters"] = tuple(combat_encounters)
+
+    clean_rows = []
+    for stage, row in sorted(rows_by_stage.items()):
+        if (
+            not row["required_inventory"]
+            and not row["required_tools"]
+            and not row["required_inventory_options"]
+            and not row["combat_encounters"]
+        ):
+            continue
+        clean_rows.append(row)
+    return tuple(clean_rows)
+
+
 def parse_item_rewards(reward_items: Sequence[Mapping[str, object]], source: str) -> Tuple[Dict[str, object], ...]:
     rewards: Dict[str, Dict[str, object]] = {}
     music_track_tail = 0
@@ -1401,7 +1919,9 @@ def parse_catalog_row(
     requirement_labels.extend(f"{display_name} {level}" for _, display_name, level in required_skills)
 
     start_point = clean_markup(details.get("start", ""))
-    combat = clean_markup(details.get("kills", "") or details.get("combat", ""))
+    source_url = page_url(revision.title, revision.oldid)
+    combat_wikitext = details.get("kills", "") or details.get("combat", "")
+    combat = clean_markup(combat_wikitext)
     length = canonical_length(details.get("length", ""))
     local_journal = _SCAPE_2011_JOURNALS.get(quest_id)
     if local_journal:
@@ -1421,11 +1941,21 @@ def parse_catalog_row(
             journal_stages = grouped_journal_stages(walkthrough_lines, stages, row.display_name, "walkthrough_prose")
             journal_source = page_url(revision.title, revision.oldid) if walkthrough_lines else page_url(_quick_guide_title(row.source_title, row.display_name))
             journal_source_kind = "walkthrough_prose" if walkthrough_lines else "generated_fallback"
+    item_requirements = parse_stage_item_requirements(details.get("items", ""))
+    combat_encounters = parse_combat_encounters(combat_wikitext, source_url, quest_id)
+    stage_requirements = build_stage_requirements(
+        quest_id=quest_id,
+        stages=stages,
+        journal_stages=journal_stages,
+        item_requirements=item_requirements,
+        combat_encounters=combat_encounters,
+        source=source_url,
+    )
     return {
         "id": quest_id,
         "display_name": row.display_name,
         "source_title": row.source_title,
-        "source": page_url(revision.title, revision.oldid),
+        "source": source_url,
         "source_revision": revision.oldid,
         "source_timestamp": revision.timestamp,
         "source_fallback_current": revision.fallback_current,
@@ -1455,6 +1985,7 @@ def parse_catalog_row(
         "journal_stages": journal_stages,
         "journal_source": journal_source,
         "journal_source_kind": journal_source_kind,
+        "stage_requirements": stage_requirements,
     }
 
 

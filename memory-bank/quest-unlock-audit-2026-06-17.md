@@ -87,9 +87,13 @@ backed by `quest_availability_state_pure()` and only reflects the strict
 start-lock model. As of 2026-06-22, `blocked_at_stage` is a separate state for
 started quests whose current stage has machine-readable blockers. The first
 proof case is The Knight's Sword, recorded in
-`memory-bank/source-audits/quest-stage-gates-2026-06-22.md`; full catalog-wide
-stage parity, combat blockers, route flags, and required action flags remain
-future work rather than a completed claim.
+`memory-bank/source-audits/quest-stage-gates-2026-06-22.md`. A later
+catalog-wide generator pass is recorded in
+`memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`; it
+adds broad machine-readable item/tool/option and combat blocker coverage, but
+full minute-detail stage parity, override merge/source reconciliation, route
+flags, and required action flags remain future work rather than a completed
+claim.
 
 ## Current Quest Surface
 

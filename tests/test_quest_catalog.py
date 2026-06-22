@@ -87,6 +87,56 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(by_stage[2]["consumed_inventory"], {"Redberry pie": 1})
         self.assertEqual(by_stage[6]["consumed_inventory"], {"Blurite ore": 1, "Iron bar": 2})
 
+    def test_generated_catalog_stage_requirements_cover_items_and_combat(self):
+        data = quests_as_dict()
+
+        quests_with_stage_requirements = [
+            quest_id for quest_id, quest in data.items() if quest["stage_requirements"]
+        ]
+        quests_with_combat = [
+            quest_id
+            for quest_id, quest in data.items()
+            if any(requirement["combat_encounters"] for requirement in quest["stage_requirements"])
+        ]
+        quests_with_item_requirements = [
+            quest_id
+            for quest_id, quest in data.items()
+            if any(
+                requirement["required_inventory"]
+                or requirement["required_tools"]
+                or requirement["required_inventory_options"]
+                for requirement in quest["stage_requirements"]
+            )
+        ]
+
+        self.assertGreaterEqual(len(quests_with_stage_requirements), 175)
+        self.assertGreaterEqual(len(quests_with_combat), 110)
+        self.assertGreaterEqual(len(quests_with_item_requirements), 160)
+
+        cooks = data["cooks_assistant"]["stage_requirements"][0]
+        self.assertEqual(cooks["stage"], 1)
+        self.assertEqual(cooks["required_inventory"], {"Bucket": 1, "Empty pot": 1})
+
+        vampyre = data["vampyre_slayer"]["stage_requirements"][0]
+        self.assertEqual(vampyre["required_inventory"], {"Garlic": 1})
+        self.assertIn({"Coins": 2}, vampyre["required_inventory_options"])
+        self.assertIn({"Beer": 1}, vampyre["required_inventory_options"])
+        count_draynor = vampyre["combat_encounters"][0]
+        self.assertEqual(count_draynor["display_name"], "Count Draynor")
+        self.assertEqual(count_draynor["level"], 37)
+        self.assertEqual(count_draynor["npc_stats"]["hitpoints"], 350)
+        self.assertTrue(count_draynor["npc_stats_source"].endswith("count_draynor_level_37.plugin.kts"))
+
+        dragon_slayer = data["dragon_slayer"]
+        combat_rows = [
+            encounter
+            for requirement in dragon_slayer["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        ]
+        self.assertIn("Elvarg", {encounter["display_name"] for encounter in combat_rows})
+        lesser_demon = next(encounter for encounter in combat_rows if encounter["display_name"] == "Lesser demon")
+        self.assertEqual(lesser_demon["npc_stats"]["hitpoints"], 790)
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 

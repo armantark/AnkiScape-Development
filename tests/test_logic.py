@@ -1419,6 +1419,7 @@ class TestLogic(unittest.TestCase):
                     {
                         "stage": 2,
                         "required_tools": {"Rope": 1},
+                        "required_inventory_options": ({"Redberry pie": 1, "Cake": 1},),
                         "required_actions": ("Mine blurite ore",),
                         "required_routes": ("Reach Thurgo's cave",),
                         "combat_encounters": (
@@ -1442,13 +1443,20 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("missing_tool", "required_action", "unmet_route", "combat_encounter"),
+            ("missing_item_option", "missing_tool", "required_action", "unmet_route", "combat_locked"),
         )
-        self.assertEqual(blockers[-1]["reason"], "Combat required: Ice giant level 53")
+        self.assertEqual(blockers[0]["reason"], "Needs Redberry pie x1 or Cake x1")
+        self.assertEqual(blockers[-1]["reason"], "Combat locked until battle support is enabled: Ice giant level 53")
 
+        player_data["inventory"]["Cake"] = 1
         player_data["inventory"]["Rope"] = 1
         player_data["quest_stage_actions"] = {"proof_quest": ["Mine blurite ore"]}
         player_data["quest_route_states"] = {"proof_quest": ["Reach Thurgo's cave"]}
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Ice giant level 53")
+
         player_data["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data), ())
 
@@ -1503,6 +1511,17 @@ class TestLogic(unittest.TestCase):
             "progress": QUEST_DATA["dragon_slayer"]["stages"] - 1,
             "completed": False,
         }
+        blockers = quest_current_stage_blockers_pure(player_data, "dragon_slayer", QUEST_DATA)
+        self.assertTrue(blockers)
+        self.assertTrue(all(blocker["kind"] == "combat_locked" for blocker in blockers))
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        encounter_ids = [
+            encounter["encounter_id"]
+            for requirement in QUEST_DATA["dragon_slayer"]["stage_requirements"]
+            for encounter in requirement.get("combat_encounters", ())
+        ]
+        player_data["quest_combat_encounters"] = {"dragon_slayer": encounter_ids}
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "dragon_slayer", QUEST_DATA)
 
         self.assertTrue(ok)
@@ -1686,6 +1705,8 @@ class TestLogic(unittest.TestCase):
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"]["Bucket"] = 1
+        player_data["inventory"]["Empty pot"] = 1
         data, progressed, completed = apply_quest_progress_pure(player_data, "cooks_assistant", QUEST_DATA)
         self.assertTrue(progressed)
         self.assertFalse(completed)

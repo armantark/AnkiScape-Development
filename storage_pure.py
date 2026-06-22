@@ -16,7 +16,12 @@ try:
     from .fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from .hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
     from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
-    from .logic_pure import default_action_telemetry_pure, sanitize_action_telemetry_pure
+    from .logic_pure import (
+        default_action_telemetry_pure,
+        default_quest_combat_config_pure,
+        sanitize_action_telemetry_pure,
+        sanitize_quest_combat_config_pure,
+    )
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -45,7 +50,12 @@ except ImportError:
     from fishing_data import DEFAULT_FISHING_TARGET, FISHING_METHODS_BY_ID
     from hunter_data import DEFAULT_HUNTER_TARGET, HUNTER_TARGETS_BY_ID
     from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
-    from logic_pure import default_action_telemetry_pure, sanitize_action_telemetry_pure
+    from logic_pure import (
+        default_action_telemetry_pure,
+        default_quest_combat_config_pure,
+        sanitize_action_telemetry_pure,
+        sanitize_quest_combat_config_pure,
+    )
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -60,7 +70,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 19
+CURRENT_CONFIG_VERSION = 20
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -119,6 +129,10 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["equipment"] = {}
     data["quests"] = default_quest_states()
     data["quest_points"] = 0
+    data["quest_combat_config"] = default_quest_combat_config_pure()
+    data["quest_combat_encounters"] = {}
+    data["quest_stage_actions"] = {}
+    data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
     data["wicked_hood"] = {"fed_altars": []}
@@ -263,6 +277,33 @@ def _migrate_quest_state(data: Dict[str, Any]) -> None:
     if not isinstance(current_quest, str) or current_quest not in clean_quests:
         current_quest = DEFAULT_QUEST_TARGET
     data["current_quest"] = current_quest
+
+
+def _migrate_quest_flag_collection(data: Dict[str, Any], key: str) -> None:
+    raw_collection = data.get(key)
+    clean: Dict[str, list[str]] = {}
+    if isinstance(raw_collection, dict):
+        for quest_id, raw_flags in raw_collection.items():
+            if not isinstance(quest_id, str):
+                continue
+            if isinstance(raw_flags, str):
+                flags = [raw_flags]
+            elif isinstance(raw_flags, dict):
+                flags = [flag for flag, enabled in raw_flags.items() if isinstance(flag, str) and bool(enabled)]
+            elif isinstance(raw_flags, (list, tuple, set)):
+                flags = [flag for flag in raw_flags if isinstance(flag, str)]
+            else:
+                flags = []
+            if flags:
+                clean[quest_id] = sorted(set(flags))
+    data[key] = clean
+
+
+def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
+    data["quest_combat_config"] = sanitize_quest_combat_config_pure(data.get("quest_combat_config"))
+    _migrate_quest_flag_collection(data, "quest_combat_encounters")
+    _migrate_quest_flag_collection(data, "quest_stage_actions")
+    _migrate_quest_flag_collection(data, "quest_route_states")
 
 
 def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
@@ -475,6 +516,7 @@ def migrate_loaded_data(
     _migrate_cooking_target(data)
     _migrate_runecrafting_target(data)
     _migrate_quest_state(data)
+    _migrate_quest_stage_side_state(data)
     _migrate_pending_skill_exp_rewards(data)
     _migrate_claim_state(data)
     _migrate_runecrafting_side_state(data)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, replace
-from typing import Dict, Tuple
+from typing import Dict, Mapping, Tuple
 
 try:
     from .quest_catalog_generated import PRE_EOC_QUEST_CATALOG
@@ -102,7 +102,13 @@ class QuestCombatEncounter:
     encounter_id: str
     display_name: str
     level: int = 0
+    quantity: int = 1
     source: str = ""
+    source_text: str = ""
+    npc_stats: Tuple[Tuple[str, object], ...] = ()
+    npc_bonuses: Tuple[Tuple[str, object], ...] = ()
+    npc_configs: Tuple[Tuple[str, object], ...] = ()
+    npc_stats_source: str = ""
 
 
 @dataclass(frozen=True)
@@ -110,6 +116,7 @@ class QuestStageRequirement:
     stage: int
     description: str
     required_inventory: Tuple[Tuple[str, int], ...] = ()
+    required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
@@ -728,6 +735,105 @@ def _catalog_bool(row: Dict[str, object], key: str, default: bool = False) -> bo
     return bool(value)
 
 
+def _catalog_item_pairs(value: object) -> Tuple[Tuple[str, int], ...]:
+    if isinstance(value, Mapping):
+        return tuple((str(name), _catalog_int({"value": amount}, "value", 1)) for name, amount in value.items())
+    if isinstance(value, (tuple, list)):
+        pairs = []
+        for item in value:
+            if isinstance(item, Mapping):
+                name = item.get("item_name") or item.get("display_name")
+                amount = item.get("quantity", item.get("amount", 1))
+            elif isinstance(item, (tuple, list)) and len(item) >= 2:
+                name, amount = item[0], item[1]
+            else:
+                continue
+            if isinstance(name, str) and name:
+                pairs.append((name, _catalog_int({"value": amount}, "value", 1)))
+        return tuple(pairs)
+    return ()
+
+
+def _catalog_item_options(value: object) -> Tuple[Tuple[Tuple[str, int], ...], ...]:
+    if not isinstance(value, (tuple, list)):
+        return ()
+    groups = []
+    for group in value:
+        options = _catalog_item_pairs(group)
+        if options:
+            groups.append(options)
+    return tuple(groups)
+
+
+def _catalog_object_pairs(value: object) -> Tuple[Tuple[str, object], ...]:
+    if isinstance(value, Mapping):
+        return tuple((str(key), item) for key, item in value.items())
+    return ()
+
+
+def _catalog_strings(value: object) -> Tuple[str, ...]:
+    if isinstance(value, str):
+        return (value,) if value else ()
+    if isinstance(value, (tuple, list)):
+        return tuple(str(item) for item in value if str(item))
+    return ()
+
+
+def _catalog_combat_encounters(value: object) -> Tuple[QuestCombatEncounter, ...]:
+    if not isinstance(value, (tuple, list)):
+        return ()
+    encounters = []
+    for raw in value:
+        if not isinstance(raw, Mapping):
+            continue
+        encounter_id = raw.get("encounter_id")
+        display_name = raw.get("display_name")
+        if not isinstance(encounter_id, str) or not isinstance(display_name, str):
+            continue
+        encounters.append(
+            QuestCombatEncounter(
+                encounter_id=encounter_id,
+                display_name=display_name,
+                level=_catalog_int(dict(raw), "level", 0),
+                quantity=_catalog_int(dict(raw), "quantity", 1),
+                source=str(raw.get("source", "")),
+                source_text=str(raw.get("source_text", "")),
+                npc_stats=_catalog_object_pairs(raw.get("npc_stats", {})),
+                npc_bonuses=_catalog_object_pairs(raw.get("npc_bonuses", {})),
+                npc_configs=_catalog_object_pairs(raw.get("npc_configs", {})),
+                npc_stats_source=str(raw.get("npc_stats_source", "")),
+            )
+        )
+    return tuple(encounters)
+
+
+def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, ...]:
+    if not isinstance(value, (tuple, list)):
+        return ()
+    requirements = []
+    for raw in value:
+        if not isinstance(raw, Mapping):
+            continue
+        stage = _catalog_int(dict(raw), "stage", 0)
+        if stage <= 0:
+            continue
+        requirements.append(
+            QuestStageRequirement(
+                stage=stage,
+                description=str(raw.get("description", "Generated quest-stage requirement.")),
+                required_inventory=_catalog_item_pairs(raw.get("required_inventory", {})),
+                required_inventory_options=_catalog_item_options(raw.get("required_inventory_options", ())),
+                consumed_inventory=_catalog_item_pairs(raw.get("consumed_inventory", {})),
+                required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
+                required_actions=_catalog_strings(raw.get("required_actions", ())),
+                required_routes=_catalog_strings(raw.get("required_routes", ())),
+                combat_encounters=_catalog_combat_encounters(raw.get("combat_encounters", ())),
+                source=str(raw.get("source", "")),
+            )
+        )
+    return tuple(requirements)
+
+
 def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
     display_name = str(row.get("display_name", row.get("id", "Quest")))
     length = str(row.get("length", "Medium"))
@@ -793,6 +899,7 @@ def _quest_from_catalog(row: Dict[str, object]) -> QuestDefinition:
         lamp_rewards=lamp_rewards,
         unlocks=tuple(str(unlock) for unlock in (row.get("unlocks", ()) or ())),
         release_order=_catalog_int(row, "release_order", 9999),
+        stage_requirements=_catalog_stage_requirements(row.get("stage_requirements", ())),
     )
 
 
@@ -999,7 +1106,13 @@ def _combat_encounter_dict(encounter: QuestCombatEncounter) -> Dict[str, object]
         "encounter_id": encounter.encounter_id,
         "display_name": encounter.display_name,
         "level": encounter.level,
+        "quantity": encounter.quantity,
         "source": encounter.source,
+        "source_text": encounter.source_text,
+        "npc_stats": dict(encounter.npc_stats),
+        "npc_bonuses": dict(encounter.npc_bonuses),
+        "npc_configs": dict(encounter.npc_configs),
+        "npc_stats_source": encounter.npc_stats_source,
     }
 
 
@@ -1008,6 +1121,7 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
         "stage": requirement.stage,
         "description": requirement.description,
         "required_inventory": dict(requirement.required_inventory),
+        "required_inventory_options": tuple(dict(option_group) for option_group in requirement.required_inventory_options),
         "consumed_inventory": dict(requirement.consumed_inventory),
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,

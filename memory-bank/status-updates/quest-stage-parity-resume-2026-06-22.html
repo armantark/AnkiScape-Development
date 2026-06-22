@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Parity Resume</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #111620 0%, var(--bg) 42%, #080a0e 100%);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      width: fit-content;
+      border: 1px solid rgba(255, 92, 92, 0.36);
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: rgba(255, 92, 92, 0.11);
+      color: #ff9c9c;
+      font: 800 0.72rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 940px;
+      font-size: clamp(2rem, 5vw, 3.65rem);
+      line-height: 1.03;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 880px;
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 22px 0;
+    }
+
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 16px;
+    }
+
+    .metric strong {
+      display: block;
+      font-size: 1.9rem;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .metric span {
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      padding: 18px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.22);
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font: 800 0.68rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .label:before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 99px;
+      background: currentColor;
+    }
+
+    .critical { color: var(--red); }
+    .major { color: var(--amber); }
+    .ready { color: var(--green); }
+    .handoff { color: var(--purple); }
+
+    h2 {
+      margin: 9px 0 10px;
+      font-size: 1.08rem;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .node {
+      min-height: 118px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+      display: grid;
+      align-content: start;
+      gap: 8px;
+    }
+
+    .node .num {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-glow);
+      color: #aac4ff;
+      font: 800 0.75rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+    }
+
+    .node strong {
+      font-size: 0.82rem;
+    }
+
+    .node span {
+      color: var(--text-dim);
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151d;
+      padding: 12px;
+    }
+
+    .pane-title {
+      color: var(--text-dim);
+      font: 800 0.66rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .quest-row {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 9px;
+      align-items: center;
+      border-radius: 8px;
+      padding: 9px;
+      margin-top: 7px;
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 99px;
+      background: var(--green);
+    }
+
+    .dot.blocked { background: var(--amber); }
+    .dot.locked { background: var(--red); }
+
+    .row-title {
+      font-size: 0.79rem;
+      color: var(--text);
+    }
+
+    .row-sub {
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      padding: 5px 8px;
+      color: #b9c3d6;
+      font: 700 0.66rem/1 JetBrains Mono, SFMono-Regular, Consolas, monospace;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--text-dim);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .box {
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      margin-top: 1px;
+      background: rgba(79, 140, 255, 0.08);
+    }
+
+    @media (max-width: 900px) {
+      .metrics,
+      .grid,
+      .split,
+      .pipeline {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="badge">Resume pass: not complete</div>
+      <h1>Quest parity means every quest gets source-backed blockers, not one proof case.</h1>
+      <p class="subtitle">
+        The committed foundation proves the model on The Knight's Sword. This pass moves the catalog toward full coverage by preserving generated quest-wide item requirements, converting combat prose into blocked encounter rows, and adding one global combat-resolution switch that fails closed until battle simulation exists.
+      </p>
+    </header>
+
+    <section class="metrics" aria-label="Current quest gate coverage">
+      <div class="metric">
+        <strong>194</strong>
+        <span>pre-EOC quest rows in the generated catalog</span>
+      </div>
+      <div class="metric">
+        <strong>1</strong>
+        <span>quest with machine-readable stage blockers before this pass</span>
+      </div>
+      <div class="metric">
+        <strong>0</strong>
+        <span>implemented combat encounters; combat must stay hard-blocked</span>
+      </div>
+      <div class="metric">
+        <strong>2</strong>
+        <span>separate workstreams: backend catalog/runtime, frontend display</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label critical">Current gap</div>
+        <h2>Generated catalog drops machine-readable requirements.</h2>
+        <p>
+          Quest detail pages already expose item and kill/combat fields, but the runtime only keeps start requirements plus plain combat prose. That is why a quest can look documented while still advancing without the actual stage resource or fight.
+        </p>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="quest-row"><span class="dot"></span><div><div class="row-title">Start lock passes</div><div class="row-sub">Review advances stages until completion</div></div></div>
+            <div class="quest-row"><span class="dot"></span><div><div class="row-title">Combat prose exists</div><div class="row-sub">No machine-readable battle gate</div></div></div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">After this slice</div>
+            <div class="quest-row"><span class="dot blocked"></span><div><div class="row-title">Stage blocker row exists</div><div class="row-sub">Missing item/tool/action/combat blocks progress</div></div></div>
+            <div class="quest-row"><span class="dot locked"></span><div><div class="row-title">Combat fails closed</div><div class="row-sub">Global config must be flipped before battles resolve</div></div></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label major">Backend plan</div>
+        <h2>Generator first, override only where source demands precision.</h2>
+        <p>
+          The broad pass belongs in <span class="tag">tools/build_pre_eoc_quest_catalog.py</span>. The override layer stays for hand-audited stage precision such as Thurgo consuming the Redberry pie at the correct point.
+        </p>
+        <div class="tags">
+          <span class="tag">quest_catalog_generated.py</span>
+          <span class="tag">quest_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">storage_pure.py</span>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="label ready">Implementation flow</div>
+        <h2>Catalog-wide blocker layer, then targeted precision backlog.</h2>
+        <div class="pipeline">
+          <div class="node"><div class="num">1</div><strong>Parse source fields</strong><span>Extract Quest details items and kills/combat from pre-EOC revisions.</span></div>
+          <div class="node"><div class="num">2</div><strong>Emit stage rows</strong><span>Attach generated blocker rows to each quest without changing start locks.</span></div>
+          <div class="node"><div class="num">3</div><strong>Fail combat closed</strong><span>Every generated encounter blocks until the global resolver setting is enabled.</span></div>
+          <div class="node"><div class="num">4</div><strong>Surface reasons</strong><span>Quests tab continues to show can_start, in_progress, blocked_at_stage, completed, locked.</span></div>
+          <div class="node"><div class="num">5</div><strong>Audit backlog</strong><span>Record which quests still need exact per-stage item, route, action, and boss placement.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label handoff">Frontend contract</div>
+        <h2>No battle UI is invented in this pass.</h2>
+        <p>
+          The frontend consumes the backend state it is given: compact blocker reasons in quest cards and disabled actions when the current stage is blocked. A future combat thread should build a battle surface from the structured encounter rows and character stats.
+        </p>
+        <div class="tags">
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label critical">Definition of not done</div>
+        <h2>The minute-detail goal remains open after this slice.</h2>
+        <p>
+          Quest-wide source fields are a necessary catalog-wide layer, but they are not the same as hand-audited exact stage placement for every item, route, skill action, and boss. The Memory Bank must preserve that distinction.
+        </p>
+        <div class="checklist">
+          <div class="check"><span class="box"></span><span>Do not collapse generated quest-wide items into start locks.</span></div>
+          <div class="check"><span class="box"></span><span>Do not silently complete fights while combat is not implemented.</span></div>
+          <div class="check"><span class="box"></span><span>Do not call catalog-wide minute-detail parity complete from parser coverage alone.</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
