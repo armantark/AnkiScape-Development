@@ -43,15 +43,25 @@ def main() -> None:
         for requirement in requirements:
             has_inventory = bool(requirement.get("required_inventory"))
             has_consumed_inventory = bool(requirement.get("consumed_inventory"))
+            has_produced_inventory = bool(requirement.get("produced_inventory"))
             has_tools = bool(requirement.get("required_tools"))
             has_options = bool(requirement.get("required_inventory_options"))
             has_consumed_options = bool(requirement.get("consumed_inventory_options"))
-            if has_inventory or has_consumed_inventory or has_tools or has_options or has_consumed_options:
+            if (
+                has_inventory
+                or has_consumed_inventory
+                or has_produced_inventory
+                or has_tools
+                or has_options
+                or has_consumed_options
+            ):
                 quest_has_item = True
                 if has_inventory:
                     kinds["inventory"] += 1
                 if has_consumed_inventory:
                     kinds["consumed_inventory"] += 1
+                if has_produced_inventory:
+                    kinds["produced_inventory"] += 1
                 if has_tools:
                     kinds["tools"] += 1
                 if has_options:

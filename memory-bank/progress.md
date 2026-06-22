@@ -529,6 +529,29 @@ Verification: `python3 run_tests.py` passed with 459 tests (107 skipped), and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 459 tests.
 
+2011Scape starter quest stage batch completed on 2026-06-22. Backend:
+`QuestStageRequirement` now supports `produced_inventory`, and
+`apply_quest_progress_pure()` can add source-created quest items during a
+successful current-stage transition. `quest_data.py` now replaces bad generated
+rows for Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and
+Vampyre Slayer through focused source-backed overrides: Cook consumes
+top-quality milk, extra fine flour, and super large egg; Imp Catcher consumes
+the four beads and no longer grants generated coins; Druidic Ritual transforms
+raw meats into enchanted meats before Sanfew/Kaqemeex; Pirate's Treasure
+produces Chest key and Pirate message; Vampyre Slayer keeps garlic optional,
+produces stake/stake hammer from Dr Harlow, resolves Count Draynor at stage 3,
+consumes the stake after the combat gate, and requires Morgan before awarding
+Attack XP. Frontend: the existing Quests tab blocker surface now has offscreen
+Qt coverage for the combined Cook's Assistant missing-ingredient blocker.
+Post-slice audit reports 395 stage rows, 70 focused rows, 325 generated rows,
+283 combat encounters, 174 resolver-ready combat encounters, and 4
+produced-inventory rows. Full all-quest minute-detail parity remains open.
+Source audit:
+`memory-bank/source-audits/quest-2011scape-starter-stage-batch-2026-06-22.md`.
+Verification: `python3 run_tests.py` passed with 463 tests (108 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 463 tests.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,

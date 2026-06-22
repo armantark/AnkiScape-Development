@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Stage Batch Complete</title>
+  <style>
+    :root {
+      --bg: #0d1016;
+      --panel: #151a22;
+      --panel2: #1d2430;
+      --text: #eef3fb;
+      --muted: #9aa8bd;
+      --line: #2c3545;
+      --good: #4ade80;
+      --warn: #facc15;
+      --bad: #fb7185;
+      --blue: #60a5fa;
+      --violet: #a78bfa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .16), transparent 34rem),
+        radial-gradient(circle at 82% 8%, rgba(167, 139, 250, .14), transparent 32rem),
+        var(--bg);
+      color: var(--text);
+      font: 15px/1.55 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 32px;
+    }
+    main { max-width: 1180px; margin: 0 auto; }
+    .hero, .grid { display: grid; gap: 16px; }
+    .hero { grid-template-columns: 1.25fr .75fr; align-items: stretch; }
+    .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 16px; }
+    section, article {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015)), var(--panel);
+      border-radius: 10px;
+      padding: 22px;
+      box-shadow: 0 28px 80px rgba(0, 0, 0, .28);
+    }
+    .badge, code, .pill, .metric b, button { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 10px;
+      border: 1px solid rgba(96,165,250,.45);
+      border-radius: 999px;
+      color: #bfdbfe;
+      background: rgba(96,165,250,.08);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2.2rem, 6vw, 4.7rem); line-height: .94; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    p { color: var(--muted); margin: 0 0 14px; }
+    .metric {
+      display: grid;
+      gap: 4px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+      margin-bottom: 12px;
+    }
+    .metric b { font-size: 2rem; color: var(--text); }
+    .metric span { color: var(--muted); }
+    .lane { display: grid; gap: 10px; }
+    .quest {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 14px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(255,255,255,.03);
+    }
+    .quest strong { color: var(--text); }
+    .quest small { color: var(--muted); }
+    .pill {
+      display: inline-flex;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      margin: 0 6px 6px 0;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: rgba(255,255,255,.04);
+    }
+    .good { color: var(--good); border-color: rgba(74,222,128,.35); background: rgba(74,222,128,.08); }
+    .warn { color: var(--warn); border-color: rgba(250,204,21,.35); background: rgba(250,204,21,.08); }
+    .bad { color: var(--bad); border-color: rgba(251,113,133,.35); background: rgba(251,113,133,.08); }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .step {
+      min-height: 116px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel2);
+    }
+    .step b { display: block; margin-bottom: 6px; color: var(--blue); }
+    .step span { color: var(--muted); font-size: 13px; }
+    textarea {
+      width: 100%;
+      min-height: 210px;
+      resize: vertical;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #090c11;
+      color: var(--text);
+      padding: 12px;
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    button {
+      margin-top: 10px;
+      border: 1px solid rgba(96,165,250,.5);
+      background: rgba(96,165,250,.12);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 9px 12px;
+      cursor: pointer;
+    }
+    .footer { margin-top: 16px; color: var(--muted); font-size: 13px; }
+    @media (max-width: 900px) {
+      body { padding: 18px; }
+      .hero, .grid, .flow { grid-template-columns: 1fr; }
+      .quest { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <section class="hero">
+    <div>
+      <div class="badge">Post-slice update</div>
+      <h1>Five starter quests now use exact 2011Scape stage gates.</h1>
+      <p>
+        This is not every quest. It replaces another set of broad generated rows with source-backed
+        current-stage blockers and introduces produced quest items for transformations such as raw meat
+        to enchanted meat, Karamja rum to chest key, and beer to stake gear.
+      </p>
+      <div class="flow">
+        <div class="step"><b>Backend</b><span><code>QuestStageRequirement.produced_inventory</code> now travels through catalog import, export, and progression.</span></div>
+        <div class="step"><b>Data</b><span>Cook, Imp, Druidic, Pirate, and Vampyre generated rows are replaced in <code>quest_data.py</code>.</span></div>
+        <div class="step"><b>Frontend</b><span>The existing Quests tab surfaces the new Cook's Assistant blocker without a widget rewrite.</span></div>
+        <div class="step"><b>Honesty</b><span>325 generated rows remain. The active goal is not complete.</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="metric"><b>395</b><span>machine-readable stage requirement rows</span></div>
+      <div class="metric"><b>70</b><span>focused source-backed stage rows</span></div>
+      <div class="metric"><b>325</b><span>generated rows still requiring audit/replacement</span></div>
+      <div class="metric"><b>4</b><span>produced-inventory rows now modeled</span></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article>
+      <h2>Changed Quests</h2>
+      <div class="lane">
+        <div class="quest"><strong>Cook's Assistant</strong><small>Consumes top-quality milk, extra fine flour, and super large egg at completion.</small></div>
+        <div class="quest"><strong>Imp Catcher</strong><small>Consumes the four beads and removes the incorrect generated coin reward.</small></div>
+        <div class="quest"><strong>Druidic Ritual</strong><small>Raw meats become enchanted meats before Sanfew/Kaqemeex completion.</small></div>
+        <div class="quest"><strong>Pirate's Treasure</strong><small>Karamja rum produces Chest key; Chest key produces Pirate message; Spade digs the casket.</small></div>
+        <div class="quest"><strong>Vampyre Slayer</strong><small>Beer produces stake gear, garlic is optional, Count Draynor blocks stage 3, Morgan completes.</small></div>
+      </div>
+    </article>
+
+    <article>
+      <h2>Verification</h2>
+      <p><span class="pill good">Unit</span><span class="pill good">Integration</span><span class="pill good">Qt/offscreen</span><span class="pill good">Audit</span></p>
+      <p><code>python3 run_tests.py</code> passed with 463 tests and 108 skipped.</p>
+      <p><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> passed with 463 tests.</p>
+      <p><code>tools/audit_quest_stage_gate_coverage.py</code> reports 194/194 quests with stage rows, 283 combat rows, and 174 resolver-ready combat rows.</p>
+    </article>
+
+    <article>
+      <h2>Still Open</h2>
+      <p><span class="pill warn">Goal active</span><span class="pill bad">Not full parity</span></p>
+      <p>Remaining work is the hard part: exact per-stage extraction for 325 generated rows, route/location state, quest item transformations beyond this batch, puzzle/follower/branch state, 109 statless combat rows, and full combat simulation.</p>
+      <p>The global combat switch still defaults off, and no-stats fights stay blocked even when it is enabled.</p>
+    </article>
+  </section>
+
+  <section style="margin-top:16px">
+    <h2>Next Agent Prompt</h2>
+    <textarea id="prompt" readonly>Continue the AnkiScape all-quest stage parity goal. Do not claim completion. Use memory-bank/source-audits/quest-2011scape-starter-stage-batch-2026-06-22.md, memory-bank/future-work-kanban.md, memory-bank/systemPatterns.md, and tools/audit_quest_stage_gate_coverage.py. Current state: 194/194 quests have stage rows, 395 total stage rows, 70 focused rows, 325 generated rows remain, 283 combat encounters, 174 resolver-ready combat encounters, and 109 statless combat rows remain blocked. Preserve startability vs finishability, keep combat globally locked by default, use local 2011Scape before Darkan/2012scape before pinned historical wiki revisions, do not hand-edit quest_catalog_generated.py, split backend/frontend work explicitly, add targeted unit/integration/Qt/manual tests, update the Memory Bank/status artifacts, and commit locally.</textarea>
+    <p class="footer">Generated for the 2026-06-22 2011Scape starter quest stage batch. This artifact is intentionally explicit that the all-quest goal remains active.</p>
+  </section>
+</main>
+</body>
+</html>

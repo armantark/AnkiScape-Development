@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Stage Gates: 2011Scape Starter Batch Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(120deg, rgba(79, 140, 255, 0.08), transparent 36%),
+        radial-gradient(circle at 80% 0%, rgba(74, 222, 128, 0.08), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 34px 18px 44px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.55);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #b9d1ff;
+      font: 700 0.72rem "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+    h1 {
+      max-width: 940px;
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 4vw, 3.55rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      max-width: 900px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 26px 0;
+    }
+    .metric, .card, .step {
+      background: rgba(22, 26, 33, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.22);
+    }
+    .metric {
+      padding: 14px;
+      min-height: 106px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 1.95rem;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric span {
+      color: var(--text-dim);
+      font-size: 0.84rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .card {
+      padding: 18px;
+      overflow: hidden;
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+      letter-spacing: 0;
+    }
+    .lane {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .quest {
+      min-height: 146px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+    }
+    .quest b {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.92rem;
+    }
+    .quest small, .muted {
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+    .chip {
+      display: inline-block;
+      width: fit-content;
+      margin-top: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      font: 700 0.62rem "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+    .green { color: var(--green); background: rgba(74, 222, 128, 0.12); border: 1px solid rgba(74, 222, 128, 0.35); }
+    .amber { color: var(--amber); background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.35); }
+    .purple { color: var(--purple); background: rgba(167, 139, 250, 0.12); border: 1px solid rgba(167, 139, 250, 0.35); }
+    .red { color: var(--red); background: rgba(255, 92, 92, 0.12); border: 1px solid rgba(255, 92, 92, 0.35); }
+    .flow {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .step {
+      padding: 13px;
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .num {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 9px;
+      background: var(--accent);
+      color: white;
+      font: 800 0.84rem "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .step p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+    .file-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .file {
+      padding: 3px 7px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: #c7d2e5;
+      font: 700 0.65rem "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .bar-wrap {
+      margin-top: 14px;
+      display: grid;
+      gap: 12px;
+    }
+    .bar {
+      display: grid;
+      gap: 6px;
+    }
+    .bar label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+    .track {
+      height: 11px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #0f1218;
+      border: 1px solid var(--border);
+    }
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+      border-radius: inherit;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .pane {
+      padding: 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #10141b;
+      min-height: 128px;
+    }
+    .pane h3 {
+      margin: 0 0 8px;
+      font: 800 0.68rem "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+    .pane ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text-dim);
+      font-size: 0.86rem;
+    }
+    @media (max-width: 900px) {
+      .metrics, .grid, .lane, .split {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-Implementation Plan · 2026-06-22</span>
+    <h1>Convert another quest batch from broad generated blockers to exact 2011Scape stage gates.</h1>
+    <p class="subtitle">
+      The current model is real, but full parity is not proven. This slice targets early quests with local 2011Scape source files so stage flow, item consumption, reward timing, and blocker wording can move from loose catalog prose into focused backend data.
+    </p>
+
+    <section class="metrics" aria-label="Current quest stage metrics">
+      <div class="metric"><strong>194</strong><span>quests have at least one stage requirement row, but most are generated.</span></div>
+      <div class="metric"><strong>389</strong><span>stage requirement rows exist before this slice.</span></div>
+      <div class="metric"><strong>60</strong><span>rows are focused source-backed replacements/additions.</span></div>
+      <div class="metric"><strong>329</strong><span>rows still carry broad generated coverage.</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Backend Scope</h2>
+        <p class="muted">Use local 2011Scape quest plugins first, override generated rows in <span class="file">quest_data.py</span>, and keep generated catalog files untouched.</p>
+        <div class="lane">
+          <div class="quest">
+            <div><b>Cook's Assistant</b><small>Consume top-quality milk, extra fine flour, and super large egg at the finish gate.</small></div>
+            <span class="chip green">2011Scape</span>
+          </div>
+          <div class="quest">
+            <div><b>Doric's Quest</b><small>Restore the old quest as a playable override if the generated cutoff excludes it.</small></div>
+            <span class="chip amber">Catalog gap</span>
+          </div>
+          <div class="quest">
+            <div><b>Imp Catcher</b><small>Require and consume the four beads; preserve Magic XP as pending until Magic exists.</small></div>
+            <span class="chip green">2011Scape</span>
+          </div>
+          <div class="quest">
+            <div><b>Druidic Ritual</b><small>Replace unrelated generated items with Sanfew and Cauldron-of-Thunder stages.</small></div>
+            <span class="chip red">Bad generated row</span>
+          </div>
+        </div>
+        <div class="split">
+          <div class="pane">
+            <h3>Before</h3>
+            <ul>
+              <li>Cook's Assistant only checks Bucket and Empty pot.</li>
+              <li>Druidic Ritual asks for coins, chisel, and fishing rod.</li>
+              <li>Imp Catcher checks beads but does not consume them.</li>
+            </ul>
+          </div>
+          <div class="pane">
+            <h3>After</h3>
+            <ul>
+              <li>Finish-time quest ingredients are consumed at the correct stage.</li>
+              <li>Action gates represent dialogue/route steps without start-locking.</li>
+              <li>Quest rewards remain one-time completion rewards.</li>
+            </ul>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card">
+        <h2>Coverage Movement</h2>
+        <p class="muted">The important metric is not just row count; it is how many rows are backed by exact quest-stage evidence rather than generated quest-detail prose.</p>
+        <div class="bar-wrap">
+          <div class="bar">
+            <label><span>Focused rows before</span><span>60 / 389</span></label>
+            <div class="track"><div class="fill" style="width: 15.4%"></div></div>
+          </div>
+          <div class="bar">
+            <label><span>Combat resolver-ready rows</span><span>174 / 283</span></label>
+            <div class="track"><div class="fill" style="width: 61.5%"></div></div>
+          </div>
+          <div class="bar">
+            <label><span>All-quest parity claim</span><span>not yet</span></label>
+            <div class="track"><div class="fill" style="width: 0%; background: var(--red)"></div></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="flow" aria-label="Implementation plan">
+      <div class="step">
+        <div class="num">1</div>
+        <div>
+          <b>Source audit and notes</b>
+          <p>Record exact local 2011Scape files and Darkan cross-checks where needed.</p>
+          <div class="file-row"><span class="file">memory-bank/source-audits</span><span class="file">CooksAssistant.kt</span><span class="file">DruidicRitual.kt</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <div>
+          <b>Backend replacements</b>
+          <p>Add focused stage requirements, consumed inventory rows, journal stages where generated text is broken, and any missing override definitions.</p>
+          <div class="file-row"><span class="file">quest_data.py</span><span class="file">logic_pure.py tests</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <div>
+          <b>Frontend proof</b>
+          <p>Keep existing filters and prove the Quests tab surfaces a compact in-progress blocker for one new source-backed gate.</p>
+          <div class="file-row"><span class="file">tests/test_main_menu_widget.py</span></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="num">4</div>
+        <div>
+          <b>Verification and handoff</b>
+          <p>Run targeted tests, both required full suites, update the Memory Bank, create a completion artifact, and commit locally.</p>
+          <div class="file-row"><span class="file">run_tests.py</span><span class="file">.venv-qt unittest discover</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

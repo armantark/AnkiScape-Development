@@ -18,6 +18,11 @@ except ImportError:  # pragma: no cover
 
 
 RUNE_MYSTERIES_ID = "rune_mysteries"
+COOKS_ASSISTANT_ID = "cooks_assistant"
+IMP_CATCHER_ID = "imp_catcher"
+DRUIDIC_RITUAL_ID = "druidic_ritual"
+PIRATES_TREASURE_ID = "pirates_treasure"
+VAMPYRE_SLAYER_ID = "vampyre_slayer"
 THE_RESTLESS_GHOST_ID = "the_restless_ghost"
 LOST_CITY_ID = "lost_city"
 LUNAR_DIPLOMACY_ID = "lunar_diplomacy"
@@ -186,6 +191,78 @@ KNIGHTS_SWORD_SQUIRE_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/areas/falador/squire.plugin.kts"
 )
+COOKS_ASSISTANT_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/CooksAssistant.kt"
+)
+COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/lumbridge_cook.plugin.kts"
+)
+COOKS_ASSISTANT_PRIZED_DAIRY_COW_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/prized_dairy_cow.plugin.kts"
+)
+COOKS_ASSISTANT_MILLIE_MILLER_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/millie_miller.plugin.kts"
+)
+IMP_CATCHER_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/ImpCatcher.kt"
+)
+IMP_CATCHER_MIZGOG_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/draynor/mizgog.plugin.kts"
+)
+DRUIDIC_RITUAL_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/DruidicRitual.kt"
+)
+DRUIDIC_RITUAL_SANFEW_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/taverley/sanfew.plugin.kts"
+)
+DRUIDIC_RITUAL_KAQEMEEX_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/taverley/kaqemeex.plugin.kts"
+)
+DRUIDIC_RITUAL_CAULDRON_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/objs/cauldron_of_thunder.plugin.kts"
+)
+PIRATES_TREASURE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/PiratesTreasure.kt"
+)
+PIRATES_TREASURE_REDBEARD_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/portsarim/redbeard_frank.plugin.kts"
+)
+PIRATES_TREASURE_CHEST_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/varrock/pirate_chest.plugin.kts"
+)
+VAMPYRE_SLAYER_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/VampyreSlayer.kt"
+)
+VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/varrock/dr_harlow.plugin.kts"
+)
+VAMPYRE_SLAYER_MORGAN_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/draynor/morgan.plugin.kts"
+)
+VAMPYRE_SLAYER_MANOR_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/draynor/draynor_manor.plugin.kts"
+)
+COUNT_DRAYNOR_NPC_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/npcs/definitions/undeads/count_draynor_level_37.plugin.kts"
+)
 HUNTER_PRIEST_IN_PERIL_SOURCE = "https://www.2011.rs/kb/hunter_net_trapping_level_29"
 
 QUEST_REWARD_ITEM_NAME_OVERRIDES = {
@@ -221,6 +298,7 @@ class QuestStageRequirement:
     required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     consumed_inventory: Tuple[Tuple[str, int], ...] = ()
     consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
+    produced_inventory: Tuple[Tuple[str, int], ...] = ()
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
     required_routes: Tuple[str, ...] = ()
@@ -408,6 +486,62 @@ RUNE_MYSTERIES_STAGES: Tuple[QuestStage, ...] = (
     ),
 )
 
+COOKS_ASSISTANT_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "The Lumbridge cook needs top-quality milk, extra fine flour, and a super large egg for the Duke's cake.",
+    ),
+    _simple_stage(
+        2,
+        "I brought the cook all three ingredients and he made the birthday cake.",
+        "Quest complete!",
+    ),
+)
+
+IMP_CATCHER_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "Wizard Mizgog needs his black, red, white, and yellow beads returned.",
+    ),
+    _simple_stage(
+        2,
+        "I returned Wizard Mizgog's beads and received an Amulet of accuracy.",
+        "Quest complete!",
+    ),
+)
+
+DRUIDIC_RITUAL_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Kaqemeex asked me to speak with Sanfew in Taverley."),
+    _simple_stage(
+        2,
+        "Sanfew needs raw bear meat, raw rat meat, raw beef, and raw chicken dipped in the Cauldron of Thunder.",
+    ),
+    _simple_stage(
+        3,
+        "The meats have been enchanted in the Cauldron of Thunder and should be returned through Sanfew to Kaqemeex.",
+    ),
+    _simple_stage(
+        4,
+        "Kaqemeex taught me the basics of Herblore.",
+        "Quest complete!",
+    ),
+)
+
+PIRATES_TREASURE_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Redbeard Frank wants Karamja rum in exchange for the treasure location."),
+    _simple_stage(2, "Redbeard Frank gave me One-Eyed Hector's chest key for the Blue Moon Inn."),
+    _simple_stage(3, "The Blue Moon Inn chest contained a pirate message pointing to Falador Park."),
+    _simple_stage(4, "I dug up One-Eyed Hector's treasure in Falador Park.", "Quest complete!"),
+)
+
+VAMPYRE_SLAYER_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "Morgan asked me to find Dr Harlow at the Blue Moon Inn in Varrock."),
+    _simple_stage(2, "Dr Harlow agreed to help, but he wants a beer first."),
+    _simple_stage(3, "Dr Harlow gave me a stake and stake hammer for Count Draynor."),
+    _simple_stage(4, "Count Draynor is dead. I should tell Morgan that Draynor is safe."),
+    _simple_stage(5, "Morgan rewarded me for slaying Count Draynor.", "Quest complete!"),
+)
+
 LOST_CITY_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "The adventurers in Lumbridge Swamp are searching for Zanaris.", "I should find out what they know."),
     _simple_stage(2, "I found Shamus hiding in a swamp tree.", "He says Zanaris is reached through the shed while carrying a dramen staff."),
@@ -526,6 +660,89 @@ PRIEST_IN_PERIL_STAGES: Tuple[QuestStage, ...] = (
 
 QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
     QuestDefinition(
+        id=COOKS_ASSISTANT_ID,
+        display_name="Cook's Assistant",
+        stages=2,
+        point_reward=1,
+        rewards=(("Coins", 500), ("Sardine", 20)),
+        start_point="Speak to the cook in Lumbridge Castle kitchen.",
+        requirements=("Used during quest: Top-quality milk x1, Extra fine flour x1, Super large egg x1",),
+        required_items=(),
+        combat="No specific combat.",
+        source=(
+            f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}; "
+            f"{COOKS_ASSISTANT_PRIZED_DAIRY_COW_SOURCE}; {COOKS_ASSISTANT_MILLIE_MILLER_SOURCE}"
+        ),
+        journal_stages=COOKS_ASSISTANT_STAGES,
+        release_date="2001-01-04",
+        members=False,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("cooking", 300),),
+        unlocks=("Access to the Cook's range",),
+    ),
+    QuestDefinition(
+        id=VAMPYRE_SLAYER_ID,
+        display_name="Vampyre Slayer",
+        stages=5,
+        point_reward=3,
+        rewards=(),
+        start_point="Speak to Morgan in Draynor Village.",
+        requirements=("Used during quest: Beer x1, Stake x1, Stake hammer x1",),
+        required_items=(),
+        combat="Count Draynor (level 37); garlic is optional and weakens him.",
+        source=(
+            f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MORGAN_SOURCE_PATH}; "
+            f"{VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH}; {VAMPYRE_SLAYER_MANOR_SOURCE_PATH}; "
+            f"{COUNT_DRAYNOR_NPC_SOURCE_PATH}"
+        ),
+        journal_stages=VAMPYRE_SLAYER_STAGES,
+        release_date="2001-01-28",
+        members=False,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("attack", 4825),),
+    ),
+    QuestDefinition(
+        id=IMP_CATCHER_ID,
+        display_name="Imp Catcher",
+        stages=2,
+        point_reward=1,
+        rewards=(("Amulet of accuracy", 1),),
+        start_point="Talk to Wizard Mizgog in the Wizards' Tower.",
+        requirements=("Used during quest: Black bead x1, Red bead x1, White bead x1, Yellow bead x1",),
+        required_items=(),
+        combat="Imps can drop the beads, but the quest completion gate is the four beads.",
+        source=f"{IMP_CATCHER_SOURCE_PATH}; {IMP_CATCHER_MIZGOG_SOURCE_PATH}",
+        journal_stages=IMP_CATCHER_STAGES,
+        release_date="2001-02-16",
+        members=False,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("magic", 875),),
+    ),
+    QuestDefinition(
+        id=PIRATES_TREASURE_ID,
+        display_name="Pirate's Treasure",
+        stages=4,
+        point_reward=2,
+        rewards=(("Casket (Pirate's Treasure)", 1),),
+        start_point="Talk to Redbeard Frank just south of The Rusty Anchor pub in Port Sarim.",
+        requirements=("Used during quest: Karamja rum x1, Chest key x1, Pirate message x1, Spade x1",),
+        required_items=(),
+        combat="Optional level 4 gardener near the digging spot.",
+        source=f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_REDBEARD_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
+        journal_stages=PIRATES_TREASURE_STAGES,
+        release_date="2001-06-11",
+        members=False,
+        difficulty="Novice",
+        length="Short to Medium",
+        timeline="Fifth Age",
+    ),
+    QuestDefinition(
         id=LOST_CITY_ID,
         display_name="Lost City",
         stages=6,
@@ -547,6 +764,32 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
             QuestSkillRequirement("woodcutting", "Woodcutting", 36),
         ),
         unlocks=("Access to Zanaris", "Ability to craft cosmic runes"),
+    ),
+    QuestDefinition(
+        id=DRUIDIC_RITUAL_ID,
+        display_name="Druidic Ritual",
+        stages=4,
+        point_reward=4,
+        rewards=(),
+        start_point="Speak to Kaqemeex at the stone circle north of Taverley.",
+        requirements=(
+            "Used during quest: Raw bear meat x1, Raw rat meat x1, Raw beef x1, Raw chicken x1",
+            "Access to the Cauldron of Thunder dungeon south of Taverley",
+        ),
+        required_items=(),
+        combat="None.",
+        source=(
+            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}; "
+            f"{DRUIDIC_RITUAL_CAULDRON_SOURCE_PATH}; {DRUIDIC_RITUAL_KAQEMEEX_SOURCE_PATH}"
+        ),
+        journal_stages=DRUIDIC_RITUAL_STAGES,
+        release_date="2002-02-27",
+        members=True,
+        difficulty="Novice",
+        length="Short",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("herblore", 250),),
+        unlocks=("Access to Herblore",),
     ),
     QuestDefinition(
         id=RUNE_MYSTERIES_ID,
@@ -820,6 +1063,7 @@ def _stage_req(
     required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
     consumed_inventory: Tuple[Tuple[str, int], ...] = (),
     consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
+    produced_inventory: Tuple[Tuple[str, int], ...] = (),
     required_tools: Tuple[Tuple[str, int], ...] = (),
     required_actions: Tuple[str, ...] = (),
     required_routes: Tuple[str, ...] = (),
@@ -832,6 +1076,7 @@ def _stage_req(
         required_inventory_options=required_inventory_options,
         consumed_inventory=consumed_inventory,
         consumed_inventory_options=consumed_inventory_options,
+        produced_inventory=produced_inventory,
         required_tools=required_tools,
         required_actions=required_actions,
         required_routes=required_routes,
@@ -872,6 +1117,143 @@ QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatE
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    COOKS_ASSISTANT_ID: (
+        _stage_req(
+            1,
+            "Give the Lumbridge cook the three special cake ingredients.",
+            f"{COOKS_ASSISTANT_SOURCE_PATH}; {COOKS_ASSISTANT_LUMBRIDGE_COOK_SOURCE}",
+            consumed_inventory=(("Top-quality milk", 1), ("Extra fine flour", 1), ("Super large egg", 1)),
+        ),
+    ),
+    VAMPYRE_SLAYER_ID: (
+        _stage_req(
+            1,
+            "Speak to Dr Harlow at the Blue Moon Inn.",
+            f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH}",
+            required_actions=("Speak to Dr Harlow at the Blue Moon Inn",),
+        ),
+        _stage_req(
+            2,
+            "Give Dr Harlow a beer and receive vampyre-slaying gear.",
+            f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH}",
+            consumed_inventory=(("Beer", 1),),
+            produced_inventory=(("Stake", 1), ("Stake hammer", 1)),
+            required_actions=("Give Dr Harlow a beer",),
+        ),
+        _stage_req(
+            3,
+            "Open Count Draynor's coffin with a stake and stake hammer, then defeat him.",
+            f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MANOR_SOURCE_PATH}; {COUNT_DRAYNOR_NPC_SOURCE_PATH}",
+            required_inventory=(("Stake", 1),),
+            consumed_inventory=(("Stake", 1),),
+            required_tools=(("Stake hammer", 1),),
+            combat_encounters=(
+                _combat(
+                    VAMPYRE_SLAYER_ID,
+                    "count_draynor_37",
+                    "Count Draynor",
+                    37,
+                    f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MANOR_SOURCE_PATH}; {COUNT_DRAYNOR_NPC_SOURCE_PATH}",
+                    "2011Scape removes the stake when the coffin is opened, spawns Count Draynor, and treats garlic as an optional stat weakening item.",
+                    npc_stats=(
+                        ("hitpoints", 350),
+                        ("attack", 30),
+                        ("strength", 25),
+                        ("defence", 30),
+                        ("magic", 1),
+                        ("ranged", 1),
+                    ),
+                    npc_bonuses=(
+                        ("defenceStab", 2),
+                        ("defenceSlash", 1),
+                        ("defenceCrush", 3),
+                        ("defenceMagic", 0),
+                        ("defenceRanged", 0),
+                    ),
+                    npc_configs=(("attack_speed", 4), ("attack_style", "melee")),
+                    npc_stats_source=COUNT_DRAYNOR_NPC_SOURCE_PATH,
+                ),
+            ),
+        ),
+        _stage_req(
+            4,
+            "Tell Morgan that Count Draynor is dead.",
+            f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_MORGAN_SOURCE_PATH}; {COUNT_DRAYNOR_NPC_SOURCE_PATH}",
+            required_actions=("Tell Morgan that Count Draynor is dead",),
+        ),
+    ),
+    IMP_CATCHER_ID: (
+        _stage_req(
+            1,
+            "Return Wizard Mizgog's four beads.",
+            f"{IMP_CATCHER_SOURCE_PATH}; {IMP_CATCHER_MIZGOG_SOURCE_PATH}",
+            consumed_inventory=(("Black bead", 1), ("Red bead", 1), ("White bead", 1), ("Yellow bead", 1)),
+        ),
+    ),
+    PIRATES_TREASURE_ID: (
+        _stage_req(
+            1,
+            "Give Redbeard Frank smuggled Karamja rum.",
+            f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_REDBEARD_SOURCE_PATH}",
+            consumed_inventory=(("Karamja rum", 1),),
+            produced_inventory=(("Chest key", 1),),
+            required_actions=("Smuggle Karamja rum off Karamja",),
+        ),
+        _stage_req(
+            2,
+            "Open One-Eyed Hector's chest in the Blue Moon Inn.",
+            f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
+            consumed_inventory=(("Chest key", 1),),
+            produced_inventory=(("Pirate message", 1),),
+            required_actions=("Open One-Eyed Hector's chest at the Blue Moon Inn",),
+        ),
+        _stage_req(
+            3,
+            "Read the pirate message and dig in Falador Park.",
+            f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
+            required_inventory=(("Pirate message", 1),),
+            required_tools=(("Spade", 1),),
+            required_actions=("Read the pirate message and dig in Falador Park",),
+        ),
+    ),
+    DRUIDIC_RITUAL_ID: (
+        _stage_req(
+            1,
+            "Speak to Sanfew about the ritual ingredients.",
+            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}",
+            required_actions=("Speak to Sanfew about the ritual ingredients",),
+        ),
+        _stage_req(
+            2,
+            "Dip each raw meat in the Cauldron of Thunder.",
+            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}; {DRUIDIC_RITUAL_CAULDRON_SOURCE_PATH}",
+            consumed_inventory=(
+                ("Raw bear meat", 1),
+                ("Raw rat meat", 1),
+                ("Raw beef", 1),
+                ("Raw chicken", 1),
+            ),
+            produced_inventory=(
+                ("Enchanted bear meat", 1),
+                ("Enchanted rat meat", 1),
+                ("Enchanted beef", 1),
+                ("Enchanted chicken", 1),
+            ),
+            required_actions=("Dip the raw meats in the Cauldron of Thunder",),
+        ),
+        _stage_req(
+            3,
+            "Give Sanfew the enchanted meats and return to Kaqemeex.",
+            f"{DRUIDIC_RITUAL_SOURCE_PATH}; {DRUIDIC_RITUAL_SANFEW_SOURCE_PATH}; {DRUIDIC_RITUAL_KAQEMEEX_SOURCE_PATH}",
+            consumed_inventory=(
+                ("Enchanted bear meat", 1),
+                ("Enchanted rat meat", 1),
+                ("Enchanted beef", 1),
+                ("Enchanted chicken", 1),
+            ),
+            required_actions=("Give Sanfew the enchanted meats and return to Kaqemeex",),
+        ),
+    ),
     PRIEST_IN_PERIL_ID: (
         _stage_req(
             1,
@@ -1991,6 +2373,7 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
                 required_inventory_options=_catalog_item_options(raw.get("required_inventory_options", ())),
                 consumed_inventory=_catalog_item_pairs(raw.get("consumed_inventory", {})),
                 consumed_inventory_options=_catalog_item_options(raw.get("consumed_inventory_options", ())),
+                produced_inventory=_catalog_item_pairs(raw.get("produced_inventory", {})),
                 required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
                 required_actions=_catalog_strings(raw.get("required_actions", ())),
                 required_routes=_catalog_strings(raw.get("required_routes", ())),
@@ -2085,6 +2468,7 @@ def _dedupe_stage_requirements(requirements: Tuple[QuestStageRequirement, ...]) 
             requirement.required_inventory_options,
             requirement.consumed_inventory,
             requirement.consumed_inventory_options,
+            requirement.produced_inventory,
             requirement.required_tools,
             requirement.required_actions,
             requirement.required_routes,
@@ -2370,6 +2754,7 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
             tuple({item_name: amount} for item_name, amount in option_group)
             for option_group in requirement.consumed_inventory_options
         ),
+        "produced_inventory": dict(requirement.produced_inventory),
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,
         "required_routes": requirement.required_routes,

@@ -1257,9 +1257,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
-        pd["inventory"] = {"Garlic": 1, "Coins": 2, "Beer": 1}
+        pd["inventory"] = {"Stake": 1, "Stake hammer": 1}
         pd["current_quest"] = "vampyre_slayer"
-        pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
+        pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 3, "completed": False}
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 40
         pd["strength_level"] = 40
@@ -1278,6 +1278,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("vampyre_slayer", self._quest_calls)
+
+    def test_quests_tab_shows_source_backed_item_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "cooks_assistant"
+        pd["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn(
+            "Blocked: Needs Top-quality milk x1, Needs Extra fine flour x1, Needs Super large egg x1",
+            labels,
+        )
+        action = dialog.findChild(QPushButton, "questAction_cooks_assistant")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Top-quality milk x1", action.toolTip())
 
     def test_quests_tab_allows_darkan_backed_generated_combat_gate_selection(self) -> None:
         pd = _make_player_data()

@@ -1536,6 +1536,35 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(completed["inventory"]["Pure essence"], 0)
         self.assertEqual(completed["inventory"]["Rune essence"], 49)
 
+    def test_stage_progress_can_produce_inventory_for_later_stage_gates(self):
+        quest_data = {
+            "key_quest": {
+                "stages": 2,
+                "point_reward": 0,
+                "rewards": {},
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "consumed_inventory": {"Karamja rum": 1},
+                        "produced_inventory": {"Chest key": 1},
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {"Karamja rum": 1},
+            "quests": {"key_quest": {"started": True, "progress": 1, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+        }
+
+        progressed, ok, completed_now = apply_quest_progress_pure(player_data, "key_quest", quest_data)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(progressed["inventory"]["Karamja rum"], 0)
+        self.assertEqual(progressed["inventory"]["Chest key"], 1)
+
     def test_priest_in_peril_blocks_on_source_backed_stage_gates_and_consumes_essence(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["priest_in_peril"] = {"started": True, "progress": 1, "completed": False}
@@ -1581,6 +1610,137 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(completed["inventory"]["Rune essence"], 3)
         self.assertEqual(completed["inventory"]["Wolfbane dagger"], 1)
         self.assertEqual(completed["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
+
+    def test_source_backed_starter_quests_progress_through_stage_gates(self):
+        cook = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        cook["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(cook, "cooks_assistant", QUEST_DATA),
+            ("Needs Top-quality milk x1", "Needs Extra fine flour x1", "Needs Super large egg x1"),
+        )
+        cook["inventory"].update({"Top-quality milk": 1, "Extra fine flour": 1, "Super large egg": 1})
+        cook, ok, completed_now = apply_quest_progress_pure(cook, "cooks_assistant", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(cook["inventory"]["Top-quality milk"], 0)
+        self.assertEqual(cook["inventory"]["Extra fine flour"], 0)
+        self.assertEqual(cook["inventory"]["Super large egg"], 0)
+        self.assertEqual(cook["inventory"]["Coins"], 500)
+        self.assertEqual(cook["inventory"]["Sardine"], 20)
+        self.assertEqual(cook["cooking_exp"], 300.0)
+
+        imp = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        imp["quests"]["imp_catcher"] = {"started": True, "progress": 1, "completed": False}
+        imp["inventory"].update({"Black bead": 1, "Red bead": 1, "White bead": 1, "Yellow bead": 1})
+        imp, ok, completed_now = apply_quest_progress_pure(imp, "imp_catcher", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(imp["inventory"]["Black bead"], 0)
+        self.assertEqual(imp["inventory"]["Red bead"], 0)
+        self.assertEqual(imp["inventory"]["White bead"], 0)
+        self.assertEqual(imp["inventory"]["Yellow bead"], 0)
+        self.assertEqual(imp["inventory"]["Amulet of accuracy"], 1)
+        self.assertEqual(imp["inventory"]["Coins"], 0)
+        self.assertEqual(imp["pending_skill_exp_rewards"], {"magic_exp": 875.0})
+
+        druidic = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        druidic["quests"]["druidic_ritual"] = {"started": True, "progress": 1, "completed": False}
+        druidic["quest_stage_actions"] = {"druidic_ritual": ["Speak to Sanfew about the ritual ingredients"]}
+        druidic, ok, completed_now = apply_quest_progress_pure(druidic, "druidic_ritual", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(druidic["quests"]["druidic_ritual"]["progress"], 2)
+        druidic["inventory"].update({"Raw bear meat": 1, "Raw rat meat": 1, "Raw beef": 1, "Raw chicken": 1})
+        druidic["quest_stage_actions"]["druidic_ritual"].append("Dip the raw meats in the Cauldron of Thunder")
+        druidic, ok, completed_now = apply_quest_progress_pure(druidic, "druidic_ritual", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(druidic["inventory"]["Raw bear meat"], 0)
+        self.assertEqual(druidic["inventory"]["Raw rat meat"], 0)
+        self.assertEqual(druidic["inventory"]["Raw beef"], 0)
+        self.assertEqual(druidic["inventory"]["Raw chicken"], 0)
+        self.assertEqual(druidic["inventory"]["Enchanted bear meat"], 1)
+        self.assertEqual(druidic["inventory"]["Enchanted rat meat"], 1)
+        self.assertEqual(druidic["inventory"]["Enchanted beef"], 1)
+        self.assertEqual(druidic["inventory"]["Enchanted chicken"], 1)
+        druidic["quest_stage_actions"]["druidic_ritual"].append("Give Sanfew the enchanted meats and return to Kaqemeex")
+        druidic, ok, completed_now = apply_quest_progress_pure(druidic, "druidic_ritual", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(druidic["inventory"]["Enchanted bear meat"], 0)
+        self.assertEqual(druidic["inventory"]["Enchanted rat meat"], 0)
+        self.assertEqual(druidic["inventory"]["Enchanted beef"], 0)
+        self.assertEqual(druidic["inventory"]["Enchanted chicken"], 0)
+        self.assertEqual(druidic["quest_points"], 4)
+        self.assertEqual(druidic["pending_skill_exp_rewards"], {"herblore_exp": 250.0})
+
+        pirate = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        pirate["quests"]["pirates_treasure"] = {"started": True, "progress": 1, "completed": False}
+        pirate["inventory"]["Karamja rum"] = 1
+        pirate["quest_stage_actions"] = {"pirates_treasure": ["Smuggle Karamja rum off Karamja"]}
+        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(pirate["inventory"]["Karamja rum"], 0)
+        self.assertEqual(pirate["inventory"]["Chest key"], 1)
+        pirate["quest_stage_actions"]["pirates_treasure"].append("Open One-Eyed Hector's chest at the Blue Moon Inn")
+        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(pirate["inventory"]["Chest key"], 0)
+        self.assertEqual(pirate["inventory"]["Pirate message"], 1)
+        pirate["inventory"]["Spade"] = 1
+        pirate["quest_stage_actions"]["pirates_treasure"].append("Read the pirate message and dig in Falador Park")
+        pirate, ok, completed_now = apply_quest_progress_pure(pirate, "pirates_treasure", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(pirate["inventory"]["Pirate message"], 1)
+        self.assertEqual(pirate["inventory"]["Casket (Pirate's Treasure)"], 1)
+        self.assertEqual(pirate["quest_points"], 2)
+
+        vampyre = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        vampyre["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
+        vampyre["quest_stage_actions"] = {"vampyre_slayer": ["Speak to Dr Harlow at the Blue Moon Inn"]}
+        vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        vampyre["inventory"]["Beer"] = 1
+        vampyre["quest_stage_actions"]["vampyre_slayer"].append("Give Dr Harlow a beer")
+        vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(vampyre["inventory"]["Beer"], 0)
+        self.assertEqual(vampyre["inventory"]["Stake"], 1)
+        self.assertEqual(vampyre["inventory"]["Stake hammer"], 1)
+        blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        vampyre.update(
+            {
+                "quest_combat_config": {"resolver_enabled": True},
+                "attack_level": 40,
+                "strength_level": 40,
+                "defense_level": 35,
+                "constitution_level": 40,
+                "prayer_level": 20,
+            }
+        )
+        blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        vampyre, ok, result = apply_quest_combat_encounter_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "vampyre_slayer_count_draynor_37")
+        self.assertEqual(vampyre["quests"]["vampyre_slayer"]["progress"], 3)
+        vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(vampyre["inventory"]["Stake"], 0)
+        self.assertEqual(vampyre["quests"]["vampyre_slayer"]["progress"], 4)
+        vampyre["quest_stage_actions"]["vampyre_slayer"].append("Tell Morgan that Count Draynor is dead")
+        vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(vampyre["quest_points"], 3)
+        self.assertEqual(vampyre["pending_skill_exp_rewards"], {"attack_exp": 4825.0})
 
     def test_quest_combat_resolver_uses_player_and_source_backed_npc_stats(self):
         self.assertEqual(
@@ -2410,16 +2570,18 @@ class TestLogic(unittest.TestCase):
 
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["inventory"]["Bucket"] = 1
-        player_data["inventory"]["Empty pot"] = 1
+        player_data["quests"]["cooks_assistant"] = {"started": True, "progress": 1, "completed": False}
+        player_data["inventory"]["Top-quality milk"] = 1
+        player_data["inventory"]["Extra fine flour"] = 1
+        player_data["inventory"]["Super large egg"] = 1
         data, progressed, completed = apply_quest_progress_pure(player_data, "cooks_assistant", QUEST_DATA)
-        self.assertTrue(progressed)
-        self.assertFalse(completed)
-        data, progressed, completed = apply_quest_progress_pure(data, "cooks_assistant", QUEST_DATA)
 
         self.assertTrue(progressed)
         self.assertTrue(completed)
         self.assertEqual(data["quest_points"], 1)
+        self.assertEqual(data["inventory"]["Top-quality milk"], 0)
+        self.assertEqual(data["inventory"]["Extra fine flour"], 0)
+        self.assertEqual(data["inventory"]["Super large egg"], 0)
         self.assertEqual(data["inventory"]["Coins"], 500)
         self.assertEqual(data["inventory"]["Sardine"], 20)
         self.assertEqual(data["cooking_exp"], 300.0)

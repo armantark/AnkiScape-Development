@@ -115,11 +115,18 @@ class TestQuestCatalog(unittest.TestCase):
 
         cooks = data["cooks_assistant"]["stage_requirements"][0]
         self.assertEqual(cooks["stage"], 1)
-        self.assertEqual(cooks["required_inventory"], {"Bucket": 1, "Empty pot": 1})
+        self.assertEqual(
+            cooks["consumed_inventory"],
+            {"Top-quality milk": 1, "Extra fine flour": 1, "Super large egg": 1},
+        )
 
-        vampyre = data["vampyre_slayer"]["stage_requirements"][0]
-        self.assertEqual(vampyre["required_inventory"], {"Garlic": 1})
-        self.assertEqual(vampyre["required_inventory_options"], (({"Coins": 2}, {"Beer": 1}),))
+        vampyre_by_stage = {row["stage"]: row for row in data["vampyre_slayer"]["stage_requirements"]}
+        self.assertEqual(vampyre_by_stage[2]["consumed_inventory"], {"Beer": 1})
+        self.assertEqual(vampyre_by_stage[2]["produced_inventory"], {"Stake": 1, "Stake hammer": 1})
+        vampyre = vampyre_by_stage[3]
+        self.assertEqual(vampyre["required_inventory"], {"Stake": 1})
+        self.assertEqual(vampyre["consumed_inventory"], {"Stake": 1})
+        self.assertEqual(vampyre["required_tools"], {"Stake hammer": 1})
         count_draynor = vampyre["combat_encounters"][0]
         self.assertEqual(count_draynor["display_name"], "Count Draynor")
         self.assertEqual(count_draynor["level"], 37)
@@ -524,6 +531,40 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
 
+    def test_source_backed_starter_quest_stage_overrides_replace_generated_guesses(self):
+        data = quests_as_dict()
+
+        imp = data["imp_catcher"]
+        self.assertEqual(imp["rewards"], {"Amulet of accuracy": 1})
+        self.assertEqual(
+            imp["stage_requirements"][0]["consumed_inventory"],
+            {"Black bead": 1, "Red bead": 1, "White bead": 1, "Yellow bead": 1},
+        )
+
+        druidic_by_stage = {row["stage"]: row for row in data["druidic_ritual"]["stage_requirements"]}
+        self.assertEqual(data["druidic_ritual"]["rewards"], {})
+        self.assertEqual(
+            druidic_by_stage[2]["consumed_inventory"],
+            {"Raw bear meat": 1, "Raw rat meat": 1, "Raw beef": 1, "Raw chicken": 1},
+        )
+        self.assertEqual(
+            druidic_by_stage[2]["produced_inventory"],
+            {"Enchanted bear meat": 1, "Enchanted rat meat": 1, "Enchanted beef": 1, "Enchanted chicken": 1},
+        )
+        self.assertEqual(
+            druidic_by_stage[3]["consumed_inventory"],
+            {"Enchanted bear meat": 1, "Enchanted rat meat": 1, "Enchanted beef": 1, "Enchanted chicken": 1},
+        )
+
+        pirate_by_stage = {row["stage"]: row for row in data["pirates_treasure"]["stage_requirements"]}
+        self.assertEqual(data["pirates_treasure"]["rewards"], {"Casket (Pirate's Treasure)": 1})
+        self.assertEqual(pirate_by_stage[1]["consumed_inventory"], {"Karamja rum": 1})
+        self.assertEqual(pirate_by_stage[1]["produced_inventory"], {"Chest key": 1})
+        self.assertEqual(pirate_by_stage[2]["consumed_inventory"], {"Chest key": 1})
+        self.assertEqual(pirate_by_stage[2]["produced_inventory"], {"Pirate message": 1})
+        self.assertEqual(pirate_by_stage[3]["required_inventory"], {"Pirate message": 1})
+        self.assertEqual(pirate_by_stage[3]["required_tools"], {"Spade": 1})
+
     def test_generated_rewards_journals_and_lamps_are_structured(self):
         data = quests_as_dict()
 
@@ -531,7 +572,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(cooks["rewards"]["Coins"], 500)
         self.assertEqual(cooks["rewards"]["Sardine"], 20)
         self.assertGreaterEqual(len(cooks["journal_stages"]), 2)
-        self.assertIn("Duke of Lumbridge", " ".join(cooks["journal_stages"][1]))
+        self.assertIn("top-quality milk", " ".join(cooks["journal_stages"][1]))
 
         one_small_favour = data["one_small_favour"]
         self.assertEqual(one_small_favour["lamp_rewards"][0]["quantity"], 2)

@@ -610,9 +610,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol({}))
         addon.current_skill = "Quests"
         addon.player_data = {
-            "inventory": {"Garlic": 1, "Coins": 2, "Beer": 1},
+            "inventory": {"Stake": 1, "Stake hammer": 1},
             "current_quest": "vampyre_slayer",
-            "quests": {"vampyre_slayer": {"started": True, "progress": 1, "completed": False}},
+            "quests": {"vampyre_slayer": {"started": True, "progress": 3, "completed": False}},
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
@@ -631,7 +631,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.on_quest_answer()
 
         self.assertEqual(addon.current_skill, "Quests")
-        self.assertEqual(addon.player_data["quests"]["vampyre_slayer"]["progress"], 1)
+        self.assertEqual(addon.player_data["quests"]["vampyre_slayer"]["progress"], 3)
         self.assertFalse(addon.player_data["quests"]["vampyre_slayer"]["completed"])
         self.assertEqual(addon.player_data["quest_combat_encounters"], {"vampyre_slayer": ["vampyre_slayer_count_draynor_37"]})
         self.assertEqual(calls["save"], 1)

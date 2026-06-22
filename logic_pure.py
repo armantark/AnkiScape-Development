@@ -1704,6 +1704,8 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
                 if _positive_int(inventory.get(item_name, 0), 0) >= amount:
                     inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
                     break
+        for item_name, amount in _quest_stage_item_pairs(requirement, "produced_inventory"):
+            inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) + amount
 
 
 def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):
