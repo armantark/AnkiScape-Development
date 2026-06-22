@@ -1320,6 +1320,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Catch the winning giant carp", action.toolTip())
 
+    def test_quests_tab_shows_sheep_herder_current_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Sheep feed": 1, "Plague jacket": 1, "Plague trousers": 1}
+        pd["current_quest"] = "sheep_herder"
+        pd["quests"]["sheep_herder"] = {"started": True, "progress": 3, "completed": False}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = (
+            "Blocked: Needs Red sheep bones x1, Needs Green sheep bones x1, "
+            "Needs Blue sheep bones x1, +8 more"
+        )
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_sheep_herder")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Needs Red sheep bones x1", action.toolTip())
+        self.assertIn("+8 more", action.toolTip())
+
     def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Stake": 1, "Stake hammer": 1}

@@ -139,8 +139,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   trophy stages, milk bucket and doogle sardine stages, Clock Tower cog
   placement, Cedric supply stages, RPDT label/totem stages, and scorpion-cage
   stages all advance independently instead of being flattened into start locks.
-  The live audit now reports 499 stage rows, 174 quests with item/tool/option
-  blockers, 120 quests with combat blockers, and 56 produced-inventory rows. This is still broad
+  Sheep Herder then proves the same pattern for noncombat animal-disposal
+  quest stages: poisoned sheep feed is produced and retained, Doctor Orbon's
+  clothing is bought mid-quest, cattleprod/clothing are required tools, and the
+  four coloured sheep bones are consumed at the incineration stage. The live
+  audit now reports 501 stage rows, 174 quests with item/tool/option
+  blockers, 120 quests with combat blockers, and 58 produced-inventory rows. This is still broad
   machine-readable coverage overall, not proof of minute-detail stage parity.
   Use
   `tools/audit_quest_stage_gate_coverage.py`,
@@ -171,6 +175,8 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`
   and
   `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`
+  and
+  `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`
   before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten

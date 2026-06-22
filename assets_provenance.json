@@ -5699,6 +5699,18 @@
     "source_wiki": "osrs",
     "timestamp": "2022-02-09T11:06:06Z"
   },
+  "questitems/blue_sheep_bones.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sheep_bones_%283%29.png",
+    "file_title": "Sheep bones (3).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sheep_bones_%283%29.png?f410d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de8cbf0c869617e5aa101516211946a048ef14be",
+    "size": 535,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:36Z"
+  },
   "questitems/broken_shield_black_arm_half.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Broken_shield_%28left%29.png",
     "file_title": "Broken shield (left).png",
@@ -5746,6 +5758,18 @@
     "size": 756,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:04Z"
+  },
+  "questitems/cattleprod.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cattleprod.png",
+    "file_title": "Cattleprod.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Cattleprod.png?39d34",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a1aa6e5511a75b0e315877317d0f82ddf5f7e84d",
+    "size": 435,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:12Z"
   },
   "questitems/certificate.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Certificate_%28Shield_of_Arrav%29.png",
@@ -5926,6 +5950,18 @@
     "size": 687,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:24Z"
+  },
+  "questitems/green_sheep_bones.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sheep_bones_%282%29.png",
+    "file_title": "Sheep bones (2).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sheep_bones_%282%29.png?4b960",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de8cbf0c869617e5aa101516211946a048ef14be",
+    "size": 535,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:35Z"
   },
   "questitems/grimy_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Grimy_key.png",
@@ -6167,6 +6203,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:03:02Z"
   },
+  "questitems/plague_jacket.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Plague_jacket.png",
+    "file_title": "Plague jacket.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Plague_jacket.png?f976b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a97f33f1eee0ce1af4da25c3a9686318626280fc",
+    "size": 691,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:48Z"
+  },
+  "questitems/plague_trousers.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Plague_trousers.png",
+    "file_title": "Plague trousers.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Plague_trousers.png?f976b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fee314358fafd6aa9cdf2e111c97db93023678a5",
+    "size": 366,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:48Z"
+  },
   "questitems/plank.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Plank.png",
     "file_title": "Plank.png",
@@ -6263,6 +6323,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:04:29Z"
   },
+  "questitems/red_sheep_bones.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sheep_bones_%281%29.png",
+    "file_title": "Sheep bones (1).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sheep_bones_%281%29.png?199d1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de8cbf0c869617e5aa101516211946a048ef14be",
+    "size": 535,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:37Z"
+  },
   "questitems/red_vine_worm.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Red_vine_worm.png",
     "file_title": "Red vine worm.png",
@@ -6298,6 +6370,18 @@
     "size": 694,
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T07:25:26Z"
+  },
+  "questitems/sheep_feed.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sheep_feed.png",
+    "file_title": "Sheep feed.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sheep_feed.png?199d1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "12af41122db321d1836fc9ba1ba4abbdba0b839a",
+    "size": 731,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:37Z"
   },
   "questitems/shield_of_arrav_book.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Book_%28Shield_of_Arrav%29.png",
@@ -6418,6 +6502,18 @@
     "size": 612,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:13:59Z"
+  },
+  "questitems/yellow_sheep_bones.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Sheep_bones_%284%29.png",
+    "file_title": "Sheep bones (4).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Sheep_bones_%284%29.png?f410d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de8cbf0c869617e5aa101516211946a048ef14be",
+    "size": 535,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:36Z"
   },
   "runecraftingitems/air_rune.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Air_rune.png",

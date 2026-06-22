@@ -646,6 +646,14 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Address label",
             "Totem",
             "Scorpion cage",
+            "Sheep feed",
+            "Plague jacket",
+            "Plague trousers",
+            "Cattleprod",
+            "Red sheep bones",
+            "Green sheep bones",
+            "Blue sheep bones",
+            "Yellow sheep bones",
         ):
             self.assertIn(item_name, QUEST_ITEM_IMAGES)
             self.assertTrue(os.path.exists(QUEST_ITEM_IMAGES[item_name]))

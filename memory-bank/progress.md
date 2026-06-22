@@ -41,7 +41,7 @@
   quest-wide item, tool, item-alternative, and combat fields, and focused
   source-backed rows in `quest_data.py` close quests whose details are only in
   local 2011Scape/Darkan quest behavior. Current coverage is 194/194 quests
-  with at least one stage requirement, 499 stage rows, 56 produced-inventory
+  with at least one stage requirement, 501 stage rows, 58 produced-inventory
   rows, 174 quests with item/tool/option blockers, and 120 quests with combat
   blockers. Combat blockers are hard locked by default through
   `quest_combat_config.resolver_enabled = False`;
@@ -102,7 +102,9 @@
   evidence says combat is none. Fishing Contest, Gertrude's Cat, Clock Tower,
   Monk's Friend, Tribal Totem, and Scorpion Catcher now have local
   Darkan-backed focused stage chains for their item transforms, route/action
-  gates, and the Scorpion Catcher jailer fight. 105 combat rows remain statless
+  gates, and the Scorpion Catcher jailer fight. Sheep Herder now has a local
+  Darkan-backed focused chain for poisoned sheep feed, Doctor Orbon clothing,
+  cattleprod/tool routing, and all four sheep-bone incinerations. 105 combat rows remain statless
   and explicitly blocked.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
@@ -135,7 +137,8 @@
   `memory-bank/source-audits/quest-shield-of-arrav-stage-detail-2026-06-22.md`, and
   `memory-bank/source-audits/quest-merlins-crystal-stage-detail-2026-06-22.md`, and
   `memory-bank/source-audits/quest-generated-combat-name-matching-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`.
+  `memory-bank/source-audits/quest-local-noncombat-stage-batch-2026-06-22.md`, and
+  `memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`.
 - Real acquisition loops for dependency-heavy Crafting inputs such as dragonstone, onyx, hides, molten glass, battlestaff orbs, and some weaving/spinning materials.
 - Full long-term balancing pass and a dedicated telemetry/stats UI.
 - A release-quality expansion spec.
@@ -763,6 +766,20 @@ blockers, and 105 statless combat rows. Source audit:
 Required verification passed: `python3 run_tests.py` passed with 504 tests (117
 skipped), and `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest
 discover tests` passed with 504 tests.
+
+Sheep Herder focused stage replacement completed on 2026-06-22. Backend:
+`quest_data.py` now replaces the generated quick-guide row with local
+Darkan-backed stages for poisoned sheep feed, Doctor Orbon plague clothing, the
+cattleprod route/tool gate, all four sheep-bone incinerations, and the final
+Councillor Halgrive report. `Sheep feed` is required but not consumed because
+the Darkan utility does not delete it, while red/green/blue/yellow sheep bones
+are consumed at the incineration stage. Frontend work was limited to targeted
+Quests-tab blocked-at-stage coverage. New quest item icons were fetched with
+provenance. Post-slice audit reports 501 stage rows, 58 produced-inventory
+rows, 285 combat encounters, 180 resolver-ready combat encounters, 174 quests
+with item/tool blockers, 120 quests with combat blockers, and 105 statless
+combat rows. Source audit:
+`memory-bank/source-audits/quest-sheep-herder-stage-detail-2026-06-22.md`.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

@@ -889,6 +889,25 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(jailer["npc_stats_source"].endswith("jailer.json"))
         self.assertEqual(scorpion_by_stage[6]["consumed_inventory"], {"Scorpion cage": 1})
 
+        sheep = data["sheep_herder"]
+        sheep_by_stage = {row["stage"]: row for row in sheep["stage_requirements"]}
+        self.assertEqual(sheep["stages"], 4)
+        self.assertEqual(sheep["combat"], "None.")
+        self.assertEqual(sheep_by_stage[1]["produced_inventory"], {"Sheep feed": 1})
+        self.assertEqual(sheep_by_stage[2]["consumed_inventory"], {"Coins": 100})
+        self.assertEqual(sheep_by_stage[2]["produced_inventory"], {"Plague jacket": 1, "Plague trousers": 1})
+        self.assertEqual(sheep_by_stage[3]["required_inventory"], {"Sheep feed": 1})
+        self.assertEqual(
+            sheep_by_stage[3]["consumed_inventory"],
+            {"Red sheep bones": 1, "Green sheep bones": 1, "Blue sheep bones": 1, "Yellow sheep bones": 1},
+        )
+        self.assertEqual(
+            sheep_by_stage[3]["required_tools"],
+            {"Plague jacket": 1, "Plague trousers": 1, "Cattleprod": 1},
+        )
+        self.assertEqual(sheep_by_stage[3]["required_routes"], ("Reach the Ardougne sheep enclosure",))
+        self.assertIn("SheepHerder.kt", sheep_by_stage[3]["source"])
+
     def test_source_backed_starter_quest_stage_overrides_replace_generated_guesses(self):
         data = quests_as_dict()
 

@@ -1644,6 +1644,75 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(completed_now)
         self.assertEqual(player_data["quests"]["scorpion_catcher"]["progress"], 4)
 
+    def test_sheep_herder_stage_gates_clothing_tools_and_all_four_bones(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["sheep_herder"] = {"started": True, "progress": 1, "completed": False}
+        player_data["inventory"]["Coins"] = 100
+
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(player_data, "sheep_herder", QUEST_DATA),
+            ("Action required: Accept poisoned sheep feed from Councillor Halgrive",),
+        )
+        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        self.assertFalse(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(blocked["quests"]["sheep_herder"]["progress"], 1)
+        self.assertEqual(blocked["quest_points"], 0)
+
+        player_data["quest_stage_actions"] = {
+            "sheep_herder": ["Accept poisoned sheep feed from Councillor Halgrive"]
+        }
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 2)
+        self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 3)
+        self.assertEqual(player_data["inventory"]["Coins"], 0)
+        self.assertEqual(player_data["inventory"]["Plague jacket"], 1)
+        self.assertEqual(player_data["inventory"]["Plague trousers"], 1)
+
+        self.assertIn(
+            "Needs Red sheep bones x1",
+            quest_current_stage_blocker_reasons_pure(player_data, "sheep_herder", QUEST_DATA),
+        )
+        player_data["inventory"].update(
+            {
+                "Cattleprod": 1,
+                "Red sheep bones": 1,
+                "Green sheep bones": 1,
+                "Blue sheep bones": 1,
+                "Yellow sheep bones": 1,
+            }
+        )
+        player_data["quest_route_states"] = {"sheep_herder": ["Reach the Ardougne sheep enclosure"]}
+        player_data["quest_stage_actions"]["sheep_herder"].extend(
+            [
+                "Herd and poison the red sheep",
+                "Herd and poison the green sheep",
+                "Herd and poison the blue sheep",
+                "Herd and poison the yellow sheep",
+                "Report the incinerated sheep to Councillor Halgrive",
+            ]
+        )
+
+        player_data, ok, completed_now = apply_quest_progress_pure(player_data, "sheep_herder", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(player_data["quests"]["sheep_herder"]["completed"])
+        self.assertEqual(player_data["quests"]["sheep_herder"]["progress"], 4)
+        self.assertEqual(player_data["quest_points"], 4)
+        self.assertEqual(player_data["inventory"]["Sheep feed"], 1)
+        self.assertEqual(player_data["inventory"]["Red sheep bones"], 0)
+        self.assertEqual(player_data["inventory"]["Green sheep bones"], 0)
+        self.assertEqual(player_data["inventory"]["Blue sheep bones"], 0)
+        self.assertEqual(player_data["inventory"]["Yellow sheep bones"], 0)
+        self.assertEqual(player_data["inventory"]["Coins"], 3100)
+
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}

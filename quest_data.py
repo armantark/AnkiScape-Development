@@ -61,6 +61,7 @@ CLOCK_TOWER_ID = "clock_tower"
 MONKS_FRIEND_ID = "monks_friend"
 TRIBAL_TOTEM_ID = "tribal_totem"
 SCORPION_CATCHER_ID = "scorpion_catcher"
+SHEEP_HERDER_ID = "sheep_herder"
 EAGLES_PEAK_ID = "eagles_peak"
 AS_A_FIRST_RESORT_ID = "as_a_first_resort"
 ROCKING_OUT_ID = "rocking_out"
@@ -221,6 +222,13 @@ DARKAN_SCORPION_CATCHER_THORMAC_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}
 DARKAN_SCORPION_CATCHER_SEER_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}/SeerScorpionCatcherD.java"
 DARKAN_SCORPION_CATCHER_KHAZ_SCORP_SOURCE = f"{DARKAN_SCORPION_CATCHER_SOURCE_ROOT}/KhazScorp.java"
 DARKAN_SCORPION_CATCHER_JAILER_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/jailer.json"
+DARKAN_SHEEP_HERDER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/sheep_herder"
+DARKAN_SHEEP_HERDER_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/SheepHerder.kt"
+DARKAN_SHEEP_HERDER_COUNCILLOR_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/dialogues/CouncillorHalgrivesD.kt"
+DARKAN_SHEEP_HERDER_DOCTOR_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/dialogues/DoctorOrbonD.kt"
+DARKAN_SHEEP_HERDER_FARMER_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/dialogues/FarmerBrumtyD.kt"
+DARKAN_SHEEP_HERDER_UTILS_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/utils/SheepHerderUtils.kt"
+DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE = f"{DARKAN_SHEEP_HERDER_SOURCE_ROOT}/utils/SheepHerderConstants.kt"
 DARKAN_FIGHT_ARENA_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/fightarena"
 DARKAN_FIGHT_ARENA_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArena.java"
 DARKAN_FIGHT_ARENA_CUTSCENE_SOURCE = f"{DARKAN_FIGHT_ARENA_SOURCE_ROOT}/FightArenaFightCutsceneController.java"
@@ -2228,6 +2236,26 @@ SCORPION_CATCHER_STAGES: Tuple[QuestStage, ...] = (
 )
 
 
+SHEEP_HERDER_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(
+        1,
+        "Councillor Halgrive gave me poisoned sheep feed and asked me to dispose of four infected sheep.",
+        "Doctor Orbon in the Ardougne chapel can sell protective clothing.",
+    ),
+    _simple_stage(
+        2,
+        "Doctor Orbon sold me a plague jacket and plague trousers.",
+        "I need the protective clothing and cattleprod to herd, poison, and incinerate all four sheep.",
+    ),
+    _simple_stage(
+        3,
+        "I incinerated the red, green, blue, and yellow sheep bones.",
+        "Councillor Halgrive should hear that the infected sheep are gone.",
+    ),
+    _simple_stage(4, "Councillor Halgrive paid me for clearing the infected sheep.", "Quest complete!"),
+)
+
+
 DWARF_CANNON_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Captain Lawgof needs the Black Guard camp railings repaired."),
     _simple_stage(2, "The six broken railings have been repaired. I should report back to Captain Lawgof."),
@@ -2251,6 +2279,7 @@ QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID: Dict[str, int] = {
     MONKS_FRIEND_ID: len(MONKS_FRIEND_STAGES),
     TRIBAL_TOTEM_ID: len(TRIBAL_TOTEM_STAGES),
     SCORPION_CATCHER_ID: len(SCORPION_CATCHER_STAGES),
+    SHEEP_HERDER_ID: len(SHEEP_HERDER_STAGES),
 }
 
 
@@ -2262,6 +2291,7 @@ QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStage, ...]] = {
     MONKS_FRIEND_ID: MONKS_FRIEND_STAGES,
     TRIBAL_TOTEM_ID: TRIBAL_TOTEM_STAGES,
     SCORPION_CATCHER_ID: SCORPION_CATCHER_STAGES,
+    SHEEP_HERDER_ID: SHEEP_HERDER_STAGES,
 }
 
 
@@ -2273,6 +2303,7 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
     MONKS_FRIEND_ID: "Optional: two level 21 thieves and a level 25 head thief.",
     TRIBAL_TOTEM_ID: "None.",
     SCORPION_CATCHER_ID: "You will need to defeat a level 39 jailer.",
+    SHEEP_HERDER_ID: "None.",
 }
 
 
@@ -2563,6 +2594,47 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             f"{DARKAN_SCORPION_CATCHER_THORMAC_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
             consumed_inventory=(("Scorpion cage", 1),),
             required_actions=("Return the caged scorpions to Thormac",),
+        ),
+    ),
+    SHEEP_HERDER_ID: (
+        _stage_req(
+            1,
+            "Accept poisoned sheep feed from Councillor Halgrive.",
+            f"{DARKAN_SHEEP_HERDER_COUNCILLOR_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            required_actions=("Accept poisoned sheep feed from Councillor Halgrive",),
+            produced_inventory=(("Sheep feed", 1),),
+        ),
+        _stage_req(
+            2,
+            "Buy protective clothing from Doctor Orbon.",
+            f"{DARKAN_SHEEP_HERDER_DOCTOR_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+            consumed_inventory=(("Coins", 100),),
+            produced_inventory=(("Plague jacket", 1), ("Plague trousers", 1)),
+        ),
+        _stage_req(
+            3,
+            "Herd, poison, incinerate, and report all four infected sheep.",
+            (
+                f"{DARKAN_SHEEP_HERDER_SOURCE}; {DARKAN_SHEEP_HERDER_FARMER_SOURCE}; "
+                f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {DARKAN_SHEEP_HERDER_CONSTANTS_SOURCE}; "
+                f"{SCAPE_2011_ITEM_IDENTITY_SOURCE}"
+            ),
+            required_inventory=(("Sheep feed", 1),),
+            consumed_inventory=(
+                ("Red sheep bones", 1),
+                ("Green sheep bones", 1),
+                ("Blue sheep bones", 1),
+                ("Yellow sheep bones", 1),
+            ),
+            required_tools=(("Plague jacket", 1), ("Plague trousers", 1), ("Cattleprod", 1)),
+            required_actions=(
+                "Herd and poison the red sheep",
+                "Herd and poison the green sheep",
+                "Herd and poison the blue sheep",
+                "Herd and poison the yellow sheep",
+                "Report the incinerated sheep to Councillor Halgrive",
+            ),
+            required_routes=("Reach the Ardougne sheep enclosure",),
         ),
     ),
     DWARF_CANNON_ID: (
@@ -5152,6 +5224,38 @@ def quest_reward_items_as_dict() -> Dict[str, Dict[str, object]]:
         "Scorpion cage": {
             "category": "tool",
             "source": f"{DARKAN_SCORPION_CATCHER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Sheep feed": {
+            "category": "material",
+            "source": f"{DARKAN_SHEEP_HERDER_COUNCILLOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Plague jacket": {
+            "category": "equipment",
+            "source": f"{DARKAN_SHEEP_HERDER_DOCTOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Plague trousers": {
+            "category": "equipment",
+            "source": f"{DARKAN_SHEEP_HERDER_DOCTOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Cattleprod": {
+            "category": "tool",
+            "source": f"{DARKAN_SHEEP_HERDER_FARMER_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Red sheep bones": {
+            "category": "material",
+            "source": f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Green sheep bones": {
+            "category": "material",
+            "source": f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Blue sheep bones": {
+            "category": "material",
+            "source": f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+        },
+        "Yellow sheep bones": {
+            "category": "material",
+            "source": f"{DARKAN_SHEEP_HERDER_UTILS_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
         },
         "Railing": {
             "category": "material",
