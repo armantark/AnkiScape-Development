@@ -561,6 +561,46 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["dialogs"][0][1])
 
+    def test_quest_answer_resolves_stat_backed_combat_gate(self):
+        addon = _load_addon_as_package("ankiscape_quest_combat_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Garlic": 1, "Coins": 2, "Beer": 1},
+            "current_quest": "vampyre_slayer",
+            "quests": {"vampyre_slayer": {"started": True, "progress": 1, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 35,
+            "constitution_level": 40,
+            "prayer_level": 20,
+        }
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.current_skill, "Quests")
+        self.assertEqual(addon.player_data["quests"]["vampyre_slayer"]["progress"], 1)
+        self.assertFalse(addon.player_data["quests"]["vampyre_slayer"]["completed"])
+        self.assertEqual(addon.player_data["quest_combat_encounters"], {"vampyre_slayer": ["vampyre_slayer_count_draynor_37"]})
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["gains"], ["Defeated Count Draynor"])
+        self.assertEqual(calls["dialogs"], [])
+
     def test_utility_opens_bird_nests_without_skill_xp(self):
         addon = _load_addon_as_package("ankiscape_bird_nest_utility_integration")
 

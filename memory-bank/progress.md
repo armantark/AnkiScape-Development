@@ -362,11 +362,29 @@ steps such as Rune Mysteries, The Restless Ghost, Deadliest Catch, Wolf Whistle,
 Song from the Depths, Carnillean Rising, and Some Like It Cold, and keeps combat
 globally fail-closed. Full minute-detail parity remains open: generated
 per-stage extraction, quest-item transformations, route/puzzle/follower state,
-combat stat enrichment, and the real combat resolver still need more source
+combat stat enrichment, and full combat simulation still need more source
 work. Focused verification passed with `python3 -m unittest
 tests.test_quest_catalog tests.test_logic tests.test_runtime_actions
 tests.test_integration_smoke`, four targeted Qt quest-tab tests, and
 `python3 tools/audit_quest_stage_gate_coverage.py`.
+
+Quest combat resolver contract slice completed on 2026-06-22. The global flat
+save gate `quest_combat_config.resolver_enabled` still defaults closed, but
+when enabled the Quest review action now resolves one stat-backed current-stage
+combat encounter through `logic_pure.apply_quest_combat_encounter_pure()` before
+normal quest progression can continue. The resolver uses the local 2011Scape
+player combat-level formula, requires source-backed NPC hitpoints/attack/
+strength/defence stats, distinguishes global lock, missing stats, underpowered
+player, and battle-ready states, and writes completed ids into
+`quest_combat_encounters` without advancing the quest stage on the same review.
+The Quests tab can select a resolver-ready battle while keeping noncombat,
+missing-stat, underpowered, and globally locked blockers disabled. This is not
+full combat parity: broad NPC stat enrichment, hit chance/max-hit/equipment/
+food/prayer/death simulation, and quest-specific mechanics remain deferred in
+`memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`.
+Verification: `python3 run_tests.py` passed with 404 tests (94 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 404 tests.
 
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,

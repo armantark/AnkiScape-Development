@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Combat Resolver Contract Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(150deg, rgba(79, 140, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 82% 10%, rgba(255, 92, 92, 0.10), transparent 28%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1160px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0 56px;
+    }
+
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #bcd3ff;
+      background: var(--accent-glow);
+      font: 700 0.72rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      max-width: 940px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 850px;
+      color: var(--text-dim);
+      margin: 0 0 28px;
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: rgba(22, 26, 33, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.18);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      margin: 0 0 14px;
+      font-size: 0.94rem;
+    }
+
+    .label {
+      display: inline-flex;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font: 700 0.65rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .label.red {
+      color: #fecaca;
+      background: rgba(255, 92, 92, 0.12);
+      border: 1px solid rgba(255, 92, 92, 0.26);
+    }
+
+    .label.green {
+      color: #bbf7d0;
+      background: rgba(74, 222, 128, 0.14);
+      border: 1px solid rgba(74, 222, 128, 0.28);
+    }
+
+    .label.amber {
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+    }
+
+    .lane {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 12px;
+      align-items: center;
+      margin-top: 12px;
+    }
+
+    .pane {
+      min-height: 164px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px;
+    }
+
+    .pane-title {
+      margin-bottom: 10px;
+      color: var(--text-dim);
+      font: 700 0.64rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      border-radius: 8px;
+      background: var(--surface-2);
+      margin-top: 8px;
+      padding: 9px 10px;
+      font-size: 0.78rem;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 4px 7px;
+      font: 700 0.58rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .pill.bad { color: #fecaca; background: rgba(255, 92, 92, 0.12); }
+    .pill.warn { color: #fde68a; background: rgba(251, 191, 36, 0.12); }
+    .pill.good { color: #bbf7d0; background: rgba(74, 222, 128, 0.12); }
+
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font: 900 1.4rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .steps {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px;
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--accent-glow);
+      color: #bcd3ff;
+      font: 800 0.8rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .step b { display: block; margin-bottom: 3px; }
+    .step span { display: block; color: var(--text-dim); font-size: 0.86rem; }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: #c6d0e2;
+      padding: 5px 8px;
+      font: 700 0.68rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding: 18px 20px;
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      border-radius: var(--radius);
+      background: rgba(251, 191, 36, 0.08);
+      color: #f8e8b0;
+    }
+
+    @media (max-width: 900px) {
+      .grid,
+      .lane {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        min-height: 28px;
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-Implementation Plan · Combat Resolver Contract</span>
+    <h1>Close the “manual encounter id” escape hatch before widening quest parity.</h1>
+    <p class="lede">
+      The catalog now has stage blockers everywhere. The next issue is combat fidelity: enabling the global resolver must not allow un-statted encounters or hand-written flags to masquerade as real battles.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <span class="label red">Current Risk</span>
+        <h2>Resolver-enabled combat is not yet a battle</h2>
+        <p>
+          The global config fails closed by default, but once enabled it only changes blocker text. There is not yet a pure path that evaluates player combat state against source-backed NPC stats and writes the completed encounter id.
+        </p>
+        <div class="lane" aria-label="Before and target behavior">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="row"><span>Resolver flag</span><span class="pill good">on</span></div>
+            <div class="row"><span>NPC stats missing</span><span class="pill warn">still listed</span></div>
+            <div class="row"><span>Encounter flag</span><span class="pill bad">manual</span></div>
+          </div>
+          <div class="arrow">→</div>
+          <div class="pane">
+            <div class="pane-title">After</div>
+            <div class="row"><span>Resolver flag</span><span class="pill good">on</span></div>
+            <div class="row"><span>NPC stats missing</span><span class="pill bad">blocked</span></div>
+            <div class="row"><span>Encounter flag</span><span class="pill good">resolver writes</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label green">Backend</span>
+        <h2>Pure combat contract</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="num">1</div>
+            <div><b>Require global opt-in</b><span>Keep `quest_combat_config.resolver_enabled` as the single write-once gate for all quest combat.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div><b>Require NPC stats</b><span>Encounters without source-backed stats remain blocked even when the resolver is globally enabled.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div><b>Use player stats</b><span>Resolve a battle from the player combat levels plus the encounter level, hitpoints, and quantity.</span></div>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <div><b>Write the encounter flag</b><span>Only successful resolver output appends to `quest_combat_encounters`.</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Frontend</span>
+        <h2>Minimal UI surface</h2>
+        <p>
+          This is backend-first. The existing quest card should still show compact blocker reasons, but the wording needs to distinguish “combat system locked,” “NPC stats missing,” and “battle required.”
+        </p>
+        <div class="pane">
+          <div class="pane-title">Expected player text</div>
+          <div class="row"><span>Global off</span><span class="pill bad">Combat locked</span></div>
+          <div class="row"><span>Missing stats</span><span class="pill warn">Stats required</span></div>
+          <div class="row"><span>Ready battle</span><span class="pill good">Battle required</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Tests</span>
+        <h2>Proof points for this slice</h2>
+        <p>
+          The test target is not full combat realism. It is a save-safe, source-backed resolver contract that prevents silent quest completion and creates the single integration point for later combat math.
+        </p>
+        <div class="tags">
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">tests/test_logic.py</span>
+          <span class="tag">tests/test_runtime_actions.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer">
+      This slice does not claim all-quest minute-detail parity. It removes a structural combat shortcut so every future quest combat row has one consistent path from source-backed NPC data to completed encounter state.
+    </div>
+  </main>
+</body>
+</html>

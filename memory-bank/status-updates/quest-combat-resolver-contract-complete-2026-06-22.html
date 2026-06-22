@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Combat Resolver Contract Complete</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(140deg, rgba(79, 140, 255, 0.15), transparent 35%),
+        radial-gradient(circle at 82% 12%, rgba(74, 222, 128, 0.10), transparent 26%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    main {
+      width: min(1160px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 44px 0 56px;
+    }
+
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(74, 222, 128, 0.38);
+      border-radius: 999px;
+      padding: 7px 12px;
+      color: #bbf7d0;
+      background: rgba(74, 222, 128, 0.12);
+      font: 700 0.72rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      max-width: 930px;
+      font-size: clamp(2rem, 5vw, 4.15rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 850px;
+      color: var(--text-dim);
+      margin: 0 0 28px;
+      font-size: 1rem;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin: 30px 0;
+    }
+
+    .metric {
+      min-height: 126px;
+      background: rgba(22, 26, 33, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .metric span {
+      color: var(--text-dim);
+      font-size: 0.86rem;
+    }
+
+    .metric.good strong { color: var(--green); }
+    .metric.warn strong { color: var(--amber); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: rgba(22, 26, 33, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 16px 50px rgba(0, 0, 0, 0.18);
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.12rem;
+      letter-spacing: 0;
+    }
+
+    .card p {
+      color: var(--text-dim);
+      margin: 0 0 14px;
+      font-size: 0.94rem;
+    }
+
+    .label {
+      display: inline-flex;
+      margin-bottom: 12px;
+      border-radius: 999px;
+      padding: 5px 9px;
+      font: 700 0.65rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .label.green {
+      color: #bbf7d0;
+      background: rgba(74, 222, 128, 0.14);
+      border: 1px solid rgba(74, 222, 128, 0.28);
+    }
+
+    .label.amber {
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.28);
+    }
+
+    .label.red {
+      color: #fecaca;
+      background: rgba(255, 92, 92, 0.12);
+      border: 1px solid rgba(255, 92, 92, 0.26);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .step {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px;
+      min-height: 118px;
+    }
+
+    .step b {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.88rem;
+    }
+
+    .step span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10141b;
+      padding: 12px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      border-radius: 8px;
+      background: var(--surface-2);
+      margin-top: 8px;
+      padding: 9px 10px;
+      font-size: 0.78rem;
+    }
+
+    .pill {
+      flex: 0 0 auto;
+      border-radius: 999px;
+      padding: 4px 7px;
+      font: 700 0.58rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+      text-transform: uppercase;
+    }
+
+    .pill.good { color: #bbf7d0; background: rgba(74, 222, 128, 0.12); }
+    .pill.warn { color: #fde68a; background: rgba(251, 191, 36, 0.12); }
+    .pill.bad { color: #fecaca; background: rgba(255, 92, 92, 0.12); }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: #c6d0e2;
+      padding: 5px 8px;
+      font: 700 0.68rem/1 JetBrains Mono, "SFMono-Regular", Consolas, monospace;
+    }
+
+    .footer {
+      margin-top: 20px;
+      padding: 18px 20px;
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      border-radius: var(--radius);
+      background: rgba(251, 191, 36, 0.08);
+      color: #f8e8b0;
+    }
+
+    @media (max-width: 900px) {
+      .metrics,
+      .grid,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Completed Slice · Combat Resolver Contract</span>
+    <h1>Quest combat now has a real stat-backed write path.</h1>
+    <p class="lede">
+      This does not finish combat parity. It closes the structural gap where enabling battle support only changed blocker text. The Quest review action can now resolve one current-stage, source-backed battle and write the encounter id before the quest can advance.
+    </p>
+
+    <section class="metrics" aria-label="Slice metrics">
+      <div class="metric good">
+        <strong>1</strong>
+        <span>central pure helper writes completed quest combat encounter ids</span>
+      </div>
+      <div class="metric good">
+        <strong>404</strong>
+        <span>tests passed in the standard runner</span>
+      </div>
+      <div class="metric good">
+        <strong>404</strong>
+        <span>offscreen Qt discovery tests passed</span>
+      </div>
+      <div class="metric warn">
+        <strong>15/286</strong>
+        <span>combat rows currently have local NPC stats</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <span class="label green">Backend</span>
+        <h2>Resolver path</h2>
+        <div class="flow">
+          <div class="step"><b>Global opt-in</b><span>`resolver_enabled` must be true.</span></div>
+          <div class="step"><b>NPC stats</b><span>Hitpoints, Attack, Strength, and Defence must exist.</span></div>
+          <div class="step"><b>Player stats</b><span>Combat level uses the local 2011Scape formula.</span></div>
+          <div class="step"><b>Write flag</b><span>One encounter id is saved; the quest stage waits.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label green">Frontend</span>
+        <h2>Battle-ready quests can be selected</h2>
+        <p>
+          The Quests tab still shows the stage as blocked, but a stat-backed battle that the player can resolve is selectable so the review action can run the battle.
+        </p>
+        <div class="pane">
+          <div class="row"><span>Global combat disabled</span><span class="pill bad">disabled</span></div>
+          <div class="row"><span>NPC stats missing</span><span class="pill warn">disabled</span></div>
+          <div class="row"><span>Player underpowered</span><span class="pill warn">disabled</span></div>
+          <div class="row"><span>Battle required: Count Draynor</span><span class="pill good">selectable</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Boundary</span>
+        <h2>Still not full combat parity</h2>
+        <p>
+          The resolver is deterministic and combat-level gated. It does not yet model hit chance, max hit, food, prayers, styles, equipment, special mechanics, death, or per-enemy multi-kill flows.
+        </p>
+        <div class="tags">
+          <span class="tag">broad NPC stat enrichment</span>
+          <span class="tag">full combat simulation</span>
+          <span class="tag">quest-specific mechanics</span>
+          <span class="tag">multi-enemy policy</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="label amber">Proof Case</span>
+        <h2>Vampyre Slayer</h2>
+        <p>
+          Count Draynor is the proof row because the generated catalog already has local 2011Scape combat stats. A successful Quest review writes `vampyre_slayer_count_draynor_37`, leaves the stage in place, and allows a later review to advance normally.
+        </p>
+        <div class="tags">
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">ui.py</span>
+          <span class="tag">quest-combat-resolver-contract audit</span>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer">
+      The active goal remains open. This slice makes combat gates harder to cheat accidentally and gives future combat work one place to deepen the model.
+    </div>
+  </main>
+</body>
+</html>

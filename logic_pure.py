@@ -1170,6 +1170,54 @@ def _quest_blocker(stage, kind, reason, source="", **extra):
     return row
 
 
+def player_combat_level_pure(player_data):
+    attack = _positive_int(player_data.get("attack_level", 1), 1)
+    defence = _positive_int(player_data.get("defense_level", 1), 1)
+    strength = _positive_int(player_data.get("strength_level", 1), 1)
+    constitution = _positive_int(player_data.get("constitution_level", 10), 10)
+    prayer = _positive_int(player_data.get("prayer_level", 1), 1)
+    ranged = _positive_int(player_data.get("ranged_level", 1), 1)
+    magic = _positive_int(player_data.get("magic_level", 1), 1)
+    summoning = _positive_int(player_data.get("summoning_level", 1), 1)
+    base = 0.25 * (defence + constitution + int(prayer * 0.5) + int(summoning * 0.5))
+    melee = base + 0.325 * (attack + strength)
+    ranged_score = base + 0.325 * (int(ranged * 0.5) + ranged)
+    magic_score = base + 0.325 * (int(magic * 0.5) + magic)
+    return int(max(melee, ranged_score, magic_score))
+
+
+def _quest_combat_stats(encounter):
+    stats = encounter.get("npc_stats", {}) if isinstance(encounter, Mapping) else {}
+    return stats if isinstance(stats, Mapping) else {}
+
+
+def quest_combat_encounter_has_stats_pure(encounter):
+    stats = _quest_combat_stats(encounter)
+    required = ("hitpoints", "attack", "strength", "defence")
+    return all(_positive_int(stats.get(key, 0), 0) > 0 for key in required)
+
+
+def _quest_combat_display(encounter, source=""):
+    display_name = str(encounter.get("display_name") or encounter.get("encounter_id") or "combat encounter")
+    level = _positive_int(encounter.get("level", 0), 0)
+    quantity = _positive_int(encounter.get("quantity", 1), 1)
+    level_text = f" level {level}" if level > 0 else ""
+    quantity_text = f" x{quantity}" if quantity > 1 else ""
+    return display_name, level, quantity, level_text, quantity_text, str(encounter.get("source") or source)
+
+
+def quest_combat_encounter_ready_pure(player_data, encounter):
+    if not quest_combat_resolver_enabled_pure(player_data):
+        return False, "combat_locked"
+    if not quest_combat_encounter_has_stats_pure(encounter):
+        return False, "combat_missing_stats"
+    encounter_level = _positive_int(encounter.get("level", 0), 0)
+    player_level = player_combat_level_pure(player_data)
+    if encounter_level > 0 and player_level < encounter_level:
+        return False, "combat_underpowered"
+    return True, "combat_ready"
+
+
 def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
     quest = quest_data.get(quest_id)
     if not quest:
@@ -1266,24 +1314,50 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
             if not isinstance(encounter, Mapping):
                 continue
             encounter_id = encounter.get("encounter_id")
-            display_name = str(encounter.get("display_name") or encounter_id or "combat encounter")
             if not isinstance(encounter_id, str) or _quest_flag_completed(player_data, "quest_combat_encounters", quest_id, encounter_id):
                 continue
-            level = _positive_int(encounter.get("level", 0), 0)
-            quantity = _positive_int(encounter.get("quantity", 1), 1)
-            level_text = f" level {level}" if level > 0 else ""
-            quantity_text = f" x{quantity}" if quantity > 1 else ""
+            display_name, level, quantity, level_text, quantity_text, encounter_source = _quest_combat_display(encounter, source)
             if not quest_combat_resolver_enabled_pure(player_data):
                 blockers.append(
                     _quest_blocker(
                         stage,
                         "combat_locked",
                         f"Combat locked until battle support is enabled: {display_name}{level_text}{quantity_text}",
-                        str(encounter.get("source") or source),
+                        encounter_source,
                         encounter_id=encounter_id,
                         display_name=display_name,
                         level=level,
                         quantity=quantity,
+                    )
+                )
+                continue
+            if not quest_combat_encounter_has_stats_pure(encounter):
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "combat_missing_stats",
+                        f"Combat stats required before battle support can resolve: {display_name}{level_text}{quantity_text}",
+                        encounter_source,
+                        encounter_id=encounter_id,
+                        display_name=display_name,
+                        level=level,
+                        quantity=quantity,
+                    )
+                )
+                continue
+            player_level = player_combat_level_pure(player_data)
+            if level > 0 and player_level < level:
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "combat_underpowered",
+                        f"Requires combat level {level} for battle: {display_name}{level_text}{quantity_text}",
+                        encounter_source,
+                        encounter_id=encounter_id,
+                        display_name=display_name,
+                        level=level,
+                        quantity=quantity,
+                        player_combat_level=player_level,
                     )
                 )
                 continue
@@ -1292,7 +1366,7 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     stage,
                     "combat_encounter",
                     f"Battle required: {display_name}{level_text}{quantity_text}",
-                    str(encounter.get("source") or source),
+                    encounter_source,
                     encounter_id=encounter_id,
                     display_name=display_name,
                     level=level,
@@ -1304,6 +1378,14 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
 
 def quest_current_stage_blocker_reasons_pure(player_data, quest_id, quest_data):
     return tuple(str(blocker.get("reason")) for blocker in quest_current_stage_blockers_pure(player_data, quest_id, quest_data))
+
+
+def quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data):
+    return tuple(
+        blocker
+        for blocker in quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
+        if blocker.get("kind") == "combat_encounter"
+    )
 
 
 def quest_availability_state_pure(player_data, quest_id, quest_data):
@@ -1471,6 +1553,12 @@ def can_progress_quest_pure(player_data, quest_id, quest_data):
     return not quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
 
 
+def can_attempt_quest_review_pure(player_data, quest_id, quest_data):
+    if can_progress_quest_pure(player_data, quest_id, quest_data):
+        return True
+    return bool(quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data))
+
+
 def start_quest_pure(player_data, quest_id, quest_data):
     if not can_start_quest_pure(player_data, quest_id, quest_data):
         return player_data, False
@@ -1499,6 +1587,63 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
             continue
         for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
             inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
+
+
+def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):
+    quest = quest_data.get(quest_id)
+    if not isinstance(quest, Mapping):
+        return None
+    current_stage = quest_current_stage_pure(player_data, quest_id, quest_data)
+    for requirement in quest.get("stage_requirements", ()) or ():
+        if not isinstance(requirement, Mapping):
+            continue
+        if _positive_int(requirement.get("stage", 0), 0) != current_stage:
+            continue
+        for encounter in requirement.get("combat_encounters", ()) or ():
+            if isinstance(encounter, Mapping) and encounter.get("encounter_id") == encounter_id:
+                return encounter
+    return None
+
+
+def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encounter_id=None):
+    state = quest_state_pure(player_data, quest_id)
+    if not state["started"] or state["completed"]:
+        return player_data, False, {"reason": "quest_not_in_progress"}
+    blockers = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data)
+    if encounter_id is None and blockers:
+        encounter_id = blockers[0].get("encounter_id")
+    if not isinstance(encounter_id, str):
+        return player_data, False, {"reason": "no_resolvable_combat"}
+    encounter = _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id)
+    if encounter is None:
+        return player_data, False, {"reason": "encounter_not_current_stage"}
+    ready, reason = quest_combat_encounter_ready_pure(player_data, encounter)
+    if not ready:
+        return player_data, False, {"reason": reason}
+    data = _copy_player_data_with_nested(player_data)
+    quest_flags = data.setdefault("quest_combat_encounters", {}).setdefault(quest_id, [])
+    if isinstance(quest_flags, str):
+        quest_flags = [quest_flags]
+    elif isinstance(quest_flags, Mapping):
+        quest_flags = [flag for flag, enabled in quest_flags.items() if isinstance(flag, str) and bool(enabled)]
+    elif isinstance(quest_flags, Iterable):
+        quest_flags = [flag for flag in quest_flags if isinstance(flag, str)]
+    else:
+        quest_flags = []
+    if encounter_id not in quest_flags:
+        quest_flags.append(encounter_id)
+    data["quest_combat_encounters"][quest_id] = sorted(set(quest_flags))
+    display_name, level, quantity, _, quantity_text, source = _quest_combat_display(encounter)
+    return data, True, {
+        "reason": "combat_resolved",
+        "encounter_id": encounter_id,
+        "display_name": display_name,
+        "level": level,
+        "quantity": quantity,
+        "quantity_text": quantity_text,
+        "player_combat_level": player_combat_level_pure(player_data),
+        "source": source,
+    }
 
 
 def apply_quest_progress_pure(player_data, quest_id, quest_data):

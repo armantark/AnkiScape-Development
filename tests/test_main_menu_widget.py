@@ -1255,6 +1255,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Delrith level 27", action.toolTip())
 
+    def test_quests_tab_allows_resolver_ready_combat_gate_selection(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Garlic": 1, "Coins": 2, "Beer": 1}
+        pd["current_quest"] = "vampyre_slayer"
+        pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
+        pd["quest_combat_config"] = {"resolver_enabled": True}
+        pd["attack_level"] = 40
+        pd["strength_level"] = 40
+        pd["defense_level"] = 35
+        pd["constitution_level"] = 40
+        pd["prayer_level"] = 20
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Battle required: Count Draynor level 37"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_vampyre_slayer")
+        self.assertIsNotNone(action)
+        self.assertTrue(action.isEnabled())
+
+        action.click()
+        QApplication.processEvents()
+        self.assertIn("vampyre_slayer", self._quest_calls)
+
     def test_quests_tab_shows_required_action_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "the_restless_ghost"

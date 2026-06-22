@@ -53,6 +53,7 @@ try:
         apply_fishing_action_pure,
         apply_fletching_pure,
         apply_hunter_action_pure,
+        apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
         apply_open_bird_nests_pure,
         apply_quest_progress_pure,
@@ -70,6 +71,7 @@ try:
         calculate_woodcutting_success_probability_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
+        can_attempt_quest_review_pure,
         can_progress_quest_pure,
         can_runecraft_target_pure,
         can_smith_item_pure,
@@ -90,6 +92,7 @@ try:
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
+        quest_current_stage_blockers_pure,
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -139,6 +142,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_fishing_action_pure,
         apply_fletching_pure,
         apply_hunter_action_pure,
+        apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
         apply_open_bird_nests_pure,
         apply_quest_progress_pure,
@@ -156,6 +160,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         calculate_woodcutting_success_probability_pure,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
+        can_attempt_quest_review_pure,
         can_progress_quest_pure,
         can_runecraft_target_pure,
         can_smith_item_pure,
@@ -176,6 +181,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         mining_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
+        quest_current_stage_blockers_pure,
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
@@ -884,7 +890,32 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
         quest_id = "rune_mysteries"
         player_data["current_quest"] = quest_id
     quest = QUEST_DATA[quest_id]
-    stage_blocker_reasons = quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
+    stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, QUEST_DATA)
+    combat_blockers = tuple(blocker for blocker in stage_blockers if blocker.get("kind") == "combat_encounter")
+    if combat_blockers:
+        new_data, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            quest_id,
+            QUEST_DATA,
+            combat_blockers[0].get("encounter_id"),
+        )
+        if not ok:
+            ctx.deactivate_current_skill()
+            ctx.show_error_message(
+                "Quest combat blocked",
+                f"{quest.get('display_name', quest_id)} cannot resolve this battle yet.",
+            )
+            return False
+        player_data.update(new_data)
+        _record_action(ctx, "quest", f"{quest_id}:{result.get('encounter_id', 'combat')}", True, expected_success_chance=1.0)
+        ctx.check_achievements(player_data)
+        ctx.save_player_data()
+        ctx.refresh_skill_availability()
+        display_name = str(result.get("display_name") or "combat encounter")
+        quantity_text = str(result.get("quantity_text") or "")
+        ctx.show_activity_gain(f"Defeated {display_name}{quantity_text}")
+        return True
+    stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     if stage_blocker_reasons:
         ctx.deactivate_current_skill()
         ctx.show_error_message(
@@ -1233,7 +1264,7 @@ def _can_start_runecrafting_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_quest_action(ctx: RuntimeActionContext) -> bool:
     quest_id = ctx.player_data.get("current_quest", "rune_mysteries")
-    return can_progress_quest_pure(ctx.player_data, quest_id, QUEST_DATA)
+    return can_attempt_quest_review_pure(ctx.player_data, quest_id, QUEST_DATA)
 
 
 def _can_start_crafting_action(ctx: RuntimeActionContext) -> bool:

@@ -149,6 +149,33 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["errors"][0][1])
 
+    def test_quest_answer_resolves_source_backed_combat_before_stage_progress(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Garlic": 1, "Coins": 2, "Beer": 1},
+            "current_quest": "vampyre_slayer",
+            "quests": {"vampyre_slayer": {"started": True, "progress": 1, "completed": False}},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+            "attack_level": 40,
+            "strength_level": 40,
+            "defense_level": 35,
+            "constitution_level": 40,
+            "prayer_level": 20,
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quests"]["vampyre_slayer"]["progress"], 1)
+        self.assertFalse(player_data["quests"]["vampyre_slayer"]["completed"])
+        self.assertEqual(player_data["quest_combat_encounters"], {"vampyre_slayer": ["vampyre_slayer_count_draynor_37"]})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Count Draynor"])
+
     def test_broad_fletching_requires_ability_before_review_reward(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

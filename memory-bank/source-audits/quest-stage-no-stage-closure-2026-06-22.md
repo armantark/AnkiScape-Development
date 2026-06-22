@@ -99,9 +99,10 @@ Known remaining gaps:
   generated short-quest stage shape.
 - Quest-specific item transformations and quest-item acquisition remain mostly
   represented as required actions, not real inventory production chains.
-- Combat remains fail-closed. A future resolver must use real player combat
-  stats and NPC stats, then write completed encounter ids before
-  `quest_combat_config.resolver_enabled` is enabled globally.
+- Combat remains fail-closed by default. The follow-up resolver contract in
+  `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`
+  adds the first stat-backed pure write path for completed encounter ids, but
+  full combat simulation and broad NPC stat enrichment remain incomplete.
 - Many combat encounters still lack local 2011Scape NPC stat enrichment because
   the matching NPC definition was not found in this slice.
 - Route flags, partner/follower state, companion state, puzzle state, and
@@ -120,12 +121,13 @@ Use a throwaway Anki profile or back up the current AnkiScape save first.
    and confirm the quest can move past that blocker.
 4. Start Lost City with Crafting 31 and Woodcutting 36. Confirm it starts but
    blocks on Shamus, then later blocks on the level 63 Tree spirit until the
-   future combat resolver writes the completed encounter id.
+   encounter gains source-backed NPC stats and the resolver can write the
+   completed encounter id.
 5. Start Rune Mysteries in a test save and confirm delivery stages block unless
    their matching `quest_stage_actions` flags are present.
-6. Do not enable `quest_combat_config.resolver_enabled` in a live save until a
-   real combat resolver writes completed encounter ids from character-vs-NPC
-   battle results.
+6. Do not enable `quest_combat_config.resolver_enabled` in a live save until the
+   remaining combat stat enrichment and combat-simulation scope are acceptable
+   for that save.
 
 ## Verification
 

@@ -17,6 +17,7 @@ from logic_pure import (
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
     apply_claim_pure,
+    apply_quest_combat_encounter_pure,
     apply_quest_progress_pure,
     apply_runecrafting_action_pure,
     apply_smelt_pure,
@@ -76,6 +77,7 @@ from logic_pure import (
     sanitize_review_action_multiplier,
     smithing_success_probability_pure,
     can_start_quest_pure,
+    can_attempt_quest_review_pure,
     can_progress_quest_pure,
     start_quest_pure,
     quest_current_stage_blockers_pure,
@@ -84,6 +86,7 @@ from logic_pure import (
     quest_availability_state_pure,
     quest_unlock_locked_reasons_pure,
     fletching_target_locked_reasons_pure,
+    player_combat_level_pure,
     normalize_xp_rewards_pure,
 )
 from storage_pure import default_player_data
@@ -1461,11 +1464,85 @@ class TestLogic(unittest.TestCase):
         player_data["quest_route_states"] = {"proof_quest": ["Reach Thurgo's cave"]}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         blockers = quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
-        self.assertEqual(blockers[0]["reason"], "Battle required: Ice giant level 53")
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
+        self.assertEqual(blockers[0]["reason"], "Combat stats required before battle support can resolve: Ice giant level 53")
 
         player_data["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "proof_quest", quest_data), ())
+
+    def test_quest_combat_resolver_uses_player_and_source_backed_npc_stats(self):
+        self.assertEqual(
+            player_combat_level_pure(
+                {
+                    "attack_level": 40,
+                    "strength_level": 40,
+                    "defense_level": 35,
+                    "constitution_level": 40,
+                    "prayer_level": 20,
+                    "summoning_level": 1,
+                    "ranged_level": 1,
+                    "magic_level": 1,
+                }
+            ),
+            47,
+        )
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "count_draynor",
+                                "display_name": "Count Draynor",
+                                "level": 37,
+                                "quantity": 1,
+                                "npc_stats": {
+                                    "hitpoints": 350,
+                                    "attack": 30,
+                                    "strength": 25,
+                                    "defence": 30,
+                                    "magic": 1,
+                                    "ranged": 1,
+                                },
+                                "source": "2011Scape Count Draynor combat def",
+                            },
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        low_level = {
+            "inventory": {},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+        }
+        blockers = quest_current_stage_blockers_pure(low_level, "proof_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_underpowered",))
+        self.assertFalse(can_attempt_quest_review_pure(low_level, "proof_quest", quest_data))
+
+        ready = dict(low_level)
+        ready.update(
+            {
+                "attack_level": 40,
+                "strength_level": 40,
+                "defense_level": 35,
+                "constitution_level": 40,
+                "prayer_level": 20,
+            }
+        )
+        blockers = quest_current_stage_blockers_pure(ready, "proof_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Count Draynor level 37")
+        self.assertTrue(can_attempt_quest_review_pure(ready, "proof_quest", quest_data))
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(ready, "proof_quest", quest_data)
+        self.assertTrue(ok)
+        self.assertEqual(result["encounter_id"], "count_draynor")
+        self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["count_draynor"]})
+        self.assertEqual(quest_current_stage_blockers_pure(resolved, "proof_quest", quest_data), ())
 
     def test_lost_city_completion_unlocks_cosmic_runecrafting_gate(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

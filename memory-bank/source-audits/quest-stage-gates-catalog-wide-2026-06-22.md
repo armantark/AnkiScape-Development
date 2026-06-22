@@ -54,7 +54,9 @@ combat blockers, and 0 quests without stage requirements.
 - `logic_pure.py` adds a global
   `player_data["quest_combat_config"]["resolver_enabled"]` switch. It defaults
   to `False`, so all incomplete combat encounters fail closed as
-  `combat_locked` blockers until real battle support exists.
+  `combat_locked` blockers. The follow-up resolver contract in
+  `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md`
+  adds the first stat-backed write path, but no-stats rows still remain blocked.
 - Storage config version 20 seeds and migrates `quest_combat_config`,
   `quest_combat_encounters`, `quest_stage_actions`, and `quest_route_states`.
 
@@ -82,10 +84,10 @@ Known gaps:
 - Exact per-stage placement still needs manual/source-backed audit for many
   quests. The generator infers item stages from journal text and otherwise uses
   a conservative stage row; it does not prove minute-by-minute quest scripting.
-- Combat is represented as hard blockers and optional future battle metadata.
-  No combat resolver exists yet, so no combat quest can legitimately pass a
-  generated encounter unless `quest_combat_encounters` is explicitly marked by a
-  future combat system and the global resolver config is enabled.
+- Combat is represented as hard blockers and optional battle metadata. The
+  first resolver contract can complete current-stage stat-backed encounters,
+  but most generated encounters still cannot legitimately pass because they
+  lack local NPC stats or quest-specific combat mechanics.
 - Route-specific branches, partner requirements, cat/companion state, subquest
   choices, quest-specific item transformations, and action-family requirements
   remain backlog items unless already captured by a hand override.
@@ -107,9 +109,9 @@ Use a throwaway Anki profile or back up the current AnkiScape save first.
 5. Confirm The Knight's Sword still blocks at Thurgo without Redberry pie,
    consumes the pie when supplied, blocks later on Blurite ore plus two Iron
    bars, and awards 12,725 Smithing XP only on valid completion.
-6. Do not enable `quest_combat_config.resolver_enabled` in a live save until a
-   real combat resolver writes completed encounter ids from character-vs-NPC
-   battle results.
+6. Do not enable `quest_combat_config.resolver_enabled` in a live save until the
+   remaining combat stat enrichment and combat-simulation scope are acceptable
+   for that save.
 
 ## Verification
 
