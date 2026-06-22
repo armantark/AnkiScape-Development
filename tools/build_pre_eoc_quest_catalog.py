@@ -1812,6 +1812,10 @@ def _skip_combat_line(line: str) -> bool:
     lower = clean_markup(line).lower()
     if not lower:
         return True
+    if not _combat_level_from_line(line) and lower.endswith(":"):
+        return True
+    if not _combat_level_from_line(line) and lower in {"the 6 barrows brothers"}:
+        return True
     if lower.startswith("note:") or lower.startswith("see "):
         return True
     if lower in {"none", "n/a", "no"} or lower.startswith("none"):
@@ -1837,11 +1841,16 @@ def _combat_level_from_line(line: str) -> int:
         match = re.search(r"\blvl\s*[- ]?\s*(\d+)", line, flags=re.I)
     if not match:
         match = re.search(r"\((\d+)\)", line)
-    return parse_int(match.group(1), 0) if match else 0
+    if not match:
+        return 0
+    return parse_int(match.group(1), 0)
 
 
 def _combat_quantity_from_line(line: str) -> int:
     clean = clean_markup(line)
+    match = re.match(r"\s*(\d+)\s*x\b", clean, flags=re.I)
+    if match:
+        return parse_int(match.group(1), 1)
     match = re.match(r"\s*(\d+)\b", clean)
     if match:
         return parse_int(match.group(1), 1)

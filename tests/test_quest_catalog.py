@@ -836,6 +836,47 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(queen["npc_stats"]["hitpoints"], 2000)
         self.assertTrue(queen["npc_stats_source"].endswith("sea_troll_queen (noanims).json"))
 
+        shilo_fights = {
+            encounter["display_name"]: encounter
+            for requirement in data["shilo_village"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+        }
+        self.assertEqual(
+            set(shilo_fights),
+            {"Nazastarool (Zombie)", "Nazastarool (Skeleton)", "Nazastarool (Ghost)"},
+        )
+        self.assertEqual(shilo_fights["Nazastarool (Zombie)"]["level"], 91)
+        self.assertEqual(shilo_fights["Nazastarool (Skeleton)"]["level"], 68)
+        self.assertEqual(shilo_fights["Nazastarool (Ghost)"]["level"], 93)
+        self.assertEqual(shilo_fights["Nazastarool (Ghost)"]["npc_stats"]["hitpoints"], 1000)
+
+        legends_nezikchened = next(
+            encounter
+            for requirement in data["legends_quest"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Nezikchened"
+        )
+        self.assertEqual(legends_nezikchened["quantity"], 3)
+        self.assertEqual(legends_nezikchened["npc_stats"]["attack"], 330)
+
+        feud_tough_guy = next(
+            encounter
+            for requirement in data["the_feud"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Tough guy"
+        )
+        self.assertEqual(feud_tough_guy["level"], 75)
+        self.assertEqual(feud_tough_guy["npc_stats"]["hitpoints"], 750)
+
+        rfd_black_dragon = next(
+            encounter
+            for requirement in data["recipe_for_disaster_freeing_sir_amik_varze"]["stage_requirements"]
+            for encounter in requirement["combat_encounters"]
+            if encounter["display_name"] == "Black Dragon"
+        )
+        self.assertEqual(rfd_black_dragon["level"], 227)
+        self.assertEqual(rfd_black_dragon["npc_stats"]["hitpoints"], 1900)
+
         firebird = next(
             encounter
             for requirement in data["heroes_quest"]["stage_requirements"]

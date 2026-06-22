@@ -14,6 +14,33 @@ class TestPreEocQuestCatalogBuilder(unittest.TestCase):
         self.assertIn("goblin_level_2.plugin.kts", encounters[0]["npc_stats_source"])
         self.assertFalse(quest_combat_encounter_has_stats_pure(encounters[0]))
 
+    def test_combat_parser_skips_source_list_headings(self):
+        encounters = builder.parse_combat_encounters(
+            "4 Guardians which are:\n*Dessous (level 139)",
+            "source",
+            "desert_treasure",
+        )
+
+        self.assertEqual([encounter["display_name"] for encounter in encounters], ["Dessous"])
+        self.assertEqual(encounters[0]["level"], 139)
+
+    def test_combat_parser_handles_prefix_quantity_and_leaves_ranges_unresolved(self):
+        brawlers = builder.parse_combat_encounters(
+            "4x Living rock brawler (level 2)",
+            "source",
+            "whats_mine_is_yours",
+        )
+        dwarves = builder.parse_combat_encounters(
+            "3 dwarven gang members (levels 44-49)",
+            "source",
+            "one_small_favour",
+        )
+
+        self.assertEqual(brawlers[0]["quantity"], 4)
+        self.assertEqual(brawlers[0]["level"], 2)
+        self.assertEqual(dwarves[0]["quantity"], 3)
+        self.assertEqual(dwarves[0]["level"], 0)
+
     def test_npc_matching_uses_token_safe_aliases_and_plurals(self):
         self.assertEqual(builder._matching_source_npc_stats("Bear", 2), {})
 

@@ -78,6 +78,9 @@ DEATH_TO_THE_DORGESHUUN_ID = "death_to_the_dorgeshuun"
 HEROES_QUEST_ID = "heroes_quest"
 SPIRITS_OF_THE_ELID_ID = "spirits_of_the_elid"
 ANOTHER_SLICE_OF_H_A_M_ID = "another_slice_of_h_a_m"
+LEGENDS_QUEST_ID = "legends_quest"
+THE_FEUD_ID = "the_feud"
+RFD_FREEING_SIR_AMIK_VARZE_ID = "recipe_for_disaster_freeing_sir_amik_varze"
 
 RESTLESS_GHOST_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -555,6 +558,21 @@ SONG_FROM_THE_DEPTHS_WIKI_SOURCE = "https://runescape.wiki/w/Song_from_the_Depth
 CARNILLEAN_RISING_WIKI_SOURCE = "https://runescape.wiki/w/Carnillean_Rising?oldid=6534490"
 SOME_LIKE_IT_COLD_WIKI_SOURCE = "https://runescape.wiki/w/Some_Like_It_Cold?oldid=6545099"
 SWAN_SONG_WIKI_SOURCE = "https://runescape.wiki/w/Swan_Song?oldid=6548264"
+SHILO_VILLAGE_WIKI_SOURCE = "https://runescape.wiki/w/Shilo_Village?oldid=6389566"
+LEGENDS_QUEST_WIKI_SOURCE = "https://runescape.wiki/w/Legends'_Quest?oldid=6529921"
+THE_FEUD_WIKI_SOURCE = "https://runescape.wiki/w/The_Feud?oldid=6542289"
+RFD_FREEING_SIR_AMIK_VARZE_WIKI_SOURCE = (
+    "https://runescape.wiki/w/Recipe_for_Disaster%3A_Freeing_Sir_Amik_Varze?oldid=6237763"
+)
+DARKAN_NAZASTAROOL_91_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/nazastarool/nazastarool_(91).json"
+DARKAN_NAZASTAROOL_68_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/nazastarool/nazastarool_(68).json"
+DARKAN_NAZASTAROOL_93_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/nazastarool/nazastarool_(93).json"
+LEGENDS_QUEST_NEZIKCHENED_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/nezikchened (noanims).json"
+THE_FEUD_TOUGH_GUY_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/tough_guy (noanims).json"
+RFD_BLACK_DRAGON_NPC_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/npcs/definitions/dragons/black_dragon_level_227.plugin.kts"
+)
 RUNE_MYSTERIES_RELEASE_SOURCE = "https://runescape.salmoneus.net/runescape-2007/quests/rune-mysteries.html"
 RUNE_MYSTERIES_DUKE_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -5926,6 +5944,66 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
             ),
         ),
     ),
+    THE_FEUD_ID: (
+        _stage_req(
+            4,
+            "Defeat the Tough guy after the Bandit champion.",
+            f"{THE_FEUD_WIKI_SOURCE}; {THE_FEUD_TOUGH_GUY_NPC_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    THE_FEUD_ID,
+                    "tough_guy_75",
+                    "Tough guy",
+                    75,
+                    f"{THE_FEUD_WIKI_SOURCE}; {THE_FEUD_TOUGH_GUY_NPC_SOURCE}",
+                    "Historical quest details name Tough guy (level 75) after the Bandit champion.",
+                    npc_stats=(
+                        ("hitpoints", 750),
+                        ("attack", 85),
+                        ("strength", 50),
+                        ("defence", 50),
+                        ("magic", 80),
+                        ("ranged", 0),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 70),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "crush_att"),
+                        ("aggressiveness_type", "aggressive"),
+                    ),
+                    npc_stats_source=THE_FEUD_TOUGH_GUY_NPC_SOURCE,
+                ),
+            ),
+        ),
+    ),
+    RFD_FREEING_SIR_AMIK_VARZE_ID: (
+        _stage_req(
+            3,
+            "Defeat the Black Dragon after the Evil Chicken.",
+            f"{RFD_FREEING_SIR_AMIK_VARZE_WIKI_SOURCE}; {RFD_BLACK_DRAGON_NPC_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    RFD_FREEING_SIR_AMIK_VARZE_ID,
+                    "black_dragon_227",
+                    "Black Dragon",
+                    227,
+                    f"{RFD_FREEING_SIR_AMIK_VARZE_WIKI_SOURCE}; {RFD_BLACK_DRAGON_NPC_SOURCE}",
+                    "Historical quest details name Black Dragon (Level 227) after the Evil Chicken.",
+                    npc_stats=(
+                        ("hitpoints", 1900),
+                        ("attack", 200),
+                        ("strength", 200),
+                        ("defence", 200),
+                        ("magic", 100),
+                        ("ranged", 1),
+                    ),
+                    npc_configs=(("attack_speed", 4),),
+                    npc_stats_source=RFD_BLACK_DRAGON_NPC_SOURCE,
+                ),
+            ),
+        ),
+    ),
     KENNITHS_CONCERNS_ID: (
         _stage_req(
             1,
@@ -6105,6 +6183,109 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
 
 
 QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounterReplacement]] = {
+    SHILO_VILLAGE_ID: {
+        "shilo_village_nazastarool_91": (
+            _combat(
+                SHILO_VILLAGE_ID,
+                "nazastarool_zombie_91",
+                "Nazastarool (Zombie)",
+                91,
+                f"{SHILO_VILLAGE_WIKI_SOURCE}; {DARKAN_NAZASTAROOL_91_NPC_SOURCE}",
+                "Historical quest details say Nazastarool first appears as a level 91 Zombie.",
+                npc_stats=(
+                    ("hitpoints", 500),
+                    ("attack", 38),
+                    ("strength", 30),
+                    ("defence", 38),
+                    ("magic", 0),
+                    ("ranged", 0),
+                ),
+                npc_configs=(
+                    ("max_hit", 70),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=DARKAN_NAZASTAROOL_91_NPC_SOURCE,
+            ),
+            _combat(
+                SHILO_VILLAGE_ID,
+                "nazastarool_skeleton_68",
+                "Nazastarool (Skeleton)",
+                68,
+                f"{SHILO_VILLAGE_WIKI_SOURCE}; {DARKAN_NAZASTAROOL_68_NPC_SOURCE}",
+                "Historical quest details say Nazastarool's second form is a level 68 Skeleton.",
+                npc_stats=(
+                    ("hitpoints", 750),
+                    ("attack", 38),
+                    ("strength", 30),
+                    ("defence", 38),
+                    ("magic", 0),
+                    ("ranged", 0),
+                ),
+                npc_configs=(
+                    ("max_hit", 120),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=DARKAN_NAZASTAROOL_68_NPC_SOURCE,
+            ),
+            _combat(
+                SHILO_VILLAGE_ID,
+                "nazastarool_ghost_93",
+                "Nazastarool (Ghost)",
+                93,
+                f"{SHILO_VILLAGE_WIKI_SOURCE}; {DARKAN_NAZASTAROOL_93_NPC_SOURCE}",
+                "Historical quest details say Nazastarool's last form is a level 93 Ghost.",
+                npc_stats=(
+                    ("hitpoints", 1000),
+                    ("attack", 38),
+                    ("strength", 30),
+                    ("defence", 38),
+                    ("magic", 0),
+                    ("ranged", 0),
+                ),
+                npc_configs=(
+                    ("max_hit", 152),
+                    ("attack_range", -1),
+                    ("attack_style", "melee"),
+                    ("attack_bonus", "crush_att"),
+                    ("aggressiveness_type", "aggressive"),
+                ),
+                npc_stats_source=DARKAN_NAZASTAROOL_93_NPC_SOURCE,
+            ),
+        ),
+    },
+    LEGENDS_QUEST_ID: {
+        "legends_quest_nezikchened_187": _combat(
+            LEGENDS_QUEST_ID,
+            "nezikchened_187",
+            "Nezikchened",
+            187,
+            f"{LEGENDS_QUEST_WIKI_SOURCE}; {LEGENDS_QUEST_NEZIKCHENED_NPC_SOURCE}",
+            "Historical quest details name Nezikchened level 187 three times.",
+            quantity=3,
+            npc_stats=(
+                ("hitpoints", 1500),
+                ("attack", 330),
+                ("strength", 336),
+                ("defence", 167),
+                ("magic", 320),
+                ("ranged", 320),
+            ),
+            npc_configs=(
+                ("max_hit", 180),
+                ("attack_range", -1),
+                ("attack_style", "melee"),
+                ("attack_bonus", "slash_att"),
+                ("aggressiveness_type", "aggressive"),
+            ),
+            npc_stats_source=LEGENDS_QUEST_NEZIKCHENED_NPC_SOURCE,
+        ),
+    },
     DEATH_TO_THE_DORGESHUUN_ID: {
         "death_to_the_dorgeshuun_senior_guard_x3_22": _combat(
             DEATH_TO_THE_DORGESHUUN_ID,
