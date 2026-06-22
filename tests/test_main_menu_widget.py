@@ -1619,6 +1619,7 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_quests_tab_allows_identical_source_generated_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "elemental_workshop_i"
+        pd["inventory"].update({"Thread": 1, "Leather": 1})
         pd["quests"]["elemental_workshop_i"] = {"started": True, "progress": 2, "completed": False}
         pd["quest_combat_config"] = {"resolver_enabled": True}
         pd["attack_level"] = 40
@@ -1628,7 +1629,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Battle required: Earth Elemental level 35"
+        expected = (
+            "Blocked: Action required: Complete Elemental Workshop I stage 2 objective, "
+            "Battle required: Earth Elemental level 35"
+        )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_elemental_workshop_i")
         self.assertIsNotNone(action)
@@ -1651,9 +1655,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
-            "Blocked: Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
-            "Battle required: Lava monster level 47 x2, "
-            "Combat stats required before battle support can resolve: Fire monster level 47 x2"
+            "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
+            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "Battle required: Lava monster level 47 x2, +1 more"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_toktz_ket_dill")
@@ -1701,9 +1705,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
-            "Blocked: Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
-            "Battle required: Lava monster level 47, "
-            "Combat stats required before battle support can resolve: Fire monster level 47 x2"
+            "Blocked: Action required: Complete TokTz-Ket-Dill stage 6 objective, "
+            "Combat stats required before battle support can resolve: TokTz-Ket-Dill level 100, "
+            "Battle required: Lava monster level 47, +1 more"
         )
         self.assertIn(expected, labels)
 
@@ -1788,7 +1792,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
-            "Blocked: Battle required: H.A.M. mage level 30, "
+            "Blocked: Action required: Complete Another Slice of H.A.M. stage 4 objective, "
+            "Battle required: H.A.M. mage level 30, "
             "Battle required: H.A.M. ranger level 30"
         )
         self.assertIn(expected, labels)
@@ -1813,9 +1818,9 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         expected = (
-            "Blocked: Battle required: Black golem level 75, "
-            "Battle required: White golem level 75, "
-            "Battle required: Grey golem level 75"
+            "Blocked: Action required: Complete Spirits of the Elid stage 4 objective, "
+            "Battle required: Black golem level 75, "
+            "Battle required: White golem level 75, +1 more"
         )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_spirits_of_the_elid")
@@ -1869,7 +1874,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Battle required: Dad level 101"
+        expected = (
+            "Blocked: Action required: Complete Troll Stronghold stage 2 objective, "
+            "Battle required: Dad level 101"
+        )
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_troll_stronghold")
         self.assertIsNotNone(action)

@@ -29,6 +29,8 @@ def main() -> None:
     combat_with_resolver_stats = 0
     item_quests = 0
     combat_quests = 0
+    action_quests = 0
+    route_quests = 0
     no_stage_requirements = []
     kinds = Counter()
 
@@ -40,6 +42,8 @@ def main() -> None:
         stage_rows += len(requirements)
         quest_has_item = False
         quest_has_combat = False
+        quest_has_action = False
+        quest_has_route = False
         for requirement in requirements:
             has_inventory = bool(requirement.get("required_inventory"))
             has_consumed_inventory = bool(requirement.get("consumed_inventory"))
@@ -74,15 +78,27 @@ def main() -> None:
                 combat_rows += len(encounters)
                 combat_with_any_stats += sum(1 for encounter in encounters if encounter.get("npc_stats"))
                 combat_with_resolver_stats += sum(1 for encounter in encounters if _has_resolver_stats(encounter))
+            if requirement.get("required_actions"):
+                quest_has_action = True
+                kinds["actions"] += 1
+            if requirement.get("required_routes"):
+                quest_has_route = True
+                kinds["routes"] += 1
         if quest_has_item:
             item_quests += 1
         if quest_has_combat:
             combat_quests += 1
+        if quest_has_action:
+            action_quests += 1
+        if quest_has_route:
+            route_quests += 1
 
     print(f"quests: {total}")
     print(f"quests_with_stage_requirements: {total - len(no_stage_requirements)}")
     print(f"stage_requirement_rows: {stage_rows}")
     print(f"quests_with_item_or_tool_blockers: {item_quests}")
+    print(f"quests_with_action_blockers: {action_quests}")
+    print(f"quests_with_route_blockers: {route_quests}")
     print(f"quests_with_combat_blockers: {combat_quests}")
     print(f"combat_encounter_rows: {combat_rows}")
     print(f"combat_encounters_with_any_stats: {combat_with_any_stats}")

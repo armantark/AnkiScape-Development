@@ -1388,7 +1388,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol({}))
         addon.current_skill = "Quests"
         addon.player_data = {
-            "inventory": {},
+            "inventory": {"Thread": 1, "Leather": 1},
             "current_quest": "elemental_workshop_i",
             "quests": {"elemental_workshop_i": {"started": True, "progress": 2, "completed": False}},
             "quest_combat_config": {"resolver_enabled": True},

@@ -576,10 +576,22 @@ class TestQuestCatalog(unittest.TestCase):
                 for requirement in quest["stage_requirements"]
             )
         ]
+        quests_with_action_requirements = [
+            quest_id
+            for quest_id, quest in data.items()
+            if any(requirement["required_actions"] for requirement in quest["stage_requirements"])
+        ]
 
         self.assertEqual(len(quests_with_stage_requirements), 194)
         self.assertGreaterEqual(len(quests_with_combat), 110)
         self.assertGreaterEqual(len(quests_with_item_requirements), 160)
+        self.assertGreaterEqual(len(quests_with_action_requirements), 190)
+
+        hazeel = data["hazeel_cult"]
+        hazeel_stage_1 = next(row for row in hazeel["stage_requirements"] if row["stage"] == 1)
+        self.assertEqual(hazeel_stage_1["required_actions"], ("Complete Hazeel Cult stage 1 objective",))
+        self.assertLess(len(hazeel_stage_1["required_actions"][0]), 80)
+        self.assertIn("oldid=6579784", hazeel_stage_1["source"])
 
         cooks = data["cooks_assistant"]["stage_requirements"][0]
         self.assertEqual(cooks["stage"], 1)

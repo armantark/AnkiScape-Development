@@ -27,6 +27,53 @@ class TestPreEocQuestCatalogBuilder(unittest.TestCase):
         self.assertEqual(guardian["stats"]["attack"], 37)
         self.assertTrue(guardian["source"].endswith("guardian_of_armadyl_(45).json"))
 
+    def test_quick_guide_parser_refuses_current_only_revisions(self):
+        original_fetch = builder.fetch_wikitext
+
+        def fake_fetch(title, before_cutoff=True):
+            return builder.Revision(
+                title=title,
+                oldid=123,
+                timestamp="2026-01-01T00:00:00Z",
+                content="* Talk to someone.",
+                fallback_current=True,
+            )
+
+        try:
+            builder.fetch_wikitext = fake_fetch
+            lines, source = builder.parse_quick_guide_lines("Example Quest", "Example Quest")
+        finally:
+            builder.fetch_wikitext = original_fetch
+
+        self.assertEqual(lines, ())
+        self.assertEqual(source, "")
+
+    def test_stage_requirements_include_compact_source_checkpoint_actions(self):
+        rows = builder.build_stage_requirements(
+            quest_id="example_quest",
+            display_name="Example Quest",
+            stages=2,
+            journal_stages=(
+                {
+                    "stage": 1,
+                    "journal": ("Talk to the first NPC.", "Carry the example item across the map."),
+                    "source_kind": "walkthrough_prose",
+                },
+                {"stage": 2, "journal": ("Quest complete!",), "source_kind": "walkthrough_prose"},
+            ),
+            journal_source="https://runescape.wiki/w/Example_Quest?oldid=1",
+            item_requirements={"required_inventory": {"Example item": 1}},
+            combat_encounters=(),
+            source="https://runescape.wiki/w/Example_Quest?oldid=2",
+        )
+
+        self.assertEqual(rows[0]["stage"], 1)
+        self.assertEqual(rows[0]["required_actions"], ("Complete Example Quest stage 1 objective",))
+        self.assertLess(len(rows[0]["required_actions"][0]), 64)
+        self.assertEqual(rows[0]["required_inventory"], {"Example item": 1})
+        self.assertIn("oldid=1", rows[0]["source"])
+        self.assertIn("oldid=2", rows[0]["source"])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -681,7 +681,7 @@ class TestRuntimeActions(unittest.TestCase):
     def test_quest_answer_resolves_identical_source_generated_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {"Thread": 1, "Leather": 1},
             "current_quest": "elemental_workshop_i",
             "quests": {"elemental_workshop_i": {"started": True, "progress": 2, "completed": False}},
             "quest_combat_config": {"resolver_enabled": True},
@@ -808,7 +808,7 @@ class TestRuntimeActions(unittest.TestCase):
     def test_quest_answer_resolves_death_to_dorgeshuun_senior_guard_quantity(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {},
+            "inventory": {"Pickaxe": 1, "Tears of Guthix cavern": 1},
             "current_quest": "death_to_the_dorgeshuun",
             "quests": {"death_to_the_dorgeshuun": {"started": True, "progress": 5, "completed": False}},
             "quest_combat_config": {"resolver_enabled": True},

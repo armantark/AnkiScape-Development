@@ -3838,11 +3838,11 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "toktz_ket_dill", QUEST_DATA)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("combat_missing_stats", "combat_encounter", "combat_missing_stats"),
+            ("required_action", "combat_missing_stats", "combat_encounter", "combat_missing_stats"),
         )
-        self.assertEqual(blockers[1]["reason"], "Battle required: Lava monster level 47 x2")
-        self.assertEqual(blockers[1]["quantity"], 2)
-        self.assertEqual(blockers[1]["total_quantity"], 2)
+        self.assertEqual(blockers[2]["reason"], "Battle required: Lava monster level 47 x2")
+        self.assertEqual(blockers[2]["quantity"], 2)
+        self.assertEqual(blockers[2]["total_quantity"], 2)
         self.assertEqual(
             tuple(blocker["encounter_id"] for blocker in quest_current_stage_resolvable_combat_blockers_pure(player_data, "toktz_ket_dill", QUEST_DATA)),
             ("toktz_ket_dill_lava_monster_47",),
@@ -3859,9 +3859,9 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(first, "toktz_ket_dill", QUEST_DATA)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("combat_missing_stats", "combat_encounter", "combat_missing_stats"),
+            ("required_action", "combat_missing_stats", "combat_encounter", "combat_missing_stats"),
         )
-        self.assertEqual(blockers[1]["reason"], "Battle required: Lava monster level 47")
+        self.assertEqual(blockers[2]["reason"], "Battle required: Lava monster level 47")
 
         resolved, ok, result = apply_quest_combat_encounter_pure(first, "toktz_ket_dill", QUEST_DATA)
         self.assertTrue(ok)
@@ -3870,7 +3870,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
         self.assertEqual(
             tuple(blocker["kind"] for blocker in quest_current_stage_blockers_pure(resolved, "toktz_ket_dill", QUEST_DATA)),
-            ("combat_missing_stats", "combat_missing_stats"),
+            ("required_action", "combat_missing_stats", "combat_missing_stats"),
         )
 
     def test_another_slice_ham_magic_fight_is_resolver_ready(self):
@@ -3884,9 +3884,9 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 40
 
         blockers = quest_current_stage_blockers_pure(player_data, "another_slice_of_h_a_m", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter", "combat_encounter"))
-        self.assertEqual(blockers[0]["reason"], "Battle required: H.A.M. mage level 30")
-        self.assertEqual(blockers[1]["reason"], "Battle required: H.A.M. ranger level 30")
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action", "combat_encounter", "combat_encounter"))
+        self.assertEqual(blockers[1]["reason"], "Battle required: H.A.M. mage level 30")
+        self.assertEqual(blockers[2]["reason"], "Battle required: H.A.M. ranger level 30")
 
         resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "another_slice_of_h_a_m", QUEST_DATA)
         self.assertTrue(ok)
@@ -3902,7 +3902,10 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             tuple(blocker["reason"] for blocker in quest_current_stage_blockers_pure(resolved, "another_slice_of_h_a_m", QUEST_DATA)),
-            ("Battle required: H.A.M. ranger level 30",),
+            (
+                "Action required: Complete Another Slice of H.A.M. stage 4 objective",
+                "Battle required: H.A.M. ranger level 30",
+            ),
         )
 
     def test_spirits_of_the_elid_golems_are_split_into_named_combat_gates(self):
@@ -3918,9 +3921,25 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             tuple(blocker["reason"] for blocker in blockers),
             (
+                "Action required: Complete Spirits of the Elid stage 4 objective",
                 "Battle required: Black golem level 75",
                 "Battle required: White golem level 75",
                 "Battle required: Grey golem level 75",
+            ),
+        )
+        self.assertEqual(
+            tuple(
+                blocker["encounter_id"]
+                for blocker in quest_current_stage_resolvable_combat_blockers_pure(
+                    player_data,
+                    "spirits_of_the_elid",
+                    QUEST_DATA,
+                )
+            ),
+            (
+                "spirits_of_the_elid_black_golem_75",
+                "spirits_of_the_elid_white_golem_75",
+                "spirits_of_the_elid_grey_golem_75",
             ),
         )
         self.assertTrue(can_attempt_quest_review_pure(player_data, "spirits_of_the_elid", QUEST_DATA))
@@ -3934,7 +3953,11 @@ class TestLogic(unittest.TestCase):
         )
         self.assertEqual(
             tuple(blocker["reason"] for blocker in quest_current_stage_blockers_pure(resolved, "spirits_of_the_elid", QUEST_DATA)),
-            ("Battle required: White golem level 75", "Battle required: Grey golem level 75"),
+            (
+                "Action required: Complete Spirits of the Elid stage 4 objective",
+                "Battle required: White golem level 75",
+                "Battle required: Grey golem level 75",
+            ),
         )
 
     def test_a_souls_bane_splits_action_and_multi_count_combat_stages(self):
@@ -3994,6 +4017,7 @@ class TestLogic(unittest.TestCase):
 
     def test_death_to_dorgeshuun_senior_guards_are_multi_count_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"].update({"Pickaxe": 1, "Tears of Guthix cavern": 1})
         player_data["quests"]["death_to_the_dorgeshuun"] = {"started": True, "progress": 5, "completed": False}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["quest_combat_encounters"] = {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]}
@@ -4003,8 +4027,8 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 100
 
         blockers = quest_current_stage_blockers_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
-        self.assertEqual(blockers[0]["reason"], "Battle required: Senior H.A.M. guard level 22 x3")
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action", "combat_encounter"))
+        self.assertEqual(blockers[1]["reason"], "Battle required: Senior H.A.M. guard level 22 x3")
         self.assertTrue(can_attempt_quest_review_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA))
 
         first, ok, result = apply_quest_combat_encounter_pure(player_data, "death_to_the_dorgeshuun", QUEST_DATA)
@@ -4192,6 +4216,7 @@ class TestLogic(unittest.TestCase):
 
     def test_elemental_workshop_identical_darkan_sources_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["inventory"].update({"Thread": 1, "Leather": 1})
         player_data["quests"]["elemental_workshop_i"] = {"started": True, "progress": 2, "completed": False}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 40
@@ -4200,8 +4225,8 @@ class TestLogic(unittest.TestCase):
         player_data["constitution_level"] = 40
 
         blockers = quest_current_stage_blockers_pure(player_data, "elemental_workshop_i", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
-        self.assertEqual(blockers[0]["reason"], "Battle required: Earth Elemental level 35")
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action", "combat_encounter"))
+        self.assertEqual(blockers[1]["reason"], "Battle required: Earth Elemental level 35")
         self.assertTrue(can_attempt_quest_review_pure(player_data, "elemental_workshop_i", QUEST_DATA))
 
         resolved, ok, result = apply_quest_combat_encounter_pure(player_data, "elemental_workshop_i", QUEST_DATA)
@@ -4211,7 +4236,10 @@ class TestLogic(unittest.TestCase):
             resolved["quest_combat_encounters"],
             {"elemental_workshop_i": ["elemental_workshop_i_earth_elemental_35"]},
         )
-        self.assertEqual(quest_current_stage_blockers_pure(resolved, "elemental_workshop_i", QUEST_DATA), ())
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(resolved, "elemental_workshop_i", QUEST_DATA),
+            ("Action required: Complete Elemental Workshop I stage 2 objective",),
+        )
 
     def test_witchs_house_experiment_forms_are_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -4357,6 +4385,7 @@ class TestLogic(unittest.TestCase):
     def test_quest_completion_awards_implemented_xp_and_parks_unimplemented_xp(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["lunar_diplomacy"] = {"started": True, "progress": 7, "completed": False}
+        player_data["quest_stage_actions"] = {"lunar_diplomacy": ["Complete Lunar Diplomacy stage 7 objective"]}
 
         player_data, ok, completed_now = apply_quest_progress_pure(
             player_data,

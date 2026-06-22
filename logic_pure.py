@@ -1577,10 +1577,17 @@ _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
     "unmet_route",
 }
 
+_QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
+    "missing_item",
+    "missing_item_option",
+    "missing_tool",
+    "unmet_route",
+}
+
 
 def quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data):
     blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
-    if any(blocker.get("kind") in _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS for blocker in blockers):
+    if any(blocker.get("kind") in _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS for blocker in blockers):
         return tuple()
     return tuple(
         blocker
@@ -1814,7 +1821,7 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
     if not state["started"] or state["completed"]:
         return player_data, False, {"reason": "quest_not_in_progress"}
     stage_blockers = quest_current_stage_blockers_pure(player_data, quest_id, quest_data)
-    if any(blocker.get("kind") in _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS for blocker in stage_blockers):
+    if any(blocker.get("kind") in _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS for blocker in stage_blockers):
         return player_data, False, {"reason": "stage_requirements_unmet"}
     blockers = quest_current_stage_resolvable_combat_blockers_pure(player_data, quest_id, quest_data)
     if encounter_id is None and blockers:

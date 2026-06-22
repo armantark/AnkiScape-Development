@@ -1948,13 +1948,23 @@ def _infer_item_requirement_stage(journal_stages: Sequence[Mapping[str, object]]
 def build_stage_requirements(
     *,
     quest_id: str,
+    display_name: str,
     stages: int,
     journal_stages: Sequence[Mapping[str, object]],
+    journal_source: str,
     item_requirements: Mapping[str, object],
     combat_encounters: Sequence[Mapping[str, object]],
     source: str,
 ) -> Tuple[Dict[str, object], ...]:
     rows_by_stage: Dict[int, Dict[str, object]] = {}
+
+    def merge_sources(existing: str, new_source: str) -> str:
+        if not new_source:
+            return existing
+        parts = [part.strip() for part in existing.split(";") if part.strip()]
+        if new_source not in parts:
+            parts.append(new_source)
+        return "; ".join(parts)
 
     def row_for_stage(stage: int, description: str) -> Dict[str, object]:
         if stage not in rows_by_stage:
@@ -1964,10 +1974,34 @@ def build_stage_requirements(
                 "required_inventory": {},
                 "required_tools": {},
                 "required_inventory_options": (),
+                "required_actions": (),
                 "combat_encounters": (),
                 "source": source,
             }
         return rows_by_stage[stage]
+
+    for stage_row in journal_stages:
+        if not isinstance(stage_row, Mapping):
+            continue
+        if stage_row.get("source_kind") not in {"quick_guide_checklist", "walkthrough_prose", "source_page_checkpoint"}:
+            continue
+        stage = max(1, min(stages, parse_int(stage_row.get("stage"), 1)))
+        has_objective = any(
+            line
+            and "quest complete" not in line.lower()
+            and not line.lower().startswith("i made progress on ")
+            for line in (
+                clean_journal_line(str(raw_line))
+                for raw_line in (stage_row.get("journal", ()) or ())
+            )
+        )
+        if not has_objective:
+            continue
+        row = row_for_stage(stage, "Generated from source-backed quest stage checkpoints.")
+        existing_actions = tuple(row.get("required_actions", ()))
+        action = f"Complete {display_name} stage {stage} objective"
+        row["required_actions"] = tuple(dict.fromkeys((*existing_actions, action)))
+        row["source"] = merge_sources(str(row.get("source", "")), journal_source)
 
     required_inventory = item_requirements.get("required_inventory", {})
     if isinstance(required_inventory, Mapping):
@@ -2007,6 +2041,7 @@ def build_stage_requirements(
             not row["required_inventory"]
             and not row["required_tools"]
             and not row["required_inventory_options"]
+            and not row["required_actions"]
             and not row["combat_encounters"]
         ):
             continue
@@ -2192,12 +2227,15 @@ def _quick_guide_title(title: str, display_name: str) -> str:
     return f"{cleaned or display_name}/Quick guide"
 
 
-def parse_quick_guide_lines(title: str, display_name: str) -> Tuple[str, ...]:
+def parse_quick_guide_lines(title: str, display_name: str) -> Tuple[Tuple[str, ...], str]:
     quick_title = _quick_guide_title(title, display_name)
     try:
-        revision = fetch_wikitext(quick_title, before_cutoff=False)
+        revision = fetch_wikitext(quick_title, before_cutoff=True)
     except RuntimeError:
-        return ()
+        return (), ""
+    if revision.fallback_current:
+        return (), ""
+    source = page_url(revision.title, revision.oldid)
     checklist_lines: List[str] = []
     for body in iter_templates(revision.content):
         if template_name(body) != "checklist":
@@ -2215,12 +2253,12 @@ def parse_quick_guide_lines(title: str, display_name: str) -> Tuple[str, ...]:
         if checklist_lines:
             break
     if checklist_lines:
-        return tuple(dict.fromkeys(checklist_lines))
+        return tuple(dict.fromkeys(checklist_lines)), source
 
     try:
         quick_html = fetch_parsed_html(revision)
     except RuntimeError:
-        return ()
+        return (), ""
     section = section_html(quick_html, "Walkthrough") or quick_html
     parser = QuickGuideExtractor()
     parser.feed(section)
@@ -2229,7 +2267,7 @@ def parse_quick_guide_lines(title: str, display_name: str) -> Tuple[str, ...]:
         cleaned = clean_markup(line)
         if cleaned and "congratulations" not in cleaned.lower() and "quest complete" not in cleaned.lower():
             lines.append(cleaned)
-    return tuple(dict.fromkeys(lines))
+    return tuple(dict.fromkeys(lines)), source
 
 
 def parse_walkthrough_prose_lines(page_html: str) -> Tuple[str, ...]:
@@ -2345,22 +2383,38 @@ def parse_catalog_row(
         stages = max(parse_int(stage.get("stage"), 1) for stage in local_journal)
     else:
         stages = generated_stage_count(length)
-        quick_lines = parse_quick_guide_lines(row.source_title, row.display_name)
+        quick_lines, quick_source = parse_quick_guide_lines(row.source_title, row.display_name)
         if quick_lines:
             journal_stages = grouped_journal_stages(quick_lines, stages, row.display_name, "quick_guide_checklist")
-            journal_source = page_url(_quick_guide_title(row.source_title, row.display_name))
+            journal_source = quick_source
             journal_source_kind = "quick_guide_checklist"
         else:
             walkthrough_lines = parse_walkthrough_prose_lines(parsed_html)
-            journal_stages = grouped_journal_stages(walkthrough_lines, stages, row.display_name, "walkthrough_prose")
-            journal_source = page_url(revision.title, revision.oldid) if walkthrough_lines else page_url(_quick_guide_title(row.source_title, row.display_name))
-            journal_source_kind = "walkthrough_prose" if walkthrough_lines else "generated_fallback"
+            if walkthrough_lines:
+                journal_stages = grouped_journal_stages(walkthrough_lines, stages, row.display_name, "walkthrough_prose")
+                journal_source = page_url(revision.title, revision.oldid)
+                journal_source_kind = "walkthrough_prose"
+            else:
+                checkpoint_lines = tuple(
+                    f"Complete {row.display_name} stage {stage} objective using the pinned source guide."
+                    for stage in range(1, stages + 1)
+                )
+                journal_stages = grouped_journal_stages(
+                    checkpoint_lines,
+                    stages,
+                    row.display_name,
+                    "source_page_checkpoint",
+                )
+                journal_source = page_url(revision.title, revision.oldid)
+                journal_source_kind = "source_page_checkpoint"
     item_requirements = parse_stage_item_requirements(details.get("items", ""))
     combat_encounters = parse_combat_encounters(combat_wikitext, source_url, quest_id)
     stage_requirements = build_stage_requirements(
         quest_id=quest_id,
+        display_name=row.display_name,
         stages=stages,
         journal_stages=journal_stages,
+        journal_source=journal_source,
         item_requirements=item_requirements,
         combat_encounters=combat_encounters,
         source=source_url,
