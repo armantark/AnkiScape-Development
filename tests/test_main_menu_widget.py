@@ -1584,6 +1584,21 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Receive the ghostspeak amulet", action.toolTip())
 
+    def test_quests_tab_shows_priest_in_peril_essence_stage_blocker(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "priest_in_peril"
+        pd["quests"]["priest_in_peril"] = {"started": True, "progress": 8, "completed": False}
+        pd["inventory"] = {"Pure essence": 24}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        expected = "Blocked: Needs Rune essence x50 or Pure essence x25"
+        self.assertIn(expected, labels)
+        action = dialog.findChild(QPushButton, "questAction_priest_in_peril")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Pure essence x25", action.toolTip())
+
     def test_quests_tab_lists_stage_items_before_knights_sword_start(self) -> None:
         pd = _make_player_data()
         pd["mining_level"] = 10

@@ -508,6 +508,27 @@ Fight Arena's Khazard scorpion/ogre are the Qt regression example: their
 historical pages expose LP/style/max-hit only, so they stay blocked while
 Bouncer remains resolvable.
 
+Priest in Peril focused stage-detail slice completed on 2026-06-22. Backend:
+`QuestStageRequirement` now supports `consumed_inventory_options`, the blocker
+path treats those alternatives as current-stage item requirements, and stage
+completion consumes whichever valid alternative group the player actually has.
+`quest_data.py` replaces Priest in Peril's generated stage-61/prose-parser rows
+with a nine-stage source-backed override from local 2011Scape plus Darkan:
+Paterdomus door action, Temple guardian dog combat, King Roald report, Drezel
+cell discovery, Monk of Zamorak key combat, monument key swap/cell unlock,
+bucket/blessed-water coffin action, and 50 Rune essence or 25 Pure essence
+Salve purification. Wolfbane dagger and 1,406 Prayer XP now fire only on valid
+completion; Prayer XP remains in `pending_skill_exp_rewards` because Prayer is
+not implemented as a live skill. Frontend: the existing Quests tab blocker
+surface now shows the Priest in Peril essence blocker, with offscreen Qt
+coverage. Post-slice audit reports 389 stage rows, 60 focused rows, 329
+generated rows, 283 combat encounters, and 174 resolver-ready combat encounters.
+Full all-quest minute-detail parity remains open. Source audit:
+`memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md`.
+Verification: `python3 run_tests.py` passed with 459 tests (107 skipped), and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 459 tests.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,

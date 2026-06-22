@@ -68,21 +68,27 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - `tools/build_pre_eoc_quest_catalog.py` also emits generated quest-wide
   stage blocker rows from pre-EOC `Quest details` item and combat fields.
   Generated rows can carry `required_inventory`, `required_inventory_options`,
-  `required_tools`, and `combat_encounters`; `required_inventory_options` must
-  preserve independent option groups instead of flattening alternatives into
-  separate hard requirements. `quest_data.py` deserializes them into the same
-  `QuestStageRequirement` contract used by hand overrides.
+  `consumed_inventory`, `consumed_inventory_options`, `required_tools`, and
+  `combat_encounters`; option groups must preserve alternatives instead of
+  flattening them into separate hard requirements. `quest_data.py`
+  deserializes them into the same `QuestStageRequirement` contract used by hand
+  overrides. `logic_pure.py` treats consumed option groups as current-stage
+  blockers and consumes the first satisfied option group when the stage
+  advances.
   `quest_data.py` then combines generated rows, hand-authored stage rows,
   focused replacement rows, and focused addition rows; use replacements when
   generated data conflicts with stronger 2011Scape/Darkan evidence, and use
   additions when a source-backed quest action exists but the generated item or
   combat parser cannot infer it. The current audit reports 194/194 quests with
-  at least one stage requirement, but this is still broad machine-readable
-  coverage, not proof of minute-detail stage parity. Use
+  at least one stage requirement, and the Priest in Peril focused override
+  fixes its generated stage-61/prose-parser row into nine source-backed stages,
+  but this is still broad machine-readable coverage overall, not proof of
+  minute-detail stage parity. Use
   `tools/audit_quest_stage_gate_coverage.py`,
   `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md`, and
-  `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` before
-  claiming a quest-stage pass is complete.
+  `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md`, plus
+  `memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md`
+  before claiming a quest-stage pass is complete.
 - Generated combat quantity rows should preserve source quantities. Numeric
   prefixes, `xN` suffixes, "at least N", and written quantities through ten
   are parsed in `tools/build_pre_eoc_quest_catalog.py`; do not collapse rows

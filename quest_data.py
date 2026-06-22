@@ -95,6 +95,7 @@ SWAN_SONG_SEA_TROLL_QUEEN_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategoriz
 PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE = (
     f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/paterdomus/monk_of_zamorak/monk_of_zamorak_(30).json"
 )
+PRIEST_IN_PERIL_CERBERUS_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/paterdomus/cerberus (noanims).json"
 TROLL_STRONGHOLD_DAD_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/areas/death_plateau/dad.json"
 SPIRITS_BLACK_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/black_golem (noanims).json"
 SPIRITS_WHITE_GOLEM_NPC_SOURCE = f"{DARKAN_NPC_COMBATDEF_ROOT}/uncategorized/white_golem (noanims).json"
@@ -149,6 +150,14 @@ RAW_KARAMBWAN_SOURCE = "https://runescape.fandom.com/wiki/Raw_karambwan"
 GEM_ROCK_SOURCE = "https://runescape.wiki/w/Gem_rock?oldid=37044944"
 PRIEST_IN_PERIL_ID = "priest_in_peril"
 PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
+PRIEST_IN_PERIL_QUEST_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/quests/impl/PriestInPeril.kt"
+)
+PRIEST_IN_PERIL_DARKAN_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/PriestInPeril.java"
+PRIEST_IN_PERIL_DARKAN_CERBERUS_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/Cerberus.java"
+PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/DrezelInJailD.java"
+PRIEST_IN_PERIL_DARKAN_DREZEL_MAUSOLEUM_SOURCE = f"{DARKAN_QUEST_SOURCE_ROOT}/priestinperil/DrezelMausoleumD.java"
 TROLL_STRONGHOLD_ID = "troll_stronghold"
 THE_FREMENNIK_ISLES_ID = "the_fremennik_isles"
 THE_FREMENNIK_ISLES_SOURCE = "https://runescape.wiki/w/The_Fremennik_Isles?oldid=6540919"
@@ -211,6 +220,7 @@ class QuestStageRequirement:
     required_inventory: Tuple[Tuple[str, int], ...] = ()
     required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     consumed_inventory: Tuple[Tuple[str, int], ...] = ()
+    consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = ()
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
     required_routes: Tuple[str, ...] = ()
@@ -501,6 +511,18 @@ KNIGHTS_SWORD_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
 )
 
+PRIEST_IN_PERIL_STAGES: Tuple[QuestStage, ...] = (
+    _simple_stage(1, "King Roald asked me to check on Drezel at Paterdomus, east of Varrock."),
+    _simple_stage(2, "I spoke through the locked Paterdomus door and was told to kill the guard dog below the temple."),
+    _simple_stage(3, "The Temple guardian dog is dead. I should report back to King Roald."),
+    _simple_stage(4, "King Roald was furious. The voice at the door was not Drezel, and I must return to Paterdomus."),
+    _simple_stage(5, "I found the real Drezel locked in a cell guarded by Zamorakian monks and a trapped vampyre."),
+    _simple_stage(6, "I need the correct key from the monument to unlock Drezel's cell."),
+    _simple_stage(7, "Drezel is free, but I need blessed Salve water to trap the vampyre in its coffin."),
+    _simple_stage(8, "The vampyre is trapped. Drezel needs essence to purify the River Salve."),
+    _simple_stage(9, "Drezel purified the Salve, blessed me, and gave me Wolfbane.", "Quest complete!"),
+)
+
 
 QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
     QuestDefinition(
@@ -569,6 +591,29 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         required_skills=(QuestSkillRequirement("mining", "Mining", 10),),
         xp_rewards=(QuestXpReward("smithing", 12725),),
         stage_requirements=KNIGHTS_SWORD_STAGE_REQUIREMENTS,
+    ),
+    QuestDefinition(
+        id=PRIEST_IN_PERIL_ID,
+        display_name="Priest in Peril",
+        stages=9,
+        point_reward=1,
+        rewards=(("Wolfbane dagger", 1),),
+        start_point="Speak to King Roald in the Varrock Palace.",
+        requirements=("Used during quest: Bucket x1, Rune essence x50 or Pure essence x25",),
+        required_items=(),
+        combat="Temple guardian dog (level 30, Magic cannot damage it); Monk of Zamorak (level 30) for the key.",
+        source=(
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; "
+            f"{PRIEST_IN_PERIL_DARKAN_CERBERUS_SOURCE}; {PRIEST_IN_PERIL_SOURCE}"
+        ),
+        journal_stages=PRIEST_IN_PERIL_STAGES,
+        release_date="2004-06-29",
+        members=True,
+        difficulty="Novice",
+        length="Medium",
+        timeline="Fifth Age",
+        xp_rewards=(QuestXpReward("prayer", 1406),),
+        unlocks=("Access to Morytania",),
     ),
     QuestDefinition(
         id=TAI_BWO_WANNAI_TRIO_ID,
@@ -774,6 +819,7 @@ def _stage_req(
     required_inventory: Tuple[Tuple[str, int], ...] = (),
     required_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
     consumed_inventory: Tuple[Tuple[str, int], ...] = (),
+    consumed_inventory_options: Tuple[Tuple[Tuple[str, int], ...], ...] = (),
     required_tools: Tuple[Tuple[str, int], ...] = (),
     required_actions: Tuple[str, ...] = (),
     required_routes: Tuple[str, ...] = (),
@@ -785,6 +831,7 @@ def _stage_req(
         required_inventory=required_inventory,
         required_inventory_options=required_inventory_options,
         consumed_inventory=consumed_inventory,
+        consumed_inventory_options=consumed_inventory_options,
         required_tools=required_tools,
         required_actions=required_actions,
         required_routes=required_routes,
@@ -825,6 +872,92 @@ QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatE
 
 
 QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequirement, ...]] = {
+    PRIEST_IN_PERIL_ID: (
+        _stage_req(
+            1,
+            "Speak through the locked Paterdomus temple door.",
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}",
+            required_actions=("Speak through the Paterdomus temple door",),
+        ),
+        _stage_req(
+            2,
+            "Defeat the Temple guardian dog; Magic cannot damage it.",
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_CERBERUS_SOURCE}; {PRIEST_IN_PERIL_CERBERUS_NPC_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    PRIEST_IN_PERIL_ID,
+                    "temple_guardian_dog_30",
+                    "Temple guardian dog",
+                    30,
+                    f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_CERBERUS_SOURCE}; {PRIEST_IN_PERIL_CERBERUS_NPC_SOURCE}",
+                    "2011Scape names a level 30 Temple guardian dog and forbids Magic; Darkan's Cerberus NPC zeroes magic hits and advances Priest in Peril on death.",
+                    npc_stats=(
+                        ("hitpoints", 450),
+                        ("attack", 0),
+                        ("strength", 0),
+                        ("defence", 0),
+                        ("magic", 0),
+                        ("ranged", 0),
+                    ),
+                    npc_configs=(
+                        ("max_hit", 30),
+                        ("attack_range", -1),
+                        ("attack_style", "melee"),
+                        ("attack_bonus", "stab_att"),
+                        ("aggressiveness_type", "passive"),
+                        ("magic_damage_immune", True),
+                    ),
+                    npc_stats_source=PRIEST_IN_PERIL_CERBERUS_NPC_SOURCE,
+                ),
+            ),
+        ),
+        _stage_req(
+            3,
+            "Report the dead guard dog to King Roald.",
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}",
+            required_actions=("Report the dead guard dog to King Roald",),
+        ),
+        _stage_req(
+            4,
+            "Return to Paterdomus and find Drezel imprisoned upstairs.",
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
+            required_actions=("Find Drezel imprisoned in the Paterdomus cell",),
+        ),
+        _stage_req(
+            5,
+            "Defeat a Monk of Zamorak to obtain the monument key.",
+            f"{PRIEST_IN_PERIL_SOURCE}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE}",
+            combat_encounters=(
+                _combat(
+                    PRIEST_IN_PERIL_ID,
+                    "monk_of_zamorak_30",
+                    "Monk of Zamorak",
+                    30,
+                    f"{PRIEST_IN_PERIL_SOURCE}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_MONK_OF_ZAMORAK_NPC_SOURCE}",
+                    "Darkan Priest in Peril drops the key from Paterdomus Zamorak monk NPC ids 1044-1046; the level 30 id 1046 combatdef supplies the stats.",
+                ),
+            ),
+        ),
+        _stage_req(
+            6,
+            "Swap the golden key at the monument and unlock Drezel's cell.",
+            f"{PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
+            required_actions=("Swap the golden key at the Paterdomus monument", "Unlock Drezel's cell"),
+        ),
+        _stage_req(
+            7,
+            "Bless Salve water in a bucket and pour it over the vampire coffin.",
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_SOURCE}; {PRIEST_IN_PERIL_DARKAN_DREZEL_JAIL_SOURCE}",
+            required_inventory=(("Bucket", 1),),
+            required_actions=("Bless Salve water with Drezel", "Pour blessed Salve water over the vampire coffin"),
+        ),
+        _stage_req(
+            8,
+            "Give Drezel essence to purify the River Salve.",
+            f"{PRIEST_IN_PERIL_QUEST_SOURCE_PATH}; {PRIEST_IN_PERIL_DARKAN_DREZEL_MAUSOLEUM_SOURCE}",
+            consumed_inventory_options=((("Rune essence", 50), ("Pure essence", 25)),),
+        ),
+    ),
     A_SOULS_BANE_ID: (
         _stage_req(
             1,
@@ -1857,6 +1990,7 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
                 required_inventory=_catalog_item_pairs(raw.get("required_inventory", {})),
                 required_inventory_options=_catalog_item_options(raw.get("required_inventory_options", ())),
                 consumed_inventory=_catalog_item_pairs(raw.get("consumed_inventory", {})),
+                consumed_inventory_options=_catalog_item_options(raw.get("consumed_inventory_options", ())),
                 required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
                 required_actions=_catalog_strings(raw.get("required_actions", ())),
                 required_routes=_catalog_strings(raw.get("required_routes", ())),
@@ -1950,6 +2084,7 @@ def _dedupe_stage_requirements(requirements: Tuple[QuestStageRequirement, ...]) 
             requirement.required_inventory,
             requirement.required_inventory_options,
             requirement.consumed_inventory,
+            requirement.consumed_inventory_options,
             requirement.required_tools,
             requirement.required_actions,
             requirement.required_routes,
@@ -2231,6 +2366,10 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
             for option_group in requirement.required_inventory_options
         ),
         "consumed_inventory": dict(requirement.consumed_inventory),
+        "consumed_inventory_options": tuple(
+            tuple({item_name: amount} for item_name, amount in option_group)
+            for option_group in requirement.consumed_inventory_options
+        ),
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,
         "required_routes": requirement.required_routes,

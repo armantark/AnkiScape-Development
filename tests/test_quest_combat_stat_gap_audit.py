@@ -24,14 +24,22 @@ class TestQuestCombatStatGapAudit(unittest.TestCase):
             {
                 "darkan_hitpoints_only_metadata": 51,
                 "darkan_missing_resolver_stats": 18,
-                "darkan_same_name_wrong_level": 9,
-                "no_local_source_match": 12,
+                "darkan_same_name_wrong_level": 8,
+                "no_local_source_match": 13,
                 "parser_or_variant_level": 19,
             },
         )
 
     def test_known_combat_gap_examples_explain_why_rows_remain_statless(self):
         self.assertNotIn(("priest_in_peril", "Monk of Zamorak"), self.by_quest_and_name)
+        self.assertEqual(
+            audit.classify_gap(
+                self.by_quest_and_name[("priest_in_peril", "Temple guardian dog")],
+                self.darkan_groups,
+                self.partial_groups,
+            ),
+            "no_local_source_match",
+        )
         self.assertNotIn(("troll_stronghold", "Dad"), self.by_quest_and_name)
         self.assertEqual(
             audit.classify_gap(self.by_quest_and_name[("lost_city", "Tree spirit")], self.darkan_groups, self.partial_groups),

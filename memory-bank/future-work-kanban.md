@@ -184,10 +184,19 @@ made Death to the Dorgeshuun's Senior H.A.M. guard x3 row resolver-ready from
 local Darkan H.A.M. Guard stats. Current resolver-ready coverage is 174/283,
 with 109 statless combat rows remaining: 51 Darkan hitpoints-only metadata rows,
 18 Darkan rows missing style-critical resolver stats, 9 same-name/wrong-level
-rows, 12 no-local-source rows, and 19 parser/variant-level rows. Full
-minute-detail parity, exact generated per-stage extraction, quest-item
-transformations, route flags, partner/branch state, puzzle state, broad combat
-stat enrichment, and full combat simulation remain open;
+rows, 12 no-local-source rows, and 19 parser/variant-level rows. A Priest in
+Peril focused full-stage replacement then removed its generated stage-61/prose
+rows, corrected it to nine playable stages, added consumed alternative support
+for the Salve essence step, moved the Temple guardian dog and Monk of Zamorak
+combat gates to their real stages, and kept Wolfbane/1,406 Prayer XP behind
+valid completion. Post-slice audit reports 389 stage rows, 60 focused rows,
+329 generated rows, 283 combat encounters, and 174 resolver-ready combat
+encounters. The Temple guardian dog remains blocked as `combat_missing_stats`
+after the global combat lock because Darkan supplies hitpoints/max-hit/magic
+immunity but no nonzero attack/strength/defence payload. Full minute-detail
+parity, exact generated per-stage extraction, quest-item transformations, route
+flags, partner/branch state, puzzle state, broad combat stat enrichment, and
+full combat simulation remain open;
 do not claim every quest is complete until
 `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md` plus
 both
@@ -208,6 +217,8 @@ and
 `memory-bank/source-audits/quest-darkan-no-combatlevels-beast-stat-fallback-2026-06-22.md`
 and
 `memory-bank/source-audits/quest-focused-combat-row-splits-2026-06-22.md`
+and
+`memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md`
 have no explicit gaps left.
 
 User story: As a future quest implementer, I want quest unlock rules recorded in

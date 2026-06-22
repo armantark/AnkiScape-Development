@@ -42,16 +42,22 @@ def main() -> None:
         quest_has_combat = False
         for requirement in requirements:
             has_inventory = bool(requirement.get("required_inventory"))
+            has_consumed_inventory = bool(requirement.get("consumed_inventory"))
             has_tools = bool(requirement.get("required_tools"))
             has_options = bool(requirement.get("required_inventory_options"))
-            if has_inventory or has_tools or has_options:
+            has_consumed_options = bool(requirement.get("consumed_inventory_options"))
+            if has_inventory or has_consumed_inventory or has_tools or has_options or has_consumed_options:
                 quest_has_item = True
                 if has_inventory:
                     kinds["inventory"] += 1
+                if has_consumed_inventory:
+                    kinds["consumed_inventory"] += 1
                 if has_tools:
                     kinds["tools"] += 1
                 if has_options:
                     kinds["inventory_options"] += 1
+                if has_consumed_options:
+                    kinds["consumed_inventory_options"] += 1
             encounters = requirement.get("combat_encounters", ()) or ()
             if encounters:
                 quest_has_combat = True

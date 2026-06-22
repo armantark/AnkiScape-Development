@@ -561,6 +561,43 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["dialogs"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["dialogs"][0][1])
 
+    def test_quest_answer_consumes_priest_in_peril_essence_at_completion_gate(self):
+        addon = _load_addon_as_package("ankiscape_priest_in_peril_essence_integration")
+
+        calls = {"save": 0, "gains": [], "dialogs": []}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon._show_activity_gain = lambda text: calls["gains"].append(text)
+        addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
+        addon.mw = _DummyMW(_DummyCol({}))
+        addon.current_skill = "Quests"
+        addon.player_data = {
+            "inventory": {"Rune essence": 50, "Pure essence": 24},
+            "current_quest": "priest_in_peril",
+            "quests": {"priest_in_peril": {"started": True, "progress": 8, "completed": False}},
+            "quest_points": 0,
+            "prayer_exp": 0,
+            "claims": {"wicked_hood": {"claimed": False}},
+            "wicked_hood": {"fed_altars": []},
+            "pending_skill_exp_rewards": {},
+            "runecrafting_pouches": {},
+            "item_charges": {},
+            "completed_achievements": [],
+        }
+
+        addon.on_quest_answer()
+
+        self.assertTrue(addon.player_data["quests"]["priest_in_peril"]["completed"])
+        self.assertEqual(addon.player_data["quests"]["priest_in_peril"]["progress"], 9)
+        self.assertEqual(addon.player_data["inventory"]["Rune essence"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Pure essence"], 24)
+        self.assertEqual(addon.player_data["inventory"]["Wolfbane dagger"], 1)
+        self.assertEqual(addon.player_data["quest_points"], 1)
+        self.assertEqual(addon.player_data["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(calls["dialogs"][0][0], "Quest complete")
+
     def test_quest_answer_resolves_stat_backed_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_combat_integration")
 

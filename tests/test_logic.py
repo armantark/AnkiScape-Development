@@ -1503,6 +1503,85 @@ class TestLogic(unittest.TestCase):
         player_data["inventory"]["Orange dye"] = 1
         self.assertEqual(quest_current_stage_blockers_pure(player_data, "dye_quest", quest_data), ())
 
+    def test_consumed_inventory_options_block_and_consume_selected_alternative(self):
+        quest_data = {
+            "essence_quest": {
+                "stages": 1,
+                "point_reward": 0,
+                "rewards": {},
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "consumed_inventory_options": (({"Rune essence": 50}, {"Pure essence": 25}),),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {"Rune essence": 49, "Pure essence": 24},
+            "quests": {"essence_quest": {"started": True, "progress": 1, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+        }
+
+        blockers = quest_current_stage_blockers_pure(player_data, "essence_quest", quest_data)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_item_option",))
+        self.assertEqual(blockers[0]["reason"], "Needs Rune essence x50 or Pure essence x25")
+
+        player_data["inventory"]["Pure essence"] = 25
+        completed, ok, completed_now = apply_quest_progress_pure(player_data, "essence_quest", quest_data)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertEqual(completed["inventory"]["Pure essence"], 0)
+        self.assertEqual(completed["inventory"]["Rune essence"], 49)
+
+    def test_priest_in_peril_blocks_on_source_backed_stage_gates_and_consumes_essence(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        player_data["quests"]["priest_in_peril"] = {"started": True, "progress": 1, "completed": False}
+
+        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action",))
+        self.assertEqual(blockers[0]["reason"], "Action required: Speak through the Paterdomus temple door")
+
+        player_data["quests"]["priest_in_peril"]["progress"] = 2
+        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_locked",))
+        self.assertEqual(
+            blockers[0]["reason"],
+            "Combat locked until battle support is enabled: Temple guardian dog level 30",
+        )
+
+        player_data["quest_combat_config"] = {"resolver_enabled": True}
+        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_missing_stats",))
+        self.assertEqual(
+            blockers[0]["reason"],
+            "Combat stats required before battle support can resolve: Temple guardian dog level 30",
+        )
+
+        player_data["quests"]["priest_in_peril"]["progress"] = 5
+        player_data["attack_level"] = 40
+        player_data["strength_level"] = 40
+        player_data["defense_level"] = 40
+        player_data["constitution_level"] = 40
+        blockers = quest_current_stage_blockers_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("combat_encounter",))
+        self.assertEqual(blockers[0]["reason"], "Battle required: Monk of Zamorak level 30")
+
+        player_data["quests"]["priest_in_peril"]["progress"] = 8
+        player_data["quest_combat_config"] = {"resolver_enabled": False}
+        player_data["inventory"]["Pure essence"] = 25
+        player_data["inventory"]["Rune essence"] = 3
+        completed, ok, completed_now = apply_quest_progress_pure(player_data, "priest_in_peril", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertTrue(completed_now)
+        self.assertTrue(completed["quests"]["priest_in_peril"]["completed"])
+        self.assertEqual(completed["inventory"]["Pure essence"], 0)
+        self.assertEqual(completed["inventory"]["Rune essence"], 3)
+        self.assertEqual(completed["inventory"]["Wolfbane dagger"], 1)
+        self.assertEqual(completed["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
+
     def test_quest_combat_resolver_uses_player_and_source_backed_npc_stats(self):
         self.assertEqual(
             player_combat_level_pure(

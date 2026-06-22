@@ -304,12 +304,28 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(spirits[0]["npc_configs"]["max_hit"], 90)
         self.assertTrue(spirits[0]["npc_stats_source"].endswith("black_golem (noanims).json"))
 
-        monk = next(
-            encounter
-            for requirement in data["priest_in_peril"]["stage_requirements"]
-            for encounter in requirement["combat_encounters"]
-            if encounter["display_name"] == "Monk of Zamorak"
+        priest = data["priest_in_peril"]
+        self.assertEqual(priest["stages"], 9)
+        self.assertEqual(priest["rewards"], {"Wolfbane dagger": 1})
+        self.assertEqual(priest["unlocks"], ("Access to Morytania",))
+        priest_by_stage = {requirement["stage"]: requirement for requirement in priest["stage_requirements"]}
+        self.assertEqual(tuple(priest_by_stage), (1, 2, 3, 4, 5, 6, 7, 8))
+        self.assertEqual(
+            priest_by_stage[8]["consumed_inventory_options"],
+            (({"Rune essence": 50}, {"Pure essence": 25}),),
         )
+        self.assertNotIn("Varrock Museum", priest["rewards"])
+
+        dog = priest_by_stage[2]["combat_encounters"][0]
+        self.assertEqual(dog["display_name"], "Temple guardian dog")
+        self.assertEqual(dog["level"], 30)
+        self.assertEqual(dog["npc_stats"]["hitpoints"], 450)
+        self.assertEqual(dog["npc_configs"]["max_hit"], 30)
+        self.assertEqual(dog["npc_configs"]["magic_damage_immune"], True)
+        self.assertTrue(dog["npc_stats_source"].endswith("cerberus (noanims).json"))
+
+        monk = priest_by_stage[5]["combat_encounters"][0]
+        self.assertEqual(monk["display_name"], "Monk of Zamorak")
         self.assertEqual(monk["npc_stats"]["hitpoints"], 250)
         self.assertEqual(monk["npc_stats"]["attack"], 25)
         self.assertEqual(monk["npc_stats"]["strength"], 25)

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Quest Stage Gates - Priest in Peril Pre-Slice</title>
+  <style>
+    :root {
+      --bg: #0c1017;
+      --panel: #151b24;
+      --panel-2: #1d2632;
+      --text: #edf2f7;
+      --muted: #a7b4c5;
+      --line: #2a3544;
+      --good: #59d68d;
+      --warn: #f0c36a;
+      --bad: #ff7b72;
+      --info: #67b7ff;
+      --ink: #0c1017;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr .75fr;
+      gap: 18px;
+      align-items: stretch;
+      margin-bottom: 18px;
+    }
+    .block {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: clamp(30px, 4vw, 52px);
+      letter-spacing: 0;
+      line-height: 1.02;
+      max-width: 780px;
+    }
+    .subtitle {
+      color: var(--muted);
+      margin-top: 14px;
+      max-width: 760px;
+      font-size: 17px;
+    }
+    .stamp {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--ink);
+      background: var(--warn);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-weight: 700;
+      margin-bottom: 18px;
+      font-size: 13px;
+    }
+    .status-stack {
+      display: grid;
+      gap: 10px;
+    }
+    .status {
+      display: grid;
+      grid-template-columns: 14px 1fr;
+      gap: 10px;
+      align-items: start;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-top: 5px;
+      background: var(--info);
+    }
+    .dot.warn { background: var(--warn); }
+    .dot.good { background: var(--good); }
+    .dot.bad { background: var(--bad); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+    .metric {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 120px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 34px;
+      line-height: 1;
+      color: var(--text);
+      margin-bottom: 9px;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .list {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .row {
+      border: 1px solid var(--line);
+      background: #111821;
+      border-radius: 8px;
+      padding: 13px 14px;
+      display: grid;
+      gap: 5px;
+    }
+    .row b {
+      color: var(--text);
+      font-size: 15px;
+    }
+    .row span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .lane {
+      position: relative;
+      margin-top: 16px;
+      display: grid;
+      gap: 10px;
+    }
+    .lane-item {
+      display: grid;
+      grid-template-columns: 116px 1fr;
+      gap: 12px;
+      align-items: stretch;
+    }
+    .tag {
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 12px;
+      color: var(--ink);
+      background: var(--info);
+      min-height: 44px;
+      display: grid;
+      place-items: center;
+    }
+    .tag.warn { background: var(--warn); }
+    .tag.good { background: var(--good); }
+    .tag.bad { background: var(--bad); color: #fff; }
+    .detail {
+      border: 1px solid var(--line);
+      background: #111821;
+      border-radius: 8px;
+      padding: 11px 13px;
+      color: var(--muted);
+      min-height: 44px;
+      font-size: 13px;
+    }
+    .bar {
+      height: 12px;
+      background: #10161f;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--bad), var(--warn), var(--good));
+      width: 14%;
+    }
+    .foot {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+    @media (max-width: 850px) {
+      .hero, .split, .grid { grid-template-columns: 1fr; }
+      .lane-item { grid-template-columns: 1fr; }
+      main { width: min(100vw - 20px, 1180px); padding-top: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <div class="block">
+        <div class="stamp">Pre-slice status - not complete</div>
+        <h1>Quest gates are real, but full minute-detail parity is still open.</h1>
+        <p class="subtitle">
+          The current catalog has machine-readable stage requirements across all 194 quests, but many rows are broad generated buckets. This slice keeps moving from generated coverage to source-backed stage objectives, starting with Priest in Peril because local 2011Scape has a concrete quest implementation and the current generated rows are visibly distorted.
+        </p>
+      </div>
+      <div class="block status-stack">
+        <div class="status"><span class="dot good"></span><p>Backend model exists: startability, in-progress blockers, stage advancement, item consumption, and global combat lock.</p></div>
+        <div class="status"><span class="dot good"></span><p>Frontend state exists: locked, can_start, in_progress, blocked_at_stage, and completed can be surfaced compactly.</p></div>
+        <div class="status"><span class="dot warn"></span><p>Catalog parity is not done: 332 of 384 stage rows are still generated prose-derived gates.</p></div>
+        <div class="status"><span class="dot bad"></span><p>Combat is intentionally locked globally until the battle resolver is ready.</p></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <div class="metric"><strong>194</strong><span>quests with at least one stage requirement row</span></div>
+      <div class="metric"><strong>384</strong><span>stage requirement rows in the generated catalog</span></div>
+      <div class="metric"><strong>283</strong><span>combat encounter rows now machine-readable</span></div>
+      <div class="metric"><strong>52</strong><span>focused source-backed rows replacing broad generated gates</span></div>
+    </section>
+
+    <section class="split">
+      <div class="block">
+        <h2>Backend Slice</h2>
+        <div class="list">
+          <div class="row"><b>Replace Priest in Peril generated rows</b><span>Use local 2011Scape/Darkan quest code to model the dog fight, monument key, vampire coffin step, and Salve essence purification separately.</span></div>
+          <div class="row"><b>Preserve start vs finish separation</b><span>The quest should remain startable when appropriate but block stage advancement on the current unmet gate.</span></div>
+          <div class="row"><b>Keep combat hard locked</b><span>The Temple guardian fight stays a machine-readable combat blocker until the global combat resolver is enabled and stats are complete.</span></div>
+        </div>
+      </div>
+      <div class="block">
+        <h2>Frontend Slice</h2>
+        <div class="list">
+          <div class="row"><b>Expose blocker reason</b><span>Quest rows must show the player-facing reason for the current gate: item, action, route, or combat.</span></div>
+          <div class="row"><b>Keep filters intact</b><span>The existing quest filters should still distinguish locked, can_start, in_progress, blocked_at_stage, and completed.</span></div>
+          <div class="row"><b>No internal wording</b><span>Stage text should be compact and player-facing, with no audit jargon in the UI.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" style="margin-top:18px;">
+      <h2>This Slice's Proof Line</h2>
+      <div class="lane">
+        <div class="lane-item"><div class="tag warn">Current</div><div class="detail">Priest in Peril has a broad item bucket, an empty alternatives row, and a combat row distorted by generated source prose.</div></div>
+        <div class="lane-item"><div class="tag">Audit</div><div class="detail">Compare local 2011Scape quest implementation first, then Darkan quest implementation, and only then historical wiki revisions if local data conflicts.</div></div>
+        <div class="lane-item"><div class="tag good">Target</div><div class="detail">Separate stage gates for the Paterdomus investigation, Temple guardian fight, monument key, vampire coffin action, and rune/pure essence purification.</div></div>
+        <div class="lane-item"><div class="tag bad">Still Open</div><div class="detail">The remaining generated rows across the other quests still need the same source-backed pass. This artifact is explicitly not a completion claim.</div></div>
+      </div>
+      <div class="bar"><div class="fill"></div></div>
+      <p class="foot">Progress bar is intentionally conservative: it tracks focused source-backed stage-row replacement, not broad generated coverage.</p>
+    </section>
+  </main>
+</body>
+</html>

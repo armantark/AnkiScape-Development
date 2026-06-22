@@ -149,6 +149,52 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["errors"][0][1])
 
+    def test_quest_answer_completes_priest_in_peril_only_after_essence_gate(self):
+        blocked_calls = {"xp": [], "saves": 0, "errors": []}
+        blocked_data = {
+            "inventory": {"Pure essence": 24},
+            "current_quest": "priest_in_peril",
+            "quests": {"priest_in_peril": {"started": True, "progress": 8, "completed": False}},
+            "quest_points": 0,
+            "prayer_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(blocked_data, blocked_calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(blocked_data["quests"]["priest_in_peril"]["progress"], 8)
+        self.assertFalse(blocked_data["quests"]["priest_in_peril"]["completed"])
+        self.assertEqual(blocked_data["inventory"].get("Wolfbane dagger", 0), 0)
+        self.assertEqual(blocked_data["prayer_exp"], 0)
+        self.assertEqual(blocked_calls["saves"], 0)
+        self.assertIn("Needs Rune essence x50 or Pure essence x25", blocked_calls["errors"][0][1])
+
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Pure essence": 25, "Rune essence": 2},
+            "current_quest": "priest_in_peril",
+            "quests": {"priest_in_peril": {"started": True, "progress": 8, "completed": False}},
+            "quest_points": 0,
+            "prayer_exp": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertTrue(player_data["quests"]["priest_in_peril"]["completed"])
+        self.assertEqual(player_data["quests"]["priest_in_peril"]["progress"], 9)
+        self.assertEqual(player_data["inventory"]["Pure essence"], 0)
+        self.assertEqual(player_data["inventory"]["Rune essence"], 2)
+        self.assertEqual(player_data["inventory"]["Wolfbane dagger"], 1)
+        self.assertEqual(player_data["quest_points"], 1)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"][0][0], "Quest complete")
+
     def test_quest_answer_resolves_source_backed_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

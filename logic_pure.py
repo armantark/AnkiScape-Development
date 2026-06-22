@@ -1335,19 +1335,27 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
                     )
                 )
 
-        for options in _quest_stage_item_option_groups(requirement, "required_inventory_options"):
-            option_met = any(_positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options)
-            if option_met:
-                continue
-            blockers.append(
-                _quest_blocker(
-                    stage,
-                    "missing_item_option",
-                    _quest_item_option_reason(options),
-                    source,
-                    options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
+        seen_option_blockers = set()
+        for option_key in ("required_inventory_options", "consumed_inventory_options"):
+            for options in _quest_stage_item_option_groups(requirement, option_key):
+                option_met = any(
+                    _positive_int(inventory.get(item_name, 0), 0) >= amount for item_name, amount in options
                 )
-            )
+                if option_met:
+                    continue
+                option_signature = tuple(options)
+                if option_signature in seen_option_blockers:
+                    continue
+                seen_option_blockers.add(option_signature)
+                blockers.append(
+                    _quest_blocker(
+                        stage,
+                        "missing_item_option",
+                        _quest_item_option_reason(options),
+                        source,
+                        options=tuple({"item_name": item_name, "quantity": amount} for item_name, amount in options),
+                    )
+                )
 
         for tool_name, amount in _quest_stage_item_pairs(requirement, "required_tools"):
             if not _has_quest_tool(player_data, tool_name, amount):
@@ -1691,6 +1699,11 @@ def _consume_quest_current_stage_items(data, quest_id, quest):
             continue
         for item_name, amount in _quest_stage_item_pairs(requirement, "consumed_inventory"):
             inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
+        for options in _quest_stage_item_option_groups(requirement, "consumed_inventory_options"):
+            for item_name, amount in options:
+                if _positive_int(inventory.get(item_name, 0), 0) >= amount:
+                    inventory[item_name] = max(0, _positive_int(inventory.get(item_name, 0), 0) - amount)
+                    break
 
 
 def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, encounter_id):
