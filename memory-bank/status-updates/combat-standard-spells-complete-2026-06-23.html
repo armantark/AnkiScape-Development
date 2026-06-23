@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Standard Spells Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg:#0b0d10;
+      --panel:#151922;
+      --panel2:#1d2430;
+      --ink:#eef3fb;
+      --muted:#9aa7ba;
+      --line:#2d3545;
+      --blue:#58a6ff;
+      --green:#54d88a;
+      --amber:#f4bf4f;
+      --rose:#ff6b82;
+      --r:10px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0;
+      background:
+        linear-gradient(180deg, rgba(88,166,255,.08), transparent 360px),
+        var(--bg);
+      color:var(--ink);
+      font:15px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width:min(1180px, calc(100vw - 28px)); margin:0 auto; padding:30px 0 44px; }
+    header { display:grid; grid-template-columns:minmax(0, 1.2fr) minmax(280px, .8fr); gap:18px; align-items:end; padding-bottom:24px; border-bottom:1px solid var(--line); }
+    h1,h2,h3,p { margin:0; }
+    h1 { max-width:760px; font-size:clamp(34px, 6vw, 64px); line-height:.96; letter-spacing:0; }
+    h2 { margin-bottom:12px; font-size:22px; letter-spacing:0; }
+    h3 { margin-bottom:6px; color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.1em; }
+    .eyebrow { width:max-content; max-width:100%; padding:6px 10px; border:1px solid rgba(84,216,138,.42); border-radius:999px; color:#b9f3ce; font:12px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; letter-spacing:.08em; }
+    .lead { margin-top:13px; max-width:780px; color:var(--muted); font-size:17px; }
+    .status {
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:16px;
+      display:grid;
+      gap:10px;
+    }
+    .check { display:flex; gap:10px; align-items:flex-start; }
+    .dot { flex:0 0 11px; width:11px; height:11px; margin-top:5px; border-radius:50%; background:var(--green); box-shadow:0 0 0 4px rgba(84,216,138,.12); }
+    section { margin-top:20px; }
+    .grid { display:grid; gap:14px; }
+    .cols-4 { grid-template-columns:repeat(4, minmax(0, 1fr)); }
+    .cols-3 { grid-template-columns:repeat(3, minmax(0, 1fr)); }
+    .cols-2 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .card {
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:17px;
+    }
+    .metric { min-height:120px; display:grid; align-content:space-between; }
+    .metric strong { display:block; color:var(--blue); font-size:38px; line-height:1; letter-spacing:0; }
+    .metric span { color:var(--muted); }
+    .spell-table {
+      display:grid;
+      grid-template-columns:1.15fr .7fr 1.2fr .7fr;
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      overflow:hidden;
+    }
+    .spell-table div { padding:9px 10px; border-bottom:1px solid var(--line); background:rgba(255,255,255,.02); }
+    .spell-table div:nth-child(8n+5),
+    .spell-table div:nth-child(8n+6),
+    .spell-table div:nth-child(8n+7),
+    .spell-table div:nth-child(8n+8) { background:rgba(255,255,255,.045); }
+    .spell-table .head { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.08em; background:#10151d; }
+    .spell-table div:nth-last-child(-n+4) { border-bottom:0; }
+    .pill {
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      width:max-content;
+      max-width:100%;
+      margin:2px 4px 2px 0;
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:#dcecff;
+      background:var(--panel2);
+      font-size:13px;
+    }
+    .rune { width:9px; height:9px; border-radius:2px; display:inline-block; }
+    .air { background:#d8e4f4; }
+    .water { background:#59a8ff; }
+    .earth { background:#9d7457; }
+    .fire { background:#ff7d3d; }
+    .chaos { background:#d7ce55; }
+    .death { background:#4f5968; }
+    .blood { background:#d34256; }
+    .lane { display:grid; gap:10px; }
+    .item { background:var(--panel2); border-left:3px solid var(--blue); border-radius:0 8px 8px 0; padding:11px 12px; }
+    .item.good { border-left-color:var(--green); }
+    .item.warn { border-left-color:var(--amber); }
+    .item.risk { border-left-color:var(--rose); }
+    code, .mono { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size:13px; color:#dcecff; }
+    .mono { white-space:pre-wrap; overflow-wrap:anywhere; background:#10151d; border:1px solid var(--line); border-radius:8px; padding:12px; }
+    .bar { height:10px; background:#111720; border:1px solid var(--line); border-radius:999px; overflow:hidden; }
+    .bar span { display:block; height:100%; background:linear-gradient(90deg, var(--green), var(--blue)); }
+    @media (max-width:920px) {
+      header, .cols-4, .cols-3, .cols-2 { grid-template-columns:1fr; }
+      .spell-table { grid-template-columns:1fr .45fr; }
+      .spell-table .runes, .spell-table .xp { display:none; }
+      .spell-table .head.runes, .spell-table .head.xp { display:none; }
+      .spell-table div:nth-last-child(-n+4) { border-bottom:1px solid var(--line); }
+      .spell-table div:nth-last-child(-n+2) { border-bottom:0; }
+    }
+    @media (max-width:560px) {
+      main { width:calc(100vw - 20px); padding-top:20px; }
+      .metric strong { font-size:32px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="eyebrow">COMBAT GRILL SLICE COMPLETE</div>
+        <h1>Standard Magic now runs from Strike through Fire Wave.</h1>
+        <p class="lead">The existing Combat burst engine now has the source-backed elemental Bolt, Blast, and Wave ladder, including level gates, rune costs, max hits, base cast XP, and UI spell selection coverage.</p>
+      </div>
+      <div class="status">
+        <div class="check"><span class="dot"></span><p><strong>Plain full suite:</strong> <code>python3 run_tests.py</code> passed 614 tests with 131 skips.</p></div>
+        <div class="check"><span class="dot"></span><p><strong>Qt full suite:</strong> <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> passed 614 tests.</p></div>
+        <div class="check"><span class="dot"></span><p><strong>Focused coverage:</strong> Combat logic, target metadata, item registry, and spell selector tests passed before the full runs.</p></div>
+      </div>
+    </header>
+
+    <section class="grid cols-4">
+      <div class="card metric"><span>New combat spells</span><strong>12</strong><span>Bolt, Blast, and Wave tiers</span></div>
+      <div class="card metric"><span>Top spell</span><strong>75</strong><span>Fire Wave Magic level gate</span></div>
+      <div class="card metric"><span>Max hit span</span><strong>9-20</strong><span>Source hit values preserved</span></div>
+      <div class="card metric"><span>Quest-gated spells</span><strong>0</strong><span>Deferred instead of guessed</span></div>
+    </section>
+
+    <section class="grid cols-2">
+      <div class="card">
+        <h2>Implemented Ladder</h2>
+        <div class="spell-table">
+          <div class="head">Spell</div><div class="head">Level</div><div class="head runes">Rune profile</div><div class="head xp">Base XP</div>
+          <div>Wind Bolt</div><div>17</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x2</span><span class="pill"><span class="rune chaos"></span>Chaos x1</span></div><div class="xp">13.5</div>
+          <div>Water Bolt</div><div>23</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x2</span><span class="pill"><span class="rune water"></span>Water x2</span><span class="pill"><span class="rune chaos"></span>Chaos x1</span></div><div class="xp">16.5</div>
+          <div>Earth Bolt</div><div>29</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x2</span><span class="pill"><span class="rune earth"></span>Earth x3</span><span class="pill"><span class="rune chaos"></span>Chaos x1</span></div><div class="xp">19.5</div>
+          <div>Fire Bolt</div><div>35</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x3</span><span class="pill"><span class="rune fire"></span>Fire x4</span><span class="pill"><span class="rune chaos"></span>Chaos x1</span></div><div class="xp">22.5</div>
+          <div>Wind Blast</div><div>41</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x3</span><span class="pill"><span class="rune death"></span>Death x1</span></div><div class="xp">25.5</div>
+          <div>Water Blast</div><div>47</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x3</span><span class="pill"><span class="rune water"></span>Water x3</span><span class="pill"><span class="rune death"></span>Death x1</span></div><div class="xp">28.5</div>
+          <div>Earth Blast</div><div>53</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x3</span><span class="pill"><span class="rune earth"></span>Earth x4</span><span class="pill"><span class="rune death"></span>Death x1</span></div><div class="xp">31.5</div>
+          <div>Fire Blast</div><div>59</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x4</span><span class="pill"><span class="rune fire"></span>Fire x5</span><span class="pill"><span class="rune death"></span>Death x1</span></div><div class="xp">34.5</div>
+          <div>Wind Wave</div><div>62</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x5</span><span class="pill"><span class="rune blood"></span>Blood x1</span></div><div class="xp">36.0</div>
+          <div>Water Wave</div><div>65</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x5</span><span class="pill"><span class="rune water"></span>Water x7</span><span class="pill"><span class="rune blood"></span>Blood x1</span></div><div class="xp">37.5</div>
+          <div>Earth Wave</div><div>70</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x5</span><span class="pill"><span class="rune earth"></span>Earth x7</span><span class="pill"><span class="rune blood"></span>Blood x1</span></div><div class="xp">40.0</div>
+          <div>Fire Wave</div><div>75</div><div class="runes"><span class="pill"><span class="rune air"></span>Air x5</span><span class="pill"><span class="rune fire"></span>Fire x7</span><span class="pill"><span class="rune blood"></span>Blood x1</span></div><div class="xp">42.5</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>What Changed</h2>
+        <div class="lane">
+          <div class="item good"><h3>Backend</h3><p><code>combat_data.py</code> now carries the standard elemental spell rows through Fire Wave, using the source spellbook metadata instead of a level-only approximation.</p></div>
+          <div class="item good"><h3>Resource Readiness</h3><p>Higher-tier rune requirements flow through the existing staff substitution and missing-supply checks, including Blood rune requirements for Wave spells.</p></div>
+          <div class="item good"><h3>Frontend</h3><p>The existing spell combo exposes the higher spell ids; tests cover selecting Wind Bolt, Fire Blast, and Fire Wave from the UI-facing control path.</p></div>
+          <div class="item warn"><h3>Deferred Intentionally</h3><p>God spells, Ancient spells, Lunar spells, and special-effect combat spells remain out until their unlock, staff, quest, and effect semantics can be represented honestly.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid cols-3">
+      <div class="card">
+        <h2>Verification</h2>
+        <div class="lane">
+          <div class="item good"><p><code>python3 -m unittest tests.test_combat_logic tests.test_target_metadata tests.test_main_menu_widget.MainMenuWidgetTest.test_combat_exposes_style_and_spell_controls</code></p></div>
+          <div class="item good"><p><code>python3 -m unittest tests.test_skill_and_item_registry</code></p></div>
+          <div class="item good"><p><code>python3 run_tests.py</code></p></div>
+          <div class="item good"><p><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code></p></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Grill Progress</h2>
+        <p style="color:var(--muted); margin-bottom:10px;">This completes the generic standard-spell expansion slice while keeping unresolved source mechanics explicit.</p>
+        <div class="bar"><span style="width:64%"></span></div>
+        <p style="color:var(--muted); margin-top:10px;">Next high-signal ordinary target: source-backed level 10 Barbarian grouping, unless the safer systemic gate slice is prioritized first.</p>
+      </div>
+      <div class="card">
+        <h2>Updated Files</h2>
+        <div class="mono">combat_data.py
+tests/test_combat_logic.py
+tests/test_target_metadata.py
+tests/test_main_menu_widget.py
+memory-bank/activeContext.md
+memory-bank/progress.md
+memory-bank/future-work-kanban.md
+memory-bank/source-audits/combat-standard-spells-2026-06-23.md</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

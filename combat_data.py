@@ -207,6 +207,210 @@ COMBAT_MAGIC_SPELL_DATA: Dict[str, dict] = {
             f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
         ),
     },
+    "wind_bolt": {
+        "display_name": "Wind Bolt",
+        "spellbook": "standard",
+        "required_magic_level": 17,
+        "rune_cost": {"Air rune": 2, "Chaos rune": 1},
+        "max_hit_old_hp": 9,
+        "base_magic_xp": 13.5,
+        "attack_speed": 5,
+        "unique_id": 73,
+        "component_id": 34,
+        "autocast_id": 11,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WIND_BOLT maxHit=9 experience=13.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WIND_BOLT level=17 runes AIR_RUNE x2 CHAOS_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "water_bolt": {
+        "display_name": "Water Bolt",
+        "spellbook": "standard",
+        "required_magic_level": 23,
+        "rune_cost": {"Air rune": 2, "Water rune": 2, "Chaos rune": 1},
+        "max_hit_old_hp": 10,
+        "base_magic_xp": 16.5,
+        "attack_speed": 5,
+        "unique_id": 76,
+        "component_id": 39,
+        "autocast_id": 13,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WATER_BOLT maxHit=10 experience=16.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WATER_BOLT level=23 runes AIR_RUNE x2 WATER_RUNE x2 CHAOS_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "earth_bolt": {
+        "display_name": "Earth Bolt",
+        "spellbook": "standard",
+        "required_magic_level": 29,
+        "rune_cost": {"Air rune": 2, "Earth rune": 3, "Chaos rune": 1},
+        "max_hit_old_hp": 11,
+        "base_magic_xp": 19.5,
+        "attack_speed": 5,
+        "unique_id": 79,
+        "component_id": 42,
+        "autocast_id": 15,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: EARTH_BOLT maxHit=11 experience=19.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: EARTH_BOLT level=29 runes AIR_RUNE x2 EARTH_RUNE x3 CHAOS_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "fire_bolt": {
+        "display_name": "Fire Bolt",
+        "spellbook": "standard",
+        "required_magic_level": 35,
+        "rune_cost": {"Air rune": 3, "Fire rune": 4, "Chaos rune": 1},
+        "max_hit_old_hp": 12,
+        "base_magic_xp": 22.5,
+        "attack_speed": 5,
+        "unique_id": 82,
+        "component_id": 45,
+        "autocast_id": 17,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: FIRE_BOLT maxHit=12 experience=22.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: FIRE_BOLT level=35 runes AIR_RUNE x3 FIRE_RUNE x4 CHAOS_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "wind_blast": {
+        "display_name": "Wind Blast",
+        "spellbook": "standard",
+        "required_magic_level": 41,
+        "rune_cost": {"Air rune": 3, "Death rune": 1},
+        "max_hit_old_hp": 13,
+        "base_magic_xp": 25.5,
+        "attack_speed": 5,
+        "unique_id": 85,
+        "component_id": 49,
+        "autocast_id": 19,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WIND_BLAST maxHit=13 experience=25.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WIND_BLAST level=41 runes AIR_RUNE x3 DEATH_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "water_blast": {
+        "display_name": "Water Blast",
+        "spellbook": "standard",
+        "required_magic_level": 47,
+        "rune_cost": {"Air rune": 3, "Water rune": 3, "Death rune": 1},
+        "max_hit_old_hp": 14,
+        "base_magic_xp": 28.5,
+        "attack_speed": 5,
+        "unique_id": 88,
+        "component_id": 52,
+        "autocast_id": 21,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WATER_BLAST maxHit=14 experience=28.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WATER_BLAST level=47 runes AIR_RUNE x3 WATER_RUNE x3 DEATH_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "earth_blast": {
+        "display_name": "Earth Blast",
+        "spellbook": "standard",
+        "required_magic_level": 53,
+        "rune_cost": {"Air rune": 3, "Earth rune": 4, "Death rune": 1},
+        "max_hit_old_hp": 15,
+        "base_magic_xp": 31.5,
+        "attack_speed": 5,
+        "unique_id": 90,
+        "component_id": 58,
+        "autocast_id": 23,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: EARTH_BLAST maxHit=15 experience=31.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: EARTH_BLAST level=53 runes AIR_RUNE x3 EARTH_RUNE x4 DEATH_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "fire_blast": {
+        "display_name": "Fire Blast",
+        "spellbook": "standard",
+        "required_magic_level": 59,
+        "rune_cost": {"Air rune": 4, "Fire rune": 5, "Death rune": 1},
+        "max_hit_old_hp": 16,
+        "base_magic_xp": 34.5,
+        "attack_speed": 5,
+        "unique_id": 95,
+        "component_id": 63,
+        "autocast_id": 25,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: FIRE_BLAST maxHit=16 experience=34.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: FIRE_BLAST level=59 runes AIR_RUNE x4 FIRE_RUNE x5 DEATH_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "wind_wave": {
+        "display_name": "Wind Wave",
+        "spellbook": "standard",
+        "required_magic_level": 62,
+        "rune_cost": {"Air rune": 5, "Blood rune": 1},
+        "max_hit_old_hp": 17,
+        "base_magic_xp": 36.0,
+        "attack_speed": 5,
+        "unique_id": 96,
+        "component_id": 70,
+        "autocast_id": 27,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WIND_WAVE maxHit=17 experience=36.0; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WIND_WAVE level=62 runes AIR_RUNE x5 BLOOD_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "water_wave": {
+        "display_name": "Water Wave",
+        "spellbook": "standard",
+        "required_magic_level": 65,
+        "rune_cost": {"Air rune": 5, "Water rune": 7, "Blood rune": 1},
+        "max_hit_old_hp": 18,
+        "base_magic_xp": 37.5,
+        "attack_speed": 5,
+        "unique_id": 98,
+        "component_id": 73,
+        "autocast_id": 29,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WATER_WAVE maxHit=18 experience=37.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WATER_WAVE level=65 runes AIR_RUNE x5 WATER_RUNE x7 BLOOD_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "earth_wave": {
+        "display_name": "Earth Wave",
+        "spellbook": "standard",
+        "required_magic_level": 70,
+        "rune_cost": {"Air rune": 5, "Earth rune": 7, "Blood rune": 1},
+        "max_hit_old_hp": 19,
+        "base_magic_xp": 40.0,
+        "attack_speed": 5,
+        "unique_id": 101,
+        "component_id": 77,
+        "autocast_id": 31,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: EARTH_WAVE maxHit=19 experience=40.0; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: EARTH_WAVE level=70 runes AIR_RUNE x5 EARTH_RUNE x7 BLOOD_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "fire_wave": {
+        "display_name": "Fire Wave",
+        "spellbook": "standard",
+        "required_magic_level": 75,
+        "rune_cost": {"Air rune": 5, "Fire rune": 7, "Blood rune": 1},
+        "max_hit_old_hp": 20,
+        "base_magic_xp": 42.5,
+        "attack_speed": 5,
+        "unique_id": 102,
+        "component_id": 80,
+        "autocast_id": 33,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: FIRE_WAVE maxHit=20 experience=42.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: FIRE_WAVE level=75 runes AIR_RUNE x5 FIRE_RUNE x7 BLOOD_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
 }
 
 

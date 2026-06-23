@@ -185,6 +185,12 @@
   Elemental staves now provide their matching rune for lock checks, safe-boundary
   refill, cast consumption, and tooltips; covered runes are not consumed and any
   already-carried covered rune is returned to inventory during refill.
+- Combat standard spell expansion broadened the same source-backed path to
+  Wind/Water/Earth/Fire Bolt, Blast, and Wave. The Combat spell selector now
+  exposes the standard elemental ladder through Fire Wave, using local
+  2011Scape Magic levels, rune costs, max hits, base cast XP, autocast IDs, and
+  existing staff-covered rune behavior. Source proof:
+  `memory-bank/source-audits/combat-standard-spells-2026-06-23.md`.
 - Combat loadout controls are now player-facing in the Combat hub. The panel
   exposes auto-eat threshold, preferred food priority, loaded food/ammo/rune
   summaries, and safe-boundary Refill/Unload buttons. The callbacks route
@@ -215,7 +221,7 @@
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
-  import, Magic beyond the Strike ladder/basic elemental staves, broader Ranged
+  import, god/Ancient/Lunar combat spell gates and effects, broader Ranged
   weapon/ammo support, richer assets, potion/cannonball/per-ammo preference
   controls, confirmation UX for dangerous targets, source-exact death-fee and
   grave-expiry variants beyond the current review/stacked-death bridge, and

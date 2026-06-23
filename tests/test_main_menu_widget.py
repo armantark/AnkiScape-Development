@@ -590,7 +590,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(style_combo.currentData(), "magic_standard")
         self.assertEqual(spell_combo.currentData(), "wind_strike")
         self.assertEqual(spell_combo.currentText(), "Wind Strike")
-        for spell_id in ("water_strike", "earth_strike", "fire_strike"):
+        for spell_id in ("water_strike", "earth_strike", "fire_strike", "wind_bolt", "fire_blast", "fire_wave"):
             self.assertGreaterEqual(spell_combo.findData(spell_id), 0)
 
         tree = _find_tree_with_user_role(dialog, "chicken")
@@ -602,6 +602,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         spell_combo.setCurrentIndex(fire_index)
         QApplication.processEvents()
         self.assertEqual(self._combat_spell_calls[-1], "fire_strike")
+
+        fire_wave_index = spell_combo.findData("fire_wave")
+        spell_combo.setCurrentIndex(fire_wave_index)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_spell_calls[-1], "fire_wave")
 
         accurate_index = style_combo.findData("accurate")
         self.assertGreaterEqual(accurate_index, 0)

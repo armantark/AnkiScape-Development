@@ -3,7 +3,8 @@
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Highwayman humanoid expansion,
-Barbarian and Goblin ordinary-enemy expansions, and first Ranged/ammo path.
+Barbarian and Goblin ordinary-enemy expansions, first Ranged/ammo path, and the
+standard elemental Combat spell ladder.
 
 ## Implemented Scope
 
@@ -86,6 +87,8 @@ Barbarian and Goblin ordinary-enemy expansions, and first Ranged/ammo path.
   `memory-bank/source-audits/combat-highwayman-2026-06-23.md`
 - Ranged/ammo path:
   `memory-bank/source-audits/combat-ranged-ammo-2026-06-23.md`
+- Standard combat spell ladder:
+  `memory-bank/source-audits/combat-standard-spells-2026-06-23.md`
 
 ## Deferred
 
@@ -94,8 +97,8 @@ Barbarian and Goblin ordinary-enemy expansions, and first Ranged/ammo path.
 - Full non-Smithing combat equipment import/equip support. Wooden shield is now
   source-backed and claimable, but shield mechanics still belong to the broader
   equipment audit.
-- Magic combat routing, rune consumption, spell selection, and noncombat Magic
-  actions.
+- God/Ancient/Lunar combat spells with source gates/effects, and noncombat
+  Magic actions.
 - Broader Ranged equipment/ammunition support beyond Shortbow plus Bronze
   arrows, including stack-aware ammunition equipment and arrow recovery.
 - Prayer effects, drain, and Prayer skilling.

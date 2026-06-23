@@ -119,6 +119,37 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(COMBAT_MAGIC_STAFF_DATA["Staff of air"]["covered_runes"], ("Air rune",))
         self.assertEqual(COMBAT_MAGIC_STAFF_DATA["Staff of fire"]["covered_runes"], ("Fire rune",))
 
+    def test_standard_bolt_blast_wave_spell_rows_match_2011scape_source(self):
+        expected = {
+            "wind_bolt": ("Wind Bolt", 17, {"Air rune": 2, "Chaos rune": 1}, 9, 13.5, 73, 34, 11),
+            "water_bolt": ("Water Bolt", 23, {"Air rune": 2, "Water rune": 2, "Chaos rune": 1}, 10, 16.5, 76, 39, 13),
+            "earth_bolt": ("Earth Bolt", 29, {"Air rune": 2, "Earth rune": 3, "Chaos rune": 1}, 11, 19.5, 79, 42, 15),
+            "fire_bolt": ("Fire Bolt", 35, {"Air rune": 3, "Fire rune": 4, "Chaos rune": 1}, 12, 22.5, 82, 45, 17),
+            "wind_blast": ("Wind Blast", 41, {"Air rune": 3, "Death rune": 1}, 13, 25.5, 85, 49, 19),
+            "water_blast": ("Water Blast", 47, {"Air rune": 3, "Water rune": 3, "Death rune": 1}, 14, 28.5, 88, 52, 21),
+            "earth_blast": ("Earth Blast", 53, {"Air rune": 3, "Earth rune": 4, "Death rune": 1}, 15, 31.5, 90, 58, 23),
+            "fire_blast": ("Fire Blast", 59, {"Air rune": 4, "Fire rune": 5, "Death rune": 1}, 16, 34.5, 95, 63, 25),
+            "wind_wave": ("Wind Wave", 62, {"Air rune": 5, "Blood rune": 1}, 17, 36.0, 96, 70, 27),
+            "water_wave": ("Water Wave", 65, {"Air rune": 5, "Water rune": 7, "Blood rune": 1}, 18, 37.5, 98, 73, 29),
+            "earth_wave": ("Earth Wave", 70, {"Air rune": 5, "Earth rune": 7, "Blood rune": 1}, 19, 40.0, 101, 77, 31),
+            "fire_wave": ("Fire Wave", 75, {"Air rune": 5, "Fire rune": 7, "Blood rune": 1}, 20, 42.5, 102, 80, 33),
+        }
+
+        for spell_id, (display, level, runes, max_hit, base_xp, unique_id, component_id, autocast_id) in expected.items():
+            with self.subTest(spell_id=spell_id):
+                spell = COMBAT_MAGIC_SPELL_DATA[spell_id]
+                self.assertEqual(spell["display_name"], display)
+                self.assertEqual(spell["spellbook"], "standard")
+                self.assertEqual(spell["required_magic_level"], level)
+                self.assertEqual(spell["rune_cost"], runes)
+                self.assertEqual(spell["max_hit_old_hp"], max_hit)
+                self.assertEqual(spell["base_magic_xp"], base_xp)
+                self.assertEqual(spell["attack_speed"], 5)
+                self.assertEqual(spell["unique_id"], unique_id)
+                self.assertEqual(spell["component_id"], component_id)
+                self.assertEqual(spell["autocast_id"], autocast_id)
+                self.assertIn(spell_id.upper(), spell["source"])
+
     def test_simple_enemy_import_rows_match_source(self):
         cow_calf = COMBAT_ENEMY_DATA["cow_calf"]
         ram = COMBAT_ENEMY_DATA["ram"]
@@ -445,6 +476,42 @@ class CombatLogicTest(unittest.TestCase):
             (),
         )
 
+    def test_fire_wave_requires_level_and_blood_runes(self):
+        underleveled = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_wave",
+            magic_level=74,
+            inventory={"Air rune": 5, "Fire rune": 7, "Blood rune": 1},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(underleveled, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            ("Magic level 75",),
+        )
+
+        missing_blood = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_wave",
+            magic_level=75,
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 5},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(missing_blood, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            ("runes: Blood rune x1",),
+        )
+
+        with_fire_staff = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_wave",
+            magic_level=75,
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 5, "Blood rune": 1},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(with_fire_staff, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            (),
+        )
+
     def test_magic_burst_consumes_wind_strike_runes_and_awards_magic_xp(self):
         player = _player(
             combat_attack_style="magic_standard",
@@ -522,6 +589,32 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["inventory"].get("Fire rune", 0), 0)
         self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
         self.assertAlmostEqual(new_data["magic_exp"], 11.5)
+
+    def test_fire_wave_with_staff_consumes_blood_and_air_runes_and_awards_base_xp_on_splash(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_wave",
+            magic_level=75,
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 5, "Blood rune": 1},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["spell_id"], "fire_wave")
+        self.assertEqual(result["spell"], "Fire Wave")
+        self.assertEqual(result["runes_used"], {"Air rune": 5, "Blood rune": 1})
+        self.assertEqual(new_data["inventory"].get("Fire rune", 0), 0)
+        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertAlmostEqual(new_data["magic_exp"], 42.5)
+        self.assertEqual(new_data["constitution_exp"], 0.0)
 
     def test_magic_splash_consumes_runes_and_awards_base_spell_xp(self):
         player = _player(
