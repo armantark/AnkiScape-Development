@@ -2142,18 +2142,20 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
 
         addon.player_data = {
-            "inventory": {"Logs": 2, "Shark": 30},
+            "inventory": {"Logs": 2, "Shark": 30, "Bronze arrows": 10},
             "fletching_level": 1,
             "fletching_exp": 0,
             "current_fletch": "arrow_shafts",
             "completed_achievements": [],
             "constitution_level": 10,
+            "combat_attack_style": "ranged_accurate",
             "combat_lifepoints": 20,
             "combat_special_attack_energy": 35,
             "combat_stat_drains": {"attack": 2},
             "combat_recovery_progress": {},
             "combat_supply_loadout": {},
             "combat_auto_eat_food": ["Shark"],
+            "equipment": {"weapon": "Shortbow"},
         }
         addon.current_skill = "Fletching"
         addon.card_turned = True
@@ -2165,11 +2167,13 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
         self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 30)
         self.assertEqual(addon.player_data["inventory"]["Shark"], 2)
+        self.assertEqual(addon.player_data["inventory"]["Bronze arrows"], 0)
         self.assertEqual(addon.player_data["combat_lifepoints"], 100)
         self.assertEqual(addon.player_data["combat_special_attack_energy"], 45)
         self.assertEqual(addon.player_data["combat_stat_drains"], {"attack": 2})
         self.assertEqual(addon.player_data["combat_recovery_progress"], {"stat_drain_ticks": 50})
         self.assertEqual(addon.player_data["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(addon.player_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 10})
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         changes = types.SimpleNamespace(
@@ -2178,7 +2182,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         addon._on_state_did_undo(changes)
 
-        self.assertEqual(addon.player_data["inventory"], {"Logs": 2, "Shark": 30})
+        self.assertEqual(addon.player_data["inventory"], {"Logs": 2, "Shark": 30, "Bronze arrows": 10})
         self.assertEqual(addon.player_data["fletching_exp"], 0)
         self.assertEqual(addon.player_data["combat_lifepoints"], 20)
         self.assertEqual(addon.player_data["combat_special_attack_energy"], 35)

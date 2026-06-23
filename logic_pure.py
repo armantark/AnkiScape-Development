@@ -1846,6 +1846,13 @@ def apply_safe_combat_recovery_pure(player_data):
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_recover_stat_drains(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_refill_food_loadout(data)
+    style = COMBAT_ATTACK_STYLE_DATA.get(
+        str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
+        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+    )
+    if str(style.get("combat_class", "melee")) == "ranged":
+        _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, {})
+        _combat_refill_ranged_ammo_loadout(data, weapon_spec)
     _spell_id, spell_spec = _combat_selected_magic_spell(data)
     _combat_refill_magic_rune_loadout(data, spell_spec)
     grave = data.get("combat_grave", {}) or {}

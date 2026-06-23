@@ -5,7 +5,8 @@ Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Highwayman humanoid expansion,
 Barbarian level 8/9 and level 10 ordinary-enemy expansions, Goblin
 ordinary-enemy expansion, first Ranged/ammo path, and the standard elemental
-Combat spell ladder, plus ordinary dangerous-target confirmation.
+Combat spell ladder, plus ordinary dangerous-target confirmation and
+safe-boundary ammo recovery.
 
 ## Implemented Scope
 
@@ -29,8 +30,9 @@ Combat spell ladder, plus ordinary dangerous-target confirmation.
 - Safe noncombat reviews apply one review-tick recovery packet per card, not
   once per `Actions per review` sub-action. The packet heals or decays
   lifepoints by 100, regenerates 10 special-attack energy per 50 ticks, recovers
-  one stat-drain level per 100 safe ticks, refills carried food, and remains
-  covered by the existing Anki undo snapshot.
+  one stat-drain level per 100 safe ticks, refills carried food, Magic runes,
+  and Ranged ammo at safe boundaries, and remains covered by the existing Anki
+  undo snapshot.
 - Additive save fields now exist for future combat systems:
   `combat_supply_loadout`, `combat_special_attack_energy`,
   `combat_stat_drains`, `combat_status_effects`, and
@@ -97,6 +99,8 @@ Combat spell ladder, plus ordinary dangerous-target confirmation.
   `memory-bank/source-audits/combat-standard-spells-2026-06-23.md`
 - Dangerous target confirmation:
   `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`
+- Safe recovery ammo refill:
+  `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`
 
 ## Deferred
 

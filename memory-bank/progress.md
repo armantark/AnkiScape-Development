@@ -223,6 +223,12 @@
   declining leaves the previous target unchanged and accepting saves only the
   selected target. Source proof:
   `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`.
+- Combat safe recovery now refills Ranged ammo at safe boundaries. Successful
+  noncombat reviews still apply one rollback-safe recovery packet, and when the
+  current Combat style is Ranged the packet moves compatible ammo from inventory
+  into `combat_supply_loadout["ammo"]` using the existing Ranged weapon data.
+  Source proof:
+  `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`.
 - Combat Goblin expansion added level-2 Goblins as two source-split targets:
   `Goblin (unarmed)` for the unarmed IDs and `Goblin (armed)` for the one armed
   ID with higher Attack/Defence. Both share the exact local 1024-slot main
@@ -235,7 +241,8 @@
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
   import, god/Ancient/Lunar combat spell gates and effects, broader Ranged
-  weapon/ammo support, richer assets, potion/cannonball/per-ammo preference
+  weapon/ammo support beyond the first Shortbow/Bronze arrows path, richer
+  assets, potion/cannonball/per-ammo preference
   controls, richer risk previews and Wilderness/equipment-risk opt-ins,
   source-exact death-fee and grave-expiry variants beyond the current
   review/stacked-death bridge, and

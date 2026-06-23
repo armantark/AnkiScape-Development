@@ -168,7 +168,9 @@ recovery foundation is also in place:
 finite carried food loadouts refill only at safe boundaries, safe noncombat
 reviews apply one rollback-safe recovery packet per card, special-attack energy
 regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
-tooltips show loaded/banked food readiness. The first Ranged path is now live:
+tooltips show loaded/banked food readiness. Safe recovery now also refills
+Ranged ammo from inventory when the current Combat style is Ranged. The first
+Ranged path is now live:
 Shortbow plus Bronze arrows uses the same Combat burst engine, consumes one
 arrow per attack attempt from `combat_supply_loadout["ammo"]`, and routes
 Ranged accurate/rapid/longrange XP from source-shaped Ranged formulas. The
@@ -214,6 +216,13 @@ possible`. The row remains visible and enabled, but choosing `No` leaves the
 previous target unchanged; choosing `Yes` calls the normal target-save callback
 without adding a new save flag. Source proof lives in
 `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`.
+
+Safe noncombat Combat recovery now has supply parity for the first Ranged path:
+if the current Combat style is Ranged and the equipped weapon resolves through
+`COMBAT_RANGED_WEAPON_DATA`, recovery refills compatible ammo from inventory
+into `combat_supply_loadout["ammo"]` alongside food and Magic runes. Source
+proof lives in
+`memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`.
 
 The first combat Magic ladder is now live: standard elemental Strike, Bolt,
 Blast, and Wave spells are available through the Combat hub's

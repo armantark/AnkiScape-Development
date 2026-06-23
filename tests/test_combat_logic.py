@@ -848,6 +848,19 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_supply_loadout"]["food"], {"Shark": 28})
         self.assertEqual(recovered["inventory"]["Shark"], 2)
 
+    def test_safe_recovery_refills_ranged_ammo_at_safe_boundary(self):
+        player = _player(
+            combat_attack_style="ranged_accurate",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 12},
+            combat_supply_loadout={"ammo": {"Bronze arrows": 3}},
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_supply_loadout"]["ammo"], {"Bronze arrows": 15})
+        self.assertEqual(recovered["inventory"]["Bronze arrows"], 0)
+
     def test_stacked_combat_death_moves_existing_grave_to_death_office(self):
         player = _player(
             current_combat_target="killer",

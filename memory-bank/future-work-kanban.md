@@ -48,7 +48,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   real food; drops follow the imported guaranteed/multi-table/quantity-range semantics; the
   Combat hub and HUD surface target/style/lifepoint state; and storage defaults
   persist combat state. The recovery/loadout foundation now adds finite carried
-  food, safe-boundary loadout refills, review-tick special-energy regeneration,
+  food, safe-boundary food/rune/ammo loadout refills, review-tick special-energy regeneration,
   stat-drain recovery scaffolding, status-effect save hooks, and Combat tooltip
   food readiness. Player-facing loadout controls now expose auto-eat threshold,
   preferred food priority, loaded food/ammo/rune summaries, and safe-boundary
@@ -72,6 +72,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching standard Combat spell data; use
   `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md` before
   touching ordinary Combat dangerous-target confirmation; use
+  `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md` before
+  touching safe-boundary ammo recovery; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo, add god/Ancient/Lunar spell gates/effects,
