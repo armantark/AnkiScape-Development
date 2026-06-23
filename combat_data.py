@@ -551,6 +551,22 @@ POISON_SPIDER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/poison_spider_lvl_31.plugin.kts"
 )
+SCORPION_LEVEL_14_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/scorpion_level_14.plugin.kts"
+)
+SPIDER_LEVEL_24_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/spider_level_24.plugin.kts"
+)
+DEADLY_RED_SPIDER_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/deadly_red_spider_level_34.plugin.kts"
+)
+GIANT_SPIDER_LEVEL_50_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/giant_spider_level_50.plugin.kts"
+)
 
 
 GOBLIN_LEVEL_2_DROPS = {
@@ -1316,6 +1332,51 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": {"guaranteed": (), "tables": ()},
         "source": f"{POISON_SCORPION_SOURCE_PATH}: Npcs.POISON_SCORPION poisonDamage=3; no DropTableFactory registration",
     },
+    "scorpion": {
+        "display_name": "Scorpion",
+        "level": 14,
+        "group": "Scorpions",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "slayer_xp": 17.0,
+        "stats": {
+            "hitpoints": 170,
+            "attack": 11,
+            "strength": 12,
+            "defence": 11,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 15,
+            "defence_crush": 15,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 30},
+                        {"item": "Green charm", "quantity": 1, "slots": 70},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 10},
+                        {"item": "Blue charm", "quantity": 1, "slots": 5},
+                        {"slots": 885},
+                    ),
+                },
+            ),
+        },
+        "source": SCORPION_LEVEL_14_SOURCE_PATH,
+    },
     "poison_spider": {
         "display_name": "Poison spider",
         "level": 31,
@@ -1346,6 +1407,173 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": {"guaranteed": (), "tables": ()},
         "source": f"{POISON_SPIDER_SOURCE_PATH}: Npcs.POISON_SPIDER_1009 poisonDamage=3; no DropTableFactory registration",
+    },
+    "spider_level_24": {
+        "display_name": "Spider",
+        "level": 24,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 27,
+        "slayer_xp": 22.0,
+        "stats": {
+            "hitpoints": 220,
+            "attack": 21,
+            "strength": 21,
+            "defence": 21,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 53,
+            "attack_slash": 0,
+            "attack_crush": 53,
+            "defence_stab": 53,
+            "defence_slash": 53,
+            "defence_crush": 53,
+            "defence_magic": 53,
+            "defence_ranged": 53,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 200,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 5},
+                        {"item": "Green charm", "quantity": 1, "slots": 7},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 3},
+                        {"item": "Blue charm", "quantity": 1, "slots": 2},
+                        {"slots": 183},
+                    ),
+                },
+            ),
+        },
+        "source": SPIDER_LEVEL_24_SOURCE_PATH,
+    },
+    "deadly_red_spider": {
+        "display_name": "Deadly red spider",
+        "level": 34,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "slayer_xp": 35.0,
+        "stats": {
+            "hitpoints": 350,
+            "attack": 30,
+            "strength": 25,
+            "defence": 30,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 15,
+            "defence_slash": 16,
+            "defence_crush": 7,
+            "defence_magic": 12,
+            "defence_ranged": 16,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 260},
+                        {"item": "Green charm", "quantity": 1, "slots": 11},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 20},
+                        {"item": "Blue charm", "quantity": 1, "slots": 2},
+                        {"slots": 707},
+                    ),
+                },
+            ),
+        },
+        "source": DEADLY_RED_SPIDER_SOURCE_PATH,
+    },
+    "giant_spider_level_50": {
+        "display_name": "Giant spider",
+        "level": 50,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "slayer_xp": 50.0,
+        "stats": {
+            "hitpoints": 500,
+            "attack": 41,
+            "strength": 51,
+            "defence": 31,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 10,
+            "attack_slash": 0,
+            "attack_crush": 10,
+            "defence_stab": 10,
+            "defence_slash": 10,
+            "defence_crush": 10,
+            "defence_magic": 10,
+            "defence_ranged": 10,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 48,
+                    "slots": (
+                        {"item": "Air rune", "quantity_range": (4, 6), "slots": 7},
+                        {"item": "Earth rune", "quantity": 4, "slots": 7},
+                        {"item": "Fire rune", "quantity": 6, "slots": 7},
+                        {"item": "Body rune", "quantity": 7, "slots": 3},
+                        {"slots": 24},
+                    ),
+                },
+                {
+                    "name": "Secondary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Bronze med helm", "quantity": 1, "slots": 48},
+                        {"item": "Bronze bolts", "quantity": 1, "slots": 12},
+                        {"item": "Bronze arrows", "quantity": 1, "slots": 12},
+                        {"item": "Longbow", "quantity": 1, "slots": 4},
+                        {"item": "Bronze kiteshield", "quantity": 1, "slots": 1},
+                        {"slots": 51},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Staff of air", "quantity": 1, "slots": 1},
+                        {"item": "Sling", "quantity": 1, "slots": 1},
+                        {"slots": 126},
+                    ),
+                },
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 90},
+                        {"item": "Green charm", "quantity": 1, "slots": 11},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                        {"item": "Blue charm", "quantity": 1, "slots": 9},
+                        {"slots": 860},
+                    ),
+                },
+            ),
+        },
+        "source": GIANT_SPIDER_LEVEL_50_SOURCE_PATH,
     },
 }
 

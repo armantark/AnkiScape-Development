@@ -39,9 +39,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   normal project guidance; create new visual status artifacts only when the
   owner explicitly asks for one or the next scoped feature requires it.
 - Combat V1 implementation is complete as of 2026-06-23 for the first
-  source-backed ordinary-combat slices: Chicken, Rat, Spider, Giant rat, Giant
-  spider, Goblin level 2 armed/unarmed, Cow, Cow calf, Ram, Highwayman,
-  Barbarian level 8/9, Barbarian level 10, Seagull, Poison scorpion, and Poison spider are selectable Combat
+  source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
+  Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
+  armed/unarmed, Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9,
+  Barbarian level 10, Seagull, Scorpion, Poison scorpion, Deadly red spider,
+  and Poison spider are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -83,7 +85,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md` before
   touching poison status recovery; use
   `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md` before
-  touching source NPC poison application or Poison scorpion/Poison spider rows; use
+  touching source NPC poison application or Poison scorpion/Poison spider rows;
+  use `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
+  before touching Scorpion, Spider level 24, Deadly red spider, or Giant spider
+  level 50 rows; use
   `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
@@ -109,8 +114,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
   Goblin level 2 is split into unarmed and armed targets because source stats
   differ, while sharing the same local 1024-slot main table, 1024-slot charm
-  table, and 1024-slot easy clue tertiary table. Higher Goblins, Farmers,
-  Al-Kharid warriors, and higher-risk spider variants need
+  table, and 1024-slot easy clue tertiary table. Scorpion, Spider level 24,
+  Deadly red spider, and Giant spider level 50 are now implemented using the
+  existing Combat drop-table surface; Cave slime remains deferred behind Slayer
+  gates and shared gem-table/drop support. Higher Goblins, Farmers, and
+  Al-Kharid warriors need
   wider item/drop-table, variant, access, or special-mechanic support.
 - Shortbow through Magic longbow plus Bronze through Rune arrows are now
   implemented as the standard source-backed Ranged/ammo path as of 2026-06-23.

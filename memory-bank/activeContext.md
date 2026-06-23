@@ -158,9 +158,10 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
-source-backed target set is Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
-Cow calf, Ram, Highwayman, Barbarian level 8/9, Barbarian level 10, Seagull,
-Poison scorpion, and Poison spider; each review simulates 50 RuneScape ticks per
+source-backed target set is Chicken, Rat, Spider, Spider level 24, Giant rat,
+Giant spider level 2, Giant spider level 50, Cow, Cow calf, Ram, Highwayman,
+Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison scorpion,
+Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
@@ -244,6 +245,12 @@ status/potion effects remain deferred until potion loadout and effect metadata
 exist. Source proof lives in
 `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md` and
 `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`.
+
+Combat ordinary critter coverage now also includes source-backed Scorpion,
+Spider level 24, Deadly red spider, and Giant spider level 50 rows. These reuse
+the existing Combat target, drop-table, and quantity-range machinery with local
+2011Scape stats/drop tables instead of adding new mechanics. Source proof lives
+in `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`.
 
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and

@@ -252,6 +252,43 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(spider["drops"], {"guaranteed": (), "tables": ()})
         self.assertIn("poison_spider_lvl_31.plugin.kts", spider["source"])
 
+    def test_scorpion_and_higher_spider_rows_match_source(self):
+        scorpion = COMBAT_ENEMY_DATA["scorpion"]
+        spider = COMBAT_ENEMY_DATA["spider_level_24"]
+        deadly_red = COMBAT_ENEMY_DATA["deadly_red_spider"]
+        giant = COMBAT_ENEMY_DATA["giant_spider_level_50"]
+
+        self.assertEqual(scorpion["level"], 14)
+        self.assertEqual(scorpion["group"], "Scorpions")
+        self.assertEqual(scorpion["stats"]["hitpoints"], 170)
+        self.assertEqual(scorpion["stats"]["strength"], 12)
+        self.assertEqual(scorpion["bonuses"]["defence_slash"], 15)
+        self.assertEqual(scorpion["drops"]["tables"][0]["total"], 1000)
+        self.assertEqual(scorpion["drops"]["tables"][0]["slots"][1], {"item": "Green charm", "quantity": 1, "slots": 70})
+        self.assertTrue(scorpion["source"].endswith("scorpion_level_14.plugin.kts"))
+
+        self.assertEqual(spider["level"], 24)
+        self.assertEqual(spider["respawn_delay"], 27)
+        self.assertEqual(spider["stats"]["hitpoints"], 220)
+        self.assertEqual(spider["bonuses"]["attack_stab"], 53)
+        self.assertEqual(spider["drops"]["tables"][0]["total"], 200)
+        self.assertTrue(spider["source"].endswith("spider_level_24.plugin.kts"))
+
+        self.assertEqual(deadly_red["level"], 34)
+        self.assertEqual(deadly_red["stats"]["hitpoints"], 350)
+        self.assertEqual(deadly_red["stats"]["strength"], 25)
+        self.assertEqual(deadly_red["drops"]["tables"][0]["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 260})
+        self.assertTrue(deadly_red["source"].endswith("deadly_red_spider_level_34.plugin.kts"))
+
+        self.assertEqual(giant["level"], 50)
+        self.assertEqual(giant["respawn_delay"], 25)
+        self.assertEqual(giant["stats"]["hitpoints"], 500)
+        self.assertEqual(giant["stats"]["strength"], 51)
+        self.assertEqual(giant["bonuses"]["attack_crush"], 10)
+        self.assertEqual(giant["drops"]["tables"][0]["slots"][0]["quantity_range"], (4, 6))
+        self.assertEqual(giant["drops"]["tables"][1]["slots"][0]["item"], "Bronze med helm")
+        self.assertTrue(giant["source"].endswith("giant_spider_level_50.plugin.kts"))
+
     def test_highwayman_import_row_matches_source_and_quantity_range(self):
         highwayman = COMBAT_ENEMY_DATA["highwayman"]
 
@@ -406,6 +443,18 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Bronze sq shield": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_scorpion_and_higher_spider_drop_rolls_use_source_tables(self):
+        scorpion_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["scorpion"], _rng([0.03]))
+        deadly_red_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["deadly_red_spider"], _rng([0.259]))
+        giant_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["giant_spider_level_50"],
+            _rng([0.0, 0.999999, 0.999999, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(scorpion_drops, {"Green charm": 1})
+        self.assertEqual(deadly_red_drops, {"Gold charm": 1})
+        self.assertEqual(giant_drops, {"Air rune": 6})
 
     def test_cow_calf_burst_grants_source_guaranteed_drops(self):
         player = _player(current_combat_target="cow_calf")

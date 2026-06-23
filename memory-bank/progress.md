@@ -163,6 +163,13 @@
   ordinary selectable targets, added `quantity_range` drop slots for source
   ranges such as Air rune x4-6, and fetched `combatitems/` icons for Gold,
   Green, Crimson, and Blue charms plus Staff of air.
+- Combat scorpion/spider variant expansion added source-backed Scorpion, Spider
+  level 24, Deadly red spider, and Giant spider level 50 ordinary targets. These
+  rows reuse existing drop-table/quantity-range support and import local
+  2011Scape stats, bonuses, Slayer XP, respawn timing, and charm/rune/equipment
+  tables without enabling Cave slime or other Slayer/shared-table rows. Source
+  proof:
+  `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`.
 - Combat Highwayman expansion added the first humanoid ordinary target with
   source-backed stats/bonuses, guaranteed Bones/Cape, Iron bolts x2-12 at 1/20,
   a fetched Cape drop icon, and Cape slot equipment metadata.
