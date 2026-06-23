@@ -118,7 +118,13 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Bucket and Empty pot acting as external inventory blockers. The same rule now
   protects Clock Tower rat poison/cogs, Monk's Friend blanket, Dwarf Cannon
   railings/remains/Nulodion items, Sheep Herder cattleprod/bones, and
-  Biohazard's rotten apple.
+  Biohazard's rotten apple. Partner-supplied quest items should follow the same
+  principle without pretending the player already owns the item: Shield of
+  Arrav's Black Arm weapon-store key is modeled as Phoenix-partner action gates
+  that produce the key and crossbows when the stage advances. Generated rows
+  that misclassify route/location/skill/prose text as inventory or tools belong
+  in the focused cleanup layer in `quest_data.py`, not in start locks or
+  direct edits to `quest_catalog_generated.py`.
   The 2011Scape intermediate batch then replaced The Restless Ghost, Rune
   Mysteries, and Lost City with local source-backed item/action/route/combat
   chains. The Demon Slayer focused replacement then moved bucket water, bones,
@@ -190,10 +196,21 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   such as `3x Warped terrorbirds` and `4x Living rock brawler`, split Shilo
   Village's Nazastarool into three sourced forms, set Legends' Quest's
   Nezikchened to three kills, and added focused resolver-ready Tough guy and
-  Black Dragon rows. The live audit now reports 194/194 quests with stage
-  requirements, 1,107 stage rows, 174 quests with item/tool blockers, 190 quests
-  with action blockers, 18 quests with route blockers, 120 quests with combat
-  blockers, 104 produced-inventory rows, and 185/288 resolver-ready combat rows.
+  Black Dragon rows. A 2026-06-23 cleanup pass then removed generated
+  pseudo-inventory blockers such as Lletya, Oronwen, Tears of Guthix cavern,
+  Crafting table 3, Agility Pyramid, Rimmington, Love Story, Thieving, Mining,
+  Monkey Madness route items, generated teleport/tablet travel text, literal
+  quest-name blockers, generated spell names, broad Food/Armour checklist text,
+  and other parser-shaped blockers from inventory/tool fields. Rat Catchers now
+  makes rat poison from Hooknosed Jack's ingredients during its stage, Dwarf
+  Cannon completion now leaves a represented Ammo mould source for later
+  cannonball and quest gates, bucket-of-sap uses are action gates, Within the
+  Light's keys/crystal puzzle objects are action-gated, and The Fremennik
+  Isles yak-hide armour/round shield prep is modeled as current-stage actions.
+  The live audit now reports 194/194 quests with stage requirements, 1,119
+  stage rows, 174 quests with item/tool blockers, 190 quests with action
+  blockers, 32 quests with route blockers, 120 quests with combat blockers, 120
+  produced-inventory rows, and 185/288 resolver-ready combat rows.
   This is all-catalog machine-readable stage-gate coverage, not proof of
   minute-detail historical simulation for every quest.
   Use

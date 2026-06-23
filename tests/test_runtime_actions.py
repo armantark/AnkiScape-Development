@@ -820,9 +820,10 @@ class TestRuntimeActions(unittest.TestCase):
     def test_quest_answer_resolves_death_to_dorgeshuun_senior_guard_quantity(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Pickaxe": 1, "Tears of Guthix cavern": 1},
+            "inventory": {"Pickaxe": 1},
             "current_quest": "death_to_the_dorgeshuun",
             "quests": {"death_to_the_dorgeshuun": {"started": True, "progress": 5, "completed": False}},
+            "quest_route_states": {"death_to_the_dorgeshuun": ["Reach the Tears of Guthix cavern"]},
             "quest_combat_config": {"resolver_enabled": True},
             "quest_combat_encounters": {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]},
             "quest_points": 0,

@@ -1568,6 +1568,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["quests"]["dwarf_cannon"]["progress"], 14)
         self.assertEqual(player_data["quest_points"], 1)
         self.assertEqual(player_data["crafting_exp"], 750)
+        self.assertEqual(player_data["inventory"]["Ammo mould"], 1)
         self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(quest_current_stage_resolvable_combat_blockers_pure(player_data, "dwarf_cannon", QUEST_DATA), ())
 
@@ -2750,14 +2751,29 @@ class TestLogic(unittest.TestCase):
         player_data["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
 
         blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("missing_tool", "combat_locked"))
-        self.assertEqual(blockers[0]["reason"], "Needs Weapon store key")
+        self.assertEqual(
+            tuple(blocker["kind"] for blocker in blockers),
+            ("required_action", "required_action", "combat_locked"),
+        )
+        self.assertEqual(
+            blockers[0]["reason"],
+            "Action required: Receive the weapon store key from a Phoenix Gang partner",
+        )
         self.assertEqual(
             blockers[1]["reason"],
+            "Action required: Use the weapon store key to enter the Phoenix weapon store",
+        )
+        self.assertEqual(
+            blockers[2]["reason"],
             "Combat locked until battle support is enabled: Weaponsmaster level 23",
         )
 
-        player_data["inventory"]["Weapon store key"] = 1
+        player_data["quest_stage_actions"] = {
+            "shield_of_arrav": [
+                "Receive the weapon store key from a Phoenix Gang partner",
+                "Use the weapon store key to enter the Phoenix weapon store",
+            ]
+        }
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 40
         player_data["strength_level"] = 40
@@ -4094,8 +4110,9 @@ class TestLogic(unittest.TestCase):
 
     def test_death_to_dorgeshuun_senior_guards_are_multi_count_resolver_ready(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
-        player_data["inventory"].update({"Pickaxe": 1, "Tears of Guthix cavern": 1})
+        player_data["inventory"].update({"Pickaxe": 1})
         player_data["quests"]["death_to_the_dorgeshuun"] = {"started": True, "progress": 5, "completed": False}
+        player_data["quest_route_states"] = {"death_to_the_dorgeshuun": ["Reach the Tears of Guthix cavern"]}
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["quest_combat_encounters"] = {"death_to_the_dorgeshuun": ["death_to_the_dorgeshuun_sigmund_50"]}
         player_data["attack_level"] = 100

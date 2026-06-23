@@ -1255,6 +1255,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Join the Phoenix Gang", action.toolTip())
 
+    def test_quests_tab_shows_shield_black_arm_partner_key_action(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "shield_of_arrav"
+        pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
+        pd["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertTrue(all("Needs Weapon store key" not in label for label in labels))
+        action = dialog.findChild(QPushButton, "questAction_shield_of_arrav")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertNotIn("Needs Weapon store key", action.toolTip())
+        self.assertIn("Receive the weapon store key from a Phoenix Gang partner", action.toolTip())
+        self.assertIn("Use the weapon store key to enter the Phoenix weapon store", action.toolTip())
+        self.assertIn("Weaponsmaster level 23", action.toolTip())
+
     def test_quests_tab_shows_demon_slayer_item_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "demon_slayer"

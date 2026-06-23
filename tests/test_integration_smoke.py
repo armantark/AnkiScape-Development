@@ -1205,10 +1205,16 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw = _DummyMW(_DummyCol({}))
         addon.current_skill = "Quests"
         addon.player_data = {
-            "inventory": {"Weapon store key": 1},
+            "inventory": {},
             "current_quest": "shield_of_arrav",
             "quests": {"shield_of_arrav": {"started": True, "progress": 5, "completed": False}},
             "quest_route_states": {"shield_of_arrav": ["Join the Black Arm Gang"]},
+            "quest_stage_actions": {
+                "shield_of_arrav": [
+                    "Receive the weapon store key from a Phoenix Gang partner",
+                    "Use the weapon store key to enter the Phoenix weapon store",
+                ]
+            },
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},
@@ -1233,11 +1239,20 @@ class TestIntegrationSmoke(unittest.TestCase):
             addon.player_data["quest_combat_encounters"],
             {"shield_of_arrav": ["shield_of_arrav_weaponsmaster_23"]},
         )
-        self.assertEqual(addon.player_data["inventory"]["Weapon store key"], 1)
+        self.assertEqual(addon.player_data["inventory"].get("Weapon store key", 0), 0)
         self.assertEqual(addon.player_data["inventory"].get("Phoenix crossbow", 0), 0)
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Defeated Weaponsmaster"])
         self.assertEqual(calls["dialogs"], [])
+
+        addon.on_quest_answer()
+
+        self.assertEqual(addon.player_data["quests"]["shield_of_arrav"]["progress"], 6)
+        self.assertFalse(addon.player_data["quests"]["shield_of_arrav"]["completed"])
+        self.assertEqual(addon.player_data["inventory"]["Weapon store key"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Phoenix crossbow"], 2)
+        self.assertEqual(calls["save"], 2)
+        self.assertEqual(calls["gains"][-1], "Shield of Arrav 6/12")
 
     def test_quest_answer_resolves_style_aware_magic_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_style_aware_magic_combat_integration")

@@ -1234,10 +1234,13 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
     QuestStageRequirement(
         stage=5,
-        description="Use the weapon store key and steal two Phoenix crossbows.",
+        description="Coordinate with a Phoenix partner, enter the weapon store, and steal two Phoenix crossbows.",
         variant=SHIELD_VARIANT_BLACK_ARM,
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
-        required_tools=(("Weapon store key", 1),),
+        required_actions=(
+            "Receive the weapon store key from a Phoenix Gang partner",
+            "Use the weapon store key to enter the Phoenix weapon store",
+        ),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{SHIELD_OF_ARRAV_ID}_weaponsmaster_23",
@@ -1263,7 +1266,7 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
                 npc_stats_source=DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE,
             ),
         ),
-        produced_inventory=(("Phoenix crossbow", 2),),
+        produced_inventory=(("Weapon store key", 1), ("Phoenix crossbow", 2),),
         source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_WEAPONSMASTER_NPC_SOURCE}",
     ),
     QuestStageRequirement(
@@ -2334,7 +2337,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         requirements=(
             "Used during quest: Coins x10; partner route supplies the opposite certificate half.",
             f"Route choice: {SHIELD_ROUTE_PHOENIX} or {SHIELD_ROUTE_BLACK_ARM}.",
-            "Black Arm route needs a Weapon store key supplied from the Phoenix route before stealing the crossbows.",
+            "Black Arm route needs a Phoenix partner to unlock the weapon store before stealing the crossbows.",
         ),
         required_items=(),
         combat=(
@@ -3222,6 +3225,22 @@ def _combat(
 QuestCombatEncounterReplacement = Union[QuestCombatEncounter, Tuple[QuestCombatEncounter, ...]]
 
 
+@dataclass(frozen=True)
+class QuestStageRequirementCleanup:
+    stage: int
+    variant: str = ""
+    remove_required_inventory: Tuple[str, ...] = ()
+    remove_required_inventory_options: Tuple[str, ...] = ()
+    remove_consumed_inventory: Tuple[str, ...] = ()
+    remove_consumed_inventory_options: Tuple[str, ...] = ()
+    remove_required_tools: Tuple[str, ...] = ()
+    remove_required_actions: Tuple[str, ...] = ()
+    add_required_actions: Tuple[str, ...] = ()
+    add_required_routes: Tuple[str, ...] = ()
+    add_consumed_inventory: Tuple[Tuple[str, int], ...] = ()
+    add_produced_inventory: Tuple[Tuple[str, int], ...] = ()
+
+
 FISHING_CONTEST_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(1, "Austri or Vestri can give me a pass for the Hemenster Fishing Contest."),
     _simple_stage(2, "I have a fishing pass and need to enter the contest."),
@@ -3592,6 +3611,7 @@ QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID: Dict[str, str] = {
 QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     TREE_GNOME_VILLAGE_ID: (("Gnome amulet", 1),),
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
+    DWARF_CANNON_ID: (("Ammo mould", 1),),
 }
 
 
@@ -6327,6 +6347,358 @@ QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID: Dict[str, Tuple[QuestStageRequirement, 
 }
 
 
+QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID: Dict[str, Tuple[QuestStageRequirementCleanup, ...]] = {
+    "monkey_madness": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Monkey Dentures", "M'Amulet mould", "Monkey talisman"),
+            remove_required_actions=("Complete Monkey Madness stage 1 objective",),
+            add_required_actions=(
+                "Acquire the monkey dentures, m'amulet mould, and monkey talisman during the Ape Atoll infiltration",
+            ),
+        ),
+    ),
+    "rat_catchers": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Rat poison",),
+            add_required_actions=("Have Hooknosed Jack make rat poison",),
+            add_consumed_inventory=(("Vial", 1), ("Clean kwuarm", 1), ("Red spiders' eggs", 1)),
+            add_produced_inventory=(("Rat poison", 1),),
+        ),
+    ),
+    "mournings_end_part_i": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Lletya", "Elf teleport crystal"),
+            add_required_routes=("Reach Lletya",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("Oronwen",),
+            add_required_actions=("Have Oronwen repair the mourner trousers",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_inventory=("Rotten apple",),
+            add_required_actions=("Use the rotten apple to sabotage the mourner food stores",),
+        ),
+    ),
+    "death_to_the_dorgeshuun": (
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_tools=("Tears of Guthix cavern",),
+            add_required_routes=("Reach the Tears of Guthix cavern",),
+        ),
+    ),
+    "elemental_workshop_ii": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Beaten Book", "Slashed book"),
+            remove_required_actions=("Complete Elemental Workshop II stage 1 objective",),
+            add_required_actions=("Find and slash the Beaten Book open in the workshop",),
+            add_produced_inventory=(("Slashed book", 1),),
+        ),
+    ),
+    "enlightened_journey": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Ring of kinship",
+                "Explorer ring",
+                "Clan Vexillum",
+                "Clan Camp",
+                "Port Sarim",
+                "Daemonheim",
+            ),
+            add_required_routes=("Reach Auguste on Entrana",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            add_consumed_inventory=(("Sack", 8),),
+            add_produced_inventory=(("Sandbag", 8),),
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("Willow branch",),
+        ),
+    ),
+    "icthlarins_little_helper": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("About 750 coins", "Poison Purge", "Nardah Teleport Scroll"),
+            remove_required_tools=("Bucket of sap",),
+            add_required_actions=("Collect a bucket of sap from an evergreen tree",),
+            add_required_routes=("Reach Sophanem with desert supplies",),
+        ),
+    ),
+    "making_history": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Ardougne",
+                "Enchanted lyre",
+                "Rellekka",
+                "Teleport to House",
+                "Magic tablet",
+                "Castle_Wars",
+                "Ectophial",
+                "Making History",
+            ),
+            remove_required_inventory_options=("Ecto-token", "Port Sarim", "Port Phasmatys", "Fairy Tale III - Orks Rift"),
+            add_required_routes=("Reach the Outpost, Rellekka, and Port Phasmatys travel legs",),
+        ),
+    ),
+    "cabin_fever": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory_options=("Ghosts Ahoy",),
+            add_required_routes=("Reach the Port Phasmatys charter route",),
+        ),
+    ),
+    "cold_war": (
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory=("Crafting table 3",),
+            add_required_actions=("Build the clockwork penguin on a crafting table 3",),
+        ),
+    ),
+    "myths_of_the_white_lands": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Lumbridge Teleport",
+                "Glory Amulet",
+                "Runecrafting guild teleport",
+                "Wicked hood",
+                "Fairy Ring",
+                "Wizard's Tower",
+            ),
+            add_required_routes=("Reach the Wizard's Tower ice cave",),
+        ),
+    ),
+    "in_pyre_need": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory_options=("Fairy Rings", "Phoenix lair teleport"),
+            add_required_routes=("Reach the Phoenix lair",),
+        ),
+    ),
+    "the_fremennik_isles": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Mining",)),
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_inventory=("Yak hide armour", "Fremennik round shield"),
+            add_required_actions=("Cure and stitch yak-hide armour", "Make a Fremennik round shield"),
+        ),
+    ),
+    "kings_ransom": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Animate rock scroll",),
+            remove_required_actions=("Complete King's Ransom stage 1 objective",),
+            add_required_actions=("Recover the animate rock scroll during the Sinclair Mansion investigation",),
+            add_produced_inventory=(("Animate rock scroll", 1),),
+        ),
+    ),
+    "dealing_with_scabaras": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Agility Pyramid", "Random Bronze armours/weapons"),
+            add_required_actions=("Prepare bronze equipment for the High Priest's tests",),
+            add_required_routes=("Reach the Agility Pyramid",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory=("Food",),
+        ),
+    ),
+    "roving_elves": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Good Food",),
+        ),
+    ),
+    "rum_deal": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Armour", "Food"),
+        ),
+    ),
+    "spirits_of_the_elid": (
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory=("Telegrab",),
+            add_required_actions=("Cast Telegrab for the water channel puzzle",),
+        ),
+    ),
+    "enakhras_lament": (
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_inventory=("Crumble Undead",),
+            add_required_actions=("Cast Crumble Undead during the boneguard fight",),
+        ),
+    ),
+    "in_aid_of_the_myreque": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Food",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=6,
+            remove_required_inventory_options=("Enchant sapphire",),
+            add_required_actions=("Enchant sapphire for the Myreque preparations",),
+        ),
+    ),
+    "dream_mentor": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Food",),
+        ),
+    ),
+    "back_to_my_roots": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Food",),
+            remove_required_inventory_options=("Shilo Village",),
+            add_required_routes=("Reach the Karamja jungle route",),
+        ),
+    ),
+    "rocking_out": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Brimhaven tablet", "Ectophial"),
+            remove_required_inventory_options=("Rimmington", "Rimmington tablet", "Love Story"),
+            add_required_routes=("Reach the Rimmington customs office",),
+        ),
+    ),
+    "glorious_memories": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Teleport to House", "Player-owned house", "Rellekka", "Rellekka tablet", "Ring of wealth"),
+            add_required_routes=("Reach Rellekka and Miscellania",),
+        ),
+    ),
+    "elemental_workshop_iii": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Ragged book",),
+            add_required_actions=("Find and read the Ragged book in the workshop",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=7,
+            remove_required_inventory=("Elemental Workshop I",),
+        ),
+    ),
+    "the_eyes_of_glouphrie": (
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_tools=("Bucket of sap",),
+            add_required_actions=("Collect a bucket of sap from an evergreen tree",),
+        ),
+    ),
+    "the_tale_of_the_muspah": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Enchant Level 1 Jewellery",
+                "Magic carpet",
+                "Teleportation methods",
+                "Dramen staff",
+                "Lunar staff",
+                "Fairy rings",
+                "Enchanted lyre",
+                "Rellekka tablet",
+                "Pollnivneach tablet",
+                "Slayer ring",
+                "Broomstick",
+                "Sorceress's Garden",
+                "Food",
+            ),
+            add_required_actions=("Cast Enchant Level 1 Jewellery for the sapphire preparations",),
+            add_required_routes=("Reach the Muspah cave route through Rellekka and Pollnivneach",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=2,
+            remove_required_inventory=("Rellekka",),
+            add_required_routes=("Reach Rellekka",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("Pollnivneach",),
+            add_required_routes=("Reach Pollnivneach",),
+        ),
+        QuestStageRequirementCleanup(
+            stage=4,
+            remove_required_inventory=("Enchant sapphire",),
+            add_required_actions=("Enchant the sapphires for Ali the Wise",),
+        ),
+    ),
+    "legacy_of_seergaze": (
+        QuestStageRequirementCleanup(
+            stage=5,
+            remove_required_inventory=("Enchant Level 2 Jewellery",),
+            add_required_actions=("Cast Enchant Level 2 Jewellery for the emerald preparations",),
+        ),
+    ),
+    "meeting_history": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Making History",),
+        ),
+    ),
+    "while_guthix_sleeps": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("NPC Contact",),
+            add_required_actions=("Cast NPC Contact to reach the quest contacts",),
+        ),
+    ),
+    "blood_runs_deep": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Food", "Prayer Potion", "Armour"),
+        ),
+    ),
+    "desert_treasure": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Thieving",)),
+    ),
+    "troll_romance": (
+        QuestStageRequirementCleanup(stage=1, remove_required_inventory=("Combat gear and good food",)),
+    ),
+    "do_no_evil": (
+        QuestStageRequirementCleanup(
+            stage=3,
+            remove_required_inventory=("M'amulet mould",),
+            add_required_actions=("Recover an m'amulet mould before making the monkeyspeak amulet",),
+        ),
+    ),
+    "within_the_light": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=(
+                "Ardougne",
+                "Teleport crystal",
+                "New key",
+                "Tarnished key",
+                "Crystal trinket",
+                "Colour wheel",
+                "Shadow",
+                "Prayer potions",
+            ),
+            add_required_actions=("Recover the Temple of Light keys and crystal puzzle pieces",),
+            add_required_routes=("Reach the Temple of Light through West Ardougne and Lletya",),
+        ),
+    ),
+    "the_firemakers_curse": (
+        QuestStageRequirementCleanup(
+            stage=1,
+            remove_required_inventory=("Food", "Let Them Eat Pie"),
+        ),
+    ),
+}
+
+
 QUEST_COMBAT_ENCOUNTER_REPLACEMENTS_BY_ID: Dict[str, Dict[str, QuestCombatEncounterReplacement]] = {
     SHILO_VILLAGE_ID: {
         "shilo_village_nazastarool_91": (
@@ -6942,6 +7314,107 @@ def _apply_combat_encounter_replacements(
     return tuple(rows) if changed else requirements
 
 
+def _remove_stage_item_names(
+    items: Tuple[Tuple[str, int], ...],
+    item_names: Tuple[str, ...],
+) -> Tuple[Tuple[str, int], ...]:
+    if not item_names:
+        return items
+    names = set(item_names)
+    return tuple((name, amount) for name, amount in items if name not in names)
+
+
+def _remove_stage_option_item_names(
+    option_groups: Tuple[Tuple[Tuple[str, int], ...], ...],
+    item_names: Tuple[str, ...],
+) -> Tuple[Tuple[Tuple[str, int], ...], ...]:
+    if not item_names:
+        return option_groups
+    names = set(item_names)
+    cleaned_groups = []
+    for option_group in option_groups:
+        cleaned_options = tuple((name, amount) for name, amount in option_group if name not in names)
+        if cleaned_options:
+            cleaned_groups.append(cleaned_options)
+    return tuple(cleaned_groups)
+
+
+def _append_unique_strings(existing: Tuple[str, ...], additions: Tuple[str, ...]) -> Tuple[str, ...]:
+    rows = list(existing)
+    for value in additions:
+        if value and value not in rows:
+            rows.append(value)
+    return tuple(rows)
+
+
+def _append_stage_item_pairs(
+    existing: Tuple[Tuple[str, int], ...],
+    additions: Tuple[Tuple[str, int], ...],
+) -> Tuple[Tuple[str, int], ...]:
+    rows = list(existing)
+    names = {name for name, _ in rows}
+    for name, amount in additions:
+        if not name:
+            continue
+        if name in names:
+            rows = [(row_name, max(row_amount, amount) if row_name == name else row_amount) for row_name, row_amount in rows]
+            continue
+        rows.append((name, amount))
+        names.add(name)
+    return tuple(rows)
+
+
+def _apply_stage_requirement_cleanup(
+    requirement: QuestStageRequirement,
+    cleanup: QuestStageRequirementCleanup,
+) -> QuestStageRequirement:
+    required_actions = tuple(
+        action for action in requirement.required_actions if action not in set(cleanup.remove_required_actions)
+    )
+    return replace(
+        requirement,
+        required_inventory=_remove_stage_item_names(requirement.required_inventory, cleanup.remove_required_inventory),
+        required_inventory_options=_remove_stage_option_item_names(
+            requirement.required_inventory_options,
+            cleanup.remove_required_inventory_options,
+        ),
+        consumed_inventory=_append_stage_item_pairs(
+            _remove_stage_item_names(requirement.consumed_inventory, cleanup.remove_consumed_inventory),
+            cleanup.add_consumed_inventory,
+        ),
+        consumed_inventory_options=_remove_stage_option_item_names(
+            requirement.consumed_inventory_options,
+            cleanup.remove_consumed_inventory_options,
+        ),
+        produced_inventory=_append_stage_item_pairs(requirement.produced_inventory, cleanup.add_produced_inventory),
+        required_tools=_remove_stage_item_names(requirement.required_tools, cleanup.remove_required_tools),
+        required_actions=_append_unique_strings(required_actions, cleanup.add_required_actions),
+        required_routes=_append_unique_strings(requirement.required_routes, cleanup.add_required_routes),
+    )
+
+
+def _apply_stage_requirement_cleanups(
+    quest_id: str,
+    requirements: Tuple[QuestStageRequirement, ...],
+) -> Tuple[QuestStageRequirement, ...]:
+    cleanups = QUEST_STAGE_REQUIREMENT_CLEANUPS_BY_ID.get(quest_id)
+    if not cleanups:
+        return requirements
+    changed = False
+    rows = []
+    for requirement in requirements:
+        updated = requirement
+        for cleanup in cleanups:
+            if requirement.stage != cleanup.stage:
+                continue
+            if cleanup.variant and cleanup.variant != requirement.variant:
+                continue
+            updated = _apply_stage_requirement_cleanup(updated, cleanup)
+        changed = changed or updated != requirement
+        rows.append(updated)
+    return tuple(rows) if changed else requirements
+
+
 def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object]) -> QuestDefinition:
     replacements = QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID.get(quest.id)
     if replacements is not None:
@@ -6954,7 +7427,10 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
     additions = QUEST_STAGE_REQUIREMENT_ADDITIONS_BY_ID.get(quest.id, ())
     requirements = _apply_combat_encounter_replacements(
         quest.id,
-        _dedupe_stage_requirements((*base, *additions)),
+        _apply_stage_requirement_cleanups(
+            quest.id,
+            _dedupe_stage_requirements((*base, *additions)),
+        ),
     )
     max_requirement_stage = max((requirement.stage for requirement in requirements), default=quest.stages)
     stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, max(quest.stages, max_requirement_stage))

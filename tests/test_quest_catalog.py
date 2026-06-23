@@ -451,6 +451,24 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(weaponsmaster["npc_configs"]["max_hit"], 50)
         self.assertTrue(weaponsmaster["npc_stats_source"].endswith("weaponsmaster.json"))
 
+        black_arm_crossbows = next(
+            row
+            for row in quest["stage_requirements"]
+            if row["stage"] == 5 and row["variant"] == "black_arm"
+        )
+        self.assertEqual(black_arm_crossbows["required_tools"], {})
+        self.assertEqual(
+            black_arm_crossbows["required_actions"],
+            (
+                "Receive the weapon store key from a Phoenix Gang partner",
+                "Use the weapon store key to enter the Phoenix weapon store",
+            ),
+        )
+        self.assertEqual(
+            black_arm_crossbows["produced_inventory"],
+            {"Weapon store key": 1, "Phoenix crossbow": 2},
+        )
+
         stage10 = next(row for row in quest["stage_requirements"] if row["stage"] == 10)
         self.assertEqual(
             stage10["consumed_inventory"],
@@ -1154,7 +1172,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertTrue(data["wolf_whistle"]["stage_requirements"])
         self.assertTrue(data["some_like_it_cold"]["stage_requirements"])
 
-    def test_same_quest_products_are_not_consumed_before_they_are_produced(self):
+    def test_same_quest_products_are_not_required_before_they_are_produced(self):
         violations = []
         for quest_id, quest in quests_as_dict().items():
             stage_requirements = quest["stage_requirements"]
@@ -1168,16 +1186,148 @@ class TestQuestCatalog(unittest.TestCase):
                 stage_requirements,
                 key=lambda row: (row["stage"], row["variant"], row["description"]),
             ):
-                consumed = set(requirement["consumed_inventory"])
+                checked = set(requirement["required_inventory"])
+                checked.update(requirement["consumed_inventory"])
+                checked.update(requirement["required_tools"])
+                for option_group in requirement["required_inventory_options"]:
+                    for option in option_group:
+                        checked.update(option)
                 for option_group in requirement["consumed_inventory_options"]:
                     for option in option_group:
-                        consumed.update(option)
-                for item_name in sorted(consumed & quest_products):
+                        checked.update(option)
+                for item_name in sorted(checked & quest_products):
                     if item_name not in produced:
                         violations.append((quest_id, requirement["stage"], item_name))
                 produced.update(requirement["produced_inventory"])
 
         self.assertEqual(violations, [])
+
+    def test_generated_pseudo_items_are_not_inventory_stage_blockers(self):
+        data = quests_as_dict()
+        forbidden_by_quest = {
+            "monkey_madness": {"Monkey Dentures", "M'Amulet mould", "Monkey talisman"},
+            "rat_catchers": {"Rat poison"},
+            "mournings_end_part_i": {"Lletya", "Oronwen", "Rotten apple"},
+            "death_to_the_dorgeshuun": {"Tears of Guthix cavern"},
+            "elemental_workshop_ii": {"Beaten Book", "Slashed book"},
+            "enlightened_journey": {"Willow branch"},
+            "icthlarins_little_helper": {
+                "About 750 coins",
+                "Poison Purge",
+                "Nardah Teleport Scroll",
+                "Bucket of sap",
+            },
+            "making_history": {
+                "Ardougne",
+                "Enchanted lyre",
+                "Rellekka",
+                "Teleport to House",
+                "Magic tablet",
+                "Castle_Wars",
+                "Ectophial",
+                "Ecto-token",
+                "Port Sarim",
+                "Port Phasmatys",
+                "Fairy Tale III - Orks Rift",
+            },
+            "cabin_fever": {"Ghosts Ahoy"},
+            "cold_war": {"Crafting table 3"},
+            "myths_of_the_white_lands": {
+                "Lumbridge Teleport",
+                "Glory Amulet",
+                "Runecrafting guild teleport",
+                "Wicked hood",
+                "Fairy Ring",
+                "Wizard's Tower",
+            },
+            "in_pyre_need": {"Fairy Rings", "Phoenix lair teleport"},
+            "kings_ransom": {"Animate rock scroll"},
+            "dealing_with_scabaras": {"Agility Pyramid", "Random Bronze armours/weapons"},
+            "roving_elves": {"Good Food"},
+            "rum_deal": {"Armour", "Food"},
+            "spirits_of_the_elid": {"Telegrab"},
+            "enakhras_lament": {"Crumble Undead"},
+            "in_aid_of_the_myreque": {"Food", "Enchant sapphire"},
+            "dream_mentor": {"Food"},
+            "back_to_my_roots": {"Food", "Shilo Village"},
+            "rocking_out": {"Brimhaven tablet", "Ectophial", "Rimmington", "Rimmington tablet", "Love Story"},
+            "glorious_memories": {
+                "Teleport to House",
+                "Player-owned house",
+                "Rellekka",
+                "Rellekka tablet",
+                "Ring of wealth",
+            },
+            "elemental_workshop_iii": {"Ragged book", "Elemental Workshop I"},
+            "the_eyes_of_glouphrie": {"Bucket of sap"},
+            "the_tale_of_the_muspah": {
+                "Enchant Level 1 Jewellery",
+                "Magic carpet",
+                "Teleportation methods",
+                "Dramen staff",
+                "Lunar staff",
+                "Fairy rings",
+                "Enchanted lyre",
+                "Rellekka tablet",
+                "Pollnivneach tablet",
+                "Slayer ring",
+                "Broomstick",
+                "Sorceress's Garden",
+                "Rellekka",
+                "Pollnivneach",
+                "Enchant sapphire",
+                "Food",
+            },
+            "legacy_of_seergaze": {"Enchant Level 2 Jewellery"},
+            "meeting_history": {"Making History"},
+            "while_guthix_sleeps": {"NPC Contact"},
+            "blood_runs_deep": {"Food", "Prayer Potion", "Armour"},
+            "desert_treasure": {"Thieving"},
+            "troll_romance": {"Combat gear and good food"},
+            "the_fremennik_isles": {"Mining", "Yak hide armour", "Fremennik round shield"},
+            "within_the_light": {
+                "Ardougne",
+                "Teleport crystal",
+                "New key",
+                "Tarnished key",
+                "Crystal trinket",
+                "Colour wheel",
+                "Shadow",
+                "Prayer potions",
+            },
+            "the_firemakers_curse": {"Food", "Let Them Eat Pie"},
+        }
+        violations = []
+        for quest_id, forbidden_items in forbidden_by_quest.items():
+            for requirement in data[quest_id]["stage_requirements"]:
+                blocked_items = set(requirement["required_inventory"])
+                blocked_items.update(requirement["consumed_inventory"])
+                blocked_items.update(requirement["required_tools"])
+                for option_group in requirement["required_inventory_options"]:
+                    for option in option_group:
+                        blocked_items.update(option)
+                for option_group in requirement["consumed_inventory_options"]:
+                    for option in option_group:
+                        blocked_items.update(option)
+                for item_name in sorted(blocked_items & forbidden_items):
+                    violations.append((quest_id, requirement["stage"], item_name))
+
+        self.assertEqual(violations, [])
+
+        enlightened_stage_2 = next(
+            row for row in data["enlightened_journey"]["stage_requirements"] if row["stage"] == 2
+        )
+        self.assertEqual(enlightened_stage_2["consumed_inventory"]["Sack"], 8)
+        self.assertEqual(enlightened_stage_2["produced_inventory"], {"Sandbag": 8})
+
+        rat_catchers_stage_1 = next(
+            row for row in data["rat_catchers"]["stage_requirements"] if row["stage"] == 1
+        )
+        self.assertEqual(
+            rat_catchers_stage_1["consumed_inventory"],
+            {"Vial": 1, "Clean kwuarm": 1, "Red spiders' eggs": 1},
+        )
+        self.assertEqual(rat_catchers_stage_1["produced_inventory"], {"Rat poison": 1})
 
     def test_generated_catalog_enriches_safe_combat_name_matches(self):
         data = quests_as_dict()
@@ -1209,6 +1359,7 @@ class TestQuestCatalog(unittest.TestCase):
 
         self.assertEqual(quest["stages"], 14)
         self.assertEqual(quest["combat"], "None.")
+        self.assertEqual(quest["rewards"], {"Ammo mould": 1})
         self.assertEqual(quest["xp_rewards"], ({"skill_id": "crafting", "amount": 750.0},))
         self.assertEqual(quest["journal_stages"][14], ("Captain Lawgof gave his recommendation.", "Quest complete!"))
         self.assertEqual(len(quest["stage_requirements"]), 13)
