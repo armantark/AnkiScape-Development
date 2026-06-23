@@ -147,6 +147,36 @@ COMBAT_RANGED_WEAPON_DATA: Dict[str, dict] = {
         "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows"),
         "source": f"{RANGED_BOW_SOURCE_PATH}: WILLOW_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS",
     },
+    "Maple shortbow": {
+        "equipment_type": "maple_shortbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: MAPLE_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS",
+    },
+    "Maple longbow": {
+        "equipment_type": "maple_longbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: MAPLE_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS",
+    },
+    "Yew shortbow": {
+        "equipment_type": "yew_shortbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: YEW_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS",
+    },
+    "Yew longbow": {
+        "equipment_type": "yew_longbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: YEW_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS",
+    },
+    "Magic shortbow": {
+        "equipment_type": "magic_shortbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: MAGIC_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS; BROAD_ARROWS deferred until ammo skill gates exist",
+    },
+    "Magic longbow": {
+        "equipment_type": "magic_longbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: MAGIC_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS + ADAMANT_ARROWS + RUNE_ARROWS; BROAD_ARROWS deferred until ammo skill gates exist",
+    },
 }
 
 
@@ -185,6 +215,24 @@ COMBAT_RANGED_AMMO_DATA: Dict[str, dict] = {
         "source": (
             f"{RANGED_ARROW_SOURCE_PATH}: MITHRIL_ARROWS; "
             f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 888"
+        ),
+    },
+    "Adamant arrows": {
+        "source_item_id": 890,
+        "source_item_name": "Adamant arrow",
+        "ranged_strength": 31,
+        "source": (
+            f"{RANGED_ARROW_SOURCE_PATH}: ADAMANT_ARROWS; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 890"
+        ),
+    },
+    "Rune arrows": {
+        "source_item_id": 892,
+        "source_item_name": "Rune arrow",
+        "ranged_strength": 49,
+        "source": (
+            f"{RANGED_ARROW_SOURCE_PATH}: RUNE_ARROWS; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 892"
         ),
     },
 }

@@ -1601,6 +1601,12 @@ _RANGED_BOW_EQUIPMENT = {
     'Oak longbow': {'equipment_type': 'oak_longbow', 'source_item_id': 845, 'required_level': 5, 'attack_ranged': 14, 'attack_speed': 6},
     'Willow shortbow': {'equipment_type': 'willow_shortbow', 'source_item_id': 849, 'required_level': 20, 'attack_ranged': 20, 'attack_speed': 4},
     'Willow longbow': {'equipment_type': 'willow_longbow', 'source_item_id': 847, 'required_level': 20, 'attack_ranged': 20, 'attack_speed': 6},
+    'Maple shortbow': {'equipment_type': 'maple_shortbow', 'source_item_id': 853, 'required_level': 30, 'attack_ranged': 29, 'attack_speed': 4},
+    'Maple longbow': {'equipment_type': 'maple_longbow', 'source_item_id': 851, 'required_level': 30, 'attack_ranged': 29, 'attack_speed': 6},
+    'Yew shortbow': {'equipment_type': 'yew_shortbow', 'source_item_id': 857, 'required_level': 40, 'attack_ranged': 47, 'attack_speed': 4},
+    'Yew longbow': {'equipment_type': 'yew_longbow', 'source_item_id': 855, 'required_level': 40, 'attack_ranged': 47, 'attack_speed': 6},
+    'Magic shortbow': {'equipment_type': 'magic_shortbow', 'source_item_id': 861, 'required_level': 50, 'attack_ranged': 69, 'attack_speed': 4},
+    'Magic longbow': {'equipment_type': 'magic_longbow', 'source_item_id': 859, 'required_level': 50, 'attack_ranged': 69, 'attack_speed': 6},
 }
 
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
@@ -1610,6 +1616,12 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Oak longbow', 'weapon', 'oak_longbow', 845, 'data/cfg/items.yml item 845; OAK_LONGBOW'),
     ('Willow shortbow', 'weapon', 'willow_shortbow', 849, 'data/cfg/items.yml item 849; WILLOW_SHORTBOW'),
     ('Willow longbow', 'weapon', 'willow_longbow', 847, 'data/cfg/items.yml item 847; WILLOW_LONGBOW'),
+    ('Maple shortbow', 'weapon', 'maple_shortbow', 853, 'data/cfg/items.yml item 853; MAPLE_SHORTBOW'),
+    ('Maple longbow', 'weapon', 'maple_longbow', 851, 'data/cfg/items.yml item 851; MAPLE_LONGBOW'),
+    ('Yew shortbow', 'weapon', 'yew_shortbow', 857, 'data/cfg/items.yml item 857; YEW_SHORTBOW'),
+    ('Yew longbow', 'weapon', 'yew_longbow', 855, 'data/cfg/items.yml item 855; YEW_LONGBOW'),
+    ('Magic shortbow', 'weapon', 'magic_shortbow', 861, 'data/cfg/items.yml item 861; MAGIC_SHORTBOW'),
+    ('Magic longbow', 'weapon', 'magic_longbow', 859, 'data/cfg/items.yml item 859; MAGIC_LONGBOW'),
     ('Cape', 'cape', 'cape', 1019, 'data/cfg/items.yml item 1019; CAPE_1019'),
     ('Brass necklace', 'neck', 'necklace', 1009, 'data/cfg/items.yml item 1009; BRASS_NECKLACE'),
     ('Bronze spear', 'weapon', 'spear', 1237, 'data/cfg/items.yml item 1237; BRONZE_SPEAR'),

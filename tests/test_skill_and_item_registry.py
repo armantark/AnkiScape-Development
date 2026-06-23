@@ -497,10 +497,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Oak longbow",
             "Willow shortbow",
             "Willow longbow",
+            "Maple shortbow",
+            "Maple longbow",
+            "Yew shortbow",
+            "Yew longbow",
+            "Magic shortbow",
+            "Magic longbow",
             "Bronze arrows",
             "Iron arrows",
             "Steel arrows",
             "Mithril arrows",
+            "Adamant arrows",
+            "Rune arrows",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].asset_path, FLETCHED_ITEM_IMAGES[item_name])

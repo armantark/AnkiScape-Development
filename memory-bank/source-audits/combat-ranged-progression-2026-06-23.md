@@ -3,7 +3,8 @@
 ## Scope
 
 This slice widens the first Combat Ranged path from one starter pair to the
-early source-backed bow and arrow progression already produced by Fletching.
+standard source-backed bow and arrow progression already produced by Fletching,
+through Magic bows and Rune arrows.
 
 ## Implemented Scope
 
@@ -11,11 +12,17 @@ early source-backed bow and arrow progression already produced by Fletching.
   - Shortbow and Longbow with Bronze/Iron arrows.
   - Oak shortbow and Oak longbow with Bronze/Iron/Steel arrows.
   - Willow shortbow and Willow longbow with Bronze/Iron/Steel/Mithril arrows.
+  - Maple shortbow and Maple longbow with Bronze/Iron/Steel/Mithril/Adamant
+    arrows.
+  - Yew shortbow, Yew longbow, Magic shortbow, and Magic longbow with
+    Bronze/Iron/Steel/Mithril/Adamant/Rune arrows.
 - `COMBAT_RANGED_AMMO_DATA` now supports:
   - Bronze arrows, item 882, ranged strength 7.
   - Iron arrows, item 884, ranged strength 10.
   - Steel arrows, item 886, ranged strength 16.
   - Mithril arrows, item 888, ranged strength 22.
+  - Adamant arrows, item 890, ranged strength 31.
+  - Rune arrows, item 892, ranged strength 49.
 - `EQUIPMENT_DATA` now registers the same bow ladder as two-handed Ranged
   weapons with local `items.yml` attack speeds, Ranged attack bonuses, and
   Ranged level requirements.
@@ -42,8 +49,10 @@ early source-backed bow and arrow progression already produced by Fletching.
 
 ## Deferred
 
-- Maple, Yew, Magic, composite, ogre, dark, crystal, sling, thrown-weapon,
-  crossbow, bolt, dart, and knife Combat support.
+- Broad arrows. The local source gives Broad arrows a Slayer requirement, and
+  the current ammo path does not yet model per-ammo skill gates.
+- Composite, ogre, dark, crystal, sling, thrown-weapon, crossbow, bolt, dart,
+  and knife Combat support.
 - Stack-aware ammunition equipment-slot behavior.
 - Arrow recovery/drop/break modeling.
 - Player-facing per-ammo preference controls.

@@ -4,7 +4,7 @@ Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Highwayman humanoid expansion,
 Barbarian level 8/9 and level 10 ordinary-enemy expansions, Goblin
-ordinary-enemy expansion, first Ranged/ammo path plus early bow/ammo
+ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
 progression, and the standard elemental Combat spell ladder, plus ordinary
 dangerous-target confirmation and safe-boundary ammo recovery.
 
@@ -39,13 +39,14 @@ dangerous-target confirmation and safe-boundary ammo recovery.
   `combat_recovery_progress`.
 - Melee styles route XP as Attack, Strength, Defence, or controlled shared
   Attack/Strength/Defence, with Constitution XP awarded per damage.
-- Ranged styles now support Shortbow/Longbow, Oak shortbow/longbow, and Willow
-  shortbow/longbow with Bronze, Iron, Steel, and Mithril arrow compatibility
-  through the same burst engine. `ranged_accurate` and `ranged_rapid` route
-  damage XP to Ranged; `ranged_longrange` splits damage XP between Ranged and
-  Defence; every damage hit still awards Constitution XP. Ranged consumes one
-  arrow per attack attempt from `combat_supply_loadout["ammo"]`, which refills
-  from inventory only at fresh-fight or safe-boundary refill points.
+- Ranged styles now support standard bows from Shortbow through Magic longbow
+  with Bronze through Rune arrow compatibility through the same burst engine.
+  Broad arrows stay deferred until the ammo path can enforce their source
+  Slayer/level gates. `ranged_accurate` and `ranged_rapid` route damage XP to
+  Ranged; `ranged_longrange` splits damage XP between Ranged and Defence; every
+  damage hit still awards Constitution XP. Ranged consumes one arrow per attack
+  attempt from `combat_supply_loadout["ammo"]`, which refills from inventory
+  only at fresh-fight or safe-boundary refill points.
 - The Skills hub has a Combat category/card, enemy target tree, attack-style
   selector, availability gate, food-readiness tooltip line, and HUD
   target/lifepoint display.
@@ -114,10 +115,10 @@ dangerous-target confirmation and safe-boundary ammo recovery.
   equipment audit.
 - God/Ancient/Lunar combat spells with source gates/effects, and noncombat
   Magic actions.
-- Broader Ranged equipment/ammunition support beyond the early bow ladder,
-  including Maple/Yew/Magic bows, composite/ogre/dark/crystal bow families,
-  thrown weapons, crossbows/bolts/darts/knives, stack-aware ammunition
-  equipment, ammo preference controls, and arrow recovery.
+- Broader Ranged equipment/ammunition support beyond the standard bow ladder,
+  including Broad arrow gates, composite/ogre/dark/crystal bow families, thrown
+  weapons, crossbows/bolts/darts/knives, stack-aware ammunition equipment, ammo
+  preference controls, and arrow recovery.
 - Prayer effects, drain, and Prayer skilling.
 - Richer risk previews, including time-to-kill and Wilderness/equipment-risk
   opt-in surfaces.

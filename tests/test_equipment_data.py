@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 146)
+        self.assertEqual(len(EQUIPMENT_DATA), 152)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -56,6 +56,12 @@ class TestEquipmentData(unittest.TestCase):
             "Oak longbow": (845, "oak_longbow", 5, 6, 14),
             "Willow shortbow": (849, "willow_shortbow", 20, 4, 20),
             "Willow longbow": (847, "willow_longbow", 20, 6, 20),
+            "Maple shortbow": (853, "maple_shortbow", 30, 4, 29),
+            "Maple longbow": (851, "maple_longbow", 30, 6, 29),
+            "Yew shortbow": (857, "yew_shortbow", 40, 4, 47),
+            "Yew longbow": (855, "yew_longbow", 40, 6, 47),
+            "Magic shortbow": (861, "magic_shortbow", 50, 4, 69),
+            "Magic longbow": (859, "magic_longbow", 50, 6, 69),
         }
         for item_name, (source_item_id, equipment_type, required_level, attack_speed, attack_ranged) in expected_bows.items():
             with self.subTest(item_name=item_name):

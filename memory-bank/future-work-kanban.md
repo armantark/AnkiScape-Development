@@ -58,9 +58,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   and reclaim consumes `100 Coins` per held item before returning gear to
   inventory. Combat Magic now covers the standard elemental spell ladder through
   Fire Wave, with source level/rune/max-hit/base-XP rows and existing elemental
-  staff rune substitution. Combat Ranged now covers Shortbow/Longbow, Oak
-  shortbow/longbow, and Willow shortbow/longbow with Bronze/Iron/Steel/Mithril
-  arrow compatibility. Ordinary Combat target selection now asks for
+  staff rune substitution. Combat Ranged now covers standard bows from Shortbow
+  through Magic longbow with Bronze through Rune arrow compatibility; Broad
+  arrows remain deferred until per-ammo gates exist. Ordinary Combat target selection now asks for
   non-persistent confirmation before activating rows rated `Death possible`. Use
   `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
@@ -80,7 +80,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
-  broaden Ranged equipment/ammo beyond the early bow ladder, add god/Ancient/Lunar spell gates/effects,
+  broaden Ranged equipment/ammo beyond the standard bow ladder, add god/Ancient/Lunar spell gates/effects,
   add source-exact grave expiry/death-fee variants, add deeper
   potion/cannon/per-ammo preference controls, add richer risk previews and
   Wilderness/equipment-risk opt-ins, and migrate quest combat gates
@@ -104,11 +104,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   table, and 1024-slot easy clue tertiary table. Higher Goblins, Farmers,
   Al-Kharid warriors, and higher-risk spider variants need
   wider item/drop-table, variant, access, or special-mechanic support.
-- Shortbow through Willow longbow plus Bronze through Mithril arrows are now
-  implemented as the early source-backed Ranged/ammo path as of 2026-06-23.
+- Shortbow through Magic longbow plus Bronze through Rune arrows are now
+  implemented as the standard source-backed Ranged/ammo path as of 2026-06-23.
   Ranged accurate/rapid/longrange styles run through the shared Combat burst
   engine and consume one arrow per attack attempt from the carried ammo loadout.
-  Future Ranged work should add Maple/Yew/Magic bows, composite/ogre/dark/crystal
+  Future Ranged work should add Broad arrow gates, composite/ogre/dark/crystal
   bow families, thrown weapons, crossbows/bolts/darts/knives, stack-aware
   ammunition equipment, arrow recovery, and player-facing ammo preference
   controls.

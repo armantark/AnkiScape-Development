@@ -170,11 +170,12 @@ reviews apply one rollback-safe recovery packet per card, special-attack energy
 regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
 tooltips show loaded/banked food readiness. Safe recovery now also refills
 Ranged ammo from inventory when the current Combat style is Ranged. The Ranged
-path now covers Shortbow/Longbow, Oak shortbow/longbow, and Willow
-shortbow/longbow with Bronze, Iron, Steel, and Mithril arrow compatibility,
-using the same Combat burst engine, consuming one arrow per attack attempt from
-`combat_supply_loadout["ammo"]`, and routing Ranged accurate/rapid/longrange XP
-from source-shaped Ranged formulas. The first Magic path is also live: standard
+path now covers standard bows from Shortbow through Magic longbow with Bronze
+through Rune arrow compatibility, using the same Combat burst engine, consuming
+one arrow per attack attempt from `combat_supply_loadout["ammo"]`, and routing
+Ranged accurate/rapid/longrange XP from source-shaped Ranged formulas. Broad
+arrows remain deferred until per-ammo Slayer/level gates exist. The first Magic
+path is also live: standard
 elemental spells from Wind Strike
 through Fire Wave consume source runes from `combat_supply_loadout["runes"]`,
 award source base Magic XP on cast attempts, and route damage XP to
@@ -182,7 +183,7 @@ Magic/Constitution. Basic Staff of air/water/earth/fire rune substitution is
 live too: covered elemental runes are not missing, not loaded from inventory,
 and not consumed per cast. Future Combat work should expand source-backed
 monsters beyond the clean early rows, add god/Ancient/Lunar spell gates and
-effects, broaden Ranged equipment/ammo beyond the early bow ladder, add deeper
+effects, broaden Ranged equipment/ammo beyond the standard bow ladder, add deeper
 potion/cannonball/per-ammo preference controls, improve richer risk previews
 and Wilderness/equipment-risk opt-ins, add source-exact death-fee/expiry
 variants, and migrate quest combat gates onto this shared engine.
@@ -226,10 +227,10 @@ proof lives in
 `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`.
 
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
-Shortbow, Longbow, Oak shortbow, Oak longbow, Willow shortbow, and Willow
-longbow are source-backed two-handed Ranged weapons, and Bronze, Iron, Steel,
-and Mithril arrows have source item IDs/strength values and bow compatibility.
-Source proof lives in
+Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and
+Bronze through Rune arrows have source item IDs/strength values and bow
+compatibility. Broad arrows are still deferred because their source item has a
+Slayer requirement and the current ammo path has no per-ammo gate. Source proof lives in
 `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md`.
 
 The first combat Magic ladder is now live: standard elemental Strike, Bolt,

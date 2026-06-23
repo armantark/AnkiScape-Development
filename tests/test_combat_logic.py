@@ -102,6 +102,12 @@ class CombatLogicTest(unittest.TestCase):
             "Oak longbow": ("oak_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows")),
             "Willow shortbow": ("willow_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows")),
             "Willow longbow": ("willow_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows")),
+            "Maple shortbow": ("maple_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows")),
+            "Maple longbow": ("maple_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows")),
+            "Yew shortbow": ("yew_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
+            "Yew longbow": ("yew_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
+            "Magic shortbow": ("magic_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
+            "Magic longbow": ("magic_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows", "Adamant arrows", "Rune arrows")),
         }
 
         for bow_name, (equipment_type, ammo) in expected_bows.items():
@@ -115,6 +121,8 @@ class CombatLogicTest(unittest.TestCase):
             "Iron arrows": (884, "Iron arrow", 10),
             "Steel arrows": (886, "Steel arrow", 16),
             "Mithril arrows": (888, "Mithril arrow", 22),
+            "Adamant arrows": (890, "Adamant arrow", 31),
+            "Rune arrows": (892, "Rune arrow", 49),
         }
         for ammo_name, (source_item_id, source_item_name, ranged_strength) in expected_ammo.items():
             with self.subTest(ammo_name=ammo_name):
@@ -479,8 +487,8 @@ class CombatLogicTest(unittest.TestCase):
     def test_ranged_burst_accepts_higher_arrow_tiers_for_supported_bows(self):
         player = _player(
             combat_attack_style="ranged_accurate",
-            equipment={"weapon": "Willow longbow"},
-            inventory={"Mithril arrows": 2},
+            equipment={"weapon": "Magic shortbow"},
+            inventory={"Rune arrows": 2},
             current_combat_target="giant_rat",
         )
 
@@ -493,10 +501,10 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertTrue(ok)
-        self.assertEqual(result["weapon"], "Willow longbow")
-        self.assertEqual(result["ammo"], "Mithril arrows")
-        self.assertEqual(result["ammo_used"], {"Mithril arrows": 1})
-        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Mithril arrows": 1})
+        self.assertEqual(result["weapon"], "Magic shortbow")
+        self.assertEqual(result["ammo"], "Rune arrows")
+        self.assertEqual(result["ammo_used"], {"Rune arrows": 1})
+        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Rune arrows": 1})
 
     def test_ranged_longrange_splits_xp_between_ranged_and_defense(self):
         player = _player(
