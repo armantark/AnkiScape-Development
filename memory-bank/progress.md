@@ -130,7 +130,10 @@
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
-- Combat training and combat encounters.
+- Combat training and combat encounters. Combat V1 design is complete in
+  `memory-bank/combat-design-grill-2026-06-23.md`, but no runtime combat engine,
+  Combat tab, enemy registry, drop registry, death/grave flow, supply loadout,
+  or full quest-combat engine replacement is implemented yet.
 - Full quest-stage minute-detail parity. The generator now preserves broad
   quest-wide source fields, but exact per-stage placement, override merge/source
   reconciliation, route flags, required action flags, partner/branch state,
@@ -859,6 +862,16 @@ quests with combat blockers, and 105 statless combat rows. Source audit:
 Do not create `memory-bank/status-updates/` artifacts again until every quest in
 the catalog is updated to the requested minute-detail parity level.
 
+Combat V1 design grill completed on 2026-06-23. The completed artifact is
+`memory-bank/combat-design-grill-2026-06-23.md`. It resolves the major design
+branches for a full Combat implementation: one source-backed engine for ordinary
+monsters, quest encounters, bosses, quantity rows, and phase/form chains; 50
+ticks per `Actions per review`; atomic rollback; damage-based XP routing;
+finite supply loadouts; auto-eat and review-tick recovery; PvM grave/Death's
+Office recovery; Wilderness opt-in/loss rules; enabled runtime rows requiring
+complete source-critical data; and explicit backend/frontend/assets/balance/
+testing handoffs. No combat runtime code shipped in this documentation pass.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,
@@ -898,6 +911,11 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   intended separate Shop surface, source-backed stock/prices, shared inventories,
   buy/sell rules, and location/quest locks. Grill the open decisions before
   backend implementation.
+- Combat V1 follow-up: `memory-bank/combat-design-grill-2026-06-23.md` is the
+  completed design source. Implement only as a full-system Combat build: source
+  audits, enabled enemy/equipment/drop registry, undo-safe tick engine, Combat
+  tab, supply loadouts, death/grave/Death's Office, Wilderness risk, quest
+  encounter integration, assets, targeted tests, Qt tests, and manual Anki QA.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
   records the completed 194-row pre-EOC catalog, implemented completion gates,
   route-precedent locks, the RFD subquest split, generated item/lamp rewards,

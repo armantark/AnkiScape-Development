@@ -552,13 +552,26 @@ decisions still need grilling before implementation, especially navigation,
 location modeling, restock timing, exact price formulas, sell policies, and the
 first scope cut.
 
+Combat V1 design grill completed on 2026-06-23 in
+`memory-bank/combat-design-grill-2026-06-23.md`. It is the source of truth for
+the next Combat implementation thread: one generic undo-safe 0.6s-tick combat
+engine shared by ordinary monsters, quest encounters, bosses, quantities, and
+phase/form chains; 50 ticks per `Actions per review`; damage-based combat XP;
+finite supply loadouts; auto-eat and review-tick recovery; PvM grave/Death's
+Office recovery; explicit Wilderness risk; full source-backed enemy/equipment/
+drop audits; incomplete source data kept in audit/backlog artifacts rather than
+enabled gameplay; and explicit backend/frontend/assets/balance/testing handoffs.
+Combat still is not implemented.
+
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
   could still be justified later if a future feature needs behavior beyond the
   current dispatch, runtime, target-row, and achievement metadata contracts.
 - Adding many skills will still add pressure to stats, icons, tests, and storage
   migrations even though target/action duplication is lower than before.
-- Combat could sprawl if started before noncombat action patterns are generalized.
+- Combat could still sprawl during implementation; use the completed Combat V1
+  design grill as the boundary and keep incomplete source data out of enabled
+  gameplay.
 - Anki config migration mistakes could affect persisted player progress.
 - Running both the upstream `1808450369` copy and the local `ankiscape_fork` copy at the same time could double-register menus/hooks.
 - The Qt menu remains a large monolithic function; target rows are shared, but stats, achievements, bank, equipment, settings, and other surfaces are not fully componentized.
@@ -583,6 +596,7 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
 6. **Future Runecrafting extensions**: Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss/abyssal creatures, talisman sourcing, and broader rune economy routes should stay separate from v1 until explicitly prioritized.
 7. **Future Hunter extensions**: tracking trails, pitfall trapping, rabbit snaring, barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and Regicide-start partial-route modeling should stay separate from v1 until explicitly prioritized.
 8. **Future quest work**: `memory-bank/quest-unlock-audit-2026-06-17.md` is the durable source for the completed 194-row pre-EOC catalog, RFD subquest split, implemented completion gates, route-precedent locks, generated rewards, and content that should or should not be quest-gated. `memory-bank/source-audits/quest-stage-gates-2026-06-22.md` records the stage-aware foundation and The Knight's Sword proof case; `memory-bank/source-audits/quest-stage-gates-catalog-wide-2026-06-22.md` records the generated catalog-wide blocker layer; `memory-bank/source-audits/quest-stage-no-stage-closure-2026-06-22.md` records the 194/194 no-stage closure; `memory-bank/source-audits/quest-combat-resolver-contract-2026-06-22.md` records the first resolver-enabled stat-backed combat write path; `memory-bank/source-audits/quest-darkan-combat-stat-enrichment-2026-06-22.md` records the local 2011Scape-first plus Darkan/2012scape exact-match generated combat stat enrichment; `memory-bank/source-audits/quest-identical-combat-source-enrichment-2026-06-22.md` records the identical duplicate-source/focused override stat follow-up; `memory-bank/source-audits/quest-conflict-combat-stat-enrichment-2026-06-22.md` records grouped item-option repair, Monk/Dad conflict resolution, and the classified 137-row combat backlog; `memory-bank/source-audits/quest-witchs-house-combat-forms-2026-06-22.md` records the Witch's House four-form replacement and refined 132-row combat backlog; `memory-bank/source-audits/quest-style-aware-combat-resolver-2026-06-22.md` records style-aware magic/ranged combat stat readiness; `memory-bank/source-audits/quest-darkan-beast-stat-fallback-2026-06-22.md` and `memory-bank/source-audits/quest-darkan-no-combatlevels-beast-stat-fallback-2026-06-22.md` record the Darkan beast-stat fallbacks; `memory-bank/source-audits/quest-focused-combat-row-splits-2026-06-22.md` records the 118-row backlog after focused name-shape replacements; `memory-bank/source-audits/quest-a-souls-bane-dorgeshuun-combat-split-2026-06-22.md` records the 109-row backlog after A Soul's Bane and Death to the Dorgeshuun focused replacements; `memory-bank/source-audits/quest-historical-wiki-combat-stat-audit-2026-06-22.md` records the historical-wiki source-tier pass that found 77 metadata-only pages, 32 pages without monster metadata, and 0 remaining rows with resolver-ready hidden stats; `memory-bank/source-audits/quest-priest-in-peril-stage-detail-2026-06-22.md` records the Priest in Peril full-stage replacement, consumed essence alternatives, corrected nine-stage completion, and remaining Temple guardian dog stat gap; `memory-bank/source-audits/quest-2011scape-starter-stage-batch-2026-06-22.md` records the produced-inventory contract and the Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer source-backed replacement batch; `memory-bank/source-audits/quest-demon-slayer-stage-detail-2026-06-22.md` records the Demon Slayer focused replacement; `memory-bank/source-audits/quest-early-darkan-stage-batch-2026-06-22.md` records the Goblin Diplomacy, Ernest the Chicken, and Black Knights' Fortress focused replacement batch; `memory-bank/source-audits/quest-heroes-quest-stage-detail-2026-06-22.md` records the Heroes' Quest branch-and-proof replacement. Current quest-stage debt is still the remaining generated-row surface plus explicit combat/stat and branch/route gaps; only reopen this area for remaining minute-detail per-stage extraction, route/location gates, remaining combat stat enrichment, full combat simulation, quest-item transformations, puzzle/follower/branch state, new quest-unlocked skill targets, or generator/source corrections.
+9. **Future Combat V1 implementation**: start from `memory-bank/combat-design-grill-2026-06-23.md`. Treat it as a full-system build with source audits, backend engine/schema, frontend Combat tab, assets, balance, tests, rollback, and manual Anki QA split explicitly.
 
 Current quest-work addendum: later 2026-06-22 focused audits for Dragon Slayer,
 Shield of Arrav, Fight Arena, `memory-bank/source-audits/quest-witchs-house-stage-detail-2026-06-22.md`,

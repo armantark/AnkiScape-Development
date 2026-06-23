@@ -38,6 +38,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   update. Source-audit markdown and Memory Bank maintenance still continue as
   normal project guidance; create new visual status artifacts only when the
   owner explicitly asks for one or the next scoped feature requires it.
+- Combat V1 design grill is complete in
+  `memory-bank/combat-design-grill-2026-06-23.md`. Use that file before any
+  Combat implementation work. It requires a full source-backed combat build with
+  explicit backend/frontend/assets/balance/testing splits, not a narrow
+  quest-only resolver or a few-enemy proof slice.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
