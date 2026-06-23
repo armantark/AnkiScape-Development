@@ -2,6 +2,7 @@ import os
 import unittest
 
 from action_registry import (
+    is_combat_review_action,
     is_review_action,
     is_utility_review_action,
     review_action_display_names,
@@ -100,11 +101,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
         self.assertFalse(is_review_skill("Utility / Activities"))
         self.assertFalse(is_review_skill("Quests"))
+        self.assertFalse(is_review_skill("Combat"))
         self.assertTrue(is_review_action("Utility / Activities"))
         self.assertTrue(is_review_action("Quests"))
+        self.assertTrue(is_review_action("Combat"))
         self.assertTrue(is_utility_review_action("Utility"))
+        self.assertTrue(is_combat_review_action("Combat"))
         self.assertEqual(review_action_handler_key("Utility / Activities"), "utility")
         self.assertEqual(review_action_handler_key("Quests"), "quest")
+        self.assertEqual(review_action_handler_key("Combat"), "combat")
         self.assertEqual(review_action_handler_key("Fishing"), "fishing")
         self.assertEqual(review_action_handler_key("Fletching"), "fletching")
         self.assertEqual(review_action_handler_key("Firemaking"), "firemaking")
@@ -125,6 +130,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Cooking",
                 "Runecrafting",
                 "Hunter",
+                "Combat",
                 "Quests",
                 "Utility / Activities",
             ),

@@ -18,8 +18,10 @@ try:
     from .fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from .logic_pure import (
         default_action_telemetry_pure,
+        default_combat_state_pure,
         default_quest_combat_config_pure,
         sanitize_action_telemetry_pure,
+        sanitize_combat_state_pure,
         sanitize_quest_combat_config_pure,
     )
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -52,8 +54,10 @@ except ImportError:
     from fletching_data import DEFAULT_FLETCHING_TARGET, FLETCHING_TARGETS_BY_ID, LEGACY_FLETCHING_TARGETS
     from logic_pure import (
         default_action_telemetry_pure,
+        default_combat_state_pure,
         default_quest_combat_config_pure,
         sanitize_action_telemetry_pure,
+        sanitize_combat_state_pure,
         sanitize_quest_combat_config_pure,
     )
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -70,7 +74,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 20
+CURRENT_CONFIG_VERSION = 21
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -117,6 +121,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     }
     data.update(default_skill_state())
     data.update(_default_combat_state())
+    data.update(default_combat_state_pure())
     data.update(_default_hidden_support_state())
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
@@ -524,6 +529,8 @@ def migrate_loaded_data(
         data.setdefault(key, value)
     for key, value in _default_combat_state().items():
         data.setdefault(key, value)
+    for key, value in default_combat_state_pure().items():
+        data.setdefault(key, value)
     for key, value in _default_hidden_support_state().items():
         data.setdefault(key, value)
     for key, value in default_target_state().items():
@@ -566,6 +573,7 @@ def migrate_loaded_data(
     data.setdefault("cooking_burn_count", 0)
     data.setdefault("hunter_success_count", 0)
     data["action_telemetry"] = sanitize_action_telemetry_pure(data.get("action_telemetry"))
+    data.update(sanitize_combat_state_pure(data))
 
     # Progress key retained (not critical)
     data.setdefault("progress_to_next", 0)

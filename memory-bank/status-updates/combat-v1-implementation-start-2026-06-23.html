@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat V1 Implementation Start</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(79, 140, 255, 0.12), transparent 28%),
+        linear-gradient(145deg, #0c0e12 0%, #10141c 52%, #0b0d12 100%);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 34px 0 48px;
+    }
+    .badge {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #cfe0ff;
+      font: 700 0.72rem/1 JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 18px 0 8px;
+      max-width: 980px;
+      font-size: clamp(2rem, 5vw, 4.2rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      max-width: 850px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .card {
+      background: rgba(22, 26, 33, 0.86);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 14px 42px rgba(0, 0, 0, 0.24);
+    }
+    .card h2 {
+      margin: 8px 0 8px;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+    .card p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 0.92rem;
+    }
+    .priority {
+      display: inline-block;
+      font: 700 0.68rem/1 JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .priority.red { color: var(--red); }
+    .priority.amber { color: var(--amber); }
+    .priority.green { color: var(--green); }
+    .priority.purple { color: var(--purple); }
+    .tagrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    code, .tag {
+      font-family: JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .tag {
+      padding: 5px 7px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #c8d1e2;
+      font-size: 0.68rem;
+    }
+    .flow {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      align-items: stretch;
+      margin: 12px 0 2px;
+    }
+    .step {
+      min-height: 112px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #111620;
+      padding: 12px;
+      position: relative;
+    }
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 0.88rem;
+    }
+    .step span {
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+    .step-num {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      margin-bottom: 8px;
+      border-radius: 7px;
+      background: var(--accent);
+      color: white;
+      font: 800 0.75rem/1 JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .meter {
+      height: 9px;
+      border-radius: 999px;
+      background: #0b0f16;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-top: 14px;
+    }
+    .meter > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+    .checklist {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    label {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      color: #d8deeb;
+      font-size: 0.86rem;
+      cursor: pointer;
+    }
+    input[type="checkbox"] {
+      appearance: none;
+      width: 17px;
+      height: 17px;
+      margin-top: 1px;
+      border-radius: 5px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      flex: 0 0 auto;
+    }
+    input[type="checkbox"]:checked {
+      background: var(--green);
+      border-color: var(--green);
+      box-shadow: inset 0 0 0 4px #142018;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10151d;
+      padding: 12px;
+      min-height: 150px;
+    }
+    .pane .label {
+      color: var(--text-dim);
+      font: 800 0.66rem/1 JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 10px;
+    }
+    .ui-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      margin-bottom: 7px;
+      border-radius: 8px;
+      background: #171d27;
+      border: 1px solid #242b38;
+      font-size: 0.78rem;
+    }
+    .pill {
+      padding: 3px 7px;
+      border-radius: 999px;
+      font: 800 0.62rem/1 JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .pill.ok { color: #b7f7ce; background: rgba(74, 222, 128, 0.12); }
+    .pill.warn { color: #ffe4a3; background: rgba(251, 191, 36, 0.13); }
+    .pill.block { color: #ffcccc; background: rgba(255, 92, 92, 0.13); }
+    .footer {
+      margin-top: 16px;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+    @media (max-width: 900px) {
+      .grid, .split, .flow { grid-template-columns: 1fr; }
+      .flow { grid-column: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Pre-Implementation Start</div>
+    <h1>Combat V1 is now an implementation target, not a document cleanup.</h1>
+    <p class="subtitle">The acceptance target is the completed grill: source-backed combat data, an undo-safe tick engine, quest handoff, a real Combat surface, assets, tests, and manual Anki verification. Partial audit rows stay out of enabled gameplay.</p>
+
+    <section class="grid" aria-label="Combat implementation lanes">
+      <article class="card">
+        <span class="priority red">Backend</span>
+        <h2>Engine and state contract</h2>
+        <p>Build combat as a review transaction: 50 ticks per Actions per review, damage-based XP, HP/status/supply/drop/death rollback, and additive flat save migration.</p>
+        <div class="tagrow">
+          <span class="tag">combat_data.py</span>
+          <span class="tag">logic_pure.py</span>
+          <span class="tag">runtime_actions.py</span>
+          <span class="tag">storage_pure.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority amber">Frontend</span>
+        <h2>Combat tab and readiness</h2>
+        <p>Add a usable Combat surface with target filters, global style/spell controls, supply loadout, auto-eat, readiness states, compact feedback, and no mid-review prompts.</p>
+        <div class="tagrow">
+          <span class="tag">target_metadata.py</span>
+          <span class="tag">skill_hub.py</span>
+          <span class="tag">ui.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority green">Assets</span>
+        <h2>Source-visible content only</h2>
+        <p>Enabled enemies, equipment, drops, supplies, spells, runes, ammo, grave/reclaim items, and source-shop bridge items need provenance and icons where a stable source-era asset exists.</p>
+        <div class="tagrow">
+          <span class="tag">item_registry.py</span>
+          <span class="tag">assets_provenance.json</span>
+          <span class="tag">tools/fetch_assets.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority purple">Balance</span>
+        <h2>Exact where proven, blocked where not</h2>
+        <p>Formula paths must say exact, approximate, or blocked. Missing critical combat data does not become player-facing gameplay.</p>
+        <div class="meter" aria-label="Current implementation progress"><div style="width: 4%"></div></div>
+      </article>
+
+      <article class="card flow" aria-label="Execution flow">
+        <div class="step"><div class="step-num">1</div><strong>Audit</strong><span>Source files and current contracts before writing runtime code.</span></div>
+        <div class="step"><div class="step-num">2</div><strong>Backend</strong><span>Data, engine, migration, dispatch, quest handoff, tests.</span></div>
+        <div class="step"><div class="step-num">3</div><strong>Frontend</strong><span>Combat surface, filters, loadout controls, Qt tests.</span></div>
+        <div class="step"><div class="step-num">4</div><strong>Assets</strong><span>Icons, provenance, required-path coverage.</span></div>
+        <div class="step"><div class="step-num">5</div><strong>Verify</strong><span>Core tests, offscreen Qt, manual Anki QA, completion audit.</span></div>
+      </article>
+
+      <article class="card">
+        <span class="priority red">Guardrails</span>
+        <h2>What cannot be faked</h2>
+        <div class="checklist">
+          <label><input type="checkbox"> Enabled runtime enemies must have complete source-critical data.</label>
+          <label><input type="checkbox"> Undo rolls back the whole combat burst, not just XP.</label>
+          <label><input type="checkbox"> Quest combat no longer auto-completes from a level threshold.</label>
+          <label><input type="checkbox"> Dangerous/Wilderness states are explicit and visible.</label>
+        </div>
+      </article>
+
+      <article class="card">
+        <span class="priority amber">UI Direction</span>
+        <h2>Before and after</h2>
+        <div class="split">
+          <div class="pane">
+            <div class="label">Current</div>
+            <div class="ui-row"><span>Combat</span><span class="pill block">Not built</span></div>
+            <div class="ui-row"><span>Quest fights</span><span class="pill warn">Resolver gate</span></div>
+            <div class="ui-row"><span>Equipment</span><span class="pill ok">Ready</span></div>
+          </div>
+          <div class="pane">
+            <div class="label">Target</div>
+            <div class="ui-row"><span>Chicken</span><span class="pill ok">Safe</span></div>
+            <div class="ui-row"><span>Witch's experiment</span><span class="pill warn">Quest fight</span></div>
+            <div class="ui-row"><span>Wilderness target</span><span class="pill block">Risk opt-in</span></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <p class="footer">This artifact is intentionally public-safe: it contains no credentials, no private user data, and no local absolute paths.</p>
+  </main>
+</body>
+</html>

@@ -4,10 +4,12 @@ import unittest
 from constants import (
     BIRD_NEST_OPEN_TABLES,
     BAR_IMAGES,
+    COMBAT_ENEMY_DATA,
     COOKING_DATA,
     COOKING_ITEM_IMAGES,
     CRAFTED_ITEM_IMAGES,
     CRAFTING_DATA,
+    DEFAULT_COMBAT_TARGET,
     DEFAULT_COOKING_TARGET,
     DEFAULT_FIREMAKING_TARGET,
     DEFAULT_FISHING_TARGET,
@@ -26,6 +28,7 @@ from constants import (
     GEM_IMAGES,
     HUNTER_DATA,
     HUNTER_ITEM_IMAGES,
+    EQUIPMENT_ITEM_DATA,
     MINING_PICKAXE_DATA,
     ORE_DATA,
     ORE_IMAGES,
@@ -42,6 +45,7 @@ from constants import (
 )
 from target_metadata import (
     TargetRowMetadata,
+    combat_target_rows,
     cooking_target_rows,
     crafting_target_rows,
     firemaking_target_rows,
@@ -64,6 +68,37 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_combat_rows_expose_enabled_source_backed_enemy_targets(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "giant_rat",
+                "combat_attack_style": "accurate",
+                "attack_level": 10,
+                "strength_level": 10,
+                "defense_level": 10,
+                "constitution_level": 10,
+                "inventory": {},
+                "equipment": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        chicken = _row(rows, "chicken")
+        giant_rat = _row(rows, "giant_rat")
+        cow = _row(rows, "cow")
+
+        self.assertTrue(chicken.enabled)
+        self.assertTrue(giant_rat.current)
+        self.assertEqual(giant_rat.group, "Lumbridge")
+        self.assertIn("Giant rat · combat level 2", giant_rat.tooltip)
+        self.assertIn("Enemy LP: 50/50", giant_rat.tooltip)
+        self.assertIn("Raw rat meat", giant_rat.tooltip)
+        self.assertIn("giant_rat_level_2.plugin.kts", giant_rat.tooltip)
+        self.assertEqual(cow.sort_key[:2], (2, "Cow"))
+
     def test_smithing_grouped_rows_preserve_tier_sort_and_lock_reasons(self):
         rows = smithing_target_rows(
             {

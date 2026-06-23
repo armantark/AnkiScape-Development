@@ -15,6 +15,8 @@ try:
         calculate_fishing_success_probability_pure,
         calculate_hunter_success_probability_pure,
         can_chop_woodcutting_target_pure,
+        combat_target_locked_reasons_pure,
+        combat_target_preview_pure,
         firemaking_target_locked_reasons_pure,
         can_open_bird_nests_pure,
         cooking_target_locked_reasons_pure,
@@ -37,6 +39,8 @@ except Exception:
         calculate_fishing_success_probability_pure,
         calculate_hunter_success_probability_pure,
         can_chop_woodcutting_target_pure,
+        combat_target_locked_reasons_pure,
+        combat_target_preview_pure,
         firemaking_target_locked_reasons_pure,
         can_open_bird_nests_pure,
         cooking_target_locked_reasons_pure,
@@ -738,6 +742,90 @@ def hunter_target_rows(
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
                 sort_key=tuple(spec.get("sort_key", (lvl_req, display_name))),
+            )
+        )
+    return tuple(rows)
+
+
+def _combat_drop_summary(enemy: Mapping[str, object]) -> str:
+    drops_raw = enemy.get("drops", {})
+    drops = drops_raw if isinstance(drops_raw, Mapping) else {}
+    guaranteed = []
+    for item_name, quantity in drops.get("guaranteed", ()) or ():
+        if isinstance(item_name, str):
+            guaranteed.append(f"{item_name} x{max(1, int(quantity or 1))}")
+    table_lines = []
+    for table in drops.get("tables", ()) or ():
+        if not isinstance(table, Mapping):
+            continue
+        table_name = str(table.get("name", "Roll"))
+        total = int(table.get("total", 0) or 0)
+        slots = []
+        for slot in table.get("slots", ()) or ():
+            if not isinstance(slot, Mapping):
+                continue
+            item_name = slot.get("item")
+            if not isinstance(item_name, str):
+                continue
+            slot_count = int(slot.get("slots", 0) or 0)
+            quantity = int(slot.get("quantity", 1) or 1)
+            if total > 0 and slot_count > 0:
+                slots.append(f"{item_name} x{quantity} ({slot_count}/{total})")
+        if slots:
+            table_lines.append(f"{table_name}: " + ", ".join(slots))
+    parts = []
+    if guaranteed:
+        parts.append("Guaranteed: " + ", ".join(guaranteed))
+    parts.extend(table_lines)
+    return "\n".join(parts) if parts else "No item drops"
+
+
+def combat_target_rows(
+    player_data: Mapping[str, object],
+    combat_enemy_data: Mapping[str, Mapping[str, object]],
+    combat_item_images: Mapping[str, str],
+    equipment_data: Mapping[str, object],
+    default_target: str,
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    current_target = player_data.get("current_combat_target", default_target)
+
+    for target_id, enemy in combat_enemy_data.items():
+        display_name = str(enemy.get("display_name", target_id))
+        level = int(enemy.get("level", 1) or 1)
+        stats_raw = enemy.get("stats", {})
+        stats = stats_raw if isinstance(stats_raw, Mapping) else {}
+        preview = combat_target_preview_pure(player_data, target_id, combat_enemy_data, equipment_data)
+        locked_reasons = combat_target_locked_reasons_pure(player_data, target_id, combat_enemy_data)
+        if locked_reasons:
+            tooltip = (
+                f"{display_name} · combat level {level}\n"
+                f"Locked due to: {', '.join(locked_reasons)}\n"
+                f"Source: {enemy.get('source', '')}"
+            )
+        else:
+            tooltip = (
+                f"{display_name} · combat level {level}\n"
+                f"State: {preview.get('state', 'Ready')} · risk: {preview.get('risk_band', 'Unknown')}\n"
+                f"Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}\n"
+                f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"
+                f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
+                f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
+                f"Drops:\n  {_combat_drop_summary(enemy).replace(chr(10), chr(10) + '  ')}\n"
+                f"Source: {enemy.get('source', '')}"
+            )
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=target_id,
+                label=f"{display_name} (Lvl {level})",
+                tooltip=tooltip,
+                enabled=not locked_reasons,
+                current=target_id == current_target,
+                icon_path=combat_item_images.get(display_name) or combat_item_images.get("Bones"),
+                group=str(enemy.get("group", "Combat")),
+                locked_reasons=locked_reasons,
+                sort_key=(level, display_name),
             )
         )
     return tuple(rows)

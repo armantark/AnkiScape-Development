@@ -18,6 +18,16 @@ try:
         cooking_raw_items,
         cooking_targets_as_dict,
     )
+    from .combat_data import (
+        COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_BURST_TICKS,
+        COMBAT_ENEMY_DATA,
+        COMBAT_EXTRA_ITEM_DATA,
+        COMBAT_FOOD_DATA,
+        COMBAT_TARGET_GROUP_ORDER,
+        DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_TARGET,
+    )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .firemaking_data import (
@@ -111,6 +121,16 @@ except ImportError:
         cooking_prep_activities_as_dict,
         cooking_raw_items,
         cooking_targets_as_dict,
+    )
+    from combat_data import (
+        COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_BURST_TICKS,
+        COMBAT_ENEMY_DATA,
+        COMBAT_EXTRA_ITEM_DATA,
+        COMBAT_FOOD_DATA,
+        COMBAT_TARGET_GROUP_ORDER,
+        DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_TARGET,
     )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
@@ -606,6 +626,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **HUNTER_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
+    **COMBAT_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,

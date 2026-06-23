@@ -83,7 +83,12 @@ try:
         QUEST_DATA,
         QUEST_UNLOCK_RULES,
         CLAIM_DATA,
+        COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_ENEMY_DATA,
+        COMBAT_TARGET_GROUP_ORDER,
         BINDING_NECKLACE_ITEM,
+        DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_TARGET,
         FIREMAKING_LOG_ITEMS,
         FISHING_OUTPUT_ITEMS,
         RUNECRAFTING_GROUP_LABELS,
@@ -144,7 +149,12 @@ except Exception:
         QUEST_DATA,
         QUEST_UNLOCK_RULES,
         CLAIM_DATA,
+        COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_ENEMY_DATA,
+        COMBAT_TARGET_GROUP_ORDER,
         BINDING_NECKLACE_ITEM,
+        DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_TARGET,
         FIREMAKING_LOG_ITEMS,
         FISHING_OUTPUT_ITEMS,
         RUNECRAFTING_GROUP_LABELS,
@@ -173,10 +183,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_target_locked_reasons_pure, player_combat_level_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_target_locked_reasons_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -212,6 +222,7 @@ except Exception:
 try:
     from .target_metadata import (
         TargetRowMetadata,
+        combat_target_rows,
         cooking_target_rows,
         crafting_target_rows,
         firemaking_target_rows,
@@ -227,6 +238,7 @@ try:
 except Exception:
     from target_metadata import (  # type: ignore
         TargetRowMetadata,
+        combat_target_rows,
         cooking_target_rows,
         crafting_target_rows,
         firemaking_target_rows,
@@ -536,6 +548,7 @@ def equipment_full_tooltip(item_name: str, lock_reason: str = "") -> str:
 # so the hub surfaces it as a synthetic, visually-distinct entry.
 _UTILITY_HUB_NAME = "Utility / Activities"
 _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
+_COMBAT_HUB_NAME = "Combat"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
@@ -869,6 +882,12 @@ def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
         if isinstance(quest, dict):
             return str(quest.get("display_name", quest_id))
         return None
+    if skill == _COMBAT_HUB_NAME:
+        target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+        enemy = COMBAT_ENEMY_DATA.get(target_id) if isinstance(target_id, str) else None
+        if isinstance(enemy, dict):
+            return str(enemy.get("display_name", target_id))
+        return None
     sd = get_skill(skill or "")
     if sd is None or sd.current_target_key is None:
         return None
@@ -1021,6 +1040,30 @@ if HAS_QT:
                     self.target_lbl.setVisible(False)
                 except Exception:
                     pass
+                self.adjustSize()
+                self._reposition()
+                self.show()
+                return
+            if skill == _COMBAT_HUB_NAME:
+                target_name = current_target_display_name(skill, player_data) or "Enemy"
+                current_lp = max(0, int(player_data.get("combat_lifepoints", 100) or 0))
+                max_lp = max(10, int(player_data.get("constitution_level", 10) or 10) * 10)
+                pct = int((min(current_lp, max_lp) / max_lp) * 100)
+                ip = os.path.join(current_dir, "icon", "attack_icon.png")
+                if not os.path.exists(ip):
+                    ip = self._placeholder_icon_path()
+                if ip:
+                    pm = QPixmap(ip)
+                    self.icon_lbl.setPixmap(pm.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+                else:
+                    self.icon_lbl.clear()
+                self.title_lbl.setText(f"Combat — Lv {player_combat_level_pure(player_data)}")
+                self.progress.setVisible(True)
+                self.progress.setValue(pct)
+                self.sub_lbl.setVisible(True)
+                self.sub_lbl.setText(f"{current_lp}/{max_lp} LP")
+                self.target_lbl.setText(target_name)
+                self.target_lbl.setVisible(True)
                 self.adjustSize()
                 self._reposition()
                 self.show()
@@ -1438,6 +1481,8 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_utility=None,
+    on_set_combat=None,
+    on_set_combat_style=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -1507,6 +1552,32 @@ def show_main_menu(
     include_planned = get_config_bool("ankiscape_developer_mode", False)
     hub = build_skill_hub(include_planned=include_planned)
 
+    combat_card = SkillCardView(
+        skill_id="combat",
+        display_name=_COMBAT_HUB_NAME,
+        category="combat",
+        implemented=True,
+        selectable_for_review=True,
+    )
+    combat_inserted = False
+    combat_hub = []
+    for category in hub:
+        if category.category_id == "combat":
+            skills = tuple(skill for skill in category.skills if skill.display_name != _COMBAT_HUB_NAME)
+            combat_hub.append(
+                CategoryView(
+                    category_id=category.category_id,
+                    display_name=category.display_name,
+                    skills=(combat_card,) + skills,
+                )
+            )
+            combat_inserted = True
+        else:
+            combat_hub.append(category)
+    if not combat_inserted:
+        combat_hub.append(CategoryView(category_id="combat", display_name=_COMBAT_HUB_NAME, skills=(combat_card,)))
+    hub = tuple(combat_hub)
+
     # Append a synthetic Utility / Activities category. It is not a registry
     # skill (no XP/level), so it is injected at the view layer and rendered with
     # its own no-XP target list rather than the level-based skill panel.
@@ -1521,7 +1592,7 @@ def show_main_menu(
         CategoryView(category_id="utility", display_name=_UTILITY_HUB_NAME, skills=(utility_card,)),
     )
 
-    _active_choices = set(playable_review_skill_names()) | {"Quests"} | _UTILITY_SKILL_NAMES
+    _active_choices = set(playable_review_skill_names()) | {_COMBAT_HUB_NAME, "Quests"} | _UTILITY_SKILL_NAMES
 
     # Mutable selection state (nested closures cannot rebind plain locals).
     state = {
@@ -1581,7 +1652,18 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _combat_available() -> bool:
+        try:
+            return any(
+                not combat_target_locked_reasons_pure(player_data, target, COMBAT_ENEMY_DATA)
+                for target in COMBAT_ENEMY_DATA
+            )
+        except Exception:
+            return False
+
     def _skill_available(display_name: str) -> bool:
+        if display_name == _COMBAT_HUB_NAME:
+            return _combat_available()
         if display_name == "Smithing":
             return bool(can_smelt_any_bar)
         if display_name == "Crafting":
@@ -1629,6 +1711,9 @@ def show_main_menu(
             return
         if display_name == "Runecrafting" and not _runecrafting_available():
             warn.setText("You can't runecraft anything yet. Complete Rune Mysteries and gather access items first!")
+            return
+        if display_name == _COMBAT_HUB_NAME and not _combat_available():
+            warn.setText("You can't fight any source-backed combat target yet.")
             return
         warn.setText("")
         state["active"] = display_name
@@ -1914,6 +1999,51 @@ def show_main_menu(
             group_order=list(RUNECRAFTING_GROUP_LABELS),
         )
 
+    def _build_combat_list() -> QWidget:
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
+
+        style_row = QWidget()
+        style_layout = QHBoxLayout(style_row)
+        style_layout.setContentsMargins(0, 0, 0, 0)
+        style_layout.setSpacing(8)
+        style_label = QLabel("Style")
+        style_label.setStyleSheet("color: palette(text);")
+        style_combo = QComboBox()
+        current_style = player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)
+        selected_index = 0
+        for style_id, spec in COMBAT_ATTACK_STYLE_DATA.items():
+            style_combo.addItem(str(spec.get("display_name", style_id)), style_id)
+            if style_id == current_style:
+                selected_index = style_combo.count() - 1
+        style_combo.setCurrentIndex(selected_index)
+        if on_set_combat_style is not None:
+            style_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_style(style_combo.currentData() or DEFAULT_COMBAT_ATTACK_STYLE)
+            )
+        style_layout.addWidget(style_label)
+        style_layout.addWidget(style_combo, 1)
+        layout.addWidget(style_row)
+
+        combat_images = _item_asset_paths()
+        tree = _build_grouped_target_tree(
+            combat_target_rows(
+                player_data,
+                COMBAT_ENEMY_DATA,
+                combat_images,
+                EQUIPMENT_ITEM_DATA,
+                DEFAULT_COMBAT_TARGET,
+            ),
+            {group: group for group in COMBAT_TARGET_GROUP_ORDER},
+            "__combat_group__:",
+            on_set_combat,
+            group_order=list(COMBAT_TARGET_GROUP_ORDER),
+        )
+        layout.addWidget(tree, 1)
+        return container
+
     def _build_utility_list() -> QTreeWidget:
         tree = QTreeWidget()
         tree.setHeaderHidden(True)
@@ -2002,6 +2132,7 @@ def show_main_menu(
         "Hunter": _build_hunter_list,
         "Cooking": _build_cooking_list,
         "Runecrafting": _build_runecrafting_list,
+        _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
     _TARGET_PROMPTS = {
@@ -2015,6 +2146,7 @@ def show_main_menu(
         "Hunter": "Select Creature to Hunt",
         "Cooking": "Select Food to Cook",
         "Runecrafting": "Select Runecrafting Action",
+        _COMBAT_HUB_NAME: "Select Enemy and Style",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
@@ -2160,6 +2292,7 @@ def show_main_menu(
             return
 
         is_utility = name in _UTILITY_SKILL_NAMES
+        is_combat = name == _COMBAT_HUB_NAME
         header = QWidget()
         hl = QHBoxLayout(header)
         hl.setContentsMargins(0, 0, 0, 0)
@@ -2167,6 +2300,8 @@ def show_main_menu(
         if is_utility:
             # No level/XP for Utility; keep the title bare and flag the no-XP nature.
             title = QLabel(name)
+        elif is_combat:
+            title = QLabel(f"{name} — Lv {player_combat_level_pure(player_data)}")
         elif card.implemented:
             level = player_data.get(f"{name.lower()}_level", 1)
             title = QLabel(f"{name} — Lv {level}")
@@ -2214,6 +2349,8 @@ def show_main_menu(
                         train_btn.setToolTip("Gather raw food or prep ingredients before training Cooking.")
                     elif name == "Runecrafting":
                         train_btn.setToolTip("Complete Rune Mysteries and gather essence plus altar access.")
+                    elif name == _COMBAT_HUB_NAME:
+                        train_btn.setToolTip("Select an available enemy.")
             train_btn.clicked.connect(lambda _=False, n=name: _set_active(n))
             hl.addWidget(train_btn)
             if name == "Smithing":

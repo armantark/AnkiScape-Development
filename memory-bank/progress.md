@@ -127,13 +127,26 @@
 - Smithing backend parity is in place: source-generated `smithing_data.py`, unified `SMITHING_DATA` smelt/forge recipes, all 9 bars, all 157 forge rows from `BarProducts.kt`, stable `current_smith` recipe IDs, storage config version 9, canonical `Adamant bar`/`Rune bar` names, forged item manifest registration, runtime review dispatch through the unified pure Smithing helper, and source-shaped iron smelt failure. Iron bars use the local 2011Scape 50% to 80% success curve over Smithing levels 15 to 45, consume ore on failure, and record `smelt_fail` telemetry; other furnace bars stay deterministic.
 - Equipment backend is in place: generated `equipment_data.py` covers Smithing armour/weapons plus Mining bonus gear, `player_data["equipment"]` replaces `owned_equipment`, combat level defaults are scaffolded, pure equip/unequip/stat-total helpers exist, and runtime exposes `on_equip_item` / `on_unequip_slot` for the Equipment tab.
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
+- Combat V1 ordinary training is in place. `combat_data.py` seeds the first
+  source-backed enabled enemies (Chicken, Rat, Giant rat, Cow), melee attack
+  styles, food healing values, and combat drop items from local 2011Scape
+  source paths. `apply_combat_burst_pure()` simulates bounded 0.6s-tick combat
+  bursts from `Actions per review`, caps each successful review at one kill,
+  persists player/enemy lifepoints, applies source-shaped melee accuracy/max-hit
+  formulas, awards damage-based Attack/Strength/Defence/controlled/Constitution
+  XP, rolls guaranteed and per-table drops, consumes configured auto-eat food,
+  and snapshots the result for undo-safe review transactions. Combat appears as
+  a synthetic Skills-hub action with target and attack-style controls, HUD
+  lifepoint/target state, runtime dispatch/telemetry/save handling, storage
+  defaults/migration, and focused unit/integration/offscreen Qt coverage.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
-- Combat training and combat encounters. Combat V1 design is complete in
-  `memory-bank/combat-design-grill-2026-06-23.md`, but no runtime combat engine,
-  Combat tab, enemy registry, drop registry, death/grave flow, supply loadout,
-  or full quest-combat engine replacement is implemented yet.
+- Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
+  import, ranged/magic/ammo/rune combat routing, richer assets, confirmation UX
+  for dangerous targets, full grave/Death's Office recovery, and migrating
+  quest combat gates from the lightweight resolver onto the shared combat
+  engine.
 - Full quest-stage minute-detail parity. The generator now preserves broad
   quest-wide source fields, but exact per-stage placement, override merge/source
   reconciliation, route flags, required action flags, partner/branch state,

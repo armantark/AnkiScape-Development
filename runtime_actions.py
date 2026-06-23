@@ -16,8 +16,11 @@ try:
         BIRD_NEST_DROP_CHANCE,
         BIRD_NEST_DROP_TABLE,
         BIRD_NEST_OPEN_TABLES,
+        COMBAT_BURST_TICKS,
+        COMBAT_ENEMY_DATA,
         COOKING_DATA,
         CRAFTING_DATA,
+        DEFAULT_COMBAT_TARGET,
         DEFAULT_COOKING_TARGET,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FLETCHING_TARGET,
@@ -27,6 +30,8 @@ try:
         DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         DEFAULT_WOODCUTTING_TARGET,
+        EQUIPMENT_DATA,
+        EXP_TABLE,
         FIREMAKING_DATA,
         FISHING_DATA,
         HUNTER_DATA,
@@ -47,6 +52,7 @@ try:
         WOODCUTTING_AXE_DATA,
     )
     from .logic_pure import (
+        apply_combat_burst_pure,
         apply_cooking_action_pure,
         apply_crafting_pure,
         apply_firemaking_action_pure,
@@ -69,6 +75,7 @@ try:
         calculate_hunter_success_probability_pure,
         calculate_mining_success_probability_pure,
         calculate_woodcutting_success_probability_pure,
+        calculate_new_level,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
         can_attempt_quest_review_pure,
@@ -77,6 +84,7 @@ try:
         can_smith_item_pure,
         can_start_quest_pure,
         cooking_target_locked_reasons_pure,
+        combat_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
@@ -106,8 +114,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         BIRD_NEST_DROP_CHANCE,
         BIRD_NEST_DROP_TABLE,
         BIRD_NEST_OPEN_TABLES,
+        COMBAT_BURST_TICKS,
+        COMBAT_ENEMY_DATA,
         COOKING_DATA,
         CRAFTING_DATA,
+        DEFAULT_COMBAT_TARGET,
         DEFAULT_COOKING_TARGET,
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FLETCHING_TARGET,
@@ -117,6 +128,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         DEFAULT_RUNECRAFTING_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         DEFAULT_WOODCUTTING_TARGET,
+        EQUIPMENT_DATA,
+        EXP_TABLE,
         FIREMAKING_DATA,
         FISHING_DATA,
         HUNTER_DATA,
@@ -137,6 +150,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         WOODCUTTING_AXE_DATA,
     )
     from logic_pure import (  # type: ignore
+        apply_combat_burst_pure,
         apply_cooking_action_pure,
         apply_crafting_pure,
         apply_firemaking_action_pure,
@@ -159,6 +173,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         calculate_hunter_success_probability_pure,
         calculate_mining_success_probability_pure,
         calculate_woodcutting_success_probability_pure,
+        calculate_new_level,
         can_chop_woodcutting_target_pure,
         can_craft_item_pure,
         can_attempt_quest_review_pure,
@@ -167,6 +182,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         can_smith_item_pure,
         can_start_quest_pure,
         cooking_target_locked_reasons_pure,
+        combat_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
@@ -211,6 +227,7 @@ class RuntimeActionContext:
     show_activity_gain: Callable[[str], None]
     implemented_exp_keys_snapshot: Callable[[], dict[str, float]]
     show_quest_exp_delta: Callable[[dict[str, float]], None]
+    review_action_multiplier: int = 1
 
 
 def missing_materials_text(requirements: dict[str, int], inventory: dict[str, Any]) -> str:
@@ -294,6 +311,115 @@ def _record_action(
         output_items=output_items,
         failure_kind=failure_kind,
     )
+
+
+_COMBAT_EXP_SKILLS = {
+    "attack_exp": "attack",
+    "strength_exp": "strength",
+    "defense_exp": "defense",
+    "constitution_exp": "constitution",
+    "ranged_exp": "ranged",
+    "magic_exp": "magic",
+}
+
+
+def _combat_review_ticks(ctx: RuntimeActionContext) -> int:
+    try:
+        multiplier = int(ctx.review_action_multiplier)
+    except (TypeError, ValueError):
+        multiplier = 1
+    return COMBAT_BURST_TICKS * max(1, multiplier)
+
+
+def _refresh_combat_levels(ctx: RuntimeActionContext, xp_rewards: Any) -> None:
+    if not isinstance(xp_rewards, dict):
+        return
+    for exp_key, amount in xp_rewards.items():
+        try:
+            gained = float(amount or 0.0)
+        except (TypeError, ValueError):
+            gained = 0.0
+        if gained <= 0:
+            continue
+        skill = get_skill(_COMBAT_EXP_SKILLS.get(str(exp_key), ""))
+        if skill is None:
+            continue
+        ctx.player_data[skill.level_key] = calculate_new_level(
+            ctx.player_data.get(skill.exp_key, 0),
+            ctx.player_data.get(skill.level_key, 1),
+            EXP_TABLE,
+        )
+        ctx.level_up_check(skill.display_name, ctx.player_data)
+
+
+def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    if target_id not in COMBAT_ENEMY_DATA:
+        target_id = DEFAULT_COMBAT_TARGET
+        player_data["current_combat_target"] = target_id
+
+    locked_reasons = combat_target_locked_reasons_pure(player_data, target_id, COMBAT_ENEMY_DATA)
+    if locked_reasons:
+        enemy = COMBAT_ENEMY_DATA.get(target_id, {})
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Combat unavailable",
+            f"{enemy.get('display_name', target_id)} cannot be fought yet: {', '.join(locked_reasons)}.",
+        )
+        return False
+
+    new_data, ok, result = apply_combat_burst_pure(
+        player_data,
+        COMBAT_ENEMY_DATA,
+        EQUIPMENT_DATA,
+        ticks=_combat_review_ticks(ctx),
+        rng=ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        reasons = result.get("locked_reasons") if isinstance(result, dict) else None
+        reason_text = ", ".join(reasons) if reasons else "the selected target is unavailable"
+        ctx.show_error_message("Combat unavailable", f"Combat has been switched off because {reason_text}.")
+        return False
+
+    player_data.update(new_data)
+    drops = result.get("drops", {}) if isinstance(result, dict) else {}
+    if not isinstance(drops, dict):
+        drops = {}
+    _record_action(
+        ctx,
+        "combat",
+        str(result.get("target_id", target_id)),
+        True,
+        expected_success_chance=1.0,
+        output_items={str(item): int(amount) for item, amount in drops.items() if isinstance(item, str)},
+    )
+    _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+
+    xp_total = 0.0
+    for amount in (result.get("xp_rewards", {}) or {}).values():
+        try:
+            xp_total += float(amount or 0.0)
+        except (TypeError, ValueError):
+            pass
+    if xp_total > 0:
+        ctx.show_exp(xp_total)
+
+    display_name = str(result.get("display_name") or "enemy")
+    if result.get("died"):
+        ctx.show_activity_gain(f"Defeated by {display_name}; gear moved to grave")
+    elif result.get("killed"):
+        ctx.show_activity_gain(f"Defeated {display_name}")
+    else:
+        ctx.show_activity_gain(
+            f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
+            f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
+        )
+    return True
 
 
 def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None) -> dict[str, int]:
@@ -1264,6 +1390,11 @@ def _can_start_runecrafting_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_combat_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    return not combat_target_locked_reasons_pure(ctx.player_data, target, COMBAT_ENEMY_DATA)
+
+
 def _can_start_quest_action(ctx: RuntimeActionContext) -> bool:
     quest_id = ctx.player_data.get("current_quest", "rune_mysteries")
     return can_attempt_quest_review_pure(ctx.player_data, quest_id, QUEST_DATA)
@@ -1331,6 +1462,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "hunter": _can_start_hunter_action,
     "cooking": _can_start_cooking_action,
     "runecrafting": _can_start_runecrafting_action,
+    "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
 }
@@ -1347,6 +1479,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "hunter": handle_hunter_answer,
     "cooking": handle_cooking_answer,
     "runecrafting": handle_runecrafting_answer,
+    "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,
 }

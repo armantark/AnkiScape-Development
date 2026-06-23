@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Combat V1 Complete</title>
+  <style>
+    :root {
+      --bg: #0e1116;
+      --panel: #151b23;
+      --panel-2: #10161d;
+      --text: #e7edf4;
+      --muted: #9da9b7;
+      --line: #2d3846;
+      --green: #42c27a;
+      --blue: #61a8ff;
+      --amber: #f1b84b;
+      --red: #ff6b6b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 28px; }
+    header {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: 1fr auto;
+      align-items: end;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0; font-size: clamp(30px, 5vw, 56px); line-height: 0.98; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 16px; letter-spacing: 0; }
+    .sub { color: var(--muted); max-width: 780px; margin-top: 10px; }
+    .stamp {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      padding: 12px 14px;
+      min-width: 180px;
+      text-align: right;
+    }
+    .stamp strong { color: var(--green); display: block; font-size: 20px; }
+    .grid { display: grid; gap: 16px; margin-top: 20px; }
+    .cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .cols-2 { grid-template-columns: 1.1fr 0.9fr; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-width: 0;
+    }
+    .metric { color: var(--muted); font-size: 12px; text-transform: uppercase; }
+    .value { margin-top: 6px; font-size: 28px; font-weight: 750; }
+    .value.green { color: var(--green); }
+    .value.blue { color: var(--blue); }
+    .value.amber { color: var(--amber); }
+    ul { margin: 0; padding-left: 18px; }
+    li { margin: 8px 0; }
+    code {
+      background: #0b1016;
+      border: 1px solid #223041;
+      border-radius: 5px;
+      padding: 1px 5px;
+      color: #d9e8ff;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .step {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 106px;
+    }
+    .step b { display: block; color: var(--blue); margin-bottom: 6px; }
+    .table { display: grid; gap: 8px; }
+    .row {
+      display: grid;
+      grid-template-columns: 0.7fr 0.5fr 1fr;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 6px;
+      align-items: center;
+    }
+    .row .name { font-weight: 700; }
+    .tag {
+      display: inline-block;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 2px 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .ok { color: var(--green); }
+    .warn { color: var(--amber); }
+    .footer {
+      color: var(--muted);
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+    @media (max-width: 860px) {
+      .wrap { padding: 18px; }
+      header, .cols-4, .cols-2, .flow { grid-template-columns: 1fr; }
+      .stamp { text-align: left; }
+      .row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Combat V1 is implemented</h1>
+        <div class="sub">
+          Ordinary Combat now runs as a real review action with source-backed enemies, tick simulation,
+          melee XP routing, drops, auto-eat, persistence, HUD state, and tests.
+        </div>
+      </div>
+      <div class="stamp">
+        <span>2026-06-23</span>
+        <strong>Green</strong>
+        <span>557 + Qt suite</span>
+      </div>
+    </header>
+
+    <section class="grid cols-4">
+      <div class="card"><div class="metric">Enabled enemies</div><div class="value green">4</div><div class="sub">Chicken, Rat, Giant rat, Cow</div></div>
+      <div class="card"><div class="metric">Combat burst</div><div class="value blue">50</div><div class="sub">ticks per Actions-per-review step</div></div>
+      <div class="card"><div class="metric">Review cap</div><div class="value amber">1</div><div class="sub">kill maximum per successful card</div></div>
+      <div class="card"><div class="metric">Storage version</div><div class="value">21</div><div class="sub">flat save model preserved</div></div>
+    </section>
+
+    <section class="grid cols-2">
+      <div class="card">
+        <h2>What landed</h2>
+        <div class="flow">
+          <div class="step"><b>Source data</b>Enemy stats, styles, food healing, drops, and item provenance live in <code>combat_data.py</code>.</div>
+          <div class="step"><b>Engine</b><code>apply_combat_burst_pure()</code> simulates attacks, damage, XP, food, drops, death, and persistent HP.</div>
+          <div class="step"><b>Runtime</b><code>Combat</code> is routed through review actions, telemetry, saves, HUD feedback, and undo snapshots.</div>
+          <div class="step"><b>UI</b>The Skills hub has a Combat card, enemy tree, attack-style selector, and Combat HUD state.</div>
+          <div class="step"><b>Tests</b>Unit, runtime, storage, target metadata, registry, HUD, integration, and offscreen Qt suites pass.</div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Enemy rows</h2>
+        <div class="table">
+          <div class="row"><span class="name">Chicken</span><span class="tag">Lvl 1</span><span>Bones, Raw chicken, Feather table</span></div>
+          <div class="row"><span class="name">Rat</span><span class="tag">Lvl 1</span><span>Bones</span></div>
+          <div class="row"><span class="name">Giant rat</span><span class="tag">Lvl 2</span><span>Bones, Raw rat meat</span></div>
+          <div class="row"><span class="name">Cow</span><span class="tag">Lvl 2</span><span>Bones, Raw beef, Cowhide, Sling, charms</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid cols-2">
+      <div class="card">
+        <h2>Verification</h2>
+        <ul>
+          <li><span class="ok">Passed</span> <code>python3 -m py_compile combat_data.py constants.py logic_pure.py storage_pure.py action_registry.py runtime_actions.py target_metadata.py ui.py __init__.py</code></li>
+          <li><span class="ok">Passed</span> focused Combat/touched test set: 117 tests.</li>
+          <li><span class="ok">Passed</span> <code>python3 run_tests.py</code>: 557 tests, 126 skipped.</li>
+          <li><span class="ok">Passed</span> <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code>: 557 tests.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Still deferred</h2>
+        <ul>
+          <li>Broader monster registry, especially global tables and special mechanics.</li>
+          <li>Ranged, Magic, ammo, runes, spell choice, and noncombat Magic.</li>
+          <li>Dangerous-target confirmation and richer risk previews.</li>
+          <li>Full grave countdown and Death's Office reclaim UI.</li>
+          <li>Quest combat migration from the lightweight resolver onto the shared engine.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="footer">
+      Memory Bank updated: <code>future-work-kanban.md</code>, <code>progress.md</code>,
+      <code>activeContext.md</code>, <code>combat-design-grill-2026-06-23.md</code>, and
+      <code>source-audits/combat-v1-implementation-2026-06-23.md</code>.
+    </div>
+  </div>
+</body>
+</html>

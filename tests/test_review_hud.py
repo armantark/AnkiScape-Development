@@ -67,6 +67,7 @@ class TestCurrentTargetDisplayName(unittest.TestCase):
             "Cooking": ("current_cooking", "cook_shrimps", "Cook raw shrimps"),
             "Runecrafting": ("current_runecrafting", "craft_air_runes", "Air runes"),
             "Quests": ("current_quest", "rune_mysteries", "Rune Mysteries"),
+            "Combat": ("current_combat_target", "giant_rat", "Giant rat"),
         }
         for skill, (key, target_id, expected) in cases.items():
             with self.subTest(skill=skill):

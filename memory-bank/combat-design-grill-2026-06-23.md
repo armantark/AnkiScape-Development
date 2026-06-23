@@ -1,6 +1,9 @@
 # Combat Design Grill - 2026-06-23
 
-Status: complete design grill log.
+Status: complete design grill log. The first Combat V1 ordinary-training
+implementation landed on 2026-06-23; see
+`memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` for the
+implemented source-backed scope and remaining Combat follow-ups.
 
 This note records only major Combat V1 design decisions made with the owner so
 they do not get lost between planning and implementation. It is intentionally a

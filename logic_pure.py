@@ -1,7 +1,7 @@
 # logic_pure.py - Pure logic functions for AnkiScape (no Anki dependencies)
 from __future__ import annotations
 
-from math import sqrt
+from math import floor, sqrt
 from typing import Iterable, Mapping, Optional
 
 try:
@@ -13,6 +13,29 @@ try:
     from .skill_registry import get_skill, implemented_skill_definitions
 except ImportError:
     from skill_registry import get_skill, implemented_skill_definitions
+
+try:
+    from .combat_data import (
+        COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_BURST_TICKS,
+        COMBAT_ENEMY_DATA,
+        COMBAT_FOOD_DATA,
+        DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_TARGET,
+        MELEE_FORMULA_SOURCE_PATH,
+        MELEE_STRATEGY_SOURCE_PATH,
+    )
+except ImportError:
+    from combat_data import (  # type: ignore
+        COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_BURST_TICKS,
+        COMBAT_ENEMY_DATA,
+        COMBAT_FOOD_DATA,
+        DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_TARGET,
+        MELEE_FORMULA_SOURCE_PATH,
+        MELEE_STRATEGY_SOURCE_PATH,
+    )
 
 REVIEW_SUCCESS_MINIMUM = 0.20
 REVIEW_SUCCESS_SCALE = 0.72
@@ -907,6 +930,522 @@ def equipment_stat_totals_pure(
     return EquipmentBonuses(**totals)
 
 
+_DEFAULT_COMBAT_AUTO_EAT_FOOD = (
+    "Shark",
+    "Swordfish",
+    "Lobster",
+    "Tuna",
+    "Salmon",
+    "Trout",
+    "Cooked meat",
+    "Cooked chicken",
+    "Shrimps",
+    "Crayfish",
+)
+SAFE_COMBAT_RECOVERY_LIFEPOINTS = 100
+
+
+def combat_max_lifepoints_pure(player_data):
+    return max(10, _positive_int(player_data.get("constitution_level", 10), 10) * 10)
+
+
+def default_combat_state_pure():
+    return {
+        "current_combat_target": DEFAULT_COMBAT_TARGET,
+        "combat_attack_style": DEFAULT_COMBAT_ATTACK_STYLE,
+        "combat_lifepoints": 100,
+        "combat_auto_eat_threshold_percent": 40,
+        "combat_auto_eat_food": list(_DEFAULT_COMBAT_AUTO_EAT_FOOD),
+        "combat_encounter": {},
+        "combat_kill_counts": {},
+        "combat_last_result": {},
+        "combat_grave": {},
+        "death_office": {},
+    }
+
+
+def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    style_data = style_data or COMBAT_ATTACK_STYLE_DATA
+    defaults = default_combat_state_pure()
+    target = player_data.get("current_combat_target", defaults["current_combat_target"])
+    if target not in enemy_data:
+        target = defaults["current_combat_target"]
+    if target not in enemy_data and enemy_data:
+        target = next(iter(enemy_data))
+    style = player_data.get("combat_attack_style", defaults["combat_attack_style"])
+    if style not in style_data:
+        style = defaults["combat_attack_style"]
+    max_lp = combat_max_lifepoints_pure(player_data)
+    current_lp = _positive_int(player_data.get("combat_lifepoints", max_lp), max_lp)
+    auto_food_raw = player_data.get("combat_auto_eat_food", defaults["combat_auto_eat_food"])
+    if isinstance(auto_food_raw, str):
+        auto_food = [auto_food_raw]
+    elif isinstance(auto_food_raw, Iterable):
+        auto_food = [str(item) for item in auto_food_raw if isinstance(item, str) and item in COMBAT_FOOD_DATA]
+    else:
+        auto_food = []
+    if not auto_food:
+        auto_food = list(defaults["combat_auto_eat_food"])
+    encounter = player_data.get("combat_encounter", {}) or {}
+    if not isinstance(encounter, Mapping):
+        encounter = {}
+    kill_counts = player_data.get("combat_kill_counts", {}) or {}
+    if not isinstance(kill_counts, Mapping):
+        kill_counts = {}
+    return {
+        "current_combat_target": target,
+        "combat_attack_style": style,
+        "combat_lifepoints": max(0, min(current_lp, max_lp)),
+        "combat_auto_eat_threshold_percent": max(
+            1,
+            min(_positive_int(player_data.get("combat_auto_eat_threshold_percent", 40), 40), 99),
+        ),
+        "combat_auto_eat_food": auto_food,
+        "combat_encounter": dict(encounter),
+        "combat_kill_counts": {
+            str(target_id): _positive_int(count, 0)
+            for target_id, count in kill_counts.items()
+            if isinstance(target_id, str)
+        },
+        "combat_last_result": dict(player_data.get("combat_last_result", {}) or {}),
+        "combat_grave": dict(player_data.get("combat_grave", {}) or {}),
+        "death_office": dict(player_data.get("death_office", {}) or {}),
+    }
+
+
+def combat_enemy_current_lifepoints_pure(player_data, target_id, enemy_data=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    enemy = enemy_data.get(target_id)
+    if enemy is None:
+        return 0
+    encounter = player_data.get("combat_encounter", {}) or {}
+    if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
+        return max(0, min(_positive_int(encounter.get("enemy_lifepoints", 0), 0), _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0)))
+    return _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0)
+
+
+def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, style_data=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    style_data = style_data or COMBAT_ATTACK_STYLE_DATA
+    enemy = enemy_data.get(target_id)
+    if enemy is None:
+        return ("unknown enemy",)
+    stats = enemy.get("stats", {})
+    if not isinstance(stats, Mapping) or _positive_int(stats.get("hitpoints", 0), 0) <= 0:
+        return ("missing source combat stats",)
+    drops = enemy.get("drops")
+    if not isinstance(drops, Mapping):
+        return ("missing source drop behavior",)
+    style_id = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    style = style_data.get(style_id)
+    if not isinstance(style, Mapping):
+        return ("invalid attack style",)
+    if style.get("combat_class") != "melee":
+        return ("unsupported combat class",)
+    return tuple()
+
+
+def _combat_attack_bonus_from_totals(totals):
+    return max(
+        _equipment_bonus_value(totals, "attack_stab"),
+        _equipment_bonus_value(totals, "attack_slash"),
+        _equipment_bonus_value(totals, "attack_crush"),
+    )
+
+
+def _combat_defence_bonus_from_totals(totals):
+    return max(
+        _equipment_bonus_value(totals, "defence_stab"),
+        _equipment_bonus_value(totals, "defence_slash"),
+        _equipment_bonus_value(totals, "defence_crush"),
+    )
+
+
+def _combat_enemy_bonuses(enemy):
+    bonuses = enemy.get("bonuses", {}) if isinstance(enemy, Mapping) else {}
+    if not isinstance(bonuses, Mapping):
+        bonuses = {}
+    return EquipmentBonuses(**{field: _signed_int(bonuses.get(field, 0), 0) for field in EQUIPMENT_BONUS_FIELDS})
+
+
+def _signed_int(value, default=0):
+    if isinstance(value, bool):
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _combat_effective_player_attack_level(player_data, style_id):
+    level = _positive_int(player_data.get("attack_level", 1), 1)
+    style_bonus = 3 if style_id == "accurate" else 1 if style_id == "controlled" else 0
+    return floor(level) + style_bonus + 8
+
+
+def _combat_effective_player_strength_level(player_data, style_id):
+    level = _positive_int(player_data.get("strength_level", 1), 1)
+    style_bonus = 3 if style_id == "aggressive" else 1
+    return floor(level) + style_bonus + 8
+
+
+def _combat_effective_player_defence_level(player_data, style_id):
+    level = _positive_int(player_data.get("defense_level", 1), 1)
+    style_bonus = 3 if style_id == "defensive" else 1 if style_id == "controlled" else 0
+    return floor(level) + style_bonus + 8
+
+
+def _combat_accuracy(attacker_roll, defender_roll):
+    attacker_roll = max(0, float(attacker_roll))
+    defender_roll = max(0, float(defender_roll))
+    if attacker_roll > defender_roll:
+        return max(0.0, min(1.0, 1.0 - (defender_roll + 2.0) / (2.0 * (attacker_roll + 1.0))))
+    return max(0.0, min(1.0, attacker_roll / (2.0 * (defender_roll + 1.0))))
+
+
+def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
+    return max(0.0, 0.5 + float(effective_strength) * (float(strength_bonus) + 64.0) / 640.0)
+
+
+def _combat_npc_xp_multiplier(enemy):
+    stats = enemy.get("stats", {}) if isinstance(enemy, Mapping) else {}
+    bonuses = enemy.get("bonuses", {}) if isinstance(enemy, Mapping) else {}
+    if not isinstance(stats, Mapping):
+        stats = {}
+    if not isinstance(bonuses, Mapping):
+        bonuses = {}
+    average_level = floor(
+        (
+            _positive_int(stats.get("attack", 1), 1)
+            + _positive_int(stats.get("strength", 1), 1)
+            + _positive_int(stats.get("defence", 1), 1)
+            + _positive_int(stats.get("hitpoints", 1), 1)
+        )
+        / 4.0
+    )
+    average_defence_bonus = floor(
+        (
+            _signed_int(bonuses.get("defence_stab", 0), 0)
+            + _signed_int(bonuses.get("defence_slash", 0), 0)
+            + _signed_int(bonuses.get("defence_crush", 0), 0)
+        )
+        / 3.0
+    )
+    attack_bonus = max(
+        _signed_int(bonuses.get("attack_stab", 0), 0),
+        _signed_int(bonuses.get("attack_slash", 0), 0),
+        _signed_int(bonuses.get("attack_crush", 0), 0),
+    )
+    strength_bonus = _signed_int(bonuses.get("melee_strength", 0), 0)
+    source_multiplier = _non_negative_float(enemy.get("xp_multiplier", 1.0), 1.0)
+    return (
+        1.0
+        + floor(average_level * (average_defence_bonus + strength_bonus + attack_bonus) / 5120.0) / 40.0
+    ) * source_multiplier
+
+
+def _combat_roll_damage_lifepoints(max_hit_old_hp, rng):
+    max_damage = max(0.0, float(max_hit_old_hp) * 10.0)
+    if max_damage <= 0:
+        return 0
+    try:
+        roll = float(rng())
+    except (TypeError, ValueError):
+        roll = 0.0
+    return max(0, int(max(0.0, min(roll, 0.999999999)) * max_damage))
+
+
+def _combat_apply_xp(xp_rewards, style_id, damage_lifepoints, npc_xp_multiplier):
+    if damage_lifepoints <= 0:
+        return
+    combat_xp = float(damage_lifepoints) * 0.4 * npc_xp_multiplier
+    constitution_xp = float(damage_lifepoints) * 0.133 * npc_xp_multiplier
+    shared_xp = float(damage_lifepoints) * 0.133 * npc_xp_multiplier
+    if style_id == "accurate":
+        xp_rewards["attack_exp"] = xp_rewards.get("attack_exp", 0.0) + combat_xp
+    elif style_id == "aggressive":
+        xp_rewards["strength_exp"] = xp_rewards.get("strength_exp", 0.0) + combat_xp
+    elif style_id == "defensive":
+        xp_rewards["defense_exp"] = xp_rewards.get("defense_exp", 0.0) + combat_xp
+    elif style_id == "controlled":
+        for exp_key in ("attack_exp", "strength_exp", "defense_exp"):
+            xp_rewards[exp_key] = xp_rewards.get(exp_key, 0.0) + shared_xp
+    xp_rewards["constitution_exp"] = xp_rewards.get("constitution_exp", 0.0) + constitution_xp
+
+
+def _combat_roll_drops(enemy, rng):
+    drops = {}
+    drop_spec = enemy.get("drops", {}) if isinstance(enemy, Mapping) else {}
+    if not isinstance(drop_spec, Mapping):
+        return drops
+    for item_name, quantity in drop_spec.get("guaranteed", ()) or ():
+        if isinstance(item_name, str):
+            drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(quantity, 1))
+    for table in drop_spec.get("tables", ()) or ():
+        if not isinstance(table, Mapping):
+            continue
+        total = _positive_int(table.get("total", 0), 0)
+        slots = tuple(row for row in table.get("slots", ()) or () if isinstance(row, Mapping))
+        if total <= 0 or not slots:
+            continue
+        try:
+            roll = float(rng())
+        except (TypeError, ValueError):
+            roll = 0.0
+        threshold = int(max(0.0, min(roll, 0.999999999)) * total)
+        cursor = 0
+        for slot in slots:
+            cursor += _positive_int(slot.get("slots", 0), 0)
+            if threshold >= cursor:
+                continue
+            item_name = slot.get("item")
+            if isinstance(item_name, str):
+                drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(slot.get("quantity", 1), 1))
+            break
+    return drops
+
+
+def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
+    threshold_percent = _positive_int(data.get("combat_auto_eat_threshold_percent", 40), 40)
+    threshold = max(1, int(max_lifepoints * threshold_percent / 100.0))
+    if current_lifepoints > threshold or current_lifepoints >= max_lifepoints:
+        return current_lifepoints, None
+    inventory = data.get("inventory", {}) or {}
+    for item_name in data.get("combat_auto_eat_food", ()) or ():
+        food = COMBAT_FOOD_DATA.get(item_name)
+        if not food or _positive_int(inventory.get(item_name, 0), 0) <= 0:
+            continue
+        inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) - 1
+        healed_by = _positive_int(food.get("heal_lifepoints", 0), 0)
+        return min(max_lifepoints, current_lifepoints + healed_by), {"item": item_name, "healed_by": healed_by}
+    return current_lifepoints, None
+
+
+def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipment_data=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    enemy = enemy_data.get(target_id)
+    if enemy is None:
+        return {"state": "blocked", "risk_band": "Blocked", "reasons": ("unknown enemy",)}
+    reasons = combat_target_locked_reasons_pure(player_data, target_id, enemy_data)
+    if reasons:
+        return {"state": "blocked", "risk_band": "Blocked", "reasons": reasons}
+    equipment_data = equipment_data or {}
+    player_totals = equipment_stat_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
+    enemy_totals = _combat_enemy_bonuses(enemy)
+    style_id = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    player_attack_roll = _combat_effective_player_attack_level(player_data, style_id) * (
+        _combat_attack_bonus_from_totals(player_totals) + 64
+    )
+    enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+        _combat_defence_bonus_from_totals(enemy_totals) + 64
+    )
+    accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
+    enemy_max_hit = _combat_melee_max_hit_old_hp(
+        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
+        _equipment_bonus_value(enemy_totals, "melee_strength"),
+    )
+    max_lp = combat_max_lifepoints_pure(player_data)
+    current_lp = max(0, min(_positive_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
+    enemy_max_lp_hit = int(enemy_max_hit * 10)
+    has_food = any(
+        _positive_int((player_data.get("inventory", {}) or {}).get(item_name, 0), 0) > 0
+        for item_name in player_data.get("combat_auto_eat_food", _DEFAULT_COMBAT_AUTO_EAT_FOOD)
+        if item_name in COMBAT_FOOD_DATA
+    )
+    if enemy_max_lp_hit <= 0 or current_lp > enemy_max_lp_hit * 3:
+        risk = "Safe"
+    elif has_food:
+        risk = "Food advised"
+    else:
+        risk = "Death possible"
+    encounter = player_data.get("combat_encounter", {}) or {}
+    state = "Fighting" if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id else "Ready"
+    return {
+        "state": state,
+        "risk_band": risk,
+        "reasons": tuple(),
+        "accuracy": accuracy,
+        "enemy_max_hit": enemy_max_lp_hit,
+        "player_lifepoints": current_lp,
+        "player_max_lifepoints": max_lp,
+        "enemy_lifepoints": combat_enemy_current_lifepoints_pure(player_data, target_id, enemy_data),
+        "enemy_max_lifepoints": _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0),
+        "source": enemy.get("source", ""),
+    }
+
+
+def apply_safe_combat_recovery_pure(player_data):
+    max_lp = combat_max_lifepoints_pure(player_data)
+    current_lp = _positive_int(player_data.get("combat_lifepoints", max_lp), max_lp)
+    data = dict(player_data)
+    data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
+    grave = data.get("combat_grave", {}) or {}
+    if isinstance(grave, Mapping) and grave.get("items"):
+        grave = dict(grave)
+        remaining = max(0, _positive_int(grave.get("reviews_remaining", 5), 5) - 1)
+        grave["reviews_remaining"] = remaining
+        if remaining <= 0:
+            inventory = dict(data.get("inventory", {}) or {})
+            for item_name in grave.get("items", ()) or ():
+                if isinstance(item_name, str):
+                    inventory[item_name] = inventory.get(item_name, 0) + 1
+            data["inventory"] = inventory
+            data["combat_grave"] = {}
+        else:
+            data["combat_grave"] = grave
+    return data
+
+
+def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, ticks=None, rng=None):
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    equipment_data = equipment_data or {}
+    rng = rng or (lambda: 0.0)
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data, enemy_data))
+    target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data)
+    if locked_reasons:
+        return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
+    enemy = enemy_data[target_id]
+    style_id = str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
+    if style.get("combat_class") != "melee":
+        return player_data, False, {"reason": "unsupported_combat_class"}
+
+    max_player_lp = combat_max_lifepoints_pure(data)
+    player_lp = max(0, min(_positive_int(data.get("combat_lifepoints", max_player_lp), max_player_lp), max_player_lp))
+    enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
+    encounter = data.get("combat_encounter", {}) or {}
+    if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
+        enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
+    else:
+        enemy_lp = enemy_max_lp
+
+    player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
+    enemy_totals = _combat_enemy_bonuses(enemy)
+    weapon_name = (data.get("equipment", {}) or {}).get("weapon")
+    weapon_spec = equipment_data.get(weapon_name) if isinstance(weapon_name, str) else None
+    player_attack_speed = max(1, _positive_int(_equipment_value(weapon_spec, "attack_speed", 4), 4))
+    enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
+
+    player_attack_roll = _combat_effective_player_attack_level(data, style_id) * (_combat_attack_bonus_from_totals(player_totals) + 64)
+    enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (_combat_defence_bonus_from_totals(enemy_totals) + 64)
+    player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
+    player_max_hit = _combat_melee_max_hit_old_hp(
+        _combat_effective_player_strength_level(data, style_id),
+        _equipment_bonus_value(player_totals, "melee_strength"),
+    )
+
+    enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get("attack", 1), 1) + 8) * (
+        _combat_attack_bonus_from_totals(enemy_totals) + 64
+    )
+    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * (
+        _combat_defence_bonus_from_totals(player_totals) + 64
+    )
+    enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
+    enemy_max_hit = _combat_melee_max_hit_old_hp(
+        _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
+        _equipment_bonus_value(enemy_totals, "melee_strength"),
+    )
+
+    total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
+    next_player_attack = 0
+    next_enemy_attack = enemy_attack_speed
+    player_damage = 0
+    enemy_damage = 0
+    food_used = []
+    xp_rewards = {}
+    drops = {}
+    killed = False
+    died = False
+    npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
+
+    for tick in range(total_ticks):
+        if tick >= next_player_attack and enemy_lp > 0:
+            next_player_attack += player_attack_speed
+            landed = False
+            try:
+                landed = float(rng()) < player_accuracy
+            except (TypeError, ValueError):
+                landed = False
+            damage = _combat_roll_damage_lifepoints(player_max_hit, rng) if landed else 0
+            damage = min(enemy_lp, damage)
+            if damage > 0:
+                enemy_lp -= damage
+                player_damage += damage
+                _combat_apply_xp(xp_rewards, style_id, damage, npc_xp_multiplier)
+            if enemy_lp <= 0:
+                killed = True
+                drops = _combat_roll_drops(enemy, rng)
+                break
+
+        if tick >= next_enemy_attack and enemy_lp > 0:
+            next_enemy_attack += enemy_attack_speed
+            landed = False
+            try:
+                landed = float(rng()) < enemy_accuracy
+            except (TypeError, ValueError):
+                landed = False
+            damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
+            damage = min(player_lp, damage)
+            if damage > 0:
+                player_lp -= damage
+                enemy_damage += damage
+            if player_lp <= 0:
+                died = True
+                break
+            player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
+            if food_event:
+                food_used.append(food_event)
+
+    inventory = data.get("inventory", {}) or {}
+    for item_name, amount in drops.items():
+        inventory[item_name] = inventory.get(item_name, 0) + amount
+    data["inventory"] = inventory
+
+    for exp_key, amount in xp_rewards.items():
+        data[exp_key] = data.get(exp_key, 0.0) + amount
+
+    if killed:
+        kill_counts = dict(data.get("combat_kill_counts", {}) or {})
+        kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + 1
+        data["combat_kill_counts"] = kill_counts
+        data["combat_encounter"] = {}
+    elif died:
+        equipment = dict(data.get("equipment", {}) or {})
+        grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
+        data["equipment"] = {}
+        data["combat_grave"] = {"items": grave_items, "reviews_remaining": 5, "source": "combat_death"}
+        data["combat_encounter"] = {}
+        player_lp = max_player_lp
+    else:
+        data["combat_encounter"] = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
+
+    data["combat_lifepoints"] = player_lp
+    result = {
+        "reason": "combat_burst",
+        "target_id": target_id,
+        "display_name": enemy.get("display_name", target_id),
+        "ticks": total_ticks,
+        "player_damage": player_damage,
+        "enemy_damage": enemy_damage,
+        "enemy_lifepoints": enemy_lp,
+        "player_lifepoints": player_lp,
+        "killed": killed,
+        "died": died,
+        "food_used": tuple(food_used),
+        "drops": drops,
+        "xp_rewards": xp_rewards,
+        "player_accuracy": player_accuracy,
+        "enemy_accuracy": enemy_accuracy,
+        "formula_source": MELEE_FORMULA_SOURCE_PATH,
+        "xp_source": MELEE_STRATEGY_SOURCE_PATH,
+    }
+    data["combat_last_result"] = result
+    return data, True, result
+
+
 def bank_gear_rows_pure(player_data, pickaxe_data, axe_data, _bonus_item_data):
     """Read-only gear summary the Bank tab renders below the inventory.
 
@@ -980,6 +1519,12 @@ def _copy_player_data_with_nested(player_data):
     copied["quest_combat_encounter_counts"] = _copy_quest_side_state("quest_combat_encounter_counts")
     copied["quest_stage_actions"] = _copy_quest_side_state("quest_stage_actions")
     copied["quest_route_states"] = _copy_quest_side_state("quest_route_states")
+    copied["combat_encounter"] = dict(player_data.get("combat_encounter", {}) or {})
+    copied["combat_kill_counts"] = dict(player_data.get("combat_kill_counts", {}) or {})
+    copied["combat_last_result"] = dict(player_data.get("combat_last_result", {}) or {})
+    copied["combat_grave"] = dict(player_data.get("combat_grave", {}) or {})
+    copied["death_office"] = dict(player_data.get("death_office", {}) or {})
+    copied["combat_auto_eat_food"] = list(player_data.get("combat_auto_eat_food", []) or [])
     copied["item_charges"] = dict(player_data.get("item_charges", {}) or {})
     copied["unlocked_abilities"] = list(player_data.get("unlocked_abilities", []) or [])
     return copied

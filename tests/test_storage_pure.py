@@ -65,6 +65,16 @@ class TestStoragePure(unittest.TestCase):
             "current_hunter",
             "current_utility",
             "current_quest",
+            "current_combat_target",
+            "combat_attack_style",
+            "combat_lifepoints",
+            "combat_auto_eat_threshold_percent",
+            "combat_auto_eat_food",
+            "combat_encounter",
+            "combat_kill_counts",
+            "combat_last_result",
+            "combat_grave",
+            "death_office",
             "current_ore",
             "current_tree",
             "current_smith",
@@ -114,6 +124,16 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["current_hunter"], "catch_crimson_swift")
         self.assertEqual(data["hunter_success_count"], 0)
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
+        self.assertEqual(data["current_combat_target"], "chicken")
+        self.assertEqual(data["combat_attack_style"], "accurate")
+        self.assertEqual(data["combat_lifepoints"], 100)
+        self.assertEqual(data["combat_auto_eat_threshold_percent"], 40)
+        self.assertIn("Shrimps", data["combat_auto_eat_food"])
+        self.assertEqual(data["combat_encounter"], {})
+        self.assertEqual(data["combat_kill_counts"], {})
+        self.assertEqual(data["combat_last_result"], {})
+        self.assertEqual(data["combat_grave"], {})
+        self.assertEqual(data["death_office"], {})
         self.assertEqual(data["current_quest"], "rune_mysteries")
         self.assertEqual(data["quest_points"], 0)
         self.assertEqual(data["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
@@ -200,6 +220,11 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_hunter"], "catch_crimson_swift")
         self.assertEqual(migrated["hunter_success_count"], 0)
         self.assertEqual(migrated["action_telemetry"], {"version": 1, "actions": {}})
+        self.assertEqual(migrated["current_combat_target"], "chicken")
+        self.assertEqual(migrated["combat_attack_style"], "accurate")
+        self.assertEqual(migrated["combat_lifepoints"], 100)
+        self.assertEqual(migrated["combat_encounter"], {})
+        self.assertEqual(migrated["combat_kill_counts"], {})
         self.assertEqual(migrated["current_quest"], "rune_mysteries")
         self.assertEqual(migrated["quests"]["rune_mysteries"], {"started": False, "progress": 0, "completed": False})
         self.assertIn("swan_song", migrated["quests"])

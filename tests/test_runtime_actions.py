@@ -5,6 +5,7 @@ from runtime_actions import (
     answer_handler_for_key,
     can_start_action,
     handle_cooking_answer,
+    handle_combat_answer,
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
@@ -76,9 +77,48 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
 
+    def test_combat_handler_runs_review_burst_and_records_drops(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
+        self.assertGreater(player_data["attack_exp"], 0.0)
+        self.assertGreater(player_data["constitution_exp"], 0.0)
+        self.assertEqual(player_data["inventory"]["Bones"], 1)
+        self.assertEqual(player_data["inventory"]["Raw chicken"], 1)
+        self.assertEqual(player_data["inventory"]["Feather"], 5)
+        telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["outputs"], {"Bones": 1, "Raw chicken": 1, "Feather": 5})
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Chicken"])
+        self.assertEqual(len(calls["xp"]), 1)
+
     def test_handler_key_registry_and_readiness_share_runtime_module(self):
         self.assertIs(answer_handler_for_key("fletching"), handle_fletching_answer)
         self.assertIs(answer_handler_for_key("hunter"), handle_hunter_answer)
+        self.assertIs(answer_handler_for_key("combat"), handle_combat_answer)
 
         player_data = {
             "inventory": {"Logs": 1},
@@ -89,6 +129,19 @@ class TestRuntimeActions(unittest.TestCase):
 
         player_data["inventory"] = {}
         self.assertFalse(can_start_action(_context(player_data), "fletching"))
+
+        combat_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 100,
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+        }
+        self.assertTrue(can_start_action(_context(combat_data), "combat"))
         self.assertTrue(can_start_action(_context(player_data), "unknown"))
 
         hunter_data = {

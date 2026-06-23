@@ -387,6 +387,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         show_activity_gain=_show_activity_gain,
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
+        review_action_multiplier=_review_action_multiplier(),
     )
 
 
@@ -672,6 +673,8 @@ def _on_main_menu():
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_set_combat=lambda target: _set_value("current_combat_target", target),
+        on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
@@ -848,14 +851,18 @@ def on_good_answer():
     handler = _registered_answer_handler(current_skill)
     if handler:
         before_state = _capture_player_data_snapshot()
+        handler_key = review_action_handler_key(current_skill)
         _begin_review_feedback_context()
         try:
-            for tick_index in range(_review_action_multiplier()):
-                if tick_index > 0 and not _can_start_current_action():
-                    break
-                result = handler(_runtime_action_context())
-                if result is False or current_skill == "None":
-                    break
+            if handler_key == "combat":
+                handler(_runtime_action_context())
+            else:
+                for tick_index in range(_review_action_multiplier()):
+                    if tick_index > 0 and not _can_start_current_action():
+                        break
+                    result = handler(_runtime_action_context())
+                    if result is False or current_skill == "None":
+                        break
         finally:
             _finish_review_feedback_context()
             _remember_review_award_snapshot(before_state)
