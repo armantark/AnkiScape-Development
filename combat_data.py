@@ -543,6 +543,15 @@ GOBLIN_LEVEL_2_SOURCE_PATH = (
     "definitions/other/goblin/goblin_level_2.plugin.kts"
 )
 
+POISON_SCORPION_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/poison_scorpion_lvl_20.plugin.kts"
+)
+POISON_SPIDER_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/poison_spider_lvl_31.plugin.kts"
+)
+
 
 GOBLIN_LEVEL_2_DROPS = {
     "guaranteed": (("Bones", 1),),
@@ -1276,6 +1285,68 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/animals/seagull_level_2.plugin.kts"
         ),
     },
+    "poison_scorpion": {
+        "display_name": "Poison scorpion",
+        "level": 20,
+        "group": "Scorpions",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "poison_damage": 3,
+        "slayer_xp": 23.0,
+        "stats": {
+            "hitpoints": 230,
+            "attack": 16,
+            "strength": 17,
+            "defence": 15,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 15,
+            "defence_crush": 15,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": f"{POISON_SCORPION_SOURCE_PATH}: Npcs.POISON_SCORPION poisonDamage=3; no DropTableFactory registration",
+    },
+    "poison_spider": {
+        "display_name": "Poison spider",
+        "level": 31,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "poison_damage": 3,
+        "slayer_xp": 25.0,
+        "stats": {
+            "hitpoints": 250,
+            "attack": 28,
+            "strength": 28,
+            "defence": 28,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 20,
+            "defence_slash": 17,
+            "defence_crush": 10,
+            "defence_magic": 14,
+            "defence_ranged": 14,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": f"{POISON_SPIDER_SOURCE_PATH}: Npcs.POISON_SPIDER_1009 poisonDamage=3; no DropTableFactory registration",
+    },
 }
 
 
@@ -1307,4 +1378,4 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
 }
 
 
-COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Goblins", "Humanoids", "Coastal")
+COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Scorpions", "Goblins", "Humanoids", "Coastal")

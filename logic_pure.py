@@ -966,6 +966,7 @@ COMBAT_SPECIAL_ATTACK_MAX_ENERGY = 100
 COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS = 10
 COMBAT_STAT_DRAIN_RECOVERY_TICKS = 100
 COMBAT_POISON_TICK_DELAY = 30
+COMBAT_POISON_NPC_ATTACK_CHANCE = 0.4
 COMBAT_POISON_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/mechanics/poison/Poison.kt"
@@ -1772,26 +1773,31 @@ def combat_poison_damage_for_ticks_pure(ticks_left):
     return ((_non_negative_int(ticks_left, 0) // 5) + 1) * 10
 
 
-def apply_combat_poison_effect_pure(player_data, initial_damage):
-    data = _copy_player_data_with_nested(player_data)
-    data.update(sanitize_combat_state_pure(data))
+def _combat_apply_poison_effect_to_data(data, initial_damage):
     ticks_left = combat_poison_ticks_for_initial_damage_pure(initial_damage)
     if ticks_left <= 0:
-        return data, False, "invalid poison damage"
+        return False, "invalid poison damage"
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
     current_poison = effects.get("poison", {})
     current_damage = combat_poison_damage_for_ticks_pure(current_poison.get("ticks_left", 0)) if current_poison else 0
     new_damage = combat_poison_damage_for_ticks_pure(ticks_left)
     if current_poison and current_damage > new_damage:
         data["combat_status_effects"] = effects
-        return data, False, "existing poison is stronger"
+        return False, "existing poison is stronger"
     effects["poison"] = {
         "ticks_left": ticks_left,
         "tick_progress": 0,
         "source": COMBAT_POISON_SOURCE_PATH,
     }
     data["combat_status_effects"] = effects
-    return data, True, ""
+    return True, ""
+
+
+def apply_combat_poison_effect_pure(player_data, initial_damage):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    applied, reason = _combat_apply_poison_effect_to_data(data, initial_damage)
+    return data, applied, reason
 
 
 def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lifepoints=None):
@@ -1944,6 +1950,14 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         risk = "Food advised"
     else:
         risk = "Death possible"
+    poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
+    poison_lifepoints = 0
+    if poison_damage > 0:
+        poison_lifepoints = combat_poison_damage_for_ticks_pure(
+            combat_poison_ticks_for_initial_damage_pure(poison_damage)
+        )
+        if risk == "Safe":
+            risk = "Food advised"
     state = "Fighting" if active_encounter else "Ready"
     return {
         "state": state,
@@ -1961,6 +1975,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
         "runes": dict(spell_spec.get("rune_cost", {}) or {}) if combat_class == "magic" and isinstance(spell_spec, Mapping) else {},
         "weapon": weapon_name or "",
+        "poison_damage": poison_lifepoints,
+        "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 else 0.0,
         "source": enemy.get("source", ""),
     }
 
@@ -2156,6 +2172,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     ammo_used = {}
     runes_used = {}
     status_damage = {}
+    status_applied = {}
     status_expired = []
     xp_rewards = {}
     drops = {}
@@ -2234,6 +2251,18 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
             if food_event:
                 food_used.append(food_event)
+            poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
+            if poison_damage > 0:
+                try:
+                    poison_roll = float(rng())
+                except (TypeError, ValueError):
+                    poison_roll = 1.0
+                if poison_roll < COMBAT_POISON_NPC_ATTACK_CHANCE:
+                    applied, _reason = _combat_apply_poison_effect_to_data(data, poison_damage)
+                    if applied:
+                        status_applied["poison"] = combat_poison_damage_for_ticks_pure(
+                            combat_poison_ticks_for_initial_damage_pure(poison_damage)
+                        )
 
     inventory = data.get("inventory", {}) or {}
     for item_name, amount in drops.items():
@@ -2277,6 +2306,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "ammo_used": dict(ammo_used),
         "runes_used": dict(runes_used),
         "status_damage": dict(status_damage),
+        "status_applied": dict(status_applied),
         "status_expired": tuple(dict.fromkeys(status_expired)),
         "drops": drops,
         "xp_rewards": xp_rewards,

@@ -29,10 +29,13 @@ damage during review-driven Combat and safe noncombat time.
 - Poison death clears active statuses and reuses the existing Combat grave path.
 - The review HUD shows a compact active poison countdown for Combat and
   noncombat review skills.
+- Follow-up poison enemy application is now covered in
+  `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`.
 
 ## Deferred
 
-- Enemy poison application from source NPC `poisonDamage`.
+- Broader enemy poison coverage beyond the first two enabled ordinary poison
+  enemies.
 - Player weapon/ammo poison application.
 - Poison immunity and antipoison immunity timers.
 - Antipoison dose handling and auto-cure from `combat_supply_loadout["potions"]`.

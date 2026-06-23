@@ -240,10 +240,14 @@
   sanitizes `combat_status_effects["poison"]`, poison advances on Combat burst
   ticks and safe noncombat recovery ticks, damage uses local
   `Poison.getDamageForTicks`, poison clears on death, and the review HUD shows
-  the active poison countdown. Antipoison auto-cure, weapon poison, enemy poison
-  application, poison immunity, and broader status/potion effects remain future
-  work. Source proof:
+  the active poison countdown. Poison scorpion and Poison spider now use source
+  `poisonDamage = 3` with the local 4-in-10 NPC poison chance to apply that
+  status during Combat bursts, and their target previews show poison risk.
+  Antipoison auto-cure, weapon poison, poison immunity, broader enemy poison
+  coverage, and broader status/potion effects remain future work. Source proof:
   `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md`.
+  Enemy poison proof:
+  `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`.
 - Combat Goblin expansion added level-2 Goblins as two source-split targets:
   `Goblin (unarmed)` for the unarmed IDs and `Goblin (armed)` for the one armed
   ID with higher Attack/Defence. Both share the exact local 1024-slot main

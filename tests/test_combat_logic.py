@@ -225,6 +225,33 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(giant_spider["drops"]["tables"][1]["slots"][0]["item"], "Bronze med helm")
         self.assertTrue(giant_spider["source"].endswith("giant_spider_level_2.plugin.kts"))
 
+    def test_poison_enemy_rows_match_source_and_no_drop_handler(self):
+        scorpion = COMBAT_ENEMY_DATA["poison_scorpion"]
+        spider = COMBAT_ENEMY_DATA["poison_spider"]
+
+        self.assertEqual(scorpion["level"], 20)
+        self.assertEqual(scorpion["group"], "Scorpions")
+        self.assertEqual(scorpion["attack_speed"], 4)
+        self.assertEqual(scorpion["respawn_delay"], 25)
+        self.assertEqual(scorpion["poison_damage"], 3)
+        self.assertEqual(scorpion["stats"]["hitpoints"], 230)
+        self.assertEqual(scorpion["stats"]["attack"], 16)
+        self.assertEqual(scorpion["stats"]["strength"], 17)
+        self.assertEqual(scorpion["stats"]["defence"], 15)
+        self.assertEqual(scorpion["bonuses"]["defence_slash"], 15)
+        self.assertEqual(scorpion["drops"], {"guaranteed": (), "tables": ()})
+        self.assertIn("poison_scorpion_lvl_20.plugin.kts", scorpion["source"])
+        self.assertIn("no DropTableFactory registration", scorpion["source"])
+
+        self.assertEqual(spider["level"], 31)
+        self.assertEqual(spider["group"], "Spiders")
+        self.assertEqual(spider["poison_damage"], 3)
+        self.assertEqual(spider["stats"]["hitpoints"], 250)
+        self.assertEqual(spider["stats"]["attack"], 28)
+        self.assertEqual(spider["bonuses"]["defence_stab"], 20)
+        self.assertEqual(spider["drops"], {"guaranteed": (), "tables": ()})
+        self.assertIn("poison_spider_lvl_31.plugin.kts", spider["source"])
+
     def test_highwayman_import_row_matches_source_and_quantity_range(self):
         highwayman = COMBAT_ENEMY_DATA["highwayman"]
 
@@ -956,6 +983,29 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
 
+    def test_poison_enemy_applies_player_poison_on_source_chance(self):
+        player = _player(
+            current_combat_target="poison_scorpion",
+            defense_level=1,
+            combat_lifepoints=100,
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.999999, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["died"])
+        self.assertEqual(result["status_applied"], {"poison": 30})
+        self.assertEqual(result["status_damage"], {})
+        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 11)
+        self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
+        self.assertEqual(combat_status_summary_pure(new_data), "Poisoned: 30 LP in 30 ticks")
+
     def test_safe_recovery_poison_death_uses_combat_grave_path(self):
         player = _player(
             combat_lifepoints=5,
@@ -1149,6 +1199,13 @@ class CombatLogicTest(unittest.TestCase):
         self.assertGreater(preview["accuracy"], 0)
         self.assertEqual(preview["enemy_max_lifepoints"], 50)
         self.assertTrue(str(preview["source"]).endswith("giant_rat_level_2.plugin.kts"))
+
+    def test_combat_preview_marks_poison_enemies_as_food_advised(self):
+        preview = combat_target_preview_pure(_player(), "poison_scorpion", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)
+
+        self.assertEqual(preview["risk_band"], "Food advised")
+        self.assertEqual(preview["poison_damage"], 30)
+        self.assertEqual(preview["poison_chance"], 0.4)
 
 
 if __name__ == "__main__":

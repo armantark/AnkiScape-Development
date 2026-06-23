@@ -159,7 +159,8 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
-Cow calf, Ram, Highwayman, Barbarian level 8/9, Barbarian level 10, and Seagull; each review simulates 50 RuneScape ticks per
+Cow calf, Ram, Highwayman, Barbarian level 8/9, Barbarian level 10, Seagull,
+Poison scorpion, and Poison spider; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
@@ -171,7 +172,9 @@ regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
 tooltips show loaded/banked food readiness. Persistent poison status now uses
 the local source tick/damage curve, advances during Combat bursts and safe
 noncombat recovery reviews, clears on death, and appears in the review HUD while
-active. Safe recovery now also refills Ranged ammo from inventory when the
+active. Source-backed poison enemies now roll the local 40% NPC poison chance
+from `poisonDamage = 3`, write the same persistent player poison status, and
+surface poison threat in target previews. Safe recovery now also refills Ranged ammo from inventory when the
 current Combat style is Ranged. The Ranged
 path now covers standard bows from Shortbow through Magic longbow with Bronze
 through Rune arrow compatibility, using the same Combat burst engine, consuming
@@ -233,10 +236,14 @@ Combat persistent status recovery now has the first source-backed poison path:
 `combat_status_effects["poison"]` stores source poison ticks and tick progress,
 poison advances every 30 source ticks during Combat bursts and safe noncombat
 reviews, damage follows local `Poison.getDamageForTicks`, and poison death uses
-the existing Combat grave path. Antipoison auto-cure, enemy poison application,
-weapon poison, poison immunity, and broader status/potion effects remain
-deferred until potion loadout and effect metadata exist. Source proof lives in
-`memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md`.
+the existing Combat grave path. Poison scorpion and Poison spider now apply that
+status from source `poisonDamage = 3` attacks with the local 4-in-10 NPC poison
+roll; Cave slime stays deferred until Slayer gates and shared gem-table drops
+exist. Antipoison auto-cure, weapon poison, poison immunity, and broader
+status/potion effects remain deferred until potion loadout and effect metadata
+exist. Source proof lives in
+`memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md` and
+`memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`.
 
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and

@@ -945,6 +945,11 @@ def combat_target_rows(
                     f"without loaded or banked food. Select this target anyway?"
                 )
                 confirmation_line = "Confirmation required before selecting this target.\n"
+            poison_line = ""
+            poison_damage = int(preview.get("poison_damage", 0) or 0)
+            poison_chance = float(preview.get("poison_chance", 0.0) or 0.0)
+            if poison_damage > 0 and poison_chance > 0.0:
+                poison_line = f"Poison: {poison_damage} LP initial · {poison_chance:.0%} attack chance\n"
             tooltip = (
                 f"{display_name} · combat level {level}\n"
                 f"State: {preview.get('state', 'Ready')} · risk: {risk_band}\n"
@@ -954,6 +959,7 @@ def combat_target_rows(
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
+                f"{poison_line}"
                 f"Food: {_combat_food_summary(player_data, target_id)}\n"
                 f"{_combat_ammo_summary(player_data, target_id, preview.get('ammo'))}"
                 f"{_combat_rune_summary(player_data, target_id, preview.get('spell'), preview.get('runes'))}"
