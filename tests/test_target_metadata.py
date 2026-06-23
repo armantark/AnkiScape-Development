@@ -121,6 +121,30 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(seagull.group, "Coastal")
         self.assertEqual(seagull.sort_key[:2], (2, "Seagull"))
 
+    def test_combat_rows_pass_equipment_data_for_ranged_ammo_locks(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "ranged_accurate",
+                "ranged_level": 10,
+                "defense_level": 10,
+                "constitution_level": 10,
+                "inventory": {"Bronze arrows": 50},
+                "equipment": {"weapon": "Shortbow"},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        chicken = _row(rows, "chicken")
+
+        self.assertTrue(chicken.enabled)
+        self.assertIn("Your max hit:", chicken.tooltip)
+        self.assertIn("Ammo: Bronze arrows x0 loaded + 50 bank", chicken.tooltip)
+
     def test_smithing_grouped_rows_preserve_tier_sort_and_lock_reasons(self):
         rows = smithing_target_rows(
             {

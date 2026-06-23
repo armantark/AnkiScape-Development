@@ -168,9 +168,13 @@ recovery foundation is also in place:
 finite carried food loadouts refill only at safe boundaries, safe noncombat
 reviews apply one rollback-safe recovery packet per card, special-attack energy
 regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
-tooltips show loaded/banked food readiness. Future Combat work should expand
-source-backed monsters beyond the clean early rows, add ranged/magic/ammo/rune
-routing, add loadout UI for food/potions/ammo/runes, improve
+tooltips show loaded/banked food readiness. The first Ranged path is now live:
+Shortbow plus Bronze arrows uses the same Combat burst engine, consumes one
+arrow per attack attempt from `combat_supply_loadout["ammo"]`, and routes
+Ranged accurate/rapid/longrange XP from source-shaped Ranged formulas. Future
+Combat work should expand source-backed monsters beyond the clean early rows,
+add Magic/rune routing, broaden Ranged equipment/ammo, add loadout UI for
+food/potions/ammo/runes, improve
 dangerous-target/death-office UX, and migrate quest combat gates onto this
 shared engine.
 

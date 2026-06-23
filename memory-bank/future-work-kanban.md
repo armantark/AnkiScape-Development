@@ -68,6 +68,14 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   bolts x2-12 and registers Cape as a source-backed equipment drop. Goblins,
   Barbarians, Farmers, Al-Kharid warriors, and higher-risk spider variants need
   wider item/drop-table, variant, access, or special-mechanic support.
+- Shortbow plus Bronze arrows are now implemented as the first source-backed
+  Ranged/ammo path as of 2026-06-23. Ranged accurate/rapid/longrange styles run
+  through the shared Combat burst engine and consume one arrow per attack
+  attempt from the carried ammo loadout. Future Ranged work should add
+  stack-aware ammunition equipment, arrow recovery, more bow/arrow tiers, and
+  player-facing ammo loadout controls. A read-only ordinary-enemy audit found
+  level-8 Barbarians to be the safest next non-trivial enemy candidate, but they
+  still need Staff, Bear fur, and easy clue item/asset handling before import.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

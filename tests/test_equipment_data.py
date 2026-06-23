@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 132)
+        self.assertEqual(len(EQUIPMENT_DATA), 133)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -48,6 +48,14 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(bronze_knife.combat_skill, "ranged")
         self.assertEqual(bronze_knife.required_level, 1)
         self.assertGreater(bronze_knife.bonuses.attack_ranged, 0)
+
+        shortbow = EQUIPMENT_DATA["Shortbow"]
+        self.assertEqual(shortbow.slot, "weapon")
+        self.assertEqual(shortbow.combat_skill, "ranged")
+        self.assertEqual(shortbow.equipment_type, "shortbow")
+        self.assertTrue(shortbow.two_handed)
+        self.assertEqual(shortbow.attack_speed, 4)
+        self.assertEqual(shortbow.bonuses.attack_ranged, 8)
 
     def test_components_and_gathering_tools_are_excluded(self):
         for item_name in (

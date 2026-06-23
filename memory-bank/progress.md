@@ -166,11 +166,17 @@
 - Combat Highwayman expansion added the first humanoid ordinary target with
   source-backed stats/bonuses, guaranteed Bones/Cape, Iron bolts x2-12 at 1/20,
   a fetched Cape drop icon, and Cape slot equipment metadata.
+- Combat Ranged/ammo expansion added Shortbow plus Bronze arrows as the first
+  source-backed Ranged path through the shared Combat burst engine. Ranged rows
+  now require supported weapon/ammo, refill ammo at safe boundaries, consume one
+  arrow per attack attempt, avoid mid-fight bank refills, route Ranged XP from
+  accurate/rapid/longrange styles, and surface ammo readiness in target
+  tooltips.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
-  import, ranged/magic/ammo/rune combat routing, richer assets, food/potion/
+  import, Magic/rune combat routing, broader Ranged weapon/ammo support, richer assets, food/potion/
   ammo/rune loadout controls, confirmation UX for dangerous targets, full
   Death's Office recovery and stacked-death handling, and migrating quest combat
   gates from the lightweight resolver onto the shared combat engine. Broad

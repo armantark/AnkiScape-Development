@@ -1,11 +1,12 @@
 import unittest
 
-from combat_data import COMBAT_ENEMY_DATA
+from combat_data import COMBAT_ENEMY_DATA, RANGED_FORMULA_SOURCE_PATH, RANGED_STRATEGY_SOURCE_PATH
 from constants import EQUIPMENT_DATA
 from logic_pure import (
     _combat_roll_drops,
     apply_combat_burst_pure,
     apply_safe_combat_recovery_pure,
+    combat_target_locked_reasons_pure,
     combat_target_preview_pure,
 )
 
@@ -29,10 +30,12 @@ def _player(**overrides):
         "attack_level": 99,
         "strength_level": 99,
         "defense_level": 99,
+        "ranged_level": 99,
         "constitution_level": 10,
         "attack_exp": 0.0,
         "strength_exp": 0.0,
         "defense_exp": 0.0,
+        "ranged_exp": 0.0,
         "constitution_exp": 0.0,
         "current_combat_target": "chicken",
         "combat_attack_style": "accurate",
@@ -170,6 +173,125 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(result["killed"])
         self.assertEqual(new_data["attack_exp"], 0.0)
         self.assertGreater(new_data["strength_exp"], 0.0)
+
+    def test_ranged_style_requires_supported_weapon_and_ammo(self):
+        player = _player(combat_attack_style="ranged_accurate")
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(player, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            ("ranged weapon",),
+        )
+
+        with_bow = _player(combat_attack_style="ranged_accurate", equipment={"weapon": "Shortbow"})
+        self.assertEqual(
+            combat_target_locked_reasons_pure(with_bow, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            ("compatible ammunition",),
+        )
+
+        with_ammo = _player(
+            combat_attack_style="ranged_accurate",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 3},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(with_ammo, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            (),
+        )
+
+    def test_ranged_burst_consumes_bronze_arrows_and_awards_ranged_xp(self):
+        player = _player(
+            combat_attack_style="ranged_accurate",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 2},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=50,
+            rng=_rng([0.0, 0.999999, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertEqual(result["combat_class"], "ranged")
+        self.assertEqual(result["weapon"], "Shortbow")
+        self.assertEqual(result["ammo"], "Bronze arrows")
+        self.assertEqual(result["ammo_used"], {"Bronze arrows": 1})
+        self.assertEqual(result["formula_source"], RANGED_FORMULA_SOURCE_PATH)
+        self.assertEqual(result["xp_source"], RANGED_STRATEGY_SOURCE_PATH)
+        self.assertEqual(new_data["inventory"]["Bronze arrows"], 0)
+        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 1})
+        self.assertEqual(new_data["attack_exp"], 0.0)
+        self.assertGreater(new_data["ranged_exp"], 0.0)
+        self.assertGreater(new_data["constitution_exp"], 0.0)
+
+    def test_ranged_longrange_splits_xp_between_ranged_and_defense(self):
+        player = _player(
+            combat_attack_style="ranged_longrange",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 2},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=50,
+            rng=_rng([0.0, 0.999999, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertGreater(new_data["ranged_exp"], 0.0)
+        self.assertAlmostEqual(new_data["ranged_exp"], new_data["defense_exp"])
+        self.assertEqual(new_data["attack_exp"], 0.0)
+
+    def test_active_ranged_encounter_does_not_refill_ammo_mid_fight(self):
+        player = _player(
+            combat_attack_style="ranged_rapid",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 5},
+            combat_supply_loadout={"ammo": {"Bronze arrows": 1}},
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=10,
+            rng=_rng([0.999999] * 8),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["stop_reason"], "out_of_ammo")
+        self.assertEqual(result["ammo_used"], {"Bronze arrows": 1})
+        self.assertEqual(new_data["inventory"]["Bronze arrows"], 5)
+        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {})
+
+    def test_ranged_rapid_uses_faster_bow_attack_speed(self):
+        player = _player(
+            combat_attack_style="ranged_rapid",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 10},
+            current_combat_target="giant_rat",
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=7,
+            rng=_rng([0.999999] * 12),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["ammo_used"], {"Bronze arrows": 3})
+        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 7})
 
     def test_combat_burst_caps_to_one_kill_per_review_even_with_many_ticks(self):
         player = _player(current_combat_target="cow")

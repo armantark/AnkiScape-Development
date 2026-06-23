@@ -823,6 +823,33 @@ def _combat_food_summary(player_data: Mapping[str, object], target_id: str) -> s
     return ", ".join(parts) if parts else "No configured food loaded"
 
 
+def _combat_ammo_summary(player_data: Mapping[str, object], target_id: str, ammo_name: object) -> str:
+    if not isinstance(ammo_name, str) or not ammo_name:
+        return ""
+
+    def _count(value: object) -> int:
+        if isinstance(value, bool):
+            return 0
+        try:
+            return max(0, int(value or 0))
+        except (TypeError, ValueError):
+            return 0
+
+    loadout_raw = player_data.get("combat_supply_loadout", {}) or {}
+    loadout = loadout_raw if isinstance(loadout_raw, Mapping) else {}
+    ammo_raw = loadout.get("ammo", {}) if isinstance(loadout, Mapping) else {}
+    ammo_loadout = ammo_raw if isinstance(ammo_raw, Mapping) else {}
+    inventory_raw = player_data.get("inventory", {}) or {}
+    inventory = inventory_raw if isinstance(inventory_raw, Mapping) else {}
+    encounter_raw = player_data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter_raw, Mapping) and encounter_raw.get("target_id") == target_id
+    loaded = _count(ammo_loadout.get(ammo_name, 0))
+    banked = 0 if active_encounter else _count(inventory.get(ammo_name, 0))
+    if active_encounter:
+        return f"Ammo: {ammo_name} x{loaded} loaded\n"
+    return f"Ammo: {ammo_name} x{loaded} loaded + {banked} bank\n"
+
+
 def combat_target_rows(
     player_data: Mapping[str, object],
     combat_enemy_data: Mapping[str, Mapping[str, object]],
@@ -839,7 +866,12 @@ def combat_target_rows(
         stats_raw = enemy.get("stats", {})
         stats = stats_raw if isinstance(stats_raw, Mapping) else {}
         preview = combat_target_preview_pure(player_data, target_id, combat_enemy_data, equipment_data)
-        locked_reasons = combat_target_locked_reasons_pure(player_data, target_id, combat_enemy_data)
+        locked_reasons = combat_target_locked_reasons_pure(
+            player_data,
+            target_id,
+            combat_enemy_data,
+            equipment_data=equipment_data,
+        )
         if locked_reasons:
             tooltip = (
                 f"{display_name} · combat level {level}\n"
@@ -851,10 +883,12 @@ def combat_target_rows(
                 f"{display_name} · combat level {level}\n"
                 f"State: {preview.get('state', 'Ready')} · risk: {preview.get('risk_band', 'Unknown')}\n"
                 f"Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}\n"
+                f"Your max hit: {preview.get('player_max_hit', 0)} LP\n"
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
                 f"Food: {_combat_food_summary(player_data, target_id)}\n"
+                f"{_combat_ammo_summary(player_data, target_id, preview.get('ammo'))}"
                 f"Drops:\n  {_combat_drop_summary(enemy).replace(chr(10), chr(10) + '  ')}\n"
                 f"Source: {enemy.get('source', '')}"
             )

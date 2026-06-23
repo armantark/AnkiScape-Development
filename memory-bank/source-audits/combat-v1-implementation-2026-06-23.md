@@ -1,8 +1,9 @@
 # Combat V1 Implementation Audit - 2026-06-23
 
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
-Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion, and
-Spider/Giant spider drop-range expansion, and Highwayman humanoid expansion.
+Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
+Spider/Giant spider drop-range expansion, Highwayman humanoid expansion, and
+first Ranged/ammo path.
 
 ## Implemented Scope
 
@@ -33,6 +34,12 @@ Spider/Giant spider drop-range expansion, and Highwayman humanoid expansion.
   `combat_recovery_progress`.
 - Melee styles route XP as Attack, Strength, Defence, or controlled shared
   Attack/Strength/Defence, with Constitution XP awarded per damage.
+- Ranged styles now support Shortbow plus Bronze arrows through the same burst
+  engine. `ranged_accurate` and `ranged_rapid` route damage XP to Ranged;
+  `ranged_longrange` splits damage XP between Ranged and Defence; every damage
+  hit still awards Constitution XP. Ranged consumes one arrow per attack attempt
+  from `combat_supply_loadout["ammo"]`, which refills from inventory only at
+  fresh-fight or safe-boundary refill points.
 - The Skills hub has a Combat category/card, enemy target tree, attack-style
   selector, availability gate, food-readiness tooltip line, and HUD
   target/lifepoint display.
@@ -72,6 +79,8 @@ Spider/Giant spider drop-range expansion, and Highwayman humanoid expansion.
   `memory-bank/source-audits/combat-spider-drop-range-2026-06-23.md`
 - Highwayman expansion:
   `memory-bank/source-audits/combat-highwayman-2026-06-23.md`
+- Ranged/ammo path:
+  `memory-bank/source-audits/combat-ranged-ammo-2026-06-23.md`
 
 ## Deferred
 
@@ -80,8 +89,10 @@ Spider/Giant spider drop-range expansion, and Highwayman humanoid expansion.
 - Full non-Smithing combat equipment import/equip support. Wooden shield is now
   source-backed and claimable, but shield mechanics still belong to the broader
   equipment audit.
-- Ranged/Magic combat routing, ammo/rune consumption, spell selection, and
-  noncombat Magic actions.
+- Magic combat routing, rune consumption, spell selection, and noncombat Magic
+  actions.
+- Broader Ranged equipment/ammunition support beyond Shortbow plus Bronze
+  arrows, including stack-aware ammunition equipment and arrow recovery.
 - Prayer effects, drain, and Prayer skilling.
 - Dangerous-target confirmation UX and richer risk previews.
 - Full Death's Office reclaim UI and stacked-death handling. Safe noncombat

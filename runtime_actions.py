@@ -359,7 +359,12 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         target_id = DEFAULT_COMBAT_TARGET
         player_data["current_combat_target"] = target_id
 
-    locked_reasons = combat_target_locked_reasons_pure(player_data, target_id, COMBAT_ENEMY_DATA)
+    locked_reasons = combat_target_locked_reasons_pure(
+        player_data,
+        target_id,
+        COMBAT_ENEMY_DATA,
+        equipment_data=EQUIPMENT_DATA,
+    )
     if locked_reasons:
         enemy = COMBAT_ENEMY_DATA.get(target_id, {})
         ctx.deactivate_current_skill()
@@ -1392,7 +1397,12 @@ def _can_start_runecrafting_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_combat_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
-    return not combat_target_locked_reasons_pure(ctx.player_data, target, COMBAT_ENEMY_DATA)
+    return not combat_target_locked_reasons_pure(
+        ctx.player_data,
+        target,
+        COMBAT_ENEMY_DATA,
+        equipment_data=EQUIPMENT_DATA,
+    )
 
 
 def _can_start_quest_action(ctx: RuntimeActionContext) -> bool:

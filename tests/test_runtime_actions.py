@@ -115,6 +115,40 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
         self.assertEqual(len(calls["xp"]), 1)
 
+    def test_combat_handler_runs_ranged_review_with_starter_bow_and_arrows(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Bronze arrows": 2},
+            "equipment": {"weapon": "Shortbow"},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "ranged_accurate",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "ranged_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "ranged_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
+        self.assertEqual(player_data["inventory"]["Bronze arrows"], 0)
+        self.assertEqual(player_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 1})
+        self.assertEqual(player_data["attack_exp"], 0.0)
+        self.assertGreater(player_data["ranged_exp"], 0.0)
+        self.assertGreater(player_data["constitution_exp"], 0.0)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["activity"], ["Defeated Chicken"])
+
     def test_handler_key_registry_and_readiness_share_runtime_module(self):
         self.assertIs(answer_handler_for_key("fletching"), handle_fletching_answer)
         self.assertIs(answer_handler_for_key("hunter"), handle_hunter_answer)
@@ -142,6 +176,17 @@ class TestRuntimeActions(unittest.TestCase):
             "constitution_level": 10,
         }
         self.assertTrue(can_start_action(_context(combat_data), "combat"))
+        combat_data.update(
+            {
+                "inventory": {"Bronze arrows": 1},
+                "equipment": {"weapon": "Shortbow"},
+                "combat_attack_style": "ranged_accurate",
+                "ranged_level": 1,
+            }
+        )
+        self.assertTrue(can_start_action(_context(combat_data), "combat"))
+        combat_data["inventory"] = {}
+        self.assertFalse(can_start_action(_context(combat_data), "combat"))
         self.assertTrue(can_start_action(_context(player_data), "unknown"))
 
         hunter_data = {

@@ -1596,6 +1596,7 @@ _RUNECRAFTING_ACCESS_SOURCE = 'game/plugins/src/main/kotlin/gg/rsmod/plugins/con
 _RUNECRAFTING_EXTERNAL_SOURCE = 'external RuneScape wiki; not present in local 2011Scape rev-667 source'
 
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
+    ('Shortbow', 'weapon', 'shortbow', 841, 'data/cfg/items.yml item 841; SHORTBOW'),
     ('Cape', 'cape', 'cape', 1019, 'data/cfg/items.yml item 1019; CAPE_1019'),
     ('Air tiara', 'head', 'runecrafting_access', 5527, _RUNECRAFTING_ACCESS_SOURCE),
     ('Mind tiara', 'head', 'runecrafting_access', 5529, _RUNECRAFTING_ACCESS_SOURCE),
@@ -1617,21 +1618,24 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
         EquipmentItem(
             item_name=_item_name,
             slot=_slot,
-            combat_skill=None,
+            combat_skill='ranged' if _item_name == 'Shortbow' else None,
             required_level=1,
-            two_handed=False,
+            two_handed=True if _item_name == 'Shortbow' else False,
             equipment_type=_equipment_type,
             bonuses=(
+                EquipmentBonuses(attack_ranged=8)
+                if _item_name == 'Shortbow'
+                else
                 EquipmentBonuses(defence_slash=1, defence_crush=1, defence_ranged=2)
                 if _item_name == 'Cape'
                 else EquipmentBonuses()
             ),
-            attack_speed=4 if _item_name == 'Cape' else 0,
+            attack_speed=4 if _item_name in {'Cape', 'Shortbow'} else 0,
             source_item_id=_source_item_id,
             source=_source,
             source_status=(
                 'items.yml equipment block'
-                if _item_name == 'Cape'
+                if _item_name in {'Cape', 'Shortbow'}
                 else 'manual Runecrafting v1 equipment entry'
             ),
         ),

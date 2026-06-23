@@ -21,6 +21,18 @@ MELEE_FORMULA_SOURCE_PATH = (
 MELEE_STRATEGY_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/MeleeCombatStrategy.kt"
 )
+RANGED_FORMULA_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/formula/RangedCombatFormula.kt"
+)
+RANGED_STRATEGY_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/RangedCombatStrategy.kt"
+)
+RANGED_BOW_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/ranged/weapon/BowType.kt"
+)
+RANGED_ARROW_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/ranged/ammo/Arrows.kt"
+)
 FOOD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/food/Food.kt"
 )
@@ -53,6 +65,50 @@ COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
         "combat_class": "melee",
         "xp_mode": "shared",
         "source": f"{MELEE_FORMULA_SOURCE_PATH}: WeaponStyle.CONTROLLED",
+    },
+    "ranged_accurate": {
+        "display_name": "Ranged accurate",
+        "combat_class": "ranged",
+        "xp_mode": "ranged",
+        "source": f"{RANGED_FORMULA_SOURCE_PATH}: WeaponStyle.ACCURATE",
+    },
+    "ranged_rapid": {
+        "display_name": "Ranged rapid",
+        "combat_class": "ranged",
+        "xp_mode": "ranged",
+        "attack_speed_delta": -1,
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/"
+            "CombatConfigs.kt: WeaponStyle.RAPID"
+        ),
+    },
+    "ranged_longrange": {
+        "display_name": "Ranged longrange",
+        "combat_class": "ranged",
+        "xp_mode": "ranged_defense",
+        "source": f"{RANGED_FORMULA_SOURCE_PATH}: WeaponStyle.LONG_RANGE",
+    },
+}
+
+
+COMBAT_RANGED_WEAPON_DATA: Dict[str, dict] = {
+    "Shortbow": {
+        "equipment_type": "shortbow",
+        "compatible_ammo": ("Bronze arrows",),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS",
+    },
+}
+
+
+COMBAT_RANGED_AMMO_DATA: Dict[str, dict] = {
+    "Bronze arrows": {
+        "source_item_id": 882,
+        "source_item_name": "Bronze arrow",
+        "ranged_strength": 7,
+        "source": (
+            f"{RANGED_ARROW_SOURCE_PATH}: BRONZE_ARROWS; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 882"
+        ),
     },
 }
 

@@ -25,6 +25,7 @@ from constants import (
     FISHING_DATA,
     FISHING_ITEM_IMAGES,
     FISHING_OUTPUT_ITEMS,
+    FLETCHED_ITEM_IMAGES,
     FLETCHING_DATA,
     GEM_DATA,
     HUNTER_DATA,
@@ -471,6 +472,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(by_storage_key[item_name].asset_path, COMBAT_ITEM_IMAGES[item_name])
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
+        for item_name in ("Shortbow", "Bronze arrows"):
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].asset_path, FLETCHED_ITEM_IMAGES[item_name])
+            self.assertTrue(os.path.exists(FLETCHED_ITEM_IMAGES[item_name]), f"{item_name} Fletching icon is missing")
 
     def test_woodcutting_bank_items_have_icons(self):
         # Logs reuse the trees/ sprites; hatchets and bird nests were fetched

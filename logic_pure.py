@@ -20,10 +20,14 @@ try:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_RANGED_AMMO_DATA,
+        COMBAT_RANGED_WEAPON_DATA,
         DEFAULT_COMBAT_ATTACK_STYLE,
         DEFAULT_COMBAT_TARGET,
         MELEE_FORMULA_SOURCE_PATH,
         MELEE_STRATEGY_SOURCE_PATH,
+        RANGED_FORMULA_SOURCE_PATH,
+        RANGED_STRATEGY_SOURCE_PATH,
     )
 except ImportError:
     from combat_data import (  # type: ignore
@@ -31,10 +35,14 @@ except ImportError:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_RANGED_AMMO_DATA,
+        COMBAT_RANGED_WEAPON_DATA,
         DEFAULT_COMBAT_ATTACK_STYLE,
         DEFAULT_COMBAT_TARGET,
         MELEE_FORMULA_SOURCE_PATH,
         MELEE_STRATEGY_SOURCE_PATH,
+        RANGED_FORMULA_SOURCE_PATH,
+        RANGED_STRATEGY_SOURCE_PATH,
     )
 
 REVIEW_SUCCESS_MINIMUM = 0.20
@@ -1094,7 +1102,7 @@ def combat_enemy_current_lifepoints_pure(player_data, target_id, enemy_data=None
     return _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0)
 
 
-def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, style_data=None):
+def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, style_data=None, equipment_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     style_data = style_data or COMBAT_ATTACK_STYLE_DATA
     enemy = enemy_data.get(target_id)
@@ -1110,12 +1118,17 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     style = style_data.get(style_id)
     if not isinstance(style, Mapping):
         return ("invalid attack style",)
-    if style.get("combat_class") != "melee":
-        return ("unsupported combat class",)
-    return tuple()
+    combat_class = style.get("combat_class")
+    if combat_class == "melee":
+        return tuple()
+    if combat_class == "ranged":
+        return _combat_ranged_locked_reasons(player_data, target_id, equipment_data or {})
+    return ("unsupported combat class",)
 
 
-def _combat_attack_bonus_from_totals(totals):
+def _combat_attack_bonus_from_totals(totals, combat_class="melee"):
+    if combat_class == "ranged":
+        return _equipment_bonus_value(totals, "attack_ranged")
     return max(
         _equipment_bonus_value(totals, "attack_stab"),
         _equipment_bonus_value(totals, "attack_slash"),
@@ -1123,7 +1136,9 @@ def _combat_attack_bonus_from_totals(totals):
     )
 
 
-def _combat_defence_bonus_from_totals(totals):
+def _combat_defence_bonus_from_totals(totals, combat_class="melee"):
+    if combat_class == "ranged":
+        return _equipment_bonus_value(totals, "defence_ranged")
     return max(
         _equipment_bonus_value(totals, "defence_stab"),
         _equipment_bonus_value(totals, "defence_slash"),
@@ -1161,7 +1176,19 @@ def _combat_effective_player_strength_level(player_data, style_id):
 
 def _combat_effective_player_defence_level(player_data, style_id):
     level = _combat_effective_skill_level(player_data, "defense", 1)
-    style_bonus = 3 if style_id == "defensive" else 1 if style_id == "controlled" else 0
+    style_bonus = (
+        3
+        if style_id in {"defensive", "ranged_longrange"}
+        else 1
+        if style_id == "controlled"
+        else 0
+    )
+    return floor(level) + style_bonus + 8
+
+
+def _combat_effective_player_ranged_level(player_data, style_id):
+    level = _combat_effective_skill_level(player_data, "ranged", 1)
+    style_bonus = 3 if style_id == "ranged_accurate" else 0
     return floor(level) + style_bonus + 8
 
 
@@ -1182,6 +1209,67 @@ def _combat_accuracy(attacker_roll, defender_roll):
 
 def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
     return max(0.0, 0.5 + float(effective_strength) * (float(strength_bonus) + 64.0) / 640.0)
+
+
+def _combat_ranged_max_hit_old_hp(effective_ranged, ranged_strength_bonus):
+    return max(0.0, 0.5 + float(effective_ranged) * (float(ranged_strength_bonus) + 64.0) / 640.0)
+
+
+def _combat_equipped_weapon_name(player_data):
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping):
+        return None
+    weapon_name = equipment.get("weapon")
+    return weapon_name if isinstance(weapon_name, str) else None
+
+
+def _combat_ranged_weapon_spec(player_data, equipment_data):
+    weapon_name = _combat_equipped_weapon_name(player_data)
+    if not isinstance(weapon_name, str):
+        return weapon_name, None, None
+    equipment_spec = equipment_data.get(weapon_name) if isinstance(equipment_data, Mapping) else None
+    equipment_type = _equipment_value(equipment_spec, "equipment_type", None)
+    weapon_spec = COMBAT_RANGED_WEAPON_DATA.get(weapon_name)
+    if weapon_spec is None and isinstance(equipment_type, str):
+        for candidate in COMBAT_RANGED_WEAPON_DATA.values():
+            if candidate.get("equipment_type") == equipment_type:
+                weapon_spec = candidate
+                break
+    return weapon_name, equipment_spec, weapon_spec
+
+
+def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
+    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    loaded = _non_negative_int((loadout.get("ammo", {}) or {}).get(ammo_name, 0), 0)
+    encounter = player_data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    if active_encounter:
+        return loaded
+    inventory = player_data.get("inventory", {}) or {}
+    banked = _non_negative_int(inventory.get(ammo_name, 0), 0) if isinstance(inventory, Mapping) else 0
+    return loaded + banked
+
+
+def _combat_selected_ranged_ammo(player_data, weapon_spec, target_id):
+    if not isinstance(weapon_spec, Mapping):
+        return None
+    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+        if isinstance(ammo_name, str) and _combat_ranged_ammo_count(player_data, ammo_name, target_id) > 0:
+            return ammo_name
+    return None
+
+
+def _combat_ranged_locked_reasons(player_data, target_id, equipment_data):
+    weapon_name, equipment_spec, weapon_spec = _combat_ranged_weapon_spec(player_data, equipment_data)
+    if not isinstance(weapon_name, str):
+        return ("ranged weapon",)
+    if equipment_spec is None or _equipment_value(equipment_spec, "combat_skill", None) != "ranged":
+        return ("ranged weapon",)
+    if not isinstance(weapon_spec, Mapping):
+        return ("supported ranged weapon",)
+    if _combat_selected_ranged_ammo(player_data, weapon_spec, target_id) is None:
+        return ("compatible ammunition",)
+    return tuple()
 
 
 def _combat_npc_xp_multiplier(enemy):
@@ -1247,6 +1335,12 @@ def _combat_apply_xp(xp_rewards, style_id, damage_lifepoints, npc_xp_multiplier)
     elif style_id == "controlled":
         for exp_key in ("attack_exp", "strength_exp", "defense_exp"):
             xp_rewards[exp_key] = xp_rewards.get(exp_key, 0.0) + shared_xp
+    elif style_id in {"ranged_accurate", "ranged_rapid"}:
+        xp_rewards["ranged_exp"] = xp_rewards.get("ranged_exp", 0.0) + combat_xp
+    elif style_id == "ranged_longrange":
+        split_xp = float(damage_lifepoints) * 0.2 * npc_xp_multiplier
+        xp_rewards["ranged_exp"] = xp_rewards.get("ranged_exp", 0.0) + split_xp
+        xp_rewards["defense_exp"] = xp_rewards.get("defense_exp", 0.0) + split_xp
     xp_rewards["constitution_exp"] = xp_rewards.get("constitution_exp", 0.0) + constitution_xp
 
 
@@ -1325,6 +1419,52 @@ def _combat_refill_food_loadout(data):
     data["combat_supply_loadout"] = loadout
 
 
+def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
+    if not isinstance(weapon_spec, Mapping):
+        return
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    ammo_loadout = dict(loadout.get("ammo", {}) or {})
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        data["combat_supply_loadout"] = loadout
+        return
+    inventory = dict(inventory)
+    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+        if not isinstance(ammo_name, str):
+            continue
+        available = _non_negative_int(inventory.get(ammo_name, 0), 0)
+        if available <= 0:
+            continue
+        inventory[ammo_name] = 0
+        ammo_loadout[ammo_name] = _non_negative_int(ammo_loadout.get(ammo_name, 0), 0) + available
+    loadout["ammo"] = {item: amount for item, amount in ammo_loadout.items() if amount > 0}
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
+def _combat_consume_ranged_ammo(data, weapon_spec, target_id):
+    ammo_name = _combat_selected_ranged_ammo(data, weapon_spec, target_id)
+    if not isinstance(ammo_name, str):
+        return None
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    ammo_loadout = dict(loadout.get("ammo", {}) or {})
+    current = _non_negative_int(ammo_loadout.get(ammo_name, 0), 0)
+    if current <= 0:
+        return None
+    ammo_loadout[ammo_name] = current - 1
+    if ammo_loadout[ammo_name] <= 0:
+        ammo_loadout.pop(ammo_name, None)
+    loadout["ammo"] = ammo_loadout
+    data["combat_supply_loadout"] = loadout
+    return ammo_name
+
+
+def _combat_ranged_strength_bonus(player_totals, ammo_name):
+    ammo_spec = COMBAT_RANGED_AMMO_DATA.get(ammo_name) if isinstance(ammo_name, str) else None
+    ammo_bonus = _positive_int(ammo_spec.get("ranged_strength", 0), 0) if isinstance(ammo_spec, Mapping) else 0
+    return _equipment_bonus_value(player_totals, "ranged_strength") + ammo_bonus
+
+
 def _combat_regenerate_special_attack_energy(data, ticks):
     energy = _non_negative_int(
         data.get("combat_special_attack_energy", COMBAT_SPECIAL_ATTACK_MAX_ENERGY),
@@ -1379,20 +1519,41 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     enemy = enemy_data.get(target_id)
     if enemy is None:
         return {"state": "blocked", "risk_band": "Blocked", "reasons": ("unknown enemy",)}
-    reasons = combat_target_locked_reasons_pure(player_data, target_id, enemy_data)
+    equipment_data = equipment_data or {}
+    reasons = combat_target_locked_reasons_pure(player_data, target_id, enemy_data, equipment_data=equipment_data)
     if reasons:
         return {"state": "blocked", "risk_band": "Blocked", "reasons": reasons}
-    equipment_data = equipment_data or {}
     player_totals = equipment_stat_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
     style_id = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
-    player_attack_roll = _combat_effective_player_attack_level(player_data, style_id) * (
-        _combat_attack_bonus_from_totals(player_totals) + 64
-    )
+    style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
+    combat_class = str(style.get("combat_class", "melee"))
+    if combat_class == "ranged":
+        weapon_name, _weapon_equipment, weapon_spec = _combat_ranged_weapon_spec(player_data, equipment_data)
+        ammo_name = _combat_selected_ranged_ammo(player_data, weapon_spec, target_id)
+        player_attack_roll = _combat_effective_player_ranged_level(player_data, style_id) * (
+            _combat_attack_bonus_from_totals(player_totals, "ranged") + 64
+        )
+    else:
+        weapon_name = None
+        ammo_name = None
+        player_attack_roll = _combat_effective_player_attack_level(player_data, style_id) * (
+            _combat_attack_bonus_from_totals(player_totals) + 64
+        )
     enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
-        _combat_defence_bonus_from_totals(enemy_totals) + 64
+        _combat_defence_bonus_from_totals(enemy_totals, combat_class) + 64
     )
     accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
+    if combat_class == "ranged":
+        player_max_hit = _combat_ranged_max_hit_old_hp(
+            _combat_effective_player_ranged_level(player_data, style_id),
+            _combat_ranged_strength_bonus(player_totals, ammo_name),
+        )
+    else:
+        player_max_hit = _combat_melee_max_hit_old_hp(
+            _combat_effective_player_strength_level(player_data, style_id),
+            _equipment_bonus_value(player_totals, "melee_strength"),
+        )
     enemy_max_hit = _combat_melee_max_hit_old_hp(
         _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
         _equipment_bonus_value(enemy_totals, "melee_strength"),
@@ -1430,6 +1591,9 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "player_max_lifepoints": max_lp,
         "enemy_lifepoints": combat_enemy_current_lifepoints_pure(player_data, target_id, enemy_data),
         "enemy_max_lifepoints": _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0),
+        "player_max_hit": int(player_max_hit * 10),
+        "ammo": ammo_name or "",
+        "weapon": weapon_name or "",
         "source": enemy.get("source", ""),
     }
 
@@ -1470,14 +1634,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, enemy_data))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
-    locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data)
+    locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
     if locked_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
     style_id = str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
-    if style.get("combat_class") != "melee":
-        return player_data, False, {"reason": "unsupported_combat_class"}
+    combat_class = str(style.get("combat_class", "melee"))
 
     max_player_lp = combat_max_lifepoints_pure(data)
     player_lp = max(
@@ -1489,26 +1652,47 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     )
     enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
     encounter = data.get("combat_encounter", {}) or {}
+    weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
     if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
         enemy_lp = enemy_max_lp
         _combat_refill_food_loadout(data)
+        if combat_class == "ranged":
+            _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
-    weapon_name = (data.get("equipment", {}) or {}).get("weapon")
-    weapon_spec = equipment_data.get(weapon_name) if isinstance(weapon_name, str) else None
     player_attack_speed = max(1, _positive_int(_equipment_value(weapon_spec, "attack_speed", 4), 4))
+    if combat_class == "ranged":
+        player_attack_speed = max(1, player_attack_speed + _signed_int(style.get("attack_speed_delta", 0), 0))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
 
-    player_attack_roll = _combat_effective_player_attack_level(data, style_id) * (_combat_attack_bonus_from_totals(player_totals) + 64)
-    enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (_combat_defence_bonus_from_totals(enemy_totals) + 64)
+    selected_ammo = None
+    if combat_class == "ranged":
+        selected_ammo = _combat_selected_ranged_ammo(data, ranged_weapon_spec, target_id)
+        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * (
+            _combat_attack_bonus_from_totals(player_totals, "ranged") + 64
+        )
+        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+            _combat_defence_bonus_from_totals(enemy_totals, "ranged") + 64
+        )
+        player_max_hit = _combat_ranged_max_hit_old_hp(
+            _combat_effective_player_ranged_level(data, style_id),
+            _combat_ranged_strength_bonus(player_totals, selected_ammo),
+        )
+    else:
+        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * (
+            _combat_attack_bonus_from_totals(player_totals) + 64
+        )
+        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+            _combat_defence_bonus_from_totals(enemy_totals) + 64
+        )
+        player_max_hit = _combat_melee_max_hit_old_hp(
+            _combat_effective_player_strength_level(data, style_id),
+            _equipment_bonus_value(player_totals, "melee_strength"),
+        )
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
-    player_max_hit = _combat_melee_max_hit_old_hp(
-        _combat_effective_player_strength_level(data, style_id),
-        _equipment_bonus_value(player_totals, "melee_strength"),
-    )
 
     enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get("attack", 1), 1) + 8) * (
         _combat_attack_bonus_from_totals(enemy_totals) + 64
@@ -1528,10 +1712,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     player_damage = 0
     enemy_damage = 0
     food_used = []
+    ammo_used = {}
     xp_rewards = {}
     drops = {}
     killed = False
     died = False
+    out_of_ammo = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
 
@@ -1539,6 +1725,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         ticks_elapsed = tick + 1
         if tick >= next_player_attack and enemy_lp > 0:
             next_player_attack += player_attack_speed
+            if combat_class == "ranged":
+                ammo_name = _combat_consume_ranged_ammo(data, ranged_weapon_spec, target_id)
+                if ammo_name is None:
+                    out_of_ammo = True
+                    break
+                selected_ammo = ammo_name
+                ammo_used[ammo_name] = _non_negative_int(ammo_used.get(ammo_name, 0), 0) + 1
             landed = False
             try:
                 landed = float(rng()) < player_accuracy
@@ -1588,6 +1781,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         data["combat_kill_counts"] = kill_counts
         data["combat_encounter"] = {}
         _combat_refill_food_loadout(data)
+        if combat_class == "ranged":
+            _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
     elif died:
         equipment = dict(data.get("equipment", {}) or {})
         grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
@@ -1612,13 +1807,18 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "player_lifepoints": player_lp,
         "killed": killed,
         "died": died,
+        "stop_reason": "out_of_ammo" if out_of_ammo else "",
         "food_used": tuple(food_used),
+        "ammo_used": dict(ammo_used),
         "drops": drops,
         "xp_rewards": xp_rewards,
         "player_accuracy": player_accuracy,
         "enemy_accuracy": enemy_accuracy,
-        "formula_source": MELEE_FORMULA_SOURCE_PATH,
-        "xp_source": MELEE_STRATEGY_SOURCE_PATH,
+        "combat_class": combat_class,
+        "weapon": weapon_name or "",
+        "ammo": selected_ammo or "",
+        "formula_source": RANGED_FORMULA_SOURCE_PATH if combat_class == "ranged" else MELEE_FORMULA_SOURCE_PATH,
+        "xp_source": RANGED_STRATEGY_SOURCE_PATH if combat_class == "ranged" else MELEE_STRATEGY_SOURCE_PATH,
     }
     data["combat_last_result"] = result
     return data, True, result

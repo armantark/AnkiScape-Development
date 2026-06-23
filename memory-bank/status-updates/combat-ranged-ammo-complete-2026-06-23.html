@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Ranged Ammo Checkpoint</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #10141c;
+      --panel: #161d28;
+      --panel-2: #1e2938;
+      --text: #eef3f7;
+      --muted: #aeb8c6;
+      --green: #54d48a;
+      --amber: #f0c15b;
+      --blue: #63b3ff;
+      --red: #ff736a;
+      --line: #2a3546;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    .wrap {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 40px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+      align-items: stretch;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 5vw, 64px);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 20px;
+    }
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(84, 212, 138, 0.12);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 20px 0;
+    }
+    .metric {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 110px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .lanes {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .lane {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 16px;
+    }
+    .lane h3 {
+      margin: 0 0 12px;
+      font-size: 15px;
+      letter-spacing: 0;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+    li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 8px;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+    .check { color: var(--green); font-weight: 800; }
+    .hold { color: var(--amber); font-weight: 800; }
+    .code {
+      margin-top: 20px;
+      background: #0b0f16;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      color: #d7e2ee;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      overflow-x: auto;
+      white-space: pre;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .step {
+      border: 1px solid var(--line);
+      background: #121923;
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 92px;
+    }
+    .step b {
+      display: block;
+      color: var(--blue);
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+    .step span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.3;
+    }
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @media (max-width: 860px) {
+      header,
+      .grid,
+      .lanes,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+      h1 { font-size: 38px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <section class="panel">
+        <div class="status"><span class="dot"></span>Checkpoint complete</div>
+        <h1>Ranged ammo is in the Combat engine.</h1>
+        <p>Shortbow plus Bronze arrows now uses the shared burst loop instead of stopping at the melee-only guard. This is one completed grill slice, not the whole Combat grill.</p>
+      </section>
+      <section class="panel">
+        <h2>What Changed</h2>
+        <ul>
+          <li><span class="check">✓</span><span>Ranged accurate, rapid, and longrange styles are source-backed.</span></li>
+          <li><span class="check">✓</span><span>Shortbow equipment stats and Bronze arrow strength are wired from local source data.</span></li>
+          <li><span class="check">✓</span><span>One arrow is consumed per player attack attempt from the carried ammo loadout.</span></li>
+          <li><span class="check">✓</span><span>Ranged XP and Constitution XP now route through runtime review handling.</span></li>
+        </ul>
+      </section>
+    </header>
+
+    <section class="grid">
+      <div class="metric"><strong>578</strong><span>Full pure/integration tests passed through run_tests.py.</span></div>
+      <div class="metric"><strong>578</strong><span>Offscreen Qt tests passed through the PyQt environment.</span></div>
+      <div class="metric"><strong>0</strong><span>Whitespace errors from git diff --check.</span></div>
+      <div class="metric"><strong>1</strong><span>Ranged weapon path intentionally supported in this slice.</span></div>
+    </section>
+
+    <section class="panel">
+      <h2>Execution Flow</h2>
+      <div class="flow">
+        <div class="step"><b>Lock Check</b><span>Target requires supported Ranged weapon plus compatible ammunition.</span></div>
+        <div class="step"><b>Refill</b><span>Fresh encounters load banked Bronze arrows into combat_supply_loadout["ammo"].</span></div>
+        <div class="step"><b>Attempt</b><span>Each player attack consumes one arrow before the accuracy roll.</span></div>
+        <div class="step"><b>Reward</b><span>Damage routes to Ranged, Defence for longrange, and Constitution.</span></div>
+        <div class="step"><b>Boundary</b><span>Kills and safe recovery may refill ammo; active fights do not pull bank arrows.</span></div>
+      </div>
+    </section>
+
+    <section class="lanes">
+      <div class="lane">
+        <h3>Source Evidence</h3>
+        <ul>
+          <li><span class="check">✓</span><span>RangedCombatFormula.kt for accuracy and max hit.</span></li>
+          <li><span class="check">✓</span><span>RangedCombatStrategy.kt for ammo removal and XP routing.</span></li>
+          <li><span class="check">✓</span><span>BowType.kt and Arrows.kt for Shortbow and Bronze arrow compatibility.</span></li>
+        </ul>
+      </div>
+      <div class="lane">
+        <h3>Repo Surfaces</h3>
+        <ul>
+          <li><span class="check">✓</span><span>Pure engine, runtime handler, target metadata, equipment data, and registry tests updated.</span></li>
+          <li><span class="check">✓</span><span>Existing Fletching icons are enforced for Shortbow and Bronze arrows.</span></li>
+          <li><span class="check">✓</span><span>Memory Bank and source audit updated.</span></li>
+        </ul>
+      </div>
+      <div class="lane">
+        <h3>Still Open</h3>
+        <ul>
+          <li><span class="hold">•</span><span>Magic/rune routing remains untouched.</span></li>
+          <li><span class="hold">•</span><span>Stack-aware ammunition equipment and arrow recovery are deferred.</span></li>
+          <li><span class="hold">•</span><span>Broader enemies and quest migration remain on the grill backlog.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="code">python3 run_tests.py
+QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests
+git diff --check</div>
+
+    <footer>Artifact: memory-bank/status-updates/combat-ranged-ammo-complete-2026-06-23.html</footer>
+  </main>
+</body>
+</html>
