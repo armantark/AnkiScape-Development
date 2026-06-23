@@ -234,6 +234,64 @@ COMBAT_MAGIC_STAFF_DATA: Dict[str, dict] = {
 }
 
 
+GOBLIN_LEVEL_2_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/goblin/goblin_level_2.plugin.kts"
+)
+
+
+GOBLIN_LEVEL_2_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Bronze sq shield", "quantity": 1, "slots": 24},
+                {"item": "Bronze spear", "quantity": 1, "slots": 32},
+                {"item": "Sling", "quantity": 1, "slots": 32},
+                {"item": "Water rune", "quantity": 6, "slots": 48},
+                {"item": "Body rune", "quantity": 7, "slots": 40},
+                {"item": "Earth rune", "quantity": 4, "slots": 24},
+                {"item": "Bronze bolts", "quantity": 8, "slots": 24},
+                {"item": "Coins", "quantity": 5, "slots": 224},
+                {"item": "Coins", "quantity": 9, "slots": 24},
+                {"item": "Coins", "quantity": 15, "slots": 24},
+                {"item": "Coins", "quantity": 20, "slots": 16},
+                {"item": "Coins", "quantity": 1, "slots": 8},
+                {"slots": 272},
+                {"item": "Hammer", "quantity": 1, "slots": 120},
+                {"item": "Goblin book", "quantity": 1, "slots": 16},
+                {"item": "Goblin mail", "quantity": 1, "slots": 40},
+                {"item": "Chef's hat", "quantity": 1, "slots": 24},
+                {"item": "Beer", "quantity": 1, "slots": 16},
+                {"item": "Brass necklace", "quantity": 1, "slots": 8},
+                {"item": "Air talisman", "quantity": 1, "slots": 8},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1024,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 82},
+                {"item": "Green charm", "quantity": 1, "slots": 21},
+                {"item": "Crimson charm", "quantity": 1, "slots": 9},
+                {"item": "Blue charm", "quantity": 1, "slots": 1},
+                {"slots": 911},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 6},
+                {"slots": 1018},
+            ),
+        },
+    ),
+}
+
+
 COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Crayfish": {"heal_lifepoints": 20, "source": FOOD_SOURCE_PATH},
     "Shrimps": {"heal_lifepoints": 30, "source": FOOD_SOURCE_PATH},
@@ -487,6 +545,66 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
             "definitions/critters/giant_spider_level_2.plugin.kts"
         ),
+    },
+    "goblin_level_2_unarmed": {
+        "display_name": "Goblin (unarmed)",
+        "level": 2,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 5.0,
+        "stats": {
+            "hitpoints": 50,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -21,
+            "attack_slash": 0,
+            "attack_crush": -15,
+            "defence_stab": -15,
+            "defence_slash": -15,
+            "defence_crush": -15,
+            "defence_magic": -15,
+            "defence_ranged": -15,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_LEVEL_2_DROPS,
+        "source": f"{GOBLIN_LEVEL_2_SOURCE_PATH}: unarmed ids GOBLIN_4261/GOBLIN_4263-GOBLIN_4271",
+    },
+    "goblin_level_2_armed": {
+        "display_name": "Goblin (armed)",
+        "level": 2,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 5.0,
+        "stats": {
+            "hitpoints": 50,
+            "attack": 3,
+            "strength": 1,
+            "defence": 4,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -21,
+            "attack_slash": 0,
+            "attack_crush": -15,
+            "defence_stab": -15,
+            "defence_slash": -15,
+            "defence_crush": -15,
+            "defence_magic": -15,
+            "defence_ranged": -15,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_LEVEL_2_DROPS,
+        "source": f"{GOBLIN_LEVEL_2_SOURCE_PATH}: armed id GOBLIN_4262",
     },
     "cow": {
         "display_name": "Cow",
@@ -774,11 +892,15 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
+    "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},
+    "Bronze spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_SPEAR"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
+    "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
     "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
+    "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
     "Staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF"},
@@ -795,4 +917,4 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
 }
 
 
-COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Humanoids", "Coastal")
+COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Goblins", "Humanoids", "Coastal")

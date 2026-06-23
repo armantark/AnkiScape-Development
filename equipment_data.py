@@ -1598,6 +1598,9 @@ _RUNECRAFTING_EXTERNAL_SOURCE = 'external RuneScape wiki; not present in local 2
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Shortbow', 'weapon', 'shortbow', 841, 'data/cfg/items.yml item 841; SHORTBOW'),
     ('Cape', 'cape', 'cape', 1019, 'data/cfg/items.yml item 1019; CAPE_1019'),
+    ('Brass necklace', 'neck', 'necklace', 1009, 'data/cfg/items.yml item 1009; BRASS_NECKLACE'),
+    ('Bronze spear', 'weapon', 'spear', 1237, 'data/cfg/items.yml item 1237; BRONZE_SPEAR'),
+    ("Chef's hat", 'head', 'hat', 1949, 'data/cfg/items.yml item 1949; CHEFS_HAT'),
     ('Staff', 'weapon', 'staff', 1379, 'data/cfg/items.yml item 1379; STAFF'),
     ('Staff of air', 'weapon', 'elemental_staff', 1381, 'data/cfg/items.yml item 1381; STAFF_OF_AIR'),
     ('Staff of water', 'weapon', 'elemental_staff', 1383, 'data/cfg/items.yml item 1383; STAFF_OF_WATER'),
@@ -1625,11 +1628,21 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
             slot=_slot,
             combat_skill='ranged' if _item_name == 'Shortbow' else None,
             required_level=1,
-            two_handed=True if _item_name == 'Shortbow' else False,
+            two_handed=True if _item_name in {'Bronze spear', 'Shortbow'} else False,
             equipment_type=_equipment_type,
             bonuses=(
                 EquipmentBonuses(attack_ranged=8)
                 if _item_name == 'Shortbow'
+                else
+                EquipmentBonuses(
+                    attack_stab=5,
+                    attack_slash=5,
+                    attack_crush=5,
+                    defence_stab=1,
+                    defence_slash=1,
+                    melee_strength=6,
+                )
+                if _item_name == 'Bronze spear'
                 else
                 EquipmentBonuses(
                     attack_slash=-1,
@@ -1685,12 +1698,23 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                 if _item_name == 'Cape'
                 else EquipmentBonuses()
             ),
-            attack_speed=5 if _equipment_type in {'staff', 'elemental_staff'} else 4 if _item_name in {'Cape', 'Shortbow'} else 0,
+            attack_speed=5 if _equipment_type in {'spear', 'staff', 'elemental_staff'} else 4 if _item_name in {'Brass necklace', 'Cape', "Chef's hat", 'Shortbow'} else 0,
             source_item_id=_source_item_id,
             source=_source,
             source_status=(
                 'items.yml equipment block'
-                if _item_name in {'Cape', 'Shortbow', 'Staff', 'Staff of air', 'Staff of water', 'Staff of earth', 'Staff of fire'}
+                if _item_name in {
+                    'Brass necklace',
+                    'Bronze spear',
+                    'Cape',
+                    "Chef's hat",
+                    'Shortbow',
+                    'Staff',
+                    'Staff of air',
+                    'Staff of water',
+                    'Staff of earth',
+                    'Staff of fire',
+                }
                 else 'manual Runecrafting v1 equipment entry'
             ),
         ),

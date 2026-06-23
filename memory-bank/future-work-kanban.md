@@ -40,7 +40,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   owner explicitly asks for one or the next scoped feature requires it.
 - Combat V1 implementation is complete as of 2026-06-23 for the first
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Giant rat, Giant
-  spider, Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9, and Seagull are selectable Combat
+  spider, Goblin level 2 armed/unarmed, Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9, and Seagull are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -60,6 +60,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md` before
   expanding ordinary humanoid Combat; use
+  `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md` before
+  touching Goblin rows or shared Goblin tables; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo and Magic beyond the basic Strike/staff slice,
@@ -70,7 +72,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See
   `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`.
-- Cow calf, Ram, Highwayman, Barbarian level 8/9, and Seagull are now implemented ordinary Combat targets as of
+- Cow calf, Ram, Highwayman, Barbarian level 8/9, Goblin level 2 armed/unarmed, and Seagull are now implemented ordinary Combat targets as of
   2026-06-23. They were chosen first because their local 2011Scape rows have
   complete stats, simple guaranteed drops, death handlers, attack speed, and no
   quantity-range or nested-table runtime requirements. Spider and level-2 Giant
@@ -80,8 +82,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   ordinary level 8/9 Barbarian twin row now imports the full 1024-slot main
   table, 1000-slot charm table, 128-slot easy clue tertiary table, generic Staff
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
-  Goblins, Barbarian variants such as the level 10 greataxe row, Farmers,
-  Al-Kharid warriors, and higher-risk spider variants need
+  Goblin level 2 is split into unarmed and armed targets because source stats
+  differ, while sharing the same local 1024-slot main table, 1024-slot charm
+  table, and 1024-slot easy clue tertiary table. Higher Goblins, Barbarian
+  variants such as the level 10 greataxe row, Farmers, Al-Kharid warriors, and
+  higher-risk spider variants need
   wider item/drop-table, variant, access, or special-mechanic support.
 - Shortbow plus Bronze arrows are now implemented as the first source-backed
   Ranged/ammo path as of 2026-06-23. Ranged accurate/rapid/longrange styles run

@@ -119,6 +119,30 @@
     "source_wiki": "rs3",
     "timestamp": "2020-12-12T05:14:53Z"
   },
+  "combatitems/brass_necklace.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Brass_necklace.png",
+    "file_title": "Brass necklace.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Brass_necklace.png?05d25",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "db3131aa319c1ef7013b79427486202e6d8bae12",
+    "size": 559,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:59Z"
+  },
+  "combatitems/bronze_spear.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_spear.png",
+    "file_title": "Bronze spear.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bronze_spear.png?c50c3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cfcfa8840b6545f1ea4c1b96b019f990823eafbf",
+    "size": 293,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:04Z"
+  },
   "combatitems/cape.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_cape.png",
     "file_title": "Black cape.png",
@@ -130,6 +154,18 @@
     "size": 293,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:27Z"
+  },
+  "combatitems/chef_s_hat.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chef%27s_hat.png",
+    "file_title": "Chef's hat.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Chef%27s_hat.png?bcc94",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e4bd297b810940a97357c857f28a25ac723dfb5b",
+    "size": 414,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:15Z"
   },
   "combatitems/clue_scroll_easy.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Clue_scroll_%28easy%29.png",
@@ -178,6 +214,18 @@
     "size": 873,
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:10:09Z"
+  },
+  "combatitems/goblin_book.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goblin_book.png",
+    "file_title": "Goblin book.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Goblin_book.png?122dd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "43f7527e05139bf5c81a7443e0bed7bffcf4bc76",
+    "size": 482,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:26Z"
   },
   "combatitems/gold_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Gold_charm.png",

@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 138)
+        self.assertEqual(len(EQUIPMENT_DATA), 141)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -56,6 +56,23 @@ class TestEquipmentData(unittest.TestCase):
         self.assertTrue(shortbow.two_handed)
         self.assertEqual(shortbow.attack_speed, 4)
         self.assertEqual(shortbow.bonuses.attack_ranged, 8)
+
+    def test_goblin_drop_equipment_items_are_equippable(self):
+        bronze_spear = EQUIPMENT_DATA["Bronze spear"]
+        self.assertEqual(bronze_spear.slot, "weapon")
+        self.assertEqual(bronze_spear.equipment_type, "spear")
+        self.assertTrue(bronze_spear.two_handed)
+        self.assertEqual(bronze_spear.attack_speed, 5)
+        self.assertEqual(bronze_spear.source_item_id, 1237)
+        self.assertEqual(bronze_spear.bonuses.attack_stab, 5)
+        self.assertEqual(bronze_spear.bonuses.attack_slash, 5)
+        self.assertEqual(bronze_spear.bonuses.attack_crush, 5)
+        self.assertEqual(bronze_spear.bonuses.melee_strength, 6)
+
+        self.assertEqual(EQUIPMENT_DATA["Chef's hat"].slot, "head")
+        self.assertEqual(EQUIPMENT_DATA["Chef's hat"].source_item_id, 1949)
+        self.assertEqual(EQUIPMENT_DATA["Brass necklace"].slot, "neck")
+        self.assertEqual(EQUIPMENT_DATA["Brass necklace"].source_item_id, 1009)
 
     def test_elemental_staves_are_equippable_magic_weapons(self):
         basic_staff = EQUIPMENT_DATA["Staff"]

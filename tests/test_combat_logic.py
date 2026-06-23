@@ -200,6 +200,39 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("barbarian_lvl_8.plugin.kts", barbarian["source"])
         self.assertIn("barbarian_lvl_9.plugin.kts", barbarian["source"])
 
+    def test_goblin_level_2_import_splits_armed_and_unarmed_source_variants(self):
+        unarmed = COMBAT_ENEMY_DATA["goblin_level_2_unarmed"]
+        armed = COMBAT_ENEMY_DATA["goblin_level_2_armed"]
+
+        self.assertEqual(unarmed["level"], 2)
+        self.assertEqual(unarmed["group"], "Goblins")
+        self.assertEqual(unarmed["attack_speed"], 4)
+        self.assertEqual(unarmed["respawn_delay"], 35)
+        self.assertEqual(unarmed["slayer_xp"], 5.0)
+        self.assertEqual(unarmed["stats"]["hitpoints"], 50)
+        self.assertEqual(unarmed["stats"]["attack"], 1)
+        self.assertEqual(unarmed["stats"]["defence"], 1)
+        self.assertEqual(armed["stats"]["attack"], 3)
+        self.assertEqual(armed["stats"]["defence"], 4)
+        self.assertIs(unarmed["drops"], armed["drops"])
+
+        main, charms, tertiary = unarmed["drops"]["tables"]
+        self.assertEqual(unarmed["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Bronze sq shield", "quantity": 1, "slots": 24})
+        self.assertEqual(main["slots"][1], {"item": "Bronze spear", "quantity": 1, "slots": 32})
+        self.assertEqual(main["slots"][13], {"item": "Hammer", "quantity": 1, "slots": 120})
+        self.assertEqual(main["slots"][14], {"item": "Goblin book", "quantity": 1, "slots": 16})
+        self.assertEqual(main["slots"][18], {"item": "Brass necklace", "quantity": 1, "slots": 8})
+        self.assertEqual(charms["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1024)
+        self.assertEqual(tertiary["total"], 1024)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 6})
+        self.assertIn("goblin_level_2.plugin.kts", unarmed["source"])
+        self.assertIn("unarmed ids", unarmed["source"])
+        self.assertIn("armed id", armed["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -223,6 +256,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Bronze hatchet": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_goblin_level_2_drop_rolls_include_main_charms_and_tertiary_tables(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["goblin_level_2_unarmed"],
+            _rng([0.0, 0.0, 0.0]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze sq shield": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
 
     def test_cow_calf_burst_grants_source_guaranteed_drops(self):
         player = _player(current_combat_target="cow_calf")

@@ -204,6 +204,13 @@
   equipment from `items.yml`, and Combat now carries icons for Staff, Bear fur,
   Beer, Coins, and Clue scroll (easy). Source proof:
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md`.
+- Combat Goblin expansion added level-2 Goblins as two source-split targets:
+  `Goblin (unarmed)` for the unarmed IDs and `Goblin (armed)` for the one armed
+  ID with higher Attack/Defence. Both share the exact local 1024-slot main
+  table, charm table, and easy clue tertiary table. Bronze spear, Chef's hat,
+  and Brass necklace are now source-backed equipment drops, and Goblin book has
+  a Combat item icon. Source proof:
+  `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md`.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
@@ -213,7 +220,9 @@
   controls, confirmation UX for dangerous targets, source-exact death-fee and
   grave-expiry variants beyond the current review/stacked-death bridge, and
   migrating quest combat gates from the lightweight resolver onto the shared
-  combat engine. Broad
+  combat engine. Higher Goblins, Farmer, and Al-Kharid Warrior still need
+  first-class shared/global table handling before their drops can be imported.
+  Broad
   non-Smithing combat equipment import/equip support is also still open; Wooden
   shield is currently claimable but not proof that all shield mechanics are done.
 - Full quest-stage minute-detail parity. The generator now preserves broad

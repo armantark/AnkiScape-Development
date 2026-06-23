@@ -238,6 +238,13 @@ Combat icons for Staff, Bear fur, Beer, Coins, and Clue scroll (easy). Source
 proof and the level 10 greataxe exclusion live in
 `memory-bank/source-audits/combat-barbarian-2026-06-23.md`.
 
+Combat ordinary-enemy expansion also includes the level-2 Goblin source row as
+two selectable Goblins targets: unarmed IDs and the one armed ID are split
+because their source stats differ. The shared local drop table is imported, but
+higher Goblins, Farmer, and Al-Kharid Warrior are still deferred until shared
+global drop tables such as `minorHerbTable` are first-class. Source proof lives
+in `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md`.
+
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
 quests have item/tool/option blockers, and 120 quests have combat blockers.
