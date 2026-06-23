@@ -56,7 +56,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Office recovery now handles stacked Combat deaths: a second death moves the
   old active grave into flat `death_office.items`, the Bank tab exposes reclaim,
   and reclaim consumes `100 Coins` per held item before returning gear to
-  inventory. Combat Magic now covers the standard elemental spell ladder through
+  inventory. Persistent poison status now advances on source-shaped review ticks
+  during Combat bursts and safe noncombat reviews, deals source-formula damage,
+  clears on death, and appears in the review HUD while active. Combat Magic now covers the standard elemental spell ladder through
   Fire Wave, with source level/rune/max-hit/base-XP rows and existing elemental
   staff rune substitution. Combat Ranged now covers standard bows from Shortbow
   through Magic longbow with Bronze through Rune arrow compatibility; Broad
@@ -76,6 +78,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching ordinary Combat dangerous-target confirmation; use
   `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md` before
   touching safe-boundary ammo recovery; use
+  `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md` before
+  touching poison status recovery; use
   `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
@@ -123,6 +127,12 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   combat spells, battlestaves/mystic staves, source special effects, noncombat
   Magic actions, and a real Magic skill panel rather than reopening the first
   combat spell path.
+- Persistent poison status recovery is now implemented as of 2026-06-23. It
+  supports existing player poison state in `combat_status_effects`, advances
+  damage every 30 source ticks during Combat or safe noncombat reviews, and uses
+  the existing grave path if poison kills the player. Future status work should
+  add enemy poison application, player weapon/ammo poison, poison immunity,
+  antipoison dose handling from the potion loadout, and non-poison statuses.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

@@ -965,6 +965,15 @@ SAFE_COMBAT_RECOVERY_TICKS = COMBAT_BURST_TICKS
 COMBAT_SPECIAL_ATTACK_MAX_ENERGY = 100
 COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS = 10
 COMBAT_STAT_DRAIN_RECOVERY_TICKS = 100
+COMBAT_POISON_TICK_DELAY = 30
+COMBAT_POISON_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/mechanics/poison/Poison.kt"
+)
+COMBAT_POISON_TIMER_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/mechanics/poison/poison_plugin.plugin.kts"
+)
 COMBAT_FOOD_LOADOUT_CAPACITY = 28
 COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
@@ -1034,6 +1043,24 @@ def _sanitize_combat_stat_drains(raw_drains):
     }
 
 
+def _sanitize_combat_status_effects(raw_effects):
+    if not isinstance(raw_effects, Mapping):
+        return {}
+    effects = {}
+    raw_poison = raw_effects.get("poison")
+    if isinstance(raw_poison, Mapping):
+        ticks_left = _non_negative_int(raw_poison.get("ticks_left", 0), 0)
+        tick_progress = _non_negative_int(raw_poison.get("tick_progress", 0), 0)
+        source = raw_poison.get("source", COMBAT_POISON_SOURCE_PATH)
+        if ticks_left > 0:
+            effects["poison"] = {
+                "ticks_left": ticks_left,
+                "tick_progress": min(tick_progress, COMBAT_POISON_TICK_DELAY - 1),
+                "source": source if isinstance(source, str) and source else COMBAT_POISON_SOURCE_PATH,
+            }
+    return effects
+
+
 def _sanitize_combat_recovery_progress(raw_progress):
     if not isinstance(raw_progress, Mapping):
         return {}
@@ -1081,6 +1108,29 @@ def _set_combat_death_office_items(data, items, source="combat_death_office"):
         }
     else:
         data["death_office"] = {}
+
+
+def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_death"):
+    equipment = dict(data.get("equipment", {}) or {})
+    grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
+    existing_grave_items = _combat_grave_items(data.get("combat_grave", {}) or {})
+    if existing_grave_items:
+        existing_office_items = _combat_death_office_items(data.get("death_office", {}) or {})
+        _set_combat_death_office_items(
+            data,
+            existing_office_items + existing_grave_items,
+            "combat_stacked_grave",
+        )
+    data["equipment"] = {}
+    data["combat_grave"] = {
+        "items": grave_items,
+        "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
+        "source": grave_source,
+    } if grave_items else {}
+    data["combat_encounter"] = {}
+    data["combat_status_effects"] = {}
+    data["combat_lifepoints"] = max_player_lifepoints
+    return max_player_lifepoints
 
 
 def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
@@ -1132,11 +1182,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_supply_loadout": _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout")),
         "combat_special_attack_energy": min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, special_energy),
         "combat_stat_drains": _sanitize_combat_stat_drains(player_data.get("combat_stat_drains")),
-        "combat_status_effects": (
-            dict(player_data.get("combat_status_effects", {}) or {})
-            if isinstance(player_data.get("combat_status_effects", {}) or {}, Mapping)
-            else {}
-        ),
+        "combat_status_effects": _sanitize_combat_status_effects(player_data.get("combat_status_effects")),
         "combat_recovery_progress": _sanitize_combat_recovery_progress(player_data.get("combat_recovery_progress")),
         "combat_encounter": dict(encounter),
         "combat_kill_counts": {
@@ -1717,6 +1763,91 @@ def _combat_recover_stat_drains(data, ticks):
     data["combat_recovery_progress"] = {key: value for key, value in progress.items() if value > 0}
 
 
+def combat_poison_ticks_for_initial_damage_pure(initial_damage):
+    damage = _positive_int(initial_damage, 0)
+    return max(0, damage * 5 - 4)
+
+
+def combat_poison_damage_for_ticks_pure(ticks_left):
+    return ((_non_negative_int(ticks_left, 0) // 5) + 1) * 10
+
+
+def apply_combat_poison_effect_pure(player_data, initial_damage):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    ticks_left = combat_poison_ticks_for_initial_damage_pure(initial_damage)
+    if ticks_left <= 0:
+        return data, False, "invalid poison damage"
+    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    current_poison = effects.get("poison", {})
+    current_damage = combat_poison_damage_for_ticks_pure(current_poison.get("ticks_left", 0)) if current_poison else 0
+    new_damage = combat_poison_damage_for_ticks_pure(ticks_left)
+    if current_poison and current_damage > new_damage:
+        data["combat_status_effects"] = effects
+        return data, False, "existing poison is stronger"
+    effects["poison"] = {
+        "ticks_left": ticks_left,
+        "tick_progress": 0,
+        "source": COMBAT_POISON_SOURCE_PATH,
+    }
+    data["combat_status_effects"] = effects
+    return data, True, ""
+
+
+def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lifepoints=None):
+    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    if current_lifepoints is not None:
+        data["combat_lifepoints"] = _non_negative_int(current_lifepoints, 0)
+    max_lp = max_lifepoints if max_lifepoints is not None else combat_max_lifepoints_pure(data)
+    player_lp = max(
+        0,
+        min(
+            _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp),
+            max_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
+        ),
+    )
+    result = {"damage": {}, "expired": tuple(), "died": False}
+    poison = effects.get("poison")
+    if poison:
+        progress = _non_negative_int(poison.get("tick_progress", 0), 0) + max(0, _non_negative_int(ticks, 0))
+        ticks_left = _non_negative_int(poison.get("ticks_left", 0), 0)
+        poison_damage = 0
+        while ticks_left > 0 and progress >= COMBAT_POISON_TICK_DELAY and player_lp > 0:
+            progress -= COMBAT_POISON_TICK_DELAY
+            damage = min(player_lp, combat_poison_damage_for_ticks_pure(ticks_left))
+            poison_damage += damage
+            player_lp -= damage
+            ticks_left -= 1
+        if poison_damage > 0:
+            result["damage"]["poison"] = poison_damage
+        if ticks_left > 0 and player_lp > 0:
+            effects["poison"] = {
+                "ticks_left": ticks_left,
+                "tick_progress": min(progress, COMBAT_POISON_TICK_DELAY - 1),
+                "source": poison.get("source", COMBAT_POISON_SOURCE_PATH),
+            }
+        else:
+            effects.pop("poison", None)
+            if ticks_left <= 0:
+                result["expired"] = ("poison",)
+    result["died"] = player_lp <= 0 and bool(result["damage"])
+    data["combat_lifepoints"] = player_lp
+    data["combat_status_effects"] = effects
+    return result
+
+
+def combat_status_summary_pure(player_data):
+    effects = _sanitize_combat_status_effects(player_data.get("combat_status_effects"))
+    poison = effects.get("poison")
+    if not poison:
+        return ""
+    ticks_left = _non_negative_int(poison.get("ticks_left", 0), 0)
+    tick_progress = _non_negative_int(poison.get("tick_progress", 0), 0)
+    next_damage = combat_poison_damage_for_ticks_pure(ticks_left)
+    ticks_until = max(1, COMBAT_POISON_TICK_DELAY - min(tick_progress, COMBAT_POISON_TICK_DELAY - 1))
+    return f"Poisoned: {next_damage} LP in {ticks_until} ticks"
+
+
 def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
     threshold_percent = _positive_int(data.get("combat_auto_eat_threshold_percent", 40), 40)
     threshold = max(1, int(max_lifepoints * threshold_percent / 100.0))
@@ -1845,6 +1976,10 @@ def apply_safe_combat_recovery_pure(player_data):
         data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_recover_stat_drains(data, SAFE_COMBAT_RECOVERY_TICKS)
+    status_result = _combat_advance_status_effects(data, SAFE_COMBAT_RECOVERY_TICKS)
+    if status_result.get("died"):
+        _combat_apply_pvm_death(data, max_lp, "combat_poison_death")
+        return data
     _combat_refill_food_loadout(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
         str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
@@ -2020,6 +2155,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     food_used = []
     ammo_used = {}
     runes_used = {}
+    status_damage = {}
+    status_expired = []
     xp_rewards = {}
     drops = {}
     killed = False
@@ -2031,6 +2168,19 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
+        status_result = _combat_advance_status_effects(data, 1, player_lp, max_player_lp)
+        player_lp = _non_negative_int(data.get("combat_lifepoints", player_lp), player_lp)
+        for effect_name, amount in (status_result.get("damage", {}) or {}).items():
+            status_damage[effect_name] = _non_negative_int(status_damage.get(effect_name, 0), 0) + _non_negative_int(amount, 0)
+        status_expired.extend(status_result.get("expired", ()) or ())
+        if status_result.get("died"):
+            died = True
+            break
+        if status_result.get("damage"):
+            player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
+            if food_event:
+                food_used.append(food_event)
+
         if tick >= next_player_attack and enemy_lp > 0:
             next_player_attack += player_attack_speed
             if combat_class == "ranged":
@@ -2104,24 +2254,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         elif combat_class == "magic":
             _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
     elif died:
-        equipment = dict(data.get("equipment", {}) or {})
-        grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
-        existing_grave_items = _combat_grave_items(data.get("combat_grave", {}) or {})
-        if existing_grave_items:
-            existing_office_items = _combat_death_office_items(data.get("death_office", {}) or {})
-            _set_combat_death_office_items(
-                data,
-                existing_office_items + existing_grave_items,
-                "combat_stacked_grave",
-            )
-        data["equipment"] = {}
-        data["combat_grave"] = {
-            "items": grave_items,
-            "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
-            "source": "combat_death",
-        } if grave_items else {}
-        data["combat_encounter"] = {}
-        player_lp = max_player_lp
+        player_lp = _combat_apply_pvm_death(data, max_player_lp)
     else:
         data["combat_encounter"] = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
 
@@ -2143,6 +2276,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "food_used": tuple(food_used),
         "ammo_used": dict(ammo_used),
         "runes_used": dict(runes_used),
+        "status_damage": dict(status_damage),
+        "status_expired": tuple(dict.fromkeys(status_expired)),
         "drops": drops,
         "xp_rewards": xp_rewards,
         "player_accuracy": player_accuracy,

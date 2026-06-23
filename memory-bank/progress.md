@@ -236,6 +236,14 @@
   into `combat_supply_loadout["ammo"]` using the existing Ranged weapon data.
   Source proof:
   `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`.
+- Combat persistent poison status recovery is now source-backed. The save model
+  sanitizes `combat_status_effects["poison"]`, poison advances on Combat burst
+  ticks and safe noncombat recovery ticks, damage uses local
+  `Poison.getDamageForTicks`, poison clears on death, and the review HUD shows
+  the active poison countdown. Antipoison auto-cure, weapon poison, enemy poison
+  application, poison immunity, and broader status/potion effects remain future
+  work. Source proof:
+  `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md`.
 - Combat Goblin expansion added level-2 Goblins as two source-split targets:
   `Goblin (unarmed)` for the unarmed IDs and `Goblin (armed)` for the one armed
   ID with higher Attack/Defence. Both share the exact local 1024-slot main

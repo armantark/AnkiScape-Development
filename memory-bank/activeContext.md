@@ -168,8 +168,11 @@ recovery foundation is also in place:
 finite carried food loadouts refill only at safe boundaries, safe noncombat
 reviews apply one rollback-safe recovery packet per card, special-attack energy
 regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
-tooltips show loaded/banked food readiness. Safe recovery now also refills
-Ranged ammo from inventory when the current Combat style is Ranged. The Ranged
+tooltips show loaded/banked food readiness. Persistent poison status now uses
+the local source tick/damage curve, advances during Combat bursts and safe
+noncombat recovery reviews, clears on death, and appears in the review HUD while
+active. Safe recovery now also refills Ranged ammo from inventory when the
+current Combat style is Ranged. The Ranged
 path now covers standard bows from Shortbow through Magic longbow with Bronze
 through Rune arrow compatibility, using the same Combat burst engine, consuming
 one arrow per attack attempt from `combat_supply_loadout["ammo"]`, and routing
@@ -225,6 +228,15 @@ if the current Combat style is Ranged and the equipped weapon resolves through
 into `combat_supply_loadout["ammo"]` alongside food and Magic runes. Source
 proof lives in
 `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`.
+
+Combat persistent status recovery now has the first source-backed poison path:
+`combat_status_effects["poison"]` stores source poison ticks and tick progress,
+poison advances every 30 source ticks during Combat bursts and safe noncombat
+reviews, damage follows local `Poison.getDamageForTicks`, and poison death uses
+the existing Combat grave path. Antipoison auto-cure, enemy poison application,
+weapon poison, poison immunity, and broader status/potion effects remain
+deferred until potion loadout and effect metadata exist. Source proof lives in
+`memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md`.
 
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and

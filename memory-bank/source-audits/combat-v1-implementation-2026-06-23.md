@@ -6,7 +6,8 @@ Spider/Giant spider drop-range expansion, Highwayman humanoid expansion,
 Barbarian level 8/9 and level 10 ordinary-enemy expansions, Goblin
 ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
 progression, and the standard elemental Combat spell ladder, plus ordinary
-dangerous-target confirmation and safe-boundary ammo recovery.
+dangerous-target confirmation, safe-boundary ammo recovery, and persistent
+poison status recovery.
 
 ## Implemented Scope
 
@@ -31,12 +32,19 @@ dangerous-target confirmation and safe-boundary ammo recovery.
   once per `Actions per review` sub-action. The packet heals or decays
   lifepoints by 100, regenerates 10 special-attack energy per 50 ticks, recovers
   one stat-drain level per 100 safe ticks, refills carried food, Magic runes,
-  and Ranged ammo at safe boundaries, and remains covered by the existing Anki
-  undo snapshot.
+  and Ranged ammo at safe boundaries, advances active poison status, and remains
+  covered by the existing Anki undo snapshot.
 - Additive save fields now exist for future combat systems:
   `combat_supply_loadout`, `combat_special_attack_energy`,
   `combat_stat_drains`, `combat_status_effects`, and
   `combat_recovery_progress`.
+- `combat_status_effects["poison"]` now stores local source-shaped poison ticks
+  and tick progress. Poison advances every 30 source ticks during Combat bursts
+  and safe noncombat recovery reviews, applies local
+  `Poison.getDamageForTicks` lifepoint damage, clears on death, and can route a
+  poison death through the existing Combat grave path. Antipoison auto-cure,
+  enemy poison application, player weapon poison, poison immunity, and broader
+  status effects are still deferred.
 - Melee styles route XP as Attack, Strength, Defence, or controlled shared
   Attack/Strength/Defence, with Constitution XP awarded per damage.
 - Ranged styles now support standard bows from Shortbow through Magic longbow
@@ -105,6 +113,8 @@ dangerous-target confirmation and safe-boundary ammo recovery.
   `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`
 - Safe recovery ammo refill:
   `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md`
+- Persistent poison status recovery:
+  `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md`
 
 ## Deferred
 
@@ -120,6 +130,8 @@ dangerous-target confirmation and safe-boundary ammo recovery.
   weapons, crossbows/bolts/darts/knives, stack-aware ammunition equipment, ammo
   preference controls, and arrow recovery.
 - Prayer effects, drain, and Prayer skilling.
+- Antipoison auto-cure, enemy poison application, player weapon/ammo poison,
+  poison immunity, and non-poison persistent status effects.
 - Richer risk previews, including time-to-kill and Wilderness/equipment-risk
   opt-in surfaces.
 - Full Death's Office reclaim UI and stacked-death handling. Safe noncombat

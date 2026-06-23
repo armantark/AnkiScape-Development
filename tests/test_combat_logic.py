@@ -15,9 +15,13 @@ from constants import EQUIPMENT_DATA
 from logic_pure import (
     _combat_roll_drops,
     apply_combat_burst_pure,
+    apply_combat_poison_effect_pure,
     apply_safe_combat_recovery_pure,
     combat_death_office_reclaim_cost_pure,
     combat_death_office_summary_pure,
+    combat_poison_damage_for_ticks_pure,
+    combat_poison_ticks_for_initial_damage_pure,
+    combat_status_summary_pure,
     refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
@@ -889,6 +893,88 @@ class CombatLogicTest(unittest.TestCase):
         self.assertFalse(result["killed"])
         self.assertEqual(result["ticks_elapsed"], 50)
         self.assertEqual(new_data["combat_special_attack_energy"], 50)
+
+    def test_poison_status_uses_source_tick_formula_and_summary(self):
+        player = _player()
+
+        poisoned, ok, reason = apply_combat_poison_effect_pure(player, 3)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(combat_poison_ticks_for_initial_damage_pure(3), 11)
+        self.assertEqual(combat_poison_damage_for_ticks_pure(11), 30)
+        self.assertEqual(
+            poisoned["combat_status_effects"]["poison"],
+            {
+                "ticks_left": 11,
+                "tick_progress": 0,
+                "source": "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/mechanics/poison/Poison.kt",
+            },
+        )
+        self.assertEqual(combat_status_summary_pure(poisoned), "Poisoned: 30 LP in 30 ticks")
+
+    def test_safe_recovery_advances_poison_status_after_healing(self):
+        player = _player(
+            combat_lifepoints=40,
+            combat_status_effects={
+                "poison": {
+                    "ticks_left": combat_poison_ticks_for_initial_damage_pure(3),
+                    "tick_progress": 0,
+                }
+            },
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_lifepoints"], 70)
+        self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 10)
+        self.assertEqual(recovered["combat_status_effects"]["poison"]["tick_progress"], 20)
+        self.assertEqual(combat_status_summary_pure(recovered), "Poisoned: 30 LP in 10 ticks")
+
+    def test_combat_burst_advances_poison_status_by_review_ticks(self):
+        player = _player(
+            combat_lifepoints=100,
+            combat_status_effects={
+                "poison": {
+                    "ticks_left": combat_poison_ticks_for_initial_damage_pure(3),
+                    "tick_progress": 29,
+                }
+            },
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["died"])
+        self.assertEqual(result["status_damage"], {"poison": 30})
+        self.assertEqual(new_data["combat_lifepoints"], 70)
+        self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
+        self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
+
+    def test_safe_recovery_poison_death_uses_combat_grave_path(self):
+        player = _player(
+            combat_lifepoints=5,
+            equipment={"weapon": "Iron sword"},
+            combat_status_effects={
+                "poison": {
+                    "ticks_left": combat_poison_ticks_for_initial_damage_pure(11),
+                    "tick_progress": 0,
+                }
+            },
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_lifepoints"], 100)
+        self.assertEqual(recovered["equipment"], {})
+        self.assertEqual(recovered["combat_status_effects"], {})
+        self.assertEqual(recovered["combat_grave"]["items"], ["Iron sword"])
+        self.assertEqual(recovered["combat_grave"]["source"], "combat_poison_death")
 
     def test_safe_recovery_refills_loadout_regenerates_energy_and_recovers_drains(self):
         player = _player(

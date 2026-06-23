@@ -194,6 +194,10 @@ try:
 except Exception:
     from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY  # type: ignore
     from skill_registry import get_skill  # type: ignore
+try:
+    from .logic_pure import combat_status_summary_pure
+except Exception:
+    from logic_pure import combat_status_summary_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -1024,6 +1028,7 @@ if HAS_QT:
         def set_data(self, player_data: dict, skill: str) -> None:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
+            combat_status = combat_status_summary_pure(player_data)
             if skill in _UTILITY_SKILL_NAMES:
                 # Utility / Activities has no level or XP; show the active activity
                 # and make the no-XP nature explicit instead of a progress bar.
@@ -1037,7 +1042,8 @@ if HAS_QT:
                 else:
                     self.icon_lbl.clear()
                 self.title_lbl.setText(_UTILITY_HUB_NAME)
-                self.sub_lbl.setText(f"{activity_name} • material prep (no XP)")
+                status_suffix = f" • {combat_status}" if combat_status else ""
+                self.sub_lbl.setText(f"{activity_name} • material prep (no XP){status_suffix}")
                 try:
                     self.progress.setVisible(False)
                     self.sub_lbl.setVisible(True)
@@ -1067,7 +1073,8 @@ if HAS_QT:
                 self.progress.setVisible(True)
                 self.progress.setValue(pct)
                 self.sub_lbl.setVisible(True)
-                self.sub_lbl.setText(f"{current_lp}/{max_lp} LP")
+                status_suffix = f" • {combat_status}" if combat_status else ""
+                self.sub_lbl.setText(f"{current_lp}/{max_lp} LP{status_suffix}")
                 self.target_lbl.setText(target_name)
                 self.target_lbl.setVisible(True)
                 self.adjustSize()
@@ -1091,7 +1098,10 @@ if HAS_QT:
                 self.progress.setVisible(True)
                 self.progress.setValue(100 if state.get("completed") else int((progress / max(1, total)) * 100))
                 self.sub_lbl.setVisible(True)
-                self.sub_lbl.setText("Completed" if state.get("completed") else f"Stage {progress}/{total}")
+                quest_status = "Completed" if state.get("completed") else f"Stage {progress}/{total}"
+                if combat_status:
+                    quest_status = f"{quest_status} • {combat_status}"
+                self.sub_lbl.setText(quest_status)
                 self.target_lbl.setText(quest_name)
                 self.target_lbl.setVisible(True)
                 self.adjustSize()
@@ -1108,7 +1118,10 @@ if HAS_QT:
                     self.icon_lbl.clear()
                 self.title_lbl.setText("No skill selected")
                 self.progress.setValue(0)
-                self.sub_lbl.setText("Open AnkiScape menu to choose a skill")
+                no_skill_status = "Open AnkiScape menu to choose a skill"
+                if combat_status:
+                    no_skill_status = f"{no_skill_status} • {combat_status}"
+                self.sub_lbl.setText(no_skill_status)
                 # Always show progress/subtext when HUD is enabled
                 try:
                     self.progress.setVisible(True)
@@ -1139,7 +1152,10 @@ if HAS_QT:
             # Compute progress within current level via pure helper
             pct, remain, target_lv = compute_level_progress(level, exp, EXP_TABLE)
             self.progress.setValue(pct)
-            self.sub_lbl.setText(f"{pct}% to Lv {target_lv} • {remain:,.0f} XP to next")
+            progress_text = f"{pct}% to Lv {target_lv} • {remain:,.0f} XP to next"
+            if combat_status:
+                progress_text = f"{progress_text} • {combat_status}"
+            self.sub_lbl.setText(progress_text)
 
             # Echo the currently selected menu target (e.g. "Pot (unfired)").
             target_name = current_target_display_name(skill, player_data)
