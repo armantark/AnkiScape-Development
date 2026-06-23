@@ -52,7 +52,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   food readiness. Use `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` before
   expanding Combat. Next Combat work should widen source-backed enemies,
-  complete ranged/magic/ammo/rune routing, add player-facing loadout controls,
+  broaden Ranged/Magic equipment and spell coverage, add player-facing loadout controls,
   improve grave/Death's Office recovery, and migrate quest combat gates onto
   the same engine instead of reopening the completed design grill.
 - The Tutorial Island starter kit bridge is complete as of 2026-06-23. It uses a
@@ -76,6 +76,14 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   player-facing ammo loadout controls. A read-only ordinary-enemy audit found
   level-8 Barbarians to be the safest next non-trivial enemy candidate, but they
   still need Staff, Bear fur, and easy clue item/asset handling before import.
+- Wind Strike is now implemented as the first source-backed combat Magic path as
+  of 2026-06-23. Magic standard style runs through the shared Combat burst
+  engine, requires Magic level 1 plus Air/Mind runes, consumes one Air rune and
+  one Mind rune per cast attempt from the carried rune loadout, awards source
+  base spell XP on splashes, and routes damage XP into Magic/Constitution.
+  Future Magic work should add staff rune substitution, more combat spells,
+  noncombat spell actions, rune loadout controls, and a real Magic skill panel
+  when there is a playable action family beyond the Combat selector.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

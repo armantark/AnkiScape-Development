@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Magic Rune Path Complete</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0e1117;
+      --panel: #171c24;
+      --ink: #f2f5f8;
+      --muted: #9aa7b5;
+      --line: #2a3340;
+      --green: #69d391;
+      --blue: #73a7ff;
+      --amber: #ffc861;
+      --red: #ff7b7b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 28px;
+    }
+    header {
+      display: grid;
+      gap: 12px;
+      padding: 28px 0 20px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0; }
+    .sub { color: var(--muted); max-width: 760px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+    section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .wide { grid-column: span 12; }
+    .half { grid-column: span 6; }
+    .third { grid-column: span 4; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 16px rgba(105, 211, 145, 0.65);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .step {
+      min-height: 110px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #111720;
+    }
+    .step strong { display: block; margin-bottom: 6px; }
+    .step small { color: var(--muted); }
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+    li + li { margin-top: 7px; }
+    .metric {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--green);
+    }
+    .code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #c7d4e4;
+      background: #0f141c;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      overflow-wrap: anywhere;
+    }
+    .callout {
+      border-color: rgba(255, 200, 97, 0.45);
+      background: #211b10;
+    }
+    .callout h2 { color: var(--amber); }
+    .tests {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    @media (max-width: 820px) {
+      main { padding: 18px; }
+      .half, .third { grid-column: span 12; }
+      .flow, .tests { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="pill"><span class="dot"></span>Checkpoint complete</div>
+      <h1>Combat Magic now casts Wind Strike with real rune costs.</h1>
+      <p class="sub">This checkpoint adds the first source-backed combat Magic path to the shared Combat burst engine: selected spell state, rune gating, rune loadout consumption, base spell XP on cast attempts, damage XP routing, target tooltip readiness, runtime handling, and Qt menu controls.</p>
+    </header>
+
+    <div class="grid">
+      <section class="wide">
+        <h2>Review Burst Path</h2>
+        <div class="flow">
+          <div class="step"><strong>Select</strong><small>Combat style: Magic standard. Spell: Wind Strike.</small></div>
+          <div class="step"><strong>Gate</strong><small>Requires Magic level 1, Air rune x1, Mind rune x1.</small></div>
+          <div class="step"><strong>Load</strong><small>Fresh fights move needed rune stacks into carried rune loadout.</small></div>
+          <div class="step"><strong>Cast</strong><small>Each attack attempt consumes one Air and one Mind rune.</small></div>
+          <div class="step"><strong>Reward</strong><small>5.5 base Magic XP on cast; damage XP to Magic and Constitution.</small></div>
+        </div>
+      </section>
+
+      <section class="third">
+        <h2>Implemented</h2>
+        <ul>
+          <li>`COMBAT_MAGIC_SPELL_DATA["wind_strike"]` with source level/runes/max hit/XP.</li>
+          <li>`current_combat_spell` default and sanitizer support.</li>
+          <li>Magic accuracy/max-hit path through the existing Combat simulation.</li>
+          <li>Rune summaries and lock reasons in Combat target rows.</li>
+        </ul>
+      </section>
+
+      <section class="third">
+        <h2>Verified</h2>
+        <div class="tests">
+          <div><div class="metric">587</div><p class="sub">standard tests passed</p></div>
+          <div><div class="metric">587</div><p class="sub">Qt discovery tests passed</p></div>
+          <div><div class="metric">0</div><p class="sub">diff-check errors</p></div>
+        </div>
+      </section>
+
+      <section class="third callout">
+        <h2>Still Open</h2>
+        <ul>
+          <li>Staff rune substitution.</li>
+          <li>More combat spells and spellbooks.</li>
+          <li>Rune loadout UI beyond auto-refill.</li>
+          <li>Noncombat Magic actions and a real Magic skill panel.</li>
+        </ul>
+      </section>
+
+      <section class="half">
+        <h2>Source Audit</h2>
+        <p class="code">memory-bank/source-audits/combat-magic-runes-2026-06-23.md</p>
+      </section>
+
+      <section class="half">
+        <h2>Primary Files</h2>
+        <p class="code">combat_data.py, logic_pure.py, target_metadata.py, ui.py, runtime and storage tests</p>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

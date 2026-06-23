@@ -1,6 +1,12 @@
 import unittest
 
-from combat_data import COMBAT_ENEMY_DATA, RANGED_FORMULA_SOURCE_PATH, RANGED_STRATEGY_SOURCE_PATH
+from combat_data import (
+    COMBAT_ENEMY_DATA,
+    MAGIC_FORMULA_SOURCE_PATH,
+    MAGIC_STRATEGY_SOURCE_PATH,
+    RANGED_FORMULA_SOURCE_PATH,
+    RANGED_STRATEGY_SOURCE_PATH,
+)
 from constants import EQUIPMENT_DATA
 from logic_pure import (
     _combat_roll_drops,
@@ -31,14 +37,17 @@ def _player(**overrides):
         "strength_level": 99,
         "defense_level": 99,
         "ranged_level": 99,
+        "magic_level": 99,
         "constitution_level": 10,
         "attack_exp": 0.0,
         "strength_exp": 0.0,
         "defense_exp": 0.0,
         "ranged_exp": 0.0,
+        "magic_exp": 0.0,
         "constitution_exp": 0.0,
         "current_combat_target": "chicken",
         "combat_attack_style": "accurate",
+        "current_combat_spell": "wind_strike",
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
         "combat_auto_eat_food": ["Shrimps"],
@@ -247,6 +256,98 @@ class CombatLogicTest(unittest.TestCase):
         self.assertGreater(new_data["ranged_exp"], 0.0)
         self.assertAlmostEqual(new_data["ranged_exp"], new_data["defense_exp"])
         self.assertEqual(new_data["attack_exp"], 0.0)
+
+    def test_magic_style_requires_wind_strike_runes(self):
+        player = _player(combat_attack_style="magic_standard", inventory={})
+
+        self.assertEqual(
+            combat_target_locked_reasons_pure(player, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            ("runes: Air rune x1, Mind rune x1",),
+        )
+
+        with_runes = _player(
+            combat_attack_style="magic_standard",
+            inventory={"Air rune": 1, "Mind rune": 1},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(with_runes, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            (),
+        )
+
+    def test_magic_burst_consumes_wind_strike_runes_and_awards_magic_xp(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            inventory={"Air rune": 2, "Mind rune": 2},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["combat_class"], "magic")
+        self.assertEqual(result["spell_id"], "wind_strike")
+        self.assertEqual(result["spell"], "Wind Strike")
+        self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
+        self.assertEqual(result["formula_source"], MAGIC_FORMULA_SOURCE_PATH)
+        self.assertEqual(result["xp_source"], MAGIC_STRATEGY_SOURCE_PATH)
+        self.assertEqual(new_data["inventory"]["Air rune"], 0)
+        self.assertEqual(new_data["inventory"]["Mind rune"], 0)
+        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {"Air rune": 1, "Mind rune": 1})
+        self.assertEqual(new_data["attack_exp"], 0.0)
+        self.assertEqual(new_data["ranged_exp"], 0.0)
+        self.assertGreater(new_data["magic_exp"], 5.5)
+        self.assertGreater(new_data["constitution_exp"], 0.0)
+
+    def test_magic_splash_consumes_runes_and_awards_base_spell_xp(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            inventory={"Air rune": 1, "Mind rune": 1},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["player_damage"], 0)
+        self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
+        self.assertAlmostEqual(new_data["magic_exp"], 5.5)
+        self.assertEqual(new_data["constitution_exp"], 0.0)
+
+    def test_active_magic_encounter_does_not_refill_runes_mid_fight(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            inventory={"Air rune": 5, "Mind rune": 5},
+            combat_supply_loadout={"runes": {"Air rune": 1, "Mind rune": 1}},
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=10,
+            rng=_rng([0.999999] * 8),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["stop_reason"], "out_of_runes")
+        self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
+        self.assertEqual(new_data["inventory"]["Air rune"], 5)
+        self.assertEqual(new_data["inventory"]["Mind rune"], 5)
+        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
 
     def test_active_ranged_encounter_does_not_refill_ammo_mid_fight(self):
         player = _player(

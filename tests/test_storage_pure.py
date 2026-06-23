@@ -67,6 +67,7 @@ class TestStoragePure(unittest.TestCase):
             "current_quest",
             "current_combat_target",
             "combat_attack_style",
+            "current_combat_spell",
             "combat_lifepoints",
             "combat_auto_eat_threshold_percent",
             "combat_auto_eat_food",
@@ -131,6 +132,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(data["current_combat_target"], "chicken")
         self.assertEqual(data["combat_attack_style"], "accurate")
+        self.assertEqual(data["current_combat_spell"], "wind_strike")
         self.assertEqual(data["combat_lifepoints"], 100)
         self.assertEqual(data["combat_auto_eat_threshold_percent"], 40)
         self.assertIn("Shrimps", data["combat_auto_eat_food"])
@@ -233,6 +235,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["action_telemetry"], {"version": 1, "actions": {}})
         self.assertEqual(migrated["current_combat_target"], "chicken")
         self.assertEqual(migrated["combat_attack_style"], "accurate")
+        self.assertEqual(migrated["current_combat_spell"], "wind_strike")
         self.assertEqual(migrated["combat_lifepoints"], 100)
         self.assertEqual(migrated["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
         self.assertEqual(migrated["combat_special_attack_energy"], 100)

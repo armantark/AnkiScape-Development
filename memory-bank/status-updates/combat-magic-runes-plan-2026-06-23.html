@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Combat Magic Rune Slice</title>
+  <style>
+    :root {
+      --bg: #101317;
+      --panel: #171c22;
+      --panel-2: #1d242c;
+      --line: #303844;
+      --text: #f0f4f8;
+      --muted: #9eaab8;
+      --green: #6ee7a8;
+      --blue: #74c7ff;
+      --amber: #f5c56b;
+      --red: #ff7f87;
+      --violet: #c9a8ff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(180deg, rgba(16,19,23,0.94), rgba(16,19,23,1)),
+        radial-gradient(circle at 20% 0%, rgba(116,199,255,0.16), transparent 32%),
+        radial-gradient(circle at 80% 10%, rgba(201,168,255,0.14), transparent 30%),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 32px 0 40px;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+    .panel {
+      background: linear-gradient(180deg, rgba(29,36,44,0.94), rgba(23,28,34,0.98));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.26);
+    }
+    .intro { padding: 28px; }
+    .eyebrow {
+      color: var(--blue);
+      font: 700 0.76rem/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 12px 0 12px;
+      max-width: 760px;
+      font-size: clamp(2rem, 5vw, 4.6rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+    .chip {
+      border: 1px solid rgba(116,199,255,0.32);
+      color: var(--blue);
+      padding: 7px 9px;
+      border-radius: 999px;
+      font: 700 0.72rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .ledger { padding: 18px; display: grid; gap: 12px; }
+    .metric {
+      padding: 15px;
+      background: rgba(255,255,255,0.035);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+    }
+    .metric strong { display: block; font-size: 1.9rem; line-height: 1; }
+    .metric span { display: block; color: var(--muted); margin-top: 6px; font-size: 0.92rem; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .card { padding: 18px; min-height: 178px; }
+    h2 { margin: 0 0 10px; font-size: 1rem; letter-spacing: 0; }
+    .rows { display: grid; gap: 8px; margin-top: 12px; }
+    .row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      background: rgba(0,0,0,0.12);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--amber); }
+    .dot.green { background: var(--green); }
+    .dot.blue { background: var(--blue); }
+    .tag {
+      color: var(--green);
+      font: 700 0.7rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .spell {
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 14px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .glyph {
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1px solid rgba(116,199,255,0.35);
+      background: linear-gradient(145deg, rgba(116,199,255,0.22), rgba(201,168,255,0.16));
+      color: var(--text);
+      font: 800 1.8rem/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    code {
+      color: var(--text);
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.88em;
+    }
+    .timeline { display: grid; gap: 10px; margin-top: 16px; }
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .num {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: rgba(116,199,255,0.14);
+      color: var(--blue);
+      font-weight: 800;
+    }
+    .copy {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(245,197,107,0.26);
+      background: rgba(245,197,107,0.08);
+      color: var(--amber);
+      font: 700 0.78rem/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    footer { margin-top: 18px; color: var(--muted); font-size: 0.84rem; }
+    @media (max-width: 860px) {
+      main { width: min(100vw - 20px, 700px); padding-top: 18px; }
+      .hero, .grid { grid-template-columns: 1fr; }
+      .intro { padding: 22px; }
+      .spell { grid-template-columns: 64px 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <article class="panel intro">
+        <div class="eyebrow">Pre-work status - 2026-06-23</div>
+        <h1>Combat Magic gets a real spell and finite runes.</h1>
+        <p>
+          The ranged slice proved the Combat engine can consume carried resources inside a review burst.
+          This slice applies the same transaction boundary to Standard spellcasting: selected spell, level gate,
+          rune loadout, source-backed max hit, Magic XP, Constitution XP, and target-row readiness.
+        </p>
+        <div class="chips">
+          <span class="chip">Wind Strike first</span>
+          <span class="chip">Air + Mind runes</span>
+          <span class="chip">damage / 5 Magic XP</span>
+          <span class="chip">no noncombat Magic yet</span>
+        </div>
+      </article>
+      <aside class="panel ledger">
+        <div class="metric"><strong>1</strong><span>source-backed combat spell enabled in this pass</span></div>
+        <div class="metric"><strong>2</strong><span>finite rune item counts routed through Combat loadout</span></div>
+        <div class="metric"><strong>0</strong><span>new quest or noncombat Magic behavior in scope</span></div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="panel card">
+        <h2>Source Contract</h2>
+        <p>Use local 2011Scape data for spell metadata and formulas, then record the line-level evidence in a source audit.</p>
+        <div class="rows">
+          <div class="row"><span class="dot blue"></span><span><code>CombatSpell.kt</code></span><span class="tag">spell</span></div>
+          <div class="row"><span class="dot blue"></span><span><code>MagicCombatFormula.kt</code></span><span class="tag">formula</span></div>
+          <div class="row"><span class="dot blue"></span><span><code>MagicCombatStrategy.kt</code></span><span class="tag">XP</span></div>
+        </div>
+      </article>
+      <article class="panel card">
+        <h2>Runtime Shape</h2>
+        <div class="spell">
+          <div class="glyph">WS</div>
+          <p><strong>Wind Strike</strong><br>Requires Magic 1 and consumes 1 Air rune plus 1 Mind rune per cast attempt from <code>combat_supply_loadout["runes"]</code>.</p>
+        </div>
+        <div class="copy">Fresh fights may load banked runes. Active fights do not refill from the Bank mid-encounter.</div>
+      </article>
+      <article class="panel card">
+        <h2>Frontend Contract</h2>
+        <p>The Combat tab keeps the existing target list and gains a compact spell selector beside attack style. Locked rows explain missing level or runes.</p>
+        <div class="rows">
+          <div class="row"><span class="dot green"></span><span>Style: Magic standard</span><span class="tag">select</span></div>
+          <div class="row"><span class="dot green"></span><span>Spell: Wind Strike</span><span class="tag">select</span></div>
+          <div class="row"><span class="dot"></span><span>Runes shown in tooltip</span><span class="tag">ready</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel card" style="margin-top:16px;">
+      <h2>Implementation Checklist</h2>
+      <div class="timeline">
+        <div class="step"><div class="num">1</div><p>Add Combat Magic spell metadata, a Magic attack style, and source paths to <code>combat_data.py</code>.</p></div>
+        <div class="step"><div class="num">2</div><p>Extend pure combat locking, preview, resource refill, tick-loop consumption, Magic accuracy/max hit, and XP routing.</p></div>
+        <div class="step"><div class="num">3</div><p>Surface spell selection in storage migration, runtime handlers, target metadata, and Qt tests.</p></div>
+        <div class="step"><div class="num">4</div><p>Run targeted tests plus the standard AnkiScape verification suite, then write the post-slice artifact and commit.</p></div>
+      </div>
+    </section>
+    <footer>Artifact: memory-bank/status-updates/combat-magic-runes-plan-2026-06-23.html</footer>
+  </main>
+</body>
+</html>

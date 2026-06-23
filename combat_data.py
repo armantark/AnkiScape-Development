@@ -12,6 +12,7 @@ from typing import Dict, Tuple
 
 DEFAULT_COMBAT_TARGET = "chicken"
 DEFAULT_COMBAT_ATTACK_STYLE = "accurate"
+DEFAULT_COMBAT_SPELL = "wind_strike"
 COMBAT_BURST_TICKS = 50
 
 COMBAT_SOURCE_ROOT = "/Users/ArmanTarkhanian1/Downloads/game-main"
@@ -32,6 +33,21 @@ RANGED_BOW_SOURCE_PATH = (
 )
 RANGED_ARROW_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/ranged/ammo/Arrows.kt"
+)
+MAGIC_FORMULA_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/formula/MagicCombatFormula.kt"
+)
+MAGIC_STRATEGY_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/MagicCombatStrategy.kt"
+)
+MAGIC_SPELL_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/magic/CombatSpell.kt"
+)
+MAGIC_SPELLBOOK_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/magic/SpellbookData.kt"
+)
+MAGIC_SPELL_REQUIREMENT_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/magic/MagicSpells.kt"
 )
 FOOD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/food/Food.kt"
@@ -88,6 +104,12 @@ COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
         "xp_mode": "ranged_defense",
         "source": f"{RANGED_FORMULA_SOURCE_PATH}: WeaponStyle.LONG_RANGE",
     },
+    "magic_standard": {
+        "display_name": "Magic standard",
+        "combat_class": "magic",
+        "xp_mode": "magic",
+        "source": f"{MAGIC_FORMULA_SOURCE_PATH}: Combat.CASTING_SPELL + MagicCombatStrategy.addCombatXp",
+    },
 }
 
 
@@ -108,6 +130,27 @@ COMBAT_RANGED_AMMO_DATA: Dict[str, dict] = {
         "source": (
             f"{RANGED_ARROW_SOURCE_PATH}: BRONZE_ARROWS; "
             f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 882"
+        ),
+    },
+}
+
+
+COMBAT_MAGIC_SPELL_DATA: Dict[str, dict] = {
+    "wind_strike": {
+        "display_name": "Wind Strike",
+        "spellbook": "standard",
+        "required_magic_level": 1,
+        "rune_cost": {"Air rune": 1, "Mind rune": 1},
+        "max_hit_old_hp": 2,
+        "base_magic_xp": 5.5,
+        "attack_speed": 5,
+        "unique_id": 15,
+        "component_id": 25,
+        "autocast_id": 3,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WIND_STRIKE maxHit=2 experience=5.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WIND_STRIKE level=1 runes AIR_RUNE x1 MIND_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
         ),
     },
 }

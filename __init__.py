@@ -676,6 +676,7 @@ def _on_main_menu():
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
+        on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,

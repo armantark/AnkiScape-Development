@@ -434,6 +434,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._cooking_calls: list = []
         # Same seam for Runecrafting target selection.
         self._runecrafting_calls: list = []
+        # Same seams for Combat target/style/spell selection.
+        self._combat_calls: list = []
+        self._combat_style_calls: list = []
+        self._combat_spell_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
         self._quest_calls: list = []
         self._quest_choice_calls: list = []
@@ -474,6 +478,9 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
+            on_set_combat=lambda target: self._combat_calls.append(target),
+            on_set_combat_style=lambda style: self._combat_style_calls.append(style),
+            on_set_combat_spell=lambda spell: self._combat_spell_calls.append(spell),
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
@@ -545,6 +552,39 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
+
+    def test_combat_exposes_style_and_spell_controls(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "magic_level": 10,
+                "inventory": {"Air rune": 5, "Mind rune": 5},
+                "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
+            }
+        )
+        dialog = self._open(pd, current_skill="Combat")
+
+        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
+        spell_combo = dialog.findChild(QComboBox, "combatSpellCombo")
+        self.assertIsNotNone(style_combo)
+        self.assertIsNotNone(spell_combo)
+        self.assertEqual(style_combo.currentData(), "magic_standard")
+        self.assertEqual(spell_combo.currentData(), "wind_strike")
+        self.assertEqual(spell_combo.currentText(), "Wind Strike")
+
+        tree = _find_tree_with_user_role(dialog, "chicken")
+        chicken = _tree_row(tree, "chicken")
+        self.assertIn("Spell: Wind Strike", chicken.toolTip(0))
+        self.assertIn("Rune: Air rune x1; 1 loaded + 5 bank", chicken.toolTip(0))
+
+        accurate_index = style_combo.findData("accurate")
+        self.assertGreaterEqual(accurate_index, 0)
+        style_combo.setCurrentIndex(accurate_index)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_style_calls[-1], "accurate")
 
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
         pd = _make_player_data()

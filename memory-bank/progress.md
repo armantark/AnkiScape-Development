@@ -172,11 +172,18 @@
   arrow per attack attempt, avoid mid-fight bank refills, route Ranged XP from
   accurate/rapid/longrange styles, and surface ammo readiness in target
   tooltips.
+- Combat Magic/rune expansion added Wind Strike as the first source-backed Magic
+  path through the shared Combat burst engine. Magic rows now require the
+  selected spell level and runes, refill Air/Mind runes at safe boundaries,
+  consume one Air rune and one Mind rune per cast attempt, avoid mid-fight bank
+  refills, award source base spell XP even on splashes, route damage XP to
+  Magic/Constitution, expose a Combat spell selector, and surface rune readiness
+  in target tooltips.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
-  import, Magic/rune combat routing, broader Ranged weapon/ammo support, richer assets, food/potion/
+  import, broader Magic spell/staff support, broader Ranged weapon/ammo support, richer assets, food/potion/
   ammo/rune loadout controls, confirmation UX for dangerous targets, full
   Death's Office recovery and stacked-death handling, and migrating quest combat
   gates from the lightweight resolver onto the shared combat engine. Broad

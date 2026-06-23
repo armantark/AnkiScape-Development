@@ -85,9 +85,11 @@ try:
         CLAIM_DATA,
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ENEMY_DATA,
+        COMBAT_MAGIC_SPELL_DATA,
         COMBAT_TARGET_GROUP_ORDER,
         BINDING_NECKLACE_ITEM,
         DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
         FIREMAKING_LOG_ITEMS,
         FISHING_OUTPUT_ITEMS,
@@ -151,9 +153,11 @@ except Exception:
         CLAIM_DATA,
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ENEMY_DATA,
+        COMBAT_MAGIC_SPELL_DATA,
         COMBAT_TARGET_GROUP_ORDER,
         BINDING_NECKLACE_ITEM,
         DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
         FIREMAKING_LOG_ITEMS,
         FISHING_OUTPUT_ITEMS,
@@ -1483,6 +1487,7 @@ def show_main_menu(
     on_set_utility=None,
     on_set_combat=None,
     on_set_combat_style=None,
+    on_set_combat_spell=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -1655,7 +1660,12 @@ def show_main_menu(
     def _combat_available() -> bool:
         try:
             return any(
-                not combat_target_locked_reasons_pure(player_data, target, COMBAT_ENEMY_DATA)
+                not combat_target_locked_reasons_pure(
+                    player_data,
+                    target,
+                    COMBAT_ENEMY_DATA,
+                    equipment_data=EQUIPMENT_ITEM_DATA,
+                )
                 for target in COMBAT_ENEMY_DATA
             )
         except Exception:
@@ -2012,6 +2022,7 @@ def show_main_menu(
         style_label = QLabel("Style")
         style_label.setStyleSheet("color: palette(text);")
         style_combo = QComboBox()
+        style_combo.setObjectName("combatStyleCombo")
         current_style = player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)
         selected_index = 0
         for style_id, spec in COMBAT_ATTACK_STYLE_DATA.items():
@@ -2026,6 +2037,29 @@ def show_main_menu(
         style_layout.addWidget(style_label)
         style_layout.addWidget(style_combo, 1)
         layout.addWidget(style_row)
+
+        spell_row = QWidget()
+        spell_layout = QHBoxLayout(spell_row)
+        spell_layout.setContentsMargins(0, 0, 0, 0)
+        spell_layout.setSpacing(8)
+        spell_label = QLabel("Spell")
+        spell_label.setStyleSheet("color: palette(text);")
+        spell_combo = QComboBox()
+        spell_combo.setObjectName("combatSpellCombo")
+        current_spell = player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL)
+        selected_spell_index = 0
+        for spell_id, spec in COMBAT_MAGIC_SPELL_DATA.items():
+            spell_combo.addItem(str(spec.get("display_name", spell_id)), spell_id)
+            if spell_id == current_spell:
+                selected_spell_index = spell_combo.count() - 1
+        spell_combo.setCurrentIndex(selected_spell_index)
+        if on_set_combat_spell is not None:
+            spell_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_spell(spell_combo.currentData() or DEFAULT_COMBAT_SPELL)
+            )
+        spell_layout.addWidget(spell_label)
+        spell_layout.addWidget(spell_combo, 1)
+        layout.addWidget(spell_row)
 
         combat_images = _item_asset_paths()
         tree = _build_grouped_target_tree(

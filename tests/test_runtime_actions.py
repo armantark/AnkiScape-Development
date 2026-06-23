@@ -149,6 +149,69 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
 
+    def test_combat_handler_runs_magic_review_with_wind_strike_runes(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Air rune": 1, "Mind rune": 1},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "wind_strike",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "ranged_level": 1,
+            "magic_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "ranged_exp": 0.0,
+            "magic_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls, [0.999999]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Air rune"], 0)
+        self.assertEqual(player_data["inventory"]["Mind rune"], 0)
+        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(player_data["combat_last_result"]["combat_class"], "magic")
+        self.assertEqual(player_data["combat_last_result"]["spell"], "Wind Strike")
+        self.assertEqual(player_data["combat_last_result"]["stop_reason"], "out_of_runes")
+        self.assertAlmostEqual(player_data["magic_exp"], 5.5)
+        self.assertEqual(player_data["constitution_exp"], 0.0)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["xp"], [5.5])
+        self.assertEqual(calls["activity"], ["Chicken: 0 damage dealt, 30 LP left"])
+
+    def test_combat_handler_deactivates_magic_without_runes(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "wind_strike",
+            "combat_lifepoints": 100,
+            "magic_level": 99,
+            "constitution_level": 10,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["saves"], 0)
+        self.assertEqual(calls["errors"][0][0], "Combat unavailable")
+        self.assertIn("Air rune x1", calls["errors"][0][1])
+        self.assertIn("Mind rune x1", calls["errors"][0][1])
+
     def test_handler_key_registry_and_readiness_share_runtime_module(self):
         self.assertIs(answer_handler_for_key("fletching"), handle_fletching_answer)
         self.assertIs(answer_handler_for_key("hunter"), handle_hunter_answer)
@@ -182,6 +245,18 @@ class TestRuntimeActions(unittest.TestCase):
                 "equipment": {"weapon": "Shortbow"},
                 "combat_attack_style": "ranged_accurate",
                 "ranged_level": 1,
+            }
+        )
+        self.assertTrue(can_start_action(_context(combat_data), "combat"))
+        combat_data["inventory"] = {}
+        self.assertFalse(can_start_action(_context(combat_data), "combat"))
+        combat_data.update(
+            {
+                "combat_attack_style": "magic_standard",
+                "equipment": {},
+                "inventory": {"Air rune": 1, "Mind rune": 1},
+                "magic_level": 1,
+                "current_combat_spell": "wind_strike",
             }
         )
         self.assertTrue(can_start_action(_context(combat_data), "combat"))

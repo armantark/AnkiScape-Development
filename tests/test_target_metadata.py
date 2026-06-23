@@ -145,6 +145,57 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Your max hit:", chicken.tooltip)
         self.assertIn("Ammo: Bronze arrows x0 loaded + 50 bank", chicken.tooltip)
 
+    def test_combat_rows_show_magic_spell_and_rune_supply(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "magic_level": 10,
+                "defense_level": 10,
+                "constitution_level": 10,
+                "inventory": {"Air rune": 5, "Mind rune": 5},
+                "equipment": {},
+                "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        chicken = _row(rows, "chicken")
+
+        self.assertTrue(chicken.enabled)
+        self.assertIn("Spell: Wind Strike", chicken.tooltip)
+        self.assertIn("Rune: Air rune x1; 1 loaded + 5 bank", chicken.tooltip)
+        self.assertIn("Rune: Mind rune x1; 1 loaded + 5 bank", chicken.tooltip)
+
+    def test_combat_rows_lock_magic_without_required_runes(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "magic_level": 10,
+                "defense_level": 10,
+                "constitution_level": 10,
+                "inventory": {},
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        chicken = _row(rows, "chicken")
+
+        self.assertFalse(chicken.enabled)
+        self.assertEqual(chicken.locked_reasons, ("runes: Air rune x1, Mind rune x1",))
+        self.assertIn("Locked due to: runes: Air rune x1, Mind rune x1", chicken.tooltip)
+
     def test_smithing_grouped_rows_preserve_tier_sort_and_lock_reasons(self):
         rows = smithing_target_rows(
             {

@@ -20,10 +20,14 @@ try:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_MAGIC_SPELL_DATA,
         COMBAT_RANGED_AMMO_DATA,
         COMBAT_RANGED_WEAPON_DATA,
         DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
+        MAGIC_FORMULA_SOURCE_PATH,
+        MAGIC_STRATEGY_SOURCE_PATH,
         MELEE_FORMULA_SOURCE_PATH,
         MELEE_STRATEGY_SOURCE_PATH,
         RANGED_FORMULA_SOURCE_PATH,
@@ -35,10 +39,14 @@ except ImportError:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_MAGIC_SPELL_DATA,
         COMBAT_RANGED_AMMO_DATA,
         COMBAT_RANGED_WEAPON_DATA,
         DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
+        MAGIC_FORMULA_SOURCE_PATH,
+        MAGIC_STRATEGY_SOURCE_PATH,
         MELEE_FORMULA_SOURCE_PATH,
         MELEE_STRATEGY_SOURCE_PATH,
         RANGED_FORMULA_SOURCE_PATH,
@@ -972,6 +980,7 @@ def default_combat_state_pure():
     return {
         "current_combat_target": DEFAULT_COMBAT_TARGET,
         "combat_attack_style": DEFAULT_COMBAT_ATTACK_STYLE,
+        "current_combat_spell": DEFAULT_COMBAT_SPELL,
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
         "combat_auto_eat_food": list(_DEFAULT_COMBAT_AUTO_EAT_FOOD),
@@ -1040,6 +1049,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     style = player_data.get("combat_attack_style", defaults["combat_attack_style"])
     if style not in style_data:
         style = defaults["combat_attack_style"]
+    spell = player_data.get("current_combat_spell", defaults["current_combat_spell"])
+    if spell not in COMBAT_MAGIC_SPELL_DATA:
+        spell = defaults["current_combat_spell"]
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = _non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp)
     auto_food_raw = player_data.get("combat_auto_eat_food", defaults["combat_auto_eat_food"])
@@ -1064,6 +1076,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     return {
         "current_combat_target": target,
         "combat_attack_style": style,
+        "current_combat_spell": spell,
         "combat_lifepoints": max(0, min(current_lp, max_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS)),
         "combat_auto_eat_threshold_percent": max(
             1,
@@ -1123,10 +1136,14 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
         return tuple()
     if combat_class == "ranged":
         return _combat_ranged_locked_reasons(player_data, target_id, equipment_data or {})
+    if combat_class == "magic":
+        return _combat_magic_locked_reasons(player_data, target_id)
     return ("unsupported combat class",)
 
 
 def _combat_attack_bonus_from_totals(totals, combat_class="melee"):
+    if combat_class == "magic":
+        return _equipment_bonus_value(totals, "attack_magic")
     if combat_class == "ranged":
         return _equipment_bonus_value(totals, "attack_ranged")
     return max(
@@ -1137,6 +1154,8 @@ def _combat_attack_bonus_from_totals(totals, combat_class="melee"):
 
 
 def _combat_defence_bonus_from_totals(totals, combat_class="melee"):
+    if combat_class == "magic":
+        return _equipment_bonus_value(totals, "defence_magic")
     if combat_class == "ranged":
         return _equipment_bonus_value(totals, "defence_ranged")
     return max(
@@ -1192,6 +1211,10 @@ def _combat_effective_player_ranged_level(player_data, style_id):
     return floor(level) + style_bonus + 8
 
 
+def _combat_effective_player_magic_level(player_data):
+    return floor(_combat_effective_skill_level(player_data, "magic", 1)) + 8
+
+
 def _combat_effective_skill_level(player_data, skill_id, default):
     base_level = _positive_int(player_data.get(f"{skill_id}_level", default), default)
     drains = player_data.get("combat_stat_drains", {}) or {}
@@ -1213,6 +1236,14 @@ def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
 
 def _combat_ranged_max_hit_old_hp(effective_ranged, ranged_strength_bonus):
     return max(0.0, 0.5 + float(effective_ranged) * (float(ranged_strength_bonus) + 64.0) / 640.0)
+
+
+def _combat_magic_max_hit_old_hp(spell_spec, player_totals):
+    if not isinstance(spell_spec, Mapping):
+        return 0.0
+    base_hit = _positive_int(spell_spec.get("max_hit_old_hp", 0), 0)
+    multiplier = 1.0 + (_equipment_bonus_value(player_totals, "magic_damage") / 100.0)
+    return max(0.0, floor(float(base_hit) * multiplier))
 
 
 def _combat_equipped_weapon_name(player_data):
@@ -1269,6 +1300,53 @@ def _combat_ranged_locked_reasons(player_data, target_id, equipment_data):
         return ("supported ranged weapon",)
     if _combat_selected_ranged_ammo(player_data, weapon_spec, target_id) is None:
         return ("compatible ammunition",)
+    return tuple()
+
+
+def _combat_selected_magic_spell(player_data):
+    spell_id = str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL))
+    spell_spec = COMBAT_MAGIC_SPELL_DATA.get(spell_id)
+    if isinstance(spell_spec, Mapping):
+        return spell_id, spell_spec
+    return DEFAULT_COMBAT_SPELL, COMBAT_MAGIC_SPELL_DATA.get(DEFAULT_COMBAT_SPELL, {})
+
+
+def _combat_magic_rune_count(player_data, rune_name, target_id):
+    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    loaded = _non_negative_int((loadout.get("runes", {}) or {}).get(rune_name, 0), 0)
+    encounter = player_data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    if active_encounter:
+        return loaded
+    inventory = player_data.get("inventory", {}) or {}
+    banked = _non_negative_int(inventory.get(rune_name, 0), 0) if isinstance(inventory, Mapping) else 0
+    return loaded + banked
+
+
+def _combat_magic_missing_runes(player_data, spell_spec, target_id):
+    rune_cost = spell_spec.get("rune_cost", {}) if isinstance(spell_spec, Mapping) else {}
+    if not isinstance(rune_cost, Mapping) or not rune_cost:
+        return tuple()
+    missing = []
+    for rune_name, amount in rune_cost.items():
+        if not isinstance(rune_name, str):
+            continue
+        required = _positive_int(amount, 0)
+        if required > 0 and _combat_magic_rune_count(player_data, rune_name, target_id) < required:
+            missing.append(f"{rune_name} x{required}")
+    return tuple(missing)
+
+
+def _combat_magic_locked_reasons(player_data, target_id):
+    _spell_id, spell_spec = _combat_selected_magic_spell(player_data)
+    if not isinstance(spell_spec, Mapping) or not spell_spec:
+        return ("source-backed combat spell",)
+    required_level = _positive_int(spell_spec.get("required_magic_level", 1), 1)
+    if _combat_effective_skill_level(player_data, "magic", 1) < required_level:
+        return (f"Magic level {required_level}",)
+    missing = _combat_magic_missing_runes(player_data, spell_spec, target_id)
+    if missing:
+        return ("runes: " + ", ".join(missing),)
     return tuple()
 
 
@@ -1342,6 +1420,19 @@ def _combat_apply_xp(xp_rewards, style_id, damage_lifepoints, npc_xp_multiplier)
         xp_rewards["ranged_exp"] = xp_rewards.get("ranged_exp", 0.0) + split_xp
         xp_rewards["defense_exp"] = xp_rewards.get("defense_exp", 0.0) + split_xp
     xp_rewards["constitution_exp"] = xp_rewards.get("constitution_exp", 0.0) + constitution_xp
+
+
+def _combat_apply_magic_xp(xp_rewards, spell_spec, damage_lifepoints, npc_xp_multiplier):
+    if not isinstance(spell_spec, Mapping):
+        return
+    base_xp = _non_negative_float(spell_spec.get("base_magic_xp", 0.0), 0.0)
+    clamped_damage = max(0, _non_negative_int(damage_lifepoints, 0))
+    magic_xp = base_xp + float(clamped_damage) * 0.2 * npc_xp_multiplier
+    constitution_xp = float(clamped_damage) * 0.133 * npc_xp_multiplier
+    if magic_xp > 0:
+        xp_rewards["magic_exp"] = xp_rewards.get("magic_exp", 0.0) + magic_xp
+    if constitution_xp > 0:
+        xp_rewards["constitution_exp"] = xp_rewards.get("constitution_exp", 0.0) + constitution_xp
 
 
 def _combat_slot_drop_quantity(slot, rng):
@@ -1442,6 +1533,32 @@ def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
     data["combat_supply_loadout"] = loadout
 
 
+def _combat_refill_magic_rune_loadout(data, spell_spec):
+    if not isinstance(spell_spec, Mapping):
+        return
+    rune_cost = spell_spec.get("rune_cost", {})
+    if not isinstance(rune_cost, Mapping):
+        return
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    rune_loadout = dict(loadout.get("runes", {}) or {})
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        data["combat_supply_loadout"] = loadout
+        return
+    inventory = dict(inventory)
+    for rune_name in rune_cost:
+        if not isinstance(rune_name, str):
+            continue
+        available = _non_negative_int(inventory.get(rune_name, 0), 0)
+        if available <= 0:
+            continue
+        inventory[rune_name] = 0
+        rune_loadout[rune_name] = _non_negative_int(rune_loadout.get(rune_name, 0), 0) + available
+    loadout["runes"] = {item: amount for item, amount in rune_loadout.items() if amount > 0}
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
 def _combat_consume_ranged_ammo(data, weapon_spec, target_id):
     ammo_name = _combat_selected_ranged_ammo(data, weapon_spec, target_id)
     if not isinstance(ammo_name, str):
@@ -1457,6 +1574,33 @@ def _combat_consume_ranged_ammo(data, weapon_spec, target_id):
     loadout["ammo"] = ammo_loadout
     data["combat_supply_loadout"] = loadout
     return ammo_name
+
+
+def _combat_consume_magic_runes(data, spell_spec, target_id):
+    if not isinstance(spell_spec, Mapping):
+        return None
+    rune_cost = spell_spec.get("rune_cost", {})
+    if not isinstance(rune_cost, Mapping) or not rune_cost:
+        return {}
+    if _combat_magic_missing_runes(data, spell_spec, target_id):
+        return None
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    rune_loadout = dict(loadout.get("runes", {}) or {})
+    used = {}
+    for rune_name, amount in rune_cost.items():
+        if not isinstance(rune_name, str):
+            continue
+        required = _positive_int(amount, 0)
+        if required <= 0:
+            continue
+        current = _non_negative_int(rune_loadout.get(rune_name, 0), 0)
+        rune_loadout[rune_name] = current - required
+        if rune_loadout[rune_name] <= 0:
+            rune_loadout.pop(rune_name, None)
+        used[rune_name] = required
+    loadout["runes"] = rune_loadout
+    data["combat_supply_loadout"] = loadout
+    return used
 
 
 def _combat_ranged_strength_bonus(player_totals, ammo_name):
@@ -1528,11 +1672,18 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     style_id = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
     combat_class = str(style.get("combat_class", "melee"))
+    spell_id, spell_spec = _combat_selected_magic_spell(player_data)
     if combat_class == "ranged":
         weapon_name, _weapon_equipment, weapon_spec = _combat_ranged_weapon_spec(player_data, equipment_data)
         ammo_name = _combat_selected_ranged_ammo(player_data, weapon_spec, target_id)
         player_attack_roll = _combat_effective_player_ranged_level(player_data, style_id) * (
             _combat_attack_bonus_from_totals(player_totals, "ranged") + 64
+        )
+    elif combat_class == "magic":
+        weapon_name = None
+        ammo_name = None
+        player_attack_roll = _combat_effective_player_magic_level(player_data) * (
+            _combat_attack_bonus_from_totals(player_totals, "magic") + 64
         )
     else:
         weapon_name = None
@@ -1549,6 +1700,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             _combat_effective_player_ranged_level(player_data, style_id),
             _combat_ranged_strength_bonus(player_totals, ammo_name),
         )
+    elif combat_class == "magic":
+        player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
     else:
         player_max_hit = _combat_melee_max_hit_old_hp(
             _combat_effective_player_strength_level(player_data, style_id),
@@ -1593,6 +1746,9 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "enemy_max_lifepoints": _positive_int(enemy.get("stats", {}).get("hitpoints", 0), 0),
         "player_max_hit": int(player_max_hit * 10),
         "ammo": ammo_name or "",
+        "spell_id": spell_id if combat_class == "magic" else "",
+        "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
+        "runes": dict(spell_spec.get("rune_cost", {}) or {}) if combat_class == "magic" and isinstance(spell_spec, Mapping) else {},
         "weapon": weapon_name or "",
         "source": enemy.get("source", ""),
     }
@@ -1610,6 +1766,8 @@ def apply_safe_combat_recovery_pure(player_data):
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_recover_stat_drains(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_refill_food_loadout(data)
+    _spell_id, spell_spec = _combat_selected_magic_spell(data)
+    _combat_refill_magic_rune_loadout(data, spell_spec)
     grave = data.get("combat_grave", {}) or {}
     if isinstance(grave, Mapping) and grave.get("items"):
         grave = dict(grave)
@@ -1653,6 +1811,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
     encounter = data.get("combat_encounter", {}) or {}
     weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
+    spell_id, spell_spec = _combat_selected_magic_spell(data)
     if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
@@ -1660,12 +1819,16 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         _combat_refill_food_loadout(data)
         if combat_class == "ranged":
             _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
+        elif combat_class == "magic":
+            _combat_refill_magic_rune_loadout(data, spell_spec)
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
     player_attack_speed = max(1, _positive_int(_equipment_value(weapon_spec, "attack_speed", 4), 4))
     if combat_class == "ranged":
         player_attack_speed = max(1, player_attack_speed + _signed_int(style.get("attack_speed_delta", 0), 0))
+    elif combat_class == "magic":
+        player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
 
     selected_ammo = None
@@ -1681,6 +1844,14 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             _combat_effective_player_ranged_level(data, style_id),
             _combat_ranged_strength_bonus(player_totals, selected_ammo),
         )
+    elif combat_class == "magic":
+        player_attack_roll = _combat_effective_player_magic_level(data) * (
+            _combat_attack_bonus_from_totals(player_totals, "magic") + 64
+        )
+        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+            _combat_defence_bonus_from_totals(enemy_totals, "magic") + 64
+        )
+        player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
     else:
         player_attack_roll = _combat_effective_player_attack_level(data, style_id) * (
             _combat_attack_bonus_from_totals(player_totals) + 64
@@ -1713,11 +1884,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     enemy_damage = 0
     food_used = []
     ammo_used = {}
+    runes_used = {}
     xp_rewards = {}
     drops = {}
     killed = False
     died = False
     out_of_ammo = False
+    out_of_runes = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
 
@@ -1732,6 +1905,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                     break
                 selected_ammo = ammo_name
                 ammo_used[ammo_name] = _non_negative_int(ammo_used.get(ammo_name, 0), 0) + 1
+            elif combat_class == "magic":
+                used = _combat_consume_magic_runes(data, spell_spec, target_id)
+                if used is None:
+                    out_of_runes = True
+                    break
+                for rune_name, amount in used.items():
+                    runes_used[rune_name] = _non_negative_int(runes_used.get(rune_name, 0), 0) + amount
             landed = False
             try:
                 landed = float(rng()) < player_accuracy
@@ -1742,6 +1922,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if damage > 0:
                 enemy_lp -= damage
                 player_damage += damage
+            if combat_class == "magic":
+                _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
+            elif damage > 0:
                 _combat_apply_xp(xp_rewards, style_id, damage, npc_xp_multiplier)
             if enemy_lp <= 0:
                 killed = True
@@ -1783,6 +1966,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         _combat_refill_food_loadout(data)
         if combat_class == "ranged":
             _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
+        elif combat_class == "magic":
+            _combat_refill_magic_rune_loadout(data, spell_spec)
     elif died:
         equipment = dict(data.get("equipment", {}) or {})
         grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
@@ -1807,9 +1992,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "player_lifepoints": player_lp,
         "killed": killed,
         "died": died,
-        "stop_reason": "out_of_ammo" if out_of_ammo else "",
+        "stop_reason": "out_of_ammo" if out_of_ammo else "out_of_runes" if out_of_runes else "",
         "food_used": tuple(food_used),
         "ammo_used": dict(ammo_used),
+        "runes_used": dict(runes_used),
         "drops": drops,
         "xp_rewards": xp_rewards,
         "player_accuracy": player_accuracy,
@@ -1817,8 +2003,22 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "combat_class": combat_class,
         "weapon": weapon_name or "",
         "ammo": selected_ammo or "",
-        "formula_source": RANGED_FORMULA_SOURCE_PATH if combat_class == "ranged" else MELEE_FORMULA_SOURCE_PATH,
-        "xp_source": RANGED_STRATEGY_SOURCE_PATH if combat_class == "ranged" else MELEE_STRATEGY_SOURCE_PATH,
+        "spell_id": spell_id if combat_class == "magic" else "",
+        "spell": spell_spec.get("display_name", "") if combat_class == "magic" and isinstance(spell_spec, Mapping) else "",
+        "formula_source": (
+            RANGED_FORMULA_SOURCE_PATH
+            if combat_class == "ranged"
+            else MAGIC_FORMULA_SOURCE_PATH
+            if combat_class == "magic"
+            else MELEE_FORMULA_SOURCE_PATH
+        ),
+        "xp_source": (
+            RANGED_STRATEGY_SOURCE_PATH
+            if combat_class == "ranged"
+            else MAGIC_STRATEGY_SOURCE_PATH
+            if combat_class == "magic"
+            else MELEE_STRATEGY_SOURCE_PATH
+        ),
     }
     data["combat_last_result"] = result
     return data, True, result

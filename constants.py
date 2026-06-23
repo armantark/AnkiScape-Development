@@ -24,8 +24,10 @@ try:
         COMBAT_ENEMY_DATA,
         COMBAT_EXTRA_ITEM_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_MAGIC_SPELL_DATA,
         COMBAT_TARGET_GROUP_ORDER,
         DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
     from .crafting_data import crafting_output_items, crafting_recipes_as_dict
@@ -128,8 +130,10 @@ except ImportError:
         COMBAT_ENEMY_DATA,
         COMBAT_EXTRA_ITEM_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_MAGIC_SPELL_DATA,
         COMBAT_TARGET_GROUP_ORDER,
         DEFAULT_COMBAT_ATTACK_STYLE,
+        DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
     from crafting_data import crafting_output_items, crafting_recipes_as_dict
