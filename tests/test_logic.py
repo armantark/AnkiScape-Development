@@ -4787,6 +4787,39 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(claimed_again["inventory"]["Wicked hood"], 1)
 
+    def test_tutorial_starter_kit_claim_grants_source_backed_bundle_once(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        rows = claim_rows_pure(player_data, CLAIM_DATA)
+        row = next(row for row in rows if row["claim_id"] == "tutorial_island_starter_kit")
+        self.assertTrue(row["eligible"])
+        self.assertEqual(row["claim_type"], "item_bundle")
+        self.assertEqual(
+            row["items"],
+            (
+                ("Bronze sword", 1),
+                ("Wooden shield", 1),
+                ("Shortbow", 1),
+                ("Bronze arrows", 50),
+                ("Air rune", 5),
+                ("Mind rune", 5),
+                ("Bronze pickaxe", 1),
+                ("Hammer", 1),
+                ("Bronze hatchet", 1),
+                ("Tinderbox", 1),
+                ("Small fishing net", 1),
+            ),
+        )
+
+        claimed_data, ok = apply_claim_pure(player_data, "tutorial_island_starter_kit", CLAIM_DATA)
+        self.assertTrue(ok)
+        for item_name, amount in row["items"]:
+            self.assertEqual(claimed_data["inventory"][item_name], player_data["inventory"].get(item_name, 0) + amount)
+        self.assertTrue(claimed_data["claims"]["tutorial_island_starter_kit"]["claimed"])
+
+        claimed_again, ok = apply_claim_pure(claimed_data, "tutorial_island_starter_kit", CLAIM_DATA)
+        self.assertFalse(ok)
+        self.assertEqual(claimed_again["inventory"]["Bronze arrows"], claimed_data["inventory"]["Bronze arrows"])
+
     def test_quest_completion_grants_generated_item_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["cooks_assistant"] = {"started": True, "progress": 4, "completed": False}

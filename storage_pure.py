@@ -74,7 +74,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 22
+CURRENT_CONFIG_VERSION = 23
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",

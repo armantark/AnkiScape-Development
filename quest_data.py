@@ -146,6 +146,10 @@ DARKAN_QUEST_SOURCE_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
     "com/rs/game/content/quests"
 )
+DARKAN_TUTORIAL_SOURCE_ROOT = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/"
+    "com/rs/game/content/tutorialisland"
+)
 DARKAN_NPC_COMBATDEF_ROOT = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/npcs/combatdefs"
 )
@@ -155,6 +159,18 @@ DARKAN_DEVELOPER_INFO_ROOT = (
 DARKAN_NPC_LIST_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/npcList.txt"
 DARKAN_BEASTS_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/beasts.txt"
 DARKAN_ENUMS_SOURCE = f"{DARKAN_DEVELOPER_INFO_ROOT}/enums.txt"
+DARKAN_TUTORIAL_COMBAT_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/CombatInstructor.java"
+DARKAN_TUTORIAL_MAGIC_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/MagicInstructor.java"
+DARKAN_TUTORIAL_MINING_INSTRUCTOR_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/MiningInstructor.java"
+DARKAN_TUTORIAL_SURVIVAL_EXPERT_SOURCE = f"{DARKAN_TUTORIAL_SOURCE_ROOT}/SurvivalExpert.java"
+DARKAN_TUTORIAL_STARTER_KIT_SOURCE = "; ".join(
+    (
+        f"{DARKAN_TUTORIAL_COMBAT_INSTRUCTOR_SOURCE}:50-60",
+        f"{DARKAN_TUTORIAL_MAGIC_INSTRUCTOR_SOURCE}:43-47",
+        f"{DARKAN_TUTORIAL_MINING_INSTRUCTOR_SOURCE}:51-59",
+        f"{DARKAN_TUTORIAL_SURVIVAL_EXPERT_SOURCE}:41-50",
+    )
+)
 DARKAN_DEMON_SLAYER_SOURCE_ROOT = f"{DARKAN_QUEST_SOURCE_ROOT}/demonslayer"
 DARKAN_DEMON_SLAYER_SOURCE = f"{DARKAN_DEMON_SLAYER_SOURCE_ROOT}/DemonSlayer.java"
 DARKAN_DEMON_SLAYER_GYPSY_SOURCE = f"{DARKAN_DEMON_SLAYER_SOURCE_ROOT}/GypsyArisDemonSlayerD.java"
@@ -859,6 +875,7 @@ class ClaimDefinition:
     claim_type: str = "item"
     item_name: str = ""
     quantity: int = 1
+    items: Tuple[Tuple[str, int], ...] = ()
     required_quest: str = RUNE_MYSTERIES_ID
     required_runecrafting_level: int = 0
     xp_amount: float = 0.0
@@ -7704,6 +7721,21 @@ def _quest_lamp_claims() -> Tuple[ClaimDefinition, ...]:
     return tuple(claims)
 
 
+TUTORIAL_ISLAND_STARTER_KIT_ITEMS: Tuple[Tuple[str, int], ...] = (
+    ("Bronze sword", 1),
+    ("Wooden shield", 1),
+    ("Shortbow", 1),
+    ("Bronze arrows", 50),
+    ("Air rune", 5),
+    ("Mind rune", 5),
+    ("Bronze pickaxe", 1),
+    ("Hammer", 1),
+    ("Bronze hatchet", 1),
+    ("Tinderbox", 1),
+    ("Small fishing net", 1),
+)
+
+
 CLAIMS: Tuple[ClaimDefinition, ...] = (
     ClaimDefinition(
         id="wicked_hood",
@@ -7711,6 +7743,15 @@ CLAIMS: Tuple[ClaimDefinition, ...] = (
         source="https://runescape.wiki/w/Wicked_hood",
         item_name=WICKED_HOOD_ITEM,
         quantity=1,
+    ),
+    ClaimDefinition(
+        id="tutorial_island_starter_kit",
+        display_name="Tutorial Island starter kit",
+        source=DARKAN_TUTORIAL_STARTER_KIT_SOURCE,
+        claim_type="item_bundle",
+        item_name="Bronze sword",
+        items=TUTORIAL_ISLAND_STARTER_KIT_ITEMS,
+        required_quest="",
     ),
     *_quest_lamp_claims(),
 )
@@ -8564,6 +8605,7 @@ def claims_as_dict() -> Dict[str, Dict[str, object]]:
             "claim_type": claim.claim_type,
             "item_name": claim.item_name,
             "quantity": claim.quantity,
+            "items": claim.items,
             "source": claim.source,
             "required_quest": claim.required_quest,
             "required_runecrafting_level": claim.required_runecrafting_level,

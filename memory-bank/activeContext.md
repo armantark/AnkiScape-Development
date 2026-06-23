@@ -171,6 +171,16 @@ source-backed monsters, add ranged/magic/ammo/rune routing, add loadout UI for
 food/potions/ammo/runes, improve dangerous-target/death-office UX, and migrate
 quest combat gates onto this shared engine.
 
+The Combat bootstrap now includes a source-backed Tutorial Island starter kit as
+a one-time Bank Claim. The generic `item_bundle` claim path grants Bronze sword,
+Wooden shield, Shortbow, 50 Bronze arrows, Air rune x5, Mind rune x5, Bronze
+pickaxe, Hammer, Bronze hatchet, Tinderbox, and Small fishing net, with missing
+Wooden shield/Tinderbox icons fetched under `combatitems/`. Storage config
+version is 23. The source note is
+`memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`. Wooden
+shield is claimable and registered, but broad non-Smithing shield/equipment
+mechanics are still future Combat equipment work.
+
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
 quests have item/tool/option blockers, and 120 quests have combat blockers.

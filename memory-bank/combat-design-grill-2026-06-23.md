@@ -547,6 +547,10 @@ audits, code, assets, tests, and runtime verification before it exists in-game.
     keyed by a flat claimed flag, so current inventories and progression are not
     silently changed. The claim remains rollback-safe and should not grant
     coins, XP, or non-source tutorial items.
+    Implementation note 2026-06-23: decisions 93-94 are implemented as the
+    `tutorial_island_starter_kit` Bank Claim using generic `item_bundle` claim
+    support. See
+    `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`.
 
 95. Weapon poison is bidirectional and source-backed. Player weapons/ammo that
     poison in pre-EOC (poisoned daggers, spears, throwing knives/darts, poison

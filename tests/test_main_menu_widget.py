@@ -2063,21 +2063,44 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
 
+    def test_bank_claims_expose_tutorial_starter_kit_bundle(self) -> None:
+        pd = _make_player_data()
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Bank Claims", labels)
+        self.assertIn("Tutorial Island starter kit", labels)
+        self.assertTrue(
+            any(label.startswith("11 item stacks - Bronze sword x1, Wooden shield x1, Shortbow x1") for label in labels),
+            labels,
+        )
+        metadata = _find_named_label(dialog, "bankClaimMetadata")
+        self.assertIn("Tinderbox x1", metadata.toolTip())
+        claim_btn = next(
+            btn for btn in dialog.findChildren(QPushButton)
+            if btn.text() == "Claim"
+        )
+        claim_btn.click()
+        QApplication.processEvents()
+        self.assertEqual(self._claim_calls[-1], ("tutorial_island_starter_kit", None))
+
     def test_bank_claims_collapse_locked_rows_into_summary(self) -> None:
         pd = _make_player_data()
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
         self.assertIn("Bank Claims", labels)
+        self.assertIn("Tutorial Island starter kit", labels)
         self.assertNotIn("Wicked hood x1", labels)
         self.assertTrue(any("locked reward" in label for label in labels), labels)
         summary = _find_named_label(dialog, "bankClaimsLockedSummary")
         self.assertIn("Wicked hood requires: Rune Mysteries.", summary.text())
         self.assertNotIn("palette(mid)", summary.styleSheet())
         self.assertIn("Wicked hood: Rune Mysteries", summary.toolTip())
-        self.assertFalse(
-            [w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"],
-            "locked claims should not render as individual action rows",
+        self.assertEqual(
+            len([w for w in dialog.findChildren(QWidget) if w.objectName() == "bankClaimRow"]),
+            1,
+            "only actionable claims should render as individual action rows",
         )
 
     def test_bank_claims_inbox_is_capped_above_inventory(self) -> None:

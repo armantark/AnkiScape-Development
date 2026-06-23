@@ -150,6 +150,11 @@
   10 special-attack energy per 50 review ticks, recovering stat drains one
   level per 100 safe ticks, advancing simple grave recovery, and exposing food
   readiness in Combat target tooltips.
+- Combat bootstrap now includes a source-backed Tutorial Island starter kit as a
+  one-time Bank Claim. Generic `item_bundle` claims grant the source bundle
+  through the existing Bank Claims UI, storage config version 23 seeds the flat
+  claim flag for existing saves, and `combatitems/` now holds fetched Wooden
+  shield/Tinderbox icons through `COMBAT_ITEM_IMAGES`.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
@@ -157,7 +162,9 @@
   import, ranged/magic/ammo/rune combat routing, richer assets, food/potion/
   ammo/rune loadout controls, confirmation UX for dangerous targets, full
   Death's Office recovery and stacked-death handling, and migrating quest combat
-  gates from the lightweight resolver onto the shared combat engine.
+  gates from the lightweight resolver onto the shared combat engine. Broad
+  non-Smithing combat equipment import/equip support is also still open; Wooden
+  shield is currently claimable but not proof that all shield mechanics are done.
 - Full quest-stage minute-detail parity. The generator now preserves broad
   quest-wide source fields, but exact per-stage placement, override merge/source
   reconciliation, route flags, required action flags, partner/branch state,

@@ -83,6 +83,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:48Z"
   },
+  "combatitems/tinderbox.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tinderbox.png",
+    "file_title": "Tinderbox.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Tinderbox.png?c9227",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "9f6f5e55695749d53bbbb78013f1fef44a61e012",
+    "size": 662,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:07:01Z"
+  },
+  "combatitems/wooden_shield.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wooden_shield.png",
+    "file_title": "Wooden shield.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Wooden_shield.png?819f7",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "23bb19764382a9b4bbe2a01ee9485c0e3785ab76",
+    "size": 343,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:14:02Z"
+  },
   "cookingitems/admiral_pie.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Admiral_pie.png",
     "file_title": "Admiral pie.png",

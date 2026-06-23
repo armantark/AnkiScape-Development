@@ -1,6 +1,7 @@
 # Combat V1 Implementation Audit - 2026-06-23
 
-Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation.
+Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation
+and Tutorial Island starter kit claim bridge.
 
 ## Implemented Scope
 
@@ -33,7 +34,13 @@ Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation.
 - The Skills hub has a Combat category/card, enemy target tree, attack-style
   selector, availability gate, food-readiness tooltip line, and HUD
   target/lifepoint display.
-- Storage config version 22 seeds and sanitizes Combat state while preserving
+- The source-backed Tutorial Island starter kit is available as a one-time Bank
+  Claim (`tutorial_island_starter_kit`) that grants Bronze sword, Wooden shield,
+  Shortbow, 50 Bronze arrows, Air rune x5, Mind rune x5, Bronze pickaxe, Hammer,
+  Bronze hatchet, Tinderbox, and Small fishing net.
+- Generic `item_bundle` claim support now handles multi-item Bank Claims without
+  custom inventory mutation code.
+- Storage config version 23 seeds and sanitizes Combat/claim state while preserving
   the flat save model.
 
 ## Source Anchors
@@ -55,11 +62,16 @@ Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation.
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/animals/cow_level_2.plugin.kts`
 - Drop item IDs:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt`
+- Tutorial starter kit:
+  `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`
 
 ## Deferred
 
 - Broader enemy registry import, including NPCs with global tables or special
   mechanics.
+- Full non-Smithing combat equipment import/equip support. Wooden shield is now
+  source-backed and claimable, but shield mechanics still belong to the broader
+  equipment audit.
 - Ranged/Magic combat routing, ammo/rune consumption, spell selection, and
   noncombat Magic actions.
 - Prayer effects, drain, and Prayer skilling.

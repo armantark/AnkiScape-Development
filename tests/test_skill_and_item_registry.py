@@ -10,6 +10,7 @@ from action_registry import (
 )
 from constants import (
     BAR_DATA,
+    COMBAT_ITEM_IMAGES,
     COOKING_BURNT_ITEMS,
     COOKING_DATA,
     COOKING_EXTRA_ITEM_DATA,
@@ -447,6 +448,19 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_combat_starter_items_are_registered_with_icons(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Wooden shield": "equipment",
+            "Tinderbox": "tool",
+        }
+        for item_name, category in expected.items():
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].category, category)
+            self.assertIn(item_name, COMBAT_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(COMBAT_ITEM_IMAGES[item_name]), f"{item_name} Combat icon is missing")
+            self.assertEqual(by_storage_key[item_name].asset_path, COMBAT_ITEM_IMAGES[item_name])
 
     def test_woodcutting_bank_items_have_icons(self):
         # Logs reuse the trees/ sprites; hatchets and bird nests were fetched

@@ -2852,12 +2852,39 @@ def claim_locked_reasons_pure(player_data, claim_id, claim_data):
     return tuple(reasons)
 
 
+def _claim_bundle_items(claim):
+    raw_items = claim.get("items", ()) if isinstance(claim, Mapping) else ()
+    if isinstance(raw_items, Mapping):
+        candidates = raw_items.items()
+    elif isinstance(raw_items, Iterable) and not isinstance(raw_items, (str, bytes)):
+        candidates = raw_items
+    else:
+        candidates = ()
+    items = []
+    for raw_item in candidates:
+        if isinstance(raw_item, Mapping):
+            name = raw_item.get("item_name", raw_item.get("item"))
+            quantity = raw_item.get("quantity", raw_item.get("amount", 1))
+        elif isinstance(raw_item, (tuple, list)) and len(raw_item) >= 2:
+            name, quantity = raw_item[0], raw_item[1]
+        else:
+            continue
+        if not isinstance(name, str) or not name:
+            continue
+        quantity = _positive_int(quantity, 0)
+        if quantity <= 0:
+            continue
+        items.append((name, quantity))
+    return tuple(items)
+
+
 def claim_rows_pure(player_data, claim_data):
     rows = []
     for claim_id, claim in claim_data.items():
         reasons = claim_locked_reasons_pure(player_data, claim_id, claim_data)
         claimed = reasons == ("claimed",)
         eligible = not reasons
+        items = _claim_bundle_items(claim)
         rows.append(
             {
                 "claim_id": claim_id,
@@ -2865,6 +2892,7 @@ def claim_rows_pure(player_data, claim_data):
                 "claim_type": claim.get("claim_type", "item"),
                 "item_name": claim.get("item_name", claim_id),
                 "quantity": _positive_int(claim.get("quantity", 1), 1),
+                "items": items,
                 "xp_amount": float(claim.get("xp_amount", 0) or 0),
                 "skill_options": tuple(claim.get("skill_options", ()) or ()),
                 "minimum_level": _positive_int(claim.get("minimum_level", 1), 1),
@@ -2904,6 +2932,13 @@ def apply_claim_pure(player_data, claim_id, claim_data, selected_skill_id=None):
         if amount <= 0:
             return player_data, False
         _apply_skill_xp_reward(data, skill_id, amount)
+    elif claim_type == "item_bundle":
+        bundle_items = _claim_bundle_items(claim)
+        if not bundle_items:
+            return player_data, False
+        inventory = data.setdefault("inventory", {})
+        for item_name, quantity in bundle_items:
+            inventory[item_name] = inventory.get(item_name, 0) + quantity
     else:
         item_name = str(claim.get("item_name", claim_id))
         quantity = _positive_int(claim.get("quantity", 1), 1)

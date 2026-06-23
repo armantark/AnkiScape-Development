@@ -3129,10 +3129,34 @@ def show_main_menu(
             amount_text = f"{int(amount):,}" if float(amount or 0).is_integer() else f"{float(amount or 0):,.1f}"
             tooltip = _claim_skill_tooltip(row)
             return f"{amount_text} XP lamp" + (f" · {tooltip}" if tooltip else "")
+        if str(row.get("claim_type", "item")) == "item_bundle":
+            items = tuple(row.get("items", ()) or ())
+            preview = []
+            for item in items[:3]:
+                if isinstance(item, (tuple, list)) and len(item) >= 2:
+                    preview.append(f"{item[0]} x{item[1]}")
+            if len(items) > len(preview):
+                preview.append(f"+{len(items) - len(preview)} more")
+            item_count = len(items)
+            suffix = f" - {', '.join(preview)}" if preview else ""
+            return f"{item_count} item stack{'s' if item_count != 1 else ''}{suffix}"
         return "Ready to claim"
+
+    def _claim_bundle_tooltip(row: dict) -> str:
+        items = tuple(row.get("items", ()) or ())
+        lines = []
+        for item in items:
+            if isinstance(item, (tuple, list)) and len(item) >= 2:
+                lines.append(f"{item[0]} x{item[1]}")
+        return "\n".join(lines)
 
     def _claim_item_icon_path(row: dict) -> Optional[str]:
         item_name = str(row.get("item_name", row.get("display_name", "")))
+        if str(row.get("claim_type", "item")) == "item_bundle":
+            items = tuple(row.get("items", ()) or ())
+            first = items[0] if items else ()
+            if isinstance(first, (tuple, list)) and first and isinstance(first[0], str):
+                item_name = first[0]
         definition = _item_def_for(item_name)
         asset_path = definition.asset_path if definition is not None else None
         return _bank_icon_path(item_name, asset_path)
@@ -3231,6 +3255,8 @@ def show_main_menu(
                 icon_label.setStyleSheet("")
             if claim_type == "xp_lamp":
                 title_text = str(row.get("display_name", item_name))
+            elif claim_type == "item_bundle":
+                title_text = str(row.get("display_name", item_name))
             else:
                 title_text = f"{row.get('display_name', item_name)} x{row.get('quantity', 1)}"
             copy = QWidget()
@@ -3247,6 +3273,10 @@ def show_main_menu(
             metadata.setStyleSheet(f"color: {dim_text_css(metadata)};")
             if claim_type == "xp_lamp":
                 metadata.setToolTip(_claim_skill_tooltip(row))
+            elif claim_type == "item_bundle":
+                bundle_tooltip = _claim_bundle_tooltip(row)
+                label.setToolTip(bundle_tooltip)
+                metadata.setToolTip(bundle_tooltip)
             copy_layout.addWidget(label)
             copy_layout.addWidget(metadata)
             claim_btn = QPushButton("Claim")
