@@ -1,7 +1,7 @@
 # Combat V1 Implementation Audit - 2026-06-23
 
-Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation
-and Tutorial Island starter kit claim bridge.
+Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
+Tutorial Island starter kit claim bridge, and simple ordinary-enemy expansion.
 
 ## Implemented Scope
 
@@ -9,7 +9,8 @@ and Tutorial Island starter kit claim bridge.
   `action_registry.py` and `runtime_actions.py`, not a quest-only resolver and
   not a fake levelled registry skill.
 - `combat_data.py` seeds source-backed ordinary enemies with complete combat
-  stats and drop behavior: Chicken, Rat, Giant rat, and Cow.
+  stats and drop behavior: Chicken, Rat, Giant rat, Cow, Cow calf, Ram, and
+  Seagull.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
@@ -64,6 +65,8 @@ and Tutorial Island starter kit claim bridge.
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt`
 - Tutorial starter kit:
   `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`
+- Simple ordinary enemies:
+  `memory-bank/source-audits/combat-simple-enemies-2026-06-23.md`
 
 ## Deferred
 

@@ -449,11 +449,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_registered_asset_paths_exist_for_current_manifest(self):
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
-    def test_combat_starter_items_are_registered_with_icons(self):
+    def test_combat_items_are_registered_with_icons(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = {
             "Wooden shield": "equipment",
             "Tinderbox": "tool",
+            "Cowhide": "material",
         }
         for item_name, category in expected.items():
             self.assertIn(item_name, by_storage_key)

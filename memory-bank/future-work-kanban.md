@@ -58,8 +58,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See
   `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`.
-- Next ordinary enemy import candidates from the 2026-06-23 source audit are
-  Cow calf, Ram, and Seagull first because their local 2011Scape rows have
+- Cow calf, Ram, and Seagull are now implemented ordinary Combat targets as of
+  2026-06-23. They were chosen first because their local 2011Scape rows have
   complete stats, simple guaranteed drops, death handlers, attack speed, and no
   quantity-range or nested-table runtime requirements. Spider and Giant spider
   follow after charm assets and quantity-range support. Goblins, Barbarians,

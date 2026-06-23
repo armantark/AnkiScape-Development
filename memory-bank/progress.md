@@ -128,7 +128,8 @@
 - Equipment backend is in place: generated `equipment_data.py` covers Smithing armour/weapons plus Mining bonus gear, `player_data["equipment"]` replaces `owned_equipment`, combat level defaults are scaffolded, pure equip/unequip/stat-total helpers exist, and runtime exposes `on_equip_item` / `on_unequip_slot` for the Equipment tab.
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 - Combat V1 ordinary training is in place. `combat_data.py` seeds the first
-  source-backed enabled enemies (Chicken, Rat, Giant rat, Cow), melee attack
+  source-backed enabled enemies (Chicken, Rat, Giant rat, Cow, Cow calf, Ram,
+  Seagull), melee attack
   styles, food healing values, and combat drop items from local 2011Scape
   source paths. `apply_combat_burst_pure()` simulates bounded 0.6s-tick combat
   bursts from `Actions per review`, caps each successful review at one kill,
@@ -155,6 +156,9 @@
   through the existing Bank Claims UI, storage config version 23 seeds the flat
   claim flag for existing saves, and `combatitems/` now holds fetched Wooden
   shield/Tinderbox icons through `COMBAT_ITEM_IMAGES`.
+- Combat simple-enemy expansion added Cow calf, Ram, and Seagull as ordinary
+  selectable targets with complete local 2011Scape stats and simple guaranteed
+  drops. Cowhide now has a fetched `combatitems/` icon.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.

@@ -1,0 +1,338 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Simple Enemies Complete - 2026-06-23</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0d1014;
+      --panel: #171b21;
+      --panel-2: #20262d;
+      --text: #f1f3f5;
+      --muted: #aab3bd;
+      --line: #333b45;
+      --good: #54d27f;
+      --warn: #f3bc4a;
+      --blue: #7bb7ff;
+      --red: #ff756f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(123, 183, 255, 0.16), transparent 32rem),
+        linear-gradient(135deg, #0d1014 0%, #11171f 48%, #0d1014 100%);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 44px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 22px;
+      align-items: stretch;
+      margin-bottom: 22px;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3.8vw, 4.2rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .hero,
+    .panel,
+    .enemy {
+      border: 1px solid var(--line);
+      background: rgba(23, 27, 33, 0.9);
+      border-radius: 8px;
+      box-shadow: 0 20px 80px rgba(0, 0, 0, 0.26);
+    }
+    .hero { padding: 28px; }
+    .status {
+      display: grid;
+      gap: 12px;
+      padding: 18px;
+      align-content: center;
+      background: rgba(84, 210, 127, 0.08);
+      border-color: rgba(84, 210, 127, 0.36);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(84, 210, 127, 0.45);
+      color: var(--good);
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: rgba(84, 210, 127, 0.1);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 22px 0;
+    }
+    .enemy {
+      padding: 18px;
+      min-height: 230px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 14px;
+    }
+    .enemy h3 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 0;
+    }
+    .enemy .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .pill {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .drops {
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+    .drop {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 9px 10px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .drop strong {
+      font-size: 0.92rem;
+    }
+    .drop span {
+      color: var(--good);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .panel {
+      padding: 18px;
+    }
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .checks li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .checks li::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: var(--good);
+      box-shadow: 0 0 0 4px rgba(84, 210, 127, 0.12);
+    }
+    .bar-stack {
+      display: grid;
+      gap: 12px;
+    }
+    .bar-row {
+      display: grid;
+      gap: 6px;
+    }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--blue), var(--good));
+    }
+    .source-note {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+    code {
+      color: #d7e9ff;
+      background: rgba(123, 183, 255, 0.1);
+      border: 1px solid rgba(123, 183, 255, 0.18);
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86em;
+    }
+    @media (max-width: 860px) {
+      main { width: min(100% - 24px, 1180px); padding-top: 18px; }
+      header, .grid, .two-col { grid-template-columns: 1fr; }
+      .hero { padding: 22px; }
+      .enemy { min-height: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero">
+        <span class="badge">Checkpoint shipped</span>
+        <h1>Combat target list widened without new drop-table debt.</h1>
+        <p class="source-note">
+          Cow calf, Ram, and Seagull are now source-backed early Combat targets. This keeps the grill moving on clean ordinary enemies while intentionally deferring richer mobs that need quantity ranges, nested tables, charm assets, or variant decisions.
+        </p>
+      </section>
+      <aside class="status panel">
+        <h2>Verification</h2>
+        <ul class="checks">
+          <li>Focused Combat, target metadata, item registry, and Qt target-tree tests passed.</li>
+          <li><code>python3 run_tests.py</code> passed with 567 tests and 128 skipped.</li>
+          <li><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code> passed with 567 tests.</li>
+          <li><code>git diff --check</code> passed.</li>
+        </ul>
+      </aside>
+    </header>
+
+    <section class="grid" aria-label="Implemented enemies">
+      <article class="enemy">
+        <div>
+          <h3>Cow calf</h3>
+          <p>Level 2, Lumbridge group, 60 lifepoints.</p>
+        </div>
+        <div class="meta">
+          <span class="pill">4 tick speed</span>
+          <span class="pill">45 tick respawn</span>
+          <span class="pill">6.0 Slayer XP</span>
+        </div>
+        <div class="drops">
+          <div class="drop"><strong>Bones</strong><span>guaranteed</span></div>
+          <div class="drop"><strong>Raw beef</strong><span>guaranteed</span></div>
+          <div class="drop"><strong>Cowhide</strong><span>new icon</span></div>
+        </div>
+      </article>
+
+      <article class="enemy">
+        <div>
+          <h3>Ram</h3>
+          <p>Level 2, Lumbridge group, 80 lifepoints.</p>
+        </div>
+        <div class="meta">
+          <span class="pill">4 tick speed</span>
+          <span class="pill">45 tick respawn</span>
+          <span class="pill">simple loot</span>
+        </div>
+        <div class="drops">
+          <div class="drop"><strong>Bones</strong><span>guaranteed</span></div>
+        </div>
+      </article>
+
+      <article class="enemy">
+        <div>
+          <h3>Seagull</h3>
+          <p>Level 2, Coastal group, 60 lifepoints.</p>
+        </div>
+        <div class="meta">
+          <span class="pill">4 tick speed</span>
+          <span class="pill">25 tick respawn</span>
+          <span class="pill">5.0 Slayer XP</span>
+        </div>
+        <div class="drops">
+          <div class="drop"><strong>Bones</strong><span>guaranteed</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <article class="panel">
+        <h2>What Changed</h2>
+        <ul class="checks">
+          <li>Combat target metadata now exposes the three imported rows in grouped UI order.</li>
+          <li>Cowhide is registered as a material and has a fetched combat item asset with provenance.</li>
+          <li>The burst logic test proves Cow calf grants its guaranteed source drops in the existing review simulation.</li>
+          <li>The main menu Qt test proves Combat can be selected and the new targets render with source/drop tooltips.</li>
+        </ul>
+      </article>
+      <article class="panel">
+        <h2>Remaining Queue Shape</h2>
+        <div class="bar-stack">
+          <div class="bar-row">
+            <div class="bar-label"><span>Clean ordinary enemies</span><span>3 added</span></div>
+            <div class="bar"><div class="fill" style="width: 72%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><span>Quantity-range support</span><span>needed next</span></div>
+            <div class="bar"><div class="fill" style="width: 28%"></div></div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-label"><span>Variant and nested-table decisions</span><span>deferred</span></div>
+            <div class="bar"><div class="fill" style="width: 18%"></div></div>
+          </div>
+        </div>
+        <p class="source-note">
+          Best next pressure point: implement quantity-range drops and charm coverage, then import Spider and Giant spider with runtime semantics instead of flattening their source tables.
+        </p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

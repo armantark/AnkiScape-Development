@@ -83,6 +83,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:48Z"
   },
+  "combatitems/cowhide.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cowhide.png",
+    "file_title": "Cowhide.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Cowhide.png?720eb",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d14fad35737bc15db4531788cfe4a4a5147c7fa4",
+    "size": 596,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:13Z"
+  },
   "combatitems/tinderbox.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tinderbox.png",
     "file_title": "Tinderbox.png",

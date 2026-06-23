@@ -91,6 +91,8 @@ class TargetMetadataTest(unittest.TestCase):
         chicken = _row(rows, "chicken")
         giant_rat = _row(rows, "giant_rat")
         cow = _row(rows, "cow")
+        cow_calf = _row(rows, "cow_calf")
+        seagull = _row(rows, "seagull")
 
         self.assertTrue(chicken.enabled)
         self.assertTrue(giant_rat.current)
@@ -101,6 +103,10 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Raw rat meat", giant_rat.tooltip)
         self.assertIn("giant_rat_level_2.plugin.kts", giant_rat.tooltip)
         self.assertEqual(cow.sort_key[:2], (2, "Cow"))
+        self.assertEqual(cow_calf.group, "Lumbridge")
+        self.assertIn("Cowhide", cow_calf.tooltip)
+        self.assertEqual(seagull.group, "Coastal")
+        self.assertEqual(seagull.sort_key[:2], (2, "Seagull"))
 
     def test_smithing_grouped_rows_preserve_tier_sort_and_lock_reasons(self):
         rows = smithing_target_rows(

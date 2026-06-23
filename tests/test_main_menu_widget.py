@@ -144,6 +144,20 @@ def _smith_tree_items(tree: "QTreeWidget") -> "list[QTreeWidgetItem]":
     return items
 
 
+def _find_tree_with_user_role(dialog: "QDialog", role) -> "QTreeWidget":
+    for tw in dialog.findChildren(QTreeWidget):
+        if any(it.data(0, Qt.ItemDataRole.UserRole) == role for it in _smith_tree_items(tw)):
+            return tw
+    raise AssertionError(f"no tree widget with user role {role!r}")
+
+
+def _tree_row(tree: "QTreeWidget", role) -> "QTreeWidgetItem":
+    for it in _smith_tree_items(tree):
+        if it.data(0, Qt.ItemDataRole.UserRole) == role:
+            return it
+    raise AssertionError(f"tree row {role!r} not found")
+
+
 def _find_smith_tree(dialog: "QDialog") -> "QTreeWidget":
     """The Smithing target tree, identified by its stable smelt-bronze recipe id."""
     for tw in dialog.findChildren(QTreeWidget):
@@ -503,6 +517,23 @@ class MainMenuWidgetTest(unittest.TestCase):
             title.startswith("Woodcutting"),
             f"panel did not switch to Woodcutting; still shows {title!r}",
         )
+
+    def test_combat_is_selectable_and_shows_simple_enemy_targets(self) -> None:
+        pd = _make_player_data()
+        pd["current_combat_target"] = "seagull"
+        dialog = self._open(pd, current_skill="Combat")
+
+        tree = _find_tree_with_user_role(dialog, "seagull")
+        cow_calf = _tree_row(tree, "cow_calf")
+        ram = _tree_row(tree, "ram")
+        seagull = _tree_row(tree, "seagull")
+
+        self.assertEqual(cow_calf.text(0), "Cow calf (Lvl 2)")
+        self.assertIn("Cowhide", cow_calf.toolTip(0))
+        self.assertEqual(ram.text(0), "Ram (Lvl 2)")
+        self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
+        self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
+        self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
         pd = _make_player_data()

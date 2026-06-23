@@ -239,6 +239,104 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/animals/cow_level_2.plugin.kts"
         ),
     },
+    "cow_calf": {
+        "display_name": "Cow calf",
+        "level": 2,
+        "group": "Lumbridge",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 45,
+        "slayer_xp": 6.0,
+        "stats": {
+            "hitpoints": 60,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -20,
+            "attack_slash": 0,
+            "attack_crush": -20,
+            "defence_stab": -26,
+            "defence_slash": -26,
+            "defence_crush": -26,
+            "defence_magic": -26,
+            "defence_ranged": -26,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1), ("Raw beef", 1), ("Cowhide", 1)), "tables": ()},
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/animals/cow_calf_level_2.plugin.kts"
+        ),
+    },
+    "ram": {
+        "display_name": "Ram",
+        "level": 2,
+        "group": "Lumbridge",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 45,
+        "stats": {
+            "hitpoints": 80,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -15,
+            "attack_slash": 0,
+            "attack_crush": -15,
+            "defence_stab": -21,
+            "defence_slash": -21,
+            "defence_crush": -21,
+            "defence_magic": -21,
+            "defence_ranged": -21,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1),), "tables": ()},
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/animals/ram_level_2.plugin.kts"
+        ),
+    },
+    "seagull": {
+        "display_name": "Seagull",
+        "level": 2,
+        "group": "Coastal",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "slayer_xp": 5.0,
+        "stats": {
+            "hitpoints": 60,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -47,
+            "attack_slash": 0,
+            "attack_crush": -42,
+            "defence_stab": -42,
+            "defence_slash": -42,
+            "defence_crush": -42,
+            "defence_magic": -42,
+            "defence_ranged": -42,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1),), "tables": ()},
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/animals/seagull_level_2.plugin.kts"
+        ),
+    },
 }
 
 
@@ -256,4 +354,4 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
 }
 
 
-COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge",)
+COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Coastal")

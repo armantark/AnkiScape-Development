@@ -157,9 +157,9 @@ Roadmap direction: add an optional fake Grand Exchange-style market later so the
 Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as the source of truth for future threads. The current P0 existing-skill architecture board is complete; Utility/Activities icons, the focused feather source, Firemaking v1, Fishing v1, Cooking v1, Runecrafting v1, the priority quest-lock catalog, and the route-precedent locks are complete. The GE remains a later candidate, not the next default project.
 
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
-synthetic review action in the Skills hub, not a registry skill. Its first
-enabled source-backed target set is Chicken, Rat, Giant rat, and Cow; each
-review simulates 50 RuneScape ticks per `Actions per review`, caps at one kill,
+synthetic review action in the Skills hub, not a registry skill. Its enabled
+source-backed target set is Chicken, Rat, Giant rat, Cow, Cow calf, Ram, and
+Seagull; each review simulates 50 RuneScape ticks per `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
 source-backed drops. The follow-up recovery foundation is also in place:

@@ -47,6 +47,40 @@ def _player(**overrides):
 
 
 class CombatLogicTest(unittest.TestCase):
+    def test_simple_enemy_import_rows_match_source(self):
+        cow_calf = COMBAT_ENEMY_DATA["cow_calf"]
+        ram = COMBAT_ENEMY_DATA["ram"]
+        seagull = COMBAT_ENEMY_DATA["seagull"]
+
+        self.assertEqual(cow_calf["stats"]["hitpoints"], 60)
+        self.assertEqual(cow_calf["drops"]["guaranteed"], (("Bones", 1), ("Raw beef", 1), ("Cowhide", 1)))
+        self.assertEqual(cow_calf["drops"]["tables"], ())
+        self.assertTrue(cow_calf["source"].endswith("cow_calf_level_2.plugin.kts"))
+        self.assertEqual(ram["stats"]["hitpoints"], 80)
+        self.assertEqual(ram["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertTrue(ram["source"].endswith("ram_level_2.plugin.kts"))
+        self.assertEqual(seagull["group"], "Coastal")
+        self.assertEqual(seagull["slayer_xp"], 5.0)
+        self.assertTrue(seagull["source"].endswith("seagull_level_2.plugin.kts"))
+
+    def test_cow_calf_burst_grants_source_guaranteed_drops(self):
+        player = _player(current_combat_target="cow_calf")
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=500,
+            rng=_rng([0.0, 0.999999, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertEqual(new_data["combat_kill_counts"], {"cow_calf": 1})
+        self.assertEqual(new_data["inventory"]["Bones"], 1)
+        self.assertEqual(new_data["inventory"]["Raw beef"], 1)
+        self.assertEqual(new_data["inventory"]["Cowhide"], 1)
+
     def test_combat_burst_kills_once_awards_xp_and_rolls_source_backed_drops(self):
         player = _player()
 
