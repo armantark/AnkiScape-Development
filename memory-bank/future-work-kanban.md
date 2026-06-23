@@ -40,7 +40,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   owner explicitly asks for one or the next scoped feature requires it.
 - Combat V1 implementation is complete as of 2026-06-23 for the first
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Giant rat, Giant
-  spider, Cow, Cow calf, Ram, Highwayman, and Seagull are selectable Combat
+  spider, Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9, and Seagull are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -57,8 +57,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   and reclaim consumes `100 Coins` per held item before returning gear to
   inventory. Use
   `memory-bank/combat-design-grill-2026-06-23.md` plus
-  `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` before
-  expanding Combat; use
+  `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
+  `memory-bank/source-audits/combat-barbarian-2026-06-23.md` before
+  expanding ordinary humanoid Combat; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo and Magic beyond the basic Strike/staff slice,
@@ -69,23 +70,28 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See
   `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`.
-- Cow calf, Ram, Highwayman, and Seagull are now implemented ordinary Combat targets as of
+- Cow calf, Ram, Highwayman, Barbarian level 8/9, and Seagull are now implemented ordinary Combat targets as of
   2026-06-23. They were chosen first because their local 2011Scape rows have
   complete stats, simple guaranteed drops, death handlers, attack speed, and no
   quantity-range or nested-table runtime requirements. Spider and level-2 Giant
   spider are now implemented too after adding charm assets and Combat
   `quantity_range` support. Highwayman now uses that range support for Iron
-  bolts x2-12 and registers Cape as a source-backed equipment drop. Goblins,
-  Barbarians, Farmers, Al-Kharid warriors, and higher-risk spider variants need
+  bolts x2-12 and registers Cape as a source-backed equipment drop. The
+  ordinary level 8/9 Barbarian twin row now imports the full 1024-slot main
+  table, 1000-slot charm table, 128-slot easy clue tertiary table, generic Staff
+  equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
+  Goblins, Barbarian variants such as the level 10 greataxe row, Farmers,
+  Al-Kharid warriors, and higher-risk spider variants need
   wider item/drop-table, variant, access, or special-mechanic support.
 - Shortbow plus Bronze arrows are now implemented as the first source-backed
   Ranged/ammo path as of 2026-06-23. Ranged accurate/rapid/longrange styles run
   through the shared Combat burst engine and consume one arrow per attack
   attempt from the carried ammo loadout. Future Ranged work should add
   stack-aware ammunition equipment, arrow recovery, and more bow/arrow tiers.
-  A read-only ordinary-enemy audit found
-  level-8 Barbarians to be the safest next non-trivial enemy candidate, but they
-  still need Staff, Bear fur, and easy clue item/asset handling before import.
+  A read-only ordinary-enemy audit found the level 8/9 Barbarian twin row to be
+  the safest next non-trivial enemy candidate; that row is now implemented, so
+  the next ordinary-enemy pass should pick a new source-backed row rather than
+  redoing the Barbarian asset unblocker.
 - The basic combat Magic Strike ladder is now implemented as of 2026-06-23.
   Magic standard style runs through the shared Combat burst engine for
   Wind/Water/Earth/Fire Strike, gates on source Magic levels and runes, consumes

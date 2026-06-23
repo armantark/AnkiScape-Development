@@ -197,6 +197,13 @@
   a Death's Office reclaim row, consumes `100 Coins` per held item, and returns
   reclaimed gear to inventory. Source proof:
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md`.
+- Combat Barbarian expansion added the ordinary level 8/9 Barbarian twin row as
+  one Humanoids target. The row imports source stats, attack speed, bonuses,
+  guaranteed Bones, the 1024-slot main drop table, 1000-slot charm table, and
+  128-slot easy clue tertiary table. Generic `Staff` is now source-backed
+  equipment from `items.yml`, and Combat now carries icons for Staff, Bear fur,
+  Beer, Coins, and Clue scroll (easy). Source proof:
+  `memory-bank/source-audits/combat-barbarian-2026-06-23.md`.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.

@@ -653,6 +653,88 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/humanoids/highwayman_level_5.plugin.kts"
         ),
     },
+    "barbarian": {
+        "display_name": "Barbarian",
+        "level": 8,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 140,
+            "attack": 6,
+            "strength": 5,
+            "defence": 5,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 8,
+            "attack_slash": 0,
+            "attack_crush": 10,
+            "defence_stab": 1,
+            "defence_slash": 1,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 1024,
+                    "slots": (
+                        {"item": "Bronze hatchet", "quantity": 1, "slots": 48},
+                        {"item": "Staff", "quantity": 1, "slots": 32},
+                        {"item": "Iron mace", "quantity": 1, "slots": 8},
+                        {"item": "Chaos rune", "quantity": 2, "slots": 32},
+                        {"item": "Bronze arrows", "quantity": 15, "slots": 24},
+                        {"item": "Earth rune", "quantity": 2, "slots": 24},
+                        {"item": "Fire rune", "quantity": 5, "slots": 16},
+                        {"item": "Mind rune", "quantity": 5, "slots": 16},
+                        {"item": "Law rune", "quantity": 2, "slots": 8},
+                        {"item": "Coins", "quantity": 5, "slots": 341},
+                        {"item": "Coins", "quantity": 8, "slots": 76},
+                        {"item": "Coins", "quantity": 17, "slots": 45},
+                        {"item": "Coins", "quantity": 27, "slots": 26},
+                        {"slots": 288},
+                        {"item": "Tin ore", "quantity": 1, "slots": 8},
+                        {"item": "Bear fur", "quantity": 1, "slots": 8},
+                        {"item": "Beer", "quantity": 1, "slots": 8},
+                        {"item": "Cooked meat", "quantity": 1, "slots": 8},
+                        {"item": "Ring mould", "quantity": 1, "slots": 8},
+                    ),
+                },
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 50},
+                        {"item": "Green charm", "quantity": 1, "slots": 10},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 5},
+                        {"item": "Blue charm", "quantity": 1, "slots": 5},
+                        {"slots": 930},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                        {"slots": 127},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/humanoids/barbarian_lvl_8.plugin.kts; "
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/humanoids/barbarian_lvl_9.plugin.kts"
+        ),
+    },
     "seagull": {
         "display_name": "Seagull",
         "level": 2,
@@ -690,11 +772,16 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
 
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
+    "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
+    "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
+    "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
+    "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
+    "Staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF"},
     "Staff of air": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR"},
     "Staff of water": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_WATER"},
     "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},

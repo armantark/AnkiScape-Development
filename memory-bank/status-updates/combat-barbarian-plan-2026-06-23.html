@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Barbarian Expansion Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at top left, rgba(79, 140, 255, 0.15), transparent 35%), var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 36px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      color: #9fc2ff;
+      background: var(--accent-glow);
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 800px;
+      color: var(--text-dim);
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .card {
+      grid-column: span 6;
+      background: rgba(22, 26, 33, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .wide { grid-column: span 12; }
+    .third { grid-column: span 4; }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: #cbd6ea;
+    }
+
+    p { margin: 0; }
+
+    .source-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .source {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text-dim);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(74, 222, 128, 0.5);
+    }
+
+    .source b { color: var(--text); }
+
+    .tag {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 7px;
+      color: var(--text-dim);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.7rem;
+      white-space: nowrap;
+    }
+
+    .lane {
+      display: grid;
+      gap: 10px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px;
+      border-radius: 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      background: var(--accent-glow);
+      color: #b8d1ff;
+      font-weight: 800;
+    }
+
+    .step strong { display: block; }
+    .step span { color: var(--text-dim); font-size: 0.9rem; }
+
+    .drop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .drop {
+      min-height: 74px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .drop b { font-size: 0.95rem; }
+    .drop small { color: var(--text-dim); }
+
+    .risk {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .risk div {
+      border-radius: 10px;
+      padding: 12px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    .risk strong { display: block; color: var(--amber); margin-bottom: 4px; }
+    .risk small { color: var(--text-dim); }
+
+    .file-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 11px;
+    }
+
+    .file {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.72rem;
+      padding: 5px 8px;
+      border-radius: 999px;
+      color: #dce7fa;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+    }
+
+    @media (max-width: 880px) {
+      .card,
+      .wide,
+      .third {
+        grid-column: 1 / -1;
+      }
+
+      .drop-grid,
+      .risk {
+        grid-template-columns: 1fr;
+      }
+
+      .source {
+        grid-template-columns: 18px 1fr;
+      }
+
+      .source .tag {
+        grid-column: 2;
+        width: max-content;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-implementation plan</span>
+    <h1>Barbarians widen ordinary Combat without new engine shortcuts.</h1>
+    <p class="subtitle">This slice promotes the 2011Scape level 8/9 Barbarian row into the enabled Combat registry. It is deliberately data-heavy and engine-light: exact source stats, simple drop tables, item icons, and tests that prove the row behaves like the existing ordinary enemies.</p>
+
+    <section class="grid">
+      <article class="card wide">
+        <h2>Source Evidence</h2>
+        <div class="source-list">
+          <div class="source"><span class="dot"></span><b>barbarian_lvl_8.plugin.kts</b><span class="tag">NPC 5909</span></div>
+          <div class="source"><span class="dot"></span><b>barbarian_lvl_9.plugin.kts</b><span class="tag">same stats/drop table</span></div>
+          <div class="source"><span class="dot"></span><b>DropTableFactory rows</b><span class="tag">1024 main + charms + easy clue</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Backend</h2>
+        <div class="lane">
+          <div class="step"><div class="num">1</div><div><strong>Audit artifact</strong><span>Capture exact Barbarian stats, attack speed, respawn, and three drop tables.</span></div></div>
+          <div class="step"><div class="num">2</div><div><strong>Data registry</strong><span>Add a grouped Humanoids combat target and register all direct drop items.</span></div></div>
+          <div class="step"><div class="num">3</div><div><strong>Pure tests</strong><span>Assert source values, guaranteed Bones, coin/rune/equipment rolls, and tertiary clue behavior.</span></div></div>
+        </div>
+        <div class="file-row"><span class="file">combat_data.py</span><span class="file">item_registry.py</span><span class="file">tests/test_combat_logic.py</span></div>
+      </article>
+
+      <article class="card">
+        <h2>Frontend</h2>
+        <div class="lane">
+          <div class="step"><div class="num">1</div><div><strong>Target list</strong><span>Use the existing Combat grouped target tree; no new UI renderer.</span></div></div>
+          <div class="step"><div class="num">2</div><div><strong>Readiness</strong><span>Let the existing preview/risk line show higher HP and damage pressure.</span></div></div>
+          <div class="step"><div class="num">3</div><div><strong>Qt coverage</strong><span>Assert Barbarians appear under Humanoids and remain selectable when ready.</span></div></div>
+        </div>
+        <div class="file-row"><span class="file">target_metadata.py</span><span class="file">ui.py</span><span class="file">tests/test_main_menu_widget.py</span></div>
+      </article>
+
+      <article class="card">
+        <h2>Assets</h2>
+        <div class="drop-grid">
+          <div class="drop"><b>Bear fur</b><small>new Combat item icon</small></div>
+          <div class="drop"><b>Beer</b><small>new Combat item icon</small></div>
+          <div class="drop"><b>Staff</b><small>new equipment icon</small></div>
+          <div class="drop"><b>Easy clue scroll</b><small>debug/convenience drop</small></div>
+          <div class="drop"><b>Runes/arrows</b><small>reuse existing icons</small></div>
+          <div class="drop"><b>Bronze hatchet</b><small>reuse Woodcutting icon</small></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Balance Boundary</h2>
+        <div class="risk">
+          <div><strong>No invented loot</strong><small>Every item comes from the exact 1024-slot main table, 1000-slot charm table, or 128-slot tertiary table.</small></div>
+          <div><strong>No special mechanics</strong><small>This row is ordinary melee combat, so no prayer, poison, Wilderness, quest, Slayer task, or phase behavior is added.</small></div>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <h2>Acceptance</h2>
+        <div class="source-list">
+          <div class="source"><span class="dot"></span><b>Barbarian target is selectable from Combat under Humanoids.</b><span class="tag">frontend</span></div>
+          <div class="source"><span class="dot"></span><b>Drops roll through existing tables without changing combat transaction semantics.</b><span class="tag">backend</span></div>
+          <div class="source"><span class="dot"></span><b>All new visible items have item definitions and asset paths.</b><span class="tag">assets</span></div>
+          <div class="source"><span class="dot"></span><b>Focused tests, full test commands, Memory Bank update, and local commit close the slice.</b><span class="tag">workflow</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

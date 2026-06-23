@@ -231,6 +231,13 @@ reclaim consumes `100 Coins` per item and returns the gear to inventory. Source
 proof and exclusions live in
 `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md`.
 
+Combat ordinary-enemy expansion now includes the level 8/9 Barbarian twin row as
+a single Humanoids target. It imports the full source-backed main/charm/easy
+clue drop tables, registers generic `Staff` equipment from `items.yml`, and adds
+Combat icons for Staff, Bear fur, Beer, Coins, and Clue scroll (easy). Source
+proof and the level 10 greataxe exclusion live in
+`memory-bank/source-audits/combat-barbarian-2026-06-23.md`.
+
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
 quests have item/tool/option blockers, and 120 quests have combat blockers.

@@ -167,6 +167,39 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(highwayman["drops"]["tables"][0]["slots"][0]["quantity_range"], (2, 12))
         self.assertTrue(highwayman["source"].endswith("highwayman_level_5.plugin.kts"))
 
+    def test_barbarian_import_row_groups_level_8_and_9_source_twins(self):
+        barbarian = COMBAT_ENEMY_DATA["barbarian"]
+
+        self.assertEqual(barbarian["level"], 8)
+        self.assertEqual(barbarian["group"], "Humanoids")
+        self.assertEqual(barbarian["attack_speed"], 6)
+        self.assertEqual(barbarian["respawn_delay"], 25)
+        self.assertEqual(barbarian["stats"]["hitpoints"], 140)
+        self.assertEqual(barbarian["stats"]["attack"], 6)
+        self.assertEqual(barbarian["stats"]["strength"], 5)
+        self.assertEqual(barbarian["stats"]["defence"], 5)
+        self.assertEqual(barbarian["bonuses"]["attack_stab"], 8)
+        self.assertEqual(barbarian["bonuses"]["attack_crush"], 10)
+        self.assertEqual(barbarian["bonuses"]["defence_stab"], 1)
+        self.assertEqual(barbarian["drops"]["guaranteed"], (("Bones", 1),))
+
+        main, charms, tertiary = barbarian["drops"]["tables"]
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Bronze hatchet", "quantity": 1, "slots": 48})
+        self.assertEqual(main["slots"][1], {"item": "Staff", "quantity": 1, "slots": 32})
+        self.assertEqual(main["slots"][9], {"item": "Coins", "quantity": 5, "slots": 341})
+        self.assertEqual(main["slots"][14], {"item": "Tin ore", "quantity": 1, "slots": 8})
+        self.assertEqual(main["slots"][15], {"item": "Bear fur", "quantity": 1, "slots": 8})
+        self.assertEqual(main["slots"][18], {"item": "Ring mould", "quantity": 1, "slots": 8})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 50})
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("barbarian_lvl_8.plugin.kts", barbarian["source"])
+        self.assertIn("barbarian_lvl_9.plugin.kts", barbarian["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -182,6 +215,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Cape": 1, "Iron bolts": 12})
+
+    def test_barbarian_drop_rolls_include_main_charms_and_tertiary_tables(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["barbarian"],
+            _rng([0.0, 0.0, 0.0]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze hatchet": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
 
     def test_cow_calf_burst_grants_source_guaranteed_drops(self):
         player = _player(current_combat_target="cow_calf")

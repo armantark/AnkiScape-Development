@@ -1598,6 +1598,7 @@ _RUNECRAFTING_EXTERNAL_SOURCE = 'external RuneScape wiki; not present in local 2
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Shortbow', 'weapon', 'shortbow', 841, 'data/cfg/items.yml item 841; SHORTBOW'),
     ('Cape', 'cape', 'cape', 1019, 'data/cfg/items.yml item 1019; CAPE_1019'),
+    ('Staff', 'weapon', 'staff', 1379, 'data/cfg/items.yml item 1379; STAFF'),
     ('Staff of air', 'weapon', 'elemental_staff', 1381, 'data/cfg/items.yml item 1381; STAFF_OF_AIR'),
     ('Staff of water', 'weapon', 'elemental_staff', 1383, 'data/cfg/items.yml item 1383; STAFF_OF_WATER'),
     ('Staff of earth', 'weapon', 'elemental_staff', 1385, 'data/cfg/items.yml item 1385; STAFF_OF_EARTH'),
@@ -1629,6 +1630,18 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
             bonuses=(
                 EquipmentBonuses(attack_ranged=8)
                 if _item_name == 'Shortbow'
+                else
+                EquipmentBonuses(
+                    attack_slash=-1,
+                    attack_crush=7,
+                    attack_magic=4,
+                    defence_stab=2,
+                    defence_slash=3,
+                    defence_crush=1,
+                    defence_magic=4,
+                    melee_strength=3,
+                )
+                if _item_name == 'Staff'
                 else
                 EquipmentBonuses(
                     attack_slash=-1,
@@ -1672,12 +1685,12 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                 if _item_name == 'Cape'
                 else EquipmentBonuses()
             ),
-            attack_speed=5 if _equipment_type == 'elemental_staff' else 4 if _item_name in {'Cape', 'Shortbow'} else 0,
+            attack_speed=5 if _equipment_type in {'staff', 'elemental_staff'} else 4 if _item_name in {'Cape', 'Shortbow'} else 0,
             source_item_id=_source_item_id,
             source=_source,
             source_status=(
                 'items.yml equipment block'
-                if _item_name in {'Cape', 'Shortbow', 'Staff of air', 'Staff of water', 'Staff of earth', 'Staff of fire'}
+                if _item_name in {'Cape', 'Shortbow', 'Staff', 'Staff of air', 'Staff of water', 'Staff of earth', 'Staff of fire'}
                 else 'manual Runecrafting v1 equipment entry'
             ),
         ),

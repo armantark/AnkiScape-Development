@@ -83,6 +83,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:48Z"
   },
+  "combatitems/bear_fur.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bear_fur.png",
+    "file_title": "Bear fur.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Bear_fur.png?3be33",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3ae9e5de366518682ca475db57f83ffba81270d8",
+    "size": 563,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:24Z"
+  },
+  "combatitems/beer.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Beer.png",
+    "file_title": "Beer.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Beer.png?0b6b6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a29f76346e9062da93e381921ca7ea8bd88e07bf",
+    "size": 617,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:04Z"
+  },
   "combatitems/blue_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_charm.png",
     "file_title": "Blue charm.png",
@@ -106,6 +130,30 @@
     "size": 293,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:27Z"
+  },
+  "combatitems/clue_scroll_easy.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Clue_scroll_%28easy%29.png",
+    "file_title": "Clue scroll (easy).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Clue_scroll_%28easy%29.png?e29cd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e94b0fe55f7371cfabf60e60c11c650b3148d0a0",
+    "size": 477,
+    "source_wiki": "osrs",
+    "timestamp": "2019-04-11T12:15:25Z"
+  },
+  "combatitems/coins.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Coins_100.png",
+    "file_title": "Coins 100.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Coins_100.png?511f4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3ef09e83e3ffbdc5b6a469a09668a5806a3d6e3e",
+    "size": 423,
+    "source_wiki": "osrs",
+    "timestamp": "2020-07-22T17:46:31Z"
   },
   "combatitems/cowhide.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cowhide.png",
@@ -154,6 +202,18 @@
     "size": 874,
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:07:20Z"
+  },
+  "combatitems/staff.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Staff.png",
+    "file_title": "Staff.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Staff.png?3203e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0c8e94111d940c2bd1b99bee8bdc9e440670e351",
+    "size": 310,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:58Z"
   },
   "combatitems/staff_of_air.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Staff_of_air.png",

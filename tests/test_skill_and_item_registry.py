@@ -454,10 +454,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_combat_items_are_registered_with_icons(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = {
+            "Bear fur": "material",
             "Wooden shield": "equipment",
             "Tinderbox": "tool",
             "Cape": "equipment",
+            "Clue scroll (easy)": "material",
+            "Coins": "material",
             "Cowhide": "material",
+            "Beer": "food",
+            "Staff": "equipment",
             "Staff of air": "equipment",
             "Staff of water": "equipment",
             "Staff of earth": "equipment",
@@ -475,6 +480,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(by_storage_key[item_name].asset_path, COMBAT_ITEM_IMAGES[item_name])
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
+        self.assertEqual(EQUIPMENT_DATA["Staff"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Staff"].bonuses.attack_magic, 4)
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].slot, "weapon")
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].bonuses.attack_magic, 10)
         for item_name in ("Shortbow", "Bronze arrows"):

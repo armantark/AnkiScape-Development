@@ -69,6 +69,8 @@ first Ranged/ammo path.
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/giant_rat_level_2.plugin.kts`
 - Cow:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/animals/cow_level_2.plugin.kts`
+- Barbarian level 8/9:
+  `memory-bank/source-audits/combat-barbarian-2026-06-23.md`
 - Drop item IDs:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt`
 - Tutorial starter kit:
