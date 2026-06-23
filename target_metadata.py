@@ -71,6 +71,9 @@ class TargetRowMetadata:
     group: str = ""
     locked_reasons: tuple[str, ...] = ()
     sort_key: tuple[object, ...] = ()
+    requires_confirmation: bool = False
+    confirmation_title: str = ""
+    confirmation_message: str = ""
 
 
 def _material_lines(requirements: Mapping[str, int], inventory: Mapping[str, int]) -> tuple[bool, str]:
@@ -922,15 +925,30 @@ def combat_target_rows(
             equipment_data=equipment_data,
         )
         if locked_reasons:
+            requires_confirmation = False
+            confirmation_title = ""
+            confirmation_message = ""
             tooltip = (
                 f"{display_name} · combat level {level}\n"
                 f"Locked due to: {', '.join(locked_reasons)}\n"
                 f"Source: {enemy.get('source', '')}"
             )
         else:
+            risk_band = str(preview.get("risk_band", "Unknown"))
+            requires_confirmation = risk_band == "Death possible"
+            confirmation_title = "Confirm dangerous combat" if requires_confirmation else ""
+            confirmation_message = ""
+            confirmation_line = ""
+            if requires_confirmation:
+                confirmation_message = (
+                    f"{display_name} is marked Death possible at your current lifepoints "
+                    f"without loaded or banked food. Select this target anyway?"
+                )
+                confirmation_line = "Confirmation required before selecting this target.\n"
             tooltip = (
                 f"{display_name} · combat level {level}\n"
-                f"State: {preview.get('state', 'Ready')} · risk: {preview.get('risk_band', 'Unknown')}\n"
+                f"State: {preview.get('state', 'Ready')} · risk: {risk_band}\n"
+                f"{confirmation_line}"
                 f"Accuracy: {float(preview.get('accuracy', 0.0) or 0.0):.0%}\n"
                 f"Your max hit: {preview.get('player_max_hit', 0)} LP\n"
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"
@@ -954,6 +972,9 @@ def combat_target_rows(
                 group=str(enemy.get("group", "Combat")),
                 locked_reasons=locked_reasons,
                 sort_key=(level, display_name),
+                requires_confirmation=requires_confirmation,
+                confirmation_title=confirmation_title,
+                confirmation_message=confirmation_message,
             )
         )
     return tuple(rows)

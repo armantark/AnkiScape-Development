@@ -574,6 +574,43 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
+    def test_combat_death_possible_target_requires_confirmation(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_lifepoints": 20,
+                "constitution_level": 10,
+                "inventory": {},
+                "combat_auto_eat_food": ["Shark"],
+                "combat_supply_loadout": {},
+            }
+        )
+        dialog = self._open(pd, current_skill="Combat")
+
+        tree = _find_tree_with_user_role(dialog, "barbarian_level_10")
+        barbarian = _tree_row(tree, "barbarian_level_10")
+        original_question = self._ui.QMessageBox.question
+        questions = []
+        try:
+            def _deny(*args, **kwargs):  # type: ignore[no-untyped-def]
+                questions.append(args)
+                return self._ui.QMessageBox.StandardButton.No
+
+            self._ui.QMessageBox.question = _deny
+            tree.itemClicked.emit(barbarian, 0)
+            QApplication.processEvents()
+            self.assertEqual(self._combat_calls, [])
+            self.assertEqual(questions[0][1], "Confirm dangerous combat")
+            self.assertIn("Death possible", questions[0][2])
+
+            self._ui.QMessageBox.question = lambda *a, **k: self._ui.QMessageBox.StandardButton.Yes
+            tree.itemClicked.emit(barbarian, 0)
+            QApplication.processEvents()
+            self.assertEqual(self._combat_calls[-1], "barbarian_level_10")
+        finally:
+            self._ui.QMessageBox.question = original_question
+
     def test_combat_exposes_style_and_spell_controls(self) -> None:
         pd = _make_player_data()
         pd.update(

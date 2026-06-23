@@ -174,6 +174,49 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Your max hit:", chicken.tooltip)
         self.assertIn("Ammo: Bronze arrows x0 loaded + 50 bank", chicken.tooltip)
 
+    def test_combat_rows_mark_death_possible_targets_for_confirmation(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_lifepoints": 20,
+                "constitution_level": 10,
+                "inventory": {},
+                "equipment": {},
+                "combat_auto_eat_food": ["Shark"],
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        barbarian = _row(rows, "barbarian_level_10")
+        safe_rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_lifepoints": 100,
+                "constitution_level": 10,
+                "inventory": {},
+                "equipment": {},
+                "combat_auto_eat_food": ["Shark"],
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+        safe_chicken = _row(safe_rows, "chicken")
+
+        self.assertTrue(barbarian.enabled)
+        self.assertTrue(barbarian.requires_confirmation)
+        self.assertEqual(barbarian.confirmation_title, "Confirm dangerous combat")
+        self.assertIn("Death possible", barbarian.tooltip)
+        self.assertIn("Confirmation required before selecting this target.", barbarian.tooltip)
+        self.assertIn("Barbarian is marked Death possible", barbarian.confirmation_message)
+        self.assertFalse(safe_chicken.requires_confirmation)
+
     def test_combat_rows_show_magic_spell_and_rune_supply(self):
         rows = combat_target_rows(
             {

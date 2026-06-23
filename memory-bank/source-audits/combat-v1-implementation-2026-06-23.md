@@ -5,7 +5,7 @@ Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Highwayman humanoid expansion,
 Barbarian level 8/9 and level 10 ordinary-enemy expansions, Goblin
 ordinary-enemy expansion, first Ranged/ammo path, and the standard elemental
-Combat spell ladder.
+Combat spell ladder, plus ordinary dangerous-target confirmation.
 
 ## Implemented Scope
 
@@ -46,6 +46,9 @@ Combat spell ladder.
 - The Skills hub has a Combat category/card, enemy target tree, attack-style
   selector, availability gate, food-readiness tooltip line, and HUD
   target/lifepoint display.
+- Enabled ordinary Combat target rows rated `Death possible` now require
+  non-persistent confirmation before the selection callback runs; declining
+  leaves the previous target unchanged and no new save flag is added.
 - The source-backed Tutorial Island starter kit is available as a one-time Bank
   Claim (`tutorial_island_starter_kit`) that grants Bronze sword, Wooden shield,
   Shortbow, 50 Bronze arrows, Air rune x5, Mind rune x5, Bronze pickaxe, Hammer,
@@ -92,6 +95,8 @@ Combat spell ladder.
   `memory-bank/source-audits/combat-ranged-ammo-2026-06-23.md`
 - Standard combat spell ladder:
   `memory-bank/source-audits/combat-standard-spells-2026-06-23.md`
+- Dangerous target confirmation:
+  `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`
 
 ## Deferred
 
@@ -105,7 +110,8 @@ Combat spell ladder.
 - Broader Ranged equipment/ammunition support beyond Shortbow plus Bronze
   arrows, including stack-aware ammunition equipment and arrow recovery.
 - Prayer effects, drain, and Prayer skilling.
-- Dangerous-target confirmation UX and richer risk previews.
+- Richer risk previews, including time-to-kill and Wilderness/equipment-risk
+  opt-in surfaces.
 - Full Death's Office reclaim UI and stacked-death handling. Safe noncombat
   recovery can now advance simple grave recovery, but the complete
   pre-EOC-shaped reclaim surface is still not built.

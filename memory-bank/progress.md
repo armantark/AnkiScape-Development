@@ -217,6 +217,12 @@
   charm table, and 128-slot easy clue tertiary table without merging it into the
   level 8/9 Barbarian row. Source proof:
   `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md`.
+- Combat dangerous-target confirmation is now live for ordinary target
+  selection. Enabled rows whose existing preview risk band is `Death possible`
+  now require a non-persistent Qt confirmation before `on_set_combat` runs;
+  declining leaves the previous target unchanged and accepting saves only the
+  selected target. Source proof:
+  `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`.
 - Combat Goblin expansion added level-2 Goblins as two source-split targets:
   `Goblin (unarmed)` for the unarmed IDs and `Goblin (armed)` for the one armed
   ID with higher Attack/Defence. Both share the exact local 1024-slot main
@@ -230,8 +236,9 @@
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
   import, god/Ancient/Lunar combat spell gates and effects, broader Ranged
   weapon/ammo support, richer assets, potion/cannonball/per-ammo preference
-  controls, confirmation UX for dangerous targets, source-exact death-fee and
-  grave-expiry variants beyond the current review/stacked-death bridge, and
+  controls, richer risk previews and Wilderness/equipment-risk opt-ins,
+  source-exact death-fee and grave-expiry variants beyond the current
+  review/stacked-death bridge, and
   migrating quest combat gates from the lightweight resolver onto the shared
   combat engine. Higher Goblins, Farmer, and Al-Kharid Warrior still need
   first-class shared/global table handling before their drops can be imported.

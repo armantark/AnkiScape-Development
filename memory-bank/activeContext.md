@@ -180,9 +180,9 @@ live too: covered elemental runes are not missing, not loaded from inventory,
 and not consumed per cast. Future Combat work should expand source-backed
 monsters beyond the clean early rows, add god/Ancient/Lunar spell gates and
 effects, broaden Ranged equipment/ammo, add deeper
-potion/cannonball/per-ammo preference controls, improve dangerous-target UX,
-add source-exact death-fee/expiry variants, and migrate quest combat gates onto
-this shared engine.
+potion/cannonball/per-ammo preference controls, improve richer risk previews
+and Wilderness/equipment-risk opt-ins, add source-exact death-fee/expiry
+variants, and migrate quest combat gates onto this shared engine.
 
 The Combat bootstrap now includes a source-backed Tutorial Island starter kit as
 a one-time Bank Claim. The generic `item_bundle` claim path grants Bronze sword,
@@ -207,6 +207,13 @@ the level 10 greataxe, spear, two-hand sword, and 2h sword variants. The level
 shared Barbarian drop tables instead of merging into the earlier row. Source
 proof lives in `memory-bank/source-audits/combat-barbarian-2026-06-23.md` and
 `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md`.
+
+Combat target selection now asks for non-persistent confirmation before
+activating any enabled target whose existing preview risk band is `Death
+possible`. The row remains visible and enabled, but choosing `No` leaves the
+previous target unchanged; choosing `Yes` calls the normal target-save callback
+without adding a new save flag. Source proof lives in
+`memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md`.
 
 The first combat Magic ladder is now live: standard elemental Strike, Bolt,
 Blast, and Wave spells are available through the Combat hub's

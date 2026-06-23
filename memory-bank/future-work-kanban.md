@@ -58,7 +58,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   and reclaim consumes `100 Coins` per held item before returning gear to
   inventory. Combat Magic now covers the standard elemental spell ladder through
   Fire Wave, with source level/rune/max-hit/base-XP rows and existing elemental
-  staff rune substitution. Use
+  staff rune substitution. Ordinary Combat target selection now asks for
+  non-persistent confirmation before activating rows rated `Death possible`. Use
   `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md` before
@@ -69,11 +70,14 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching Goblin rows or shared Goblin tables; use
   `memory-bank/source-audits/combat-standard-spells-2026-06-23.md` before
   touching standard Combat spell data; use
+  `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md` before
+  touching ordinary Combat dangerous-target confirmation; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo, add god/Ancient/Lunar spell gates/effects,
   add source-exact grave expiry/death-fee variants, add deeper
-  potion/cannon/per-ammo preference controls, and migrate quest combat gates
+  potion/cannon/per-ammo preference controls, add richer risk previews and
+  Wilderness/equipment-risk opt-ins, and migrate quest combat gates
   onto the same engine instead of reopening the completed design grill.
 - The Tutorial Island starter kit bridge is complete as of 2026-06-23. It uses a
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`

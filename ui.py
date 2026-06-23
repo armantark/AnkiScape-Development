@@ -1801,6 +1801,7 @@ def show_main_menu(
         group_labels: dict,
         group_role_prefix: str,
         on_select=None,
+        confirm_select=None,
         group_order: Optional[list] = None,
         expanded_groups: Optional[set] = None,
         set_group_expanded=None,
@@ -1829,6 +1830,7 @@ def show_main_menu(
             groups[group].append(row)
 
         selected_child = None
+        rows_by_target = {row.target_id: row for row in rows}
         expanded_groups = expanded_groups or set()
         for group in ordered_groups:
             group_rows = groups.get(group, [])
@@ -1868,6 +1870,9 @@ def show_main_menu(
             if not target_id or str(target_id).startswith(group_role_prefix):
                 return
             if on_select is not None:
+                row = rows_by_target.get(target_id)
+                if confirm_select is not None and row is not None and not confirm_select(row):
+                    return
                 on_select(target_id)
 
         def _group_id(item: "QTreeWidgetItem") -> Optional[str]:
@@ -2174,17 +2179,32 @@ def show_main_menu(
         layout.addWidget(loadout_panel)
 
         combat_images = _item_asset_paths()
+        combat_rows = combat_target_rows(
+            player_data,
+            COMBAT_ENEMY_DATA,
+            combat_images,
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        def _confirm_combat_target(row: TargetRowMetadata) -> bool:
+            if not row.requires_confirmation:
+                return True
+            answer = QMessageBox.question(
+                container,
+                row.confirmation_title or "Confirm combat target",
+                row.confirmation_message or "This combat target may kill you. Select it anyway?",
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+                QMessageBox.StandardButton.No,
+            )
+            return answer == QMessageBox.StandardButton.Yes
+
         tree = _build_grouped_target_tree(
-            combat_target_rows(
-                player_data,
-                COMBAT_ENEMY_DATA,
-                combat_images,
-                EQUIPMENT_ITEM_DATA,
-                DEFAULT_COMBAT_TARGET,
-            ),
+            combat_rows,
             {group: group for group in COMBAT_TARGET_GROUP_ORDER},
             "__combat_group__:",
             on_set_combat,
+            confirm_select=_confirm_combat_target,
             group_order=list(COMBAT_TARGET_GROUP_ORDER),
         )
         layout.addWidget(tree, 1)
