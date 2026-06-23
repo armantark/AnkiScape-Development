@@ -4,6 +4,8 @@ from combat_data import (
     COMBAT_ENEMY_DATA,
     COMBAT_MAGIC_SPELL_DATA,
     COMBAT_MAGIC_STAFF_DATA,
+    COMBAT_RANGED_AMMO_DATA,
+    COMBAT_RANGED_WEAPON_DATA,
     MAGIC_FORMULA_SOURCE_PATH,
     MAGIC_STRATEGY_SOURCE_PATH,
     RANGED_FORMULA_SOURCE_PATH,
@@ -92,6 +94,35 @@ _KILLER_ENEMY_DATA = {
 
 
 class CombatLogicTest(unittest.TestCase):
+    def test_standard_bow_and_arrow_rows_match_2011scape_source(self):
+        expected_bows = {
+            "Shortbow": ("shortbow", ("Bronze arrows", "Iron arrows")),
+            "Longbow": ("longbow", ("Bronze arrows", "Iron arrows")),
+            "Oak shortbow": ("oak_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows")),
+            "Oak longbow": ("oak_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows")),
+            "Willow shortbow": ("willow_shortbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows")),
+            "Willow longbow": ("willow_longbow", ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows")),
+        }
+
+        for bow_name, (equipment_type, ammo) in expected_bows.items():
+            with self.subTest(bow_name=bow_name):
+                spec = COMBAT_RANGED_WEAPON_DATA[bow_name]
+                self.assertEqual(spec["equipment_type"], equipment_type)
+                self.assertEqual(spec["compatible_ammo"], ammo)
+
+        expected_ammo = {
+            "Bronze arrows": (882, "Bronze arrow", 7),
+            "Iron arrows": (884, "Iron arrow", 10),
+            "Steel arrows": (886, "Steel arrow", 16),
+            "Mithril arrows": (888, "Mithril arrow", 22),
+        }
+        for ammo_name, (source_item_id, source_item_name, ranged_strength) in expected_ammo.items():
+            with self.subTest(ammo_name=ammo_name):
+                spec = COMBAT_RANGED_AMMO_DATA[ammo_name]
+                self.assertEqual(spec["source_item_id"], source_item_id)
+                self.assertEqual(spec["source_item_name"], source_item_name)
+                self.assertEqual(spec["ranged_strength"], ranged_strength)
+
     def test_standard_strike_spell_rows_match_2011scape_source(self):
         self.assertEqual(
             COMBAT_MAGIC_SPELL_DATA["water_strike"]["rune_cost"],
@@ -444,6 +475,28 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["attack_exp"], 0.0)
         self.assertGreater(new_data["ranged_exp"], 0.0)
         self.assertGreater(new_data["constitution_exp"], 0.0)
+
+    def test_ranged_burst_accepts_higher_arrow_tiers_for_supported_bows(self):
+        player = _player(
+            combat_attack_style="ranged_accurate",
+            equipment={"weapon": "Willow longbow"},
+            inventory={"Mithril arrows": 2},
+            current_combat_target="giant_rat",
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["weapon"], "Willow longbow")
+        self.assertEqual(result["ammo"], "Mithril arrows")
+        self.assertEqual(result["ammo_used"], {"Mithril arrows": 1})
+        self.assertEqual(new_data["combat_supply_loadout"]["ammo"], {"Mithril arrows": 1})
 
     def test_ranged_longrange_splits_xp_between_ranged_and_defense(self):
         player = _player(

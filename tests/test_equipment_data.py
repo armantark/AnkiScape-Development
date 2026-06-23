@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 141)
+        self.assertEqual(len(EQUIPMENT_DATA), 146)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -42,20 +42,32 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Rune 2h sword"].required_level, 40)
         self.assertTrue(EQUIPMENT_DATA["Rune 2h sword"].two_handed)
 
-    def test_throwing_knives_are_ranged_weapons(self):
+    def test_standard_bows_are_ranged_weapons(self):
         bronze_knife = EQUIPMENT_DATA["Bronze knife"]
         self.assertEqual(bronze_knife.slot, "weapon")
         self.assertEqual(bronze_knife.combat_skill, "ranged")
         self.assertEqual(bronze_knife.required_level, 1)
         self.assertGreater(bronze_knife.bonuses.attack_ranged, 0)
 
-        shortbow = EQUIPMENT_DATA["Shortbow"]
-        self.assertEqual(shortbow.slot, "weapon")
-        self.assertEqual(shortbow.combat_skill, "ranged")
-        self.assertEqual(shortbow.equipment_type, "shortbow")
-        self.assertTrue(shortbow.two_handed)
-        self.assertEqual(shortbow.attack_speed, 4)
-        self.assertEqual(shortbow.bonuses.attack_ranged, 8)
+        expected_bows = {
+            "Shortbow": (841, "shortbow", 1, 4, 8),
+            "Longbow": (839, "longbow", 1, 6, 8),
+            "Oak shortbow": (843, "oak_shortbow", 5, 4, 14),
+            "Oak longbow": (845, "oak_longbow", 5, 6, 14),
+            "Willow shortbow": (849, "willow_shortbow", 20, 4, 20),
+            "Willow longbow": (847, "willow_longbow", 20, 6, 20),
+        }
+        for item_name, (source_item_id, equipment_type, required_level, attack_speed, attack_ranged) in expected_bows.items():
+            with self.subTest(item_name=item_name):
+                bow = EQUIPMENT_DATA[item_name]
+                self.assertEqual(bow.slot, "weapon")
+                self.assertEqual(bow.combat_skill, "ranged")
+                self.assertEqual(bow.required_level, required_level)
+                self.assertEqual(bow.equipment_type, equipment_type)
+                self.assertTrue(bow.two_handed)
+                self.assertEqual(bow.attack_speed, attack_speed)
+                self.assertEqual(bow.source_item_id, source_item_id)
+                self.assertEqual(bow.bonuses.attack_ranged, attack_ranged)
 
     def test_goblin_drop_equipment_items_are_equippable(self):
         bronze_spear = EQUIPMENT_DATA["Bronze spear"]

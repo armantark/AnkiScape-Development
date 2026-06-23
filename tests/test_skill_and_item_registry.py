@@ -490,7 +490,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Staff"].bonuses.attack_magic, 4)
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].slot, "weapon")
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].bonuses.attack_magic, 10)
-        for item_name in ("Shortbow", "Bronze arrows"):
+        for item_name in (
+            "Shortbow",
+            "Longbow",
+            "Oak shortbow",
+            "Oak longbow",
+            "Willow shortbow",
+            "Willow longbow",
+            "Bronze arrows",
+            "Iron arrows",
+            "Steel arrows",
+            "Mithril arrows",
+        ):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].asset_path, FLETCHED_ITEM_IMAGES[item_name])
             self.assertTrue(os.path.exists(FLETCHED_ITEM_IMAGES[item_name]), f"{item_name} Fletching icon is missing")

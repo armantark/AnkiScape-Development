@@ -58,7 +58,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   and reclaim consumes `100 Coins` per held item before returning gear to
   inventory. Combat Magic now covers the standard elemental spell ladder through
   Fire Wave, with source level/rune/max-hit/base-XP rows and existing elemental
-  staff rune substitution. Ordinary Combat target selection now asks for
+  staff rune substitution. Combat Ranged now covers Shortbow/Longbow, Oak
+  shortbow/longbow, and Willow shortbow/longbow with Bronze/Iron/Steel/Mithril
+  arrow compatibility. Ordinary Combat target selection now asks for
   non-persistent confirmation before activating rows rated `Death possible`. Use
   `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
@@ -74,9 +76,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching ordinary Combat dangerous-target confirmation; use
   `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md` before
   touching safe-boundary ammo recovery; use
+  `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
+  touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
-  broaden Ranged equipment/ammo, add god/Ancient/Lunar spell gates/effects,
+  broaden Ranged equipment/ammo beyond the early bow ladder, add god/Ancient/Lunar spell gates/effects,
   add source-exact grave expiry/death-fee variants, add deeper
   potion/cannon/per-ammo preference controls, add richer risk previews and
   Wilderness/equipment-risk opt-ins, and migrate quest combat gates
@@ -97,28 +101,28 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
   Goblin level 2 is split into unarmed and armed targets because source stats
   differ, while sharing the same local 1024-slot main table, 1024-slot charm
-  table, and 1024-slot easy clue tertiary table. Higher Goblins, Barbarian
-  variants such as the level 10 greataxe row, Farmers, Al-Kharid warriors, and
-  higher-risk spider variants need
+  table, and 1024-slot easy clue tertiary table. Higher Goblins, Farmers,
+  Al-Kharid warriors, and higher-risk spider variants need
   wider item/drop-table, variant, access, or special-mechanic support.
-- Shortbow plus Bronze arrows are now implemented as the first source-backed
-  Ranged/ammo path as of 2026-06-23. Ranged accurate/rapid/longrange styles run
-  through the shared Combat burst engine and consume one arrow per attack
-  attempt from the carried ammo loadout. Future Ranged work should add
-  stack-aware ammunition equipment, arrow recovery, and more bow/arrow tiers.
-  A read-only ordinary-enemy audit found the level 8/9 Barbarian twin row to be
-  the safest next non-trivial enemy candidate; that row is now implemented, so
-  the next ordinary-enemy pass should pick a new source-backed row rather than
-  redoing the Barbarian asset unblocker.
+- Shortbow through Willow longbow plus Bronze through Mithril arrows are now
+  implemented as the early source-backed Ranged/ammo path as of 2026-06-23.
+  Ranged accurate/rapid/longrange styles run through the shared Combat burst
+  engine and consume one arrow per attack attempt from the carried ammo loadout.
+  Future Ranged work should add Maple/Yew/Magic bows, composite/ogre/dark/crystal
+  bow families, thrown weapons, crossbows/bolts/darts/knives, stack-aware
+  ammunition equipment, arrow recovery, and player-facing ammo preference
+  controls.
 - The basic combat Magic Strike ladder is now implemented as of 2026-06-23.
   Magic standard style runs through the shared Combat burst engine for
   Wind/Water/Earth/Fire Strike, gates on source Magic levels and runes, consumes
-  only uncovered runes per cast attempt from the carried rune loadout, awards
-  source base spell XP on splashes, routes damage XP into Magic/Constitution,
-  and treats Staff of air/water/earth/fire as matching elemental rune providers.
-  Future Magic work should add battlestaves/mystic staves, more combat spell
-  tiers, noncombat spell actions, and a real Magic skill
-  panel when there is a playable action family beyond the Combat selector.
+  one Air rune and one Mind rune per Wind Strike cast attempt, awards base
+  Magic XP even on splashes, and routes damage XP to Magic/Constitution.
+  Staff of air/water/earth/fire now provide source-backed elemental rune
+  substitution, and the standard elemental ladder now extends through Bolt,
+  Blast, and Wave spells. Future Magic work should add god/Ancient/Lunar
+  combat spells, battlestaves/mystic staves, source special effects, noncombat
+  Magic actions, and a real Magic skill panel rather than reopening the first
+  combat spell path.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

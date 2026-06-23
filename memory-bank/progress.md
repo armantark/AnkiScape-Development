@@ -172,6 +172,13 @@
   arrow per attack attempt, avoid mid-fight bank refills, route Ranged XP from
   accurate/rapid/longrange styles, and surface ammo readiness in target
   tooltips.
+- Combat Ranged progression now adds the early source-backed bow and arrow
+  ladder: Shortbow/Longbow, Oak shortbow/longbow, and Willow shortbow/longbow
+  with Bronze, Iron, Steel, and Mithril arrow compatibility. The bow equipment
+  rows use local `items.yml` Ranged requirements, attack speeds, and Ranged
+  attack bonuses; arrow rows use source item IDs and Ranged strength values.
+  Source proof:
+  `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md`.
 - Combat Magic/rune expansion added Wind Strike as the first source-backed Magic
   path through the shared Combat burst engine. Magic rows now require the
   selected spell level and runes, refill Air/Mind runes at safe boundaries,
@@ -241,7 +248,7 @@
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
   import, god/Ancient/Lunar combat spell gates and effects, broader Ranged
-  weapon/ammo support beyond the first Shortbow/Bronze arrows path, richer
+  weapon/ammo support beyond the early bow ladder, richer
   assets, potion/cannonball/per-ammo preference
   controls, richer risk previews and Wilderness/equipment-risk opt-ins,
   source-exact death-fee and grave-expiry variants beyond the current

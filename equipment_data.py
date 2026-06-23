@@ -1594,9 +1594,22 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
 
 _RUNECRAFTING_ACCESS_SOURCE = 'game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/runecrafting/Altar.kt'
 _RUNECRAFTING_EXTERNAL_SOURCE = 'external RuneScape wiki; not present in local 2011Scape rev-667 source'
+_RANGED_BOW_EQUIPMENT = {
+    'Shortbow': {'equipment_type': 'shortbow', 'source_item_id': 841, 'required_level': 1, 'attack_ranged': 8, 'attack_speed': 4},
+    'Longbow': {'equipment_type': 'longbow', 'source_item_id': 839, 'required_level': 1, 'attack_ranged': 8, 'attack_speed': 6},
+    'Oak shortbow': {'equipment_type': 'oak_shortbow', 'source_item_id': 843, 'required_level': 5, 'attack_ranged': 14, 'attack_speed': 4},
+    'Oak longbow': {'equipment_type': 'oak_longbow', 'source_item_id': 845, 'required_level': 5, 'attack_ranged': 14, 'attack_speed': 6},
+    'Willow shortbow': {'equipment_type': 'willow_shortbow', 'source_item_id': 849, 'required_level': 20, 'attack_ranged': 20, 'attack_speed': 4},
+    'Willow longbow': {'equipment_type': 'willow_longbow', 'source_item_id': 847, 'required_level': 20, 'attack_ranged': 20, 'attack_speed': 6},
+}
 
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Shortbow', 'weapon', 'shortbow', 841, 'data/cfg/items.yml item 841; SHORTBOW'),
+    ('Longbow', 'weapon', 'longbow', 839, 'data/cfg/items.yml item 839; LONGBOW'),
+    ('Oak shortbow', 'weapon', 'oak_shortbow', 843, 'data/cfg/items.yml item 843; OAK_SHORTBOW'),
+    ('Oak longbow', 'weapon', 'oak_longbow', 845, 'data/cfg/items.yml item 845; OAK_LONGBOW'),
+    ('Willow shortbow', 'weapon', 'willow_shortbow', 849, 'data/cfg/items.yml item 849; WILLOW_SHORTBOW'),
+    ('Willow longbow', 'weapon', 'willow_longbow', 847, 'data/cfg/items.yml item 847; WILLOW_LONGBOW'),
     ('Cape', 'cape', 'cape', 1019, 'data/cfg/items.yml item 1019; CAPE_1019'),
     ('Brass necklace', 'neck', 'necklace', 1009, 'data/cfg/items.yml item 1009; BRASS_NECKLACE'),
     ('Bronze spear', 'weapon', 'spear', 1237, 'data/cfg/items.yml item 1237; BRONZE_SPEAR'),
@@ -1626,13 +1639,13 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
         EquipmentItem(
             item_name=_item_name,
             slot=_slot,
-            combat_skill='ranged' if _item_name == 'Shortbow' else None,
-            required_level=1,
-            two_handed=True if _item_name in {'Bronze spear', 'Shortbow'} else False,
+            combat_skill='ranged' if _item_name in _RANGED_BOW_EQUIPMENT else None,
+            required_level=_RANGED_BOW_EQUIPMENT[_item_name]['required_level'] if _item_name in _RANGED_BOW_EQUIPMENT else 1,
+            two_handed=True if _item_name in _RANGED_BOW_EQUIPMENT or _item_name == 'Bronze spear' else False,
             equipment_type=_equipment_type,
             bonuses=(
-                EquipmentBonuses(attack_ranged=8)
-                if _item_name == 'Shortbow'
+                EquipmentBonuses(attack_ranged=_RANGED_BOW_EQUIPMENT[_item_name]['attack_ranged'])
+                if _item_name in _RANGED_BOW_EQUIPMENT
                 else
                 EquipmentBonuses(
                     attack_stab=5,
@@ -1698,7 +1711,15 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                 if _item_name == 'Cape'
                 else EquipmentBonuses()
             ),
-            attack_speed=5 if _equipment_type in {'spear', 'staff', 'elemental_staff'} else 4 if _item_name in {'Brass necklace', 'Cape', "Chef's hat", 'Shortbow'} else 0,
+            attack_speed=(
+                _RANGED_BOW_EQUIPMENT[_item_name]['attack_speed']
+                if _item_name in _RANGED_BOW_EQUIPMENT
+                else 5
+                if _equipment_type in {'spear', 'staff', 'elemental_staff'}
+                else 4
+                if _item_name in {'Brass necklace', 'Cape', "Chef's hat"}
+                else 0
+            ),
             source_item_id=_source_item_id,
             source=_source,
             source_status=(
@@ -1708,13 +1729,12 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                     'Bronze spear',
                     'Cape',
                     "Chef's hat",
-                    'Shortbow',
                     'Staff',
                     'Staff of air',
                     'Staff of water',
                     'Staff of earth',
                     'Staff of fire',
-                }
+                } or _item_name in _RANGED_BOW_EQUIPMENT
                 else 'manual Runecrafting v1 equipment entry'
             ),
         ),

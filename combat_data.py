@@ -119,8 +119,33 @@ COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
 COMBAT_RANGED_WEAPON_DATA: Dict[str, dict] = {
     "Shortbow": {
         "equipment_type": "shortbow",
-        "compatible_ammo": ("Bronze arrows",),
+        "compatible_ammo": ("Bronze arrows", "Iron arrows"),
         "source": f"{RANGED_BOW_SOURCE_PATH}: SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS",
+    },
+    "Longbow": {
+        "equipment_type": "longbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS",
+    },
+    "Oak shortbow": {
+        "equipment_type": "oak_shortbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: OAK_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS",
+    },
+    "Oak longbow": {
+        "equipment_type": "oak_longbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: OAK_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS",
+    },
+    "Willow shortbow": {
+        "equipment_type": "willow_shortbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: WILLOW_SHORTBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS",
+    },
+    "Willow longbow": {
+        "equipment_type": "willow_longbow",
+        "compatible_ammo": ("Bronze arrows", "Iron arrows", "Steel arrows", "Mithril arrows"),
+        "source": f"{RANGED_BOW_SOURCE_PATH}: WILLOW_LONGBOW accepts BRONZE_ARROWS + IRON_ARROWS + STEEL_ARROWS + MITHRIL_ARROWS",
     },
 }
 
@@ -133,6 +158,33 @@ COMBAT_RANGED_AMMO_DATA: Dict[str, dict] = {
         "source": (
             f"{RANGED_ARROW_SOURCE_PATH}: BRONZE_ARROWS; "
             f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 882"
+        ),
+    },
+    "Iron arrows": {
+        "source_item_id": 884,
+        "source_item_name": "Iron arrow",
+        "ranged_strength": 10,
+        "source": (
+            f"{RANGED_ARROW_SOURCE_PATH}: IRON_ARROWS; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 884"
+        ),
+    },
+    "Steel arrows": {
+        "source_item_id": 886,
+        "source_item_name": "Steel arrow",
+        "ranged_strength": 16,
+        "source": (
+            f"{RANGED_ARROW_SOURCE_PATH}: STEEL_ARROWS; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 886"
+        ),
+    },
+    "Mithril arrows": {
+        "source_item_id": 888,
+        "source_item_name": "Mithril arrow",
+        "ranged_strength": 22,
+        "source": (
+            f"{RANGED_ARROW_SOURCE_PATH}: MITHRIL_ARROWS; "
+            f"{COMBAT_SOURCE_ROOT}/data/cfg/items.yml item 888"
         ),
     },
 }
