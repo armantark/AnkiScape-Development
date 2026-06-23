@@ -548,6 +548,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         goblin_unarmed = _tree_row(tree, "goblin_level_2_unarmed")
         goblin_armed = _tree_row(tree, "goblin_level_2_armed")
         highwayman = _tree_row(tree, "highwayman")
+        barbarian_level_10 = _tree_row(tree, "barbarian_level_10")
         seagull = _tree_row(tree, "seagull")
 
         self.assertEqual(cow_calf.text(0), "Cow calf (Lvl 2)")
@@ -565,6 +566,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(highwayman.text(0), "Highwayman (Lvl 5)")
         self.assertIn("Cape x1", highwayman.toolTip(0))
         self.assertIn("Iron bolts x2-12 (1/20)", highwayman.toolTip(0))
+        self.assertEqual(barbarian_level_10.text(0), "Barbarian (Lvl 10)")
+        self.assertIn("Enemy LP: 180/180", barbarian_level_10.toolTip(0))
+        self.assertIn("Law rune x2 (8/1024)", barbarian_level_10.toolTip(0))
+        self.assertIn("barbarian_2hsword_lvl_10.plugin.kts", barbarian_level_10.toolTip(0))
         self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")

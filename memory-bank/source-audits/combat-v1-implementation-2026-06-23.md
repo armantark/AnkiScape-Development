@@ -3,8 +3,9 @@
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Highwayman humanoid expansion,
-Barbarian and Goblin ordinary-enemy expansions, first Ranged/ammo path, and the
-standard elemental Combat spell ladder.
+Barbarian level 8/9 and level 10 ordinary-enemy expansions, Goblin
+ordinary-enemy expansion, first Ranged/ammo path, and the standard elemental
+Combat spell ladder.
 
 ## Implemented Scope
 
@@ -14,7 +15,7 @@ standard elemental Combat spell ladder.
 - `combat_data.py` seeds source-backed ordinary enemies with complete combat
   stats and drop behavior: Chicken, Rat, Spider, Giant rat, Giant spider,
   Goblin level 2 armed/unarmed, Cow, Cow calf, Ram, Highwayman, Barbarian level
-  8/9, and Seagull.
+  8/9, Barbarian level 10, and Seagull.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
@@ -73,6 +74,8 @@ standard elemental Combat spell ladder.
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/animals/cow_level_2.plugin.kts`
 - Barbarian level 8/9:
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md`
+- Barbarian level 10:
+  `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md`
 - Goblin level 2:
   `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md`
 - Drop item IDs:

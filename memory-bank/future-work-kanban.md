@@ -40,7 +40,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   owner explicitly asks for one or the next scoped feature requires it.
 - Combat V1 implementation is complete as of 2026-06-23 for the first
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Giant rat, Giant
-  spider, Goblin level 2 armed/unarmed, Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9, and Seagull are selectable Combat
+  spider, Goblin level 2 armed/unarmed, Cow, Cow calf, Ram, Highwayman,
+  Barbarian level 8/9, Barbarian level 10, and Seagull are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -61,7 +62,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md` before
-  expanding ordinary humanoid Combat; use
+  touching level 8/9 Barbarian rows; use
+  `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md` before
+  touching level 10 Barbarian rows; use
   `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md` before
   touching Goblin rows or shared Goblin tables; use
   `memory-bank/source-audits/combat-standard-spells-2026-06-23.md` before

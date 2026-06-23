@@ -98,6 +98,7 @@ class TargetMetadataTest(unittest.TestCase):
         cow_calf = _row(rows, "cow_calf")
         highwayman = _row(rows, "highwayman")
         barbarian = _row(rows, "barbarian")
+        barbarian_level_10 = _row(rows, "barbarian_level_10")
         seagull = _row(rows, "seagull")
 
         self.assertTrue(chicken.enabled)
@@ -139,6 +140,13 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Clue scroll (easy) x1 (1/128)", barbarian.tooltip)
         self.assertIn("barbarian_lvl_8.plugin.kts", barbarian.tooltip)
         self.assertIn("barbarian_lvl_9.plugin.kts", barbarian.tooltip)
+        self.assertEqual(barbarian_level_10.group, "Humanoids")
+        self.assertIn("Barbarian · combat level 10", barbarian_level_10.tooltip)
+        self.assertIn("Enemy LP: 180/180", barbarian_level_10.tooltip)
+        self.assertIn("Bronze arrows x15 (24/1024)", barbarian_level_10.tooltip)
+        self.assertIn("Law rune x2 (8/1024)", barbarian_level_10.tooltip)
+        self.assertIn("barbarian_greataxe_lvl_10.plugin.kts", barbarian_level_10.tooltip)
+        self.assertIn("barbarian_spear_lvl_10.plugin.kts", barbarian_level_10.tooltip)
         self.assertEqual(seagull.group, "Coastal")
         self.assertEqual(seagull.sort_key[:2], (2, "Seagull"))
 

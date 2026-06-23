@@ -159,7 +159,7 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
-Cow calf, Ram, Highwayman, and Seagull; each review simulates 50 RuneScape ticks per
+Cow calf, Ram, Highwayman, Barbarian level 8/9, Barbarian level 10, and Seagull; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
@@ -199,6 +199,14 @@ The first humanoid Combat target is now live: Highwayman imports the local
 source combat stats/bonuses, a fetched Cape icon, and Cape slot equipment
 metadata. Source proof lives in
 `memory-bank/source-audits/combat-highwayman-2026-06-23.md`.
+
+Barbarian Combat coverage now includes two separate source-backed Humanoids
+targets: `barbarian` for the level 8/9 source twins and `barbarian_level_10` for
+the level 10 greataxe, spear, two-hand sword, and 2h sword variants. The level
+10 row keeps its source attack speed 4, respawn delay 50, 180 LP, bonuses, and
+shared Barbarian drop tables instead of merging into the earlier row. Source
+proof lives in `memory-bank/source-audits/combat-barbarian-2026-06-23.md` and
+`memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md`.
 
 The first combat Magic ladder is now live: standard elemental Strike, Bolt,
 Blast, and Wave spells are available through the Combat hub's

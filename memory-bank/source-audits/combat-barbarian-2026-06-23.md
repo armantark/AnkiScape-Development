@@ -3,8 +3,9 @@
 ## Scope
 
 This slice imports the ordinary level 8/9 Barbarian definitions only. The level
-10 greataxe Barbarian has a different source file, stats, and drop table, so it
-remains deferred until the broader Barbarian/Humanoid pass.
+10 Barbarian weapon variants have different source files, stats, bonuses,
+attack speed, and respawn timing, so they are documented separately in
+`memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md`.
 
 ## Source Files
 
@@ -48,7 +49,8 @@ remains deferred until the broader Barbarian/Humanoid pass.
 
 ## Deferred
 
-- The level 10 greataxe Barbarian remains deferred because it is not identical
-  to the level 8/9 source rows.
+- The level 10 Barbarian target is intentionally separate in
+  `combat-barbarian-level-10-2026-06-23.md` because it is not identical to the
+  level 8/9 source rows.
 - Barbarian location-specific spawn grouping is still a later world-map/UI pass;
   this target remains grouped under `Humanoids`.

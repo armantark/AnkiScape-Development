@@ -231,6 +231,39 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("barbarian_lvl_8.plugin.kts", barbarian["source"])
         self.assertIn("barbarian_lvl_9.plugin.kts", barbarian["source"])
 
+    def test_barbarian_level_10_import_row_groups_weapon_source_variants(self):
+        barbarian = COMBAT_ENEMY_DATA["barbarian_level_10"]
+
+        self.assertEqual(barbarian["display_name"], "Barbarian")
+        self.assertEqual(barbarian["level"], 10)
+        self.assertEqual(barbarian["group"], "Humanoids")
+        self.assertEqual(barbarian["attack_speed"], 4)
+        self.assertEqual(barbarian["respawn_delay"], 50)
+        self.assertEqual(barbarian["stats"]["hitpoints"], 180)
+        self.assertEqual(barbarian["stats"]["attack"], 8)
+        self.assertEqual(barbarian["stats"]["strength"], 7)
+        self.assertEqual(barbarian["stats"]["defence"], 3)
+        self.assertEqual(barbarian["bonuses"]["attack_stab"], 9)
+        self.assertEqual(barbarian["bonuses"]["attack_crush"], 15)
+        self.assertEqual(barbarian["bonuses"]["defence_slash"], 3)
+        self.assertEqual(barbarian["bonuses"]["defence_magic"], -3)
+        self.assertEqual(barbarian["drops"]["guaranteed"], (("Bones", 1),))
+
+        main, charms, tertiary = barbarian["drops"]["tables"]
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][4], {"item": "Bronze arrows", "quantity": 15, "slots": 24})
+        self.assertEqual(main["slots"][8], {"item": "Law rune", "quantity": 2, "slots": 8})
+        self.assertEqual(main["slots"][18], {"item": "Ring mould", "quantity": 1, "slots": 8})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("barbarian_greataxe_lvl_10.plugin.kts", barbarian["source"])
+        self.assertIn("barbarian_spear_lvl_10.plugin.kts", barbarian["source"])
+        self.assertIn("barbarian_twohand_sword_lvl_10.plugin.kts", barbarian["source"])
+        self.assertIn("barbarian_2hsword_lvl_10.plugin.kts", barbarian["source"])
+
     def test_goblin_level_2_import_splits_armed_and_unarmed_source_variants(self):
         unarmed = COMBAT_ENEMY_DATA["goblin_level_2_unarmed"]
         armed = COMBAT_ENEMY_DATA["goblin_level_2_armed"]
@@ -287,6 +320,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Bronze hatchet": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_barbarian_level_10_drop_rolls_include_tail_main_slot(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["barbarian_level_10"],
+            _rng([0.999999, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Ring mould": 1})
 
     def test_goblin_level_2_drop_rolls_include_main_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

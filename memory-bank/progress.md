@@ -210,6 +210,13 @@
   equipment from `items.yml`, and Combat now carries icons for Staff, Bear fur,
   Beer, Coins, and Clue scroll (easy). Source proof:
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md`.
+- Combat Barbarian level 10 expansion added a separate `barbarian_level_10`
+  Humanoids target for the greataxe, spear, two-hand sword, and 2h sword source
+  variants. The row imports source stats, attack speed 4, respawn delay 50,
+  bonuses, guaranteed Bones, the shared 1024-slot main drop table, 1000-slot
+  charm table, and 128-slot easy clue tertiary table without merging it into the
+  level 8/9 Barbarian row. Source proof:
+  `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md`.
 - Combat Goblin expansion added level-2 Goblins as two source-split targets:
   `Goblin (unarmed)` for the unarmed IDs and `Goblin (armed)` for the one armed
   ID with higher Attack/Defence. Both share the exact local 1024-slot main
