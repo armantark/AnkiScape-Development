@@ -748,6 +748,18 @@ def hunter_target_rows(
 
 
 def _combat_drop_summary(enemy: Mapping[str, object]) -> str:
+    def _quantity_text(slot: Mapping[str, object]) -> str:
+        quantity_range = slot.get("quantity_range")
+        if isinstance(quantity_range, (tuple, list)) and len(quantity_range) >= 2:
+            try:
+                low = int(quantity_range[0] or 0)
+                high = int(quantity_range[1] or 0)
+            except (TypeError, ValueError):
+                low = high = 0
+            if low > 0 and high >= low:
+                return f"{low}-{high}"
+        return str(max(1, int(slot.get("quantity", 1) or 1)))
+
     drops_raw = enemy.get("drops", {})
     drops = drops_raw if isinstance(drops_raw, Mapping) else {}
     guaranteed = []
@@ -768,9 +780,8 @@ def _combat_drop_summary(enemy: Mapping[str, object]) -> str:
             if not isinstance(item_name, str):
                 continue
             slot_count = int(slot.get("slots", 0) or 0)
-            quantity = int(slot.get("quantity", 1) or 1)
             if total > 0 and slot_count > 0:
-                slots.append(f"{item_name} x{quantity} ({slot_count}/{total})")
+                slots.append(f"{item_name} x{_quantity_text(slot)} ({slot_count}/{total})")
         if slots:
             table_lines.append(f"{table_name}: " + ", ".join(slots))
     parts = []

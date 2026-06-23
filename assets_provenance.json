@@ -83,6 +83,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:53:48Z"
   },
+  "combatitems/blue_charm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Blue_charm.png",
+    "file_title": "Blue charm.png",
+    "image_url": "https://runescape.wiki/images/Blue_charm.png?8f26e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "de54652c916604c24e8eb14fd5ba13e980086dc5",
+    "size": 935,
+    "source_wiki": "rs3",
+    "timestamp": "2020-12-12T05:14:53Z"
+  },
   "combatitems/cowhide.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cowhide.png",
     "file_title": "Cowhide.png",
@@ -94,6 +106,54 @@
     "size": 596,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:13Z"
+  },
+  "combatitems/crimson_charm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Crimson_charm.png",
+    "file_title": "Crimson charm.png",
+    "image_url": "https://runescape.wiki/images/Crimson_charm.png?d3621",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ccd8996b63e3a4a82a60bc459c39baded4ef1ae2",
+    "size": 873,
+    "source_wiki": "rs3",
+    "timestamp": "2023-02-02T06:10:09Z"
+  },
+  "combatitems/gold_charm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Gold_charm.png",
+    "file_title": "Gold charm.png",
+    "image_url": "https://runescape.wiki/images/Gold_charm.png?ad20e",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ca48db1bee5bb3177fc88420988b6c25491e957a",
+    "size": 1363,
+    "source_wiki": "rs3",
+    "timestamp": "2017-11-02T14:45:09Z"
+  },
+  "combatitems/green_charm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Green_charm.png",
+    "file_title": "Green charm.png",
+    "image_url": "https://runescape.wiki/images/Green_charm.png?ffeb6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "71953da84288f6eca505730cd78f7dfe4738b1dd",
+    "size": 874,
+    "source_wiki": "rs3",
+    "timestamp": "2023-02-02T06:07:20Z"
+  },
+  "combatitems/staff_of_air.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Staff_of_air.png",
+    "file_title": "Staff of air.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Staff_of_air.png?e8969",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d046e7fb303e3a708fe10afee9e7aeb247c9a979",
+    "size": 405,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:55Z"
   },
   "combatitems/tinderbox.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tinderbox.png",

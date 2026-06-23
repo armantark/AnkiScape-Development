@@ -151,6 +151,54 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/critters/rat_level_1.plugin.kts"
         ),
     },
+    "spider": {
+        "display_name": "Spider",
+        "level": 1,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 2.0,
+        "stats": {
+            "hitpoints": 20,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -35,
+            "attack_slash": 0,
+            "attack_crush": -58,
+            "defence_stab": -53,
+            "defence_slash": -53,
+            "defence_crush": -53,
+            "defence_magic": -53,
+            "defence_ranged": -53,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 200,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 5},
+                        {"item": "Green charm", "quantity": 1, "slots": 7},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 3},
+                        {"item": "Blue charm", "quantity": 1, "slots": 2},
+                        {"slots": 183},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/critters/spider_level_1.plugin.kts"
+        ),
+    },
     "giant_rat": {
         "display_name": "Giant rat",
         "level": 2,
@@ -181,6 +229,86 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
             "definitions/critters/giant_rat_level_2.plugin.kts"
+        ),
+    },
+    "giant_spider": {
+        "display_name": "Giant spider",
+        "level": 2,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "slayer_xp": 5.0,
+        "stats": {
+            "hitpoints": 50,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -10,
+            "attack_slash": 0,
+            "attack_crush": -10,
+            "defence_stab": -10,
+            "defence_slash": -10,
+            "defence_crush": -10,
+            "defence_magic": -10,
+            "defence_ranged": -10,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 48,
+                    "slots": (
+                        {"item": "Air rune", "quantity_range": (4, 6), "slots": 7},
+                        {"item": "Earth rune", "quantity": 4, "slots": 7},
+                        {"item": "Fire rune", "quantity": 6, "slots": 7},
+                        {"item": "Body rune", "quantity": 7, "slots": 3},
+                        {"slots": 24},
+                    ),
+                },
+                {
+                    "name": "Secondary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Bronze med helm", "quantity": 1, "slots": 48},
+                        {"item": "Bronze bolts", "quantity": 1, "slots": 12},
+                        {"item": "Bronze arrows", "quantity": 1, "slots": 12},
+                        {"item": "Longbow", "quantity": 1, "slots": 4},
+                        {"item": "Bronze kiteshield", "quantity": 1, "slots": 1},
+                        {"slots": 51},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Staff of air", "quantity": 1, "slots": 1},
+                        {"item": "Sling", "quantity": 1, "slots": 1},
+                        {"slots": 126},
+                    ),
+                },
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 90},
+                        {"item": "Green charm", "quantity": 1, "slots": 11},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                        {"item": "Blue charm", "quantity": 1, "slots": 9},
+                        {"slots": 860},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/critters/giant_spider_level_2.plugin.kts"
         ),
     },
     "cow": {
@@ -345,6 +473,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
+    "Staff of air": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
     "Tinderbox": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TINDERBOX_590"},
     "Gold charm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOLD_CHARM"},
@@ -354,4 +483,4 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
 }
 
 
-COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Coastal")
+COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Coastal")

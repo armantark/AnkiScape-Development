@@ -39,11 +39,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   normal project guidance; create new visual status artifacts only when the
   owner explicitly asks for one or the next scoped feature requires it.
 - Combat V1 implementation is complete as of 2026-06-23 for the first
-  source-backed ordinary-combat slice: Chicken, Rat, Giant rat, and Cow are
+  source-backed ordinary-combat slices: Chicken, Rat, Spider, Giant rat, Giant spider, and Cow are
   selectable Combat targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
-  real food; drops follow the imported guaranteed/multi-table semantics; the
+  real food; drops follow the imported guaranteed/multi-table/quantity-range semantics; the
   Combat hub and HUD surface target/style/lifepoint state; and storage defaults
   persist combat state. The recovery/loadout foundation now adds finite carried
   food, safe-boundary loadout refills, review-tick special-energy regeneration,
@@ -61,9 +61,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Cow calf, Ram, and Seagull are now implemented ordinary Combat targets as of
   2026-06-23. They were chosen first because their local 2011Scape rows have
   complete stats, simple guaranteed drops, death handlers, attack speed, and no
-  quantity-range or nested-table runtime requirements. Spider and Giant spider
-  follow after charm assets and quantity-range support. Goblins, Barbarians,
-  Farmers, Al-Kharid warriors, and Highwaymen need wider item/drop-table support.
+  quantity-range or nested-table runtime requirements. Spider and level-2 Giant
+  spider are now implemented too after adding charm assets and Combat
+  `quantity_range` support. Goblins, Barbarians, Farmers, Al-Kharid warriors,
+  Highwaymen, and higher-risk spider variants need wider item/drop-table,
+  variant, access, or special-mechanic support.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

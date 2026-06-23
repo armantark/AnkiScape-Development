@@ -158,18 +158,21 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
-source-backed target set is Chicken, Rat, Giant rat, Cow, Cow calf, Ram, and
-Seagull; each review simulates 50 RuneScape ticks per `Actions per review`, caps at one kill,
+source-backed target set is Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
+Cow calf, Ram, and Seagull; each review simulates 50 RuneScape ticks per
+`Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
-source-backed drops. The follow-up recovery foundation is also in place:
+source-backed drops including inclusive drop quantity ranges. The follow-up
+recovery foundation is also in place:
 finite carried food loadouts refill only at safe boundaries, safe noncombat
 reviews apply one rollback-safe recovery packet per card, special-attack energy
 regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
 tooltips show loaded/banked food readiness. Future Combat work should expand
-source-backed monsters, add ranged/magic/ammo/rune routing, add loadout UI for
-food/potions/ammo/runes, improve dangerous-target/death-office UX, and migrate
-quest combat gates onto this shared engine.
+source-backed monsters beyond the clean early rows, add ranged/magic/ammo/rune
+routing, add loadout UI for food/potions/ammo/runes, improve
+dangerous-target/death-office UX, and migrate quest combat gates onto this
+shared engine.
 
 The Combat bootstrap now includes a source-backed Tutorial Island starter kit as
 a one-time Bank Claim. The generic `item_bundle` claim path grants Bronze sword,
@@ -579,14 +582,16 @@ first scope cut.
 
 Combat V1 design grill completed on 2026-06-23 in
 `memory-bank/combat-design-grill-2026-06-23.md`. It is the source of truth for
-the next Combat implementation thread: one generic undo-safe 0.6s-tick combat
-engine shared by ordinary monsters, quest encounters, bosses, quantities, and
-phase/form chains; 50 ticks per `Actions per review`; damage-based combat XP;
-finite supply loadouts; auto-eat and review-tick recovery; PvM grave/Death's
+ongoing Combat implementation boundaries: one generic undo-safe 0.6s-tick
+combat engine shared by ordinary monsters, quest encounters, bosses, quantities,
+and phase/form chains; 50 ticks per `Actions per review`; damage-based combat
+XP; finite supply loadouts; auto-eat and review-tick recovery; PvM grave/Death's
 Office recovery; explicit Wilderness risk; full source-backed enemy/equipment/
 drop audits; incomplete source data kept in audit/backlog artifacts rather than
 enabled gameplay; and explicit backend/frontend/assets/balance/testing handoffs.
-Combat still is not implemented.
+The ordinary Combat runtime is now partially implemented through the current
+source-backed target set; broader enemy classes and quest handoff remain future
+slices.
 
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design

@@ -27,8 +27,8 @@ Status: implemented ordinary-enemy expansion slice.
 
 ## Deferred Candidates
 
-- Spider/Giant spider: wait for charm icon coverage and quantity-range drop
-  support.
+- Spider/Giant spider: resolved in
+  `memory-bank/source-audits/combat-spider-drop-range-2026-06-23.md`.
 - Goblins: wait for explicit armed/unarmed split and broader low-tier item
   manifest coverage.
 - Farmers/Al-Kharid warriors: wait for nested shared herb/seed table support.

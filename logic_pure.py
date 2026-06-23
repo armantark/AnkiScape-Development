@@ -1250,6 +1250,21 @@ def _combat_apply_xp(xp_rewards, style_id, damage_lifepoints, npc_xp_multiplier)
     xp_rewards["constitution_exp"] = xp_rewards.get("constitution_exp", 0.0) + constitution_xp
 
 
+def _combat_slot_drop_quantity(slot, rng):
+    quantity_range = slot.get("quantity_range")
+    if isinstance(quantity_range, (tuple, list)) and len(quantity_range) >= 2:
+        low = _positive_int(quantity_range[0], 0)
+        high = _positive_int(quantity_range[1], 0)
+        if low > 0 and high >= low:
+            try:
+                roll = float(rng())
+            except (TypeError, ValueError):
+                roll = 0.0
+            width = high - low + 1
+            return low + int(max(0.0, min(roll, 0.999999999)) * width)
+    return max(1, _positive_int(slot.get("quantity", 1), 1))
+
+
 def _combat_roll_drops(enemy, rng):
     drops = {}
     drop_spec = enemy.get("drops", {}) if isinstance(enemy, Mapping) else {}
@@ -1277,7 +1292,7 @@ def _combat_roll_drops(enemy, rng):
                 continue
             item_name = slot.get("item")
             if isinstance(item_name, str):
-                drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(slot.get("quantity", 1), 1))
+                drops[item_name] = drops.get(item_name, 0) + _combat_slot_drop_quantity(slot, rng)
             break
     return drops
 

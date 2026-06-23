@@ -455,6 +455,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Wooden shield": "equipment",
             "Tinderbox": "tool",
             "Cowhide": "material",
+            "Staff of air": "equipment",
+            "Gold charm": "material",
+            "Green charm": "material",
+            "Crimson charm": "material",
+            "Blue charm": "material",
         }
         for item_name, category in expected.items():
             self.assertIn(item_name, by_storage_key)

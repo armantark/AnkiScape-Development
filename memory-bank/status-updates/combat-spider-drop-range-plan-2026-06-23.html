@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Spider Drop Range Plan - 2026-06-23</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101114;
+      --panel: #181c22;
+      --panel-2: #222832;
+      --text: #f3f4f6;
+      --muted: #aeb7c2;
+      --line: #353d49;
+      --green: #66d487;
+      --amber: #f4c457;
+      --blue: #77b7ff;
+      --red: #ff786f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(119, 183, 255, 0.16), transparent 34rem),
+        linear-gradient(135deg, #101114 0%, #171d24 52%, #101114 100%);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 30px 0 44px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1fr 0.86fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+    section, article {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(24, 28, 34, 0.92);
+      box-shadow: 0 22px 80px rgba(0, 0, 0, 0.28);
+    }
+    .hero { padding: 28px; }
+    .panel { padding: 18px; }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(244, 196, 87, 0.48);
+      color: var(--amber);
+      background: rgba(244, 196, 87, 0.09);
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 12px 0 0;
+      font-size: clamp(2rem, 3.8vw, 4.05rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    h3 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      letter-spacing: 0;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .sub {
+      margin-top: 16px;
+      max-width: 78ch;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin: 18px 0;
+    }
+    .lane {
+      min-height: 270px;
+      padding: 18px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 14px;
+    }
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 0.82rem;
+      white-space: nowrap;
+    }
+    .checks {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .checks li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+    .checks li::before {
+      content: "";
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-top: 4px;
+      background: var(--blue);
+      box-shadow: 0 0 0 4px rgba(119, 183, 255, 0.13);
+    }
+    .checks.ready li::before {
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(102, 212, 135, 0.13);
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 38px 1fr 38px 1fr;
+      gap: 8px;
+      align-items: stretch;
+      margin-top: 18px;
+    }
+    .node {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 92px;
+    }
+    .arrow {
+      display: grid;
+      place-items: center;
+      color: var(--amber);
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+    code {
+      color: #d6eaff;
+      background: rgba(119, 183, 255, 0.1);
+      border: 1px solid rgba(119, 183, 255, 0.18);
+      border-radius: 6px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.86em;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+    @media (max-width: 900px) {
+      main { width: min(100% - 24px, 1180px); padding-top: 18px; }
+      header, .grid, .two-col, .flow { grid-template-columns: 1fr; }
+      .arrow { min-height: 20px; }
+      h1 { font-size: clamp(2rem, 10vw, 3.2rem); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section class="hero">
+        <span class="badge">Pre-change slice</span>
+        <h1>Next Combat step: spiders plus real quantity-range drops.</h1>
+        <p class="sub">
+          The previous checkpoint added clean guaranteed-drop enemies. This slice raises the drop-table contract just enough to import Spider and level-2 Giant spider from local 2011Scape without lying about Air rune quantity ranges or charm tables.
+        </p>
+      </section>
+      <aside class="panel">
+        <h2>Success Criteria</h2>
+        <ul class="checks ready">
+          <li><code>quantity_range</code> slots roll an inclusive source range after the table slot wins.</li>
+          <li>Spider and Giant spider rows carry source stats, respawn, Slayer XP, table weights, and group metadata.</li>
+          <li>Combat item registry resolves visible icons for charms and Staff of air while reusing existing rune, bronze, and bow assets.</li>
+          <li>Focused backend, metadata, registry, and Qt tests prove drops and target rows before the full suite runs.</li>
+        </ul>
+      </aside>
+    </header>
+
+    <section class="grid" aria-label="Implementation lanes">
+      <article class="lane">
+        <div>
+          <h3>Runtime</h3>
+          <p>Add the smallest possible quantity-range helper inside the existing Combat drop roller.</p>
+        </div>
+        <ul class="checks">
+          <li>Keep guaranteed drops and fixed table quantities unchanged.</li>
+          <li>Use the same injected RNG stream, so tests remain deterministic.</li>
+          <li>Clamp invalid ranges back to one item instead of widening behavior.</li>
+        </ul>
+        <div class="tag-row">
+          <span class="tag">backend</span>
+          <span class="tag">drop tables</span>
+        </div>
+      </article>
+
+      <article class="lane">
+        <div>
+          <h3>Data</h3>
+          <p>Import only the two spider rows that fit this slice: Spider level 1 and Giant spider level 2.</p>
+        </div>
+        <ul class="checks">
+          <li>Small Spider: charm-only table, 20 LP, 35 tick respawn.</li>
+          <li>Giant spider: rune, equipment, tertiary, and charm tables.</li>
+          <li>Level-50 Giant spider stays deferred as a higher-risk combat gate.</li>
+        </ul>
+        <div class="tag-row">
+          <span class="tag">source audit</span>
+          <span class="tag">enemy registry</span>
+        </div>
+      </article>
+
+      <article class="lane">
+        <div>
+          <h3>Assets</h3>
+          <p>Fetch the missing combat-only icons and lean on existing skill assets for everything else.</p>
+        </div>
+        <ul class="checks">
+          <li>Fetch Gold, Green, Crimson, and Blue charm images.</li>
+          <li>Fetch Staff of air if no existing asset resolves.</li>
+          <li>Record all new assets in <code>assets_provenance.json</code>.</li>
+        </ul>
+        <div class="tag-row">
+          <span class="tag">combatitems</span>
+          <span class="tag">provenance</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Planned Flow</h2>
+      <div class="flow">
+        <div class="node">
+          <h3>Source rows</h3>
+          <p>Read local plugin tables for exact stats, weights, and quantities.</p>
+        </div>
+        <div class="arrow">></div>
+        <div class="node">
+          <h3>Drop engine</h3>
+          <p>Represent fixed quantity and inclusive range with the same table-slot model.</p>
+        </div>
+        <div class="arrow">></div>
+        <div class="node">
+          <h3>Playable rows</h3>
+          <p>Show grouped targets and tooltip probabilities without unsupported source flattening.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="two-col">
+      <article class="panel">
+        <h2>Deferred On Purpose</h2>
+        <ul class="checks">
+          <li>Level-50 Giant spider, poisonous spiders, and deadly red spider are not this slice.</li>
+          <li>Nested shared herb/seed tables, goblin variants, and human NPC inventory-style drops stay in the backlog.</li>
+          <li>Slayer task assignment enforcement remains metadata only until the Slayer loop exists.</li>
+        </ul>
+      </article>
+      <article class="panel">
+        <h2>Verification Target</h2>
+        <ul class="checks ready">
+          <li>Focused unittest for quantity-range lows/highs and spider table rows.</li>
+          <li>Target metadata assertion for Spider group and Giant spider tooltip details.</li>
+          <li>Registry assertion for charm and Staff of air icon resolution.</li>
+          <li>Full <code>python3 run_tests.py</code>, full offscreen Qt discovery, and <code>git diff --check</code>.</li>
+        </ul>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

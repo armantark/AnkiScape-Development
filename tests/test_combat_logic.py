@@ -2,7 +2,12 @@ import unittest
 
 from combat_data import COMBAT_ENEMY_DATA
 from constants import EQUIPMENT_DATA
-from logic_pure import apply_combat_burst_pure, apply_safe_combat_recovery_pure, combat_target_preview_pure
+from logic_pure import (
+    _combat_roll_drops,
+    apply_combat_burst_pure,
+    apply_safe_combat_recovery_pure,
+    combat_target_preview_pure,
+)
 
 
 def _rng(values):
@@ -62,6 +67,30 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(seagull["group"], "Coastal")
         self.assertEqual(seagull["slayer_xp"], 5.0)
         self.assertTrue(seagull["source"].endswith("seagull_level_2.plugin.kts"))
+
+    def test_spider_import_rows_match_source_and_quantity_range(self):
+        spider = COMBAT_ENEMY_DATA["spider"]
+        giant_spider = COMBAT_ENEMY_DATA["giant_spider"]
+
+        self.assertEqual(spider["stats"]["hitpoints"], 20)
+        self.assertEqual(spider["respawn_delay"], 35)
+        self.assertEqual(spider["drops"]["guaranteed"], ())
+        self.assertEqual(spider["drops"]["tables"][0]["total"], 200)
+        self.assertEqual(spider["drops"]["tables"][0]["slots"][0]["item"], "Gold charm")
+        self.assertTrue(spider["source"].endswith("spider_level_1.plugin.kts"))
+        self.assertEqual(giant_spider["stats"]["hitpoints"], 50)
+        self.assertEqual(giant_spider["slayer_xp"], 5.0)
+        self.assertEqual(giant_spider["drops"]["tables"][0]["slots"][0]["quantity_range"], (4, 6))
+        self.assertEqual(giant_spider["drops"]["tables"][1]["slots"][0]["item"], "Bronze med helm")
+        self.assertTrue(giant_spider["source"].endswith("giant_spider_level_2.plugin.kts"))
+
+    def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["giant_spider"],
+            _rng([0.0, 0.999999, 0.999999, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Air rune": 6})
 
     def test_cow_calf_burst_grants_source_guaranteed_drops(self):
         player = _player(current_combat_target="cow_calf")

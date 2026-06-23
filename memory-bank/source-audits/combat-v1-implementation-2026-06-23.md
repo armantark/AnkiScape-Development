@@ -1,7 +1,8 @@
 # Combat V1 Implementation Audit - 2026-06-23
 
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
-Tutorial Island starter kit claim bridge, and simple ordinary-enemy expansion.
+Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion, and
+Spider/Giant spider drop-range expansion.
 
 ## Implemented Scope
 
@@ -9,13 +10,13 @@ Tutorial Island starter kit claim bridge, and simple ordinary-enemy expansion.
   `action_registry.py` and `runtime_actions.py`, not a quest-only resolver and
   not a fake levelled registry skill.
 - `combat_data.py` seeds source-backed ordinary enemies with complete combat
-  stats and drop behavior: Chicken, Rat, Giant rat, Cow, Cow calf, Ram, and
-  Seagull.
+  stats and drop behavior: Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
+  Cow calf, Ram, and Seagull.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
-  death/grave state, per-damage XP, guaranteed drops, and one roll per
-  non-guaranteed drop table.
+  death/grave state, per-damage XP, guaranteed drops, one roll per
+  non-guaranteed drop table, and inclusive quantity ranges for winning slots.
 - Combat food now comes from a finite `combat_supply_loadout["food"]` instead
   of the whole Bank during an active encounter. Starting a fresh target, killing
   a target, or completing a safe noncombat review can refill the loadout from
@@ -67,11 +68,13 @@ Tutorial Island starter kit claim bridge, and simple ordinary-enemy expansion.
   `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`
 - Simple ordinary enemies:
   `memory-bank/source-audits/combat-simple-enemies-2026-06-23.md`
+- Spider/drop-range expansion:
+  `memory-bank/source-audits/combat-spider-drop-range-2026-06-23.md`
 
 ## Deferred
 
-- Broader enemy registry import, including NPCs with global tables or special
-  mechanics.
+- Broader enemy registry import, including NPCs with nested/shared tables,
+  variant splits, access locks, or special mechanics.
 - Full non-Smithing combat equipment import/equip support. Wooden shield is now
   source-backed and claimable, but shield mechanics still belong to the broader
   equipment audit.
