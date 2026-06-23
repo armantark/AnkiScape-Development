@@ -190,15 +190,23 @@
   summaries, and safe-boundary Refill/Unload buttons. The callbacks route
   through pure helpers, save/update the HUD, and refuse manual refill/unload
   during an active fight so mid-burst Bank access remains blocked.
+- Combat Death's Office recovery now handles stacked deaths. A Combat death
+  still creates a five-review active grave for currently worn gear; if another
+  death happens while that grave is active, the old grave items move into flat
+  `death_office.items` before the new grave is created. The Bank tab now shows
+  a Death's Office reclaim row, consumes `100 Coins` per held item, and returns
+  reclaimed gear to inventory. Source proof:
+  `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md`.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
   import, Magic beyond the Strike ladder/basic elemental staves, broader Ranged
   weapon/ammo support, richer assets, potion/cannonball/per-ammo preference
-  controls, confirmation UX for dangerous targets, full
-  Death's Office recovery and stacked-death handling, and migrating quest combat
-  gates from the lightweight resolver onto the shared combat engine. Broad
+  controls, confirmation UX for dangerous targets, source-exact death-fee and
+  grave-expiry variants beyond the current review/stacked-death bridge, and
+  migrating quest combat gates from the lightweight resolver onto the shared
+  combat engine. Broad
   non-Smithing combat equipment import/equip support is also still open; Wooden
   shield is currently claimable but not proof that all shield mechanics are done.
 - Full quest-stage minute-detail parity. The generator now preserves broad
@@ -981,10 +989,12 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Combat V1 follow-up: `memory-bank/combat-design-grill-2026-06-23.md` is the
   completed design source. Implement only as a full-system Combat build: source
   audits, enabled enemy/equipment/drop registry, undo-safe tick engine, Combat
-  tab, expanded supply loadout controls, death/grave/Death's Office,
+  tab, expanded supply loadout controls, deeper death/grave/Death's Office
+  parity beyond the implemented stacked-death reclaim bridge,
   Wilderness risk, quest encounter integration, assets, targeted tests, Qt
   tests, and manual Anki QA. The first ordinary-combat slice and the recovery/
-  carried-food foundation are already implemented; do not redo those.
+  carried-food foundation, player-facing loadout controls, and stacked-death
+  reclaim bridge are already implemented; do not redo those.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
   records the completed 194-row pre-EOC catalog, implemented completion gates,
   route-precedent locks, the RFD subquest split, generated item/lamp rewards,

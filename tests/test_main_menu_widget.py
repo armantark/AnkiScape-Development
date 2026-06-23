@@ -442,6 +442,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._combat_food_calls: list = []
         self._combat_refill_calls: list = []
         self._combat_unload_calls: list = []
+        self._death_office_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
         self._quest_calls: list = []
         self._quest_choice_calls: list = []
@@ -489,6 +490,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
             on_refill_combat_loadout=lambda: self._combat_refill_calls.append(True) or True,
             on_unload_combat_loadout=lambda: self._combat_unload_calls.append(True) or True,
+            on_reclaim_death_office=lambda: self._death_office_calls.append(True) or True,
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
@@ -2208,6 +2210,25 @@ class MainMenuWidgetTest(unittest.TestCase):
         claim_btn.click()
         QApplication.processEvents()
         self.assertEqual(self._claim_calls[-1], ("wicked_hood", None))
+
+    def test_bank_death_office_reclaim_row_uses_combat_office_state(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"]["Coins"] = 250
+        pd["death_office"] = {"items": ["Bronze sword", "Cape"], "source": "combat_stacked_grave"}
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Death's Office", labels)
+        self.assertIn("2 reclaimed gear items", labels)
+        self.assertIn("Cost: 200 Coins · Bank: 250 Coins", labels)
+        row = _find_named_widget(dialog, "deathOfficeRow")
+        self.assertIsNotNone(row)
+        reclaim_btn = dialog.findChild(QPushButton, "deathOfficeReclaimAction")
+        self.assertIsNotNone(reclaim_btn)
+        self.assertTrue(reclaim_btn.isEnabled())
+        reclaim_btn.click()
+        QApplication.processEvents()
+        self.assertEqual(self._death_office_calls, [True])
 
     def test_bank_claims_expose_tutorial_starter_kit_bundle(self) -> None:
         pd = _make_player_data()

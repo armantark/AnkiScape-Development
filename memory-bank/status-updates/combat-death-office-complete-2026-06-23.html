@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape Combat Grill - Death Office Recovery</title>
+  <style>
+    :root {
+      --bg: #101316;
+      --panel: #171d22;
+      --panel-2: #20272d;
+      --ink: #f0f4ef;
+      --muted: #aeb8b0;
+      --line: #344049;
+      --green: #81c784;
+      --amber: #f2b84b;
+      --red: #dc6b6b;
+      --blue: #77a8d9;
+      --violet: #b28ad7;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    .shell {
+      min-height: 100vh;
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .topline {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 3.5rem);
+      letter-spacing: 0;
+      line-height: 1.03;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .badge {
+      border: 1px solid rgba(129, 199, 132, 0.45);
+      color: var(--green);
+      padding: 8px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+      background: rgba(129, 199, 132, 0.08);
+      font-weight: 650;
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      min-width: 0;
+    }
+
+    .span-7 {
+      grid-column: span 7;
+    }
+
+    .span-5 {
+      grid-column: span 5;
+    }
+
+    .span-4 {
+      grid-column: span 4;
+    }
+
+    .span-8 {
+      grid-column: span 8;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      min-height: 118px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .step strong {
+      display: block;
+      font-size: 0.95rem;
+    }
+
+    .step span {
+      color: var(--muted);
+      font-size: 0.86rem;
+    }
+
+    .tag {
+      width: max-content;
+      max-width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      padding: 4px 8px;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    .metric-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .metric {
+      border-left: 4px solid var(--blue);
+      background: var(--panel-2);
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .metric:nth-child(2) {
+      border-left-color: var(--green);
+    }
+
+    .metric:nth-child(3) {
+      border-left-color: var(--amber);
+    }
+
+    .metric b {
+      display: block;
+      font-size: 1.55rem;
+      line-height: 1.1;
+    }
+
+    .metric small {
+      display: block;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 8px;
+    }
+
+    .check {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 9px;
+      align-items: start;
+      color: var(--muted);
+    }
+
+    .check::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(129, 199, 132, 0.13);
+      color: var(--green);
+      border: 1px solid rgba(129, 199, 132, 0.45);
+      font-weight: 800;
+    }
+
+    .path {
+      display: block;
+      color: #d7e6ff;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      word-break: break-word;
+      margin-top: 4px;
+    }
+
+    .tests {
+      display: grid;
+      gap: 8px;
+    }
+
+    .test {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 10px 12px;
+      color: var(--muted);
+    }
+
+    .test b {
+      color: var(--ink);
+      font-weight: 650;
+    }
+
+    .test span {
+      color: var(--green);
+      white-space: nowrap;
+    }
+
+    .next {
+      border-color: rgba(242, 184, 75, 0.48);
+      background: rgba(242, 184, 75, 0.08);
+    }
+
+    .next h2 {
+      color: #f5cf85;
+    }
+
+    .mini-map {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .box {
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      min-height: 116px;
+    }
+
+    .box strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .box small {
+      color: var(--muted);
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 999px;
+      background: #2b333a;
+      overflow: hidden;
+      margin-top: 12px;
+    }
+
+    .bar span {
+      display: block;
+      height: 100%;
+      width: 72%;
+      background: linear-gradient(90deg, var(--green), var(--blue), var(--violet));
+    }
+
+    @media (max-width: 920px) {
+      .topline {
+        flex-direction: column;
+      }
+
+      .span-7,
+      .span-5,
+      .span-4,
+      .span-8 {
+        grid-column: 1 / -1;
+      }
+
+      .flow,
+      .metric-row,
+      .mini-map {
+        grid-template-columns: 1fr;
+      }
+
+      .test {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="topline">
+      <div>
+        <h1>Combat Grill: Death Office Recovery</h1>
+        <p>Stacked Combat deaths now preserve overwritten grave gear and expose a paid reclaim path in the Bank tab.</p>
+      </div>
+      <div class="badge">Implemented + verified</div>
+    </section>
+
+    <section class="grid">
+      <article class="panel span-7">
+        <h2>Player-State Flow</h2>
+        <div class="flow">
+          <div class="step">
+            <div>
+              <strong>1. Death creates grave</strong>
+              <span>Equipped gear moves into the active Combat grave instead of staying worn.</span>
+            </div>
+            <div class="tag">existing path</div>
+          </div>
+          <div class="step">
+            <div>
+              <strong>2. New death overwrites grave</strong>
+              <span>Old grave items are captured before the new grave replaces the active slot.</span>
+            </div>
+            <div class="tag">new guard</div>
+          </div>
+          <div class="step">
+            <div>
+              <strong>3. Office holds old gear</strong>
+              <span>Collapsed items sit in flat <span class="path">death_office.items</span> with a coin reclaim cost.</span>
+            </div>
+            <div class="tag">new state</div>
+          </div>
+          <div class="step">
+            <div>
+              <strong>4. Bank tab reclaims</strong>
+              <span>The Death's Office row returns gear to inventory and deducts Coins.</span>
+            </div>
+            <div class="tag">new UI</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="panel span-5">
+        <h2>Verification</h2>
+        <div class="metric-row">
+          <div class="metric">
+            <b>605</b>
+            <small>plain test discovery passed</small>
+          </div>
+          <div class="metric">
+            <b>605</b>
+            <small>Qt test discovery passed</small>
+          </div>
+          <div class="metric">
+            <b>131</b>
+            <small>widget cases executed in Qt</small>
+          </div>
+        </div>
+      </aside>
+
+      <article class="panel span-8">
+        <h2>Changed Surface</h2>
+        <div class="checklist">
+          <div class="check">Combat death logic now moves overwritten active grave items into Death's Office before creating the new grave.</div>
+          <div class="check">Pure helpers summarize Death's Office contents, calculate reclaim cost, and perform coin-gated reclaim.</div>
+          <div class="check">The Bank tab renders a Death's Office panel above Bank Claims with a disabled/enabled Reclaim button based on Coins.</div>
+          <div class="check">The add-on shell wires reclaim into saved player state through the existing combat save path.</div>
+          <div class="check">Memory Bank and the new source audit record the Darkan/2012scape adaptation boundary.</div>
+        </div>
+      </article>
+
+      <aside class="panel span-4 next">
+        <h2>Remaining Grill Edge</h2>
+        <p>Next Combat work is source-exact grave expiry, richer fee variants, and dangerous target handling. The current bridge intentionally keeps the flat save model intact.</p>
+        <div class="bar"><span></span></div>
+      </aside>
+
+      <article class="panel span-5">
+        <h2>Files To Review</h2>
+        <div class="mini-map">
+          <div class="box">
+            <strong>Backend</strong>
+            <small>Death-state helpers and stacked-death behavior.</small>
+            <span class="path">logic_pure.py</span>
+            <span class="path">tests/test_combat_logic.py</span>
+          </div>
+          <div class="box">
+            <strong>Frontend</strong>
+            <small>Bank tab Death's Office panel and reclaim action.</small>
+            <span class="path">ui.py</span>
+            <span class="path">tests/test_main_menu_widget.py</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel span-7">
+        <h2>Test Commands</h2>
+        <div class="tests">
+          <div class="test"><b>python3 -m unittest tests.test_combat_logic -k death</b><span>pass</span></div>
+          <div class="test"><b>python3 -m unittest tests.test_integration_smoke.TestIntegrationSmoke.test_death_office_reclaim_callback_consumes_coins_and_saves</b><span>pass</span></div>
+          <div class="test"><b>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget.MainMenuWidgetTest.test_bank_death_office_reclaim_row_uses_combat_office_state</b><span>pass</span></div>
+          <div class="test"><b>python3 run_tests.py</b><span>605 pass, 131 skipped</span></div>
+          <div class="test"><b>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</b><span>605 pass</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

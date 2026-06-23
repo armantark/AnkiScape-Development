@@ -967,6 +967,8 @@ COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS = 10
 COMBAT_STAT_DRAIN_RECOVERY_TICKS = 100
 COMBAT_FOOD_LOADOUT_CAPACITY = 28
 COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
+COMBAT_GRAVE_RECOVERY_REVIEWS = 5
+COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM = 100
 _COMBAT_DRAINABLE_SKILLS = ("attack", "strength", "defense", "ranged", "magic", "prayer")
 
 
@@ -1039,6 +1041,48 @@ def _sanitize_combat_recovery_progress(raw_progress):
     return {"stat_drain_ticks": stat_drain_ticks} if stat_drain_ticks > 0 else {}
 
 
+def _combat_grave_items(raw_grave):
+    if not isinstance(raw_grave, Mapping):
+        return []
+    raw_items = raw_grave.get("items", ()) or ()
+    if not isinstance(raw_items, Iterable) or isinstance(raw_items, (str, bytes)):
+        return []
+    return [str(item_name) for item_name in raw_items if isinstance(item_name, str) and item_name]
+
+
+def _sanitize_death_office_state(raw_office):
+    if not isinstance(raw_office, Mapping):
+        return {}
+    raw_items = raw_office.get("items", ()) or ()
+    if not isinstance(raw_items, Iterable) or isinstance(raw_items, (str, bytes)):
+        return {}
+    items = [str(item_name) for item_name in raw_items if isinstance(item_name, str) and item_name]
+    if not items:
+        return {}
+    state = {"items": items, "source": str(raw_office.get("source", "combat_death_office"))}
+    stored_cost = _non_negative_int(raw_office.get("reclaim_cost", 0), 0)
+    if stored_cost > 0:
+        state["reclaim_cost"] = stored_cost
+    return state
+
+
+def _combat_death_office_items(raw_office):
+    office = _sanitize_death_office_state(raw_office)
+    return list(office.get("items", ()) or ())
+
+
+def _set_combat_death_office_items(data, items, source="combat_death_office"):
+    clean_items = [str(item_name) for item_name in items if isinstance(item_name, str) and item_name]
+    if clean_items:
+        data["death_office"] = {
+            "items": clean_items,
+            "source": source,
+            "reclaim_cost": len(clean_items) * COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
+        }
+    else:
+        data["death_office"] = {}
+
+
 def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     style_data = style_data or COMBAT_ATTACK_STYLE_DATA
@@ -1102,7 +1146,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         },
         "combat_last_result": dict(player_data.get("combat_last_result", {}) or {}),
         "combat_grave": dict(player_data.get("combat_grave", {}) or {}),
-        "death_office": dict(player_data.get("death_office", {}) or {}),
+        "death_office": _sanitize_death_office_state(player_data.get("death_office", {}) or {}),
     }
 
 
@@ -1807,7 +1851,14 @@ def apply_safe_combat_recovery_pure(player_data):
     grave = data.get("combat_grave", {}) or {}
     if isinstance(grave, Mapping) and grave.get("items"):
         grave = dict(grave)
-        remaining = max(0, _positive_int(grave.get("reviews_remaining", 5), 5) - 1)
+        remaining = max(
+            0,
+            _positive_int(
+                grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
+                COMBAT_GRAVE_RECOVERY_REVIEWS,
+            )
+            - 1,
+        )
         grave["reviews_remaining"] = remaining
         if remaining <= 0:
             inventory = dict(data.get("inventory", {}) or {})
@@ -1819,6 +1870,47 @@ def apply_safe_combat_recovery_pure(player_data):
         else:
             data["combat_grave"] = grave
     return data
+
+
+def combat_death_office_items_pure(player_data):
+    return tuple(_combat_death_office_items(player_data.get("death_office", {}) or {}))
+
+
+def combat_death_office_reclaim_cost_pure(player_data):
+    return len(combat_death_office_items_pure(player_data)) * COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM
+
+
+def combat_death_office_summary_pure(player_data):
+    items = combat_death_office_items_pure(player_data)
+    cost = len(items) * COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM
+    inventory = player_data.get("inventory", {}) or {}
+    coins = _non_negative_int(inventory.get("Coins", 0), 0) if isinstance(inventory, Mapping) else 0
+    return {
+        "items": items,
+        "item_count": len(items),
+        "reclaim_cost": cost,
+        "coins": coins,
+        "can_reclaim": bool(items) and coins >= cost,
+    }
+
+
+def reclaim_death_office_items_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    items = _combat_death_office_items(data.get("death_office", {}) or {})
+    if not items:
+        return player_data, False, "No gear is waiting in Death's Office."
+    cost = len(items) * COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM
+    inventory = dict(data.get("inventory", {}) or {})
+    coins = _non_negative_int(inventory.get("Coins", 0), 0)
+    if coins < cost:
+        return player_data, False, f"Need {cost} Coins to reclaim this gear."
+    inventory["Coins"] = coins - cost
+    for item_name in items:
+        inventory[item_name] = inventory.get(item_name, 0) + 1
+    data["inventory"] = inventory
+    data["death_office"] = {}
+    return data, True, ""
 
 
 def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, ticks=None, rng=None):
@@ -2007,8 +2099,20 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     elif died:
         equipment = dict(data.get("equipment", {}) or {})
         grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
+        existing_grave_items = _combat_grave_items(data.get("combat_grave", {}) or {})
+        if existing_grave_items:
+            existing_office_items = _combat_death_office_items(data.get("death_office", {}) or {})
+            _set_combat_death_office_items(
+                data,
+                existing_office_items + existing_grave_items,
+                "combat_stacked_grave",
+            )
         data["equipment"] = {}
-        data["combat_grave"] = {"items": grave_items, "reviews_remaining": 5, "source": "combat_death"}
+        data["combat_grave"] = {
+            "items": grave_items,
+            "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
+            "source": "combat_death",
+        } if grave_items else {}
         data["combat_encounter"] = {}
         player_lp = max_player_lp
     else:
@@ -2137,7 +2241,7 @@ def _copy_player_data_with_nested(player_data):
     copied["combat_kill_counts"] = dict(player_data.get("combat_kill_counts", {}) or {})
     copied["combat_last_result"] = dict(player_data.get("combat_last_result", {}) or {})
     copied["combat_grave"] = dict(player_data.get("combat_grave", {}) or {})
-    copied["death_office"] = dict(player_data.get("death_office", {}) or {})
+    copied["death_office"] = _sanitize_death_office_state(player_data.get("death_office", {}) or {})
     copied["combat_auto_eat_food"] = list(player_data.get("combat_auto_eat_food", []) or [])
     copied["combat_supply_loadout"] = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     copied["combat_stat_drains"] = dict(player_data.get("combat_stat_drains", {}) or {})

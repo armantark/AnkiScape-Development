@@ -14,9 +14,12 @@ from logic_pure import (
     _combat_roll_drops,
     apply_combat_burst_pure,
     apply_safe_combat_recovery_pure,
+    combat_death_office_reclaim_cost_pure,
+    combat_death_office_summary_pure,
     refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
+    reclaim_death_office_items_pure,
     set_combat_auto_eat_food_pure,
     set_combat_auto_eat_threshold_pure,
     unload_combat_supply_loadout_pure,
@@ -67,6 +70,25 @@ def _player(**overrides):
     }
     data.update(overrides)
     return data
+
+
+_KILLER_ENEMY_DATA = {
+    "killer": {
+        "display_name": "Killer",
+        "level": 999,
+        "group": "Test",
+        "stats": {
+            "attack": 99,
+            "strength": 99,
+            "defence": 99,
+            "hitpoints": 1000,
+        },
+        "bonuses": {},
+        "attack_speed": 1,
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": "test",
+    }
+}
 
 
 class CombatLogicTest(unittest.TestCase):
@@ -609,6 +631,72 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_recovery_progress"], {})
         self.assertEqual(recovered["combat_supply_loadout"]["food"], {"Shark": 28})
         self.assertEqual(recovered["inventory"]["Shark"], 2)
+
+    def test_stacked_combat_death_moves_existing_grave_to_death_office(self):
+        player = _player(
+            current_combat_target="killer",
+            attack_level=1,
+            strength_level=1,
+            combat_lifepoints=1,
+            equipment={"weapon": "Iron sword"},
+            combat_grave={"items": ["Bronze sword"], "reviews_remaining": 3, "source": "combat_death"},
+            death_office={"items": ["Cape"], "source": "combat_stacked_grave"},
+        )
+
+        died, ok, result = apply_combat_burst_pure(
+            player,
+            _KILLER_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["died"])
+        self.assertEqual(died["combat_grave"]["items"], ["Iron sword"])
+        self.assertEqual(died["combat_grave"]["reviews_remaining"], 5)
+        self.assertEqual(died["death_office"]["items"], ["Cape", "Bronze sword"])
+        self.assertEqual(died["death_office"]["reclaim_cost"], 200)
+
+    def test_death_office_reclaim_consumes_coins_and_returns_items_to_inventory(self):
+        player = _player(
+            inventory={"Coins": 250, "Bones": 1},
+            death_office={"items": ["Bronze sword", "Cape"], "source": "combat_stacked_grave"},
+        )
+
+        self.assertEqual(combat_death_office_reclaim_cost_pure(player), 200)
+        self.assertEqual(
+            combat_death_office_summary_pure(player),
+            {
+                "items": ("Bronze sword", "Cape"),
+                "item_count": 2,
+                "reclaim_cost": 200,
+                "coins": 250,
+                "can_reclaim": True,
+            },
+        )
+
+        reclaimed, ok, reason = reclaim_death_office_items_pure(player)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(reclaimed["inventory"]["Coins"], 50)
+        self.assertEqual(reclaimed["inventory"]["Bones"], 1)
+        self.assertEqual(reclaimed["inventory"]["Bronze sword"], 1)
+        self.assertEqual(reclaimed["inventory"]["Cape"], 1)
+        self.assertEqual(reclaimed["death_office"], {})
+
+    def test_death_office_reclaim_requires_enough_coins(self):
+        player = _player(
+            inventory={"Coins": 99},
+            death_office={"items": ["Bronze sword"], "source": "combat_stacked_grave"},
+        )
+
+        reclaimed, ok, reason = reclaim_death_office_items_pure(player)
+
+        self.assertFalse(ok)
+        self.assertIn("Need 100 Coins", reason)
+        self.assertIs(reclaimed, player)
+        self.assertEqual(player["inventory"], {"Coins": 99})
 
     def test_manual_refill_loadout_uses_food_queue_and_current_magic_spell(self):
         player = _player(

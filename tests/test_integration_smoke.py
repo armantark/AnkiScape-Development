@@ -2186,6 +2186,28 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["combat_recovery_progress"], {})
         self.assertEqual(addon.player_data["combat_supply_loadout"], {})
 
+    def test_death_office_reclaim_callback_consumes_coins_and_saves(self):
+        addon = _load_addon_as_package("ankiscape_death_office_reclaim_integration")
+
+        calls = {"save": 0, "errors": []}
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon._refresh_skill_availability = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.show_error_message = lambda title, message: calls["errors"].append((title, message))
+
+        addon.player_data = {
+            "inventory": {"Coins": 150},
+            "death_office": {"items": ["Bronze sword"], "source": "combat_stacked_grave"},
+            "combat_grave": {},
+        }
+
+        self.assertTrue(addon.on_reclaim_death_office())
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["save"], 1)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 50)
+        self.assertEqual(addon.player_data["inventory"]["Bronze sword"], 1)
+        self.assertEqual(addon.player_data["death_office"], {})
+
     def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
         addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
 

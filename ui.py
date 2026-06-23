@@ -189,10 +189,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -1509,6 +1509,7 @@ def show_main_menu(
     on_set_combat_auto_eat_food=None,
     on_refill_combat_loadout=None,
     on_unload_combat_loadout=None,
+    on_reclaim_death_office=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -3209,6 +3210,7 @@ def show_main_menu(
 
     def _refresh_equipment_views() -> None:
         _populate_bank_list()
+        _populate_death_office()
         for refresher in _equipment_refreshers:
             refresher()
 
@@ -3242,6 +3244,13 @@ def show_main_menu(
     claims_layout = QVBoxLayout(claims_box)
     claims_layout.setContentsMargins(0, 0, 0, 0)
     claims_layout.setSpacing(6)
+
+    death_office_box = QWidget()
+    death_office_box.setObjectName("deathOfficeBox")
+    death_office_box.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Maximum)
+    death_office_layout = QVBoxLayout(death_office_box)
+    death_office_layout.setContentsMargins(0, 0, 0, 0)
+    death_office_layout.setSpacing(6)
 
     def _skill_display(skill_id: str) -> str:
         skill = get_skill(skill_id)
@@ -3478,6 +3487,90 @@ def show_main_menu(
 
         claims_box.setMaximumHeight(max_claim_height + 4)
 
+    def _death_office_items_tooltip(items: tuple) -> str:
+        if not items:
+            return ""
+        counts: dict[str, int] = {}
+        for item_name in items:
+            if isinstance(item_name, str):
+                counts[item_name] = counts.get(item_name, 0) + 1
+        return "\n".join(f"{item_name} x{amount}" for item_name, amount in counts.items())
+
+    def _populate_death_office() -> None:
+        _clear_layout(death_office_layout)
+        summary = combat_death_office_summary_pure(player_data)
+        items = tuple(summary.get("items", ()) or ())
+        if not items:
+            death_office_box.setVisible(False)
+            return
+        death_office_box.setVisible(True)
+        header = QLabel("Death's Office")
+        header.setObjectName("deathOfficeHeader")
+        header.setStyleSheet("font-weight: 600; color: palette(text);")
+        death_office_layout.addWidget(header)
+
+        row = QWidget()
+        row.setObjectName("deathOfficeRow")
+        row_layout = QHBoxLayout(row)
+        row_layout.setContentsMargins(6, 4, 6, 4)
+        row_layout.setSpacing(8)
+
+        first_item = next((item for item in items if isinstance(item, str)), "")
+        icon_label = QLabel()
+        icon_label.setObjectName("deathOfficeIcon")
+        icon_label.setFixedSize(28, 28)
+        icon_label.setStyleSheet("background: rgba(255, 255, 255, 0.08); border: 1px solid palette(mid); border-radius: 4px;")
+        if first_item:
+            definition = _item_def_for(first_item)
+            asset_path = definition.asset_path if definition is not None else None
+            icon_path = _bank_icon_path(first_item, asset_path)
+            if icon_path:
+                icon_label.setPixmap(QIcon(icon_path).pixmap(24, 24))
+                icon_label.setStyleSheet("")
+
+        copy = QWidget()
+        copy_layout = QVBoxLayout(copy)
+        copy_layout.setContentsMargins(0, 0, 0, 0)
+        copy_layout.setSpacing(1)
+        item_count = int(summary.get("item_count", len(items)) or len(items))
+        title = QLabel(f"{item_count} reclaimed gear item{'s' if item_count != 1 else ''}")
+        title.setObjectName("deathOfficeTitle")
+        title.setStyleSheet("color: palette(text); font-weight: 600;")
+        tooltip = _death_office_items_tooltip(items)
+        if tooltip:
+            title.setToolTip(tooltip)
+        cost = int(summary.get("reclaim_cost", 0) or 0)
+        coins = int(summary.get("coins", 0) or 0)
+        metadata = QLabel(f"Cost: {cost:,} Coins · Bank: {coins:,} Coins")
+        metadata.setObjectName("deathOfficeMetadata")
+        metadata.setStyleSheet(f"color: {dim_text_css(metadata)};")
+        if tooltip:
+            metadata.setToolTip(tooltip)
+        copy_layout.addWidget(title)
+        copy_layout.addWidget(metadata)
+
+        reclaim_btn = QPushButton("Reclaim")
+        reclaim_btn.setObjectName("deathOfficeReclaimAction")
+        reclaim_btn.setEnabled(bool(summary.get("can_reclaim")) and on_reclaim_death_office is not None)
+        if not summary.get("can_reclaim"):
+            reclaim_btn.setToolTip(f"Need {cost:,} Coins to reclaim this gear.")
+
+        def _do_reclaim(_checked: bool = False) -> None:
+            if on_reclaim_death_office is None:
+                return
+            if on_reclaim_death_office():
+                _refresh_equipment_views()
+
+        reclaim_btn.clicked.connect(_do_reclaim)
+        row_layout.addWidget(icon_label)
+        row_layout.addWidget(copy)
+        row_layout.addStretch(1)
+        row_layout.addWidget(reclaim_btn)
+        death_office_layout.addWidget(row)
+        death_office_box.setMaximumHeight(
+            header.sizeHint().height() + death_office_layout.spacing() + row.sizeHint().height() + 4
+        )
+
     def _build_bank_equip_menu(item_name: str) -> "QMenu":
         """Right-click menu for an inventory row.
 
@@ -3532,6 +3625,8 @@ def show_main_menu(
         menu.exec(bank_list.viewport().mapToGlobal(pos))
 
     bank_list.customContextMenuRequested.connect(_bank_context_menu)
+    _populate_death_office()
+    bk_layout.addWidget(death_office_box)
     _populate_claims()
     bk_layout.addWidget(claims_box)
     _populate_bank_list()

@@ -49,6 +49,7 @@ from .logic_pure import (
     set_combat_auto_eat_food_pure,
     refill_combat_supply_loadout_pure,
     unload_combat_supply_loadout_pure,
+    reclaim_death_office_items_pure,
     firemaking_target_locked_reasons_pure,
     apply_utility_activity_pure,
     sanitize_review_action_multiplier,
@@ -685,6 +686,7 @@ def _on_main_menu():
         on_set_combat_auto_eat_food=on_set_combat_auto_eat_food,
         on_refill_combat_loadout=on_refill_combat_loadout,
         on_unload_combat_loadout=on_unload_combat_loadout,
+        on_reclaim_death_office=on_reclaim_death_office,
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
@@ -759,6 +761,15 @@ def on_unload_combat_loadout():
     new_data, ok, reason = unload_combat_supply_loadout_pure(player_data)
     if not ok:
         show_error_message("Cannot unload combat supplies", reason)
+        return False
+    _save_combat_state_update(new_data)
+    return True
+
+
+def on_reclaim_death_office():
+    new_data, ok, reason = reclaim_death_office_items_pure(player_data)
+    if not ok:
+        show_error_message("Cannot reclaim gear", reason)
         return False
     _save_combat_state_update(new_data)
     return True

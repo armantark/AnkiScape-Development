@@ -51,14 +51,20 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   stat-drain recovery scaffolding, status-effect save hooks, and Combat tooltip
   food readiness. Player-facing loadout controls now expose auto-eat threshold,
   preferred food priority, loaded food/ammo/rune summaries, and safe-boundary
-  Refill/Unload actions while preserving the no-mid-fight-refill rule. Use
+  Refill/Unload actions while preserving the no-mid-fight-refill rule. Death's
+  Office recovery now handles stacked Combat deaths: a second death moves the
+  old active grave into flat `death_office.items`, the Bank tab exposes reclaim,
+  and reclaim consumes `100 Coins` per held item before returning gear to
+  inventory. Use
   `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` before
-  expanding Combat. Next Combat work should widen source-backed enemies,
+  expanding Combat; use
+  `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
+  touching death/reclaim again. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo and Magic beyond the basic Strike/staff slice,
-  improve grave/Death's Office recovery, add deeper potion/cannon/per-ammo
-  preference controls, and migrate quest combat gates onto the same engine
-  instead of reopening the completed design grill.
+  add source-exact grave expiry/death-fee variants, add deeper
+  potion/cannon/per-ammo preference controls, and migrate quest combat gates
+  onto the same engine instead of reopening the completed design grill.
 - The Tutorial Island starter kit bridge is complete as of 2026-06-23. It uses a
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See

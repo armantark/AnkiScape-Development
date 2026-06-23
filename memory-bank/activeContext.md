@@ -180,8 +180,9 @@ air/water/earth/fire rune substitution: covered elemental runes are not missing,
 not loaded from inventory, and not consumed per cast. Future Combat work should
 expand source-backed monsters beyond the clean early rows, broaden Magic beyond
 the Strike ladder/basic staves, broaden Ranged equipment/ammo, add deeper
-potion/cannonball/per-ammo preference controls, improve dangerous-target/
-death-office UX, and migrate quest combat gates onto this shared engine.
+potion/cannonball/per-ammo preference controls, improve dangerous-target UX,
+add source-exact death-fee/expiry variants, and migrate quest combat gates onto
+this shared engine.
 
 The Combat bootstrap now includes a source-backed Tutorial Island starter kit as
 a one-time Bank Claim. The generic `item_bundle` claim path grants Bronze sword,
@@ -220,6 +221,15 @@ callbacks use pure helpers in `logic_pure.py`, refuse manual refill/unload while
 an active fight is in progress, and preserve the existing rule that food, ammo,
 and runes come from `combat_supply_loadout` rather than the whole Bank during a
 burst.
+
+Combat death recovery now includes the first Death's Office implementation.
+The existing active grave still recovers equipped gear through five safe
+non-Again reviews, but a second Combat death while a grave is active moves the
+old grave's items into flat `death_office.items` before creating the new grave.
+The Bank tab renders a Death's Office reclaim row when gear is waiting there;
+reclaim consumes `100 Coins` per item and returns the gear to inventory. Source
+proof and exclusions live in
+`memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md`.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
