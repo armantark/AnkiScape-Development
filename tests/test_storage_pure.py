@@ -70,6 +70,11 @@ class TestStoragePure(unittest.TestCase):
             "combat_lifepoints",
             "combat_auto_eat_threshold_percent",
             "combat_auto_eat_food",
+            "combat_supply_loadout",
+            "combat_special_attack_energy",
+            "combat_stat_drains",
+            "combat_status_effects",
+            "combat_recovery_progress",
             "combat_encounter",
             "combat_kill_counts",
             "combat_last_result",
@@ -129,6 +134,11 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["combat_lifepoints"], 100)
         self.assertEqual(data["combat_auto_eat_threshold_percent"], 40)
         self.assertIn("Shrimps", data["combat_auto_eat_food"])
+        self.assertEqual(data["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+        self.assertEqual(data["combat_special_attack_energy"], 100)
+        self.assertEqual(data["combat_stat_drains"], {})
+        self.assertEqual(data["combat_status_effects"], {})
+        self.assertEqual(data["combat_recovery_progress"], {})
         self.assertEqual(data["combat_encounter"], {})
         self.assertEqual(data["combat_kill_counts"], {})
         self.assertEqual(data["combat_last_result"], {})
@@ -223,6 +233,11 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_combat_target"], "chicken")
         self.assertEqual(migrated["combat_attack_style"], "accurate")
         self.assertEqual(migrated["combat_lifepoints"], 100)
+        self.assertEqual(migrated["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+        self.assertEqual(migrated["combat_special_attack_energy"], 100)
+        self.assertEqual(migrated["combat_stat_drains"], {})
+        self.assertEqual(migrated["combat_status_effects"], {})
+        self.assertEqual(migrated["combat_recovery_progress"], {})
         self.assertEqual(migrated["combat_encounter"], {})
         self.assertEqual(migrated["combat_kill_counts"], {})
         self.assertEqual(migrated["current_quest"], "rune_mysteries")

@@ -45,12 +45,15 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
   real food; drops follow the imported guaranteed/multi-table semantics; the
   Combat hub and HUD surface target/style/lifepoint state; and storage defaults
-  persist combat state. Use `memory-bank/combat-design-grill-2026-06-23.md`
-  plus `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` before
+  persist combat state. The recovery/loadout foundation now adds finite carried
+  food, safe-boundary loadout refills, review-tick special-energy regeneration,
+  stat-drain recovery scaffolding, status-effect save hooks, and Combat tooltip
+  food readiness. Use `memory-bank/combat-design-grill-2026-06-23.md` plus
+  `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` before
   expanding Combat. Next Combat work should widen source-backed enemies,
-  complete ranged/magic/ammo/rune routing, improve grave/Death's Office recovery,
-  and migrate quest combat gates onto the same engine instead of reopening the
-  completed design grill.
+  complete ranged/magic/ammo/rune routing, add player-facing loadout controls,
+  improve grave/Death's Office recovery, and migrate quest combat gates onto
+  the same engine instead of reopening the completed design grill.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

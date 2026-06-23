@@ -780,6 +780,38 @@ def _combat_drop_summary(enemy: Mapping[str, object]) -> str:
     return "\n".join(parts) if parts else "No item drops"
 
 
+def _combat_food_summary(player_data: Mapping[str, object], target_id: str) -> str:
+    def _count(value: object) -> int:
+        if isinstance(value, bool):
+            return 0
+        try:
+            return max(0, int(value or 0))
+        except (TypeError, ValueError):
+            return 0
+
+    auto_food = player_data.get("combat_auto_eat_food", ()) or ()
+    loadout_raw = player_data.get("combat_supply_loadout", {}) or {}
+    loadout = loadout_raw if isinstance(loadout_raw, Mapping) else {}
+    food_raw = loadout.get("food", {}) if isinstance(loadout, Mapping) else {}
+    food_loadout = food_raw if isinstance(food_raw, Mapping) else {}
+    inventory_raw = player_data.get("inventory", {}) or {}
+    inventory = inventory_raw if isinstance(inventory_raw, Mapping) else {}
+    encounter_raw = player_data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter_raw, Mapping) and encounter_raw.get("target_id") == target_id
+    parts = []
+    for item_name in auto_food:
+        if not isinstance(item_name, str):
+            continue
+        loaded = _count(food_loadout.get(item_name, 0))
+        banked = 0 if active_encounter else _count(inventory.get(item_name, 0))
+        if loaded or banked:
+            if active_encounter:
+                parts.append(f"{item_name} x{loaded} loaded")
+            else:
+                parts.append(f"{item_name} x{loaded} loaded + {banked} bank")
+    return ", ".join(parts) if parts else "No configured food loaded"
+
+
 def combat_target_rows(
     player_data: Mapping[str, object],
     combat_enemy_data: Mapping[str, Mapping[str, object]],
@@ -811,6 +843,7 @@ def combat_target_rows(
                 f"Your LP: {preview.get('player_lifepoints', 0)}/{preview.get('player_max_lifepoints', 0)}\n"
                 f"Enemy LP: {preview.get('enemy_lifepoints', 0)}/{preview.get('enemy_max_lifepoints', stats.get('hitpoints', 0))}\n"
                 f"Enemy max hit: {preview.get('enemy_max_hit', 0)} LP\n"
+                f"Food: {_combat_food_summary(player_data, target_id)}\n"
                 f"Drops:\n  {_combat_drop_summary(enemy).replace(chr(10), chr(10) + '  ')}\n"
                 f"Source: {enemy.get('source', '')}"
             )

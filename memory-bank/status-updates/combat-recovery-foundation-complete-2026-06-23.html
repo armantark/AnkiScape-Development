@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Recovery Foundation Complete</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(79, 140, 255, 0.08), transparent 360px),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main { max-width: 1180px; margin: 0 auto; padding: 38px 20px 52px; }
+    .badge {
+      display: inline-flex;
+      padding: 6px 10px;
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      border-radius: 999px;
+      background: rgba(74, 222, 128, 0.12);
+      color: #b8f7cc;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.73rem;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 { margin: 18px 0 10px; font-size: clamp(2rem, 5vw, 4.1rem); line-height: 0.96; letter-spacing: 0; max-width: 900px; }
+    .subtitle { max-width: 850px; color: var(--text-dim); font-size: 1rem; }
+    .rail {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .metric {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      padding: 16px;
+      min-height: 120px;
+    }
+    .metric strong { display: block; font-size: 1.7rem; margin-bottom: 4px; }
+    .metric span { color: var(--text-dim); font-size: 0.86rem; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 16px; margin-top: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0.01)), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+    .card h2 { margin: 0 0 12px; font-size: 1.06rem; letter-spacing: 0; }
+    .lane { display: grid; grid-template-columns: 150px 1fr; gap: 12px; align-items: stretch; margin: 10px 0; }
+    .label {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 10px;
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.74rem;
+      color: var(--text-dim);
+    }
+    .payload {
+      border: 1px solid rgba(79, 140, 255, 0.28);
+      border-radius: 10px;
+      background: rgba(79, 140, 255, 0.08);
+      padding: 10px 12px;
+      font-size: 0.9rem;
+    }
+    .payload b { color: var(--green); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; background: #10141c; padding: 12px; min-height: 150px; }
+    .pane-title {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.68rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .food-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(42,48,64,0.75); }
+    .food-row:last-child { border-bottom: 0; }
+    .bar { height: 8px; border-radius: 999px; overflow: hidden; background: #0d1118; border: 1px solid var(--border); margin-top: 6px; }
+    .fill { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+    .check { display: grid; gap: 10px; }
+    .check div { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; color: var(--text-dim); font-size: 0.92rem; }
+    .tick { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; background: rgba(74,222,128,0.15); color: var(--green); border: 1px solid rgba(74,222,128,0.4); font-weight: 700; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tag { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.65rem; color: var(--text-dim); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 7px; }
+    .footer { margin-top: 22px; color: var(--text-dim); font-size: 0.86rem; }
+    @media (max-width: 900px) {
+      .rail, .grid, .split { grid-template-columns: 1fr; }
+      .lane { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Implemented Checkpoint</span>
+    <h1>Combat recovery is now real state, not just a grill note.</h1>
+    <p class="subtitle">This pass implements the shared foundation the rest of Combat needs: finite carried food, safe-boundary refill, review-tick recovery, special-energy regeneration, stat-drain scaffolding, storage migration, and rollback coverage.</p>
+
+    <section class="rail">
+      <div class="metric"><strong>28</strong><span>food slots in the current carried loadout model</span></div>
+      <div class="metric"><strong>+10%</strong><span>special attack energy per 50 review ticks</span></div>
+      <div class="metric"><strong>100 LP</strong><span>safe-review heal or overheal decay packet</span></div>
+      <div class="metric"><strong>1/card</strong><span>recovery packet even when action multiplier is higher</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Runtime Flow</h2>
+        <div class="lane">
+          <div class="label">New fight</div>
+          <div class="payload">Refill carried food from configured priority, then simulate the bounded tick burst.</div>
+        </div>
+        <div class="lane">
+          <div class="label">Paused fight</div>
+          <div class="payload">Do <b>not</b> pull more Bank food mid-encounter; auto-eat consumes only what is loaded.</div>
+        </div>
+        <div class="lane">
+          <div class="label">Safe review</div>
+          <div class="payload">Apply one rollback-safe recovery packet, refill carried food, and update HUD state.</div>
+        </div>
+        <div class="lane">
+          <div class="label">Undo</div>
+          <div class="payload">The pre-review snapshot restores the noncombat reward and the Combat recovery together.</div>
+        </div>
+        <div class="tags"><span class="tag">logic_pure.py</span><span class="tag">__init__.py</span><span class="tag">storage_pure.py</span></div>
+      </article>
+
+      <article class="card">
+        <h2>Tooltip State</h2>
+        <div class="split">
+          <div class="pane">
+            <div class="pane-title">Safe boundary</div>
+            <div class="food-row"><span>Shark</span><span>1 loaded + 2 bank</span></div>
+            <div class="food-row"><span>Risk</span><span>Food advised</span></div>
+            <div class="bar"><span class="fill" style="width:72%"></span></div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">Active encounter</div>
+            <div class="food-row"><span>Shark</span><span>1 loaded</span></div>
+            <div class="food-row"><span>Bank food</span><span>hidden from readiness</span></div>
+            <div class="bar"><span class="fill" style="width:35%"></span></div>
+          </div>
+        </div>
+        <div class="tags"><span class="tag">target_metadata.py</span><span class="tag">tests/test_target_metadata.py</span></div>
+      </article>
+
+      <article class="card">
+        <h2>Verification Covered</h2>
+        <div class="check">
+          <div><span class="tick">✓</span><span>Pure combat tests cover no mid-fight Bank refill, special-energy regeneration, and safe stat-drain recovery.</span></div>
+          <div><span class="tick">✓</span><span>Storage tests cover version 22 defaults and migration fields.</span></div>
+          <div><span class="tick">✓</span><span>Integration smoke proves recovery happens once per successful card and rolls back with Anki undo.</span></div>
+          <div><span class="tick">✓</span><span>Full core and offscreen Qt suites are part of the checkpoint gate.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Still Open In The Grill</h2>
+        <div class="check">
+          <div><span class="tick">→</span><span>Broader source-backed enemy import and complete drop/equipment contract.</span></div>
+          <div><span class="tick">→</span><span>Ranged, Magic, ammo, rune, spell, potion, and prayer routing.</span></div>
+          <div><span class="tick">→</span><span>Player-facing loadout controls, dangerous-target confirmation, Death's Office, Wilderness, and quest-combat migration.</span></div>
+        </div>
+        <div class="tags"><span class="tag">combat-design-grill-2026-06-23.md</span></div>
+      </article>
+    </section>
+
+    <p class="footer">This is a checkpoint inside the full Combat build, not a declaration that the entire grill is finished.</p>
+  </main>
+</body>
+</html>

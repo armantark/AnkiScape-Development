@@ -77,8 +77,10 @@ class TargetMetadataTest(unittest.TestCase):
                 "strength_level": 10,
                 "defense_level": 10,
                 "constitution_level": 10,
-                "inventory": {},
+                "inventory": {"Shark": 2},
                 "equipment": {},
+                "combat_auto_eat_food": ["Shark"],
+                "combat_supply_loadout": {"food": {"Shark": 1}},
             },
             COMBAT_ENEMY_DATA,
             {},
@@ -95,6 +97,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(giant_rat.group, "Lumbridge")
         self.assertIn("Giant rat · combat level 2", giant_rat.tooltip)
         self.assertIn("Enemy LP: 50/50", giant_rat.tooltip)
+        self.assertIn("Food: Shark x1 loaded + 2 bank", giant_rat.tooltip)
         self.assertIn("Raw rat meat", giant_rat.tooltip)
         self.assertIn("giant_rat_level_2.plugin.kts", giant_rat.tooltip)
         self.assertEqual(cow.sort_key[:2], (2, "Cow"))

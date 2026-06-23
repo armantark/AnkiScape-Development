@@ -162,9 +162,14 @@ enabled source-backed target set is Chicken, Rat, Giant rat, and Cow; each
 review simulates 50 RuneScape ticks per `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
-source-backed drops. Future Combat work should expand source-backed monsters,
-add ranged/magic/ammo/rune routing, improve dangerous-target/death-office UX,
-and migrate quest combat gates onto this shared engine.
+source-backed drops. The follow-up recovery foundation is also in place:
+finite carried food loadouts refill only at safe boundaries, safe noncombat
+reviews apply one rollback-safe recovery packet per card, special-attack energy
+regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
+tooltips show loaded/banked food readiness. Future Combat work should expand
+source-backed monsters, add ranged/magic/ammo/rune routing, add loadout UI for
+food/potions/ammo/runes, improve dangerous-target/death-office UX, and migrate
+quest combat gates onto this shared engine.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174

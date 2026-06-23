@@ -2,7 +2,7 @@ import unittest
 
 from combat_data import COMBAT_ENEMY_DATA
 from constants import EQUIPMENT_DATA
-from logic_pure import apply_combat_burst_pure, combat_target_preview_pure
+from logic_pure import apply_combat_burst_pure, apply_safe_combat_recovery_pure, combat_target_preview_pure
 
 
 def _rng(values):
@@ -34,6 +34,11 @@ def _player(**overrides):
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
         "combat_auto_eat_food": ["Shrimps"],
+        "combat_supply_loadout": {},
+        "combat_special_attack_energy": 100,
+        "combat_stat_drains": {},
+        "combat_status_effects": {},
+        "combat_recovery_progress": {},
         "combat_encounter": {},
         "combat_kill_counts": {},
     }
@@ -115,8 +120,70 @@ class CombatLogicTest(unittest.TestCase):
         self.assertTrue(ok)
         self.assertFalse(result["died"])
         self.assertEqual(new_data["inventory"]["Shrimps"], 0)
+        self.assertEqual(new_data["combat_supply_loadout"]["food"], {})
         self.assertEqual(result["food_used"], ({"item": "Shrimps", "healed_by": 30},))
         self.assertGreater(new_data["combat_lifepoints"], 20)
+
+    def test_active_encounter_does_not_refill_food_loadout_from_bank_mid_fight(self):
+        player = _player(
+            current_combat_target="giant_rat",
+            attack_level=1,
+            strength_level=1,
+            defense_level=1,
+            inventory={"Shrimps": 1},
+            combat_lifepoints=20,
+            combat_auto_eat_threshold_percent=90,
+            combat_encounter={"target_id": "giant_rat", "enemy_lifepoints": 50},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(new_data["inventory"]["Shrimps"], 1)
+        self.assertEqual(new_data["combat_supply_loadout"]["food"], {})
+        self.assertEqual(result["food_used"], ())
+        self.assertLess(new_data["combat_lifepoints"], 20)
+
+    def test_combat_burst_regenerates_special_attack_energy_by_elapsed_ticks(self):
+        player = _player(combat_special_attack_energy=40)
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=50,
+            rng=_rng([0.999999] * 30),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertEqual(result["ticks_elapsed"], 50)
+        self.assertEqual(new_data["combat_special_attack_energy"], 50)
+
+    def test_safe_recovery_refills_loadout_regenerates_energy_and_recovers_drains(self):
+        player = _player(
+            inventory={"Shark": 30},
+            combat_lifepoints=20,
+            combat_special_attack_energy=35,
+            combat_stat_drains={"attack": 2, "strength": 1},
+            combat_recovery_progress={"stat_drain_ticks": 50},
+            combat_auto_eat_food=["Shark"],
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_lifepoints"], 100)
+        self.assertEqual(recovered["combat_special_attack_energy"], 45)
+        self.assertEqual(recovered["combat_stat_drains"], {"attack": 1})
+        self.assertEqual(recovered["combat_recovery_progress"], {})
+        self.assertEqual(recovered["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(recovered["inventory"]["Shark"], 2)
 
     def test_combat_preview_exposes_risk_and_source_metrics(self):
         preview = combat_target_preview_pure(_player(), "giant_rat", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)

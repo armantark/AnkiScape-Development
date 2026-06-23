@@ -139,14 +139,25 @@
   a synthetic Skills-hub action with target and attack-style controls, HUD
   lifepoint/target state, runtime dispatch/telemetry/save handling, storage
   defaults/migration, and focused unit/integration/offscreen Qt coverage.
+- Combat recovery/loadout foundation is in place. Storage config version 22
+  adds additive flat fields for `combat_supply_loadout`,
+  `combat_special_attack_energy`, `combat_stat_drains`,
+  `combat_status_effects`, and `combat_recovery_progress`. Auto-eat now consumes
+  from a finite carried food loadout, not the whole Bank mid-fight; fresh
+  targets, kills, and safe noncombat recovery can refill that loadout from the
+  configured food priority. Safe noncombat reviews apply one rollback-safe
+  recovery packet per card, healing or decaying lifepoints by 100, regenerating
+  10 special-attack energy per 50 review ticks, recovering stat drains one
+  level per 100 safe ticks, advancing simple grave recovery, and exposing food
+  readiness in Combat target tooltips.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
-  import, ranged/magic/ammo/rune combat routing, richer assets, confirmation UX
-  for dangerous targets, full grave/Death's Office recovery, and migrating
-  quest combat gates from the lightweight resolver onto the shared combat
-  engine.
+  import, ranged/magic/ammo/rune combat routing, richer assets, food/potion/
+  ammo/rune loadout controls, confirmation UX for dangerous targets, full
+  Death's Office recovery and stacked-death handling, and migrating quest combat
+  gates from the lightweight resolver onto the shared combat engine.
 - Full quest-stage minute-detail parity. The generator now preserves broad
   quest-wide source fields, but exact per-stage placement, override merge/source
   reconciliation, route flags, required action flags, partner/branch state,
@@ -927,8 +938,10 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
 - Combat V1 follow-up: `memory-bank/combat-design-grill-2026-06-23.md` is the
   completed design source. Implement only as a full-system Combat build: source
   audits, enabled enemy/equipment/drop registry, undo-safe tick engine, Combat
-  tab, supply loadouts, death/grave/Death's Office, Wilderness risk, quest
-  encounter integration, assets, targeted tests, Qt tests, and manual Anki QA.
+  tab, expanded supply loadout controls, death/grave/Death's Office,
+  Wilderness risk, quest encounter integration, assets, targeted tests, Qt
+  tests, and manual Anki QA. The first ordinary-combat slice and the recovery/
+  carried-food foundation are already implemented; do not redo those.
 - Quest-lock follow-up: `memory-bank/quest-unlock-audit-2026-06-17.md`
   records the completed 194-row pre-EOC catalog, implemented completion gates,
   route-precedent locks, the RFD subquest split, generated item/lamp rewards,

@@ -44,6 +44,7 @@ from .logic_pure import (
     start_quest_pure,
     apply_quest_route_choice_pure,
     apply_claim_pure,
+    apply_safe_combat_recovery_pure,
     firemaking_target_locked_reasons_pure,
     apply_utility_activity_pure,
     sanitize_review_action_multiplier,
@@ -844,6 +845,32 @@ def _registered_answer_handler(skill):
     return runtime_actions.answer_handler_for_key(handler_key)
 
 
+_COMBAT_RECOVERY_STATE_KEYS = (
+    "combat_lifepoints",
+    "combat_special_attack_energy",
+    "combat_stat_drains",
+    "combat_status_effects",
+    "combat_supply_loadout",
+    "combat_grave",
+)
+
+
+def _apply_safe_combat_recovery_after_review() -> None:
+    if not any(key in player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
+        return
+    before_state = copy.deepcopy(player_data)
+    recovered = apply_safe_combat_recovery_pure(player_data)
+    if recovered == before_state:
+        return
+    player_data.update(recovered)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+
+
 def on_good_answer():
     global current_skill, exp_awarded
     if exp_awarded:
@@ -852,17 +879,22 @@ def on_good_answer():
     if handler:
         before_state = _capture_player_data_snapshot()
         handler_key = review_action_handler_key(current_skill)
+        review_progressed = False
         _begin_review_feedback_context()
         try:
             if handler_key == "combat":
-                handler(_runtime_action_context())
+                review_progressed = handler(_runtime_action_context()) is not False
             else:
                 for tick_index in range(_review_action_multiplier()):
                     if tick_index > 0 and not _can_start_current_action():
                         break
                     result = handler(_runtime_action_context())
+                    if result is not False:
+                        review_progressed = True
                     if result is False or current_skill == "None":
                         break
+                if review_progressed and handler_key not in ("quest",):
+                    _apply_safe_combat_recovery_after_review()
         finally:
             _finish_review_feedback_context()
             _remember_review_award_snapshot(before_state)

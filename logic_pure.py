@@ -943,10 +943,21 @@ _DEFAULT_COMBAT_AUTO_EAT_FOOD = (
     "Crayfish",
 )
 SAFE_COMBAT_RECOVERY_LIFEPOINTS = 100
+SAFE_COMBAT_RECOVERY_TICKS = COMBAT_BURST_TICKS
+COMBAT_SPECIAL_ATTACK_MAX_ENERGY = 100
+COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS = 10
+COMBAT_STAT_DRAIN_RECOVERY_TICKS = 100
+COMBAT_FOOD_LOADOUT_CAPACITY = 28
+COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
+_COMBAT_DRAINABLE_SKILLS = ("attack", "strength", "defense", "ranged", "magic", "prayer")
 
 
 def combat_max_lifepoints_pure(player_data):
     return max(10, _positive_int(player_data.get("constitution_level", 10), 10) * 10)
+
+
+def default_combat_supply_loadout_pure():
+    return {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0}
 
 
 def default_combat_state_pure():
@@ -956,12 +967,57 @@ def default_combat_state_pure():
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
         "combat_auto_eat_food": list(_DEFAULT_COMBAT_AUTO_EAT_FOOD),
+        "combat_supply_loadout": default_combat_supply_loadout_pure(),
+        "combat_special_attack_energy": COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
+        "combat_stat_drains": {},
+        "combat_status_effects": {},
+        "combat_recovery_progress": {},
         "combat_encounter": {},
         "combat_kill_counts": {},
         "combat_last_result": {},
         "combat_grave": {},
         "death_office": {},
     }
+
+
+def _sanitize_combat_supply_loadout(raw_loadout):
+    loadout = default_combat_supply_loadout_pure()
+    if not isinstance(raw_loadout, Mapping):
+        return loadout
+    raw_food = raw_loadout.get("food", {})
+    if isinstance(raw_food, Mapping):
+        loadout["food"] = {
+            str(item_name): _non_negative_int(amount, 0)
+            for item_name, amount in raw_food.items()
+            if isinstance(item_name, str) and item_name in COMBAT_FOOD_DATA and _non_negative_int(amount, 0) > 0
+        }
+    for key in ("potions", "ammo", "runes"):
+        raw_mapping = raw_loadout.get(key, {})
+        if isinstance(raw_mapping, Mapping):
+            loadout[key] = {
+                str(item_name): _non_negative_int(amount, 0)
+                for item_name, amount in raw_mapping.items()
+                if isinstance(item_name, str) and _non_negative_int(amount, 0) > 0
+            }
+    loadout["cannonballs"] = _non_negative_int(raw_loadout.get("cannonballs", 0), 0)
+    return loadout
+
+
+def _sanitize_combat_stat_drains(raw_drains):
+    if not isinstance(raw_drains, Mapping):
+        return {}
+    return {
+        str(skill_id): _non_negative_int(amount, 0)
+        for skill_id, amount in raw_drains.items()
+        if skill_id in _COMBAT_DRAINABLE_SKILLS and _non_negative_int(amount, 0) > 0
+    }
+
+
+def _sanitize_combat_recovery_progress(raw_progress):
+    if not isinstance(raw_progress, Mapping):
+        return {}
+    stat_drain_ticks = _non_negative_int(raw_progress.get("stat_drain_ticks", 0), 0)
+    return {"stat_drain_ticks": stat_drain_ticks} if stat_drain_ticks > 0 else {}
 
 
 def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
@@ -977,7 +1033,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     if style not in style_data:
         style = defaults["combat_attack_style"]
     max_lp = combat_max_lifepoints_pure(player_data)
-    current_lp = _positive_int(player_data.get("combat_lifepoints", max_lp), max_lp)
+    current_lp = _non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp)
     auto_food_raw = player_data.get("combat_auto_eat_food", defaults["combat_auto_eat_food"])
     if isinstance(auto_food_raw, str):
         auto_food = [auto_food_raw]
@@ -993,15 +1049,28 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     kill_counts = player_data.get("combat_kill_counts", {}) or {}
     if not isinstance(kill_counts, Mapping):
         kill_counts = {}
+    special_energy = _non_negative_int(
+        player_data.get("combat_special_attack_energy", defaults["combat_special_attack_energy"]),
+        defaults["combat_special_attack_energy"],
+    )
     return {
         "current_combat_target": target,
         "combat_attack_style": style,
-        "combat_lifepoints": max(0, min(current_lp, max_lp)),
+        "combat_lifepoints": max(0, min(current_lp, max_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS)),
         "combat_auto_eat_threshold_percent": max(
             1,
             min(_positive_int(player_data.get("combat_auto_eat_threshold_percent", 40), 40), 99),
         ),
         "combat_auto_eat_food": auto_food,
+        "combat_supply_loadout": _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout")),
+        "combat_special_attack_energy": min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, special_energy),
+        "combat_stat_drains": _sanitize_combat_stat_drains(player_data.get("combat_stat_drains")),
+        "combat_status_effects": (
+            dict(player_data.get("combat_status_effects", {}) or {})
+            if isinstance(player_data.get("combat_status_effects", {}) or {}, Mapping)
+            else {}
+        ),
+        "combat_recovery_progress": _sanitize_combat_recovery_progress(player_data.get("combat_recovery_progress")),
         "combat_encounter": dict(encounter),
         "combat_kill_counts": {
             str(target_id): _positive_int(count, 0)
@@ -1079,21 +1148,28 @@ def _signed_int(value, default=0):
 
 
 def _combat_effective_player_attack_level(player_data, style_id):
-    level = _positive_int(player_data.get("attack_level", 1), 1)
+    level = _combat_effective_skill_level(player_data, "attack", 1)
     style_bonus = 3 if style_id == "accurate" else 1 if style_id == "controlled" else 0
     return floor(level) + style_bonus + 8
 
 
 def _combat_effective_player_strength_level(player_data, style_id):
-    level = _positive_int(player_data.get("strength_level", 1), 1)
+    level = _combat_effective_skill_level(player_data, "strength", 1)
     style_bonus = 3 if style_id == "aggressive" else 1
     return floor(level) + style_bonus + 8
 
 
 def _combat_effective_player_defence_level(player_data, style_id):
-    level = _positive_int(player_data.get("defense_level", 1), 1)
+    level = _combat_effective_skill_level(player_data, "defense", 1)
     style_bonus = 3 if style_id == "defensive" else 1 if style_id == "controlled" else 0
     return floor(level) + style_bonus + 8
+
+
+def _combat_effective_skill_level(player_data, skill_id, default):
+    base_level = _positive_int(player_data.get(f"{skill_id}_level", default), default)
+    drains = player_data.get("combat_stat_drains", {}) or {}
+    drain = _non_negative_int(drains.get(skill_id, 0), 0) if isinstance(drains, Mapping) else 0
+    return max(1, base_level - drain)
 
 
 def _combat_accuracy(attacker_roll, defender_roll):
@@ -1206,17 +1282,78 @@ def _combat_roll_drops(enemy, rng):
     return drops
 
 
+def _combat_refill_food_loadout(data):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    food_loadout = dict(loadout.get("food", {}) or {})
+    inventory = data.get("inventory", {}) or {}
+    capacity_remaining = max(
+        0,
+        COMBAT_FOOD_LOADOUT_CAPACITY - sum(_non_negative_int(amount, 0) for amount in food_loadout.values()),
+    )
+    if capacity_remaining <= 0:
+        data["combat_supply_loadout"] = loadout
+        return
+    for item_name in data.get("combat_auto_eat_food", ()) or ():
+        if capacity_remaining <= 0:
+            break
+        if item_name not in COMBAT_FOOD_DATA:
+            continue
+        available = _non_negative_int(inventory.get(item_name, 0), 0)
+        if available <= 0:
+            continue
+        taken = min(available, capacity_remaining)
+        inventory[item_name] = available - taken
+        food_loadout[item_name] = _non_negative_int(food_loadout.get(item_name, 0), 0) + taken
+        capacity_remaining -= taken
+    loadout["food"] = {item: amount for item, amount in food_loadout.items() if amount > 0}
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
+def _combat_regenerate_special_attack_energy(data, ticks):
+    energy = _non_negative_int(
+        data.get("combat_special_attack_energy", COMBAT_SPECIAL_ATTACK_MAX_ENERGY),
+        COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
+    )
+    regen = int(max(0, _non_negative_int(ticks, 0)) * COMBAT_SPECIAL_ATTACK_REGEN_PER_50_TICKS / COMBAT_BURST_TICKS)
+    data["combat_special_attack_energy"] = min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, energy + regen)
+
+
+def _combat_recover_stat_drains(data, ticks):
+    drains = _sanitize_combat_stat_drains(data.get("combat_stat_drains"))
+    progress = _sanitize_combat_recovery_progress(data.get("combat_recovery_progress"))
+    if not drains:
+        progress.pop("stat_drain_ticks", None)
+        data["combat_stat_drains"] = {}
+        data["combat_recovery_progress"] = progress
+        return
+    stat_drain_ticks = _non_negative_int(progress.get("stat_drain_ticks", 0), 0) + max(0, _non_negative_int(ticks, 0))
+    recovered_levels = stat_drain_ticks // COMBAT_STAT_DRAIN_RECOVERY_TICKS
+    stat_drain_ticks = stat_drain_ticks % COMBAT_STAT_DRAIN_RECOVERY_TICKS
+    if recovered_levels > 0:
+        drains = {skill_id: max(0, amount - recovered_levels) for skill_id, amount in drains.items()}
+        drains = {skill_id: amount for skill_id, amount in drains.items() if amount > 0}
+    progress["stat_drain_ticks"] = stat_drain_ticks if drains and stat_drain_ticks > 0 else 0
+    data["combat_stat_drains"] = drains
+    data["combat_recovery_progress"] = {key: value for key, value in progress.items() if value > 0}
+
+
 def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
     threshold_percent = _positive_int(data.get("combat_auto_eat_threshold_percent", 40), 40)
     threshold = max(1, int(max_lifepoints * threshold_percent / 100.0))
     if current_lifepoints > threshold or current_lifepoints >= max_lifepoints:
         return current_lifepoints, None
-    inventory = data.get("inventory", {}) or {}
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    food_loadout = dict(loadout.get("food", {}) or {})
     for item_name in data.get("combat_auto_eat_food", ()) or ():
         food = COMBAT_FOOD_DATA.get(item_name)
-        if not food or _positive_int(inventory.get(item_name, 0), 0) <= 0:
+        if not food or _positive_int(food_loadout.get(item_name, 0), 0) <= 0:
             continue
-        inventory[item_name] = _positive_int(inventory.get(item_name, 0), 0) - 1
+        food_loadout[item_name] = _positive_int(food_loadout.get(item_name, 0), 0) - 1
+        if food_loadout[item_name] <= 0:
+            food_loadout.pop(item_name, None)
+        loadout["food"] = food_loadout
+        data["combat_supply_loadout"] = loadout
         healed_by = _positive_int(food.get("heal_lifepoints", 0), 0)
         return min(max_lifepoints, current_lifepoints + healed_by), {"item": item_name, "healed_by": healed_by}
     return current_lifepoints, None
@@ -1248,19 +1385,26 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = max(0, min(_positive_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
     enemy_max_lp_hit = int(enemy_max_hit * 10)
-    has_food = any(
-        _positive_int((player_data.get("inventory", {}) or {}).get(item_name, 0), 0) > 0
-        for item_name in player_data.get("combat_auto_eat_food", _DEFAULT_COMBAT_AUTO_EAT_FOOD)
-        if item_name in COMBAT_FOOD_DATA
-    )
+    encounter = player_data.get("combat_encounter", {}) or {}
+    active_encounter = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id
+    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    bank_inventory = player_data.get("inventory", {}) or {}
+    has_food = False
+    for item_name in player_data.get("combat_auto_eat_food", _DEFAULT_COMBAT_AUTO_EAT_FOOD):
+        if item_name not in COMBAT_FOOD_DATA:
+            continue
+        loadout_count = _non_negative_int((loadout.get("food", {}) or {}).get(item_name, 0), 0)
+        bank_count = 0 if active_encounter else _non_negative_int(bank_inventory.get(item_name, 0), 0)
+        if loadout_count + bank_count > 0:
+            has_food = True
+            break
     if enemy_max_lp_hit <= 0 or current_lp > enemy_max_lp_hit * 3:
         risk = "Safe"
     elif has_food:
         risk = "Food advised"
     else:
         risk = "Death possible"
-    encounter = player_data.get("combat_encounter", {}) or {}
-    state = "Fighting" if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id else "Ready"
+    state = "Fighting" if active_encounter else "Ready"
     return {
         "state": state,
         "risk_band": risk,
@@ -1276,10 +1420,17 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
 
 
 def apply_safe_combat_recovery_pure(player_data):
-    max_lp = combat_max_lifepoints_pure(player_data)
-    current_lp = _positive_int(player_data.get("combat_lifepoints", max_lp), max_lp)
-    data = dict(player_data)
-    data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    max_lp = combat_max_lifepoints_pure(data)
+    current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
+    if current_lp > max_lp:
+        data["combat_lifepoints"] = max(max_lp, current_lp - SAFE_COMBAT_RECOVERY_LIFEPOINTS)
+    else:
+        data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
+    _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
+    _combat_recover_stat_drains(data, SAFE_COMBAT_RECOVERY_TICKS)
+    _combat_refill_food_loadout(data)
     grave = data.get("combat_grave", {}) or {}
     if isinstance(grave, Mapping) and grave.get("items"):
         grave = dict(grave)
@@ -1314,13 +1465,20 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         return player_data, False, {"reason": "unsupported_combat_class"}
 
     max_player_lp = combat_max_lifepoints_pure(data)
-    player_lp = max(0, min(_positive_int(data.get("combat_lifepoints", max_player_lp), max_player_lp), max_player_lp))
+    player_lp = max(
+        0,
+        min(
+            _non_negative_int(data.get("combat_lifepoints", max_player_lp), max_player_lp),
+            max_player_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS,
+        ),
+    )
     enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
     encounter = data.get("combat_encounter", {}) or {}
     if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
         enemy_lp = enemy_max_lp
+        _combat_refill_food_loadout(data)
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
@@ -1360,8 +1518,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     killed = False
     died = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
+    ticks_elapsed = 0
 
     for tick in range(total_ticks):
+        ticks_elapsed = tick + 1
         if tick >= next_player_attack and enemy_lp > 0:
             next_player_attack += player_attack_speed
             landed = False
@@ -1412,6 +1572,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + 1
         data["combat_kill_counts"] = kill_counts
         data["combat_encounter"] = {}
+        _combat_refill_food_loadout(data)
     elif died:
         equipment = dict(data.get("equipment", {}) or {})
         grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
@@ -1422,12 +1583,14 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     else:
         data["combat_encounter"] = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
 
+    _combat_regenerate_special_attack_energy(data, ticks_elapsed)
     data["combat_lifepoints"] = player_lp
     result = {
         "reason": "combat_burst",
         "target_id": target_id,
         "display_name": enemy.get("display_name", target_id),
         "ticks": total_ticks,
+        "ticks_elapsed": ticks_elapsed,
         "player_damage": player_damage,
         "enemy_damage": enemy_damage,
         "enemy_lifepoints": enemy_lp,
@@ -1525,6 +1688,10 @@ def _copy_player_data_with_nested(player_data):
     copied["combat_grave"] = dict(player_data.get("combat_grave", {}) or {})
     copied["death_office"] = dict(player_data.get("death_office", {}) or {})
     copied["combat_auto_eat_food"] = list(player_data.get("combat_auto_eat_food", []) or [])
+    copied["combat_supply_loadout"] = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    copied["combat_stat_drains"] = dict(player_data.get("combat_stat_drains", {}) or {})
+    copied["combat_status_effects"] = dict(player_data.get("combat_status_effects", {}) or {})
+    copied["combat_recovery_progress"] = dict(player_data.get("combat_recovery_progress", {}) or {})
     copied["item_charges"] = dict(player_data.get("item_charges", {}) or {})
     copied["unlocked_abilities"] = list(player_data.get("unlocked_abilities", []) or [])
     return copied

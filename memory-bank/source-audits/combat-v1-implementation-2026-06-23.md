@@ -1,6 +1,6 @@
 # Combat V1 Implementation Audit - 2026-06-23
 
-Status: implemented ordinary-combat V1 slice.
+Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation.
 
 ## Implemented Scope
 
@@ -14,11 +14,26 @@ Status: implemented ordinary-combat V1 slice.
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
   death/grave state, per-damage XP, guaranteed drops, and one roll per
   non-guaranteed drop table.
+- Combat food now comes from a finite `combat_supply_loadout["food"]` instead
+  of the whole Bank during an active encounter. Starting a fresh target, killing
+  a target, or completing a safe noncombat review can refill the loadout from
+  the configured auto-eat food priority; an active paused fight cannot pull
+  extra Bank food mid-encounter.
+- Safe noncombat reviews apply one review-tick recovery packet per card, not
+  once per `Actions per review` sub-action. The packet heals or decays
+  lifepoints by 100, regenerates 10 special-attack energy per 50 ticks, recovers
+  one stat-drain level per 100 safe ticks, refills carried food, and remains
+  covered by the existing Anki undo snapshot.
+- Additive save fields now exist for future combat systems:
+  `combat_supply_loadout`, `combat_special_attack_energy`,
+  `combat_stat_drains`, `combat_status_effects`, and
+  `combat_recovery_progress`.
 - Melee styles route XP as Attack, Strength, Defence, or controlled shared
   Attack/Strength/Defence, with Constitution XP awarded per damage.
 - The Skills hub has a Combat category/card, enemy target tree, attack-style
-  selector, availability gate, and HUD target/lifepoint display.
-- Storage config version 21 seeds and sanitizes Combat state while preserving
+  selector, availability gate, food-readiness tooltip line, and HUD
+  target/lifepoint display.
+- Storage config version 22 seeds and sanitizes Combat state while preserving
   the flat save model.
 
 ## Source Anchors
@@ -49,8 +64,9 @@ Status: implemented ordinary-combat V1 slice.
   noncombat Magic actions.
 - Prayer effects, drain, and Prayer skilling.
 - Dangerous-target confirmation UX and richer risk previews.
-- Full grave countdown and Death's Office reclaim UI; V1 records grave state
-  but does not yet expose the full recovery loop.
+- Full Death's Office reclaim UI and stacked-death handling. Safe noncombat
+  recovery can now advance simple grave recovery, but the complete
+  pre-EOC-shaped reclaim surface is still not built.
 - Quest combat migration from the existing lightweight quest resolver onto the
   shared combat engine.
 
@@ -58,5 +74,6 @@ Status: implemented ordinary-combat V1 slice.
 
 - `python3 -m py_compile combat_data.py constants.py logic_pure.py storage_pure.py action_registry.py runtime_actions.py target_metadata.py ui.py __init__.py`
 - `python3 -m unittest tests.test_combat_logic tests.test_runtime_actions tests.test_storage_pure tests.test_skill_and_item_registry tests.test_target_metadata tests.test_review_hud`
+- `python3 -m unittest tests.test_integration_smoke.TestIntegrationSmoke.test_hunter_supply_purchase_runs_once_and_switches_off tests.test_integration_smoke.TestIntegrationSmoke.test_utility_fishing_bait_batches_without_skill_xp tests.test_integration_smoke.TestIntegrationSmoke.test_utility_multiplier_runs_feather_scavenging_ticks tests.test_integration_smoke.TestIntegrationSmoke.test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it tests.test_combat_logic tests.test_storage_pure tests.test_target_metadata`
 - `python3 run_tests.py`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`

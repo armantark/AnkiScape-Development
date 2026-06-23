@@ -2128,6 +2128,64 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [5.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it(self):
+        addon = _load_addon_as_package("ankiscape_safe_recovery_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 2}))
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Logs": 2, "Shark": 30},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "arrow_shafts",
+            "completed_achievements": [],
+            "constitution_level": 10,
+            "combat_lifepoints": 20,
+            "combat_special_attack_energy": 35,
+            "combat_stat_drains": {"attack": 2},
+            "combat_recovery_progress": {},
+            "combat_supply_loadout": {},
+            "combat_auto_eat_food": ["Shark"],
+        }
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Logs"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 30)
+        self.assertEqual(addon.player_data["inventory"]["Shark"], 2)
+        self.assertEqual(addon.player_data["combat_lifepoints"], 100)
+        self.assertEqual(addon.player_data["combat_special_attack_energy"], 45)
+        self.assertEqual(addon.player_data["combat_stat_drains"], {"attack": 2})
+        self.assertEqual(addon.player_data["combat_recovery_progress"], {"stat_drain_ticks": 50})
+        self.assertEqual(addon.player_data["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Logs": 2, "Shark": 30})
+        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(addon.player_data["combat_lifepoints"], 20)
+        self.assertEqual(addon.player_data["combat_special_attack_energy"], 35)
+        self.assertEqual(addon.player_data["combat_stat_drains"], {"attack": 2})
+        self.assertEqual(addon.player_data["combat_recovery_progress"], {})
+        self.assertEqual(addon.player_data["combat_supply_loadout"], {})
+
     def test_firemaking_review_reward_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_firemaking_undo_integration")
 
