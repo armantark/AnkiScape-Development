@@ -84,6 +84,22 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(giant_spider["drops"]["tables"][1]["slots"][0]["item"], "Bronze med helm")
         self.assertTrue(giant_spider["source"].endswith("giant_spider_level_2.plugin.kts"))
 
+    def test_highwayman_import_row_matches_source_and_quantity_range(self):
+        highwayman = COMBAT_ENEMY_DATA["highwayman"]
+
+        self.assertEqual(highwayman["level"], 5)
+        self.assertEqual(highwayman["group"], "Humanoids")
+        self.assertEqual(highwayman["respawn_delay"], 60)
+        self.assertEqual(highwayman["stats"]["hitpoints"], 130)
+        self.assertEqual(highwayman["stats"]["defence"], 4)
+        self.assertEqual(highwayman["bonuses"]["attack_stab"], 6)
+        self.assertEqual(highwayman["bonuses"]["melee_strength"], 7)
+        self.assertEqual(highwayman["drops"]["guaranteed"], (("Bones", 1), ("Cape", 1)))
+        self.assertEqual(highwayman["drops"]["tables"][0]["total"], 20)
+        self.assertEqual(highwayman["drops"]["tables"][0]["slots"][0]["item"], "Iron bolts")
+        self.assertEqual(highwayman["drops"]["tables"][0]["slots"][0]["quantity_range"], (2, 12))
+        self.assertTrue(highwayman["source"].endswith("highwayman_level_5.plugin.kts"))
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -91,6 +107,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Air rune": 6})
+
+    def test_highwayman_quantity_range_drop_rolls_with_guaranteed_cape(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["highwayman"],
+            _rng([0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Cape": 1, "Iron bolts": 12})
 
     def test_cow_calf_burst_grants_source_guaranteed_drops(self):
         player = _player(current_combat_target="cow_calf")

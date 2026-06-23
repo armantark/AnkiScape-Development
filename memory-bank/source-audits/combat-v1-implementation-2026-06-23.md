@@ -2,7 +2,7 @@
 
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion, and
-Spider/Giant spider drop-range expansion.
+Spider/Giant spider drop-range expansion, and Highwayman humanoid expansion.
 
 ## Implemented Scope
 
@@ -11,7 +11,7 @@ Spider/Giant spider drop-range expansion.
   not a fake levelled registry skill.
 - `combat_data.py` seeds source-backed ordinary enemies with complete combat
   stats and drop behavior: Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
-  Cow calf, Ram, and Seagull.
+  Cow calf, Ram, Highwayman, and Seagull.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
@@ -70,6 +70,8 @@ Spider/Giant spider drop-range expansion.
   `memory-bank/source-audits/combat-simple-enemies-2026-06-23.md`
 - Spider/drop-range expansion:
   `memory-bank/source-audits/combat-spider-drop-range-2026-06-23.md`
+- Highwayman expansion:
+  `memory-bank/source-audits/combat-highwayman-2026-06-23.md`
 
 ## Deferred
 

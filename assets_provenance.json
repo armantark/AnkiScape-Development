@@ -95,6 +95,18 @@
     "source_wiki": "rs3",
     "timestamp": "2020-12-12T05:14:53Z"
   },
+  "combatitems/cape.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_cape.png",
+    "file_title": "Black cape.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_cape.png?356fd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "23a5bca2da57f45363f196581c8076317f0705bf",
+    "size": 293,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:27Z"
+  },
   "combatitems/cowhide.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cowhide.png",
     "file_title": "Cowhide.png",

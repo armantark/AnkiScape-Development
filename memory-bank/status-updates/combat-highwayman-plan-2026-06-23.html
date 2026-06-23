@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Highwayman Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, rgba(79, 140, 255, 0.12), transparent 34%), var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 48px 20px 56px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--accent);
+      background: var(--accent-glow);
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font: 700 0.72rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: 0;
+      line-height: 1.02;
+    }
+    .subtitle {
+      max-width: 780px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 18px;
+    }
+    .card {
+      background: color-mix(in srgb, var(--surface) 92%, transparent);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.2);
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+    .tagrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .tag {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--text-dim);
+      font: 600 0.68rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .source {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.025);
+      margin: 10px 0;
+    }
+    .source strong { display: block; }
+    .source span { color: var(--text-dim); font-size: 0.86rem; }
+    .pill {
+      color: var(--green);
+      font: 700 0.74rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .enemy {
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.10), rgba(79, 140, 255, 0.06));
+      border: 1px solid rgba(251, 191, 36, 0.30);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .enemy-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.09);
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+    }
+    .level {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: rgba(251, 191, 36, 0.16);
+      color: var(--amber);
+      font: 800 1.15rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .loot {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .loot div {
+      min-height: 74px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(0,0,0,0.16);
+    }
+    .loot b { display: block; font-size: 0.9rem; }
+    .loot span { color: var(--text-dim); font-size: 0.78rem; }
+    .steps {
+      display: grid;
+      gap: 12px;
+      counter-reset: step;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .step::before {
+      counter-increment: step;
+      content: counter(step);
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #07111f;
+      font-weight: 800;
+    }
+    .step p { margin: 0; }
+    .step small { display: block; margin-top: 4px; color: var(--text-dim); }
+    .meter {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .fill {
+      height: 100%;
+      width: 64%;
+      background: linear-gradient(90deg, var(--green), var(--accent));
+    }
+    @media (max-width: 850px) {
+      .grid { grid-template-columns: 1fr; }
+      .loot { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">PRE-IMPLEMENTATION PLAN · COMBAT GRILL CHECKPOINT</div>
+    <h1>Source-backed Highwayman target</h1>
+    <p class="subtitle">
+      Next Combat slice: add the level 5 Highwayman as a normal selectable enemy, proving the enemy registry can handle humanoid drops with guaranteed gear and ranged ammunition quantity ranges.
+    </p>
+
+    <section class="grid" aria-label="Implementation plan">
+      <article class="card">
+        <h2>Why This Slice</h2>
+        <div class="source">
+          <div>
+            <strong>2011Scape Highwayman plugin</strong>
+            <span>Guaranteed Bones + Cape; main table has Iron bolts x2-12 at 1/20.</span>
+          </div>
+          <div class="pill">clean</div>
+        </div>
+        <div class="source">
+          <div>
+            <strong>No nested shared table</strong>
+            <span>This avoids herb, seed, rare-drop, clue, and variant decisions reserved for larger enemies.</span>
+          </div>
+          <div class="pill">small</div>
+        </div>
+        <div class="source">
+          <div>
+            <strong>Existing range support</strong>
+            <span>The Spider checkpoint already added inclusive quantity ranges; Highwayman reuses that path with ammunition.</span>
+          </div>
+          <div class="pill">reuse</div>
+        </div>
+        <div class="tagrow">
+          <span class="tag">combat_data.py</span>
+          <span class="tag">target_metadata.py</span>
+          <span class="tag">tests/test_combat_logic.py</span>
+          <span class="tag">tests/test_main_menu_widget.py</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Player-Facing Result</h2>
+        <div class="enemy" aria-label="Mock Combat target row">
+          <div class="enemy-top">
+            <div>
+              <strong>Highwayman</strong>
+              <div style="color: var(--text-dim); font-size: .88rem;">Humanoids · melee · attack speed 4</div>
+            </div>
+            <div class="level">5</div>
+          </div>
+          <div style="color: var(--text-dim); font-size: .86rem;">Combat tooltip additions:</div>
+          <div class="loot">
+            <div><b>Bones</b><span>Guaranteed x1</span></div>
+            <div><b>Cape</b><span>Guaranteed x1</span></div>
+            <div><b>Iron bolts</b><span>x2-12 · 1/20</span></div>
+          </div>
+        </div>
+        <div class="meter">
+          <div style="display:flex; justify-content:space-between; color:var(--text-dim); font-size:.82rem;">
+            <span>Combat enemy breadth</span><span>+1 humanoid</span>
+          </div>
+          <div class="bar"><div class="fill"></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Backend</h2>
+        <div class="steps">
+          <div class="step">
+            <p>Add `highwayman` to `COMBAT_ENEMY_DATA` with exact 2011Scape stats, bonuses, respawn delay, guaranteed drops, and the 2-12 Iron bolts table.<small>Use source line evidence from the local rev-667 plugin.</small></p>
+          </div>
+          <div class="step">
+            <p>Add Cape to `COMBAT_EXTRA_ITEM_DATA`; let Iron bolts reuse the existing Fletching item definition and icon path.<small>Fetch a real Cape item icon into the Combat item folder if no drop icon already exists.</small></p>
+          </div>
+          <div class="step">
+            <p>Exercise drop rolling with an inclusive-high quantity test.<small>Expected result: guaranteed Bones/Cape plus Iron bolts x12 on the high quantity roll.</small></p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Frontend</h2>
+        <div class="steps">
+          <div class="step">
+            <p>Add the Humanoids group to Combat target ordering.<small>The row should be a normal enabled Combat target, not a special status or placeholder.</small></p>
+          </div>
+          <div class="step">
+            <p>Verify target metadata and the offscreen Qt tree show the Highwayman row and tooltip loot text.<small>The group tree should keep existing Lumbridge, Spiders, and Coastal rows stable.</small></p>
+          </div>
+          <div class="step">
+            <p>Update Memory Bank source audit notes and the Combat grill implementation log.<small>Keep this as an implementation proof artifact, not a new design question.</small></p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

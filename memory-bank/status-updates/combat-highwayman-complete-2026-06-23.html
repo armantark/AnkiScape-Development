@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Highwayman Complete</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(135deg, rgba(74, 222, 128, 0.08), transparent 42%),
+        radial-gradient(circle at 85% 0%, rgba(251, 191, 36, 0.12), transparent 32%),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 46px 20px 54px;
+    }
+    .badge {
+      display: inline-flex;
+      color: var(--green);
+      background: rgba(74, 222, 128, 0.12);
+      border: 1px solid rgba(74, 222, 128, 0.34);
+      border-radius: 999px;
+      padding: 7px 12px;
+      font: 800 0.72rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      line-height: 1.02;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      max-width: 790px;
+      color: var(--text-dim);
+      margin: 0 0 26px;
+    }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .metric, .card {
+      background: rgba(22, 26, 33, 0.92);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.22);
+    }
+    .metric {
+      padding: 16px;
+      min-height: 104px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 1.9rem;
+      line-height: 1;
+    }
+    .metric span {
+      display: block;
+      color: var(--text-dim);
+      margin-top: 8px;
+      font-size: 0.85rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+    .card { padding: 20px; }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .row:last-child { border-bottom: 0; }
+    .icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: var(--accent);
+      font: 900 0.82rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .row b { display: block; }
+    .row span { color: var(--text-dim); font-size: 0.84rem; }
+    .ok {
+      color: var(--green);
+      font: 800 0.72rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+    }
+    .enemy {
+      border: 1px solid rgba(251, 191, 36, 0.32);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.10), rgba(79, 140, 255, 0.07));
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .enemy-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .level {
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      color: var(--amber);
+      background: rgba(251, 191, 36, 0.15);
+      font: 900 1.1rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .loot {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      padding: 16px;
+    }
+    .loot div {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: rgba(0,0,0,0.18);
+      min-height: 82px;
+    }
+    .loot b { display: block; }
+    .loot span { color: var(--text-dim); font-size: 0.8rem; }
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .tag {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      border-radius: 999px;
+      padding: 5px 8px;
+      color: var(--text-dim);
+      font: 650 0.68rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    @media (max-width: 900px) {
+      .metrics, .grid { grid-template-columns: 1fr; }
+      .loot { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">COMPLETED · COMBAT GRILL CHECKPOINT</div>
+    <h1>Highwayman is live</h1>
+    <p class="subtitle">
+      The Combat grill now has its first source-backed humanoid enemy: a normal selectable Highwayman target with exact 2011Scape stats, guaranteed Cape loot, ranged ammunition range drops, and full regression coverage.
+    </p>
+
+    <section class="metrics" aria-label="Verification summary">
+      <div class="metric"><strong>571</strong><span>core tests passed</span></div>
+      <div class="metric"><strong>571</strong><span>offscreen Qt tests passed</span></div>
+      <div class="metric"><strong>132</strong><span>equipment items now registered</span></div>
+      <div class="metric"><strong>1/20</strong><span>Iron bolts table chance</span></div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Implemented</h2>
+        <div class="enemy">
+          <div class="enemy-head">
+            <div>
+              <strong>Highwayman</strong>
+              <div style="color: var(--text-dim); font-size: .88rem;">Humanoids · melee · 130 LP · respawn 60</div>
+            </div>
+            <div class="level">5</div>
+          </div>
+          <div class="loot">
+            <div><b>Bones</b><span>Guaranteed x1</span></div>
+            <div><b>Cape</b><span>Guaranteed x1 · cape slot equipment metadata</span></div>
+            <div><b>Iron bolts</b><span>x2-12 · 1/20</span></div>
+          </div>
+        </div>
+        <div class="tags">
+          <span class="tag">combat_data.py</span>
+          <span class="tag">equipment_data.py</span>
+          <span class="tag">combatitems/cape.png</span>
+          <span class="tag">assets_provenance.json</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Verification</h2>
+        <div class="row">
+          <div class="icon">UT</div>
+          <div><b>Combat drop and source assertions</b><span>Highwayman stats, guaranteed Cape, and Iron bolts x12 high-range roll.</span></div>
+          <div class="ok">pass</div>
+        </div>
+        <div class="row">
+          <div class="icon">UI</div>
+          <div><b>Target metadata and Qt tree</b><span>Humanoids group row renders with Cape and Iron bolts tooltip text.</span></div>
+          <div class="ok">pass</div>
+        </div>
+        <div class="row">
+          <div class="icon">EQ</div>
+          <div><b>Item and equipment registry</b><span>Cape icon resolves, Combat item category is equipment, cape slot bonuses are source-backed.</span></div>
+          <div class="ok">pass</div>
+        </div>
+        <div class="row">
+          <div class="icon">MB</div>
+          <div><b>Memory Bank</b><span>New Highwayman source audit and current Combat handoff notes are updated.</span></div>
+          <div class="ok">done</div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

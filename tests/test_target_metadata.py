@@ -94,6 +94,7 @@ class TargetMetadataTest(unittest.TestCase):
         giant_spider = _row(rows, "giant_spider")
         cow = _row(rows, "cow")
         cow_calf = _row(rows, "cow_calf")
+        highwayman = _row(rows, "highwayman")
         seagull = _row(rows, "seagull")
 
         self.assertTrue(chicken.enabled)
@@ -113,6 +114,10 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(cow.sort_key[:2], (2, "Cow"))
         self.assertEqual(cow_calf.group, "Lumbridge")
         self.assertIn("Cowhide", cow_calf.tooltip)
+        self.assertEqual(highwayman.group, "Humanoids")
+        self.assertIn("Cape x1", highwayman.tooltip)
+        self.assertIn("Iron bolts x2-12 (1/20)", highwayman.tooltip)
+        self.assertIn("highwayman_level_5.plugin.kts", highwayman.tooltip)
         self.assertEqual(seagull.group, "Coastal")
         self.assertEqual(seagull.sort_key[:2], (2, "Seagull"))
 

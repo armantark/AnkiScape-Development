@@ -432,6 +432,50 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/animals/ram_level_2.plugin.kts"
         ),
     },
+    "highwayman": {
+        "display_name": "Highwayman",
+        "level": 5,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 60,
+        "stats": {
+            "hitpoints": 130,
+            "attack": 2,
+            "strength": 2,
+            "defence": 4,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 6,
+            "attack_slash": 6,
+            "attack_crush": 6,
+            "defence_stab": 0,
+            "defence_slash": 3,
+            "defence_crush": 2,
+            "defence_magic": 0,
+            "defence_ranged": 2,
+            "melee_strength": 7,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1), ("Cape", 1)),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 20,
+                    "slots": (
+                        {"item": "Iron bolts", "quantity_range": (2, 12), "slots": 1},
+                        {"slots": 19},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+            "definitions/humanoids/highwayman_level_5.plugin.kts"
+        ),
+    },
     "seagull": {
         "display_name": "Seagull",
         "level": 2,
@@ -470,6 +514,7 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
+    "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
@@ -483,4 +528,4 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
 }
 
 
-COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Coastal")
+COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Humanoids", "Coastal")

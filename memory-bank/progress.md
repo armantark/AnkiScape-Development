@@ -129,7 +129,7 @@
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 - Combat V1 ordinary training is in place. `combat_data.py` seeds the first
   source-backed enabled enemies (Chicken, Rat, Spider, Giant rat, Giant spider,
-  Cow, Cow calf, Ram, Seagull), melee attack
+  Cow, Cow calf, Ram, Highwayman, Seagull), melee attack
   styles, food healing values, and combat drop items from local 2011Scape
   source paths. `apply_combat_burst_pure()` simulates bounded 0.6s-tick combat
   bursts from `Actions per review`, caps each successful review at one kill,
@@ -163,6 +163,9 @@
   ordinary selectable targets, added `quantity_range` drop slots for source
   ranges such as Air rune x4-6, and fetched `combatitems/` icons for Gold,
   Green, Crimson, and Blue charms plus Staff of air.
+- Combat Highwayman expansion added the first humanoid ordinary target with
+  source-backed stats/bonuses, guaranteed Bones/Cape, Iron bolts x2-12 at 1/20,
+  a fetched Cape drop icon, and Cape slot equipment metadata.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.

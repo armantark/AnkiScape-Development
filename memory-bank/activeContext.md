@@ -159,7 +159,7 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Giant rat, Giant spider, Cow,
-Cow calf, Ram, and Seagull; each review simulates 50 RuneScape ticks per
+Cow calf, Ram, Highwayman, and Seagull; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
@@ -183,6 +183,12 @@ version is 23. The source note is
 `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`. Wooden
 shield is claimable and registered, but broad non-Smithing shield/equipment
 mechanics are still future Combat equipment work.
+
+The first humanoid Combat target is now live: Highwayman imports the local
+2011Scape level-5 row with guaranteed Bones/Cape, Iron bolts x2-12 at 1/20,
+source combat stats/bonuses, a fetched Cape icon, and Cape slot equipment
+metadata. Source proof lives in
+`memory-bank/source-audits/combat-highwayman-2026-06-23.md`.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174

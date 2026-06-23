@@ -17,6 +17,7 @@ from constants import (
     COOKING_ITEM_IMAGES,
     COOKING_OUTPUT_ITEMS,
     CRAFTING_DATA,
+    EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FIREMAKING_ITEM_IMAGES,
     FIREMAKING_LOG_ITEMS,
@@ -454,6 +455,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         expected = {
             "Wooden shield": "equipment",
             "Tinderbox": "tool",
+            "Cape": "equipment",
             "Cowhide": "material",
             "Staff of air": "equipment",
             "Gold charm": "material",
@@ -467,6 +469,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIn(item_name, COMBAT_ITEM_IMAGES)
             self.assertTrue(os.path.exists(COMBAT_ITEM_IMAGES[item_name]), f"{item_name} Combat icon is missing")
             self.assertEqual(by_storage_key[item_name].asset_path, COMBAT_ITEM_IMAGES[item_name])
+        self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
+        self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
 
     def test_woodcutting_bank_items_have_icons(self):
         # Logs reuse the trees/ sprites; hatchets and bird nests were fetched

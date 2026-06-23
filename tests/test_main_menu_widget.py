@@ -528,6 +528,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         ram = _tree_row(tree, "ram")
         spider = _tree_row(tree, "spider")
         giant_spider = _tree_row(tree, "giant_spider")
+        highwayman = _tree_row(tree, "highwayman")
         seagull = _tree_row(tree, "seagull")
 
         self.assertEqual(cow_calf.text(0), "Cow calf (Lvl 2)")
@@ -538,6 +539,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(giant_spider.text(0), "Giant spider (Lvl 2)")
         self.assertIn("Air rune x4-6 (7/48)", giant_spider.toolTip(0))
         self.assertIn("Staff of air", giant_spider.toolTip(0))
+        self.assertEqual(highwayman.text(0), "Highwayman (Lvl 5)")
+        self.assertIn("Cape x1", highwayman.toolTip(0))
+        self.assertIn("Iron bolts x2-12 (1/20)", highwayman.toolTip(0))
         self.assertEqual(seagull.text(0), "Seagull (Lvl 2)")
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")

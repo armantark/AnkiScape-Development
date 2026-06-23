@@ -32,7 +32,8 @@ Status: implemented ordinary-enemy expansion slice.
 - Goblins: wait for explicit armed/unarmed split and broader low-tier item
   manifest coverage.
 - Farmers/Al-Kharid warriors: wait for nested shared herb/seed table support.
-- Highwayman: wait for quantity-range support and attack-style subtype notes.
+- Highwayman: resolved in
+  `memory-bank/source-audits/combat-highwayman-2026-06-23.md`.
 
 ## Verification
 
