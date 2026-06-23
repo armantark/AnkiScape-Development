@@ -2148,6 +2148,82 @@ def _copy_player_data_with_nested(player_data):
     return copied
 
 
+def combat_supply_loadout_summary_pure(player_data):
+    loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
+    return {
+        "food_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values()),
+        "potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values()),
+        "ammo_loaded": dict(loadout.get("ammo", {}) or {}),
+        "runes_loaded": dict(loadout.get("runes", {}) or {}),
+        "cannonballs_loaded": _non_negative_int(loadout.get("cannonballs", 0), 0),
+    }
+
+
+def combat_has_active_encounter_pure(player_data):
+    encounter = player_data.get("combat_encounter", {}) or {}
+    return isinstance(encounter, Mapping) and isinstance(encounter.get("target_id"), str)
+
+
+def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    data["combat_auto_eat_threshold_percent"] = max(1, min(_positive_int(threshold_percent, 40), 99))
+    return data
+
+
+def set_combat_auto_eat_food_pure(player_data, food_name):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    if not isinstance(food_name, str) or food_name not in COMBAT_FOOD_DATA:
+        return data, False, "unsupported food"
+    existing = data.get("combat_auto_eat_food", []) or []
+    data["combat_auto_eat_food"] = [food_name] + [
+        item_name
+        for item_name in existing
+        if isinstance(item_name, str) and item_name in COMBAT_FOOD_DATA and item_name != food_name
+    ]
+    return data, True, ""
+
+
+def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    if combat_has_active_encounter_pure(data):
+        return data, False, "An active fight cannot refill supplies between review bursts."
+    _combat_refill_food_loadout(data)
+    style = COMBAT_ATTACK_STYLE_DATA.get(
+        str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
+        COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
+    )
+    combat_class = str(style.get("combat_class", "melee"))
+    if combat_class == "ranged":
+        _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, equipment_data or {})
+        _combat_refill_ranged_ammo_loadout(data, weapon_spec)
+    elif combat_class == "magic":
+        _spell_id, spell_spec = _combat_selected_magic_spell(data)
+        _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data or {})
+    return data, True, ""
+
+
+def unload_combat_supply_loadout_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    if combat_has_active_encounter_pure(data):
+        return data, False, "An active fight cannot unload supplies between review bursts."
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    inventory = dict(data.get("inventory", {}) or {})
+    for key in ("food", "potions", "ammo", "runes"):
+        for item_name, amount in (loadout.get(key, {}) or {}).items():
+            if isinstance(item_name, str):
+                inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) + _non_negative_int(amount, 0)
+    cannonballs = _non_negative_int(loadout.get("cannonballs", 0), 0)
+    if cannonballs > 0:
+        inventory["Cannonball"] = _non_negative_int(inventory.get("Cannonball", 0), 0) + cannonballs
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = default_combat_supply_loadout_pure()
+    return data, True, ""
+
+
 def quest_state_pure(player_data, quest_id):
     raw_quests = player_data.get("quests", {}) or {}
     state = raw_quests.get(quest_id, {}) if isinstance(raw_quests, Mapping) else {}

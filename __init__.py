@@ -45,6 +45,10 @@ from .logic_pure import (
     apply_quest_route_choice_pure,
     apply_claim_pure,
     apply_safe_combat_recovery_pure,
+    set_combat_auto_eat_threshold_pure,
+    set_combat_auto_eat_food_pure,
+    refill_combat_supply_loadout_pure,
+    unload_combat_supply_loadout_pure,
     firemaking_target_locked_reasons_pure,
     apply_utility_activity_pure,
     sanitize_review_action_multiplier,
@@ -677,6 +681,10 @@ def _on_main_menu():
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
+        on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
+        on_set_combat_auto_eat_food=on_set_combat_auto_eat_food,
+        on_refill_combat_loadout=on_refill_combat_loadout,
+        on_unload_combat_loadout=on_unload_combat_loadout,
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
@@ -712,6 +720,48 @@ def _set_value(key: str, value):
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+
+
+def _save_combat_state_update(new_data):
+    player_data.update(new_data)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+
+
+def on_set_combat_auto_eat_threshold(threshold_percent):
+    _save_combat_state_update(set_combat_auto_eat_threshold_pure(player_data, threshold_percent))
+    return True
+
+
+def on_set_combat_auto_eat_food(food_name):
+    new_data, ok, reason = set_combat_auto_eat_food_pure(player_data, food_name)
+    if not ok:
+        show_error_message("Cannot configure food", reason or "Choose a supported combat food.")
+        return False
+    _save_combat_state_update(new_data)
+    return True
+
+
+def on_refill_combat_loadout():
+    new_data, ok, reason = refill_combat_supply_loadout_pure(player_data, EQUIPMENT_DATA)
+    if not ok:
+        show_error_message("Cannot refill combat supplies", reason)
+        return False
+    _save_combat_state_update(new_data)
+    return True
+
+
+def on_unload_combat_loadout():
+    new_data, ok, reason = unload_combat_supply_loadout_pure(player_data)
+    if not ok:
+        show_error_message("Cannot unload combat supplies", reason)
+        return False
+    _save_combat_state_update(new_data)
+    return True
 
 
 def on_set_quest(quest_id):

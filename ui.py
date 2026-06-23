@@ -83,6 +83,7 @@ try:
         QUEST_DATA,
         QUEST_UNLOCK_RULES,
         CLAIM_DATA,
+        COMBAT_FOOD_DATA,
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ENEMY_DATA,
         COMBAT_MAGIC_SPELL_DATA,
@@ -151,6 +152,7 @@ except Exception:
         QUEST_DATA,
         QUEST_UNLOCK_RULES,
         CLAIM_DATA,
+        COMBAT_FOOD_DATA,
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ENEMY_DATA,
         COMBAT_MAGIC_SPELL_DATA,
@@ -187,10 +189,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_target_locked_reasons_pure, player_combat_level_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_target_locked_reasons_pure, player_combat_level_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -1468,6 +1470,21 @@ def update_menu_visibility(current_skill: str):
     return
 
 
+def _combat_loadout_summary_text(player_data: dict) -> str:
+    summary = combat_supply_loadout_summary_pure(player_data)
+
+    def _mapping_text(mapping: object) -> str:
+        if not isinstance(mapping, dict) or not mapping:
+            return "none loaded"
+        return ", ".join(f"{item} x{amount}" for item, amount in mapping.items())
+
+    return (
+        f"Food: {summary.get('food_loaded', 0)}/{COMBAT_FOOD_LOADOUT_CAPACITY} loaded\n"
+        f"Ammo: {_mapping_text(summary.get('ammo_loaded'))}\n"
+        f"Runes: {_mapping_text(summary.get('runes_loaded'))}"
+    )
+
+
 def show_main_menu(
     player_data: dict,
     current_skill: str,
@@ -1488,6 +1505,10 @@ def show_main_menu(
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
+    on_set_combat_auto_eat_threshold=None,
+    on_set_combat_auto_eat_food=None,
+    on_refill_combat_loadout=None,
+    on_unload_combat_loadout=None,
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
@@ -2060,6 +2081,96 @@ def show_main_menu(
         spell_layout.addWidget(spell_label)
         spell_layout.addWidget(spell_combo, 1)
         layout.addWidget(spell_row)
+
+        loadout_panel = QWidget()
+        loadout_layout = QVBoxLayout(loadout_panel)
+        loadout_layout.setContentsMargins(0, 0, 0, 0)
+        loadout_layout.setSpacing(6)
+
+        auto_eat_row = QWidget()
+        auto_eat_layout = QHBoxLayout(auto_eat_row)
+        auto_eat_layout.setContentsMargins(0, 0, 0, 0)
+        auto_eat_layout.setSpacing(8)
+        threshold_label = QLabel("Auto-eat")
+        threshold_label.setStyleSheet("color: palette(text);")
+        threshold_spin = QSpinBox()
+        threshold_spin.setObjectName("combatAutoEatThresholdSpin")
+        threshold_spin.setRange(1, 99)
+        threshold_spin.setSuffix("%")
+        try:
+            threshold_value = int(player_data.get("combat_auto_eat_threshold_percent", 40) or 40)
+        except (TypeError, ValueError):
+            threshold_value = 40
+        threshold_spin.setValue(max(1, min(threshold_value, 99)))
+        if on_set_combat_auto_eat_threshold is not None:
+            threshold_spin.valueChanged.connect(lambda value: on_set_combat_auto_eat_threshold(value))
+        auto_eat_layout.addWidget(threshold_label)
+        auto_eat_layout.addWidget(threshold_spin, 1)
+        loadout_layout.addWidget(auto_eat_row)
+
+        food_row = QWidget()
+        food_layout = QHBoxLayout(food_row)
+        food_layout.setContentsMargins(0, 0, 0, 0)
+        food_layout.setSpacing(8)
+        food_label = QLabel("Food")
+        food_label.setStyleSheet("color: palette(text);")
+        food_combo = QComboBox()
+        food_combo.setObjectName("combatFoodCombo")
+        auto_food_raw = player_data.get("combat_auto_eat_food", ()) or ()
+        if isinstance(auto_food_raw, str):
+            auto_food = (auto_food_raw,)
+        else:
+            auto_food = tuple(item for item in auto_food_raw if isinstance(item, str))
+        current_food = next((item for item in auto_food if item in COMBAT_FOOD_DATA), None)
+        sorted_food = sorted(
+            COMBAT_FOOD_DATA.items(),
+            key=lambda row: (-int((row[1] or {}).get("heal_lifepoints", 0) or 0), row[0]),
+        )
+        selected_food_index = 0
+        for food_name, spec in sorted_food:
+            heal = int((spec or {}).get("heal_lifepoints", 0) or 0)
+            food_combo.addItem(f"{food_name} ({heal} LP)", food_name)
+            if food_name == current_food:
+                selected_food_index = food_combo.count() - 1
+        food_combo.setCurrentIndex(selected_food_index)
+        if on_set_combat_auto_eat_food is not None:
+            food_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_auto_eat_food(food_combo.currentData() or "")
+            )
+        food_layout.addWidget(food_label)
+        food_layout.addWidget(food_combo, 1)
+        loadout_layout.addWidget(food_row)
+
+        supply_summary = QLabel(_combat_loadout_summary_text(player_data))
+        supply_summary.setObjectName("combatLoadoutSummaryLabel")
+        supply_summary.setWordWrap(True)
+        supply_summary.setStyleSheet(f"color: {dim_text_css(supply_summary)};")
+        loadout_layout.addWidget(supply_summary)
+
+        loadout_button_row = QWidget()
+        button_layout = QHBoxLayout(loadout_button_row)
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.setSpacing(8)
+
+        def _run_loadout_callback(callback):
+            if callback is None:
+                return
+            ok = callback()
+            if ok is not False:
+                supply_summary.setText(_combat_loadout_summary_text(player_data))
+
+        refill_button = QPushButton("Refill supplies")
+        refill_button.setObjectName("combatRefillLoadoutButton")
+        refill_button.setEnabled(on_refill_combat_loadout is not None)
+        refill_button.clicked.connect(lambda _checked=False: _run_loadout_callback(on_refill_combat_loadout))
+        unload_button = QPushButton("Unload supplies")
+        unload_button.setObjectName("combatUnloadLoadoutButton")
+        unload_button.setEnabled(on_unload_combat_loadout is not None)
+        unload_button.clicked.connect(lambda _checked=False: _run_loadout_callback(on_unload_combat_loadout))
+        button_layout.addWidget(refill_button)
+        button_layout.addWidget(unload_button)
+        loadout_layout.addWidget(loadout_button_row)
+        layout.addWidget(loadout_panel)
 
         combat_images = _item_asset_paths()
         tree = _build_grouped_target_tree(

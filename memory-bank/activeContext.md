@@ -179,10 +179,9 @@ same path to Water Strike, Earth Strike, Fire Strike, and basic Staff of
 air/water/earth/fire rune substitution: covered elemental runes are not missing,
 not loaded from inventory, and not consumed per cast. Future Combat work should
 expand source-backed monsters beyond the clean early rows, broaden Magic beyond
-the Strike ladder/basic staves, broaden Ranged equipment/ammo, add loadout UI
-for food/potions/ammo/runes, improve
-dangerous-target/death-office UX, and migrate quest combat gates onto this
-shared engine.
+the Strike ladder/basic staves, broaden Ranged equipment/ammo, add deeper
+potion/cannonball/per-ammo preference controls, improve dangerous-target/
+death-office UX, and migrate quest combat gates onto this shared engine.
 
 The Combat bootstrap now includes a source-backed Tutorial Island starter kit as
 a one-time Bank Claim. The generic `item_bundle` claim path grants Bronze sword,
@@ -211,8 +210,16 @@ local `items.yml` and provide their matching elemental runes. Source audits are
 `memory-bank/source-audits/combat-magic-runes-2026-06-23.md` and
 `memory-bank/source-audits/combat-magic-staves-spells-2026-06-23.md`. Broader
 Magic work remains open for battlestaves/mystic staves, more spell tiers,
-noncombat Magic actions, rune loadout controls, and turning the planned Magic
+noncombat Magic actions, and turning the planned Magic
 registry row into a real playable skill panel.
+
+Player-facing Combat loadout controls are now live in the Combat hub. The panel
+shows and persists auto-eat threshold, preferred food priority, a finite
+food/ammo/rune loadout summary, and safe-boundary Refill/Unload buttons. The
+callbacks use pure helpers in `logic_pure.py`, refuse manual refill/unload while
+an active fight is in progress, and preserve the existing rule that food, ammo,
+and runes come from `combat_supply_loadout` rather than the whole Bank during a
+burst.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174

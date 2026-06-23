@@ -185,12 +185,18 @@
   Elemental staves now provide their matching rune for lock checks, safe-boundary
   refill, cast consumption, and tooltips; covered runes are not consumed and any
   already-carried covered rune is returned to inventory during refill.
+- Combat loadout controls are now player-facing in the Combat hub. The panel
+  exposes auto-eat threshold, preferred food priority, loaded food/ammo/rune
+  summaries, and safe-boundary Refill/Unload buttons. The callbacks route
+  through pure helpers, save/update the HUD, and refuse manual refill/unload
+  during an active fight so mid-burst Bank access remains blocked.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
-  import, Magic beyond the Strike ladder/basic elemental staves, broader Ranged weapon/ammo support, richer assets, food/potion/
-  ammo/rune loadout controls, confirmation UX for dangerous targets, full
+  import, Magic beyond the Strike ladder/basic elemental staves, broader Ranged
+  weapon/ammo support, richer assets, potion/cannonball/per-ammo preference
+  controls, confirmation UX for dangerous targets, full
   Death's Office recovery and stacked-death handling, and migrating quest combat
   gates from the lightweight resolver onto the shared combat engine. Broad
   non-Smithing combat equipment import/equip support is also still open; Wooden

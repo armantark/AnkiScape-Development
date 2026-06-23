@@ -2186,6 +2186,49 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["combat_recovery_progress"], {})
         self.assertEqual(addon.player_data["combat_supply_loadout"], {})
 
+    def test_combat_loadout_menu_callbacks_refill_and_unload_supplies(self):
+        addon = _load_addon_as_package("ankiscape_combat_loadout_callbacks")
+
+        calls = {"save": 0, "hud": 0, "refresh": 0}
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: calls.__setitem__("hud", calls["hud"] + 1)
+        addon._refresh_skill_availability = lambda: calls.__setitem__("refresh", calls["refresh"] + 1)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.current_skill = "Combat"
+        addon.player_data = {
+            "inventory": {"Shark": 30, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
+            "equipment": {"weapon": "Staff of fire"},
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "fire_strike",
+            "combat_auto_eat_food": ["Shark"],
+            "combat_supply_loadout": {},
+            "combat_encounter": {},
+            "constitution_level": 10,
+        }
+
+        self.assertTrue(addon.on_set_combat_auto_eat_threshold(65))
+        self.assertEqual(addon.player_data["combat_auto_eat_threshold_percent"], 65)
+        self.assertTrue(addon.on_set_combat_auto_eat_food("Lobster"))
+        self.assertEqual(addon.player_data["combat_auto_eat_food"][0], "Lobster")
+
+        addon.player_data["combat_auto_eat_food"] = ["Shark"]
+        self.assertTrue(addon.on_refill_combat_loadout())
+        self.assertEqual(addon.player_data["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(addon.player_data["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
+        self.assertEqual(addon.player_data["inventory"]["Fire rune"], 5)
+
+        self.assertTrue(addon.on_unload_combat_loadout())
+        self.assertEqual(
+            addon.player_data["combat_supply_loadout"],
+            {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0},
+        )
+        self.assertEqual(addon.player_data["inventory"]["Shark"], 30)
+        self.assertEqual(addon.player_data["inventory"]["Air rune"], 5)
+        self.assertEqual(addon.player_data["inventory"]["Mind rune"], 5)
+        self.assertGreaterEqual(calls["save"], 4)
+        self.assertGreaterEqual(calls["hud"], 4)
+        self.assertGreaterEqual(calls["refresh"], 4)
+
     def test_firemaking_review_reward_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_firemaking_undo_integration")
 

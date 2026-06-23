@@ -49,13 +49,16 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   persist combat state. The recovery/loadout foundation now adds finite carried
   food, safe-boundary loadout refills, review-tick special-energy regeneration,
   stat-drain recovery scaffolding, status-effect save hooks, and Combat tooltip
-  food readiness. Use `memory-bank/combat-design-grill-2026-06-23.md` plus
+  food readiness. Player-facing loadout controls now expose auto-eat threshold,
+  preferred food priority, loaded food/ammo/rune summaries, and safe-boundary
+  Refill/Unload actions while preserving the no-mid-fight-refill rule. Use
+  `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` before
   expanding Combat. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo and Magic beyond the basic Strike/staff slice,
-  add player-facing loadout controls,
-  improve grave/Death's Office recovery, and migrate quest combat gates onto
-  the same engine instead of reopening the completed design grill.
+  improve grave/Death's Office recovery, add deeper potion/cannon/per-ammo
+  preference controls, and migrate quest combat gates onto the same engine
+  instead of reopening the completed design grill.
 - The Tutorial Island starter kit bridge is complete as of 2026-06-23. It uses a
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See
@@ -73,8 +76,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Ranged/ammo path as of 2026-06-23. Ranged accurate/rapid/longrange styles run
   through the shared Combat burst engine and consume one arrow per attack
   attempt from the carried ammo loadout. Future Ranged work should add
-  stack-aware ammunition equipment, arrow recovery, more bow/arrow tiers, and
-  player-facing ammo loadout controls. A read-only ordinary-enemy audit found
+  stack-aware ammunition equipment, arrow recovery, and more bow/arrow tiers.
+  A read-only ordinary-enemy audit found
   level-8 Barbarians to be the safest next non-trivial enemy candidate, but they
   still need Staff, Bear fur, and easy clue item/asset handling before import.
 - The basic combat Magic Strike ladder is now implemented as of 2026-06-23.
@@ -84,7 +87,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   source base spell XP on splashes, routes damage XP into Magic/Constitution,
   and treats Staff of air/water/earth/fire as matching elemental rune providers.
   Future Magic work should add battlestaves/mystic staves, more combat spell
-  tiers, noncombat spell actions, rune loadout controls, and a real Magic skill
+  tiers, noncombat spell actions, and a real Magic skill
   panel when there is a playable action family beyond the Combat selector.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.

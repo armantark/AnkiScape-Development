@@ -14,8 +14,12 @@ from logic_pure import (
     _combat_roll_drops,
     apply_combat_burst_pure,
     apply_safe_combat_recovery_pure,
+    refill_combat_supply_loadout_pure,
     combat_target_locked_reasons_pure,
     combat_target_preview_pure,
+    set_combat_auto_eat_food_pure,
+    set_combat_auto_eat_threshold_pure,
+    unload_combat_supply_loadout_pure,
 )
 
 
@@ -605,6 +609,74 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_recovery_progress"], {})
         self.assertEqual(recovered["combat_supply_loadout"]["food"], {"Shark": 28})
         self.assertEqual(recovered["inventory"]["Shark"], 2)
+
+    def test_manual_refill_loadout_uses_food_queue_and_current_magic_spell(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_strike",
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Shark": 30, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
+            combat_auto_eat_food=["Shark"],
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
+        self.assertEqual(refilled["inventory"]["Shark"], 2)
+        self.assertEqual(refilled["inventory"]["Air rune"], 0)
+        self.assertEqual(refilled["inventory"]["Mind rune"], 0)
+        self.assertEqual(refilled["inventory"]["Fire rune"], 5)
+
+    def test_manual_refill_loadout_blocks_inside_active_encounter(self):
+        player = _player(
+            inventory={"Shark": 30},
+            combat_auto_eat_food=["Shark"],
+            combat_encounter={"target_id": "chicken", "enemy_lifepoints": 30},
+        )
+
+        refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
+
+        self.assertFalse(ok)
+        self.assertIn("active fight", reason)
+        self.assertEqual(refilled["inventory"]["Shark"], 30)
+        self.assertEqual(refilled["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+
+    def test_unload_combat_supply_loadout_returns_supplies_to_bank(self):
+        player = _player(
+            inventory={"Shark": 2},
+            combat_supply_loadout={
+                "food": {"Shark": 3},
+                "ammo": {"Bronze arrows": 5},
+                "runes": {"Air rune": 7},
+                "cannonballs": 2,
+            },
+        )
+
+        unloaded, ok, reason = unload_combat_supply_loadout_pure(player)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(unloaded["inventory"]["Shark"], 5)
+        self.assertEqual(unloaded["inventory"]["Bronze arrows"], 5)
+        self.assertEqual(unloaded["inventory"]["Air rune"], 7)
+        self.assertEqual(unloaded["inventory"]["Cannonball"], 2)
+        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+
+    def test_combat_loadout_preferences_are_sanitized(self):
+        player = _player(combat_auto_eat_food=["Shrimps", "Shark"], combat_auto_eat_threshold_percent=40)
+
+        updated = set_combat_auto_eat_threshold_pure(player, 150)
+        self.assertEqual(updated["combat_auto_eat_threshold_percent"], 99)
+
+        updated, ok, reason = set_combat_auto_eat_food_pure(player, "Lobster")
+        self.assertTrue(ok, reason)
+        self.assertEqual(updated["combat_auto_eat_food"][:3], ["Lobster", "Shrimps", "Shark"])
+
+        unchanged, ok, reason = set_combat_auto_eat_food_pure(player, "Burnt fish")
+        self.assertFalse(ok)
+        self.assertEqual(reason, "unsupported food")
+        self.assertEqual(unchanged["combat_auto_eat_food"], ["Shrimps", "Shark"])
 
     def test_combat_preview_exposes_risk_and_source_metrics(self):
         preview = combat_target_preview_pure(_player(), "giant_rat", COMBAT_ENEMY_DATA, EQUIPMENT_DATA)

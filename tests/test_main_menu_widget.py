@@ -438,6 +438,10 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._combat_calls: list = []
         self._combat_style_calls: list = []
         self._combat_spell_calls: list = []
+        self._combat_threshold_calls: list = []
+        self._combat_food_calls: list = []
+        self._combat_refill_calls: list = []
+        self._combat_unload_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
         self._quest_calls: list = []
         self._quest_choice_calls: list = []
@@ -481,6 +485,10 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
             on_set_combat_spell=lambda spell: self._combat_spell_calls.append(spell),
+            on_set_combat_auto_eat_threshold=lambda threshold: self._combat_threshold_calls.append(threshold),
+            on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
+            on_refill_combat_loadout=lambda: self._combat_refill_calls.append(True) or True,
+            on_unload_combat_loadout=lambda: self._combat_unload_calls.append(True) or True,
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
@@ -592,6 +600,55 @@ class MainMenuWidgetTest(unittest.TestCase):
         style_combo.setCurrentIndex(accurate_index)
         QApplication.processEvents()
         self.assertEqual(self._combat_style_calls[-1], "accurate")
+
+    def test_combat_exposes_loadout_controls(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_auto_eat_threshold_percent": 55,
+                "combat_auto_eat_food": ["Lobster", "Shrimps"],
+                "combat_supply_loadout": {
+                    "food": {"Lobster": 3},
+                    "ammo": {"Bronze arrows": 10},
+                    "runes": {"Air rune": 5, "Mind rune": 5},
+                },
+            }
+        )
+        dialog = self._open(pd, current_skill="Combat")
+
+        threshold_spin = dialog.findChild(QSpinBox, "combatAutoEatThresholdSpin")
+        food_combo = dialog.findChild(QComboBox, "combatFoodCombo")
+        summary_label = dialog.findChild(QLabel, "combatLoadoutSummaryLabel")
+        refill_button = dialog.findChild(QPushButton, "combatRefillLoadoutButton")
+        unload_button = dialog.findChild(QPushButton, "combatUnloadLoadoutButton")
+
+        self.assertIsNotNone(threshold_spin)
+        self.assertIsNotNone(food_combo)
+        self.assertIsNotNone(summary_label)
+        self.assertIsNotNone(refill_button)
+        self.assertIsNotNone(unload_button)
+        self.assertEqual(threshold_spin.value(), 55)
+        self.assertEqual(food_combo.currentData(), "Lobster")
+        self.assertIn("Food: 3/28 loaded", summary_label.text())
+        self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
+        self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
+
+        threshold_spin.setValue(60)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_threshold_calls[-1], 60)
+
+        shark_index = food_combo.findData("Shark")
+        self.assertGreaterEqual(shark_index, 0)
+        food_combo.setCurrentIndex(shark_index)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_food_calls[-1], "Shark")
+
+        refill_button.click()
+        unload_button.click()
+        QApplication.processEvents()
+        self.assertEqual(self._combat_refill_calls, [True])
+        self.assertEqual(self._combat_unload_calls, [True])
 
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
         pd = _make_player_data()
