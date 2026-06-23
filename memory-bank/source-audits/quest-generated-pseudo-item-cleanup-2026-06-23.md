@@ -15,7 +15,7 @@ Backend cleanup for quest-stage blockers that looked like impossible inventory r
 
 ## Implemented Corrections
 
-- Shield of Arrav Black Arm stage 5 no longer requires `Weapon store key` as a pre-owned tool. It now requires Phoenix-partner key handoff actions, resolves the Weaponsmaster gate, and produces `Weapon store key x1` plus `Phoenix crossbow x2`.
+- Shield of Arrav Black Arm stage 5 no longer requires `Weapon store key` as a pre-owned tool. This was first represented as Phoenix-partner key handoff actions, but the later 2026-06-23 quest-choice pass superseded that detail with a contextual Phoenix contact and no manual partner action blockers.
 - `QuestStageRequirementCleanup` in `quest_data.py` is the focused override layer for generated parser mistakes. It removes exact quest/stage false blockers without editing `quest_catalog_generated.py`.
 - Parser-shaped inventory/tool blockers converted or removed:
   - location/route text: `Lletya`, `Tears of Guthix cavern`, `Agility Pyramid`, `Rimmington`, `Port Sarim`, `Port Phasmatys`, `Ardougne`, `Rellekka`, `Pollnivneach`, `Wizard's Tower`, and generated teleport/tablet route text.

@@ -173,10 +173,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 
 try:
@@ -1439,6 +1439,7 @@ def show_main_menu(
     on_set_runecrafting=None,
     on_set_utility=None,
     on_set_quest=None,
+    on_set_quest_route_choice=None,
     on_claim_reward=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
@@ -2433,6 +2434,22 @@ def show_main_menu(
             shown.append(f"+{extra} more")
         return "Blocked: " + ", ".join(shown)
 
+    def _quest_choice_button_name(quest_id: str, route_id: str) -> str:
+        safe_route = "".join(ch if ch.isalnum() else "_" for ch in str(route_id).lower()).strip("_")
+        return f"questChoice_{quest_id}_{safe_route}"
+
+    def _short_choice_text(choice_rows: tuple) -> str:
+        if not choice_rows:
+            return ""
+        labels = tuple(
+            str(option.get("label") or option.get("route_id") or "")
+            for option in tuple(choice_rows[0].get("options", ()) or ())
+            if option
+        )
+        if not labels:
+            return "Choose path"
+        return "Choose path: " + " or ".join(labels)
+
     def _quest_status_text(quest_id: str, state: dict, quest: dict) -> str:
         if state.get("completed"):
             return "Completed"
@@ -2443,6 +2460,9 @@ def show_main_menu(
             if blocker_text:
                 return blocker_text
             return f"Stage {int(state.get('progress', 0) or 0)}/{int(quest.get('stages', 1) or 1)}"
+        choice_text = _short_choice_text(quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA))
+        if choice_text:
+            return choice_text
         return "Not started"
 
     def _quest_button_text(state: dict) -> str:
@@ -2521,8 +2541,24 @@ def show_main_menu(
             if widget is not None:
                 widget.setParent(None)
 
+    def _set_quest_route_choice(quest_id: str, route_id: str) -> None:
+        if on_set_quest_route_choice is not None:
+            if on_set_quest_route_choice(quest_id, route_id) is False:
+                return
+        else:
+            new_data, ok = apply_quest_route_choice_pure(player_data, quest_id, QUEST_DATA, route_id)
+            if not ok:
+                return
+            player_data.update(new_data)
+        warn.setText("")
+        _rebuild_quest_cards()
+
     def _set_quest_active(quest_id: str, button: QPushButton, status_label: QLabel) -> None:
         if quest_locked_reasons_pure(player_data, quest_id, QUEST_DATA):
+            return
+        choice_text = _short_choice_text(quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA))
+        if choice_text:
+            warn.setText(choice_text)
             return
         if quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA) and not can_attempt_quest_review_pure(player_data, quest_id, QUEST_DATA):
             return
@@ -2543,8 +2579,12 @@ def show_main_menu(
         lock_text = _short_lock_text(lock_reasons)
         stage_blocker_reasons = () if q_state.get("completed") else quest_current_stage_blocker_reasons_pure(player_data, quest_id, QUEST_DATA)
         stage_blocker_text = _short_stage_blocker_text(stage_blocker_reasons)
+        choice_rows = () if q_state.get("completed") else quest_current_stage_choices_pure(player_data, quest_id, QUEST_DATA)
+        choice_text = _short_choice_text(choice_rows)
+        if choice_text and not stage_blocker_text:
+            stage_blocker_text = choice_text
         active_this_quest = state["active"] == "Quests" and player_data.get("current_quest") == quest_id
-        default_expanded = bool(q_state.get("started") and not q_state.get("completed") and active_this_quest)
+        default_expanded = bool(choice_rows or (q_state.get("started") and not q_state.get("completed") and active_this_quest))
         expanded = expanded_quests.get(quest_id, default_expanded)
 
         card = QWidget()
@@ -2573,6 +2613,7 @@ def show_main_menu(
             not q_state.get("completed")
             and state["active"] != "Quests"
             and not lock_reasons
+            and not choice_rows
             and (not stage_blocker_reasons or quest_review_ready)
         )
         if lock_text:
@@ -2615,6 +2656,33 @@ def show_main_menu(
             unlock_label.setWordWrap(True)
             unlock_label.setStyleSheet(f"color: {dim_text_css(unlock_label)};")
             body_layout.addWidget(unlock_label)
+        for choice in choice_rows:
+            prompt_label = QLabel(str(choice.get("prompt") or "Choose path"))
+            prompt_label.setWordWrap(True)
+            prompt_label.setStyleSheet("font-weight: 600; color: palette(text);")
+            body_layout.addWidget(prompt_label)
+            choice_row = QWidget()
+            choice_row_layout = QHBoxLayout(choice_row)
+            choice_row_layout.setContentsMargins(0, 0, 0, 0)
+            choice_row_layout.setSpacing(6)
+            for option in tuple(choice.get("options", ()) or ()):
+                route_id = str(option.get("route_id") or "")
+                label = str(option.get("label") or route_id or "Choose")
+                choice_btn = QPushButton(label)
+                choice_btn.setObjectName(_quest_choice_button_name(quest_id, route_id))
+                choice_btn.setToolTip(str(option.get("description") or label))
+                choice_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+                choice_btn.setStyleSheet(
+                    "QPushButton { padding: 4px 10px; border: 1px solid palette(mid);"
+                    " border-radius: 6px; color: palette(text); background: palette(base); }"
+                    " QPushButton:hover { border-color: #4CAF50; }"
+                )
+                choice_btn.clicked.connect(
+                    lambda _=False, qid=quest_id, rid=route_id: _set_quest_route_choice(qid, rid)
+                )
+                choice_row_layout.addWidget(choice_btn)
+            choice_row_layout.addStretch(1)
+            body_layout.addWidget(choice_row)
         for row in quest_journal_rows_pure(player_data, quest_id, QUEST_DATA):
             stage_label = QLabel(f"Stage {row['stage']}")
             stage_label.setStyleSheet("font-weight: 600; color: palette(text);")

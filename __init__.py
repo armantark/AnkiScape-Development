@@ -42,6 +42,7 @@ from .logic_pure import (
     hunter_target_locked_reasons_pure,
     can_runecraft_any_pure,
     start_quest_pure,
+    apply_quest_route_choice_pure,
     apply_claim_pure,
     firemaking_target_locked_reasons_pure,
     apply_utility_activity_pure,
@@ -672,6 +673,7 @@ def _on_main_menu():
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_quest=on_set_quest,
+        on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
@@ -714,6 +716,20 @@ def on_set_quest(quest_id):
     new_data, ok = start_quest_pure(player_data, quest_id, QUEST_DATA)
     if not ok:
         show_error_message("Cannot start quest", "You do not meet this quest's requirements.")
+        return False
+    player_data.update(new_data)
+    save_player_data()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
+
+
+def on_set_quest_route_choice(quest_id, route_id):
+    new_data, ok = apply_quest_route_choice_pure(player_data, quest_id, QUEST_DATA, route_id)
+    if not ok:
+        show_error_message("Cannot choose quest path", "That path is not available right now.")
         return False
     player_data.update(new_data)
     save_player_data()

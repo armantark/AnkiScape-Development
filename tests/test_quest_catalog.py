@@ -139,6 +139,12 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(quest["required_items"], {})
         self.assertEqual(quest["required_quest_points"], 56)
         self.assertIn("Used during quest: Blamish snail slime x1", quest["requirements"][11])
+        self.assertIn("contextual contact", quest["requirements"][12])
+        self.assertEqual(quest["choices"][0]["stage"], 9)
+        self.assertEqual(
+            tuple(option["route_id"] for option in quest["choices"][0]["options"]),
+            ("Join the Phoenix Gang", "Join the Black Arm Gang"),
+        )
         self.assertEqual(
             tuple(requirement["quest_id"] for requirement in quest["required_quests"]),
             ("shield_of_arrav", "lost_city", "dragon_slayer", "merlins_crystal", "druidic_ritual"),
@@ -192,6 +198,7 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(black_arm_mansion["produced_inventory"], {"Pete's candlestick": 1})
         phoenix_mansion = by_stage_variant[(10, "phoenix")]
         self.assertEqual(phoenix_mansion["consumed_inventory"], {"Coins": 1000})
+        self.assertNotIn("Coordinate with a Black Arm partner", phoenix_mansion["required_actions"])
         self.assertEqual(phoenix_mansion["produced_inventory"], {"Pete's candlestick": 1})
         self.assertEqual(phoenix_mansion["combat_encounters"][0]["encounter_id"], "heroes_quest_grip_22")
 
@@ -273,6 +280,11 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertIn("Fire Warrior of Lesarkus (level 84)", quest["combat"])
         self.assertIn("Guardian of Armadyl (level 45)", quest["combat"])
         self.assertIn("Lucien (level 14)", quest["combat"])
+        self.assertEqual(quest["choices"][0]["stage"], 9)
+        self.assertEqual(
+            tuple(option["route_id"] for option in quest["choices"][0]["options"]),
+            ("Side with the Guardians of Armadyl", "Side with Lucien"),
+        )
 
         by_stage = {row["stage"]: row for row in quest["stage_requirements"] if not row["variant"]}
         by_stage_variant = {(row["stage"], row["variant"]): row for row in quest["stage_requirements"]}
@@ -417,6 +429,12 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(quest["stages"], 12)
         self.assertEqual(quest["rewards"], {"Coins": 1200})
         self.assertEqual(quest["required_items"], {})
+        self.assertIn("contextual Phoenix contact", quest["requirements"][2])
+        self.assertEqual(quest["choices"][0]["stage"], 4)
+        self.assertEqual(
+            tuple(option["route_id"] for option in quest["choices"][0]["options"]),
+            ("Join the Phoenix Gang", "Join the Black Arm Gang"),
+        )
         self.assertIn("darkan-world-server", quest["source"])
 
         stage4 = [row for row in quest["stage_requirements"] if row["stage"] == 4]
@@ -457,24 +475,27 @@ class TestQuestCatalog(unittest.TestCase):
             if row["stage"] == 5 and row["variant"] == "black_arm"
         )
         self.assertEqual(black_arm_crossbows["required_tools"], {})
-        self.assertEqual(
-            black_arm_crossbows["required_actions"],
-            (
-                "Receive the weapon store key from a Phoenix Gang partner",
-                "Use the weapon store key to enter the Phoenix weapon store",
-            ),
-        )
+        self.assertEqual(black_arm_crossbows["required_actions"], ())
         self.assertEqual(
             black_arm_crossbows["produced_inventory"],
             {"Weapon store key": 1, "Phoenix crossbow": 2},
         )
 
-        stage10 = next(row for row in quest["stage_requirements"] if row["stage"] == 10)
+        stage10 = {
+            row["variant"]: row
+            for row in quest["stage_requirements"]
+            if row["stage"] == 10
+        }
         self.assertEqual(
-            stage10["consumed_inventory"],
-            {"Half certificate (Phoenix)": 1, "Half certificate (Black Arm)": 1},
+            stage10["phoenix"]["consumed_inventory"],
+            {"Half certificate (Phoenix)": 1},
         )
-        self.assertEqual(stage10["produced_inventory"], {"Certificate": 1})
+        self.assertEqual(
+            stage10["black_arm"]["consumed_inventory"],
+            {"Half certificate (Black Arm)": 1},
+        )
+        self.assertEqual(stage10["phoenix"]["produced_inventory"], {"Certificate": 1})
+        self.assertEqual(stage10["black_arm"]["produced_inventory"], {"Certificate": 1})
 
     def test_fight_arena_has_source_backed_stage_requirements(self):
         data = quests_as_dict()
@@ -607,6 +628,13 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertGreaterEqual(len(quests_with_action_requirements), 190)
 
         hazeel = data["hazeel_cult"]
+        self.assertEqual(hazeel["rewards"], {"Coins": 2005})
+        self.assertEqual(hazeel["choices"][0]["stage"], 1)
+        self.assertEqual(
+            tuple(option["route_id"] for option in hazeel["choices"][0]["options"]),
+            ("Side with Ceril Carnillean", "Side with Hazeel's cult"),
+        )
+        self.assertIn("oldid=6579784", hazeel["choices"][0]["source"])
         hazeel_stage_1 = next(row for row in hazeel["stage_requirements"] if row["stage"] == 1)
         self.assertEqual(hazeel_stage_1["required_actions"], ("Complete Hazeel Cult stage 1 objective",))
         self.assertLess(len(hazeel_stage_1["required_actions"][0]), 80)
@@ -1140,9 +1168,16 @@ class TestQuestCatalog(unittest.TestCase):
         )
         self.assertEqual(pit_iron_dragon["npc_stats"], {})
 
+        void = data["the_void_stares_back"]
+        self.assertEqual(void["choices"][0]["stage"], 5)
+        self.assertEqual(
+            tuple(option["route_id"] for option in void["choices"][0]["options"]),
+            ("Sacrifice Korasi", "Sacrifice Jessika"),
+        )
+        self.assertIn("oldid=6549181", void["choices"][0]["source"])
         void_fights = [
             encounter
-            for requirement in data["the_void_stares_back"]["stage_requirements"]
+            for requirement in void["stage_requirements"]
             for encounter in requirement["combat_encounters"]
         ]
         torcher = next(encounter for encounter in void_fights if encounter["display_name"] == "Torcher")

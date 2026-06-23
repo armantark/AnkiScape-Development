@@ -83,6 +83,8 @@ from logic_pure import (
     start_quest_pure,
     quest_current_stage_blockers_pure,
     quest_current_stage_blocker_reasons_pure,
+    quest_current_stage_choices_pure,
+    apply_quest_route_choice_pure,
     quest_current_stage_resolvable_combat_blockers_pure,
     quest_combat_encounter_has_stats_pure,
     quest_locked_reasons_pure,
@@ -2223,6 +2225,39 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"]["defense_exp"], 3075.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"]["herblore_exp"], 1325.0)
 
+    def test_quest_route_choices_cover_hazeel_and_heroes_inherited_shield_route(self):
+        player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        hazeel_choices = quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA)
+        self.assertEqual(hazeel_choices[0]["stage"], 1)
+        self.assertEqual(
+            tuple(option["route_id"] for option in hazeel_choices[0]["options"]),
+            ("Side with Ceril Carnillean", "Side with Hazeel's cult"),
+        )
+
+        player_data, ok = apply_quest_route_choice_pure(
+            player_data,
+            "hazeel_cult",
+            QUEST_DATA,
+            "Side with Hazeel's cult",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(player_data["quest_route_states"]["hazeel_cult"], ["Side with Hazeel's cult"])
+        self.assertEqual(quest_current_stage_choices_pure(player_data, "hazeel_cult", QUEST_DATA), ())
+        self.assertFalse(player_data["quests"].get("hazeel_cult", {}).get("started", False))
+
+        heroes = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
+        heroes["quests"]["heroes_quest"] = {"started": True, "progress": 9, "completed": False}
+        heroes["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
+        self.assertEqual(quest_current_stage_choices_pure(heroes, "heroes_quest", QUEST_DATA), ())
+        self.assertEqual(
+            quest_current_stage_blocker_reasons_pure(heroes, "heroes_quest", QUEST_DATA),
+            (
+                "Action required: Ask Katrine about the Scarface Pete candlestick mission",
+                "Action required: Enter the Black Arm Brimhaven hideout with the Four leaved clover password",
+                "Action required: Accept Trobert's deputy guard impersonation mission",
+            ),
+        )
+
     def test_family_crest_stage_gates_fish_jewellery_chronozon_and_final_reward(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["family_crest"] = {"started": True, "progress": 2, "completed": False}
@@ -2409,11 +2444,8 @@ class TestLogic(unittest.TestCase):
             self.assertEqual(player_data["inventory"]["Limpwurt root"], 0)
             self.assertEqual(player_data["quests"]["temple_of_ikov"]["progress"], 9)
             self.assertEqual(
-                set(quest_current_stage_blocker_reasons_pure(player_data, "temple_of_ikov", QUEST_DATA)),
-                {
-                    "Route required: Side with the Guardians of Armadyl",
-                    "Route required: Side with Lucien",
-                },
+                quest_current_stage_blocker_reasons_pure(player_data, "temple_of_ikov", QUEST_DATA),
+                ("Choose path: Guardians of Armadyl or Lucien",),
             )
             return player_data
 
@@ -2651,16 +2683,41 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["pending_skill_exp_rewards"], {"attack_exp": 11450.0})
         self.assertEqual(player_data["quest_points"], 2)
 
-    def test_shield_of_arrav_phoenix_route_blocks_combat_and_requires_partner_certificate_half(self):
+    def test_shield_of_arrav_phoenix_route_blocks_combat_and_uses_contextual_certificate_half(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 4, "completed": False}
 
-        blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("unmet_route", "unmet_route"))
+        choices = quest_current_stage_choices_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertEqual(choices[0]["prompt"], "Choose a gang.")
         self.assertEqual(
-            set(blocker["reason"] for blocker in blockers),
-            {"Route required: Join the Phoenix Gang", "Route required: Join the Black Arm Gang"},
+            tuple(option["route_id"] for option in choices[0]["options"]),
+            ("Join the Phoenix Gang", "Join the Black Arm Gang"),
         )
+        blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
+        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("quest_choice",))
+        self.assertEqual(
+            tuple(blocker["reason"] for blocker in blockers),
+            ("Choose path: Phoenix Gang or Black Arm Gang",),
+        )
+        selected, ok = apply_quest_route_choice_pure(player_data, "shield_of_arrav", QUEST_DATA, "Join the Phoenix Gang")
+        self.assertTrue(ok)
+        self.assertEqual(selected["quest_route_states"]["shield_of_arrav"], ["Join the Phoenix Gang"])
+        selected_again, ok = apply_quest_route_choice_pure(
+            selected,
+            "shield_of_arrav",
+            QUEST_DATA,
+            "Join the Phoenix Gang",
+        )
+        self.assertTrue(ok)
+        self.assertEqual(selected_again["quest_route_states"]["shield_of_arrav"], ["Join the Phoenix Gang"])
+        rejected, ok = apply_quest_route_choice_pure(
+            selected,
+            "shield_of_arrav",
+            QUEST_DATA,
+            "Join the Black Arm Gang",
+        )
+        self.assertFalse(ok)
+        self.assertEqual(rejected["quest_route_states"]["shield_of_arrav"], ["Join the Phoenix Gang"])
 
         player_data["quests"]["shield_of_arrav"]["progress"] = 5
         player_data["quest_route_states"] = {"shield_of_arrav": ["Join the Phoenix Gang"]}
@@ -2719,21 +2776,11 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Broken shield (Phoenix half)"], 0)
         self.assertEqual(player_data["inventory"]["Half certificate (Phoenix)"], 2)
 
-        blocked, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
-        self.assertFalse(ok)
-        self.assertFalse(completed_now)
-        self.assertFalse(blocked["quests"]["shield_of_arrav"]["completed"])
-        self.assertEqual(
-            quest_current_stage_blocker_reasons_pure(player_data, "shield_of_arrav", QUEST_DATA),
-            ("Needs Half certificate (Black Arm) x1",),
-        )
-
-        player_data["inventory"]["Half certificate (Black Arm)"] = 1
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
         self.assertEqual(player_data["inventory"]["Half certificate (Phoenix)"], 1)
-        self.assertEqual(player_data["inventory"]["Half certificate (Black Arm)"], 0)
+        self.assertEqual(player_data["inventory"].get("Half certificate (Black Arm)", 0), 0)
         self.assertEqual(player_data["inventory"]["Certificate"], 1)
 
         player_data["quest_stage_actions"]["shield_of_arrav"].append("Claim the Shield of Arrav reward from King Roald")
@@ -2745,7 +2792,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Certificate"], 0)
         self.assertEqual(player_data["inventory"]["Coins"], 1200)
 
-    def test_shield_of_arrav_black_arm_route_requires_key_and_isolates_variant_rewards(self):
+    def test_shield_of_arrav_black_arm_route_uses_contextual_contact_and_isolates_variant_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
         player_data["quest_route_states"] = {"shield_of_arrav": ["Join the Black Arm Gang"]}
@@ -2753,27 +2800,13 @@ class TestLogic(unittest.TestCase):
         blockers = quest_current_stage_blockers_pure(player_data, "shield_of_arrav", QUEST_DATA)
         self.assertEqual(
             tuple(blocker["kind"] for blocker in blockers),
-            ("required_action", "required_action", "combat_locked"),
+            ("combat_locked",),
         )
         self.assertEqual(
             blockers[0]["reason"],
-            "Action required: Receive the weapon store key from a Phoenix Gang partner",
-        )
-        self.assertEqual(
-            blockers[1]["reason"],
-            "Action required: Use the weapon store key to enter the Phoenix weapon store",
-        )
-        self.assertEqual(
-            blockers[2]["reason"],
             "Combat locked until battle support is enabled: Weaponsmaster level 23",
         )
 
-        player_data["quest_stage_actions"] = {
-            "shield_of_arrav": [
-                "Receive the weapon store key from a Phoenix Gang partner",
-                "Use the weapon store key to enter the Phoenix weapon store",
-            ]
-        }
         player_data["quest_combat_config"] = {"resolver_enabled": True}
         player_data["attack_level"] = 40
         player_data["strength_level"] = 40

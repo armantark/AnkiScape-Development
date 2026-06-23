@@ -1209,12 +1209,6 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_quest": "shield_of_arrav",
             "quests": {"shield_of_arrav": {"started": True, "progress": 5, "completed": False}},
             "quest_route_states": {"shield_of_arrav": ["Join the Black Arm Gang"]},
-            "quest_stage_actions": {
-                "shield_of_arrav": [
-                    "Receive the weapon store key from a Phoenix Gang partner",
-                    "Use the weapon store key to enter the Phoenix weapon store",
-                ]
-            },
             "quest_combat_config": {"resolver_enabled": True},
             "quest_points": 0,
             "claims": {"wicked_hood": {"claimed": False}},

@@ -422,6 +422,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._runecrafting_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
         self._quest_calls: list = []
+        self._quest_choice_calls: list = []
         self._claim_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
@@ -460,6 +461,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
+            on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
@@ -1248,14 +1250,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd)
 
         labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Route required: Join the Black Arm Gang, Route required: Join the Phoenix Gang"
+        expected = "Blocked: Choose path: Phoenix Gang or Black Arm Gang"
         self.assertIn(expected, labels)
         action = dialog.findChild(QPushButton, "questAction_shield_of_arrav")
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
-        self.assertIn("Join the Phoenix Gang", action.toolTip())
+        self.assertIn("Phoenix Gang", action.toolTip())
+        phoenix = dialog.findChild(QPushButton, "questChoice_shield_of_arrav_join_the_phoenix_gang")
+        black_arm = dialog.findChild(QPushButton, "questChoice_shield_of_arrav_join_the_black_arm_gang")
+        self.assertIsNotNone(phoenix)
+        self.assertIsNotNone(black_arm)
+        self.assertEqual(phoenix.text(), "Phoenix Gang")
+        self.assertEqual(black_arm.text(), "Black Arm Gang")
+        black_arm.click()
+        QApplication.processEvents()
+        self.assertEqual(self._quest_choice_calls[-1], ("shield_of_arrav", "Join the Black Arm Gang"))
 
-    def test_quests_tab_shows_shield_black_arm_partner_key_action(self) -> None:
+    def test_quests_tab_shows_shield_black_arm_contextual_contact_combat_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "shield_of_arrav"
         pd["quests"]["shield_of_arrav"] = {"started": True, "progress": 5, "completed": False}
@@ -1268,9 +1279,27 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(action)
         self.assertFalse(action.isEnabled())
         self.assertNotIn("Needs Weapon store key", action.toolTip())
-        self.assertIn("Receive the weapon store key from a Phoenix Gang partner", action.toolTip())
-        self.assertIn("Use the weapon store key to enter the Phoenix weapon store", action.toolTip())
+        self.assertNotIn("Phoenix Gang partner", action.toolTip())
+        self.assertNotIn("Use the weapon store key", action.toolTip())
         self.assertIn("Weaponsmaster level 23", action.toolTip())
+
+    def test_quests_tab_shows_hazeel_side_choice_before_start(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "hazeel_cult"
+        dialog = self._open(pd)
+
+        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+        self.assertIn("Choose path: Ceril Carnillean or Hazeel's cult", labels)
+        action = dialog.findChild(QPushButton, "questAction_hazeel_cult")
+        self.assertIsNotNone(action)
+        self.assertFalse(action.isEnabled())
+        self.assertIn("Hazeel's cult", action.toolTip())
+        cult = dialog.findChild(QPushButton, "questChoice_hazeel_cult_side_with_hazeel_s_cult")
+        self.assertIsNotNone(cult)
+        self.assertEqual(cult.text(), "Hazeel's cult")
+        cult.click()
+        QApplication.processEvents()
+        self.assertEqual(self._quest_choice_calls[-1], ("hazeel_cult", "Side with Hazeel's cult"))
 
     def test_quests_tab_shows_demon_slayer_item_stage_blocker(self) -> None:
         pd = _make_player_data()

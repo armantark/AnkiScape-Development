@@ -151,6 +151,29 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"][0][0], "Quest blocked")
         self.assertIn("Needs Redberry pie x1", calls["errors"][0][1])
 
+    def test_quest_choice_blocker_deactivates_without_progress_or_reward(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "current_quest": "shield_of_arrav",
+            "quests": {"shield_of_arrav": {"started": True, "progress": 4, "completed": False}},
+            "quest_points": 0,
+            "pending_skill_exp_rewards": {},
+            "completed_achievements": [],
+        }
+
+        ok = handle_quest_answer(_context(player_data, calls))
+
+        self.assertFalse(ok)
+        self.assertEqual(player_data["quests"]["shield_of_arrav"]["progress"], 4)
+        self.assertFalse(player_data["quests"]["shield_of_arrav"]["completed"])
+        self.assertEqual(player_data["quest_points"], 0)
+        self.assertNotIn("quest_route_states", player_data)
+        self.assertEqual(calls["saves"], 0)
+        self.assertTrue(calls["deactivated"])
+        self.assertEqual(calls["errors"][0][0], "Quest blocked")
+        self.assertIn("Choose path: Phoenix Gang or Black Arm Gang", calls["errors"][0][1])
+
     def test_quest_answer_blocks_witchs_house_mouse_puzzle_without_stage_item(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

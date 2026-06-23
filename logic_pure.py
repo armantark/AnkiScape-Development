@@ -1164,6 +1164,148 @@ def _quest_flag_completed(player_data, collection_key, quest_id, flag_id):
     return False
 
 
+_QUEST_ROUTE_INHERITANCE = {
+    ("heroes_quest", "Join the Phoenix Gang"): ("shield_of_arrav",),
+    ("heroes_quest", "Join the Black Arm Gang"): ("shield_of_arrav",),
+}
+
+
+def _quest_route_completed(player_data, quest_id, route_id):
+    if _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
+        return True
+    for source_quest_id in _QUEST_ROUTE_INHERITANCE.get((quest_id, route_id), ()):
+        if _quest_flag_completed(player_data, "quest_route_states", source_quest_id, route_id):
+            return True
+    return False
+
+
+def _quest_choice_stage(choice):
+    return _positive_int(choice.get("stage", 0), 0) if isinstance(choice, Mapping) else 0
+
+
+def _quest_choice_options(choice):
+    if not isinstance(choice, Mapping):
+        return tuple()
+    rows = []
+    for option in choice.get("options", ()) or ():
+        if not isinstance(option, Mapping):
+            continue
+        route_id = str(option.get("route_id") or "").strip()
+        label = str(option.get("label") or route_id).strip()
+        if not route_id or not label:
+            continue
+        rows.append(
+            {
+                "label": label,
+                "route_id": route_id,
+                "description": str(option.get("description") or ""),
+            }
+        )
+    return tuple(rows)
+
+
+def _quest_choice_current_stage(player_data, quest_id, quest_data):
+    state = quest_state_pure(player_data, quest_id)
+    if state["completed"]:
+        return 0
+    if state["started"]:
+        return quest_current_stage_pure(player_data, quest_id, quest_data)
+    return 1
+
+
+def _quest_choice_selected(player_data, quest_id, options):
+    return tuple(
+        option for option in options
+        if _quest_route_completed(player_data, quest_id, option["route_id"])
+    )
+
+
+def _quest_choices_for_stage(player_data, quest_id, quest_data, stage):
+    quest = quest_data.get(quest_id)
+    if not isinstance(quest, Mapping):
+        return tuple()
+    rows = []
+    for choice in quest.get("choices", ()) or ():
+        if not isinstance(choice, Mapping) or _quest_choice_stage(choice) != stage:
+            continue
+        options = _quest_choice_options(choice)
+        if not options:
+            continue
+        rows.append(
+            {
+                "stage": stage,
+                "prompt": str(choice.get("prompt") or "Choose path"),
+                "options": options,
+                "source": str(choice.get("source") or ""),
+                "selected_options": _quest_choice_selected(player_data, quest_id, options),
+            }
+        )
+    return tuple(rows)
+
+
+def quest_current_stage_choices_pure(player_data, quest_id, quest_data):
+    """Return unresolved player choices for the visible quest stage."""
+    stage = _quest_choice_current_stage(player_data, quest_id, quest_data)
+    if stage <= 0:
+        return tuple()
+    choices = _quest_choices_for_stage(player_data, quest_id, quest_data, stage)
+    return tuple(choice for choice in choices if not choice["selected_options"])
+
+
+def _quest_current_stage_choice_blockers(player_data, quest_id, quest_data):
+    blockers = []
+    for choice in quest_current_stage_choices_pure(player_data, quest_id, quest_data):
+        labels = tuple(option["label"] for option in choice["options"])
+        reason = "Choose path: " + " or ".join(labels)
+        blockers.append(
+            _quest_blocker(
+                choice["stage"],
+                "quest_choice",
+                reason,
+                choice["source"],
+                prompt=choice["prompt"],
+                options=choice["options"],
+            )
+        )
+    return tuple(blockers)
+
+
+def apply_quest_route_choice_pure(player_data, quest_id, quest_data, route_id):
+    route_id = str(route_id or "").strip()
+    if not route_id or quest_id not in quest_data:
+        return player_data, False
+    state = quest_state_pure(player_data, quest_id)
+    if state["completed"]:
+        return player_data, False
+    stage = _quest_choice_current_stage(player_data, quest_id, quest_data)
+    valid_choices = _quest_choices_for_stage(player_data, quest_id, quest_data, stage)
+    matching_choice = None
+    for choice in valid_choices:
+        if any(option["route_id"] == route_id for option in choice["options"]):
+            matching_choice = choice
+            break
+    if matching_choice is None:
+        return player_data, False
+    selected = matching_choice["selected_options"]
+    if selected:
+        return (player_data, True) if any(option["route_id"] == route_id for option in selected) else (player_data, False)
+
+    data = _copy_player_data_with_nested(player_data)
+    raw_routes = data.setdefault("quest_route_states", {}).setdefault(quest_id, [])
+    if isinstance(raw_routes, str):
+        routes = [raw_routes]
+    elif isinstance(raw_routes, Mapping):
+        routes = [flag for flag, enabled in raw_routes.items() if isinstance(flag, str) and bool(enabled)]
+    elif isinstance(raw_routes, Iterable):
+        routes = [flag for flag in raw_routes if isinstance(flag, str)]
+    else:
+        routes = []
+    if route_id not in routes:
+        routes.append(route_id)
+    data["quest_route_states"][quest_id] = routes
+    return data, True
+
+
 def _quest_combat_total_quantity(encounter):
     return _positive_int(encounter.get("quantity", 1), 1)
 
@@ -1412,7 +1554,7 @@ def _quest_requirement_blockers(player_data, quest_id, requirement):
             )
 
     for route_id in _quest_stage_strings(requirement, "required_routes"):
-        if not _quest_flag_completed(player_data, "quest_route_states", quest_id, route_id):
+        if not _quest_route_completed(player_data, quest_id, route_id):
             blockers.append(
                 _quest_blocker(
                     stage,
@@ -1561,6 +1703,9 @@ def quest_current_stage_blockers_pure(player_data, quest_id, quest_data):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return tuple()
+    choice_blockers = _quest_current_stage_choice_blockers(player_data, quest_id, quest_data)
+    if choice_blockers:
+        return choice_blockers
     _, blockers = _quest_current_stage_selected_requirements(player_data, quest_id, quest_data)
     return blockers
 
@@ -1575,6 +1720,7 @@ _QUEST_NONCOMBAT_STAGE_BLOCKER_KINDS = {
     "missing_tool",
     "required_action",
     "unmet_route",
+    "quest_choice",
 }
 
 _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
@@ -1582,6 +1728,7 @@ _QUEST_COMBAT_PREREQUISITE_BLOCKER_KINDS = {
     "missing_item_option",
     "missing_tool",
     "unmet_route",
+    "quest_choice",
 }
 
 

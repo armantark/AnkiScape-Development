@@ -51,6 +51,8 @@ DEADLIEST_CATCH_ID = "deadliest_catch"
 WOLF_WHISTLE_ID = "wolf_whistle"
 SONG_FROM_THE_DEPTHS_ID = "song_from_the_depths"
 CARNILLEAN_RISING_ID = "carnillean_rising"
+HAZEEL_CULT_ID = "hazeel_cult"
+THE_VOID_STARES_BACK_ID = "the_void_stares_back"
 SOME_LIKE_IT_COLD_ID = "some_like_it_cold"
 WITCHS_HOUSE_ID = "witchs_house"
 MERLINS_CRYSTAL_ID = "merlins_crystal"
@@ -775,6 +777,21 @@ class QuestStageRequirement:
 
 
 @dataclass(frozen=True)
+class QuestChoiceOption:
+    label: str
+    route_id: str
+    description: str = ""
+
+
+@dataclass(frozen=True)
+class QuestChoice:
+    stage: int
+    prompt: str
+    options: Tuple[QuestChoiceOption, ...]
+    source: str = ""
+
+
+@dataclass(frozen=True)
 class QuestPrerequisite:
     quest_id: str
     display_name: str
@@ -831,6 +848,7 @@ class QuestDefinition:
     release_order: int = 0
     stage_requirements: Tuple[QuestStageRequirement, ...] = ()
     start_inventory: Tuple[Tuple[str, int], ...] = ()
+    choices: Tuple[QuestChoice, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -1098,6 +1116,10 @@ TEMPLE_OF_IKOV_ROUTE_GUARDIANS = "Side with the Guardians of Armadyl"
 TEMPLE_OF_IKOV_ROUTE_LUCIEN = "Side with Lucien"
 TEMPLE_OF_IKOV_VARIANT_GUARDIANS = "guardians"
 TEMPLE_OF_IKOV_VARIANT_LUCIEN = "lucien"
+HAZEEL_CULT_ROUTE_CARNILLEAN = "Side with Ceril Carnillean"
+HAZEEL_CULT_ROUTE_HAZEEL = "Side with Hazeel's cult"
+VOID_STARES_BACK_ROUTE_KORASI = "Sacrifice Korasi"
+VOID_STARES_BACK_ROUTE_JESSIKA = "Sacrifice Jessika"
 TEMPLE_OF_IKOV_BOW_OPTIONS: Tuple[Tuple[str, int], ...] = (
     ("Yew shortbow", 1),
     ("Yew longbow", 1),
@@ -1107,6 +1129,71 @@ TEMPLE_OF_IKOV_BOW_OPTIONS: Tuple[Tuple[str, int], ...] = (
     ("Magic comp bow", 1),
     ("Dark bow", 1),
 )
+
+SHIELD_OF_ARRAV_CHOICES: Tuple[QuestChoice, ...] = (
+    QuestChoice(
+        stage=4,
+        prompt="Choose a gang.",
+        options=(
+            QuestChoiceOption("Phoenix Gang", SHIELD_ROUTE_PHOENIX, "Jonny the beard and the Phoenix shield half."),
+            QuestChoiceOption("Black Arm Gang", SHIELD_ROUTE_BLACK_ARM, "Phoenix crossbows and the Black Arm shield half."),
+        ),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_STRAVEN_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_KATRINE_SOURCE}; {SHIELD_OF_ARRAV_WIKI_SOURCE}",
+    ),
+)
+
+HEROES_QUEST_CHOICES: Tuple[QuestChoice, ...] = (
+    QuestChoice(
+        stage=9,
+        prompt="Choose the gang contact to use for Scarface Pete's mansion.",
+        options=(
+            QuestChoiceOption("Phoenix Gang", HEROES_ROUTE_PHOENIX, "Bribe Garv and resolve Grip contextually."),
+            QuestChoiceOption("Black Arm Gang", HEROES_ROUTE_BLACK_ARM, "Use Trobert's deputy guard route."),
+        ),
+        source=f"{HEROES_QUEST_KATRINE_SOURCE}; {HEROES_QUEST_STRAVEN_SOURCE}; {HEROES_QUEST_WIKI_SOURCE}",
+    ),
+)
+
+TEMPLE_OF_IKOV_CHOICES: Tuple[QuestChoice, ...] = (
+    QuestChoice(
+        stage=9,
+        prompt="Choose who to aid.",
+        options=(
+            QuestChoiceOption("Guardians of Armadyl", TEMPLE_OF_IKOV_ROUTE_GUARDIANS, "Receive an Armadyl pendant and confront Lucien."),
+            QuestChoiceOption("Lucien", TEMPLE_OF_IKOV_ROUTE_LUCIEN, "Take the Staff of Armadyl for Lucien."),
+        ),
+        source=f"{TEMPLE_OF_IKOV_GUARDIAN_SOURCE}; {TEMPLE_OF_IKOV_LUCIEN_VARROCK_SOURCE}; {TEMPLE_OF_IKOV_WIKI_SOURCE}",
+    ),
+)
+
+HAZEEL_CULT_CHOICES: Tuple[QuestChoice, ...] = (
+    QuestChoice(
+        stage=1,
+        prompt="Choose who to help.",
+        options=(
+            QuestChoiceOption("Ceril Carnillean", HAZEEL_CULT_ROUTE_CARNILLEAN, "Stop the cult and expose Butler Jones."),
+            QuestChoiceOption("Hazeel's cult", HAZEEL_CULT_ROUTE_HAZEEL, "Help revive Hazeel."),
+        ),
+        source="https://runescape.wiki/w/Hazeel_Cult?oldid=6579784",
+    ),
+)
+
+VOID_STARES_BACK_CHOICES: Tuple[QuestChoice, ...] = (
+    QuestChoice(
+        stage=5,
+        prompt="Choose who makes the sacrifice.",
+        options=(
+            QuestChoiceOption("Korasi", VOID_STARES_BACK_ROUTE_KORASI, "Korasi sacrifices herself before the Pest Queen fight."),
+            QuestChoiceOption("Jessika", VOID_STARES_BACK_ROUTE_JESSIKA, "Jessika sacrifices herself before the Pest Queen fight."),
+        ),
+        source="https://runescape.wiki/w/The_Void_Stares_Back%2FQuick_guide?oldid=6549181",
+    ),
+)
+
+QUEST_CHOICE_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestChoice, ...]] = {
+    HAZEEL_CULT_ID: HAZEEL_CULT_CHOICES,
+    THE_VOID_STARES_BACK_ID: VOID_STARES_BACK_CHOICES,
+}
 
 SHIELD_OF_ARRAV_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(
@@ -1150,7 +1237,7 @@ SHIELD_OF_ARRAV_STAGES: Tuple[QuestStage, ...] = (
     _simple_stage(
         10,
         "The curator made duplicate half certificates.",
-        "I need the opposite certificate half from the other gang route before I can make the full certificate.",
+        "My route contact can trade a duplicate half certificate so I can make the full certificate.",
     ),
     _simple_stage(
         11,
@@ -1234,13 +1321,9 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
     QuestStageRequirement(
         stage=5,
-        description="Coordinate with a Phoenix partner, enter the weapon store, and steal two Phoenix crossbows.",
+        description="Your Phoenix contact gets you into the weapon store; defeat the Weaponsmaster and steal two Phoenix crossbows.",
         variant=SHIELD_VARIANT_BLACK_ARM,
         required_routes=(SHIELD_ROUTE_BLACK_ARM,),
-        required_actions=(
-            "Receive the weapon store key from a Phoenix Gang partner",
-            "Use the weapon store key to enter the Phoenix weapon store",
-        ),
         combat_encounters=(
             QuestCombatEncounter(
                 encounter_id=f"{SHIELD_OF_ARRAV_ID}_weaponsmaster_23",
@@ -1346,8 +1429,19 @@ SHIELD_OF_ARRAV_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
     QuestStageRequirement(
         stage=10,
-        description="Trade one duplicate half certificate with a partner and combine the two opposite halves.",
-        consumed_inventory=(("Half certificate (Phoenix)", 1), ("Half certificate (Black Arm)", 1)),
+        description="Trade one duplicate Phoenix half certificate through your Black Arm contact and combine the certificate.",
+        variant=SHIELD_VARIANT_PHOENIX,
+        required_routes=(SHIELD_ROUTE_PHOENIX,),
+        consumed_inventory=(("Half certificate (Phoenix)", 1),),
+        produced_inventory=(("Certificate", 1),),
+        source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
+    ),
+    QuestStageRequirement(
+        stage=10,
+        description="Trade one duplicate Black Arm half certificate through your Phoenix contact and combine the certificate.",
+        variant=SHIELD_VARIANT_BLACK_ARM,
+        required_routes=(SHIELD_ROUTE_BLACK_ARM,),
+        consumed_inventory=(("Half certificate (Black Arm)", 1),),
         produced_inventory=(("Certificate", 1),),
         source=f"{DARKAN_SHIELD_OF_ARRAV_SOURCE}; {DARKAN_SHIELD_OF_ARRAV_CURATOR_SOURCE}; {SCAPE_2011_ITEM_IDENTITY_SOURCE}",
     ),
@@ -1751,12 +1845,11 @@ HEROES_QUEST_STAGE_REQUIREMENTS: Tuple[QuestStageRequirement, ...] = (
     ),
     QuestStageRequirement(
         stage=10,
-        description="Use the Phoenix route to open Scarface Pete's mansion and retrieve Pete's candlestick.",
+        description="Use the Phoenix route to enter Scarface Pete's mansion, defeat Grip, and retrieve Pete's candlestick.",
         variant=HEROES_VARIANT_PHOENIX,
         required_routes=(HEROES_ROUTE_PHOENIX,),
         consumed_inventory=(("Coins", 1000),),
         required_actions=(
-            "Coordinate with a Black Arm partner for Scarface Pete's mansion",
             "Bribe Garv to turn a blind eye",
             "Search Scarface Pete's candlestick chest",
         ),
@@ -2335,9 +2428,9 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         rewards=(("Coins", 1200),),
         start_point="Talk to Reldo in the Varrock palace library.",
         requirements=(
-            "Used during quest: Coins x10; partner route supplies the opposite certificate half.",
+            "Used during quest: Coins x10; your route contact supplies the opposite certificate half.",
             f"Route choice: {SHIELD_ROUTE_PHOENIX} or {SHIELD_ROUTE_BLACK_ARM}.",
-            "Black Arm route needs a Phoenix partner to unlock the weapon store before stealing the crossbows.",
+            "Black Arm route uses a contextual Phoenix contact for the weapon store.",
         ),
         required_items=(),
         combat=(
@@ -2358,6 +2451,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         length="Medium",
         timeline="Fifth Age",
         stage_requirements=SHIELD_OF_ARRAV_STAGE_REQUIREMENTS,
+        choices=SHIELD_OF_ARRAV_CHOICES,
     ),
     QuestDefinition(
         id=FIGHT_ARENA_ID,
@@ -2474,7 +2568,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
             ),
             (
                 "Route choice: Phoenix Gang or Black Arm Gang from Shield of Arrav. "
-                "Black Arm route uses black armour and Id papers; Phoenix route uses a partner and 1,000 coins."
+                "Black Arm route uses black armour and Id papers; Phoenix route uses a contextual contact and 1,000 coins."
             ),
         ),
         required_items=(),
@@ -2533,6 +2627,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
             "Ability to wield and buy Dragon battleaxe and Dragon mace from the Heroes' Guild weapon shop",
         ),
         stage_requirements=HEROES_QUEST_STAGE_REQUIREMENTS,
+        choices=HEROES_QUEST_CHOICES,
     ),
     QuestDefinition(
         id=FAMILY_CREST_ID,
@@ -2631,6 +2726,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         ),
         stage_requirements=TEMPLE_OF_IKOV_STAGE_REQUIREMENTS,
         start_inventory=(("Pendant of lucien", 1),),
+        choices=TEMPLE_OF_IKOV_CHOICES,
     ),
     QuestDefinition(
         id=DEMON_SLAYER_ID,
@@ -3612,6 +3708,7 @@ QUEST_ITEM_REWARD_REPLACEMENTS_BY_ID: Dict[str, Tuple[Tuple[str, int], ...]] = {
     TREE_GNOME_VILLAGE_ID: (("Gnome amulet", 1),),
     PLAGUE_CITY_ID: (("A magic scroll", 1),),
     DWARF_CANNON_ID: (("Ammo mould", 1),),
+    HAZEEL_CULT_ID: (("Coins", 2005),),
 }
 
 
@@ -7436,14 +7533,23 @@ def _quest_with_stage_requirements(quest: QuestDefinition, row: Dict[str, object
     stages = QUEST_STAGE_COUNT_REPLACEMENTS_BY_ID.get(quest.id, max(quest.stages, max_requirement_stage))
     journal_stages = QUEST_JOURNAL_STAGE_REPLACEMENTS_BY_ID.get(quest.id, quest.journal_stages)
     combat = QUEST_COMBAT_TEXT_REPLACEMENTS_BY_ID.get(quest.id, quest.combat)
+    choices = QUEST_CHOICE_REPLACEMENTS_BY_ID.get(quest.id, quest.choices)
     if (
         requirements == quest.stage_requirements
         and stages == quest.stages
         and journal_stages == quest.journal_stages
         and combat == quest.combat
+        and choices == quest.choices
     ):
         return quest
-    return replace(quest, stages=stages, journal_stages=journal_stages, combat=combat, stage_requirements=requirements)
+    return replace(
+        quest,
+        stages=stages,
+        journal_stages=journal_stages,
+        combat=combat,
+        stage_requirements=requirements,
+        choices=choices,
+    )
 
 
 QUESTS: Tuple[QuestDefinition, ...] = tuple(
@@ -7643,6 +7749,19 @@ def _lamp_reward_dict(reward: QuestLampReward) -> Dict[str, object]:
     }
 
 
+def _quest_choice_option_dict(option: QuestChoiceOption) -> Dict[str, object]:
+    return {"label": option.label, "route_id": option.route_id, "description": option.description}
+
+
+def _quest_choice_dict(choice: QuestChoice) -> Dict[str, object]:
+    return {
+        "stage": choice.stage,
+        "prompt": choice.prompt,
+        "options": tuple(_quest_choice_option_dict(option) for option in choice.options),
+        "source": choice.source,
+    }
+
+
 def _combat_encounter_dict(encounter: QuestCombatEncounter) -> Dict[str, object]:
     return {
         "encounter_id": encounter.encounter_id,
@@ -7710,6 +7829,7 @@ def quests_as_dict() -> Dict[str, Dict[str, object]]:
             "unlocks": quest.unlocks,
             "journal_stages": {stage.stage: stage.journal for stage in quest.journal_stages},
             "stage_requirements": tuple(_stage_requirement_dict(req) for req in quest.stage_requirements),
+            "choices": tuple(_quest_choice_dict(choice) for choice in quest.choices),
         }
         for quest in QUESTS
     }
