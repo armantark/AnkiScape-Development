@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 133)
+        self.assertEqual(len(EQUIPMENT_DATA), 137)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -56,6 +56,28 @@ class TestEquipmentData(unittest.TestCase):
         self.assertTrue(shortbow.two_handed)
         self.assertEqual(shortbow.attack_speed, 4)
         self.assertEqual(shortbow.bonuses.attack_ranged, 8)
+
+    def test_elemental_staves_are_equippable_magic_weapons(self):
+        expected = {
+            "Staff of air": (1381, 0, 7, 3),
+            "Staff of water": (1383, 0, 7, 3),
+            "Staff of earth": (1385, 1, 9, 5),
+            "Staff of fire": (1387, 3, 9, 6),
+        }
+        for item_name, (source_item_id, attack_stab, attack_crush, melee_strength) in expected.items():
+            staff = EQUIPMENT_DATA[item_name]
+            self.assertEqual(staff.slot, "weapon")
+            self.assertIsNone(staff.combat_skill)
+            self.assertEqual(staff.required_level, 1)
+            self.assertEqual(staff.equipment_type, "elemental_staff")
+            self.assertEqual(staff.attack_speed, 5)
+            self.assertEqual(staff.source_item_id, source_item_id)
+            self.assertEqual(staff.bonuses.attack_stab, attack_stab)
+            self.assertEqual(staff.bonuses.attack_slash, -1)
+            self.assertEqual(staff.bonuses.attack_crush, attack_crush)
+            self.assertEqual(staff.bonuses.attack_magic, 10)
+            self.assertEqual(staff.bonuses.defence_magic, 10)
+            self.assertEqual(staff.bonuses.melee_strength, melee_strength)
 
     def test_components_and_gathering_tools_are_excluded(self):
         for item_name in (

@@ -189,6 +189,41 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["xp"], [5.5])
         self.assertEqual(calls["activity"], ["Chicken: 0 damage dealt, 30 LP left"])
 
+    def test_combat_handler_uses_staff_substitution_for_magic_runes(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Mind rune": 1},
+            "equipment": {"weapon": "Staff of air"},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "wind_strike",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "ranged_level": 1,
+            "magic_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "ranged_exp": 0.0,
+            "magic_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls, [0.999999]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"].get("Air rune", 0), 0)
+        self.assertEqual(player_data["inventory"]["Mind rune"], 0)
+        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(player_data["combat_last_result"]["runes_used"], {"Mind rune": 1})
+        self.assertAlmostEqual(player_data["magic_exp"], 5.5)
+        self.assertEqual(calls["errors"], [])
+
     def test_combat_handler_deactivates_magic_without_runes(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -262,6 +297,13 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(can_start_action(_context(combat_data), "combat"))
         combat_data["inventory"] = {}
         self.assertFalse(can_start_action(_context(combat_data), "combat"))
+        combat_data.update(
+            {
+                "equipment": {"weapon": "Staff of air"},
+                "inventory": {"Mind rune": 1},
+            }
+        )
+        self.assertTrue(can_start_action(_context(combat_data), "combat"))
         self.assertTrue(can_start_action(_context(player_data), "unknown"))
 
         hunter_data = {

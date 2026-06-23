@@ -574,11 +574,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(style_combo.currentData(), "magic_standard")
         self.assertEqual(spell_combo.currentData(), "wind_strike")
         self.assertEqual(spell_combo.currentText(), "Wind Strike")
+        for spell_id in ("water_strike", "earth_strike", "fire_strike"):
+            self.assertGreaterEqual(spell_combo.findData(spell_id), 0)
 
         tree = _find_tree_with_user_role(dialog, "chicken")
         chicken = _tree_row(tree, "chicken")
         self.assertIn("Spell: Wind Strike", chicken.toolTip(0))
         self.assertIn("Rune: Air rune x1; 1 loaded + 5 bank", chicken.toolTip(0))
+
+        fire_index = spell_combo.findData("fire_strike")
+        spell_combo.setCurrentIndex(fire_index)
+        QApplication.processEvents()
+        self.assertEqual(self._combat_spell_calls[-1], "fire_strike")
 
         accurate_index = style_combo.findData("accurate")
         self.assertGreaterEqual(accurate_index, 0)

@@ -2,6 +2,8 @@ import unittest
 
 from combat_data import (
     COMBAT_ENEMY_DATA,
+    COMBAT_MAGIC_SPELL_DATA,
+    COMBAT_MAGIC_STAFF_DATA,
     MAGIC_FORMULA_SOURCE_PATH,
     MAGIC_STRATEGY_SOURCE_PATH,
     RANGED_FORMULA_SOURCE_PATH,
@@ -64,6 +66,33 @@ def _player(**overrides):
 
 
 class CombatLogicTest(unittest.TestCase):
+    def test_standard_strike_spell_rows_match_2011scape_source(self):
+        self.assertEqual(
+            COMBAT_MAGIC_SPELL_DATA["water_strike"]["rune_cost"],
+            {"Air rune": 1, "Mind rune": 1, "Water rune": 1},
+        )
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["water_strike"]["required_magic_level"], 5)
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["water_strike"]["max_hit_old_hp"], 4)
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["water_strike"]["base_magic_xp"], 7.5)
+
+        self.assertEqual(
+            COMBAT_MAGIC_SPELL_DATA["earth_strike"]["rune_cost"],
+            {"Air rune": 1, "Mind rune": 1, "Earth rune": 2},
+        )
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["earth_strike"]["required_magic_level"], 9)
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["earth_strike"]["max_hit_old_hp"], 6)
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["earth_strike"]["base_magic_xp"], 9.5)
+
+        self.assertEqual(
+            COMBAT_MAGIC_SPELL_DATA["fire_strike"]["rune_cost"],
+            {"Air rune": 1, "Mind rune": 1, "Fire rune": 3},
+        )
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["fire_strike"]["required_magic_level"], 13)
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["fire_strike"]["max_hit_old_hp"], 8)
+        self.assertEqual(COMBAT_MAGIC_SPELL_DATA["fire_strike"]["base_magic_xp"], 11.5)
+        self.assertEqual(COMBAT_MAGIC_STAFF_DATA["Staff of air"]["covered_runes"], ("Air rune",))
+        self.assertEqual(COMBAT_MAGIC_STAFF_DATA["Staff of fire"]["covered_runes"], ("Fire rune",))
+
     def test_simple_enemy_import_rows_match_source(self):
         cow_calf = COMBAT_ENEMY_DATA["cow_calf"]
         ram = COMBAT_ENEMY_DATA["ram"]
@@ -274,6 +303,40 @@ class CombatLogicTest(unittest.TestCase):
             (),
         )
 
+        with_staff = _player(
+            combat_attack_style="magic_standard",
+            equipment={"weapon": "Staff of air"},
+            inventory={"Mind rune": 1},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(with_staff, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            (),
+        )
+
+    def test_fire_strike_requires_level_and_uses_source_runes(self):
+        underleveled = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_strike",
+            magic_level=12,
+            inventory={"Air rune": 1, "Mind rune": 1, "Fire rune": 3},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(underleveled, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            ("Magic level 13",),
+        )
+
+        with_fire_staff = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_strike",
+            magic_level=13,
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 1, "Mind rune": 1},
+        )
+        self.assertEqual(
+            combat_target_locked_reasons_pure(with_fire_staff, "chicken", COMBAT_ENEMY_DATA, equipment_data=EQUIPMENT_DATA),
+            (),
+        )
+
     def test_magic_burst_consumes_wind_strike_runes_and_awards_magic_xp(self):
         player = _player(
             combat_attack_style="magic_standard",
@@ -303,6 +366,54 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["ranged_exp"], 0.0)
         self.assertGreater(new_data["magic_exp"], 5.5)
         self.assertGreater(new_data["constitution_exp"], 0.0)
+
+    def test_magic_staff_substitution_does_not_load_or_consume_covered_rune(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            equipment={"weapon": "Staff of air"},
+            inventory={"Mind rune": 2},
+            combat_supply_loadout={"runes": {"Air rune": 1}},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["runes_used"], {"Mind rune": 1})
+        self.assertEqual(new_data["inventory"]["Air rune"], 1)
+        self.assertEqual(new_data["inventory"]["Mind rune"], 0)
+        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {"Mind rune": 1})
+        self.assertGreater(new_data["magic_exp"], 5.5)
+
+    def test_fire_strike_with_staff_consumes_only_uncovered_runes(self):
+        player = _player(
+            combat_attack_style="magic_standard",
+            current_combat_spell="fire_strike",
+            magic_level=13,
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 1, "Mind rune": 1},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=1,
+            rng=_rng([0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["spell_id"], "fire_strike")
+        self.assertEqual(result["spell"], "Fire Strike")
+        self.assertEqual(result["runes_used"], {"Air rune": 1, "Mind rune": 1})
+        self.assertEqual(new_data["inventory"].get("Fire rune", 0), 0)
+        self.assertEqual(new_data["combat_supply_loadout"]["runes"], {})
+        self.assertAlmostEqual(new_data["magic_exp"], 11.5)
 
     def test_magic_splash_consumes_runes_and_awards_base_spell_xp(self):
         player = _player(

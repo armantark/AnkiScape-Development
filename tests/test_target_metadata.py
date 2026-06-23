@@ -171,6 +171,31 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Rune: Air rune x1; 1 loaded + 5 bank", chicken.tooltip)
         self.assertIn("Rune: Mind rune x1; 1 loaded + 5 bank", chicken.tooltip)
 
+    def test_combat_rows_show_staff_covered_magic_runes(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "magic_standard",
+                "current_combat_spell": "wind_strike",
+                "magic_level": 10,
+                "defense_level": 10,
+                "constitution_level": 10,
+                "inventory": {"Mind rune": 5},
+                "equipment": {"weapon": "Staff of air"},
+                "combat_supply_loadout": {"runes": {"Mind rune": 1}},
+            },
+            COMBAT_ENEMY_DATA,
+            {},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+        )
+
+        chicken = _row(rows, "chicken")
+
+        self.assertTrue(chicken.enabled)
+        self.assertIn("Rune: Air rune x1; covered by Staff of air", chicken.tooltip)
+        self.assertIn("Rune: Mind rune x1; 1 loaded + 5 bank", chicken.tooltip)
+
     def test_combat_rows_lock_magic_without_required_runes(self):
         rows = combat_target_rows(
             {

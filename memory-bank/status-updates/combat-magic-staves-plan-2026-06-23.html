@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Magic Staff Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 36px 0 48px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #a9c6ff;
+      font: 700 0.72rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(2rem, 4vw, 3.25rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      max-width: 780px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), transparent 42%), var(--surface);
+      padding: 18px;
+      min-height: 100%;
+      box-shadow: 0 14px 32px rgba(0,0,0,0.22);
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    .label {
+      color: var(--amber);
+      font: 800 0.72rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .label.green { color: var(--green); }
+    .label.purple { color: var(--purple); }
+    .label.red { color: var(--red); }
+
+    h2 {
+      margin: 8px 0 10px;
+      font-size: 1.2rem;
+      letter-spacing: 0;
+    }
+
+    p { margin: 0; color: var(--text-dim); }
+
+    .mock {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .pane {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+      min-height: 156px;
+    }
+
+    .pane-title {
+      color: var(--text-dim);
+      font: 700 0.68rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 10px;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      margin-bottom: 8px;
+      background: rgba(255,255,255,0.025);
+      font-size: 0.85rem;
+    }
+
+    .pill {
+      display: inline-flex;
+      padding: 4px 7px;
+      border-radius: 999px;
+      background: rgba(79, 140, 255, 0.14);
+      color: #b9d0ff;
+      font: 700 0.68rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      white-space: nowrap;
+    }
+
+    .step-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(255,255,255,0.025);
+    }
+
+    .num {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+    }
+
+    .step strong { display: block; margin-bottom: 3px; }
+
+    .files {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    code {
+      padding: 4px 7px;
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: #dce7ff;
+      font: 700 0.68rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .meter {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: 150px 1fr 54px;
+      gap: 10px;
+      align-items: center;
+      color: var(--text-dim);
+      font-size: 0.9rem;
+    }
+
+    .track {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      overflow: hidden;
+    }
+
+    .fill {
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), var(--green));
+    }
+
+    @media (max-width: 840px) {
+      .grid,
+      .mock { grid-template-columns: 1fr; }
+      .bar { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">Pre-implementation plan</span>
+    <h1>Combat Magic: staff-aware strike ladder</h1>
+    <p class="lede">
+      This pass turns the current one-spell proof point into a source-backed standard spell slice:
+      Wind, Water, Earth, and Fire Strike share normal level/rune gates, and equipped elemental
+      staves remove matching rune costs instead of asking the player to carry redundant runes.
+    </p>
+
+    <section class="grid" aria-label="Implementation plan">
+      <article class="card">
+        <div class="label">Backend</div>
+        <h2>Spell data and rune accounting</h2>
+        <p>
+          Add the rest of the strike spells from the 2011Scape combat spellbook and make the
+          pure combat lock/refill/consume helpers understand infinite elemental runes from staves.
+        </p>
+        <div class="files">
+          <code>combat_data.py</code>
+          <code>logic_pure.py</code>
+          <code>tests/test_combat_logic.py</code>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label green">Frontend</div>
+        <h2>Selection and tooltip proof</h2>
+        <p>
+          Keep the existing compact combat controls, but prove the spell dropdown exposes the
+          expanded ladder and target rows explain when a staff covers a rune.
+        </p>
+        <div class="files">
+          <code>ui.py</code>
+          <code>target_metadata.py</code>
+          <code>tests/test_main_menu_widget.py</code>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label purple">Assets</div>
+        <h2>Registered visible items</h2>
+        <p>
+          Reuse existing rune icons and add only the staff item registrations/assets that the
+          source-backed equipment path needs for this slice. No hidden or special UI state.
+        </p>
+        <div class="files">
+          <code>item_registry.py</code>
+          <code>equipment_data.py</code>
+          <code>assets_provenance.json</code>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label red">Still outside this pass</div>
+        <h2>Remaining grill surface</h2>
+        <p>
+          Death's Office, dangerous-area confirmation, quest combat migration, broader enemy
+          catalog coverage, and full loadout UI remain separate checkpoints after this Magic slice.
+        </p>
+        <div class="files">
+          <code>memory-bank/combat-design-grill-2026-06-23.md</code>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="label">Before / after</div>
+        <h2>Expected player-facing change</h2>
+        <div class="mock">
+          <div class="pane">
+            <div class="pane-title">Current</div>
+            <div class="row"><span>Spell</span><span class="pill">Wind Strike</span></div>
+            <div class="row"><span>Air rune</span><span>loaded + bank</span></div>
+            <div class="row"><span>Staff of air</span><span>drop only</span></div>
+          </div>
+          <div class="pane">
+            <div class="pane-title">After this pass</div>
+            <div class="row"><span>Spell</span><span class="pill">4 Strike spells</span></div>
+            <div class="row"><span>Air rune</span><span>covered by staff</span></div>
+            <div class="row"><span>Fire Strike</span><span>level + runes gate</span></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="label green">Execution checklist</div>
+        <h2>Checkpoint order</h2>
+        <div class="step-list">
+          <div class="step">
+            <div class="num">1</div>
+            <div><strong>Audit source rows.</strong><p>Confirm strike level, runes, max hit, cast XP, and staff substitution directly from 2011Scape files.</p></div>
+          </div>
+          <div class="step">
+            <div class="num">2</div>
+            <div><strong>Patch data and pure helpers.</strong><p>Add source rows and teach lock/refill/consume paths to skip covered elemental runes.</p></div>
+          </div>
+          <div class="step">
+            <div class="num">3</div>
+            <div><strong>Patch row metadata and tests.</strong><p>Show staff coverage in tooltips and add targeted backend, runtime, registry, and Qt coverage.</p></div>
+          </div>
+          <div class="step">
+            <div class="num">4</div>
+            <div><strong>Update project memory and commit.</strong><p>Record what landed, run full test suites, create a completion artifact, and commit the checkpoint.</p></div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card wide">
+        <div class="label purple">Coverage goal</div>
+        <h2>Grill progress after this slice</h2>
+        <div class="meter">
+          <div class="bar"><span>Magic proof depth</span><div class="track"><div class="fill" style="width: 82%"></div></div><span>82%</span></div>
+          <div class="bar"><span>Combat V1 breadth</span><div class="track"><div class="fill" style="width: 38%"></div></div><span>38%</span></div>
+          <div class="bar"><span>Death/loadout/quests</span><div class="track"><div class="fill" style="width: 14%"></div></div><span>14%</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -15,6 +15,7 @@ try:
         calculate_fishing_success_probability_pure,
         calculate_hunter_success_probability_pure,
         can_chop_woodcutting_target_pure,
+        combat_staff_covered_runes_pure,
         combat_target_locked_reasons_pure,
         combat_target_preview_pure,
         firemaking_target_locked_reasons_pure,
@@ -39,6 +40,7 @@ except Exception:
         calculate_fishing_success_probability_pure,
         calculate_hunter_success_probability_pure,
         can_chop_woodcutting_target_pure,
+        combat_staff_covered_runes_pure,
         combat_target_locked_reasons_pure,
         combat_target_preview_pure,
         firemaking_target_locked_reasons_pure,
@@ -878,6 +880,7 @@ def _combat_rune_summary(
     inventory = inventory_raw if isinstance(inventory_raw, Mapping) else {}
     encounter_raw = player_data.get("combat_encounter", {}) or {}
     active_encounter = isinstance(encounter_raw, Mapping) and encounter_raw.get("target_id") == target_id
+    covered_runes = combat_staff_covered_runes_pure(player_data)
     lines = [f"Spell: {spell_name}"]
     for rune_name, amount in costs.items():
         if not isinstance(rune_name, str):
@@ -885,6 +888,10 @@ def _combat_rune_summary(
         loaded = _count(rune_loadout.get(rune_name, 0))
         banked = 0 if active_encounter else _count(inventory.get(rune_name, 0))
         required = _count(amount)
+        staff_name = covered_runes.get(rune_name)
+        if isinstance(staff_name, str):
+            lines.append(f"Rune: {rune_name} x{required}; covered by {staff_name}")
+            continue
         if active_encounter:
             lines.append(f"Rune: {rune_name} x{required}; {loaded} loaded")
         else:

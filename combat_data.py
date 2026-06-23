@@ -49,6 +49,9 @@ MAGIC_SPELLBOOK_SOURCE_PATH = (
 MAGIC_SPELL_REQUIREMENT_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/magic/MagicSpells.kt"
 )
+MAGIC_STAVES_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/magic/MagicStaves.kt"
+)
 FOOD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/food/Food.kt"
 )
@@ -152,6 +155,81 @@ COMBAT_MAGIC_SPELL_DATA: Dict[str, dict] = {
             f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WIND_STRIKE level=1 runes AIR_RUNE x1 MIND_RUNE x1; "
             f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
         ),
+    },
+    "water_strike": {
+        "display_name": "Water Strike",
+        "spellbook": "standard",
+        "required_magic_level": 5,
+        "rune_cost": {"Air rune": 1, "Mind rune": 1, "Water rune": 1},
+        "max_hit_old_hp": 4,
+        "base_magic_xp": 7.5,
+        "attack_speed": 5,
+        "unique_id": 17,
+        "component_id": 28,
+        "autocast_id": 5,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: WATER_STRIKE maxHit=4 experience=7.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: WATER_STRIKE level=5 runes AIR_RUNE x1 MIND_RUNE x1 WATER_RUNE x1; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "earth_strike": {
+        "display_name": "Earth Strike",
+        "spellbook": "standard",
+        "required_magic_level": 9,
+        "rune_cost": {"Air rune": 1, "Mind rune": 1, "Earth rune": 2},
+        "max_hit_old_hp": 6,
+        "base_magic_xp": 9.5,
+        "attack_speed": 5,
+        "unique_id": 19,
+        "component_id": 30,
+        "autocast_id": 7,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: EARTH_STRIKE maxHit=6 experience=9.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: EARTH_STRIKE level=9 runes AIR_RUNE x1 MIND_RUNE x1 EARTH_RUNE x2; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+    "fire_strike": {
+        "display_name": "Fire Strike",
+        "spellbook": "standard",
+        "required_magic_level": 13,
+        "rune_cost": {"Air rune": 1, "Mind rune": 1, "Fire rune": 3},
+        "max_hit_old_hp": 8,
+        "base_magic_xp": 11.5,
+        "attack_speed": 5,
+        "unique_id": 71,
+        "component_id": 32,
+        "autocast_id": 9,
+        "source": (
+            f"{MAGIC_SPELL_SOURCE_PATH}: FIRE_STRIKE maxHit=8 experience=11.5; "
+            f"{MAGIC_SPELLBOOK_SOURCE_PATH}: FIRE_STRIKE level=13 runes AIR_RUNE x1 MIND_RUNE x1 FIRE_RUNE x3; "
+            f"{MAGIC_SPELL_REQUIREMENT_SOURCE_PATH}: canCast/removeRunes"
+        ),
+    },
+}
+
+
+COMBAT_MAGIC_STAFF_DATA: Dict[str, dict] = {
+    "Staff of air": {
+        "covered_runes": ("Air rune",),
+        "source_item_id": 1381,
+        "source": f"{MAGIC_STAVES_SOURCE_PATH}: AIR_RUNE uses STAFF_OF_AIR; {ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR",
+    },
+    "Staff of water": {
+        "covered_runes": ("Water rune",),
+        "source_item_id": 1383,
+        "source": f"{MAGIC_STAVES_SOURCE_PATH}: WATER_RUNE uses STAFF_OF_WATER; {ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_WATER",
+    },
+    "Staff of earth": {
+        "covered_runes": ("Earth rune",),
+        "source_item_id": 1385,
+        "source": f"{MAGIC_STAVES_SOURCE_PATH}: EARTH_RUNE uses STAFF_OF_EARTH; {ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH",
+    },
+    "Staff of fire": {
+        "covered_runes": ("Fire rune",),
+        "source_item_id": 1387,
+        "source": f"{MAGIC_STAVES_SOURCE_PATH}: FIRE_RUNE uses STAFF_OF_FIRE; {ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE",
     },
 }
 
@@ -618,6 +696,9 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
     "Staff of air": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR"},
+    "Staff of water": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_WATER"},
+    "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},
+    "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
     "Tinderbox": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TINDERBOX_590"},
     "Gold charm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOLD_CHARM"},

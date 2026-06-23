@@ -459,6 +459,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Cape": "equipment",
             "Cowhide": "material",
             "Staff of air": "equipment",
+            "Staff of water": "equipment",
+            "Staff of earth": "equipment",
+            "Staff of fire": "equipment",
             "Gold charm": "material",
             "Green charm": "material",
             "Crimson charm": "material",
@@ -472,6 +475,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(by_storage_key[item_name].asset_path, COMBAT_ITEM_IMAGES[item_name])
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
+        self.assertEqual(EQUIPMENT_DATA["Staff of air"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Staff of air"].bonuses.attack_magic, 10)
         for item_name in ("Shortbow", "Bronze arrows"):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].asset_path, FLETCHED_ITEM_IMAGES[item_name])

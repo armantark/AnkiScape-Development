@@ -174,10 +174,13 @@ arrow per attack attempt from `combat_supply_loadout["ammo"]`, and routes
 Ranged accurate/rapid/longrange XP from source-shaped Ranged formulas. The
 first Magic path is also live: Wind Strike consumes Air/Mind runes from
 `combat_supply_loadout["runes"]`, awards source base Magic XP on cast attempts,
-and routes damage XP to Magic/Constitution. Future Combat work should expand
-source-backed monsters beyond the clean early rows, broaden Magic spells/staff
-behavior, broaden Ranged equipment/ammo, add loadout UI for
-food/potions/ammo/runes, improve
+and routes damage XP to Magic/Constitution. A follow-up Magic slice expanded the
+same path to Water Strike, Earth Strike, Fire Strike, and basic Staff of
+air/water/earth/fire rune substitution: covered elemental runes are not missing,
+not loaded from inventory, and not consumed per cast. Future Combat work should
+expand source-backed monsters beyond the clean early rows, broaden Magic beyond
+the Strike ladder/basic staves, broaden Ranged equipment/ammo, add loadout UI
+for food/potions/ammo/runes, improve
 dangerous-target/death-office UX, and migrate quest combat gates onto this
 shared engine.
 
@@ -197,15 +200,19 @@ source combat stats/bonuses, a fetched Cape icon, and Cape slot equipment
 metadata. Source proof lives in
 `memory-bank/source-audits/combat-highwayman-2026-06-23.md`.
 
-The first combat Magic path is now live: Wind Strike is available through the
-Combat hub's attack-style/spell controls, requires Magic level 1 plus Air rune
-x1 and Mind rune x1, consumes those runes per cast from
-`combat_supply_loadout["runes"]`, awards the source 5.5 base Magic XP even on
-splashes, routes damage XP into Magic/Constitution, and surfaces selected spell
-plus loaded/banked rune readiness in Combat target tooltips. The source audit is
-`memory-bank/source-audits/combat-magic-runes-2026-06-23.md`. Broader Magic work
-remains open for staff rune substitution, more spells, noncombat Magic actions,
-and turning the planned Magic registry row into a real playable skill panel.
+The first combat Magic ladder is now live: Wind/Water/Earth/Fire Strike are
+available through the Combat hub's attack-style/spell controls, require their
+source Magic levels and runes, consume only uncovered runes per cast from
+`combat_supply_loadout["runes"]`, award source base Magic XP even on splashes,
+route damage XP into Magic/Constitution, and surface selected spell plus
+loaded/banked or staff-covered rune readiness in Combat target tooltips. Basic
+Staff of air/water/earth/fire items are registered as weapon equipment from
+local `items.yml` and provide their matching elemental runes. Source audits are
+`memory-bank/source-audits/combat-magic-runes-2026-06-23.md` and
+`memory-bank/source-audits/combat-magic-staves-spells-2026-06-23.md`. Broader
+Magic work remains open for battlestaves/mystic staves, more spell tiers,
+noncombat Magic actions, rune loadout controls, and turning the planned Magic
+registry row into a real playable skill panel.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174

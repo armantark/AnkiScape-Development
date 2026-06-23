@@ -20,6 +20,7 @@ try:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_MAGIC_STAFF_DATA,
         COMBAT_MAGIC_SPELL_DATA,
         COMBAT_RANGED_AMMO_DATA,
         COMBAT_RANGED_WEAPON_DATA,
@@ -39,6 +40,7 @@ except ImportError:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        COMBAT_MAGIC_STAFF_DATA,
         COMBAT_MAGIC_SPELL_DATA,
         COMBAT_RANGED_AMMO_DATA,
         COMBAT_RANGED_WEAPON_DATA,
@@ -1137,7 +1139,7 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     if combat_class == "ranged":
         return _combat_ranged_locked_reasons(player_data, target_id, equipment_data or {})
     if combat_class == "magic":
-        return _combat_magic_locked_reasons(player_data, target_id)
+        return _combat_magic_locked_reasons(player_data, target_id, equipment_data or {})
     return ("unsupported combat class",)
 
 
@@ -1311,6 +1313,28 @@ def _combat_selected_magic_spell(player_data):
     return DEFAULT_COMBAT_SPELL, COMBAT_MAGIC_SPELL_DATA.get(DEFAULT_COMBAT_SPELL, {})
 
 
+def combat_staff_covered_runes_pure(player_data, equipment_data=None):
+    equipment = player_data.get("equipment", {}) or {}
+    if not isinstance(equipment, Mapping):
+        return {}
+    weapon_name = equipment.get("weapon")
+    if not isinstance(weapon_name, str):
+        return {}
+    staff_spec = COMBAT_MAGIC_STAFF_DATA.get(weapon_name)
+    if not isinstance(staff_spec, Mapping):
+        return {}
+    if isinstance(equipment_data, Mapping) and equipment_data:
+        equipment_spec = equipment_data.get(weapon_name)
+        if equipment_spec is None or _equipment_value(equipment_spec, "slot", "") != "weapon":
+            return {}
+    covered_runes = staff_spec.get("covered_runes", ())
+    if isinstance(covered_runes, str):
+        covered_runes = (covered_runes,)
+    if not isinstance(covered_runes, Iterable):
+        return {}
+    return {rune_name: weapon_name for rune_name in covered_runes if isinstance(rune_name, str)}
+
+
 def _combat_magic_rune_count(player_data, rune_name, target_id):
     loadout = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
     loaded = _non_negative_int((loadout.get("runes", {}) or {}).get(rune_name, 0), 0)
@@ -1323,13 +1347,16 @@ def _combat_magic_rune_count(player_data, rune_name, target_id):
     return loaded + banked
 
 
-def _combat_magic_missing_runes(player_data, spell_spec, target_id):
+def _combat_magic_missing_runes(player_data, spell_spec, target_id, equipment_data=None):
     rune_cost = spell_spec.get("rune_cost", {}) if isinstance(spell_spec, Mapping) else {}
     if not isinstance(rune_cost, Mapping) or not rune_cost:
         return tuple()
     missing = []
+    covered_runes = combat_staff_covered_runes_pure(player_data, equipment_data)
     for rune_name, amount in rune_cost.items():
         if not isinstance(rune_name, str):
+            continue
+        if rune_name in covered_runes:
             continue
         required = _positive_int(amount, 0)
         if required > 0 and _combat_magic_rune_count(player_data, rune_name, target_id) < required:
@@ -1337,14 +1364,14 @@ def _combat_magic_missing_runes(player_data, spell_spec, target_id):
     return tuple(missing)
 
 
-def _combat_magic_locked_reasons(player_data, target_id):
+def _combat_magic_locked_reasons(player_data, target_id, equipment_data=None):
     _spell_id, spell_spec = _combat_selected_magic_spell(player_data)
     if not isinstance(spell_spec, Mapping) or not spell_spec:
         return ("source-backed combat spell",)
     required_level = _positive_int(spell_spec.get("required_magic_level", 1), 1)
     if _combat_effective_skill_level(player_data, "magic", 1) < required_level:
         return (f"Magic level {required_level}",)
-    missing = _combat_magic_missing_runes(player_data, spell_spec, target_id)
+    missing = _combat_magic_missing_runes(player_data, spell_spec, target_id, equipment_data)
     if missing:
         return ("runes: " + ", ".join(missing),)
     return tuple()
@@ -1533,7 +1560,7 @@ def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
     data["combat_supply_loadout"] = loadout
 
 
-def _combat_refill_magic_rune_loadout(data, spell_spec):
+def _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data=None):
     if not isinstance(spell_spec, Mapping):
         return
     rune_cost = spell_spec.get("rune_cost", {})
@@ -1546,8 +1573,14 @@ def _combat_refill_magic_rune_loadout(data, spell_spec):
         data["combat_supply_loadout"] = loadout
         return
     inventory = dict(inventory)
+    covered_runes = combat_staff_covered_runes_pure(data, equipment_data)
     for rune_name in rune_cost:
         if not isinstance(rune_name, str):
+            continue
+        if rune_name in covered_runes:
+            loaded = _non_negative_int(rune_loadout.pop(rune_name, 0), 0)
+            if loaded > 0:
+                inventory[rune_name] = _non_negative_int(inventory.get(rune_name, 0), 0) + loaded
             continue
         available = _non_negative_int(inventory.get(rune_name, 0), 0)
         if available <= 0:
@@ -1576,19 +1609,22 @@ def _combat_consume_ranged_ammo(data, weapon_spec, target_id):
     return ammo_name
 
 
-def _combat_consume_magic_runes(data, spell_spec, target_id):
+def _combat_consume_magic_runes(data, spell_spec, target_id, equipment_data=None):
     if not isinstance(spell_spec, Mapping):
         return None
     rune_cost = spell_spec.get("rune_cost", {})
     if not isinstance(rune_cost, Mapping) or not rune_cost:
         return {}
-    if _combat_magic_missing_runes(data, spell_spec, target_id):
+    if _combat_magic_missing_runes(data, spell_spec, target_id, equipment_data):
         return None
+    covered_runes = combat_staff_covered_runes_pure(data, equipment_data)
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     rune_loadout = dict(loadout.get("runes", {}) or {})
     used = {}
     for rune_name, amount in rune_cost.items():
         if not isinstance(rune_name, str):
+            continue
+        if rune_name in covered_runes:
             continue
         required = _positive_int(amount, 0)
         if required <= 0:
@@ -1820,7 +1856,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         if combat_class == "ranged":
             _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
         elif combat_class == "magic":
-            _combat_refill_magic_rune_loadout(data, spell_spec)
+            _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
@@ -1906,7 +1942,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                 selected_ammo = ammo_name
                 ammo_used[ammo_name] = _non_negative_int(ammo_used.get(ammo_name, 0), 0) + 1
             elif combat_class == "magic":
-                used = _combat_consume_magic_runes(data, spell_spec, target_id)
+                used = _combat_consume_magic_runes(data, spell_spec, target_id, equipment_data)
                 if used is None:
                     out_of_runes = True
                     break
@@ -1967,7 +2003,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         if combat_class == "ranged":
             _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
         elif combat_class == "magic":
-            _combat_refill_magic_rune_loadout(data, spell_spec)
+            _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
     elif died:
         equipment = dict(data.get("equipment", {}) or {})
         grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]

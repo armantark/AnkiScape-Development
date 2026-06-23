@@ -179,11 +179,17 @@
   refills, award source base spell XP even on splashes, route damage XP to
   Magic/Constitution, expose a Combat spell selector, and surface rune readiness
   in target tooltips.
+- Combat Magic/staff expansion broadened the same source-backed path to
+  Water Strike, Earth Strike, and Fire Strike, and registered Staff of
+  air/water/earth/fire as weapon equipment with local `items.yml` bonuses.
+  Elemental staves now provide their matching rune for lock checks, safe-boundary
+  refill, cast consumption, and tooltips; covered runes are not consumed and any
+  already-carried covered rune is returned to inventory during refill.
 
 ## What Is Not Built Yet
 - Full action metadata beyond the current review-action dispatch registry, runtime handler contract, target-row metadata contract, and achievement metadata contract.
 - Combat follow-ups beyond V1 ordinary training: broader source-backed enemy
-  import, broader Magic spell/staff support, broader Ranged weapon/ammo support, richer assets, food/potion/
+  import, Magic beyond the Strike ladder/basic elemental staves, broader Ranged weapon/ammo support, richer assets, food/potion/
   ammo/rune loadout controls, confirmation UX for dangerous targets, full
   Death's Office recovery and stacked-death handling, and migrating quest combat
   gates from the lightweight resolver onto the shared combat engine. Broad
