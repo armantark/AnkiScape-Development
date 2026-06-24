@@ -588,6 +588,10 @@ MUGGER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/mugger_level_6.plugin.kts"
 )
+OUTLAW_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/outlaw_level_35.plugin.kts"
+)
 THUG_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thug_level_10.plugin.kts"
@@ -1284,6 +1288,43 @@ WHITE_KNIGHT_LEVEL_42_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
                 {"slots": 1016},
+            ),
+        },
+    ),
+}
+
+
+OUTLAW_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 127,
+            "slots": (
+                {"item": "Bronze med helm", "quantity": 1, "slots": 2},
+                {"item": "Mind rune", "quantity": 9, "slots": 2},
+                {"item": "Water rune", "quantity": 6, "slots": 2},
+                {"item": "Earth rune", "quantity": 5, "slots": 2},
+                {"item": "Coins", "quantity": 5, "slots": 12},
+                {"item": "Coins", "quantity": 15, "slots": 4},
+                {"item": "Coins", "quantity": 25, "slots": 1},
+                {"item": "Rope", "quantity": 1, "slots": 46},
+                {"item": "Fishing bait", "quantity": 1, "slots": 15},
+                {"item": "Cabbage", "quantity": 1, "slots": 6},
+                {"item": "Copper ore", "quantity": 1, "slots": 2},
+                {"item": "Knife", "quantity": 1, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 32},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 360},
+                {"item": "Green charm", "quantity": 1, "slots": 30},
+                {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                {"item": "Blue charm", "quantity": 1, "slots": 7},
+                {"slots": 573},
             ),
         },
     ),
@@ -4266,6 +4307,40 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{BLACK_KNIGHT_SOURCE_PATH}: id Npcs.BLACK_KNIGHT; "
             "main table declares total(128), active source slots sum to 116"
+        ),
+    },
+    "outlaw": {
+        "display_name": "Outlaw",
+        "level": 35,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 2,
+        "xp_multiplier": 0.025,
+        "stats": {
+            "hitpoints": 200,
+            "attack": 35,
+            "strength": 30,
+            "defence": 25,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": -21,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": OUTLAW_DROPS,
+        "source": (
+            f"{OUTLAW_SOURCE_PATH}: ids Npcs.OUTLAW through Npcs.OUTLAW_5851; "
+            "xpMultiplier 0.025; aggro radius 4; "
+            "main table declares total(128), active source slots sum to 127"
         ),
     },
     "white_knight_level_36": {

@@ -17,6 +17,7 @@ from combat_data import (
     MOSS_GIANT_DROPS,
     MAGIC_FORMULA_SOURCE_PATH,
     MAGIC_STRATEGY_SOURCE_PATH,
+    OUTLAW_DROPS,
     RANGED_FORMULA_SOURCE_PATH,
     RANGED_STRATEGY_SOURCE_PATH,
     SKELETON_HIGH_DROPS,
@@ -973,6 +974,40 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("total(128)", black_knight["source"])
         self.assertIn("active source slots sum to 116", black_knight["source"])
 
+    def test_outlaw_row_matches_source_low_xp_and_active_slot_total(self):
+        outlaw = COMBAT_ENEMY_DATA["outlaw"]
+        main, charms = outlaw["drops"]["tables"]
+
+        self.assertEqual(outlaw["display_name"], "Outlaw")
+        self.assertEqual(outlaw["level"], 35)
+        self.assertEqual(outlaw["group"], "Humanoids")
+        self.assertEqual(outlaw["attack_speed"], 4)
+        self.assertEqual(outlaw["respawn_delay"], 2)
+        self.assertEqual(outlaw["xp_multiplier"], 0.025)
+        self.assertEqual(outlaw["stats"]["hitpoints"], 200)
+        self.assertEqual(outlaw["stats"]["attack"], 35)
+        self.assertEqual(outlaw["stats"]["strength"], 30)
+        self.assertEqual(outlaw["stats"]["defence"], 25)
+        self.assertEqual(outlaw["bonuses"]["attack_crush"], -21)
+        self.assertEqual(outlaw["drops"], OUTLAW_DROPS)
+        self.assertEqual(outlaw["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 127)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 127)
+        self.assertEqual(main["slots"][0], {"item": "Bronze med helm", "quantity": 1, "slots": 2})
+        self.assertEqual(main["slots"][7], {"item": "Rope", "quantity": 1, "slots": 46})
+        self.assertEqual(main["slots"][11], {"item": "Knife", "quantity": 1, "slots": 1})
+        self.assertIs(main["slots"][12]["table"], COMBAT_MINOR_HERB_DROP_TABLE)
+        self.assertEqual(main["slots"][12]["slots"], 32)
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 360})
+        self.assertEqual(charms["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 7})
+        self.assertIn("outlaw_level_35.plugin.kts", outlaw["source"])
+        self.assertIn("Npcs.OUTLAW_5851", outlaw["source"])
+        self.assertIn("xpMultiplier 0.025", outlaw["source"])
+        self.assertIn("total(128)", outlaw["source"])
+        self.assertIn("active source slots sum to 127", outlaw["source"])
+
     def test_white_knight_rows_match_source_and_runtime_drop_totals(self):
         expected = {
             "white_knight_level_36": (
@@ -1789,6 +1824,24 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(allotment_drops, {"Bones": 1, "Potato seed": 4})
         self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
         self.assertEqual(clue_drops, {"Bones": 1, "Clue scroll (easy)": 1})
+
+    def test_outlaw_drop_rolls_nested_herbs_and_charms(self):
+        rope_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["outlaw"],
+            _rng([25 / 127, 0.999999]),
+        )
+        herb_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["outlaw"],
+            _rng([95 / 127, 0.0, 0.999999]),
+        )
+        charm_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["outlaw"],
+            _rng([0.0, 360 / 1000]),
+        )
+
+        self.assertEqual(rope_drops, {"Bones": 1, "Rope": 1})
+        self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
+        self.assertEqual(charm_drops, {"Bones": 1, "Bronze med helm": 1, "Green charm": 1})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

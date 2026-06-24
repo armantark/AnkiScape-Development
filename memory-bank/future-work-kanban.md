@@ -119,6 +119,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-chaos-druid-2026-06-23.md` before touching
   Chaos druid, Vial of water Combat item registration, or Chaos druid nested
   minor-herb/gem table drops; use
+  `memory-bank/source-audits/combat-outlaw-2026-06-23.md` before touching
+  Outlaw, source `xpMultiplier`, Outlaw charms, or the 127-slot Outlaw table
+  mismatch; use
   `memory-bank/source-audits/combat-white-knights-2026-06-23.md` before touching
   White knight variants, Half an apple pie Combat item registration, or White
   knight source table-total mismatches; use
@@ -200,6 +203,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   128-slot main table, Mithril bolts x2-12 quantity range, nested minor-herb and
   no-Ring-of-Wealth gem tables, Vial of water Combat item registration, and
   source item icon provenance.
+  Outlaw now adds the source level-35 Humanoids row, preserves source
+  `xpMultiplier = 0.025`, imports the active 127-slot main table despite the
+  file's declared `total(128)`, and adds the source Charms table.
   White knights now add the level-36/38/39/42 Humanoids variants, exact source
   stats/bonuses, Bones plus main and tertiary clue tables, nested minor-herb,
   allotment-seed, and no-Ring-of-Wealth gem tables, Half an apple pie Combat
