@@ -345,6 +345,15 @@ because the existing Combat target-row tooltip renderer exposes the new row,
 drop slots, and source file. Source proof lives in
 `memory-bank/source-audits/combat-pirate-2026-06-23.md`.
 
+Combat Monk of Zamorak coverage now adds the local source level-45 Humanoids row
+with fixed Bones, Zamorak robe top/bottom, and charm drops. The local source
+names item IDs 1033 and 1035 both `Zamorak robe`; AnkiScape disambiguates them
+as bottom/top storage keys to avoid collapsing two equipment slots in the flat
+inventory model, with exact source constants recorded in the row and audit.
+The level-30 Monk of Zamorak file stays deferred because its Golden key branch
+is conditional on player inventory. Source proof lives in
+`memory-bank/source-audits/combat-monk-of-zamorak-2026-06-23.md`.
+
 Guard also proves one source-overfilled ordinary drop table. The source file
 declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls

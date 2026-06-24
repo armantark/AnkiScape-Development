@@ -236,6 +236,12 @@
   no-Ring-of-Wealth `Gems.gemTable` support. `Eye patch` now has Combat item
   metadata and icon coverage. Source proof:
   `memory-bank/source-audits/combat-pirate-2026-06-23.md`.
+- Combat Monk of Zamorak expansion added the local source level-45 Humanoids row
+  with fixed Bones, Zamorak robe top/bottom, and charm drops. The two same-name
+  local source robe IDs are disambiguated as top/bottom storage keys so the flat
+  inventory model does not collapse separate equipment slots. The level-30
+  Golden-key conditional variant remains deferred. Source proof:
+  `memory-bank/source-audits/combat-monk-of-zamorak-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

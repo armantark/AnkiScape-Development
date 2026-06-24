@@ -604,6 +604,10 @@ MONK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/monk_level_5.plugin.kts"
 )
+MONK_OF_ZAMORAK_LEVEL_45_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/monk_of_zamorak_lvl_45.plugin.kts"
+)
 CUFFS_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/cuffs_level_3.plugin.kts"
@@ -958,6 +962,33 @@ PIRATE_DROPS = {
                 {"item": "Chef's hat", "quantity": 1, "slots": 8},
                 {"item": "Iron bar", "quantity": 1, "slots": 8},
                 {"table": COMBAT_GEM_DROP_TABLE, "slots": 8},
+            ),
+        },
+    ),
+}
+
+
+MONK_OF_ZAMORAK_LEVEL_45_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 20,
+            "slots": (
+                {"item": "Zamorak robe top", "quantity": 1, "slots": 1},
+                {"item": "Zamorak robe bottom", "quantity": 1, "slots": 1},
+                {"slots": 18},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 10},
+                {"item": "Green charm", "quantity": 1, "slots": 100},
+                {"item": "Crimson charm", "quantity": 1, "slots": 20},
+                {"item": "Blue charm", "quantity": 1, "slots": 10},
+                {"slots": 860},
             ),
         },
     ),
@@ -1844,6 +1875,39 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{PIRATE_SOURCE_PATH}: ids Npcs.PIRATE/Npcs.PIRATE_183/Npcs.PIRATE_184; "
             "source attackBonus/strengthBonus mapped to melee attack/strength bonuses"
+        ),
+    },
+    "monk_of_zamorak_level_45": {
+        "display_name": "Monk of Zamorak",
+        "level": 45,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 250,
+        "stats": {
+            "hitpoints": 400,
+            "attack": 38,
+            "strength": 38,
+            "defence": 42,
+            "magic": 40,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": MONK_OF_ZAMORAK_LEVEL_45_DROPS,
+        "source": (
+            f"{MONK_OF_ZAMORAK_LEVEL_45_SOURCE_PATH}: id Npcs.MONK_OF_ZAMORAK_190; "
+            "Items.ZAMORAK_ROBE_1035 mapped to Zamorak robe top, "
+            "Items.ZAMORAK_ROBE mapped to Zamorak robe bottom; aggro radius 4"
         ),
     },
     "unicorn": {
@@ -3098,6 +3162,8 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
+    "Zamorak robe bottom": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE"},
+    "Zamorak robe top": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE_1035"},
     "Tinderbox": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TINDERBOX_590"},
     "Gold charm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOLD_CHARM"},
     "Green charm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GREEN_CHARM"},

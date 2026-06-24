@@ -899,6 +899,37 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("PIRATE_184", pirate["source"])
         self.assertIn("attackBonus/strengthBonus", pirate["source"])
 
+    def test_monk_of_zamorak_level_45_row_matches_source_and_charms(self):
+        monk = COMBAT_ENEMY_DATA["monk_of_zamorak_level_45"]
+        main, charms = monk["drops"]["tables"]
+
+        self.assertEqual(monk["display_name"], "Monk of Zamorak")
+        self.assertEqual(monk["level"], 45)
+        self.assertEqual(monk["group"], "Humanoids")
+        self.assertEqual(monk["attack_speed"], 4)
+        self.assertEqual(monk["respawn_delay"], 250)
+        self.assertEqual(monk["stats"]["hitpoints"], 400)
+        self.assertEqual(monk["stats"]["attack"], 38)
+        self.assertEqual(monk["stats"]["strength"], 38)
+        self.assertEqual(monk["stats"]["defence"], 42)
+        self.assertEqual(monk["stats"]["magic"], 40)
+        self.assertEqual(monk["stats"]["ranged"], 1)
+        self.assertEqual(monk["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 20)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 20)
+        self.assertEqual(main["slots"][0], {"item": "Zamorak robe top", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][1], {"item": "Zamorak robe bottom", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][2], {"slots": 18})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 10})
+        self.assertEqual(charms["slots"][1], {"item": "Green charm", "quantity": 1, "slots": 100})
+        self.assertEqual(charms["slots"][-1], {"slots": 860})
+        self.assertIn("monk_of_zamorak_lvl_45.plugin.kts", monk["source"])
+        self.assertIn("MONK_OF_ZAMORAK_190", monk["source"])
+        self.assertIn("ZAMORAK_ROBE_1035", monk["source"])
+        self.assertIn("ZAMORAK_ROBE mapped", monk["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -971,6 +1002,19 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(bolt_drops, {"Bones": 1, "Iron bolts": 12})
         self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
+
+    def test_monk_of_zamorak_level_45_drop_rolls_main_and_charms(self):
+        top_and_charm = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["monk_of_zamorak_level_45"],
+            _rng([0.0, 10 / 1000]),
+        )
+        bottom_only = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["monk_of_zamorak_level_45"],
+            _rng([1 / 20, 140 / 1000]),
+        )
+
+        self.assertEqual(top_and_charm, {"Bones": 1, "Zamorak robe top": 1, "Green charm": 1})
+        self.assertEqual(bottom_only, {"Bones": 1, "Zamorak robe bottom": 1})
 
     def test_mugger_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

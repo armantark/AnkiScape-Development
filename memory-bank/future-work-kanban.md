@@ -147,7 +147,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   expose no drops instead of inheriting the land callback. Pirate now adds the
   source level-23 Humanoids row with the full 1024-slot main table, Iron bolts
   x2-12, Eye patch icon coverage, and nested no-Ring-of-Wealth gem table
-  support. Guard now adds three
+  support. Monk of Zamorak level 45 now adds fixed robe and charm drops with
+  disambiguated Zamorak robe top/bottom storage keys; the Golden-key level-30
+  variant remains deferred until Combat can model conditional drop branches.
+  Guard now adds three
   level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared
