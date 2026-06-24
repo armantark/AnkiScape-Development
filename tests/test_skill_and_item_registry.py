@@ -489,6 +489,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "H.A.M. robe": "equipment",
             "H.A.M. shirt": "equipment",
             "Impious ashes": "material",
+            "Iron javelin": "material",
+            "Iron spear": "equipment",
             "Jug": "material",
             "Jug of wine": "food",
             "Loop half of a key": "material",
@@ -509,6 +511,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Staff of water": "equipment",
             "Staff of earth": "equipment",
             "Staff of fire": "equipment",
+            "Steel spear": "equipment",
             "Thread": "material",
             "Tooth half of a key": "material",
             "Unicorn horn": "material",
@@ -601,6 +604,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
         self.assertEqual(EQUIPMENT_DATA["Bronze spear"].slot, "weapon")
         self.assertEqual(EQUIPMENT_DATA["Bronze spear"].bonuses.melee_strength, 6)
+        self.assertEqual(EQUIPMENT_DATA["Iron spear"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Iron spear"].bonuses.melee_strength, 10)
+        self.assertEqual(EQUIPMENT_DATA["Steel spear"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Steel spear"].required_level, 5)
         self.assertEqual(EQUIPMENT_DATA["Staff"].slot, "weapon")
         self.assertEqual(EQUIPMENT_DATA["Staff"].bonuses.attack_magic, 4)
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].slot, "weapon")

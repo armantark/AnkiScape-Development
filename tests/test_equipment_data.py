@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 152)
+        self.assertEqual(len(EQUIPMENT_DATA), 154)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -76,16 +76,25 @@ class TestEquipmentData(unittest.TestCase):
                 self.assertEqual(bow.bonuses.attack_ranged, attack_ranged)
 
     def test_goblin_drop_equipment_items_are_equippable(self):
-        bronze_spear = EQUIPMENT_DATA["Bronze spear"]
-        self.assertEqual(bronze_spear.slot, "weapon")
-        self.assertEqual(bronze_spear.equipment_type, "spear")
-        self.assertTrue(bronze_spear.two_handed)
-        self.assertEqual(bronze_spear.attack_speed, 5)
-        self.assertEqual(bronze_spear.source_item_id, 1237)
-        self.assertEqual(bronze_spear.bonuses.attack_stab, 5)
-        self.assertEqual(bronze_spear.bonuses.attack_slash, 5)
-        self.assertEqual(bronze_spear.bonuses.attack_crush, 5)
-        self.assertEqual(bronze_spear.bonuses.melee_strength, 6)
+        expected_spears = {
+            "Bronze spear": (1237, 1, 5, 6),
+            "Iron spear": (1239, 1, 8, 10),
+            "Steel spear": (1241, 5, 12, 12),
+        }
+        for item_name, (source_item_id, required_level, attack_bonus, melee_strength) in expected_spears.items():
+            with self.subTest(item_name=item_name):
+                spear = EQUIPMENT_DATA[item_name]
+                self.assertEqual(spear.slot, "weapon")
+                self.assertEqual(spear.combat_skill, "attack")
+                self.assertEqual(spear.required_level, required_level)
+                self.assertEqual(spear.equipment_type, "spear")
+                self.assertTrue(spear.two_handed)
+                self.assertEqual(spear.attack_speed, 5)
+                self.assertEqual(spear.source_item_id, source_item_id)
+                self.assertEqual(spear.bonuses.attack_stab, attack_bonus)
+                self.assertEqual(spear.bonuses.attack_slash, attack_bonus)
+                self.assertEqual(spear.bonuses.attack_crush, attack_bonus)
+                self.assertEqual(spear.bonuses.melee_strength, melee_strength)
 
         self.assertEqual(EQUIPMENT_DATA["Chef's hat"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Chef's hat"].source_item_id, 1949)

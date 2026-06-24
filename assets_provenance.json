@@ -431,6 +431,30 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:06:08Z"
   },
+  "combatitems/iron_javelin.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_javelin.png",
+    "file_title": "Iron javelin.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_javelin.png?8b61b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d048b8d65ae61c2dd21d10c73be4e7f32f049c6d",
+    "size": 254,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:19Z"
+  },
+  "combatitems/iron_spear.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_spear.png",
+    "file_title": "Iron spear.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Iron_spear.png?54303",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7b9f22a4148b566bee02c63ac1b3ef04e7b3c4e3",
+    "size": 298,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:22Z"
+  },
   "combatitems/jug.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jug.png",
     "file_title": "Jug.png",
@@ -586,6 +610,18 @@
     "size": 394,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:55Z"
+  },
+  "combatitems/steel_spear.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Steel_spear.png",
+    "file_title": "Steel spear.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Steel_spear.png?659e6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3fd3170b0698b3bbe6df5be345e07e0db37ca17a",
+    "size": 296,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:22Z"
   },
   "combatitems/thread.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thread.png",

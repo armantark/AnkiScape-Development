@@ -135,6 +135,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-imp-2026-06-23.md` before touching Imp,
   Imp Catcher bead drops, Imp teleport-source notes, or Impious ashes Combat
   item registration; use
+  `memory-bank/source-audits/combat-hobgoblins-2026-06-23.md` before touching
+  Hobgoblins, Hobgoblin source drop denominators, Iron javelin inventory-only
+  treatment, or Iron/Steel spear equipment metadata; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -237,6 +240,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   table including Imp Catcher beads, Combat item/icon registration for Impious
   ashes, beads, Wizard hat, Shears, Jug, and Cadava berries, and a source note
   that the teleport timer is spatial movement only.
+  Hobgoblins now add source level-28 unarmed and armed rows, active runtime
+  denominators for the unarmed row's mismatched main/Charms tables, nested
+  minor-herb, allotment-seed, uncommon-seed, and gem table drops, Iron javelin
+  inventory item/icon registration, and source-backed Iron/Steel spear equipment
+  metadata.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;

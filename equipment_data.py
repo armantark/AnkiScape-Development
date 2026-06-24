@@ -1608,6 +1608,11 @@ _RANGED_BOW_EQUIPMENT = {
     'Magic shortbow': {'equipment_type': 'magic_shortbow', 'source_item_id': 861, 'required_level': 50, 'attack_ranged': 69, 'attack_speed': 4},
     'Magic longbow': {'equipment_type': 'magic_longbow', 'source_item_id': 859, 'required_level': 50, 'attack_ranged': 69, 'attack_speed': 6},
 }
+_MANUAL_SPEAR_EQUIPMENT = {
+    'Bronze spear': {'required_level': 1, 'attack': 5, 'melee_strength': 6},
+    'Iron spear': {'required_level': 1, 'attack': 8, 'melee_strength': 10},
+    'Steel spear': {'required_level': 5, 'attack': 12, 'melee_strength': 12},
+}
 
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Shortbow', 'weapon', 'shortbow', 841, 'data/cfg/items.yml item 841; SHORTBOW'),
@@ -1625,6 +1630,8 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Cape', 'cape', 'cape', 1019, 'data/cfg/items.yml item 1019; CAPE_1019'),
     ('Brass necklace', 'neck', 'necklace', 1009, 'data/cfg/items.yml item 1009; BRASS_NECKLACE'),
     ('Bronze spear', 'weapon', 'spear', 1237, 'data/cfg/items.yml item 1237; BRONZE_SPEAR'),
+    ('Iron spear', 'weapon', 'spear', 1239, 'data/cfg/items.yml item 1239; IRON_SPEAR'),
+    ('Steel spear', 'weapon', 'spear', 1241, 'data/cfg/items.yml item 1241; STEEL_SPEAR'),
     ("Chef's hat", 'head', 'hat', 1949, 'data/cfg/items.yml item 1949; CHEFS_HAT'),
     ('Staff', 'weapon', 'staff', 1379, 'data/cfg/items.yml item 1379; STAFF'),
     ('Staff of air', 'weapon', 'elemental_staff', 1381, 'data/cfg/items.yml item 1381; STAFF_OF_AIR'),
@@ -1651,23 +1658,29 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
         EquipmentItem(
             item_name=_item_name,
             slot=_slot,
-            combat_skill='ranged' if _item_name in _RANGED_BOW_EQUIPMENT else None,
-            required_level=_RANGED_BOW_EQUIPMENT[_item_name]['required_level'] if _item_name in _RANGED_BOW_EQUIPMENT else 1,
-            two_handed=True if _item_name in _RANGED_BOW_EQUIPMENT or _item_name == 'Bronze spear' else False,
+            combat_skill='ranged' if _item_name in _RANGED_BOW_EQUIPMENT else 'attack' if _item_name in _MANUAL_SPEAR_EQUIPMENT else None,
+            required_level=(
+                _RANGED_BOW_EQUIPMENT[_item_name]['required_level']
+                if _item_name in _RANGED_BOW_EQUIPMENT
+                else _MANUAL_SPEAR_EQUIPMENT[_item_name]['required_level']
+                if _item_name in _MANUAL_SPEAR_EQUIPMENT
+                else 1
+            ),
+            two_handed=True if _item_name in _RANGED_BOW_EQUIPMENT or _item_name in _MANUAL_SPEAR_EQUIPMENT else False,
             equipment_type=_equipment_type,
             bonuses=(
                 EquipmentBonuses(attack_ranged=_RANGED_BOW_EQUIPMENT[_item_name]['attack_ranged'])
                 if _item_name in _RANGED_BOW_EQUIPMENT
                 else
                 EquipmentBonuses(
-                    attack_stab=5,
-                    attack_slash=5,
-                    attack_crush=5,
+                    attack_stab=_MANUAL_SPEAR_EQUIPMENT[_item_name]['attack'],
+                    attack_slash=_MANUAL_SPEAR_EQUIPMENT[_item_name]['attack'],
+                    attack_crush=_MANUAL_SPEAR_EQUIPMENT[_item_name]['attack'],
                     defence_stab=1,
                     defence_slash=1,
-                    melee_strength=6,
+                    melee_strength=_MANUAL_SPEAR_EQUIPMENT[_item_name]['melee_strength'],
                 )
-                if _item_name == 'Bronze spear'
+                if _item_name in _MANUAL_SPEAR_EQUIPMENT
                 else
                 EquipmentBonuses(
                     attack_slash=-1,
@@ -1727,7 +1740,7 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                 _RANGED_BOW_EQUIPMENT[_item_name]['attack_speed']
                 if _item_name in _RANGED_BOW_EQUIPMENT
                 else 5
-                if _equipment_type in {'spear', 'staff', 'elemental_staff'}
+                if _item_name in _MANUAL_SPEAR_EQUIPMENT or _equipment_type in {'staff', 'elemental_staff'}
                 else 4
                 if _item_name in {'Brass necklace', 'Cape', "Chef's hat"}
                 else 0
@@ -1738,7 +1751,6 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                 'items.yml equipment block'
                 if _item_name in {
                     'Brass necklace',
-                    'Bronze spear',
                     'Cape',
                     "Chef's hat",
                     'Staff',
@@ -1746,7 +1758,7 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                     'Staff of water',
                     'Staff of earth',
                     'Staff of fire',
-                } or _item_name in _RANGED_BOW_EQUIPMENT
+                } or _item_name in _RANGED_BOW_EQUIPMENT or _item_name in _MANUAL_SPEAR_EQUIPMENT
                 else 'manual Runecrafting v1 equipment entry'
             ),
         ),

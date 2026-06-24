@@ -1492,6 +1492,58 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(charms["total"], 1024)
         self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 6})
 
+    def test_hobgoblin_rows_match_source_and_runtime_drop_totals(self):
+        unarmed = COMBAT_ENEMY_DATA["hobgoblin_unarmed"]
+        armed = COMBAT_ENEMY_DATA["hobgoblin_armed"]
+        unarmed_main, unarmed_charms = unarmed["drops"]["tables"]
+        armed_main, armed_charms = armed["drops"]["tables"]
+
+        self.assertEqual(unarmed["display_name"], "Hobgoblin (unarmed)")
+        self.assertEqual(unarmed["level"], 28)
+        self.assertEqual(unarmed["group"], "Hobgoblins")
+        self.assertEqual(unarmed["attack_speed"], 4)
+        self.assertEqual(unarmed["respawn_delay"], 50)
+        self.assertEqual(unarmed["stats"]["hitpoints"], 290)
+        self.assertEqual(unarmed["stats"]["attack"], 22)
+        self.assertEqual(unarmed["stats"]["strength"], 24)
+        self.assertEqual(unarmed["stats"]["defence"], 24)
+        self.assertEqual(unarmed_main["total"], 127)
+        self.assertEqual(sum(slot["slots"] for slot in unarmed_main["slots"]), 127)
+        self.assertEqual(unarmed_main["slots"][3], {"item": "Iron spear", "quantity": 1, "slots": 2})
+        self.assertIs(unarmed_main["slots"][21]["table"], COMBAT_MINOR_HERB_DROP_TABLE)
+        self.assertIs(unarmed_main["slots"][22]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
+        self.assertIs(unarmed_main["slots"][23]["table"], COMBAT_GEM_DROP_TABLE)
+        self.assertEqual(unarmed_charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in unarmed_charms["slots"]), 1000)
+        self.assertIn("hobgoblin_unarmed_level_28.plugin.kts", unarmed["source"])
+        self.assertIn("total(128)", unarmed["source"])
+        self.assertIn("active source slots sum to 127", unarmed["source"])
+        self.assertIn("total(1024)", unarmed["source"])
+        self.assertIn("active source slots sum to 1000", unarmed["source"])
+
+        self.assertEqual(armed["display_name"], "Hobgoblin (armed)")
+        self.assertEqual(armed["level"], 28)
+        self.assertEqual(armed["group"], "Hobgoblins")
+        self.assertEqual(armed["attack_speed"], 6)
+        self.assertEqual(armed["respawn_delay"], 30)
+        self.assertEqual(armed["stats"]["hitpoints"], 490)
+        self.assertEqual(armed["stats"]["attack"], 33)
+        self.assertEqual(armed["stats"]["strength"], 31)
+        self.assertEqual(armed["stats"]["defence"], 36)
+        self.assertEqual(armed["bonuses"]["attack_stab"], 8)
+        self.assertEqual(armed["bonuses"]["attack_crush"], 10)
+        self.assertEqual(armed["bonuses"]["defence_stab"], 1)
+        self.assertEqual(armed_main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in armed_main["slots"]), 128)
+        self.assertEqual(armed_main["slots"][10], {"item": "Iron javelin", "quantity": 5, "slots": 2})
+        self.assertIs(armed_main["slots"][11]["table"], COMBAT_MINOR_HERB_DROP_TABLE)
+        self.assertIs(armed_main["slots"][12]["table"], COMBAT_UNCOMMON_SEED_DROP_TABLE)
+        self.assertIs(armed_main["slots"][22]["table"], COMBAT_GEM_DROP_TABLE)
+        self.assertEqual(armed_charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in armed_charms["slots"]), 1000)
+        self.assertIn("hobgoblin_armed_lvl_28.plugin.kts", armed["source"])
+        self.assertIn("aggro radius 4", armed["source"])
+
     def test_al_kharid_warrior_row_matches_source_and_nested_minor_herbs(self):
         warrior = COMBAT_ENEMY_DATA["al_kharid_warrior"]
 
@@ -2113,6 +2165,19 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_hobgoblin_drop_rolls_nested_tables_and_charms(self):
+        unarmed_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["hobgoblin_unarmed"],
+            _rng([0.0, 0.0]),
+        )
+        armed_seed_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["hobgoblin_armed"],
+            _rng([31 / 128, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(unarmed_drops, {"Bones": 1, "Bronze spear": 1, "Gold charm": 1})
+        self.assertEqual(armed_seed_drops, {"Bones": 1, "Limpwurt seed": 1})
 
     def test_al_kharid_warrior_drop_rolls_nested_minor_herb_table(self):
         drops = _combat_roll_drops(
