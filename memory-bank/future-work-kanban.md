@@ -137,7 +137,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `minorHerbTable`, and easy clue tertiary table while leaving Thieving
   gameplay deferred. Citizen now adds the shared source level-2 Man/Woman row
   with a 1024-slot main table, Bronze bolts x2-12, nested `minorHerbTable`, and
-  easy clue tertiary while reusing existing item assets. Guard now adds three
+  easy clue tertiary while reusing existing item assets. Monk now adds the
+  Bones-only source level-5 row, and Cuffs plus Narf/Jeff/Rusty now reuse the
+  same low-level human 1024-slot source table as Citizen; Johnny the Beard stays
+  deferred pending source default-stat semantics. Guard now adds three
   level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared

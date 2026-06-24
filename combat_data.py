@@ -600,6 +600,18 @@ CITIZEN_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/citizen_level_2.plugin.kts"
 )
+MONK_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/monk_level_5.plugin.kts"
+)
+CUFFS_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/cuffs_level_3.plugin.kts"
+)
+NARF_JEFF_RUSTY_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/narf_jeff_rusty_level_2.plugin.kts"
+)
 GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/guard_level_21.plugin.kts"
@@ -851,7 +863,7 @@ FARMER_DROPS = {
 }
 
 
-CITIZEN_DROPS = {
+LOW_LEVEL_HUMANOID_DROPS = {
     "guaranteed": (("Bones", 1),),
     "tables": (
         {
@@ -1564,13 +1576,100 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "defence_ranged": -21,
             "melee_strength": 0,
         },
-        "drops": CITIZEN_DROPS,
+        "drops": LOW_LEVEL_HUMANOID_DROPS,
         "source": (
             f"{CITIZEN_SOURCE_PATH}: ids Npcs.MAN/Npcs.MAN_2/Npcs.MAN_3/Npcs.MAN_24/"
             "Npcs.WOMAN_BRUNETTE_LONGSKIRT_4/Npcs.WOMAN_BRUNETTE_PONYTAIL_5/"
             "Npcs.WOMAN_WOMAN_BLOND_PONYTAIL_6/Npcs.MAN_16/Npcs.MAN_3223/"
             "Npcs.WOMAN_BLOND_LONGSKIRT_3226"
         ),
+    },
+    "monk": {
+        "display_name": "Monk",
+        "level": 5,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 150,
+            "attack": 2,
+            "strength": 2,
+            "defence": 3,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1),), "tables": ()},
+        "source": f"{MONK_SOURCE_PATH}: id Npcs.MONK_7727",
+    },
+    "cuffs": {
+        "display_name": "Cuffs",
+        "level": 3,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 70,
+            "attack": 1,
+            "strength": 1,
+            "defence": 3,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": 5,
+            "defence_magic": 5,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": LOW_LEVEL_HUMANOID_DROPS,
+        "source": f"{CUFFS_SOURCE_PATH}: id Npcs.CUFFS",
+    },
+    "narf_jeff_rusty": {
+        "display_name": "Narf/Jeff/Rusty",
+        "level": 2,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 70,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": 5,
+            "defence_magic": 5,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": LOW_LEVEL_HUMANOID_DROPS,
+        "source": f"{NARF_JEFF_RUSTY_SOURCE_PATH}: ids Npcs.NARF/Npcs.JEFF/Npcs.RUSTY",
     },
     "cow": {
         "display_name": "Cow",

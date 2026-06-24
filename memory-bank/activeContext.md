@@ -315,6 +315,15 @@ ID set, guaranteed Bones, 1024-slot main table, Bronze bolts x2-12, nested
 coverage; no new Combat-owned icons were required. Source proof lives in
 `memory-bank/source-audits/combat-citizen-2026-06-23.md`.
 
+Combat low-level Humanoids coverage now adds source-backed Monk, Cuffs, and
+Narf/Jeff/Rusty rows. Monk is a Bones-only level-5 target from the local
+`MONK_7727` row. Cuffs and Narf/Jeff/Rusty reuse the same source 1024-slot
+low-level human table as Citizen, including Bronze bolts x2-12, nested
+`minorHerbTable`, and easy clue tertiary. Johnny the Beard remains deferred
+because his local source row only declares hitpoints and needs default-stat
+semantics audited before import. Source proof lives in
+`memory-bank/source-audits/combat-low-level-humanoids-2026-06-23.md`.
+
 Guard also proves one source-overfilled ordinary drop table. The source file
 declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls

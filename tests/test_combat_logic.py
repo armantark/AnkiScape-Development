@@ -754,6 +754,43 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("citizen_level_2.plugin.kts", citizen["source"])
         self.assertIn("WOMAN_BLOND_LONGSKIRT_3226", citizen["source"])
 
+    def test_low_level_humanoid_rows_match_source(self):
+        monk = COMBAT_ENEMY_DATA["monk"]
+        cuffs = COMBAT_ENEMY_DATA["cuffs"]
+        narf_jeff_rusty = COMBAT_ENEMY_DATA["narf_jeff_rusty"]
+
+        self.assertEqual(monk["display_name"], "Monk")
+        self.assertEqual(monk["level"], 5)
+        self.assertEqual(monk["group"], "Humanoids")
+        self.assertEqual(monk["attack_speed"], 4)
+        self.assertEqual(monk["respawn_delay"], 25)
+        self.assertEqual(monk["stats"]["hitpoints"], 150)
+        self.assertEqual(monk["stats"]["attack"], 2)
+        self.assertEqual(monk["stats"]["strength"], 2)
+        self.assertEqual(monk["stats"]["defence"], 3)
+        self.assertEqual(monk["drops"], {"guaranteed": (("Bones", 1),), "tables": ()})
+        self.assertIn("monk_level_5.plugin.kts", monk["source"])
+        self.assertIn("MONK_7727", monk["source"])
+
+        self.assertEqual(cuffs["display_name"], "Cuffs")
+        self.assertEqual(cuffs["level"], 3)
+        self.assertEqual(cuffs["stats"]["hitpoints"], 70)
+        self.assertEqual(cuffs["stats"]["defence"], 3)
+        self.assertEqual(cuffs["bonuses"]["defence_stab"], 5)
+        self.assertEqual(cuffs["bonuses"]["defence_ranged"], 5)
+        self.assertIs(cuffs["drops"], COMBAT_ENEMY_DATA["citizen"]["drops"])
+        self.assertIn("cuffs_level_3.plugin.kts", cuffs["source"])
+        self.assertIn("Npcs.CUFFS", cuffs["source"])
+
+        self.assertEqual(narf_jeff_rusty["display_name"], "Narf/Jeff/Rusty")
+        self.assertEqual(narf_jeff_rusty["level"], 2)
+        self.assertEqual(narf_jeff_rusty["stats"]["hitpoints"], 70)
+        self.assertEqual(narf_jeff_rusty["stats"]["defence"], 1)
+        self.assertEqual(narf_jeff_rusty["bonuses"]["defence_magic"], 5)
+        self.assertIs(narf_jeff_rusty["drops"], COMBAT_ENEMY_DATA["citizen"]["drops"])
+        self.assertIn("narf_jeff_rusty_level_2.plugin.kts", narf_jeff_rusty["source"])
+        self.assertIn("Npcs.RUSTY", narf_jeff_rusty["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -785,6 +822,21 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_low_level_humanoid_drop_rolls(self):
+        monk_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["monk"], _rng([]))
+        cuffs_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["cuffs"],
+            _rng([24 / 1024, 0.999999, 1016 / 1024]),
+        )
+        shared_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["narf_jeff_rusty"],
+            _rng([258 / 1024, 0.0, 0.0]),
+        )
+
+        self.assertEqual(monk_drops, {"Bones": 1})
+        self.assertEqual(cuffs_drops, {"Bones": 1, "Bronze bolts": 12, "Clue scroll (easy)": 1})
+        self.assertEqual(shared_drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_mugger_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

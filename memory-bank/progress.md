@@ -212,6 +212,14 @@
   Bronze bolts x2-12, nested `Herbs.minorHerbTable`, and easy clue tertiary
   drops while reusing existing item/icon coverage. Source proof:
   `memory-bank/source-audits/combat-citizen-2026-06-23.md`.
+- Combat low-level Humanoids expansion added source-backed Monk, Cuffs, and
+  Narf/Jeff/Rusty rows. Monk imports the local level-5 Bones-only source row;
+  Cuffs and Narf/Jeff/Rusty import their source stats and reuse the same
+  1024-slot low-level human drop table as Citizen, including Bronze bolts
+  x2-12, nested `Herbs.minorHerbTable`, and easy clue tertiary drops. Johnny the
+  Beard remains deferred because the local source row only declares hitpoints.
+  Source proof:
+  `memory-bank/source-audits/combat-low-level-humanoids-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula
