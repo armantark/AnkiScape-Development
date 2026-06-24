@@ -830,6 +830,51 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("thief_level_16.plugin.kts", thief["source"])
         self.assertIn("THIEF_5929", thief["source"])
 
+    def test_market_and_jail_guard_rows_match_source(self):
+        market = COMBAT_ENEMY_DATA["market_guard"]
+        jail = COMBAT_ENEMY_DATA["jail_guard"]
+
+        self.assertEqual(market["display_name"], "Market guard")
+        self.assertEqual(market["level"], 20)
+        self.assertEqual(market["group"], "Humanoids")
+        self.assertEqual(market["attack_speed"], 5)
+        self.assertEqual(market["respawn_delay"], 50)
+        self.assertEqual(market["stats"]["hitpoints"], 220)
+        self.assertEqual(market["stats"]["attack"], 17)
+        self.assertEqual(market["stats"]["strength"], 18)
+        self.assertEqual(market["stats"]["defence"], 13)
+        self.assertEqual(market["bonuses"]["attack_stab"], 9)
+        self.assertEqual(market["bonuses"]["attack_crush"], 7)
+        self.assertEqual(market["bonuses"]["defence_stab"], 24)
+        self.assertEqual(market["bonuses"]["defence_slash"], 14)
+        self.assertEqual(market["bonuses"]["defence_crush"], 19)
+        self.assertEqual(market["bonuses"]["defence_magic"], 4)
+        self.assertEqual(market["bonuses"]["defence_ranged"], 16)
+        self.assertEqual(market["drops"], {"guaranteed": (("Bones", 1),), "tables": ()})
+        self.assertIn("market_guard_level_20.plugin.kts", market["source"])
+        self.assertIn("MARKET_GUARD_2236", market["source"])
+
+        self.assertEqual(jail["display_name"], "Jail guard")
+        self.assertEqual(jail["level"], 26)
+        self.assertEqual(jail["group"], "Humanoids")
+        self.assertEqual(jail["attack_speed"], 5)
+        self.assertEqual(jail["respawn_delay"], 30)
+        self.assertEqual(jail["stats"]["hitpoints"], 320)
+        self.assertEqual(jail["stats"]["attack"], 19)
+        self.assertEqual(jail["stats"]["strength"], 23)
+        self.assertEqual(jail["stats"]["defence"], 21)
+        self.assertEqual(jail["bonuses"]["attack_stab"], 5)
+        self.assertEqual(jail["bonuses"]["attack_crush"], 9)
+        self.assertEqual(jail["bonuses"]["defence_stab"], 8)
+        self.assertEqual(jail["bonuses"]["defence_slash"], 9)
+        self.assertEqual(jail["bonuses"]["defence_crush"], 10)
+        self.assertEqual(jail["bonuses"]["defence_magic"], 4)
+        self.assertEqual(jail["bonuses"]["defence_ranged"], 9)
+        self.assertEqual(jail["drops"], {"guaranteed": (("Bones", 1),), "tables": ()})
+        self.assertIn("jail_guard_level_26.plugin.kts", jail["source"])
+        self.assertIn("JAIL_GUARD_917", jail["source"])
+        self.assertIn("aggro radius 4", jail["source"])
+
     def test_guard_import_rows_match_source_split_variants_and_shared_drops(self):
         varrock = COMBAT_ENEMY_DATA["guard_varrock"]
         sword = COMBAT_ENEMY_DATA["guard_sword"]
@@ -1313,6 +1358,8 @@ class CombatLogicTest(unittest.TestCase):
 
     def test_low_level_humanoid_drop_rolls(self):
         monk_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["monk"], _rng([]))
+        market_guard_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["market_guard"], _rng([]))
+        jail_guard_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["jail_guard"], _rng([]))
         cuffs_drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["cuffs"],
             _rng([24 / 1024, 0.999999, 1016 / 1024]),
@@ -1323,6 +1370,8 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(monk_drops, {"Bones": 1})
+        self.assertEqual(market_guard_drops, {"Bones": 1})
+        self.assertEqual(jail_guard_drops, {"Bones": 1})
         self.assertEqual(cuffs_drops, {"Bones": 1, "Bronze bolts": 12, "Clue scroll (easy)": 1})
         self.assertEqual(shared_drops, {"Bones": 1, "Grimy guam": 1})
 

@@ -740,6 +740,14 @@ GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/guard_level_21.plugin.kts"
 )
+JAIL_GUARD_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/jail_guard_level_26.plugin.kts"
+)
+MARKET_GUARD_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/market_guard_level_20.plugin.kts"
+)
 DWARF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/dwarf_level_10_11.plugin.kts"
@@ -3746,6 +3754,67 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{DWARF_SOURCE_PATH}: idsLevel11 Npcs.DWARF_3219/Npcs.DWARF_3220/"
             "Npcs.DWARF_3268/Npcs.DWARF_3269/Npcs.DWARF_3270"
+        ),
+    },
+    "market_guard": {
+        "display_name": "Market guard",
+        "level": 20,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 220,
+            "attack": 17,
+            "strength": 18,
+            "defence": 13,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 9,
+            "attack_slash": 0,
+            "attack_crush": 7,
+            "defence_stab": 24,
+            "defence_slash": 14,
+            "defence_crush": 19,
+            "defence_magic": 4,
+            "defence_ranged": 16,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1),), "tables": ()},
+        "source": f"{MARKET_GUARD_SOURCE_PATH}: id Npcs.MARKET_GUARD_2236",
+    },
+    "jail_guard": {
+        "display_name": "Jail guard",
+        "level": 26,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 30,
+        "stats": {
+            "hitpoints": 320,
+            "attack": 19,
+            "strength": 23,
+            "defence": 21,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 9,
+            "defence_stab": 8,
+            "defence_slash": 9,
+            "defence_crush": 10,
+            "defence_magic": 4,
+            "defence_ranged": 9,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (("Bones", 1),), "tables": ()},
+        "source": (
+            f"{JAIL_GUARD_SOURCE_PATH}: ids Npcs.JAIL_GUARD/Npcs.JAIL_GUARD_448/"
+            "Npcs.JAIL_GUARD_449/Npcs.JAIL_GUARD_917; aggro radius 4"
         ),
     },
     "guard_varrock": {

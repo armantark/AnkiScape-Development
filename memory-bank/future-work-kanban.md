@@ -42,7 +42,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
-  Mugger, Thug, Thief, Guard level 21 Varrock/sword/battleaxe variants,
+  Mugger, Thug, Thief, Market guard, Guard level 21
+  Varrock/sword/battleaxe variants, Jail guard,
   Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
   Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
   Deadly red spider, Poison spider levels 31/64, Hill giant, Moss giant, and
@@ -106,6 +107,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Thug, Thug charms, or its nested minor-herb drop table; use
   `memory-bank/source-audits/combat-thief-2026-06-23.md` before touching
   Thief or its nested minor-herb drop table; use
+  `memory-bank/source-audits/combat-market-jail-guards-2026-06-23.md` before
+  touching Market guard, Jail guard, Jailer, or Jail key route semantics; use
   `memory-bank/source-audits/combat-guard-2026-06-23.md` before touching
   Guard rows, Guard drop-table overflow handling, or medium clue Combat drops; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
@@ -170,7 +173,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   robe and charm drops with disambiguated Zamorak robe top/bottom storage keys;
   the Golden-key level-30 variant remains deferred until Combat can model
   conditional drop branches.
-  Guard now adds three
+  Market guard and Jail guard now add two complete source Humanoids rows with
+  Bones-only death drops; Jailer remains deferred because its Jail key drop is
+  route- and quest-sensitive rather than an ordinary loot-only row. Guard now
+  adds three
   level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared
