@@ -118,8 +118,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 	  Super large egg, Top-quality milk, and Extra fine flour in stages, with only
 	  Bucket and Empty pot acting as external inventory blockers. Common items
 	  bought or obtained as part of the same quest should be action-modeled instead
-	  of shown as quest-wide inventory gates; Vampyre Slayer's Blue Moon Inn beer is
-	  the proof case, while its Stake and Stake hammer are produced by Dr Harlow.
+	  of shown as quest-wide inventory gates; easy deterministic steps belong in
+	  `auto_actions` so review progression records them without blocking, while
+	  true player/manual gates stay in `required_actions`. Vampyre Slayer's Blue
+	  Moon Inn talk/beer path is the proof case, while its Stake and Stake hammer
+	  are produced by Dr Harlow.
 	  `tools/audit_quest_local_item_gates.py` enforces the narrow invariant that
 	  quest-wide `Used during quest` requirements must not list items produced by
 	  that same quest or granted by its `start_inventory`. The 2026-06-24 sweep

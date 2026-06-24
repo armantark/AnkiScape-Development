@@ -787,6 +787,7 @@ class QuestStageRequirement:
     produced_inventory: Tuple[Tuple[str, int], ...] = ()
     required_tools: Tuple[Tuple[str, int], ...] = ()
     required_actions: Tuple[str, ...] = ()
+    auto_actions: Tuple[str, ...] = ()
     required_routes: Tuple[str, ...] = ()
     combat_encounters: Tuple[QuestCombatEncounter, ...] = ()
     source: str = ""
@@ -3285,6 +3286,7 @@ def _stage_req(
     produced_inventory: Tuple[Tuple[str, int], ...] = (),
     required_tools: Tuple[Tuple[str, int], ...] = (),
     required_actions: Tuple[str, ...] = (),
+    auto_actions: Tuple[str, ...] = (),
     required_routes: Tuple[str, ...] = (),
     combat_encounters: Tuple[QuestCombatEncounter, ...] = (),
 ) -> QuestStageRequirement:
@@ -3299,6 +3301,7 @@ def _stage_req(
         produced_inventory=produced_inventory,
         required_tools=required_tools,
         required_actions=required_actions,
+        auto_actions=auto_actions,
         required_routes=required_routes,
         combat_encounters=combat_encounters,
         source=source,
@@ -5434,14 +5437,14 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
             1,
             "Speak to Dr Harlow at the Blue Moon Inn.",
             f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH}",
-            required_actions=("Speak to Dr Harlow at the Blue Moon Inn",),
+            auto_actions=("Speak to Dr Harlow at the Blue Moon Inn",),
         ),
         _stage_req(
             2,
             "Buy Dr Harlow a beer at the Blue Moon Inn and receive vampyre-slaying gear.",
             f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH}",
             produced_inventory=(("Stake", 1), ("Stake hammer", 1)),
-            required_actions=("Buy Dr Harlow a beer at the Blue Moon Inn",),
+            auto_actions=("Buy Dr Harlow a beer at the Blue Moon Inn",),
         ),
         _stage_req(
             3,
@@ -7287,6 +7290,7 @@ def _catalog_stage_requirements(value: object) -> Tuple[QuestStageRequirement, .
                 produced_inventory=_catalog_item_pairs(raw.get("produced_inventory", {})),
                 required_tools=_catalog_item_pairs(raw.get("required_tools", {})),
                 required_actions=_catalog_strings(raw.get("required_actions", ())),
+                auto_actions=_catalog_strings(raw.get("auto_actions", ())),
                 required_routes=_catalog_strings(raw.get("required_routes", ())),
                 combat_encounters=_catalog_combat_encounters(raw.get("combat_encounters", ())),
                 source=str(raw.get("source", "")),
@@ -7833,6 +7837,7 @@ def _stage_requirement_dict(requirement: QuestStageRequirement) -> Dict[str, obj
         "produced_inventory": dict(requirement.produced_inventory),
         "required_tools": dict(requirement.required_tools),
         "required_actions": requirement.required_actions,
+        "auto_actions": requirement.auto_actions,
         "required_routes": requirement.required_routes,
         "combat_encounters": tuple(_combat_encounter_dict(encounter) for encounter in requirement.combat_encounters),
         "source": requirement.source,

@@ -127,6 +127,14 @@
   quest cards no longer imply those stage-local products must be owned up front.
   Source-review candidates that need direct quest-source decisions are documented
   in `memory-bank/source-audits/quest-local-false-gate-audit-2026-06-24.md`.
+- Quest-local auto-action progression added on 2026-06-24. Backend:
+  `QuestStageRequirement.auto_actions` now marks deterministic same-quest
+  actions that should be recorded during review progression without becoming
+  blockers. Vampyre Slayer now auto-records the Dr Harlow Blue Moon Inn talk and
+  beer steps, then produces Stake and Stake hammer without requiring Beer in
+  inventory or a manual action flag. Frontend: no widget logic changed; the
+  Quests tab no longer shows a stage-1 Dr Harlow blocker because it already
+  consumes `quest_current_stage_blockers_pure()`.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.

@@ -2198,7 +2198,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         card = dialog.findChild(QWidget, "questCard_vampyre_slayer")
         self.assertIsNotNone(card)
         labels = [lbl.text() for lbl in card.findChildren(QLabel)]
-        self.assertIn("Blocked: Action required: Speak to Dr Harlow at the Blue Moon Inn", labels)
+        self.assertFalse(any(text.startswith("Blocked:") for text in labels))
         self.assertFalse(any(text.startswith("Requires:") for text in labels))
 
     def test_quests_tab_shows_priest_in_peril_essence_stage_blocker(self) -> None:

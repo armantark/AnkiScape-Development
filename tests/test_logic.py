@@ -3664,17 +3664,21 @@ class TestLogic(unittest.TestCase):
 
         vampyre = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         vampyre["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
-        vampyre["quest_stage_actions"] = {"vampyre_slayer": ["Speak to Dr Harlow at the Blue Moon Inn"]}
-        vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
-        self.assertTrue(ok)
-        self.assertFalse(completed_now)
         blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
-        self.assertEqual(tuple(blocker["kind"] for blocker in blockers), ("required_action",))
-        self.assertEqual(blockers[0]["reason"], "Action required: Buy Dr Harlow a beer at the Blue Moon Inn")
-        vampyre["quest_stage_actions"]["vampyre_slayer"].append("Buy Dr Harlow a beer at the Blue Moon Inn")
+        self.assertEqual(blockers, ())
         vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertFalse(completed_now)
+        self.assertEqual(vampyre["quest_stage_actions"]["vampyre_slayer"], ["Speak to Dr Harlow at the Blue Moon Inn"])
+        blockers = quest_current_stage_blockers_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertEqual(blockers, ())
+        vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
+        self.assertTrue(ok)
+        self.assertFalse(completed_now)
+        self.assertEqual(
+            vampyre["quest_stage_actions"]["vampyre_slayer"],
+            ["Speak to Dr Harlow at the Blue Moon Inn", "Buy Dr Harlow a beer at the Blue Moon Inn"],
+        )
         self.assertEqual(vampyre["inventory"].get("Beer", 0), 0)
         self.assertEqual(vampyre["inventory"]["Stake"], 1)
         self.assertEqual(vampyre["inventory"]["Stake hammer"], 1)
