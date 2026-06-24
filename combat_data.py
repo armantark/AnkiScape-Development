@@ -757,9 +757,21 @@ POISON_SPIDER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/poison_spider_lvl_31.plugin.kts"
 )
+POISON_SPIDER_LEVEL_64_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/poison_spider_lvl_64.plugin.kts"
+)
 SCORPION_LEVEL_14_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/scorpion_level_14.plugin.kts"
+)
+KING_SCORPION_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/king_scorpion_level_32.plugin.kts"
+)
+SCORPION_LEVEL_59_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/scorpion_level_59.plugin.kts"
 )
 SPIDER_LEVEL_24_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
@@ -1202,6 +1214,24 @@ WHITE_WOLF_DROPS = {
 
 
 GIANT_BAT_DROPS = {"guaranteed": (("Bat bones", 1),), "tables": ()}
+
+
+SCORPION_CHARM_DROPS = {
+    "guaranteed": (),
+    "tables": (
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 30},
+                {"item": "Green charm", "quantity": 1, "slots": 70},
+                {"item": "Crimson charm", "quantity": 1, "slots": 10},
+                {"item": "Blue charm", "quantity": 1, "slots": 5},
+                {"slots": 885},
+            ),
+        },
+    ),
+}
 
 
 HILL_GIANT_DROPS = {
@@ -4131,23 +4161,74 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "defence_ranged": 5,
             "melee_strength": 0,
         },
-        "drops": {
-            "guaranteed": (),
-            "tables": (
-                {
-                    "name": "Charms",
-                    "total": 1000,
-                    "slots": (
-                        {"item": "Gold charm", "quantity": 1, "slots": 30},
-                        {"item": "Green charm", "quantity": 1, "slots": 70},
-                        {"item": "Crimson charm", "quantity": 1, "slots": 10},
-                        {"item": "Blue charm", "quantity": 1, "slots": 5},
-                        {"slots": 885},
-                    ),
-                },
-            ),
-        },
+        "drops": SCORPION_CHARM_DROPS,
         "source": SCORPION_LEVEL_14_SOURCE_PATH,
+    },
+    "king_scorpion": {
+        "display_name": "King scorpion",
+        "level": 32,
+        "group": "Scorpions",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "slayer_xp": 37.0,
+        "stats": {
+            "hitpoints": 300,
+            "attack": 30,
+            "strength": 29,
+            "defence": 23,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 15,
+            "defence_crush": 15,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": (
+            f"{KING_SCORPION_SOURCE_PATH}: Npcs.KING_SCORPION; "
+            "SlayerAssignment.SCORPION level 1 xp 37.0; no DropTableFactory registration; aggro radius 4"
+        ),
+    },
+    "scorpion_level_59": {
+        "display_name": "Scorpion",
+        "level": 59,
+        "group": "Scorpions",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 22,
+        "slayer_xp": 55.0,
+        "stats": {
+            "hitpoints": 550,
+            "attack": 50,
+            "strength": 52,
+            "defence": 50,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 15,
+            "defence_crush": 15,
+            "defence_magic": 0,
+            "defence_ranged": 55,
+            "melee_strength": 0,
+        },
+        "drops": SCORPION_CHARM_DROPS,
+        "source": (
+            f"{SCORPION_LEVEL_59_SOURCE_PATH}: ids Npcs.SCORPION_4402/Npcs.SCORPION_4403; "
+            "SlayerAssignment.SCORPION level 1 xp 55.0; aggro radius 4"
+        ),
     },
     "poison_spider": {
         "display_name": "Poison spider",
@@ -4179,6 +4260,40 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": {"guaranteed": (), "tables": ()},
         "source": f"{POISON_SPIDER_SOURCE_PATH}: Npcs.POISON_SPIDER_1009 poisonDamage=3; no DropTableFactory registration",
+    },
+    "poison_spider_level_64": {
+        "display_name": "Poison spider",
+        "level": 64,
+        "group": "Spiders",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "poison_damage": 6,
+        "slayer_xp": 64.0,
+        "stats": {
+            "hitpoints": 640,
+            "attack": 50,
+            "strength": 58,
+            "defence": 52,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 20,
+            "defence_slash": 17,
+            "defence_crush": 10,
+            "defence_magic": 14,
+            "defence_ranged": 14,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": (
+            f"{POISON_SPIDER_LEVEL_64_SOURCE_PATH}: Npcs.POISON_SPIDER poisonDamage=6; "
+            "attackStyle STAB; no DropTableFactory registration; aggro radius 4"
+        ),
     },
     "spider_level_24": {
         "display_name": "Spider",

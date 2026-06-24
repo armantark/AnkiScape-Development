@@ -1,7 +1,8 @@
 # Combat Scorpion And Spider Variant Audit - 2026-06-23
 
 Status: implemented ordinary Combat target expansion for source-backed Scorpion
-and higher Spider rows.
+and higher Spider rows. Follow-up expansion added King scorpion, the level-59
+Scorpion, and the level-64 Poison spider from the same source family.
 
 ## Implemented Scope
 
@@ -21,6 +22,19 @@ and higher Spider rows.
   lifepoints, Attack 41, Strength 51, Defence 31, source attack/defence
   bonuses, the rune/equipment/tertiary/charm drop tables, and inclusive Air
   rune x4-6 quantity ranges.
+- Added `king_scorpion` as a selectable Scorpions target using local 2011Scape
+  level-32 King scorpion data: attack speed 4, respawn delay 25, 300 lifepoints,
+  Attack 30, Strength 29, Defence 23, Scorpion Slayer XP 37.0, and no item
+  drops because the source file has no `DropTableFactory` registration.
+- Added `scorpion_level_59` as a selectable Scorpions target using local
+  2011Scape level-59 Scorpion data: attack speed 4, respawn delay 22, 550
+  lifepoints, Attack 50, Strength 52, Defence 50, Scorpion Slayer XP 55.0,
+  higher ranged defence, and the same source charm table as level-14 Scorpion.
+- Added `poison_spider_level_64` as a selectable Spiders target using local
+  2011Scape level-64 Poison spider data: attack speed 4, respawn delay 30, 640
+  lifepoints, Attack 50, Strength 58, Defence 52, Spider Slayer XP 64.0, source
+  `poisonDamage = 6`, and no item drops because the source file has no death
+  drop callback.
 - No new drop-slot shape or asset category was required; these rows reuse the
   existing guaranteed/table/quantity-range drop support and already registered
   charm, rune, arrow, bow, staff, and bronze-equipment item definitions.
@@ -29,6 +43,12 @@ and higher Spider rows.
 
 - Scorpion:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/scorpion_level_14.plugin.kts`
+- King scorpion:
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/king_scorpion_level_32.plugin.kts`
+- Scorpion level 59:
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/scorpion_level_59.plugin.kts`
+- Poison spider level 64:
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/poison_spider_lvl_64.plugin.kts`
 - Spider level 24:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/spider_level_24.plugin.kts`
 - Deadly red spider:

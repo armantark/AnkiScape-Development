@@ -122,6 +122,9 @@ class TargetMetadataTest(unittest.TestCase):
         barbarian = _row(rows, "barbarian")
         barbarian_level_10 = _row(rows, "barbarian_level_10")
         seagull = _row(rows, "seagull")
+        king_scorpion = _row(rows, "king_scorpion")
+        scorpion_level_59 = _row(rows, "scorpion_level_59")
+        poison_spider_level_64 = _row(rows, "poison_spider_level_64")
 
         self.assertTrue(chicken.enabled)
         self.assertTrue(giant_rat.current)
@@ -273,6 +276,18 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("barbarian_spear_lvl_10.plugin.kts", barbarian_level_10.tooltip)
         self.assertEqual(seagull.group, "Coastal")
         self.assertEqual(seagull.sort_key[:2], (2, "Seagull"))
+        self.assertEqual(king_scorpion.group, "Scorpions")
+        self.assertIn("King scorpion · combat level 32", king_scorpion.tooltip)
+        self.assertIn("No item drops", king_scorpion.tooltip)
+        self.assertIn("king_scorpion_level_32.plugin.kts", king_scorpion.tooltip)
+        self.assertEqual(scorpion_level_59.group, "Scorpions")
+        self.assertIn("Scorpion · combat level 59", scorpion_level_59.tooltip)
+        self.assertIn("Green charm x1 (70/1000)", scorpion_level_59.tooltip)
+        self.assertIn("scorpion_level_59.plugin.kts", scorpion_level_59.tooltip)
+        self.assertEqual(poison_spider_level_64.group, "Spiders")
+        self.assertIn("Poison spider · combat level 64", poison_spider_level_64.tooltip)
+        self.assertIn("Poison: 60 LP", poison_spider_level_64.tooltip)
+        self.assertIn("poison_spider_lvl_64.plugin.kts", poison_spider_level_64.tooltip)
 
     def test_combat_rows_pass_equipment_data_for_ranged_ammo_locks(self):
         rows = combat_target_rows(
