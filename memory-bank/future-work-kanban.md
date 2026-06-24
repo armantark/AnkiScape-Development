@@ -44,7 +44,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
   Mugger, Thug, Thief, Guard level 21 Varrock/sword/battleaxe variants,
   Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
-  Scorpion, Poison scorpion, Deadly red spider, and Poison spider are selectable Combat
+  Scorpion, Poison scorpion, Deadly red spider, Poison spider, Hill giant, Moss
+  giant, and Ice giant are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -95,6 +96,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
   before touching Scorpion, Spider level 24, Deadly red spider, or Giant spider
   level 50 rows; use
+  `memory-bank/source-audits/combat-giants-2026-06-23.md` before touching Hill
+  giant, Moss giant, Ice giant, `Seeds.uncommonSeedTable`, or the Ice giant
+  source-overflow main table; use
   `memory-bank/source-audits/combat-mugger-2026-06-23.md` before touching
   Mugger or its nested minor-herb drop table; use
   `memory-bank/source-audits/combat-thug-2026-06-23.md` before touching
@@ -153,7 +157,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   shared Bones/main/charm tables and the level-25 Iron hatchet 5/128 table
   exception. Skeletons now add seven source melee Undead variants with the
   low/high shared drop tables; Skeleton warlock remains deferred for a magic
-  enemy pass. Duck now splits the source level-1 land/water variants so land
+  enemy pass. Hill giant, Moss giant, and Ice giant now add source Giant rows,
+  Big bones, full main/charm/tertiary tables, `Seeds.uncommonSeedTable`, and
+  Combat item icons for new giant-only drops; Ice giant preserves its source
+  `total(1024)` main table even though the slots sum to 1026. Duck now splits
+  the source level-1 land/water variants so land
   ducks drop Bones while water ducks expose no drops instead of inheriting the
   land callback. Pirate now adds the source level-23 Humanoids row with the full
   1024-slot main table, Iron bolts x2-12, Eye patch icon coverage, and nested

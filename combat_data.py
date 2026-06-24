@@ -660,6 +660,18 @@ GIANT_BAT_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/giant_bat_level_27.plugin.kts"
 )
+HILL_GIANT_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/hill_giant_lvl_28.plugin.kts"
+)
+MOSS_GIANT_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/moss_giant_level_42.plugin.kts"
+)
+ICE_GIANT_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/ice_giant_level_53.plugin.kts"
+)
 GHOST_LEVEL_19_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/undeads/ghost_level_19.plugin.kts"
@@ -795,6 +807,37 @@ COMBAT_ALLOTMENT_SEED_DROP_TABLE = {
         {"item": "Sweetcorn seed", "quantity": 3, "slots": 5},
         {"item": "Strawberry seed", "quantity": 2, "slots": 2},
         {"item": "Watermelon seed", "quantity": 2, "slots": 1},
+    ),
+}
+
+
+COMBAT_UNCOMMON_SEED_DROP_TABLE = {
+    "name": "Uncommon seed",
+    "source": f"{GLOBAL_SEEDS_SOURCE_PATH}: Seeds.uncommonSeedTable",
+    "total": 1048,
+    "slots": (
+        {"item": "Limpwurt seed", "quantity": 1, "slots": 137},
+        {"item": "Strawberry seed", "quantity": 1, "slots": 131},
+        {"item": "Marrentill seed", "quantity": 1, "slots": 125},
+        {"item": "Jangerberry seed", "quantity": 1, "slots": 92},
+        {"item": "Tarromin seed", "quantity": 1, "slots": 85},
+        {"item": "Wildblood seed", "quantity": 1, "slots": 83},
+        {"item": "Watermelon seed", "quantity": 1, "slots": 83},
+        {"item": "Harralander seed", "quantity": 1, "slots": 86},
+        {"item": "Ranarr seed", "quantity": 1, "slots": 49},
+        {"item": "Whiteberry seed", "quantity": 1, "slots": 39},
+        {"item": "Toadflax seed", "quantity": 1, "slots": 27},
+        {"item": "Belladonna seed", "quantity": 1, "slots": 18},
+        {"item": "Irit seed", "quantity": 1, "slots": 18},
+        {"item": "Poison ivy seed", "quantity": 1, "slots": 13},
+        {"item": "Avantoe seed", "quantity": 1, "slots": 18},
+        {"item": "Cactus seed", "quantity": 1, "slots": 16},
+        {"item": "Kwuarm seed", "quantity": 1, "slots": 13},
+        {"item": "Snapdragon seed", "quantity": 1, "slots": 5},
+        {"item": "Cadantine seed", "quantity": 1, "slots": 4},
+        {"item": "Lantadyme seed", "quantity": 1, "slots": 3},
+        {"item": "Dwarf weed seed", "quantity": 1, "slots": 2},
+        {"item": "Torstol seed", "quantity": 1, "slots": 1},
     ),
 }
 
@@ -1159,6 +1202,157 @@ WHITE_WOLF_DROPS = {
 
 
 GIANT_BAT_DROPS = {"guaranteed": (("Bat bones", 1),), "tables": ()}
+
+
+HILL_GIANT_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Iron full helm", "quantity": 1, "slots": 4},
+                {"item": "Iron dagger", "quantity": 1, "slots": 5},
+                {"item": "Iron kiteshield", "quantity": 1, "slots": 3},
+                {"item": "Steel longsword", "quantity": 1, "slots": 2},
+                {"item": "Iron arrows", "quantity": 3, "slots": 6},
+                {"item": "Fire rune", "quantity": 15, "slots": 3},
+                {"item": "Water rune", "quantity": 7, "slots": 3},
+                {"item": "Law rune", "quantity": 2, "slots": 3},
+                {"item": "Steel arrows", "quantity": 10, "slots": 2},
+                {"item": "Mind rune", "quantity": 3, "slots": 2},
+                {"item": "Cosmic rune", "quantity": 2, "slots": 2},
+                {"item": "Nature rune", "quantity": 6, "slots": 2},
+                {"item": "Chaos rune", "quantity": 2, "slots": 1},
+                {"item": "Death rune", "quantity": 2, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 7},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18},
+                {"item": "Coins", "quantity": 38, "slots": 15},
+                {"item": "Coins", "quantity": 52, "slots": 10},
+                {"item": "Coins", "quantity": 15, "slots": 8},
+                {"item": "Coins", "quantity": 7, "slots": 6},
+                {"item": "Coins", "quantity": 88, "slots": 2},
+                {"slots": 1},
+                {"item": "Limpwurt root", "quantity": 1, "slots": 11},
+                {"item": "Beer", "quantity": 1, "slots": 6},
+                {"item": "Body talisman", "quantity": 1, "slots": 2},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 3},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 150},
+                {"item": "Green charm", "quantity": 1, "slots": 10},
+                {"item": "Crimson charm", "quantity": 1, "slots": 10},
+                {"item": "Blue charm", "quantity": 1, "slots": 2},
+                {"slots": 828},
+            ),
+        },
+    ),
+}
+
+
+MOSS_GIANT_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Black sq shield", "quantity": 1, "slots": 5},
+                {"item": "Magic staff", "quantity": 1, "slots": 2},
+                {"item": "Steel med helm", "quantity": 1, "slots": 2},
+                {"item": "Mithril sword", "quantity": 1, "slots": 2},
+                {"item": "Mithril spear", "quantity": 1, "slots": 2},
+                {"item": "Steel kiteshield", "quantity": 1, "slots": 1},
+                {"item": "Law rune", "quantity": 3, "slots": 4},
+                {"item": "Air rune", "quantity": 18, "slots": 3},
+                {"item": "Earth rune", "quantity": 27, "slots": 3},
+                {"item": "Chaos rune", "quantity": 7, "slots": 3},
+                {"item": "Nature rune", "quantity": 6, "slots": 3},
+                {"item": "Cosmic rune", "quantity": 3, "slots": 2},
+                {"item": "Iron arrows", "quantity": 15, "slots": 2},
+                {"item": "Steel arrows", "quantity": 30, "slots": 1},
+                {"item": "Death rune", "quantity": 3, "slots": 1},
+                {"item": "Blood rune", "quantity": 1, "slots": 1},
+                {"item": "Coins", "quantity": 37, "slots": 19},
+                {"item": "Coins", "quantity": 2, "slots": 8},
+                {"item": "Coins", "quantity": 119, "slots": 10},
+                {"item": "Coins", "quantity": 300, "slots": 2},
+                {"item": "Steel bar", "quantity": 1, "slots": 6},
+                {"item": "Coal", "quantity": 1, "slots": 1},
+                {"item": "Spinach roll", "quantity": 1, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 5},
+                {"table": COMBAT_UNCOMMON_SEED_DROP_TABLE, "slots": 35},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 4},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 360},
+                {"item": "Green charm", "quantity": 1, "slots": 30},
+                {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                {"item": "Blue charm", "quantity": 1, "slots": 7},
+                {"slots": 573},
+            ),
+        },
+    ),
+}
+
+
+ICE_GIANT_DROPS = {
+    "guaranteed": (("Big bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Iron 2h sword", "quantity": 1, "slots": 40},
+                {"item": "Black kiteshield", "quantity": 1, "slots": 32},
+                {"item": "Steel hatchet", "quantity": 1, "slots": 32},
+                {"item": "Steel sword", "quantity": 1, "slots": 32},
+                {"item": "Iron platelegs", "quantity": 1, "slots": 8},
+                {"item": "Mithril mace", "quantity": 1, "slots": 8},
+                {"item": "Mithril sq shield", "quantity": 1, "slots": 8},
+                {"item": "Adamant arrows", "quantity": 5, "slots": 48},
+                {"item": "Nature rune", "quantity": 6, "slots": 32},
+                {"item": "Mind rune", "quantity": 24, "slots": 24},
+                {"item": "Body rune", "quantity": 37, "slots": 24},
+                {"item": "Law rune", "quantity": 3, "slots": 16},
+                {"item": "Water rune", "quantity": 12, "slots": 8},
+                {"item": "Cosmic rune", "quantity": 4, "slots": 8},
+                {"item": "Death rune", "quantity": 3, "slots": 8},
+                {"item": "Blood rune", "quantity": 2, "slots": 8},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 64},
+                {"item": "Coins", "quantity": 117, "slots": 224},
+                {"item": "Coins", "quantity": 53, "slots": 76},
+                {"item": "Coins", "quantity": 196, "slots": 72},
+                {"item": "Coins", "quantity": 5, "slots": 64},
+                {"item": "Coins", "quantity": 8, "slots": 54},
+                {"item": "Coins", "quantity": 2, "slots": 48},
+                {"item": "Coins", "quantity": 400, "slots": 16},
+                {"item": "Jug of wine", "quantity": 1, "slots": 24},
+                {"item": "Mithril ore", "quantity": 1, "slots": 8},
+                {"item": "Banana", "quantity": 1, "slots": 8},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 32},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 100000,
+            "slots": (
+                {"item": "Long bone", "quantity": 1, "slots": 250},
+                {"item": "Curved bone", "quantity": 1, "slots": 20},
+                {"item": "Champion's scroll", "quantity": 1, "slots": 20},
+                {"slots": 99710},
+            ),
+        },
+    ),
+}
 
 
 GHOST_DROPS = {"guaranteed": (), "tables": ()}
@@ -2474,6 +2668,107 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": GIANT_BAT_DROPS,
         "source": f"{GIANT_BAT_SOURCE_PATH}: id Npcs.GIANT_BAT; SlayerAssignment.BAT level 1 xp 32.0; aggro radius 4",
+    },
+    "hill_giant": {
+        "display_name": "Hill giant",
+        "level": 28,
+        "group": "Giants",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 30,
+        "slayer_xp": 35.0,
+        "stats": {
+            "hitpoints": 350,
+            "attack": 18,
+            "strength": 22,
+            "defence": 26,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 18,
+            "attack_slash": 0,
+            "attack_crush": 16,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": HILL_GIANT_DROPS,
+        "source": (
+            f"{HILL_GIANT_SOURCE_PATH}: id Npcs.HILL_GIANT; "
+            "SlayerAssignment.HILL_GIANT level 1 xp 35.0; attackStyle CRUSH; aggro radius 4"
+        ),
+    },
+    "moss_giant": {
+        "display_name": "Moss giant",
+        "level": 42,
+        "group": "Giants",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 30,
+        "slayer_xp": 60.0,
+        "stats": {
+            "hitpoints": 600,
+            "attack": 30,
+            "strength": 30,
+            "defence": 30,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 33,
+            "attack_slash": 0,
+            "attack_crush": 31,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": MOSS_GIANT_DROPS,
+        "source": (
+            f"{MOSS_GIANT_SOURCE_PATH}: ids Npcs.MOSS_GIANT/Npcs.MOSS_GIANT_1587/"
+            "Npcs.MOSS_GIANT_1588/Npcs.MOSS_GIANT_4688; SlayerAssignment.MOSS_GIANT level 1 "
+            "xp 60.0; attackStyle CRUSH; aggro radius 4"
+        ),
+    },
+    "ice_giant": {
+        "display_name": "Ice giant",
+        "level": 53,
+        "group": "Giants",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 30,
+        "slayer_xp": 70.0,
+        "stats": {
+            "hitpoints": 700,
+            "attack": 40,
+            "strength": 40,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 29,
+            "attack_slash": 29,
+            "attack_crush": 29,
+            "defence_stab": 0,
+            "defence_slash": 3,
+            "defence_crush": 2,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 31,
+        },
+        "drops": ICE_GIANT_DROPS,
+        "source": (
+            f"{ICE_GIANT_SOURCE_PATH}: ids Npcs.ICE_GIANT/Npcs.ICE_GIANT_3072/Npcs.ICE_GIANT_4685/"
+            "Npcs.ICE_GIANT_4686/Npcs.ICE_GIANT_4687; SlayerAssignment.ICE_GIANT level 1 "
+            "xp 70.0; attackStyle SLASH; attackBonus/strengthBonus; aggro radius 5"
+        ),
     },
     "ghost": {
         "display_name": "Ghost",
@@ -4060,21 +4355,32 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Antipoison (2)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_2"},
     "Antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_3"},
     "Antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_4"},
+    "Avantoe seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.AVANTOE_SEED"},
+    "Banana": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BANANA"},
     "Bat bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BAT_BONES"},
     "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
+    "Belladonna seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BELLADONNA_SEED"},
+    "Big bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BIG_BONES"},
+    "Black kiteshield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BLACK_KITESHIELD"},
+    "Black sq shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BLACK_SQ_SHIELD"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
     "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},
     "Bronze javelin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_JAVELIN"},
     "Bronze spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_SPEAR"},
+    "Cactus seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CACTUS_SEED"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
+    "Cadantine seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADANTINE_SEED"},
+    "Champion's scroll": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHAMPIONS_SCROLL_6800"},
     "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
     "Cabbage seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CABBAGE_SEED"},
     "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
     "Clue scroll (medium)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_MEDIUM"},
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
+    "Curved bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CURVED_BONE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},
+    "Dwarf weed seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DWARF_WEED_SEED"},
     "Eye patch": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.EYE_PATCH"},
     "Gardening boots": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GARDENING_BOOTS"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
@@ -4090,11 +4396,25 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy marrentill": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_MARRENTILL"},
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
+    "Harralander seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HARRALANDER_SEED"},
+    "Irit seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.IRIT_SEED"},
+    "Jangerberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JANGERBERRY_SEED"},
+    "Jug of wine": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JUG_OF_WINE"},
     "Knife": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KNIFE"},
+    "Kwuarm seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KWUARM_SEED"},
+    "Lantadyme seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LANTADYME_SEED"},
+    "Limpwurt root": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LIMPWURT_ROOT"},
+    "Limpwurt seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LIMPWURT_SEED"},
     "Loop half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LOOP_HALF_OF_A_KEY"},
+    "Long bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LONG_BONE"},
+    "Magic staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MAGIC_STAFF"},
+    "Marrentill seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MARRENTILL_SEED"},
+    "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
     "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
+    "Poison ivy seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POISON_IVY_SEED"},
     "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},
     "Rake": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAKE"},
+    "Ranarr seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RANARR_SEED"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Rune javelin": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_JAVELIN"},
     "Rune spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_SPEAR"},
@@ -4102,6 +4422,8 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Seed dibber": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SEED_DIBBER"},
     "Shield left half": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHIELD_LEFT_HALF"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
+    "Snapdragon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SNAPDRAGON_SEED"},
+    "Spinach roll": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SPINACH_ROLL"},
     "Staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF"},
     "Staff of air": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR"},
     "Staff of water": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_WATER"},
@@ -4113,12 +4435,17 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Super antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_3"},
     "Super antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_4"},
     "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
+    "Tarromin seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TARROMIN_SEED"},
+    "Toadflax seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOADFLAX_SEED"},
     "Tooth half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOOTH_HALF_OF_A_KEY"},
     "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},
+    "Torstol seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TORSTOL_SEED"},
     "Unicorn horn": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.UNICORN_HORN"},
     "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
+    "Whiteberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WHITEBERRY_SEED"},
+    "Wildblood seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WILDBLOOD_SEED"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
     "Wolf bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOLF_BONES"},
     "Zamorak robe bottom": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE"},

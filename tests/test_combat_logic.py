@@ -7,10 +7,14 @@ from combat_data import (
     COMBAT_GEM_DROP_TABLE,
     COMBAT_MEGA_RARE_DROP_TABLE,
     COMBAT_MINOR_HERB_DROP_TABLE,
+    COMBAT_UNCOMMON_SEED_DROP_TABLE,
     COMBAT_MAGIC_SPELL_DATA,
     COMBAT_MAGIC_STAFF_DATA,
     COMBAT_RANGED_AMMO_DATA,
     COMBAT_RANGED_WEAPON_DATA,
+    HILL_GIANT_DROPS,
+    ICE_GIANT_DROPS,
+    MOSS_GIANT_DROPS,
     MAGIC_FORMULA_SOURCE_PATH,
     MAGIC_STRATEGY_SOURCE_PATH,
     RANGED_FORMULA_SOURCE_PATH,
@@ -390,6 +394,62 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(giant_bat["drops"]["tables"], ())
         self.assertIn("giant_bat_level_27.plugin.kts", giant_bat["source"])
         self.assertIn("SlayerAssignment.BAT", giant_bat["source"])
+
+    def test_giant_rows_match_source_and_drop_tables(self):
+        expected = {
+            "hill_giant": (28, 350, 18, 22, 26, 6, 35.0, HILL_GIANT_DROPS, "hill_giant_lvl_28.plugin.kts"),
+            "moss_giant": (42, 600, 30, 30, 30, 6, 60.0, MOSS_GIANT_DROPS, "moss_giant_level_42.plugin.kts"),
+            "ice_giant": (53, 700, 40, 40, 40, 5, 70.0, ICE_GIANT_DROPS, "ice_giant_level_53.plugin.kts"),
+        }
+
+        for key, (level, hitpoints, attack, strength, defence, attack_speed, slayer_xp, drops, source_file) in expected.items():
+            with self.subTest(key=key):
+                giant = COMBAT_ENEMY_DATA[key]
+                self.assertEqual(giant["group"], "Giants")
+                self.assertEqual(giant["attack_speed"], attack_speed)
+                self.assertEqual(giant["respawn_delay"], 30)
+                self.assertEqual(giant["level"], level)
+                self.assertEqual(giant["slayer_xp"], slayer_xp)
+                self.assertEqual(giant["stats"]["hitpoints"], hitpoints)
+                self.assertEqual(giant["stats"]["attack"], attack)
+                self.assertEqual(giant["stats"]["strength"], strength)
+                self.assertEqual(giant["stats"]["defence"], defence)
+                self.assertIs(giant["drops"], drops)
+                self.assertIn(source_file, giant["source"])
+                self.assertIn("aggro radius", giant["source"])
+
+        hill_main, hill_charms = COMBAT_ENEMY_DATA["hill_giant"]["drops"]["tables"]
+        moss_main, moss_charms = COMBAT_ENEMY_DATA["moss_giant"]["drops"]["tables"]
+        ice_main, ice_tertiary = COMBAT_ENEMY_DATA["ice_giant"]["drops"]["tables"]
+        self.assertEqual(COMBAT_ENEMY_DATA["hill_giant"]["bonuses"]["attack_stab"], 18)
+        self.assertEqual(COMBAT_ENEMY_DATA["hill_giant"]["bonuses"]["attack_crush"], 16)
+        self.assertEqual(COMBAT_ENEMY_DATA["moss_giant"]["bonuses"]["attack_stab"], 33)
+        self.assertEqual(COMBAT_ENEMY_DATA["moss_giant"]["bonuses"]["attack_crush"], 31)
+        self.assertEqual(COMBAT_ENEMY_DATA["ice_giant"]["bonuses"]["attack_slash"], 29)
+        self.assertEqual(COMBAT_ENEMY_DATA["ice_giant"]["bonuses"]["melee_strength"], 31)
+        self.assertEqual(COMBAT_ENEMY_DATA["ice_giant"]["bonuses"]["defence_crush"], 2)
+        self.assertEqual(hill_main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in hill_main["slots"]), 128)
+        self.assertEqual(hill_main["slots"][14], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 7})
+        self.assertEqual(hill_main["slots"][15], {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18})
+        self.assertEqual(hill_main["slots"][-1], {"table": COMBAT_GEM_DROP_TABLE, "slots": 3})
+        self.assertEqual(hill_charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 150})
+        self.assertEqual(hill_charms["slots"][-1], {"slots": 828})
+        self.assertEqual(moss_main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in moss_main["slots"]), 128)
+        self.assertEqual(moss_main["slots"][23], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 5})
+        self.assertEqual(moss_main["slots"][24], {"table": COMBAT_UNCOMMON_SEED_DROP_TABLE, "slots": 35})
+        self.assertEqual(moss_main["slots"][-1], {"table": COMBAT_GEM_DROP_TABLE, "slots": 4})
+        self.assertEqual(moss_charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 360})
+        self.assertEqual(moss_charms["slots"][-1], {"slots": 573})
+        self.assertEqual(ice_main["total"], 1024)
+        # Source declares total(1024) but its slots add to 1026; the runtime roll still uses the declared total.
+        self.assertEqual(sum(slot["slots"] for slot in ice_main["slots"]), 1026)
+        self.assertEqual(ice_main["slots"][16], {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 64})
+        self.assertEqual(ice_main["slots"][-1], {"table": COMBAT_GEM_DROP_TABLE, "slots": 32})
+        self.assertEqual(ice_tertiary["total"], 100000)
+        self.assertEqual(sum(slot["slots"] for slot in ice_tertiary["slots"]), 100000)
+        self.assertEqual(ice_tertiary["slots"][2], {"item": "Champion's scroll", "quantity": 1, "slots": 20})
 
     def test_ghost_row_matches_source_and_has_no_death_drops(self):
         ghost = COMBAT_ENEMY_DATA["ghost"]
@@ -1234,6 +1294,29 @@ class CombatLogicTest(unittest.TestCase):
 
     def test_giant_bat_drop_rolls_guaranteed_bat_bones(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["giant_bat"], _rng([])), {"Bat bones": 1})
+
+    def test_giant_drop_rolls_use_nested_source_tables(self):
+        hill_seed_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["hill_giant"],
+            _rng([46 / 128, 0.0, 0.999999]),
+        )
+        moss_seed_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["moss_giant"],
+            _rng([89 / 128, 0.0, 0.999999]),
+        )
+        ice_tertiary_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ice_giant"],
+            _rng([0.0, 270 / 100000]),
+        )
+        ice_gem_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ice_giant"],
+            _rng([994 / 1024, 512 / 1024, 0.999999]),
+        )
+
+        self.assertEqual(hill_seed_drops, {"Big bones": 1, "Potato seed": 4})
+        self.assertEqual(moss_seed_drops, {"Big bones": 1, "Limpwurt seed": 1})
+        self.assertEqual(ice_tertiary_drops, {"Big bones": 1, "Iron 2h sword": 1, "Champion's scroll": 1})
+        self.assertEqual(ice_gem_drops, {"Big bones": 1, "Uncut sapphire": 1})
 
     def test_ghost_drop_rolls_no_items(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["ghost"], _rng([])), {})
