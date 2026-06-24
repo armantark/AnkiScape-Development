@@ -404,6 +404,48 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("unarmed ids", unarmed["source"])
         self.assertIn("armed id", armed["source"])
 
+    def test_higher_goblin_rows_match_source_and_share_minor_herb_table(self):
+        expected_rows = {
+            "goblin_level_5": (5, 6, 120, 3, 1, 4, 12.0, (12, 0, 12), "goblin_level_5.plugin.kts"),
+            "goblin_level_11": (11, 4, 160, 12, 13, 7, 16.0, (4, 6, 8), "goblin_level_11.plugin.kts"),
+            "goblin_level_13": (13, 4, 120, 12, 13, 7, 16.0, (4, 6, 8), "goblin_level_13.plugin.kts"),
+            "goblin_level_16": (16, 4, 170, 16, 13, 10, 17.0, (4, 6, 8), "goblin_level_16.plugin.kts"),
+            "goblin_level_25": (25, 4, 350, 22, 17, 15, 17.0, (4, 6, 8), "goblin_level_25.plugin.kts"),
+        }
+
+        shared_drops = COMBAT_ENEMY_DATA["goblin_level_5"]["drops"]
+        for target_id, (level, speed, hp, attack, strength, defence, slayer_xp, bonuses, source_file) in expected_rows.items():
+            goblin = COMBAT_ENEMY_DATA[target_id]
+            self.assertEqual(goblin["display_name"], "Goblin")
+            self.assertEqual(goblin["level"], level)
+            self.assertEqual(goblin["group"], "Goblins")
+            self.assertEqual(goblin["attack_speed"], speed)
+            self.assertEqual(goblin["respawn_delay"], 35)
+            self.assertEqual(goblin["slayer_xp"], slayer_xp)
+            self.assertEqual(goblin["stats"]["hitpoints"], hp)
+            self.assertEqual(goblin["stats"]["attack"], attack)
+            self.assertEqual(goblin["stats"]["strength"], strength)
+            self.assertEqual(goblin["stats"]["defence"], defence)
+            self.assertEqual(
+                (goblin["bonuses"]["attack_stab"], goblin["bonuses"]["attack_slash"], goblin["bonuses"]["attack_crush"]),
+                bonuses,
+            )
+            self.assertIs(goblin["drops"], shared_drops)
+            self.assertIn(source_file, goblin["source"])
+
+        main, charms, tertiary = shared_drops["tables"]
+        self.assertEqual(shared_drops["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 127)
+        self.assertEqual(main["total"] - sum(slot["slots"] for slot in main["slots"]), 1)
+        self.assertEqual(main["slots"][0], {"item": "Bronze spear", "quantity": 1, "slots": 9})
+        self.assertEqual(main["slots"][2], {"item": "Bronze scimitar", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][7], {"item": "Bronze javelin", "quantity": 5, "slots": 2})
+        self.assertEqual(main["slots"][20]["slots"], 2)
+        self.assertEqual(main["slots"][20]["table"]["name"], "Minor herb")
+        self.assertEqual(charms["total"], 1024)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 6})
+
     def test_al_kharid_warrior_row_matches_source_and_nested_minor_herbs(self):
         warrior = COMBAT_ENEMY_DATA["al_kharid_warrior"]
 
@@ -474,6 +516,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Bronze sq shield": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_higher_goblin_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["goblin_level_11"],
+            _rng([118 / 128, 0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_al_kharid_warrior_drop_rolls_nested_minor_herb_table(self):
         drops = _combat_roll_drops(

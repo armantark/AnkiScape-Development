@@ -159,9 +159,10 @@ Active priority (updated 2026-06-19): use `memory-bank/future-work-kanban.md` as
 Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Spider level 24, Giant rat,
-Giant spider level 2, Giant spider level 50, Cow, Cow calf, Ram, Highwayman,
-Al-Kharid warrior, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion,
-Poison scorpion, Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
+Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
+Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Al-Kharid
+warrior, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
+scorpion, Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
@@ -258,6 +259,13 @@ row plus `Herbs.minorHerbTable` instead of flattening or omitting herb drops.
 Source proof lives in
 `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md`.
 
+Combat higher-Goblin coverage now uses the same nested table support. Goblin
+levels 5, 11, 13, 16, and 25 import their local 2011Scape stats, shared
+128-slot main table, Charms table, easy clue tertiary, and explicit
+`minorHerbTable` slot. The source main table declares 127 explicit slots under
+`total(128)`, leaving one implicit no-drop slot. Source proof lives in
+`memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
+
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and
 Bronze through Rune arrows have source item IDs/strength values and bow
@@ -307,10 +315,11 @@ proof and the level 10 greataxe exclusion live in
 
 Combat ordinary-enemy expansion also includes the level-2 Goblin source row as
 two selectable Goblins targets: unarmed IDs and the one armed ID are split
-because their source stats differ. The shared local drop table is imported, but
-higher Goblins, Farmer, and Al-Kharid Warrior are still deferred until shared
-global drop tables such as `minorHerbTable` are first-class. Source proof lives
-in `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md`.
+because their source stats differ. Higher Goblins are now covered separately
+after shared `minorHerbTable` support landed; Farmer remains deferred until
+`Seeds.allotmentSeedTable` is first-class. Source proof lives in
+`memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md` and
+`memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174

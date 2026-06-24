@@ -497,6 +497,13 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertIn(herb_name, by_storage_key)
             self.assertEqual(by_storage_key[herb_name].category, "material")
+        for item_name in ("Bronze javelin", "Grapes"):
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].category, "material")
+        self.assertIn("Bronze scimitar", by_storage_key)
+        self.assertEqual(by_storage_key["Bronze scimitar"].category, "smithed")
+        self.assertIn("Nature rune", by_storage_key)
+        self.assertEqual(by_storage_key["Nature rune"].category, "runecrafting")
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
         self.assertEqual(EQUIPMENT_DATA["Bronze spear"].slot, "weapon")

@@ -41,9 +41,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Combat V1 implementation is complete as of 2026-06-23 for the first
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
-  armed/unarmed, Cow, Cow calf, Ram, Highwayman, Al-Kharid warrior,
-  Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison scorpion,
-  Deadly red spider, and Poison spider are selectable Combat
+  armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
+  Al-Kharid warrior, Barbarian level 8/9, Barbarian level 10, Seagull,
+  Scorpion, Poison scorpion, Deadly red spider, and Poison spider are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -91,6 +91,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   level 50 rows; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
+  `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
+  touching Goblin levels 5/11/13/16/25 or shared higher-Goblin drops; use
   `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
@@ -121,8 +123,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   existing Combat drop-table surface; Cave slime remains deferred behind Slayer
   gates and shared gem-table/drop support. Al-Kharid warrior is now implemented
   and proves recursive shared-table slots for the minor herb table. Higher
-  Goblins can reuse that table but still need row-by-row source import; Farmers
-  still need allotment seed-table support before becoming exact enabled rows.
+  Goblins are now implemented for levels 5, 11, 13, 16, and 25 using the same
+  `minorHerbTable` primitive; Farmers still need allotment seed-table support
+  before becoming exact enabled rows.
 - Shortbow through Magic longbow plus Bronze through Rune arrows are now
   implemented as the standard source-backed Ranged/ammo path as of 2026-06-23.
   Ranged accurate/rapid/longrange styles run through the shared Combat burst

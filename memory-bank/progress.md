@@ -180,6 +180,12 @@
   local `Herbs.minorHerbTable` into registered grimy herb material drops. Source
   proof:
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md`.
+- Combat higher-Goblin expansion added source-backed Goblin levels 5, 11, 13,
+  16, and 25 as ordinary targets. The rows share the local 128-slot Goblin table,
+  preserve its one implicit no-drop slot, reuse nested `Herbs.minorHerbTable`
+  support, and register Bronze javelin/Grapes as inventory-visible drops. Source
+  proof:
+  `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
 - Combat Ranged/ammo expansion added Shortbow plus Bronze arrows as the first
   source-backed Ranged path through the shared Combat burst engine. Ranged rows
   now require supported weapon/ammo, refill ammo at safe boundaries, consume one

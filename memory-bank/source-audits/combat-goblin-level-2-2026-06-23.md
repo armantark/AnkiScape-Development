@@ -45,8 +45,9 @@ but gives the armed ID different Attack and Defence stats.
   stab/slash/crush 5, defence stab/slash 1, melee strength 6, and attack speed
   5. Chef's hat and Brass necklace use their zero-bonus source equipment rows.
 
-## Deferred
+## Follow-Up Status
 
-- Higher-level Goblins remain deferred because their tables include
-  `minorHerbTable`, which needs first-class shared/global drop-table support.
-- Farmer and Al-Kharid Warrior remain deferred for the same shared-table reason.
+- Higher-level Goblins are now implemented after shared/global drop-table
+  support landed. See
+  `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
+- Farmer remains deferred because it also needs `Seeds.allotmentSeedTable`.

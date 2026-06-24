@@ -782,11 +782,14 @@ def _combat_drop_summary(enemy: Mapping[str, object]) -> str:
             if not isinstance(slot, Mapping):
                 continue
             item_name = slot.get("item")
-            if not isinstance(item_name, str):
-                continue
             slot_count = int(slot.get("slots", 0) or 0)
-            if total > 0 and slot_count > 0:
+            if isinstance(item_name, str) and total > 0 and slot_count > 0:
                 slots.append(f"{item_name} x{_quantity_text(slot)} ({slot_count}/{total})")
+                continue
+            nested_table = slot.get("table")
+            if isinstance(nested_table, Mapping) and total > 0 and slot_count > 0:
+                nested_name = str(nested_table.get("name", "Nested"))
+                slots.append(f"{nested_name} table ({slot_count}/{total})")
         if slots:
             table_lines.append(f"{table_name}: " + ", ".join(slots))
     parts = []

@@ -545,6 +545,26 @@ GOBLIN_LEVEL_2_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/other/goblin/goblin_level_2.plugin.kts"
 )
+GOBLIN_LEVEL_5_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/goblin/goblin_level_5.plugin.kts"
+)
+GOBLIN_LEVEL_11_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/goblin/goblin_level_11.plugin.kts"
+)
+GOBLIN_LEVEL_13_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/goblin/goblin_level_13.plugin.kts"
+)
+GOBLIN_LEVEL_16_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/goblin/goblin_level_16.plugin.kts"
+)
+GOBLIN_LEVEL_25_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/goblin/goblin_level_25.plugin.kts"
+)
 ALKHARID_WARRIOR_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/alkharid_warrior_level_9.plugin.kts"
@@ -623,6 +643,60 @@ GOBLIN_LEVEL_2_DROPS = {
                 {"item": "Beer", "quantity": 1, "slots": 16},
                 {"item": "Brass necklace", "quantity": 1, "slots": 8},
                 {"item": "Air talisman", "quantity": 1, "slots": 8},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1024,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 82},
+                {"item": "Green charm", "quantity": 1, "slots": 21},
+                {"item": "Crimson charm", "quantity": 1, "slots": 9},
+                {"item": "Blue charm", "quantity": 1, "slots": 1},
+                {"slots": 911},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 6},
+                {"slots": 1018},
+            ),
+        },
+    ),
+}
+
+
+GOBLIN_HIGHER_LEVEL_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Bronze spear", "quantity": 1, "slots": 9},
+                {"item": "Bronze hatchet", "quantity": 1, "slots": 3},
+                {"item": "Bronze scimitar", "quantity": 1, "slots": 1},
+                {"item": "Bronze arrows", "quantity": 7, "slots": 3},
+                {"item": "Mind rune", "quantity": 2, "slots": 3},
+                {"item": "Earth rune", "quantity": 4, "slots": 3},
+                {"item": "Body rune", "quantity": 2, "slots": 3},
+                {"item": "Bronze javelin", "quantity": 5, "slots": 2},
+                {"item": "Chaos rune", "quantity": 1, "slots": 1},
+                {"item": "Nature rune", "quantity": 1, "slots": 1},
+                {"item": "Coins", "quantity": 1, "slots": 34},
+                {"item": "Coins", "quantity": 3, "slots": 13},
+                {"item": "Coins", "quantity": 5, "slots": 8},
+                {"item": "Coins", "quantity": 16, "slots": 7},
+                {"item": "Coins", "quantity": 24, "slots": 3},
+                {"item": "Hammer", "quantity": 1, "slots": 9},
+                {"item": "Goblin book", "quantity": 1, "slots": 2},
+                {"item": "Goblin mail", "quantity": 1, "slots": 10},
+                {"item": "Grapes", "quantity": 1, "slots": 1},
+                {"item": "Tin ore", "quantity": 1, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 2},
+                {"slots": 8},
             ),
         },
         {
@@ -961,6 +1035,156 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": GOBLIN_LEVEL_2_DROPS,
         "source": f"{GOBLIN_LEVEL_2_SOURCE_PATH}: armed id GOBLIN_4262",
+    },
+    "goblin_level_5": {
+        "display_name": "Goblin",
+        "level": 5,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 35,
+        "slayer_xp": 12.0,
+        "stats": {
+            "hitpoints": 120,
+            "attack": 3,
+            "strength": 1,
+            "defence": 4,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 12,
+            "attack_slash": 0,
+            "attack_crush": 12,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_HIGHER_LEVEL_DROPS,
+        "source": f"{GOBLIN_LEVEL_5_SOURCE_PATH}: ids GOBLIN_3265 et al.",
+    },
+    "goblin_level_11": {
+        "display_name": "Goblin",
+        "level": 11,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 16.0,
+        "stats": {
+            "hitpoints": 160,
+            "attack": 12,
+            "strength": 13,
+            "defence": 7,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 4,
+            "attack_slash": 6,
+            "attack_crush": 8,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_HIGHER_LEVEL_DROPS,
+        "source": f"{GOBLIN_LEVEL_11_SOURCE_PATH}: ids GOBLIN_4409/GOBLIN_11259/GOBLIN_11260",
+    },
+    "goblin_level_13": {
+        "display_name": "Goblin",
+        "level": 13,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 16.0,
+        "stats": {
+            "hitpoints": 120,
+            "attack": 12,
+            "strength": 13,
+            "defence": 7,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 4,
+            "attack_slash": 6,
+            "attack_crush": 8,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_HIGHER_LEVEL_DROPS,
+        "source": f"{GOBLIN_LEVEL_13_SOURCE_PATH}: ids GOBLIN_4408/GOBLIN_6283/GOBLIN_11261/GOBLIN_13097",
+    },
+    "goblin_level_16": {
+        "display_name": "Goblin",
+        "level": 16,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 17.0,
+        "stats": {
+            "hitpoints": 170,
+            "attack": 16,
+            "strength": 13,
+            "defence": 10,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 4,
+            "attack_slash": 6,
+            "attack_crush": 8,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_HIGHER_LEVEL_DROPS,
+        "source": f"{GOBLIN_LEVEL_16_SOURCE_PATH}: id GOBLIN_4412",
+    },
+    "goblin_level_25": {
+        "display_name": "Goblin",
+        "level": 25,
+        "group": "Goblins",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 17.0,
+        "stats": {
+            "hitpoints": 350,
+            "attack": 22,
+            "strength": 17,
+            "defence": 15,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 4,
+            "attack_slash": 6,
+            "attack_crush": 8,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GOBLIN_HIGHER_LEVEL_DROPS,
+        "source": f"{GOBLIN_LEVEL_25_SOURCE_PATH}: id GOBLIN_4411",
     },
     "cow": {
         "display_name": "Cow",
@@ -1676,6 +1900,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
     "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},
+    "Bronze javelin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_JAVELIN"},
     "Bronze spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_SPEAR"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
     "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
@@ -1684,6 +1909,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
+    "Grapes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRAPES"},
     "Grimy avantoe": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_AVANTOE"},
     "Grimy cadantine": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_CADANTINE"},
     "Grimy dwarf weed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_DWARF_WEED"},
