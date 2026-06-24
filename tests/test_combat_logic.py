@@ -404,6 +404,37 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("unarmed ids", unarmed["source"])
         self.assertIn("armed id", armed["source"])
 
+    def test_al_kharid_warrior_row_matches_source_and_nested_minor_herbs(self):
+        warrior = COMBAT_ENEMY_DATA["al_kharid_warrior"]
+
+        self.assertEqual(warrior["level"], 9)
+        self.assertEqual(warrior["group"], "Humanoids")
+        self.assertEqual(warrior["attack_speed"], 4)
+        self.assertEqual(warrior["respawn_delay"], 25)
+        self.assertEqual(warrior["stats"]["hitpoints"], 190)
+        self.assertEqual(warrior["stats"]["attack"], 7)
+        self.assertEqual(warrior["stats"]["strength"], 5)
+        self.assertEqual(warrior["stats"]["defence"], 4)
+        self.assertEqual(warrior["bonuses"]["attack_stab"], 10)
+        self.assertEqual(warrior["bonuses"]["attack_slash"], 10)
+        self.assertEqual(warrior["bonuses"]["attack_crush"], 10)
+        self.assertEqual(warrior["bonuses"]["melee_strength"], 9)
+
+        main, tertiary = warrior["drops"]["tables"]
+        self.assertEqual(warrior["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Bronze med helm", "quantity": 1, "slots": 16})
+        self.assertEqual(main["slots"][2], {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 146})
+        self.assertEqual(main["slots"][8]["slots"], 84)
+        minor_herbs = main["slots"][8]["table"]
+        self.assertEqual(minor_herbs["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in minor_herbs["slots"]), 1024)
+        self.assertEqual(minor_herbs["slots"][0], {"item": "Grimy guam", "quantity": 1, "slots": 249})
+        self.assertEqual(minor_herbs["slots"][-1], {"item": "Grimy dwarf weed", "quantity": 1, "slots": 24})
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8})
+        self.assertIn("alkharid_warrior_level_9.plugin.kts", warrior["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -443,6 +474,22 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Bronze sq shield": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_al_kharid_warrior_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["al_kharid_warrior"],
+            _rng([250 / 1024, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_al_kharid_warrior_quantity_range_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["al_kharid_warrior"],
+            _rng([24 / 1024, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12})
 
     def test_scorpion_and_higher_spider_drop_rolls_use_source_tables(self):
         scorpion_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["scorpion"], _rng([0.03]))

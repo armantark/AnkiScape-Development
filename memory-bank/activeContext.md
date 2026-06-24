@@ -160,8 +160,8 @@ Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Spider level 24, Giant rat,
 Giant spider level 2, Giant spider level 50, Cow, Cow calf, Ram, Highwayman,
-Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison scorpion,
-Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
+Al-Kharid warrior, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion,
+Poison scorpion, Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
@@ -251,6 +251,12 @@ Spider level 24, Deadly red spider, and Giant spider level 50 rows. These reuse
 the existing Combat target, drop-table, and quantity-range machinery with local
 2011Scape stats/drop tables instead of adding new mechanics. Source proof lives
 in `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`.
+
+Combat shared drop-table support now exists for explicit nested table slots.
+The first use is Al-Kharid warrior, which imports the local 2011Scape level-9
+row plus `Herbs.minorHerbTable` instead of flattening or omitting herb drops.
+Source proof lives in
+`memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md`.
 
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and

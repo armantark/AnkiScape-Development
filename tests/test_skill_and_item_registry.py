@@ -482,6 +482,21 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIn(item_name, COMBAT_ITEM_IMAGES)
             self.assertTrue(os.path.exists(COMBAT_ITEM_IMAGES[item_name]), f"{item_name} Combat icon is missing")
             self.assertEqual(by_storage_key[item_name].asset_path, COMBAT_ITEM_IMAGES[item_name])
+        for herb_name in (
+            "Grimy guam",
+            "Grimy marrentill",
+            "Grimy tarromin",
+            "Grimy harralander",
+            "Grimy ranarr",
+            "Grimy irit",
+            "Grimy avantoe",
+            "Grimy kwuarm",
+            "Grimy cadantine",
+            "Grimy lantadyme",
+            "Grimy dwarf weed",
+        ):
+            self.assertIn(herb_name, by_storage_key)
+            self.assertEqual(by_storage_key[herb_name].category, "material")
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
         self.assertEqual(EQUIPMENT_DATA["Bronze spear"].slot, "weapon")

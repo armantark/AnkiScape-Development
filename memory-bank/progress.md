@@ -173,6 +173,13 @@
 - Combat Highwayman expansion added the first humanoid ordinary target with
   source-backed stats/bonuses, guaranteed Bones/Cape, Iron bolts x2-12 at 1/20,
   a fetched Cape drop icon, and Cape slot equipment metadata.
+- Combat Al-Kharid warrior expansion added the first recursive shared drop-table
+  slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
+  maps generic source `attackBonus`/`strengthBonus` into the current formula
+  fields, rolls the source Bronze bolts x2-12 range, and resolves the nested
+  local `Herbs.minorHerbTable` into registered grimy herb material drops. Source
+  proof:
+  `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md`.
 - Combat Ranged/ammo expansion added Shortbow plus Bronze arrows as the first
   source-backed Ranged path through the shared Combat burst engine. Ranged rows
   now require supported weapon/ammo, refill ammo at safe boundaries, consume one

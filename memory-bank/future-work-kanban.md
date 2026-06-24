@@ -41,9 +41,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Combat V1 implementation is complete as of 2026-06-23 for the first
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
-  armed/unarmed, Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9,
-  Barbarian level 10, Seagull, Scorpion, Poison scorpion, Deadly red spider,
-  and Poison spider are selectable Combat
+  armed/unarmed, Cow, Cow calf, Ram, Highwayman, Al-Kharid warrior,
+  Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison scorpion,
+  Deadly red spider, and Poison spider are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -89,6 +89,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   use `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
   before touching Scorpion, Spider level 24, Deadly red spider, or Giant spider
   level 50 rows; use
+  `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
+  touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
@@ -117,9 +119,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   table, and 1024-slot easy clue tertiary table. Scorpion, Spider level 24,
   Deadly red spider, and Giant spider level 50 are now implemented using the
   existing Combat drop-table surface; Cave slime remains deferred behind Slayer
-  gates and shared gem-table/drop support. Higher Goblins, Farmers, and
-  Al-Kharid warriors need
-  wider item/drop-table, variant, access, or special-mechanic support.
+  gates and shared gem-table/drop support. Al-Kharid warrior is now implemented
+  and proves recursive shared-table slots for the minor herb table. Higher
+  Goblins can reuse that table but still need row-by-row source import; Farmers
+  still need allotment seed-table support before becoming exact enabled rows.
 - Shortbow through Magic longbow plus Bronze through Rune arrows are now
   implemented as the standard source-backed Ranged/ammo path as of 2026-06-23.
   Ranged accurate/rapid/longrange styles run through the shared Combat burst

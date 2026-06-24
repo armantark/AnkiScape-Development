@@ -3,8 +3,8 @@
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Scorpion and higher Spider variant
-expansion, Highwayman humanoid expansion, Barbarian level 8/9 and level 10
-ordinary-enemy expansions, Goblin
+expansion, Highwayman and Al-Kharid warrior humanoid expansions, Barbarian
+level 8/9 and level 10 ordinary-enemy expansions, Goblin
 ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
 progression, and the standard elemental Combat spell ladder, plus ordinary
 dangerous-target confirmation, safe-boundary ammo recovery, and persistent
@@ -18,8 +18,9 @@ poison status recovery and first source NPC poison application.
 - `combat_data.py` seeds source-backed ordinary enemies with complete combat
   stats and drop behavior: Chicken, Rat, Spider, Spider level 24, Giant rat,
   Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
-  Cow, Cow calf, Ram, Highwayman, Barbarian level 8/9, Barbarian level 10,
-  Seagull, Scorpion, Poison scorpion, Deadly red spider, and Poison spider.
+  Cow, Cow calf, Ram, Highwayman, Al-Kharid warrior, Barbarian level 8/9,
+  Barbarian level 10, Seagull, Scorpion, Poison scorpion, Deadly red spider,
+  and Poison spider.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
@@ -109,6 +110,8 @@ poison status recovery and first source NPC poison application.
   `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
 - Highwayman expansion:
   `memory-bank/source-audits/combat-highwayman-2026-06-23.md`
+- Al-Kharid warrior / nested minor herb table expansion:
+  `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md`
 - Ranged/ammo path:
   `memory-bank/source-audits/combat-ranged-ammo-2026-06-23.md`
 - Ranged bow/ammo progression:

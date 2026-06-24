@@ -1568,6 +1568,33 @@ def _combat_slot_drop_quantity(slot, rng):
     return max(1, _positive_int(slot.get("quantity", 1), 1))
 
 
+def _combat_roll_drop_table(table, rng, drops):
+    if not isinstance(table, Mapping):
+        return
+    total = _positive_int(table.get("total", 0), 0)
+    slots = tuple(row for row in table.get("slots", ()) or () if isinstance(row, Mapping))
+    if total <= 0 or not slots:
+        return
+    try:
+        roll = float(rng())
+    except (TypeError, ValueError):
+        roll = 0.0
+    threshold = int(max(0.0, min(roll, 0.999999999)) * total)
+    cursor = 0
+    for slot in slots:
+        cursor += _positive_int(slot.get("slots", 0), 0)
+        if threshold >= cursor:
+            continue
+        nested_table = slot.get("table")
+        if isinstance(nested_table, Mapping):
+            _combat_roll_drop_table(nested_table, rng, drops)
+            break
+        item_name = slot.get("item")
+        if isinstance(item_name, str):
+            drops[item_name] = drops.get(item_name, 0) + _combat_slot_drop_quantity(slot, rng)
+        break
+
+
 def _combat_roll_drops(enemy, rng):
     drops = {}
     drop_spec = enemy.get("drops", {}) if isinstance(enemy, Mapping) else {}
@@ -1577,26 +1604,7 @@ def _combat_roll_drops(enemy, rng):
         if isinstance(item_name, str):
             drops[item_name] = drops.get(item_name, 0) + max(1, _positive_int(quantity, 1))
     for table in drop_spec.get("tables", ()) or ():
-        if not isinstance(table, Mapping):
-            continue
-        total = _positive_int(table.get("total", 0), 0)
-        slots = tuple(row for row in table.get("slots", ()) or () if isinstance(row, Mapping))
-        if total <= 0 or not slots:
-            continue
-        try:
-            roll = float(rng())
-        except (TypeError, ValueError):
-            roll = 0.0
-        threshold = int(max(0.0, min(roll, 0.999999999)) * total)
-        cursor = 0
-        for slot in slots:
-            cursor += _positive_int(slot.get("slots", 0), 0)
-            if threshold >= cursor:
-                continue
-            item_name = slot.get("item")
-            if isinstance(item_name, str):
-                drops[item_name] = drops.get(item_name, 0) + _combat_slot_drop_quantity(slot, rng)
-            break
+        _combat_roll_drop_table(table, rng, drops)
     return drops
 
 

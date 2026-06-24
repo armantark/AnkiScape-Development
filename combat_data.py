@@ -58,6 +58,9 @@ FOOD_SOURCE_PATH = (
 ITEM_ID_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt"
 )
+GLOBAL_HERBS_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Herbs.kt"
+)
 
 
 COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
@@ -542,6 +545,10 @@ GOBLIN_LEVEL_2_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/other/goblin/goblin_level_2.plugin.kts"
 )
+ALKHARID_WARRIOR_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/alkharid_warrior_level_9.plugin.kts"
+)
 
 POISON_SCORPION_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
@@ -567,6 +574,26 @@ GIANT_SPIDER_LEVEL_50_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/giant_spider_level_50.plugin.kts"
 )
+
+
+COMBAT_MINOR_HERB_DROP_TABLE = {
+    "name": "Minor herb",
+    "source": f"{GLOBAL_HERBS_SOURCE_PATH}: Herbs.minorHerbTable",
+    "total": 1024,
+    "slots": (
+        {"item": "Grimy guam", "quantity": 1, "slots": 249},
+        {"item": "Grimy marrentill", "quantity": 1, "slots": 198},
+        {"item": "Grimy tarromin", "quantity": 1, "slots": 146},
+        {"item": "Grimy harralander", "quantity": 1, "slots": 114},
+        {"item": "Grimy ranarr", "quantity": 1, "slots": 85},
+        {"item": "Grimy irit", "quantity": 1, "slots": 64},
+        {"item": "Grimy avantoe", "quantity": 1, "slots": 49},
+        {"item": "Grimy kwuarm", "quantity": 1, "slots": 39},
+        {"item": "Grimy cadantine", "quantity": 1, "slots": 32},
+        {"item": "Grimy lantadyme", "quantity": 1, "slots": 24},
+        {"item": "Grimy dwarf weed", "quantity": 1, "slots": 24},
+    ),
+}
 
 
 GOBLIN_LEVEL_2_DROPS = {
@@ -1301,6 +1328,73 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/animals/seagull_level_2.plugin.kts"
         ),
     },
+    "al_kharid_warrior": {
+        "display_name": "Al-Kharid warrior",
+        "level": 9,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 190,
+            "attack": 7,
+            "strength": 5,
+            "defence": 4,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 10,
+            "attack_slash": 10,
+            "attack_crush": 10,
+            "defence_stab": 12,
+            "defence_slash": 15,
+            "defence_crush": 10,
+            "defence_magic": -1,
+            "defence_ranged": 12,
+            "melee_strength": 9,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 1024,
+                    "slots": (
+                        {"item": "Bronze med helm", "quantity": 1, "slots": 16},
+                        {"item": "Iron dagger", "quantity": 1, "slots": 8},
+                        {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 146},
+                        {"item": "Bronze arrows", "quantity": 7, "slots": 24},
+                        {"item": "Earth rune", "quantity": 4, "slots": 16},
+                        {"item": "Fire rune", "quantity": 6, "slots": 16},
+                        {"item": "Mind rune", "quantity": 9, "slots": 16},
+                        {"item": "Chaos rune", "quantity": 2, "slots": 8},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 84},
+                        {"item": "Coins", "quantity": 3, "slots": 204},
+                        {"item": "Coins", "quantity": 10, "slots": 84},
+                        {"item": "Coins", "quantity": 5, "slots": 72},
+                        {"item": "Coins", "quantity": 15, "slots": 32},
+                        {"item": "Coins", "quantity": 25, "slots": 8},
+                        {"slots": 146},
+                        {"slots": 64},
+                        {"item": "Fishing bait", "quantity": 1, "slots": 40},
+                        {"item": "Copper ore", "quantity": 1, "slots": 16},
+                        {"item": "Earth talisman", "quantity": 1, "slots": 16},
+                        {"item": "Cabbage", "quantity": 1, "slots": 8},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 1024,
+                    "slots": (
+                        {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+                        {"slots": 1016},
+                    ),
+                },
+            ),
+        },
+        "source": f"{ALKHARID_WARRIOR_SOURCE_PATH}: NPC_ID = Npcs.ALKHARID_WARRIOR",
+    },
     "poison_scorpion": {
         "display_name": "Poison scorpion",
         "level": 20,
@@ -1590,6 +1684,17 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
+    "Grimy avantoe": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_AVANTOE"},
+    "Grimy cadantine": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_CADANTINE"},
+    "Grimy dwarf weed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_DWARF_WEED"},
+    "Grimy guam": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_GUAM"},
+    "Grimy harralander": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_HARRALANDER"},
+    "Grimy irit": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_IRIT"},
+    "Grimy kwuarm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_KWUARM"},
+    "Grimy lantadyme": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_LANTADYME"},
+    "Grimy marrentill": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_MARRENTILL"},
+    "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
+    "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
     "Staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF"},
