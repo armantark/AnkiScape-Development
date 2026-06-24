@@ -377,6 +377,31 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("thug_level_10.plugin.kts", thug["source"])
         self.assertIn("THUG_7114", thug["source"])
 
+    def test_thief_import_row_matches_source_and_nested_minor_herbs(self):
+        thief = COMBAT_ENEMY_DATA["thief"]
+        main, tertiary = thief["drops"]["tables"]
+
+        self.assertEqual(thief["level"], 16)
+        self.assertEqual(thief["group"], "Humanoids")
+        self.assertEqual(thief["attack_speed"], 4)
+        self.assertEqual(thief["respawn_delay"], 25)
+        self.assertEqual(thief["stats"]["hitpoints"], 170)
+        self.assertEqual(thief["stats"]["attack"], 14)
+        self.assertEqual(thief["stats"]["strength"], 13)
+        self.assertEqual(thief["stats"]["defence"], 12)
+        self.assertEqual(thief["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Bronze med helm", "quantity": 1, "slots": 2})
+        self.assertEqual(main["slots"][1], {"item": "Iron dagger", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][2], {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 22})
+        self.assertEqual(main["slots"][16], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 23})
+        self.assertEqual(main["slots"][-1], {"slots": 8})
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("thief_level_16.plugin.kts", thief["source"])
+        self.assertIn("THIEF_5929", thief["source"])
+
     def test_barbarian_import_row_groups_level_8_and_9_source_twins(self):
         barbarian = COMBAT_ENEMY_DATA["barbarian"]
 
@@ -629,6 +654,22 @@ class CombatLogicTest(unittest.TestCase):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["thug"],
             _rng([75 / 128, 0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_thief_quantity_range_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thief"],
+            _rng([4 / 128, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12})
+
+    def test_thief_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thief"],
+            _rng([100 / 128, 0.0, 0.999999]),
         )
 
         self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})

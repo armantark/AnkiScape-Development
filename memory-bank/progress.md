@@ -185,6 +185,12 @@
   128-slot main table, nested `Herbs.minorHerbTable`, 1000-slot charms, and the
   easy clue tertiary table. Source proof:
   `memory-bank/source-audits/combat-thug-2026-06-23.md`.
+- Combat Thief expansion added source-backed level-16 Thief as an ordinary
+  Humanoids target. The row imports all four local source IDs, 170 lifepoints,
+  attack speed 4, respawn delay 25, guaranteed Bones, the 128-slot main table,
+  Bronze bolts x2-12, nested `Herbs.minorHerbTable`, and the easy clue tertiary
+  table without enabling Thieving gameplay. Source proof:
+  `memory-bank/source-audits/combat-thief-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

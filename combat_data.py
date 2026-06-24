@@ -586,6 +586,10 @@ THUG_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thug_level_10.plugin.kts"
 )
+THIEF_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/thief_level_16.plugin.kts"
+)
 FARMER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/farmer_level_7.plugin.kts"
@@ -1638,6 +1642,71 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             f"{THUG_SOURCE_PATH}: ids = Npcs.THUG_7106/Npcs.THUG_7107/"
             "Npcs.THUG_7109/Npcs.THUG_7110/Npcs.THUG_7112/Npcs.THUG_7113/Npcs.THUG_7114"
         ),
+    },
+    "thief": {
+        "display_name": "Thief",
+        "level": 16,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 170,
+            "attack": 14,
+            "strength": 13,
+            "defence": 12,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Bronze med helm", "quantity": 1, "slots": 2},
+                        {"item": "Iron dagger", "quantity": 1, "slots": 1},
+                        {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 22},
+                        {"item": "Bronze arrows", "quantity": 7, "slots": 3},
+                        {"item": "Earth rune", "quantity": 4, "slots": 2},
+                        {"item": "Fire rune", "quantity": 6, "slots": 2},
+                        {"item": "Mind rune", "quantity": 9, "slots": 2},
+                        {"item": "Chaos rune", "quantity": 2, "slots": 1},
+                        {"item": "Coins", "quantity": 3, "slots": 38},
+                        {"item": "Coins", "quantity": 5, "slots": 9},
+                        {"item": "Coins", "quantity": 15, "slots": 4},
+                        {"item": "Coins", "quantity": 25, "slots": 1},
+                        {"item": "Fishing bait", "quantity": 1, "slots": 5},
+                        {"item": "Copper ore", "quantity": 1, "slots": 2},
+                        {"item": "Earth talisman", "quantity": 1, "slots": 2},
+                        {"item": "Cabbage", "quantity": 1, "slots": 1},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 23},
+                        {"slots": 8},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                        {"slots": 127},
+                    ),
+                },
+            ),
+        },
+        "source": f"{THIEF_SOURCE_PATH}: ids = Npcs.THIEF_5926/Npcs.THIEF_5927/Npcs.THIEF_5928/Npcs.THIEF_5929",
     },
     "barbarian": {
         "display_name": "Barbarian",

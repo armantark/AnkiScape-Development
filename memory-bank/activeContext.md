@@ -228,6 +228,13 @@ Bones, the 128-slot main table, nested `minorHerbTable`, 1000-slot charms, and
 the 128-slot easy clue tertiary table. Source proof lives in
 `memory-bank/source-audits/combat-thug-2026-06-23.md`.
 
+Thief is now live as a level-16 Humanoids target: the source row imports all
+four shared IDs, 170 lifepoints, attack speed 4, respawn delay 25, guaranteed
+Bones, the 128-slot main table, Bronze bolts x2-12, nested `minorHerbTable`,
+and the 128-slot easy clue tertiary table. Thieving gameplay is not inferred
+from the NPC name. Source proof lives in
+`memory-bank/source-audits/combat-thief-2026-06-23.md`.
+
 Barbarian Combat coverage now includes two separate source-backed Humanoids
 targets: `barbarian` for the level 8/9 source twins and `barbarian_level_10` for
 the level 10 greataxe, spear, two-hand sword, and 2h sword variants. The level
