@@ -123,6 +123,7 @@ class TargetMetadataTest(unittest.TestCase):
         barbarian_level_10 = _row(rows, "barbarian_level_10")
         seagull = _row(rows, "seagull")
         king_scorpion = _row(rows, "king_scorpion")
+        pit_scorpion = _row(rows, "pit_scorpion")
         scorpion_level_59 = _row(rows, "scorpion_level_59")
         poison_spider_level_64 = _row(rows, "poison_spider_level_64")
 
@@ -280,6 +281,10 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("King scorpion · combat level 32", king_scorpion.tooltip)
         self.assertIn("No item drops", king_scorpion.tooltip)
         self.assertIn("king_scorpion_level_32.plugin.kts", king_scorpion.tooltip)
+        self.assertEqual(pit_scorpion.group, "Scorpions")
+        self.assertIn("Pit scorpion · combat level 28", pit_scorpion.tooltip)
+        self.assertIn("No item drops", pit_scorpion.tooltip)
+        self.assertIn("pit_sorpion_lvl_28.plugin.kts", pit_scorpion.tooltip)
         self.assertEqual(scorpion_level_59.group, "Scorpions")
         self.assertIn("Scorpion · combat level 59", scorpion_level_59.tooltip)
         self.assertIn("Green charm x1 (70/1000)", scorpion_level_59.tooltip)

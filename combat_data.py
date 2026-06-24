@@ -769,6 +769,10 @@ KING_SCORPION_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/king_scorpion_level_32.plugin.kts"
 )
+PIT_SCORPION_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/pit_sorpion_lvl_28.plugin.kts"
+)
 SCORPION_LEVEL_59_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/scorpion_level_59.plugin.kts"
@@ -4195,6 +4199,39 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{KING_SCORPION_SOURCE_PATH}: Npcs.KING_SCORPION; "
             "SlayerAssignment.SCORPION level 1 xp 37.0; no DropTableFactory registration; aggro radius 4"
+        ),
+    },
+    "pit_scorpion": {
+        "display_name": "Pit scorpion",
+        "level": 28,
+        "group": "Scorpions",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "slayer_xp": 32.0,
+        "stats": {
+            "hitpoints": 320,
+            "attack": 20,
+            "strength": 25,
+            "defence": 28,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 13,
+            "defence_crush": 13,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": (
+            f"{PIT_SCORPION_SOURCE_PATH}: Npcs.PIT_SCORPION; "
+            "SlayerAssignment.SCORPION level 1 xp 32.0; no DropTableFactory registration; aggro radius 4"
         ),
     },
     "scorpion_level_59": {

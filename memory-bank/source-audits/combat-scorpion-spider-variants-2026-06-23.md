@@ -1,8 +1,9 @@
 # Combat Scorpion And Spider Variant Audit - 2026-06-23
 
 Status: implemented ordinary Combat target expansion for source-backed Scorpion
-and higher Spider rows. Follow-up expansion added King scorpion, the level-59
-Scorpion, and the level-64 Poison spider from the same source family.
+and higher Spider rows. Follow-up expansion added King scorpion, Pit scorpion,
+the level-59 Scorpion, and the level-64 Poison spider from the same source
+family.
 
 ## Implemented Scope
 
@@ -26,6 +27,11 @@ Scorpion, and the level-64 Poison spider from the same source family.
   level-32 King scorpion data: attack speed 4, respawn delay 25, 300 lifepoints,
   Attack 30, Strength 29, Defence 23, Scorpion Slayer XP 37.0, and no item
   drops because the source file has no `DropTableFactory` registration.
+- Added `pit_scorpion` as a selectable Scorpions target using local 2011Scape
+  level-28 Pit scorpion data: attack speed 4, respawn delay 25, 320 lifepoints,
+  Attack 20, Strength 25, Defence 28, Scorpion Slayer XP 32.0, source defensive
+  bonuses, and no item drops because the source file has no `DropTableFactory`
+  registration.
 - Added `scorpion_level_59` as a selectable Scorpions target using local
   2011Scape level-59 Scorpion data: attack speed 4, respawn delay 22, 550
   lifepoints, Attack 50, Strength 52, Defence 50, Scorpion Slayer XP 55.0,
@@ -45,6 +51,8 @@ Scorpion, and the level-64 Poison spider from the same source family.
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/scorpion_level_14.plugin.kts`
 - King scorpion:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/king_scorpion_level_32.plugin.kts`
+- Pit scorpion:
+  `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/pit_sorpion_lvl_28.plugin.kts`
 - Scorpion level 59:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/definitions/critters/scorpion_level_59.plugin.kts`
 - Poison spider level 64:

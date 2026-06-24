@@ -44,9 +44,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
   Mugger, Thug, Thief, Guard level 21 Varrock/sword/battleaxe variants,
   Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
-  Scorpion, Poison scorpion, King scorpion, Scorpion level 59, Deadly red
-  spider, Poison spider levels 31/64, Hill giant, Moss giant, and Ice giant are
-  selectable Combat
+  Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
+  Deadly red spider, Poison spider levels 31/64, Hill giant, Moss giant, and
+  Ice giant are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -95,8 +95,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   use `memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`
   before touching antipoison loadout cure or poison immunity; use
   `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
-  before touching Scorpion, King scorpion, Spider level 24, Poison spider level
-  64, Deadly red spider, or Giant spider level 50 rows; use
+  before touching Scorpion, King scorpion, Pit scorpion, Spider level 24,
+  Poison spider level 64, Deadly red spider, or Giant spider level 50 rows; use
   `memory-bank/source-audits/combat-giants-2026-06-23.md` before touching Hill
   giant, Moss giant, Ice giant, `Seeds.uncommonSeedTable`, or the Ice giant
   source-overflow main table; use
@@ -185,10 +185,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
   Goblin level 2 is split into unarmed and armed targets because source stats
   differ, while sharing the same local 1024-slot main table, 1024-slot charm
-  table, and 1024-slot easy clue tertiary table. Scorpion, King scorpion,
-  Scorpion level 59, Spider level 24, Deadly red spider, Poison spider level
-  64, and Giant spider level 50 are now implemented using the existing Combat
-  drop-table and poison surfaces; Cave slime remains deferred behind Slayer
+  table, and 1024-slot easy clue tertiary table. Scorpion, King scorpion, Pit
+  scorpion, Scorpion level 59, Spider level 24, Deadly red spider, Poison
+  spider level 64, and Giant spider level 50 are now implemented using the
+  existing Combat drop-table and poison surfaces; Cave slime remains deferred behind Slayer
   gates and shared gem-table/drop support. Al-Kharid warrior is now implemented
   and proves recursive shared-table slots for the minor herb table. Higher
   Goblins are now implemented for levels 5, 11, 13, 16, and 25 using the same
