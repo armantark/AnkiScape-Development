@@ -664,6 +664,34 @@ GHOST_LEVEL_19_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/undeads/ghost_level_19.plugin.kts"
 )
+ZOMBIE_LEVEL_13_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_13.plugin.kts"
+)
+ZOMBIE_LEVEL_18_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_18.plugin.kts"
+)
+ZOMBIE_LEVEL_24_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_24.plugin.kts"
+)
+ZOMBIE_LEVEL_25_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_25.plugin.kts"
+)
+ZOMBIE_LEVEL_30_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_30.plugin.kts"
+)
+ZOMBIE_LEVEL_44_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_44.plugin.kts"
+)
+ZOMBIE_LEVEL_53_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/zombie_lvl_53.plugin.kts"
+)
 DUCK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/duck_level_1.plugin.kts"
@@ -1106,6 +1134,98 @@ GIANT_BAT_DROPS = {"guaranteed": (("Bat bones", 1),), "tables": ()}
 
 
 GHOST_DROPS = {"guaranteed": (), "tables": ()}
+
+
+ZOMBIE_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Iron hatchet", "quantity": 1, "slots": 3},
+                {"item": "Bronze longsword", "quantity": 1, "slots": 1},
+                {"item": "Bronze med helm", "quantity": 1, "slots": 4},
+                {"item": "Bronze kiteshield", "quantity": 1, "slots": 3},
+                {"item": "Iron arrows", "quantity": 5, "slots": 7},
+                {"item": "Body rune", "quantity": 6, "slots": 5},
+                {"item": "Mind rune", "quantity": 5, "slots": 5},
+                {"item": "Air rune", "quantity": 13, "slots": 4},
+                {"item": "Iron arrows", "quantity": 8, "slots": 4},
+                {"item": "Steel arrows", "quantity": 6, "slots": 2},
+                {"item": "Nature rune", "quantity": 6, "slots": 1},
+                {"item": "Cosmic rune", "quantity": 4, "slots": 1},
+                {"item": "Fire rune", "quantity": 7, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 25},
+                {"item": "Coins", "quantity": 10, "slots": 36},
+                {"item": "Coins", "quantity": 4, "slots": 4},
+                {"item": "Coins", "quantity": 18, "slots": 3},
+                {"item": "Coins", "quantity": 13, "slots": 2},
+                {"item": "Coins", "quantity": 28, "slots": 2},
+                {"slots": 8},
+                {"item": "Fishing bait", "quantity": 5, "slots": 5},
+                {"item": "Copper ore", "quantity": 1, "slots": 2},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 30},
+                {"item": "Green charm", "quantity": 1, "slots": 17},
+                {"item": "Crimson charm", "quantity": 1, "slots": 14},
+                {"item": "Blue charm", "quantity": 1, "slots": 2},
+                {"slots": 937},
+            ),
+        },
+    ),
+}
+
+
+ZOMBIE_LEVEL_25_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Iron hatchet", "quantity": 1, "slots": 5},
+                {"item": "Bronze longsword", "quantity": 1, "slots": 1},
+                {"item": "Bronze med helm", "quantity": 1, "slots": 4},
+                {"item": "Bronze kiteshield", "quantity": 1, "slots": 3},
+                {"item": "Iron arrows", "quantity": 5, "slots": 7},
+                {"item": "Body rune", "quantity": 6, "slots": 5},
+                {"item": "Mind rune", "quantity": 5, "slots": 5},
+                {"item": "Air rune", "quantity": 13, "slots": 4},
+                {"item": "Iron arrows", "quantity": 8, "slots": 4},
+                {"item": "Steel arrows", "quantity": 6, "slots": 2},
+                {"item": "Nature rune", "quantity": 6, "slots": 1},
+                {"item": "Cosmic rune", "quantity": 4, "slots": 1},
+                {"item": "Fire rune", "quantity": 7, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 25},
+                {"item": "Coins", "quantity": 10, "slots": 36},
+                {"item": "Coins", "quantity": 4, "slots": 4},
+                {"item": "Coins", "quantity": 18, "slots": 3},
+                {"item": "Coins", "quantity": 13, "slots": 2},
+                {"item": "Coins", "quantity": 28, "slots": 2},
+                {"slots": 6},
+                {"item": "Fishing bait", "quantity": 5, "slots": 5},
+                {"item": "Copper ore", "quantity": 1, "slots": 2},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 30},
+                {"item": "Green charm", "quantity": 1, "slots": 17},
+                {"item": "Crimson charm", "quantity": 1, "slots": 14},
+                {"item": "Blue charm", "quantity": 1, "slots": 2},
+                {"slots": 937},
+            ),
+        },
+    ),
+}
 
 
 DWARF_DROPS = {
@@ -2265,6 +2385,216 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": GHOST_DROPS,
         "source": f"{GHOST_LEVEL_19_SOURCE_PATH}: ids Npcs.GHOST/Npcs.GHOST_104/Npcs.GHOST_5349/Npcs.GHOST_5350/Npcs.GHOST_5351/Npcs.GHOST_5352; SlayerAssignment.GHOST level 1 xp 25.0; attackStyle CRUSH; no on_npc_death drop callback",
+    },
+    "zombie_level_13": {
+        "display_name": "Zombie",
+        "level": 13,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 22.0,
+        "stats": {
+            "hitpoints": 220,
+            "attack": 8,
+            "strength": 9,
+            "defence": 10,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_DROPS,
+        "source": f"{ZOMBIE_LEVEL_13_SOURCE_PATH}: id Npcs.ZOMBIE; SlayerAssignment.ZOMBIE level 1 xp 22.0; aggro radius 4",
+    },
+    "zombie_level_18": {
+        "display_name": "Zombie",
+        "level": 18,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 24.0,
+        "stats": {
+            "hitpoints": 240,
+            "attack": 13,
+            "strength": 13,
+            "defence": 18,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_DROPS,
+        "source": f"{ZOMBIE_LEVEL_18_SOURCE_PATH}: id Npcs.ZOMBIE_74; SlayerAssignment.ZOMBIE level 1 xp 24.0; aggro radius 4",
+    },
+    "zombie_level_24": {
+        "display_name": "Zombie",
+        "level": 24,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 30.0,
+        "stats": {
+            "hitpoints": 300,
+            "attack": 19,
+            "strength": 21,
+            "defence": 16,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 7,
+            "defence_stab": 9,
+            "defence_slash": 8,
+            "defence_crush": 12,
+            "defence_magic": 10,
+            "defence_ranged": 11,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_DROPS,
+        "source": f"{ZOMBIE_LEVEL_24_SOURCE_PATH}: id Npcs.ZOMBIE_75; SlayerAssignment.ZOMBIE level 1 xp 30.0; aggro radius 4",
+    },
+    "zombie_level_25": {
+        "display_name": "Zombie",
+        "level": 25,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 30.0,
+        "stats": {
+            "hitpoints": 300,
+            "attack": 19,
+            "strength": 21,
+            "defence": 16,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 7,
+            "defence_stab": 9,
+            "defence_slash": 8,
+            "defence_crush": 12,
+            "defence_magic": 10,
+            "defence_ranged": 11,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_LEVEL_25_DROPS,
+        "source": f"{ZOMBIE_LEVEL_25_SOURCE_PATH}: id Npcs.ZOMBIE_76; SlayerAssignment.ZOMBIE level 1 xp 30.0; level-specific main table has Iron hatchet 5/128 and empty 6/128",
+    },
+    "zombie_level_30": {
+        "display_name": "Zombie",
+        "level": 30,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 30.0,
+        "stats": {
+            "hitpoints": 300,
+            "attack": 25,
+            "strength": 29,
+            "defence": 20,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_DROPS,
+        "source": f"{ZOMBIE_LEVEL_30_SOURCE_PATH}: ids Npcs.ZOMBIE_5375/Npcs.ZOMBIE_4392/Npcs.ZOMBIE_5376; SlayerAssignment.ZOMBIE level 1 xp 30.0; aggro radius 4",
+    },
+    "zombie_level_44": {
+        "display_name": "Zombie",
+        "level": 44,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 30.0,
+        "stats": {
+            "hitpoints": 400,
+            "attack": 35,
+            "strength": 40,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_DROPS,
+        "source": f"{ZOMBIE_LEVEL_44_SOURCE_PATH}: ids Npcs.ZOMBIE_4393/Npcs.ZOMBIE_5377/Npcs.ZOMBIE_5378; SlayerAssignment.ZOMBIE level 1 xp 30.0; aggro radius 4",
+    },
+    "zombie_level_53": {
+        "display_name": "Zombie",
+        "level": 53,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 35,
+        "slayer_xp": 50.0,
+        "stats": {
+            "hitpoints": 500,
+            "attack": 55,
+            "strength": 40,
+            "defence": 48,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 19,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 18,
+            "defence_crush": 0,
+            "defence_magic": 20,
+            "defence_ranged": 21,
+            "melee_strength": 0,
+        },
+        "drops": ZOMBIE_DROPS,
+        "source": f"{ZOMBIE_LEVEL_53_SOURCE_PATH}: ids Npcs.ZOMBIE_4394/Npcs.ZOMBIE_5379/Npcs.ZOMBIE_5380; SlayerAssignment.ZOMBIE level 1 xp 50.0; aggro radius 4",
     },
     "duck_land": {
         "display_name": "Duck (land)",

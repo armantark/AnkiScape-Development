@@ -244,6 +244,11 @@
   defence bonuses and Ghost Slayer XP. The source file has no death drop
   callback, so AnkiScape exposes no item drops for this row. Source proof:
   `memory-bank/source-audits/combat-ghost-2026-06-23.md`.
+- Combat Zombie expansion added seven local source Undead rows for levels 13,
+  18, 24, 25, 30, 44, and 53. The rows preserve source Bones, main, charm,
+  Slayer XP, and defence-bonus data, including the level-25 table's Iron hatchet
+  5/128 and empty 6/128 exception. Source proof:
+  `memory-bank/source-audits/combat-zombies-2026-06-23.md`.
 - Combat Duck expansion split the local source level-1 Duck file into land and
   water rows. Land ducks keep the source Bones drop callback; water ducks share
   stats and Bird Slayer XP but expose no drops because the source has no

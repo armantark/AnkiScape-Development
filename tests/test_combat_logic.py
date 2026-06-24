@@ -15,6 +15,8 @@ from combat_data import (
     MAGIC_STRATEGY_SOURCE_PATH,
     RANGED_FORMULA_SOURCE_PATH,
     RANGED_STRATEGY_SOURCE_PATH,
+    ZOMBIE_DROPS,
+    ZOMBIE_LEVEL_25_DROPS,
 )
 from constants import EQUIPMENT_DATA
 from logic_pure import (
@@ -409,6 +411,54 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("ghost_level_19.plugin.kts", ghost["source"])
         self.assertIn("SlayerAssignment.GHOST", ghost["source"])
         self.assertIn("no on_npc_death drop callback", ghost["source"])
+
+    def test_zombie_rows_match_source_and_level_25_drop_variant(self):
+        expected = {
+            "zombie_level_13": (13, 220, 8, 9, 10, 22.0, ZOMBIE_DROPS, "zombie_lvl_13.plugin.kts"),
+            "zombie_level_18": (18, 240, 13, 13, 18, 24.0, ZOMBIE_DROPS, "zombie_lvl_18.plugin.kts"),
+            "zombie_level_24": (24, 300, 19, 21, 16, 30.0, ZOMBIE_DROPS, "zombie_lvl_24.plugin.kts"),
+            "zombie_level_25": (25, 300, 19, 21, 16, 30.0, ZOMBIE_LEVEL_25_DROPS, "zombie_lvl_25.plugin.kts"),
+            "zombie_level_30": (30, 300, 25, 29, 20, 30.0, ZOMBIE_DROPS, "zombie_lvl_30.plugin.kts"),
+            "zombie_level_44": (44, 400, 35, 40, 40, 30.0, ZOMBIE_DROPS, "zombie_lvl_44.plugin.kts"),
+            "zombie_level_53": (53, 500, 55, 40, 48, 50.0, ZOMBIE_DROPS, "zombie_lvl_53.plugin.kts"),
+        }
+
+        for key, (level, hitpoints, attack, strength, defence, slayer_xp, drops, source_file) in expected.items():
+            with self.subTest(key=key):
+                zombie = COMBAT_ENEMY_DATA[key]
+                self.assertEqual(zombie["display_name"], "Zombie")
+                self.assertEqual(zombie["level"], level)
+                self.assertEqual(zombie["group"], "Undead")
+                self.assertEqual(zombie["attack_speed"], 5)
+                self.assertEqual(zombie["respawn_delay"], 35)
+                self.assertEqual(zombie["slayer_xp"], slayer_xp)
+                self.assertEqual(zombie["stats"]["hitpoints"], hitpoints)
+                self.assertEqual(zombie["stats"]["attack"], attack)
+                self.assertEqual(zombie["stats"]["strength"], strength)
+                self.assertEqual(zombie["stats"]["defence"], defence)
+                self.assertIs(zombie["drops"], drops)
+                self.assertIn(source_file, zombie["source"])
+                self.assertIn("SlayerAssignment.ZOMBIE", zombie["source"])
+
+        main, charms = COMBAT_ENEMY_DATA["zombie_level_13"]["drops"]["tables"]
+        level_25_main = COMBAT_ENEMY_DATA["zombie_level_25"]["drops"]["tables"][0]
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Iron hatchet", "quantity": 1, "slots": 3})
+        self.assertEqual(main["slots"][13], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 25})
+        self.assertEqual(main["slots"][-3], {"slots": 8})
+        self.assertEqual(main["slots"][-2], {"item": "Fishing bait", "quantity": 5, "slots": 5})
+        self.assertEqual(level_25_main["slots"][0], {"item": "Iron hatchet", "quantity": 1, "slots": 5})
+        self.assertEqual(level_25_main["slots"][-3], {"slots": 6})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 30})
+        self.assertEqual(charms["slots"][-1], {"slots": 937})
+
+        self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_24"]["bonuses"]["attack_crush"], 7)
+        self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_24"]["bonuses"]["defence_magic"], 10)
+        self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_53"]["bonuses"]["attack_stab"], 19)
+        self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_53"]["bonuses"]["defence_ranged"], 21)
 
     def test_duck_rows_split_land_and_water_source_drops(self):
         land = COMBAT_ENEMY_DATA["duck_land"]
@@ -1137,6 +1187,24 @@ class CombatLogicTest(unittest.TestCase):
 
     def test_ghost_drop_rolls_no_items(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["ghost"], _rng([])), {})
+
+    def test_zombie_drop_rolls_nested_minor_herbs_and_level_25_variant(self):
+        herb_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["zombie_level_13"],
+            _rng([41 / 128, 0.0, 0.999999]),
+        )
+        normal_table_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["zombie_level_24"],
+            _rng([4 / 128, 0.999999]),
+        )
+        level_25_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["zombie_level_25"],
+            _rng([4 / 128, 0.999999]),
+        )
+
+        self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
+        self.assertEqual(normal_table_drops, {"Bones": 1, "Bronze med helm": 1})
+        self.assertEqual(level_25_drops, {"Bones": 1, "Iron hatchet": 1})
 
     def test_duck_drop_rolls_follow_land_water_source_split(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})

@@ -357,6 +357,12 @@ drop callback, so the row intentionally exposes no item drops instead of
 inventing Bones or ectoplasm. Source proof lives in
 `memory-bank/source-audits/combat-ghost-2026-06-23.md`.
 
+Combat Zombie coverage now adds seven local source Undead variants from levels
+13, 18, 24, 25, 30, 44, and 53. The rows share the source Bones, main, and charm
+tables, while the level-25 row preserves its source-specific Iron hatchet
+5/128 and empty 6/128 branch instead of reusing the common table. Source proof
+lives in `memory-bank/source-audits/combat-zombies-2026-06-23.md`.
+
 Combat Duck coverage now splits the source level-1 Duck file into land and water
 rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
 water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but
