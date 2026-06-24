@@ -128,8 +128,10 @@
 - Equipment backend is in place: generated `equipment_data.py` covers Smithing armour/weapons plus Mining bonus gear, `player_data["equipment"]` replaces `owned_equipment`, combat level defaults are scaffolded, pure equip/unequip/stat-total helpers exist, and runtime exposes `on_equip_item` / `on_unequip_slot` for the Equipment tab.
 - Equipment frontend is in place: the main menu has a dedicated Equipment tab, right-click Equip/Unequip menus, slot placeholder icons, stat totals, and bonus/requirement tooltips.
 - Combat V1 ordinary training is in place. `combat_data.py` seeds the first
-  source-backed enabled enemies (Chicken, Rat, Spider, Giant rat, Giant spider,
-  Cow, Cow calf, Ram, Highwayman, Seagull), melee attack
+  source-backed enabled enemies (Chicken, Rat, Spider, Spider level 24, Giant
+  rat, Giant spider level 2, Giant spider level 50, Goblins, Cow, Cow calf, Ram,
+  Highwayman, Mugger, Thug, Thief, Guard variants, Al-Kharid warrior, Farmer,
+  Barbarians, Seagull, Scorpions, and Poison spiders), melee attack
   styles, food healing values, and combat drop items from local 2011Scape
   source paths. `apply_combat_burst_pure()` simulates bounded 0.6s-tick combat
   bursts from `Actions per review`, caps each successful review at one kill,
@@ -191,6 +193,12 @@
   Bronze bolts x2-12, nested `Herbs.minorHerbTable`, and the easy clue tertiary
   table without enabling Thieving gameplay. Source proof:
   `memory-bank/source-audits/combat-thief-2026-06-23.md`.
+- Combat Guard expansion added three source-backed level-21 Guard variants as
+  ordinary Humanoids targets: Varrock, sword, and battleaxe. The rows share
+  source Guard drops, including Iron bolts x2-12, allotment seed table rolls,
+  medium clue tertiary drops, and charms; the source-commented crossbow Guard
+  remains disabled because it has no complete combat definition. Source proof:
+  `memory-bank/source-audits/combat-guard-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula
@@ -315,9 +323,9 @@
   source-exact death-fee and grave-expiry variants beyond the current
   review/stacked-death bridge, and
   migrating quest combat gates from the lightweight resolver onto the shared
-  combat engine. Al-Kharid Warrior, Higher Goblins, and Farmer now prove
-  first-class shared/global table slots; broader shared drop tables remain open
-  as future enemies need them.
+  combat engine. Al-Kharid Warrior, Higher Goblins, Farmer, and Guard now prove
+  first-class shared/global table slots plus one source-overfilled drop table;
+  broader shared drop tables remain open as future enemies need them.
   Broad
   non-Smithing combat equipment import/equip support is also still open; Wooden
   shield is currently claimable but not proof that all shield mechanics are done.

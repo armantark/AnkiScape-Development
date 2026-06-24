@@ -462,6 +462,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Cape": "equipment",
             "Chef's hat": "equipment",
             "Clue scroll (easy)": "material",
+            "Clue scroll (medium)": "material",
             "Coins": "material",
             "Cowhide": "material",
             "Beer": "food",

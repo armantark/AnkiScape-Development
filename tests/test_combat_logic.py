@@ -2,6 +2,7 @@ import unittest
 
 from combat_data import (
     COMBAT_ANTIPOISON_POTION_DATA,
+    COMBAT_ALLOTMENT_SEED_DROP_TABLE,
     COMBAT_ENEMY_DATA,
     COMBAT_MINOR_HERB_DROP_TABLE,
     COMBAT_MAGIC_SPELL_DATA,
@@ -402,6 +403,58 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("thief_level_16.plugin.kts", thief["source"])
         self.assertIn("THIEF_5929", thief["source"])
 
+    def test_guard_import_rows_match_source_split_variants_and_shared_drops(self):
+        varrock = COMBAT_ENEMY_DATA["guard_varrock"]
+        sword = COMBAT_ENEMY_DATA["guard_sword"]
+        battleaxe = COMBAT_ENEMY_DATA["guard_battleaxe"]
+
+        self.assertEqual(varrock["display_name"], "Guard (Varrock)")
+        self.assertEqual(sword["display_name"], "Guard (sword)")
+        self.assertEqual(battleaxe["display_name"], "Guard (battleaxe)")
+        for guard in (varrock, sword, battleaxe):
+            self.assertEqual(guard["level"], 21)
+            self.assertEqual(guard["group"], "Humanoids")
+            self.assertEqual(guard["attack_speed"], 4)
+            self.assertEqual(guard["respawn_delay"], 50)
+            self.assertEqual(guard["stats"]["hitpoints"], 220)
+            self.assertIs(guard["drops"], varrock["drops"])
+            self.assertIn("guard_level_21.plugin.kts", guard["source"])
+            self.assertIn("faladorCrossbowId excluded", guard["source"])
+
+        self.assertEqual(varrock["stats"]["attack"], 19)
+        self.assertEqual(varrock["stats"]["strength"], 18)
+        self.assertEqual(varrock["stats"]["defence"], 14)
+        self.assertEqual(varrock["bonuses"]["defence_stab"], 24)
+        self.assertEqual(varrock["bonuses"]["defence_slash"], 30)
+        self.assertEqual(varrock["bonuses"]["defence_magic"], -9)
+        self.assertEqual(sword["stats"]["attack"], 19)
+        self.assertEqual(sword["stats"]["strength"], 18)
+        self.assertEqual(sword["stats"]["defence"], 14)
+        self.assertEqual(sword["bonuses"]["defence_stab"], 18)
+        self.assertEqual(sword["bonuses"]["defence_slash"], 25)
+        self.assertEqual(sword["bonuses"]["defence_magic"], -4)
+        self.assertEqual(battleaxe["stats"]["attack"], 15)
+        self.assertEqual(battleaxe["stats"]["strength"], 15)
+        self.assertEqual(battleaxe["stats"]["defence"], 16)
+        self.assertEqual(battleaxe["bonuses"]["attack_crush"], 10)
+        self.assertEqual(battleaxe["bonuses"]["defence_stab"], 5)
+
+        main, tertiary, charms = varrock["drops"]["tables"]
+        self.assertEqual(varrock["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 146)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 146)
+        self.assertEqual(main["slots"][0], {"item": "Iron bolts", "quantity_range": (2, 12), "slots": 10})
+        self.assertEqual(main["slots"][10], {"item": "Steel arrows", "quantity": 5, "slots": 1})
+        self.assertEqual(main["slots"][20], {"item": "Body talisman", "quantity": 1, "slots": 2})
+        self.assertEqual(main["slots"][21], {"item": "Law talisman", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][22], {"item": "Grain", "quantity": 1, "slots": 1})
+        self.assertIs(main["slots"][24]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
+        self.assertEqual(main["slots"][24]["slots"], 18)
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][1], {"item": "Clue scroll (medium)", "quantity": 1, "slots": 1})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 70})
+
     def test_barbarian_import_row_groups_level_8_and_9_source_twins(self):
         barbarian = COMBAT_ENEMY_DATA["barbarian"]
 
@@ -673,6 +726,25 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_guard_drop_rolls_quantity_range_medium_clue_and_charms(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["guard_varrock"],
+            _rng([0.0, 0.999999, 0.999999, 0.0]),
+        )
+
+        self.assertEqual(
+            drops,
+            {"Bones": 1, "Iron bolts": 12, "Clue scroll (medium)": 1, "Gold charm": 1},
+        )
+
+    def test_guard_drop_rolls_nested_allotment_seed_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["guard_sword"],
+            _rng([120 / 146, 0.0, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
 
     def test_barbarian_drop_rolls_include_main_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

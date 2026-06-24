@@ -590,6 +590,10 @@ THIEF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thief_level_16.plugin.kts"
 )
+GUARD_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/guard_level_21.plugin.kts"
+)
 FARMER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/farmer_level_7.plugin.kts"
@@ -794,6 +798,64 @@ FARMER_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
                 {"slots": 127},
+            ),
+        },
+    ),
+}
+
+
+GUARD_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 146,
+            "slots": (
+                {"item": "Iron bolts", "quantity_range": (2, 12), "slots": 10},
+                {"item": "Steel arrows", "quantity": 1, "slots": 4},
+                {"item": "Bronze arrows", "quantity": 1, "slots": 3},
+                {"item": "Air rune", "quantity": 6, "slots": 2},
+                {"item": "Earth rune", "quantity": 3, "slots": 2},
+                {"item": "Fire rune", "quantity": 2, "slots": 2},
+                {"item": "Bronze arrows", "quantity": 2, "slots": 2},
+                {"item": "Blood rune", "quantity": 1, "slots": 1},
+                {"item": "Chaos rune", "quantity": 1, "slots": 1},
+                {"item": "Nature rune", "quantity": 1, "slots": 1},
+                {"item": "Steel arrows", "quantity": 5, "slots": 1},
+                {"item": "Coins", "quantity": 1, "slots": 19},
+                {"item": "Coins", "quantity": 4, "slots": 8},
+                {"item": "Coins", "quantity": 5, "slots": 18},
+                {"item": "Coins", "quantity": 7, "slots": 16},
+                {"item": "Coins", "quantity": 12, "slots": 9},
+                {"item": "Coins", "quantity": 17, "slots": 4},
+                {"item": "Coins", "quantity": 25, "slots": 4},
+                {"item": "Coins", "quantity": 30, "slots": 2},
+                {"item": "Iron dagger", "quantity": 1, "slots": 6},
+                {"item": "Body talisman", "quantity": 1, "slots": 2},
+                {"item": "Law talisman", "quantity": 1, "slots": 1},
+                {"item": "Grain", "quantity": 1, "slots": 1},
+                {"item": "Iron ore", "quantity": 1, "slots": 1},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18},
+                {"slots": 8},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 128,
+            "slots": (
+                {"slots": 127},
+                {"item": "Clue scroll (medium)", "quantity": 1, "slots": 1},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 70},
+                {"item": "Green charm", "quantity": 1, "slots": 9},
+                {"item": "Crimson charm", "quantity": 1, "slots": 5},
+                {"item": "Blue charm", "quantity": 1, "slots": 2},
+                {"slots": 914},
             ),
         },
     ),
@@ -1708,6 +1770,97 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "source": f"{THIEF_SOURCE_PATH}: ids = Npcs.THIEF_5926/Npcs.THIEF_5927/Npcs.THIEF_5928/Npcs.THIEF_5929",
     },
+    "guard_varrock": {
+        "display_name": "Guard (Varrock)",
+        "level": 21,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 220,
+            "attack": 19,
+            "strength": 18,
+            "defence": 14,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 4,
+            "attack_slash": 0,
+            "attack_crush": 5,
+            "defence_stab": 24,
+            "defence_slash": 30,
+            "defence_crush": 25,
+            "defence_magic": -9,
+            "defence_ranged": 25,
+            "melee_strength": 0,
+        },
+        "drops": GUARD_DROPS,
+        "source": f"{GUARD_SOURCE_PATH}: varrockId Npcs.GUARD_5919/Npcs.GUARD_5920; faladorCrossbowId excluded because source comments no definition yet",
+    },
+    "guard_sword": {
+        "display_name": "Guard (sword)",
+        "level": 21,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 220,
+            "attack": 19,
+            "strength": 18,
+            "defence": 14,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 4,
+            "attack_slash": 0,
+            "attack_crush": 5,
+            "defence_stab": 18,
+            "defence_slash": 25,
+            "defence_crush": 19,
+            "defence_magic": -4,
+            "defence_ranged": 20,
+            "melee_strength": 0,
+        },
+        "drops": GUARD_DROPS,
+        "source": (
+            f"{GUARD_SOURCE_PATH}: faladorSwordId Npcs.GUARD/Npcs.GUARD_3228; "
+            "edgevilleId Npcs.GUARD_296/Npcs.GUARD_297/Npcs.GUARD_298/Npcs.GUARD_299/"
+            "Npcs.GUARD_3407/Npcs.GUARD_3408; faladorCrossbowId excluded because source comments no definition yet"
+        ),
+    },
+    "guard_battleaxe": {
+        "display_name": "Guard (battleaxe)",
+        "level": 21,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 220,
+            "attack": 15,
+            "strength": 15,
+            "defence": 16,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 6,
+            "attack_slash": 0,
+            "attack_crush": 10,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": 5,
+            "defence_magic": -4,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": GUARD_DROPS,
+        "source": f"{GUARD_SOURCE_PATH}: faladorBattleaxeId Npcs.GUARD_3230/Npcs.GUARD_3241; faladorCrossbowId excluded because source comments no definition yet",
+    },
     "barbarian": {
         "display_name": "Barbarian",
         "level": 8,
@@ -2267,6 +2420,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
     "Cabbage seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CABBAGE_SEED"},
     "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
+    "Clue scroll (medium)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_MEDIUM"},
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},

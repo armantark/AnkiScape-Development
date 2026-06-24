@@ -179,6 +179,18 @@
     "source_wiki": "osrs",
     "timestamp": "2019-04-11T12:15:25Z"
   },
+  "combatitems/clue_scroll_medium.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Clue_scroll_%28medium%29.png",
+    "file_title": "Clue scroll (medium).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Clue_scroll_%28medium%29.png?e18ce",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a2e556d9914ccae67b771087f972610b1a3e4ce9",
+    "size": 481,
+    "source_wiki": "osrs",
+    "timestamp": "2019-04-11T12:15:26Z"
+  },
   "combatitems/coins.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Coins_100.png",
     "file_title": "Coins 100.png",

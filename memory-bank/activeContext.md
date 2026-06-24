@@ -160,8 +160,9 @@ Combat V1 ordinary training is now implemented as of 2026-06-23. Combat is a
 synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Spider level 24, Giant rat,
 Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
-Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Al-Kharid
-warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
+Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Mugger, Thug,
+Thief, Guard level 21 Varrock/sword/battleaxe variants, Al-Kharid warrior,
+Farmer, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
 scorpion, Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
@@ -235,6 +236,13 @@ and the 128-slot easy clue tertiary table. Thieving gameplay is not inferred
 from the NPC name. Source proof lives in
 `memory-bank/source-audits/combat-thief-2026-06-23.md`.
 
+Guard is now live as three level-21 Humanoids variants: Varrock, sword, and
+battleaxe. The complete melee source rows share the Guard drop table, including
+Iron bolts x2-12, allotment seed table rolls, medium clue tertiary drops, and
+charms. The source-commented crossbow Guard stays disabled because it has no
+complete combat definition yet. Source proof lives in
+`memory-bank/source-audits/combat-guard-2026-06-23.md`.
+
 Barbarian Combat coverage now includes two separate source-backed Humanoids
 targets: `barbarian` for the level 8/9 source twins and `barbarian_level_10` for
 the level 10 greataxe, spear, two-hand sword, and 2h sword variants. The level
@@ -299,6 +307,11 @@ Bones, 128-slot main table, nested `minorHerbTable`, nested
 `Seeds.allotmentSeedTable`, farming tool drops, and easy clue tertiary. Farming
 gameplay remains deferred; the new seeds/tools are inventory-visible drops only.
 Source proof lives in `memory-bank/source-audits/combat-farmer-2026-06-23.md`.
+
+Guard also proves one source-overfilled ordinary drop table. The source file
+declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
+source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls
+against the final entry index after logging the mismatch.
 
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and
