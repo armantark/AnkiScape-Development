@@ -14,6 +14,7 @@ from combat_data import (
     COMBAT_RANGED_AMMO_DATA,
     COMBAT_RANGED_WEAPON_DATA,
     HAAKON_DROPS,
+    HAM_GUARD_DROPS,
     HILL_GIANT_DROPS,
     ICE_GIANT_DROPS,
     MOSS_GIANT_DROPS,
@@ -1082,6 +1083,49 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("Npcs.HAAKON_THE_CHAMPION", haakon["source"])
         self.assertIn("no Charms table", haakon["source"])
 
+    def test_ham_guard_rows_match_source_and_active_slot_total(self):
+        expected = {
+            "ham_guard_level_12": (12, 150, 8, 12, 8, 5, "Npcs.HAM_GUARD"),
+            "ham_guard_level_18": (18, 200, 14, 18, 12, 6, "Npcs.HAM_GUARD_1711"),
+            "ham_guard_level_22": (22, 300, 16, 20, 12, 7, "Npcs.HAM_GUARD_1712"),
+        }
+
+        for target_id, (level, hitpoints, attack, strength, defence, defence_bonus, npc_id) in expected.items():
+            with self.subTest(target_id=target_id):
+                guard = COMBAT_ENEMY_DATA[target_id]
+                main, tertiary = guard["drops"]["tables"]
+
+                self.assertEqual(guard["display_name"], "H.A.M. guard")
+                self.assertEqual(guard["level"], level)
+                self.assertEqual(guard["group"], "Humanoids")
+                self.assertEqual(guard["attack_speed"], 7)
+                self.assertEqual(guard["respawn_delay"], 25)
+                self.assertEqual(guard["stats"]["hitpoints"], hitpoints)
+                self.assertEqual(guard["stats"]["attack"], attack)
+                self.assertEqual(guard["stats"]["strength"], strength)
+                self.assertEqual(guard["stats"]["defence"], defence)
+                self.assertEqual(guard["bonuses"]["defence_stab"], defence_bonus)
+                self.assertEqual(guard["bonuses"]["defence_slash"], defence_bonus)
+                self.assertEqual(guard["bonuses"]["defence_ranged"], defence_bonus)
+                self.assertIs(guard["drops"], HAM_GUARD_DROPS)
+                self.assertEqual(guard["drops"]["guaranteed"], (("Bones", 1),))
+                self.assertEqual(main["total"], 648)
+                self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 648)
+                self.assertEqual(main["slots"][10], {"item": "H.A.M. boots", "quantity": 1, "slots": 12})
+                self.assertEqual(main["slots"][12], {"item": "H.A.M. gloves", "quantity": 1, "slots": 15})
+                self.assertEqual(main["slots"][17], {"item": "Bronze arrows", "quantity_range": (1, 12), "slots": 16})
+                self.assertIs(main["slots"][22]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
+                self.assertEqual(main["slots"][22]["slots"], 57)
+                self.assertEqual(main["slots"][31], {"item": "Coins", "quantity_range": (1, 20), "slots": 81})
+                self.assertEqual(main["slots"][39], {"item": "Thread", "quantity_range": (1, 10), "slots": 12})
+                self.assertEqual(tertiary["total"], 55)
+                self.assertEqual(sum(slot["slots"] for slot in tertiary["slots"]), 55)
+                self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+                self.assertIn("ham_guard_level_12_18_22.plugin.kts", guard["source"])
+                self.assertIn(npc_id, guard["source"])
+                self.assertIn("total(660)", guard["source"])
+                self.assertIn("active source slots sum to 648", guard["source"])
+
     def test_white_knight_rows_match_source_and_runtime_drop_totals(self):
         expected = {
             "white_knight_level_36": (
@@ -1937,6 +1981,24 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Ring mould": 1, "Clue scroll (easy)": 1})
+
+    def test_ham_guard_drop_rolls_quantity_ranges_nested_tables_and_tertiary(self):
+        clothing_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ham_guard_level_12"],
+            _rng([180 / 648, 0.0]),
+        )
+        seed_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ham_guard_level_22"],
+            _rng([264 / 648, 0.0, 0.999999]),
+        )
+        thread_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["ham_guard_level_18"],
+            _rng([636 / 648, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(clothing_drops, {"Bones": 1, "H.A.M. gloves": 1, "Clue scroll (easy)": 1})
+        self.assertEqual(seed_drops, {"Bones": 1, "Potato seed": 4})
+        self.assertEqual(thread_drops, {"Bones": 1, "Thread": 10})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

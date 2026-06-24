@@ -129,6 +129,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   knight source table-total mismatches; use
   `memory-bank/source-audits/combat-haakon-the-champion-2026-06-23.md` before
   touching Haakon the Champion or his no-charms Barbarian-style drop table; use
+  `memory-bank/source-audits/combat-ham-guards-2026-06-23.md` before touching
+  H.A.M. guard rows, H.A.M. clothing Combat item registration, or the active
+  648-slot H.A.M. guard table mismatch; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -222,6 +225,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Haakon the Champion now adds the source level-29 Humanoids row, exact melee
   stats/bonuses, 1024-slot main table, 128-slot easy clue table, and the explicit
   no-Charms-table source note.
+  H.A.M. guards now add the source level-12/18/22 Humanoids rows, shared Bones
+  plus main and tertiary clue tables, nested allotment seed table, active
+  648-slot main-table denominator despite the source file declaring `total(660)`,
+  and Combat item/icon registration for H.A.M. clothing plus Buttons, Damaged
+  armour, Rusty sword, Needle, and Thread.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;

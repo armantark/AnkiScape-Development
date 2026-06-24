@@ -600,6 +600,10 @@ HAAKON_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/haakon_the_champion_lvl_29.plugin.kts"
 )
+HAM_GUARD_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/ham_guard_level_12_18_22.plugin.kts"
+)
 THUG_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thug_level_10.plugin.kts"
@@ -1421,6 +1425,67 @@ HAAKON_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
                 {"slots": 127},
+            ),
+        },
+    ),
+}
+
+
+HAM_GUARD_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 648,
+            "slots": (
+                {"item": "Bronze hatchet", "quantity": 1, "slots": 18},
+                {"item": "Bronze dagger", "quantity": 1, "slots": 18},
+                {"item": "Bronze pickaxe", "quantity": 1, "slots": 18},
+                {"item": "Iron hatchet", "quantity": 1, "slots": 18},
+                {"item": "Iron dagger", "quantity": 1, "slots": 18},
+                {"item": "Iron pickaxe", "quantity": 1, "slots": 18},
+                {"item": "Leather body", "quantity": 1, "slots": 18},
+                {"item": "Steel hatchet", "quantity": 1, "slots": 12},
+                {"item": "Steel dagger", "quantity": 1, "slots": 12},
+                {"item": "Steel pickaxe", "quantity": 1, "slots": 12},
+                {"item": "H.A.M. boots", "quantity": 1, "slots": 12},
+                {"item": "H.A.M. cloak", "quantity": 1, "slots": 6},
+                {"item": "H.A.M. gloves", "quantity": 1, "slots": 15},
+                {"item": "H.A.M. hood", "quantity": 1, "slots": 6},
+                {"item": "H.A.M. logo", "quantity": 1, "slots": 8},
+                {"item": "H.A.M. robe", "quantity": 1, "slots": 8},
+                {"item": "H.A.M. shirt", "quantity": 1, "slots": 8},
+                {"item": "Bronze arrows", "quantity_range": (1, 12), "slots": 16},
+                {"item": "Steel arrows", "quantity_range": (1, 10), "slots": 12},
+                {"item": "Grimy guam", "quantity": 1, "slots": 6},
+                {"item": "Grimy marrentill", "quantity": 1, "slots": 3},
+                {"item": "Grimy tarromin", "quantity": 1, "slots": 2},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 57},
+                {"item": "Cowhide", "quantity_range": (1, 3), "slots": 18},
+                {"item": "Logs", "quantity_range": (1, 3), "slots": 18},
+                {"item": "Raw anchovies", "quantity_range": (1, 3), "slots": 12},
+                {"item": "Raw chicken", "quantity_range": (1, 3), "slots": 12},
+                {"item": "Uncut opal", "quantity": 1, "slots": 12},
+                {"item": "Uncut jade", "quantity": 1, "slots": 12},
+                {"item": "Iron ore", "quantity": 1, "slots": 12},
+                {"item": "Coal", "quantity": 1, "slots": 12},
+                {"item": "Coins", "quantity_range": (1, 20), "slots": 81},
+                {"item": "Buttons", "quantity": 1, "slots": 24},
+                {"item": "Damaged armour", "quantity": 1, "slots": 24},
+                {"item": "Rusty sword", "quantity": 1, "slots": 24},
+                {"item": "Knife", "quantity": 1, "slots": 12},
+                {"item": "Needle", "quantity": 1, "slots": 12},
+                {"item": "Tinderbox", "quantity": 1, "slots": 12},
+                {"item": "Feather", "quantity_range": (1, 6), "slots": 18},
+                {"item": "Thread", "quantity_range": (1, 10), "slots": 12},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 55,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                {"slots": 54},
             ),
         },
     ),
@@ -4501,6 +4566,102 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "drops": HAAKON_DROPS,
         "source": f"{HAAKON_SOURCE_PATH}: id Npcs.HAAKON_THE_CHAMPION; no Charms table in source",
     },
+    "ham_guard_level_12": {
+        "display_name": "H.A.M. guard",
+        "level": 12,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 150,
+            "attack": 8,
+            "strength": 12,
+            "defence": 8,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": HAM_GUARD_DROPS,
+        "source": (
+            f"{HAM_GUARD_SOURCE_PATH}: id Npcs.HAM_GUARD; "
+            "main table declares total(660), active source slots sum to 648"
+        ),
+    },
+    "ham_guard_level_18": {
+        "display_name": "H.A.M. guard",
+        "level": 18,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 200,
+            "attack": 14,
+            "strength": 18,
+            "defence": 12,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 6,
+            "defence_slash": 6,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 6,
+            "melee_strength": 0,
+        },
+        "drops": HAM_GUARD_DROPS,
+        "source": (
+            f"{HAM_GUARD_SOURCE_PATH}: id Npcs.HAM_GUARD_1711; "
+            "main table declares total(660), active source slots sum to 648"
+        ),
+    },
+    "ham_guard_level_22": {
+        "display_name": "H.A.M. guard",
+        "level": 22,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 300,
+            "attack": 16,
+            "strength": 20,
+            "defence": 12,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 7,
+            "defence_slash": 7,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 7,
+            "melee_strength": 0,
+        },
+        "drops": HAM_GUARD_DROPS,
+        "source": (
+            f"{HAM_GUARD_SOURCE_PATH}: id Npcs.HAM_GUARD_1712; "
+            "main table declares total(660), active source slots sum to 648"
+        ),
+    },
     "white_knight_level_36": {
         "display_name": "White knight",
         "level": 36,
@@ -5399,6 +5560,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},
     "Bronze javelin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_JAVELIN"},
     "Bronze spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_SPEAR"},
+    "Buttons": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BUTTONS"},
     "Cactus seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CACTUS_SEED"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
     "Cadantine seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADANTINE_SEED"},
@@ -5410,6 +5572,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Curved bone": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CURVED_BONE"},
+    "Damaged armour": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DAMAGED_ARMOUR"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},
     "Dwarf weed seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DWARF_WEED_SEED"},
@@ -5429,6 +5592,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
     "Half an apple pie": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HALF_AN_APPLE_PIE"},
+    "H.A.M. boots": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_BOOTS"},
+    "H.A.M. cloak": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_CLOAK"},
+    "H.A.M. gloves": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_GLOVES"},
+    "H.A.M. hood": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_HOOD"},
+    "H.A.M. logo": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_LOGO"},
+    "H.A.M. robe": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_ROBE"},
+    "H.A.M. shirt": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_SHIRT"},
     "Harralander seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HARRALANDER_SEED"},
     "Irit seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.IRIT_SEED"},
     "Jangerberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JANGERBERRY_SEED"},
@@ -5444,12 +5614,14 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Marrentill seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MARRENTILL_SEED"},
     "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
     "Muddy key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MUDDY_KEY"},
+    "Needle": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.NEEDLE"},
     "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
     "Poison ivy seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POISON_IVY_SEED"},
     "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},
     "Rake": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAKE"},
     "Ranarr seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RANARR_SEED"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
+    "Rusty sword": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUSTY_SWORD"},
     "Rune javelin": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_JAVELIN"},
     "Rune spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_SPEAR"},
     "Secateurs": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS"},
@@ -5470,6 +5642,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Super antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_4"},
     "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
     "Tarromin seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TARROMIN_SEED"},
+    "Thread": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.THREAD"},
     "Toadflax seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOADFLAX_SEED"},
     "Tooth half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOOTH_HALF_OF_A_KEY"},
     "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},

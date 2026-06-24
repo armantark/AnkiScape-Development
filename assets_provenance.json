@@ -143,6 +143,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:04Z"
   },
+  "combatitems/buttons.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Buttons.png",
+    "file_title": "Buttons.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Buttons.png?56d17",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "41cab9b2a2e7c067514e2c83a15cb220b91fac11",
+    "size": 339,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:08Z"
+  },
   "combatitems/cape.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_cape.png",
     "file_title": "Black cape.png",
@@ -227,6 +239,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:10:09Z"
   },
+  "combatitems/damaged_armour.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Damaged_armour.png",
+    "file_title": "Damaged armour.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Damaged_armour.png?85335",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "078bf5922b50768ca7c17cfd49407acdf751c9e9",
+    "size": 513,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:30Z"
+  },
   "combatitems/dragon_spear.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_spear.png",
     "file_title": "Dragon spear.png",
@@ -275,6 +299,90 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:07:20Z"
   },
+  "combatitems/h_a_m_boots.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._boots.png",
+    "file_title": "H.A.M. boots.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._boots.png?cff44",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cc0dce0a697e6e83de5cacba59669c8c435b0f9f",
+    "size": 1469,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:26:24Z"
+  },
+  "combatitems/h_a_m_cloak.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._cloak.png",
+    "file_title": "H.A.M. cloak.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._cloak.png?581ab",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2bd0990151f4439b57b4b9e0fa878ce19ab555e9",
+    "size": 1033,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:26:45Z"
+  },
+  "combatitems/h_a_m_gloves.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._gloves.png",
+    "file_title": "H.A.M. gloves.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._gloves.png?347f9",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "44d7f330d3c2560aa7bbe1cdb9517e43b0c2674c",
+    "size": 1236,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:27:03Z"
+  },
+  "combatitems/h_a_m_hood.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._hood.png",
+    "file_title": "H.A.M. hood.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._hood.png?97536",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b33d20fa2cdfc98d9940dec16986e5792b2fc884",
+    "size": 1273,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:27:19Z"
+  },
+  "combatitems/h_a_m_logo.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._logo.png",
+    "file_title": "H.A.M. logo.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._logo.png?1b9f8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "07582acf96275578365da1a95b0995bc81a07790",
+    "size": 1267,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:27:39Z"
+  },
+  "combatitems/h_a_m_robe.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._robe.png",
+    "file_title": "H.A.M. robe.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._robe.png?5f61d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2765b20d4fa2e3e9a37c9ce22c0aeec6b683802c",
+    "size": 904,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:27:53Z"
+  },
+  "combatitems/h_a_m_shirt.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:H.A.M._shirt.png",
+    "file_title": "H.A.M. shirt.png",
+    "image_url": "https://runescape.wiki/images/H.A.M._shirt.png?6b63b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f1f56b8cca0cbfafcce3edb0df3ab7b36b55af30",
+    "size": 1224,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-25T22:28:10Z"
+  },
   "combatitems/half_an_apple_pie.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Half_an_apple_pie.png",
     "file_title": "Half an apple pie.png",
@@ -311,6 +419,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:59:10Z"
   },
+  "combatitems/needle.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Needle.png",
+    "file_title": "Needle.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Needle.png?e5680",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "8086452ace0e4e28879105f8320738fe6317a950",
+    "size": 460,
+    "source_wiki": "osrs",
+    "timestamp": "2014-03-08T01:26:48Z"
+  },
   "combatitems/rune_javelin.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_javelin.png",
     "file_title": "Rune javelin.png",
@@ -334,6 +454,18 @@
     "size": 293,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:15Z"
+  },
+  "combatitems/rusty_sword.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rusty_sword.png",
+    "file_title": "Rusty sword.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rusty_sword.png?26f89",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "cad33b1b2ccc6920c78aaa0cf938c5f76db2115c",
+    "size": 433,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:18Z"
   },
   "combatitems/shield_left_half.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shield_left_half.png",
@@ -382,6 +514,18 @@
     "size": 394,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:55Z"
+  },
+  "combatitems/thread.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thread.png",
+    "file_title": "Thread.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Thread.png?c9227",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fd5f5cdbec464879794ae3268c77cafc8db76a35",
+    "size": 723,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:07:01Z"
   },
   "combatitems/tinderbox.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tinderbox.png",
