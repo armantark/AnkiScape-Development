@@ -52,6 +52,7 @@ class EquipmentItem:
     source_item_id: int
     source: str
     source_status: str
+    skill_requirements: Tuple[Tuple[str, int], ...] = ()
 
 
 EQUIPMENT_SLOTS: Tuple[EquipmentSlot, ...] = (
@@ -1613,6 +1614,39 @@ _MANUAL_SPEAR_EQUIPMENT = {
     'Iron spear': {'required_level': 1, 'attack': 8, 'melee_strength': 10},
     'Steel spear': {'required_level': 5, 'attack': 12, 'melee_strength': 12},
 }
+_MANUAL_COMBAT_DROP_EQUIPMENT = {
+    'Fire battlestaff': {
+        'combat_skill': 'attack',
+        'required_level': 30,
+        'skill_requirements': (('attack', 30), ('magic', 30)),
+        'two_handed': False,
+        'bonuses': {'attack_stab': 10, 'attack_slash': -1, 'attack_crush': 28, 'attack_magic': 10, 'defence_stab': 2, 'defence_slash': 3, 'defence_crush': 1, 'defence_magic': 10, 'melee_strength': 35},
+        'attack_speed': 5,
+    },
+    'Toktz-ket-xil': {
+        'combat_skill': 'defense',
+        'required_level': 60,
+        'skill_requirements': (('defense', 60),),
+        'two_handed': False,
+        'bonuses': {'attack_magic': -12, 'attack_ranged': -8, 'defence_stab': 40, 'defence_slash': 42, 'defence_crush': 38, 'defence_ranged': 65, 'melee_strength': 5},
+        'attack_speed': 4,
+    },
+    'Tzhaar-ket-om': {
+        'combat_skill': 'strength',
+        'required_level': 60,
+        'skill_requirements': (('strength', 60),),
+        'two_handed': True,
+        'bonuses': {'attack_crush': 80, 'attack_magic': -4, 'melee_strength': 85},
+        'attack_speed': 7,
+    },
+    'Obsidian cape': {
+        'combat_skill': None,
+        'required_level': 1,
+        'two_handed': False,
+        'bonuses': {'defence_stab': 9, 'defence_slash': 9, 'defence_crush': 9, 'defence_magic': 9, 'defence_ranged': 9},
+        'attack_speed': 4,
+    },
+}
 
 for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Shortbow', 'weapon', 'shortbow', 841, 'data/cfg/items.yml item 841; SHORTBOW'),
@@ -1638,6 +1672,10 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
     ('Staff of water', 'weapon', 'elemental_staff', 1383, 'data/cfg/items.yml item 1383; STAFF_OF_WATER'),
     ('Staff of earth', 'weapon', 'elemental_staff', 1385, 'data/cfg/items.yml item 1385; STAFF_OF_EARTH'),
     ('Staff of fire', 'weapon', 'elemental_staff', 1387, 'data/cfg/items.yml item 1387; STAFF_OF_FIRE'),
+    ('Fire battlestaff', 'weapon', 'battlestaff', 1393, 'data/cfg/items.yml item 1393; FIRE_BATTLESTAFF'),
+    ('Toktz-ket-xil', 'shield', 'obsidian_shield', 6524, 'data/cfg/items.yml item 6524; TOKTZKETXIL'),
+    ('Tzhaar-ket-om', 'weapon', 'obsidian_maul', 6528, 'data/cfg/items.yml item 6528; TZHAARKETOM'),
+    ('Obsidian cape', 'cape', 'obsidian_cape', 6568, 'data/cfg/items.yml item 6568; OBSIDIAN_CAPE'),
     ('Air tiara', 'head', 'runecrafting_access', 5527, _RUNECRAFTING_ACCESS_SOURCE),
     ('Mind tiara', 'head', 'runecrafting_access', 5529, _RUNECRAFTING_ACCESS_SOURCE),
     ('Water tiara', 'head', 'runecrafting_access', 5531, _RUNECRAFTING_ACCESS_SOURCE),
@@ -1658,15 +1696,31 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
         EquipmentItem(
             item_name=_item_name,
             slot=_slot,
-            combat_skill='ranged' if _item_name in _RANGED_BOW_EQUIPMENT else 'attack' if _item_name in _MANUAL_SPEAR_EQUIPMENT else None,
+            combat_skill=(
+                'ranged'
+                if _item_name in _RANGED_BOW_EQUIPMENT
+                else 'attack'
+                if _item_name in _MANUAL_SPEAR_EQUIPMENT
+                else _MANUAL_COMBAT_DROP_EQUIPMENT[_item_name]['combat_skill']
+                if _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
+                else None
+            ),
             required_level=(
                 _RANGED_BOW_EQUIPMENT[_item_name]['required_level']
                 if _item_name in _RANGED_BOW_EQUIPMENT
                 else _MANUAL_SPEAR_EQUIPMENT[_item_name]['required_level']
                 if _item_name in _MANUAL_SPEAR_EQUIPMENT
+                else _MANUAL_COMBAT_DROP_EQUIPMENT[_item_name]['required_level']
+                if _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
                 else 1
             ),
-            two_handed=True if _item_name in _RANGED_BOW_EQUIPMENT or _item_name in _MANUAL_SPEAR_EQUIPMENT else False,
+            two_handed=(
+                True
+                if _item_name in _RANGED_BOW_EQUIPMENT or _item_name in _MANUAL_SPEAR_EQUIPMENT
+                else _MANUAL_COMBAT_DROP_EQUIPMENT[_item_name]['two_handed']
+                if _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
+                else False
+            ),
             equipment_type=_equipment_type,
             bonuses=(
                 EquipmentBonuses(attack_ranged=_RANGED_BOW_EQUIPMENT[_item_name]['attack_ranged'])
@@ -1681,6 +1735,9 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                     melee_strength=_MANUAL_SPEAR_EQUIPMENT[_item_name]['melee_strength'],
                 )
                 if _item_name in _MANUAL_SPEAR_EQUIPMENT
+                else
+                EquipmentBonuses(**_MANUAL_COMBAT_DROP_EQUIPMENT[_item_name]['bonuses'])
+                if _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
                 else
                 EquipmentBonuses(
                     attack_slash=-1,
@@ -1741,6 +1798,8 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                 if _item_name in _RANGED_BOW_EQUIPMENT
                 else 5
                 if _item_name in _MANUAL_SPEAR_EQUIPMENT or _equipment_type in {'staff', 'elemental_staff'}
+                else _MANUAL_COMBAT_DROP_EQUIPMENT[_item_name]['attack_speed']
+                if _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
                 else 4
                 if _item_name in {'Brass necklace', 'Cape', "Chef's hat"}
                 else 0
@@ -1758,8 +1817,13 @@ for _item_name, _slot, _equipment_type, _source_item_id, _source in (
                     'Staff of water',
                     'Staff of earth',
                     'Staff of fire',
-                } or _item_name in _RANGED_BOW_EQUIPMENT or _item_name in _MANUAL_SPEAR_EQUIPMENT
+                } or _item_name in _RANGED_BOW_EQUIPMENT or _item_name in _MANUAL_SPEAR_EQUIPMENT or _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
                 else 'manual Runecrafting v1 equipment entry'
+            ),
+            skill_requirements=(
+                _MANUAL_COMBAT_DROP_EQUIPMENT[_item_name].get('skill_requirements', ())
+                if _item_name in _MANUAL_COMBAT_DROP_EQUIPMENT
+                else ()
             ),
         ),
     )
@@ -1779,6 +1843,7 @@ def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source_item_id": item.source_item_id,
             "source": item.source,
             "source_status": item.source_status,
+            "skill_requirements": item.skill_requirements,
         }
         for item_name, item in EQUIPMENT_DATA.items()
     }

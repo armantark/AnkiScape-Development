@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 154)
+        self.assertEqual(len(EQUIPMENT_DATA), 158)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -133,6 +133,50 @@ class TestEquipmentData(unittest.TestCase):
             self.assertEqual(staff.bonuses.attack_magic, 10)
             self.assertEqual(staff.bonuses.defence_magic, 10)
             self.assertEqual(staff.bonuses.melee_strength, melee_strength)
+
+    def test_tzhaar_drop_equipment_items_are_equippable(self):
+        fire_battlestaff = EQUIPMENT_DATA["Fire battlestaff"]
+        self.assertEqual(fire_battlestaff.slot, "weapon")
+        self.assertEqual(fire_battlestaff.combat_skill, "attack")
+        self.assertEqual(fire_battlestaff.required_level, 30)
+        self.assertEqual(fire_battlestaff.skill_requirements, (("attack", 30), ("magic", 30)))
+        self.assertEqual(fire_battlestaff.equipment_type, "battlestaff")
+        self.assertEqual(fire_battlestaff.attack_speed, 5)
+        self.assertEqual(fire_battlestaff.source_item_id, 1393)
+        self.assertEqual(fire_battlestaff.bonuses.attack_crush, 28)
+        self.assertEqual(fire_battlestaff.bonuses.attack_magic, 10)
+        self.assertEqual(fire_battlestaff.bonuses.melee_strength, 35)
+
+        shield = EQUIPMENT_DATA["Toktz-ket-xil"]
+        self.assertEqual(shield.slot, "shield")
+        self.assertEqual(shield.combat_skill, "defense")
+        self.assertEqual(shield.required_level, 60)
+        self.assertEqual(shield.skill_requirements, (("defense", 60),))
+        self.assertEqual(shield.source_item_id, 6524)
+        self.assertEqual(shield.bonuses.defence_stab, 40)
+        self.assertEqual(shield.bonuses.defence_slash, 42)
+        self.assertEqual(shield.bonuses.defence_ranged, 65)
+
+        maul = EQUIPMENT_DATA["Tzhaar-ket-om"]
+        self.assertEqual(maul.slot, "weapon")
+        self.assertEqual(maul.combat_skill, "strength")
+        self.assertEqual(maul.required_level, 60)
+        self.assertEqual(maul.skill_requirements, (("strength", 60),))
+        self.assertTrue(maul.two_handed)
+        self.assertEqual(maul.attack_speed, 7)
+        self.assertEqual(maul.source_item_id, 6528)
+        self.assertEqual(maul.bonuses.attack_crush, 80)
+        self.assertEqual(maul.bonuses.melee_strength, 85)
+
+        cape = EQUIPMENT_DATA["Obsidian cape"]
+        self.assertEqual(cape.slot, "cape")
+        self.assertIsNone(cape.combat_skill)
+        self.assertEqual(cape.source_item_id, 6568)
+        self.assertEqual(cape.bonuses.defence_stab, 9)
+        self.assertEqual(cape.bonuses.defence_magic, 9)
+
+        as_dict = equipment_items_as_dict()
+        self.assertEqual(as_dict["Fire battlestaff"]["skill_requirements"], (("attack", 30), ("magic", 30)))
 
     def test_components_and_gathering_tools_are_excluded(self):
         for item_name in (

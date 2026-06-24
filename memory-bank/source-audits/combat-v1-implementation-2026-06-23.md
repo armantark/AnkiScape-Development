@@ -9,8 +9,9 @@ and Farmer
 ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
 progression, and the standard elemental Combat spell ladder, plus ordinary
 dangerous-target confirmation, safe-boundary ammo recovery, and persistent
-poison status recovery, first source NPC poison application, and source-backed
-antipoison loadout auto-cure.
+poison status recovery, first source NPC poison application, source-backed
+antipoison loadout auto-cure, and later ordinary-enemy expansion through
+TzHaar-Ket.
 
 ## Implemented Scope
 
@@ -22,7 +23,8 @@ antipoison loadout auto-cure.
   Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
   Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Mugger, Thug, Thief, Al-Kharid
   warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
-  scorpion, Deadly red spider, and Poison spider.
+  scorpion, Deadly red spider, Poison spider, and later source-backed rows
+  through TzHaar-Ket.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
   max-hit rolls, persistent lifepoints, persistent partial enemy HP, auto-eat,
@@ -143,11 +145,16 @@ antipoison loadout auto-cure.
   `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`
 - Antipoison loadout auto-cure:
   `memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`
+- TzHaar-Ket expansion:
+  `memory-bank/source-audits/combat-tzhaar-ket-2026-06-23.md`
+- Local source plugin exhaustion pass:
+  `memory-bank/source-audits/combat-source-plugin-exhaustion-2026-06-23.md`
 
 ## Deferred
 
-- Broader enemy registry import, including NPCs with nested/shared tables,
-  variant splits, access locks, or special mechanics.
+- Broader enemy registry import outside the current local `NpcCombatStats`
+  plugin surface, including NPCs that require new source surfaces, variant
+  splits, access locks, or special mechanics.
 - Full non-Smithing combat equipment import/equip support. Wooden shield is now
   source-backed and claimable, but shield mechanics still belong to the broader
   equipment audit.
@@ -161,6 +168,9 @@ antipoison loadout auto-cure.
 - Broader enemy poison application, player weapon/ammo poison, non-antipoison
   immunity sources, broader potion effects, and non-poison persistent status
   effects.
+- TzHaar-Xil, TzHaar-Hur, TzHaar-Mej, and other enemies whose source rows use
+  enemy Ranged or Magic attack strategies remain deferred until those enemy
+  strategy paths are implemented.
 - Richer risk previews, including time-to-kill and Wilderness/equipment-risk
   opt-in surfaces.
 - Full Death's Office reclaim UI and stacked-death handling. Safe noncombat
@@ -176,3 +186,4 @@ antipoison loadout auto-cure.
 - `python3 -m unittest tests.test_integration_smoke.TestIntegrationSmoke.test_hunter_supply_purchase_runs_once_and_switches_off tests.test_integration_smoke.TestIntegrationSmoke.test_utility_fishing_bait_batches_without_skill_xp tests.test_integration_smoke.TestIntegrationSmoke.test_utility_multiplier_runs_feather_scavenging_ticks tests.test_integration_smoke.TestIntegrationSmoke.test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it tests.test_combat_logic tests.test_storage_pure tests.test_target_metadata`
 - `python3 run_tests.py`
 - `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+- `python3 -m unittest tests.test_combat_logic.CombatLogicTest.test_tzhaar_ket_row_matches_source_and_equipment_drops tests.test_combat_logic.CombatLogicTest.test_tzhaar_ket_drop_rolls_quantity_ranges_obsidian_and_charms tests.test_target_metadata.TargetMetadataTest.test_combat_rows_expose_enabled_source_backed_enemy_targets tests.test_skill_and_item_registry.TestSkillAndItemRegistry.test_combat_items_are_registered_with_icons tests.test_equipment_data.TestEquipmentData.test_tzhaar_drop_equipment_items_are_equippable tests.test_equipment_data.TestEquipmentData.test_generated_equipment_contract_shape tests.test_logic.TestLogic.test_can_equip_uses_real_combat_level_gate`

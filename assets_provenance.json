@@ -203,6 +203,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:15Z"
   },
+  "combatitems/chilli_potato.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Chilli_potato.png",
+    "file_title": "Chilli potato.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Chilli_potato.png?3caf6",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "760489dd1232e4f06a577c873c568e5e9255cac4",
+    "size": 490,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:54:14Z"
+  },
   "combatitems/clue_scroll_easy.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Clue_scroll_%28easy%29.png",
     "file_title": "Clue scroll (easy).png",
@@ -286,6 +298,18 @@
     "size": 389,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:55:46Z"
+  },
+  "combatitems/fire_battlestaff.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fire_battlestaff.png",
+    "file_title": "Fire battlestaff.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Fire_battlestaff.png?3859a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "04ce4ce83c17354d738ccf9054ec5b3e47a7034b",
+    "size": 394,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:59Z"
   },
   "combatitems/goblin_book.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goblin_book.png",
@@ -503,6 +527,30 @@
     "source_wiki": "osrs",
     "timestamp": "2014-03-08T01:26:48Z"
   },
+  "combatitems/obsidian_cape.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Obsidian_cape.png",
+    "file_title": "Obsidian cape.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Obsidian_cape.png?e6c2a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "591d1dbc18acb67b2be4646d185dcaa64f4b7fd3",
+    "size": 350,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:30Z"
+  },
+  "combatitems/obsidian_charm.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Obsidian_charm.png",
+    "file_title": "Obsidian charm.png",
+    "image_url": "https://runescape.wiki/images/Obsidian_charm.png?f006a",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b870daba7a6c1245fb82f76d286303ac8df0c04b",
+    "size": 934,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:58:52Z"
+  },
   "combatitems/red_bead.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Red_bead.png",
     "file_title": "Red bead.png",
@@ -623,6 +671,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:06:22Z"
   },
+  "combatitems/super_defence_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_defence_%281%29.png",
+    "file_title": "Super defence (1).png",
+    "image_url": "https://runescape.wiki/images/Super_defence_%281%29.png?97c2b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "bc1efca758a8fad9336109cd6807cc7ddbbd333c",
+    "size": 1091,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:22:12Z"
+  },
+  "combatitems/super_strength_1.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Super_strength_%281%29.png",
+    "file_title": "Super strength (1).png",
+    "image_url": "https://runescape.wiki/images/Super_strength_%281%29.png?27625",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b5d4fbdf3a228039bc91b9ceff23f0b02973bb9e",
+    "size": 1077,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T08:25:00Z"
+  },
   "combatitems/thread.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Thread.png",
     "file_title": "Thread.png",
@@ -647,6 +719,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:07:01Z"
   },
+  "combatitems/tokkul.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tokkul.png",
+    "file_title": "Tokkul.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Tokkul.png?611d4",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6702a2831bb8da966927db34c501b7b247002641",
+    "size": 1003,
+    "source_wiki": "osrs",
+    "timestamp": "2014-03-09T09:08:46Z"
+  },
+  "combatitems/toktz_ket_xil.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Toktz-ket-xil.png",
+    "file_title": "Toktz-ket-xil.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Toktz-ket-xil.png?04f28",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ff2bda612daeb148ee68fb461623451fa16f0a17",
+    "size": 638,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:57Z"
+  },
   "combatitems/tooth_half_of_a_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Tooth_half_of_a_key.png",
     "file_title": "Tooth half of a key.png",
@@ -658,6 +754,18 @@
     "size": 962,
     "source_wiki": "rs3",
     "timestamp": "2021-12-01T18:45:07Z"
+  },
+  "combatitems/tzhaar_ket_om.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Tzhaar-ket-om.png",
+    "file_title": "Tzhaar-ket-om.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Tzhaar-ket-om.png?08f42",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "58232ef548a7704b8139908883e97cfecc7f2ce1",
+    "size": 395,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:07:08Z"
   },
   "combatitems/vial_of_water.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Vial_of_water.png",

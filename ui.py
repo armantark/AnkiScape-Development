@@ -464,6 +464,57 @@ _COMBAT_SKILL_LABELS = {
     "magic": "Magic",
     "prayer": "Prayer",
 }
+_COMBAT_SKILL_SHORT_LABELS = {
+    "attack": "Atk",
+    "defense": "Def",
+    "ranged": "Rng",
+    "strength": "Str",
+    "magic": "Magic",
+    "prayer": "Pray",
+}
+
+
+def _equipment_skill_requirements(spec) -> list[tuple[str, int]]:
+    raw_requirements = spec.get("skill_requirements") or ()
+    requirements: list[tuple[str, int]] = []
+    if isinstance(raw_requirements, dict):
+        requirement_iterable = raw_requirements.items()
+    elif isinstance(raw_requirements, (tuple, list)):
+        requirement_iterable = raw_requirements
+    else:
+        requirement_iterable = ()
+    for requirement in requirement_iterable:
+        if isinstance(requirement, dict):
+            combat_skill = requirement.get("skill")
+            raw_level = requirement.get("level")
+        elif isinstance(requirement, (tuple, list)) and len(requirement) >= 2:
+            combat_skill = requirement[0]
+            raw_level = requirement[1]
+        else:
+            continue
+        try:
+            required = int(raw_level)
+        except (TypeError, ValueError):
+            continue
+        if isinstance(combat_skill, str) and combat_skill and required > 1:
+            requirements.append((combat_skill, required))
+    if requirements:
+        return requirements
+
+    combat_skill = spec.get("combat_skill")
+    try:
+        required = int(spec.get("required_level", 1) or 1)
+    except (TypeError, ValueError):
+        required = 1
+    if isinstance(combat_skill, str) and combat_skill and required > 1:
+        return [(combat_skill, required)]
+    return []
+
+
+def _join_requirement_parts(parts: list[str]) -> str:
+    if len(parts) <= 1:
+        return "".join(parts)
+    return ", ".join(parts[:-1]) + f" and {parts[-1]}"
 
 
 def is_equippable_item(item_name: str) -> bool:
@@ -500,12 +551,14 @@ def equipment_requirement_text(item_name: str) -> str:
     spec = EQUIPMENT_ITEM_DATA.get(item_name)
     if not spec:
         return ""
-    combat_skill = spec.get("combat_skill")
-    required = int(spec.get("required_level", 1) or 1)
-    if not combat_skill or required <= 1:
+    requirements = _equipment_skill_requirements(spec)
+    if not requirements:
         return ""
-    label = _COMBAT_SKILL_LABELS.get(combat_skill, str(combat_skill).title())
-    return f"Requires level {required} {label}"
+    parts = [
+        f"level {required} {_COMBAT_SKILL_LABELS.get(combat_skill, str(combat_skill).title())}"
+        for combat_skill, required in requirements
+    ]
+    return f"Requires {_join_requirement_parts(parts)}"
 
 
 def equipment_summary_text(item_name: str) -> str:
@@ -524,11 +577,13 @@ def equipment_summary_text(item_name: str) -> str:
         value = _bonus_value(bonuses, field)
         if value:
             parts.append(f"{_EQUIPMENT_BONUS_LABELS[field]} {_format_bonus(value)}")
-    combat_skill = spec.get("combat_skill")
-    required = int(spec.get("required_level", 1) or 1)
-    if combat_skill and required > 1:
-        short = {"attack": "Atk", "defense": "Def", "ranged": "Rng"}.get(combat_skill, str(combat_skill).title())
-        parts.append(f"Req {required} {short}")
+    requirements = _equipment_skill_requirements(spec)
+    if requirements:
+        req_parts = [
+            f"{required} {_COMBAT_SKILL_SHORT_LABELS.get(combat_skill, str(combat_skill).title())}"
+            for combat_skill, required in requirements
+        ]
+        parts.append(f"Req {', '.join(req_parts)}")
     return ", ".join(parts)
 
 

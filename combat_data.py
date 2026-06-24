@@ -588,6 +588,10 @@ HOBGOBLIN_ARMED_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/other/hobgoblin_armed_lvl_28.plugin.kts"
 )
+TZHAAR_KET_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/other/tzhaar_ket_lvl_149.plugin.kts"
+)
 ALKHARID_WARRIOR_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/alkharid_warrior_level_9.plugin.kts"
@@ -1147,6 +1151,49 @@ HOBGOBLIN_ARMED_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 10},
                 {"item": "Blue charm", "quantity": 1, "slots": 2},
                 {"slots": 828},
+            ),
+        },
+    ),
+}
+
+
+TZHAAR_KET_DROPS = {
+    "guaranteed": (),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Tokkul", "quantity_range": (100, 2000), "slots": 69},
+                {"item": "Fire battlestaff", "quantity": 1, "slots": 1},
+                {"item": "Super strength (1)", "quantity": 1, "slots": 4},
+                {"item": "Super defence (1)", "quantity": 1, "slots": 4},
+                {"item": "Uncut sapphire", "quantity": 1, "slots": 12},
+                {"item": "Uncut emerald", "quantity": 1, "slots": 12},
+                {"item": "Uncut ruby", "quantity": 1, "slots": 6},
+                {"item": "Uncut diamond", "quantity": 1, "slots": 6},
+                {"item": "Lobster", "quantity": 1, "slots": 6},
+                {"item": "Chilli potato", "quantity": 1, "slots": 6},
+                {"item": "Pure essence", "quantity_range": (5, 10), "slots": 1},
+                {"item": "Onyx bolt tips", "quantity_range": (1, 4), "slots": 1},
+            ),
+        },
+        {
+            "name": "Obsidian",
+            "total": 512,
+            "slots": (
+                {"item": "Tzhaar-ket-om", "quantity": 1, "slots": 1},
+                {"item": "Toktz-ket-xil", "quantity": 1, "slots": 1},
+                {"item": "Obsidian cape", "quantity": 1, "slots": 1},
+                {"slots": 509},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Obsidian charm", "quantity": 2, "slots": 720},
+                {"slots": 280},
             ),
         },
     ),
@@ -2303,6 +2350,7 @@ COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Salmon": {"heal_lifepoints": 90, "source": FOOD_SOURCE_PATH},
     "Tuna": {"heal_lifepoints": 100, "source": FOOD_SOURCE_PATH},
     "Lobster": {"heal_lifepoints": 120, "source": FOOD_SOURCE_PATH},
+    "Chilli potato": {"heal_lifepoints": 140, "source": f"{FOOD_SOURCE_PATH}: CHILLI_POTATO"},
     "Swordfish": {"heal_lifepoints": 140, "source": FOOD_SOURCE_PATH},
     "Monkfish": {"heal_lifepoints": 160, "source": FOOD_SOURCE_PATH},
     "Shark": {"heal_lifepoints": 200, "source": FOOD_SOURCE_PATH},
@@ -2923,6 +2971,38 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         "source": (
             f"{HOBGOBLIN_ARMED_SOURCE_PATH}: ids Npcs.HOBGOBLIN_2688/Npcs.HOBGOBLIN_4898; "
             "aggro radius 4"
+        ),
+    },
+    "tzhaar_ket": {
+        "display_name": "TzHaar-Ket",
+        "level": 149,
+        "group": "TzHaar",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 1400,
+            "attack": 120,
+            "strength": 140,
+            "defence": 120,
+            "magic": 40,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": TZHAAR_KET_DROPS,
+        "source": (
+            f"{TZHAAR_KET_SOURCE_PATH}: id Npcs.TZHAARKET_2616; "
+            "pre-death sound only; no source combat bonuses"
         ),
     },
     "farmer": {
@@ -5816,6 +5896,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Cadava berries": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADAVA_BERRIES"},
     "Champion's scroll": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHAMPIONS_SCROLL_6800"},
     "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
+    "Chilli potato": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHILLI_POTATO"},
     "Cabbage seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CABBAGE_SEED"},
     "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
     "Clue scroll (medium)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_MEDIUM"},
@@ -5827,6 +5908,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},
     "Dwarf weed seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DWARF_WEED_SEED"},
     "Eye patch": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.EYE_PATCH"},
+    "Fire battlestaff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.FIRE_BATTLESTAFF"},
     "Gardening boots": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GARDENING_BOOTS"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
     "Grapes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRAPES"},
@@ -5869,6 +5951,8 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
     "Muddy key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MUDDY_KEY"},
     "Needle": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.NEEDLE"},
+    "Obsidian cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.OBSIDIAN_CAPE"},
+    "Obsidian charm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.OBSIDIAN_CHARM"},
     "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
     "Poison ivy seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POISON_IVY_SEED"},
     "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},
@@ -5893,17 +5977,22 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
     "Steel spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STEEL_SPEAR"},
     "Strawberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STRAWBERRY_SEED"},
+    "Super defence (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_DEFENCE_1"},
     "Super antipoison (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_1"},
     "Super antipoison (2)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_2"},
     "Super antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_3"},
     "Super antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_4"},
+    "Super strength (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_STRENGTH_1"},
     "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
     "Tarromin seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TARROMIN_SEED"},
     "Thread": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.THREAD"},
     "Toadflax seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOADFLAX_SEED"},
     "Tooth half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOOTH_HALF_OF_A_KEY"},
     "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},
+    "Tokkul": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOKKUL"},
+    "Toktz-ket-xil": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOKTZKETXIL"},
     "Torstol seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TORSTOL_SEED"},
+    "Tzhaar-ket-om": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TZHAARKETOM"},
     "Unicorn horn": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.UNICORN_HORN"},
     "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
     "Vial of water": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL_OF_WATER"},
@@ -5926,4 +6015,12 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
 }
 
 
-COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = ("Lumbridge", "Spiders", "Scorpions", "Goblins", "Humanoids", "Coastal")
+COMBAT_TARGET_GROUP_ORDER: Tuple[str, ...] = (
+    "Lumbridge",
+    "Spiders",
+    "Scorpions",
+    "Goblins",
+    "Humanoids",
+    "TzHaar",
+    "Coastal",
+)

@@ -26,6 +26,7 @@ from combat_data import (
     RANGED_STRATEGY_SOURCE_PATH,
     SKELETON_HIGH_DROPS,
     SKELETON_LOW_DROPS,
+    TZHAAR_KET_DROPS,
     WHITE_KNIGHT_LEVEL_36_DROPS,
     WHITE_KNIGHT_LEVEL_38_DROPS,
     WHITE_KNIGHT_LEVEL_39_DROPS,
@@ -1544,6 +1545,41 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("hobgoblin_armed_lvl_28.plugin.kts", armed["source"])
         self.assertIn("aggro radius 4", armed["source"])
 
+    def test_tzhaar_ket_row_matches_source_and_equipment_drops(self):
+        ket = COMBAT_ENEMY_DATA["tzhaar_ket"]
+        main, obsidian, charms = ket["drops"]["tables"]
+
+        self.assertEqual(ket["display_name"], "TzHaar-Ket")
+        self.assertEqual(ket["level"], 149)
+        self.assertEqual(ket["group"], "TzHaar")
+        self.assertEqual(ket["attack_speed"], 4)
+        self.assertEqual(ket["respawn_delay"], 50)
+        self.assertEqual(ket["stats"]["hitpoints"], 1400)
+        self.assertEqual(ket["stats"]["attack"], 120)
+        self.assertEqual(ket["stats"]["strength"], 140)
+        self.assertEqual(ket["stats"]["defence"], 120)
+        self.assertEqual(ket["stats"]["magic"], 40)
+        self.assertIs(ket["drops"], TZHAAR_KET_DROPS)
+        self.assertEqual(ket["drops"]["guaranteed"], ())
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Tokkul", "quantity_range": (100, 2000), "slots": 69})
+        self.assertEqual(main["slots"][1], {"item": "Fire battlestaff", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][9], {"item": "Chilli potato", "quantity": 1, "slots": 6})
+        self.assertEqual(main["slots"][10], {"item": "Pure essence", "quantity_range": (5, 10), "slots": 1})
+        self.assertEqual(main["slots"][11], {"item": "Onyx bolt tips", "quantity_range": (1, 4), "slots": 1})
+        self.assertEqual(obsidian["total"], 512)
+        self.assertEqual(sum(slot["slots"] for slot in obsidian["slots"]), 512)
+        self.assertEqual(obsidian["slots"][0], {"item": "Tzhaar-ket-om", "quantity": 1, "slots": 1})
+        self.assertEqual(obsidian["slots"][1], {"item": "Toktz-ket-xil", "quantity": 1, "slots": 1})
+        self.assertEqual(obsidian["slots"][2], {"item": "Obsidian cape", "quantity": 1, "slots": 1})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Obsidian charm", "quantity": 2, "slots": 720})
+        self.assertIn("tzhaar_ket_lvl_149.plugin.kts", ket["source"])
+        self.assertIn("Npcs.TZHAARKET_2616", ket["source"])
+        self.assertIn("no source combat bonuses", ket["source"])
+
     def test_al_kharid_warrior_row_matches_source_and_nested_minor_herbs(self):
         warrior = COMBAT_ENEMY_DATA["al_kharid_warrior"]
 
@@ -2178,6 +2214,19 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(unarmed_drops, {"Bones": 1, "Bronze spear": 1, "Gold charm": 1})
         self.assertEqual(armed_seed_drops, {"Bones": 1, "Limpwurt seed": 1})
+
+    def test_tzhaar_ket_drop_rolls_quantity_ranges_obsidian_and_charms(self):
+        tokkul_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["tzhaar_ket"],
+            _rng([0.0, 0.999999, 0.999999, 0.999999]),
+        )
+        rare_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["tzhaar_ket"],
+            _rng([127 / 128, 0.999999, 0.0, 0.0]),
+        )
+
+        self.assertEqual(tokkul_drops, {"Tokkul": 2000})
+        self.assertEqual(rare_drops, {"Onyx bolt tips": 4, "Tzhaar-ket-om": 1, "Obsidian charm": 2})
 
     def test_al_kharid_warrior_drop_rolls_nested_minor_herb_table(self):
         drops = _combat_roll_drops(

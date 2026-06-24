@@ -817,6 +817,39 @@ def _combat_level_key(combat_skill: object) -> Optional[str]:
     return f"{combat_skill}_level"
 
 
+def _equipment_skill_requirements(spec: object) -> tuple[tuple[str, int, str], ...]:
+    raw_requirements = _equipment_value(spec, "skill_requirements", ())
+    parsed: list[tuple[str, int, str]] = []
+    if isinstance(raw_requirements, Mapping):
+        requirement_iterable = raw_requirements.items()
+    elif isinstance(raw_requirements, (tuple, list)):
+        requirement_iterable = raw_requirements
+    else:
+        requirement_iterable = ()
+    for requirement in requirement_iterable:
+        if isinstance(requirement, Mapping):
+            combat_skill = requirement.get("skill")
+            raw_level = requirement.get("level")
+        elif isinstance(requirement, (tuple, list)) and len(requirement) >= 2:
+            combat_skill = requirement[0]
+            raw_level = requirement[1]
+        else:
+            continue
+        level_key = _combat_level_key(combat_skill)
+        required_level = _positive_int(raw_level, 1)
+        if isinstance(combat_skill, str) and level_key is not None and required_level > 1:
+            parsed.append((combat_skill, required_level, level_key))
+    if parsed:
+        return tuple(parsed)
+
+    combat_skill = _equipment_value(spec, "combat_skill", None)
+    level_key = _combat_level_key(combat_skill)
+    required_level = _positive_int(_equipment_value(spec, "required_level", 1), 1)
+    if isinstance(combat_skill, str) and level_key is not None and required_level > 1:
+        return ((combat_skill, required_level, level_key),)
+    return ()
+
+
 def _combat_skill_label(combat_skill: object) -> str:
     labels = {
         "attack": "Attack",
@@ -861,14 +894,10 @@ def can_equip_item_pure(
     spec = equipment_data.get(item_name)
     if spec is None:
         return False, "Item is not equippable"
-    combat_skill = _equipment_value(spec, "combat_skill", None)
-    level_key = _combat_level_key(combat_skill)
-    required_level = _positive_int(_equipment_value(spec, "required_level", 1), 1)
-    if level_key is None:
-        return True, ""
-    current_level = _positive_int(player_data.get(level_key, 1), 1)
-    if current_level < required_level:
-        return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
+    for combat_skill, required_level, level_key in _equipment_skill_requirements(spec):
+        current_level = _positive_int(player_data.get(level_key, 1), 1)
+        if current_level < required_level:
+            return False, f"Requires level {required_level} {_combat_skill_label(combat_skill)}"
     return True, ""
 
 

@@ -47,8 +47,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10,
   Barbarian level 17, Seagull,
   Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
-  Deadly red spider, Poison spider levels 31/64, Hill giant, Moss giant, and
-  Ice giant are selectable Combat
+  Deadly red spider, Poison spider levels 31/64, Hill giant, Moss giant, Ice
+  giant, and TzHaar-Ket are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
   Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
@@ -138,6 +138,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-hobgoblins-2026-06-23.md` before touching
   Hobgoblins, Hobgoblin source drop denominators, Iron javelin inventory-only
   treatment, or Iron/Steel spear equipment metadata; use
+  `memory-bank/source-audits/combat-tzhaar-ket-2026-06-23.md` before touching
+  TzHaar-Ket, TzHaar drop tables, Tokkul/obsidian drops, or TzHaar equipment
+  requirements; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -147,7 +150,12 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
-  touching death/reclaim again. Next Combat work should widen source-backed enemies,
+  touching death/reclaim again; use
+  `memory-bank/source-audits/combat-source-plugin-exhaustion-2026-06-23.md`
+  before reopening broad local NPC plugin import. The local 2011Scape
+  `NpcCombatStats` plugin surface is exhausted for direct ordinary row import as
+  of the TzHaar-Ket pass. Next Combat work should widen source-backed enemies from
+  new source surfaces,
   broaden Ranged equipment/ammo beyond the standard bow ladder, add god/Ancient/Lunar spell gates/effects,
   add source-exact grave expiry/death-fee variants, add broader
   potion/cannon/per-ammo preference controls, add richer risk previews and
@@ -245,6 +253,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   minor-herb, allotment-seed, uncommon-seed, and gem table drops, Iron javelin
   inventory item/icon registration, and source-backed Iron/Steel spear equipment
   metadata.
+  TzHaar-Ket now adds the source level-149 TzHaar row, exact main/Obsidian/Charms
+  drop tables, Tokkul/obsidian item registration, Chilli potato food metadata,
+  and source-backed Fire battlestaff, Toktz-ket-xil, Tzhaar-ket-om, and Obsidian
+  cape equipment metadata. TzHaar-Xil, TzHaar-Hur, and TzHaar-Mej remain
+  deferred behind source-backed enemy Ranged/Magic strategy support.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;

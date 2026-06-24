@@ -809,6 +809,14 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(reason, "Requires level 40 Defense")
 
+        ok, reason = can_equip_item_pure("Fire battlestaff", EQUIPMENT_DATA, {"attack_level": 30, "magic_level": 1})
+        self.assertFalse(ok)
+        self.assertEqual(reason, "Requires level 30 Magic")
+
+        ok, reason = can_equip_item_pure("Fire battlestaff", EQUIPMENT_DATA, {"attack_level": 30, "magic_level": 30})
+        self.assertTrue(ok)
+        self.assertEqual(reason, "")
+
     def test_equip_unequip_returns_displaced_items(self):
         inv = {"Bronze platebody": 1, "Iron platebody": 1}
         new_inv, equipment, ok = equip_item_pure("Bronze platebody", inv, {}, EQUIPMENT_DATA)
