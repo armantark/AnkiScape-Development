@@ -44,7 +44,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
   Mugger, Thug, Thief, Market guard, Guard level 21
   Varrock/sword/battleaxe variants, Jail guard,
-  Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
+  Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10,
+  Barbarian level 17, Seagull,
   Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
   Deadly red spider, Poison spider levels 31/64, Hill giant, Moss giant, and
   Ice giant are selectable Combat
@@ -81,6 +82,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching level 8/9 Barbarian rows; use
   `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md` before
   touching level 10 Barbarian rows; use
+  `memory-bank/source-audits/combat-barbarian-level-17-2026-06-23.md` before
+  touching level 17 Barbarian rows; use
   `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md` before
   touching Goblin rows or shared Goblin tables; use
   `memory-bank/source-audits/combat-standard-spells-2026-06-23.md` before
@@ -189,6 +192,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   ordinary level 8/9 Barbarian twin row now imports the full 1024-slot main
   table, 1000-slot charm table, 128-slot easy clue tertiary table, generic Staff
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
+  Barbarian level 17 now groups the complete greataxe, spear, and two-handed
+  sword source variants with the shared Barbarian main/charm/tertiary drop
+  tables and existing item icon coverage.
   Goblin level 2 is split into unarmed and armed targets because source stats
   differ, while sharing the same local 1024-slot main table, 1024-slot charm
   table, and 1024-slot easy clue tertiary table. Scorpion, King scorpion, Pit
