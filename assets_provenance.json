@@ -227,6 +227,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:10:09Z"
   },
+  "combatitems/dragon_spear.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Dragon_spear.png",
+    "file_title": "Dragon spear.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Dragon_spear.png?cc5f3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "984a3fce36171eaab2876600e2ba598af298bd6f",
+    "size": 389,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:55:46Z"
+  },
   "combatitems/goblin_book.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Goblin_book.png",
     "file_title": "Goblin book.png",
@@ -262,6 +274,54 @@
     "size": 874,
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:07:20Z"
+  },
+  "combatitems/loop_half_of_a_key.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Loop_half_of_a_key.png",
+    "file_title": "Loop half of a key.png",
+    "image_url": "https://runescape.wiki/images/Loop_half_of_a_key.png?c1e1f",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4a031ba4fe445c6deb64ead6e5748fd2a585f46c",
+    "size": 425,
+    "source_wiki": "rs3",
+    "timestamp": "2019-12-07T14:17:57Z"
+  },
+  "combatitems/rune_javelin.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_javelin.png",
+    "file_title": "Rune javelin.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_javelin.png?ff16c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a27637c1e6b5a18b020bde77ab4fcf2b62a3e8db",
+    "size": 261,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:09Z"
+  },
+  "combatitems/rune_spear.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_spear.png",
+    "file_title": "Rune spear.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Rune_spear.png?fe6a8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "7dbdc80fa749b143a0d284902f3ceaf8ac54ee83",
+    "size": 293,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:15Z"
+  },
+  "combatitems/shield_left_half.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shield_left_half.png",
+    "file_title": "Shield left half.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Shield_left_half.png?f410d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "be6c7ce70f96b1a010feaa552c911bc2ed26d5a2",
+    "size": 387,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:36Z"
   },
   "combatitems/staff.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Staff.png",
@@ -310,6 +370,18 @@
     "size": 662,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:07:01Z"
+  },
+  "combatitems/tooth_half_of_a_key.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Tooth_half_of_a_key.png",
+    "file_title": "Tooth half of a key.png",
+    "image_url": "https://runescape.wiki/images/Tooth_half_of_a_key.png?c782d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "b78e6711d9266521dce82209511fb809906a2653",
+    "size": 962,
+    "source_wiki": "rs3",
+    "timestamp": "2021-12-01T18:45:07Z"
   },
   "combatitems/wooden_shield.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wooden_shield.png",

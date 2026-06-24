@@ -313,6 +313,14 @@ declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls
 against the final entry index after logging the mismatch.
 
+Combat Dwarf coverage now adds the level-10 and level-11 Humanoids variants as
+source-backed ordinary targets. Both rows share the local Dwarf drop table,
+including Bronze bolts x2-12, charms, easy clue tertiary, and the first nested
+`Gems.gemTable` -> `MegaRare.megaRareTable` chain. The implemented gem tables
+preserve the source no-Ring-of-Wealth slot weights; Ring of Wealth boosts remain
+deferred until Combat has equipment-conditioned drop modifiers. Source proof
+lives in `memory-bank/source-audits/combat-dwarf-2026-06-23.md`.
+
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and
 Bronze through Rune arrows have source item IDs/strength values and bow

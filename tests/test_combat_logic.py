@@ -4,6 +4,8 @@ from combat_data import (
     COMBAT_ANTIPOISON_POTION_DATA,
     COMBAT_ALLOTMENT_SEED_DROP_TABLE,
     COMBAT_ENEMY_DATA,
+    COMBAT_GEM_DROP_TABLE,
+    COMBAT_MEGA_RARE_DROP_TABLE,
     COMBAT_MINOR_HERB_DROP_TABLE,
     COMBAT_MAGIC_SPELL_DATA,
     COMBAT_MAGIC_STAFF_DATA,
@@ -455,6 +457,66 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(charms["total"], 1000)
         self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 70})
 
+    def test_dwarf_import_rows_match_source_and_nested_global_gem_tables(self):
+        level10 = COMBAT_ENEMY_DATA["dwarf_level_10"]
+        level11 = COMBAT_ENEMY_DATA["dwarf_level_11"]
+
+        self.assertEqual(level10["display_name"], "Dwarf (level 10)")
+        self.assertEqual(level11["display_name"], "Dwarf (level 11)")
+        self.assertEqual(level10["level"], 10)
+        self.assertEqual(level11["level"], 11)
+        self.assertEqual(level10["group"], "Humanoids")
+        self.assertEqual(level11["group"], "Humanoids")
+        self.assertEqual(level10["attack_speed"], 5)
+        self.assertEqual(level11["attack_speed"], 4)
+        self.assertEqual(level10["respawn_delay"], 50)
+        self.assertEqual(level11["respawn_delay"], 50)
+        self.assertEqual(level10["slayer_xp"], 16.0)
+        self.assertEqual(level11["slayer_xp"], 16.0)
+        self.assertEqual(level10["stats"]["hitpoints"], 160)
+        self.assertEqual(level10["stats"]["defence"], 6)
+        self.assertEqual(level11["stats"]["hitpoints"], 180)
+        self.assertEqual(level11["stats"]["defence"], 8)
+        self.assertEqual(level10["bonuses"]["attack_stab"], 5)
+        self.assertEqual(level10["bonuses"]["attack_crush"], 7)
+        self.assertEqual(level10["bonuses"]["defence_magic"], 5)
+        self.assertEqual(level11["bonuses"]["defence_ranged"], 10)
+        self.assertIs(level10["drops"], level11["drops"])
+        self.assertIn("dwarf_level_10_11.plugin.kts", level10["source"])
+        self.assertIn("DWARF_3272", level10["source"])
+        self.assertIn("DWARF_3270", level11["source"])
+
+        main, charms, tertiary = level10["drops"]["tables"]
+        self.assertEqual(level10["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Bronze pickaxe", "quantity": 1, "slots": 13})
+        self.assertEqual(main["slots"][4], {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 7})
+        self.assertEqual(main["slots"][16], {"item": "Coal", "quantity": 1, "slots": 2})
+        self.assertIs(main["slots"][17]["table"], COMBAT_GEM_DROP_TABLE)
+        self.assertEqual(main["slots"][17]["slots"], 1)
+        self.assertEqual(main["slots"][-1], {"slots": 23})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 40})
+        self.assertEqual(charms["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 7})
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+
+        self.assertEqual(COMBAT_GEM_DROP_TABLE["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in COMBAT_GEM_DROP_TABLE["slots"]), 1024)
+        self.assertIn("without Ring of Wealth", COMBAT_GEM_DROP_TABLE["source"])
+        self.assertEqual(COMBAT_GEM_DROP_TABLE["slots"][0], {"slots": 512})
+        self.assertEqual(COMBAT_GEM_DROP_TABLE["slots"][1], {"item": "Uncut sapphire", "quantity": 1, "slots": 240})
+        self.assertEqual(COMBAT_GEM_DROP_TABLE["slots"][7], {"item": "Rune javelin", "quantity": 5, "slots": 8})
+        self.assertIs(COMBAT_GEM_DROP_TABLE["slots"][-1]["table"], COMBAT_MEGA_RARE_DROP_TABLE)
+        self.assertEqual(COMBAT_MEGA_RARE_DROP_TABLE["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in COMBAT_MEGA_RARE_DROP_TABLE["slots"]), 1024)
+        self.assertIn("without Ring of Wealth", COMBAT_MEGA_RARE_DROP_TABLE["source"])
+        self.assertEqual(COMBAT_MEGA_RARE_DROP_TABLE["slots"][0], {"slots": 904})
+        self.assertEqual(COMBAT_MEGA_RARE_DROP_TABLE["slots"][1], {"item": "Rune spear", "quantity": 1, "slots": 64})
+        self.assertEqual(COMBAT_MEGA_RARE_DROP_TABLE["slots"][3], {"item": "Dragon spear", "quantity": 1, "slots": 24})
+
     def test_barbarian_import_row_groups_level_8_and_9_source_twins(self):
         barbarian = COMBAT_ENEMY_DATA["barbarian"]
 
@@ -745,6 +807,33 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
+
+    def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["dwarf_level_10"],
+            _rng([20 / 128, 0.999999, 0.0, 0.0]),
+        )
+
+        self.assertEqual(
+            drops,
+            {"Bones": 1, "Bronze bolts": 12, "Gold charm": 1, "Clue scroll (easy)": 1},
+        )
+
+    def test_dwarf_drop_rolls_nested_gem_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["dwarf_level_11"],
+            _rng([104 / 128, 512 / 1024, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Uncut sapphire": 1})
+
+    def test_dwarf_drop_rolls_nested_mega_rare_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["dwarf_level_11"],
+            _rng([104 / 128, 1016 / 1024, 1000 / 1024, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Dragon spear": 1})
 
     def test_barbarian_drop_rolls_include_main_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

@@ -139,7 +139,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared
   `total(128)`, and leaves the source-commented crossbow Guard disabled until
-  a complete ranged NPC definition exists. The
+  a complete ranged NPC definition exists. Dwarf now adds the local level-10
+  and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
+  `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;
+  Ring of Wealth boosted slots remain deferred until Combat supports
+  equipment-conditioned drop modifiers. The
   ordinary level 8/9 Barbarian twin row now imports the full 1024-slot main
   table, 1000-slot charm table, 128-slot easy clue tertiary table, generic Staff
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.

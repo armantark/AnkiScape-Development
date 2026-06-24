@@ -70,6 +70,12 @@ GLOBAL_HERBS_SOURCE_PATH = (
 GLOBAL_SEEDS_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Seeds.kt"
 )
+GLOBAL_GEMS_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Gems.kt"
+)
+GLOBAL_MEGA_RARE_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/MegaRare.kt"
+)
 
 
 COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
@@ -594,6 +600,10 @@ GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/guard_level_21.plugin.kts"
 )
+DWARF_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/dwarf_level_10_11.plugin.kts"
+)
 FARMER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/farmer_level_7.plugin.kts"
@@ -657,6 +667,39 @@ COMBAT_ALLOTMENT_SEED_DROP_TABLE = {
         {"item": "Sweetcorn seed", "quantity": 3, "slots": 5},
         {"item": "Strawberry seed", "quantity": 2, "slots": 2},
         {"item": "Watermelon seed", "quantity": 2, "slots": 1},
+    ),
+}
+
+
+COMBAT_MEGA_RARE_DROP_TABLE = {
+    "name": "Mega rare",
+    "source": f"{GLOBAL_MEGA_RARE_SOURCE_PATH}: MegaRare.megaRareTable without Ring of Wealth",
+    "total": 1024,
+    "slots": (
+        {"slots": 904},
+        {"item": "Rune spear", "quantity": 1, "slots": 64},
+        {"item": "Shield left half", "quantity": 1, "slots": 32},
+        {"item": "Dragon spear", "quantity": 1, "slots": 24},
+    ),
+}
+
+
+COMBAT_GEM_DROP_TABLE = {
+    "name": "Gem",
+    "source": f"{GLOBAL_GEMS_SOURCE_PATH}: Gems.gemTable without Ring of Wealth",
+    "total": 1024,
+    "slots": (
+        {"slots": 512},
+        {"item": "Uncut sapphire", "quantity": 1, "slots": 240},
+        {"item": "Uncut emerald", "quantity": 1, "slots": 112},
+        {"item": "Uncut ruby", "quantity": 1, "slots": 64},
+        {"item": "Chaos talisman", "quantity": 1, "slots": 24},
+        {"item": "Nature talisman", "quantity": 1, "slots": 24},
+        {"item": "Uncut diamond", "quantity": 1, "slots": 16},
+        {"item": "Rune javelin", "quantity": 5, "slots": 8},
+        {"item": "Loop half of a key", "quantity": 1, "slots": 8},
+        {"item": "Tooth half of a key", "quantity": 1, "slots": 8},
+        {"table": COMBAT_MEGA_RARE_DROP_TABLE, "slots": 8},
     ),
 }
 
@@ -790,6 +833,57 @@ FARMER_DROPS = {
                 {"item": "Secateurs", "quantity": 1, "slots": 1},
                 {"item": "Watering can (8)", "quantity": 1, "slots": 1},
                 {"slots": 28},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                {"slots": 127},
+            ),
+        },
+    ),
+}
+
+
+DWARF_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Bronze pickaxe", "quantity": 1, "slots": 13},
+                {"item": "Bronze med helm", "quantity": 1, "slots": 4},
+                {"item": "Bronze battleaxe", "quantity": 1, "slots": 2},
+                {"item": "Iron battleaxe", "quantity": 1, "slots": 1},
+                {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 7},
+                {"item": "Chaos rune", "quantity": 2, "slots": 4},
+                {"item": "Nature rune", "quantity": 2, "slots": 4},
+                {"item": "Coins", "quantity": 4, "slots": 20},
+                {"item": "Coins", "quantity": 10, "slots": 15},
+                {"item": "Coins", "quantity": 30, "slots": 2},
+                {"item": "Hammer", "quantity": 1, "slots": 10},
+                {"item": "Bronze bar", "quantity": 1, "slots": 7},
+                {"item": "Iron ore", "quantity": 1, "slots": 4},
+                {"item": "Tin ore", "quantity": 1, "slots": 3},
+                {"item": "Copper ore", "quantity": 1, "slots": 3},
+                {"item": "Iron bar", "quantity": 1, "slots": 3},
+                {"item": "Coal", "quantity": 1, "slots": 2},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 1},
+                {"slots": 23},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 40},
+                {"item": "Green charm", "quantity": 1, "slots": 20},
+                {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                {"item": "Blue charm", "quantity": 1, "slots": 7},
+                {"slots": 903},
             ),
         },
         {
@@ -1770,6 +1864,69 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "source": f"{THIEF_SOURCE_PATH}: ids = Npcs.THIEF_5926/Npcs.THIEF_5927/Npcs.THIEF_5928/Npcs.THIEF_5929",
     },
+    "dwarf_level_10": {
+        "display_name": "Dwarf (level 10)",
+        "level": 10,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 50,
+        "slayer_xp": 16.0,
+        "stats": {
+            "hitpoints": 160,
+            "attack": 8,
+            "strength": 8,
+            "defence": 6,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 7,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 5,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": DWARF_DROPS,
+        "source": f"{DWARF_SOURCE_PATH}: idsLevel10 Npcs.DWARF_118/Npcs.DWARF_3221/Npcs.DWARF_3272",
+    },
+    "dwarf_level_11": {
+        "display_name": "Dwarf (level 11)",
+        "level": 11,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "slayer_xp": 16.0,
+        "stats": {
+            "hitpoints": 180,
+            "attack": 8,
+            "strength": 8,
+            "defence": 8,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 7,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 5,
+            "defence_ranged": 10,
+            "melee_strength": 0,
+        },
+        "drops": DWARF_DROPS,
+        "source": (
+            f"{DWARF_SOURCE_PATH}: idsLevel11 Npcs.DWARF_3219/Npcs.DWARF_3220/"
+            "Npcs.DWARF_3268/Npcs.DWARF_3269/Npcs.DWARF_3270"
+        ),
+    },
     "guard_varrock": {
         "display_name": "Guard (Varrock)",
         "level": 21,
@@ -2424,6 +2581,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
+    "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},
     "Gardening boots": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GARDENING_BOOTS"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
     "Grapes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRAPES"},
@@ -2439,12 +2597,16 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
     "Knife": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KNIFE"},
+    "Loop half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LOOP_HALF_OF_A_KEY"},
     "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
     "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},
     "Rake": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAKE"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
+    "Rune javelin": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_JAVELIN"},
+    "Rune spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_SPEAR"},
     "Secateurs": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS"},
     "Seed dibber": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SEED_DIBBER"},
+    "Shield left half": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHIELD_LEFT_HALF"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
     "Staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF"},
     "Staff of air": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR"},
@@ -2457,6 +2619,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Super antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_3"},
     "Super antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_4"},
     "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
+    "Tooth half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOOTH_HALF_OF_A_KEY"},
     "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},
     "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},

@@ -199,6 +199,13 @@
   medium clue tertiary drops, and charms; the source-commented crossbow Guard
   remains disabled because it has no complete combat definition. Source proof:
   `memory-bank/source-audits/combat-guard-2026-06-23.md`.
+- Combat Dwarf expansion added source-backed level-10 and level-11 Dwarf rows as
+  ordinary Humanoids targets. The rows share the source Dwarf drop table,
+  including Bronze bolts x2-12, charms, easy clue tertiary drops, and nested
+  global gem/mega-rare tables using the source no-Ring-of-Wealth weights.
+  Ring of Wealth boosted slots remain deferred until Combat has
+  equipment-conditioned drop modifiers. Source proof:
+  `memory-bank/source-audits/combat-dwarf-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula
