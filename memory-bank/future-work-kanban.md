@@ -151,7 +151,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Ghost now adds source Undead stats and no drops because its source file has no
   death drop callback. Zombies now add seven source Undead variants with the
   shared Bones/main/charm tables and the level-25 Iron hatchet 5/128 table
-  exception. Duck now splits the source level-1 land/water variants so land
+  exception. Skeletons now add seven source melee Undead variants with the
+  low/high shared drop tables; Skeleton warlock remains deferred for a magic
+  enemy pass. Duck now splits the source level-1 land/water variants so land
   ducks drop Bones while water ducks expose no drops instead of inheriting the
   land callback. Pirate now adds the source level-23 Humanoids row with the full
   1024-slot main table, Iron bolts x2-12, Eye patch icon coverage, and nested

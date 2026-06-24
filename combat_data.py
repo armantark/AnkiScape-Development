@@ -692,6 +692,34 @@ ZOMBIE_LEVEL_53_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/undeads/zombie_lvl_53.plugin.kts"
 )
+SKELETON_LEVEL_21_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_lvl_21.plugin.kts"
+)
+SKELETON_LEVEL_22_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_lvl_22.plugin.kts"
+)
+SKELETON_LEVEL_25_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_lvl_25.plugin.kts"
+)
+SKELETON_LEVEL_45_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_level_45.plugin.kts"
+)
+SKELETON_LEVEL_60_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_lvl_60.plugin.kts"
+)
+SKELETON_LEVEL_68_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_lvl_68.plugin.kts"
+)
+SKELETON_LEVEL_85_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/skeleton_lvl_85.plugin.kts"
+)
 DUCK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/duck_level_1.plugin.kts"
@@ -1222,6 +1250,97 @@ ZOMBIE_LEVEL_25_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 14},
                 {"item": "Blue charm", "quantity": 1, "slots": 2},
                 {"slots": 937},
+            ),
+        },
+    ),
+}
+
+
+SKELETON_LOW_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Bronze arrows", "quantity": 2, "slots": 56},
+                {"item": "Bronze arrows", "quantity": 5, "slots": 32},
+                {"item": "Iron arrows", "quantity": 1, "slots": 32},
+                {"item": "Steel arrows", "quantity": 1, "slots": 8},
+                {"item": "Air rune", "quantity": 15, "slots": 16},
+                {"item": "Earth rune", "quantity": 3, "slots": 16},
+                {"item": "Fire rune", "quantity": 2, "slots": 16},
+                {"item": "Chaos rune", "quantity": 3, "slots": 16},
+                {"item": "Nature rune", "quantity": 3, "slots": 16},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 49},
+                {"item": "Coins", "quantity": 2, "slots": 175},
+                {"item": "Coins", "quantity": 12, "slots": 200},
+                {"item": "Coins", "quantity": 4, "slots": 56},
+                {"item": "Coins", "quantity": 16, "slots": 32},
+                {"item": "Coins", "quantity": 25, "slots": 32},
+                {"item": "Coins", "quantity": 33, "slots": 32},
+                {"item": "Coins", "quantity": 48, "slots": 8},
+                {"slots": 144},
+                {"item": "Iron dagger", "quantity": 1, "slots": 48},
+                {"item": "Fire talisman", "quantity": 1, "slots": 16},
+                {"item": "Iron ore", "quantity": 1, "slots": 8},
+                {"item": "Grain", "quantity": 1, "slots": 8},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 8},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 50},
+                {"item": "Green charm", "quantity": 1, "slots": 12},
+                {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                {"item": "Blue charm", "quantity": 1, "slots": 14},
+                {"slots": 894},
+            ),
+        },
+    ),
+}
+
+
+SKELETON_HIGH_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Iron med helm", "quantity": 1, "slots": 6},
+                {"item": "Iron sword", "quantity": 1, "slots": 4},
+                {"item": "Iron hatchet", "quantity": 1, "slots": 2},
+                {"item": "Iron scimitar", "quantity": 1, "slots": 1},
+                {"item": "Air rune", "quantity": 15, "slots": 3},
+                {"item": "Water rune", "quantity": 9, "slots": 3},
+                {"item": "Chaos rune", "quantity": 5, "slots": 3},
+                {"item": "Iron arrows", "quantity": 12, "slots": 2},
+                {"item": "Law rune", "quantity": 2, "slots": 2},
+                {"item": "Cosmic rune", "quantity": 2, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 20},
+                {"item": "Coins", "quantity": 10, "slots": 24},
+                {"item": "Coins", "quantity": 5, "slots": 25},
+                {"item": "Coins", "quantity": 25, "slots": 8},
+                {"item": "Coins", "quantity": 45, "slots": 4},
+                {"item": "Coins", "quantity": 65, "slots": 3},
+                {"item": "Coins", "quantity": 1, "slots": 2},
+                {"slots": 8},
+                {"item": "Bronze bar", "quantity": 1, "slots": 5},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 2},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 50},
+                {"item": "Green charm", "quantity": 1, "slots": 12},
+                {"item": "Crimson charm", "quantity": 1, "slots": 30},
+                {"item": "Blue charm", "quantity": 1, "slots": 14},
+                {"slots": 894},
             ),
         },
     ),
@@ -2595,6 +2714,216 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": ZOMBIE_DROPS,
         "source": f"{ZOMBIE_LEVEL_53_SOURCE_PATH}: ids Npcs.ZOMBIE_4394/Npcs.ZOMBIE_5379/Npcs.ZOMBIE_5380; SlayerAssignment.ZOMBIE level 1 xp 50.0; aggro radius 4",
+    },
+    "skeleton_level_21": {
+        "display_name": "Skeleton",
+        "level": 21,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 24.0,
+        "stats": {
+            "hitpoints": 240,
+            "attack": 17,
+            "strength": 17,
+            "defence": 17,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": -5,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_LOW_DROPS,
+        "source": f"{SKELETON_LEVEL_21_SOURCE_PATH}: id Npcs.SKELETON_91; SlayerAssignment.SKELETON level 1 xp 24.0; aggro radius 4",
+    },
+    "skeleton_level_22": {
+        "display_name": "Skeleton",
+        "level": 22,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 70,
+        "slayer_xp": 29.0,
+        "stats": {
+            "hitpoints": 290,
+            "attack": 15,
+            "strength": 18,
+            "defence": 17,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": -5,
+            "defence_magic": 0,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_LOW_DROPS,
+        "source": f"{SKELETON_LEVEL_22_SOURCE_PATH}: ids Npcs.SKELETON/Npcs.SKELETON_5332/Npcs.SKELETON_5333/Npcs.SKELETON_5334; SlayerAssignment.SKELETON level 1 xp 29.0; aggro radius 4",
+    },
+    "skeleton_level_25": {
+        "display_name": "Skeleton",
+        "level": 25,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 60,
+        "slayer_xp": 17.0,
+        "stats": {
+            "hitpoints": 170,
+            "attack": 24,
+            "strength": 24,
+            "defence": 24,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 15,
+            "attack_slash": 0,
+            "attack_crush": 14,
+            "defence_stab": 9,
+            "defence_slash": 11,
+            "defence_crush": -2,
+            "defence_magic": 1,
+            "defence_ranged": 4,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_HIGH_DROPS,
+        "source": f"{SKELETON_LEVEL_25_SOURCE_PATH}: id Npcs.SKELETON_92; SlayerAssignment.SKELETON level 1 xp 17.0; aggro radius 4",
+    },
+    "skeleton_level_45": {
+        "display_name": "Skeleton",
+        "level": 45,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "slayer_xp": 59.0,
+        "stats": {
+            "hitpoints": 590,
+            "attack": 32,
+            "strength": 35,
+            "defence": 36,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 15,
+            "attack_slash": 0,
+            "attack_crush": 14,
+            "defence_stab": 9,
+            "defence_slash": 11,
+            "defence_crush": -2,
+            "defence_magic": 1,
+            "defence_ranged": 4,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_HIGH_DROPS,
+        "source": f"{SKELETON_LEVEL_45_SOURCE_PATH}: id Npcs.SKELETON_93; SlayerAssignment.SKELETON level 1 xp 59.0; no aggro block in source",
+    },
+    "skeleton_level_60": {
+        "display_name": "Skeleton",
+        "level": 60,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 70,
+        "slayer_xp": 70.0,
+        "stats": {
+            "hitpoints": 700,
+            "attack": 50,
+            "strength": 50,
+            "defence": 40,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 35,
+            "defence_slash": 35,
+            "defence_crush": -5,
+            "defence_magic": 0,
+            "defence_ranged": 35,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_HIGH_DROPS,
+        "source": f"{SKELETON_LEVEL_60_SOURCE_PATH}: ids Npcs.SKELETON_4385/Npcs.SKELETON_5365/Npcs.SKELETON_5366; SlayerAssignment.SKELETON level 1 xp 70.0; aggro radius 4",
+    },
+    "skeleton_level_68": {
+        "display_name": "Skeleton",
+        "level": 68,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 60,
+        "slayer_xp": 65.0,
+        "stats": {
+            "hitpoints": 700,
+            "attack": 60,
+            "strength": 50,
+            "defence": 60,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 35,
+            "defence_slash": 35,
+            "defence_crush": -5,
+            "defence_magic": 0,
+            "defence_ranged": 35,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_HIGH_DROPS,
+        "source": f"{SKELETON_LEVEL_68_SOURCE_PATH}: id Npcs.SKELETON_4384; SlayerAssignment.SKELETON level 1 xp 65.0; aggro radius 4",
+    },
+    "skeleton_level_85": {
+        "display_name": "Skeleton",
+        "level": 85,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 60,
+        "slayer_xp": 65.0,
+        "stats": {
+            "hitpoints": 770,
+            "attack": 74,
+            "strength": 74,
+            "defence": 74,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 15,
+            "attack_slash": 14,
+            "attack_crush": 0,
+            "defence_stab": 79,
+            "defence_slash": 31,
+            "defence_crush": 20,
+            "defence_magic": 5,
+            "defence_ranged": 70,
+            "melee_strength": 0,
+        },
+        "drops": SKELETON_HIGH_DROPS,
+        "source": f"{SKELETON_LEVEL_85_SOURCE_PATH}: ids Npcs.SKELETON_4386/Npcs.SKELETON_5367/Npcs.SKELETON_5368; SlayerAssignment.SKELETON level 1 xp 65.0; aggro radius 4",
     },
     "duck_land": {
         "display_name": "Duck (land)",

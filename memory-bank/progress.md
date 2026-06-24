@@ -249,6 +249,12 @@
   Slayer XP, and defence-bonus data, including the level-25 table's Iron hatchet
   5/128 and empty 6/128 exception. Source proof:
   `memory-bank/source-audits/combat-zombies-2026-06-23.md`.
+- Combat Skeleton expansion added seven local source melee Undead rows for
+  levels 21, 22, 25, 45, 60, 68, and 85. The rows preserve source Bones,
+  low/high main tables, charm tables, nested minor herb/gem branches, Slayer XP,
+  and defensive bonuses. Skeleton warlock remains deferred for a magic-enemy
+  pass because it uses `StyleType.MAGIC` and a spell. Source proof:
+  `memory-bank/source-audits/combat-skeletons-2026-06-23.md`.
 - Combat Duck expansion split the local source level-1 Duck file into land and
   water rows. Land ducks keep the source Bones drop callback; water ducks share
   stats and Bird Slayer XP but expose no drops because the source has no

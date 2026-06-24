@@ -15,6 +15,8 @@ from combat_data import (
     MAGIC_STRATEGY_SOURCE_PATH,
     RANGED_FORMULA_SOURCE_PATH,
     RANGED_STRATEGY_SOURCE_PATH,
+    SKELETON_HIGH_DROPS,
+    SKELETON_LOW_DROPS,
     ZOMBIE_DROPS,
     ZOMBIE_LEVEL_25_DROPS,
 )
@@ -459,6 +461,54 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_24"]["bonuses"]["defence_magic"], 10)
         self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_53"]["bonuses"]["attack_stab"], 19)
         self.assertEqual(COMBAT_ENEMY_DATA["zombie_level_53"]["bonuses"]["defence_ranged"], 21)
+
+    def test_skeleton_rows_match_source_and_share_two_drop_tables(self):
+        expected = {
+            "skeleton_level_21": (21, 240, 17, 17, 17, 35, 24.0, SKELETON_LOW_DROPS, "skeleton_lvl_21.plugin.kts"),
+            "skeleton_level_22": (22, 290, 15, 18, 17, 70, 29.0, SKELETON_LOW_DROPS, "skeleton_lvl_22.plugin.kts"),
+            "skeleton_level_25": (25, 170, 24, 24, 24, 60, 17.0, SKELETON_HIGH_DROPS, "skeleton_lvl_25.plugin.kts"),
+            "skeleton_level_45": (45, 590, 32, 35, 36, 30, 59.0, SKELETON_HIGH_DROPS, "skeleton_level_45.plugin.kts"),
+            "skeleton_level_60": (60, 700, 50, 50, 40, 70, 70.0, SKELETON_HIGH_DROPS, "skeleton_lvl_60.plugin.kts"),
+            "skeleton_level_68": (68, 700, 60, 50, 60, 60, 65.0, SKELETON_HIGH_DROPS, "skeleton_lvl_68.plugin.kts"),
+            "skeleton_level_85": (85, 770, 74, 74, 74, 60, 65.0, SKELETON_HIGH_DROPS, "skeleton_lvl_85.plugin.kts"),
+        }
+
+        for key, (level, hitpoints, attack, strength, defence, respawn, slayer_xp, drops, source_file) in expected.items():
+            with self.subTest(key=key):
+                skeleton = COMBAT_ENEMY_DATA[key]
+                self.assertEqual(skeleton["display_name"], "Skeleton")
+                self.assertEqual(skeleton["level"], level)
+                self.assertEqual(skeleton["group"], "Undead")
+                self.assertEqual(skeleton["attack_speed"], 4)
+                self.assertEqual(skeleton["respawn_delay"], respawn)
+                self.assertEqual(skeleton["slayer_xp"], slayer_xp)
+                self.assertEqual(skeleton["stats"]["hitpoints"], hitpoints)
+                self.assertEqual(skeleton["stats"]["attack"], attack)
+                self.assertEqual(skeleton["stats"]["strength"], strength)
+                self.assertEqual(skeleton["stats"]["defence"], defence)
+                self.assertIs(skeleton["drops"], drops)
+                self.assertIn(source_file, skeleton["source"])
+                self.assertIn("SlayerAssignment.SKELETON", skeleton["source"])
+
+        low_main, low_charms = COMBAT_ENEMY_DATA["skeleton_level_21"]["drops"]["tables"]
+        high_main, high_charms = COMBAT_ENEMY_DATA["skeleton_level_25"]["drops"]["tables"]
+        self.assertEqual(low_main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in low_main["slots"]), 1024)
+        self.assertEqual(low_main["slots"][0], {"item": "Bronze arrows", "quantity": 2, "slots": 56})
+        self.assertEqual(low_main["slots"][9], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 49})
+        self.assertEqual(low_main["slots"][-1], {"table": COMBAT_GEM_DROP_TABLE, "slots": 8})
+        self.assertEqual(high_main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in high_main["slots"]), 128)
+        self.assertEqual(high_main["slots"][0], {"item": "Iron med helm", "quantity": 1, "slots": 6})
+        self.assertEqual(high_main["slots"][10], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 20})
+        self.assertEqual(high_main["slots"][-1], {"table": COMBAT_GEM_DROP_TABLE, "slots": 2})
+        self.assertEqual(low_charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 50})
+        self.assertEqual(high_charms["slots"][-1], {"slots": 894})
+
+        self.assertEqual(COMBAT_ENEMY_DATA["skeleton_level_25"]["bonuses"]["attack_crush"], 14)
+        self.assertEqual(COMBAT_ENEMY_DATA["skeleton_level_60"]["bonuses"]["defence_stab"], 35)
+        self.assertEqual(COMBAT_ENEMY_DATA["skeleton_level_85"]["bonuses"]["attack_slash"], 14)
+        self.assertEqual(COMBAT_ENEMY_DATA["skeleton_level_85"]["bonuses"]["defence_ranged"], 70)
 
     def test_duck_rows_split_land_and_water_source_drops(self):
         land = COMBAT_ENEMY_DATA["duck_land"]
@@ -1205,6 +1255,19 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
         self.assertEqual(normal_table_drops, {"Bones": 1, "Bronze med helm": 1})
         self.assertEqual(level_25_drops, {"Bones": 1, "Iron hatchet": 1})
+
+    def test_skeleton_drop_rolls_nested_herb_and_gem_tables(self):
+        low_gem_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["skeleton_level_21"],
+            _rng([1016 / 1024, 512 / 1024, 0.999999]),
+        )
+        high_herb_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["skeleton_level_25"],
+            _rng([27 / 128, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(low_gem_drops, {"Bones": 1, "Uncut sapphire": 1})
+        self.assertEqual(high_herb_drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_duck_drop_rolls_follow_land_water_source_split(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})

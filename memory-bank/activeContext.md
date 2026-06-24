@@ -363,6 +363,13 @@ tables, while the level-25 row preserves its source-specific Iron hatchet
 5/128 and empty 6/128 branch instead of reusing the common table. Source proof
 lives in `memory-bank/source-audits/combat-zombies-2026-06-23.md`.
 
+Combat Skeleton coverage now adds seven local source Undead melee variants from
+levels 21, 22, 25, 45, 60, 68, and 85. The level-21/22 rows share the source
+1024-slot low Skeleton table, and the higher rows share the 128-slot table with
+nested minor herb and gem branches. Skeleton warlock stays deferred because it is
+a `StyleType.MAGIC` enemy with a spell, not another melee Skeleton row. Source
+proof lives in `memory-bank/source-audits/combat-skeletons-2026-06-23.md`.
+
 Combat Duck coverage now splits the source level-1 Duck file into land and water
 rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
 water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but
