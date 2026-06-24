@@ -582,6 +582,10 @@ MUGGER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/mugger_level_6.plugin.kts"
 )
+THUG_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/thug_level_10.plugin.kts"
+)
 FARMER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/farmer_level_7.plugin.kts"
@@ -1556,6 +1560,84 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             ),
         },
         "source": f"{MUGGER_SOURCE_PATH}: ids = Npcs.MUGGER/Npcs.MUGGER_7161/Npcs.MUGGER_7162",
+    },
+    "thug": {
+        "display_name": "Thug",
+        "level": 10,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 180,
+            "attack": 7,
+            "strength": 5,
+            "defence": 9,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 5,
+            "defence_stab": 2,
+            "defence_slash": 3,
+            "defence_crush": 3,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Iron med helm", "quantity": 1, "slots": 4},
+                        {"item": "Iron battleaxe", "quantity": 1, "slots": 2},
+                        {"item": "Steel hatchet", "quantity": 1, "slots": 1},
+                        {"item": "Nature rune", "quantity": 2, "slots": 13},
+                        {"item": "Chaos rune", "quantity": 2, "slots": 4},
+                        {"item": "Cosmic rune", "quantity": 2, "slots": 1},
+                        {"item": "Law rune", "quantity": 2, "slots": 1},
+                        {"item": "Death rune", "quantity": 2, "slots": 1},
+                        {"item": "Iron ore", "quantity": 1, "slots": 4},
+                        {"item": "Iron bar", "quantity": 1, "slots": 3},
+                        {"item": "Coal", "quantity": 1, "slots": 2},
+                        {"item": "Coins", "quantity": 8, "slots": 23},
+                        {"item": "Coins", "quantity": 15, "slots": 12},
+                        {"item": "Coins", "quantity": 30, "slots": 2},
+                        {"item": "Coins", "quantity": 20, "slots": 1},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 24},
+                        {"slots": 30},
+                    ),
+                },
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 120},
+                        {"item": "Green charm", "quantity": 1, "slots": 10},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 8},
+                        {"item": "Blue charm", "quantity": 1, "slots": 5},
+                        {"slots": 857},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                        {"slots": 127},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{THUG_SOURCE_PATH}: ids = Npcs.THUG_7106/Npcs.THUG_7107/"
+            "Npcs.THUG_7109/Npcs.THUG_7110/Npcs.THUG_7112/Npcs.THUG_7113/Npcs.THUG_7114"
+        ),
     },
     "barbarian": {
         "display_name": "Barbarian",

@@ -344,6 +344,39 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("mugger_level_6.plugin.kts", mugger["source"])
         self.assertIn("MUGGER_7161", mugger["source"])
 
+    def test_thug_import_row_matches_source_minor_herbs_and_charms(self):
+        thug = COMBAT_ENEMY_DATA["thug"]
+        main, charms, tertiary = thug["drops"]["tables"]
+
+        self.assertEqual(thug["level"], 10)
+        self.assertEqual(thug["group"], "Humanoids")
+        self.assertEqual(thug["attack_speed"], 4)
+        self.assertEqual(thug["respawn_delay"], 50)
+        self.assertEqual(thug["stats"]["hitpoints"], 180)
+        self.assertEqual(thug["stats"]["attack"], 7)
+        self.assertEqual(thug["stats"]["strength"], 5)
+        self.assertEqual(thug["stats"]["defence"], 9)
+        self.assertEqual(thug["bonuses"]["attack_stab"], 5)
+        self.assertEqual(thug["bonuses"]["attack_crush"], 5)
+        self.assertEqual(thug["bonuses"]["defence_stab"], 2)
+        self.assertEqual(thug["bonuses"]["defence_slash"], 3)
+        self.assertEqual(thug["bonuses"]["defence_crush"], 3)
+        self.assertEqual(thug["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Iron med helm", "quantity": 1, "slots": 4})
+        self.assertEqual(main["slots"][2], {"item": "Steel hatchet", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][15], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 24})
+        self.assertEqual(main["slots"][-1], {"slots": 30})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 120})
+        self.assertEqual(charms["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 5})
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("thug_level_10.plugin.kts", thug["source"])
+        self.assertIn("THUG_7114", thug["source"])
+
     def test_barbarian_import_row_groups_level_8_and_9_source_twins(self):
         barbarian = COMBAT_ENEMY_DATA["barbarian"]
 
@@ -580,6 +613,22 @@ class CombatLogicTest(unittest.TestCase):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["mugger"],
             _rng([218 / 1024, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_thug_drop_rolls_main_charms_and_tertiary_tables(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thug"],
+            _rng([120 / 128, 0.0, 0.0]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_thug_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thug"],
+            _rng([75 / 128, 0.0, 0.999999, 0.999999]),
         )
 
         self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})

@@ -179,6 +179,12 @@
   `Herbs.minorHerbTable`, Bronze bolts x2-12, ordinary item drops, and the
   easy clue tertiary table. Source proof:
   `memory-bank/source-audits/combat-mugger-2026-06-23.md`.
+- Combat Thug expansion added source-backed level-10 Thug as an ordinary
+  Humanoids target. The row imports all seven local source IDs, 180 lifepoints,
+  attack speed 4, respawn delay 50, source melee bonuses, guaranteed Bones, the
+  128-slot main table, nested `Herbs.minorHerbTable`, 1000-slot charms, and the
+  easy clue tertiary table. Source proof:
+  `memory-bank/source-audits/combat-thug-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula
