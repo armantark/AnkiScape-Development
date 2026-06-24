@@ -132,6 +132,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-ham-guards-2026-06-23.md` before touching
   H.A.M. guard rows, H.A.M. clothing Combat item registration, or the active
   648-slot H.A.M. guard table mismatch; use
+  `memory-bank/source-audits/combat-imp-2026-06-23.md` before touching Imp,
+  Imp Catcher bead drops, Imp teleport-source notes, or Impious ashes Combat
+  item registration; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -230,6 +233,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   648-slot main-table denominator despite the source file declaring `total(660)`,
   and Combat item/icon registration for H.A.M. clothing plus Buttons, Damaged
   armour, Rusty sword, Needle, and Thread.
+  Imp now adds the source level-2 Demons row, Impious ashes, full 1024-slot main
+  table including Imp Catcher beads, Combat item/icon registration for Impious
+  ashes, beads, Wizard hat, Shears, Jug, and Cadava berries, and a source note
+  that the teleport timer is spatial movement only.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;

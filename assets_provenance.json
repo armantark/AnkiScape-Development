@@ -107,6 +107,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:52:04Z"
   },
+  "combatitems/black_bead.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_bead.png",
+    "file_title": "Black bead.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Black_bead.png?356fd",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "83d33b2374c311de3499cee38d65d7503496bc47",
+    "size": 122,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:52:27Z"
+  },
   "combatitems/blue_charm.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Blue_charm.png",
     "file_title": "Blue charm.png",
@@ -154,6 +166,18 @@
     "size": 339,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:08Z"
+  },
+  "combatitems/cadava_berries.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cadava_berries.png",
+    "file_title": "Cadava berries.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Cadava_berries.png?71e10",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ebf6d0876be8abeb9eb0cd1a45981199a6a2fc56",
+    "size": 436,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:53:53Z"
   },
   "combatitems/cape.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Black_cape.png",
@@ -395,6 +419,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:41Z"
   },
+  "combatitems/impious_ashes.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Impious_ashes.png",
+    "file_title": "Impious ashes.png",
+    "image_url": "https://runescape.wiki/images/Impious_ashes.png?08c77",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2b13409d8a792bf0de4dfe7ae66b043fa524296c",
+    "size": 482,
+    "source_wiki": "rs3",
+    "timestamp": "2023-02-02T06:06:08Z"
+  },
+  "combatitems/jug.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Jug.png",
+    "file_title": "Jug.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Jug.png?fb842",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "3ddd468b202d509a7d89772539210cbd72a4dbbf",
+    "size": 747,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:58:28Z"
+  },
   "combatitems/loop_half_of_a_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Loop_half_of_a_key.png",
     "file_title": "Loop half of a key.png",
@@ -431,6 +479,18 @@
     "source_wiki": "osrs",
     "timestamp": "2014-03-08T01:26:48Z"
   },
+  "combatitems/red_bead.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Red_bead.png",
+    "file_title": "Red bead.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Red_bead.png?37ab1",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "98f8f07cc9e841eb16cbaee32f72859bb1a1291c",
+    "size": 295,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:04:28Z"
+  },
   "combatitems/rune_javelin.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_javelin.png",
     "file_title": "Rune javelin.png",
@@ -466,6 +526,18 @@
     "size": 433,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:05:18Z"
+  },
+  "combatitems/shears.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shears.png",
+    "file_title": "Shears.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Shears.png?4b960",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "76dd10197b217139f0573a32b3be7f97674543b3",
+    "size": 520,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:05:35Z"
   },
   "combatitems/shield_left_half.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Shield_left_half.png",
@@ -563,6 +635,30 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:08:05Z"
   },
+  "combatitems/white_bead.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:White_bead.png",
+    "file_title": "White bead.png",
+    "image_url": "https://oldschool.runescape.wiki/images/White_bead.png?f5d8b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6e9138234ca3152016ea5f2d206eb27182eeffb5",
+    "size": 377,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:13:50Z"
+  },
+  "combatitems/wizard_hat.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wizard_hat.png",
+    "file_title": "Wizard hat.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Wizard_hat.png?d2390",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "2e82a36634b51cf5b3b28a96c68c502026eaa56a",
+    "size": 218,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:13:59Z"
+  },
   "combatitems/wooden_shield.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wooden_shield.png",
     "file_title": "Wooden shield.png",
@@ -574,6 +670,18 @@
     "size": 343,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:14:02Z"
+  },
+  "combatitems/yellow_bead.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Yellow_bead.png",
+    "file_title": "Yellow bead.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Yellow_bead.png?7e7a8",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "27a3c965fb43ed510d1506c8fbe2fb9572e7492f",
+    "size": 312,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:14:06Z"
   },
   "cookingitems/admiral_pie.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Admiral_pie.png",

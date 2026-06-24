@@ -604,6 +604,10 @@ HAM_GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/ham_guard_level_12_18_22.plugin.kts"
 )
+IMP_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/demons/imp_level_2.plugin.kts"
+)
 THUG_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thug_level_10.plugin.kts"
@@ -1486,6 +1490,49 @@ HAM_GUARD_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
                 {"slots": 54},
+            ),
+        },
+    ),
+}
+
+
+IMP_DROPS = {
+    "guaranteed": (("Impious ashes", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Black bead", "quantity": 1, "slots": 40},
+                {"item": "Red bead", "quantity": 1, "slots": 40},
+                {"item": "White bead", "quantity": 1, "slots": 40},
+                {"item": "Yellow bead", "quantity": 1, "slots": 40},
+                {"item": "Bronze bolts", "quantity": 1, "slots": 64},
+                {"item": "Wizard hat", "quantity": 1, "slots": 64},
+                {"item": "Egg", "quantity": 1, "slots": 47},
+                {"item": "Raw chicken", "quantity": 1, "slots": 47},
+                {"item": "Burnt bread", "quantity": 1, "slots": 39},
+                {"item": "Burnt meat", "quantity": 1, "slots": 39},
+                {"item": "Cabbage", "quantity": 1, "slots": 16},
+                {"item": "Bread dough", "quantity": 1, "slots": 16},
+                {"item": "Bread", "quantity": 1, "slots": 8},
+                {"item": "Cooked meat", "quantity": 1, "slots": 8},
+                {"item": "Hammer", "quantity": 1, "slots": 47},
+                {"item": "Tinderbox", "quantity": 1, "slots": 64},
+                {"item": "Shears", "quantity": 1, "slots": 39},
+                {"item": "Bucket", "quantity": 1, "slots": 32},
+                {"item": "Bucket of water", "quantity": 1, "slots": 16},
+                {"item": "Jug", "quantity": 1, "slots": 16},
+                {"item": "Jug of water", "quantity": 1, "slots": 16},
+                {"item": "Empty pot", "quantity": 1, "slots": 16},
+                {"item": "Pot of flour", "quantity": 1, "slots": 16},
+                {"item": "Ball of wool", "quantity": 1, "slots": 47},
+                {"item": "Mind talisman", "quantity": 1, "slots": 55},
+                {"item": "Ashes", "quantity": 1, "slots": 48},
+                {"item": "Clay", "quantity": 1, "slots": 32},
+                {"item": "Cadava berries", "quantity": 1, "slots": 32},
+                {"item": "Grain", "quantity": 1, "slots": 24},
+                {"item": "Chef's hat", "quantity": 1, "slots": 16},
             ),
         },
     ),
@@ -4662,6 +4709,38 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "main table declares total(660), active source slots sum to 648"
         ),
     },
+    "imp": {
+        "display_name": "Imp",
+        "level": 2,
+        "group": "Demons",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 80,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": -42,
+            "attack_slash": 0,
+            "attack_crush": -37,
+            "defence_stab": -42,
+            "defence_slash": -42,
+            "defence_crush": -42,
+            "defence_magic": -42,
+            "defence_ranged": -42,
+            "melee_strength": 0,
+        },
+        "drops": IMP_DROPS,
+        "source": (
+            f"{IMP_SOURCE_PATH}: ids Npcs.IMP/Npcs.IMP_709; "
+            "source teleport timer is spatial movement only"
+        ),
+    },
     "white_knight_level_36": {
         "display_name": "White knight",
         "level": 36,
@@ -5554,6 +5633,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
     "Belladonna seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BELLADONNA_SEED"},
     "Big bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BIG_BONES"},
+    "Black bead": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BLACK_BEAD"},
     "Black kiteshield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BLACK_KITESHIELD"},
     "Black sq shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BLACK_SQ_SHIELD"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
@@ -5564,6 +5644,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Cactus seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CACTUS_SEED"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
     "Cadantine seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADANTINE_SEED"},
+    "Cadava berries": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CADAVA_BERRIES"},
     "Champion's scroll": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHAMPIONS_SCROLL_6800"},
     "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
     "Cabbage seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CABBAGE_SEED"},
@@ -5601,8 +5682,10 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "H.A.M. shirt": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HAM_SHIRT"},
     "Harralander seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HARRALANDER_SEED"},
     "Irit seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.IRIT_SEED"},
+    "Impious ashes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.IMPIOUS_ASHES"},
     "Jangerberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JANGERBERRY_SEED"},
     "Jug of wine": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JUG_OF_WINE"},
+    "Jug": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JUG"},
     "Knife": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KNIFE"},
     "Kwuarm seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KWUARM_SEED"},
     "Lantadyme seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.LANTADYME_SEED"},
@@ -5621,11 +5704,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Rake": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAKE"},
     "Ranarr seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RANARR_SEED"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
+    "Red bead": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RED_BEAD"},
     "Rusty sword": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUSTY_SWORD"},
     "Rune javelin": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_JAVELIN"},
     "Rune spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RUNE_SPEAR"},
     "Secateurs": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS"},
     "Seed dibber": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SEED_DIBBER"},
+    "Shears": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHEARS"},
     "Shield left half": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SHIELD_LEFT_HALF"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
     "Snapdragon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SNAPDRAGON_SEED"},
@@ -5652,10 +5737,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Vial of water": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL_OF_WATER"},
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
+    "White bead": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WHITE_BEAD"},
     "Whiteberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WHITEBERRY_SEED"},
     "Wildblood seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WILDBLOOD_SEED"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
     "Wolf bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOLF_BONES"},
+    "Wizard hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WIZARD_HAT"},
+    "Yellow bead": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.YELLOW_BEAD"},
     "Zamorak robe bottom": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE"},
     "Zamorak robe top": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE_1035"},
     "Tinderbox": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TINDERBOX_590"},

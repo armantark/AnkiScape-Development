@@ -17,6 +17,7 @@ from combat_data import (
     HAM_GUARD_DROPS,
     HILL_GIANT_DROPS,
     ICE_GIANT_DROPS,
+    IMP_DROPS,
     MOSS_GIANT_DROPS,
     MAGIC_FORMULA_SOURCE_PATH,
     MAGIC_STRATEGY_SOURCE_PATH,
@@ -1126,6 +1127,39 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertIn("total(660)", guard["source"])
                 self.assertIn("active source slots sum to 648", guard["source"])
 
+    def test_imp_row_matches_source_and_imp_catcher_drops(self):
+        imp = COMBAT_ENEMY_DATA["imp"]
+        (main,) = imp["drops"]["tables"]
+
+        self.assertEqual(imp["display_name"], "Imp")
+        self.assertEqual(imp["level"], 2)
+        self.assertEqual(imp["group"], "Demons")
+        self.assertEqual(imp["attack_speed"], 4)
+        self.assertEqual(imp["respawn_delay"], 50)
+        self.assertEqual(imp["stats"]["hitpoints"], 80)
+        self.assertEqual(imp["stats"]["attack"], 1)
+        self.assertEqual(imp["stats"]["strength"], 1)
+        self.assertEqual(imp["stats"]["defence"], 1)
+        self.assertEqual(imp["bonuses"]["attack_stab"], -42)
+        self.assertEqual(imp["bonuses"]["attack_crush"], -37)
+        self.assertEqual(imp["bonuses"]["defence_stab"], -42)
+        self.assertEqual(imp["bonuses"]["defence_slash"], -42)
+        self.assertEqual(imp["bonuses"]["defence_crush"], -42)
+        self.assertEqual(imp["bonuses"]["defence_magic"], -42)
+        self.assertEqual(imp["bonuses"]["defence_ranged"], -42)
+        self.assertIs(imp["drops"], IMP_DROPS)
+        self.assertEqual(imp["drops"]["guaranteed"], (("Impious ashes", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Black bead", "quantity": 1, "slots": 40})
+        self.assertEqual(main["slots"][3], {"item": "Yellow bead", "quantity": 1, "slots": 40})
+        self.assertEqual(main["slots"][5], {"item": "Wizard hat", "quantity": 1, "slots": 64})
+        self.assertEqual(main["slots"][24], {"item": "Mind talisman", "quantity": 1, "slots": 55})
+        self.assertEqual(main["slots"][-1], {"item": "Chef's hat", "quantity": 1, "slots": 16})
+        self.assertIn("imp_level_2.plugin.kts", imp["source"])
+        self.assertIn("Npcs.IMP_709", imp["source"])
+        self.assertIn("teleport timer is spatial movement only", imp["source"])
+
     def test_white_knight_rows_match_source_and_runtime_drop_totals(self):
         expected = {
             "white_knight_level_36": (
@@ -1999,6 +2033,19 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(clothing_drops, {"Bones": 1, "H.A.M. gloves": 1, "Clue scroll (easy)": 1})
         self.assertEqual(seed_drops, {"Bones": 1, "Potato seed": 4})
         self.assertEqual(thread_drops, {"Bones": 1, "Thread": 10})
+
+    def test_imp_drop_rolls_beads_and_tail_slot(self):
+        bead_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["imp"],
+            _rng([120 / 1024]),
+        )
+        tail_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["imp"],
+            _rng([1008 / 1024]),
+        )
+
+        self.assertEqual(bead_drops, {"Impious ashes": 1, "Yellow bead": 1})
+        self.assertEqual(tail_drops, {"Impious ashes": 1, "Chef's hat": 1})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(
