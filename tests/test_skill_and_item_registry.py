@@ -497,7 +497,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertIn(herb_name, by_storage_key)
             self.assertEqual(by_storage_key[herb_name].category, "material")
-        for item_name in ("Bronze javelin", "Grapes"):
+        for item_name in ("Bronze javelin", "Grapes", "Knife"):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "material")
         for item_name in (

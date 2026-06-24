@@ -578,6 +578,10 @@ ALKHARID_WARRIOR_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/alkharid_warrior_level_9.plugin.kts"
 )
+MUGGER_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/mugger_level_6.plugin.kts"
+)
 FARMER_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/farmer_level_7.plugin.kts"
@@ -1490,6 +1494,69 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "definitions/humanoids/highwayman_level_5.plugin.kts"
         ),
     },
+    "mugger": {
+        "display_name": "Mugger",
+        "level": 6,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 80,
+            "attack": 5,
+            "strength": 5,
+            "defence": 5,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": -21,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 1024,
+                    "slots": (
+                        {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 162},
+                        {"item": "Mind rune", "quantity": 9, "slots": 24},
+                        {"item": "Water rune", "quantity": 6, "slots": 16},
+                        {"item": "Earth rune", "quantity": 5, "slots": 16},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 104},
+                        {"item": "Coins", "quantity": 10, "slots": 104},
+                        {"item": "Coins", "quantity": 5, "slots": 96},
+                        {"item": "Coins", "quantity": 15, "slots": 24},
+                        {"item": "Coins", "quantity": 25, "slots": 8},
+                        {"item": "Rope", "quantity": 1, "slots": 270},
+                        {"slots": 104},
+                        {"item": "Fishing bait", "quantity": 1, "slots": 48},
+                        {"item": "Copper ore", "quantity": 1, "slots": 16},
+                        {"item": "Bronze med helm", "quantity": 1, "slots": 16},
+                        {"item": "Knife", "quantity": 1, "slots": 8},
+                        {"item": "Cabbage", "quantity": 1, "slots": 8},
+                    ),
+                },
+                {
+                    "name": "Tertiary",
+                    "total": 128,
+                    "slots": (
+                        {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                        {"slots": 127},
+                    ),
+                },
+            ),
+        },
+        "source": f"{MUGGER_SOURCE_PATH}: ids = Npcs.MUGGER/Npcs.MUGGER_7161/Npcs.MUGGER_7162",
+    },
     "barbarian": {
         "display_name": "Barbarian",
         "level": 8,
@@ -2066,6 +2133,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy marrentill": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_MARRENTILL"},
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
+    "Knife": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.KNIFE"},
     "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
     "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},
     "Rake": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAKE"},

@@ -3,7 +3,7 @@
 Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Scorpion and higher Spider variant
-expansion, Highwayman and Al-Kharid warrior humanoid expansions, Barbarian
+expansion, Highwayman, Mugger, and Al-Kharid warrior humanoid expansions, Barbarian
 level 8/9 and level 10 ordinary-enemy expansions, Goblin level 2, higher-Goblin,
 and Farmer
 ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
@@ -20,7 +20,7 @@ antipoison loadout auto-cure.
 - `combat_data.py` seeds source-backed ordinary enemies with complete combat
   stats and drop behavior: Chicken, Rat, Spider, Spider level 24, Giant rat,
   Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
-  Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Al-Kharid
+  Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Mugger, Al-Kharid
   warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
   scorpion, Deadly red spider, and Poison spider.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
@@ -119,6 +119,8 @@ antipoison loadout auto-cure.
   `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
 - Highwayman expansion:
   `memory-bank/source-audits/combat-highwayman-2026-06-23.md`
+- Mugger expansion:
+  `memory-bank/source-audits/combat-mugger-2026-06-23.md`
 - Al-Kharid warrior / nested minor herb table expansion:
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md`
 - Ranged/ammo path:

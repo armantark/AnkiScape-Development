@@ -215,6 +215,13 @@ source combat stats/bonuses, a fetched Cape icon, and Cape slot equipment
 metadata. Source proof lives in
 `memory-bank/source-audits/combat-highwayman-2026-06-23.md`.
 
+Mugger is now live as another low-level Humanoids target: the level-6 source
+row imports all three source IDs, 80 lifepoints, attack speed 4, respawn delay
+25, guaranteed Bones, the 1024-slot main table, nested `minorHerbTable`, Bronze
+bolts x2-12, ordinary item drops, and the 128-slot easy clue tertiary table.
+Source proof lives in
+`memory-bank/source-audits/combat-mugger-2026-06-23.md`.
+
 Barbarian Combat coverage now includes two separate source-backed Humanoids
 targets: `barbarian` for the level 8/9 source twins and `barbarian_level_10` for
 the level 10 greataxe, spear, two-hand sword, and 2h sword variants. The level

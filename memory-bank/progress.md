@@ -173,6 +173,12 @@
 - Combat Highwayman expansion added the first humanoid ordinary target with
   source-backed stats/bonuses, guaranteed Bones/Cape, Iron bolts x2-12 at 1/20,
   a fetched Cape drop icon, and Cape slot equipment metadata.
+- Combat Mugger expansion added another source-backed low-level Humanoids target.
+  `mugger` imports all three local level-6 source IDs, 80 lifepoints, attack
+  speed 4, respawn delay 25, guaranteed Bones, the 1024-slot main table, nested
+  `Herbs.minorHerbTable`, Bronze bolts x2-12, ordinary item drops, and the
+  easy clue tertiary table. Source proof:
+  `memory-bank/source-audits/combat-mugger-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

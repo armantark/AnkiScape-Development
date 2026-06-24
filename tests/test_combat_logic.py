@@ -3,6 +3,7 @@ import unittest
 from combat_data import (
     COMBAT_ANTIPOISON_POTION_DATA,
     COMBAT_ENEMY_DATA,
+    COMBAT_MINOR_HERB_DROP_TABLE,
     COMBAT_MAGIC_SPELL_DATA,
     COMBAT_MAGIC_STAFF_DATA,
     COMBAT_RANGED_AMMO_DATA,
@@ -317,6 +318,32 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(highwayman["drops"]["tables"][0]["slots"][0]["quantity_range"], (2, 12))
         self.assertTrue(highwayman["source"].endswith("highwayman_level_5.plugin.kts"))
 
+    def test_mugger_import_row_matches_source_and_nested_minor_herbs(self):
+        mugger = COMBAT_ENEMY_DATA["mugger"]
+        main = mugger["drops"]["tables"][0]
+        tertiary = mugger["drops"]["tables"][1]
+
+        self.assertEqual(mugger["level"], 6)
+        self.assertEqual(mugger["group"], "Humanoids")
+        self.assertEqual(mugger["attack_speed"], 4)
+        self.assertEqual(mugger["respawn_delay"], 25)
+        self.assertEqual(mugger["stats"]["hitpoints"], 80)
+        self.assertEqual(mugger["stats"]["attack"], 5)
+        self.assertEqual(mugger["stats"]["strength"], 5)
+        self.assertEqual(mugger["stats"]["defence"], 5)
+        self.assertEqual(mugger["bonuses"]["melee_strength"], -21)
+        self.assertEqual(mugger["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 162})
+        self.assertEqual(main["slots"][4], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 104})
+        self.assertEqual(main["slots"][9], {"item": "Rope", "quantity": 1, "slots": 270})
+        self.assertEqual(main["slots"][-1], {"item": "Cabbage", "quantity": 1, "slots": 8})
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("mugger_level_6.plugin.kts", mugger["source"])
+        self.assertIn("MUGGER_7161", mugger["source"])
+
     def test_barbarian_import_row_groups_level_8_and_9_source_twins(self):
         barbarian = COMBAT_ENEMY_DATA["barbarian"]
 
@@ -540,6 +567,22 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Cape": 1, "Iron bolts": 12})
+
+    def test_mugger_quantity_range_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["mugger"],
+            _rng([0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12})
+
+    def test_mugger_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["mugger"],
+            _rng([218 / 1024, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_barbarian_drop_rolls_include_main_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

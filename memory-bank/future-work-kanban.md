@@ -42,7 +42,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
-  Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
+  Mugger, Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
   Scorpion, Poison scorpion, Deadly red spider, and Poison spider are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
@@ -94,6 +94,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
   before touching Scorpion, Spider level 24, Deadly red spider, or Giant spider
   level 50 rows; use
+  `memory-bank/source-audits/combat-mugger-2026-06-23.md` before touching
+  Mugger or its nested minor-herb drop table; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -113,13 +115,15 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See
   `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`.
-- Cow calf, Ram, Highwayman, Barbarian level 8/9, Goblin level 2 armed/unarmed, and Seagull are now implemented ordinary Combat targets as of
+- Cow calf, Ram, Highwayman, Mugger, Barbarian level 8/9, Goblin level 2 armed/unarmed, and Seagull are now implemented ordinary Combat targets as of
   2026-06-23. They were chosen first because their local 2011Scape rows have
   complete stats, simple guaranteed drops, death handlers, attack speed, and no
   quantity-range or nested-table runtime requirements. Spider and level-2 Giant
   spider are now implemented too after adding charm assets and Combat
   `quantity_range` support. Highwayman now uses that range support for Iron
-  bolts x2-12 and registers Cape as a source-backed equipment drop. The
+  bolts x2-12 and registers Cape as a source-backed equipment drop. Mugger now
+  adds another low-level Humanoids target with the full source 1024-slot main
+  table, nested `minorHerbTable`, and easy clue tertiary table. The
   ordinary level 8/9 Barbarian twin row now imports the full 1024-slot main
   table, 1000-slot charm table, 128-slot easy clue tertiary table, generic Staff
   equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
