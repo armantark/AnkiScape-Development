@@ -748,6 +748,10 @@ MARKET_GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/market_guard_level_20.plugin.kts"
 )
+BLACK_KNIGHT_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/black_knight_level_33.plugin.kts"
+)
 DWARF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/dwarf_level_10_11.plugin.kts"
@@ -3907,6 +3911,85 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": GUARD_DROPS,
         "source": f"{GUARD_SOURCE_PATH}: faladorBattleaxeId Npcs.GUARD_3230/Npcs.GUARD_3241; faladorCrossbowId excluded because source comments no definition yet",
+    },
+    "black_knight": {
+        "display_name": "Black knight",
+        "level": 33,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 420,
+            "attack": 25,
+            "strength": 25,
+            "defence": 25,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 18,
+            "attack_slash": 0,
+            "attack_crush": 16,
+            "defence_stab": 73,
+            "defence_slash": 76,
+            "defence_crush": 70,
+            "defence_magic": -11,
+            "defence_ranged": 72,
+            "melee_strength": 0,
+        },
+        "drops": {
+            "guaranteed": (("Bones", 1),),
+            "tables": (
+                {
+                    "name": "Main",
+                    "total": 116,
+                    "slots": (
+                        {"item": "Iron sword", "quantity": 1, "slots": 4},
+                        {"item": "Iron full helm", "quantity": 1, "slots": 2},
+                        {"item": "Steel mace", "quantity": 1, "slots": 1},
+                        {"item": "Mithril arrows", "quantity": 3, "slots": 4},
+                        {"item": "Body rune", "quantity": 9, "slots": 3},
+                        {"item": "Chaos rune", "quantity": 6, "slots": 3},
+                        {"item": "Earth rune", "quantity": 10, "slots": 3},
+                        {"item": "Death rune", "quantity": 2, "slots": 2},
+                        {"item": "Law rune", "quantity": 3, "slots": 2},
+                        {"item": "Cosmic rune", "quantity": 7, "slots": 1},
+                        {"item": "Mind rune", "quantity": 2, "slots": 1},
+                        {"item": "Steel bar", "quantity": 1, "slots": 6},
+                        {"item": "Tin ore", "quantity": 1, "slots": 1},
+                        {"item": "Pot of flour", "quantity": 1, "slots": 1},
+                        {"item": "Coins", "quantity": 35, "slots": 21},
+                        {"item": "Coins", "quantity": 6, "slots": 11},
+                        {"item": "Coins", "quantity": 58, "slots": 10},
+                        {"item": "Coins", "quantity": 12, "slots": 9},
+                        {"item": "Coins", "quantity": 80, "slots": 2},
+                        {"item": "Coins", "quantity": 1, "slots": 1},
+                        {"item": "Coins", "quantity": 13, "slots": 1},
+                        {"item": "Bread", "quantity": 1, "slots": 1},
+                        {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 3},
+                        {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18},
+                        {"table": COMBAT_GEM_DROP_TABLE, "slots": 3},
+                        {"slots": 2},
+                    ),
+                },
+                {
+                    "name": "Charms",
+                    "total": 1000,
+                    "slots": (
+                        {"item": "Gold charm", "quantity": 1, "slots": 30},
+                        {"item": "Green charm", "quantity": 1, "slots": 10},
+                        {"item": "Crimson charm", "quantity": 1, "slots": 8},
+                        {"item": "Blue charm", "quantity": 1, "slots": 8},
+                        {"slots": 944},
+                    ),
+                },
+            ),
+        },
+        "source": (
+            f"{BLACK_KNIGHT_SOURCE_PATH}: id Npcs.BLACK_KNIGHT; "
+            "main table declares total(128), active source slots sum to 116"
+        ),
     },
     "barbarian": {
         "display_name": "Barbarian",

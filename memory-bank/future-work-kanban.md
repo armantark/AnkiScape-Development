@@ -43,7 +43,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
   Mugger, Thug, Thief, Market guard, Guard level 21
-  Varrock/sword/battleaxe variants, Jail guard,
+  Varrock/sword/battleaxe variants, Jail guard, Black knight,
   Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10,
   Barbarian level 17, Seagull,
   Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
@@ -114,6 +114,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching Market guard, Jail guard, Jailer, or Jail key route semantics; use
   `memory-bank/source-audits/combat-guard-2026-06-23.md` before touching
   Guard rows, Guard drop-table overflow handling, or medium clue Combat drops; use
+  `memory-bank/source-audits/combat-black-knight-2026-06-23.md` before touching
+  Black knight, Black knight drops, or the 116-slot Black knight table mismatch; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -184,7 +186,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared
   `total(128)`, and leaves the source-commented crossbow Guard disabled until
-  a complete ranged NPC definition exists. Dwarf now adds the local level-10
+  a complete ranged NPC definition exists.
+  Black knight now adds the source level-33 Humanoids row, nested minor-herb,
+  allotment-seed, and no-Ring-of-Wealth gem tables, charms, and the source
+  runtime 116-slot active main table despite the file's declared `total(128)`.
+  Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;
   Ring of Wealth boosted slots remain deferred until Combat supports

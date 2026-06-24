@@ -927,6 +927,48 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(charms["total"], 1000)
         self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 70})
 
+    def test_black_knight_row_matches_source_and_active_slot_total(self):
+        black_knight = COMBAT_ENEMY_DATA["black_knight"]
+        main, charms = black_knight["drops"]["tables"]
+
+        self.assertEqual(black_knight["display_name"], "Black knight")
+        self.assertEqual(black_knight["level"], 33)
+        self.assertEqual(black_knight["group"], "Humanoids")
+        self.assertEqual(black_knight["attack_speed"], 5)
+        self.assertEqual(black_knight["respawn_delay"], 25)
+        self.assertEqual(black_knight["stats"]["hitpoints"], 420)
+        self.assertEqual(black_knight["stats"]["attack"], 25)
+        self.assertEqual(black_knight["stats"]["strength"], 25)
+        self.assertEqual(black_knight["stats"]["defence"], 25)
+        self.assertEqual(black_knight["bonuses"]["attack_stab"], 18)
+        self.assertEqual(black_knight["bonuses"]["attack_crush"], 16)
+        self.assertEqual(black_knight["bonuses"]["defence_stab"], 73)
+        self.assertEqual(black_knight["bonuses"]["defence_slash"], 76)
+        self.assertEqual(black_knight["bonuses"]["defence_crush"], 70)
+        self.assertEqual(black_knight["bonuses"]["defence_magic"], -11)
+        self.assertEqual(black_knight["bonuses"]["defence_ranged"], 72)
+        self.assertEqual(black_knight["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 116)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 116)
+        self.assertEqual(main["slots"][0], {"item": "Iron sword", "quantity": 1, "slots": 4})
+        self.assertEqual(main["slots"][3], {"item": "Mithril arrows", "quantity": 3, "slots": 4})
+        self.assertEqual(main["slots"][11], {"item": "Steel bar", "quantity": 1, "slots": 6})
+        self.assertEqual(main["slots"][21], {"item": "Bread", "quantity": 1, "slots": 1})
+        self.assertIs(main["slots"][22]["table"], COMBAT_MINOR_HERB_DROP_TABLE)
+        self.assertEqual(main["slots"][22]["slots"], 3)
+        self.assertIs(main["slots"][23]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
+        self.assertEqual(main["slots"][23]["slots"], 18)
+        self.assertIs(main["slots"][24]["table"], COMBAT_GEM_DROP_TABLE)
+        self.assertEqual(main["slots"][24]["slots"], 3)
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 30})
+        self.assertEqual(charms["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 8})
+        self.assertIn("black_knight_level_33.plugin.kts", black_knight["source"])
+        self.assertIn("BLACK_KNIGHT", black_knight["source"])
+        self.assertIn("total(128)", black_knight["source"])
+        self.assertIn("active source slots sum to 116", black_knight["source"])
+
     def test_dwarf_import_rows_match_source_and_nested_global_gem_tables(self):
         level10 = COMBAT_ENEMY_DATA["dwarf_level_10"]
         level11 = COMBAT_ENEMY_DATA["dwarf_level_11"]
@@ -1587,6 +1629,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
+
+    def test_black_knight_drop_rolls_nested_seed_table_and_charms(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["black_knight"],
+            _rng([93 / 116, 0.0, 39 / 1000]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Potato seed": 4, "Green charm": 1})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(
