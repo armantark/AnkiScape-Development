@@ -867,6 +867,38 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("narf_jeff_rusty_level_2.plugin.kts", narf_jeff_rusty["source"])
         self.assertIn("Npcs.RUSTY", narf_jeff_rusty["source"])
 
+    def test_pirate_row_matches_source_and_nested_gem_table(self):
+        pirate = COMBAT_ENEMY_DATA["pirate"]
+        (main,) = pirate["drops"]["tables"]
+
+        self.assertEqual(pirate["display_name"], "Pirate")
+        self.assertEqual(pirate["level"], 23)
+        self.assertEqual(pirate["group"], "Humanoids")
+        self.assertEqual(pirate["attack_speed"], 5)
+        self.assertEqual(pirate["respawn_delay"], 25)
+        self.assertEqual(pirate["stats"]["hitpoints"], 200)
+        self.assertEqual(pirate["stats"]["attack"], 21)
+        self.assertEqual(pirate["stats"]["strength"], 21)
+        self.assertEqual(pirate["stats"]["defence"], 21)
+        self.assertEqual(pirate["bonuses"]["attack_stab"], 8)
+        self.assertEqual(pirate["bonuses"]["attack_slash"], 8)
+        self.assertEqual(pirate["bonuses"]["attack_crush"], 8)
+        self.assertEqual(pirate["bonuses"]["defence_stab"], 3)
+        self.assertEqual(pirate["bonuses"]["defence_slash"], 2)
+        self.assertEqual(pirate["bonuses"]["melee_strength"], 10)
+        self.assertEqual(pirate["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Iron dagger", "quantity": 1, "slots": 48})
+        self.assertEqual(main["slots"][3], {"item": "Iron bolts", "quantity_range": (2, 12), "slots": 80})
+        self.assertEqual(main["slots"][18], {"item": "Eye patch", "quantity": 1, "slots": 96})
+        self.assertEqual(main["slots"][19], {"slots": 64})
+        self.assertEqual(main["slots"][21], {"item": "Iron bar", "quantity": 1, "slots": 8})
+        self.assertEqual(main["slots"][22], {"table": COMBAT_GEM_DROP_TABLE, "slots": 8})
+        self.assertIn("pirate_level_23.plugin.kts", pirate["source"])
+        self.assertIn("PIRATE_184", pirate["source"])
+        self.assertIn("attackBonus/strengthBonus", pirate["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -926,6 +958,19 @@ class CombatLogicTest(unittest.TestCase):
     def test_duck_drop_rolls_follow_land_water_source_split(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_water"], _rng([])), {})
+
+    def test_pirate_drop_rolls_quantity_range_and_nested_gem_table(self):
+        bolt_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["pirate"],
+            _rng([88 / 1024, 0.999999]),
+        )
+        gem_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["pirate"],
+            _rng([1016 / 1024, 512 / 1024]),
+        )
+
+        self.assertEqual(bolt_drops, {"Bones": 1, "Iron bolts": 12})
+        self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
 
     def test_mugger_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

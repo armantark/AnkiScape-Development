@@ -144,7 +144,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   level-26 variants, and Unicorn plus Black unicorn now add source guaranteed
   Unicorn horn and charm drops with Combat icon coverage. Duck now splits the
   source level-1 land/water variants so land ducks drop Bones while water ducks
-  expose no drops instead of inheriting the land callback. Guard now adds three
+  expose no drops instead of inheriting the land callback. Pirate now adds the
+  source level-23 Humanoids row with the full 1024-slot main table, Iron bolts
+  x2-12, Eye patch icon coverage, and nested no-Ring-of-Wealth gem table
+  support. Guard now adds three
   level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared

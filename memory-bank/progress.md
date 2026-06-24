@@ -231,6 +231,11 @@
   stats and Bird Slayer XP but expose no drops because the source has no
   water-duck death drop callback. Source proof:
   `memory-bank/source-audits/combat-ducks-2026-06-23.md`.
+- Combat Pirate expansion added the local source level-23 Humanoids row with
+  the full 1024-slot main table, Iron bolts x2-12, Eye patch, and nested
+  no-Ring-of-Wealth `Gems.gemTable` support. `Eye patch` now has Combat item
+  metadata and icon coverage. Source proof:
+  `memory-bank/source-audits/combat-pirate-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

@@ -337,6 +337,14 @@ water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but
 expose no drops because the local source has no water-duck death drop callback.
 Source proof lives in `memory-bank/source-audits/combat-ducks-2026-06-23.md`.
 
+Combat Pirate coverage now adds the local source level-23 Humanoids target with
+the full 1024-slot main table, Iron bolts x2-12, Eye patch, and nested
+no-Ring-of-Wealth `Gems.gemTable` support. `Eye patch` now has Combat item
+metadata and a fetched Combat icon. No frontend component change was needed
+because the existing Combat target-row tooltip renderer exposes the new row,
+drop slots, and source file. Source proof lives in
+`memory-bank/source-audits/combat-pirate-2026-06-23.md`.
+
 Guard also proves one source-overfilled ordinary drop table. The source file
 declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls

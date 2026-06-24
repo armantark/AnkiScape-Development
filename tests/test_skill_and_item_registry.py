@@ -467,6 +467,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Cowhide": "material",
             "Beer": "food",
             "Dragon spear": "equipment",
+            "Eye patch": "equipment",
             "Goblin book": "material",
             "Loop half of a key": "material",
             "Rune javelin": "equipment",

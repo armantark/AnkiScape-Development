@@ -612,6 +612,10 @@ NARF_JEFF_RUSTY_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/narf_jeff_rusty_level_2.plugin.kts"
 )
+PIRATE_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/pirate_level_23.plugin.kts"
+)
 GIANT_RAT_LEVEL_6_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/giant_rat_level_6.plugin.kts"
@@ -918,6 +922,42 @@ LOW_LEVEL_HUMANOID_DROPS = {
             "slots": (
                 {"slots": 1016},
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+            ),
+        },
+    ),
+}
+
+
+PIRATE_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Iron dagger", "quantity": 1, "slots": 48},
+                {"item": "Bronze scimitar", "quantity": 1, "slots": 32},
+                {"item": "Iron platebody", "quantity": 1, "slots": 8},
+                {"item": "Iron bolts", "quantity_range": (2, 12), "slots": 80},
+                {"item": "Chaos rune", "quantity": 2, "slots": 48},
+                {"item": "Nature rune", "quantity": 2, "slots": 40},
+                {"item": "Bronze arrows", "quantity": 9, "slots": 24},
+                {"item": "Bronze arrows", "quantity": 12, "slots": 16},
+                {"item": "Air rune", "quantity": 10, "slots": 16},
+                {"item": "Earth rune", "quantity": 9, "slots": 16},
+                {"item": "Fire rune", "quantity": 5, "slots": 16},
+                {"item": "Law rune", "quantity": 2, "slots": 8},
+                {"item": "Coins", "quantity": 4, "slots": 232},
+                {"item": "Coins", "quantity": 25, "slots": 104},
+                {"item": "Coins", "quantity": 7, "slots": 64},
+                {"item": "Coins", "quantity": 12, "slots": 48},
+                {"item": "Coins", "quantity": 35, "slots": 32},
+                {"item": "Coins", "quantity": 55, "slots": 8},
+                {"item": "Eye patch", "quantity": 1, "slots": 96},
+                {"slots": 64},
+                {"item": "Chef's hat", "quantity": 1, "slots": 8},
+                {"item": "Iron bar", "quantity": 1, "slots": 8},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 8},
             ),
         },
     ),
@@ -1773,6 +1813,38 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": LOW_LEVEL_HUMANOID_DROPS,
         "source": f"{NARF_JEFF_RUSTY_SOURCE_PATH}: ids Npcs.NARF/Npcs.JEFF/Npcs.RUSTY",
+    },
+    "pirate": {
+        "display_name": "Pirate",
+        "level": 23,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 5,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 200,
+            "attack": 21,
+            "strength": 21,
+            "defence": 21,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 8,
+            "attack_slash": 8,
+            "attack_crush": 8,
+            "defence_stab": 3,
+            "defence_slash": 2,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 10,
+        },
+        "drops": PIRATE_DROPS,
+        "source": (
+            f"{PIRATE_SOURCE_PATH}: ids Npcs.PIRATE/Npcs.PIRATE_183/Npcs.PIRATE_184; "
+            "source attackBonus/strengthBonus mapped to melee attack/strength bonuses"
+        ),
     },
     "unicorn": {
         "display_name": "Unicorn",
@@ -2981,6 +3053,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
     "Dragon spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.DRAGON_SPEAR"},
+    "Eye patch": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.EYE_PATCH"},
     "Gardening boots": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GARDENING_BOOTS"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
     "Grapes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRAPES"},
