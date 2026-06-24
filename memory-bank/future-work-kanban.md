@@ -135,7 +135,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `minorHerbTable`, charm table, and easy clue tertiary table. Thief now adds a
   level-16 Humanoids target with source Bronze bolts x2-12, nested
   `minorHerbTable`, and easy clue tertiary table while leaving Thieving
-  gameplay deferred. Guard now adds three level-21 Humanoids variants from the
+  gameplay deferred. Citizen now adds the shared source level-2 Man/Woman row
+  with a 1024-slot main table, Bronze bolts x2-12, nested `minorHerbTable`, and
+  easy clue tertiary while reusing existing item assets. Guard now adds three
+  level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared
   `total(128)`, and leaves the source-commented crossbow Guard disabled until

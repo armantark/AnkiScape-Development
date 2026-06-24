@@ -308,6 +308,13 @@ Bones, 128-slot main table, nested `minorHerbTable`, nested
 gameplay remains deferred; the new seeds/tools are inventory-visible drops only.
 Source proof lives in `memory-bank/source-audits/combat-farmer-2026-06-23.md`.
 
+Combat Citizen coverage now adds the source level-2 Man/Woman row as an
+ordinary Humanoids target. The row imports the local 2011Scape shared Man/Woman
+ID set, guaranteed Bones, 1024-slot main table, Bronze bolts x2-12, nested
+`minorHerbTable`, and easy clue tertiary. All drops reuse existing item registry
+coverage; no new Combat-owned icons were required. Source proof lives in
+`memory-bank/source-audits/combat-citizen-2026-06-23.md`.
+
 Guard also proves one source-overfilled ordinary drop table. The source file
 declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls

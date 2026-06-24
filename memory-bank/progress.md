@@ -206,6 +206,12 @@
   Ring of Wealth boosted slots remain deferred until Combat has
   equipment-conditioned drop modifiers. Source proof:
   `memory-bank/source-audits/combat-dwarf-2026-06-23.md`.
+- Combat Citizen expansion added the source-backed level-2 Man/Woman row as an
+  ordinary Humanoids target. The row imports the shared local source ID set,
+  70 lifepoints, 25-tick respawn, guaranteed Bones, the 1024-slot main table,
+  Bronze bolts x2-12, nested `Herbs.minorHerbTable`, and easy clue tertiary
+  drops while reusing existing item/icon coverage. Source proof:
+  `memory-bank/source-audits/combat-citizen-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

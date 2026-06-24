@@ -596,6 +596,10 @@ THIEF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thief_level_16.plugin.kts"
 )
+CITIZEN_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/citizen_level_2.plugin.kts"
+)
 GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/guard_level_21.plugin.kts"
@@ -841,6 +845,47 @@ FARMER_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
                 {"slots": 127},
+            ),
+        },
+    ),
+}
+
+
+CITIZEN_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Bronze med helm", "quantity": 1, "slots": 16},
+                {"item": "Bronze dagger", "quantity": 1, "slots": 8},
+                {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 138},
+                {"item": "Sling", "quantity": 1, "slots": 16},
+                {"item": "Bronze arrows", "quantity": 7, "slots": 24},
+                {"item": "Earth rune", "quantity": 4, "slots": 16},
+                {"item": "Fire rune", "quantity": 6, "slots": 16},
+                {"item": "Mind rune", "quantity": 9, "slots": 16},
+                {"item": "Chaos rune", "quantity": 2, "slots": 8},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 152},
+                {"item": "Coins", "quantity": 3, "slots": 277},
+                {"item": "Coins", "quantity": 10, "slots": 138},
+                {"item": "Coins", "quantity": 5, "slots": 73},
+                {"item": "Coins", "quantity": 15, "slots": 32},
+                {"item": "Coins", "quantity": 25, "slots": 8},
+                {"slots": 16},
+                {"item": "Fishing bait", "quantity": 1, "slots": 30},
+                {"item": "Copper ore", "quantity": 1, "slots": 16},
+                {"item": "Earth talisman", "quantity": 1, "slots": 16},
+                {"item": "Cabbage", "quantity": 1, "slots": 8},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"slots": 1016},
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
             ),
         },
     ),
@@ -1492,6 +1537,40 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": FARMER_DROPS,
         "source": f"{FARMER_SOURCE_PATH}: ids FARMER/FARMER_1757/FARMER_1758",
+    },
+    "citizen": {
+        "display_name": "Man/Woman",
+        "level": 2,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 70,
+            "attack": 1,
+            "strength": 1,
+            "defence": 1,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": -21,
+            "defence_slash": -21,
+            "defence_crush": -21,
+            "defence_magic": -21,
+            "defence_ranged": -21,
+            "melee_strength": 0,
+        },
+        "drops": CITIZEN_DROPS,
+        "source": (
+            f"{CITIZEN_SOURCE_PATH}: ids Npcs.MAN/Npcs.MAN_2/Npcs.MAN_3/Npcs.MAN_24/"
+            "Npcs.WOMAN_BRUNETTE_LONGSKIRT_4/Npcs.WOMAN_BRUNETTE_PONYTAIL_5/"
+            "Npcs.WOMAN_WOMAN_BLOND_PONYTAIL_6/Npcs.MAN_16/Npcs.MAN_3223/"
+            "Npcs.WOMAN_BLOND_LONGSKIRT_3226"
+        ),
     },
     "cow": {
         "display_name": "Cow",

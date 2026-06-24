@@ -725,6 +725,35 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("farmer_level_7.plugin.kts", farmer["source"])
         self.assertIn("FARMER_1757", farmer["source"])
 
+    def test_citizen_row_matches_source_and_nested_minor_herbs(self):
+        citizen = COMBAT_ENEMY_DATA["citizen"]
+        main, tertiary = citizen["drops"]["tables"]
+
+        self.assertEqual(citizen["display_name"], "Man/Woman")
+        self.assertEqual(citizen["level"], 2)
+        self.assertEqual(citizen["group"], "Humanoids")
+        self.assertEqual(citizen["attack_speed"], 4)
+        self.assertEqual(citizen["respawn_delay"], 25)
+        self.assertEqual(citizen["stats"]["hitpoints"], 70)
+        self.assertEqual(citizen["stats"]["attack"], 1)
+        self.assertEqual(citizen["stats"]["strength"], 1)
+        self.assertEqual(citizen["stats"]["defence"], 1)
+        self.assertEqual(citizen["bonuses"]["defence_stab"], -21)
+        self.assertEqual(citizen["bonuses"]["defence_slash"], -21)
+        self.assertEqual(citizen["bonuses"]["defence_ranged"], -21)
+        self.assertEqual(citizen["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Bronze med helm", "quantity": 1, "slots": 16})
+        self.assertEqual(main["slots"][1], {"item": "Bronze dagger", "quantity": 1, "slots": 8})
+        self.assertEqual(main["slots"][2], {"item": "Bronze bolts", "quantity_range": (2, 12), "slots": 138})
+        self.assertEqual(main["slots"][9], {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 152})
+        self.assertEqual(main["slots"][-1], {"item": "Cabbage", "quantity": 1, "slots": 8})
+        self.assertEqual(tertiary["total"], 1024)
+        self.assertEqual(tertiary["slots"][1], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8})
+        self.assertIn("citizen_level_2.plugin.kts", citizen["source"])
+        self.assertIn("WOMAN_BLOND_LONGSKIRT_3226", citizen["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -740,6 +769,22 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Cape": 1, "Iron bolts": 12})
+
+    def test_citizen_quantity_range_and_tertiary_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["citizen"],
+            _rng([24 / 1024, 0.999999, 1016 / 1024]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12, "Clue scroll (easy)": 1})
+
+    def test_citizen_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["citizen"],
+            _rng([258 / 1024, 0.0, 0.0]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_mugger_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(
