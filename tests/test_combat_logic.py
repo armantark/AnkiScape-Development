@@ -275,6 +275,32 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("black_unicorn_level_27.plugin.kts", black_unicorn["source"])
         self.assertIn("Npcs.BLACK_UNICORN", black_unicorn["source"])
 
+    def test_duck_rows_split_land_and_water_source_drops(self):
+        land = COMBAT_ENEMY_DATA["duck_land"]
+        water = COMBAT_ENEMY_DATA["duck_water"]
+
+        for duck in (land, water):
+            self.assertEqual(duck["level"], 1)
+            self.assertEqual(duck["group"], "Birds")
+            self.assertEqual(duck["attack_speed"], 4)
+            self.assertEqual(duck["respawn_delay"], 25)
+            self.assertEqual(duck["slayer_xp"], 3.0)
+            self.assertEqual(duck["stats"]["hitpoints"], 30)
+            self.assertEqual(duck["stats"]["attack"], 1)
+            self.assertEqual(duck["stats"]["strength"], 1)
+            self.assertEqual(duck["stats"]["defence"], 1)
+            self.assertEqual(duck["bonuses"]["attack_stab"], -47)
+            self.assertEqual(duck["bonuses"]["defence_ranged"], -42)
+            self.assertIn("duck_level_1.plugin.kts", duck["source"])
+
+        self.assertEqual(land["display_name"], "Duck (land)")
+        self.assertEqual(land["drops"], {"guaranteed": (("Bones", 1),), "tables": ()})
+        self.assertIn("DUCK_6113", land["source"])
+        self.assertIn("Npcs.DRAKE", land["source"])
+        self.assertEqual(water["display_name"], "Duck (water)")
+        self.assertEqual(water["drops"], {"guaranteed": (), "tables": ()})
+        self.assertIn("no death drop callback", water["source"])
+
     def test_spider_import_rows_match_source_and_quantity_range(self):
         spider = COMBAT_ENEMY_DATA["spider"]
         giant_spider = COMBAT_ENEMY_DATA["giant_spider"]
@@ -896,6 +922,10 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(rat_drops, {"Bones": 1, "Raw rat meat": 1})
         self.assertEqual(unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Gold charm": 1})
         self.assertEqual(black_unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Crimson charm": 1})
+
+    def test_duck_drop_rolls_follow_land_water_source_split(self):
+        self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})
+        self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_water"], _rng([])), {})
 
     def test_mugger_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

@@ -331,6 +331,12 @@ horn table plus 1000-slot charm table, and `Unicorn horn` now has Combat item
 registry/icon coverage with fetched provenance. Source proof lives in
 `memory-bank/source-audits/combat-rats-unicorns-2026-06-23.md`.
 
+Combat Duck coverage now splits the source level-1 Duck file into land and water
+rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
+water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but
+expose no drops because the local source has no water-duck death drop callback.
+Source proof lives in `memory-bank/source-audits/combat-ducks-2026-06-23.md`.
+
 Guard also proves one source-overfilled ordinary drop table. The source file
 declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls

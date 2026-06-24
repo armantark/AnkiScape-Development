@@ -226,6 +226,11 @@
   horn and the source 1000-slot charm table. `Unicorn horn` now has Combat item
   registry, icon, and provenance coverage. Source proof:
   `memory-bank/source-audits/combat-rats-unicorns-2026-06-23.md`.
+- Combat Duck expansion split the local source level-1 Duck file into land and
+  water rows. Land ducks keep the source Bones drop callback; water ducks share
+  stats and Bird Slayer XP but expose no drops because the source has no
+  water-duck death drop callback. Source proof:
+  `memory-bank/source-audits/combat-ducks-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

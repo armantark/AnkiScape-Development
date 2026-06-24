@@ -142,7 +142,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   same low-level human 1024-slot source table as Citizen; Johnny the Beard stays
   deferred pending source default-stat semantics. Giant rat now has level-6 and
   level-26 variants, and Unicorn plus Black unicorn now add source guaranteed
-  Unicorn horn and charm drops with Combat icon coverage. Guard now adds three
+  Unicorn horn and charm drops with Combat icon coverage. Duck now splits the
+  source level-1 land/water variants so land ducks drop Bones while water ducks
+  expose no drops instead of inheriting the land callback. Guard now adds three
   level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the
   source-runtime 146-slot active main table despite the file's declared
