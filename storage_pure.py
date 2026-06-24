@@ -19,9 +19,11 @@ try:
     from .logic_pure import (
         default_action_telemetry_pure,
         default_combat_state_pure,
+        default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         sanitize_action_telemetry_pure,
         sanitize_combat_state_pure,
+        sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
     )
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -55,9 +57,11 @@ except ImportError:
     from logic_pure import (
         default_action_telemetry_pure,
         default_combat_state_pure,
+        default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         sanitize_action_telemetry_pure,
         sanitize_combat_state_pure,
+        sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
     )
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -74,7 +78,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 23
+CURRENT_CONFIG_VERSION = 24
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -137,6 +141,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["quest_combat_config"] = default_quest_combat_config_pure()
     data["quest_combat_encounters"] = {}
     data["quest_combat_encounter_counts"] = {}
+    data["quest_combat_active_encounters"] = default_quest_combat_active_encounters_pure()
     data["quest_stage_actions"] = {}
     data["quest_route_states"] = {}
     data["pending_skill_exp_rewards"] = {}
@@ -331,6 +336,9 @@ def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
     data["quest_combat_config"] = sanitize_quest_combat_config_pure(data.get("quest_combat_config"))
     _migrate_quest_flag_collection(data, "quest_combat_encounters")
     _migrate_quest_combat_encounter_counts(data)
+    data["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(
+        data.get("quest_combat_active_encounters")
+    )
     _migrate_quest_flag_collection(data, "quest_stage_actions")
     _migrate_quest_flag_collection(data, "quest_route_states")
 

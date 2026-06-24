@@ -2478,7 +2478,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         rewards=(("Coins", 1000),),
         start_point="Talk to Lady Servil north of the Khazard fight arena town, south of Ardougne.",
         requirements=(
-            "Used during quest: Coins x5, Khazard helmet x1, Khazard armour x1, Khali brew x1, Khazard cell keys x1.",
+            "Used during quest: Coins x5.",
             "The Khazard helmet and armour are borrowed during the quest rather than required to start it.",
         ),
         required_items=(),
@@ -2508,7 +2508,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         rewards=(),
         start_point="Talk to Harvey, the crying boy west of Falador.",
         requirements=(
-            "Used during quest: Cheese x1, Leather gloves x1, Door key x1, Magnet x1, Backroom key x1, Ball x1.",
+            "Used during quest: Cheese x1, Leather gloves x1.",
             "The keys, magnet, and ball are found during the quest rather than required to start it.",
         ),
         required_items=(),
@@ -2579,9 +2579,8 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
             "Defence 25",
             "Mining 50",
             (
-                "Used during quest: Blamish snail slime x1, Harralander potion (unf) x1, Blamish oil x1, "
-                "Fishing rod x1, Oily fishing rod x1, Fishing bait x1, Raw lava eel x1, Lava eel x1, "
-                "Pickaxe x1, Ice gloves x1, Fire feather x1, Pete's candlestick x1, Thieves' armband x1."
+                "Used during quest: Harralander potion (unf) x1, Fishing rod x1, Fishing bait x1, "
+                "Pickaxe x1."
             ),
             (
                 "Route choice: Phoenix Gang or Black Arm Gang from Shield of Arrav. "
@@ -2783,8 +2782,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         requirements=(
             "32 Quest Points",
             (
-                "Used during quest: Maze key x1, Anti-dragon shield x1, Map part x3, "
-                "Wizard's mind bomb x1, Silk x1, Bowl (unfired) x1, Crayfish cage or Lobster pot x1, "
+                "Used during quest: Wizard's mind bomb x1, Silk x1, Bowl (unfired) x1, Crayfish cage or Lobster pot x1, "
                 "Coins x12000, Plank x3, Steel nails x90, Hammer x1"
             ),
         ),
@@ -2825,7 +2823,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         rewards=(("Coins", 3000), ("Egg", 10), ("Feather", 300)),
         start_point="Talk to Veronica south of Draynor Manor's gates.",
         requirements=(
-            "Used during quest: Fish food x1, Poison x1, Spade x1, Pressure gauge x1, Rubber tube x1, Oil can x1",
+            "Used during quest: Fish food x1, Poison x1, Spade x1",
         ),
         required_items=(),
         combat="None required; dangerous manor enemies are avoidable.",
@@ -2905,7 +2903,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         point_reward=1,
         rewards=(("Ancient bones", 5),),
         start_point="Speak to Father Aereck in the chapel south-east of Lumbridge Castle.",
-        requirements=("Used during quest: Ghostspeak amulet x1, Muddy skull x1",),
+        requirements=(),
         required_items=(),
         combat="Skeleton warlock (level 11) after taking the ghost's skull.",
         source=(
@@ -2947,7 +2945,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         point_reward=2,
         rewards=(("Casket (Pirate's Treasure)", 1),),
         start_point="Talk to Redbeard Frank just south of The Rusty Anchor pub in Port Sarim.",
-        requirements=("Used during quest: Karamja rum x1, Chest key x1, Pirate message x1, Spade x1",),
+        requirements=("Used during quest: Karamja rum x1, Spade x1",),
         required_items=(),
         combat="Optional level 4 gardener near the digging spot.",
         source=f"{PIRATES_TREASURE_SOURCE_PATH}; {PIRATES_TREASURE_REDBEARD_SOURCE_PATH}; {PIRATES_TREASURE_CHEST_SOURCE_PATH}",
@@ -3018,7 +3016,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         point_reward=1,
         rewards=(("Air talisman", 1),),
         start_point="Speak to Duke Horacio, upstairs in Lumbridge Castle.",
-        requirements=("Used during quest: Air talisman x1, Research package x1, Research notes x1",),
+        requirements=(),
         required_items=(),
         combat="None.",
         source=(

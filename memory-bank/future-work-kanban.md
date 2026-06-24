@@ -34,6 +34,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   Regicide-start partial-route modeling are deferred system slices.
 - Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers completed across all 194 catalog quests on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad, Sheep Herder proves stage-local noncombat disposal gates for poisoned sheep feed, clothing/tools, and four sheep-bone incinerations, Plague City/Waterfall Quest prove mid-quest reward correction plus future-skill pending XP through detailed stage chains, Biohazard proves a longer West Ardougne route/item/combat/smuggling chain with the Mourner hard-blocked unless combat resolving is enabled, Heroes' Quest proves a long branch-and-proof chain with strict start locks, stage-local lava eel/Fire feather/armband proof items, Black Arm/Phoenix route variants, and no forced Jailer route, and the final all-catalog pass proves every quest now has machine-readable current-stage blockers rather than a start-only completion path. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md`, `memory-bank/source-audits/quest-all-catalog-stage-gate-final-2026-06-22.md`, and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
+- Quest-local false-gate cleanup completed on 2026-06-24. `tools/audit_quest_local_item_gates.py` should stay green for high-confidence same-quest product/start-inventory gates, and the remaining source-review candidates live in `memory-bank/source-audits/quest-local-false-gate-audit-2026-06-24.md`. Do not remove those remaining gates just because the audit reports them; confirm each against quest source first.
 - Quest-stage status artifacts were paused during the owner-requested all-quest
   update. Source-audit markdown and Memory Bank maintenance still continue as
   normal project guidance; create new visual status artifacts only when the
@@ -158,9 +159,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   new source surfaces,
   broaden Ranged equipment/ammo beyond the standard bow ladder, add god/Ancient/Lunar spell gates/effects,
   add source-exact grave expiry/death-fee variants, add broader
-  potion/cannon/per-ammo preference controls, add richer risk previews and
-  Wilderness/equipment-risk opt-ins, and migrate quest combat gates
-  onto the same engine instead of reopening the completed design grill.
+  potion/cannon/per-ammo preference controls, and add richer risk previews and
+  Wilderness/equipment-risk opt-ins instead of reopening the completed design
+  grill. Quest combat gates now use the shared Combat engine as of 2026-06-24;
+  see `memory-bank/source-audits/combat-quest-shared-engine-2026-06-24.md`.
 - The 2026-06-24 Combat UI/balance follow-up is complete. Combat is the playable
   Skills-hub row without separate Attack/Constitution/Defence/Magic/Ranged/
   Strength hub rows; equipment derives the active Combat mode; Combat setup now

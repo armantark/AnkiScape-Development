@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest Local Gate Audit Result</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #101113;
+      --panel: #181b20;
+      --panel-2: #20252c;
+      --text: #f2f4f8;
+      --muted: #a7afbb;
+      --line: #303742;
+      --ok: #66d38f;
+      --warn: #f0bd5b;
+      --blue: #74a7ff;
+      --red: #ff7b7b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        linear-gradient(180deg, rgba(116, 167, 255, 0.10), transparent 280px),
+        var(--bg);
+      color: var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 28px 0 40px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: end;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      letter-spacing: 0;
+    }
+    p { margin: 0; color: var(--muted); }
+    .stamp {
+      color: var(--muted);
+      font-size: 13px;
+      text-align: right;
+      white-space: nowrap;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 16px;
+      margin-top: 22px;
+    }
+    .panel {
+      background: color-mix(in srgb, var(--panel) 92%, black);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+    }
+    .span-4 { grid-column: span 4; }
+    .span-5 { grid-column: span 5; }
+    .span-7 { grid-column: span 7; }
+    .span-12 { grid-column: span 12; }
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-height: 130px;
+    }
+    .metric strong {
+      font-size: 36px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    .metric .ok { color: var(--ok); }
+    .metric .warn { color: var(--warn); }
+    .metric .blue { color: var(--blue); }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      padding: 5px 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+    }
+    .dot.warn { background: var(--warn); }
+    .dot.red { background: var(--red); }
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+    li {
+      display: grid;
+      grid-template-columns: 22px minmax(0, 1fr);
+      gap: 10px;
+      color: var(--muted);
+    }
+    li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      margin-top: 8px;
+    }
+    .fixed-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .quest {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .quest b {
+      display: block;
+      color: var(--text);
+      font-weight: 650;
+      margin-bottom: 4px;
+    }
+    .quest span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .checks {
+      display: grid;
+      gap: 10px;
+    }
+    .check {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+      padding: 11px 12px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .mark {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      color: #06130b;
+      background: var(--ok);
+      font-weight: 800;
+      margin-top: 1px;
+    }
+    .mark.warn {
+      background: var(--warn);
+      color: #1e1300;
+    }
+    code {
+      color: #d7e3ff;
+      background: rgba(116, 167, 255, 0.12);
+      border: 1px solid rgba(116, 167, 255, 0.20);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.92em;
+    }
+    @media (max-width: 820px) {
+      header { grid-template-columns: 1fr; }
+      .stamp { text-align: left; }
+      .span-4, .span-5, .span-7 { grid-column: span 12; }
+      .fixed-list { grid-template-columns: 1fr; }
+      h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <div class="tag"><span class="dot"></span>Quest gate sweep complete</div>
+        <h1>Quest-local products no longer masquerade as pre-start requirements.</h1>
+      </div>
+      <div class="stamp">AnkiScape<br>2026-06-24</div>
+    </header>
+
+    <section class="grid" aria-label="Summary metrics">
+      <article class="panel span-4 metric">
+        <span class="tag"><span class="dot"></span>High-confidence false gates</span>
+        <strong class="ok">0</strong>
+        <p>After cleanup, no quest-wide <code>Used during quest</code> line lists an item produced by the same quest or granted by start inventory.</p>
+      </article>
+      <article class="panel span-4 metric">
+        <span class="tag"><span class="dot warn"></span>Source-review candidates</span>
+        <strong class="warn">6</strong>
+        <p>These stayed untouched because they need direct quest-source confirmation before removing inventory gates.</p>
+      </article>
+      <article class="panel span-4 metric">
+        <span class="tag"><span class="dot"></span>Coverage</span>
+        <strong class="blue">194/194</strong>
+        <p>The existing stage-gate coverage audit still reports every quest has machine-readable stage requirements.</p>
+      </article>
+    </section>
+
+    <section class="grid" aria-label="Implementation details">
+      <article class="panel span-7">
+        <h2>Cleaned Broad Requirement Rows</h2>
+        <div class="fixed-list">
+          <div class="quest"><b>The Restless Ghost</b><span>Removed Ghostspeak amulet and Muddy skull from the broad row.</span></div>
+          <div class="quest"><b>Ernest the Chicken</b><span>Removed Pressure gauge, Rubber tube, and Oil can.</span></div>
+          <div class="quest"><b>Pirate's Treasure</b><span>Removed Chest key and Pirate message.</span></div>
+          <div class="quest"><b>Dragon Slayer</b><span>Removed Maze key, Anti-dragon shield, and Map part.</span></div>
+          <div class="quest"><b>Witch's House</b><span>Removed Door key, Magnet, Backroom key, and Ball.</span></div>
+          <div class="quest"><b>Heroes' Quest</b><span>Removed stage-local proof and preparation items.</span></div>
+          <div class="quest"><b>Fight Arena</b><span>Removed borrowed gear, Khali brew, and cell keys.</span></div>
+          <div class="quest"><b>Rune Mysteries</b><span>Removed Air talisman, Research package, and Research notes.</span></div>
+        </div>
+      </article>
+
+      <article class="panel span-5">
+        <h2>Added Guardrail</h2>
+        <ul>
+          <li><span>New audit script: <code>tools/audit_quest_local_item_gates.py</code>.</span></li>
+          <li><span>New catalog invariant: high-confidence same-quest product and start-inventory broad gates must stay empty.</span></li>
+          <li><span>Memory Bank source audit records the remaining six source-review candidates.</span></li>
+        </ul>
+      </article>
+
+      <article class="panel span-12">
+        <h2>Verification</h2>
+        <div class="checks">
+          <div class="check"><span class="mark">✓</span><span><code>python3 tools/audit_quest_local_item_gates.py</code> returns zero high-confidence candidates and six review-only candidates.</span></div>
+          <div class="check"><span class="mark">✓</span><span><code>python3 -m unittest tests.test_quest_catalog</code> passes.</span></div>
+          <div class="check"><span class="mark">✓</span><span>Focused catalog regression checks for the invariant, starter overrides, Heroes' Quest, and Fight Arena pass.</span></div>
+          <div class="check"><span class="mark">✓</span><span>Focused offscreen Qt check for Vampyre Slayer easy items not appearing as pre-start requirements passes.</span></div>
+          <div class="check"><span class="mark">✓</span><span><code>python3 tools/audit_quest_stage_gate_coverage.py</code> still reports 194/194 quests with stage requirements.</span></div>
+          <div class="check"><span class="mark warn">!</span><span>Full <code>run_tests.py</code> and full offscreen Qt discovery currently fail on unrelated dirty quest-combat burst changes in <code>logic_pure.py</code>, <code>runtime_actions.py</code>, and <code>storage_pure.py</code>.</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

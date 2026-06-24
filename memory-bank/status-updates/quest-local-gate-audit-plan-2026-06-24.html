@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Quest-Local Gate Audit Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(79, 140, 255, 0.18), transparent 30rem),
+        linear-gradient(135deg, #0c0e12 0%, #111722 100%);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 42px 0 54px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(79, 140, 255, 0.4);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #b8d0ff;
+      font: 700 0.72rem/1 JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 18px 0 10px;
+      max-width: 900px;
+      font-size: clamp(2rem, 4vw, 4.6rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+    .subtitle {
+      max-width: 860px;
+      margin: 0 0 28px;
+      color: var(--text-dim);
+      font-size: 1.02rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.88);
+      box-shadow: 0 18px 54px rgba(0, 0, 0, 0.24);
+      padding: 18px;
+    }
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      letter-spacing: 0;
+    }
+    .label {
+      display: inline-flex;
+      margin-bottom: 10px;
+      color: var(--amber);
+      font: 700 0.68rem/1 JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .label.green { color: var(--green); }
+    .label.purple { color: var(--purple); }
+    .label.red { color: var(--red); }
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+    .pill {
+      padding: 5px 8px;
+      border-radius: 999px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      font: 700 0.68rem/1 JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .audit {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 10px;
+      align-items: stretch;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: rgba(30, 35, 44, 0.72);
+      overflow: hidden;
+    }
+    .row strong {
+      display: grid;
+      place-items: center;
+      padding: 10px;
+      font: 800 0.72rem/1 JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace;
+      color: var(--bg);
+      background: var(--amber);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .row:nth-child(2) strong { background: var(--green); }
+    .row:nth-child(3) strong { background: var(--purple); }
+    .row:nth-child(4) strong { background: var(--red); }
+    .row span { padding: 10px 12px; color: var(--text-dim); }
+    .mock {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .pane {
+      min-height: 158px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151d;
+      padding: 12px;
+    }
+    .pane-title {
+      margin-bottom: 12px;
+      color: var(--text-dim);
+      font: 800 0.65rem/1 JetBrains Mono, SFMono-Regular, Menlo, Consolas, monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .questline {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(42, 48, 64, 0.8);
+    }
+    .icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #101217;
+      font-weight: 900;
+      background: var(--accent);
+    }
+    .muted { color: var(--text-dim); }
+    .bad { color: #ffaaa9; }
+    .good { color: #bbf7d0; }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .step {
+      min-height: 130px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(30, 35, 44, 0.68);
+      padding: 14px;
+    }
+    .num {
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      background: var(--accent);
+      color: #08111f;
+      font-weight: 900;
+    }
+    .step h3 {
+      margin: 0 0 8px;
+      font-size: 0.95rem;
+    }
+    .step p { margin: 0; color: var(--text-dim); font-size: 0.88rem; }
+    @media (max-width: 900px) {
+      .grid, .mock, .steps { grid-template-columns: 1fr; }
+      main { width: min(100vw - 20px, 1180px); padding-top: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Pre-Implementation Plan</div>
+    <h1>Quest-local item gates audit</h1>
+    <p class="subtitle">
+      The goal is not to redo quest parity. This pass hunts the class of bug exposed by Vampyre Slayer:
+      items obtained cheaply or automatically during the quest should not look like pre-owned inventory gates.
+    </p>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label red">Problem Shape</div>
+        <h2>False gates make playable quests feel blocked</h2>
+        <div class="mock">
+          <div class="pane">
+            <div class="pane-title">Before</div>
+            <div class="questline"><div class="icon">V</div><div><strong>Vampyre Slayer</strong><br><span class="bad">Requires: Beer, Stake, Stake hammer</span></div></div>
+            <p class="muted">The player reads this as inventory prep, even though Dr Harlow supplies the gear during the quest.</p>
+          </div>
+          <div class="pane">
+            <div class="pane-title">Target</div>
+            <div class="questline"><div class="icon">V</div><div><strong>Vampyre Slayer</strong><br><span class="good">Blocked: Action required: Speak to Dr Harlow</span></div></div>
+            <p class="muted">The card names the current action, not a misleading shopping list.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label">Audit Classifier</div>
+        <h2>Candidate buckets</h2>
+        <div class="audit">
+          <div class="row"><strong>Same</strong><span>Items later produced by a stage in the same quest, then required or consumed afterward.</span></div>
+          <div class="row"><strong>Shop</strong><span>Cheap, common, quest-local buys such as bar items, travel fares, and scripted NPC purchases.</span></div>
+          <div class="row"><strong>NPC</strong><span>Items supplied by dialogue, partner contacts, route contacts, or quest set-pieces.</span></div>
+          <div class="row"><strong>Parser</strong><span>Generated detail text that is really a route, action, spell, skill, location, or broad prose bucket.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label green">Backend</div>
+        <h2>Fix only high-confidence cases</h2>
+        <p class="muted">
+          High-confidence means the current source-backed data already proves the item is quest-local,
+          or a focused local source file confirms it. Ambiguous external requirements stay documented,
+          not guessed away.
+        </p>
+        <div class="pills">
+          <span class="pill">quest_data.py</span>
+          <span class="pill">logic_pure.py if needed</span>
+          <span class="pill">tests/test_quest_catalog.py</span>
+          <span class="pill">tools/ audit helpers</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label purple">Frontend</div>
+        <h2>Protect the card surface</h2>
+        <p class="muted">
+          Add or update Qt assertions where the user actually sees the issue:
+          no misleading Requires line for known action-only or same-quest produced items.
+        </p>
+        <div class="pills">
+          <span class="pill">tests/test_main_menu_widget.py</span>
+          <span class="pill">Quests tab</span>
+          <span class="pill">Blocked text</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="steps">
+      <div class="step"><span class="num">1</span><h3>Inventory audit</h3><p>Generate a candidate list from stage requirements, quest-wide requirements, produced items, and cleanup patterns.</p></div>
+      <div class="step"><span class="num">2</span><h3>Source triage</h3><p>Classify high-confidence fixes separately from ambiguous external supplies.</p></div>
+      <div class="step"><span class="num">3</span><h3>Patch data</h3><p>Convert false gates into action/produced-item rows in the focused override layer.</p></div>
+      <div class="step"><span class="num">4</span><h3>Verify</h3><p>Run targeted catalog, logic, Qt, full suites, stage-gate audit, Memory Bank update, and local commit.</p></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -14,7 +14,7 @@ from runtime_actions import (
 )
 
 
-def _context(player_data, calls=None, random_values=None):
+def _context(player_data, calls=None, random_values=None, review_action_multiplier=1):
     calls = calls if calls is not None else {"xp": [], "saves": 0, "errors": []}
     random_iter = iter(random_values or ())
 
@@ -48,7 +48,12 @@ def _context(player_data, calls=None, random_values=None):
         show_activity_gain=lambda text: calls.setdefault("activity", []).append(text),
         implemented_exp_keys_snapshot=lambda: {},
         show_quest_exp_delta=lambda _before: None,
+        review_action_multiplier=review_action_multiplier,
     )
+
+
+def _quest_combat_mid_rolls(repeats=1000):
+    return (0.5,) * repeats
 
 
 class TestRuntimeActions(unittest.TestCase):
@@ -801,7 +806,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 20,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["vampyre_slayer"]["progress"], 3)
@@ -828,7 +835,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["demon_slayer"]["progress"], 7)
@@ -855,7 +864,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 3)
@@ -883,7 +894,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["another_slice_of_h_a_m"]["progress"], 4)
@@ -918,7 +931,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["spirits_of_the_elid"]["progress"], 4)
@@ -948,7 +963,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["elemental_workshop_i"]["progress"], 2)
@@ -978,7 +995,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["toktz_ket_dill"]["progress"], 6)
@@ -989,7 +1008,9 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Lava monster"])
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["toktz_ket_dill"]["progress"], 6)
@@ -1016,7 +1037,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 9)
@@ -1047,7 +1070,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["a_souls_bane"]["progress"], 3)
@@ -1077,7 +1102,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["death_to_the_dorgeshuun"]["progress"], 5)
@@ -1114,7 +1141,9 @@ class TestRuntimeActions(unittest.TestCase):
             "prayer_level": 1,
         }
 
-        ok = handle_quest_answer(_context(player_data, calls))
+        ok = handle_quest_answer(
+            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
+        )
 
         self.assertTrue(ok)
         self.assertEqual(player_data["quests"]["troll_stronghold"]["progress"], 2)

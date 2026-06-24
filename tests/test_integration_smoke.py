@@ -76,6 +76,16 @@ def _load_addon_as_package(mod_name="ankiscape_integration"):
     return mod
 
 
+def _install_quest_combat_mid_rolls(testcase, addon, repeats=2000):
+    original_random = addon.random.random
+    original_review_multiplier = addon._review_action_multiplier
+    rolls = iter((0.5,) * repeats)
+    addon.random.random = lambda: next(rolls, 1.0)
+    addon._review_action_multiplier = lambda: 10
+    testcase.addCleanup(setattr, addon.random, "random", original_random)
+    testcase.addCleanup(setattr, addon, "_review_action_multiplier", original_review_multiplier)
+
+
 class TestIntegrationSmoke(unittest.TestCase):
     def setUp(self):
         # Isolate sys.modules pollution between tests
@@ -1115,6 +1125,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_stat_backed_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1155,6 +1166,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_source_backed_demon_slayer_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_darkan_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1195,6 +1207,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_shield_of_arrav_route_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_shield_arrav_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1250,6 +1263,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_style_aware_magic_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_style_aware_magic_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1299,6 +1313,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_split_golem_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_split_golem_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1342,6 +1357,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_a_souls_bane_fear_reaper_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_a_souls_bane_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1387,6 +1403,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_identical_source_generated_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_identical_source_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1430,6 +1447,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_beast_fallback_ranged_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_beast_fallback_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1491,6 +1509,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_no_combat_levels_beast_stat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_no_combat_levels_beast_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1534,6 +1553,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_witchs_house_first_form_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_witchs_house_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None
@@ -1577,6 +1597,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
     def test_quest_answer_resolves_conflict_overridden_dad_combat_gate(self):
         addon = _load_addon_as_package("ankiscape_quest_conflict_override_combat_integration")
+        _install_quest_combat_mid_rolls(self, addon)
 
         calls = {"save": 0, "gains": [], "dialogs": []}
         addon.check_achievements = lambda _data: None

@@ -79,7 +79,7 @@ TzHaar-Ket.
   Bronze hatchet, Tinderbox, and Small fishing net.
 - Generic `item_bundle` claim support now handles multi-item Bank Claims without
   custom inventory mutation code.
-- Storage config version 23 seeds and sanitizes Combat/claim state while preserving
+- Storage config version 24 seeds and sanitizes Combat/claim state while preserving
   the flat save model.
 
 ## Source Anchors
@@ -176,8 +176,9 @@ TzHaar-Ket.
 - Full Death's Office reclaim UI and stacked-death handling. Safe noncombat
   recovery can now advance simple grave recovery, but the complete
   pre-EOC-shaped reclaim surface is still not built.
-- Quest combat migration from the existing lightweight quest resolver onto the
-  shared combat engine.
+- Quest combat migration onto the shared combat engine is complete as of
+  2026-06-24; see
+  `memory-bank/source-audits/combat-quest-shared-engine-2026-06-24.md`.
 
 ## Verification
 

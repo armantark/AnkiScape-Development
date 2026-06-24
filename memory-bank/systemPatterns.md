@@ -115,13 +115,19 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer.
   Quest-only products must be produced by earlier quest stages before a later
   hand-in consumes or requires them; Cook's Assistant proves this by producing
-  Super large egg, Top-quality milk, and Extra fine flour in stages, with only
-  Bucket and Empty pot acting as external inventory blockers. Common items
-  bought or obtained as part of the same quest should be action-modeled instead
-  of shown as quest-wide inventory gates; Vampyre Slayer's Blue Moon Inn beer is
-  the proof case, while its Stake and Stake hammer are produced by Dr Harlow.
-  The same produced-item rule now protects Clock Tower rat poison/cogs, Monk's
-  Friend blanket, Dwarf Cannon railings/remains/Nulodion items, Sheep Herder
+	  Super large egg, Top-quality milk, and Extra fine flour in stages, with only
+	  Bucket and Empty pot acting as external inventory blockers. Common items
+	  bought or obtained as part of the same quest should be action-modeled instead
+	  of shown as quest-wide inventory gates; Vampyre Slayer's Blue Moon Inn beer is
+	  the proof case, while its Stake and Stake hammer are produced by Dr Harlow.
+	  `tools/audit_quest_local_item_gates.py` enforces the narrow invariant that
+	  quest-wide `Used during quest` requirements must not list items produced by
+	  that same quest or granted by its `start_inventory`. The 2026-06-24 sweep
+	  removed those misleading broad gates from The Restless Ghost, Ernest the
+	  Chicken, Pirate's Treasure, Dragon Slayer, Witch's House, Heroes' Quest,
+	  Fight Arena, and Rune Mysteries while preserving their current-stage blockers.
+	  The same produced-item rule now protects Clock Tower rat poison/cogs, Monk's
+	  Friend blanket, Dwarf Cannon railings/remains/Nulodion items, Sheep Herder
   cattleprod/bones, and Biohazard's rotten apple. Partner-supplied quest items
   should follow the same
   principle without pretending the player already owns the item: Shield of

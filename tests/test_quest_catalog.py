@@ -2,6 +2,7 @@ import unittest
 
 from quest_catalog_generated import PRE_EOC_QUEST_CATALOG, PRE_EOC_QUEST_CATALOG_SOURCE
 from quest_data import QUESTS, QUESTS_BY_ID, quests_as_dict
+from tools.audit_quest_local_item_gates import quest_local_gate_candidates
 
 
 class TestQuestCatalog(unittest.TestCase):
@@ -138,7 +139,8 @@ class TestQuestCatalog(unittest.TestCase):
         self.assertEqual(quest["stages"], 13)
         self.assertEqual(quest["required_items"], {})
         self.assertEqual(quest["required_quest_points"], 56)
-        self.assertIn("Used during quest: Blamish snail slime x1", quest["requirements"][11])
+        self.assertIn("Used during quest: Harralander potion (unf) x1", quest["requirements"][11])
+        self.assertNotIn("Blamish snail slime", quest["requirements"][11])
         self.assertIn("contextual contact", quest["requirements"][12])
         self.assertEqual(quest["choices"][0]["stage"], 9)
         self.assertEqual(
@@ -1236,6 +1238,19 @@ class TestQuestCatalog(unittest.TestCase):
                     if item_name not in produced:
                         violations.append((quest_id, requirement["stage"], item_name))
                 produced.update(requirement["produced_inventory"])
+
+        self.assertEqual(violations, [])
+
+    def test_quest_wide_used_during_lines_do_not_gate_same_quest_products(self):
+        violations = [
+            (candidate.category, candidate.quest_id, candidate.stage, candidate.item_name)
+            for candidate in quest_local_gate_candidates()
+            if candidate.category
+            in {
+                "quest_wide_same_quest_product",
+                "stage_requires_same_quest_product_before_source",
+            }
+        ]
 
         self.assertEqual(violations, [])
 

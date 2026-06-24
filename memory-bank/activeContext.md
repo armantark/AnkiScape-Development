@@ -197,8 +197,8 @@ and not consumed per cast. Future Combat work should expand source-backed
 monsters beyond the clean early rows, add god/Ancient/Lunar spell gates and
 effects, broaden Ranged equipment/ammo beyond the standard bow ladder, add deeper
 potion/cannonball/per-ammo preference controls, improve richer risk previews
-and Wilderness/equipment-risk opt-ins, add source-exact death-fee/expiry
-variants, and migrate quest combat gates onto this shared engine.
+and Wilderness/equipment-risk opt-ins, and add source-exact death-fee/expiry
+variants. Quest combat gates now use this shared engine.
 
 The Combat bootstrap now includes a source-backed Tutorial Island starter kit as
 a one-time Bank Claim. The generic `item_bundle` claim path grants Bronze sword,
@@ -868,8 +868,9 @@ Office recovery; explicit Wilderness risk; full source-backed enemy/equipment/
 drop audits; incomplete source data kept in audit/backlog artifacts rather than
 enabled gameplay; and explicit backend/frontend/assets/balance/testing handoffs.
 The ordinary Combat runtime is now partially implemented through the current
-source-backed target set; broader enemy classes and quest handoff remain future
-slices.
+source-backed target set; broader enemy classes remain future slices. Quest
+combat handoff now uses the shared Combat engine as of 2026-06-24; see
+`memory-bank/source-audits/combat-quest-shared-engine-2026-06-24.md`.
 
 As of the current Combat implementation session, the owner explicitly paused
 status update HTML artifacts until the overall goal is complete. Continue source

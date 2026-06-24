@@ -3976,6 +3976,81 @@ class TestLogic(unittest.TestCase):
         legacy["quest_combat_encounters"] = {"proof_quest": ["ice_giant"]}
         self.assertEqual(quest_current_stage_blockers_pure(legacy, "proof_quest", quest_data), ())
 
+    def test_quest_combat_partial_burst_preserves_ordinary_combat_encounter(self):
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "training_dummy",
+                                "display_name": "Training dummy",
+                                "level": 1,
+                                "quantity": 1,
+                                "npc_stats": {
+                                    "hitpoints": 1000,
+                                    "attack": 1,
+                                    "strength": 1,
+                                    "defence": 1,
+                                },
+                                "source": "source",
+                            },
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "current_combat_target": "chicken",
+            "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 10},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+            "attack_level": 80,
+            "strength_level": 80,
+            "defense_level": 80,
+            "constitution_level": 80,
+            "prayer_level": 1,
+            "combat_lifepoints": 800,
+        }
+
+        partial, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "proof_quest",
+            quest_data,
+            ticks=1,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["killed"])
+        self.assertGreater(result["player_damage"], 0)
+        self.assertEqual(partial["current_combat_target"], "chicken")
+        self.assertEqual(partial["combat_encounter"], {"target_id": "chicken", "enemy_lifepoints": 10})
+        self.assertEqual(partial["quest_combat_encounters"], {})
+        self.assertIn("training_dummy", partial["quest_combat_active_encounters"]["proof_quest"])
+        self.assertLess(partial["quest_combat_active_encounters"]["proof_quest"]["training_dummy"], 1000)
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(
+            partial,
+            "proof_quest",
+            quest_data,
+            ticks=500,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertEqual(resolved["current_combat_target"], "chicken")
+        self.assertEqual(resolved["combat_encounter"], {"target_id": "chicken", "enemy_lifepoints": 10})
+        self.assertEqual(resolved["quest_combat_active_encounters"], {})
+        self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["training_dummy"]})
+
     def test_quest_combat_stats_are_style_aware_for_magic_and_ranged_enemies(self):
         magic_encounter = {
             "npc_stats": {

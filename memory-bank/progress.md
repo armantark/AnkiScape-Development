@@ -112,9 +112,21 @@
   and Elena/King Lathas report actions. Heroes' Quest now has a source-backed
   13-stage chain for Blamish oil/oily fishing rod prep, lava eel, Ice gloves,
   Fire feather, Black Arm/Phoenix candlestick route variants, armband exchange,
-  and the final Achietties proof hand-in while preserving strict 56 quest point,
-  quest prerequisite, and skill start locks. 105 combat rows remain statless
-  and explicitly blocked.
+	  and the final Achietties proof hand-in while preserving strict 56 quest point,
+	  quest prerequisite, and skill start locks. 105 combat rows remain statless
+	  and explicitly blocked.
+- Quest-local false-gate cleanup completed on 2026-06-24. Backend:
+  `tools/audit_quest_local_item_gates.py` now reports quest-wide `Used during
+  quest` lines that list items produced by the same quest or granted through
+  `start_inventory`, and catalog tests assert those high-confidence false gates
+  stay at zero. The sweep removed same-quest-produced items from the broad
+  requirement summaries for The Restless Ghost, Ernest the Chicken, Pirate's
+  Treasure, Dragon Slayer, Witch's House, Heroes' Quest, Fight Arena, and Rune
+  Mysteries while preserving current-stage item/action blockers. Frontend: no UI
+  code changed; the Quests tab now receives cleaner `requirements` data, so
+  quest cards no longer imply those stage-local products must be owned up front.
+  Source-review candidates that need direct quest-source decisions are documented
+  in `memory-bank/source-audits/quest-local-false-gate-audit-2026-06-24.md`.
 - Completing the active Quest review now pops a `Quest complete` modal after rewards are applied and Quest training is switched off, matching the stop-point behavior used for depleted material actions.
 - Bank Claims render as a compact Bank-tab action inbox: eligible rewards show icon/title/metadata/action rows, locked rewards collapse into a dark-mode-safe summary that names the primary current blocker, claimed rewards disappear into a caught-up state, and the inbox is capped above the inventory list.
 - Quest target locks include logical route precedents when the current generic row effectively represents a locked region route: Priest in Peril gates Morytania-flavored slimy eel/snail rows, The Fremennik Isles gates Neitiznot-flavored yak/arctic pine rows, and Shilo Village gates the current generic `gem_rocks` Mining target.
@@ -155,7 +167,7 @@
   readiness in Combat target tooltips.
 - Combat bootstrap now includes a source-backed Tutorial Island starter kit as a
   one-time Bank Claim. Generic `item_bundle` claims grant the source bundle
-  through the existing Bank Claims UI, storage config version 23 seeds the flat
+  through the existing Bank Claims UI, storage config version 24 seeds the flat
   claim flag for existing saves, and `combatitems/` now holds fetched Wooden
   shield/Tinderbox icons through `COMBAT_ITEM_IMAGES`.
 - Combat simple-enemy expansion added Cow calf, Ram, and Seagull as ordinary
@@ -393,9 +405,10 @@
   assets, broader potion/cannonball/per-ammo preference
   controls, richer risk previews and Wilderness/equipment-risk opt-ins,
   source-exact death-fee and grave-expiry variants beyond the current
-  review/stacked-death bridge, and
-  migrating quest combat gates from the lightweight resolver onto the shared
-  combat engine. Al-Kharid Warrior, Higher Goblins, Farmer, and Guard now prove
+  review/stacked-death bridge. Quest combat gates now use the shared Combat
+  engine as of 2026-06-24; see
+  `memory-bank/source-audits/combat-quest-shared-engine-2026-06-24.md`.
+  Al-Kharid Warrior, Higher Goblins, Farmer, and Guard now prove
   first-class shared/global table slots plus one source-overfilled drop table;
   broader shared drop tables remain open as future enemies need them.
   Broad

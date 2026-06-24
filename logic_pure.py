@@ -1397,6 +1397,16 @@ def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
     return max(0.0, 0.5 + float(effective_strength) * (float(strength_bonus) + 64.0) / 640.0)
 
 
+def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus):
+    configured_lp_hit = _positive_int(enemy.get("max_hit", 0), 0) if isinstance(enemy, Mapping) else 0
+    if configured_lp_hit > 0:
+        return configured_lp_hit / 10.0
+    configured_old_hit = _positive_int(enemy.get("max_hit_old_hp", 0), 0) if isinstance(enemy, Mapping) else 0
+    if configured_old_hit > 0:
+        return float(configured_old_hit)
+    return _combat_melee_max_hit_old_hp(effective_strength, strength_bonus)
+
+
 def _combat_ranged_max_hit_old_hp(effective_ranged, ranged_strength_bonus):
     return max(0.0, 0.5 + float(effective_ranged) * (float(ranged_strength_bonus) + 64.0) / 640.0)
 
@@ -2283,7 +2293,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
             _combat_effective_player_strength_level(player_data, style_id),
             _equipment_bonus_value(player_totals, "melee_strength"),
         )
-    enemy_max_hit = _combat_melee_max_hit_old_hp(
+    enemy_max_hit = _combat_enemy_max_hit_old_hp(
+        enemy,
         _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
         _equipment_bonus_value(enemy_totals, "melee_strength"),
     )
@@ -2538,7 +2549,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         _combat_defence_bonus_from_totals(player_totals) + 64
     )
     enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
-    enemy_max_hit = _combat_melee_max_hit_old_hp(
+    enemy_max_hit = _combat_enemy_max_hit_old_hp(
+        enemy,
         _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
         _equipment_bonus_value(enemy_totals, "melee_strength"),
     )
@@ -2790,6 +2802,9 @@ def _copy_player_data_with_nested(player_data):
     }
     copied["quest_combat_encounters"] = _copy_quest_side_state("quest_combat_encounters")
     copied["quest_combat_encounter_counts"] = _copy_quest_side_state("quest_combat_encounter_counts")
+    copied["quest_combat_active_encounters"] = sanitize_quest_combat_active_encounters_pure(
+        player_data.get("quest_combat_active_encounters")
+    )
     copied["quest_stage_actions"] = _copy_quest_side_state("quest_stage_actions")
     copied["quest_route_states"] = _copy_quest_side_state("quest_route_states")
     copied["combat_encounter"] = dict(player_data.get("combat_encounter", {}) or {})
@@ -3290,6 +3305,11 @@ def _quest_combat_configs(encounter):
     return configs if isinstance(configs, Mapping) else {}
 
 
+def _quest_combat_bonuses(encounter):
+    bonuses = encounter.get("npc_bonuses", {}) if isinstance(encounter, Mapping) else {}
+    return bonuses if isinstance(bonuses, Mapping) else {}
+
+
 def _quest_combat_attack_style(encounter):
     attack_style = str(_quest_combat_configs(encounter).get("attack_style", "")).lower()
     if attack_style in {"range", "ranged"}:
@@ -3327,6 +3347,117 @@ def _quest_combat_display(encounter, source=""):
     level_text = f" level {level}" if level > 0 else ""
     quantity_text = f" x{quantity}" if quantity > 1 else ""
     return display_name, level, quantity, level_text, quantity_text, str(encounter.get("source") or source)
+
+
+_QUEST_COMBAT_BONUS_ALIASES = {
+    "attackStab": "attack_stab",
+    "attackSlash": "attack_slash",
+    "attackCrush": "attack_crush",
+    "attackMagic": "attack_magic",
+    "attackRanged": "attack_ranged",
+    "defenceStab": "defence_stab",
+    "defenceSlash": "defence_slash",
+    "defenceCrush": "defence_crush",
+    "defenceMagic": "defence_magic",
+    "defenceRanged": "defence_ranged",
+    "stab_att": "attack_stab",
+    "slash_att": "attack_slash",
+    "crush_att": "attack_crush",
+    "magic_att": "attack_magic",
+    "range_att": "attack_ranged",
+    "stab_def": "defence_stab",
+    "slash_def": "defence_slash",
+    "crush_def": "defence_crush",
+    "magic_def": "defence_magic",
+    "range_def": "defence_ranged",
+    "strength": "melee_strength",
+    "ranged_strength": "ranged_strength",
+    "magic_damage": "magic_damage",
+}
+
+
+def default_quest_combat_active_encounters_pure():
+    return {}
+
+
+def sanitize_quest_combat_active_encounters_pure(raw_state):
+    if not isinstance(raw_state, Mapping):
+        return {}
+    clean = {}
+    for quest_id, raw_encounters in raw_state.items():
+        if not isinstance(quest_id, str) or not isinstance(raw_encounters, Mapping):
+            continue
+        clean_encounters = {}
+        for encounter_id, raw_lifepoints in raw_encounters.items():
+            if not isinstance(encounter_id, str):
+                continue
+            lifepoints = _non_negative_int(raw_lifepoints, 0)
+            if lifepoints > 0:
+                clean_encounters[encounter_id] = lifepoints
+        if clean_encounters:
+            clean[quest_id] = clean_encounters
+    return clean
+
+
+def _quest_combat_target_id(quest_id, encounter_id):
+    return f"quest:{quest_id}:{encounter_id}"
+
+
+QUEST_COMBAT_DEFAULT_BURST_TICKS = COMBAT_BURST_TICKS * 10
+
+
+def _quest_combat_normalized_bonuses(encounter):
+    normalized = {}
+    for raw_key, raw_value in _quest_combat_bonuses(encounter).items():
+        if not isinstance(raw_key, str):
+            continue
+        key = raw_key if raw_key in EQUIPMENT_BONUS_FIELDS else _QUEST_COMBAT_BONUS_ALIASES.get(raw_key)
+        if key in EQUIPMENT_BONUS_FIELDS:
+            normalized[key] = _signed_int(raw_value, 0)
+    return normalized
+
+
+def _quest_combat_enemy_spec(quest_id, encounter_id, encounter):
+    stats = {
+        str(key): _non_negative_int(value, 0)
+        for key, value in _quest_combat_stats(encounter).items()
+        if isinstance(key, str)
+    }
+    configs = _quest_combat_configs(encounter)
+    attack_style = _quest_combat_attack_style(encounter)
+    if attack_style == "magic":
+        magic_level = _positive_int(stats.get("magic", 0), 1)
+        stats["attack"] = max(_positive_int(stats.get("attack", 0), 0), magic_level)
+        stats["strength"] = max(_positive_int(stats.get("strength", 0), 0), magic_level)
+    elif attack_style == "ranged":
+        ranged_level = _positive_int(stats.get("ranged", 0), 1)
+        stats["attack"] = max(_positive_int(stats.get("attack", 0), 0), ranged_level)
+        stats["strength"] = max(_positive_int(stats.get("strength", 0), 0), ranged_level)
+    stats["hitpoints"] = _positive_int(stats.get("hitpoints", 0), 1)
+    stats["attack"] = _positive_int(stats.get("attack", 0), 1)
+    stats["strength"] = _positive_int(stats.get("strength", 0), 1)
+    stats["defence"] = _positive_int(stats.get("defence", 0), 1)
+    display_name, level, _quantity, _level_text, _quantity_text, source = _quest_combat_display(encounter)
+    enemy = {
+        "display_name": display_name,
+        "level": level,
+        "stats": stats,
+        "bonuses": _quest_combat_normalized_bonuses(encounter),
+        "drops": {"guaranteed": (), "tables": ()},
+        "source": source,
+        "quest_id": quest_id,
+        "quest_encounter_id": encounter_id,
+        "attack_style": attack_style or "melee",
+        "attack_speed": _positive_int(configs.get("attack_speed", 4), 4),
+    }
+    max_hit = _positive_int(configs.get("max_hit", 0), 0)
+    if max_hit > 0:
+        enemy["max_hit"] = max_hit
+    return enemy
+
+
+def _quest_combat_default_rng():
+    return lambda: 0.5
 
 
 def quest_combat_encounter_ready_pure(player_data, encounter):
@@ -3864,7 +3995,7 @@ def _quest_current_stage_encounter_by_id(player_data, quest_id, quest_data, enco
     return None
 
 
-def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encounter_id=None):
+def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encounter_id=None, ticks=None, rng=None, equipment_data=None):
     state = quest_state_pure(player_data, quest_id)
     if not state["started"] or state["completed"]:
         return player_data, False, {"reason": "quest_not_in_progress"}
@@ -3886,7 +4017,98 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
     completed_quantity = _quest_combat_completed_count(player_data, quest_id, encounter_id, encounter)
     if completed_quantity >= quantity:
         return player_data, False, {"reason": "combat_already_resolved"}
-    data = _copy_player_data_with_nested(player_data)
+
+    quest_target_id = _quest_combat_target_id(quest_id, encounter_id)
+    quest_enemy_data = {quest_target_id: _quest_combat_enemy_spec(quest_id, encounter_id, encounter)}
+    original_combat_target = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    original_combat_encounter = dict(player_data.get("combat_encounter", {}) or {})
+    quest_active_encounters = sanitize_quest_combat_active_encounters_pure(
+        player_data.get("quest_combat_active_encounters")
+    )
+    saved_lifepoints = _non_negative_int(
+        (quest_active_encounters.get(quest_id, {}) or {}).get(encounter_id, 0),
+        0,
+    )
+
+    combat_player_data = _copy_player_data_with_nested(player_data)
+    combat_player_data["current_combat_target"] = quest_target_id
+    if saved_lifepoints > 0:
+        combat_player_data["combat_encounter"] = {
+            "target_id": quest_target_id,
+            "enemy_lifepoints": saved_lifepoints,
+        }
+    else:
+        combat_player_data["combat_encounter"] = {}
+    combat_rng = rng if rng is not None else _quest_combat_default_rng()
+    combat_ticks = ticks if ticks is not None else QUEST_COMBAT_DEFAULT_BURST_TICKS
+    data, combat_ok, combat_result = apply_combat_burst_pure(
+        combat_player_data,
+        quest_enemy_data,
+        equipment_data or {},
+        ticks=combat_ticks,
+        rng=combat_rng,
+    )
+    if not combat_ok:
+        return player_data, False, combat_result
+
+    data["current_combat_target"] = original_combat_target
+    data["combat_encounter"] = original_combat_encounter
+    quest_active_encounters = sanitize_quest_combat_active_encounters_pure(
+        data.get("quest_combat_active_encounters")
+    )
+    quest_active = dict(quest_active_encounters.get(quest_id, {}) or {})
+
+    display_name, level, quantity, _, _, source = _quest_combat_display(encounter)
+    quest_result = dict(combat_result)
+    quest_result.update(
+        {
+            "reason": "quest_combat_bank_run"
+            if combat_result.get("reason") == "combat_bank_run"
+            else "quest_combat_burst",
+            "encounter_id": encounter_id,
+            "quest_id": quest_id,
+            "display_name": display_name,
+            "level": level,
+            "quantity": 1,
+            "quantity_text": "",
+            "total_quantity": quantity,
+            "completed_quantity": completed_quantity,
+            "remaining_quantity": max(0, quantity - completed_quantity),
+            "player_combat_level": player_combat_level_pure(player_data),
+            "source": source,
+        }
+    )
+
+    if combat_result.get("reason") == "combat_bank_run":
+        if quest_active:
+            quest_active_encounters[quest_id] = quest_active
+        else:
+            quest_active_encounters.pop(quest_id, None)
+        data["quest_combat_active_encounters"] = quest_active_encounters
+        data["combat_last_result"] = quest_result
+        return data, True, quest_result
+
+    if combat_result.get("killed"):
+        quest_active.pop(encounter_id, None)
+    elif combat_result.get("died"):
+        quest_active.pop(encounter_id, None)
+    else:
+        enemy_lifepoints = _non_negative_int(combat_result.get("enemy_lifepoints", 0), 0)
+        if enemy_lifepoints > 0:
+            quest_active[encounter_id] = enemy_lifepoints
+
+    if quest_active:
+        quest_active_encounters[quest_id] = quest_active
+    else:
+        quest_active_encounters.pop(quest_id, None)
+    data["quest_combat_active_encounters"] = quest_active_encounters
+
+    if not combat_result.get("killed"):
+        data["combat_last_result"] = quest_result
+        return data, True, quest_result
+
+    quest_result["reason"] = "combat_resolved"
+
     quest_counts = data.setdefault("quest_combat_encounter_counts", {}).setdefault(quest_id, {})
     if not isinstance(quest_counts, Mapping):
         quest_counts = {}
@@ -3910,20 +4132,15 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
         data["quest_combat_encounters"][quest_id] = sorted(set(quest_flags))
     else:
         data["quest_combat_encounters"].pop(quest_id, None)
-    display_name, level, quantity, _, _, source = _quest_combat_display(encounter)
-    return data, True, {
-        "reason": "combat_resolved",
-        "encounter_id": encounter_id,
-        "display_name": display_name,
-        "level": level,
-        "quantity": 1,
-        "quantity_text": "",
-        "total_quantity": quantity,
-        "completed_quantity": completed_quantity,
-        "remaining_quantity": remaining_quantity,
-        "player_combat_level": player_combat_level_pure(player_data),
-        "source": source,
-    }
+    quest_result.update(
+        {
+            "completed_quantity": completed_quantity,
+            "remaining_quantity": remaining_quantity,
+            "quest_combat_completed": remaining_quantity <= 0,
+        }
+    )
+    data["combat_last_result"] = quest_result
+    return data, True, quest_result
 
 
 def apply_quest_progress_pure(player_data, quest_id, quest_data):

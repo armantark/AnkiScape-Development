@@ -1031,6 +1031,9 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             quest_id,
             QUEST_DATA,
             combat_blockers[0].get("encounter_id"),
+            ticks=_combat_review_ticks(ctx),
+            rng=ctx.random_random,
+            equipment_data=EQUIPMENT_DATA,
         )
         if not ok:
             ctx.deactivate_current_skill()
@@ -1041,12 +1044,32 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             return False
         player_data.update(new_data)
         _record_action(ctx, "quest", f"{quest_id}:{result.get('encounter_id', 'combat')}", True, expected_success_chance=1.0)
+        _refresh_combat_levels(ctx, result.get("xp_rewards", {}))
         ctx.check_achievements(player_data)
         ctx.save_player_data()
         ctx.refresh_skill_availability()
+        xp_total = 0.0
+        for amount in (result.get("xp_rewards", {}) or {}).values():
+            try:
+                xp_total += float(amount or 0.0)
+            except (TypeError, ValueError):
+                pass
+        if xp_total > 0:
+            ctx.show_exp(xp_total)
         display_name = str(result.get("display_name") or "combat encounter")
         quantity_text = str(result.get("quantity_text") or "")
-        ctx.show_activity_gain(f"Defeated {display_name}{quantity_text}")
+        if result.get("reason") == "quest_combat_bank_run":
+            remaining = int(result.get("bank_run_reviews_remaining", 0) or 0)
+            ctx.show_activity_gain(f"{display_name}: bank run ({remaining} reviews remaining)")
+        elif result.get("died"):
+            ctx.show_activity_gain(f"Defeated by {display_name}; gear moved to grave")
+        elif result.get("killed"):
+            ctx.show_activity_gain(f"Defeated {display_name}{quantity_text}")
+        else:
+            ctx.show_activity_gain(
+                f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "
+                f"{int(result.get('enemy_lifepoints', 0) or 0)} LP left"
+            )
         return True
     stage_blocker_reasons = tuple(str(blocker.get("reason")) for blocker in stage_blockers)
     if stage_blocker_reasons:
