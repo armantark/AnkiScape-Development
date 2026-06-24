@@ -220,6 +220,12 @@
   Beard remains deferred because the local source row only declares hitpoints.
   Source proof:
   `memory-bank/source-audits/combat-low-level-humanoids-2026-06-23.md`.
+- Combat Rat/Unicorn expansion added source-backed level-6 and level-26 Giant
+  rat variants plus Unicorn and Black unicorn rows. Giant rats reuse the source
+  guaranteed Bones/Raw rat meat table; Unicorns share guaranteed Bones/Unicorn
+  horn and the source 1000-slot charm table. `Unicorn horn` now has Combat item
+  registry, icon, and provenance coverage. Source proof:
+  `memory-bank/source-audits/combat-rats-unicorns-2026-06-23.md`.
 - Combat Al-Kharid warrior expansion added the first recursive shared drop-table
   slot to ordinary Combat. `al_kharid_warrior` imports the source level-9 row,
   maps generic source `attackBonus`/`strengthBonus` into the current formula

@@ -324,6 +324,13 @@ because his local source row only declares hitpoints and needs default-stat
 semantics audited before import. Source proof lives in
 `memory-bank/source-audits/combat-low-level-humanoids-2026-06-23.md`.
 
+Combat Rat/Unicorn coverage now adds source-backed level-6 and level-26 Giant
+rat variants plus Unicorn and Black unicorn rows. Giant rats reuse the source
+Bones/Raw rat meat table. Unicorns share the source guaranteed Bones/Unicorn
+horn table plus 1000-slot charm table, and `Unicorn horn` now has Combat item
+registry/icon coverage with fetched provenance. Source proof lives in
+`memory-bank/source-audits/combat-rats-unicorns-2026-06-23.md`.
+
 Guard also proves one source-overfilled ordinary drop table. The source file
 declares `total(128)` but uses 146 listed slots; AnkiScape stores the active
 source-runtime roll range as 146 because 2011Scape's `DropTableFactory` rolls

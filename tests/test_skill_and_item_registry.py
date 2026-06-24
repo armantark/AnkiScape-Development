@@ -478,6 +478,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Staff of earth": "equipment",
             "Staff of fire": "equipment",
             "Tooth half of a key": "material",
+            "Unicorn horn": "material",
             "Gold charm": "material",
             "Green charm": "material",
             "Crimson charm": "material",

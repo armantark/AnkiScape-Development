@@ -225,6 +225,56 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(seagull["slayer_xp"], 5.0)
         self.assertTrue(seagull["source"].endswith("seagull_level_2.plugin.kts"))
 
+    def test_giant_rat_and_unicorn_variants_match_source(self):
+        rat6 = COMBAT_ENEMY_DATA["giant_rat_level_6"]
+        rat26 = COMBAT_ENEMY_DATA["giant_rat_level_26"]
+        unicorn = COMBAT_ENEMY_DATA["unicorn"]
+        black_unicorn = COMBAT_ENEMY_DATA["black_unicorn"]
+
+        self.assertEqual(rat6["display_name"], "Giant rat")
+        self.assertEqual(rat6["level"], 6)
+        self.assertEqual(rat6["attack_speed"], 4)
+        self.assertEqual(rat6["respawn_delay"], 30)
+        self.assertEqual(rat6["stats"]["hitpoints"], 100)
+        self.assertEqual(rat6["stats"]["attack"], 6)
+        self.assertEqual(rat6["stats"]["strength"], 5)
+        self.assertEqual(rat6["stats"]["defence"], 2)
+        self.assertIs(rat6["drops"], COMBAT_ENEMY_DATA["giant_rat"]["drops"])
+        self.assertIn("giant_rat_level_6.plugin.kts", rat6["source"])
+        self.assertIn("GIANT_RAT_2091", rat6["source"])
+
+        self.assertEqual(rat26["level"], 26)
+        self.assertEqual(rat26["stats"]["hitpoints"], 250)
+        self.assertEqual(rat26["stats"]["attack"], 22)
+        self.assertEqual(rat26["stats"]["strength"], 23)
+        self.assertEqual(rat26["stats"]["defence"], 22)
+        self.assertIs(rat26["drops"], COMBAT_ENEMY_DATA["giant_rat"]["drops"])
+        self.assertIn("giant_rat_level_26.plugin.kts", rat26["source"])
+        self.assertIn("GIANT_RAT_4945", rat26["source"])
+
+        self.assertEqual(unicorn["display_name"], "Unicorn")
+        self.assertEqual(unicorn["level"], 15)
+        self.assertEqual(unicorn["group"], "Animals")
+        self.assertEqual(unicorn["respawn_delay"], 90)
+        self.assertEqual(unicorn["stats"]["hitpoints"], 190)
+        self.assertEqual(unicorn["stats"]["attack"], 11)
+        self.assertEqual(unicorn["stats"]["strength"], 13)
+        self.assertEqual(unicorn["stats"]["defence"], 13)
+        self.assertEqual(unicorn["drops"]["guaranteed"], (("Bones", 1), ("Unicorn horn", 1)))
+        self.assertEqual(unicorn["drops"]["tables"][0]["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 130})
+        self.assertIn("unicorn_level_15.plugin.kts", unicorn["source"])
+        self.assertIn("Npcs.UNICORN", unicorn["source"])
+
+        self.assertEqual(black_unicorn["display_name"], "Black unicorn")
+        self.assertEqual(black_unicorn["level"], 27)
+        self.assertEqual(black_unicorn["stats"]["hitpoints"], 290)
+        self.assertEqual(black_unicorn["stats"]["attack"], 21)
+        self.assertEqual(black_unicorn["stats"]["strength"], 21)
+        self.assertEqual(black_unicorn["stats"]["defence"], 23)
+        self.assertIs(black_unicorn["drops"], unicorn["drops"])
+        self.assertIn("black_unicorn_level_27.plugin.kts", black_unicorn["source"])
+        self.assertIn("Npcs.BLACK_UNICORN", black_unicorn["source"])
+
     def test_spider_import_rows_match_source_and_quantity_range(self):
         spider = COMBAT_ENEMY_DATA["spider"]
         giant_spider = COMBAT_ENEMY_DATA["giant_spider"]
@@ -837,6 +887,15 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(monk_drops, {"Bones": 1})
         self.assertEqual(cuffs_drops, {"Bones": 1, "Bronze bolts": 12, "Clue scroll (easy)": 1})
         self.assertEqual(shared_drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_giant_rat_and_unicorn_drop_rolls(self):
+        rat_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["giant_rat_level_26"], _rng([]))
+        unicorn_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["unicorn"], _rng([0.129]))
+        black_unicorn_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["black_unicorn"], _rng([0.229]))
+
+        self.assertEqual(rat_drops, {"Bones": 1, "Raw rat meat": 1})
+        self.assertEqual(unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Gold charm": 1})
+        self.assertEqual(black_unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Crimson charm": 1})
 
     def test_mugger_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

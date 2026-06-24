@@ -612,6 +612,22 @@ NARF_JEFF_RUSTY_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/narf_jeff_rusty_level_2.plugin.kts"
 )
+GIANT_RAT_LEVEL_6_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/giant_rat_level_6.plugin.kts"
+)
+GIANT_RAT_LEVEL_26_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/giant_rat_level_26.plugin.kts"
+)
+UNICORN_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/unicorn_level_15.plugin.kts"
+)
+BLACK_UNICORN_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/black_unicorn_level_27.plugin.kts"
+)
 GUARD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/guard_level_21.plugin.kts"
@@ -898,6 +914,27 @@ LOW_LEVEL_HUMANOID_DROPS = {
             "slots": (
                 {"slots": 1016},
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+            ),
+        },
+    ),
+}
+
+
+GIANT_RAT_DROPS = {"guaranteed": (("Bones", 1), ("Raw rat meat", 1)), "tables": ()}
+
+
+UNICORN_DROPS = {
+    "guaranteed": (("Bones", 1), ("Unicorn horn", 1)),
+    "tables": (
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 130},
+                {"item": "Green charm", "quantity": 1, "slots": 60},
+                {"item": "Crimson charm", "quantity": 1, "slots": 40},
+                {"item": "Blue charm", "quantity": 1, "slots": 5},
+                {"slots": 765},
             ),
         },
     ),
@@ -1225,11 +1262,69 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "defence_ranged": 0,
             "melee_strength": 0,
         },
-        "drops": {"guaranteed": (("Bones", 1), ("Raw rat meat", 1)), "tables": ()},
+        "drops": GIANT_RAT_DROPS,
         "source": (
             f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
             "definitions/critters/giant_rat_level_2.plugin.kts"
         ),
+    },
+    "giant_rat_level_6": {
+        "display_name": "Giant rat",
+        "level": 6,
+        "group": "Rats",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "stats": {
+            "hitpoints": 100,
+            "attack": 6,
+            "strength": 5,
+            "defence": 2,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GIANT_RAT_DROPS,
+        "source": f"{GIANT_RAT_LEVEL_6_SOURCE_PATH}: id Npcs.GIANT_RAT_2091",
+    },
+    "giant_rat_level_26": {
+        "display_name": "Giant rat",
+        "level": 26,
+        "group": "Rats",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 30,
+        "stats": {
+            "hitpoints": 250,
+            "attack": 22,
+            "strength": 23,
+            "defence": 22,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": GIANT_RAT_DROPS,
+        "source": f"{GIANT_RAT_LEVEL_26_SOURCE_PATH}: ids Npcs.GIANT_RAT_4944/Npcs.GIANT_RAT_4945",
     },
     "giant_spider": {
         "display_name": "Giant spider",
@@ -1670,6 +1765,64 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": LOW_LEVEL_HUMANOID_DROPS,
         "source": f"{NARF_JEFF_RUSTY_SOURCE_PATH}: ids Npcs.NARF/Npcs.JEFF/Npcs.RUSTY",
+    },
+    "unicorn": {
+        "display_name": "Unicorn",
+        "level": 15,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 90,
+        "stats": {
+            "hitpoints": 190,
+            "attack": 11,
+            "strength": 13,
+            "defence": 13,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": UNICORN_DROPS,
+        "source": f"{UNICORN_SOURCE_PATH}: id Npcs.UNICORN",
+    },
+    "black_unicorn": {
+        "display_name": "Black unicorn",
+        "level": 27,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 90,
+        "stats": {
+            "hitpoints": 290,
+            "attack": 21,
+            "strength": 21,
+            "defence": 23,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": UNICORN_DROPS,
+        "source": f"{BLACK_UNICORN_SOURCE_PATH}: id Npcs.BLACK_UNICORN",
     },
     "cow": {
         "display_name": "Cow",
@@ -2799,6 +2952,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
     "Tooth half of a key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOOTH_HALF_OF_A_KEY"},
     "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},
+    "Unicorn horn": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.UNICORN_HORN"},
     "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
