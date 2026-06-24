@@ -351,6 +351,12 @@ fetch because the existing quest Bat bones icon resolves through Combat item
 registry fallback. Source proof lives in
 `memory-bank/source-audits/combat-giant-bat-2026-06-23.md`.
 
+Combat Ghost coverage now adds the local source level-19 Undead target with
+Ghost Slayer XP and source defence bonuses. The source file has no `on_npc_death`
+drop callback, so the row intentionally exposes no item drops instead of
+inventing Bones or ectoplasm. Source proof lives in
+`memory-bank/source-audits/combat-ghost-2026-06-23.md`.
+
 Combat Duck coverage now splits the source level-1 Duck file into land and water
 rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
 water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but

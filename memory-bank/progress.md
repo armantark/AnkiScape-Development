@@ -240,6 +240,10 @@
   the existing quest Bat bones icon through the Combat item registry fallback.
   Source proof:
   `memory-bank/source-audits/combat-giant-bat-2026-06-23.md`.
+- Combat Ghost expansion added the local source level-19 Undead row with source
+  defence bonuses and Ghost Slayer XP. The source file has no death drop
+  callback, so AnkiScape exposes no item drops for this row. Source proof:
+  `memory-bank/source-audits/combat-ghost-2026-06-23.md`.
 - Combat Duck expansion split the local source level-1 Duck file into land and
   water rows. Land ducks keep the source Bones drop callback; water ducks share
   stats and Bird Slayer XP but expose no drops because the source has no

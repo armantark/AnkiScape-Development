@@ -148,13 +148,14 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   now add source Wolf Slayer XP, Wolf bones drops, and charm tables with a new
   Wolf bones icon. Giant bat now adds guaranteed Bat bones, source defence
   bonuses, and Bat Slayer XP while reusing the existing quest Bat bones icon.
-  Duck now splits the source level-1 land/water variants so land ducks drop
-  Bones while water ducks expose no drops instead of inheriting the land
-  callback. Pirate now adds the source level-23 Humanoids row with the full
-  1024-slot main table, Iron bolts x2-12, Eye patch icon coverage, and nested
-  no-Ring-of-Wealth gem table support. Monk of Zamorak level 45 now adds fixed
-  robe and charm drops with disambiguated Zamorak robe top/bottom storage keys;
-  the Golden-key level-30 variant remains deferred until Combat can model
+  Ghost now adds source Undead stats and no drops because its source file has no
+  death drop callback. Duck now splits the source level-1 land/water variants so
+  land ducks drop Bones while water ducks expose no drops instead of inheriting
+  the land callback. Pirate now adds the source level-23 Humanoids row with the
+  full 1024-slot main table, Iron bolts x2-12, Eye patch icon coverage, and
+  nested no-Ring-of-Wealth gem table support. Monk of Zamorak level 45 now adds
+  fixed robe and charm drops with disambiguated Zamorak robe top/bottom storage
+  keys; the Golden-key level-30 variant remains deferred until Combat can model
   conditional drop branches.
   Guard now adds three
   level-21 Humanoids variants from the

@@ -660,6 +660,10 @@ GIANT_BAT_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/critters/giant_bat_level_27.plugin.kts"
 )
+GHOST_LEVEL_19_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/undeads/ghost_level_19.plugin.kts"
+)
 DUCK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/duck_level_1.plugin.kts"
@@ -1099,6 +1103,9 @@ WHITE_WOLF_DROPS = {
 
 
 GIANT_BAT_DROPS = {"guaranteed": (("Bat bones", 1),), "tables": ()}
+
+
+GHOST_DROPS = {"guaranteed": (), "tables": ()}
 
 
 DWARF_DROPS = {
@@ -2228,6 +2235,36 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": GIANT_BAT_DROPS,
         "source": f"{GIANT_BAT_SOURCE_PATH}: id Npcs.GIANT_BAT; SlayerAssignment.BAT level 1 xp 32.0; aggro radius 4",
+    },
+    "ghost": {
+        "display_name": "Ghost",
+        "level": 19,
+        "group": "Undead",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 40,
+        "slayer_xp": 25.0,
+        "stats": {
+            "hitpoints": 250,
+            "attack": 13,
+            "strength": 13,
+            "defence": 18,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 5,
+            "defence_slash": 5,
+            "defence_crush": 5,
+            "defence_magic": -5,
+            "defence_ranged": 5,
+            "melee_strength": 0,
+        },
+        "drops": GHOST_DROPS,
+        "source": f"{GHOST_LEVEL_19_SOURCE_PATH}: ids Npcs.GHOST/Npcs.GHOST_104/Npcs.GHOST_5349/Npcs.GHOST_5350/Npcs.GHOST_5351/Npcs.GHOST_5352; SlayerAssignment.GHOST level 1 xp 25.0; attackStyle CRUSH; no on_npc_death drop callback",
     },
     "duck_land": {
         "display_name": "Duck (land)",
