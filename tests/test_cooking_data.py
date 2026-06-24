@@ -48,7 +48,16 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["gather_grain"]["output_item"], "Grain")
         self.assertEqual(data["gather_grain"]["group"], "gathering")
         self.assertEqual(data["grind_grain_to_flour"]["requirements"], {"Grain": 1, "Empty pot": 1})
-        self.assertEqual(data["wet_flour_to_bread_dough"]["requirements"], {"Pot of flour": 1})
+        self.assertEqual(
+            data["wet_flour_to_bread_dough"]["requirements"],
+            {"Pot of flour": 1, "Bucket of water": 1},
+        )
+        self.assertEqual(
+            data["wet_flour_to_pizza_base"]["outputs"],
+            {"Pizza base": 1, "Empty pot": 1, "Bucket": 1},
+        )
+        self.assertEqual(data["draw_bucket_of_water"]["requirements"], {"Bucket": 1})
+        self.assertEqual(data["buy_bucket"]["requirements"], {"Coins": 2})
         self.assertEqual(data["make_pie_shell"]["requirements"], {"Pastry dough": 1, "Pie dish": 1})
         self.assertEqual(
             data["assemble_uncooked_pizza"]["requirements"],

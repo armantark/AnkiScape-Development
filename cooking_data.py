@@ -40,6 +40,14 @@ WATER_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/objs/watersource/WaterContainerData.kt"
 )
+GENERAL_STORE_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/areas/lumbridge/lumbridge_general_store.plugin.kts"
+)
+# 2011Scape general stores stock buckets at 2 coins each (OSRS wiki cross-check).
+BUCKET_SHOP_PRICE = 2
+_FLOUR_WATER_REQUIREMENTS: Mapping[str, int] = {"Pot of flour": 1, "Bucket of water": 1}
+_FLOUR_WATER_BYPRODUCTS: Mapping[str, int] = {"Empty pot": 1, "Bucket": 1}
 COOKING_PREP_BRIDGE_SOURCE = "AnkiScape no-XP Cooking prep bridge, item IDs audited from 2011Scape Items.kt/items.yml."
 
 
@@ -76,6 +84,7 @@ class CookingPrepActivity:
     output_item: str
     group: str = "cooking_prep"
     output_qty: int = 1
+    byproducts: Mapping[str, int] = ()
     batch_size: int = 28
     source: str = COOKING_PREP_BRIDGE_SOURCE
 
@@ -144,19 +153,61 @@ DEFAULT_COOKING_TARGET = "cook_shrimps"
 COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
     CookingPrepActivity("gather_grain", "Gather grain", {}, "Grain", group="gathering", source=WHEAT_PICK_SOURCE_PATH),
     CookingPrepActivity("grind_grain_to_flour", "Grind grain to flour", {"Grain": 1, "Empty pot": 1}, "Pot of flour", source=MILL_SOURCE_PATH),
-    CookingPrepActivity("wet_flour_to_bread_dough", "Make bread dough", {"Pot of flour": 1}, "Bread dough"),
-    CookingPrepActivity("wet_flour_to_pitta_dough", "Make pitta dough", {"Pot of flour": 1}, "Pitta dough"),
-    CookingPrepActivity("wet_flour_to_pastry_dough", "Make pastry dough", {"Pot of flour": 1}, "Pastry dough"),
-    CookingPrepActivity("wet_flour_to_pizza_base", "Make pizza base", {"Pot of flour": 1}, "Pizza base"),
+    CookingPrepActivity(
+        "wet_flour_to_bread_dough",
+        "Make bread dough",
+        _FLOUR_WATER_REQUIREMENTS,
+        "Bread dough",
+        byproducts=_FLOUR_WATER_BYPRODUCTS,
+        source=WATER_SOURCE_PATH,
+    ),
+    CookingPrepActivity(
+        "wet_flour_to_pitta_dough",
+        "Make pitta dough",
+        _FLOUR_WATER_REQUIREMENTS,
+        "Pitta dough",
+        byproducts=_FLOUR_WATER_BYPRODUCTS,
+        source=WATER_SOURCE_PATH,
+    ),
+    CookingPrepActivity(
+        "wet_flour_to_pastry_dough",
+        "Make pastry dough",
+        _FLOUR_WATER_REQUIREMENTS,
+        "Pastry dough",
+        byproducts=_FLOUR_WATER_BYPRODUCTS,
+        source=WATER_SOURCE_PATH,
+    ),
+    CookingPrepActivity(
+        "wet_flour_to_pizza_base",
+        "Make pizza base",
+        _FLOUR_WATER_REQUIREMENTS,
+        "Pizza base",
+        byproducts=_FLOUR_WATER_BYPRODUCTS,
+        source=WATER_SOURCE_PATH,
+    ),
     CookingPrepActivity("make_pie_shell", "Make pie shell", {"Pastry dough": 1, "Pie dish": 1}, "Pie shell"),
     CookingPrepActivity("fill_bowl_of_water", "Fill bowl with water", {"Bowl": 1}, "Bowl of water", source=WATER_SOURCE_PATH),
-    CookingPrepActivity("draw_bucket_of_water", "Draw bucket of water", {}, "Bucket of water", group="gathering", source=WATER_SOURCE_PATH),
+    CookingPrepActivity("draw_bucket_of_water", "Draw bucket of water", {"Bucket": 1}, "Bucket of water", source=WATER_SOURCE_PATH),
+    CookingPrepActivity(
+        "buy_bucket",
+        "Buy bucket",
+        {"Coins": BUCKET_SHOP_PRICE},
+        "Bucket",
+        group="gathering",
+        source=GENERAL_STORE_SOURCE_PATH,
+    ),
     CookingPrepActivity("prepare_uncooked_egg", "Prepare uncooked egg", {"Egg": 1, "Bowl": 1}, "Uncooked egg"),
     CookingPrepActivity("chop_onion", "Chop onion", {"Onion": 1}, "Chopped onion"),
     CookingPrepActivity("slice_mushrooms", "Slice mushrooms", {"Mushrooms": 1}, "Sliced mushrooms"),
     CookingPrepActivity("assemble_redberry_pie", "Assemble redberry pie", {"Pie shell": 1, "Redberries": 1}, "Uncooked berry pie"),
     CookingPrepActivity("assemble_meat_pie", "Assemble meat pie", {"Pie shell": 1, "Cooked meat": 1}, "Uncooked meat pie"),
-    CookingPrepActivity("assemble_mud_pie", "Assemble mud pie", {"Pie shell": 1, "Compost": 1, "Bucket of water": 1, "Clay": 1}, "Raw mud pie"),
+    CookingPrepActivity(
+        "assemble_mud_pie",
+        "Assemble mud pie",
+        {"Pie shell": 1, "Compost": 1, "Bucket of water": 1, "Clay": 1},
+        "Raw mud pie",
+        byproducts={"Bucket": 1},
+    ),
     CookingPrepActivity("assemble_apple_pie", "Assemble apple pie", {"Pie shell": 1, "Cooking apple": 1}, "Uncooked apple pie"),
     CookingPrepActivity("assemble_garden_pie", "Assemble garden pie", {"Pie shell": 1, "Tomato": 1, "Onion": 1, "Cabbage": 1}, "Raw garden pie"),
     CookingPrepActivity("assemble_fish_pie", "Assemble fish pie", {"Pie shell": 1, "Trout": 1, "Cod": 1, "Potato": 1}, "Raw fish pie"),
@@ -202,6 +253,7 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Pie shell": (2315, True),
     "Bowl": (1923, True),
     "Bowl of water": (1921, True),
+    "Bucket": (1925, True),
     "Bucket of water": (1929, True),
     "Potato": (1942, True),
     "Egg": (1944, True),
@@ -245,6 +297,7 @@ for _target in COOKING_TARGETS:
 
 
 _MATERIAL_CATEGORIES = {
+    "Bucket": "crafted",
     "Bucket of water": "material",
     "Bowl of water": "material",
     "Empty pot": "crafted",
@@ -294,6 +347,12 @@ def cooking_raw_items() -> Tuple[str, ...]:
     return tuple(dict.fromkeys(target.raw_item for target in COOKING_TARGETS))
 
 
+def _cooking_prep_outputs(activity: CookingPrepActivity) -> Dict[str, int]:
+    outputs = {activity.output_item: activity.output_qty}
+    outputs.update(dict(activity.byproducts))
+    return outputs
+
+
 def cooking_prep_activities_as_dict() -> Dict[str, Dict[str, object]]:
     return {
         activity.id: {
@@ -301,6 +360,7 @@ def cooking_prep_activities_as_dict() -> Dict[str, Dict[str, object]]:
             "requirements": dict(activity.requirements),
             "output_item": activity.output_item,
             "output_qty": activity.output_qty,
+            "outputs": _cooking_prep_outputs(activity),
             "batch_size": activity.batch_size,
             "group": activity.group,
             "source": activity.source,
@@ -314,6 +374,7 @@ def cooking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     for activity in COOKING_PREP_ACTIVITIES:
         item_names.add(activity.output_item)
         item_names.update(activity.requirements)
+        item_names.update(activity.byproducts)
 
     result: Dict[str, Dict[str, object]] = {}
     burnt_items = set(cooking_burnt_items())

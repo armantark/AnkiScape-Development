@@ -460,6 +460,60 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Feather"], 28)
         self.assertEqual(inv, {})
 
+    def test_wet_flour_returns_empty_pot_and_bucket(self):
+        inv = {"Pot of flour": 2, "Bucket of water": 2}
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "wet_flour_to_pizza_base",
+            inv,
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 2)
+        self.assertEqual(new_inv["Pot of flour"], 0)
+        self.assertEqual(new_inv["Bucket of water"], 0)
+        self.assertEqual(new_inv["Pizza base"], 2)
+        self.assertEqual(new_inv["Empty pot"], 2)
+        self.assertEqual(new_inv["Bucket"], 2)
+
+    def test_draw_bucket_of_water_requires_empty_bucket(self):
+        inv = {"Bucket": 1}
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "draw_bucket_of_water",
+            inv,
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 1)
+        self.assertEqual(new_inv["Bucket"], 0)
+        self.assertEqual(new_inv["Bucket of water"], 1)
+
+        empty_inv, _exp, ok, processed = apply_utility_activity_pure(
+            "draw_bucket_of_water",
+            {},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertFalse(ok)
+        self.assertEqual(processed, 0)
+        self.assertEqual(empty_inv, {})
+
+    def test_buy_bucket_spends_coins(self):
+        inv = {"Coins": 4}
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "buy_bucket",
+            inv,
+            UTILITY_ACTIVITY_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 2)
+        self.assertEqual(new_inv["Coins"], 0)
+        self.assertEqual(new_inv["Bucket"], 2)
+
     def test_has_crafting_materials_and_apply(self):
         crafting_data = {
             "Soft clay": {"level": 1, "exp": 0, "requirements": {"Clay": 1}},
