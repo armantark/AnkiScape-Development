@@ -596,6 +596,10 @@ CHAOS_DWARF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/chaos_dwarf_lvl_48.plugin.kts"
 )
+HAAKON_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/haakon_the_champion_lvl_29.plugin.kts"
+)
 THUG_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thug_level_10.plugin.kts"
@@ -1376,6 +1380,47 @@ CHAOS_DWARF_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 20},
                 {"item": "Blue charm", "quantity": 1, "slots": 20},
                 {"slots": 810},
+            ),
+        },
+    ),
+}
+
+
+HAAKON_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1024,
+            "slots": (
+                {"item": "Iron hatchet", "quantity": 1, "slots": 48},
+                {"item": "Bronze battleaxe", "quantity": 1, "slots": 32},
+                {"item": "Iron mace", "quantity": 1, "slots": 8},
+                {"item": "Chaos rune", "quantity": 3, "slots": 32},
+                {"item": "Bronze arrows", "quantity": 10, "slots": 24},
+                {"item": "Earth rune", "quantity": 5, "slots": 24},
+                {"item": "Iron arrows", "quantity": 8, "slots": 24},
+                {"item": "Fire rune", "quantity": 8, "slots": 16},
+                {"item": "Mind rune", "quantity": 10, "slots": 16},
+                {"item": "Law rune", "quantity": 2, "slots": 8},
+                {"item": "Coins", "quantity": 8, "slots": 317},
+                {"item": "Coins", "quantity": 12, "slots": 76},
+                {"item": "Coins", "quantity": 25, "slots": 45},
+                {"item": "Coins", "quantity": 32, "slots": 26},
+                {"slots": 288},
+                {"item": "Tin ore", "quantity": 1, "slots": 8},
+                {"item": "Bear fur", "quantity": 1, "slots": 8},
+                {"item": "Beer", "quantity": 1, "slots": 8},
+                {"item": "Cooked meat", "quantity": 1, "slots": 8},
+                {"item": "Ring mould", "quantity": 1, "slots": 8},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                {"slots": 127},
             ),
         },
     ),
@@ -4426,6 +4471,35 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             f"{CHAOS_DWARF_SOURCE_PATH}: id Npcs.CHAOS_DWARF; "
             "SlayerAssignment.DWARF level 1 xp 61.0; aggro radius 4"
         ),
+    },
+    "haakon_the_champion": {
+        "display_name": "Haakon the Champion",
+        "level": 29,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 350,
+            "attack": 22,
+            "strength": 22,
+            "defence": 25,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 8,
+            "attack_slash": 0,
+            "attack_crush": 9,
+            "defence_stab": 12,
+            "defence_slash": 14,
+            "defence_crush": 10,
+            "defence_magic": -1,
+            "defence_ranged": 11,
+            "melee_strength": 0,
+        },
+        "drops": HAAKON_DROPS,
+        "source": f"{HAAKON_SOURCE_PATH}: id Npcs.HAAKON_THE_CHAMPION; no Charms table in source",
     },
     "white_knight_level_36": {
         "display_name": "White knight",

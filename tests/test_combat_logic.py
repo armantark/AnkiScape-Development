@@ -13,6 +13,7 @@ from combat_data import (
     COMBAT_MAGIC_STAFF_DATA,
     COMBAT_RANGED_AMMO_DATA,
     COMBAT_RANGED_WEAPON_DATA,
+    HAAKON_DROPS,
     HILL_GIANT_DROPS,
     ICE_GIANT_DROPS,
     MOSS_GIANT_DROPS,
@@ -1046,6 +1047,41 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("SlayerAssignment.DWARF", dwarf["source"])
         self.assertIn("aggro radius 4", dwarf["source"])
 
+    def test_haakon_the_champion_row_matches_source_and_barbarian_drops(self):
+        haakon = COMBAT_ENEMY_DATA["haakon_the_champion"]
+        main, tertiary = haakon["drops"]["tables"]
+
+        self.assertEqual(haakon["display_name"], "Haakon the Champion")
+        self.assertEqual(haakon["level"], 29)
+        self.assertEqual(haakon["group"], "Humanoids")
+        self.assertEqual(haakon["attack_speed"], 6)
+        self.assertEqual(haakon["respawn_delay"], 50)
+        self.assertEqual(haakon["stats"]["hitpoints"], 350)
+        self.assertEqual(haakon["stats"]["attack"], 22)
+        self.assertEqual(haakon["stats"]["strength"], 22)
+        self.assertEqual(haakon["stats"]["defence"], 25)
+        self.assertEqual(haakon["bonuses"]["attack_stab"], 8)
+        self.assertEqual(haakon["bonuses"]["attack_crush"], 9)
+        self.assertEqual(haakon["bonuses"]["defence_stab"], 12)
+        self.assertEqual(haakon["bonuses"]["defence_slash"], 14)
+        self.assertEqual(haakon["bonuses"]["defence_crush"], 10)
+        self.assertEqual(haakon["bonuses"]["defence_magic"], -1)
+        self.assertEqual(haakon["bonuses"]["defence_ranged"], 11)
+        self.assertIs(haakon["drops"], HAAKON_DROPS)
+        self.assertEqual(haakon["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 1024)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 1024)
+        self.assertEqual(main["slots"][0], {"item": "Iron hatchet", "quantity": 1, "slots": 48})
+        self.assertEqual(main["slots"][1], {"item": "Bronze battleaxe", "quantity": 1, "slots": 32})
+        self.assertEqual(main["slots"][10], {"item": "Coins", "quantity": 8, "slots": 317})
+        self.assertEqual(main["slots"][19], {"item": "Ring mould", "quantity": 1, "slots": 8})
+        self.assertEqual(tertiary["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in tertiary["slots"]), 128)
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("haakon_the_champion_lvl_29.plugin.kts", haakon["source"])
+        self.assertIn("Npcs.HAAKON_THE_CHAMPION", haakon["source"])
+        self.assertIn("no Charms table", haakon["source"])
+
     def test_white_knight_rows_match_source_and_runtime_drop_totals(self):
         expected = {
             "white_knight_level_36": (
@@ -1893,6 +1929,14 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(muddy_key_drops, {"Bones": 1, "Muddy key": 1})
         self.assertEqual(charm_drops, {"Bones": 1, "Steel full helm": 1, "Green charm": 1})
+
+    def test_haakon_drop_rolls_tail_main_slot_and_easy_clue(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["haakon_the_champion"],
+            _rng([1016 / 1024, 0.0]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Ring mould": 1, "Clue scroll (easy)": 1})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

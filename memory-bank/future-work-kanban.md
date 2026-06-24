@@ -127,6 +127,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-white-knights-2026-06-23.md` before touching
   White knight variants, Half an apple pie Combat item registration, or White
   knight source table-total mismatches; use
+  `memory-bank/source-audits/combat-haakon-the-champion-2026-06-23.md` before
+  touching Haakon the Champion or his no-charms Barbarian-style drop table; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -217,6 +219,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   food registration/icon provenance, and source-runtime main-table denominators
   128/130/127/127 where the latter three source files declare `total(128)` but
   build mismatched active entry indices.
+  Haakon the Champion now adds the source level-29 Humanoids row, exact melee
+  stats/bonuses, 1024-slot main table, 128-slot easy clue table, and the explicit
+  no-Charms-table source note.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;
