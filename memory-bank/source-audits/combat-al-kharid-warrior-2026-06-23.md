@@ -40,7 +40,8 @@ level-9 Al-Kharid warrior and the first shared/global drop-table primitive.
 - The source TODO for surrounding Al-Kharid warriors assisting each other is
   not modeled yet; the current engine still resolves one enemy encounter at a
   time.
-- Farmer remains deferred because it also needs `Seeds.allotmentSeedTable`.
+- Farmer now imports `Seeds.allotmentSeedTable`; see
+  `memory-bank/source-audits/combat-farmer-2026-06-23.md`.
 - Higher Goblin rows now reuse `COMBAT_MINOR_HERB_DROP_TABLE`; see
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
 

@@ -61,6 +61,9 @@ ITEM_ID_SOURCE_PATH = (
 GLOBAL_HERBS_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Herbs.kt"
 )
+GLOBAL_SEEDS_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/drops/global/Seeds.kt"
+)
 
 
 COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
@@ -569,6 +572,10 @@ ALKHARID_WARRIOR_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/alkharid_warrior_level_9.plugin.kts"
 )
+FARMER_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/farmer_level_7.plugin.kts"
+)
 
 POISON_SCORPION_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
@@ -612,6 +619,22 @@ COMBAT_MINOR_HERB_DROP_TABLE = {
         {"item": "Grimy cadantine", "quantity": 1, "slots": 32},
         {"item": "Grimy lantadyme", "quantity": 1, "slots": 24},
         {"item": "Grimy dwarf weed", "quantity": 1, "slots": 24},
+    ),
+}
+
+
+COMBAT_ALLOTMENT_SEED_DROP_TABLE = {
+    "name": "Allotment seed",
+    "source": f"{GLOBAL_SEEDS_SOURCE_PATH}: Seeds.allotmentSeedTable",
+    "total": 90,
+    "slots": (
+        {"item": "Potato seed", "quantity": 4, "slots": 32},
+        {"item": "Onion seed", "quantity": 4, "slots": 25},
+        {"item": "Cabbage seed", "quantity": 4, "slots": 16},
+        {"item": "Tomato seed", "quantity": 3, "slots": 9},
+        {"item": "Sweetcorn seed", "quantity": 3, "slots": 5},
+        {"item": "Strawberry seed", "quantity": 2, "slots": 2},
+        {"item": "Watermelon seed", "quantity": 2, "slots": 1},
     ),
 }
 
@@ -716,6 +739,43 @@ GOBLIN_HIGHER_LEVEL_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 6},
                 {"slots": 1018},
+            ),
+        },
+    ),
+}
+
+
+FARMER_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Earth rune", "quantity": 4, "slots": 2},
+                {"item": "Fire rune", "quantity": 6, "slots": 2},
+                {"item": "Mind rune", "quantity": 9, "slots": 2},
+                {"item": "Chaos rune", "quantity": 2, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 11},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 27},
+                {"item": "Coins", "quantity": 3, "slots": 38},
+                {"item": "Coins", "quantity": 25, "slots": 1},
+                {"item": "Fishing bait", "quantity": 1, "slots": 5},
+                {"item": "Rake", "quantity": 1, "slots": 3},
+                {"item": "Earth talisman", "quantity": 1, "slots": 2},
+                {"item": "Gardening boots", "quantity": 1, "slots": 2},
+                {"item": "Seed dibber", "quantity": 1, "slots": 2},
+                {"item": "Secateurs", "quantity": 1, "slots": 1},
+                {"item": "Watering can (8)", "quantity": 1, "slots": 1},
+                {"slots": 28},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 128,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
+                {"slots": 127},
             ),
         },
     ),
@@ -1185,6 +1245,35 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": GOBLIN_HIGHER_LEVEL_DROPS,
         "source": f"{GOBLIN_LEVEL_25_SOURCE_PATH}: id GOBLIN_4411",
+    },
+    "farmer": {
+        "display_name": "Farmer",
+        "level": 7,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 6,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 120,
+            "attack": 3,
+            "strength": 4,
+            "defence": 8,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 5,
+            "attack_slash": 0,
+            "attack_crush": 6,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": FARMER_DROPS,
+        "source": f"{FARMER_SOURCE_PATH}: ids FARMER/FARMER_1757/FARMER_1758",
     },
     "cow": {
         "display_name": "Cow",
@@ -1904,10 +1993,12 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Bronze spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRONZE_SPEAR"},
     "Cape": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CAPE_1019"},
     "Chef's hat": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CHEFS_HAT"},
+    "Cabbage seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CABBAGE_SEED"},
     "Clue scroll (easy)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.CLUE_SCROLL_EASY"},
     "Coins": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COINS_995"},
     "Cowhide": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.COWHIDE"},
     "Beer": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEER"},
+    "Gardening boots": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GARDENING_BOOTS"},
     "Goblin book": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOBLIN_BOOK"},
     "Grapes": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRAPES"},
     "Grimy avantoe": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_AVANTOE"},
@@ -1921,13 +2012,23 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy marrentill": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_MARRENTILL"},
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
+    "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
+    "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},
+    "Rake": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAKE"},
     "Raw rat meat": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.RAW_RAT_MEAT"},
+    "Secateurs": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SECATEURS"},
+    "Seed dibber": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SEED_DIBBER"},
     "Sling": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SLING"},
     "Staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF"},
     "Staff of air": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_AIR"},
     "Staff of water": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_WATER"},
     "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},
     "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
+    "Strawberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STRAWBERRY_SEED"},
+    "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
+    "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},
+    "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
+    "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
     "Tinderbox": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TINDERBOX_590"},
     "Gold charm": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GOLD_CHARM"},

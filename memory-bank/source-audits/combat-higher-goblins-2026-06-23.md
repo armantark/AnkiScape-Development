@@ -41,7 +41,8 @@ Goblin level 5, 11, 13, 16, and 25 rows.
 
 ## Deferred
 
-- Farmer remains deferred because it also needs `Seeds.allotmentSeedTable`.
+- Farmer now imports `Seeds.allotmentSeedTable`; see
+  `memory-bank/source-audits/combat-farmer-2026-06-23.md`.
 - Cave slime remains deferred behind Slayer gates and shared gem-table drops.
 - Bronze javelin is not usable equipment yet; thrown weapons belong to the
   broader Ranged equipment/ammunition backlog.

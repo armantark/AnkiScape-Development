@@ -477,6 +477,42 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8})
         self.assertIn("alkharid_warrior_level_9.plugin.kts", warrior["source"])
 
+    def test_farmer_row_matches_source_and_allotment_seed_table(self):
+        farmer = COMBAT_ENEMY_DATA["farmer"]
+
+        self.assertEqual(farmer["level"], 7)
+        self.assertEqual(farmer["group"], "Humanoids")
+        self.assertEqual(farmer["attack_speed"], 6)
+        self.assertEqual(farmer["respawn_delay"], 25)
+        self.assertEqual(farmer["stats"]["hitpoints"], 120)
+        self.assertEqual(farmer["stats"]["attack"], 3)
+        self.assertEqual(farmer["stats"]["strength"], 4)
+        self.assertEqual(farmer["stats"]["defence"], 8)
+        self.assertEqual(farmer["bonuses"]["attack_stab"], 5)
+        self.assertEqual(farmer["bonuses"]["attack_slash"], 0)
+        self.assertEqual(farmer["bonuses"]["attack_crush"], 6)
+
+        main, tertiary = farmer["drops"]["tables"]
+        self.assertEqual(farmer["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Earth rune", "quantity": 4, "slots": 2})
+        self.assertEqual(main["slots"][8], {"item": "Fishing bait", "quantity": 1, "slots": 5})
+        self.assertEqual(main["slots"][9], {"item": "Rake", "quantity": 1, "slots": 3})
+        self.assertEqual(main["slots"][14], {"item": "Watering can (8)", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][4]["slots"], 11)
+        self.assertEqual(main["slots"][4]["table"]["name"], "Minor herb")
+        self.assertEqual(main["slots"][5]["slots"], 27)
+        allotment_seed = main["slots"][5]["table"]
+        self.assertEqual(allotment_seed["name"], "Allotment seed")
+        self.assertEqual(allotment_seed["total"], 90)
+        self.assertEqual(sum(slot["slots"] for slot in allotment_seed["slots"]), 90)
+        self.assertEqual(allotment_seed["slots"][0], {"item": "Potato seed", "quantity": 4, "slots": 32})
+        self.assertEqual(allotment_seed["slots"][-1], {"item": "Watermelon seed", "quantity": 2, "slots": 1})
+        self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1})
+        self.assertIn("farmer_level_7.plugin.kts", farmer["source"])
+        self.assertIn("FARMER_1757", farmer["source"])
+
     def test_giant_spider_quantity_range_drop_rolls_inclusive_high(self):
         drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["giant_spider"],
@@ -532,6 +568,14 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_farmer_drop_rolls_nested_allotment_seed_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["farmer"],
+            _rng([18 / 128, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
 
     def test_al_kharid_warrior_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

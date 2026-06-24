@@ -186,6 +186,12 @@
   support, and register Bronze javelin/Grapes as inventory-visible drops. Source
   proof:
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
+- Combat Farmer expansion added source-backed Farmer level 7 as an ordinary
+  Humanoids target. The row imports local stats, guaranteed Bones, nested
+  `Herbs.minorHerbTable`, nested `Seeds.allotmentSeedTable`, farming tool drops,
+  and the easy clue tertiary table while keeping Farming gameplay deferred.
+  Source proof:
+  `memory-bank/source-audits/combat-farmer-2026-06-23.md`.
 - Combat Ranged/ammo expansion added Shortbow plus Bronze arrows as the first
   source-backed Ranged path through the shared Combat burst engine. Ranged rows
   now require supported weapon/ammo, refill ammo at safe boundaries, consume one
@@ -286,8 +292,9 @@
   source-exact death-fee and grave-expiry variants beyond the current
   review/stacked-death bridge, and
   migrating quest combat gates from the lightweight resolver onto the shared
-  combat engine. Higher Goblins, Farmer, and Al-Kharid Warrior still need
-  first-class shared/global table handling before their drops can be imported.
+  combat engine. Al-Kharid Warrior, Higher Goblins, and Farmer now prove
+  first-class shared/global table slots; broader shared drop tables remain open
+  as future enemies need them.
   Broad
   non-Smithing combat equipment import/equip support is also still open; Wooden
   shield is currently claimable but not proof that all shield mechanics are done.

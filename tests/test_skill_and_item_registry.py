@@ -500,6 +500,21 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in ("Bronze javelin", "Grapes"):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "material")
+        for item_name in (
+            "Potato seed",
+            "Onion seed",
+            "Cabbage seed",
+            "Tomato seed",
+            "Sweetcorn seed",
+            "Strawberry seed",
+            "Watermelon seed",
+            "Gardening boots",
+        ):
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].category, "material")
+        for item_name in ("Rake", "Seed dibber", "Secateurs", "Watering can (8)"):
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].category, "tool")
         self.assertIn("Bronze scimitar", by_storage_key)
         self.assertEqual(by_storage_key["Bronze scimitar"].category, "smithed")
         self.assertIn("Nature rune", by_storage_key)

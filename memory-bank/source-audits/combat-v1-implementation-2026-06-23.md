@@ -4,7 +4,8 @@ Status: implemented ordinary-combat V1 slice plus recovery/loadout foundation,
 Tutorial Island starter kit claim bridge, simple ordinary-enemy expansion,
 Spider/Giant spider drop-range expansion, Scorpion and higher Spider variant
 expansion, Highwayman and Al-Kharid warrior humanoid expansions, Barbarian
-level 8/9 and level 10 ordinary-enemy expansions, Goblin level 2 and higher-Goblin
+level 8/9 and level 10 ordinary-enemy expansions, Goblin level 2, higher-Goblin,
+and Farmer
 ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
 progression, and the standard elemental Combat spell ladder, plus ordinary
 dangerous-target confirmation, safe-boundary ammo recovery, and persistent
@@ -19,7 +20,7 @@ poison status recovery and first source NPC poison application.
   stats and drop behavior: Chicken, Rat, Spider, Spider level 24, Giant rat,
   Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
   Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Al-Kharid
-  warrior, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
+  warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
   scorpion, Deadly red spider, and Poison spider.
 - `apply_combat_burst_pure()` simulates bounded RuneScape-shaped combat time:
   50 ticks per `Actions per review`, player/enemy attack speed, accuracy rolls,
@@ -100,6 +101,8 @@ poison status recovery and first source NPC poison application.
   `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md`
 - Higher Goblins:
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`
+- Farmer:
+  `memory-bank/source-audits/combat-farmer-2026-06-23.md`
 - Drop item IDs:
   `/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt`
 - Tutorial starter kit:

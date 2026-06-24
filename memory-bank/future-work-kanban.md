@@ -42,7 +42,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
-  Al-Kharid warrior, Barbarian level 8/9, Barbarian level 10, Seagull,
+  Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull,
   Scorpion, Poison scorpion, Deadly red spider, and Poison spider are selectable Combat
   targets; review bursts simulate 50 source ticks per
   `Actions per review` step; melee attack styles route damage XP into Attack,
@@ -93,6 +93,8 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
   touching Goblin levels 5/11/13/16/25 or shared higher-Goblin drops; use
+  `memory-bank/source-audits/combat-farmer-2026-06-23.md` before touching
+  Farmer, allotment seed drops, or Farmer-specific farming tool drops; use
   `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
   touching standard bow/arrow Combat data; use
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
@@ -124,8 +126,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   gates and shared gem-table/drop support. Al-Kharid warrior is now implemented
   and proves recursive shared-table slots for the minor herb table. Higher
   Goblins are now implemented for levels 5, 11, 13, 16, and 25 using the same
-  `minorHerbTable` primitive; Farmers still need allotment seed-table support
-  before becoming exact enabled rows.
+  `minorHerbTable` primitive. Farmer level 7 is now implemented with
+  `minorHerbTable` plus `Seeds.allotmentSeedTable`; broader Farming gameplay and
+  other seed tables remain deferred.
 - Shortbow through Magic longbow plus Bronze through Rune arrows are now
   implemented as the standard source-backed Ranged/ammo path as of 2026-06-23.
   Ranged accurate/rapid/longrange styles run through the shared Combat burst

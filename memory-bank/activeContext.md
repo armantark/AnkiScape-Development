@@ -161,7 +161,7 @@ synthetic review action in the Skills hub, not a registry skill. Its enabled
 source-backed target set is Chicken, Rat, Spider, Spider level 24, Giant rat,
 Giant spider level 2, Giant spider level 50, Goblin level 2 armed/unarmed,
 Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman, Al-Kharid
-warrior, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
+warrior, Farmer, Barbarian level 8/9, Barbarian level 10, Seagull, Scorpion, Poison
 scorpion, Deadly red spider, and Poison spider; each review simulates 50 RuneScape ticks per
 `Actions per review`, caps at one kill,
 persists lifepoints/enemy encounter state, routes melee damage XP through the
@@ -266,6 +266,13 @@ levels 5, 11, 13, 16, and 25 import their local 2011Scape stats, shared
 `total(128)`, leaving one implicit no-drop slot. Source proof lives in
 `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
 
+Combat Farmer coverage now adds the level-7 Humanoids target using the same
+nested table support. Farmer imports its local 2011Scape stats, guaranteed
+Bones, 128-slot main table, nested `minorHerbTable`, nested
+`Seeds.allotmentSeedTable`, farming tool drops, and easy clue tertiary. Farming
+gameplay remains deferred; the new seeds/tools are inventory-visible drops only.
+Source proof lives in `memory-bank/source-audits/combat-farmer-2026-06-23.md`.
+
 Combat Ranged progression now extends beyond the Tutorial Island starter pair:
 Shortbow through Magic longbow are source-backed two-handed Ranged weapons, and
 Bronze through Rune arrows have source item IDs/strength values and bow
@@ -316,10 +323,11 @@ proof and the level 10 greataxe exclusion live in
 Combat ordinary-enemy expansion also includes the level-2 Goblin source row as
 two selectable Goblins targets: unarmed IDs and the one armed ID are split
 because their source stats differ. Higher Goblins are now covered separately
-after shared `minorHerbTable` support landed; Farmer remains deferred until
-`Seeds.allotmentSeedTable` is first-class. Source proof lives in
+after shared `minorHerbTable` support landed, and Farmer is covered after adding
+`Seeds.allotmentSeedTable`. Source proof lives in
 `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md` and
-`memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`.
+`memory-bank/source-audits/combat-higher-goblins-2026-06-23.md`, plus
+`memory-bank/source-audits/combat-farmer-2026-06-23.md`.
 
 Quest-stage parity is still active debt, not complete. As of 2026-06-22, all
 194 pre-EOC quests have at least one machine-readable stage requirement, 174
@@ -729,6 +737,11 @@ enabled gameplay; and explicit backend/frontend/assets/balance/testing handoffs.
 The ordinary Combat runtime is now partially implemented through the current
 source-backed target set; broader enemy classes and quest handoff remain future
 slices.
+
+As of the current Combat implementation session, the owner explicitly paused
+status update HTML artifacts until the overall goal is complete. Continue source
+audits, tests, Memory Bank markdown, and commits normally, but do not create,
+open, or upload visual status artifacts mid-goal.
 
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
