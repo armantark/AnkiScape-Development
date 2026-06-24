@@ -252,6 +252,7 @@ COOKING_ITEMS_FOLDER = os.path.join(current_dir, "cookingitems")
 RUNECRAFTING_ITEMS_FOLDER = os.path.join(current_dir, "runecraftingitems")
 QUEST_ITEMS_FOLDER = os.path.join(current_dir, "questitems")
 COMBAT_ITEMS_FOLDER = os.path.join(current_dir, "combatitems")
+COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
 
 # Image dictionaries
 # New constants for Crafting
@@ -616,6 +617,11 @@ for _item_name in COMBAT_EXTRA_ITEM_DATA:
     )
     if _path and os.path.exists(_path):
         COMBAT_ITEM_IMAGES[_item_name] = _path
+COMBAT_ENEMY_IMAGES = {}
+for _target_id in COMBAT_ENEMY_DATA:
+    _path = os.path.join(COMBAT_ENEMIES_FOLDER, f"{_asset_slug(_target_id)}.png")
+    if os.path.exists(_path):
+        COMBAT_ENEMY_IMAGES[_target_id] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 
 

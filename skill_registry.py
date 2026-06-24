@@ -172,13 +172,13 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
 
 
 PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
-    SkillDefinition("attack", "Attack", "combat", False, False, "combat", "attack_level", "attack_exp"),
-    SkillDefinition("constitution", "Constitution", "combat", False, False, "combat", "constitution_level", "constitution_exp"),
-    SkillDefinition("defense", "Defense", "combat", False, False, "combat", "defense_level", "defense_exp"),
-    SkillDefinition("magic", "Magic", "combat", False, False, "combat", "magic_level", "magic_exp"),
+    SkillDefinition("attack", "Attack", "combat", False, False, "combat", "attack_level", "attack_exp", visible_in_skill_hub=False),
+    SkillDefinition("constitution", "Constitution", "combat", False, False, "combat", "constitution_level", "constitution_exp", visible_in_skill_hub=False),
+    SkillDefinition("defense", "Defense", "combat", False, False, "combat", "defense_level", "defense_exp", visible_in_skill_hub=False),
+    SkillDefinition("magic", "Magic", "combat", False, False, "combat", "magic_level", "magic_exp", visible_in_skill_hub=False),
     SkillDefinition("prayer", "Prayer", "combat", False, False, "combat", "prayer_level", "prayer_exp"),
-    SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp"),
-    SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp"),
+    SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False),
+    SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False),
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp"),
     SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
     SkillDefinition("herblore", "Herblore", "artisan", False, False, "process", "herblore_level", "herblore_exp"),

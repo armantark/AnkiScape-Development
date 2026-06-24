@@ -1140,6 +1140,15 @@ Office recovery; Wilderness opt-in/loss rules; enabled runtime rows requiring
 complete source-critical data; and explicit backend/frontend/assets/balance/
 testing handoffs. No combat runtime code shipped in this documentation pass.
 
+Combat UI/balance follow-up landed on 2026-06-24. The Skills hub now shows
+Combat as the playable row without separate Attack/Constitution/Defence/Magic/
+Ranged/Strength rows; equipment resolves the active combat style; Combat setup
+lives on the Equipment tab; the food dropdown is gone; automatic bank runs cost
+two review turns before banked supplies refill loaded supplies; food refill no
+longer has a 28-item cap; and all `COMBAT_ENEMY_DATA` rows have local wiki
+enemy sprites under `combatenemies/`. Source audit:
+`memory-bank/source-audits/combat-ui-bank-run-enemy-images-2026-06-24.md`.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,

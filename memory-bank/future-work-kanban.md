@@ -161,6 +161,14 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   potion/cannon/per-ammo preference controls, add richer risk previews and
   Wilderness/equipment-risk opt-ins, and migrate quest combat gates
   onto the same engine instead of reopening the completed design grill.
+- The 2026-06-24 Combat UI/balance follow-up is complete. Combat is the playable
+  Skills-hub row without separate Attack/Constitution/Defence/Magic/Ranged/
+  Strength hub rows; equipment derives the active Combat mode; Combat setup now
+  lives on the Equipment tab; banked supplies refill automatically after a
+  two-review bank-run delay with no 28-food cap; and all ordinary Combat target
+  rows use local wiki enemy sprites from `combatenemies/` instead of Bones/drop
+  icons. See
+  `memory-bank/source-audits/combat-ui-bank-run-enemy-images-2026-06-24.md`.
 - The Tutorial Island starter kit bridge is complete as of 2026-06-23. It uses a
   one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
   support and grants only the source-backed tutorial handout items. See

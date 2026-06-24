@@ -86,6 +86,7 @@ try:
         COMBAT_FOOD_DATA,
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ENEMY_DATA,
+        COMBAT_ENEMY_IMAGES,
         COMBAT_MAGIC_SPELL_DATA,
         COMBAT_TARGET_GROUP_ORDER,
         BINDING_NECKLACE_ITEM,
@@ -155,6 +156,7 @@ except Exception:
         COMBAT_FOOD_DATA,
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ENEMY_DATA,
+        COMBAT_ENEMY_IMAGES,
         COMBAT_MAGIC_SPELL_DATA,
         COMBAT_TARGET_GROUP_ORDER,
         BINDING_NECKLACE_ITEM,
@@ -189,10 +191,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, player_combat_level_pure, COMBAT_FOOD_LOADOUT_CAPACITY  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 try:
     from .logic_pure import combat_status_summary_pure
@@ -1550,7 +1552,7 @@ def _combat_loadout_summary_text(player_data: dict) -> str:
         return ", ".join(f"{item} x{amount}" for item, amount in mapping.items())
 
     return (
-        f"Food: {summary.get('food_loaded', 0)}/{COMBAT_FOOD_LOADOUT_CAPACITY} loaded\n"
+        f"Food: {summary.get('food_loaded', 0)} loaded\n"
         f"Potions: {_mapping_text(summary.get('potions_loaded_items'))}\n"
         f"Ammo: {_mapping_text(summary.get('ammo_loaded'))}\n"
         f"Runes: {_mapping_text(summary.get('runes_loaded'))}"
@@ -2108,34 +2110,21 @@ def show_main_menu(
             group_order=list(RUNECRAFTING_GROUP_LABELS),
         )
 
-    def _build_combat_list() -> QWidget:
-        container = QWidget()
-        layout = QVBoxLayout(container)
+    def _combat_mode_text() -> str:
+        style_id = combat_attack_style_for_equipment_pure(player_data, EQUIPMENT_ITEM_DATA)
+        spec = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA.get(DEFAULT_COMBAT_ATTACK_STYLE, {}))
+        return str(spec.get("display_name", style_id)).replace("Ranged ", "Ranged ").title()
+
+    def _build_combat_setup_panel() -> QWidget:
+        panel = QWidget()
+        layout = QVBoxLayout(panel)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
 
-        style_row = QWidget()
-        style_layout = QHBoxLayout(style_row)
-        style_layout.setContentsMargins(0, 0, 0, 0)
-        style_layout.setSpacing(8)
-        style_label = QLabel("Style")
-        style_label.setStyleSheet("color: palette(text);")
-        style_combo = QComboBox()
-        style_combo.setObjectName("combatStyleCombo")
-        current_style = player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)
-        selected_index = 0
-        for style_id, spec in COMBAT_ATTACK_STYLE_DATA.items():
-            style_combo.addItem(str(spec.get("display_name", style_id)), style_id)
-            if style_id == current_style:
-                selected_index = style_combo.count() - 1
-        style_combo.setCurrentIndex(selected_index)
-        if on_set_combat_style is not None:
-            style_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_style(style_combo.currentData() or DEFAULT_COMBAT_ATTACK_STYLE)
-            )
-        style_layout.addWidget(style_label)
-        style_layout.addWidget(style_combo, 1)
-        layout.addWidget(style_row)
+        mode_label = QLabel(f"Combat mode: {_combat_mode_text()}")
+        mode_label.setObjectName("combatModeLabel")
+        mode_label.setStyleSheet("color: palette(text); font-weight: 600;")
+        layout.addWidget(mode_label)
 
         spell_row = QWidget()
         spell_layout = QHBoxLayout(spell_row)
@@ -2160,11 +2149,6 @@ def show_main_menu(
         spell_layout.addWidget(spell_combo, 1)
         layout.addWidget(spell_row)
 
-        loadout_panel = QWidget()
-        loadout_layout = QVBoxLayout(loadout_panel)
-        loadout_layout.setContentsMargins(0, 0, 0, 0)
-        loadout_layout.setSpacing(6)
-
         auto_eat_row = QWidget()
         auto_eat_layout = QHBoxLayout(auto_eat_row)
         auto_eat_layout.setContentsMargins(0, 0, 0, 0)
@@ -2184,46 +2168,29 @@ def show_main_menu(
             threshold_spin.valueChanged.connect(lambda value: on_set_combat_auto_eat_threshold(value))
         auto_eat_layout.addWidget(threshold_label)
         auto_eat_layout.addWidget(threshold_spin, 1)
-        loadout_layout.addWidget(auto_eat_row)
-
-        food_row = QWidget()
-        food_layout = QHBoxLayout(food_row)
-        food_layout.setContentsMargins(0, 0, 0, 0)
-        food_layout.setSpacing(8)
-        food_label = QLabel("Food")
-        food_label.setStyleSheet("color: palette(text);")
-        food_combo = QComboBox()
-        food_combo.setObjectName("combatFoodCombo")
-        auto_food_raw = player_data.get("combat_auto_eat_food", ()) or ()
-        if isinstance(auto_food_raw, str):
-            auto_food = (auto_food_raw,)
-        else:
-            auto_food = tuple(item for item in auto_food_raw if isinstance(item, str))
-        current_food = next((item for item in auto_food if item in COMBAT_FOOD_DATA), None)
-        sorted_food = sorted(
-            COMBAT_FOOD_DATA.items(),
-            key=lambda row: (-int((row[1] or {}).get("heal_lifepoints", 0) or 0), row[0]),
-        )
-        selected_food_index = 0
-        for food_name, spec in sorted_food:
-            heal = int((spec or {}).get("heal_lifepoints", 0) or 0)
-            food_combo.addItem(f"{food_name} ({heal} LP)", food_name)
-            if food_name == current_food:
-                selected_food_index = food_combo.count() - 1
-        food_combo.setCurrentIndex(selected_food_index)
-        if on_set_combat_auto_eat_food is not None:
-            food_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_auto_eat_food(food_combo.currentData() or "")
-            )
-        food_layout.addWidget(food_label)
-        food_layout.addWidget(food_combo, 1)
-        loadout_layout.addWidget(food_row)
+        layout.addWidget(auto_eat_row)
 
         supply_summary = QLabel(_combat_loadout_summary_text(player_data))
         supply_summary.setObjectName("combatLoadoutSummaryLabel")
         supply_summary.setWordWrap(True)
         supply_summary.setStyleSheet(f"color: {dim_text_css(supply_summary)};")
-        loadout_layout.addWidget(supply_summary)
+        layout.addWidget(supply_summary)
+
+        bank_run_raw = player_data.get("combat_bank_run", {}) or {}
+        bank_run_remaining = 0
+        if isinstance(bank_run_raw, dict):
+            try:
+                bank_run_remaining = max(0, int(bank_run_raw.get("reviews_remaining", 0) or 0))
+            except (TypeError, ValueError):
+                bank_run_remaining = 0
+        bank_run_label = QLabel(
+            f"Bank run: {bank_run_remaining} review{'s' if bank_run_remaining != 1 else ''} remaining"
+            if bank_run_remaining
+            else "Bank run: ready"
+        )
+        bank_run_label.setObjectName("combatBankRunLabel")
+        bank_run_label.setStyleSheet(f"color: {dim_text_css(bank_run_label)};")
+        layout.addWidget(bank_run_label)
 
         loadout_button_row = QWidget()
         button_layout = QHBoxLayout(loadout_button_row)
@@ -2247,8 +2214,15 @@ def show_main_menu(
         unload_button.clicked.connect(lambda _checked=False: _run_loadout_callback(on_unload_combat_loadout))
         button_layout.addWidget(refill_button)
         button_layout.addWidget(unload_button)
-        loadout_layout.addWidget(loadout_button_row)
-        layout.addWidget(loadout_panel)
+        layout.addWidget(loadout_button_row)
+        layout.addStretch(1)
+        return panel
+
+    def _build_combat_list() -> QWidget:
+        container = QWidget()
+        layout = QVBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(8)
 
         combat_images = _item_asset_paths()
         combat_rows = combat_target_rows(
@@ -2257,6 +2231,7 @@ def show_main_menu(
             combat_images,
             EQUIPMENT_ITEM_DATA,
             DEFAULT_COMBAT_TARGET,
+            COMBAT_ENEMY_IMAGES,
         )
 
         def _confirm_combat_target(row: TargetRowMetadata) -> bool:
@@ -2384,7 +2359,7 @@ def show_main_menu(
         "Hunter": "Select Creature to Hunt",
         "Cooking": "Select Food to Cook",
         "Runecrafting": "Select Runecrafting Action",
-        _COMBAT_HUB_NAME: "Select Enemy and Style",
+        _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
 
@@ -3784,18 +3759,34 @@ def show_main_menu(
     eq_caption.setStyleSheet(f"color: {dim_text_css(eq_caption)};")
     eq_layout.addWidget(eq_caption)
 
+    eq_content = QWidget()
+    eq_content_layout = QHBoxLayout(eq_content)
+    eq_content_layout.setContentsMargins(0, 0, 0, 0)
+    eq_content_layout.setSpacing(12)
+
+    eq_left = QWidget()
+    eq_left_layout = QVBoxLayout(eq_left)
+    eq_left_layout.setContentsMargins(0, 0, 0, 0)
+    eq_left_layout.setSpacing(8)
+
     equip_list = QListWidget()
     equip_list.setObjectName("equipmentList")
     equip_list.setIconSize(QSize(28, 28))
     equip_list.setAlternatingRowColors(True)
     equip_list.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-    eq_layout.addWidget(equip_list, 1)
+    eq_left_layout.addWidget(equip_list, 1)
 
     totals_label = QLabel("")
     totals_label.setObjectName("equipmentTotals")
     totals_label.setWordWrap(True)
     totals_label.setStyleSheet("font-family: monospace; color: palette(text);")
-    eq_layout.addWidget(totals_label)
+    eq_left_layout.addWidget(totals_label)
+
+    combat_setup_panel = _build_combat_setup_panel()
+    combat_setup_panel.setObjectName("equipmentCombatSetupPanel")
+    eq_content_layout.addWidget(eq_left, 2)
+    eq_content_layout.addWidget(combat_setup_panel, 1)
+    eq_layout.addWidget(eq_content, 1)
 
     def _populate_equipment() -> None:
         equip_list.clear()

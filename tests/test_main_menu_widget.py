@@ -618,7 +618,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         finally:
             self._ui.QMessageBox.question = original_question
 
-    def test_combat_exposes_style_and_spell_controls(self) -> None:
+    def test_combat_derives_style_from_equipment_and_exposes_spell_on_equipment_tab(self) -> None:
         pd = _make_player_data()
         pd.update(
             {
@@ -627,6 +627,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "current_combat_spell": "wind_strike",
                 "magic_level": 10,
                 "inventory": {"Air rune": 5, "Mind rune": 5},
+                "equipment": {"weapon": "Staff"},
                 "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
             }
         )
@@ -634,9 +635,11 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
         spell_combo = dialog.findChild(QComboBox, "combatSpellCombo")
-        self.assertIsNotNone(style_combo)
+        mode_label = dialog.findChild(QLabel, "combatModeLabel")
+        self.assertIsNone(style_combo)
         self.assertIsNotNone(spell_combo)
-        self.assertEqual(style_combo.currentData(), "magic_standard")
+        self.assertIsNotNone(mode_label)
+        self.assertIn("Magic", mode_label.text())
         self.assertEqual(spell_combo.currentData(), "wind_strike")
         self.assertEqual(spell_combo.currentText(), "Wind Strike")
         for spell_id in ("water_strike", "earth_strike", "fire_strike", "wind_bolt", "fire_blast", "fire_wave"):
@@ -657,12 +660,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._combat_spell_calls[-1], "fire_wave")
 
-        accurate_index = style_combo.findData("accurate")
-        self.assertGreaterEqual(accurate_index, 0)
-        style_combo.setCurrentIndex(accurate_index)
-        QApplication.processEvents()
-        self.assertEqual(self._combat_style_calls[-1], "accurate")
-
     def test_combat_exposes_loadout_controls(self) -> None:
         pd = _make_player_data()
         pd.update(
@@ -681,32 +678,27 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(pd, current_skill="Combat")
 
         threshold_spin = dialog.findChild(QSpinBox, "combatAutoEatThresholdSpin")
-        food_combo = dialog.findChild(QComboBox, "combatFoodCombo")
         summary_label = dialog.findChild(QLabel, "combatLoadoutSummaryLabel")
+        bank_run_label = dialog.findChild(QLabel, "combatBankRunLabel")
         refill_button = dialog.findChild(QPushButton, "combatRefillLoadoutButton")
         unload_button = dialog.findChild(QPushButton, "combatUnloadLoadoutButton")
 
         self.assertIsNotNone(threshold_spin)
-        self.assertIsNotNone(food_combo)
+        self.assertIsNone(dialog.findChild(QComboBox, "combatFoodCombo"))
         self.assertIsNotNone(summary_label)
+        self.assertIsNotNone(bank_run_label)
         self.assertIsNotNone(refill_button)
         self.assertIsNotNone(unload_button)
         self.assertEqual(threshold_spin.value(), 55)
-        self.assertEqual(food_combo.currentData(), "Lobster")
-        self.assertIn("Food: 3/28 loaded", summary_label.text())
+        self.assertIn("Food: 3 loaded", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
         self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
+        self.assertIn("ready", bank_run_label.text())
 
         threshold_spin.setValue(60)
         QApplication.processEvents()
         self.assertEqual(self._combat_threshold_calls[-1], 60)
-
-        shark_index = food_combo.findData("Shark")
-        self.assertGreaterEqual(shark_index, 0)
-        food_combo.setCurrentIndex(shark_index)
-        QApplication.processEvents()
-        self.assertEqual(self._combat_food_calls[-1], "Shark")
 
         refill_button.click()
         unload_button.click()

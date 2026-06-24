@@ -35,6 +35,11 @@ next implementation pass:
   maximum for repeatable farm targets. Bosses, non-farmed enemies, or one-time
   enemies may need tighter rules later, especially once Summoning balance enters
   scope.
+- Follow-up owner refinement: bank runs should be automatic, not a manual
+  chore. Once loaded supplies run out, banked supplies should be fetched after a
+  short review-turn delay, likely one or two reviews. This gives supply access a
+  real pacing cost and should help balance future Summoning supply extension
+  without forcing the player to micromanage every refill.
 - Combat target rows should use a small image of the actual enemy from the wiki
   instead of falling back to Bones or other drop icons.
 

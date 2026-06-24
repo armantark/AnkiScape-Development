@@ -118,12 +118,13 @@ class TestRuntimeActions(unittest.TestCase):
     def test_combat_handler_runs_ranged_review_with_starter_bow_and_arrows(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Bronze arrows": 2},
+            "inventory": {},
             "equipment": {"weapon": "Shortbow"},
             "current_combat_target": "chicken",
             "combat_attack_style": "ranged_accurate",
             "combat_lifepoints": 100,
             "combat_auto_eat_food": ["Shrimps"],
+            "combat_supply_loadout": {"ammo": {"Bronze arrows": 2}},
             "attack_level": 1,
             "strength_level": 1,
             "defense_level": 1,
@@ -141,7 +142,7 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
-        self.assertEqual(player_data["inventory"]["Bronze arrows"], 0)
+        self.assertEqual(player_data["inventory"].get("Bronze arrows", 0), 0)
         self.assertEqual(player_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 1})
         self.assertEqual(player_data["attack_exp"], 0.0)
         self.assertGreater(player_data["ranged_exp"], 0.0)
@@ -152,53 +153,14 @@ class TestRuntimeActions(unittest.TestCase):
     def test_combat_handler_runs_magic_review_with_wind_strike_runes(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
-            "inventory": {"Air rune": 1, "Mind rune": 1},
-            "equipment": {},
+            "inventory": {},
+            "equipment": {"weapon": "Staff"},
             "current_combat_target": "chicken",
             "combat_attack_style": "magic_standard",
             "current_combat_spell": "wind_strike",
             "combat_lifepoints": 100,
             "combat_auto_eat_food": ["Shrimps"],
-            "attack_level": 1,
-            "strength_level": 1,
-            "defense_level": 1,
-            "ranged_level": 1,
-            "magic_level": 99,
-            "constitution_level": 10,
-            "attack_exp": 0.0,
-            "strength_exp": 0.0,
-            "defense_exp": 0.0,
-            "ranged_exp": 0.0,
-            "magic_exp": 0.0,
-            "constitution_exp": 0.0,
-            "completed_achievements": [],
-        }
-
-        ok = handle_combat_answer(_context(player_data, calls, [0.999999]))
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["inventory"]["Air rune"], 0)
-        self.assertEqual(player_data["inventory"]["Mind rune"], 0)
-        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
-        self.assertEqual(player_data["combat_last_result"]["combat_class"], "magic")
-        self.assertEqual(player_data["combat_last_result"]["spell"], "Wind Strike")
-        self.assertEqual(player_data["combat_last_result"]["stop_reason"], "out_of_runes")
-        self.assertAlmostEqual(player_data["magic_exp"], 5.5)
-        self.assertEqual(player_data["constitution_exp"], 0.0)
-        self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["xp"], [5.5])
-        self.assertEqual(calls["activity"], ["Chicken: 0 damage dealt, 30 LP left"])
-
-    def test_combat_handler_uses_staff_substitution_for_magic_runes(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {"Mind rune": 1},
-            "equipment": {"weapon": "Staff of air"},
-            "current_combat_target": "chicken",
-            "combat_attack_style": "magic_standard",
-            "current_combat_spell": "wind_strike",
-            "combat_lifepoints": 100,
-            "combat_auto_eat_food": ["Shrimps"],
+            "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
             "attack_level": 1,
             "strength_level": 1,
             "defense_level": 1,
@@ -218,7 +180,48 @@ class TestRuntimeActions(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertEqual(player_data["inventory"].get("Air rune", 0), 0)
-        self.assertEqual(player_data["inventory"]["Mind rune"], 0)
+        self.assertEqual(player_data["inventory"].get("Mind rune", 0), 0)
+        self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
+        self.assertEqual(player_data["combat_last_result"]["combat_class"], "magic")
+        self.assertEqual(player_data["combat_last_result"]["spell"], "Wind Strike")
+        self.assertEqual(player_data["combat_last_result"]["stop_reason"], "out_of_runes")
+        self.assertAlmostEqual(player_data["magic_exp"], 5.5)
+        self.assertEqual(player_data["constitution_exp"], 0.0)
+        self.assertEqual(calls["errors"], [])
+        self.assertEqual(calls["xp"], [5.5])
+        self.assertEqual(calls["activity"], ["Chicken: 0 damage dealt, 30 LP left"])
+
+    def test_combat_handler_uses_staff_substitution_for_magic_runes(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {},
+            "equipment": {"weapon": "Staff of air"},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "magic_standard",
+            "current_combat_spell": "wind_strike",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "combat_supply_loadout": {"runes": {"Mind rune": 1}},
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "ranged_level": 1,
+            "magic_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "strength_exp": 0.0,
+            "defense_exp": 0.0,
+            "ranged_exp": 0.0,
+            "magic_exp": 0.0,
+            "constitution_exp": 0.0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_combat_answer(_context(player_data, calls, [0.999999]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"].get("Air rune", 0), 0)
+        self.assertEqual(player_data["inventory"].get("Mind rune", 0), 0)
         self.assertEqual(player_data["combat_supply_loadout"]["runes"], {})
         self.assertEqual(player_data["combat_last_result"]["runes_used"], {"Mind rune": 1})
         self.assertAlmostEqual(player_data["magic_exp"], 5.5)
@@ -228,7 +231,7 @@ class TestRuntimeActions(unittest.TestCase):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
             "inventory": {},
-            "equipment": {},
+            "equipment": {"weapon": "Staff"},
             "current_combat_target": "chicken",
             "combat_attack_style": "magic_standard",
             "current_combat_spell": "wind_strike",
@@ -288,7 +291,7 @@ class TestRuntimeActions(unittest.TestCase):
         combat_data.update(
             {
                 "combat_attack_style": "magic_standard",
-                "equipment": {},
+                "equipment": {"weapon": "Staff"},
                 "inventory": {"Air rune": 1, "Mind rune": 1},
                 "magic_level": 1,
                 "current_combat_spell": "wind_strike",

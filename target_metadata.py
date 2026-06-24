@@ -911,9 +911,11 @@ def combat_target_rows(
     combat_item_images: Mapping[str, str],
     equipment_data: Mapping[str, object],
     default_target: str,
+    combat_enemy_images: Mapping[str, str] | None = None,
 ) -> tuple[TargetRowMetadata, ...]:
     rows = []
     current_target = player_data.get("current_combat_target", default_target)
+    enemy_images = combat_enemy_images or {}
 
     for target_id, enemy in combat_enemy_data.items():
         display_name = str(enemy.get("display_name", target_id))
@@ -977,7 +979,7 @@ def combat_target_rows(
                 tooltip=tooltip,
                 enabled=not locked_reasons,
                 current=target_id == current_target,
-                icon_path=combat_item_images.get(display_name) or combat_item_images.get("Bones"),
+                icon_path=enemy_images.get(target_id) or enemy_images.get(display_name),
                 group=str(enemy.get("group", "Combat")),
                 locked_reasons=locked_reasons,
                 sort_key=(level, display_name),

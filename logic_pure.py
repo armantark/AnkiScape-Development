@@ -1009,10 +1009,14 @@ COMBAT_POISON_TIMER_SOURCE_PATH = (
     "gg/rsmod/plugins/content/mechanics/poison/poison_plugin.plugin.kts"
 )
 COMBAT_FOOD_LOADOUT_CAPACITY = 28
+COMBAT_BANK_RUN_REVIEWS = 2
 COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
 COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM = 100
 _COMBAT_DRAINABLE_SKILLS = ("attack", "strength", "defense", "ranged", "magic", "prayer")
+_COMBAT_MELEE_STYLE_IDS = ("accurate", "aggressive", "defensive", "controlled")
+_COMBAT_RANGED_STYLE_IDS = ("ranged_accurate", "ranged_rapid", "ranged_longrange")
+_COMBAT_MAGIC_EQUIPMENT_TYPES = {"staff", "elemental_staff", "battlestaff"}
 
 
 def combat_max_lifepoints_pure(player_data):
@@ -1036,6 +1040,7 @@ def default_combat_state_pure():
         "combat_stat_drains": {},
         "combat_status_effects": {},
         "combat_recovery_progress": {},
+        "combat_bank_run": {},
         "combat_encounter": {},
         "combat_kill_counts": {},
         "combat_last_result": {},
@@ -1118,6 +1123,19 @@ def _sanitize_combat_recovery_progress(raw_progress):
         return {}
     stat_drain_ticks = _non_negative_int(raw_progress.get("stat_drain_ticks", 0), 0)
     return {"stat_drain_ticks": stat_drain_ticks} if stat_drain_ticks > 0 else {}
+
+
+def _sanitize_combat_bank_run(raw_bank_run):
+    if not isinstance(raw_bank_run, Mapping):
+        return {}
+    reviews_remaining = _non_negative_int(raw_bank_run.get("reviews_remaining", 0), 0)
+    if reviews_remaining <= 0:
+        return {}
+    state = {"reviews_remaining": min(reviews_remaining, COMBAT_BANK_RUN_REVIEWS)}
+    target_id = raw_bank_run.get("target_id")
+    if isinstance(target_id, str) and target_id:
+        state["target_id"] = target_id
+    return state
 
 
 def _combat_grave_items(raw_grave):
@@ -1236,6 +1254,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_stat_drains": _sanitize_combat_stat_drains(player_data.get("combat_stat_drains")),
         "combat_status_effects": _sanitize_combat_status_effects(player_data.get("combat_status_effects")),
         "combat_recovery_progress": _sanitize_combat_recovery_progress(player_data.get("combat_recovery_progress")),
+        "combat_bank_run": _sanitize_combat_bank_run(player_data.get("combat_bank_run")),
         "combat_encounter": dict(encounter),
         "combat_kill_counts": {
             str(target_id): _positive_int(count, 0)
@@ -1271,7 +1290,7 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     drops = enemy.get("drops")
     if not isinstance(drops, Mapping):
         return ("missing source drop behavior",)
-    style_id = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = style_data.get(style_id)
     if not isinstance(style, Mapping):
         return ("invalid attack style",)
@@ -1411,6 +1430,41 @@ def _combat_ranged_weapon_spec(player_data, equipment_data):
                 weapon_spec = candidate
                 break
     return weapon_name, equipment_spec, weapon_spec
+
+
+def _combat_weapon_equipment_type(player_data, equipment_data=None):
+    weapon_name = _combat_equipped_weapon_name(player_data)
+    if not isinstance(weapon_name, str):
+        return weapon_name, None, None
+    equipment_spec = equipment_data.get(weapon_name) if isinstance(equipment_data, Mapping) else None
+    return weapon_name, equipment_spec, _equipment_value(equipment_spec, "equipment_type", None)
+
+
+def _combat_weapon_is_ranged(player_data, equipment_data=None):
+    weapon_name, _equipment_spec, equipment_type = _combat_weapon_equipment_type(player_data, equipment_data)
+    if not isinstance(weapon_name, str):
+        return False
+    if weapon_name in COMBAT_RANGED_WEAPON_DATA:
+        return True
+    if isinstance(equipment_type, str):
+        return any(spec.get("equipment_type") == equipment_type for spec in COMBAT_RANGED_WEAPON_DATA.values())
+    return False
+
+
+def _combat_weapon_is_magic(player_data, equipment_data=None):
+    weapon_name, _equipment_spec, equipment_type = _combat_weapon_equipment_type(player_data, equipment_data)
+    if not isinstance(weapon_name, str):
+        return False
+    return weapon_name in COMBAT_MAGIC_STAFF_DATA or equipment_type in _COMBAT_MAGIC_EQUIPMENT_TYPES
+
+
+def combat_attack_style_for_equipment_pure(player_data, equipment_data=None):
+    stored_style = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    if _combat_weapon_is_ranged(player_data, equipment_data):
+        return stored_style if stored_style in _COMBAT_RANGED_STYLE_IDS else "ranged_accurate"
+    if _combat_weapon_is_magic(player_data, equipment_data):
+        return "magic_standard"
+    return stored_style if stored_style in _COMBAT_MELEE_STYLE_IDS else DEFAULT_COMBAT_ATTACK_STYLE
 
 
 def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
@@ -1663,28 +1717,183 @@ def _combat_refill_food_loadout(data):
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     food_loadout = dict(loadout.get("food", {}) or {})
     inventory = data.get("inventory", {}) or {}
-    capacity_remaining = max(
-        0,
-        COMBAT_FOOD_LOADOUT_CAPACITY - sum(_non_negative_int(amount, 0) for amount in food_loadout.values()),
-    )
-    if capacity_remaining <= 0:
+    if not isinstance(inventory, Mapping):
         data["combat_supply_loadout"] = loadout
         return
+    inventory = dict(inventory)
     for item_name in data.get("combat_auto_eat_food", ()) or ():
-        if capacity_remaining <= 0:
-            break
         if item_name not in COMBAT_FOOD_DATA:
             continue
         available = _non_negative_int(inventory.get(item_name, 0), 0)
         if available <= 0:
             continue
-        taken = min(available, capacity_remaining)
-        inventory[item_name] = available - taken
-        food_loadout[item_name] = _non_negative_int(food_loadout.get(item_name, 0), 0) + taken
-        capacity_remaining -= taken
+        inventory[item_name] = 0
+        food_loadout[item_name] = _non_negative_int(food_loadout.get(item_name, 0), 0) + available
     loadout["food"] = {item: amount for item, amount in food_loadout.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
+
+
+def _combat_loaded_food_count(data):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    food_loadout = loadout.get("food", {}) or {}
+    total = 0
+    for item_name in data.get("combat_auto_eat_food", ()) or ():
+        if isinstance(item_name, str):
+            total += _non_negative_int(food_loadout.get(item_name, 0), 0)
+    return total
+
+
+def _combat_banked_auto_food_count(data):
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        return 0
+    total = 0
+    for item_name in data.get("combat_auto_eat_food", ()) or ():
+        if isinstance(item_name, str) and item_name in COMBAT_FOOD_DATA:
+            total += _non_negative_int(inventory.get(item_name, 0), 0)
+    return total
+
+
+def _combat_loaded_ranged_ammo(data, weapon_spec):
+    if not isinstance(weapon_spec, Mapping):
+        return None
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    ammo_loadout = loadout.get("ammo", {}) or {}
+    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+        if isinstance(ammo_name, str) and _non_negative_int(ammo_loadout.get(ammo_name, 0), 0) > 0:
+            return ammo_name
+    return None
+
+
+def _combat_banked_ranged_ammo_count(data, weapon_spec):
+    if not isinstance(weapon_spec, Mapping):
+        return 0
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        return 0
+    total = 0
+    for ammo_name in weapon_spec.get("compatible_ammo", ()) or ():
+        if isinstance(ammo_name, str):
+            total += _non_negative_int(inventory.get(ammo_name, 0), 0)
+    return total
+
+
+def _combat_missing_loaded_runes(data, spell_spec, equipment_data=None):
+    rune_cost = spell_spec.get("rune_cost", {}) if isinstance(spell_spec, Mapping) else {}
+    if not isinstance(rune_cost, Mapping) or not rune_cost:
+        return {}
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    rune_loadout = loadout.get("runes", {}) or {}
+    covered_runes = combat_staff_covered_runes_pure(data, equipment_data)
+    missing = {}
+    for rune_name, amount in rune_cost.items():
+        if not isinstance(rune_name, str) or rune_name in covered_runes:
+            continue
+        required = _positive_int(amount, 0)
+        loaded = _non_negative_int(rune_loadout.get(rune_name, 0), 0)
+        if required > loaded:
+            missing[rune_name] = required - loaded
+    return missing
+
+
+def _combat_bank_has_runes(data, missing_runes):
+    if not missing_runes:
+        return False
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        return False
+    return all(_non_negative_int(inventory.get(rune_name, 0), 0) >= amount for rune_name, amount in missing_runes.items())
+
+
+def _combat_loaded_antipoison_count(data):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    return sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values())
+
+
+def _combat_banked_antipoison_count(data):
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        return 0
+    return sum(_non_negative_int(inventory.get(item_name, 0), 0) for item_name in COMBAT_ANTIPOISON_POTION_DATA)
+
+
+def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None):
+    _combat_refill_food_loadout(data)
+    enemy = COMBAT_ENEMY_DATA.get(target_id, {}) if isinstance(target_id, str) else {}
+    target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
+    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    if target_poison > 0 or "poison" in effects:
+        _combat_refill_antipoison_loadout(data)
+    if combat_class == "ranged":
+        _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
+    elif combat_class == "magic":
+        _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
+
+
+def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None):
+    if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
+        return True
+    enemy = COMBAT_ENEMY_DATA.get(target_id, {}) if isinstance(target_id, str) else {}
+    target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
+    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    if (target_poison > 0 or "poison" in effects) and _combat_loaded_antipoison_count(data) <= 0:
+        if _combat_banked_antipoison_count(data) > 0:
+            return True
+    if combat_class == "ranged":
+        return _combat_loaded_ranged_ammo(data, ranged_weapon_spec) is None and _combat_banked_ranged_ammo_count(data, ranged_weapon_spec) > 0
+    if combat_class == "magic":
+        missing_runes = _combat_missing_loaded_runes(data, spell_spec, equipment_data)
+        return _combat_bank_has_runes(data, missing_runes)
+    return False
+
+
+def _combat_bank_run_result(data, target_id, started=False, completed=False):
+    bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
+    return {
+        "reason": "combat_bank_run",
+        "target_id": target_id,
+        "display_name": COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)
+        if isinstance(target_id, str)
+        else "",
+        "bank_run_started": bool(started),
+        "bank_run_completed": bool(completed),
+        "bank_run_reviews_remaining": _non_negative_int(bank_run.get("reviews_remaining", 0), 0),
+        "ticks": 0,
+        "ticks_elapsed": 0,
+        "player_damage": 0,
+        "enemy_damage": 0,
+        "killed": False,
+        "died": False,
+        "stop_reason": "bank_run",
+        "food_used": tuple(),
+        "potions_used": tuple(),
+        "ammo_used": {},
+        "runes_used": {},
+        "status_damage": {},
+        "status_applied": {},
+        "status_expired": tuple(),
+        "drops": {},
+        "xp_rewards": {},
+    }
+
+
+def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None):
+    bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
+    started = False
+    if not bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data):
+        bank_run = {"reviews_remaining": COMBAT_BANK_RUN_REVIEWS, "target_id": target_id}
+        started = True
+    if not bank_run:
+        data["combat_bank_run"] = {}
+        return None
+    remaining = _non_negative_int(bank_run.get("reviews_remaining", 0), 0) - 1
+    if remaining <= 0:
+        data["combat_bank_run"] = {}
+        _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data)
+        return _combat_bank_run_result(data, target_id, started=started, completed=True)
+    data["combat_bank_run"] = {"reviews_remaining": remaining, "target_id": target_id}
+    return _combat_bank_run_result(data, target_id, started=started, completed=False)
 
 
 def _combat_refill_ranged_ammo_loadout(data, weapon_spec):
@@ -2036,7 +2245,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         return {"state": "blocked", "risk_band": "Blocked", "reasons": reasons}
     player_totals = equipment_stat_totals_pure(player_data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
-    style_id = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
     combat_class = str(style.get("combat_class", "melee"))
     spell_id, spell_spec = _combat_selected_magic_spell(player_data)
@@ -2149,17 +2358,24 @@ def apply_safe_combat_recovery_pure(player_data):
     if status_result.get("died"):
         _combat_apply_pvm_death(data, max_lp, "combat_poison_death")
         return data
-    _combat_refill_food_loadout(data)
-    _combat_refill_antipoison_loadout(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
-        str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
+        combat_attack_style_for_equipment_pure(data),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
     )
-    if str(style.get("combat_class", "melee")) == "ranged":
-        _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, {})
-        _combat_refill_ranged_ammo_loadout(data, weapon_spec)
+    combat_class = str(style.get("combat_class", "melee"))
+    target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, {})
     _spell_id, spell_spec = _combat_selected_magic_spell(data)
-    _combat_refill_magic_rune_loadout(data, spell_spec)
+    bank_run_result = _combat_progress_or_start_bank_run(
+        data,
+        target_id,
+        combat_class,
+        weapon_spec,
+        spell_spec,
+    )
+    if bank_run_result is not None:
+        data["combat_last_result"] = bank_run_result
+        return data
     grave = data.get("combat_grave", {}) or {}
     if isinstance(grave, Mapping) and grave.get("items"):
         grave = dict(grave)
@@ -2232,13 +2448,30 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, enemy_data))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    if target_id not in enemy_data:
+        locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
+        return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
+    style_id = combat_attack_style_for_equipment_pure(data, equipment_data)
+    data["combat_attack_style"] = style_id
+    style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
+    combat_class = str(style.get("combat_class", "melee"))
+    weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
+    spell_id, spell_spec = _combat_selected_magic_spell(data)
+    bank_run_result = _combat_progress_or_start_bank_run(
+        data,
+        target_id,
+        combat_class,
+        ranged_weapon_spec,
+        spell_spec,
+        equipment_data,
+    )
+    if bank_run_result is not None:
+        data["combat_last_result"] = bank_run_result
+        return data, True, bank_run_result
     locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
     if locked_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
-    style_id = str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
-    style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
-    combat_class = str(style.get("combat_class", "melee"))
 
     max_player_lp = combat_max_lifepoints_pure(data)
     player_lp = max(
@@ -2250,18 +2483,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     )
     enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
     encounter = data.get("combat_encounter", {}) or {}
-    weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
-    spell_id, spell_spec = _combat_selected_magic_spell(data)
     if isinstance(encounter, Mapping) and encounter.get("target_id") == target_id:
         enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
     else:
         enemy_lp = enemy_max_lp
-        _combat_refill_food_loadout(data)
-        _combat_refill_antipoison_loadout(data)
-        if combat_class == "ranged":
-            _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
-        elif combat_class == "magic":
-            _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
 
     player_totals = equipment_stat_totals_pure(data.get("equipment", {}) or {}, equipment_data)
     enemy_totals = _combat_enemy_bonuses(enemy)
@@ -2439,12 +2664,6 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + 1
         data["combat_kill_counts"] = kill_counts
         data["combat_encounter"] = {}
-        _combat_refill_food_loadout(data)
-        _combat_refill_antipoison_loadout(data)
-        if combat_class == "ranged":
-            _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
-        elif combat_class == "magic":
-            _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
     elif died:
         player_lp = _combat_apply_pvm_death(data, max_player_lp)
     else:
@@ -2583,6 +2802,7 @@ def _copy_player_data_with_nested(player_data):
     copied["combat_stat_drains"] = dict(player_data.get("combat_stat_drains", {}) or {})
     copied["combat_status_effects"] = dict(player_data.get("combat_status_effects", {}) or {})
     copied["combat_recovery_progress"] = dict(player_data.get("combat_recovery_progress", {}) or {})
+    copied["combat_bank_run"] = _sanitize_combat_bank_run(player_data.get("combat_bank_run"))
     copied["item_charges"] = dict(player_data.get("item_charges", {}) or {})
     copied["unlocked_abilities"] = list(player_data.get("unlocked_abilities", []) or [])
     return copied
@@ -2634,7 +2854,7 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
     _combat_refill_food_loadout(data)
     _combat_refill_antipoison_loadout(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
-        str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
+        combat_attack_style_for_equipment_pure(data, equipment_data or {}),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
     )
     combat_class = str(style.get("combat_class", "melee"))

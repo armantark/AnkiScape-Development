@@ -876,6 +876,15 @@ status update HTML artifacts until the overall goal is complete. Continue source
 audits, tests, Memory Bank markdown, and commits normally, but do not create,
 open, or upload visual status artifacts mid-goal.
 
+2026-06-24 Combat UI follow-up implemented the owner's first post-V1 feedback:
+Combat remains the playable Skills-hub row while Attack, Constitution, Defence,
+Magic, Ranged, and Strength are hidden from the hub; attack style is resolved
+from equipped gear; combat setup moved to the Equipment tab; the global food
+dropdown was removed; loaded supplies now refill from banked supplies through a
+two-review automatic bank-run delay with no 28-food cap; and Combat target rows
+now use wiki-fetched `combatenemies/*.png` sprites instead of Bones/drop icons.
+See `memory-bank/source-audits/combat-ui-bank-run-enemy-images-2026-06-24.md`.
+
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
   could still be justified later if a future feature needs behavior beyond the

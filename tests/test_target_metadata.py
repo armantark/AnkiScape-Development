@@ -437,6 +437,25 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Your max hit:", chicken.tooltip)
         self.assertIn("Ammo: Bronze arrows x0 loaded + 50 bank", chicken.tooltip)
 
+    def test_combat_rows_use_enemy_images_instead_of_bones_fallback(self):
+        rows = combat_target_rows(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "accurate",
+                "constitution_level": 10,
+                "equipment": {},
+                "combat_supply_loadout": {},
+            },
+            COMBAT_ENEMY_DATA,
+            {"Bones": "/tmp/bones.png"},
+            EQUIPMENT_ITEM_DATA,
+            DEFAULT_COMBAT_TARGET,
+            {"chicken": "/tmp/chicken.png"},
+        )
+
+        self.assertEqual(_row(rows, "chicken").icon_path, "/tmp/chicken.png")
+        self.assertIsNone(_row(rows, "rat").icon_path)
+
     def test_combat_rows_mark_death_possible_targets_for_confirmation(self):
         rows = combat_target_rows(
             {
@@ -490,7 +509,7 @@ class TargetMetadataTest(unittest.TestCase):
                 "defense_level": 10,
                 "constitution_level": 10,
                 "inventory": {"Air rune": 5, "Mind rune": 5},
-                "equipment": {},
+                "equipment": {"weapon": "Staff"},
                 "combat_supply_loadout": {"runes": {"Air rune": 1, "Mind rune": 1}},
             },
             COMBAT_ENEMY_DATA,
@@ -558,7 +577,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Rune: Fire rune x7; covered by Staff of fire", chicken.tooltip)
         self.assertIn("Rune: Blood rune x1; 0 loaded + 3 bank", chicken.tooltip)
 
-    def test_combat_rows_lock_magic_without_required_runes(self):
+    def test_combat_rows_ignore_magic_style_without_magic_equipment(self):
         rows = combat_target_rows(
             {
                 "current_combat_target": "chicken",
@@ -579,9 +598,9 @@ class TargetMetadataTest(unittest.TestCase):
 
         chicken = _row(rows, "chicken")
 
-        self.assertFalse(chicken.enabled)
-        self.assertEqual(chicken.locked_reasons, ("runes: Air rune x1, Mind rune x1",))
-        self.assertIn("Locked due to: runes: Air rune x1, Mind rune x1", chicken.tooltip)
+        self.assertTrue(chicken.enabled)
+        self.assertEqual(chicken.locked_reasons, ())
+        self.assertNotIn("Spell: Wind Strike", chicken.tooltip)
 
     def test_smithing_grouped_rows_preserve_tier_sort_and_lock_reasons(self):
         rows = smithing_target_rows(
