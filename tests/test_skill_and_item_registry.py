@@ -476,6 +476,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Dragon spear": "equipment",
             "Eye patch": "equipment",
             "Goblin book": "material",
+            "Half an apple pie": "food",
             "Jug of wine": "food",
             "Loop half of a key": "material",
             "Long bone": "material",

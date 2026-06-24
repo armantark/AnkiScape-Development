@@ -119,6 +119,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-chaos-druid-2026-06-23.md` before touching
   Chaos druid, Vial of water Combat item registration, or Chaos druid nested
   minor-herb/gem table drops; use
+  `memory-bank/source-audits/combat-white-knights-2026-06-23.md` before touching
+  White knight variants, Half an apple pie Combat item registration, or White
+  knight source table-total mismatches; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -197,6 +200,12 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   128-slot main table, Mithril bolts x2-12 quantity range, nested minor-herb and
   no-Ring-of-Wealth gem tables, Vial of water Combat item registration, and
   source item icon provenance.
+  White knights now add the level-36/38/39/42 Humanoids variants, exact source
+  stats/bonuses, Bones plus main and tertiary clue tables, nested minor-herb,
+  allotment-seed, and no-Ring-of-Wealth gem tables, Half an apple pie Combat
+  food registration/icon provenance, and source-runtime main-table denominators
+  128/130/127/127 where the latter three source files declare `total(128)` but
+  build mismatched active entry indices.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;

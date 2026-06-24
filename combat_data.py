@@ -756,6 +756,22 @@ CHAOS_DRUID_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/chaos_druid_lvl_13.plugin.kts"
 )
+WHITE_KNIGHT_LEVEL_36_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/white_knight_level_36.plugin.kts"
+)
+WHITE_KNIGHT_LEVEL_38_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/white_knight_level_38.plugin.kts"
+)
+WHITE_KNIGHT_LEVEL_39_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/white_knight_level_39.plugin.kts"
+)
+WHITE_KNIGHT_LEVEL_42_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/white_knight_level_42.plugin.kts"
+)
 DWARF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/dwarf_level_10_11.plugin.kts"
@@ -1074,6 +1090,200 @@ CHAOS_DRUID_DROPS = {
                 {"item": "Bronze longsword", "quantity": 1, "slots": 1},
                 {"item": "Snape grass", "quantity": 1, "slots": 1},
                 {"table": COMBAT_GEM_DROP_TABLE, "slots": 1},
+            ),
+        },
+    ),
+}
+
+
+WHITE_KNIGHT_LEVEL_36_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Iron longsword", "quantity": 1, "slots": 2},
+                {"item": "Steel sword", "quantity": 1, "slots": 1},
+                {"item": "Steel med helm", "quantity": 1, "slots": 1},
+                {"item": "Mind rune", "quantity": 5, "slots": 11},
+                {"item": "Nature rune", "quantity": 4, "slots": 4},
+                {"item": "Body rune", "quantity_range": (9, 13), "slots": 3},
+                {"item": "Chaos rune", "quantity": 2, "slots": 3},
+                {"item": "Water rune", "quantity_range": (25, 30), "slots": 3},
+                {"item": "Mithril arrows", "quantity": 5, "slots": 2},
+                {"item": "Adamant arrows", "quantity": 2, "slots": 1},
+                {"item": "Blood rune", "quantity": 2, "slots": 1},
+                {"item": "Law rune", "quantity": 2, "slots": 1},
+                {"item": "Coins", "quantity": 48, "slots": 15},
+                {"item": "Coins", "quantity": 15, "slots": 15},
+                {"item": "Coins", "quantity": 8, "slots": 10},
+                {"item": "Coins", "quantity_range": (45, 53), "slots": 10},
+                {"item": "Coins", "quantity": 1, "slots": 5},
+                {"item": "Coins", "quantity": 2, "slots": 5},
+                {"item": "Coins", "quantity": 120, "slots": 1},
+                {"item": "Iron bar", "quantity": 2, "slots": 6},
+                {"item": "Iron bar", "quantity": 1, "slots": 2},
+                {"item": "Half an apple pie", "quantity": 1, "slots": 1},
+                {"item": "Iron ore", "quantity": 1, "slots": 1},
+                {"item": "Pot of flour", "quantity": 1, "slots": 1},
+                {"slots": 2},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 5},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 15},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 1},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+                {"slots": 1016},
+            ),
+        },
+    ),
+}
+
+
+WHITE_KNIGHT_LEVEL_38_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 130,
+            "slots": (
+                {"item": "Iron longsword", "quantity": 1, "slots": 2},
+                {"item": "Steel sword", "quantity": 1, "slots": 1},
+                {"item": "Steel med helm", "quantity": 1, "slots": 2},
+                {"item": "Mind rune", "quantity": 5, "slots": 8},
+                {"item": "Nature rune", "quantity": 4, "slots": 4},
+                {"item": "Body rune", "quantity_range": (10, 14), "slots": 3},
+                {"item": "Chaos rune", "quantity": 3, "slots": 3},
+                {"item": "Water rune", "quantity_range": (30, 35), "slots": 3},
+                {"item": "Mithril arrows", "quantity": 5, "slots": 2},
+                {"item": "Adamant arrows", "quantity": 2, "slots": 3},
+                {"item": "Blood rune", "quantity": 2, "slots": 1},
+                {"item": "Law rune", "quantity": 3, "slots": 1},
+                {"item": "Coins", "quantity": 15, "slots": 13},
+                {"item": "Coins", "quantity": 10, "slots": 15},
+                {"item": "Coins", "quantity": 54, "slots": 10},
+                {"item": "Coins", "quantity_range": (50, 58), "slots": 10},
+                {"item": "Coins", "quantity": 3, "slots": 6},
+                {"item": "Coins", "quantity": 1, "slots": 1},
+                {"item": "Coins", "quantity": 120, "slots": 1},
+                {"item": "Iron bar", "quantity": 2, "slots": 8},
+                {"item": "Iron bar", "quantity": 1, "slots": 2},
+                {"item": "Half an apple pie", "quantity": 1, "slots": 1},
+                {"item": "Iron ore", "quantity": 1, "slots": 1},
+                {"item": "Pot of flour", "quantity": 1, "slots": 1},
+                {"slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 7},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 2},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+                {"slots": 1016},
+            ),
+        },
+    ),
+}
+
+
+WHITE_KNIGHT_LEVEL_39_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 127,
+            "slots": (
+                {"item": "Iron longsword", "quantity": 1, "slots": 2},
+                {"item": "Steel sword", "quantity": 1, "slots": 2},
+                {"item": "Steel med helm", "quantity": 1, "slots": 2},
+                {"item": "Mind rune", "quantity": 10, "slots": 8},
+                {"item": "Nature rune", "quantity": 6, "slots": 4},
+                {"item": "Body rune", "quantity_range": (15, 19), "slots": 3},
+                {"item": "Chaos rune", "quantity": 4, "slots": 3},
+                {"item": "Water rune", "quantity_range": (35, 40), "slots": 3},
+                {"item": "Mithril arrows", "quantity": 7, "slots": 5},
+                {"item": "Adamant arrows", "quantity": 4, "slots": 3},
+                {"item": "Blood rune", "quantity": 3, "slots": 1},
+                {"item": "Law rune", "quantity": 3, "slots": 1},
+                {"item": "Coins", "quantity_range": (15, 19), "slots": 13},
+                {"item": "Coins", "quantity": 15, "slots": 10},
+                {"item": "Coins", "quantity_range": (55, 63), "slots": 10},
+                {"item": "Coins", "quantity_range": (50, 69), "slots": 10},
+                {"item": "Coins", "quantity": 5, "slots": 6},
+                {"item": "Coins", "quantity": 120, "slots": 2},
+                {"item": "Coins", "quantity": 1, "slots": 1},
+                {"item": "Iron bar", "quantity": 2, "slots": 6},
+                {"item": "Iron bar", "quantity": 1, "slots": 2},
+                {"item": "Half an apple pie", "quantity": 1, "slots": 1},
+                {"item": "Iron ore", "quantity": 1, "slots": 1},
+                {"item": "Pot of flour", "quantity": 1, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 7},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 18},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 2},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+                {"slots": 1016},
+            ),
+        },
+    ),
+}
+
+
+WHITE_KNIGHT_LEVEL_42_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 127,
+            "slots": (
+                {"item": "Iron longsword", "quantity": 1, "slots": 2},
+                {"item": "Steel sword", "quantity": 1, "slots": 2},
+                {"item": "Steel med helm", "quantity": 1, "slots": 2},
+                {"item": "Mind rune", "quantity": 12, "slots": 3},
+                {"item": "Nature rune", "quantity": 7, "slots": 4},
+                {"item": "Body rune", "quantity_range": (15, 24), "slots": 3},
+                {"item": "Chaos rune", "quantity": 5, "slots": 3},
+                {"item": "Water rune", "quantity_range": (40, 47), "slots": 3},
+                {"item": "Mithril arrows", "quantity": 9, "slots": 5},
+                {"item": "Adamant arrows", "quantity": 5, "slots": 3},
+                {"item": "Blood rune", "quantity": 3, "slots": 1},
+                {"item": "Law rune", "quantity": 3, "slots": 1},
+                {"item": "Coins", "quantity_range": (51, 55), "slots": 13},
+                {"item": "Coins", "quantity": 15, "slots": 10},
+                {"item": "Coins", "quantity_range": (65, 73), "slots": 10},
+                {"item": "Coins", "quantity": 8, "slots": 6},
+                {"item": "Coins", "quantity_range": (50, 69), "slots": 5},
+                {"item": "Coins", "quantity": 120, "slots": 3},
+                {"item": "Coins", "quantity": 1, "slots": 1},
+                {"item": "Iron bar", "quantity": 2, "slots": 5},
+                {"item": "Iron bar", "quantity": 1, "slots": 2},
+                {"item": "Half an apple pie", "quantity": 1, "slots": 1},
+                {"item": "Iron ore", "quantity": 1, "slots": 1},
+                {"item": "Pot of flour", "quantity": 1, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 7},
+                {"table": COMBAT_ALLOTMENT_SEED_DROP_TABLE, "slots": 28},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 2},
+            ),
+        },
+        {
+            "name": "Tertiary",
+            "total": 1024,
+            "slots": (
+                {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8},
+                {"slots": 1016},
             ),
         },
     ),
@@ -1735,6 +1945,7 @@ COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Shrimps": {"heal_lifepoints": 30, "source": FOOD_SOURCE_PATH},
     "Cooked chicken": {"heal_lifepoints": 40, "source": FOOD_SOURCE_PATH},
     "Cooked meat": {"heal_lifepoints": 40, "source": FOOD_SOURCE_PATH},
+    "Half an apple pie": {"heal_lifepoints": 70, "source": f"{FOOD_SOURCE_PATH}: HALF_AN_APPLE_PIE"},
     "Trout": {"heal_lifepoints": 70, "source": FOOD_SOURCE_PATH},
     "Salmon": {"heal_lifepoints": 90, "source": FOOD_SOURCE_PATH},
     "Tuna": {"heal_lifepoints": 100, "source": FOOD_SOURCE_PATH},
@@ -4057,6 +4268,137 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "main table declares total(128), active source slots sum to 116"
         ),
     },
+    "white_knight_level_36": {
+        "display_name": "White knight",
+        "level": 36,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 520,
+            "attack": 27,
+            "strength": 29,
+            "defence": 21,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 30,
+            "attack_slash": 30,
+            "attack_crush": 30,
+            "defence_stab": 83,
+            "defence_slash": 76,
+            "defence_crush": 70,
+            "defence_magic": -11,
+            "defence_ranged": 74,
+            "melee_strength": 31,
+        },
+        "drops": WHITE_KNIGHT_LEVEL_36_DROPS,
+        "source": (
+            f"{WHITE_KNIGHT_LEVEL_36_SOURCE_PATH}: id Npcs.WHITE_KNIGHT; "
+            "source attackBonus/strengthBonus mapped to melee attack/strength bonuses"
+        ),
+    },
+    "white_knight_level_38": {
+        "display_name": "White knight",
+        "level": 38,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 520,
+            "attack": 30,
+            "strength": 29,
+            "defence": 25,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 30,
+            "attack_slash": 30,
+            "attack_crush": 30,
+            "defence_stab": 83,
+            "defence_slash": 76,
+            "defence_crush": 70,
+            "defence_magic": -11,
+            "defence_ranged": 74,
+            "melee_strength": 31,
+        },
+        "drops": WHITE_KNIGHT_LEVEL_38_DROPS,
+        "source": (
+            f"{WHITE_KNIGHT_LEVEL_38_SOURCE_PATH}: id Npcs.WHITE_KNIGHT_3348; "
+            "source attackBonus/strengthBonus mapped to melee attack/strength bonuses; "
+            "main table declares total(128), active source slots sum to 130"
+        ),
+    },
+    "white_knight_level_39": {
+        "display_name": "White knight",
+        "level": 39,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 520,
+            "attack": 32,
+            "strength": 29,
+            "defence": 27,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 30,
+            "attack_slash": 30,
+            "attack_crush": 30,
+            "defence_stab": 83,
+            "defence_slash": 76,
+            "defence_crush": 70,
+            "defence_magic": -11,
+            "defence_ranged": 74,
+            "melee_strength": 31,
+        },
+        "drops": WHITE_KNIGHT_LEVEL_39_DROPS,
+        "source": (
+            f"{WHITE_KNIGHT_LEVEL_39_SOURCE_PATH}: id Npcs.WHITE_KNIGHT_3349; "
+            "source attackBonus/strengthBonus mapped to melee attack/strength bonuses; "
+            "main table declares total(128), active source slots sum to 127"
+        ),
+    },
+    "white_knight_level_42": {
+        "display_name": "White knight",
+        "level": 42,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 7,
+        "respawn_delay": 50,
+        "stats": {
+            "hitpoints": 520,
+            "attack": 32,
+            "strength": 29,
+            "defence": 27,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 30,
+            "attack_slash": 30,
+            "attack_crush": 30,
+            "defence_stab": 83,
+            "defence_slash": 76,
+            "defence_crush": 70,
+            "defence_magic": -11,
+            "defence_ranged": 74,
+            "melee_strength": 31,
+        },
+        "drops": WHITE_KNIGHT_LEVEL_42_DROPS,
+        "source": (
+            f"{WHITE_KNIGHT_LEVEL_42_SOURCE_PATH}: id Npcs.WHITE_KNIGHT_3350; "
+            "source attackBonus/strengthBonus mapped to melee attack/strength bonuses; "
+            "main table declares total(128), active source slots sum to 127"
+        ),
+    },
     "barbarian": {
         "display_name": "Barbarian",
         "level": 8,
@@ -4853,6 +5195,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Grimy marrentill": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_MARRENTILL"},
     "Grimy ranarr": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_RANARR"},
     "Grimy tarromin": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.GRIMY_TARROMIN"},
+    "Half an apple pie": {"category": "food", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HALF_AN_APPLE_PIE"},
     "Harralander seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.HARRALANDER_SEED"},
     "Irit seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.IRIT_SEED"},
     "Jangerberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.JANGERBERRY_SEED"},

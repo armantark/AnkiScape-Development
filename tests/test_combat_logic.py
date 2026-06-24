@@ -21,6 +21,10 @@ from combat_data import (
     RANGED_STRATEGY_SOURCE_PATH,
     SKELETON_HIGH_DROPS,
     SKELETON_LOW_DROPS,
+    WHITE_KNIGHT_LEVEL_36_DROPS,
+    WHITE_KNIGHT_LEVEL_38_DROPS,
+    WHITE_KNIGHT_LEVEL_39_DROPS,
+    WHITE_KNIGHT_LEVEL_42_DROPS,
     ZOMBIE_DROPS,
     ZOMBIE_LEVEL_25_DROPS,
 )
@@ -969,6 +973,101 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("total(128)", black_knight["source"])
         self.assertIn("active source slots sum to 116", black_knight["source"])
 
+    def test_white_knight_rows_match_source_and_runtime_drop_totals(self):
+        expected = {
+            "white_knight_level_36": (
+                36,
+                27,
+                21,
+                WHITE_KNIGHT_LEVEL_36_DROPS,
+                128,
+                "white_knight_level_36.plugin.kts",
+                "Npcs.WHITE_KNIGHT",
+                None,
+            ),
+            "white_knight_level_38": (
+                38,
+                30,
+                25,
+                WHITE_KNIGHT_LEVEL_38_DROPS,
+                130,
+                "white_knight_level_38.plugin.kts",
+                "Npcs.WHITE_KNIGHT_3348",
+                "active source slots sum to 130",
+            ),
+            "white_knight_level_39": (
+                39,
+                32,
+                27,
+                WHITE_KNIGHT_LEVEL_39_DROPS,
+                127,
+                "white_knight_level_39.plugin.kts",
+                "Npcs.WHITE_KNIGHT_3349",
+                "active source slots sum to 127",
+            ),
+            "white_knight_level_42": (
+                42,
+                32,
+                27,
+                WHITE_KNIGHT_LEVEL_42_DROPS,
+                127,
+                "white_knight_level_42.plugin.kts",
+                "Npcs.WHITE_KNIGHT_3350",
+                "active source slots sum to 127",
+            ),
+        }
+
+        for target_id, (level, attack, defence, drops, total, source_file, npc_id, mismatch) in expected.items():
+            with self.subTest(target_id=target_id):
+                knight = COMBAT_ENEMY_DATA[target_id]
+                main, tertiary = knight["drops"]["tables"]
+
+                self.assertEqual(knight["display_name"], "White knight")
+                self.assertEqual(knight["level"], level)
+                self.assertEqual(knight["group"], "Humanoids")
+                self.assertEqual(knight["attack_speed"], 7)
+                self.assertEqual(knight["respawn_delay"], 50)
+                self.assertEqual(knight["stats"]["hitpoints"], 520)
+                self.assertEqual(knight["stats"]["attack"], attack)
+                self.assertEqual(knight["stats"]["strength"], 29)
+                self.assertEqual(knight["stats"]["defence"], defence)
+                self.assertEqual(knight["bonuses"]["attack_stab"], 30)
+                self.assertEqual(knight["bonuses"]["attack_slash"], 30)
+                self.assertEqual(knight["bonuses"]["attack_crush"], 30)
+                self.assertEqual(knight["bonuses"]["melee_strength"], 31)
+                self.assertEqual(knight["bonuses"]["defence_stab"], 83)
+                self.assertEqual(knight["bonuses"]["defence_slash"], 76)
+                self.assertEqual(knight["bonuses"]["defence_crush"], 70)
+                self.assertEqual(knight["bonuses"]["defence_magic"], -11)
+                self.assertEqual(knight["bonuses"]["defence_ranged"], 74)
+                self.assertIs(knight["drops"], drops)
+                self.assertEqual(knight["drops"]["guaranteed"], (("Bones", 1),))
+                self.assertEqual(main["total"], total)
+                self.assertEqual(sum(slot["slots"] for slot in main["slots"]), total)
+                self.assertEqual(tertiary["total"], 1024)
+                self.assertEqual(sum(slot["slots"] for slot in tertiary["slots"]), 1024)
+                self.assertEqual(tertiary["slots"][0], {"item": "Clue scroll (easy)", "quantity": 1, "slots": 8})
+                self.assertIn(source_file, knight["source"])
+                self.assertIn(npc_id, knight["source"])
+                self.assertIn("attackBonus/strengthBonus", knight["source"])
+                if mismatch:
+                    self.assertIn("total(128)", knight["source"])
+                    self.assertIn(mismatch, knight["source"])
+
+        level36_main = COMBAT_ENEMY_DATA["white_knight_level_36"]["drops"]["tables"][0]
+        self.assertEqual(level36_main["slots"][5], {"item": "Body rune", "quantity_range": (9, 13), "slots": 3})
+        self.assertEqual(level36_main["slots"][7], {"item": "Water rune", "quantity_range": (25, 30), "slots": 3})
+        self.assertEqual(level36_main["slots"][21], {"item": "Half an apple pie", "quantity": 1, "slots": 1})
+        self.assertIs(level36_main["slots"][25]["table"], COMBAT_MINOR_HERB_DROP_TABLE)
+        self.assertIs(level36_main["slots"][26]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
+        self.assertIs(level36_main["slots"][27]["table"], COMBAT_GEM_DROP_TABLE)
+
+        level42_main = COMBAT_ENEMY_DATA["white_knight_level_42"]["drops"]["tables"][0]
+        self.assertEqual(level42_main["slots"][7], {"item": "Water rune", "quantity_range": (40, 47), "slots": 3})
+        self.assertEqual(level42_main["slots"][12], {"item": "Coins", "quantity_range": (51, 55), "slots": 13})
+        self.assertEqual(level42_main["slots"][25]["slots"], 28)
+        self.assertIs(level42_main["slots"][25]["table"], COMBAT_ALLOTMENT_SEED_DROP_TABLE)
+
     def test_dwarf_import_rows_match_source_and_nested_global_gem_tables(self):
         level10 = COMBAT_ENEMY_DATA["dwarf_level_10"]
         level11 = COMBAT_ENEMY_DATA["dwarf_level_11"]
@@ -1667,6 +1766,29 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Potato seed": 4, "Green charm": 1})
+
+    def test_white_knight_drop_rolls_quantity_ranges_nested_tables_and_tertiary(self):
+        body_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["white_knight_level_36"],
+            _rng([19 / 128, 0.999999, 0.999999]),
+        )
+        allotment_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["white_knight_level_42"],
+            _rng([97 / 127, 0.0, 0.999999]),
+        )
+        gem_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["white_knight_level_38"],
+            _rng([128 / 130, 512 / 1024, 0.999999]),
+        )
+        clue_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["white_knight_level_39"],
+            _rng([0.999999, 0.0, 0.0]),
+        )
+
+        self.assertEqual(body_drops, {"Bones": 1, "Body rune": 13})
+        self.assertEqual(allotment_drops, {"Bones": 1, "Potato seed": 4})
+        self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
+        self.assertEqual(clue_drops, {"Bones": 1, "Clue scroll (easy)": 1})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

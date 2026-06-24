@@ -275,6 +275,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T06:07:20Z"
   },
+  "combatitems/half_an_apple_pie.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Half_an_apple_pie.png",
+    "file_title": "Half an apple pie.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Half_an_apple_pie.png?43cf2",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "0ddaea43750c9a050c53e3805bdbd3b397ec6e2e",
+    "size": 677,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:41Z"
+  },
   "combatitems/loop_half_of_a_key.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Loop_half_of_a_key.png",
     "file_title": "Loop half of a key.png",
