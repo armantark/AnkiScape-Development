@@ -655,9 +655,11 @@ class TestQuestCatalog(unittest.TestCase):
             {"Top-quality milk": 1, "Extra fine flour": 1, "Super large egg": 1},
         )
 
+        self.assertEqual(data["vampyre_slayer"]["requirements"], ())
         vampyre_by_stage = {row["stage"]: row for row in data["vampyre_slayer"]["stage_requirements"]}
-        self.assertEqual(vampyre_by_stage[2]["consumed_inventory"], {"Beer": 1})
+        self.assertEqual(vampyre_by_stage[2]["consumed_inventory"], {})
         self.assertEqual(vampyre_by_stage[2]["produced_inventory"], {"Stake": 1, "Stake hammer": 1})
+        self.assertEqual(vampyre_by_stage[2]["required_actions"], ("Buy Dr Harlow a beer at the Blue Moon Inn",))
         vampyre = vampyre_by_stage[3]
         self.assertEqual(vampyre["required_inventory"], {"Stake": 1})
         self.assertEqual(vampyre["consumed_inventory"], {"Stake": 1})

@@ -862,6 +862,7 @@ top-quality milk, extra fine flour, and super large egg; Imp Catcher consumes
 the four beads and no longer grants generated coins; Druidic Ritual transforms
 raw meats into enchanted meats before Sanfew/Kaqemeex; Pirate's Treasure
 produces Chest key and Pirate message; Vampyre Slayer keeps garlic optional,
+models Dr Harlow's Blue Moon Inn beer as an action instead of an inventory gate,
 produces stake/stake hammer from Dr Harlow, resolves Count Draynor at stage 3,
 consumes the stake after the combat gate, and requires Morgan before awarding
 Attack XP. Frontend: the existing Quests tab blocker surface now has offscreen

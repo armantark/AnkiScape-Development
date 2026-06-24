@@ -474,6 +474,7 @@ stages and only blocks on Bucket/Empty pot before the final hand-in consumes
 them, Imp Catcher consumes only the four beads and no longer grants generated
 coins, Druidic Ritual transforms raw meats into enchanted meats before Sanfew/Kaqemeex,
 Pirate's Treasure produces Chest key and Pirate message, and Vampyre Slayer
+models Dr Harlow's Blue Moon Inn beer as an action-only quest-local acquisition,
 produces stake/stake hammer, keeps garlic optional, resolves Count Draynor at
 stage 3, consumes the stake after the battle gate, and requires the Morgan
 report before Attack XP. A 2011Scape intermediate batch then added

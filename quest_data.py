@@ -2882,7 +2882,7 @@ QUEST_OVERRIDES: Tuple[QuestDefinition, ...] = (
         point_reward=3,
         rewards=(),
         start_point="Speak to Morgan in Draynor Village.",
-        requirements=("Used during quest: Beer x1, Stake x1, Stake hammer x1",),
+        requirements=(),
         required_items=(),
         combat="Count Draynor (level 37); garlic is optional and weakens him.",
         source=(
@@ -5440,11 +5440,10 @@ QUEST_STAGE_REQUIREMENT_REPLACEMENTS_BY_ID: Dict[str, Tuple[QuestStageRequiremen
         ),
         _stage_req(
             2,
-            "Give Dr Harlow a beer and receive vampyre-slaying gear.",
+            "Buy Dr Harlow a beer at the Blue Moon Inn and receive vampyre-slaying gear.",
             f"{VAMPYRE_SLAYER_SOURCE_PATH}; {VAMPYRE_SLAYER_DR_HARLOW_SOURCE_PATH}",
-            consumed_inventory=(("Beer", 1),),
             produced_inventory=(("Stake", 1), ("Stake hammer", 1)),
-            required_actions=("Give Dr Harlow a beer",),
+            required_actions=("Buy Dr Harlow a beer at the Blue Moon Inn",),
         ),
         _stage_req(
             3,

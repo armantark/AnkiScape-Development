@@ -10,6 +10,34 @@ they do not get lost between planning and implementation. It is intentionally a
 design artifact, not implementation proof: Combat V1 still requires source
 audits, code, assets, tests, and runtime verification before it exists in-game.
 
+## Owner UI Feedback - 2026-06-24
+
+The first implementation proved the backend combat loop, but the owner rejected
+the initial Combat panel shape. Treat these as binding UI amendments for the
+next implementation pass:
+
+- The Skills hub should not list Attack, Constitution, Defence, Magic, Ranged,
+  or Strength as separate skill rows. Combat is the playable row; the individual
+  combat stats remain visible in Stats and still receive XP internally.
+- Attack style should be derived from equipped gear instead of exposed as a
+  free global dropdown. The UI can show the active equipment-derived combat
+  mode, but invalid gear/style combinations should fail closed through readiness
+  checks.
+- Combat supply setup belongs with Equipment rather than at the top of the
+  Combat target list. The Equipment tab should expose the current supply queue,
+  threshold, refill/unload controls, and right-click queue actions for banked
+  supplies.
+- Food should not be selected from a global dropdown containing unowned food.
+  Only food actually present in the Bank should be queueable. The queue should
+  be configured by right-clicking bank rows and choosing an amount to place into
+  the auto-eat queue.
+- Supply queues should simulate bank runs and therefore should not have a fixed
+  maximum for repeatable farm targets. Bosses, non-farmed enemies, or one-time
+  enemies may need tighter rules later, especially once Summoning balance enters
+  scope.
+- Combat target rows should use a small image of the actual enemy from the wiki
+  instead of falling back to Bones or other drop icons.
+
 ## Decisions
 
 1. Combat should be handled as one goal with internal checkpoints, not as a

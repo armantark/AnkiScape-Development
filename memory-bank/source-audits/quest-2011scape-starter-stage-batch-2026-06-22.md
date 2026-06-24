@@ -56,9 +56,10 @@ Slayer.
 - Pirate's Treasure now models `Karamja rum -> Chest key -> Pirate message ->
   Spade/dig -> Casket`, with the optional gardener left out of hard combat
   blockers.
-- Vampyre Slayer now models Dr Harlow, beer consumption, stake/stake hammer
-  production, Count Draynor combat, stake consumption, and Morgan report. Garlic
-  is documented as optional and is not a hard inventory blocker.
+- Vampyre Slayer now models Dr Harlow, a Blue Moon Inn beer action instead of a
+  pre-owned Beer inventory gate, stake/stake hammer production, Count Draynor
+  combat, stake consumption, and Morgan report. Garlic is documented as optional
+  and is not a hard inventory blocker.
 - Count Draynor remains resolver-ready from local 2011Scape stats. The global
   combat lock still fails closed until `quest_combat_config.resolver_enabled`
   is true.
@@ -145,12 +146,13 @@ QT offscreen discover: Ran 463 tests in 93.919s - OK
 8. For Pirate's Treasure, confirm Karamja rum produces Chest key, Chest key
    produces Pirate message, and the final Spade/message dig awards only the
    casket and 2 quest points.
-9. For Vampyre Slayer, confirm stage 2 consumes Beer and produces Stake plus
-   Stake hammer; stage 3 blocks on combat while the global resolver is disabled;
-   enabling the resolver with sufficient combat stats resolves Count Draynor
-   without completing the quest; a later review consumes Stake and advances to
-   Morgan; Morgan's action gate completes the quest and parks Attack XP in
-   pending skill XP.
+9. For Vampyre Slayer, confirm stage 2 requires the Blue Moon Inn beer action
+   without needing a pre-owned Beer item, then produces Stake plus Stake hammer;
+   stage 3 blocks on combat while the global resolver is disabled; enabling the
+   resolver with sufficient combat stats resolves Count Draynor without
+   completing the quest; a later review consumes Stake and advances to Morgan;
+   Morgan's action gate completes the quest and parks Attack XP in pending skill
+   XP.
 
 ## Remaining Gaps
 

@@ -116,10 +116,14 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   Quest-only products must be produced by earlier quest stages before a later
   hand-in consumes or requires them; Cook's Assistant proves this by producing
   Super large egg, Top-quality milk, and Extra fine flour in stages, with only
-  Bucket and Empty pot acting as external inventory blockers. The same rule now
-  protects Clock Tower rat poison/cogs, Monk's Friend blanket, Dwarf Cannon
-  railings/remains/Nulodion items, Sheep Herder cattleprod/bones, and
-  Biohazard's rotten apple. Partner-supplied quest items should follow the same
+  Bucket and Empty pot acting as external inventory blockers. Common items
+  bought or obtained as part of the same quest should be action-modeled instead
+  of shown as quest-wide inventory gates; Vampyre Slayer's Blue Moon Inn beer is
+  the proof case, while its Stake and Stake hammer are produced by Dr Harlow.
+  The same produced-item rule now protects Clock Tower rat poison/cogs, Monk's
+  Friend blanket, Dwarf Cannon railings/remains/Nulodion items, Sheep Herder
+  cattleprod/bones, and Biohazard's rotten apple. Partner-supplied quest items
+  should follow the same
   principle without pretending the player already owns the item: Shield of
   Arrav's Black Arm weapon-store key is modeled as Phoenix-partner action gates
   that produce the key and crossbows when the stage advances. Generated rows

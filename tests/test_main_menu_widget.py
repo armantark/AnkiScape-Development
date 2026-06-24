@@ -2197,6 +2197,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Receive the ghostspeak amulet", action.toolTip())
 
+    def test_quests_tab_vampyre_slayer_easy_items_are_not_prestart_requirements(self) -> None:
+        pd = _make_player_data()
+        pd["current_quest"] = "vampyre_slayer"
+        pd["quests"]["vampyre_slayer"] = {"started": True, "progress": 1, "completed": False}
+        dialog = self._open(pd)
+
+        card = dialog.findChild(QWidget, "questCard_vampyre_slayer")
+        self.assertIsNotNone(card)
+        labels = [lbl.text() for lbl in card.findChildren(QLabel)]
+        self.assertIn("Blocked: Action required: Speak to Dr Harlow at the Blue Moon Inn", labels)
+        self.assertFalse(any(text.startswith("Requires:") for text in labels))
+
     def test_quests_tab_shows_priest_in_peril_essence_stage_blocker(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "priest_in_peril"
