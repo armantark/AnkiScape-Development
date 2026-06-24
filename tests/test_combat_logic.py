@@ -1273,6 +1273,36 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("farmer_level_7.plugin.kts", farmer["source"])
         self.assertIn("FARMER_1757", farmer["source"])
 
+    def test_chaos_druid_row_matches_source_and_nested_tables(self):
+        druid = COMBAT_ENEMY_DATA["chaos_druid"]
+        (main,) = druid["drops"]["tables"]
+
+        self.assertEqual(druid["display_name"], "Chaos druid")
+        self.assertEqual(druid["level"], 13)
+        self.assertEqual(druid["group"], "Humanoids")
+        self.assertEqual(druid["attack_speed"], 4)
+        self.assertEqual(druid["respawn_delay"], 25)
+        self.assertEqual(druid["stats"]["hitpoints"], 200)
+        self.assertEqual(druid["stats"]["attack"], 8)
+        self.assertEqual(druid["stats"]["strength"], 8)
+        self.assertEqual(druid["stats"]["defence"], 12)
+        self.assertEqual(druid["stats"]["magic"], 10)
+        self.assertEqual(druid["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Law rune", "quantity": 2, "slots": 7})
+        self.assertEqual(main["slots"][1], {"item": "Mithril bolts", "quantity_range": (2, 12), "slots": 5})
+        self.assertEqual(main["slots"][7]["slots"], 46)
+        self.assertIs(main["slots"][7]["table"], COMBAT_MINOR_HERB_DROP_TABLE)
+        self.assertEqual(main["slots"][13], {"item": "Vial of water", "quantity": 1, "slots": 10})
+        self.assertEqual(main["slots"][14], {"item": "Bronze longsword", "quantity": 1, "slots": 1})
+        self.assertEqual(main["slots"][15], {"item": "Snape grass", "quantity": 1, "slots": 1})
+        self.assertIs(main["slots"][16]["table"], COMBAT_GEM_DROP_TABLE)
+        self.assertEqual(main["slots"][16]["slots"], 1)
+        self.assertIn("chaos_druid_lvl_13.plugin.kts", druid["source"])
+        self.assertIn("CHAOS_DRUID_7105", druid["source"])
+        self.assertIn("aggro radius 4", druid["source"])
+
     def test_citizen_row_matches_source_and_nested_minor_herbs(self):
         citizen = COMBAT_ENEMY_DATA["citizen"]
         main, tertiary = citizen["drops"]["tables"]
@@ -1720,6 +1750,24 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
+
+    def test_chaos_druid_drop_rolls_quantity_range_and_nested_tables(self):
+        bolt_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["chaos_druid"],
+            _rng([7 / 128, 0.999999]),
+        )
+        herb_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["chaos_druid"],
+            _rng([22 / 128, 0.0]),
+        )
+        gem_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["chaos_druid"],
+            _rng([127 / 128, 512 / 1024]),
+        )
+
+        self.assertEqual(bolt_drops, {"Bones": 1, "Mithril bolts": 12})
+        self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
+        self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
 
     def test_al_kharid_warrior_quantity_range_drop_rolls(self):
         drops = _combat_roll_drops(

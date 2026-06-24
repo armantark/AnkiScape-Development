@@ -383,6 +383,18 @@
     "source_wiki": "rs3",
     "timestamp": "2021-12-01T18:45:07Z"
   },
+  "combatitems/vial_of_water.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Vial_of_water.png",
+    "file_title": "Vial of water.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Vial_of_water.png?e3acf",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "d531b547b7f75617c20eff76ea03e09a3de64847",
+    "size": 799,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:08:05Z"
+  },
   "combatitems/wooden_shield.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Wooden_shield.png",
     "file_title": "Wooden shield.png",

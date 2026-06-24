@@ -43,7 +43,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
   armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
   Mugger, Thug, Thief, Market guard, Guard level 21
-  Varrock/sword/battleaxe variants, Jail guard, Black knight,
+  Varrock/sword/battleaxe variants, Jail guard, Black knight, Chaos druid,
   Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10,
   Barbarian level 17, Seagull,
   Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
@@ -116,6 +116,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Guard rows, Guard drop-table overflow handling, or medium clue Combat drops; use
   `memory-bank/source-audits/combat-black-knight-2026-06-23.md` before touching
   Black knight, Black knight drops, or the 116-slot Black knight table mismatch; use
+  `memory-bank/source-audits/combat-chaos-druid-2026-06-23.md` before touching
+  Chaos druid, Vial of water Combat item registration, or Chaos druid nested
+  minor-herb/gem table drops; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
   touching Al-Kharid warrior or nested minor-herb table support; use
   `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
@@ -190,6 +193,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   Black knight now adds the source level-33 Humanoids row, nested minor-herb,
   allotment-seed, and no-Ring-of-Wealth gem tables, charms, and the source
   runtime 116-slot active main table despite the file's declared `total(128)`.
+  Chaos druid now adds the source level-13 aggressive Humanoids row, exact
+  128-slot main table, Mithril bolts x2-12 quantity range, nested minor-herb and
+  no-Ring-of-Wealth gem tables, Vial of water Combat item registration, and
+  source item icon provenance.
   Dwarf now adds the local level-10
   and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
   `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;

@@ -752,6 +752,10 @@ BLACK_KNIGHT_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/black_knight_level_33.plugin.kts"
 )
+CHAOS_DRUID_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/chaos_druid_lvl_13.plugin.kts"
+)
 DWARF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/dwarf_level_10_11.plugin.kts"
@@ -1040,6 +1044,36 @@ FARMER_DROPS = {
             "slots": (
                 {"item": "Clue scroll (easy)", "quantity": 1, "slots": 1},
                 {"slots": 127},
+            ),
+        },
+    ),
+}
+
+
+CHAOS_DRUID_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Law rune", "quantity": 2, "slots": 7},
+                {"item": "Mithril bolts", "quantity_range": (2, 12), "slots": 5},
+                {"item": "Air rune", "quantity": 36, "slots": 3},
+                {"item": "Body rune", "quantity": 9, "slots": 2},
+                {"item": "Earth rune", "quantity": 9, "slots": 2},
+                {"item": "Mind rune", "quantity": 12, "slots": 2},
+                {"item": "Nature rune", "quantity": 3, "slots": 1},
+                {"table": COMBAT_MINOR_HERB_DROP_TABLE, "slots": 46},
+                {"item": "Coins", "quantity": 3, "slots": 5},
+                {"item": "Coins", "quantity": 8, "slots": 5},
+                {"item": "Coins", "quantity": 29, "slots": 3},
+                {"item": "Coins", "quantity": 35, "slots": 1},
+                {"slots": 33},
+                {"item": "Vial of water", "quantity": 1, "slots": 10},
+                {"item": "Bronze longsword", "quantity": 1, "slots": 1},
+                {"item": "Snape grass", "quantity": 1, "slots": 1},
+                {"table": COMBAT_GEM_DROP_TABLE, "slots": 1},
             ),
         },
     ),
@@ -2290,6 +2324,38 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": FARMER_DROPS,
         "source": f"{FARMER_SOURCE_PATH}: ids FARMER/FARMER_1757/FARMER_1758",
+    },
+    "chaos_druid": {
+        "display_name": "Chaos druid",
+        "level": 13,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 25,
+        "stats": {
+            "hitpoints": 200,
+            "attack": 8,
+            "strength": 8,
+            "defence": 12,
+            "magic": 10,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": CHAOS_DRUID_DROPS,
+        "source": (
+            f"{CHAOS_DRUID_SOURCE_PATH}: ids Npcs.CHAOS_DRUID_2547/Npcs.CHAOS_DRUID/"
+            "Npcs.CHAOS_DRUID_7105; aggro radius 4"
+        ),
     },
     "citizen": {
         "display_name": "Man/Woman",
@@ -4833,6 +4899,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Torstol seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TORSTOL_SEED"},
     "Unicorn horn": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.UNICORN_HORN"},
     "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
+    "Vial of water": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL_OF_WATER"},
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
     "Whiteberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WHITEBERRY_SEED"},
