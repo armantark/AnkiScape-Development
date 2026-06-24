@@ -672,6 +672,7 @@ class MainMenuWidgetTest(unittest.TestCase):
                 "combat_auto_eat_food": ["Lobster", "Shrimps"],
                 "combat_supply_loadout": {
                     "food": {"Lobster": 3},
+                    "potions": {"Antipoison (1)": 1},
                     "ammo": {"Bronze arrows": 10},
                     "runes": {"Air rune": 5, "Mind rune": 5},
                 },
@@ -693,6 +694,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(threshold_spin.value(), 55)
         self.assertEqual(food_combo.currentData(), "Lobster")
         self.assertIn("Food: 3/28 loaded", summary_label.text())
+        self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
         self.assertIn("Ammo: Bronze arrows x10", summary_label.text())
         self.assertIn("Runes: Air rune x5, Mind rune x5", summary_label.text())
 

@@ -168,7 +168,7 @@ persists lifepoints/enemy encounter state, routes melee damage XP through the
 selected attack style plus Constitution, consumes real auto-eat food, and rolls
 source-backed drops including inclusive drop quantity ranges. The follow-up
 recovery foundation is also in place:
-finite carried food loadouts refill only at safe boundaries, safe noncombat
+finite carried food and potion loadouts refill only at safe boundaries, safe noncombat
 reviews apply one rollback-safe recovery packet per card, special-attack energy
 regenerates on review ticks, stat-drain recovery state is scaffolded, and enemy
 tooltips show loaded/banked food readiness. Persistent poison status now uses
@@ -176,7 +176,10 @@ the local source tick/damage curve, advances during Combat bursts and safe
 noncombat recovery reviews, clears on death, and appears in the review HUD while
 active. Source-backed poison enemies now roll the local 40% NPC poison chance
 from `poisonDamage = 3`, write the same persistent player poison status, and
-surface poison threat in target previews. Safe recovery now also refills Ranged ammo from inventory when the
+surface poison threat in target previews. Loaded Antipoison and Super
+antipoison doses now auto-cure active poison, preserve source dose replacement,
+grant poison-immunity timers, and suppress poison preview damage while immunity
+is active. Safe recovery now also refills Ranged ammo from inventory when the
 current Combat style is Ranged. The Ranged
 path now covers standard bows from Shortbow through Magic longbow with Bronze
 through Rune arrow compatibility, using the same Combat burst engine, consuming
@@ -241,11 +244,15 @@ reviews, damage follows local `Poison.getDamageForTicks`, and poison death uses
 the existing Combat grave path. Poison scorpion and Poison spider now apply that
 status from source `poisonDamage = 3` attacks with the local 4-in-10 NPC poison
 roll; Cave slime stays deferred until Slayer gates and shared gem-table drops
-exist. Antipoison auto-cure, weapon poison, poison immunity, and broader
-status/potion effects remain deferred until potion loadout and effect metadata
-exist. Source proof lives in
+exist. Antipoison and Super antipoison dose handling now auto-cures active
+poison from `combat_supply_loadout["potions"]`, preserves source dose
+replacement, grants source immunity timers, and blocks new poison while
+immunity is active. Weapon poison, broader enemy poison coverage,
+non-antipoison immunity sources, and broader status/potion effects remain
+deferred. Source proof lives in
 `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md` and
-`memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`.
+`memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`, plus
+`memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`.
 
 Combat ordinary critter coverage now also includes source-backed Scorpion,
 Spider level 24, Deadly red spider, and Giant spider level 50 rows. These reuse
@@ -298,10 +305,10 @@ registry row into a real playable skill panel.
 
 Player-facing Combat loadout controls are now live in the Combat hub. The panel
 shows and persists auto-eat threshold, preferred food priority, a finite
-food/ammo/rune loadout summary, and safe-boundary Refill/Unload buttons. The
+food/potion/ammo/rune loadout summary, and safe-boundary Refill/Unload buttons. The
 callbacks use pure helpers in `logic_pure.py`, refuse manual refill/unload while
 an active fight is in progress, and preserve the existing rule that food, ammo,
-and runes come from `combat_supply_loadout` rather than the whole Bank during a
+potions, and runes come from `combat_supply_loadout` rather than the whole Bank during a
 burst.
 
 Combat death recovery now includes the first Death's Office implementation.

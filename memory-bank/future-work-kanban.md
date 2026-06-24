@@ -50,10 +50,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   real food; drops follow the imported guaranteed/multi-table/quantity-range semantics; the
   Combat hub and HUD surface target/style/lifepoint state; and storage defaults
   persist combat state. The recovery/loadout foundation now adds finite carried
-  food, safe-boundary food/rune/ammo loadout refills, review-tick special-energy regeneration,
+  food, safe-boundary food/potion/rune/ammo loadout refills, review-tick special-energy regeneration,
   stat-drain recovery scaffolding, status-effect save hooks, and Combat tooltip
   food readiness. Player-facing loadout controls now expose auto-eat threshold,
-  preferred food priority, loaded food/ammo/rune summaries, and safe-boundary
+  preferred food priority, loaded food/potion/ammo/rune summaries, and safe-boundary
   Refill/Unload actions while preserving the no-mid-fight-refill rule. Death's
   Office recovery now handles stacked Combat deaths: a second death moves the
   old active grave into flat `death_office.items`, the Bank tab exposes reclaim,
@@ -62,7 +62,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   during Combat bursts and safe noncombat reviews, deals source-formula damage,
   clears on death, and appears in the review HUD while active; Poison scorpion
   and Poison spider now apply that status from source `poisonDamage = 3` attacks
-  with the local 4-in-10 NPC poison chance. Combat Magic now covers the standard elemental spell ladder through
+  with the local 4-in-10 NPC poison chance. Loaded Antipoison and Super
+  antipoison doses now auto-cure active poison, preserve source dose
+  replacement, grant poison-immunity timers, and block new poison while immunity
+  is active. Combat Magic now covers the standard elemental spell ladder through
   Fire Wave, with source level/rune/max-hit/base-XP rows and existing elemental
   staff rune substitution. Combat Ranged now covers standard bows from Shortbow
   through Magic longbow with Bronze through Rune arrow compatibility; Broad
@@ -86,7 +89,9 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   touching poison status recovery; use
   `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md` before
   touching source NPC poison application or Poison scorpion/Poison spider rows;
-  use `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
+  use `memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`
+  before touching antipoison loadout cure or poison immunity; use
+  `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
   before touching Scorpion, Spider level 24, Deadly red spider, or Giant spider
   level 50 rows; use
   `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
@@ -100,7 +105,7 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
   touching death/reclaim again. Next Combat work should widen source-backed enemies,
   broaden Ranged equipment/ammo beyond the standard bow ladder, add god/Ancient/Lunar spell gates/effects,
-  add source-exact grave expiry/death-fee variants, add deeper
+  add source-exact grave expiry/death-fee variants, add broader
   potion/cannon/per-ammo preference controls, add richer risk previews and
   Wilderness/equipment-risk opt-ins, and migrate quest combat gates
   onto the same engine instead of reopening the completed design grill.
@@ -154,9 +159,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   the existing grave path if poison kills the player. Poison scorpion and
   Poison spider now apply player poison from source NPC `poisonDamage = 3` with
   the local 4-in-10 chance; Cave slime remains deferred behind Slayer gates and
-  shared gem-table drop support. Future status work should add broader enemy
-  poison coverage, player weapon/ammo poison, poison immunity, antipoison dose
-  handling from the potion loadout, and non-poison statuses.
+  shared gem-table drop support. Antipoison and Super antipoison dose handling
+  now auto-cures active poison from the potion loadout and grants source poison
+  immunity. Future status work should add broader enemy poison coverage, player
+  weapon/ammo poison, non-antipoison immunity sources, broader potion effects,
+  and non-poison statuses.
 - P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.

@@ -9,7 +9,8 @@ and Farmer
 ordinary-enemy expansion, first Ranged/ammo path plus standard bow/ammo
 progression, and the standard elemental Combat spell ladder, plus ordinary
 dangerous-target confirmation, safe-boundary ammo recovery, and persistent
-poison status recovery and first source NPC poison application.
+poison status recovery, first source NPC poison application, and source-backed
+antipoison loadout auto-cure.
 
 ## Implemented Scope
 
@@ -36,8 +37,9 @@ poison status recovery and first source NPC poison application.
   once per `Actions per review` sub-action. The packet heals or decays
   lifepoints by 100, regenerates 10 special-attack energy per 50 ticks, recovers
   one stat-drain level per 100 safe ticks, refills carried food, Magic runes,
-  and Ranged ammo at safe boundaries, advances active poison status, and remains
-  covered by the existing Anki undo snapshot.
+  Antipoison/Super antipoison doses, and Ranged ammo at safe boundaries,
+  advances active poison status and poison-immunity timers, and remains covered
+  by the existing Anki undo snapshot.
 - Additive save fields now exist for future combat systems:
   `combat_supply_loadout`, `combat_special_attack_energy`,
   `combat_stat_drains`, `combat_status_effects`, and
@@ -48,9 +50,11 @@ poison status recovery and first source NPC poison application.
   `Poison.getDamageForTicks` lifepoint damage, clears on death, and can route a
   poison death through the existing Combat grave path. Poison scorpion and
   Poison spider apply this status from source `poisonDamage = 3` attacks with
-  the local 4-in-10 NPC poison chance. Antipoison auto-cure, broader enemy
-  poison coverage, player weapon poison, poison immunity, and broader status
-  effects are still deferred.
+  the local 4-in-10 NPC poison chance. Loaded Antipoison and Super antipoison
+  doses now auto-cure active poison, preserve source dose replacement, grant
+  source immunity timers, and block new poison while immunity is active. Broader
+  enemy poison coverage, player weapon poison, non-antipoison immunity sources,
+  and broader status effects are still deferred.
 - Melee styles route XP as Attack, Strength, Defence, or controlled shared
   Attack/Strength/Defence, with Constitution XP awarded per damage.
 - Ranged styles now support standard bows from Shortbow through Magic longbow
@@ -131,6 +135,8 @@ poison status recovery and first source NPC poison application.
   `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md`
 - Poison enemy application:
   `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`
+- Antipoison loadout auto-cure:
+  `memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`
 
 ## Deferred
 
@@ -146,8 +152,9 @@ poison status recovery and first source NPC poison application.
   weapons, crossbows/bolts/darts/knives, stack-aware ammunition equipment, ammo
   preference controls, and arrow recovery.
 - Prayer effects, drain, and Prayer skilling.
-- Antipoison auto-cure, broader enemy poison application, player weapon/ammo
-  poison, poison immunity, and non-poison persistent status effects.
+- Broader enemy poison application, player weapon/ammo poison, non-antipoison
+  immunity sources, broader potion effects, and non-poison persistent status
+  effects.
 - Richer risk previews, including time-to-kill and Wilderness/equipment-risk
   opt-in surfaces.
 - Full Death's Office reclaim UI and stacked-death handling. Safe noncombat

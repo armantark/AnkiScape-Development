@@ -2222,7 +2222,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.current_skill = "Combat"
         addon.player_data = {
-            "inventory": {"Shark": 30, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
+            "inventory": {"Shark": 30, "Antipoison (2)": 1, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
             "equipment": {"weapon": "Staff of fire"},
             "combat_attack_style": "magic_standard",
             "current_combat_spell": "fire_strike",
@@ -2240,7 +2240,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.player_data["combat_auto_eat_food"] = ["Shark"]
         self.assertTrue(addon.on_refill_combat_loadout())
         self.assertEqual(addon.player_data["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(addon.player_data["combat_supply_loadout"]["potions"], {"Antipoison (2)": 1})
         self.assertEqual(addon.player_data["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
+        self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 0)
         self.assertEqual(addon.player_data["inventory"]["Fire rune"], 5)
 
         self.assertTrue(addon.on_unload_combat_loadout())
@@ -2249,6 +2251,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0},
         )
         self.assertEqual(addon.player_data["inventory"]["Shark"], 30)
+        self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 1)
         self.assertEqual(addon.player_data["inventory"]["Air rune"], 5)
         self.assertEqual(addon.player_data["inventory"]["Mind rune"], 5)
         self.assertGreaterEqual(calls["save"], 4)

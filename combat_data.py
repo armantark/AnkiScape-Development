@@ -55,6 +55,12 @@ MAGIC_STAVES_SOURCE_PATH = (
 FOOD_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/food/Food.kt"
 )
+POTION_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/potion/Potion.kt"
+)
+POTION_TYPE_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/potion/PotionType.kt"
+)
 ITEM_ID_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt"
 )
@@ -794,6 +800,50 @@ COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Swordfish": {"heal_lifepoints": 140, "source": FOOD_SOURCE_PATH},
     "Monkfish": {"heal_lifepoints": 160, "source": FOOD_SOURCE_PATH},
     "Shark": {"heal_lifepoints": 200, "source": FOOD_SOURCE_PATH},
+}
+
+
+COMBAT_ANTIPOISON_POTION_DATA: Dict[str, dict] = {
+    "Antipoison (4)": {
+        "replacement": "Antipoison (3)",
+        "immunity_ticks": 1500,
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON4; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+    },
+    "Antipoison (3)": {
+        "replacement": "Antipoison (2)",
+        "immunity_ticks": 1500,
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON3; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+    },
+    "Antipoison (2)": {
+        "replacement": "Antipoison (1)",
+        "immunity_ticks": 1500,
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON2; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+    },
+    "Antipoison (1)": {
+        "replacement": "Vial",
+        "immunity_ticks": 1500,
+        "source": f"{POTION_SOURCE_PATH}: ANTIPOISON1; {POTION_TYPE_SOURCE_PATH}: ANTIPOISON",
+    },
+    "Super antipoison (4)": {
+        "replacement": "Super antipoison (3)",
+        "immunity_ticks": 6000,
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON4; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+    },
+    "Super antipoison (3)": {
+        "replacement": "Super antipoison (2)",
+        "immunity_ticks": 6000,
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON3; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+    },
+    "Super antipoison (2)": {
+        "replacement": "Super antipoison (1)",
+        "immunity_ticks": 6000,
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON2; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+    },
+    "Super antipoison (1)": {
+        "replacement": "Vial",
+        "immunity_ticks": 6000,
+        "source": f"{POTION_SOURCE_PATH}: SUPER_ANTIPOISON1; {POTION_TYPE_SOURCE_PATH}: SUPER_ANTIPOISON",
+    },
 }
 
 
@@ -1986,6 +2036,10 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
 
 
 COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
+    "Antipoison (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_1"},
+    "Antipoison (2)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_2"},
+    "Antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_3"},
+    "Antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_4"},
     "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
     "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},
@@ -2025,8 +2079,13 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Staff of earth": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_EARTH"},
     "Staff of fire": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STAFF_OF_FIRE"},
     "Strawberry seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.STRAWBERRY_SEED"},
+    "Super antipoison (1)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_1"},
+    "Super antipoison (2)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_2"},
+    "Super antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_3"},
+    "Super antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SUPER_ANTIPOISON_4"},
     "Sweetcorn seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.SWEETCORN_SEED"},
     "Tomato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TOMATO_SEED"},
+    "Vial": {"category": "crafted", "source": f"{ITEM_ID_SOURCE_PATH}: Items.VIAL"},
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},

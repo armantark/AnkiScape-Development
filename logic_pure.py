@@ -17,6 +17,7 @@ except ImportError:
 try:
     from .combat_data import (
         COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_ANTIPOISON_POTION_DATA,
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
@@ -31,12 +32,14 @@ try:
         MAGIC_STRATEGY_SOURCE_PATH,
         MELEE_FORMULA_SOURCE_PATH,
         MELEE_STRATEGY_SOURCE_PATH,
+        POTION_TYPE_SOURCE_PATH,
         RANGED_FORMULA_SOURCE_PATH,
         RANGED_STRATEGY_SOURCE_PATH,
     )
 except ImportError:
     from combat_data import (  # type: ignore
         COMBAT_ATTACK_STYLE_DATA,
+        COMBAT_ANTIPOISON_POTION_DATA,
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
@@ -51,6 +54,7 @@ except ImportError:
         MAGIC_STRATEGY_SOURCE_PATH,
         MELEE_FORMULA_SOURCE_PATH,
         MELEE_STRATEGY_SOURCE_PATH,
+        POTION_TYPE_SOURCE_PATH,
         RANGED_FORMULA_SOURCE_PATH,
         RANGED_STRATEGY_SOURCE_PATH,
     )
@@ -1022,7 +1026,16 @@ def _sanitize_combat_supply_loadout(raw_loadout):
             for item_name, amount in raw_food.items()
             if isinstance(item_name, str) and item_name in COMBAT_FOOD_DATA and _non_negative_int(amount, 0) > 0
         }
-    for key in ("potions", "ammo", "runes"):
+    raw_potions = raw_loadout.get("potions", {})
+    if isinstance(raw_potions, Mapping):
+        loadout["potions"] = {
+            str(item_name): _non_negative_int(amount, 0)
+            for item_name, amount in raw_potions.items()
+            if isinstance(item_name, str)
+            and item_name in COMBAT_ANTIPOISON_POTION_DATA
+            and _non_negative_int(amount, 0) > 0
+        }
+    for key in ("ammo", "runes"):
         raw_mapping = raw_loadout.get(key, {})
         if isinstance(raw_mapping, Mapping):
             loadout[key] = {
@@ -1058,6 +1071,15 @@ def _sanitize_combat_status_effects(raw_effects):
                 "ticks_left": ticks_left,
                 "tick_progress": min(tick_progress, COMBAT_POISON_TICK_DELAY - 1),
                 "source": source if isinstance(source, str) and source else COMBAT_POISON_SOURCE_PATH,
+            }
+    raw_immunity = raw_effects.get("poison_immunity")
+    if isinstance(raw_immunity, Mapping):
+        ticks_left = _non_negative_int(raw_immunity.get("ticks_left", 0), 0)
+        source = raw_immunity.get("source", POTION_TYPE_SOURCE_PATH)
+        if ticks_left > 0:
+            effects["poison_immunity"] = {
+                "ticks_left": ticks_left,
+                "source": source if isinstance(source, str) and source else POTION_TYPE_SOURCE_PATH,
             }
     return effects
 
@@ -1772,6 +1794,75 @@ def _combat_recover_stat_drains(data, ticks):
     data["combat_recovery_progress"] = {key: value for key, value in progress.items() if value > 0}
 
 
+def combat_poison_immunity_ticks_pure(player_data):
+    effects = _sanitize_combat_status_effects(player_data.get("combat_status_effects"))
+    immunity = effects.get("poison_immunity", {})
+    return _non_negative_int(immunity.get("ticks_left", 0), 0) if isinstance(immunity, Mapping) else 0
+
+
+def _combat_refill_antipoison_loadout(data):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    potion_loadout = dict(loadout.get("potions", {}) or {})
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name in COMBAT_ANTIPOISON_POTION_DATA:
+        amount = _non_negative_int(inventory.get(item_name, 0), 0)
+        if amount <= 0:
+            continue
+        potion_loadout[item_name] = _non_negative_int(potion_loadout.get(item_name, 0), 0) + amount
+        inventory[item_name] = 0
+    loadout["potions"] = {item_name: amount for item_name, amount in potion_loadout.items() if amount > 0}
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
+def _combat_consume_antipoison_if_needed(data):
+    effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    if "poison" not in effects:
+        data["combat_status_effects"] = effects
+        return None
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    potion_loadout = dict(loadout.get("potions", {}) or {})
+    for item_name, spec in COMBAT_ANTIPOISON_POTION_DATA.items():
+        amount = _non_negative_int(potion_loadout.get(item_name, 0), 0)
+        if amount <= 0:
+            continue
+        amount -= 1
+        if amount > 0:
+            potion_loadout[item_name] = amount
+        else:
+            potion_loadout.pop(item_name, None)
+        replacement = str(spec.get("replacement", ""))
+        if replacement in COMBAT_ANTIPOISON_POTION_DATA:
+            potion_loadout[replacement] = _non_negative_int(potion_loadout.get(replacement, 0), 0) + 1
+        elif replacement:
+            inventory = dict(data.get("inventory", {}) or {})
+            inventory[replacement] = _non_negative_int(inventory.get(replacement, 0), 0) + 1
+            data["inventory"] = inventory
+        immunity_ticks = _positive_int(spec.get("immunity_ticks", 0), 0)
+        current_immunity = effects.get("poison_immunity", {})
+        current_ticks = (
+            _non_negative_int(current_immunity.get("ticks_left", 0), 0)
+            if isinstance(current_immunity, Mapping)
+            else 0
+        )
+        effects.pop("poison", None)
+        effects["poison_immunity"] = {
+            "ticks_left": max(current_ticks, immunity_ticks),
+            "source": spec.get("source", POTION_TYPE_SOURCE_PATH),
+        }
+        loadout["potions"] = {potion: qty for potion, qty in potion_loadout.items() if qty > 0}
+        data["combat_supply_loadout"] = loadout
+        data["combat_status_effects"] = effects
+        return {
+            "item": item_name,
+            "replacement": replacement,
+            "effect": "poison_cure",
+            "immunity_ticks": immunity_ticks,
+        }
+    data["combat_status_effects"] = effects
+    return None
+
+
 def combat_poison_ticks_for_initial_damage_pure(initial_damage):
     damage = _positive_int(initial_damage, 0)
     return max(0, damage * 5 - 4)
@@ -1786,6 +1877,9 @@ def _combat_apply_poison_effect_to_data(data, initial_damage):
     if ticks_left <= 0:
         return False, "invalid poison damage"
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
+    if combat_poison_immunity_ticks_pure({"combat_status_effects": effects}) > 0:
+        data["combat_status_effects"] = effects
+        return False, "poison immune"
     current_poison = effects.get("poison", {})
     current_damage = combat_poison_damage_for_ticks_pure(current_poison.get("ticks_left", 0)) if current_poison else 0
     new_damage = combat_poison_damage_for_ticks_pure(ticks_left)
@@ -1821,6 +1915,21 @@ def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lif
         ),
     )
     result = {"damage": {}, "expired": tuple(), "died": False}
+    expired = []
+    immunity = effects.get("poison_immunity")
+    if immunity:
+        ticks_left = max(
+            0,
+            _non_negative_int(immunity.get("ticks_left", 0), 0) - max(0, _non_negative_int(ticks, 0)),
+        )
+        if ticks_left > 0:
+            effects["poison_immunity"] = {
+                "ticks_left": ticks_left,
+                "source": immunity.get("source", POTION_TYPE_SOURCE_PATH),
+            }
+        else:
+            effects.pop("poison_immunity", None)
+            expired.append("poison_immunity")
     poison = effects.get("poison")
     if poison:
         progress = _non_negative_int(poison.get("tick_progress", 0), 0) + max(0, _non_negative_int(ticks, 0))
@@ -1843,8 +1952,9 @@ def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lif
         else:
             effects.pop("poison", None)
             if ticks_left <= 0:
-                result["expired"] = ("poison",)
+                expired.append("poison")
     result["died"] = player_lp <= 0 and bool(result["damage"])
+    result["expired"] = tuple(expired)
     data["combat_lifepoints"] = player_lp
     data["combat_status_effects"] = effects
     return result
@@ -1853,13 +1963,16 @@ def _combat_advance_status_effects(data, ticks, current_lifepoints=None, max_lif
 def combat_status_summary_pure(player_data):
     effects = _sanitize_combat_status_effects(player_data.get("combat_status_effects"))
     poison = effects.get("poison")
-    if not poison:
-        return ""
-    ticks_left = _non_negative_int(poison.get("ticks_left", 0), 0)
-    tick_progress = _non_negative_int(poison.get("tick_progress", 0), 0)
-    next_damage = combat_poison_damage_for_ticks_pure(ticks_left)
-    ticks_until = max(1, COMBAT_POISON_TICK_DELAY - min(tick_progress, COMBAT_POISON_TICK_DELAY - 1))
-    return f"Poisoned: {next_damage} LP in {ticks_until} ticks"
+    if poison:
+        ticks_left = _non_negative_int(poison.get("ticks_left", 0), 0)
+        tick_progress = _non_negative_int(poison.get("tick_progress", 0), 0)
+        next_damage = combat_poison_damage_for_ticks_pure(ticks_left)
+        ticks_until = max(1, COMBAT_POISON_TICK_DELAY - min(tick_progress, COMBAT_POISON_TICK_DELAY - 1))
+        return f"Poisoned: {next_damage} LP in {ticks_until} ticks"
+    immunity_ticks = combat_poison_immunity_ticks_pure({"combat_status_effects": effects})
+    if immunity_ticks > 0:
+        return f"Poison immune: {immunity_ticks} ticks"
+    return ""
 
 
 def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
@@ -1959,8 +2072,9 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     else:
         risk = "Death possible"
     poison_damage = _positive_int(enemy.get("poison_damage", 0), 0)
+    poison_immunity_ticks = combat_poison_immunity_ticks_pure(player_data)
     poison_lifepoints = 0
-    if poison_damage > 0:
+    if poison_damage > 0 and poison_immunity_ticks <= 0:
         poison_lifepoints = combat_poison_damage_for_ticks_pure(
             combat_poison_ticks_for_initial_damage_pure(poison_damage)
         )
@@ -1984,7 +2098,8 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         "runes": dict(spell_spec.get("rune_cost", {}) or {}) if combat_class == "magic" and isinstance(spell_spec, Mapping) else {},
         "weapon": weapon_name or "",
         "poison_damage": poison_lifepoints,
-        "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 else 0.0,
+        "poison_chance": COMBAT_POISON_NPC_ATTACK_CHANCE if poison_damage > 0 and poison_immunity_ticks <= 0 else 0.0,
+        "poison_immunity_ticks": poison_immunity_ticks,
         "source": enemy.get("source", ""),
     }
 
@@ -2000,11 +2115,13 @@ def apply_safe_combat_recovery_pure(player_data):
         data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_recover_stat_drains(data, SAFE_COMBAT_RECOVERY_TICKS)
+    _combat_consume_antipoison_if_needed(data)
     status_result = _combat_advance_status_effects(data, SAFE_COMBAT_RECOVERY_TICKS)
     if status_result.get("died"):
         _combat_apply_pvm_death(data, max_lp, "combat_poison_death")
         return data
     _combat_refill_food_loadout(data)
+    _combat_refill_antipoison_loadout(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
         str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
@@ -2111,6 +2228,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     else:
         enemy_lp = enemy_max_lp
         _combat_refill_food_loadout(data)
+        _combat_refill_antipoison_loadout(data)
         if combat_class == "ranged":
             _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
         elif combat_class == "magic":
@@ -2177,6 +2295,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     player_damage = 0
     enemy_damage = 0
     food_used = []
+    potions_used = []
     ammo_used = {}
     runes_used = {}
     status_damage = {}
@@ -2193,6 +2312,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
+        potion_event = _combat_consume_antipoison_if_needed(data)
+        if potion_event:
+            potions_used.append(potion_event)
         status_result = _combat_advance_status_effects(data, 1, player_lp, max_player_lp)
         player_lp = _non_negative_int(data.get("combat_lifepoints", player_lp), player_lp)
         for effect_name, amount in (status_result.get("damage", {}) or {}).items():
@@ -2271,6 +2393,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                         status_applied["poison"] = combat_poison_damage_for_ticks_pure(
                             combat_poison_ticks_for_initial_damage_pure(poison_damage)
                         )
+                        potion_event = _combat_consume_antipoison_if_needed(data)
+                        if potion_event:
+                            potions_used.append(potion_event)
 
     inventory = data.get("inventory", {}) or {}
     for item_name, amount in drops.items():
@@ -2286,6 +2411,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         data["combat_kill_counts"] = kill_counts
         data["combat_encounter"] = {}
         _combat_refill_food_loadout(data)
+        _combat_refill_antipoison_loadout(data)
         if combat_class == "ranged":
             _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
         elif combat_class == "magic":
@@ -2311,6 +2437,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "died": died,
         "stop_reason": "out_of_ammo" if out_of_ammo else "out_of_runes" if out_of_runes else "",
         "food_used": tuple(food_used),
+        "potions_used": tuple(potions_used),
         "ammo_used": dict(ammo_used),
         "runes_used": dict(runes_used),
         "status_damage": dict(status_damage),
@@ -2437,6 +2564,7 @@ def combat_supply_loadout_summary_pure(player_data):
     return {
         "food_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values()),
         "potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values()),
+        "potions_loaded_items": dict(loadout.get("potions", {}) or {}),
         "ammo_loaded": dict(loadout.get("ammo", {}) or {}),
         "runes_loaded": dict(loadout.get("runes", {}) or {}),
         "cannonballs_loaded": _non_negative_int(loadout.get("cannonballs", 0), 0),
@@ -2475,6 +2603,7 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
     if combat_has_active_encounter_pure(data):
         return data, False, "An active fight cannot refill supplies between review bursts."
     _combat_refill_food_loadout(data)
+    _combat_refill_antipoison_loadout(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
         str(data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE)),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],

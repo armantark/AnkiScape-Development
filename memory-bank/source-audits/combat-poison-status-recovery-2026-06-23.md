@@ -31,14 +31,15 @@ damage during review-driven Combat and safe noncombat time.
   noncombat review skills.
 - Follow-up poison enemy application is now covered in
   `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md`.
+- Follow-up antipoison dose handling and poison immunity are now covered in
+  `memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`.
 
 ## Deferred
 
 - Broader enemy poison coverage beyond the first two enabled ordinary poison
   enemies.
 - Player weapon/ammo poison application.
-- Poison immunity and antipoison immunity timers.
-- Antipoison dose handling and auto-cure from `combat_supply_loadout["potions"]`.
+- Non-antipoison immunity sources and potion effects.
 - Disease, bleed-style statuses, antifire, stat-restore potions, Prayer restore,
   and broader potion/status effect metadata.
 

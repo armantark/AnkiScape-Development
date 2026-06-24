@@ -501,17 +501,27 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "material")
         for item_name in (
+            "Antipoison (1)",
+            "Antipoison (2)",
+            "Antipoison (3)",
+            "Antipoison (4)",
             "Potato seed",
             "Onion seed",
             "Cabbage seed",
             "Tomato seed",
             "Sweetcorn seed",
             "Strawberry seed",
+            "Super antipoison (1)",
+            "Super antipoison (2)",
+            "Super antipoison (3)",
+            "Super antipoison (4)",
             "Watermelon seed",
             "Gardening boots",
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "material")
+        self.assertIn("Vial", by_storage_key)
+        self.assertEqual(by_storage_key["Vial"].category, "crafted")
         for item_name in ("Rake", "Seed dibber", "Secateurs", "Watering can (8)"):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "tool")

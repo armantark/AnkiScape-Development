@@ -1,6 +1,7 @@
 import unittest
 
 from combat_data import (
+    COMBAT_ANTIPOISON_POTION_DATA,
     COMBAT_ENEMY_DATA,
     COMBAT_MAGIC_SPELL_DATA,
     COMBAT_MAGIC_STAFF_DATA,
@@ -20,6 +21,7 @@ from logic_pure import (
     combat_death_office_reclaim_cost_pure,
     combat_death_office_summary_pure,
     combat_poison_damage_for_ticks_pure,
+    combat_poison_immunity_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
     combat_status_summary_pure,
     refill_combat_supply_loadout_pure,
@@ -192,6 +194,16 @@ class CombatLogicTest(unittest.TestCase):
                 self.assertEqual(spell["component_id"], component_id)
                 self.assertEqual(spell["autocast_id"], autocast_id)
                 self.assertIn(spell_id.upper(), spell["source"])
+
+    def test_antipoison_potions_match_2011scape_source(self):
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["replacement"], "Antipoison (3)")
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (1)"]["replacement"], "Vial")
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["immunity_ticks"], 1500)
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["replacement"], "Super antipoison (3)")
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (1)"]["replacement"], "Vial")
+        self.assertEqual(COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["immunity_ticks"], 6000)
+        self.assertIn("Potion.kt", COMBAT_ANTIPOISON_POTION_DATA["Antipoison (4)"]["source"])
+        self.assertIn("PotionType.kt", COMBAT_ANTIPOISON_POTION_DATA["Super antipoison (4)"]["source"])
 
     def test_simple_enemy_import_rows_match_source(self):
         cow_calf = COMBAT_ENEMY_DATA["cow_calf"]
@@ -1173,6 +1185,28 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 10)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
 
+    def test_antipoison_loadout_auto_cures_poison_before_safe_recovery_tick(self):
+        player = _player(
+            combat_lifepoints=50,
+            combat_supply_loadout={"potions": {"Antipoison (2)": 1}},
+            combat_status_effects={
+                "poison": {
+                    "ticks_left": combat_poison_ticks_for_initial_damage_pure(3),
+                    "tick_progress": 29,
+                }
+            },
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_lifepoints"], 100)
+        self.assertNotIn("poison", recovered["combat_status_effects"])
+        self.assertEqual(recovered["combat_status_effects"]["poison_immunity"]["ticks_left"], 1450)
+        self.assertIn("PotionType.kt", recovered["combat_status_effects"]["poison_immunity"]["source"])
+        self.assertEqual(recovered["combat_supply_loadout"]["potions"], {"Antipoison (1)": 1})
+        self.assertEqual(combat_poison_immunity_ticks_pure(recovered), 1450)
+        self.assertEqual(combat_status_summary_pure(recovered), "Poison immune: 1450 ticks")
+
     def test_poison_enemy_applies_player_poison_on_source_chance(self):
         player = _player(
             current_combat_target="poison_scorpion",
@@ -1195,6 +1229,64 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["combat_status_effects"]["poison"]["ticks_left"], 11)
         self.assertEqual(new_data["combat_status_effects"]["poison"]["tick_progress"], 0)
         self.assertEqual(combat_status_summary_pure(new_data), "Poisoned: 30 LP in 30 ticks")
+
+    def test_poison_enemy_antipoison_loadout_auto_cures_after_source_poison(self):
+        player = _player(
+            current_combat_target="poison_scorpion",
+            defense_level=1,
+            combat_lifepoints=100,
+            combat_supply_loadout={"potions": {"Antipoison (1)": 1}},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.999999, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertFalse(result["died"])
+        self.assertEqual(result["status_applied"], {"poison": 30})
+        self.assertEqual(
+            result["potions_used"],
+            (
+                {
+                    "item": "Antipoison (1)",
+                    "replacement": "Vial",
+                    "effect": "poison_cure",
+                    "immunity_ticks": 1500,
+                },
+            ),
+        )
+        self.assertNotIn("poison", new_data["combat_status_effects"])
+        self.assertEqual(new_data["combat_status_effects"]["poison_immunity"]["ticks_left"], 1500)
+        self.assertEqual(new_data["inventory"]["Vial"], 1)
+        self.assertEqual(new_data["combat_supply_loadout"]["potions"], {})
+
+    def test_poison_immunity_blocks_enemy_poison_without_spending_antipoison(self):
+        player = _player(
+            current_combat_target="poison_scorpion",
+            defense_level=1,
+            combat_lifepoints=100,
+            combat_supply_loadout={"potions": {"Antipoison (1)": 1}},
+            combat_status_effects={"poison_immunity": {"ticks_left": 100}},
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.999999, 0.0, 0.0, 0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["status_applied"], {})
+        self.assertEqual(result["potions_used"], ())
+        self.assertEqual(new_data["combat_status_effects"]["poison_immunity"]["ticks_left"], 95)
+        self.assertEqual(new_data["combat_supply_loadout"]["potions"], {"Antipoison (1)": 1})
 
     def test_safe_recovery_poison_death_uses_combat_grave_path(self):
         player = _player(
@@ -1319,7 +1411,7 @@ class CombatLogicTest(unittest.TestCase):
             combat_attack_style="magic_standard",
             current_combat_spell="fire_strike",
             equipment={"weapon": "Staff of fire"},
-            inventory={"Shark": 30, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
+            inventory={"Shark": 30, "Antipoison (2)": 1, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
             combat_auto_eat_food=["Shark"],
         )
 
@@ -1327,8 +1419,10 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertTrue(ok, reason)
         self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(refilled["combat_supply_loadout"]["potions"], {"Antipoison (2)": 1})
         self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
         self.assertEqual(refilled["inventory"]["Shark"], 2)
+        self.assertEqual(refilled["inventory"]["Antipoison (2)"], 0)
         self.assertEqual(refilled["inventory"]["Air rune"], 0)
         self.assertEqual(refilled["inventory"]["Mind rune"], 0)
         self.assertEqual(refilled["inventory"]["Fire rune"], 5)
@@ -1352,6 +1446,7 @@ class CombatLogicTest(unittest.TestCase):
             inventory={"Shark": 2},
             combat_supply_loadout={
                 "food": {"Shark": 3},
+                "potions": {"Antipoison (1)": 1},
                 "ammo": {"Bronze arrows": 5},
                 "runes": {"Air rune": 7},
                 "cannonballs": 2,
@@ -1362,6 +1457,7 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertTrue(ok, reason)
         self.assertEqual(unloaded["inventory"]["Shark"], 5)
+        self.assertEqual(unloaded["inventory"]["Antipoison (1)"], 1)
         self.assertEqual(unloaded["inventory"]["Bronze arrows"], 5)
         self.assertEqual(unloaded["inventory"]["Air rune"], 7)
         self.assertEqual(unloaded["inventory"]["Cannonball"], 2)
@@ -1396,6 +1492,16 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(preview["risk_band"], "Food advised")
         self.assertEqual(preview["poison_damage"], 30)
         self.assertEqual(preview["poison_chance"], 0.4)
+
+        immune_preview = combat_target_preview_pure(
+            _player(combat_status_effects={"poison_immunity": {"ticks_left": 100}}),
+            "poison_scorpion",
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+        )
+        self.assertEqual(immune_preview["poison_damage"], 0)
+        self.assertEqual(immune_preview["poison_chance"], 0.0)
+        self.assertEqual(immune_preview["poison_immunity_ticks"], 100)
 
 
 if __name__ == "__main__":

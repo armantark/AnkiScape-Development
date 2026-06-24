@@ -1496,6 +1496,7 @@ def _combat_loadout_summary_text(player_data: dict) -> str:
 
     return (
         f"Food: {summary.get('food_loaded', 0)}/{COMBAT_FOOD_LOADOUT_CAPACITY} loaded\n"
+        f"Potions: {_mapping_text(summary.get('potions_loaded_items'))}\n"
         f"Ammo: {_mapping_text(summary.get('ammo_loaded'))}\n"
         f"Runes: {_mapping_text(summary.get('runes_loaded'))}"
     )
