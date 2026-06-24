@@ -331,6 +331,13 @@ horn table plus 1000-slot charm table, and `Unicorn horn` now has Combat item
 registry/icon coverage with fetched provenance. Source proof lives in
 `memory-bank/source-audits/combat-rats-unicorns-2026-06-23.md`.
 
+Combat Black bear coverage now adds the local source level-19 Animals target.
+It uses guaranteed Bones/Bear fur/Raw bear meat, the source 1000-slot charm
+table, Slayer Bear assignment XP, and no new icon assets because Bear fur, Raw
+bear meat, Bones, and charms already resolve through existing item registries.
+Source proof lives in
+`memory-bank/source-audits/combat-black-bear-2026-06-23.md`.
+
 Combat Duck coverage now splits the source level-1 Duck file into land and water
 rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
 water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but

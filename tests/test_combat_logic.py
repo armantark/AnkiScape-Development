@@ -230,6 +230,7 @@ class CombatLogicTest(unittest.TestCase):
         rat26 = COMBAT_ENEMY_DATA["giant_rat_level_26"]
         unicorn = COMBAT_ENEMY_DATA["unicorn"]
         black_unicorn = COMBAT_ENEMY_DATA["black_unicorn"]
+        black_bear = COMBAT_ENEMY_DATA["black_bear"]
 
         self.assertEqual(rat6["display_name"], "Giant rat")
         self.assertEqual(rat6["level"], 6)
@@ -274,6 +275,26 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIs(black_unicorn["drops"], unicorn["drops"])
         self.assertIn("black_unicorn_level_27.plugin.kts", black_unicorn["source"])
         self.assertIn("Npcs.BLACK_UNICORN", black_unicorn["source"])
+
+        (bear_charms,) = black_bear["drops"]["tables"]
+        self.assertEqual(black_bear["display_name"], "Black bear")
+        self.assertEqual(black_bear["level"], 19)
+        self.assertEqual(black_bear["group"], "Animals")
+        self.assertEqual(black_bear["attack_speed"], 4)
+        self.assertEqual(black_bear["respawn_delay"], 50)
+        self.assertEqual(black_bear["slayer_xp"], 25.0)
+        self.assertEqual(black_bear["stats"]["hitpoints"], 250)
+        self.assertEqual(black_bear["stats"]["attack"], 15)
+        self.assertEqual(black_bear["stats"]["strength"], 16)
+        self.assertEqual(black_bear["stats"]["defence"], 13)
+        self.assertEqual(black_bear["drops"]["guaranteed"], (("Bones", 1), ("Bear fur", 1), ("Raw bear meat", 1)))
+        self.assertEqual(bear_charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in bear_charms["slots"]), 1000)
+        self.assertEqual(bear_charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 180})
+        self.assertEqual(bear_charms["slots"][1], {"item": "Green charm", "quantity": 1, "slots": 8})
+        self.assertEqual(bear_charms["slots"][-1], {"slots": 796})
+        self.assertIn("black_bear_level_19.plugin.kts", black_bear["source"])
+        self.assertIn("SlayerAssignment.BEAR", black_bear["source"])
 
     def test_duck_rows_split_land_and_water_source_drops(self):
         land = COMBAT_ENEMY_DATA["duck_land"]
@@ -981,10 +1002,12 @@ class CombatLogicTest(unittest.TestCase):
         rat_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["giant_rat_level_26"], _rng([]))
         unicorn_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["unicorn"], _rng([0.129]))
         black_unicorn_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["black_unicorn"], _rng([0.229]))
+        black_bear_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["black_bear"], _rng([0.187]))
 
         self.assertEqual(rat_drops, {"Bones": 1, "Raw rat meat": 1})
         self.assertEqual(unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Gold charm": 1})
         self.assertEqual(black_unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Crimson charm": 1})
+        self.assertEqual(black_bear_drops, {"Bones": 1, "Bear fur": 1, "Raw bear meat": 1, "Green charm": 1})
 
     def test_duck_drop_rolls_follow_land_water_source_split(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})

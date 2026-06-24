@@ -142,14 +142,16 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   same low-level human 1024-slot source table as Citizen; Johnny the Beard stays
   deferred pending source default-stat semantics. Giant rat now has level-6 and
   level-26 variants, and Unicorn plus Black unicorn now add source guaranteed
-  Unicorn horn and charm drops with Combat icon coverage. Duck now splits the
-  source level-1 land/water variants so land ducks drop Bones while water ducks
-  expose no drops instead of inheriting the land callback. Pirate now adds the
-  source level-23 Humanoids row with the full 1024-slot main table, Iron bolts
-  x2-12, Eye patch icon coverage, and nested no-Ring-of-Wealth gem table
-  support. Monk of Zamorak level 45 now adds fixed robe and charm drops with
-  disambiguated Zamorak robe top/bottom storage keys; the Golden-key level-30
-  variant remains deferred until Combat can model conditional drop branches.
+  Unicorn horn and charm drops with Combat icon coverage. Black bear now adds
+  source guaranteed Bear fur/Raw bear meat plus the source charm table and
+  Slayer Bear XP without new assets. Duck now splits the source level-1
+  land/water variants so land ducks drop Bones while water ducks expose no drops
+  instead of inheriting the land callback. Pirate now adds the source level-23
+  Humanoids row with the full 1024-slot main table, Iron bolts x2-12, Eye patch
+  icon coverage, and nested no-Ring-of-Wealth gem table support. Monk of Zamorak
+  level 45 now adds fixed robe and charm drops with disambiguated Zamorak robe
+  top/bottom storage keys; the Golden-key level-30 variant remains deferred until
+  Combat can model conditional drop branches.
   Guard now adds three
   level-21 Humanoids variants from the
   complete melee source rows, shares the source Guard drops, keeps the

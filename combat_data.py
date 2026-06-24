@@ -636,6 +636,10 @@ BLACK_UNICORN_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/black_unicorn_level_27.plugin.kts"
 )
+BLACK_BEAR_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/black_bear_level_19.plugin.kts"
+)
 DUCK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/duck_level_1.plugin.kts"
@@ -1014,6 +1018,24 @@ UNICORN_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 40},
                 {"item": "Blue charm", "quantity": 1, "slots": 5},
                 {"slots": 765},
+            ),
+        },
+    ),
+}
+
+
+BLACK_BEAR_DROPS = {
+    "guaranteed": (("Bones", 1), ("Bear fur", 1), ("Raw bear meat", 1)),
+    "tables": (
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 180},
+                {"item": "Green charm", "quantity": 1, "slots": 8},
+                {"item": "Crimson charm", "quantity": 1, "slots": 11},
+                {"item": "Blue charm", "quantity": 1, "slots": 5},
+                {"slots": 796},
             ),
         },
     ),
@@ -1967,6 +1989,36 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": UNICORN_DROPS,
         "source": f"{BLACK_UNICORN_SOURCE_PATH}: id Npcs.BLACK_UNICORN",
+    },
+    "black_bear": {
+        "display_name": "Black bear",
+        "level": 19,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "slayer_xp": 25.0,
+        "stats": {
+            "hitpoints": 250,
+            "attack": 15,
+            "strength": 16,
+            "defence": 13,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": BLACK_BEAR_DROPS,
+        "source": f"{BLACK_BEAR_SOURCE_PATH}: id Npcs.BLACK_BEAR; SlayerAssignment.BEAR level 1 xp 25.0; aggro radius 4",
     },
     "duck_land": {
         "display_name": "Duck (land)",

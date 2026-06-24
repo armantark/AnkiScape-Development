@@ -226,6 +226,10 @@
   horn and the source 1000-slot charm table. `Unicorn horn` now has Combat item
   registry, icon, and provenance coverage. Source proof:
   `memory-bank/source-audits/combat-rats-unicorns-2026-06-23.md`.
+- Combat Black bear expansion added the local source level-19 Animals row with
+  guaranteed Bones/Bear fur/Raw bear meat, Slayer Bear XP, and the source
+  1000-slot charm table. It reused existing item/icon coverage. Source proof:
+  `memory-bank/source-audits/combat-black-bear-2026-06-23.md`.
 - Combat Duck expansion split the local source level-1 Duck file into land and
   water rows. Land ducks keep the source Bones drop callback; water ducks share
   stats and Bird Slayer XP but expose no drops because the source has no
