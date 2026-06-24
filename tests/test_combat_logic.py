@@ -296,6 +296,74 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("black_bear_level_19.plugin.kts", black_bear["source"])
         self.assertIn("SlayerAssignment.BEAR", black_bear["source"])
 
+    def test_wolf_rows_match_source_and_charm_tables(self):
+        wolf = COMBAT_ENEMY_DATA["wolf"]
+        white_25 = COMBAT_ENEMY_DATA["white_wolf_level_25"]
+        white_38 = COMBAT_ENEMY_DATA["white_wolf_level_38"]
+        big_wolf = COMBAT_ENEMY_DATA["big_wolf"]
+
+        (wolf_main,) = wolf["drops"]["tables"]
+        self.assertEqual(wolf["display_name"], "Wolf")
+        self.assertEqual(wolf["level"], 11)
+        self.assertEqual(wolf["group"], "Animals")
+        self.assertEqual(wolf["attack_speed"], 4)
+        self.assertEqual(wolf["respawn_delay"], 90)
+        self.assertEqual(wolf["slayer_xp"], 10.0)
+        self.assertEqual(wolf["stats"]["hitpoints"], 100)
+        self.assertEqual(wolf["stats"]["attack"], 10)
+        self.assertEqual(wolf["stats"]["strength"], 10)
+        self.assertEqual(wolf["stats"]["defence"], 10)
+        self.assertEqual(wolf["drops"]["guaranteed"], (("Wolf bones", 1), ("Bones", 1)))
+        self.assertEqual(wolf_main["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in wolf_main["slots"]), 1000)
+        self.assertEqual(wolf_main["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 20})
+        self.assertEqual(wolf_main["slots"][1], {"item": "Green charm", "quantity": 1, "slots": 30})
+        self.assertEqual(wolf_main["slots"][2], {"item": "Crimson charm", "quantity": 1, "slots": 50})
+        self.assertEqual(wolf_main["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 10})
+        self.assertEqual(wolf_main["slots"][-1], {"slots": 890})
+        self.assertIn("wolf_lvl_11.plugin.kts", wolf["source"])
+        self.assertIn("attackStyle STAB", wolf["source"])
+
+        (white_main,) = white_25["drops"]["tables"]
+        self.assertEqual(white_25["display_name"], "White wolf")
+        self.assertEqual(white_25["level"], 25)
+        self.assertEqual(white_25["slayer_xp"], 34.0)
+        self.assertEqual(white_25["stats"]["hitpoints"], 340)
+        self.assertEqual(white_25["stats"]["attack"], 20)
+        self.assertEqual(white_25["stats"]["strength"], 16)
+        self.assertEqual(white_25["stats"]["defence"], 22)
+        self.assertEqual(white_25["drops"]["guaranteed"], (("Wolf bones", 1),))
+        self.assertEqual(white_main["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in white_main["slots"]), 1000)
+        self.assertEqual(white_main["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 110})
+        self.assertEqual(white_main["slots"][1], {"item": "Green charm", "quantity": 1, "slots": 50})
+        self.assertEqual(white_main["slots"][2], {"item": "Crimson charm", "quantity": 1, "slots": 140})
+        self.assertEqual(white_main["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 80})
+        self.assertEqual(white_main["slots"][-1], {"slots": 620})
+        self.assertIn("white_wolf_lvl_25.plugin.kts", white_25["source"])
+
+        self.assertEqual(white_38["level"], 38)
+        self.assertEqual(white_38["slayer_xp"], 44.0)
+        self.assertEqual(white_38["stats"]["hitpoints"], 440)
+        self.assertEqual(white_38["stats"]["attack"], 30)
+        self.assertEqual(white_38["stats"]["strength"], 31)
+        self.assertEqual(white_38["stats"]["defence"], 32)
+        self.assertIs(white_38["drops"], white_25["drops"])
+        self.assertIn("white_wolf_lvl_38.plugin.kts", white_38["source"])
+
+        self.assertEqual(big_wolf["display_name"], "Big wolf")
+        self.assertEqual(big_wolf["level"], 73)
+        self.assertEqual(big_wolf["slayer_xp"], 74.0)
+        self.assertEqual(big_wolf["stats"]["hitpoints"], 740)
+        self.assertEqual(big_wolf["stats"]["attack"], 60)
+        self.assertEqual(big_wolf["stats"]["strength"], 61)
+        self.assertEqual(big_wolf["stats"]["defence"], 62)
+        self.assertIs(big_wolf["drops"], white_25["drops"])
+        self.assertIn("big_wolf_lvl_73.plugin.kts", big_wolf["source"])
+        for enemy in (wolf, white_25, white_38, big_wolf):
+            self.assertEqual(enemy["group"], "Animals")
+            self.assertIn("SlayerAssignment.WOLF", enemy["source"])
+
     def test_duck_rows_split_land_and_water_source_drops(self):
         land = COMBAT_ENEMY_DATA["duck_land"]
         water = COMBAT_ENEMY_DATA["duck_water"]
@@ -1008,6 +1076,15 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Gold charm": 1})
         self.assertEqual(black_unicorn_drops, {"Bones": 1, "Unicorn horn": 1, "Crimson charm": 1})
         self.assertEqual(black_bear_drops, {"Bones": 1, "Bear fur": 1, "Raw bear meat": 1, "Green charm": 1})
+
+    def test_wolf_drop_rolls_use_source_charm_tables(self):
+        wolf_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["wolf"], _rng([0.019]))
+        white_wolf_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["white_wolf_level_25"], _rng([0.159]))
+        big_wolf_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["big_wolf"], _rng([0.299]))
+
+        self.assertEqual(wolf_drops, {"Wolf bones": 1, "Bones": 1, "Gold charm": 1})
+        self.assertEqual(white_wolf_drops, {"Wolf bones": 1, "Green charm": 1})
+        self.assertEqual(big_wolf_drops, {"Wolf bones": 1, "Crimson charm": 1})
 
     def test_duck_drop_rolls_follow_land_water_source_split(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})

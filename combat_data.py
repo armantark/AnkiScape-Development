@@ -640,6 +640,22 @@ BLACK_BEAR_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/black_bear_level_19.plugin.kts"
 )
+WOLF_LEVEL_11_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/wolf_lvl_11.plugin.kts"
+)
+WHITE_WOLF_LEVEL_25_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/white_wolf_lvl_25.plugin.kts"
+)
+WHITE_WOLF_LEVEL_38_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/white_wolf_lvl_38.plugin.kts"
+)
+BIG_WOLF_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/animals/big_wolf_lvl_73.plugin.kts"
+)
 DUCK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/duck_level_1.plugin.kts"
@@ -1036,6 +1052,42 @@ BLACK_BEAR_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 11},
                 {"item": "Blue charm", "quantity": 1, "slots": 5},
                 {"slots": 796},
+            ),
+        },
+    ),
+}
+
+
+WOLF_LEVEL_11_DROPS = {
+    "guaranteed": (("Wolf bones", 1), ("Bones", 1)),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 20},
+                {"item": "Green charm", "quantity": 1, "slots": 30},
+                {"item": "Crimson charm", "quantity": 1, "slots": 50},
+                {"item": "Blue charm", "quantity": 1, "slots": 10},
+                {"slots": 890},
+            ),
+        },
+    ),
+}
+
+
+WHITE_WOLF_DROPS = {
+    "guaranteed": (("Wolf bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 110},
+                {"item": "Green charm", "quantity": 1, "slots": 50},
+                {"item": "Crimson charm", "quantity": 1, "slots": 140},
+                {"item": "Blue charm", "quantity": 1, "slots": 80},
+                {"slots": 620},
             ),
         },
     ),
@@ -2019,6 +2071,126 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": BLACK_BEAR_DROPS,
         "source": f"{BLACK_BEAR_SOURCE_PATH}: id Npcs.BLACK_BEAR; SlayerAssignment.BEAR level 1 xp 25.0; aggro radius 4",
+    },
+    "wolf": {
+        "display_name": "Wolf",
+        "level": 11,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 90,
+        "slayer_xp": 10.0,
+        "stats": {
+            "hitpoints": 100,
+            "attack": 10,
+            "strength": 10,
+            "defence": 10,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": WOLF_LEVEL_11_DROPS,
+        "source": f"{WOLF_LEVEL_11_SOURCE_PATH}: ids Npcs.WOLF_4414/Npcs.WOLF_11263; SlayerAssignment.WOLF level 1 xp 10.0; aggro radius 4; attackStyle STAB",
+    },
+    "white_wolf_level_25": {
+        "display_name": "White wolf",
+        "level": 25,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 90,
+        "slayer_xp": 34.0,
+        "stats": {
+            "hitpoints": 340,
+            "attack": 20,
+            "strength": 16,
+            "defence": 22,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": WHITE_WOLF_DROPS,
+        "source": f"{WHITE_WOLF_LEVEL_25_SOURCE_PATH}: ids Npcs.WHITE_WOLF/Npcs.WOLF_4413/Npcs.WOLF_6047; SlayerAssignment.WOLF level 1 xp 34.0; aggro radius 4",
+    },
+    "white_wolf_level_38": {
+        "display_name": "White wolf",
+        "level": 38,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 90,
+        "slayer_xp": 44.0,
+        "stats": {
+            "hitpoints": 440,
+            "attack": 30,
+            "strength": 31,
+            "defence": 32,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": WHITE_WOLF_DROPS,
+        "source": f"{WHITE_WOLF_LEVEL_38_SOURCE_PATH}: id Npcs.WHITE_WOLF_97; SlayerAssignment.WOLF level 1 xp 44.0; aggro radius 4",
+    },
+    "big_wolf": {
+        "display_name": "Big wolf",
+        "level": 73,
+        "group": "Animals",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 90,
+        "slayer_xp": 74.0,
+        "stats": {
+            "hitpoints": 740,
+            "attack": 60,
+            "strength": 61,
+            "defence": 62,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 0,
+            "defence_slash": 0,
+            "defence_crush": 0,
+            "defence_magic": 0,
+            "defence_ranged": 0,
+            "melee_strength": 0,
+        },
+        "drops": WHITE_WOLF_DROPS,
+        "source": f"{BIG_WOLF_SOURCE_PATH}: id Npcs.BIG_WOLF_6046; SlayerAssignment.WOLF level 1 xp 74.0; aggro radius 4",
     },
     "duck_land": {
         "display_name": "Duck (land)",
@@ -3214,6 +3386,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Watering can (8)": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERING_CAN_8"},
     "Watermelon seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WATERMELON_SEED"},
     "Wooden shield": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOODEN_SHIELD"},
+    "Wolf bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.WOLF_BONES"},
     "Zamorak robe bottom": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE"},
     "Zamorak robe top": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ZAMORAK_ROBE_1035"},
     "Tinderbox": {"category": "tool", "source": f"{ITEM_ID_SOURCE_PATH}: Items.TINDERBOX_590"},

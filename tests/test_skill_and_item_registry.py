@@ -480,6 +480,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Staff of fire": "equipment",
             "Tooth half of a key": "material",
             "Unicorn horn": "material",
+            "Wolf bones": "material",
             "Zamorak robe bottom": "equipment",
             "Zamorak robe top": "equipment",
             "Gold charm": "material",

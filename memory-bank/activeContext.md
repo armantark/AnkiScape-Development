@@ -338,6 +338,13 @@ bear meat, Bones, and charms already resolve through existing item registries.
 Source proof lives in
 `memory-bank/source-audits/combat-black-bear-2026-06-23.md`.
 
+Combat wolf coverage now adds four local source Animals targets: level-11 Wolf,
+level-25 White wolf, level-38 White wolf, and level-73 Big wolf. The rows keep
+their source Wolf Slayer XP, guaranteed Wolf bones drops, charm-table weights,
+and the level-11 row's extra guaranteed Bones. `Wolf bones` now has Combat item
+registry/icon coverage. Source proof lives in
+`memory-bank/source-audits/combat-wolves-2026-06-23.md`.
+
 Combat Duck coverage now splits the source level-1 Duck file into land and water
 rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
 water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but
