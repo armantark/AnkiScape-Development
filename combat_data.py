@@ -656,6 +656,10 @@ BIG_WOLF_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/big_wolf_lvl_73.plugin.kts"
 )
+GIANT_BAT_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/critters/giant_bat_level_27.plugin.kts"
+)
 DUCK_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/animals/duck_level_1.plugin.kts"
@@ -1092,6 +1096,9 @@ WHITE_WOLF_DROPS = {
         },
     ),
 }
+
+
+GIANT_BAT_DROPS = {"guaranteed": (("Bat bones", 1),), "tables": ()}
 
 
 DWARF_DROPS = {
@@ -2191,6 +2198,36 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
         },
         "drops": WHITE_WOLF_DROPS,
         "source": f"{BIG_WOLF_SOURCE_PATH}: id Npcs.BIG_WOLF_6046; SlayerAssignment.WOLF level 1 xp 74.0; aggro radius 4",
+    },
+    "giant_bat": {
+        "display_name": "Giant bat",
+        "level": 27,
+        "group": "Bats",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 35,
+        "slayer_xp": 32.0,
+        "stats": {
+            "hitpoints": 320,
+            "attack": 22,
+            "strength": 22,
+            "defence": 22,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 0,
+            "attack_slash": 0,
+            "attack_crush": 0,
+            "defence_stab": 10,
+            "defence_slash": 10,
+            "defence_crush": 12,
+            "defence_magic": 10,
+            "defence_ranged": 8,
+            "melee_strength": 0,
+        },
+        "drops": GIANT_BAT_DROPS,
+        "source": f"{GIANT_BAT_SOURCE_PATH}: id Npcs.GIANT_BAT; SlayerAssignment.BAT level 1 xp 32.0; aggro radius 4",
     },
     "duck_land": {
         "display_name": "Duck (land)",
@@ -3327,6 +3364,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Antipoison (2)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_2"},
     "Antipoison (3)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_3"},
     "Antipoison (4)": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ANTIPOISON_4"},
+    "Bat bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BAT_BONES"},
     "Bear fur": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BEAR_FUR"},
     "Bones": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BONES"},
     "Brass necklace": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.BRASS_NECKLACE"},

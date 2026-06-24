@@ -454,6 +454,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_combat_items_are_registered_with_icons(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = {
+            "Bat bones": "material",
             "Bear fur": "material",
             "Brass necklace": "equipment",
             "Bronze spear": "equipment",

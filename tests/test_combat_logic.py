@@ -364,6 +364,29 @@ class CombatLogicTest(unittest.TestCase):
             self.assertEqual(enemy["group"], "Animals")
             self.assertIn("SlayerAssignment.WOLF", enemy["source"])
 
+    def test_giant_bat_row_matches_source(self):
+        giant_bat = COMBAT_ENEMY_DATA["giant_bat"]
+
+        self.assertEqual(giant_bat["display_name"], "Giant bat")
+        self.assertEqual(giant_bat["level"], 27)
+        self.assertEqual(giant_bat["group"], "Bats")
+        self.assertEqual(giant_bat["attack_speed"], 4)
+        self.assertEqual(giant_bat["respawn_delay"], 35)
+        self.assertEqual(giant_bat["slayer_xp"], 32.0)
+        self.assertEqual(giant_bat["stats"]["hitpoints"], 320)
+        self.assertEqual(giant_bat["stats"]["attack"], 22)
+        self.assertEqual(giant_bat["stats"]["strength"], 22)
+        self.assertEqual(giant_bat["stats"]["defence"], 22)
+        self.assertEqual(giant_bat["bonuses"]["defence_stab"], 10)
+        self.assertEqual(giant_bat["bonuses"]["defence_slash"], 10)
+        self.assertEqual(giant_bat["bonuses"]["defence_crush"], 12)
+        self.assertEqual(giant_bat["bonuses"]["defence_magic"], 10)
+        self.assertEqual(giant_bat["bonuses"]["defence_ranged"], 8)
+        self.assertEqual(giant_bat["drops"]["guaranteed"], (("Bat bones", 1),))
+        self.assertEqual(giant_bat["drops"]["tables"], ())
+        self.assertIn("giant_bat_level_27.plugin.kts", giant_bat["source"])
+        self.assertIn("SlayerAssignment.BAT", giant_bat["source"])
+
     def test_duck_rows_split_land_and_water_source_drops(self):
         land = COMBAT_ENEMY_DATA["duck_land"]
         water = COMBAT_ENEMY_DATA["duck_water"]
@@ -1085,6 +1108,9 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(wolf_drops, {"Wolf bones": 1, "Bones": 1, "Gold charm": 1})
         self.assertEqual(white_wolf_drops, {"Wolf bones": 1, "Green charm": 1})
         self.assertEqual(big_wolf_drops, {"Wolf bones": 1, "Crimson charm": 1})
+
+    def test_giant_bat_drop_rolls_guaranteed_bat_bones(self):
+        self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["giant_bat"], _rng([])), {"Bat bones": 1})
 
     def test_duck_drop_rolls_follow_land_water_source_split(self):
         self.assertEqual(_combat_roll_drops(COMBAT_ENEMY_DATA["duck_land"], _rng([])), {"Bones": 1})

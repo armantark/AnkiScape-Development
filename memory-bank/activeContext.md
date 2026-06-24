@@ -345,6 +345,12 @@ and the level-11 row's extra guaranteed Bones. `Wolf bones` now has Combat item
 registry/icon coverage. Source proof lives in
 `memory-bank/source-audits/combat-wolves-2026-06-23.md`.
 
+Combat Giant bat coverage now adds the local source level-27 Bats target with
+guaranteed Bat bones, source defence bonuses, Bat Slayer XP, and no new asset
+fetch because the existing quest Bat bones icon resolves through Combat item
+registry fallback. Source proof lives in
+`memory-bank/source-audits/combat-giant-bat-2026-06-23.md`.
+
 Combat Duck coverage now splits the source level-1 Duck file into land and water
 rows. Land ducks (`DUCK_6113`/`DRAKE`) keep the registered Bones drop callback;
 water ducks (`DUCK`/`DUCK_2693`) share the same stats and Bird Slayer XP but

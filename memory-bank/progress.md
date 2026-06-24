@@ -235,6 +235,11 @@
   drops, source charm-table weights, and the level-11 Wolf's extra guaranteed
   Bones drop. `Wolf bones` now has Combat item/icon coverage. Source proof:
   `memory-bank/source-audits/combat-wolves-2026-06-23.md`.
+- Combat Giant bat expansion added the local source level-27 Bats row with
+  guaranteed Bat bones, source defence bonuses, and Bat Slayer XP. The row reuses
+  the existing quest Bat bones icon through the Combat item registry fallback.
+  Source proof:
+  `memory-bank/source-audits/combat-giant-bat-2026-06-23.md`.
 - Combat Duck expansion split the local source level-1 Duck file into land and
   water rows. Land ducks keep the source Bones drop callback; water ducks share
   stats and Bird Slayer XP but expose no drops because the source has no
