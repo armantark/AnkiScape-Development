@@ -5,6 +5,7 @@ from combat_data import (
     COMBAT_ALLOTMENT_SEED_DROP_TABLE,
     COMBAT_ENEMY_DATA,
     COMBAT_GEM_DROP_TABLE,
+    CHAOS_DWARF_DROPS,
     COMBAT_MEGA_RARE_DROP_TABLE,
     COMBAT_MINOR_HERB_DROP_TABLE,
     COMBAT_UNCOMMON_SEED_DROP_TABLE,
@@ -1008,6 +1009,43 @@ class CombatLogicTest(unittest.TestCase):
         self.assertIn("total(128)", outlaw["source"])
         self.assertIn("active source slots sum to 127", outlaw["source"])
 
+    def test_chaos_dwarf_row_matches_source_charms_and_muddy_key(self):
+        dwarf = COMBAT_ENEMY_DATA["chaos_dwarf"]
+        main, charms = dwarf["drops"]["tables"]
+
+        self.assertEqual(dwarf["display_name"], "Chaos dwarf")
+        self.assertEqual(dwarf["level"], 48)
+        self.assertEqual(dwarf["group"], "Humanoids")
+        self.assertEqual(dwarf["attack_speed"], 4)
+        self.assertEqual(dwarf["respawn_delay"], 50)
+        self.assertEqual(dwarf["slayer_xp"], 61.0)
+        self.assertEqual(dwarf["stats"]["hitpoints"], 610)
+        self.assertEqual(dwarf["stats"]["attack"], 38)
+        self.assertEqual(dwarf["stats"]["strength"], 42)
+        self.assertEqual(dwarf["stats"]["defence"], 28)
+        self.assertEqual(dwarf["bonuses"]["attack_stab"], 13)
+        self.assertEqual(dwarf["bonuses"]["attack_crush"], 9)
+        self.assertEqual(dwarf["bonuses"]["defence_stab"], 40)
+        self.assertEqual(dwarf["bonuses"]["defence_slash"], 34)
+        self.assertEqual(dwarf["bonuses"]["defence_crush"], 25)
+        self.assertEqual(dwarf["bonuses"]["defence_magic"], 10)
+        self.assertEqual(dwarf["bonuses"]["defence_ranged"], 35)
+        self.assertIs(dwarf["drops"], CHAOS_DWARF_DROPS)
+        self.assertEqual(dwarf["drops"]["guaranteed"], (("Bones", 1),))
+        self.assertEqual(main["total"], 128)
+        self.assertEqual(sum(slot["slots"] for slot in main["slots"]), 128)
+        self.assertEqual(main["slots"][0], {"item": "Steel full helm", "quantity": 1, "slots": 2})
+        self.assertEqual(main["slots"][11], {"item": "Coins", "quantity": 92, "slots": 40})
+        self.assertEqual(main["slots"][19], {"item": "Muddy key", "quantity": 1, "slots": 7})
+        self.assertEqual(main["slots"][21], {"item": "Mithril bar", "quantity": 1, "slots": 6})
+        self.assertEqual(charms["total"], 1000)
+        self.assertEqual(sum(slot["slots"] for slot in charms["slots"]), 1000)
+        self.assertEqual(charms["slots"][0], {"item": "Gold charm", "quantity": 1, "slots": 100})
+        self.assertEqual(charms["slots"][3], {"item": "Blue charm", "quantity": 1, "slots": 20})
+        self.assertIn("chaos_dwarf_lvl_48.plugin.kts", dwarf["source"])
+        self.assertIn("SlayerAssignment.DWARF", dwarf["source"])
+        self.assertIn("aggro radius 4", dwarf["source"])
+
     def test_white_knight_rows_match_source_and_runtime_drop_totals(self):
         expected = {
             "white_knight_level_36": (
@@ -1842,6 +1880,19 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(rope_drops, {"Bones": 1, "Rope": 1})
         self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
         self.assertEqual(charm_drops, {"Bones": 1, "Bronze med helm": 1, "Green charm": 1})
+
+    def test_chaos_dwarf_drop_rolls_muddy_key_and_charms(self):
+        muddy_key_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["chaos_dwarf"],
+            _rng([113 / 128, 0.999999]),
+        )
+        charm_drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["chaos_dwarf"],
+            _rng([0.0, 100 / 1000]),
+        )
+
+        self.assertEqual(muddy_key_drops, {"Bones": 1, "Muddy key": 1})
+        self.assertEqual(charm_drops, {"Bones": 1, "Steel full helm": 1, "Green charm": 1})
 
     def test_dwarf_drop_rolls_quantity_range_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(

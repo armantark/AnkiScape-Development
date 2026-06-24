@@ -592,6 +592,10 @@ OUTLAW_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/outlaw_level_35.plugin.kts"
 )
+CHAOS_DWARF_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
+    "definitions/humanoids/chaos_dwarf_lvl_48.plugin.kts"
+)
 THUG_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/npcs/"
     "definitions/humanoids/thug_level_10.plugin.kts"
@@ -1325,6 +1329,53 @@ OUTLAW_DROPS = {
                 {"item": "Crimson charm", "quantity": 1, "slots": 30},
                 {"item": "Blue charm", "quantity": 1, "slots": 7},
                 {"slots": 573},
+            ),
+        },
+    ),
+}
+
+
+CHAOS_DWARF_DROPS = {
+    "guaranteed": (("Bones", 1),),
+    "tables": (
+        {
+            "name": "Main",
+            "total": 128,
+            "slots": (
+                {"item": "Steel full helm", "quantity": 1, "slots": 2},
+                {"item": "Mithril longsword", "quantity": 1, "slots": 1},
+                {"item": "Mithril sq shield", "quantity": 1, "slots": 1},
+                {"item": "Law rune", "quantity": 3, "slots": 4},
+                {"item": "Air rune", "quantity": 24, "slots": 3},
+                {"item": "Chaos rune", "quantity": 10, "slots": 3},
+                {"item": "Mind rune", "quantity": 37, "slots": 3},
+                {"item": "Nature rune", "quantity": 9, "slots": 3},
+                {"item": "Cosmic rune", "quantity": 3, "slots": 2},
+                {"item": "Death rune", "quantity": 3, "slots": 1},
+                {"item": "Water rune", "quantity": 10, "slots": 1},
+                {"item": "Coins", "quantity": 92, "slots": 40},
+                {"item": "Coins", "quantity": 47, "slots": 18},
+                {"item": "Coins", "quantity": 25, "slots": 11},
+                {"item": "Coins", "quantity": 150, "slots": 10},
+                {"item": "Coins", "quantity": 350, "slots": 2},
+                {"item": "Coins", "quantity": 15, "slots": 2},
+                {"slots": 5},
+                {"item": "Coal", "quantity": 1, "slots": 1},
+                {"item": "Muddy key", "quantity": 1, "slots": 7},
+                {"item": "Cheese", "quantity": 1, "slots": 1},
+                {"item": "Mithril bar", "quantity": 1, "slots": 6},
+                {"item": "Tomato", "quantity": 1, "slots": 1},
+            ),
+        },
+        {
+            "name": "Charms",
+            "total": 1000,
+            "slots": (
+                {"item": "Gold charm", "quantity": 1, "slots": 100},
+                {"item": "Green charm", "quantity": 1, "slots": 50},
+                {"item": "Crimson charm", "quantity": 1, "slots": 20},
+                {"item": "Blue charm", "quantity": 1, "slots": 20},
+                {"slots": 810},
             ),
         },
     ),
@@ -4343,6 +4394,39 @@ COMBAT_ENEMY_DATA: Dict[str, dict] = {
             "main table declares total(128), active source slots sum to 127"
         ),
     },
+    "chaos_dwarf": {
+        "display_name": "Chaos dwarf",
+        "level": 48,
+        "group": "Humanoids",
+        "attack_style": "melee",
+        "attack_speed": 4,
+        "respawn_delay": 50,
+        "slayer_xp": 61.0,
+        "stats": {
+            "hitpoints": 610,
+            "attack": 38,
+            "strength": 42,
+            "defence": 28,
+            "magic": 1,
+            "ranged": 1,
+        },
+        "bonuses": {
+            "attack_stab": 13,
+            "attack_slash": 0,
+            "attack_crush": 9,
+            "defence_stab": 40,
+            "defence_slash": 34,
+            "defence_crush": 25,
+            "defence_magic": 10,
+            "defence_ranged": 35,
+            "melee_strength": 0,
+        },
+        "drops": CHAOS_DWARF_DROPS,
+        "source": (
+            f"{CHAOS_DWARF_SOURCE_PATH}: id Npcs.CHAOS_DWARF; "
+            "SlayerAssignment.DWARF level 1 xp 61.0; aggro radius 4"
+        ),
+    },
     "white_knight_level_36": {
         "display_name": "White knight",
         "level": 36,
@@ -5285,6 +5369,7 @@ COMBAT_EXTRA_ITEM_DATA: Dict[str, dict] = {
     "Magic staff": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MAGIC_STAFF"},
     "Marrentill seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MARRENTILL_SEED"},
     "Mithril spear": {"category": "equipment", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MITHRIL_SPEAR"},
+    "Muddy key": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.MUDDY_KEY"},
     "Onion seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.ONION_SEED"},
     "Poison ivy seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POISON_IVY_SEED"},
     "Potato seed": {"category": "material", "source": f"{ITEM_ID_SOURCE_PATH}: Items.POTATO_SEED"},

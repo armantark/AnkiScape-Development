@@ -482,6 +482,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Long bone": "material",
             "Magic staff": "equipment",
             "Mithril spear": "equipment",
+            "Muddy key": "material",
             "Rune javelin": "equipment",
             "Rune spear": "equipment",
             "Shield left half": "material",

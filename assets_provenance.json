@@ -299,6 +299,18 @@
     "source_wiki": "rs3",
     "timestamp": "2019-12-07T14:17:57Z"
   },
+  "combatitems/muddy_key.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Muddy_key.png",
+    "file_title": "Muddy key.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Muddy_key.png?df7b3",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1aec0b55b6791211950b9897386cdb512dcf7989",
+    "size": 432,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:59:10Z"
+  },
   "combatitems/rune_javelin.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Rune_javelin.png",
     "file_title": "Rune javelin.png",
