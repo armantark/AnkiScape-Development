@@ -1172,6 +1172,20 @@ loaded supplies; food refill no longer has a 28-item cap; and all
 Source audit:
 `memory-bank/source-audits/combat-ui-bank-run-enemy-images-2026-06-24.md`.
 
+Combat automated QA hardening completed on 2026-06-25. No new enemies, spellbooks,
+shops, GE, Wilderness, cannon, or broad systems were added. The pass fixed
+equipment-aware safe recovery by passing `EQUIPMENT_DATA` into the runtime recovery
+packet, made bank runs target-scoped so an old run cannot refill a newly selected
+enemy, prevented lock-only targets from starting supply bank runs, used supplied
+enemy tables for poison/antipoison bank-run decisions, sanitized malformed
+`combat_grave` state during migration/copy paths, stopped quest-combat kills from
+incrementing ordinary Combat kill counts, made quest-combat death clear stale
+ordinary encounter state, and refreshed Equipment-tab combat mode/loadout labels
+after equip/unequip or loadout callbacks. Added deterministic unit and offscreen
+Qt coverage for those paths. Verification: `python3 run_tests.py`
+passed with 723 tests run and 135 skipped; `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 723 tests in 145.617s.
+
 Hunter v1 completed on 2026-06-20. The skill is a current Gathering review
 skill with 55 source-backed targets in `hunter_data.py`: bird snaring,
 butterfly netting, deadfall, box trapping, net trapping, falconry, magic boxes,

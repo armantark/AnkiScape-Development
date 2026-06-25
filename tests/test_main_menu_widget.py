@@ -2681,6 +2681,28 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Bronze platebody", body_row.text())
         self.assertEqual(body_row.data(Qt.ItemDataRole.UserRole + 1), "Bronze platebody")
 
+    def test_equipping_weapon_refreshes_equipment_combat_mode(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "combat_attack_style": "accurate",
+                "inventory": {"Shortbow": 1},
+                "ranged_level": 1,
+            }
+        )
+        dialog = self._open_with_equip(pd)
+        mode_label = dialog.findChild(QLabel, "combatModeLabel")
+        self.assertIsNotNone(mode_label)
+        self.assertIn("Accurate", mode_label.text())
+
+        menu = dialog._ankiscape_equip_menu_for("Shortbow")
+        action = next(action for action in menu.actions() if action.text() == "Equip")
+        action.trigger()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["equipment"], {"weapon": "Shortbow"})
+        self.assertIn("Ranged Accurate", mode_label.text())
+
     def test_unequip_returns_item_to_inventory(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {}

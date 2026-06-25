@@ -2115,6 +2115,22 @@ def show_main_menu(
         spec = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA.get(DEFAULT_COMBAT_ATTACK_STYLE, {}))
         return str(spec.get("display_name", style_id)).replace("Ranged ", "Ranged ").title()
 
+    def _combat_bank_run_text() -> str:
+        bank_run_raw = player_data.get("combat_bank_run", {}) or {}
+        bank_run_remaining = 0
+        if isinstance(bank_run_raw, dict):
+            try:
+                bank_run_remaining = max(0, int(bank_run_raw.get("reviews_remaining", 0) or 0))
+            except (TypeError, ValueError):
+                bank_run_remaining = 0
+        return (
+            f"Bank run: {bank_run_remaining} review{'s' if bank_run_remaining != 1 else ''} remaining"
+            if bank_run_remaining
+            else "Bank run: ready"
+        )
+
+    _combat_setup_refreshers: list = []
+
     def _build_combat_setup_panel() -> QWidget:
         panel = QWidget()
         layout = QVBoxLayout(panel)
@@ -2176,21 +2192,17 @@ def show_main_menu(
         supply_summary.setStyleSheet(f"color: {dim_text_css(supply_summary)};")
         layout.addWidget(supply_summary)
 
-        bank_run_raw = player_data.get("combat_bank_run", {}) or {}
-        bank_run_remaining = 0
-        if isinstance(bank_run_raw, dict):
-            try:
-                bank_run_remaining = max(0, int(bank_run_raw.get("reviews_remaining", 0) or 0))
-            except (TypeError, ValueError):
-                bank_run_remaining = 0
-        bank_run_label = QLabel(
-            f"Bank run: {bank_run_remaining} review{'s' if bank_run_remaining != 1 else ''} remaining"
-            if bank_run_remaining
-            else "Bank run: ready"
-        )
+        bank_run_label = QLabel(_combat_bank_run_text())
         bank_run_label.setObjectName("combatBankRunLabel")
         bank_run_label.setStyleSheet(f"color: {dim_text_css(bank_run_label)};")
         layout.addWidget(bank_run_label)
+
+        def _refresh_combat_setup_panel() -> None:
+            mode_label.setText(f"Combat mode: {_combat_mode_text()}")
+            supply_summary.setText(_combat_loadout_summary_text(player_data))
+            bank_run_label.setText(_combat_bank_run_text())
+
+        _combat_setup_refreshers.append(_refresh_combat_setup_panel)
 
         loadout_button_row = QWidget()
         button_layout = QHBoxLayout(loadout_button_row)
@@ -2202,7 +2214,7 @@ def show_main_menu(
                 return
             ok = callback()
             if ok is not False:
-                supply_summary.setText(_combat_loadout_summary_text(player_data))
+                _refresh_combat_setup_panel()
 
         refill_button = QPushButton("Refill supplies")
         refill_button.setObjectName("combatRefillLoadoutButton")
@@ -3280,6 +3292,10 @@ def show_main_menu(
         _populate_death_office()
         for refresher in _equipment_refreshers:
             refresher()
+        for refresher in _combat_setup_refreshers:
+            refresher()
+        if state.get("skill") == _COMBAT_HUB_NAME:
+            _render_panel()
 
     def _populate_bank_list() -> None:
         bank_list.clear()

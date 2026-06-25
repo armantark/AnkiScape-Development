@@ -1147,6 +1147,24 @@ def _combat_grave_items(raw_grave):
     return [str(item_name) for item_name in raw_items if isinstance(item_name, str) and item_name]
 
 
+def _sanitize_combat_grave_state(raw_grave):
+    if not isinstance(raw_grave, Mapping):
+        return {}
+    items = _combat_grave_items(raw_grave)
+    if not items:
+        return {}
+    reviews_remaining = _positive_int(
+        raw_grave.get("reviews_remaining", COMBAT_GRAVE_RECOVERY_REVIEWS),
+        COMBAT_GRAVE_RECOVERY_REVIEWS,
+    )
+    source = raw_grave.get("source", "combat_death")
+    return {
+        "items": items,
+        "reviews_remaining": min(reviews_remaining, COMBAT_GRAVE_RECOVERY_REVIEWS),
+        "source": source if isinstance(source, str) and source else "combat_death",
+    }
+
+
 def _sanitize_death_office_state(raw_office):
     if not isinstance(raw_office, Mapping):
         return {}
@@ -1262,7 +1280,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
             if isinstance(target_id, str)
         },
         "combat_last_result": dict(player_data.get("combat_last_result", {}) or {}),
-        "combat_grave": dict(player_data.get("combat_grave", {}) or {}),
+        "combat_grave": _sanitize_combat_grave_state(player_data.get("combat_grave", {}) or {}),
         "death_office": _sanitize_death_office_state(player_data.get("death_office", {}) or {}),
     }
 
@@ -1828,9 +1846,10 @@ def _combat_banked_antipoison_count(data):
     return sum(_non_negative_int(inventory.get(item_name, 0), 0) for item_name in COMBAT_ANTIPOISON_POTION_DATA)
 
 
-def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None):
+def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     _combat_refill_food_loadout(data)
-    enemy = COMBAT_ENEMY_DATA.get(target_id, {}) if isinstance(target_id, str) else {}
+    enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
+    enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
     if target_poison > 0 or "poison" in effects:
@@ -1841,10 +1860,11 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
         _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
 
 
-def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None):
+def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
         return True
-    enemy = COMBAT_ENEMY_DATA.get(target_id, {}) if isinstance(target_id, str) else {}
+    enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
+    enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
     effects = _sanitize_combat_status_effects(data.get("combat_status_effects"))
     if (target_poison > 0 or "poison" in effects) and _combat_loaded_antipoison_count(data) <= 0:
@@ -1888,10 +1908,22 @@ def _combat_bank_run_result(data, target_id, started=False, completed=False):
     }
 
 
-def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None):
+def _combat_locks_can_bank_run(locked_reasons):
+    if not locked_reasons:
+        return True
+    return all(
+        isinstance(reason, str)
+        and (reason == "compatible ammunition" or reason.startswith("runes: "))
+        for reason in locked_reasons
+    )
+
+
+def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     bank_run = _sanitize_combat_bank_run(data.get("combat_bank_run"))
+    if bank_run and bank_run.get("target_id") not in (None, target_id):
+        bank_run = {}
     started = False
-    if not bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data):
+    if not bank_run and _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data):
         bank_run = {"reviews_remaining": COMBAT_BANK_RUN_REVIEWS, "target_id": target_id}
         started = True
     if not bank_run:
@@ -1900,7 +1932,7 @@ def _combat_progress_or_start_bank_run(data, target_id, combat_class, ranged_wea
     remaining = _non_negative_int(bank_run.get("reviews_remaining", 0), 0) - 1
     if remaining <= 0:
         data["combat_bank_run"] = {}
-        _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data)
+        _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data, enemy_data)
         return _combat_bank_run_result(data, target_id, started=started, completed=True)
     data["combat_bank_run"] = {"reviews_remaining": remaining, "target_id": target_id}
     return _combat_bank_run_result(data, target_id, started=started, completed=False)
@@ -2353,9 +2385,10 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     }
 
 
-def apply_safe_combat_recovery_pure(player_data):
+def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
+    equipment_data = equipment_data or {}
     max_lp = combat_max_lifepoints_pure(data)
     current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
     if current_lp > max_lp:
@@ -2370,12 +2403,12 @@ def apply_safe_combat_recovery_pure(player_data):
         _combat_apply_pvm_death(data, max_lp, "combat_poison_death")
         return data
     style = COMBAT_ATTACK_STYLE_DATA.get(
-        combat_attack_style_for_equipment_pure(data),
+        combat_attack_style_for_equipment_pure(data, equipment_data),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
     )
     combat_class = str(style.get("combat_class", "melee"))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
-    _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, {})
+    _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
     _spell_id, spell_spec = _combat_selected_magic_spell(data)
     bank_run_result = _combat_progress_or_start_bank_run(
         data,
@@ -2383,6 +2416,7 @@ def apply_safe_combat_recovery_pure(player_data):
         combat_class,
         weapon_spec,
         spell_spec,
+        equipment_data,
     )
     if bank_run_result is not None:
         data["combat_last_result"] = bank_run_result
@@ -2468,6 +2502,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     combat_class = str(style.get("combat_class", "melee"))
     weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
     spell_id, spell_spec = _combat_selected_magic_spell(data)
+    locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
     bank_run_result = _combat_progress_or_start_bank_run(
         data,
         target_id,
@@ -2475,11 +2510,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         ranged_weapon_spec,
         spell_spec,
         equipment_data,
+        enemy_data,
     )
     if bank_run_result is not None:
+        if not _combat_locks_can_bank_run(locked_reasons):
+            return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
         data["combat_last_result"] = bank_run_result
         return data, True, bank_run_result
-    locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
     if locked_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
@@ -2810,7 +2847,7 @@ def _copy_player_data_with_nested(player_data):
     copied["combat_encounter"] = dict(player_data.get("combat_encounter", {}) or {})
     copied["combat_kill_counts"] = dict(player_data.get("combat_kill_counts", {}) or {})
     copied["combat_last_result"] = dict(player_data.get("combat_last_result", {}) or {})
-    copied["combat_grave"] = dict(player_data.get("combat_grave", {}) or {})
+    copied["combat_grave"] = _sanitize_combat_grave_state(player_data.get("combat_grave", {}) or {})
     copied["death_office"] = _sanitize_death_office_state(player_data.get("death_office", {}) or {})
     copied["combat_auto_eat_food"] = list(player_data.get("combat_auto_eat_food", []) or [])
     copied["combat_supply_loadout"] = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
@@ -4080,7 +4117,11 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
         return player_data, False, combat_result
 
     data["current_combat_target"] = original_combat_target
-    data["combat_encounter"] = original_combat_encounter
+    data["combat_encounter"] = {} if combat_result.get("died") else original_combat_encounter
+    if combat_result.get("killed"):
+        kill_counts = dict(data.get("combat_kill_counts", {}) or {})
+        kill_counts.pop(quest_target_id, None)
+        data["combat_kill_counts"] = kill_counts
     quest_active_encounters = sanitize_quest_combat_active_encounters_pure(
         data.get("quest_combat_active_encounters")
     )

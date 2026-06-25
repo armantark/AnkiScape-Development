@@ -374,6 +374,30 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["equipment"], {"body": "Bronze platebody"})
         self.assertNotIn("owned_equipment", migrated)
 
+    def test_migrate_combat_grave_state_is_sanitized(self):
+        malformed = migrate_loaded_data(
+            {"combat_grave": "not a grave"},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(malformed["combat_grave"], {})
+
+        clamped = migrate_loaded_data(
+            {
+                "combat_grave": {
+                    "items": ["Iron sword", "", 123],
+                    "reviews_remaining": 99,
+                    "source": "",
+                }
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(
+            clamped["combat_grave"],
+            {"items": ["Iron sword"], "reviews_remaining": 5, "source": "combat_death"},
+        )
+
     def test_migrate_legacy_mining_target_names(self):
         migrated = migrate_loaded_data(
             {"current_ore": "Iron ore", "inventory": {"Iron ore": 2}},

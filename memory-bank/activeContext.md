@@ -886,6 +886,15 @@ two-review automatic bank-run delay with no 28-food cap; and Combat target rows
 now use wiki-fetched `combatenemies/*.png` sprites instead of Bones/drop icons.
 See `memory-bank/source-audits/combat-ui-bank-run-enemy-images-2026-06-24.md`.
 
+2026-06-25 Combat automated QA hardening is complete for the mobile-window scope.
+It stayed inside existing Combat V1 behavior and added no new content systems. The
+pass fixed equipment metadata propagation for safe recovery, target-scoped bank
+run reset, lock-before-bank-run ordering, poison/antipoison bank runs for supplied
+enemy tables, malformed `combat_grave` sanitization, quest-combat leakage into
+ordinary kill counts, quest-combat death clearing stale ordinary encounters, and
+Equipment-tab Combat setup refresh after equip/loadout callbacks. Required
+verification passed: `python3 run_tests.py`; `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`.
+
 ## Current Risks
 - The current P0 architecture board is closed, but a larger action-engine design
   could still be justified later if a future feature needs behavior beyond the

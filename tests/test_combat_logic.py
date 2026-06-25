@@ -2787,6 +2787,82 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(result["food_used"], ())
         self.assertEqual(new_data["combat_lifepoints"], 20)
 
+    def test_combat_burst_checks_locked_target_before_starting_bank_run(self):
+        enemy_data = {
+            "statless": {
+                "display_name": "Statless",
+                "level": 1,
+                "stats": {},
+                "drops": {"guaranteed": (), "tables": ()},
+            }
+        }
+        player = _player(
+            current_combat_target="statless",
+            inventory={"Shrimps": 5},
+            combat_auto_eat_food=["Shrimps"],
+        )
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.0]),
+        )
+
+        self.assertFalse(ok)
+        self.assertIs(new_data, player)
+        self.assertEqual(result["reason"], "combat_locked")
+        self.assertEqual(result["locked_reasons"], ("missing source combat stats",))
+        self.assertNotIn("combat_bank_run", new_data)
+
+    def test_combat_bank_run_uses_supplied_enemy_data_for_antipoison(self):
+        enemy_data = {
+            "poison_dummy": {
+                "display_name": "Poison dummy",
+                "level": 1,
+                "stats": {"attack": 1, "strength": 1, "defence": 1, "hitpoints": 100},
+                "bonuses": {},
+                "attack_speed": 4,
+                "drops": {"guaranteed": (), "tables": ()},
+                "poison_damage": 3,
+            }
+        }
+        player = _player(
+            current_combat_target="poison_dummy",
+            inventory={"Antipoison (1)": 1},
+            combat_auto_eat_food=[],
+            combat_supply_loadout={},
+        )
+
+        traveling, ok, result = apply_combat_burst_pure(
+            player,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(result["reason"], "combat_bank_run")
+        self.assertEqual(traveling["combat_bank_run"], {"reviews_remaining": 1, "target_id": "poison_dummy"})
+        self.assertEqual(traveling["inventory"]["Antipoison (1)"], 1)
+        self.assertEqual(traveling["combat_supply_loadout"]["potions"], {})
+
+        refilled, ok, result = apply_combat_burst_pure(
+            traveling,
+            enemy_data,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.0]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["bank_run_completed"])
+        self.assertEqual(refilled["combat_bank_run"], {})
+        self.assertEqual(refilled["inventory"]["Antipoison (1)"], 0)
+        self.assertEqual(refilled["combat_supply_loadout"]["potions"], {"Antipoison (1)": 1})
+
     def test_combat_burst_regenerates_special_attack_energy_by_elapsed_ticks(self):
         player = _player(combat_special_attack_energy=40)
 
@@ -3014,6 +3090,20 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(refilled["inventory"]["Shark"], 0)
         self.assertEqual(refilled["combat_bank_run"], {})
 
+    def test_safe_recovery_resets_mismatched_bank_run_before_refill(self):
+        player = _player(
+            inventory={"Shark": 5},
+            combat_auto_eat_food=["Shark"],
+            combat_supply_loadout={},
+            combat_bank_run={"reviews_remaining": 1, "target_id": "giant_rat"},
+        )
+
+        recovered = apply_safe_combat_recovery_pure(player)
+
+        self.assertEqual(recovered["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(recovered["combat_supply_loadout"]["food"], {})
+        self.assertEqual(recovered["inventory"]["Shark"], 5)
+
     def test_safe_recovery_refills_ranged_ammo_at_safe_boundary(self):
         player = _player(
             combat_attack_style="ranged_accurate",
@@ -3027,6 +3117,45 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(recovered["combat_supply_loadout"]["ammo"], {"Bronze arrows": 3})
         self.assertEqual(recovered["inventory"]["Bronze arrows"], 12)
         self.assertEqual(recovered["combat_bank_run"], {})
+
+    def test_safe_recovery_ranged_bank_run_completes_ammo_refill(self):
+        player = _player(
+            combat_attack_style="accurate",
+            equipment={"weapon": "Shortbow"},
+            inventory={"Bronze arrows": 12},
+            combat_auto_eat_food=[],
+            combat_supply_loadout={},
+        )
+
+        traveling = apply_safe_combat_recovery_pure(player, EQUIPMENT_DATA)
+        refilled = apply_safe_combat_recovery_pure(traveling, EQUIPMENT_DATA)
+
+        self.assertEqual(traveling["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(traveling["combat_supply_loadout"]["ammo"], {})
+        self.assertEqual(refilled["combat_bank_run"], {})
+        self.assertEqual(refilled["combat_supply_loadout"]["ammo"], {"Bronze arrows": 12})
+        self.assertEqual(refilled["inventory"]["Bronze arrows"], 0)
+
+    def test_safe_recovery_magic_bank_run_completes_uncovered_rune_refill(self):
+        player = _player(
+            combat_attack_style="accurate",
+            current_combat_spell="fire_strike",
+            magic_level=13,
+            equipment={"weapon": "Staff of fire"},
+            inventory={"Air rune": 2, "Mind rune": 2, "Fire rune": 3},
+            combat_auto_eat_food=[],
+            combat_supply_loadout={},
+        )
+
+        traveling = apply_safe_combat_recovery_pure(player, EQUIPMENT_DATA)
+        refilled = apply_safe_combat_recovery_pure(traveling, EQUIPMENT_DATA)
+
+        self.assertEqual(traveling["combat_bank_run"], {"reviews_remaining": 1, "target_id": "chicken"})
+        self.assertEqual(refilled["combat_bank_run"], {})
+        self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 2, "Mind rune": 2})
+        self.assertEqual(refilled["inventory"]["Air rune"], 0)
+        self.assertEqual(refilled["inventory"]["Mind rune"], 0)
+        self.assertEqual(refilled["inventory"]["Fire rune"], 3)
 
     def test_stacked_combat_death_moves_existing_grave_to_death_office(self):
         player = _player(

@@ -77,7 +77,16 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   staff rune substitution. Combat Ranged now covers standard bows from Shortbow
   through Magic longbow with Bronze through Rune arrow compatibility; Broad
   arrows remain deferred until per-ammo gates exist. Ordinary Combat target selection now asks for
-  non-persistent confirmation before activating rows rated `Death possible`. Use
+  non-persistent confirmation before activating rows rated `Death possible`. The
+  2026-06-25 automated QA hardening pass is the current regression baseline:
+  safe noncombat recovery now receives Equipment metadata, bank runs reset rather
+  than completing against a different target, lock-only targets cannot be
+  converted into supply bank runs, custom/quest enemy tables drive antipoison
+  bank-run decisions, malformed `combat_grave` saves sanitize safely, quest
+  combat kills no longer write ordinary `combat_kill_counts`, quest-combat death
+  clears stale ordinary encounters, and Equipment-tab combat mode text refreshes
+  after equip/unequip. Verification passed with `python3 run_tests.py` and
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`. Use
   `memory-bank/combat-design-grill-2026-06-23.md` plus
   `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
   `memory-bank/source-audits/combat-barbarian-2026-06-23.md` before

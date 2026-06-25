@@ -921,7 +921,7 @@ def _apply_safe_combat_recovery_after_review() -> None:
     if not any(key in player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
         return
     before_state = copy.deepcopy(player_data)
-    recovered = apply_safe_combat_recovery_pure(player_data)
+    recovered = apply_safe_combat_recovery_pure(player_data, EQUIPMENT_DATA)
     if recovered == before_state:
         return
     player_data.update(recovered)

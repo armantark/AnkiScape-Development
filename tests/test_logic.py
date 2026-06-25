@@ -4055,6 +4055,119 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(resolved["quest_combat_active_encounters"], {})
         self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["training_dummy"]})
 
+    def test_quest_combat_kill_does_not_increment_ordinary_combat_kill_counts(self):
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "quest_dummy",
+                                "display_name": "Quest dummy",
+                                "level": 1,
+                                "npc_stats": {
+                                    "hitpoints": 10,
+                                    "attack": 1,
+                                    "strength": 1,
+                                    "defence": 1,
+                                },
+                                "source": "source",
+                            },
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "combat_kill_counts": {"chicken": 3},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+            "attack_level": 80,
+            "strength_level": 80,
+            "defense_level": 80,
+            "constitution_level": 80,
+            "prayer_level": 1,
+            "combat_lifepoints": 800,
+        }
+
+        resolved, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "proof_quest",
+            quest_data,
+            ticks=50,
+            rng=lambda: 0.5,
+            equipment_data=EQUIPMENT_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["killed"])
+        self.assertEqual(resolved["quest_combat_encounters"], {"proof_quest": ["quest_dummy"]})
+        self.assertEqual(resolved["combat_kill_counts"], {"chicken": 3})
+
+    def test_quest_combat_death_clears_ordinary_combat_encounter(self):
+        rolls = iter((0.999999, 0.0, 0.999999))
+        quest_data = {
+            "proof_quest": {
+                "stages": 2,
+                "stage_requirements": (
+                    {
+                        "stage": 1,
+                        "combat_encounters": (
+                            {
+                                "encounter_id": "quest_killer",
+                                "display_name": "Quest killer",
+                                "level": 1,
+                                "npc_stats": {
+                                    "hitpoints": 1000,
+                                    "attack": 99,
+                                    "strength": 99,
+                                    "defence": 99,
+                                },
+                                "npc_configs": {"attack_speed": 1, "max_hit": 100},
+                                "source": "source",
+                            },
+                        ),
+                        "source": "source",
+                    },
+                ),
+            }
+        }
+        player_data = {
+            "inventory": {},
+            "equipment": {"weapon": "Iron sword"},
+            "current_combat_target": "chicken",
+            "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 10},
+            "quest_combat_config": {"resolver_enabled": True},
+            "quests": {"proof_quest": {"started": True, "progress": 1, "completed": False}},
+            "attack_level": 1,
+            "strength_level": 1,
+            "defense_level": 1,
+            "constitution_level": 10,
+            "prayer_level": 1,
+            "combat_lifepoints": 10,
+        }
+
+        defeated, ok, result = apply_quest_combat_encounter_pure(
+            player_data,
+            "proof_quest",
+            quest_data,
+            ticks=3,
+            rng=lambda: next(rolls, 0.999999),
+            equipment_data=EQUIPMENT_DATA,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["died"])
+        self.assertEqual(defeated["current_combat_target"], "chicken")
+        self.assertEqual(defeated["combat_encounter"], {})
+        self.assertEqual(defeated["equipment"], {})
+        self.assertEqual(defeated["combat_grave"]["items"], ["Iron sword"])
+        self.assertEqual(defeated["quest_combat_encounters"], {})
+
     def test_quest_combat_stats_are_style_aware_for_magic_and_ranged_enemies(self):
         magic_encounter = {
             "npc_stats": {
