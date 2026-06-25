@@ -581,6 +581,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("seagull_level_2.plugin.kts", seagull.toolTip(0))
         self.assertEqual(tree.currentItem().data(0, Qt.ItemDataRole.UserRole), "seagull")
 
+    def test_combat_sidebar_hides_combat_only_stat_skills(self) -> None:
+        combat_button = next(b for b in self.dialog.findChildren(QPushButton) if b.text() == "Combat")
+        combat_button.click()
+        QApplication.processEvents()
+
+        skill_list = next(
+            lw for lw in self.dialog.findChildren(QListWidget)
+            if any(lw.item(i).text() == "Combat" for i in range(lw.count()))
+        )
+        texts = [skill_list.item(i).text() for i in range(skill_list.count())]
+        self.assertEqual(texts, ["Combat", "Magic", "Prayer", "Summoning"])
+        for hidden in ("Attack", "Constitution", "Defense", "Ranged", "Strength"):
+            self.assertNotIn(hidden, texts)
+
     def test_combat_death_possible_target_requires_confirmation(self) -> None:
         pd = _make_player_data()
         pd.update(

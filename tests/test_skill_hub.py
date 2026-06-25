@@ -64,6 +64,12 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertIn("slayer", cards)
         self.assertFalse(cards["slayer"].implemented)
         self.assertFalse(cards["slayer"].selectable_for_review)
+        for skill_id in ("magic", "prayer", "summoning"):
+            self.assertIn(skill_id, cards)
+            self.assertFalse(cards[skill_id].implemented)
+            self.assertFalse(cards[skill_id].selectable_for_review)
+        for skill_id in ("attack", "constitution", "defense", "ranged", "strength"):
+            self.assertNotIn(skill_id, cards)
 
         # Implemented skills remain trainable in developer mode.
         self.assertTrue(cards["mining"].selectable_for_review)

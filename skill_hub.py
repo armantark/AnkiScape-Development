@@ -7,8 +7,8 @@ Qt-free and registry-backed so the grouping logic can be unit tested without
 Anki and reused by ``ui.py`` without duplicating category knowledge.
 
 Normal mode surfaces only playable skills. Developer mode additionally surfaces
-the planned catalog so the rest of the 2011-era skill set can be inspected while
-its mechanics are still unimplemented.
+hub-visible planned skills so the rest of the 2011-era skill set can be
+inspected while its mechanics are still unimplemented.
 """
 
 from __future__ import annotations
@@ -79,7 +79,11 @@ def build_skill_hub(*, include_planned: bool) -> Tuple[CategoryView, ...]:
         cards = tuple(
             _card_from_definition(skill)
             for skill in ALL_SKILLS
-            if skill.category == category_id and (include_planned or (skill.implemented and skill.visible_in_skill_hub))
+            if (
+                skill.category == category_id
+                and skill.visible_in_skill_hub
+                and (include_planned or skill.implemented)
+            )
         )
         if not cards:
             continue
