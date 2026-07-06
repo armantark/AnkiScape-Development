@@ -847,6 +847,23 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
       rows have complete item, currency, stock, price, visibility, lock, and
       provenance fields.
     - Status: decided 2026-07-06.
+73. Low-level technical implementation choices should be delegated to the
+    implementer when they do not change player-facing behavior or major
+    architecture.
+    - Do not continue asking the owner to decide generator file formats,
+      internal checkpoint cadence, schema mechanics, override plumbing, or
+      similar technical details unless the choice materially affects UX,
+      frontend/backend ownership, save compatibility, source parity, or future
+      maintenance burden.
+    - Default to the safest practical implementation: source-backed data,
+      fail-closed validation, explicit migrations, deterministic rollback,
+      checked-in generated artifacts, targeted tests, and reviewable audit
+      output.
+    - Keep safety from becoming annoying in the player experience. Normal shop
+      actions should stay immediate and game-like, with developer/provenance
+      detail tucked away, no unnecessary confirmations, and no exposed debug
+      machinery in ordinary UI.
+    - Status: decided 2026-07-06.
 
 ## Source Checkpoints From Grill
 
