@@ -113,6 +113,11 @@ class TestStoragePure(unittest.TestCase):
             "runecrafting_pouches",
             "item_charges",
             "unlocked_abilities",
+            "shop_data_version",
+            "shop_market_clock",
+            "shop_stock_state",
+            "shop_events",
+            "shop_next_event_id",
         ]:
             self.assertIn(key, data)
         # Inventory uses real item names; Mining targets use stable IDs.
@@ -163,6 +168,10 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["runecrafting_pouches"], {})
         self.assertEqual(data["item_charges"], {})
         self.assertEqual(data["unlocked_abilities"], [])
+        self.assertEqual(data["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
+        self.assertEqual(data["shop_stock_state"], {})
+        self.assertEqual(data["shop_events"], [])
+        self.assertEqual(data["shop_next_event_id"], 1)
 
     def test_default_player_data_can_seed_registered_items(self):
         data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -204,6 +213,7 @@ class TestStoragePure(unittest.TestCase):
             + list(RUNECRAFTING_EXTRA_ITEM_DATA)
             + list(HUNTER_OUTPUT_ITEMS)
             + hunter_materials
+            + ["Beer", "Silk", "Newspaper", "Cowhide", "Leather", "Oak plank"]
         ):
             self.assertIn(item_name, data["inventory"])
             self.assertEqual(data["inventory"][item_name], 0)
@@ -253,6 +263,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["runecrafting_pouches"], {})
         self.assertEqual(migrated["item_charges"], {})
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
+        self.assertEqual(migrated["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
+        self.assertEqual(migrated["shop_stock_state"], {})
+        self.assertEqual(migrated["shop_events"], [])
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
         for ore in MINING_OUTPUT_ITEMS:

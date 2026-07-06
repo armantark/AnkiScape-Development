@@ -26,6 +26,7 @@ try:
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
     )
+    from .shop_logic import default_shop_state_pure, sanitize_shop_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -64,6 +65,7 @@ except ImportError:
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
     )
+    from shop_logic import default_shop_state_pure, sanitize_shop_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -78,7 +80,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 24
+CURRENT_CONFIG_VERSION = 25
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 _EQUIPMENT_SLOT_IDS = {
     "head",
@@ -150,6 +152,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["runecrafting_pouches"] = {}
     data["item_charges"] = {}
     data["unlocked_abilities"] = []
+    data.update(default_shop_state_pure())
     return data
 
 
@@ -562,6 +565,7 @@ def migrate_loaded_data(
     _migrate_unlocked_abilities(data)
     _migrate_toolbelt(data)
     _migrate_equipment(data)
+    data.update(sanitize_shop_state_pure(data))
 
     # Ensure inventory exists and has registered item keys while preserving
     # arbitrary existing entries from older or experimental saves.

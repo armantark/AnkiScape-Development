@@ -81,6 +81,7 @@ from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .action_registry import is_review_action, review_action_handler_key
 from .skill_registry import implemented_skill_definitions
+from .shop_logic import advance_shop_market_clock_pure
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
 
@@ -420,6 +421,23 @@ def _remember_review_award_snapshot(before_state) -> None:
     _REVIEW_UNDO_STACK.append({"values": changed_values, "remove": removed_keys})
     if len(_REVIEW_UNDO_STACK) > _MAX_REVIEW_UNDO_SNAPSHOTS:
         del _REVIEW_UNDO_STACK[:-_MAX_REVIEW_UNDO_SNAPSHOTS]
+
+
+def _call_on_good_answer_with_snapshot(before_state) -> None:
+    try:
+        on_good_answer(before_state)
+    except TypeError as exc:
+        try:
+            on_good_answer()
+        except TypeError:
+            raise exc
+
+
+def _save_player_data_if_anki_ready() -> None:
+    try:
+        save_player_data()
+    except AttributeError:
+        pass
 
 
 def _looks_like_review_undo(changes) -> bool:
@@ -933,13 +951,14 @@ def _apply_safe_combat_recovery_after_review() -> None:
         pass
 
 
-def on_good_answer():
+def on_good_answer(before_state=None):
     global current_skill, exp_awarded
     if exp_awarded:
         return
     handler = _registered_answer_handler(current_skill)
     if handler:
-        before_state = _capture_player_data_snapshot()
+        if before_state is None:
+            before_state = _capture_player_data_snapshot()
         handler_key = review_action_handler_key(current_skill)
         review_progressed = False
         _begin_review_feedback_context()
@@ -969,9 +988,19 @@ def on_good_answer():
 
 def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown
-    if ease > 1 and is_review_action(current_skill) and card_turned and not exp_awarded and answer_shown:
-        on_good_answer()
+    review_answered = card_turned and answer_shown
+    before_state = _capture_player_data_snapshot() if review_answered else None
+    if review_answered:
+        try:
+            player_data.update(advance_shop_market_clock_pure(player_data))
+        except Exception:
+            pass
+    if ease > 1 and is_review_action(current_skill) and review_answered and not exp_awarded:
+        _call_on_good_answer_with_snapshot(before_state)
         exp_awarded = True
+    elif review_answered and before_state is not None:
+        _save_player_data_if_anki_ready()
+        _remember_review_award_snapshot(before_state)
     card_turned = False
     answer_shown = False  # Reset for the next card
     return _old(self, ease)

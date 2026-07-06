@@ -853,10 +853,22 @@ NPC shop design seed captured on 2026-06-20 in
 Shop menu surface, not the parked fake GE: source-backed in-game shop
 inventories, dynamic price/stock behavior, shared stock pools, buy/sell rules,
 and location/quest locks. Use local 2011Scape and local Darkan/2012scape as
-primary sources, with historical wiki revisions as conflict checks. Open design
-decisions still need grilling before implementation, especially navigation,
-location modeling, restock timing, exact price formulas, sell policies, and the
-first scope cut.
+primary sources, with historical wiki revisions as conflict checks. The
+follow-up grill in `memory-bank/npc-shop-design-grill-2026-06-24.md` settled the
+backend v1 scope; remaining design work is frontend interaction, not backend
+pricing/source policy.
+
+NPC shop backend completed on 2026-07-06 from
+`memory-bank/npc-shop-design-grill-2026-06-24.md`. The runtime now has a
+generated Darkan/2011Scape-backed catalog (`shop_data.py`), source-audit ledger,
+pure shop view/search/preview/apply/rollback APIs (`shop_logic.py`), deterministic
+frontend fixtures (`shop_fixtures.py`), services/vendor actions, general-store
+player-sold temporary stock, lazy shared-stock state, storage config version 25,
+and a review-answer market clock where ten answered cards equal one market tick.
+Use `memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md` and
+`memory-bank/npc-shop-frontend-handoff-2026-07-06.md` for the next frontend
+thread; do not re-grill or redo backend pricing/lock decisions unless source
+data changes.
 
 Combat V1 design grill completed on 2026-06-23 in
 `memory-bank/combat-design-grill-2026-06-23.md`. It is the source of truth for
@@ -917,11 +929,10 @@ Use `memory-bank/future-work-kanban.md` as the current future-thread source of t
    flat/grouped target metadata, achievement metadata, and the final duplicated
    handler plumbing are done. Do not continue P0 by default unless the owner
    names a new concrete architecture boundary.
-2. **P3 economy candidates**: NPC shops and GE are both valid future pressure
-   valves, but neither is the next default priority. If NPC shops are
-   reprioritized, start backend-first from
-   `memory-bank/npc-shop-design-seed.md`; if GE is reprioritized, start
-   backend-first from `memory-bank/fake-grand-exchange-design.md`.
+2. **P3 economy candidates**: NPC shop backend is complete and ready for a
+   frontend thread from `memory-bank/npc-shop-frontend-handoff-2026-07-06.md`.
+   The GE remains a separate parked design in
+   `memory-bank/fake-grand-exchange-design.md`.
 3. **Parked by current owner preference**: dependency-heavy Crafting acquisition loops and special Mining/Woodcutting content should stay out of scope until explicitly reprioritized.
 4. **Future Fishing extensions**: Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE bait sourcing are separate systems and should stay deferred until explicitly prioritized.
 5. **Future Firemaking extension**: bonfires/fire spirits are the next natural Firemaking-specific follow-up, but should stay deferred until explicitly prioritized.

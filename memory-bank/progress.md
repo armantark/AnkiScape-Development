@@ -34,6 +34,18 @@
 - Runecrafting v1 is in place: source-backed `runecrafting_data.py`, stable `current_runecrafting` target IDs, storage config version 15 migration/defaults, Rune Mysteries quest unlock with 250 Runecrafting XP, standard/combination rune crafting, tiara binding, Wicked hood claim/feed access with no Runecrafting level claim gate, pouch capacity/degradation, Binding necklace charge counter, achievements, dedicated assets, a `runecrafting` item category, grouped Runecrafting target UI, Quests tab, Bank Claims, Stats/Bank/HUD support, action multiplier support, and undo rollback.
 - Hunter v1 is in place: source-backed `hunter_data.py`, stable `current_hunter` target IDs, storage config version 18 migration/defaults, bird snaring, butterfly netting, deadfall, box trapping, net trapping, falconry, magic box, and Puro-Puro/world impling rows, generic Hunter achievements, dedicated assets, a `hunter` item category, grouped Hunter target UI, quest/route-precedent locks, Stats/Bank/HUD support, action multiplier support, and undo rollback.
 - Hunter now has a temporary supply acquisition bridge: `Buy Hunter supplies` is a one-shot no-XP Utility/Activities row that spends `500 Coins`, grants reusable Hunter gear plus starter jars, and automatically switches AnkiScape off after the successful review. Hunter targets now distinguish reusable `tools` from consumed `requirements`, so snares/nets/traps gate methods without being deleted while jars, logs, and magic boxes still consume on successful catches.
+- NPC shop backend v1 is in place as of 2026-07-06. `tools/generate_npc_shop_data.py`
+  emits `shop_data.py`, a JSON coverage ledger, and a markdown source audit from
+  local Darkan shop JSON plus local 2011Scape item metadata. `shop_logic.py`
+  owns pure view/search/preview/apply/rollback APIs, lazy shared-stock state,
+  visible locked fail-closed rows, hidden reward-shop rows, general-store
+  player-sold temporary stock, direct services/vendor actions, transaction
+  history, and a review-answer market clock where ten answered cards equal one
+  market tick. Storage config version 25 seeds/migrates shop state, and
+  `shop_fixtures.py` is the frontend contract. Verification: `python3 run_tests.py`
+  passed with 738 tests (135 skipped), and
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+  passed with 738 tests.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The
@@ -1221,10 +1233,10 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
   partial-route modeling for Regicide-start content, only if explicitly
   prioritized.
-- NPC shop follow-up: `memory-bank/npc-shop-design-seed.md` captures the
-  intended separate Shop surface, source-backed stock/prices, shared inventories,
-  buy/sell rules, and location/quest locks. Grill the open decisions before
-  backend implementation.
+- NPC shop follow-up: the backend is complete. Build the frontend from
+  `memory-bank/npc-shop-frontend-handoff-2026-07-06.md` and
+  `memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md`; do not redo
+  the backend catalog or invent prices/lock reasons in Qt.
 - Combat V1 follow-up: `memory-bank/combat-design-grill-2026-06-23.md` is the
   completed design source. Implement only as a full-system Combat build: source
   audits, enabled enemy/equipment/drop registry, undo-safe tick engine, Combat

@@ -1,6 +1,6 @@
 # Future Work Kanban
 
-Status: 2026-06-23
+Status: 2026-07-06
 
 Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
 
@@ -9,10 +9,10 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Arrowtips are not an unresolved source gap. They are smithable through Smithing.
 - Feathers are no longer an unresolved Fletching input gap. P2 added a
   no-XP Utility/Activities bridge, `Scavenge chicken feathers`, on 2026-06-15.
-- The NPC shop system and the Grand Exchange are valid future economy
-  candidates, but neither is a high-priority next step. NPC shops are tracked
-  separately in `memory-bank/npc-shop-design-seed.md`; the parked GE design
-  remains in `memory-bank/fake-grand-exchange-design.md`.
+- The NPC shop backend is complete as of 2026-07-06. Frontend work should start
+  from `memory-bank/npc-shop-frontend-handoff-2026-07-06.md`, not from the older
+  seed alone. The Grand Exchange remains parked in
+  `memory-bank/fake-grand-exchange-design.md`.
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
@@ -850,31 +850,33 @@ Future replacement prompt:
 In the AnkiScape repo, do not redo P2 feather sourcing. Feathers already have the temporary Utility/Activities bridge `Scavenge chicken feathers`. Only revisit feathers when Combat chicken drops or the Grand Exchange is explicitly in scope; then decide whether to keep, remove, or rebalance the bridge route.
 ```
 
-### P3 - NPC Shops V1 Candidate
+### P3 - NPC Shops Frontend Candidate
 
 User story: As a player, I want source-backed NPC shops, so tools, bait,
 materials, and shop-only rewards can enter play through authentic RuneScape
 interfaces instead of temporary Utility bridges.
 
-Why later: The design is promising, but it needs a deliberate economy-state
-model before implementation. It should not be folded into Hunter supply cleanup
-or the parked GE by accident.
+Backend status: Complete on 2026-07-06. The source-backed catalog, pure
+transaction APIs, shared-stock state, market clock, undo-aware review snapshots,
+services, vendor actions, fixtures, audit ledger, storage migration, and tests
+are implemented. See `memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md`
+and `memory-bank/npc-shop-frontend-handoff-2026-07-06.md`.
 
-Backend-first scope:
+Completed backend scope:
 
-- Use `memory-bank/npc-shop-design-seed.md`; grill the open design decisions
-  before writing model code.
-- Source shop stock, shared-inventory groups, prices, and shop rules from local
-  2011Scape and local Darkan/2012scape, with historical wiki checks when they
-  conflict heavily.
-- Model shared stock by shared-shop group, not only by visible shop/NPC.
-- Preserve buy/sell behavior, consumed Coins, item transfer, and undo-aware
-  state changes.
-- Treat location and quest locks as first-class shop access data.
+- `tools/generate_npc_shop_data.py` emits `shop_data.py`, a machine-readable JSON
+  ledger, and the markdown audit from local Darkan shop JSON plus local
+  2011Scape item metadata.
+- `shop_logic.py` owns pure view/search/preview/apply/rollback APIs plus lazy
+  shared stock and the ten-answered-cards market clock.
+- `shop_fixtures.py` provides deterministic examples for normal stock, locked
+  rows, non-coin shops, hidden reward shops, shared stock, temporary player-sold
+  stock, services, vendor actions, history, and search.
+- Storage config version 25 seeds and migrates shop state.
 
 Frontend follow-up scope:
 
-- Add the Shop menu surface only after backend contracts are real.
+- Add the Shop menu surface from the backend fixtures and pure APIs.
 - Show source-backed shop lists, stock rows, prices, owned Coins, buy and sell
   flows, and lock reasons.
 - Keep temporary Utility bridges visible until the corresponding shop route is
@@ -882,15 +884,17 @@ Frontend follow-up scope:
 
 Acceptance criteria:
 
-- At least one audited shop family proves source-backed stock, dynamic prices,
-  buy/sell flow, shared-stock persistence where relevant, and undo rollback.
-- Shop state is covered by unit and integration tests before Qt work starts.
-- Frontend work starts from a backend contract note, not guesswork.
+- Frontend work consumes `shop_fixtures.build_shop_frontend_fixtures()` and the
+  `shop_logic.py` view/preview/apply APIs.
+- Qt tests prove browse/search, locked/read-only rendering, live buy, general
+  store sell/player-sold stock, services/vendor actions, history, and hidden
+  reward-shop exclusion.
+- Manual frontend QA uses Pinchtab after the Shop surface exists.
 
 Future thread prompt:
 
 ```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md and memory-bank/npc-shop-design-seed.md. Work on P3 only if the owner has explicitly reprioritized NPC shops. Grill the open design decisions first, then implement backend-first: shop registry, shared-stock state, source-backed prices, buy/sell item transfer, access locks, undo-aware review snapshots, and tests. Leave a frontend handoff note before any Shop menu UI thread starts.
+In the AnkiScape repo, implement the frontend for NPC Shops using memory-bank/npc-shop-design-grill-2026-06-24.md, memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md, and memory-bank/npc-shop-frontend-handoff-2026-07-06.md. Do not redo the backend catalog or invent prices/lock reasons in Qt. Build the Shop surface from shop_logic.py and shop_fixtures.py, add targeted Qt tests, run python3 run_tests.py and QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests, then use Pinchtab for manual frontend QA.
 ```
 
 ### P3 - Grand Exchange V1 Candidate

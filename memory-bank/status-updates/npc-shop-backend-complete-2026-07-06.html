@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Backend Complete</title>
+  <style>
+    :root {
+      --bg: #0d1014;
+      --panel: #151a20;
+      --panel-2: #1c242d;
+      --line: #2f3946;
+      --text: #edf2f7;
+      --muted: #9aa7b5;
+      --blue: #5aa7ff;
+      --green: #50d38a;
+      --amber: #f3b84a;
+      --red: #ff6b6b;
+      --violet: #b28cff;
+      --ink: #0a0d10;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0d1014 0%, #12171d 56%, #0d1014 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, calc(100vw - 28px)); margin: 0 auto; padding: 32px 0 48px; }
+    .topline {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0 22px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(80, 211, 138, 0.48);
+      background: rgba(80, 211, 138, 0.11);
+      color: #b8f6d0;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font: 700 0.74rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(2.15rem, 5.3vw, 4.35rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    .lead { max-width: 860px; margin: 14px 0 28px; color: var(--muted); font-size: 1.04rem; line-height: 1.55; }
+    .hero {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .panel {
+      border: 1px solid var(--line);
+      background: rgba(21, 26, 32, 0.96);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
+    }
+    .panel h2 { margin: 0 0 12px; font-size: 1.14rem; letter-spacing: 0; }
+    .panel p { margin: 8px 0 0; color: var(--muted); line-height: 1.48; }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .metric {
+      min-height: 92px;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+    }
+    .metric strong { display: block; font-size: 1.55rem; line-height: 1.1; }
+    .metric span { display: block; margin-top: 5px; color: var(--muted); font-size: 0.82rem; }
+    .split {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .flow div {
+      min-height: 98px;
+      border: 1px solid var(--line);
+      background: #10151b;
+      border-radius: 8px;
+      padding: 11px;
+    }
+    .flow b { display: block; margin-bottom: 6px; color: var(--text); font-size: 0.86rem; }
+    .flow span { color: var(--muted); font-size: 0.78rem; line-height: 1.35; }
+    .bars { display: grid; gap: 11px; margin-top: 8px; }
+    .bar-row { display: grid; grid-template-columns: 125px 1fr 58px; gap: 10px; align-items: center; }
+    .bar-row label { color: #c9d3de; font-size: 0.84rem; }
+    .track { height: 12px; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: #0c1015; }
+    .fill { height: 100%; border-radius: inherit; }
+    .blue { background: var(--blue); }
+    .amber { background: var(--amber); }
+    .red { background: var(--red); }
+    .green { background: var(--green); }
+    .violet { background: var(--violet); }
+    .bar-row output { color: var(--muted); font: 700 0.8rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; text-align: right; }
+    .tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    button.tab {
+      border: 1px solid var(--line);
+      background: #11161c;
+      color: #cbd5df;
+      border-radius: 7px;
+      padding: 8px 10px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    button.tab.active { background: var(--blue); border-color: var(--blue); color: #06111d; }
+    .tabpage { display: none; }
+    .tabpage.active { display: block; }
+    .list { display: grid; gap: 9px; }
+    .item {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 9px;
+      align-items: start;
+      border: 1px solid var(--line);
+      background: #10151b;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    .status {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      font: 900 0.74rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: var(--green);
+    }
+    .item b { display: block; margin-bottom: 2px; }
+    .item span { color: var(--muted); font-size: 0.86rem; line-height: 1.38; }
+    code {
+      color: #d7e9ff;
+      background: #0b1118;
+      border: 1px solid #243140;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88em;
+    }
+    .handoff {
+      border-left: 4px solid var(--violet);
+      background: #121721;
+    }
+    @media (max-width: 900px) {
+      .hero, .split { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .flow { grid-template-columns: 1fr; }
+      .bar-row { grid-template-columns: 96px 1fr 48px; }
+      .topline { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topline">
+      <div>memory-bank/status-updates/npc-shop-backend-complete-2026-07-06.html</div>
+      <div class="pill"><span class="dot"></span>Backend complete</div>
+    </div>
+
+    <h1>NPC Shop Backend Is Ready For Frontend</h1>
+    <p class="lead">The economy backend now has source-backed shop data, pure transaction APIs, storage migration, undo-aware review clock behavior, frontend fixtures, and audit coverage. The next slice is Qt/Shop interaction design, not backend source policy.</p>
+
+    <section class="hero">
+      <div class="panel">
+        <h2>Coverage Snapshot</h2>
+        <div class="metric-grid">
+          <div class="metric"><strong>274</strong><span>source shop files read</span></div>
+          <div class="metric"><strong>273</strong><span>runtime shops generated</span></div>
+          <div class="metric"><strong>2,776</strong><span>stock rows dispositioned</span></div>
+          <div class="metric"><strong>8</strong><span>services and direct vendors</span></div>
+        </div>
+        <div class="bars" aria-label="shop coverage bars">
+          <div class="bar-row"><label>Visible shops</label><div class="track"><div class="fill green" style="width:97.8%"></div></div><output>267</output></div>
+          <div class="bar-row"><label>Locked shops</label><div class="track"><div class="fill amber" style="width:1.8%"></div></div><output>5</output></div>
+          <div class="bar-row"><label>Hidden shops</label><div class="track"><div class="fill violet" style="width:0.4%"></div></div><output>1</output></div>
+          <div class="bar-row"><label>Live rows</label><div class="track"><div class="fill blue" style="width:0.5%"></div></div><output>13</output></div>
+          <div class="bar-row"><label>Locked rows</label><div class="track"><div class="fill amber" style="width:98.8%"></div></div><output>2,742</output></div>
+        </div>
+      </div>
+
+      <div class="panel handoff">
+        <h2>Frontend Starts Here</h2>
+        <p>Use <code>memory-bank/npc-shop-frontend-handoff-2026-07-06.md</code> and <code>shop_fixtures.build_shop_frontend_fixtures()</code>. The backend owns prices, lock reasons, hidden rows, temporary stock, and event semantics.</p>
+        <p>Do not invent fallback prices in Qt. Visible locked rows are inspectable but inert. Hidden reward/activity shops stay out of normal browsing.</p>
+      </div>
+    </section>
+
+    <section class="panel" style="margin-bottom:16px">
+      <h2>Runtime Pipeline</h2>
+      <div class="flow">
+        <div><b>Generate</b><span>Darkan shop JSON plus 2011Scape item metadata produce <code>shop_data.py</code> and audit ledgers.</span></div>
+        <div><b>View</b><span><code>shop_view_model_pure</code> returns rows with backend-owned lock and action flags.</span></div>
+        <div><b>Preview</b><span>Buy, sell, service, and vendor commands have explicit preview results before mutation.</span></div>
+        <div><b>Apply</b><span>Transactions mutate inventory, lazy stock state, and event history atomically.</span></div>
+        <div><b>Rollback</b><span>Inverse deltas restore inventory and stock rows for undo-safe behavior.</span></div>
+      </div>
+    </section>
+
+    <section class="split">
+      <div class="panel">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="done" type="button">Done</button>
+          <button class="tab" data-tab="fixtures" type="button">Fixtures</button>
+          <button class="tab" data-tab="tests" type="button">Tests</button>
+        </div>
+        <div id="done" class="tabpage active">
+          <div class="list">
+            <div class="item"><div class="status">1</div><div><b>Source-backed catalog</b><span>All shop files have explicit inclusion, exclusion, lock, hidden, or blocked disposition.</span></div></div>
+            <div class="item"><div class="status">2</div><div><b>Pure API surface</b><span>View/search/preview/apply/history/rollback functions do not import Anki.</span></div></div>
+            <div class="item"><div class="status">3</div><div><b>Profile migration</b><span>Storage config version 25 seeds shop clock, stock state, event list, and next event id.</span></div></div>
+            <div class="item"><div class="status">4</div><div><b>Review market clock</b><span>Answered cards advance the clock; ten answered cards equal one market tick.</span></div></div>
+          </div>
+        </div>
+        <div id="fixtures" class="tabpage">
+          <div class="list">
+            <div class="item"><div class="status">A</div><div><b>Browsing and search</b><span><code>normal_coin_stock_shop</code>, <code>feather_multi_shop_search</code>, <code>search_after_transactions</code></span></div></div>
+            <div class="item"><div class="status">B</div><div><b>Locks and hidden state</b><span><code>locked_read_only_shop</code>, <code>locked_preview_error</code>, <code>non_coin_locked_shop</code>, <code>hidden_reward_shop</code></span></div></div>
+            <div class="item"><div class="status">C</div><div><b>Mutation examples</b><span><code>shared_stock_shop</code>, <code>player_sold_stock</code>, <code>service_transaction</code>, <code>vendor_action_transaction</code>, <code>history</code></span></div></div>
+          </div>
+        </div>
+        <div id="tests" class="tabpage">
+          <div class="list">
+            <div class="item"><div class="status">OK</div><div><b>Targeted</b><span><code>tests.test_shop_data</code>, <code>tests.test_shop_logic</code>, <code>tests.test_storage_pure</code>, <code>tests.test_storage_migration_extra</code></span></div></div>
+            <div class="item"><div class="status">OK</div><div><b>Full core suite</b><span><code>python3 run_tests.py</code>: 738 tests passed, 135 skipped.</span></div></div>
+            <div class="item"><div class="status">OK</div><div><b>Offscreen Qt</b><span><code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests</code>: 738 tests passed.</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Backend Boundaries</h2>
+        <div class="list">
+          <div class="item"><div class="status">F</div><div><b>Fail closed</b><span>Rows with unresolved price, unknown item, missing currency, or source conflict do not become playable.</span></div></div>
+          <div class="item"><div class="status">S</div><div><b>Services separated</b><span>Tanning, sawmill planks, bartenders, newspapers, silk, and kebab-style direct actions are typed separately from stock rows.</span></div></div>
+          <div class="item"><div class="status">G</div><div><b>GE still parked</b><span>This does not implement a Grand Exchange or recipe-aware market buying.</span></div></div>
+          <div class="item"><div class="status">Q</div><div><b>Quest/location future work</b><span>V1 keeps locked shops visible unless they are reward/activity clutter. Live travel is still out of scope.</span></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const pages = Array.from(document.querySelectorAll(".tabpage"));
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((candidate) => candidate.classList.toggle("active", candidate === tab));
+        pages.forEach((page) => page.classList.toggle("active", page.id === tab.dataset.tab));
+      });
+    });
+  </script>
+</body>
+</html>

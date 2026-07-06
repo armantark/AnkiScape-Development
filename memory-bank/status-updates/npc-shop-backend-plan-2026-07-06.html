@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Backend Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.13), transparent 36%),
+        radial-gradient(circle at 88% 18%, rgba(74, 222, 128, 0.12), transparent 25%),
+        linear-gradient(180deg, #0c0e12, #10131a 60%, #0c0e12);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { width: min(1180px, calc(100vw - 28px)); margin: 0 auto; padding: 34px 0 52px; }
+    .badge {
+      display: inline-flex;
+      padding: 7px 11px;
+      border: 1px solid rgba(79, 140, 255, 0.4);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #a8c7ff;
+      font: 700 0.72rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    h1 { margin: 16px 0 8px; font-size: clamp(2rem, 5vw, 3.7rem); line-height: 0.98; letter-spacing: 0; }
+    .subtitle { max-width: 830px; margin: 0 0 24px; color: var(--text-dim); font-size: 1rem; line-height: 1.55; }
+    .grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 16px; align-items: stretch; }
+    .card {
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.94);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+    }
+    .label {
+      margin-bottom: 8px;
+      font: 700 0.68rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+    }
+    .critical { color: var(--red); }
+    .major { color: var(--amber); }
+    .medium { color: var(--green); }
+    .polish { color: var(--purple); }
+    h2 { margin: 0 0 10px; font-size: 1.22rem; }
+    p { color: var(--text-dim); line-height: 1.5; margin: 8px 0 0; }
+    .rail { display: grid; gap: 8px; margin-top: 14px; }
+    .step {
+      display: grid;
+      grid-template-columns: 34px 1fr;
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid rgba(42, 48, 64, 0.74);
+      border-radius: 10px;
+      background: #10131a;
+    }
+    .num {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: white;
+      font: 800 0.78rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .step b { display: block; margin-bottom: 3px; color: var(--text); }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .tag {
+      padding: 4px 7px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface-2);
+      color: #cbd5e8;
+      font: 600 0.66rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .schema {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 13px;
+    }
+    .node {
+      min-height: 86px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10131a;
+      padding: 12px;
+    }
+    .node strong { display: block; font-size: 0.9rem; margin-bottom: 6px; }
+    .node span { color: var(--text-dim); font-size: 0.82rem; line-height: 1.35; }
+    .bar {
+      height: 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      background: #0f1218;
+      margin-top: 12px;
+    }
+    .bar > div { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); }
+    .switcher { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    button {
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      font: 700 0.72rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    button[aria-pressed="true"] { border-color: rgba(79, 140, 255, 0.8); background: rgba(79, 140, 255, 0.22); }
+    .fixture {
+      min-height: 166px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #10131a;
+      padding: 13px;
+    }
+    .fixture-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(42, 48, 64, 0.72); }
+    .fixture-row:last-child { border-bottom: 0; }
+    .muted { color: var(--text-dim); }
+    @media (max-width: 920px) {
+      .grid, .schema { grid-template-columns: 1fr; }
+      main { padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="badge">Backend Plan · 2026-07-06</div>
+    <h1>NPC Shops: Backend Contract Before UI</h1>
+    <p class="subtitle">The grill log is settled enough to build the backend: source-backed catalog generation, explicit disposition ledger, pure transaction APIs, lazy restock, event rollback, save migration, and frontend fixtures. Qt layout decisions stay for the next interactive HTML/frontend pass.</p>
+
+    <section class="grid">
+      <article class="card">
+        <div class="label critical">Scope Boundary</div>
+        <h2>Backend Owns The Rules</h2>
+        <div class="rail">
+          <div class="step"><div class="num">1</div><div><b>Catalog + ledger</b><span class="muted">Generated runtime data and machine-readable audit rows share the same source and fail closed on unresolved rows.</span></div></div>
+          <div class="step"><div class="num">2</div><div><b>Preview + apply</b><span class="muted">UI gets allowed quantities, prices, locks, and events from pure APIs instead of reimplementing shop behavior.</span></div></div>
+          <div class="step"><div class="num">3</div><div><b>Undo + migration</b><span class="muted">Structured inverse deltas and stable ids keep transactions reversible and catalog changes migration-friendly.</span></div></div>
+        </div>
+        <div class="tags"><span class="tag">shop_data.py</span><span class="tag">shop_logic.py</span><span class="tag">shop_fixtures.py</span><span class="tag">storage_pure.py</span></div>
+      </article>
+
+      <article class="card">
+        <div class="label major">Source Import</div>
+        <h2>Comprehensive, Fail-Closed</h2>
+        <p>The implementation will include a deterministic builder plus checked-in seed output. Rows that cannot safely transact become ledger entries with explicit dispositions rather than guessed gameplay.</p>
+        <div class="schema">
+          <div class="node"><strong>Stock shops</strong><span>Coin shops, shared groups, stock rows, prices, restock cadence, sell policy.</span></div>
+          <div class="node"><strong>Services</strong><span>Tanning, sawmill-like conversion, source-backed vendor actions with inputs and outputs.</span></div>
+          <div class="node"><strong>Hidden reward rows</strong><span>Accounted in the ledger, withheld from normal browsing until owning Activity work lands.</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label medium">Frontend Fixture Preview</div>
+        <h2>Contract Examples</h2>
+        <div class="switcher" role="group" aria-label="Fixture selector">
+          <button type="button" aria-pressed="true" data-fixture="shop">Stock</button>
+          <button type="button" aria-pressed="false" data-fixture="search">Search</button>
+          <button type="button" aria-pressed="false" data-fixture="service">Service</button>
+        </div>
+        <div class="fixture" id="fixture">
+          <div class="fixture-row"><span>Gerrant's Fishy Business</span><b>Live</b></div>
+          <div class="fixture-row"><span>Feather</span><b>6 gp · 1,000 stock</b></div>
+          <div class="fixture-row"><span>Buy preview</span><b>max 50 from stock/cash</b></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="label polish">Verification</div>
+        <h2>Evidence Needed</h2>
+        <p>Done means generated data validates, pure transaction examples cover buy/sell/service/restock/undo, storage migration is idempotent, and fixtures prove enough realistic cases for a separate frontend thread.</p>
+        <div class="bar" aria-label="Plan coverage"><div style="width: 78%"></div></div>
+        <div class="tags"><span class="tag">unit tests</span><span class="tag">integration tests</span><span class="tag">e2e fixture smoke</span><span class="tag">manual Anki checklist</span></div>
+      </article>
+    </section>
+  </main>
+  <script>
+    const data = {
+      shop: [
+        ["Gerrant's Fishy Business", "Live"],
+        ["Feather", "6 gp · 1,000 stock"],
+        ["Buy preview", "max 50 from stock/cash"]
+      ],
+      search: [
+        ["Query", "feather"],
+        ["Distinct sources", "multiple stock groups"],
+        ["Locked rows", "visible when gameplay-gated"]
+      ],
+      service: [
+        ["Ellis", "Tanner service"],
+        ["Input", "Cowhide + Coins"],
+        ["Output", "Leather"]
+      ]
+    };
+    const target = document.getElementById("fixture");
+    function render(name) {
+      target.innerHTML = data[name].map(([left, right]) => `<div class="fixture-row"><span>${left}</span><b>${right}</b></div>`).join("");
+      for (const button of document.querySelectorAll("button[data-fixture]")) {
+        button.setAttribute("aria-pressed", button.dataset.fixture === name ? "true" : "false");
+      }
+    }
+    for (const button of document.querySelectorAll("button[data-fixture]")) {
+      button.addEventListener("click", () => render(button.dataset.fixture));
+    }
+  </script>
+</body>
+</html>

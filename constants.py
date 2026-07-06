@@ -65,7 +65,7 @@ try:
         hunter_supply_item_names,
         hunter_targets_as_dict,
     )
-    from .item_registry import build_item_definitions
+    from .item_registry import build_item_definitions, slugify_item_id
     from .quest_data import (
         CLAIMS_BY_ID,
         QUESTS_BY_ID,
@@ -86,6 +86,7 @@ try:
         runecrafting_pouches_as_dict,
         runecrafting_targets_as_dict,
     )
+    from .shop_data import shop_extra_items_as_dict
     from .mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -171,7 +172,7 @@ except ImportError:
         hunter_supply_item_names,
         hunter_targets_as_dict,
     )
-    from item_registry import build_item_definitions
+    from item_registry import build_item_definitions, slugify_item_id
     from quest_data import (
         CLAIMS_BY_ID,
         QUESTS_BY_ID,
@@ -192,6 +193,7 @@ except ImportError:
         runecrafting_pouches_as_dict,
         runecrafting_targets_as_dict,
     )
+    from shop_data import shop_extra_items_as_dict
     from mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -623,6 +625,104 @@ for _target_id in COMBAT_ENEMY_DATA:
     if os.path.exists(_path):
         COMBAT_ENEMY_IMAGES[_target_id] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
+SHOP_EXTRA_ITEM_DATA = shop_extra_items_as_dict()
+
+
+def _known_non_shop_item_names():
+    names = set()
+    for mapping in (
+        QUEST_REWARD_ITEM_DATA,
+        WOODCUTTING_EXTRA_ITEM_DATA,
+        MINING_EXTRA_ITEM_DATA,
+        SMITHING_EXTRA_ITEM_DATA,
+        FIREMAKING_EXTRA_ITEM_DATA,
+        FISHING_EXTRA_ITEM_DATA,
+        HUNTER_EXTRA_ITEM_DATA,
+        COOKING_EXTRA_ITEM_DATA,
+        RUNECRAFTING_EXTRA_ITEM_DATA,
+        COMBAT_EXTRA_ITEM_DATA,
+    ):
+        names.update(mapping)
+    names.update(MINING_OUTPUT_ITEMS)
+    names.update(WOODCUTTING_LOG_ITEMS)
+    names.update(FIREMAKING_LOG_ITEMS)
+    names.update(FIREMAKING_OUTPUT_ITEMS)
+    names.update(BAR_DATA)
+    names.update(GEM_DATA)
+    names.update(FISHING_OUTPUT_ITEMS)
+    names.update(COOKING_OUTPUT_ITEMS)
+    names.update(RUNECRAFTING_OUTPUT_ITEMS)
+    names.update(RUNECRAFTING_ACCESS_ITEMS)
+    names.update(HUNTER_OUTPUT_ITEMS)
+    for spec in CRAFTING_DATA.values():
+        if isinstance(spec.get("output_item"), str):
+            names.add(spec["output_item"])
+        names.update(spec.get("requirements", {}))
+    for spec in FLETCHING_DATA.values():
+        if isinstance(spec.get("output_item"), str):
+            names.add(spec["output_item"])
+        names.update(spec.get("requirements", {}))
+    for spec in HUNTER_DATA.values():
+        names.update(spec.get("requirements", {}))
+    for spec in UTILITY_ACTIVITY_DATA.values():
+        if isinstance(spec.get("output_item"), str):
+            names.add(spec["output_item"])
+        outputs = spec.get("outputs", {})
+        if isinstance(outputs, dict):
+            names.update(outputs)
+        names.update(spec.get("requirements", {}))
+    return names
+
+
+def _extra_item_category(spec):
+    category = spec.get("category", "material")
+    if category in {
+        "ore",
+        "log",
+        "fish",
+        "food",
+        "gem",
+        "bar",
+        "crafted",
+        "fletched",
+        "hunter",
+        "runecrafting",
+        "material",
+        "tool",
+        "equipment",
+        "smithed",
+    }:
+        return category
+    return "material"
+
+
+def _known_non_shop_item_ids(names):
+    ids = {slugify_item_id("material", name) for name in names}
+    for mapping in (
+        QUEST_REWARD_ITEM_DATA,
+        WOODCUTTING_EXTRA_ITEM_DATA,
+        MINING_EXTRA_ITEM_DATA,
+        SMITHING_EXTRA_ITEM_DATA,
+        FIREMAKING_EXTRA_ITEM_DATA,
+        FISHING_EXTRA_ITEM_DATA,
+        HUNTER_EXTRA_ITEM_DATA,
+        COOKING_EXTRA_ITEM_DATA,
+        RUNECRAFTING_EXTRA_ITEM_DATA,
+        COMBAT_EXTRA_ITEM_DATA,
+    ):
+        for item_name, spec in mapping.items():
+            ids.add(slugify_item_id(_extra_item_category(spec), item_name))
+    return ids
+
+
+_KNOWN_NON_SHOP_ITEM_NAMES = _known_non_shop_item_names()
+_KNOWN_NON_SHOP_ITEM_IDS = _known_non_shop_item_ids(_KNOWN_NON_SHOP_ITEM_NAMES)
+SHOP_ONLY_EXTRA_ITEM_DATA = {
+    item_name: spec
+    for item_name, spec in SHOP_EXTRA_ITEM_DATA.items()
+    if item_name not in _KNOWN_NON_SHOP_ITEM_NAMES
+    and slugify_item_id(_extra_item_category(spec), item_name) not in _KNOWN_NON_SHOP_ITEM_IDS
+}
 
 
 def _apply_equipment_metadata(extra_item_data):
@@ -652,6 +752,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
+    **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
