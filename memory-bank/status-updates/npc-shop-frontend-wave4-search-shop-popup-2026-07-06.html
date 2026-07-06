@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Frontend Wave 4</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --panel: #0f1217;
+      --line: #2b313b;
+      --slot: #171a20;
+      --slot-2: #0d0f13;
+      --coin: #c99a35;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(120deg, rgba(79, 140, 255, 0.12), transparent 32rem),
+        radial-gradient(circle at 88% 8%, rgba(251, 191, 36, 0.10), transparent 22rem),
+        linear-gradient(180deg, var(--bg), #10141b 58%, var(--bg));
+      color: var(--text);
+      font-family: Outfit, Avenir Next, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1220px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    button,
+    .badge,
+    .mono,
+    .tab,
+    .slot-count,
+    .slot-price,
+    .qty,
+    textarea {
+      font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #c0d6ff;
+      padding: 7px 11px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(79, 140, 255, 0.66);
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 850;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 920px;
+      font-size: clamp(2rem, 4.4vw, 3.8rem);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 12px 0 18px;
+      max-width: 880px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 350px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      box-shadow: 0 22px 64px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 15px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .notes {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .note {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #10151d;
+      padding: 10px;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.42;
+    }
+
+    .note b {
+      color: var(--text);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .mock-wrap {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .menu {
+      width: 720px;
+      height: 620px;
+      min-width: 720px;
+      max-width: 720px;
+      margin: 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #0d1117;
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    .anki-tabs {
+      display: flex;
+      gap: 5px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      background: #171d25;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      background: #10151c;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+    }
+
+    .tab.active {
+      color: var(--text);
+      border-color: rgba(79, 140, 255, 0.68);
+      background: rgba(79, 140, 255, 0.15);
+    }
+
+    .shop-tab {
+      height: 576px;
+      display: grid;
+      grid-template-rows: 48px 86px minmax(0, 1fr);
+      padding: 10px;
+      gap: 9px;
+    }
+
+    .search {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 8px;
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr) 76px;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .search label,
+    .shop-picker-title {
+      color: #cbd5e8;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    .search-box {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #080b0f;
+      padding: 8px 10px;
+      color: #dce7f7;
+      min-width: 0;
+      font-size: 0.86rem;
+    }
+
+    .mode {
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 7px;
+      color: #bfd5ff;
+      background: rgba(79, 140, 255, 0.08);
+      padding: 7px;
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .shop-picker {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      padding: 8px;
+      overflow: hidden;
+    }
+
+    .shop-picker-title {
+      margin-bottom: 7px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .shop-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .shop-card {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #11161d;
+      min-height: 50px;
+      padding: 7px;
+      color: var(--text-dim);
+      text-align: left;
+      display: grid;
+      gap: 3px;
+      align-content: start;
+    }
+
+    .shop-card[aria-pressed="true"] {
+      border-color: rgba(79, 140, 255, 0.72);
+      background: rgba(79, 140, 255, 0.12);
+      color: var(--text);
+    }
+
+    .shop-card b {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.74rem;
+    }
+
+    .shop-card span {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      font-size: 0.64rem;
+      color: var(--text-dim);
+    }
+
+    .popup-area {
+      min-height: 0;
+      position: relative;
+    }
+
+    .empty-state,
+    .shop-popup {
+      position: absolute;
+      inset: 0;
+    }
+
+    .empty-state {
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--text-dim);
+      background: rgba(15, 18, 23, 0.7);
+    }
+
+    .shop-popup {
+      border: 2px solid #59616c;
+      border-radius: 8px;
+      background: #0a0d11;
+      box-shadow:
+        inset 0 0 0 1px #090b0e,
+        inset 0 0 0 3px #202832;
+      display: grid;
+      grid-template-rows: 32px 30px minmax(0, 1fr) 108px;
+      overflow: hidden;
+    }
+
+    .shop-title {
+      height: 30px;
+      margin: 3px 52px 0;
+      border: 1px solid #48525e;
+      background: linear-gradient(180deg, #18212a, #10161d);
+      display: grid;
+      place-items: center;
+      color: #f4f0de;
+      font-weight: 850;
+      letter-spacing: 0.02em;
+      clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+    }
+
+    .close {
+      position: absolute;
+      right: 8px;
+      top: 7px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid #777;
+      display: grid;
+      place-items: center;
+      color: #ddd;
+      background: #121417;
+      font-weight: 900;
+    }
+
+    .shop-modes {
+      display: grid;
+      grid-template-columns: 98px 98px minmax(0, 1fr) 112px;
+      gap: 5px;
+      padding: 3px 8px;
+      border-top: 1px solid #252c35;
+      border-bottom: 1px solid #252c35;
+      background: #0e1116;
+    }
+
+    .mode-tab,
+    .display-mode {
+      border: 1px solid #3e4652;
+      background: #11161d;
+      color: #d7dde8;
+      display: grid;
+      place-items: center;
+      font-size: 0.72rem;
+    }
+
+    .mode-tab.active {
+      border-color: #8793a6;
+      background: #1b222c;
+      color: #fff;
+    }
+
+    .shop-meta {
+      color: var(--text-dim);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 8px;
+      font-size: 0.72rem;
+      min-width: 0;
+    }
+
+    .display-mode {
+      grid-template-columns: 1fr 18px 18px;
+      gap: 5px;
+      padding-left: 5px;
+      justify-items: center;
+    }
+
+    .square {
+      width: 14px;
+      height: 14px;
+      border: 1px solid #747d8c;
+      background: #05080b;
+    }
+
+    .square.on {
+      background: #c6cbd5;
+      box-shadow: inset 0 0 0 3px #202832;
+    }
+
+    .shop-main {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 14px;
+      border-bottom: 1px solid #252c35;
+    }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      grid-auto-rows: 58px;
+      gap: 2px;
+      padding: 6px;
+      overflow: hidden;
+    }
+
+    .item-slot {
+      position: relative;
+      border: 1px solid #48505d;
+      background: linear-gradient(180deg, var(--slot), var(--slot-2));
+      min-width: 0;
+    }
+
+    .item-slot.locked {
+      opacity: 0.58;
+    }
+
+    .item-slot.temp {
+      border-style: dashed;
+    }
+
+    .slot-count {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      color: #e5e67a;
+      font-size: 0.6rem;
+    }
+
+    .item-art {
+      position: absolute;
+      left: 50%;
+      top: 25px;
+      transform: translate(-50%, -50%);
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 7px;
+      background: #6e7480;
+      box-shadow: 0 8px 10px rgba(0,0,0,0.32);
+    }
+
+    .beer { background: linear-gradient(135deg, #8a6b42, #302312); }
+    .bread { background: linear-gradient(135deg, #b6986a, #41311f); border-radius: 46%; }
+    .milk { background: linear-gradient(135deg, #d8dce4, #68707a); }
+    .pot { background: linear-gradient(135deg, #8a8177, #38322c); }
+    .pipe { background: linear-gradient(135deg, #67775f, #293326); }
+    .hide { background: linear-gradient(135deg, #8d6d5c, #322219); border-radius: 44% 54% 41% 52%; }
+    .scroll { background: linear-gradient(135deg, #c0b59e, #5a5040); }
+    .headdress { background: linear-gradient(135deg, #8989a6, #34344d); }
+    .wine { background: linear-gradient(135deg, #744d68, #2b1725); }
+    .leather { background: linear-gradient(135deg, #a08462, #43301e); }
+
+    .slot-price {
+      position: absolute;
+      right: 5px;
+      bottom: 3px;
+      color: #d2b775;
+      font-size: 0.6rem;
+    }
+
+    .coin {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      margin-left: 3px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 30%, #f5d987, var(--coin) 70%, #5a3c10);
+      vertical-align: -1px;
+    }
+
+    .chip {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      min-width: 16px;
+      height: 14px;
+      border: 1px solid #777;
+      background: #11161d;
+      color: #dadfea;
+      display: grid;
+      place-items: center;
+      font-size: 0.54rem;
+    }
+
+    .scrollbar {
+      border-left: 1px solid #3b424d;
+      background: #0b0d11;
+      position: relative;
+    }
+
+    .scrollbar::before,
+    .scrollbar::after {
+      content: "";
+      position: absolute;
+      left: 3px;
+      width: 7px;
+      height: 7px;
+      border-left: 2px solid #8d97a8;
+      border-top: 2px solid #8d97a8;
+    }
+
+    .scrollbar::before {
+      top: 8px;
+      transform: rotate(45deg);
+    }
+
+    .scrollbar::after {
+      bottom: 8px;
+      transform: rotate(225deg);
+    }
+
+    .thumb {
+      position: absolute;
+      left: 4px;
+      top: 38px;
+      width: 5px;
+      height: 120px;
+      background: #8d97a8;
+      border-radius: 999px;
+    }
+
+    .shop-bottom {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 198px;
+      min-height: 0;
+    }
+
+    .inspect {
+      border-right: 1px solid #252c35;
+      padding: 13px 16px;
+      color: #d7dde8;
+      font-size: 0.78rem;
+      line-height: 1.42;
+      min-width: 0;
+    }
+
+    .inspect b {
+      display: block;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .inspect span {
+      color: var(--text-dim);
+    }
+
+    .transaction {
+      padding: 8px;
+      display: grid;
+      grid-template-rows: 18px 24px minmax(0, 1fr);
+      gap: 6px;
+    }
+
+    .transaction-title {
+      text-align: center;
+      color: #c6ccd8;
+      font-size: 0.72rem;
+    }
+
+    .qty-row {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 3px;
+    }
+
+    .qty {
+      border: 1px solid #3e4652;
+      background: #0b0f14;
+      color: #d7dde8;
+      display: grid;
+      place-items: center;
+      font-size: 0.58rem;
+    }
+
+    .price {
+      display: grid;
+      grid-template-columns: 66px 1fr;
+      row-gap: 6px;
+      align-content: center;
+      color: var(--text-dim);
+      font-size: 0.74rem;
+    }
+
+    .price strong {
+      color: #d7dde8;
+      font-weight: 600;
+    }
+
+    .apply {
+      position: absolute;
+      right: 16px;
+      bottom: 14px;
+      width: 68px;
+      height: 28px;
+      border: 1px solid #4b535f;
+      border-radius: 999px;
+      background: #12161d;
+      color: #d7dde8;
+      display: grid;
+      place-items: center;
+      font-size: 0.74rem;
+    }
+
+    textarea {
+      width: calc(100% - 28px);
+      margin: 0 14px 14px;
+      min-height: 128px;
+      resize: vertical;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #090d12;
+      color: #d7e6fb;
+      padding: 11px;
+      font-size: 0.74rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1120px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div class="badge">NPC Shop Frontend · Wave 4</div>
+      <button type="button" class="primary" id="copyBtn">Copy Implementation Shape</button>
+    </div>
+
+    <h1>Shop tab structure: search, shop picker, selected shop window.</h1>
+    <p class="lead">This strips the colors back and focuses on the UI shape: the normal Shop tab starts with search, then shop selection, then the RuneScape-style shop panel appears below after a shop is selected.</p>
+
+    <section class="layout">
+      <aside class="panel">
+        <div class="panel-head">
+          <h2>Shape Notes</h2>
+          <p>What this mock is intended to settle before Qt implementation.</p>
+        </div>
+        <div class="notes">
+          <div class="note"><b>1. Search first</b>Search sits at the top of the Shop tab and can filter shops, item sources, services, and vendor actions.</div>
+          <div class="note"><b>2. Shop selection second</b>Visible shops appear in a compact picker under search. Locked shops can be selected for inspection; hidden reward shops do not appear.</div>
+          <div class="note"><b>3. Shop UI appears after selection</b>The selected shop opens in the panel below, using the reference layout: Buy/Sell tabs, item grid, scrollbar, item inspector, transaction controls.</div>
+          <div class="note"><b>4. Backend remains authoritative</b>Qt renders `shop_view_model_pure` fields and calls preview/apply APIs. No invented prices, stock, lock reasons, or service behavior.</div>
+        </div>
+      </aside>
+
+      <article class="panel">
+        <div class="mock-wrap">
+          <div class="menu">
+            <div class="anki-tabs">
+              <span class="tab">Skills</span>
+              <span class="tab">Bank</span>
+              <span class="tab">Stats</span>
+              <span class="tab">Achievements</span>
+              <span class="tab active">Shop</span>
+              <span class="tab">Settings</span>
+            </div>
+
+            <section class="shop-tab">
+              <div class="search">
+                <label for="mockSearch">Search</label>
+                <div class="search-box" id="mockSearch">beer</div>
+                <div class="mode">Item</div>
+              </div>
+
+              <div class="shop-picker">
+                <div class="shop-picker-title">
+                  <span>Matching Shops</span>
+                  <span class="mono">4 visible · 1 selected</span>
+                </div>
+                <div class="shop-list" id="shopList">
+                  <button type="button" class="shop-card" data-shop="Arnold's Eclectic Supplies" aria-pressed="true"><b>Arnold's Eclectic Supplies</b><span>Beer · live coin stock</span></button>
+                  <button type="button" class="shop-card" data-shop="Aemad's Adventuring Supplies" aria-pressed="false"><b>Aemad's Adventuring Supplies</b><span>General store · sell/buy back</span></button>
+                  <button type="button" class="shop-card" data-shop="The Asp & Snake Bar" aria-pressed="false"><b>The Asp & Snake Bar</b><span>Beer route · live</span></button>
+                  <button type="button" class="shop-card" data-shop="Summoning Supplies" aria-pressed="false"><b>Summoning Supplies</b><span>Feather headdress · locked</span></button>
+                </div>
+              </div>
+
+              <div class="popup-area">
+                <div class="shop-popup" id="shopPopup">
+                  <div class="shop-title" id="shopTitle">Arnold's Eclectic Supplies</div>
+                  <div class="close">x</div>
+
+                  <div class="shop-modes">
+                    <div class="mode-tab active">Buy Items</div>
+                    <div class="mode-tab">Sell Items</div>
+                    <div class="shop-meta" id="shopMeta">selected from search · backend view model</div>
+                    <div class="display-mode">Item view <span class="square on"></span><span class="square"></span></div>
+                  </div>
+
+                  <div class="shop-main">
+                    <div class="item-grid">
+                      <div class="item-slot"><span class="slot-count">8</span><span class="item-art beer"></span><span class="slot-price">2<span class="coin"></span></span></div>
+                      <div class="item-slot locked"><span class="slot-count">10</span><span class="item-art bread"></span><span class="chip">L</span><span class="slot-price">-</span></div>
+                      <div class="item-slot locked"><span class="slot-count">10</span><span class="item-art milk"></span><span class="chip">L</span><span class="slot-price">-</span></div>
+                      <div class="item-slot locked"><span class="slot-count">30</span><span class="item-art pot"></span><span class="chip">L</span><span class="slot-price">-</span></div>
+                      <div class="item-slot"><span class="slot-count">10</span><span class="item-art pipe"></span><span class="slot-price">31<span class="coin"></span></span></div>
+                      <div class="item-slot temp"><span class="slot-count">1</span><span class="item-art beer"></span><span class="chip">T</span><span class="slot-price">3<span class="coin"></span></span></div>
+                      <div class="item-slot"><span class="slot-count">10</span><span class="item-art hide"></span><span class="slot-price">5<span class="coin"></span></span></div>
+                      <div class="item-slot locked"><span class="slot-count">10</span><span class="item-art headdress"></span><span class="chip">L</span><span class="slot-price">-</span></div>
+                      <div class="item-slot"><span class="slot-count">10</span><span class="item-art scroll"></span><span class="slot-price">10<span class="coin"></span></span></div>
+                      <div class="item-slot locked"><span class="slot-count">10</span><span class="item-art wine"></span><span class="chip">L</span><span class="slot-price">-</span></div>
+                      <div class="item-slot"><span class="slot-count">10</span><span class="item-art leather"></span><span class="slot-price">1<span class="coin"></span></span></div>
+                      <div class="item-slot locked"><span class="slot-count">0</span><span class="item-art headdress"></span><span class="chip">L</span><span class="slot-price">-</span></div>
+                    </div>
+                    <div class="scrollbar"><span class="thumb"></span></div>
+                  </div>
+
+                  <div class="shop-bottom">
+                    <div class="inspect" id="inspect">
+                      <b>Beer</b>
+                      <span>Buy from the selected shop. Locked tiles reveal backend `lock_reason` here.</span>
+                    </div>
+                    <div class="transaction">
+                      <div class="transaction-title">Transaction</div>
+                      <div class="qty-row">
+                        <span class="qty">1</span>
+                        <span class="qty">5</span>
+                        <span class="qty">10</span>
+                        <span class="qty">50</span>
+                        <span class="qty">All</span>
+                        <span class="qty">Custom</span>
+                      </div>
+                      <div class="price">
+                        <span>Price:</span><strong>2<span class="coin"></span></strong>
+                        <span>You have:</span><strong>1,246<span class="coin"></span></strong>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="apply">Buy</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <textarea id="packet" readonly>NPC Shop frontend shape:
+- Top of Shop tab: persistent search.
+- Under search: compact visible-shop selection.
+- Under shop selection: selected shop opens as a RuneScape-style shop panel.
+- Shop panel pieces: title, Buy/Sell tabs, item grid, scrollbar, selected-item inspector, transaction quantity controls.
+- Locked stock stays visible as inert tiles/chips; exact backend lock_reason appears in the inspector.
+- Hidden reward/activity shops remain absent from normal browsing/search.
+- Qt must render shop_logic.py view/preview/apply outputs as authoritative.</textarea>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const cards = document.querySelectorAll(".shop-card");
+    const title = document.getElementById("shopTitle");
+    const meta = document.getElementById("shopMeta");
+    const inspect = document.getElementById("inspect");
+    const packet = document.getElementById("packet");
+
+    const detail = {
+      "Arnold's Eclectic Supplies": {
+        meta: "selected from search · live coin stock",
+        inspect: "<b>Beer</b><span>Buy from Arnold's. Current stock 8 / 10. Preview: 1 Beer for 2 Coins.</span>"
+      },
+      "Aemad's Adventuring Supplies": {
+        meta: "general store · sell creates temporary stock",
+        inspect: "<b>Temporary Beer stock</b><span>Player-sold stock appears in the same grid with a T chip. Buying it back uses backend preview/apply.</span>"
+      },
+      "The Asp & Snake Bar": {
+        meta: "beer route · mechanically separate source",
+        inspect: "<b>Beer</b><span>Separate source route from Arnold's. Search keeps each shop source visible.</span>"
+      },
+      "Summoning Supplies": {
+        meta: "visible locked shop · inert rows",
+        inspect: "<b>Feather headdress</b><span>Locked tile. Inspector shows backend lock_reason: price_policy_unresolved.</span>"
+      }
+    };
+
+    cards.forEach((card) => {
+      card.addEventListener("click", () => {
+        cards.forEach((item) => item.setAttribute("aria-pressed", "false"));
+        card.setAttribute("aria-pressed", "true");
+        const shop = card.dataset.shop;
+        title.textContent = shop;
+        meta.textContent = detail[shop].meta;
+        inspect.innerHTML = detail[shop].inspect;
+      });
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      packet.focus();
+      packet.select();
+      try {
+        await navigator.clipboard.writeText(packet.value);
+        document.getElementById("copyBtn").textContent = "Copied";
+        setTimeout(() => {
+          document.getElementById("copyBtn").textContent = "Copy Implementation Shape";
+        }, 1100);
+      } catch (error) {
+        document.execCommand("copy");
+      }
+    });
+  </script>
+</body>
+</html>
