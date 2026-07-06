@@ -568,6 +568,23 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn("Services / Vendor Actions", labels)
 
+    def test_shop_defaults_to_a_live_stock_shop(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        live_view = fixtures["normal_coin_stock_shop"]
+        dialog = self._open(fixtures["fixture_player_data"])
+        _open_shop_tab(dialog)
+
+        title = _find_named_label(dialog, "shopDetailTitle")
+        selector = _find_named_list(dialog, "shopSelectionList")
+        buy_button = _find_named_button(dialog, "shopTransactionButton")
+        preview = _find_named_label(dialog, "shopPreviewLabel")
+
+        self.assertEqual(title.text(), live_view["display_name"])
+        self.assertIn(live_view["display_name"], selector.item(0).text())
+        self.assertTrue(buy_button.isEnabled(), preview.text())
+
     def test_shop_feather_search_shows_locked_rows_and_disables_buy(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
 

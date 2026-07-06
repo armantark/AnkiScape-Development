@@ -2957,6 +2957,19 @@ def show_main_menu(
             if shop.get("visibility") != "hidden"
         ]
 
+    def _shop_live_row_count(shop: dict) -> int:
+        return sum(
+            1 for row in shop.get("stock", [])
+            if shop.get("visibility") == "visible" and row.get("disposition") == "live"
+        )
+
+    def _default_shop_id() -> str:
+        visible = _visible_shop_defs()
+        live_shop = next((shop for shop in visible if _shop_live_row_count(shop) > 0), None)
+        if live_shop is not None:
+            return str(live_shop.get("id", ""))
+        return str(visible[0].get("id", "")) if visible else ""
+
     def _visible_service_defs() -> list:
         rows = []
         for service in SHOP_SERVICES.values():
@@ -3009,7 +3022,7 @@ def show_main_menu(
         if not visible:
             return {"exists": False, "rows": []}
         if not shop_state["shop_id"] or all(shop.get("id") != shop_state["shop_id"] for shop in visible):
-            shop_state["shop_id"] = visible[0]["id"]
+            shop_state["shop_id"] = _default_shop_id()
         return shop_view_model_pure(player_data, shop_state["shop_id"])
 
     def _selected_buy_row(view: dict | None = None) -> Optional[dict]:
@@ -3347,7 +3360,11 @@ def show_main_menu(
             return
         visible = sorted(
             _visible_shop_defs(),
-            key=lambda shop: (shop.get("visibility") != "visible", str(shop.get("display_name", ""))),
+            key=lambda shop: (
+                _shop_live_row_count(shop) == 0,
+                shop.get("visibility") != "visible",
+                str(shop.get("display_name", "")),
+            ),
         )
         for shop in visible:
             view = shop_view_model_pure(player_data, str(shop.get("id", "")))
