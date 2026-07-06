@@ -831,6 +831,22 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
       fail closed for that row and produce an explicit migration/audit entry
       rather than silently dropping player state or guessing.
     - Status: decided 2026-07-05.
+72. Generated shop coverage should emit both runtime Python data and a
+    machine-readable audit ledger.
+    - The runtime addon should import checked-in Python data modules for shop
+      catalogs, service/vendor manifests, price/restock policy ids, currencies,
+      shared-stock groups, and source-backed presentation metadata.
+    - The generator should also emit a checked-in JSON or CSV audit ledger for
+      completeness review, frontend handoff, source conflict inspection,
+      disposition checks, and regeneration diffs.
+    - Runtime code should not parse the audit ledger during normal play. The
+      ledger is a developer/review artifact and validation target, not a runtime
+      dependency.
+    - Tests should verify that runtime Python data and the audit ledger are
+      generated from the same source/override inputs and that player-facing
+      rows have complete item, currency, stock, price, visibility, lock, and
+      provenance fields.
+    - Status: decided 2026-07-06.
 
 ## Source Checkpoints From Grill
 
