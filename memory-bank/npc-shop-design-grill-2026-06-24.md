@@ -876,6 +876,20 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
       shop route with stock, price, access state, and click-through detail,
       while the default unsearched state remains grouped shop browsing.
     - Status: decided 2026-07-06.
+75. Locked shop visibility should distinguish understandable gameplay gates
+    from future-system clutter.
+    - Show source-backed locked shops in normal browsing groups when the lock is
+      actionable or understandable to the player, such as a quest requirement,
+      skill requirement, route/region gate, implemented currency requirement, or
+      other source-backed access condition.
+    - Keep future Activity/reward shops and services hidden from normal browsing
+      and item-first search until their owning Activity, reward source, currency
+      balance, and enablement tests exist.
+    - Invalid, unsourced, rejected, or developer-only audit rows should remain
+      out of the normal player UI.
+    - Rationale: the Shop tab should feel aspirational for real in-game shops
+      without filling the player-facing surface with dead reward-store clutter.
+    - Status: decided 2026-07-06.
 
 ## Source Checkpoints From Grill
 
