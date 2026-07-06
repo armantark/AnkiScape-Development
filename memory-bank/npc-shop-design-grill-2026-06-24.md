@@ -815,6 +815,22 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
       single-player shop design. The goal is simple, deterministic, reversible
       behavior, not adversarial protection.
     - Status: decided 2026-07-05.
+71. Saves should migrate forward across generated shop catalog changes instead
+    of pinning old catalogs inside player data.
+    - Store a `shop_data_version` and stable ids in save/history state, then
+      migrate saves forward with explicit alias maps when generated shop,
+      shared-stock, stock-row, service, vendor-action, currency, or source ids
+      are renamed, split, collapsed, or corrected.
+    - Do not embed full old generated shop catalogs in save files. Untouched
+      shops should continue to derive their default stock and presentation from
+      the current checked-in catalog.
+    - Preserve touched/diverged shop state by stable shop, shared-stock group,
+      stock-row, service, and vendor-action ids so player transactions survive
+      catalog regeneration.
+    - If a live generated row changes in a way that cannot be migrated safely,
+      fail closed for that row and produce an explicit migration/audit entry
+      rather than silently dropping player state or guessing.
+    - Status: decided 2026-07-05.
 
 ## Source Checkpoints From Grill
 
