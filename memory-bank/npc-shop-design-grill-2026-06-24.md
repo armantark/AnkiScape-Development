@@ -890,6 +890,19 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
     - Rationale: the Shop tab should feel aspirational for real in-game shops
       without filling the player-facing surface with dead reward-store clutter.
     - Status: decided 2026-07-06.
+76. Detailed Shop tab layout decisions should be made with interactive HTML
+    mockups, not chat-only descriptions.
+    - Use lightweight interactive HTML prototypes for frontend questions such as
+      stock-shop versus service-vendor detail layout, item-first search results,
+      locked-state density, grouped navigation, history placement, and mobile
+      ergonomics.
+    - Defer those mockups until backend contract fixtures or representative
+      fixture-like data exist, so the designs are grounded in realistic shop,
+      service, lock, search, and history states rather than placeholder UI.
+    - Keep backend/source/transaction design decisions moving in chat. Move
+      primarily visual density, layout, and interaction-polish forks into the
+      HTML mockup review path.
+    - Status: decided 2026-07-06.
 
 ## Source Checkpoints From Grill
 
