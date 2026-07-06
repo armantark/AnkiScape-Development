@@ -672,6 +672,14 @@ def _item_def_for(storage_key: str) -> Optional["ItemDefinition"]:
     return _ITEM_DEFS_BY_KEY.get(storage_key)
 
 
+def _item_icon_path(item_name: str) -> Optional[str]:
+    definition = _item_def_for(item_name)
+    asset_path = definition.asset_path if definition is not None else None
+    if asset_path and os.path.exists(asset_path):
+        return asset_path
+    return None
+
+
 def grouped_inventory(inventory: dict) -> list:
     """Group owned items by registry category in display order.
 
@@ -2742,6 +2750,7 @@ def show_main_menu(
     shop_selector = QListWidget()
     shop_selector.setObjectName("shopSelectionList")
     shop_selector.setMaximumHeight(116)
+    shop_selector.setIconSize(QSize(24, 24))
     shop_selector.setAlternatingRowColors(True)
     shop_selector.setStyleSheet(
         "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
@@ -2806,6 +2815,7 @@ def show_main_menu(
     sell_layout.addWidget(sell_hint)
     sell_inventory = QListWidget()
     sell_inventory.setObjectName("shopSellInventoryList")
+    sell_inventory.setIconSize(QSize(24, 24))
     sell_inventory.setAlternatingRowColors(True)
     sell_inventory.setStyleSheet(
         "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
@@ -2875,6 +2885,7 @@ def show_main_menu(
     service_list = QListWidget()
     service_list.setObjectName("shopServiceList")
     service_list.setMaximumHeight(88)
+    service_list.setIconSize(QSize(24, 24))
     service_list.setAlternatingRowColors(True)
     service_list.setStyleSheet(
         "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
@@ -2996,6 +3007,47 @@ def show_main_menu(
         except (TypeError, ValueError):
             return 0
 
+    def _format_requirement_rows(rows: list) -> str:
+        parts = []
+        for row in rows[:3]:
+            if not isinstance(row, dict):
+                continue
+            item_name = str(row.get("item_name", "Item"))
+            owned = int(row.get("owned_quantity", 0) or 0)
+            required = int(row.get("required_quantity", 0) or 0)
+            parts.append(f"{item_name} {owned:,}/{required:,}")
+        return "; ".join(parts)
+
+    def _preview_denial_text(preview: dict, fallback: str = "") -> str:
+        reason = str(preview.get("reason") or fallback or "unavailable")
+        if reason == "insufficient_currency":
+            currency = str(preview.get("currency_item_name", "Coins"))
+            required = int(preview.get("required_currency", 0) or 0)
+            owned = int(preview.get("currency_owned", 0) or 0)
+            return f"Need {required:,} {currency}, you have {owned:,}."
+        if reason == "missing_item":
+            item_name = str(preview.get("item_name", "item"))
+            owned = int(preview.get("owned_quantity", 0) or 0)
+            return f"You have {owned:,} x {item_name}."
+        if reason == "missing_requirements":
+            missing = preview.get("missing_requirements", [])
+            detail = _format_requirement_rows(missing if isinstance(missing, list) else [])
+            return f"Missing requirements: {detail}." if detail else "Missing requirements."
+        return fallback or reason
+
+    def _service_icon_item_name(row: dict) -> str:
+        for key in ("outputs", "inputs"):
+            for item in row.get(key, []):
+                item_name = item.get("item_name")
+                if isinstance(item_name, str) and _item_icon_path(item_name):
+                    return item_name
+        return ""
+
+    def _set_list_item_icon(item: QListWidgetItem, item_name: str) -> None:
+        icon_path = _item_icon_path(item_name)
+        if icon_path:
+            item.setIcon(QIcon(icon_path))
+
     def _replace_player_data(new_data: dict) -> None:
         player_data.clear()
         player_data.update(new_data)
@@ -3059,6 +3111,10 @@ def show_main_menu(
             btn.setObjectName(f"shopStockTile_{_safe_object_suffix(row_id)}")
             btn.setProperty("shopRowId", row_id)
             btn.setMinimumSize(92, 66)
+            icon_path = _item_icon_path(str(row.get("item_name", "")))
+            if icon_path:
+                btn.setIcon(QIcon(icon_path))
+                btn.setIconSize(QSize(30, 30))
             btn.setCheckable(True)
             btn.setChecked(row_id == selected_row_id)
             btn.setToolTip(str(row.get("lock_reason") or row.get("item_name", "")))
@@ -3097,6 +3153,7 @@ def show_main_menu(
         for name, amount in items:
             item = QListWidgetItem(f"{name} x{amount:,}")
             item.setData(Qt.ItemDataRole.UserRole, name)
+            _set_list_item_icon(item, name)
             sell_inventory.addItem(item)
             if name == selected_item:
                 sell_inventory.setCurrentItem(item)
@@ -3139,13 +3196,13 @@ def show_main_menu(
                 amount = int(preview.get("quantity", qty) or qty)
                 total = int(preview.get("total_price", 0) or 0)
                 currency = str(preview.get("currency_item_name", view.get("currency_item_name", "Coins")))
+                owned_currency = int(preview.get("currency_owned", _inventory_count_for_ui(currency)) or 0)
                 suffix = " (clamped)" if preview.get("clamped") else ""
-                shop_preview_label.setText(f"Buy {amount:,} x {item_name} for {total:,} {currency}.{suffix}")
+                shop_preview_label.setText(f"Buy {amount:,} x {item_name} for {total:,} {currency}. You have {owned_currency:,} {currency}.{suffix}")
                 shop_action_btn.setText(f"Buy {amount:,}")
                 shop_action_btn.setEnabled(True)
             else:
-                reason = str(row.get("lock_reason") or preview.get("reason", "unavailable"))
-                shop_preview_label.setText(reason)
+                shop_preview_label.setText(_preview_denial_text(preview, str(row.get("lock_reason", ""))))
                 shop_action_btn.setText("Buy")
                 shop_action_btn.setEnabled(False)
         else:
@@ -3163,12 +3220,13 @@ def show_main_menu(
                 amount = int(preview.get("quantity", qty) or qty)
                 total = int(preview.get("total_price", 0) or 0)
                 currency = str(preview.get("currency_item_name", view.get("currency_item_name", "Coins")))
+                owned = int(preview.get("owned_quantity", _inventory_count_for_ui(item_name)) or 0)
                 suffix = " (clamped)" if preview.get("clamped") else ""
-                shop_preview_label.setText(f"Sell {amount:,} x {item_name} for {total:,} {currency}.{suffix}")
+                shop_preview_label.setText(f"Sell {amount:,} x {item_name} for {total:,} {currency}. You have {owned:,} x {item_name}.{suffix}")
                 shop_action_btn.setText(f"Sell {amount:,}")
                 shop_action_btn.setEnabled(True)
             else:
-                shop_preview_label.setText(str(preview.get("reason", "unavailable")))
+                shop_preview_label.setText(_preview_denial_text(preview))
                 shop_action_btn.setEnabled(False)
 
     def _apply_shop_transaction() -> None:
@@ -3223,6 +3281,7 @@ def show_main_menu(
         for kind, row in rows:
             item = QListWidgetItem(_service_text(kind, row))
             item.setData(Qt.ItemDataRole.UserRole, {"kind": kind, "id": row.get("id", "")})
+            _set_list_item_icon(item, _service_icon_item_name(row))
             service_list.addItem(item)
             if row.get("id") == selected:
                 shop_state["service_kind"] = kind
@@ -3254,10 +3313,12 @@ def show_main_menu(
             total = int(preview.get("total_price", 0) or 0)
             currency = str(preview.get("currency_item_name", row.get("currency_item_name", "Coins")))
             suffix = " (clamped)" if preview.get("clamped") else ""
-            service_preview.setText(f"Use {row.get('display_name', row.get('id'))} {amount:,} time(s) for {total:,} {currency}.{suffix}")
+            requirement_text = _format_requirement_rows(preview.get("requirements", []) if isinstance(preview.get("requirements"), list) else [])
+            requirement_suffix = f" Have: {requirement_text}." if requirement_text else ""
+            service_preview.setText(f"Use {row.get('display_name', row.get('id'))} {amount:,} time(s) for {total:,} {currency}.{requirement_suffix}{suffix}")
             service_use_btn.setEnabled(True)
         else:
-            service_preview.setText(str(row.get("lock_reason") or preview.get("reason", "unavailable")))
+            service_preview.setText(_preview_denial_text(preview, str(row.get("lock_reason", ""))))
             service_use_btn.setEnabled(False)
 
     def _apply_service_transaction() -> None:
@@ -3309,7 +3370,8 @@ def show_main_menu(
             _populate_shop_history()
             return
         shop_title.setText(str(view.get("display_name", "NPC shop")))
-        meta_parts = [str(view.get("currency_item_name", "Coins"))]
+        currency_name = str(view.get("currency_item_name", "Coins"))
+        meta_parts = [f"{currency_name}: {_inventory_count_for_ui(currency_name):,} owned"]
         if view.get("general_store"):
             meta_parts.append("General store")
         if view.get("lock_reason"):
@@ -3344,6 +3406,12 @@ def show_main_menu(
                 for result in results:
                     item = QListWidgetItem(_shop_selector_label_from_result(result))
                     item.setData(Qt.ItemDataRole.UserRole, dict(result))
+                    if result.get("kind") == "stock":
+                        _set_list_item_icon(item, str(result.get("item_name", "")))
+                    elif result.get("kind") in {"service", "vendor_action"}:
+                        source = SHOP_SERVICES if result.get("kind") == "service" else SHOP_VENDOR_ACTIONS
+                        service_row = source.get(str(result.get("id", "")), {})
+                        _set_list_item_icon(item, _service_icon_item_name(service_row))
                     if result.get("visibility") == "visible_locked" or result.get("lock_reason"):
                         item.setForeground(dim_text_color(shop_selector))
                     shop_selector.addItem(item)
@@ -3383,6 +3451,15 @@ def show_main_menu(
             label = f"{shop.get('display_name', shop.get('id'))} · " + (" · ".join(suffix) if suffix else "read-only")
             item = QListWidgetItem(label)
             item.setData(Qt.ItemDataRole.UserRole, {"kind": "shop", "shop_id": shop.get("id", "")})
+            icon_name = next(
+                (
+                    str(row.get("item_name", ""))
+                    for row in rows
+                    if _item_icon_path(str(row.get("item_name", "")))
+                ),
+                "",
+            )
+            _set_list_item_icon(item, icon_name)
             if shop.get("visibility") != "visible":
                 item.setForeground(dim_text_color(shop_selector))
             shop_selector.addItem(item)

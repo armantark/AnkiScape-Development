@@ -44,6 +44,7 @@ from constants import (
     RUNECRAFTING_ITEM_IMAGES,
     RUNECRAFTING_OUTPUT_ITEMS,
     RUNECRAFTING_POUCH_DATA,
+    SHOP_ITEM_IMAGES,
     SMITHING_OUTPUT_ITEMS,
     UTILITY_ACTIVITY_DATA,
     WOODCUTTING_AXE_DATA,
@@ -449,6 +450,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(UTILITY_ACTIVITY_DATA["assemble_uncooked_pizza"]["group"], "cooking_prep")
 
     def test_registered_asset_paths_exist_for_current_manifest(self):
+        self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_npc_shop_actionable_item_assets_are_registered(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = (
+            "Erzille seed",
+            "Ugune seed",
+            "Argway seed",
+            "Shengo seed",
+            "Samaden seed",
+            "Oak plank",
+            "Newspaper",
+            "Kebab",
+        )
+        for item_name in expected:
+            self.assertIn(item_name, SHOP_ITEM_IMAGES)
+            self.assertEqual(by_storage_key[item_name].asset_path, SHOP_ITEM_IMAGES[item_name])
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
     def test_combat_items_are_registered_with_icons(self):

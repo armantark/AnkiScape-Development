@@ -585,6 +585,64 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn(live_view["display_name"], selector.item(0).text())
         self.assertTrue(buy_button.isEnabled(), preview.text())
 
+    def test_shop_icons_render_for_stock_search_sell_and_services(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        dialog = self._open(fixtures["fixture_player_data"])
+        _open_shop_tab(dialog)
+
+        stock_buttons = [
+            button for button in dialog.findChildren(QPushButton)
+            if button.property("shopRowId")
+        ]
+        self.assertTrue(any(not button.icon().isNull() for button in stock_buttons), "live stock tiles should use item icons")
+
+        sell_list = _find_named_list(dialog, "shopSellInventoryList")
+        beer_item = next(
+            sell_list.item(i)
+            for i in range(sell_list.count())
+            if sell_list.item(i).data(Qt.ItemDataRole.UserRole) == "Beer"
+        )
+        self.assertFalse(beer_item.icon().isNull(), "sell rows should use inventory item icons")
+
+        search = _find_named_line_edit(dialog, "shopSearchInput")
+        search.setText("Erzille seed")
+        QApplication.processEvents()
+        selector = _find_named_list(dialog, "shopSelectionList")
+        seed_item = next(
+            selector.item(i)
+            for i in range(selector.count())
+            if "Erzille seed" in selector.item(i).text()
+        )
+        self.assertFalse(seed_item.icon().isNull(), "item-first search rows should use shop item icons")
+
+        service_list = _find_named_list(dialog, "shopServiceList")
+        oak_item = next(
+            service_list.item(i)
+            for i in range(service_list.count())
+            if "oak planks" in service_list.item(i).text()
+        )
+        self.assertFalse(oak_item.icon().isNull(), "service rows should use output item icons")
+
+    def test_shop_preview_uses_current_player_currency_state(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        pd = fixtures["fixture_player_data"]
+        pd["inventory"]["Coins"] = 0
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+
+        meta = _find_named_label(dialog, "shopDetailMeta")
+        preview = _find_named_label(dialog, "shopPreviewLabel")
+        buy_button = _find_named_button(dialog, "shopTransactionButton")
+
+        self.assertIn("Coins: 0 owned", meta.text())
+        self.assertIn("Need", preview.text())
+        self.assertIn("you have 0", preview.text())
+        self.assertFalse(buy_button.isEnabled())
+
     def test_shop_feather_search_shows_locked_rows_and_disables_buy(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
 

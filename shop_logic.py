@@ -589,10 +589,23 @@ def _preview_buy_from_state(
     if current_quantity <= 0:
         return _denied("out_of_stock", requested_quantity=requested, shop_id=shop["id"], row_id=row["id"])
     currency_name = shop["currency_item_name"]
-    affordable = _inventory_count(data, currency_name) // max(1, unit_price)
+    currency_owned = _inventory_count(data, currency_name)
+    affordable = currency_owned // max(1, unit_price)
     quantity_allowed = min(requested, current_quantity, affordable)
     if quantity_allowed <= 0:
-        return _denied("insufficient_currency", requested_quantity=requested, shop_id=shop["id"], row_id=row["id"], unit_price=unit_price)
+        required_currency = unit_price * min(requested, current_quantity)
+        return _denied(
+            "insufficient_currency",
+            requested_quantity=requested,
+            shop_id=shop["id"],
+            row_id=row["id"],
+            unit_price=unit_price,
+            required_currency=required_currency,
+            currency_owned=currency_owned,
+            currency_shortfall=max(0, required_currency - currency_owned),
+            currency_item_name=currency_name,
+            stock_available=current_quantity,
+        )
     return {
         "allowed": True,
         "transaction_type": "buy",
@@ -605,6 +618,9 @@ def _preview_buy_from_state(
         "unit_price": unit_price,
         "total_price": unit_price * quantity_allowed,
         "currency_item_name": currency_name,
+        "currency_owned": currency_owned,
+        "required_currency": unit_price * quantity_allowed,
+        "stock_available": current_quantity,
     }
 
 
@@ -620,8 +636,9 @@ def _preview_sell_from_state(
         return _denied(shop.get("lock_reason") or "shop_not_visible", requested_quantity=requested, shop_id=shop["id"])
     if shop["buy_only"]:
         return _denied("shop_buy_only", requested_quantity=requested, shop_id=shop["id"])
-    if _inventory_count(data, item_name) <= 0:
-        return _denied("missing_item", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
+    owned_quantity = _inventory_count(data, item_name)
+    if owned_quantity <= 0:
+        return _denied("missing_item", requested_quantity=requested, shop_id=shop["id"], item_name=item_name, owned_quantity=0)
 
     stocked_row = _stocked_row_for_item(shop, item_name)
     if not shop["general_store"] and stocked_row is None:
@@ -638,7 +655,7 @@ def _preview_sell_from_state(
         unit_price = _sell_price_for_item(item_name)
     if unit_price is None:
         return _denied("sell_price_unresolved", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
-    amount = min(requested, _inventory_count(data, item_name))
+    amount = min(requested, owned_quantity)
     return {
         "allowed": True,
         "transaction_type": "sell",
@@ -652,6 +669,7 @@ def _preview_sell_from_state(
         "total_price": unit_price * amount,
         "currency_item_name": shop["currency_item_name"],
         "temporary_stock": row_id not in group_state.get("rows", {}),
+        "owned_quantity": owned_quantity,
     }
 
 
@@ -662,13 +680,22 @@ def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, 
         return _denied(service.get("lock_reason") or "service_not_visible", requested_quantity=requested, service_id=service["id"])
     currency_name = str(service.get("currency_item_name", "Coins"))
     unit_price = _clean_int(service.get("price"), 0, minimum=0)
+    requested_requirements = _service_requirement_rows(data, service, requested, unit_price, currency_name)
     max_quantity = requested
     if unit_price:
         max_quantity = min(max_quantity, _inventory_count(data, currency_name) // unit_price)
     for item in service.get("inputs", []):
         max_quantity = min(max_quantity, _inventory_count(data, item["item_name"]) // max(1, int(item["quantity"])))
     if max_quantity <= 0:
-        return _denied("missing_requirements", requested_quantity=requested, service_id=service["id"], unit_price=unit_price)
+        return _denied(
+            "missing_requirements",
+            requested_quantity=requested,
+            service_id=service["id"],
+            unit_price=unit_price,
+            currency_item_name=currency_name,
+            requirements=requested_requirements,
+            missing_requirements=[row for row in requested_requirements if int(row.get("shortfall", 0) or 0) > 0],
+        )
     return {
         "allowed": True,
         "transaction_type": "service_like",
@@ -680,6 +707,8 @@ def _preview_service_like(player_data: Mapping[str, Any], service: Mapping[str, 
         "unit_price": unit_price,
         "total_price": unit_price * max_quantity,
         "currency_item_name": currency_name,
+        "requirements": _service_requirement_rows(data, service, max_quantity, unit_price, currency_name),
+        "requested_requirements": requested_requirements,
     }
 
 
@@ -718,6 +747,44 @@ def _apply_service_like(data: Dict[str, Any], service: Mapping[str, Any], event_
 
 def _denied(reason: str, **extra: Any) -> Dict[str, Any]:
     return {"allowed": False, "reason": reason, **extra}
+
+
+def _service_requirement_rows(
+    data: Mapping[str, Any],
+    service: Mapping[str, Any],
+    quantity: int,
+    unit_price: int,
+    currency_name: str,
+) -> list[Dict[str, Any]]:
+    rows: list[Dict[str, Any]] = []
+    if unit_price:
+        owned = _inventory_count(data, currency_name)
+        required = unit_price * quantity
+        rows.append(
+            {
+                "item_name": currency_name,
+                "required_quantity": required,
+                "owned_quantity": owned,
+                "shortfall": max(0, required - owned),
+                "kind": "currency",
+            }
+        )
+    for item in service.get("inputs", []):
+        item_name = str(item.get("item_name", ""))
+        if not item_name:
+            continue
+        required = _clean_int(item.get("quantity"), 1, minimum=1) * quantity
+        owned = _inventory_count(data, item_name)
+        rows.append(
+            {
+                "item_name": item_name,
+                "required_quantity": required,
+                "owned_quantity": owned,
+                "shortfall": max(0, required - owned),
+                "kind": "item",
+            }
+        )
+    return rows
 
 
 def _inventory_count(data: Mapping[str, Any], item_name: str) -> int:

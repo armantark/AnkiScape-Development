@@ -255,6 +255,7 @@ RUNECRAFTING_ITEMS_FOLDER = os.path.join(current_dir, "runecraftingitems")
 QUEST_ITEMS_FOLDER = os.path.join(current_dir, "questitems")
 COMBAT_ITEMS_FOLDER = os.path.join(current_dir, "combatitems")
 COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
+SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -626,6 +627,11 @@ for _target_id in COMBAT_ENEMY_DATA:
         COMBAT_ENEMY_IMAGES[_target_id] = _path
 EQUIPMENT_ITEM_DATA = equipment_items_as_dict()
 SHOP_EXTRA_ITEM_DATA = shop_extra_items_as_dict()
+SHOP_ITEM_IMAGES = {}
+for _item_name in SHOP_EXTRA_ITEM_DATA:
+    _path = os.path.join(SHOP_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        SHOP_ITEM_IMAGES[_item_name] = _path
 
 
 def _known_non_shop_item_names():
@@ -765,6 +771,7 @@ EXTRA_ITEM_IMAGES = {
     **RUNECRAFTING_ITEM_IMAGES,
     **QUEST_ITEM_IMAGES,
     **COMBAT_ITEM_IMAGES,
+    **SHOP_ITEM_IMAGES,
 }
 
 ITEM_DEFINITIONS = build_item_definitions(

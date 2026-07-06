@@ -12,6 +12,7 @@ from shop_logic import (
     default_shop_state_pure,
     preview_shop_buy_pure,
     preview_shop_sell_pure,
+    preview_shop_service_pure,
     rollback_shop_event_pure,
     sanitize_shop_state_pure,
     search_shop_catalog_pure,
@@ -103,6 +104,31 @@ class TestShopLogic(unittest.TestCase):
         preview = preview_shop_buy_pure(data, shop["id"], row["id"], 1)
         self.assertFalse(preview["allowed"])
         self.assertIn(preview["reason"], {"price_policy_unresolved", "currency_not_implemented"})
+
+    def test_previews_include_current_player_state_counts(self):
+        shop, row = _live_shop_and_row()
+        data = build_shop_fixture_player_data()
+        data["inventory"]["Coins"] = 0
+
+        buy_preview = preview_shop_buy_pure(data, shop["id"], row["id"], 1)
+        self.assertFalse(buy_preview["allowed"])
+        self.assertEqual(buy_preview["reason"], "insufficient_currency")
+        self.assertEqual(buy_preview["currency_owned"], 0)
+        self.assertEqual(buy_preview["required_currency"], row["buy_price"])
+        self.assertEqual(buy_preview["currency_item_name"], "Coins")
+
+        sell_preview = preview_shop_sell_pure(data, shop["id"], "Beer", 1)
+        self.assertTrue(sell_preview["allowed"])
+        self.assertEqual(sell_preview["owned_quantity"], data["inventory"]["Beer"])
+
+        data["inventory"]["Cowhide"] = 0
+        service_preview = preview_shop_service_pure(data, "al_kharid_tanner_soft_leather", 1)
+        self.assertFalse(service_preview["allowed"])
+        self.assertEqual(service_preview["reason"], "missing_requirements")
+        self.assertIn(
+            {"item_name": "Cowhide", "required_quantity": 1, "owned_quantity": 0, "shortfall": 1, "kind": "item"},
+            service_preview["missing_requirements"],
+        )
 
     def test_restock_uses_market_tick_for_touched_shop(self):
         shop, row = _live_shop_and_row()
