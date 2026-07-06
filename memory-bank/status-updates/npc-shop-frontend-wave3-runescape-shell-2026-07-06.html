@@ -1,0 +1,1427 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Frontend Wave 3</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --ink: #090b0e;
+      --metal: #111820;
+      --metal-2: #18222c;
+      --brass: #d69a2d;
+      --brass-dim: #8f631c;
+      --shop-line: #6f5a35;
+      --slot: #241a12;
+      --slot-2: #130f0b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        linear-gradient(120deg, rgba(79, 140, 255, 0.13), transparent 36rem),
+        radial-gradient(circle at 84% 8%, rgba(214, 154, 45, 0.15), transparent 23rem),
+        linear-gradient(180deg, #0c0e12 0%, #10151b 58%, #0c0e12 100%);
+      font-family: Outfit, Avenir Next, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1460px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    button,
+    code,
+    .mono,
+    .badge,
+    .choice-letter,
+    .pill,
+    textarea,
+    .pixel,
+    .tiny,
+    .qty,
+    .slot-stock,
+    .slot-price,
+    .rs-tab,
+    .mode-btn {
+      font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #c0d6ff;
+      padding: 7px 11px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(79, 140, 255, 0.66);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 850;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: rgba(79, 140, 255, 0.72);
+      outline: none;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 410px;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 1010px;
+      font-size: clamp(2.15rem, 5vw, 4.5rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 13px 0 0;
+      max-width: 940px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .mapping {
+      display: grid;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      padding: 12px;
+    }
+
+    .map-row {
+      display: grid;
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 8px;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #10151d;
+      padding: 9px;
+      min-height: 52px;
+      align-items: center;
+    }
+
+    .map-row b {
+      color: #f2cf8f;
+      font-size: 0.82rem;
+    }
+
+    .map-row span {
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      line-height: 1.32;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(400px, 0.9fr) minmax(760px, 1.35fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      box-shadow: 0 22px 64px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      line-height: 1.42;
+    }
+
+    .tiny {
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, 0.34);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(74, 222, 128, 0.08);
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 10px 14px 0;
+    }
+
+    .tab {
+      border-radius: 999px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .tab[aria-selected="true"] {
+      background: rgba(79, 140, 255, 0.18);
+      border-color: rgba(79, 140, 255, 0.62);
+      color: #d7e6ff;
+    }
+
+    .decision {
+      padding: 14px;
+      display: grid;
+      gap: 11px;
+    }
+
+    .question {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 10px;
+      background: #10151d;
+      padding: 12px;
+    }
+
+    .question strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .question span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      line-height: 1.42;
+    }
+
+    .choices {
+      display: grid;
+      gap: 9px;
+    }
+
+    .choice {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 10px;
+      background: #11161e;
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .choice:hover,
+    .choice:focus-within {
+      transform: translateY(-1px);
+      border-color: rgba(79, 140, 255, 0.62);
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice.selected {
+      border-color: rgba(74, 222, 128, 0.84);
+      background: linear-gradient(180deg, rgba(74, 222, 128, 0.105), rgba(17, 22, 30, 0.98));
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.07);
+    }
+
+    .choice.recommended:not(.selected) {
+      border-color: rgba(251, 191, 36, 0.52);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.08), rgba(17, 22, 30, 0.98));
+    }
+
+    .choice-letter {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface-2);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .choice.selected .choice-letter {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--ink);
+    }
+
+    .choice-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .choice-title b { font-size: 0.92rem; }
+
+    .choice p {
+      margin: 5px 0 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .why {
+      display: block;
+      margin-top: 7px;
+      color: #d0e0ff;
+      font-size: 0.78rem;
+      line-height: 1.36;
+    }
+
+    .why strong { color: var(--amber); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--text-dim);
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .pill.rec {
+      color: #ffe2a1;
+      border-color: rgba(251, 191, 36, 0.48);
+      background: rgba(251, 191, 36, 0.09);
+    }
+
+    .preview {
+      position: sticky;
+      top: 10px;
+    }
+
+    .preview-head {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .preview-head h2 {
+      margin: 0;
+      font-size: 1.06rem;
+    }
+
+    .preview-head p {
+      margin: 4px 0 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.36;
+    }
+
+    .menu-budget {
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 8px;
+      background: rgba(79, 140, 255, 0.12);
+      color: #d7e6ff;
+      padding: 8px 10px;
+      font-size: 0.72rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .mock-stage {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .menu-window {
+      width: 720px;
+      height: 620px;
+      min-width: 720px;
+      max-width: 720px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0d1117;
+      overflow: hidden;
+      margin: 0 auto;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    .anki-tabs {
+      display: flex;
+      gap: 5px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      background: #171d25;
+    }
+
+    .anki-tab {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      background: #10151c;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+    }
+
+    .anki-tab.active {
+      color: var(--text);
+      border-color: rgba(79, 140, 255, 0.68);
+      background: rgba(79, 140, 255, 0.15);
+    }
+
+    .shop-shell {
+      margin: 10px;
+      height: 560px;
+      border: 2px solid #58606a;
+      border-radius: 7px;
+      background:
+        linear-gradient(90deg, rgba(255,255,255,0.035), transparent 18%, transparent 82%, rgba(255,255,255,0.028)),
+        #07090c;
+      position: relative;
+      box-shadow:
+        inset 0 0 0 1px #090b0e,
+        inset 0 0 0 3px #222b33,
+        0 12px 28px rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+
+    .shop-title {
+      position: absolute;
+      top: 4px;
+      left: 54px;
+      right: 54px;
+      height: 30px;
+      border: 1px solid #45525c;
+      background: linear-gradient(180deg, #1c2b35, #0e171d);
+      color: #fff7d6;
+      display: grid;
+      place-items: center;
+      font-weight: 850;
+      letter-spacing: 0.03em;
+      text-shadow: 0 2px 0 #000;
+      clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+    }
+
+    .close-dot {
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1px solid #8b7b4b;
+      color: #ff9a3c;
+      background: #14100b;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .shop-content {
+      position: absolute;
+      inset: 42px 12px 12px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 192px;
+      grid-template-rows: 31px minmax(0, 1fr) 128px;
+      border: 1px solid #312415;
+      background: rgba(0,0,0,0.35);
+    }
+
+    .shop-toolbar {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 94px 94px 102px minmax(0, 1fr) 120px;
+      gap: 4px;
+      align-items: center;
+      border-bottom: 1px solid #312415;
+      background: linear-gradient(180deg, rgba(214,154,45,0.08), rgba(0,0,0,0.2));
+      padding: 3px 5px;
+    }
+
+    .rs-tab,
+    .shop-search,
+    .mode-btn {
+      height: 24px;
+      border: 1px solid #7b5121;
+      background: linear-gradient(180deg, #1f1b15, #0b0907);
+      color: #f5d390;
+      display: grid;
+      place-items: center;
+      font-size: 0.66rem;
+      text-shadow: 0 1px 0 #000;
+    }
+
+    .rs-tab.active {
+      background: linear-gradient(180deg, #31200e, #0d0b08);
+      border-color: #d08b28;
+      color: #ffe5a3;
+      box-shadow: inset 0 -2px 0 rgba(214,154,45,0.35);
+    }
+
+    .shop-search {
+      justify-items: start;
+      padding-left: 8px;
+      color: #d8d1bd;
+      border-color: #51442c;
+      background: #0b0c0e;
+    }
+
+    .mode-btn {
+      grid-template-columns: 1fr 22px 22px;
+      gap: 4px;
+      color: #d8d1bd;
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .mode-square {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #b27c27;
+      background: #1d1508;
+    }
+
+    .mode-square.on {
+      background: #d79d28;
+      box-shadow: inset 0 0 0 3px #3b2707;
+    }
+
+    .slot-grid {
+      grid-column: 1;
+      grid-row: 2;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      grid-auto-rows: 69px;
+      gap: 2px;
+      padding: 5px;
+      border-right: 1px solid #312415;
+      overflow: hidden;
+    }
+
+    .slot {
+      position: relative;
+      border: 1px solid #7b5121;
+      background:
+        radial-gradient(circle at 48% 38%, rgba(255, 255, 255, 0.035), transparent 32px),
+        linear-gradient(180deg, var(--slot), var(--slot-2));
+      min-width: 0;
+    }
+
+    .slot.locked {
+      filter: saturate(0.65);
+      border-color: #55442d;
+    }
+
+    .slot.temp {
+      border-color: #7e5fb9;
+      box-shadow: inset 0 0 0 1px rgba(167,139,250,0.22);
+    }
+
+    .slot-stock {
+      position: absolute;
+      top: 4px;
+      left: 5px;
+      color: #f8ef55;
+      font-size: 0.63rem;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    .item-art {
+      position: absolute;
+      left: 50%;
+      top: 26px;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      border-radius: 7px 5px 9px 5px;
+      border: 1px solid rgba(255,255,255,0.15);
+      box-shadow: 0 8px 10px rgba(0,0,0,0.35);
+    }
+
+    .beer { background: linear-gradient(135deg, #8b5a28, #2d1607); }
+    .bread { background: linear-gradient(135deg, #c9974e, #463018); border-radius: 40% 58% 46% 52%; }
+    .milk { background: linear-gradient(135deg, #e3edf4, #6e7880); }
+    .pot { background: linear-gradient(135deg, #8d8377, #332d26); }
+    .pipe { background: linear-gradient(135deg, #7a8e6d, #25331f); }
+    .hide { background: linear-gradient(135deg, #8b6048, #2d1c13); border-radius: 48% 42% 55% 38%; }
+    .scroll { background: linear-gradient(135deg, #d8c8a5, #5a4830); }
+    .headdress { background: linear-gradient(135deg, #8f88c7, #2a2355); }
+    .wine { background: linear-gradient(135deg, #85406f, #2d1024); }
+    .leather { background: linear-gradient(135deg, #b98b56, #4a2d16); }
+
+    .slot-price {
+      position: absolute;
+      bottom: 4px;
+      right: 7px;
+      color: #d4b06a;
+      font-size: 0.64rem;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    .coin {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-left: 3px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 30%, #ffe792, #b67a16 68%, #4f3108);
+      vertical-align: -1px;
+    }
+
+    .slot-chip {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      min-width: 18px;
+      height: 16px;
+      border: 1px solid rgba(251,191,36,0.55);
+      background: rgba(251,191,36,0.16);
+      color: #ffdda6;
+      font-size: 0.56rem;
+      display: grid;
+      place-items: center;
+      border-radius: 3px;
+    }
+
+    .slot.temp .slot-chip {
+      border-color: rgba(167,139,250,0.55);
+      background: rgba(167,139,250,0.15);
+      color: #dacfff;
+    }
+
+    .scrollbar {
+      position: absolute;
+      top: 78px;
+      right: 205px;
+      width: 14px;
+      height: 235px;
+      border: 1px solid #8e651b;
+      background: #1a1105;
+    }
+
+    .scrollbar::before,
+    .scrollbar::after {
+      content: "";
+      position: absolute;
+      left: 2px;
+      width: 8px;
+      height: 8px;
+      border-left: 2px solid #e4a22a;
+      border-top: 2px solid #e4a22a;
+    }
+
+    .scrollbar::before {
+      top: 4px;
+      transform: rotate(45deg);
+    }
+
+    .scrollbar::after {
+      bottom: 4px;
+      transform: rotate(225deg);
+    }
+
+    .scroll-thumb {
+      position: absolute;
+      left: 3px;
+      top: 34px;
+      width: 6px;
+      height: 130px;
+      background: linear-gradient(180deg, #e0a027, #8a5c10);
+      border-radius: 999px;
+    }
+
+    .side-panel {
+      grid-column: 2;
+      grid-row: 2 / span 2;
+      border-left: 1px solid #312415;
+      background: linear-gradient(180deg, rgba(0,0,0,0.18), rgba(0,0,0,0.44));
+      display: grid;
+      grid-template-rows: 68px 1fr 118px;
+      min-width: 0;
+    }
+
+    .shop-list {
+      border-bottom: 1px solid #312415;
+      padding: 7px;
+      display: grid;
+      gap: 5px;
+      align-content: start;
+    }
+
+    .shop-pill {
+      border: 1px solid #55442d;
+      background: #0d0b08;
+      color: #d9d0bd;
+      padding: 5px 7px;
+      font-size: 0.68rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .shop-pill.active {
+      border-color: #d08b28;
+      color: #ffe5a3;
+      background: #211405;
+    }
+
+    .services {
+      padding: 8px 7px;
+      display: grid;
+      gap: 6px;
+      align-content: start;
+      border-bottom: 1px solid #312415;
+    }
+
+    .service-row {
+      border: 1px solid #51442c;
+      background: #0b0c0e;
+      color: #d8d1bd;
+      padding: 6px;
+      font-size: 0.67rem;
+      line-height: 1.25;
+    }
+
+    .service-row b {
+      display: block;
+      color: #fff2c5;
+      margin-bottom: 2px;
+    }
+
+    .history-button {
+      margin: 8px;
+      align-self: end;
+      border: 1px solid #8a5c10;
+      background: linear-gradient(180deg, #2a2116, #090807);
+      color: #e0c27f;
+      padding: 8px;
+      text-align: center;
+      font-size: 0.7rem;
+    }
+
+    .bottom-info {
+      grid-column: 1;
+      grid-row: 3;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 178px;
+      border-top: 1px solid #312415;
+      border-right: 1px solid #312415;
+      background: rgba(0,0,0,0.28);
+    }
+
+    .inspect {
+      padding: 14px 16px;
+      color: #d8d1bd;
+      font-size: 0.78rem;
+    }
+
+    .inspect b {
+      color: #fff2c5;
+    }
+
+    .inspect .reason {
+      margin-top: 7px;
+      color: #f3c979;
+      font-size: 0.7rem;
+    }
+
+    .transaction {
+      border-left: 1px solid #312415;
+      padding: 7px 8px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 6px;
+    }
+
+    .transaction-title {
+      color: #d1a44a;
+      font-size: 0.7rem;
+      text-align: center;
+      letter-spacing: 0.03em;
+    }
+
+    .qty-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 3px;
+    }
+
+    .qty {
+      border: 1px solid #28516a;
+      background: #07131b;
+      color: #d0b16d;
+      display: grid;
+      place-items: center;
+      min-height: 20px;
+      font-size: 0.62rem;
+    }
+
+    .price-lines {
+      display: grid;
+      grid-template-columns: 62px 1fr;
+      row-gap: 8px;
+      align-content: center;
+      color: #8f8d88;
+      font-size: 0.75rem;
+    }
+
+    .price-lines strong {
+      color: #d8d1bd;
+      font-weight: 600;
+    }
+
+    .apply-btn {
+      position: absolute;
+      right: 20px;
+      bottom: 22px;
+      width: 72px;
+      height: 32px;
+      border: 1px solid #4c4942;
+      border-radius: 999px;
+      background: #111;
+      color: #777;
+      display: grid;
+      place-items: center;
+      font-size: 0.75rem;
+    }
+
+    .grid-only .side-panel { grid-template-rows: 68px 1fr 76px; }
+    .grid-only .services { display: none; }
+    .service-tab .services { background: rgba(79,140,255,0.04); }
+    .history-modal .history-button::after { content: " opens modal"; }
+    .history-strip .history-button { color: #b8f6d0; border-color: rgba(74,222,128,0.42); }
+    .search-compact .shop-search { color: #d7e6ff; border-color: rgba(79,140,255,0.4); }
+    .search-hidden .shop-search { visibility: hidden; }
+    .lock-inline .locked .slot-chip { display: none; }
+    .lock-inline .locked::after {
+      content: "price_policy_unresolved";
+      position: absolute;
+      left: 5px;
+      right: 5px;
+      bottom: 18px;
+      color: #f3c979;
+      font-size: 0.52rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+
+    .summary-card {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #11161e;
+      padding: 11px;
+      min-height: 130px;
+    }
+
+    .summary-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+    }
+
+    .summary-card ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      line-height: 1.34;
+    }
+
+    .summary-card li {
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .summary-card li::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 5px;
+    }
+
+    textarea {
+      width: calc(100% - 28px);
+      margin: 0 14px 14px;
+      min-height: 146px;
+      resize: vertical;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #090d12;
+      color: #d7e6fb;
+      padding: 11px;
+      font-size: 0.74rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 1220px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(100% - 16px, 1460px);
+        padding-top: 16px;
+      }
+
+      .topbar,
+      .preview-head,
+      .panel-head {
+        display: grid;
+        align-items: stretch;
+      }
+
+      .mapping,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div class="badge">NPC Shop Frontend · Wave 3</div>
+      <div class="toolbar">
+        <button type="button" id="resetBtn">Select Recommended</button>
+        <button type="button" class="primary" id="copyBtn">Copy Wave 3 Packet</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <h1>Translate the RuneScape shop window into AnkiScape Qt.</h1>
+        <p class="lead">The reference layout is the right direction: a merchant title bar, Buy/Sell modes, a finite item grid, side scroll, bottom item inspector, and transaction controls. This artifact tests that shell inside the current AnkiScape menu budget without copying backend rules into the frontend.</p>
+      </div>
+      <aside class="mapping" aria-label="Reference layout mapping">
+        <div class="map-row"><b>Top chrome</b><span>Merchant title, Buy/Sell/Services modes, compact search, item display controls.</span></div>
+        <div class="map-row"><b>Grid</b><span>Visible stock rows become source-backed tiles with stock, current price, and lock/temp chips.</span></div>
+        <div class="map-row"><b>Bottom</b><span>Selected item inspector plus backend preview echo and transaction quantity buttons.</span></div>
+        <div class="map-row"><b>Side</b><span>Shop picker, services/vendor actions, and a full-history button fit where the original has secondary chrome.</span></div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>RuneScape-Shell Decisions</h2>
+            <p>These choices answer how closely to mimic the reference and where to place AnkiScape-only features like search, services, locks, and history.</p>
+          </div>
+          <div class="tiny" id="count">0 / 6 selected</div>
+        </div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Wave 3 design decisions"></div>
+        <div class="decision" id="decision"></div>
+      </article>
+
+      <article class="panel preview">
+        <div class="preview-head">
+          <div>
+            <h2>Fixed-Footprint Mock</h2>
+            <p id="caption">RuneScape shell inside the current 720x620 AnkiScape menu footprint.</p>
+          </div>
+          <div class="menu-budget">720 x 620 menu budget</div>
+        </div>
+
+        <div class="mock-stage">
+          <div class="menu-window">
+            <div class="anki-tabs">
+              <span class="anki-tab">Skills</span>
+              <span class="anki-tab">Bank</span>
+              <span class="anki-tab">Stats</span>
+              <span class="anki-tab">Achievements</span>
+              <span class="anki-tab active">Shop</span>
+              <span class="anki-tab">Settings</span>
+            </div>
+
+            <div class="shop-shell" id="shopShell">
+              <div class="shop-title">Arnold's Eclectic Supplies</div>
+              <div class="close-dot">x</div>
+
+              <div class="shop-content">
+                <div class="shop-toolbar">
+                  <div class="rs-tab active">Buy Items</div>
+                  <div class="rs-tab">Sell Items</div>
+                  <div class="rs-tab" id="serviceTab">Services</div>
+                  <div class="shop-search" id="searchText">Search: Beer</div>
+                  <div class="mode-btn">Item display <span class="mode-square on"></span><span class="mode-square"></span></div>
+                </div>
+
+                <div class="slot-grid">
+                  <div class="slot selected"><span class="slot-stock">8</span><span class="item-art beer"></span><span class="slot-price">2<span class="coin"></span></span></div>
+                  <div class="slot locked"><span class="slot-stock">10</span><span class="item-art bread"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot locked"><span class="slot-stock">10</span><span class="item-art milk"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot locked"><span class="slot-stock">30</span><span class="item-art pot"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot"><span class="slot-stock">10</span><span class="item-art pipe"></span><span class="slot-price">31<span class="coin"></span></span></div>
+                  <div class="slot temp"><span class="slot-stock">1</span><span class="item-art beer"></span><span class="slot-chip">T</span><span class="slot-price">3<span class="coin"></span></span></div>
+                  <div class="slot"><span class="slot-stock">10</span><span class="item-art hide"></span><span class="slot-price">5<span class="coin"></span></span></div>
+                  <div class="slot locked"><span class="slot-stock">10</span><span class="item-art headdress"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot"><span class="slot-stock">10</span><span class="item-art scroll"></span><span class="slot-price">10<span class="coin"></span></span></div>
+                  <div class="slot locked"><span class="slot-stock">10</span><span class="item-art wine"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot"><span class="slot-stock">10</span><span class="item-art leather"></span><span class="slot-price">1<span class="coin"></span></span></div>
+                  <div class="slot locked"><span class="slot-stock">10</span><span class="item-art scroll"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot"><span class="slot-stock">10</span><span class="item-art beer"></span><span class="slot-price">2<span class="coin"></span></span></div>
+                  <div class="slot locked"><span class="slot-stock">0</span><span class="item-art headdress"></span><span class="slot-chip">L</span><span class="slot-price">-</span></div>
+                  <div class="slot"><span class="slot-stock">10</span><span class="item-art hide"></span><span class="slot-price">15<span class="coin"></span></span></div>
+                </div>
+
+                <div class="scrollbar"><span class="scroll-thumb"></span></div>
+
+                <aside class="side-panel">
+                  <div class="shop-list">
+                    <div class="shop-pill active">Arnold's Eclectic Supplies</div>
+                    <div class="shop-pill">Aemad's Adventuring Supplies</div>
+                  </div>
+                  <div class="services" id="services">
+                    <div class="service-row"><b>Tan soft leather</b>Cowhide + 1 Coin -> Leather</div>
+                    <div class="service-row"><b>Buy a pint of beer</b>2 Coins -> Beer</div>
+                  </div>
+                  <div class="history-button" id="historyButton">History</div>
+                </aside>
+
+                <section class="bottom-info">
+                  <div class="inspect" id="inspectText">
+                    <b>Beer</b><br>
+                    Buy from Arnold's Eclectic Supplies. Current stock 8 / 10.
+                    <div class="reason" id="lockReason">Locked tiles reveal backend lock_reason here, not in grid text.</div>
+                  </div>
+                  <div class="transaction">
+                    <div class="transaction-title">Transaction</div>
+                    <div class="qty-strip" id="qtyStrip">
+                      <span class="qty">1</span>
+                      <span class="qty">5</span>
+                      <span class="qty">10</span>
+                      <span class="qty">50</span>
+                      <span class="qty">All</span>
+                      <span class="qty">Custom</span>
+                    </div>
+                    <div class="price-lines">
+                      <span>Price:</span><strong>2<span class="coin"></span></strong>
+                      <span>You have:</span><strong>1,246<span class="coin"></span></strong>
+                    </div>
+                  </div>
+                </section>
+
+                <div class="apply-btn">Buy</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-card">
+            <h3>Qt Translation Rules</h3>
+            <ul>
+              <li>Keep the macro layout: title, mode tabs, item grid, inspector, transaction panel.</li>
+              <li>Use real item icons when available; text-only fallback is acceptable for missing art.</li>
+              <li>Tiles render backend view state only: stock, price, visibility, lock reason, temp stock.</li>
+            </ul>
+          </div>
+          <div class="summary-card">
+            <h3>Current Selection</h3>
+            <ul id="selectionList"></ul>
+          </div>
+        </div>
+
+        <textarea id="packet" readonly aria-label="Copyable Wave 3 decision packet"></textarea>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const decisions = [
+      {
+        id: "mimic_depth",
+        tab: "Shell",
+        title: "How closely to mimic the RuneScape shop window",
+        intro: "The goal is layout mimicry, not copying source assets or frontend-owned game rules.",
+        recommended: "direct_shell",
+        options: [
+          { id: "direct_shell", label: "A", title: "Direct shell translation", body: "Use the RuneScape macro layout: title bar, Buy/Sell modes, item grid, right scroll, bottom inspector, transaction panel.", why: "Best fit for your reference and the fixed menu footprint.", preview: "Direct shell" },
+          { id: "qt_skin", label: "B", title: "Qt-native shop with RuneScape skin", body: "Keep Qt lists/tables but style them with dark metal and brass accents.", why: "Easier implementation, but less faithful to the screenshot.", preview: "Qt skin" },
+          { id: "hybrid_table", label: "C", title: "Grid/table hybrid", body: "Show a visual item grid but keep table columns for price, stock, and lock state.", why: "Clear data, but it weakens the game-window feel.", preview: "Hybrid" },
+          { id: "dialog_launcher", label: "D", title: "Dedicated shop dialog", body: "Open a larger dedicated shop window from the main menu and mimic the reference there.", why: "Most room, but inconsistent with existing AnkiScape top-level tabs.", preview: "Separate" },
+          { id: "minimal_frame", label: "E", title: "Minimal framed grid", body: "Only borrow the item grid and transaction panel, keeping the rest of the UI conventional.", why: "Safe but probably not enough of the layout you asked for.", preview: "Minimal" }
+        ]
+      },
+      {
+        id: "search",
+        tab: "Search",
+        title: "Where adaptive search belongs in the shop shell",
+        intro: "The reference window has no search, but AnkiScape v1 requires item-first search across stock, services, and vendor actions.",
+        recommended: "toolbar_search",
+        options: [
+          { id: "toolbar_search", label: "A", title: "Compact toolbar search", body: "Place a small search field in the same top strip as the shop modes and display controls.", why: "Best because it keeps search persistent without breaking the reference layout.", preview: "Top field" },
+          { id: "shop_picker_search", label: "B", title: "Search in shop picker", body: "Put search above the right-side shop list.", why: "Good for shop browsing, weaker for item-first comparison.", preview: "Side search" },
+          { id: "overlay_search", label: "C", title: "Search overlay", body: "A keyboard shortcut opens an overlay with shop/item/service results.", why: "Powerful, but extra UI for a fixed-size menu.", preview: "Overlay" },
+          { id: "display_mode_search", label: "D", title: "Search as item display mode", body: "Use the screenshot's item display controls to switch between grid and search results.", why: "Neat mapping, but search becomes less persistent.", preview: "Mode switch" },
+          { id: "hidden_search", label: "E", title: "No visible search until typing", body: "Keep the shell visually pure and let typing activate search.", why: "Cleanest visually, but hard to discover and test.", preview: "Hidden" }
+        ]
+      },
+      {
+        id: "locks",
+        tab: "Locks",
+        title: "Locked and temporary stock tiles",
+        intro: "Locked rows must be inspectable but inert. Hidden reward shops remain absent.",
+        recommended: "chip_inspector",
+        options: [
+          { id: "chip_inspector", label: "A", title: "Tile chip plus inspector reason", body: "Show small L/T chips on tiles; selecting a locked tile shows the exact backend lock_reason in the bottom inspector.", why: "Best because it mimics the grid while avoiding noisy lock text in every tile.", preview: "Chip" },
+          { id: "inline_reason", label: "B", title: "Inline lock reason on tile", body: "Write the backend lock_reason directly inside locked tiles.", why: "Very explicit, but too cramped for the reference-style grid.", preview: "Inline" },
+          { id: "dim_only", label: "C", title: "Dim only", body: "Locked tiles are desaturated and disabled; reason only appears on hover/focus.", why: "Clean, but too easy to miss in offscreen Qt tests.", preview: "Dim" },
+          { id: "locked_section", label: "D", title: "Separate locked grid section", body: "Live rows appear first and locked rows move to a locked-stock page.", why: "Cleaner transactions, but it changes source shop ordering.", preview: "Section" },
+          { id: "hide_locked", label: "E", title: "Hide locked stock by default", body: "Show only live stock unless the player toggles locked rows.", why: "Contradicts the decision that source-backed locked rows stay inspectable.", preview: "Hidden" }
+        ]
+      },
+      {
+        id: "services",
+        tab: "Services",
+        title: "Services and vendor actions inside the shop shell",
+        intro: "Services are first-class Shop actions but not finite stock rows.",
+        recommended: "third_mode_side_rows",
+        options: [
+          { id: "third_mode_side_rows", label: "A", title: "Services mode plus side command rows", body: "Add a Services mode in the top strip and show command rows in the right panel for selected vendor actions.", why: "Best because it preserves the reference Buy/Sell shape while keeping services distinct from stock.", preview: "Services mode" },
+          { id: "right_panel_only", label: "B", title: "Right-panel services only", body: "Keep Buy/Sell tabs unchanged and list services in the right panel when the shop supports them.", why: "Faithful to the original tabs, but services feel slightly secondary.", preview: "Side rows" },
+          { id: "service_tiles", label: "C", title: "Service action tiles", body: "Render services as special grid tiles with input/output art.", why: "Visually consistent, but risks making services look like stock.", preview: "Tiles" },
+          { id: "separate_service_shop", label: "D", title: "Separate service vendors", body: "Service vendors open a service-only version of the shell.", why: "Clear mechanics, but splits unified browsing.", preview: "Separate" },
+          { id: "search_only_services", label: "E", title: "Search-only services", body: "Show services in item-first search results but not normal shop browsing.", why: "Too hidden for source-backed vendor actions.", preview: "Search only" }
+        ]
+      },
+      {
+        id: "history",
+        tab: "History",
+        title: "Transaction history in a RuneScape-like shell",
+        intro: "History should explain changes without exposing rollback payloads.",
+        recommended: "bottom_button_to_log",
+        options: [
+          { id: "bottom_button_to_log", label: "A", title: "Stats-style button opens history", body: "Use a bottom/side button like the screenshot's Stats button to open the full global transaction log; use toasts after commands.", why: "Best because it fits the reference shell and your Wave 2 toast/log selection.", preview: "Log button" },
+          { id: "right_panel_recent", label: "B", title: "Recent history in right panel", body: "Show two recent events in the right panel under services.", why: "Visible context, but competes with services and shop picker.", preview: "Side recent" },
+          { id: "bottom_strip", label: "C", title: "Bottom recent strip", body: "Use the bottom inspector's idle state to show recent events.", why: "Compact, but conflicts with selected-item details.", preview: "Bottom strip" },
+          { id: "toast_only", label: "D", title: "Toast only", body: "Show command feedback and keep full history elsewhere.", why: "Clean, but weak for reviewing what changed later.", preview: "Toast" },
+          { id: "ledger_tab", label: "E", title: "History mode tab", body: "Add History beside Buy/Sell/Services.", why: "Discoverable, but too many modes in the reference top strip.", preview: "Mode tab" }
+        ]
+      },
+      {
+        id: "transaction",
+        tab: "Quantity",
+        title: "Transaction controls",
+        intro: "The screenshot uses a compact transaction control area; the backend still owns previews, clamps, and application.",
+        recommended: "quick_buttons_preview",
+        options: [
+          { id: "quick_buttons_preview", label: "A", title: "Quick buttons plus preview echo", body: "Use 1, 5, 10, 50, All, and Custom buttons in the screenshot's transaction panel with a one-line preview in the inspector.", why: "Best because it preserves Wave 2 quantity decisions inside the reference layout.", preview: "Quick buttons" },
+          { id: "stepper_like_reference", label: "B", title: "Stepper like the screenshot", body: "Use Min, -5, -1, +1, +5, and Max around a quantity value.", why: "Most visually faithful, but less aligned with the earlier 1/5/10/50 decision.", preview: "Stepper" },
+          { id: "right_click_menu", label: "C", title: "Right-click quantity menu", body: "Primary click buys one; context menu offers 5, 10, 50, All, and Custom.", why: "RuneScape-like, but less obvious in a desktop add-on.", preview: "Context" },
+          { id: "row_action_only", label: "D", title: "Selected action only", body: "Choose quantity in settings or a small dropdown; action button applies current quantity.", why: "Saves space, but hides transaction intent.", preview: "Dropdown" },
+          { id: "confirm_panel", label: "E", title: "Confirmation panel", body: "Show a compact confirmation row before every apply.", why: "Safe, but too slow for ordinary shop interaction.", preview: "Confirm" }
+        ]
+      }
+    ];
+
+    const storageKey = "ankiscape-shop-wave3-runescape-shell-decisions";
+    const defaults = Object.fromEntries(decisions.map((decision) => [decision.id, decision.recommended]));
+    let selection = { ...defaults };
+    let active = decisions[0].id;
+
+    try {
+      selection = { ...selection, ...JSON.parse(localStorage.getItem(storageKey) || "{}") };
+    } catch (error) {
+      selection = { ...defaults };
+    }
+
+    const tabs = document.getElementById("tabs");
+    const decisionNode = document.getElementById("decision");
+    const countNode = document.getElementById("count");
+    const shopShell = document.getElementById("shopShell");
+    const caption = document.getElementById("caption");
+    const packet = document.getElementById("packet");
+    const selectionList = document.getElementById("selectionList");
+    const searchText = document.getElementById("searchText");
+    const serviceTab = document.getElementById("serviceTab");
+    const historyButton = document.getElementById("historyButton");
+    const lockReason = document.getElementById("lockReason");
+    const qtyStrip = document.getElementById("qtyStrip");
+
+    function getDecision(id) {
+      return decisions.find((decision) => decision.id === id);
+    }
+
+    function getOption(decision) {
+      return decision.options.find((option) => option.id === selection[decision.id]) || decision.options[0];
+    }
+
+    function renderTabs() {
+      tabs.innerHTML = decisions.map((decision) => {
+        const selected = active === decision.id;
+        return `<button type="button" class="tab" role="tab" aria-selected="${selected}" data-tab="${decision.id}">${decision.tab}</button>`;
+      }).join("");
+      tabs.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          active = button.dataset.tab;
+          render();
+        });
+      });
+    }
+
+    function renderDecision() {
+      const decision = getDecision(active);
+      decisionNode.innerHTML = `
+        <div class="question">
+          <strong>${decision.title}</strong>
+          <span>${decision.intro}</span>
+        </div>
+        <div class="choices">
+          ${decision.options.map((option) => {
+            const checked = selection[decision.id] === option.id;
+            const recommended = decision.recommended === option.id;
+            return `
+              <label class="choice ${checked ? "selected" : ""} ${recommended ? "recommended" : ""}">
+                <input type="radio" name="${decision.id}" value="${option.id}" ${checked ? "checked" : ""}>
+                <span class="choice-letter">${option.label}</span>
+                <span>
+                  <span class="choice-title">
+                    <b>${option.title}</b>
+                    ${recommended ? '<span class="pill rec">Recommended</span>' : ""}
+                    <span class="pill">${option.preview}</span>
+                  </span>
+                  <p>${option.body}</p>
+                  <span class="why"><strong>Why:</strong> ${option.why}</span>
+                </span>
+              </label>
+            `;
+          }).join("")}
+        </div>
+      `;
+
+      decisionNode.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("change", () => {
+          selection[decision.id] = input.value;
+          persist();
+          render();
+        });
+      });
+    }
+
+    function persist() {
+      localStorage.setItem(storageKey, JSON.stringify(selection));
+    }
+
+    function renderMock() {
+      shopShell.className = "shop-shell";
+      if (selection.mimic_depth === "qt_skin") shopShell.classList.add("grid-only");
+      if (selection.search === "toolbar_search") shopShell.classList.add("search-compact");
+      if (selection.search === "hidden_search") shopShell.classList.add("search-hidden");
+      if (selection.locks === "inline_reason") shopShell.classList.add("lock-inline");
+      if (selection.services === "service_tiles") shopShell.classList.add("grid-only");
+      if (selection.services === "third_mode_side_rows") shopShell.classList.add("service-tab");
+      if (selection.history === "right_panel_recent") shopShell.classList.add("history-strip");
+      if (selection.history === "bottom_button_to_log") shopShell.classList.add("history-modal");
+
+      searchText.textContent = {
+        toolbar_search: "Search: Beer",
+        shop_picker_search: "Shop / item search",
+        overlay_search: "Press / for search",
+        display_mode_search: "Mode: item comparison",
+        hidden_search: "Search hidden"
+      }[selection.search];
+
+      serviceTab.textContent = selection.services === "right_panel_only" ? "General" : "Services";
+
+      historyButton.textContent = {
+        bottom_button_to_log: "History",
+        right_panel_recent: "Recent",
+        bottom_strip: "Recent",
+        toast_only: "Toast",
+        ledger_tab: "History tab"
+      }[selection.history];
+
+      lockReason.textContent = {
+        chip_inspector: "Locked tiles reveal backend lock_reason here, not in grid text.",
+        inline_reason: "Locked tile: price_policy_unresolved.",
+        dim_only: "Locked tiles are dim; inspector shows price_policy_unresolved on focus.",
+        locked_section: "Locked rows would move to a secondary locked-stock grid.",
+        hide_locked: "Not recommended: hidden locked rows would violate inspectability."
+      }[selection.locks];
+
+      qtyStrip.innerHTML = {
+        quick_buttons_preview: ["1", "5", "10", "50", "All", "Custom"],
+        stepper_like_reference: ["Min", "-5", "-1", "+1", "+5", "Max"],
+        right_click_menu: ["Buy 1", "Menu", "5", "10", "50", "All"],
+        row_action_only: ["Qty", "1", "Apply", "", "", ""],
+        confirm_panel: ["1", "5", "10", "50", "All", "Confirm"]
+      }[selection.transaction].map((label) => `<span class="qty">${label}</span>`).join("");
+
+      caption.textContent = `${getOption(getDecision("mimic_depth")).preview} · ${getOption(getDecision("locks")).preview} · ${getOption(getDecision("transaction")).preview}`;
+    }
+
+    function renderSummary() {
+      countNode.textContent = `${decisions.length} / ${decisions.length} selected`;
+      selectionList.innerHTML = decisions.map((decision) => {
+        const option = getOption(decision);
+        return `<li>${decision.tab}: ${option.title}</li>`;
+      }).join("");
+      packet.value = buildPacket();
+    }
+
+    function buildPacket() {
+      const lines = [
+        "NPC Shop frontend Wave 3 selections:",
+        "",
+        "Direction:",
+        "- Mimic the RuneScape shop-window macro layout inside the existing AnkiScape main menu footprint.",
+        "- Keep backend view/preview/apply APIs authoritative for price, stock, locks, sell policy, and services.",
+        "- Do not show hidden reward/activity shops in normal browsing or item-first search.",
+        "",
+        "Wave 3 selections:"
+      ];
+
+      decisions.forEach((decision) => {
+        const option = getOption(decision);
+        lines.push(`- ${decision.title}: ${option.title}. ${option.body}`);
+      });
+
+      lines.push("");
+      lines.push("Qt implementation notes:");
+      lines.push("- Build a fixed-footprint shop frame under the top-level Shop tab: title bar, Buy/Sell/Services modes, item grid, side shop/services panel, bottom inspector, transaction panel.");
+      lines.push("- Use icons where available, but row state comes from shop_view_model_pure and preview APIs.");
+      lines.push("- Locked tiles are inert; selecting/focusing them shows backend lock_reason in the inspector.");
+      lines.push("- History should be opened from a compact button/log control, with toast feedback after apply.");
+      return lines.join("\\n");
+    }
+
+    function render() {
+      renderTabs();
+      renderDecision();
+      renderMock();
+      renderSummary();
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      selection = { ...defaults };
+      persist();
+      render();
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      packet.value = buildPacket();
+      packet.focus();
+      packet.select();
+      try {
+        await navigator.clipboard.writeText(packet.value);
+        document.getElementById("copyBtn").textContent = "Copied";
+        setTimeout(() => {
+          document.getElementById("copyBtn").textContent = "Copy Wave 3 Packet";
+        }, 1100);
+      } catch (error) {
+        document.execCommand("copy");
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
