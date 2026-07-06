@@ -401,14 +401,14 @@
       line-height: 1.36;
     }
 
-    .viewport-buttons {
+    .window-buttons {
       display: flex;
       flex-wrap: wrap;
       justify-content: flex-end;
       gap: 6px;
     }
 
-    .viewport-buttons button[aria-pressed="true"] {
+    .window-buttons button[aria-pressed="true"] {
       border-color: rgba(79, 140, 255, 0.74);
       background: rgba(79, 140, 255, 0.19);
       color: #d7e6ff;
@@ -431,14 +431,19 @@
       box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
     }
 
-    .mock.vnc {
-      width: 860px;
-      min-width: 860px;
+    .mock.wide-window {
+      width: 1180px;
+      min-width: 1180px;
     }
 
-    .mock.mobile {
-      width: 430px;
-      min-width: 430px;
+    .mock.standard-window {
+      width: 1040px;
+      min-width: 1040px;
+    }
+
+    .mock.compact-window {
+      width: 900px;
+      min-width: 900px;
     }
 
     .qt-chrome {
@@ -947,43 +952,23 @@
       line-height: 1.45;
     }
 
-    .mock.mobile .qt-chrome,
-    .mock.mobile .shop-head {
-      align-items: stretch;
-      flex-direction: column;
-      display: flex;
+    .mock.compact-window {
+      --nav-w: 204px;
     }
 
-    .mock.mobile .search-row,
-    .mock.mobile .mock-body,
-    .mock.mobile .detail-facts,
-    .mock.mobile .summary,
-    .mock.mobile .inspector.grid-style {
-      grid-template-columns: 1fr;
+    .mock.compact-window .stock-row {
+      grid-template-columns: minmax(122px, 1fr) 58px 54px 60px 70px;
+      gap: 6px;
+      font-size: 0.7rem;
     }
 
-    .mock.mobile .mock-body {
-      min-height: 0;
+    .mock.compact-window .detail {
+      gap: 8px;
+      padding: 9px;
     }
 
-    .mock.mobile .nav {
-      border-right: 0;
-      border-bottom: 1px solid var(--border);
+    .mock.compact-window .detail-facts {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .mock.mobile .stock-row {
-      grid-template-columns: minmax(122px, 1fr) 58px 54px;
-    }
-
-    .mock.mobile .stock-row > :nth-child(4),
-    .mock.mobile .stock-row > :nth-child(5) {
-      grid-column: 1 / -1;
-      justify-self: start;
-    }
-
-    .mock.mobile .chips {
-      justify-content: flex-start;
     }
 
     .compact .stock-row { --row-h: 34px; font-size: 0.72rem; }
@@ -1065,7 +1050,7 @@
     <section class="hero">
       <div>
         <h1>Refine the dense Shop surface before Qt build-out.</h1>
-        <p class="lead">Wave 1 fixed the architecture: grouped master/detail, persistent adaptive search, dense stock table with row inspector, backend-authored locks, inline quantity strip, service command rows, and local plus global history. Wave 2 chooses how those pieces behave under real fixture states and cramped VNC/mobile viewing.</p>
+        <p class="lead">Wave 1 fixed the architecture: grouped master/detail, persistent adaptive search, dense stock table with row inspector, backend-authored locks, inline quantity strip, service command rows, and local plus global history. Wave 2 chooses how those pieces behave in a desktop-only Qt window: table density, splitter sizing, keyboard/mouse ergonomics, and stable offscreen test states.</p>
       </div>
       <aside class="contract" aria-label="Fixture-grounded contract facts">
         <div class="stat"><strong>Arnold's</strong><span>Live coin stock: Beer can buy/sell; Bread and Bucket of milk are backend-locked.</span></div>
@@ -1092,17 +1077,17 @@
         <div class="preview-head">
           <div>
             <h2>Fixture Mock Surface</h2>
-            <p id="caption">Balanced compact table with persistent inspector and VNC-aware compression.</p>
+            <p id="caption">Balanced compact table with persistent inspector and desktop splitter sizing.</p>
           </div>
-          <div class="viewport-buttons" aria-label="Viewport simulator">
-            <button type="button" data-viewport="desktop" aria-pressed="true">Desktop</button>
-            <button type="button" data-viewport="vnc" aria-pressed="false">VNC</button>
-            <button type="button" data-viewport="mobile" aria-pressed="false">Mobile</button>
+          <div class="window-buttons" aria-label="Desktop window width simulator">
+            <button type="button" data-window="wide-window" aria-pressed="false">Wide 1180</button>
+            <button type="button" data-window="standard-window" aria-pressed="true">Standard 1040</button>
+            <button type="button" data-window="compact-window" aria-pressed="false">Compact 900</button>
           </div>
         </div>
 
         <div class="mock-stage">
-          <div class="mock compact history-global" id="mock">
+          <div class="mock standard-window compact history-global" id="mock">
             <div class="qt-chrome">
               <div class="qt-tabs">
                 <span class="qt-tab">Stats</span>
@@ -1292,14 +1277,14 @@
         id: "density",
         tab: "Density",
         title: "Stock table density",
-        intro: "The table must handle broad catalog coverage while staying readable in Anki, VNC, and offscreen tests.",
+        intro: "The table must handle broad catalog coverage while staying readable in desktop Anki windows and offscreen Qt tests.",
         recommended: "balanced_compact",
         options: [
           { id: "balanced_compact", label: "A", title: "Balanced compact table", body: "One-line rows with icons, stock, buy, sell, and command columns; selected rows open the inspector.", why: "Best default because it preserves density without turning the shop into a spreadsheet.", preview: "42px rows" },
-          { id: "ultra_dense", label: "B", title: "Ultra-dense RuneScape table", body: "Tighter rows, smaller text, and maximum stock visible above the fold.", why: "Efficient, but fragile for VNC/mobile and long item names.", preview: "30px rows" },
+          { id: "ultra_dense", label: "B", title: "Ultra-dense RuneScape table", body: "Tighter rows, smaller text, and maximum stock visible above the fold.", why: "Efficient, but fragile for long item names and lock-reason readability.", preview: "30px rows" },
           { id: "comfortable", label: "C", title: "Comfortable scan table", body: "Taller rows and more spacing for long names and lock reasons.", why: "Readable, but broad shop browsing gets slower.", preview: "50px rows" },
           { id: "two_line", label: "D", title: "Two-line rows", body: "Each row uses a second line for lock reason, sellability, and current context.", why: "Clear, but the inspector already handles that extra context better.", preview: "58px rows" },
-          { id: "cards", label: "E", title: "Item cards", body: "Render stock as small cards with more breathing room and larger item affordances.", why: "Good for touch, but too bulky for 2,776 stock rows.", preview: "Cards" }
+          { id: "cards", label: "E", title: "Item cards", body: "Render stock as small cards with more breathing room and larger item affordances.", why: "Visually clear, but too bulky for 2,776 stock rows in a desktop management surface.", preview: "Cards" }
         ]
       },
       {
@@ -1309,10 +1294,10 @@
         intro: "Selecting a row should expose source-friendly context and commands without making locked rows transactable.",
         recommended: "below_table",
         options: [
-          { id: "below_table", label: "A", title: "Sticky panel below stock table", body: "Keep the inspector directly below the table with quantity controls, preview line, and row facts.", why: "Best because it is obvious in Qt and collapses naturally on narrow screens.", preview: "Below table" },
-          { id: "right_side", label: "B", title: "Right-side inspector", body: "A narrow detail pane sits beside the stock table on wide screens.", why: "Great for desktop, but it costs horizontal space in VNC.", preview: "Side pane" },
+          { id: "below_table", label: "A", title: "Sticky panel below stock table", body: "Keep the inspector directly below the table with quantity controls, preview line, and row facts.", why: "Best because it is obvious in Qt, keeps table columns intact, and is easy to assert in offscreen tests.", preview: "Below table" },
+          { id: "right_side", label: "B", title: "Right-side inspector", body: "A narrow detail pane sits beside the stock table in wider desktop windows.", why: "Good for wide monitors, but it competes with stock-table columns in ordinary Anki window sizes.", preview: "Side pane" },
           { id: "expand_row", label: "C", title: "Expandable selected row", body: "The selected stock row expands inline to show commands and context.", why: "Keeps context local, but table row heights jump around.", preview: "Inline expand" },
-          { id: "bottom_drawer", label: "D", title: "Bottom action drawer", body: "A drawer is pinned to the bottom of the Shop tab after row selection.", why: "Touch-friendly, but heavier than the current Qt style.", preview: "Drawer" },
+          { id: "bottom_drawer", label: "D", title: "Bottom docked action panel", body: "A fixed action panel is pinned to the bottom of the Shop tab after row selection.", why: "Keeps commands visible, but it is heavier than the current Qt panel style.", preview: "Docked panel" },
           { id: "modal", label: "E", title: "Inspector dialog", body: "Open row details in a dialog before any transaction.", why: "Clear, but too interruptive for immediate shop commands.", preview: "Dialog" }
         ]
       },
@@ -1325,7 +1310,7 @@
         options: [
           { id: "reason_line", label: "A", title: "Disabled command plus reason line", body: "Muted row, disabled command, and compact backend lock_reason below the row.", why: "Best fit for the handoff: precise, testable, and not debug-heavy.", preview: "Reason line" },
           { id: "status_column", label: "B", title: "Dedicated status column", body: "Add Live, Locked, Temporary, or Currency status in a fixed column.", why: "Very scannable, but it consumes width in the densest table.", preview: "Status column" },
-          { id: "icon_chip", label: "C", title: "Icon and chip only", body: "Show a lock or temporary chip and reveal the exact reason in inspector.", why: "Cleaner, but less obvious for VNC and automated tests.", preview: "Chips" },
+          { id: "icon_chip", label: "C", title: "Icon and chip only", body: "Show a lock or temporary chip and reveal the exact reason in inspector.", why: "Cleaner, but less obvious for keyboard focus and automated tests.", preview: "Chips" },
           { id: "state_sections", label: "D", title: "Group rows by state", body: "Separate Live, Locked, and Player-sold stock into subsections.", why: "Readable, but it changes source shop order.", preview: "Sections" },
           { id: "audit_context", label: "E", title: "Context-heavy rows", body: "Display source confidence and lock details in every affected row.", why: "Useful while debugging, but too close to audit UI.", preview: "Verbose rows" }
         ]
@@ -1381,32 +1366,32 @@
         options: [
           { id: "local_plus_global", label: "A", title: "Local strip plus global recent", body: "Selected detail shows local events; a compact global section shows latest buys, sells, services, and vendors.", why: "Best because it matches the settled design and gives both context levels.", preview: "Two strips" },
           { id: "local_collapsed", label: "B", title: "Local strip with collapsed global", body: "Show local history and keep global recent behind a small expander.", why: "Cleaner, but one click away from cross-shop context.", preview: "Collapsed global" },
-          { id: "global_sidebar", label: "C", title: "Global sidebar rail", body: "A right rail keeps recent activity visible across all shops.", why: "Good for desktop, poor for VNC width.", preview: "Sidebar" },
+          { id: "global_sidebar", label: "C", title: "Global sidebar rail", body: "A right rail keeps recent activity visible across all shops.", why: "Good for large desktop windows, but it steals width from the stock table.", preview: "Sidebar" },
           { id: "toast_plus_log", label: "D", title: "Toast plus global log button", body: "Show immediate transaction feedback and a button for full recent history.", why: "Good after commands, but weaker for passive review.", preview: "Toast + log" },
           { id: "hidden_until_action", label: "E", title: "Hidden until first action", body: "No history section appears until the player has shop events.", why: "Quiet for new saves, but less stable for Qt layout tests.", preview: "Lazy history" }
         ]
       },
       {
-        id: "mobile_vnc",
-        tab: "VNC",
-        title: "VNC and mobile compression",
-        intro: "The first implementation is Qt, but the surface must survive narrow VNC and mobile review without overlapping or hiding critical actions.",
-        recommended: "adaptive_stack",
+        id: "desktop_window",
+        tab: "Window",
+        title: "Desktop window sizing",
+        intro: "This is a desktop-only Qt add-on surface. Choose how the Shop tab should behave across normal resizable desktop Anki windows.",
+        recommended: "splitter_floor",
         options: [
-          { id: "adaptive_stack", label: "A", title: "Adaptive stack with sticky action block", body: "On narrow widths, nav stacks above detail and the row inspector becomes a sticky action block under the table.", why: "Best because it preserves the same mental model while preventing horizontal squeeze.", preview: "Stack" },
-          { id: "desktop_scroll", label: "B", title: "Desktop layout with horizontal scroll", body: "Keep the desktop grid and allow horizontal scroll in VNC/mobile.", why: "Simple to implement, but annoying on phones.", preview: "Scroll" },
-          { id: "single_column", label: "C", title: "Single-column mobile mode", body: "Search, group picker, stock rows, inspector, services, and history become one long column.", why: "Very readable, but slower to jump between groups.", preview: "Column" },
-          { id: "drawer_nav", label: "D", title: "Drawer navigation", body: "Left navigation collapses into a drawer while detail takes full width.", why: "Efficient, but Qt drawer behavior may be more work than value.", preview: "Drawer nav" },
-          { id: "minimal_mobile", label: "E", title: "Minimal transaction mode", body: "Mobile view hides services and history until explicitly expanded.", why: "Clean, but too likely to bury important contract states.", preview: "Minimal" }
+          { id: "splitter_floor", label: "A", title: "Resizable splitter with sane minimums", body: "Use a persistent splitter: left navigation keeps a practical minimum width and the stock table keeps enough room for item, stock, price, and command columns.", why: "Best because it matches desktop Qt expectations and preserves the Wave 1 master/detail model.", preview: "Splitter floor" },
+          { id: "fixed_wide", label: "B", title: "Fixed wide composition", body: "Assume a generous desktop window and keep the navigation, stock table, inspector, services, and history visible together.", why: "Clean on a large monitor, but brittle when Anki is not maximized.", preview: "Wide fixed" },
+          { id: "compact_desktop", label: "C", title: "Compact desktop mode", body: "At narrower desktop widths, shorten command labels, reduce row padding, and collapse global history before changing the core layout.", why: "Practical fallback, but it adds a second visual state to implement and test.", preview: "Compact desktop" },
+          { id: "stock_priority", label: "D", title: "Stock-table priority", body: "Protect stock-table columns first; services and history move below the fold when width or height is constrained.", why: "Good for transactions, but browsing service vendors becomes less immediate.", preview: "Stock first" },
+          { id: "tabs_inside_detail", label: "E", title: "Detail subtabs", body: "Keep navigation and stock table fixed, then put Inspector, Services, and History behind detail-level tabs.", why: "Space-efficient, but it hides context that should usually remain visible in a management surface.", preview: "Detail tabs" }
         ]
       }
     ];
 
-    const storageKey = "ankiscape-shop-wave2-decisions";
+    const storageKey = "ankiscape-shop-wave2-desktop-decisions";
     const defaults = Object.fromEntries(decisions.map((decision) => [decision.id, decision.recommended]));
     let selection = { ...defaults };
     let active = decisions[0].id;
-    let viewport = "desktop";
+    let windowMode = "standard-window";
 
     try {
       selection = { ...selection, ...JSON.parse(localStorage.getItem(storageKey) || "{}") };
@@ -1494,7 +1479,7 @@
 
     function renderMock() {
       mock.className = "mock";
-      mock.classList.add(viewport);
+      mock.classList.add(windowMode);
 
       const densityClass = {
         balanced_compact: "compact",
@@ -1547,7 +1532,7 @@
         confirm_every_large: "Small buy applies immediately; All/large spend would request confirmation."
       }[selection.quantity];
 
-      caption.textContent = `${getOption(getDecision("density")).preview} · ${getOption(getDecision("inspector")).preview} · ${getOption(getDecision("mobile_vnc")).preview}`;
+      caption.textContent = `${getOption(getDecision("density")).preview} · ${getOption(getDecision("inspector")).preview} · ${getOption(getDecision("desktop_window")).preview}`;
     }
 
     function renderSummary() {
@@ -1570,6 +1555,7 @@
         "- Disabled locked rows show backend lock_reason and stay inert.",
         "- Service/vendor actions render separately from finite stock rows.",
         "- Shop-local plus global history derive from the same backend event log.",
+        "- Target is desktop-only Qt; keep layout behavior focused on resizable desktop Anki windows.",
         "",
         "Wave 2 selections:"
       ];
@@ -1616,10 +1602,10 @@
       }
     });
 
-    document.querySelectorAll(".viewport-buttons button").forEach((button) => {
+    document.querySelectorAll(".window-buttons button").forEach((button) => {
       button.addEventListener("click", () => {
-        viewport = button.dataset.viewport;
-        document.querySelectorAll(".viewport-buttons button").forEach((item) => {
+        windowMode = button.dataset.window;
+        document.querySelectorAll(".window-buttons button").forEach((item) => {
           item.setAttribute("aria-pressed", String(item === button));
         });
         renderMock();
