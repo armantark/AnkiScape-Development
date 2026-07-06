@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Frontend Implementation Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(135deg, rgba(79, 140, 255, 0.16), transparent 32rem),
+        radial-gradient(circle at 82% 12%, rgba(251, 191, 36, 0.12), transparent 24rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Outfit, Avenir Next, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1120px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 32px 0 48px;
+    }
+    .mono, .badge, .file, button { font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(79, 140, 255, 0.45);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #c0d6ff;
+      padding: 7px 11px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+    h1 {
+      margin: 12px 0 8px;
+      font-size: clamp(2rem, 4vw, 4rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+    }
+    p { color: var(--text-dim); line-height: 1.55; margin: 0; }
+    .contract {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.86);
+      padding: 14px;
+    }
+    .contract strong { color: var(--text); }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.84);
+      overflow: hidden;
+    }
+    .card h2 {
+      margin: 0;
+      padding: 14px 14px 10px;
+      font-size: 1rem;
+    }
+    .card .body { padding: 0 14px 14px; }
+    .steps {
+      display: grid;
+      gap: 9px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 32px 1fr;
+      gap: 10px;
+      align-items: start;
+      border: 1px solid rgba(42, 48, 64, 0.72);
+      border-radius: 10px;
+      padding: 10px;
+      background: rgba(30, 35, 44, 0.56);
+    }
+    .num {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #d8e6ff;
+      background: rgba(79, 140, 255, 0.22);
+      border: 1px solid rgba(79, 140, 255, 0.38);
+      font-weight: 800;
+    }
+    .step strong { display: block; margin-bottom: 3px; }
+    .files { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+    .file {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: #cbd5e1;
+      padding: 4px 8px;
+      font-size: 0.66rem;
+    }
+    .mock {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #11151b;
+      padding: 10px;
+    }
+    .search {
+      border: 1px solid #394252;
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: #dbe6f7;
+      background: #0d1015;
+      margin-bottom: 8px;
+    }
+    .shops {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .shop {
+      min-height: 48px;
+      border: 1px solid #384150;
+      border-radius: 8px;
+      padding: 6px;
+      background: #181d25;
+      font-size: 0.75rem;
+    }
+    .shop.active { border-color: var(--accent); background: rgba(79, 140, 255, 0.15); }
+    .shop span { display: block; color: var(--text-dim); font-size: 0.66rem; margin-top: 3px; }
+    .panel {
+      border: 1px solid #455064;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #0c0f14;
+    }
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #303947;
+      padding: 8px 10px;
+      font-weight: 800;
+    }
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 5px;
+      padding: 8px;
+    }
+    .slot {
+      aspect-ratio: 1;
+      border: 1px solid #374151;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      color: #d8dee9;
+      background: #151922;
+      font-size: 0.66rem;
+      text-align: center;
+    }
+    .slot.locked { color: #8b95a8; opacity: 0.68; }
+    .inspector {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      border-top: 1px solid #303947;
+      padding: 8px;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+    .qtys { display: flex; gap: 4px; }
+    .qtys span {
+      border: 1px solid #3b4453;
+      border-radius: 5px;
+      padding: 4px 6px;
+      color: #dbe6f7;
+      background: #151922;
+    }
+    .checks {
+      display: grid;
+      gap: 8px;
+    }
+    .check {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid rgba(42, 48, 64, 0.7);
+      padding: 8px 0;
+    }
+    .check:last-child { border-bottom: none; }
+    .pill {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .blue { color: #c0d6ff; background: rgba(79, 140, 255, 0.16); border: 1px solid rgba(79, 140, 255, 0.35); }
+    .green { color: #bff7d1; background: rgba(74, 222, 128, 0.14); border: 1px solid rgba(74, 222, 128, 0.3); }
+    .amber { color: #ffe7ac; background: rgba(251, 191, 36, 0.12); border: 1px solid rgba(251, 191, 36, 0.34); }
+    @media (max-width: 860px) {
+      header, .grid { grid-template-columns: 1fr; }
+      .shops { grid-template-columns: 1fr 1fr; }
+      .slots { grid-template-columns: repeat(4, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section>
+        <span class="badge">PRE-IMPLEMENTATION CHECKPOINT</span>
+        <h1>NPC Shop Qt Surface</h1>
+        <p>The backend contract is done. This pass adds the player-facing Shop tab as a Qt surface that renders backend view models and uses preview/apply APIs for every command.</p>
+      </section>
+      <aside class="contract">
+        <p><strong>Hard boundary:</strong> no prices, locks, sell policies, hidden-shop behavior, stock mutation, or service semantics are computed in Qt. The UI can format and refresh; `shop_logic.py` decides.</p>
+      </aside>
+    </header>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Build Shape</h2>
+        <div class="body">
+          <div class="mock" aria-label="Shop tab structure mock">
+            <div class="search">Search shops or items...</div>
+            <div class="shops">
+              <div class="shop active">Arnold's Eclectic Supplies<span>Stock shop</span></div>
+              <div class="shop">Aemad's Supplies<span>General store</span></div>
+              <div class="shop">The Asp & Snake Bar<span>Stock shop</span></div>
+              <div class="shop">Summoning Supplies<span>Locked rows</span></div>
+            </div>
+            <div class="panel">
+              <div class="panel-title"><span>Arnold's Eclectic Supplies</span><span>Buy Items</span></div>
+              <div class="slots">
+                <div class="slot">Beer<br>10</div>
+                <div class="slot locked">Bread<br>lock</div>
+                <div class="slot locked">Milk<br>lock</div>
+                <div class="slot">Silk<br>10</div>
+                <div class="slot locked">Coal<br>lock</div>
+                <div class="slot locked">Raw fish<br>lock</div>
+                <div class="slot locked">More...</div>
+              </div>
+              <div class="inspector">
+                <span>Selected row: backend lock/preview text only</span>
+                <div class="qtys"><span>1</span><span>5</span><span>10</span><span>50</span><span>All</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Implementation Steps</h2>
+        <div class="body steps">
+          <div class="step"><div class="num">1</div><div><strong>Attach the contract.</strong><p>Import shop catalog/view/search/preview/apply/history APIs and build the tab around their outputs.</p><div class="files"><span class="file">ui.py</span><span class="file">shop_logic.py</span><span class="file">shop_fixtures.py</span></div></div></div>
+          <div class="step"><div class="num">2</div><div><strong>Render the agreed layout.</strong><p>Top search, shop selection strip/list, then a selected-shop panel with Buy/Sell tabs, stock grid, quantity strip, services/actions, and history.</p><div class="files"><span class="file">ui.py</span></div></div></div>
+          <div class="step"><div class="num">3</div><div><strong>Test the fixture cases.</strong><p>Use frontend fixtures for visible, locked, hidden, sell, service, vendor action, history, and item-first search behavior.</p><div class="files"><span class="file">tests/test_main_menu_widget.py</span></div></div></div>
+          <div class="step"><div class="num">4</div><div><strong>Verify broad safety.</strong><p>Run the requested pure and offscreen Qt suites, then capture a post-implementation status artifact.</p><div class="files"><span class="file">run_tests.py</span><span class="file">unittest discover tests</span></div></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Must Pass</h2>
+        <div class="body checks">
+          <div class="check"><span>Shop tab appears without replacing existing tabs</span><span class="pill blue">Qt</span></div>
+          <div class="check"><span>Feather search shows separate source rows and no enabled buy when locked</span><span class="pill amber">Search</span></div>
+          <div class="check"><span>Live buy, general-store sell, service, and vendor actions use apply APIs</span><span class="pill green">Contract</span></div>
+          <div class="check"><span>Hidden reward shop stays out of normal browse and search</span><span class="pill amber">Safety</span></div>
+          <div class="check"><span>History derives from backend event rows</span><span class="pill blue">History</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Non-Goals</h2>
+        <div class="body checks">
+          <div class="check"><span>No new backend shop data or source audit changes</span><span class="pill green">Frontend</span></div>
+          <div class="check"><span>No raw restock progress, source paths, formulas, or rollback payloads in player UI</span><span class="pill amber">UX</span></div>
+          <div class="check"><span>No mobile/VNC responsive branch beyond fitting the fixed menu footprint</span><span class="pill blue">Desktop</span></div>
+          <div class="check"><span>No invented confirmation layer or backpack capacity model</span><span class="pill green">Parity</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
