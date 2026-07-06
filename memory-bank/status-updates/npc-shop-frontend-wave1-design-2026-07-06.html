@@ -1,0 +1,1682 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Frontend Wave 1 Design</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --ink: #090b0f;
+      --line-soft: rgba(42, 48, 64, 0.72);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(110deg, rgba(79, 140, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 90% 8%, rgba(74, 222, 128, 0.13), transparent 23rem),
+        linear-gradient(180deg, #0c0e12 0%, #11151c 56%, #0c0e12 100%);
+      color: var(--text);
+      font-family: Outfit, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1440px, calc(100vw - 28px));
+      margin: 0 auto;
+      padding: 30px 0 46px;
+    }
+
+    .mono,
+    code,
+    button,
+    .badge,
+    .pill,
+    .option-letter,
+    .mini-meta,
+    .decision-count,
+    .copy-output,
+    .row-kicker {
+      font-family: "JetBrains Mono", "SFMono-Regular", Consolas, Menlo, monospace;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #b7d0ff;
+      padding: 7px 11px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(79, 140, 255, 0.68);
+    }
+
+    .top-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      cursor: pointer;
+      padding: 9px 11px;
+      font-weight: 800;
+      font-size: 0.72rem;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: rgba(79, 140, 255, 0.78);
+      outline: none;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 960px;
+      font-size: clamp(2.1rem, 5vw, 4.45rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      max-width: 880px;
+      margin: 14px 0 0;
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 1rem;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.92);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+
+    .score {
+      border: 1px solid var(--line-soft);
+      background: #10141b;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 78px;
+    }
+
+    .score strong {
+      display: block;
+      font-size: 1.25rem;
+      line-height: 1;
+    }
+
+    .score span {
+      display: block;
+      margin-top: 6px;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      line-height: 1.28;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(420px, 0.95fr) minmax(520px, 1.25fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      background: rgba(22, 26, 33, 0.94);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 62px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+      padding: 16px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--text-dim);
+      font-size: 0.86rem;
+      line-height: 1.42;
+    }
+
+    .decision-count {
+      color: var(--green);
+      font-size: 0.72rem;
+      white-space: nowrap;
+      border: 1px solid rgba(74, 222, 128, 0.34);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(74, 222, 128, 0.08);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      padding: 10px 16px 0;
+      overflow-x: auto;
+    }
+
+    .tab {
+      border-radius: 999px;
+      white-space: nowrap;
+      color: var(--text-dim);
+    }
+
+    .tab[aria-selected="true"] {
+      background: rgba(79, 140, 255, 0.19);
+      border-color: rgba(79, 140, 255, 0.68);
+      color: #d8e7ff;
+    }
+
+    .decision-body {
+      padding: 16px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .decision-intro {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      border: 1px solid var(--line-soft);
+      background: #10141b;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .decision-intro strong { font-size: 0.98rem; }
+
+    .decision-intro span {
+      color: var(--text-dim);
+      font-size: 0.86rem;
+      line-height: 1.42;
+    }
+
+    .options {
+      display: grid;
+      gap: 9px;
+    }
+
+    .option {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 11px;
+      border: 1px solid var(--line-soft);
+      border-radius: 10px;
+      background: #11161d;
+      padding: 11px;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease, background 120ms ease;
+    }
+
+    .option:hover,
+    .option:focus-within {
+      border-color: rgba(79, 140, 255, 0.62);
+      transform: translateY(-1px);
+    }
+
+    .option.selected {
+      border-color: rgba(74, 222, 128, 0.84);
+      background: linear-gradient(180deg, rgba(74, 222, 128, 0.105), rgba(17, 22, 29, 0.98));
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.08);
+    }
+
+    .option.recommended:not(.selected) {
+      border-color: rgba(251, 191, 36, 0.54);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.08), rgba(17, 22, 29, 0.98));
+    }
+
+    .option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .option-letter {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface-2);
+      color: var(--text);
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .option.selected .option-letter {
+      background: var(--green);
+      color: var(--ink);
+      border-color: var(--green);
+    }
+
+    .option-title-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .option-title-row b { font-size: 0.94rem; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--text-dim);
+      font-size: 0.64rem;
+      line-height: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .pill.rec {
+      color: #ffe2a1;
+      border-color: rgba(251, 191, 36, 0.48);
+      background: rgba(251, 191, 36, 0.09);
+    }
+
+    .option p {
+      margin: 6px 0 0;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      line-height: 1.4;
+    }
+
+    .why {
+      margin-top: 8px;
+      color: #cfe0ff;
+      font-size: 0.8rem;
+      line-height: 1.38;
+    }
+
+    .why strong { color: var(--amber); }
+
+    .preview-wrap {
+      position: sticky;
+      top: 12px;
+      overflow: hidden;
+    }
+
+    .preview-tools {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 16px;
+    }
+
+    .preview-tools h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .preview-tools span {
+      display: block;
+      margin-top: 4px;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+    }
+
+    .mock-frame {
+      padding: 16px;
+    }
+
+    .qt-window {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0f1319;
+      min-height: 560px;
+    }
+
+    .qt-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      background: #171c24;
+    }
+
+    .qt-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .qt-tab {
+      padding: 6px 9px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      background: #10151b;
+    }
+
+    .qt-tab.active {
+      color: var(--text);
+      border-color: rgba(79, 140, 255, 0.72);
+      background: rgba(79, 140, 255, 0.16);
+    }
+
+    .coins {
+      white-space: nowrap;
+      color: #ffe2a1;
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .searchbar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      background: #11161d;
+    }
+
+    .searchbox {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #090d12;
+      color: var(--text);
+      padding: 9px 10px;
+      font-size: 0.86rem;
+    }
+
+    .search-mode {
+      border: 1px solid rgba(79, 140, 255, 0.46);
+      border-radius: 8px;
+      color: #bcd4ff;
+      background: rgba(79, 140, 255, 0.1);
+      padding: 9px 10px;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+
+    .qt-body {
+      display: grid;
+      grid-template-columns: 230px minmax(0, 1fr);
+      min-height: 472px;
+    }
+
+    .nav {
+      border-right: 1px solid var(--border);
+      background: #10141b;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .nav-group {
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0d1117;
+    }
+
+    .nav-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 9px;
+      color: #cdd8e9;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: #161b23;
+    }
+
+    .nav-shop {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 9px;
+      border-top: 1px solid var(--line-soft);
+      color: var(--text-dim);
+      font-size: 0.76rem;
+    }
+
+    .nav-shop.active {
+      color: var(--text);
+      background: rgba(74, 222, 128, 0.09);
+    }
+
+    .nav-shop.locked { color: #a79579; }
+
+    .detail {
+      min-width: 0;
+      padding: 12px;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+
+    .detail-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line-soft);
+      border-radius: 9px;
+      background: #11161d;
+      padding: 12px;
+    }
+
+    .detail-head h3 {
+      margin: 0 0 5px;
+      font-size: 1.05rem;
+    }
+
+    .detail-head p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.38;
+    }
+
+    .head-chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 7px;
+      background: #0b1016;
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    .chip.live {
+      color: #b8f6d0;
+      border-color: rgba(74, 222, 128, 0.38);
+      background: rgba(74, 222, 128, 0.07);
+    }
+
+    .chip.lock {
+      color: #ffdba3;
+      border-color: rgba(251, 191, 36, 0.36);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .table {
+      border: 1px solid var(--line-soft);
+      border-radius: 9px;
+      overflow: hidden;
+      background: #0d1117;
+    }
+
+    .table-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 1fr) 76px 74px 86px 102px;
+      gap: 8px;
+      align-items: center;
+      min-height: 43px;
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--line-soft);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+
+    .table-row.header {
+      min-height: 34px;
+      background: #171c24;
+      color: #b6c3d8;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 900;
+    }
+
+    .table-row:last-child { border-bottom: 0; }
+
+    .table-row.live { color: var(--text); }
+
+    .item-name {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      font-weight: 800;
+    }
+
+    .icon {
+      width: 22px;
+      height: 22px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: linear-gradient(135deg, #253040, #10151b);
+      flex: 0 0 auto;
+    }
+
+    .row-action {
+      justify-self: end;
+      border: 1px solid rgba(74, 222, 128, 0.42);
+      border-radius: 7px;
+      color: #b8f6d0;
+      background: rgba(74, 222, 128, 0.08);
+      padding: 5px 7px;
+      font-weight: 900;
+      font-size: 0.7rem;
+    }
+
+    .row-action.disabled {
+      border-color: var(--border);
+      color: #7c8799;
+      background: #10151b;
+    }
+
+    .lockline {
+      grid-column: 1 / -1;
+      color: #f3c674;
+      font-size: 0.72rem;
+      margin-top: -3px;
+    }
+
+    .qty-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .qty {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 7px;
+      background: #10151b;
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      font-weight: 900;
+    }
+
+    .qty.active {
+      color: white;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .service-box,
+    .history-box,
+    .summary-box {
+      border: 1px solid var(--line-soft);
+      border-radius: 9px;
+      background: #11161d;
+      padding: 11px;
+    }
+
+    .section-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      color: #b6c3d8;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .service-row,
+    .history-row,
+    .search-result-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 0;
+      border-top: 1px solid var(--line-soft);
+      color: var(--text-dim);
+      font-size: 0.78rem;
+    }
+
+    .service-row:first-of-type,
+    .history-row:first-of-type,
+    .search-result-row:first-of-type {
+      border-top: 0;
+    }
+
+    .service-row b,
+    .history-row b,
+    .search-result-row b {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .mini-meta {
+      color: var(--text-dim);
+      font-size: 0.68rem;
+    }
+
+    .search-results {
+      display: none;
+      border-top: 1px solid var(--border);
+      background: #0d1117;
+      padding: 10px 12px;
+    }
+
+    .search-results.visible { display: block; }
+
+    .result-kind {
+      color: #bcd4ff;
+      border: 1px solid rgba(79, 140, 255, 0.36);
+      border-radius: 999px;
+      padding: 4px 7px;
+      background: rgba(79, 140, 255, 0.08);
+      font-size: 0.66rem;
+      white-space: nowrap;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 16px 16px;
+    }
+
+    .summary-box {
+      min-height: 124px;
+    }
+
+    .summary-box h3 {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+    }
+
+    .summary-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.34;
+    }
+
+    .summary-list li {
+      display: grid;
+      grid-template-columns: 16px 1fr;
+      gap: 7px;
+      align-items: start;
+    }
+
+    .summary-list li::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .copy-output {
+      width: calc(100% - 32px);
+      min-height: 142px;
+      margin: 0 16px 16px;
+      resize: vertical;
+      border: 1px solid var(--line-soft);
+      border-radius: 9px;
+      background: #090d12;
+      color: #d7e6fb;
+      padding: 11px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+    }
+
+    .hidden-note {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: #d4b8ff;
+    }
+
+    .hidden-note::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--purple);
+    }
+
+    @media (max-width: 1100px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .preview-wrap {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(100% - 16px, 1440px);
+        padding-top: 16px;
+      }
+
+      .topbar,
+      .preview-tools,
+      .detail-head {
+        align-items: stretch;
+        flex-direction: column;
+        display: flex;
+      }
+
+      .scoreboard,
+      .summary-grid,
+      .qt-body {
+        grid-template-columns: 1fr;
+      }
+
+      .nav {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .table-row {
+        grid-template-columns: minmax(124px, 1fr) 62px 60px;
+      }
+
+      .table-row > :nth-child(4),
+      .table-row > :nth-child(5) {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+
+      .searchbar {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div class="badge"><span class="badge-dot"></span>Shop Frontend Design · Wave 1</div>
+      <div class="top-actions">
+        <button type="button" id="recommendedBtn">Select Recommended</button>
+        <button type="button" id="copyBtn" class="primary">Copy Decision Packet</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <h1>Choose the Shop tab shape before Qt code.</h1>
+        <p class="lead">This is the first interactive pass for NPC Shops. The backend contract is already settled, so these choices are only about player-facing layout, density, and interaction flow. Prices, lock reasons, stock behavior, hidden reward shops, and transaction validity remain backend-owned.</p>
+      </div>
+      <aside class="scoreboard" aria-label="Backend fixture coverage">
+        <div class="score"><strong>273</strong><span>runtime shops from the backend catalog</span></div>
+        <div class="score"><strong>267</strong><span>visible shops in normal browsing</span></div>
+        <div class="score"><strong>13</strong><span>currently live stock rows</span></div>
+        <div class="score"><strong>8</strong><span>service and vendor action fixtures</span></div>
+      </aside>
+    </section>
+
+    <section class="layout">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Wave 1 Decision Board</h2>
+            <p>Pick one of five options for each foundational element. Recommended options are preselected and highlighted with the reason.</p>
+          </div>
+          <div class="decision-count" id="decisionCount">0 / 7 selected</div>
+        </div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Shop design elements"></div>
+        <div class="decision-body" id="decisionBody"></div>
+      </article>
+
+      <article class="panel preview-wrap">
+        <div class="preview-tools">
+          <div>
+            <h2>Live Mock Surface</h2>
+            <span id="previewCaption">Recommended baseline: grouped Shop tab, persistent search, backend-authored rows.</span>
+          </div>
+          <button type="button" id="toggleSearchBtn">Toggle Search State</button>
+        </div>
+
+        <div class="mock-frame">
+          <div class="qt-window" aria-label="NPC Shop Qt mockup">
+            <div class="qt-top">
+              <div class="qt-tabs">
+                <span class="qt-tab">Stats</span>
+                <span class="qt-tab">Bank</span>
+                <span class="qt-tab">Skills</span>
+                <span class="qt-tab active">Shop</span>
+                <span class="qt-tab">Quests</span>
+              </div>
+              <div class="coins">Coins: 1,246</div>
+            </div>
+
+            <div class="searchbar">
+              <div class="searchbox" id="mockSearchText">Search shops, items, aliases, or locations...</div>
+              <div class="search-mode" id="mockSearchMode">Item comparison ready</div>
+            </div>
+
+            <div class="search-results" id="searchResults">
+              <div class="section-label">Item-first results for "Beer" <span>distinct sources</span></div>
+              <div class="search-result-row">
+                <div><b>Aemad's Adventuring Supplies</b><span>Beer · player-sold temporary stock · 1 available · 3 Coins</span></div>
+                <span class="result-kind">Stock</span>
+              </div>
+              <div class="search-result-row">
+                <div><b>Arnold's Eclectic Supplies</b><span>Beer · 8 / 10 stock · 2 Coins</span></div>
+                <span class="result-kind">Stock</span>
+              </div>
+              <div class="search-result-row">
+                <div><b>Bartender</b><span>Buy a pint of beer · 2 Coins · source-backed vendor action</span></div>
+                <span class="result-kind">Vendor</span>
+              </div>
+            </div>
+
+            <div class="qt-body" id="mockBody">
+              <nav class="nav" id="mockNav" aria-label="Grouped shop navigation">
+                <div class="nav-group">
+                  <div class="nav-title"><span>Food & General</span><span>12</span></div>
+                  <div class="nav-shop active"><span>Arnold's Eclectic Supplies</span><span>live</span></div>
+                  <div class="nav-shop"><span>Aemad's Adventuring Supplies</span><span>sell</span></div>
+                </div>
+                <div class="nav-group">
+                  <div class="nav-title"><span>Summoning</span><span>1</span></div>
+                  <div class="nav-shop locked"><span>Summoning Supplies</span><span>locked</span></div>
+                </div>
+                <div class="nav-group">
+                  <div class="nav-title"><span>Services</span><span>4</span></div>
+                  <div class="nav-shop"><span>Al Kharid Tanner</span><span>service</span></div>
+                  <div class="nav-shop"><span>Bartender</span><span>vendor</span></div>
+                </div>
+              </nav>
+
+              <section class="detail">
+                <div class="detail-head">
+                  <div>
+                    <h3 id="detailTitle">Arnold's Eclectic Supplies</h3>
+                    <p id="detailSubtitle">Coin shop. Rows render from shop_view_model_pure; current stock and current prices are shown, not formulas or restock internals.</p>
+                  </div>
+                  <div class="head-chips" id="headChips">
+                    <span class="chip live">Visible</span>
+                    <span class="chip live">Coins</span>
+                    <span class="chip">shared_stock_group</span>
+                  </div>
+                </div>
+
+                <div class="table" id="stockTable">
+                  <div class="table-row header">
+                    <span>Item</span><span>Stock</span><span>Buy</span><span>Sell</span><span>Action</span>
+                  </div>
+                  <div class="table-row live">
+                    <span class="item-name"><span class="icon"></span>Beer</span>
+                    <span>10 / 10</span>
+                    <span>2 gp</span>
+                    <span>1 gp</span>
+                    <span class="row-action">Buy</span>
+                  </div>
+                  <div class="table-row">
+                    <span class="item-name"><span class="icon"></span>Bread</span>
+                    <span>10 / 10</span>
+                    <span>-</span>
+                    <span>-</span>
+                    <span class="row-action disabled">Locked</span>
+                    <span class="lockline">price_policy_unresolved</span>
+                  </div>
+                  <div class="table-row">
+                    <span class="item-name"><span class="icon"></span>Bucket of milk</span>
+                    <span>10 / 10</span>
+                    <span>-</span>
+                    <span>-</span>
+                    <span class="row-action disabled">Locked</span>
+                    <span class="lockline">price_policy_unresolved</span>
+                  </div>
+                </div>
+
+                <div class="service-box" id="transactionBox">
+                  <div class="section-label">Selected row action <span id="transactionModeLabel">RuneScape quantity strip</span></div>
+                  <div class="qty-strip" id="qtyStrip">
+                    <span class="qty active">Buy 1</span>
+                    <span class="qty">Buy 5</span>
+                    <span class="qty">Buy 10</span>
+                    <span class="qty">Buy 50</span>
+                    <span class="qty">Custom</span>
+                    <span class="qty">All</span>
+                  </div>
+                </div>
+
+                <div class="service-box" id="serviceBox">
+                  <div class="section-label">Services and vendor actions <span id="serviceModeLabel">separate command rows</span></div>
+                  <div class="service-row">
+                    <div><b>Tan soft leather</b><span>Cowhide + 1 Coin -> Leather · apply_shop_service_pure</span></div>
+                    <span class="row-action">Use</span>
+                  </div>
+                  <div class="service-row">
+                    <div><b>Buy a pint of beer</b><span>2 Coins -> Beer · apply_shop_vendor_action_pure</span></div>
+                    <span class="row-action">Use</span>
+                  </div>
+                </div>
+
+                <div class="history-box" id="historyBox">
+                  <div class="section-label">Recent shop activity <span id="historyModeLabel">local + global</span></div>
+                  <div class="history-row">
+                    <div><b>Bought 2 x Beer</b><span>Arnold's Eclectic Supplies · -4 Coins</span></div>
+                    <span class="mini-meta">shop_evt_1</span>
+                  </div>
+                  <div class="history-row">
+                    <div><b>Used Tan soft leather</b><span>Cowhide + Coins -> Leather</span></div>
+                    <span class="mini-meta">shop_evt_3</span>
+                  </div>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-box">
+            <h3>Hard Contract Guardrails</h3>
+            <ul class="summary-list">
+              <li>Render backend view models as authoritative.</li>
+              <li>Preview APIs gate commands; apply APIs mutate only after explicit clicks.</li>
+              <li>Hidden reward shops do not appear in normal browsing or search.</li>
+            </ul>
+          </div>
+          <div class="summary-box">
+            <h3>Selected Direction</h3>
+            <ul class="summary-list" id="selectedSummary"></ul>
+          </div>
+        </div>
+
+        <textarea class="copy-output" id="copyOutput" readonly aria-label="Copyable decision packet"></textarea>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const decisions = [
+      {
+        id: "entry",
+        tab: "Entry",
+        title: "Entry and navigation shape",
+        intro: "The Shop tab needs broad browsing without turning into a Grand Exchange clone. Choose the first screen shape.",
+        recommended: "master_detail",
+        options: [
+          {
+            id: "master_detail",
+            label: "A",
+            title: "Grouped master/detail with persistent search",
+            body: "Left grouped shop families, right selected shop/vendor detail, search always visible above both.",
+            why: "Best fit because the grill already chose shop-first browsing with item-first search available when needed.",
+            preview: "Grouped nav + detail"
+          },
+          {
+            id: "dashboard",
+            label: "B",
+            title: "Shop dashboard first",
+            body: "Start with tiles for live shops, locked shops, services, and recent activity before selecting a shop.",
+            why: "Good overview, but it delays the core browse/select/shop loop.",
+            preview: "Dashboard entry"
+          },
+          {
+            id: "search_first",
+            label: "C",
+            title: "Search-first catalog",
+            body: "Primary search results fill the screen, with grouped browsing as a secondary drawer.",
+            why: "Fast for known items, but it makes the surface feel too much like a generic item exchange.",
+            preview: "Search-first"
+          },
+          {
+            id: "single_column",
+            label: "D",
+            title: "Single-column shop list",
+            body: "A compact list of shops expands inline to show stock, services, and history.",
+            why: "Simple Qt implementation, but it will become dense with 267 visible shops.",
+            preview: "Inline expansions"
+          },
+          {
+            id: "tabs_by_kind",
+            label: "E",
+            title: "Tabs by shop kind",
+            body: "Separate top-level tabs for Stock, General Stores, Services, Locked, and History.",
+            why: "Clear categories, but it hides the source-backed shop identity and splits one vendor across modes.",
+            preview: "Kind tabs"
+          }
+        ]
+      },
+      {
+        id: "search",
+        tab: "Search",
+        title: "Search and item comparison",
+        intro: "Search must answer both 'where is this shop?' and 'where can I get this item?' while preserving distinct shop stock.",
+        recommended: "adaptive_item_compare",
+        options: [
+          {
+            id: "adaptive_item_compare",
+            label: "A",
+            title: "Adaptive shop/item search",
+            body: "The same search box filters shops and switches into item-first comparison rows when the query matches stock or service outputs.",
+            why: "Best fit for feather-style buyout routes because mechanically separate shops stay separate.",
+            preview: "Adaptive results"
+          },
+          {
+            id: "explicit_toggle",
+            label: "B",
+            title: "Explicit Shop vs Item toggle",
+            body: "A segmented control makes the player choose whether the query is shop-first or item-first.",
+            why: "Predictable, but it adds one decision before every search.",
+            preview: "Mode toggle"
+          },
+          {
+            id: "two_result_panes",
+            label: "C",
+            title: "Two result panes",
+            body: "Shop matches and item/source matches render side by side under the search bar.",
+            why: "High information density, but likely cramped in Anki and VNC/mobile use.",
+            preview: "Split results"
+          },
+          {
+            id: "filter_only",
+            label: "D",
+            title: "Filter grouped tree only",
+            body: "Typing narrows the grouped navigation, but item rows only appear after selecting a shop.",
+            why: "Matches older surfaces, but misses the item-first decision already made in the design log.",
+            preview: "Tree filter"
+          },
+          {
+            id: "modal_search",
+            label: "E",
+            title: "Search overlay",
+            body: "A command-palette overlay returns shops, stock rows, services, and history matches.",
+            why: "Powerful, but it feels less native to the current Qt panels and harder to test offscreen.",
+            preview: "Overlay"
+          }
+        ]
+      },
+      {
+        id: "detail",
+        tab: "Detail",
+        title: "Shop detail and stock density",
+        intro: "Rows need to show current stock, current price, locked states, sellability, and source-friendly context without exposing formulas or restock internals.",
+        recommended: "dense_table_inspector",
+        options: [
+          {
+            id: "dense_table_inspector",
+            label: "A",
+            title: "Dense stock table with row inspector",
+            body: "Main rows stay compact; selecting a row exposes source-friendly context, sell policy, and available actions below.",
+            why: "Best balance of broad catalog density and inspectable locked rows.",
+            preview: "Compact rows"
+          },
+          {
+            id: "wide_cards",
+            label: "B",
+            title: "Wide item cards",
+            body: "Each stock item becomes a card with item, stock, price, lock state, and actions.",
+            why: "Readable, but 2,776 stock rows make card-heavy browsing too slow and visually loud.",
+            preview: "Cards"
+          },
+          {
+            id: "source_sections",
+            label: "C",
+            title: "Separate live, locked, and sell sections",
+            body: "Split rows by state so live purchases and locked inspection do not compete.",
+            why: "Clear for the current sparse live catalog, but it can hide source shop order and comparison.",
+            preview: "State sections"
+          },
+          {
+            id: "minimal_rs",
+            label: "D",
+            title: "Minimal RuneScape-style list",
+            body: "Show item, stock, current price, and simple quantity commands with almost no metadata.",
+            why: "Game-like, but risks making backend lock reasons too hard to inspect.",
+            preview: "Minimal list"
+          },
+          {
+            id: "provenance_heavy",
+            label: "E",
+            title: "Provenance-rich detail",
+            body: "Include source confidence, grouped-shop explanation, and data-state chips near every row.",
+            why: "Useful for developer review, but too debuggy for the normal player surface.",
+            preview: "Provenance detail"
+          }
+        ]
+      },
+      {
+        id: "transactions",
+        tab: "Actions",
+        title: "Transaction controls",
+        intro: "Transactions are immediate UI commands. The frontend previews through backend APIs but should not invent extra confirmation or pricing behavior.",
+        recommended: "quantity_strip",
+        options: [
+          {
+            id: "quantity_strip",
+            label: "A",
+            title: "Inline RuneScape quantity strip",
+            body: "Use 1, 5, 10, 50, Custom, and All controls for the selected row; disabled states come from preview APIs.",
+            why: "Best fit because the grill already chose familiar RuneScape quantity actions and immediate clicks.",
+            preview: "Quantity strip"
+          },
+          {
+            id: "row_buttons",
+            label: "B",
+            title: "Buttons on every live row",
+            body: "Each live row shows Buy 1, Buy 5, Buy 10, and Sell actions directly in the table.",
+            why: "Fast for small shops, but it bloats the table and makes locked rows visually noisy.",
+            preview: "Row buttons"
+          },
+          {
+            id: "right_drawer",
+            label: "C",
+            title: "Transaction drawer",
+            body: "Selecting a row opens a compact side drawer with quantity, stock, price, and apply command.",
+            why: "Clear and testable, but more structure than source-like shop interaction needs.",
+            preview: "Drawer"
+          },
+          {
+            id: "modal_confirm",
+            label: "D",
+            title: "Confirm modal for every transaction",
+            body: "Every buy, sell, service, and vendor action opens a confirmation dialog before apply.",
+            why: "Safest feeling, but the design log explicitly wants immediate game-like commands without annoying confirmations.",
+            preview: "Modal"
+          },
+          {
+            id: "keyboard_palette",
+            label: "E",
+            title: "Keyboard command palette",
+            body: "A typed command surface handles buy/sell quantities for selected rows.",
+            why: "Power-user friendly, but not worth making the primary path in a Qt add-on surface.",
+            preview: "Palette"
+          }
+        ]
+      },
+      {
+        id: "locks",
+        tab: "Locks",
+        title: "Locked, read-only, and hidden rows",
+        intro: "Visible locks are player-inspectable. Reward/activity shops stay out of normal browsing until the owning system deliberately enables them.",
+        recommended: "disabled_with_reason",
+        options: [
+          {
+            id: "disabled_with_reason",
+            label: "A",
+            title: "Disabled rows with backend reason",
+            body: "Show visible locked rows in place, disable commands, and show exactly the backend lock_reason in a compact line.",
+            why: "Best fit because locked shops should remain inspectable, while Qt must not override lock copy or invent workarounds.",
+            preview: "Inline lock reasons"
+          },
+          {
+            id: "locked_section",
+            label: "B",
+            title: "Locked rows in a collapsible section",
+            body: "Move locked rows below live stock under a collapsed Locked Stock heading.",
+            why: "Reduces clutter, but hides why a shop appears sparse.",
+            preview: "Collapsed locks"
+          },
+          {
+            id: "tooltip_only",
+            label: "C",
+            title: "Tooltip-only lock reasons",
+            body: "Disabled rows show a lock chip and reveal lock_reason only on hover/focus.",
+            why: "Clean, but poor for mobile/VNC and offscreen test clarity.",
+            preview: "Tooltip locks"
+          },
+          {
+            id: "hide_locked",
+            label: "D",
+            title: "Hide all locked rows by default",
+            body: "Only live rows appear unless a checkbox reveals locked rows.",
+            why: "Quiet UI, but it contradicts the decision to let players inspect source-backed locked content.",
+            preview: "Hidden locks"
+          },
+          {
+            id: "debug_audit_toggle",
+            label: "E",
+            title: "Developer audit toggle",
+            body: "Expose hidden reward shops and audit-only rows behind a debug switch in the normal tab.",
+            why: "Useful for internal review, but normal browsing must keep reward/activity shops out.",
+            preview: "Debug toggle"
+          }
+        ]
+      },
+      {
+        id: "services",
+        tab: "Services",
+        title: "Services and direct vendor actions",
+        intro: "Tanners, sawmills, bartenders, and source-backed exchanges belong in Shop, but they are not fake finite-stock rows.",
+        recommended: "same_detail_section",
+        options: [
+          {
+            id: "same_detail_section",
+            label: "A",
+            title: "Separate command section in the same detail",
+            body: "A vendor can show stock rows and a Services / Vendor Actions section with command rows.",
+            why: "Best fit because it keeps one Shop tab while preserving that services are not ordinary stock.",
+            preview: "Command rows"
+          },
+          {
+            id: "service_nav_group",
+            label: "B",
+            title: "Services as navigation groups",
+            body: "Service vendors live in grouped nav sections like Crafting Services and Drinks.",
+            why: "Good for browsing services directly, but still needs a detail section for commands.",
+            preview: "Service nav"
+          },
+          {
+            id: "service_cards",
+            label: "C",
+            title: "Action cards",
+            body: "Each service action is a card showing inputs, outputs, cost, and command.",
+            why: "Readable for complex conversions, but heavier than the current four-service fixture needs.",
+            preview: "Service cards"
+          },
+          {
+            id: "item_search_only",
+            label: "D",
+            title: "Services only through item search",
+            body: "Service outputs appear in item-first search but not normal grouped browsing.",
+            why: "Keeps nav small, but hides real source-backed vendors from shop-first browsing.",
+            preview: "Search only"
+          },
+          {
+            id: "separate_tab",
+            label: "E",
+            title: "Separate Services tab",
+            body: "Stock shops and services become sibling tabs under Shop.",
+            why: "Clear mechanic boundary, but it splits unified search/history and makes vendors feel second-class.",
+            preview: "Service tab"
+          }
+        ]
+      },
+      {
+        id: "history",
+        tab: "History",
+        title: "Transaction history placement",
+        intro: "History should make buy/sell/service changes understandable without exposing replay internals or maintaining a second store.",
+        recommended: "local_plus_global",
+        options: [
+          {
+            id: "local_plus_global",
+            label: "A",
+            title: "Shop-local strip plus global recent view",
+            body: "Each detail shows recent events for that shop/vendor, and a global Recent view derives from the same event log.",
+            why: "Best fit because the design log explicitly settled both local and global history from one event stream.",
+            preview: "Local + global"
+          },
+          {
+            id: "detail_only",
+            label: "B",
+            title: "Detail-only history",
+            body: "Show recent transactions only inside the selected shop or service detail.",
+            why: "Simple and quiet, but weak for understanding cross-shop inventory changes.",
+            preview: "Detail only"
+          },
+          {
+            id: "global_only",
+            label: "C",
+            title: "Global log only",
+            body: "A single Recent Activity panel shows buys, sells, services, and vendor actions across all shops.",
+            why: "Good audit trail, but shop context gets separated from the active detail.",
+            preview: "Global only"
+          },
+          {
+            id: "toast_only",
+            label: "D",
+            title: "Toast after each command",
+            body: "Show immediate success messages and do not keep visible history in the Shop tab.",
+            why: "Lightweight, but loses the reason history exists: explaining currency and inventory changes later.",
+            preview: "Toast only"
+          },
+          {
+            id: "ledger_drawer",
+            label: "E",
+            title: "Expandable ledger drawer",
+            body: "A drawer can reveal detailed events with deltas, stable ids, and rollback metadata.",
+            why: "Good for debugging, but too technical for the normal player-facing surface.",
+            preview: "Ledger drawer"
+          }
+        ]
+      }
+    ];
+
+    const storageKey = "ankiscape-shop-wave1-decisions";
+    const defaultSelection = Object.fromEntries(decisions.map((decision) => [decision.id, decision.recommended]));
+    let selection = { ...defaultSelection };
+    let activeDecision = decisions[0].id;
+    let searchVisible = false;
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || "{}");
+      selection = { ...selection, ...saved };
+    } catch (error) {
+      selection = { ...defaultSelection };
+    }
+
+    const tabs = document.getElementById("tabs");
+    const decisionBody = document.getElementById("decisionBody");
+    const decisionCount = document.getElementById("decisionCount");
+    const selectedSummary = document.getElementById("selectedSummary");
+    const copyOutput = document.getElementById("copyOutput");
+    const previewCaption = document.getElementById("previewCaption");
+    const searchResults = document.getElementById("searchResults");
+    const mockSearchText = document.getElementById("mockSearchText");
+    const mockSearchMode = document.getElementById("mockSearchMode");
+    const detailTitle = document.getElementById("detailTitle");
+    const detailSubtitle = document.getElementById("detailSubtitle");
+    const transactionModeLabel = document.getElementById("transactionModeLabel");
+    const serviceModeLabel = document.getElementById("serviceModeLabel");
+    const historyModeLabel = document.getElementById("historyModeLabel");
+    const mockNav = document.getElementById("mockNav");
+
+    function selectedOption(decision) {
+      return decision.options.find((option) => option.id === selection[decision.id]) || decision.options[0];
+    }
+
+    function renderTabs() {
+      tabs.innerHTML = decisions.map((decision) => {
+        const active = decision.id === activeDecision;
+        return `<button class="tab" type="button" role="tab" aria-selected="${active}" data-tab="${decision.id}">${decision.tab}</button>`;
+      }).join("");
+
+      tabs.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          activeDecision = button.dataset.tab;
+          render();
+        });
+      });
+    }
+
+    function renderDecisionBody() {
+      const decision = decisions.find((item) => item.id === activeDecision);
+      const options = decision.options.map((option) => {
+        const isSelected = selection[decision.id] === option.id;
+        const isRecommended = decision.recommended === option.id;
+        return `
+          <label class="option ${isSelected ? "selected" : ""} ${isRecommended ? "recommended" : ""}">
+            <input type="radio" name="${decision.id}" value="${option.id}" ${isSelected ? "checked" : ""}>
+            <span class="option-letter">${option.label}</span>
+            <span>
+              <span class="option-title-row">
+                <b>${option.title}</b>
+                ${isRecommended ? '<span class="pill rec">Recommended</span>' : ""}
+                <span class="pill">${option.preview}</span>
+              </span>
+              <p>${option.body}</p>
+              <span class="why"><strong>Why:</strong> ${option.why}</span>
+            </span>
+          </label>
+        `;
+      }).join("");
+
+      decisionBody.innerHTML = `
+        <div class="decision-intro">
+          <strong>${decision.title}</strong>
+          <span>${decision.intro}</span>
+        </div>
+        <div class="options">${options}</div>
+      `;
+
+      decisionBody.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("change", () => {
+          selection[decision.id] = input.value;
+          persist();
+          render();
+        });
+      });
+    }
+
+    function persist() {
+      localStorage.setItem(storageKey, JSON.stringify(selection));
+    }
+
+    function renderSummary() {
+      const selectedCount = decisions.filter((decision) => selection[decision.id]).length;
+      decisionCount.textContent = `${selectedCount} / ${decisions.length} selected`;
+      selectedSummary.innerHTML = decisions.map((decision) => {
+        const option = selectedOption(decision);
+        const marker = option.id === decision.recommended ? "rec" : "custom";
+        return `<li><span>${decision.tab}: ${option.title} (${marker})</span></li>`;
+      }).join("");
+
+      copyOutput.value = buildDecisionPacket();
+    }
+
+    function buildDecisionPacket() {
+      const lines = [
+        "NPC Shop frontend Wave 1 selections:",
+        "",
+        "Hard constraints:",
+        "- Use shop_fixtures.build_shop_frontend_fixtures() and shop_logic.py view/preview/apply APIs as the contract.",
+        "- Do not invent prices, lock reasons, stock behavior, sell policy, hidden reward shop behavior, or service semantics in Qt.",
+        "- Keep hidden reward/activity shops out of normal browsing and item-first search.",
+        "",
+        "Selected UI decisions:"
+      ];
+
+      decisions.forEach((decision) => {
+        const option = selectedOption(decision);
+        lines.push(`- ${decision.title}: ${option.title}. ${option.body}`);
+      });
+
+      lines.push("");
+      lines.push("Please move to Wave 2 using these choices and refine visual density, row states, and mobile/VNC ergonomics.");
+      return lines.join("\n");
+    }
+
+    function renderPreview() {
+      const entry = selection.entry;
+      const search = selection.search;
+      const detail = selection.detail;
+      const transactions = selection.transactions;
+      const locks = selection.locks;
+      const services = selection.services;
+      const history = selection.history;
+
+      const entryText = selectedOption(decisions.find((item) => item.id === "entry")).preview;
+      const searchText = selectedOption(decisions.find((item) => item.id === "search")).preview;
+      previewCaption.textContent = `${entryText} · ${searchText} · backend-authored row states`;
+
+      mockNav.style.display = entry === "search_first" ? "none" : "";
+      mockNav.style.order = entry === "single_column" ? "2" : "";
+
+      if (search === "filter_only") {
+        mockSearchText.textContent = "Filter grouped shop tree...";
+        mockSearchMode.textContent = "Tree filter only";
+      } else if (search === "explicit_toggle") {
+        mockSearchText.textContent = "Search with Shop / Item segmented mode...";
+        mockSearchMode.textContent = "Item mode selected";
+      } else if (search === "modal_search") {
+        mockSearchText.textContent = "Open search overlay...";
+        mockSearchMode.textContent = "Overlay";
+      } else {
+        mockSearchText.textContent = "Search shops, items, aliases, or locations...";
+        mockSearchMode.textContent = search === "two_result_panes" ? "Two result panes" : "Item comparison ready";
+      }
+
+      searchResults.classList.toggle("visible", searchVisible || search === "search_first" || search === "two_result_panes");
+
+      if (detail === "source_sections") {
+        detailTitle.textContent = "Arnold's Eclectic Supplies · Live rows first";
+        detailSubtitle.textContent = "Live stock, locked stock, and sellable inventory are split into state sections while still rendering backend row state.";
+      } else if (detail === "minimal_rs") {
+        detailTitle.textContent = "Arnold's Eclectic Supplies · Minimal shop list";
+        detailSubtitle.textContent = "A game-like list shows only current stock and current prices, with lock details tucked into row focus.";
+      } else if (detail === "provenance_heavy") {
+        detailTitle.textContent = "Arnold's Eclectic Supplies · Context-rich";
+        detailSubtitle.textContent = "Source confidence and grouping context are visible, but raw source paths and generator ids stay out of the player view.";
+      } else if (detail === "wide_cards") {
+        detailTitle.textContent = "Arnold's Eclectic Supplies · Item cards";
+        detailSubtitle.textContent = "The detail favors readability over density by presenting each stock row as a larger item panel.";
+      } else {
+        detailTitle.textContent = "Arnold's Eclectic Supplies";
+        detailSubtitle.textContent = "Coin shop. Rows render from shop_view_model_pure; current stock and current prices are shown, not formulas or restock internals.";
+      }
+
+      if (transactions === "row_buttons") {
+        transactionModeLabel.textContent = "buttons on every row";
+      } else if (transactions === "right_drawer") {
+        transactionModeLabel.textContent = "transaction drawer";
+      } else if (transactions === "modal_confirm") {
+        transactionModeLabel.textContent = "confirm every transaction";
+      } else if (transactions === "keyboard_palette") {
+        transactionModeLabel.textContent = "keyboard palette";
+      } else {
+        transactionModeLabel.textContent = "RuneScape quantity strip";
+      }
+
+      if (services === "service_nav_group") {
+        serviceModeLabel.textContent = "service nav groups";
+      } else if (services === "service_cards") {
+        serviceModeLabel.textContent = "action cards";
+      } else if (services === "item_search_only") {
+        serviceModeLabel.textContent = "item search only";
+      } else if (services === "separate_tab") {
+        serviceModeLabel.textContent = "separate services tab";
+      } else {
+        serviceModeLabel.textContent = "separate command rows";
+      }
+
+      if (history === "detail_only") {
+        historyModeLabel.textContent = "detail only";
+      } else if (history === "global_only") {
+        historyModeLabel.textContent = "global only";
+      } else if (history === "toast_only") {
+        historyModeLabel.textContent = "toast only";
+      } else if (history === "ledger_drawer") {
+        historyModeLabel.textContent = "ledger drawer";
+      } else {
+        historyModeLabel.textContent = "local + global";
+      }
+
+      const lockedRows = document.querySelectorAll(".lockline");
+      lockedRows.forEach((row) => {
+        if (locks === "tooltip_only") {
+          row.textContent = "Lock reason on focus: price_policy_unresolved";
+        } else if (locks === "locked_section") {
+          row.textContent = "Locked Stock section: price_policy_unresolved";
+        } else if (locks === "hide_locked") {
+          row.textContent = "Hidden unless Show locked is enabled";
+        } else if (locks === "debug_audit_toggle") {
+          row.innerHTML = '<span class="hidden-note">Debug-only audit rows stay outside normal browsing</span>';
+        } else {
+          row.textContent = "price_policy_unresolved";
+        }
+      });
+    }
+
+    function render() {
+      renderTabs();
+      renderDecisionBody();
+      renderSummary();
+      renderPreview();
+    }
+
+    document.getElementById("recommendedBtn").addEventListener("click", () => {
+      selection = { ...defaultSelection };
+      persist();
+      render();
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      copyOutput.value = buildDecisionPacket();
+      copyOutput.focus();
+      copyOutput.select();
+      try {
+        await navigator.clipboard.writeText(copyOutput.value);
+        document.getElementById("copyBtn").textContent = "Copied";
+        setTimeout(() => {
+          document.getElementById("copyBtn").textContent = "Copy Decision Packet";
+        }, 1100);
+      } catch (error) {
+        document.execCommand("copy");
+      }
+    });
+
+    document.getElementById("toggleSearchBtn").addEventListener("click", () => {
+      searchVisible = !searchVisible;
+      renderPreview();
+    });
+
+    render();
+  </script>
+</body>
+</html>
