@@ -864,6 +864,18 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
       detail tucked away, no unnecessary confirmations, and no exposed debug
       machinery in ordinary UI.
     - Status: decided 2026-07-06.
+74. The default Shop tab entry point should be shop-first browsing with
+    persistent search that can switch into item-first comparison.
+    - The first screen should feel like source-backed NPC shops grouped like the
+      Skills hub, not like a replacement Grand Exchange or generic item catalog.
+    - Search should always be available from the Shop tab. When a query matches
+      items, the UI should show item-first comparison results across every
+      distinct source-backed buy route, including separate stock where shops are
+      mechanically separate.
+    - A query such as `feather` should surface every relevant fishing/supply
+      shop route with stock, price, access state, and click-through detail,
+      while the default unsearched state remains grouped shop browsing.
+    - Status: decided 2026-07-06.
 
 ## Source Checkpoints From Grill
 
