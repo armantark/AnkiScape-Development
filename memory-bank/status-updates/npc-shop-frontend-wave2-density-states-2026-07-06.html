@@ -1,0 +1,1632 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Frontend Wave 2</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+      --ink: #080b0f;
+      --row-h: 42px;
+      --nav-w: 224px;
+      --chrome-scale: 1;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        linear-gradient(115deg, rgba(79, 140, 255, 0.16), transparent 34rem),
+        radial-gradient(circle at 86% 8%, rgba(251, 191, 36, 0.12), transparent 22rem),
+        radial-gradient(circle at 8% 92%, rgba(74, 222, 128, 0.10), transparent 18rem),
+        linear-gradient(180deg, #0c0e12 0%, #10151d 58%, #0c0e12 100%);
+      color: var(--text);
+      font-family: Outfit, Avenir Next, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      width: min(1460px, calc(100vw - 24px));
+      margin: 0 auto;
+      padding: 28px 0 46px;
+    }
+
+    button,
+    code,
+    .mono,
+    .badge,
+    .choice-letter,
+    .pill,
+    .tiny,
+    textarea,
+    .stat strong,
+    .qt-tab,
+    .micro-label {
+      font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 999px;
+      background: var(--accent-glow);
+      color: #c0d6ff;
+      padding: 7px 11px;
+      font-weight: 800;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(79, 140, 255, 0.66);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--text);
+      padding: 8px 10px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      font-weight: 850;
+    }
+
+    button:hover,
+    button:focus-visible {
+      border-color: rgba(79, 140, 255, 0.72);
+      outline: none;
+    }
+
+    button.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 420px;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 990px;
+      font-size: clamp(2.15rem, 5vw, 4.55rem);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+
+    .lead {
+      margin: 13px 0 0;
+      max-width: 930px;
+      color: var(--text-dim);
+      line-height: 1.55;
+      font-size: 0.98rem;
+    }
+
+    .contract {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      padding: 13px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      min-height: 78px;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #10151d;
+      padding: 10px;
+    }
+
+    .stat strong {
+      display: block;
+      color: #dce9ff;
+      font-size: 1.18rem;
+      line-height: 1.08;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 5px;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      line-height: 1.34;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(410px, 0.94fr) minmax(560px, 1.28fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: rgba(22, 26, 33, 0.94);
+      box-shadow: 0 22px 64px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 15px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1.08rem;
+    }
+
+    .panel-head p {
+      margin: 5px 0 0;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      line-height: 1.42;
+    }
+
+    .tiny {
+      color: var(--green);
+      border: 1px solid rgba(74, 222, 128, 0.34);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(74, 222, 128, 0.08);
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 10px 14px 0;
+    }
+
+    .tab {
+      border-radius: 999px;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .tab[aria-selected="true"] {
+      background: rgba(79, 140, 255, 0.18);
+      border-color: rgba(79, 140, 255, 0.62);
+      color: #d7e6ff;
+    }
+
+    .decision {
+      padding: 14px;
+      display: grid;
+      gap: 11px;
+    }
+
+    .question {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 10px;
+      background: #10151d;
+      padding: 12px;
+    }
+
+    .question strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .question span {
+      display: block;
+      color: var(--text-dim);
+      font-size: 0.84rem;
+      line-height: 1.42;
+    }
+
+    .choices {
+      display: grid;
+      gap: 9px;
+    }
+
+    .choice {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 10px;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 10px;
+      background: #11161e;
+      padding: 10px;
+      cursor: pointer;
+      transition: transform 120ms ease, border-color 120ms ease, background 120ms ease;
+    }
+
+    .choice:hover,
+    .choice:focus-within {
+      transform: translateY(-1px);
+      border-color: rgba(79, 140, 255, 0.62);
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice.selected {
+      border-color: rgba(74, 222, 128, 0.84);
+      background: linear-gradient(180deg, rgba(74, 222, 128, 0.105), rgba(17, 22, 30, 0.98));
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.07);
+    }
+
+    .choice.recommended:not(.selected) {
+      border-color: rgba(251, 191, 36, 0.52);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.08), rgba(17, 22, 30, 0.98));
+    }
+
+    .choice-letter {
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface-2);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 0.82rem;
+    }
+
+    .choice.selected .choice-letter {
+      background: var(--green);
+      border-color: var(--green);
+      color: var(--ink);
+    }
+
+    .choice-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .choice-title b {
+      font-size: 0.92rem;
+    }
+
+    .choice p {
+      margin: 5px 0 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+
+    .why {
+      display: block;
+      margin-top: 7px;
+      color: #d0e0ff;
+      font-size: 0.78rem;
+      line-height: 1.36;
+    }
+
+    .why strong { color: var(--amber); }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 3px 7px;
+      background: rgba(255, 255, 255, 0.045);
+      color: var(--text-dim);
+      font-size: 0.62rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .pill.rec {
+      color: #ffe2a1;
+      border-color: rgba(251, 191, 36, 0.48);
+      background: rgba(251, 191, 36, 0.09);
+    }
+
+    .preview {
+      position: sticky;
+      top: 10px;
+    }
+
+    .preview-head {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .preview-head h2 {
+      margin: 0;
+      font-size: 1.06rem;
+    }
+
+    .preview-head p {
+      margin: 4px 0 0;
+      color: var(--text-dim);
+      font-size: 0.82rem;
+      line-height: 1.36;
+    }
+
+    .viewport-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .viewport-buttons button[aria-pressed="true"] {
+      border-color: rgba(79, 140, 255, 0.74);
+      background: rgba(79, 140, 255, 0.19);
+      color: #d7e6ff;
+    }
+
+    .mock-stage {
+      padding: 14px;
+      overflow-x: auto;
+    }
+
+    .mock {
+      width: 100%;
+      min-width: 650px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0d1117;
+      overflow: hidden;
+      transition: width 160ms ease, min-width 160ms ease;
+      margin: 0 auto;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+    }
+
+    .mock.vnc {
+      width: 860px;
+      min-width: 860px;
+    }
+
+    .mock.mobile {
+      width: 430px;
+      min-width: 430px;
+    }
+
+    .qt-chrome {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 11px;
+      border-bottom: 1px solid var(--border);
+      background: #171d25;
+    }
+
+    .qt-tabs {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .qt-tab {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 5px 8px;
+      background: #10151c;
+      color: var(--text-dim);
+      font-size: 0.7rem;
+    }
+
+    .qt-tab.active {
+      color: var(--text);
+      border-color: rgba(79, 140, 255, 0.68);
+      background: rgba(79, 140, 255, 0.15);
+    }
+
+    .coins {
+      color: #ffe0a3;
+      font-weight: 850;
+      white-space: nowrap;
+      font-size: 0.8rem;
+    }
+
+    .search-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--border);
+      background: #11161e;
+    }
+
+    .search-input {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #090d12;
+      color: #cdd8ea;
+      padding: 8px 9px;
+      font-size: 0.82rem;
+    }
+
+    .search-chip {
+      border: 1px solid rgba(79, 140, 255, 0.42);
+      border-radius: 8px;
+      background: rgba(79, 140, 255, 0.1);
+      color: #bfd5ff;
+      padding: 8px 9px;
+      font-size: 0.72rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .mock-body {
+      display: grid;
+      grid-template-columns: var(--nav-w) minmax(0, 1fr);
+      min-height: 572px;
+    }
+
+    .nav {
+      border-right: 1px solid var(--border);
+      background: #10151c;
+      padding: 9px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    .nav-group {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0d1117;
+    }
+
+    .nav-title,
+    .nav-shop {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 8px;
+      font-size: 0.73rem;
+    }
+
+    .nav-title {
+      color: #c6d3e8;
+      background: #171d25;
+      font-weight: 850;
+    }
+
+    .nav-shop {
+      border-top: 1px solid rgba(42, 48, 64, 0.78);
+      color: var(--text-dim);
+    }
+
+    .nav-shop.active {
+      color: var(--text);
+      background: rgba(74, 222, 128, 0.08);
+    }
+
+    .nav-shop.locked { color: #c6a977; }
+
+    .detail {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 10px;
+      align-content: start;
+      padding: 11px;
+    }
+
+    .shop-head,
+    .inspector,
+    .history,
+    .services,
+    .global-history,
+    .search-results {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #11161e;
+    }
+
+    .shop-head {
+      padding: 11px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .shop-head h3 {
+      margin: 0 0 5px;
+      font-size: 1rem;
+    }
+
+    .shop-head p {
+      margin: 0;
+      color: var(--text-dim);
+      font-size: 0.78rem;
+      line-height: 1.34;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 5px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: #0b1016;
+      color: var(--text-dim);
+      padding: 4px 7px;
+      font-size: 0.66rem;
+      white-space: nowrap;
+    }
+
+    .chip.live {
+      color: #b8f6d0;
+      border-color: rgba(74, 222, 128, 0.36);
+      background: rgba(74, 222, 128, 0.07);
+    }
+
+    .chip.lock {
+      color: #ffdda6;
+      border-color: rgba(251, 191, 36, 0.35);
+      background: rgba(251, 191, 36, 0.08);
+    }
+
+    .stock-table {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      overflow: hidden;
+      background: #0d1117;
+    }
+
+    .stock-row {
+      display: grid;
+      grid-template-columns: minmax(130px, 1fr) 70px 64px 72px 84px;
+      gap: 7px;
+      align-items: center;
+      min-height: var(--row-h);
+      padding: 7px 9px;
+      border-bottom: 1px solid rgba(42, 48, 64, 0.78);
+      color: var(--text-dim);
+      font-size: 0.76rem;
+    }
+
+    .stock-row:last-child { border-bottom: 0; }
+
+    .stock-row.header {
+      min-height: 32px;
+      background: #171d25;
+      color: #b8c4d8;
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 900;
+    }
+
+    .stock-row.live {
+      color: var(--text);
+      background: rgba(74, 222, 128, 0.035);
+    }
+
+    .stock-row.locked {
+      background: rgba(251, 191, 36, 0.035);
+    }
+
+    .stock-row.selected {
+      box-shadow: inset 3px 0 0 var(--accent);
+      background: rgba(79, 140, 255, 0.08);
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      font-weight: 850;
+    }
+
+    .icon {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: linear-gradient(135deg, #263345, #11161e);
+    }
+
+    .icon.beer { background: linear-gradient(135deg, #8a5b2a, #27170b); }
+    .icon.bread { background: linear-gradient(135deg, #c9964d, #3b2712); }
+    .icon.milk { background: linear-gradient(135deg, #dfe8f6, #55616e); }
+    .icon.hide { background: linear-gradient(135deg, #8c5d42, #2a1b14); }
+
+    .action {
+      justify-self: end;
+      border: 1px solid rgba(74, 222, 128, 0.42);
+      border-radius: 7px;
+      background: rgba(74, 222, 128, 0.08);
+      color: #b8f6d0;
+      padding: 5px 7px;
+      font-weight: 900;
+      font-size: 0.68rem;
+      white-space: nowrap;
+    }
+
+    .action.disabled {
+      border-color: var(--border);
+      background: #10151c;
+      color: #788398;
+    }
+
+    .lock-reason {
+      grid-column: 1 / -1;
+      color: #f3c979;
+      font-size: 0.7rem;
+      margin-top: -2px;
+    }
+
+    .micro-label {
+      color: #b8c4d8;
+      font-size: 0.68rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-weight: 900;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px 0;
+    }
+
+    .section-head span:last-child {
+      color: var(--text-dim);
+      font-size: 0.68rem;
+    }
+
+    .inspector {
+      padding: 10px;
+    }
+
+    .inspector.grid-style {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 10px;
+    }
+
+    .inspect-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .inspect-title b {
+      display: block;
+      font-size: 0.9rem;
+    }
+
+    .inspect-title span {
+      color: var(--text-dim);
+      font-size: 0.72rem;
+    }
+
+    .quantity {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .qty {
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #0b1016;
+      color: var(--text-dim);
+      padding: 6px 8px;
+      font-size: 0.68rem;
+      font-weight: 900;
+    }
+
+    .qty.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .preview-line {
+      border: 1px solid rgba(79, 140, 255, 0.34);
+      border-radius: 8px;
+      background: rgba(79, 140, 255, 0.08);
+      padding: 8px;
+      color: #d7e6ff;
+      font-size: 0.76rem;
+      line-height: 1.34;
+    }
+
+    .detail-facts {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .fact {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 8px;
+      background: #0d1117;
+      padding: 7px;
+      min-height: 54px;
+    }
+
+    .fact strong {
+      display: block;
+      color: var(--text);
+      font-size: 0.78rem;
+    }
+
+    .fact span {
+      display: block;
+      margin-top: 3px;
+      color: var(--text-dim);
+      font-size: 0.68rem;
+      line-height: 1.28;
+    }
+
+    .services,
+    .history,
+    .global-history,
+    .search-results {
+      overflow: hidden;
+    }
+
+    .service-row,
+    .history-row,
+    .result-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 9px 10px;
+      border-top: 1px solid rgba(42, 48, 64, 0.78);
+      color: var(--text-dim);
+      font-size: 0.76rem;
+    }
+
+    .service-row:first-of-type,
+    .history-row:first-of-type,
+    .result-row:first-of-type {
+      border-top: 0;
+    }
+
+    .service-row b,
+    .history-row b,
+    .result-row b {
+      display: block;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .type {
+      border: 1px solid rgba(79, 140, 255, 0.36);
+      border-radius: 999px;
+      background: rgba(79, 140, 255, 0.08);
+      color: #bfd5ff;
+      padding: 4px 7px;
+      font-size: 0.66rem;
+      white-space: nowrap;
+    }
+
+    .type.lock {
+      border-color: rgba(251, 191, 36, 0.36);
+      background: rgba(251, 191, 36, 0.08);
+      color: #ffdda6;
+    }
+
+    .type.sell {
+      border-color: rgba(167, 139, 250, 0.36);
+      background: rgba(167, 139, 250, 0.08);
+      color: #dacfff;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+
+    .summary-card {
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #11161e;
+      padding: 11px;
+      min-height: 130px;
+    }
+
+    .summary-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.9rem;
+    }
+
+    .summary-card ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 7px;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      line-height: 1.34;
+    }
+
+    .summary-card li {
+      display: grid;
+      grid-template-columns: 14px minmax(0, 1fr);
+      gap: 7px;
+    }
+
+    .summary-card li::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 5px;
+    }
+
+    textarea {
+      width: calc(100% - 28px);
+      margin: 0 14px 14px;
+      min-height: 146px;
+      resize: vertical;
+      border: 1px solid rgba(42, 48, 64, 0.78);
+      border-radius: 9px;
+      background: #090d12;
+      color: #d7e6fb;
+      padding: 11px;
+      font-size: 0.74rem;
+      line-height: 1.45;
+    }
+
+    .mock.mobile .qt-chrome,
+    .mock.mobile .shop-head {
+      align-items: stretch;
+      flex-direction: column;
+      display: flex;
+    }
+
+    .mock.mobile .search-row,
+    .mock.mobile .mock-body,
+    .mock.mobile .detail-facts,
+    .mock.mobile .summary,
+    .mock.mobile .inspector.grid-style {
+      grid-template-columns: 1fr;
+    }
+
+    .mock.mobile .mock-body {
+      min-height: 0;
+    }
+
+    .mock.mobile .nav {
+      border-right: 0;
+      border-bottom: 1px solid var(--border);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mock.mobile .stock-row {
+      grid-template-columns: minmax(122px, 1fr) 58px 54px;
+    }
+
+    .mock.mobile .stock-row > :nth-child(4),
+    .mock.mobile .stock-row > :nth-child(5) {
+      grid-column: 1 / -1;
+      justify-self: start;
+    }
+
+    .mock.mobile .chips {
+      justify-content: flex-start;
+    }
+
+    .compact .stock-row { --row-h: 34px; font-size: 0.72rem; }
+    .comfortable .stock-row { --row-h: 50px; font-size: 0.78rem; }
+    .twoline .stock-row { --row-h: 58px; }
+    .ultradense .stock-row { --row-h: 30px; font-size: 0.68rem; padding-top: 4px; padding-bottom: 4px; }
+    .cards .stock-table { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 8px; border-radius: 9px; }
+    .cards .stock-row.header { display: none; }
+    .cards .stock-row { grid-template-columns: 1fr; border: 1px solid rgba(42, 48, 64, 0.78); border-radius: 8px; min-height: 112px; }
+
+    .inspector-right .detail {
+      grid-template-columns: minmax(0, 1fr) 230px;
+      align-items: start;
+    }
+
+    .inspector-right .shop-head,
+    .inspector-right .stock-table,
+    .inspector-right .services,
+    .inspector-right .history,
+    .inspector-right .search-results {
+      grid-column: 1;
+    }
+
+    .inspector-right .inspector {
+      grid-column: 2;
+      grid-row: 1 / span 4;
+      position: sticky;
+      top: 8px;
+    }
+
+    .history-global .global-history { display: block; }
+    .history-local .global-history { display: none; }
+    .history-hidden .history, .history-hidden .global-history { display: none; }
+
+    .services-hidden .services { display: none; }
+    .services-cards .services .service-row { margin: 9px 10px; border: 1px solid rgba(42, 48, 64, 0.78); border-radius: 8px; background: #0d1117; }
+
+    @media (max-width: 1120px) {
+      .hero,
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .preview {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(100% - 16px, 1460px);
+        padding-top: 16px;
+      }
+
+      .topbar,
+      .preview-head,
+      .panel-head {
+        display: grid;
+        align-items: stretch;
+      }
+
+      .contract,
+      .summary {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="topbar">
+      <div class="badge">NPC Shop Frontend · Wave 2</div>
+      <div class="toolbar">
+        <button type="button" id="resetBtn">Select Recommended</button>
+        <button type="button" class="primary" id="copyBtn">Copy Wave 2 Packet</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div>
+        <h1>Refine the dense Shop surface before Qt build-out.</h1>
+        <p class="lead">Wave 1 fixed the architecture: grouped master/detail, persistent adaptive search, dense stock table with row inspector, backend-authored locks, inline quantity strip, service command rows, and local plus global history. Wave 2 chooses how those pieces behave under real fixture states and cramped VNC/mobile viewing.</p>
+      </div>
+      <aside class="contract" aria-label="Fixture-grounded contract facts">
+        <div class="stat"><strong>Arnold's</strong><span>Live coin stock: Beer can buy/sell; Bread and Bucket of milk are backend-locked.</span></div>
+        <div class="stat"><strong>Aemad's</strong><span>General store path: sold Beer creates temporary player stock, then buying back works.</span></div>
+        <div class="stat"><strong>Services</strong><span>Tan soft leather and Buy a pint of beer use service/vendor apply APIs, not fake stock.</span></div>
+        <div class="stat"><strong>Hidden</strong><span>Star Sprite reward shop remains out of normal browsing and item search.</span></div>
+      </aside>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>Wave 2 Decision Board</h2>
+            <p>Each element has five options. Recommended picks are preselected, but every choice updates the mock surface and copyable handoff.</p>
+          </div>
+          <div class="tiny" id="count">0 / 8 selected</div>
+        </div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Wave 2 design decisions"></div>
+        <div class="decision" id="decision"></div>
+      </article>
+
+      <article class="panel preview">
+        <div class="preview-head">
+          <div>
+            <h2>Fixture Mock Surface</h2>
+            <p id="caption">Balanced compact table with persistent inspector and VNC-aware compression.</p>
+          </div>
+          <div class="viewport-buttons" aria-label="Viewport simulator">
+            <button type="button" data-viewport="desktop" aria-pressed="true">Desktop</button>
+            <button type="button" data-viewport="vnc" aria-pressed="false">VNC</button>
+            <button type="button" data-viewport="mobile" aria-pressed="false">Mobile</button>
+          </div>
+        </div>
+
+        <div class="mock-stage">
+          <div class="mock compact history-global" id="mock">
+            <div class="qt-chrome">
+              <div class="qt-tabs">
+                <span class="qt-tab">Stats</span>
+                <span class="qt-tab">Bank</span>
+                <span class="qt-tab">Skills</span>
+                <span class="qt-tab active">Shop</span>
+                <span class="qt-tab">Quests</span>
+              </div>
+              <div class="coins">Coins: 1,246</div>
+            </div>
+
+            <div class="search-row" id="searchRow">
+              <div class="search-input">Beer</div>
+              <div class="search-chip" id="searchChip">Adaptive item comparison</div>
+            </div>
+
+            <section class="search-results" id="searchResults">
+              <div class="section-head"><span class="micro-label">Search Results</span><span id="searchDensityLabel">compact comparison rows</span></div>
+              <div class="result-row">
+                <div><b>Aemad's Adventuring Supplies</b><span>Beer · player-sold temporary stock · 1 available · 3 Coins</span></div>
+                <span class="type sell">Stock</span>
+              </div>
+              <div class="result-row">
+                <div><b>Arnold's Eclectic Supplies</b><span>Beer · 8 / 10 stock · 2 Coins · click through to detail</span></div>
+                <span class="type">Stock</span>
+              </div>
+              <div class="result-row">
+                <div><b>Karamja Wines, Spirits, and Beers</b><span>Jug of wine row remains disabled with backend reason.</span></div>
+                <span class="type lock">Locked</span>
+              </div>
+            </section>
+
+            <div class="mock-body">
+              <nav class="nav">
+                <div class="nav-group">
+                  <div class="nav-title"><span>Food & General</span><span>12</span></div>
+                  <div class="nav-shop active"><span>Arnold's Eclectic Supplies</span><span>live</span></div>
+                  <div class="nav-shop"><span>Aemad's Adventuring Supplies</span><span>sell</span></div>
+                </div>
+                <div class="nav-group">
+                  <div class="nav-title"><span>Services</span><span>4</span></div>
+                  <div class="nav-shop"><span>Al Kharid Tanner</span><span>service</span></div>
+                  <div class="nav-shop"><span>Bartender</span><span>vendor</span></div>
+                </div>
+                <div class="nav-group">
+                  <div class="nav-title"><span>Locked Shops</span><span>2</span></div>
+                  <div class="nav-shop locked"><span>Summoning Supplies</span><span>locked</span></div>
+                  <div class="nav-shop locked"><span>Gabooty's Cooperative</span><span>currency</span></div>
+                </div>
+              </nav>
+
+              <section class="detail">
+                <div class="shop-head">
+                  <div>
+                    <h3>Arnold's Eclectic Supplies</h3>
+                    <p id="shopSubtitle">Rows are compact but inspectable. Frontend renders backend fields and calls preview before apply.</p>
+                  </div>
+                  <div class="chips">
+                    <span class="chip live">visible</span>
+                    <span class="chip live">Coins</span>
+                    <span class="chip">shared stock</span>
+                  </div>
+                </div>
+
+                <div class="stock-table" id="stockTable">
+                  <div class="stock-row header">
+                    <span>Item</span><span>Stock</span><span>Buy</span><span>Sell</span><span>Command</span>
+                  </div>
+                  <div class="stock-row live selected">
+                    <span class="item"><span class="icon beer"></span>Beer</span>
+                    <span>8 / 10</span>
+                    <span>2 gp</span>
+                    <span>1 gp</span>
+                    <span class="action">Buy</span>
+                  </div>
+                  <div class="stock-row locked">
+                    <span class="item"><span class="icon bread"></span>Bread</span>
+                    <span>10 / 10</span>
+                    <span>-</span>
+                    <span>-</span>
+                    <span class="action disabled">Locked</span>
+                    <span class="lock-reason">price_policy_unresolved</span>
+                  </div>
+                  <div class="stock-row locked">
+                    <span class="item"><span class="icon milk"></span>Bucket of milk</span>
+                    <span>10 / 10</span>
+                    <span>-</span>
+                    <span>-</span>
+                    <span class="action disabled">Locked</span>
+                    <span class="lock-reason">price_policy_unresolved</span>
+                  </div>
+                  <div class="stock-row live">
+                    <span class="item"><span class="icon beer"></span>Beer from Aemad</span>
+                    <span>1 / 0</span>
+                    <span>3 gp</span>
+                    <span>1 gp</span>
+                    <span class="action">Buy</span>
+                  </div>
+                </div>
+
+                <aside class="inspector grid-style" id="inspector">
+                  <div>
+                    <div class="inspect-title">
+                      <div><b>Beer</b><span>arnolds_eclectic_supplies:0:1917</span></div>
+                      <span class="type">live row</span>
+                    </div>
+                    <div class="quantity" id="quantityStrip">
+                      <span class="qty active">Buy 1</span>
+                      <span class="qty">Buy 5</span>
+                      <span class="qty">Buy 10</span>
+                      <span class="qty">Buy 50</span>
+                      <span class="qty">Custom</span>
+                      <span class="qty">All</span>
+                    </div>
+                    <div class="preview-line" id="previewLine">Preview: buy 1 x Beer for 2 Coins. Apply through apply_shop_buy_pure.</div>
+                  </div>
+                  <div class="detail-facts">
+                    <div class="fact"><strong>Stock</strong><span>8 current / 10 default</span></div>
+                    <div class="fact"><strong>Sell</strong><span>Can sell to this shop</span></div>
+                    <div class="fact"><strong>Context</strong><span>Darkan shop JSON, not debug paths</span></div>
+                  </div>
+                </aside>
+
+                <section class="services" id="services">
+                  <div class="section-head"><span class="micro-label">Services & Vendor Actions</span><span id="serviceLabel">command rows</span></div>
+                  <div class="service-row">
+                    <div><b>Tan soft leather</b><span>Cowhide + 1 Coin -> Leather · apply_shop_service_pure</span></div>
+                    <span class="action">Use</span>
+                  </div>
+                  <div class="service-row">
+                    <div><b>Buy a pint of beer</b><span>2 Coins -> Beer · apply_shop_vendor_action_pure</span></div>
+                    <span class="action">Use</span>
+                  </div>
+                </section>
+
+                <section class="history" id="history">
+                  <div class="section-head"><span class="micro-label">This Shop</span><span id="historyLabel">local strip</span></div>
+                  <div class="history-row">
+                    <div><b>Bought 2 x Beer</b><span>Arnold's Eclectic Supplies · -4 Coins</span></div>
+                    <span class="type">shop_evt_1</span>
+                  </div>
+                  <div class="history-row">
+                    <div><b>Sold 1 x Beer</b><span>Aemad's Adventuring Supplies · temporary stock created</span></div>
+                    <span class="type sell">shop_evt_2</span>
+                  </div>
+                </section>
+
+                <section class="global-history" id="globalHistory">
+                  <div class="section-head"><span class="micro-label">Global Recent</span><span>same event log</span></div>
+                  <div class="history-row">
+                    <div><b>Used Tan soft leather</b><span>Cowhide + Coins -> Leather</span></div>
+                    <span class="type">service</span>
+                  </div>
+                  <div class="history-row">
+                    <div><b>Completed Buy a pint of beer</b><span>Bartender vendor action · -2 Coins</span></div>
+                    <span class="type">vendor</span>
+                  </div>
+                </section>
+              </section>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary">
+          <div class="summary-card">
+            <h3>Implementation Notes For Qt</h3>
+            <ul>
+              <li>Use backend row state for enabled/disabled commands.</li>
+              <li>Do not show raw restock countdowns, formulas, source paths, or hidden reward shops.</li>
+              <li>Guard disabled row clicks so they inspect, not select as active transaction targets.</li>
+            </ul>
+          </div>
+          <div class="summary-card">
+            <h3>Current Selection</h3>
+            <ul id="selectionList"></ul>
+          </div>
+        </div>
+
+        <textarea id="packet" readonly aria-label="Copyable Wave 2 decision packet"></textarea>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const decisions = [
+      {
+        id: "density",
+        tab: "Density",
+        title: "Stock table density",
+        intro: "The table must handle broad catalog coverage while staying readable in Anki, VNC, and offscreen tests.",
+        recommended: "balanced_compact",
+        options: [
+          { id: "balanced_compact", label: "A", title: "Balanced compact table", body: "One-line rows with icons, stock, buy, sell, and command columns; selected rows open the inspector.", why: "Best default because it preserves density without turning the shop into a spreadsheet.", preview: "42px rows" },
+          { id: "ultra_dense", label: "B", title: "Ultra-dense RuneScape table", body: "Tighter rows, smaller text, and maximum stock visible above the fold.", why: "Efficient, but fragile for VNC/mobile and long item names.", preview: "30px rows" },
+          { id: "comfortable", label: "C", title: "Comfortable scan table", body: "Taller rows and more spacing for long names and lock reasons.", why: "Readable, but broad shop browsing gets slower.", preview: "50px rows" },
+          { id: "two_line", label: "D", title: "Two-line rows", body: "Each row uses a second line for lock reason, sellability, and current context.", why: "Clear, but the inspector already handles that extra context better.", preview: "58px rows" },
+          { id: "cards", label: "E", title: "Item cards", body: "Render stock as small cards with more breathing room and larger item affordances.", why: "Good for touch, but too bulky for 2,776 stock rows.", preview: "Cards" }
+        ]
+      },
+      {
+        id: "inspector",
+        tab: "Inspector",
+        title: "Row inspector placement",
+        intro: "Selecting a row should expose source-friendly context and commands without making locked rows transactable.",
+        recommended: "below_table",
+        options: [
+          { id: "below_table", label: "A", title: "Sticky panel below stock table", body: "Keep the inspector directly below the table with quantity controls, preview line, and row facts.", why: "Best because it is obvious in Qt and collapses naturally on narrow screens.", preview: "Below table" },
+          { id: "right_side", label: "B", title: "Right-side inspector", body: "A narrow detail pane sits beside the stock table on wide screens.", why: "Great for desktop, but it costs horizontal space in VNC.", preview: "Side pane" },
+          { id: "expand_row", label: "C", title: "Expandable selected row", body: "The selected stock row expands inline to show commands and context.", why: "Keeps context local, but table row heights jump around.", preview: "Inline expand" },
+          { id: "bottom_drawer", label: "D", title: "Bottom action drawer", body: "A drawer is pinned to the bottom of the Shop tab after row selection.", why: "Touch-friendly, but heavier than the current Qt style.", preview: "Drawer" },
+          { id: "modal", label: "E", title: "Inspector dialog", body: "Open row details in a dialog before any transaction.", why: "Clear, but too interruptive for immediate shop commands.", preview: "Dialog" }
+        ]
+      },
+      {
+        id: "row_state",
+        tab: "States",
+        title: "Live, locked, and temporary row state",
+        intro: "Visible locked rows are inspectable but inert. The lock reason must be exactly backend-owned.",
+        recommended: "reason_line",
+        options: [
+          { id: "reason_line", label: "A", title: "Disabled command plus reason line", body: "Muted row, disabled command, and compact backend lock_reason below the row.", why: "Best fit for the handoff: precise, testable, and not debug-heavy.", preview: "Reason line" },
+          { id: "status_column", label: "B", title: "Dedicated status column", body: "Add Live, Locked, Temporary, or Currency status in a fixed column.", why: "Very scannable, but it consumes width in the densest table.", preview: "Status column" },
+          { id: "icon_chip", label: "C", title: "Icon and chip only", body: "Show a lock or temporary chip and reveal the exact reason in inspector.", why: "Cleaner, but less obvious for VNC and automated tests.", preview: "Chips" },
+          { id: "state_sections", label: "D", title: "Group rows by state", body: "Separate Live, Locked, and Player-sold stock into subsections.", why: "Readable, but it changes source shop order.", preview: "Sections" },
+          { id: "audit_context", label: "E", title: "Context-heavy rows", body: "Display source confidence and lock details in every affected row.", why: "Useful while debugging, but too close to audit UI.", preview: "Verbose rows" }
+        ]
+      },
+      {
+        id: "search_density",
+        tab: "Search",
+        title: "Adaptive search result density",
+        intro: "Item-first search needs to compare stock rows, services, vendor actions, and visible locked routes without hiding distinct source stock.",
+        recommended: "comparison_rows",
+        options: [
+          { id: "comparison_rows", label: "A", title: "Compact comparison rows", body: "One row per source route with shop, kind, stock, price, and lock state.", why: "Best for feather and beer searches because every distinct route stays visible.", preview: "Rows" },
+          { id: "group_by_item", label: "B", title: "Group by matched item", body: "Item headers group all stock shops and services that produce the item.", why: "Good for broad queries, but one-item searches add an extra layer.", preview: "Item groups" },
+          { id: "split_stock_service", label: "C", title: "Split stock and services", body: "Stock shop results and service/vendor results render in separate result bands.", why: "Mechanically clear, but more vertical movement.", preview: "Bands" },
+          { id: "cards", label: "D", title: "Result cards", body: "Each result is a card with current state and a click-through command.", why: "Readable, but too slow for many matches.", preview: "Cards" },
+          { id: "nav_filter_only", label: "E", title: "Tree filter with detail fallback", body: "Filter the left tree and show result details only after selection.", why: "Simpler, but it weakens item-first comparison.", preview: "Tree filter" }
+        ]
+      },
+      {
+        id: "quantity",
+        tab: "Quantity",
+        title: "Quantity control ergonomics",
+        intro: "Transactions are immediate commands, but the frontend still calls preview APIs for allowed state and current price.",
+        recommended: "strip_preview",
+        options: [
+          { id: "strip_preview", label: "A", title: "Quantity strip with preview echo", body: "1, 5, 10, 50, Custom, and All buttons plus a one-line backend preview summary.", why: "Best because it keeps RuneScape quantities and makes the backend preview visible without a modal.", preview: "Strip + echo" },
+          { id: "strip_only", label: "B", title: "Quantity strip only", body: "Only show quantity buttons; rely on row price and disabled states.", why: "Game-like, but less transparent after clamping.", preview: "Strip" },
+          { id: "stepper_custom", label: "C", title: "Stepper and custom entry", body: "Use a numeric field with plus/minus and shortcut buttons.", why: "Precise, but slower than source-like quantity clicks.", preview: "Stepper" },
+          { id: "row_commands", label: "D", title: "Inline row commands", body: "Show Buy 1 / 5 / 10 directly in the selected live row.", why: "Fast for one row, but table width gets tight.", preview: "Row commands" },
+          { id: "confirm_every_large", label: "E", title: "Confirm large or all only", body: "Small transactions apply immediately; All or expensive actions require a confirmation prompt.", why: "Safer for costly mistakes, but only worth adding if the backend exposes a clear high-cost flag later.", preview: "Selective confirm" }
+        ]
+      },
+      {
+        id: "services",
+        tab: "Services",
+        title: "Service and vendor command grouping",
+        intro: "Services and vendor actions belong in Shop but must not masquerade as finite/restocking stock rows.",
+        recommended: "command_rows",
+        options: [
+          { id: "command_rows", label: "A", title: "Command rows below stock", body: "Show services/vendor actions as rows with input, cost, output, and Use command below stock.", why: "Best because it keeps one vendor detail while preserving service mechanics.", preview: "Command rows" },
+          { id: "service_cards", label: "B", title: "Compact service cards", body: "Use cards for services with multiple inputs or outputs.", why: "Better for complex exchanges, but overbuilt for tanning and bartender fixtures.", preview: "Cards" },
+          { id: "separate_nav_group", label: "C", title: "Service nav group", body: "Expose service vendors in their own left-nav group while detail still uses command rows.", why: "Good secondary organization, but not enough by itself.", preview: "Nav group" },
+          { id: "combined_table", label: "D", title: "Combined stock/action table", body: "Add service/vendor actions into the same table with a Kind column.", why: "Dense, but it makes services look like stock rows.", preview: "Combined table" },
+          { id: "search_only", label: "E", title: "Search-only services", body: "Surface services through item search but keep them out of normal grouped browsing.", why: "Quiet, but hides first-class source-backed vendors.", preview: "Search only" }
+        ]
+      },
+      {
+        id: "history",
+        tab: "History",
+        title: "History detail",
+        intro: "History derives from the backend event stream and should explain inventory/currency changes without exposing rollback internals.",
+        recommended: "local_plus_global",
+        options: [
+          { id: "local_plus_global", label: "A", title: "Local strip plus global recent", body: "Selected detail shows local events; a compact global section shows latest buys, sells, services, and vendors.", why: "Best because it matches the settled design and gives both context levels.", preview: "Two strips" },
+          { id: "local_collapsed", label: "B", title: "Local strip with collapsed global", body: "Show local history and keep global recent behind a small expander.", why: "Cleaner, but one click away from cross-shop context.", preview: "Collapsed global" },
+          { id: "global_sidebar", label: "C", title: "Global sidebar rail", body: "A right rail keeps recent activity visible across all shops.", why: "Good for desktop, poor for VNC width.", preview: "Sidebar" },
+          { id: "toast_plus_log", label: "D", title: "Toast plus global log button", body: "Show immediate transaction feedback and a button for full recent history.", why: "Good after commands, but weaker for passive review.", preview: "Toast + log" },
+          { id: "hidden_until_action", label: "E", title: "Hidden until first action", body: "No history section appears until the player has shop events.", why: "Quiet for new saves, but less stable for Qt layout tests.", preview: "Lazy history" }
+        ]
+      },
+      {
+        id: "mobile_vnc",
+        tab: "VNC",
+        title: "VNC and mobile compression",
+        intro: "The first implementation is Qt, but the surface must survive narrow VNC and mobile review without overlapping or hiding critical actions.",
+        recommended: "adaptive_stack",
+        options: [
+          { id: "adaptive_stack", label: "A", title: "Adaptive stack with sticky action block", body: "On narrow widths, nav stacks above detail and the row inspector becomes a sticky action block under the table.", why: "Best because it preserves the same mental model while preventing horizontal squeeze.", preview: "Stack" },
+          { id: "desktop_scroll", label: "B", title: "Desktop layout with horizontal scroll", body: "Keep the desktop grid and allow horizontal scroll in VNC/mobile.", why: "Simple to implement, but annoying on phones.", preview: "Scroll" },
+          { id: "single_column", label: "C", title: "Single-column mobile mode", body: "Search, group picker, stock rows, inspector, services, and history become one long column.", why: "Very readable, but slower to jump between groups.", preview: "Column" },
+          { id: "drawer_nav", label: "D", title: "Drawer navigation", body: "Left navigation collapses into a drawer while detail takes full width.", why: "Efficient, but Qt drawer behavior may be more work than value.", preview: "Drawer nav" },
+          { id: "minimal_mobile", label: "E", title: "Minimal transaction mode", body: "Mobile view hides services and history until explicitly expanded.", why: "Clean, but too likely to bury important contract states.", preview: "Minimal" }
+        ]
+      }
+    ];
+
+    const storageKey = "ankiscape-shop-wave2-decisions";
+    const defaults = Object.fromEntries(decisions.map((decision) => [decision.id, decision.recommended]));
+    let selection = { ...defaults };
+    let active = decisions[0].id;
+    let viewport = "desktop";
+
+    try {
+      selection = { ...selection, ...JSON.parse(localStorage.getItem(storageKey) || "{}") };
+    } catch (error) {
+      selection = { ...defaults };
+    }
+
+    const tabs = document.getElementById("tabs");
+    const decisionNode = document.getElementById("decision");
+    const countNode = document.getElementById("count");
+    const mock = document.getElementById("mock");
+    const caption = document.getElementById("caption");
+    const packet = document.getElementById("packet");
+    const selectionList = document.getElementById("selectionList");
+    const searchChip = document.getElementById("searchChip");
+    const searchDensityLabel = document.getElementById("searchDensityLabel");
+    const serviceLabel = document.getElementById("serviceLabel");
+    const historyLabel = document.getElementById("historyLabel");
+    const shopSubtitle = document.getElementById("shopSubtitle");
+    const previewLine = document.getElementById("previewLine");
+
+    function getDecision(id) {
+      return decisions.find((decision) => decision.id === id);
+    }
+
+    function getOption(decision) {
+      return decision.options.find((option) => option.id === selection[decision.id]) || decision.options[0];
+    }
+
+    function renderTabs() {
+      tabs.innerHTML = decisions.map((decision) => {
+        const selected = active === decision.id;
+        return `<button type="button" class="tab" role="tab" aria-selected="${selected}" data-tab="${decision.id}">${decision.tab}</button>`;
+      }).join("");
+      tabs.querySelectorAll("button").forEach((button) => {
+        button.addEventListener("click", () => {
+          active = button.dataset.tab;
+          render();
+        });
+      });
+    }
+
+    function renderDecision() {
+      const decision = getDecision(active);
+      decisionNode.innerHTML = `
+        <div class="question">
+          <strong>${decision.title}</strong>
+          <span>${decision.intro}</span>
+        </div>
+        <div class="choices">
+          ${decision.options.map((option) => {
+            const checked = selection[decision.id] === option.id;
+            const recommended = decision.recommended === option.id;
+            return `
+              <label class="choice ${checked ? "selected" : ""} ${recommended ? "recommended" : ""}">
+                <input type="radio" name="${decision.id}" value="${option.id}" ${checked ? "checked" : ""}>
+                <span class="choice-letter">${option.label}</span>
+                <span>
+                  <span class="choice-title">
+                    <b>${option.title}</b>
+                    ${recommended ? '<span class="pill rec">Recommended</span>' : ""}
+                    <span class="pill">${option.preview}</span>
+                  </span>
+                  <p>${option.body}</p>
+                  <span class="why"><strong>Why:</strong> ${option.why}</span>
+                </span>
+              </label>
+            `;
+          }).join("")}
+        </div>
+      `;
+
+      decisionNode.querySelectorAll("input").forEach((input) => {
+        input.addEventListener("change", () => {
+          selection[decision.id] = input.value;
+          persist();
+          render();
+        });
+      });
+    }
+
+    function persist() {
+      localStorage.setItem(storageKey, JSON.stringify(selection));
+    }
+
+    function renderMock() {
+      mock.className = "mock";
+      mock.classList.add(viewport);
+
+      const densityClass = {
+        balanced_compact: "compact",
+        ultra_dense: "ultradense",
+        comfortable: "comfortable",
+        two_line: "twoline",
+        cards: "cards"
+      }[selection.density] || "compact";
+      mock.classList.add(densityClass);
+
+      if (selection.inspector === "right_side") mock.classList.add("inspector-right");
+      if (selection.services === "search_only") mock.classList.add("services-hidden");
+      if (selection.services === "service_cards") mock.classList.add("services-cards");
+
+      if (selection.history === "hidden_until_action") {
+        mock.classList.add("history-hidden");
+      } else if (selection.history === "local_collapsed") {
+        mock.classList.add("history-local");
+      } else {
+        mock.classList.add("history-global");
+      }
+
+      searchChip.textContent = {
+        comparison_rows: "Compact item comparison",
+        group_by_item: "Grouped by item",
+        split_stock_service: "Stock/service bands",
+        cards: "Result cards",
+        nav_filter_only: "Tree filter fallback"
+      }[selection.search_density];
+
+      searchDensityLabel.textContent = getOption(getDecision("search_density")).preview;
+      serviceLabel.textContent = getOption(getDecision("services")).preview;
+      historyLabel.textContent = getOption(getDecision("history")).preview;
+
+      const stateText = {
+        reason_line: "Disabled rows show backend lock_reason directly: price_policy_unresolved.",
+        status_column: "A status column would label locked, live, temporary, and currency rows.",
+        icon_chip: "Lock reason appears in the inspector after selecting a disabled row.",
+        state_sections: "Live, Locked, and Player-sold rows are grouped into state sections.",
+        audit_context: "Rows include more source confidence language, but no raw paths."
+      }[selection.row_state];
+
+      shopSubtitle.textContent = stateText;
+
+      previewLine.textContent = {
+        strip_preview: "Preview: buy 1 x Beer for 2 Coins. Apply through apply_shop_buy_pure.",
+        strip_only: "Selected quantity applies immediately when enabled by preview APIs.",
+        stepper_custom: "Custom quantity: preview clamps by stock, Coins, and backend sell policy.",
+        row_commands: "Row command preview: Buy 1 is enabled; Buy 50 would clamp to stock.",
+        confirm_every_large: "Small buy applies immediately; All/large spend would request confirmation."
+      }[selection.quantity];
+
+      caption.textContent = `${getOption(getDecision("density")).preview} · ${getOption(getDecision("inspector")).preview} · ${getOption(getDecision("mobile_vnc")).preview}`;
+    }
+
+    function renderSummary() {
+      countNode.textContent = `${decisions.length} / ${decisions.length} selected`;
+      selectionList.innerHTML = decisions.map((decision) => {
+        const option = getOption(decision);
+        return `<li>${decision.tab}: ${option.title}</li>`;
+      }).join("");
+      packet.value = buildPacket();
+    }
+
+    function buildPacket() {
+      const lines = [
+        "NPC Shop frontend Wave 2 selections:",
+        "",
+        "Wave 1 locked decisions:",
+        "- Grouped master/detail with persistent adaptive search.",
+        "- Dense stock table with selected-row inspector.",
+        "- Inline RuneScape quantity strip using backend preview/apply APIs.",
+        "- Disabled locked rows show backend lock_reason and stay inert.",
+        "- Service/vendor actions render separately from finite stock rows.",
+        "- Shop-local plus global history derive from the same backend event log.",
+        "",
+        "Wave 2 selections:"
+      ];
+
+      decisions.forEach((decision) => {
+        const option = getOption(decision);
+        lines.push(`- ${decision.title}: ${option.title}. ${option.body}`);
+      });
+
+      lines.push("");
+      lines.push("Frontend implementation guardrails:");
+      lines.push("- Use shop_fixtures.build_shop_frontend_fixtures() first for Qt tests and mock state.");
+      lines.push("- Render shop_logic.py view/preview/apply outputs as authoritative; do not duplicate price, lock, stock, or sell-policy logic.");
+      lines.push("- Keep hidden reward/activity shops out of normal browsing and item-first search.");
+      lines.push("- Keep raw restock progress, source paths, formulas, and rollback payloads out of normal player UI.");
+      return lines.join("\\n");
+    }
+
+    function render() {
+      renderTabs();
+      renderDecision();
+      renderMock();
+      renderSummary();
+    }
+
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      selection = { ...defaults };
+      persist();
+      render();
+    });
+
+    document.getElementById("copyBtn").addEventListener("click", async () => {
+      packet.value = buildPacket();
+      packet.focus();
+      packet.select();
+      try {
+        await navigator.clipboard.writeText(packet.value);
+        document.getElementById("copyBtn").textContent = "Copied";
+        setTimeout(() => {
+          document.getElementById("copyBtn").textContent = "Copy Wave 2 Packet";
+        }, 1100);
+      } catch (error) {
+        document.execCommand("copy");
+      }
+    });
+
+    document.querySelectorAll(".viewport-buttons button").forEach((button) => {
+      button.addEventListener("click", () => {
+        viewport = button.dataset.viewport;
+        document.querySelectorAll(".viewport-buttons button").forEach((item) => {
+          item.setAttribute("aria-pressed", String(item === button));
+        });
+        renderMock();
+      });
+    });
+
+    render();
+  </script>
+</body>
+</html>
