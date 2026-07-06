@@ -43,7 +43,8 @@ try:
         QInputDialog,
         QDesktopServices,
         QUrl,
-    QEvent,
+        QEvent,
+        QLineEdit,
     )
     HAS_QT = True
 except Exception:
@@ -262,6 +263,37 @@ except Exception:
         smithing_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
+    )
+
+try:
+    from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+    from .shop_logic import (
+        apply_shop_buy_pure,
+        apply_shop_sell_pure,
+        apply_shop_service_pure,
+        apply_shop_vendor_action_pure,
+        preview_shop_buy_pure,
+        preview_shop_sell_pure,
+        preview_shop_service_pure,
+        preview_shop_vendor_action_pure,
+        search_shop_catalog_pure,
+        shop_history_rows_pure,
+        shop_view_model_pure,
+    )
+except Exception:
+    from shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS  # type: ignore
+    from shop_logic import (  # type: ignore
+        apply_shop_buy_pure,
+        apply_shop_sell_pure,
+        apply_shop_service_pure,
+        apply_shop_vendor_action_pure,
+        preview_shop_buy_pure,
+        preview_shop_sell_pure,
+        preview_shop_service_pure,
+        preview_shop_vendor_action_pure,
+        search_shop_catalog_pure,
+        shop_history_rows_pure,
+        shop_view_model_pure,
     )
 
 try:
@@ -2686,6 +2718,722 @@ def show_main_menu(
 
     tabs.addTab(skills_tab, "Skills")
     tabs.setTabToolTip(tabs.indexOf(skills_tab), "Pick a category, choose a skill, then select what to train on")
+
+    # ---- Shop tab ---------------------------------------------------------
+    # Frontend boundary: the tab is deliberately thin. It renders backend view
+    # models and calls preview/apply APIs; it does not calculate prices, sell
+    # policy, stock behavior, service eligibility, or hidden reward-shop state.
+    shop_tab = QWidget()
+    shop_tab.setObjectName("shopTab")
+    shop_layout = QVBoxLayout(shop_tab)
+    shop_layout.setContentsMargins(12, 12, 12, 12)
+    shop_layout.setSpacing(8)
+
+    shop_search = QLineEdit()
+    shop_search.setObjectName("shopSearchInput")
+    shop_search.setPlaceholderText("Search shops or items")
+    shop_search.setClearButtonEnabled(True)
+    shop_search.setStyleSheet(
+        "QLineEdit { padding: 7px 10px; border: 1px solid palette(mid);"
+        " border-radius: 8px; color: palette(text); background: palette(base); }"
+    )
+    shop_layout.addWidget(shop_search)
+
+    shop_selector = QListWidget()
+    shop_selector.setObjectName("shopSelectionList")
+    shop_selector.setMaximumHeight(116)
+    shop_selector.setAlternatingRowColors(True)
+    shop_selector.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 3px; }"
+        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+    )
+    shop_layout.addWidget(shop_selector)
+
+    shop_shell = QWidget()
+    shop_shell.setObjectName("shopDetailShell")
+    shop_shell.setStyleSheet(
+        "QWidget#shopDetailShell { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); }"
+    )
+    shop_shell_layout = QVBoxLayout(shop_shell)
+    shop_shell_layout.setContentsMargins(10, 8, 10, 10)
+    shop_shell_layout.setSpacing(8)
+
+    shop_header = QWidget()
+    shop_header_layout = QHBoxLayout(shop_header)
+    shop_header_layout.setContentsMargins(0, 0, 0, 0)
+    shop_header_layout.setSpacing(8)
+    shop_title = QLabel("Select a shop")
+    shop_title.setObjectName("shopDetailTitle")
+    shop_title.setStyleSheet("font-size: 14px; font-weight: 700; color: palette(text);")
+    shop_meta = QLabel("")
+    shop_meta.setObjectName("shopDetailMeta")
+    shop_meta.setStyleSheet(f"color: {dim_text_css(shop_meta)};")
+    shop_header_layout.addWidget(shop_title, 1)
+    shop_header_layout.addWidget(shop_meta)
+    shop_shell_layout.addWidget(shop_header)
+
+    shop_mode_tabs = QTabWidget()
+    shop_mode_tabs.setObjectName("shopModeTabs")
+    shop_mode_tabs.setDocumentMode(True)
+
+    buy_page = QWidget()
+    buy_layout = QVBoxLayout(buy_page)
+    buy_layout.setContentsMargins(0, 0, 0, 0)
+    buy_layout.setSpacing(6)
+    stock_scroll = QScrollArea()
+    stock_scroll.setObjectName("shopStockScroll")
+    stock_scroll.setWidgetResizable(True)
+    stock_scroll.setMinimumHeight(156)
+    stock_scroll.setStyleSheet("QScrollArea#shopStockScroll { border: 1px solid palette(mid); border-radius: 8px; }")
+    stock_content = QWidget()
+    stock_grid = QGridLayout(stock_content)
+    stock_grid.setContentsMargins(6, 6, 6, 6)
+    stock_grid.setSpacing(6)
+    stock_scroll.setWidget(stock_content)
+    buy_layout.addWidget(stock_scroll, 1)
+    shop_mode_tabs.addTab(buy_page, "Buy Items")
+
+    sell_page = QWidget()
+    sell_layout = QVBoxLayout(sell_page)
+    sell_layout.setContentsMargins(0, 0, 0, 0)
+    sell_layout.setSpacing(6)
+    sell_hint = QLabel("Select an item from your bank to sell to this shop.")
+    sell_hint.setObjectName("shopSellHint")
+    sell_hint.setStyleSheet(f"color: {dim_text_css(sell_hint)};")
+    sell_layout.addWidget(sell_hint)
+    sell_inventory = QListWidget()
+    sell_inventory.setObjectName("shopSellInventoryList")
+    sell_inventory.setAlternatingRowColors(True)
+    sell_inventory.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 3px; }"
+        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+    )
+    sell_layout.addWidget(sell_inventory, 1)
+    shop_mode_tabs.addTab(sell_page, "Sell Items")
+    shop_shell_layout.addWidget(shop_mode_tabs, 1)
+
+    transaction_panel = QWidget()
+    transaction_panel.setObjectName("shopTransactionPanel")
+    transaction_panel.setStyleSheet(
+        "QWidget#shopTransactionPanel { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: rgba(255,255,255,0.03); }"
+    )
+    transaction_layout = QVBoxLayout(transaction_panel)
+    transaction_layout.setContentsMargins(8, 6, 8, 8)
+    transaction_layout.setSpacing(5)
+    shop_selected_label = QLabel("Select an item")
+    shop_selected_label.setObjectName("shopSelectedItemLabel")
+    shop_selected_label.setStyleSheet("font-weight: 600; color: palette(text);")
+    transaction_layout.addWidget(shop_selected_label)
+    quantity_row = QWidget()
+    quantity_layout = QHBoxLayout(quantity_row)
+    quantity_layout.setContentsMargins(0, 0, 0, 0)
+    quantity_layout.setSpacing(5)
+    quantity_layout.addWidget(QLabel("Qty:"))
+    shop_quantity_buttons = {}
+    for amount in (1, 5, 10, 50):
+        btn = QPushButton(str(amount))
+        btn.setObjectName(f"shopQty{amount}Button")
+        btn.setMaximumWidth(44)
+        shop_quantity_buttons[amount] = btn
+        quantity_layout.addWidget(btn)
+    shop_custom_qty = QSpinBox()
+    shop_custom_qty.setObjectName("shopCustomQuantitySpin")
+    shop_custom_qty.setRange(1, 999999)
+    shop_custom_qty.setValue(1)
+    shop_custom_qty.setMaximumWidth(92)
+    quantity_layout.addWidget(shop_custom_qty)
+    shop_all_qty = QPushButton("All")
+    shop_all_qty.setObjectName("shopQtyAllButton")
+    shop_all_qty.setMaximumWidth(50)
+    quantity_layout.addWidget(shop_all_qty)
+    quantity_layout.addStretch(1)
+    shop_action_btn = QPushButton("Buy")
+    shop_action_btn.setObjectName("shopTransactionButton")
+    quantity_layout.addWidget(shop_action_btn)
+    transaction_layout.addWidget(quantity_row)
+    shop_preview_label = QLabel("Preview unavailable")
+    shop_preview_label.setObjectName("shopPreviewLabel")
+    shop_preview_label.setWordWrap(True)
+    shop_preview_label.setStyleSheet(f"color: {dim_text_css(shop_preview_label)};")
+    transaction_layout.addWidget(shop_preview_label)
+    shop_shell_layout.addWidget(transaction_panel)
+
+    services_header = QLabel("Services / Vendor Actions")
+    services_header.setObjectName("shopServicesHeader")
+    services_header.setStyleSheet("font-weight: 600; color: palette(text);")
+    shop_shell_layout.addWidget(services_header)
+    service_row = QWidget()
+    service_row_layout = QHBoxLayout(service_row)
+    service_row_layout.setContentsMargins(0, 0, 0, 0)
+    service_row_layout.setSpacing(8)
+    service_list = QListWidget()
+    service_list.setObjectName("shopServiceList")
+    service_list.setMaximumHeight(88)
+    service_list.setAlternatingRowColors(True)
+    service_list.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 3px; }"
+        " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
+        " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
+    )
+    service_row_layout.addWidget(service_list, 1)
+    service_controls = QWidget()
+    service_controls_layout = QVBoxLayout(service_controls)
+    service_controls_layout.setContentsMargins(0, 0, 0, 0)
+    service_controls_layout.setSpacing(5)
+    service_qty = QSpinBox()
+    service_qty.setObjectName("shopServiceQuantitySpin")
+    service_qty.setRange(1, 999999)
+    service_qty.setValue(1)
+    service_controls_layout.addWidget(service_qty)
+    service_use_btn = QPushButton("Use")
+    service_use_btn.setObjectName("shopServiceUseButton")
+    service_controls_layout.addWidget(service_use_btn)
+    service_controls_layout.addStretch(1)
+    service_row_layout.addWidget(service_controls)
+    shop_shell_layout.addWidget(service_row)
+    service_preview = QLabel("")
+    service_preview.setObjectName("shopServicePreviewLabel")
+    service_preview.setWordWrap(True)
+    service_preview.setStyleSheet(f"color: {dim_text_css(service_preview)};")
+    shop_shell_layout.addWidget(service_preview)
+
+    history_header = QWidget()
+    history_header_layout = QHBoxLayout(history_header)
+    history_header_layout.setContentsMargins(0, 0, 0, 0)
+    history_header_layout.setSpacing(8)
+    history_label = QLabel("Recent Shop Activity")
+    history_label.setStyleSheet("font-weight: 600; color: palette(text);")
+    global_history_btn = QPushButton("Global recent")
+    global_history_btn.setObjectName("shopGlobalHistoryButton")
+    global_history_btn.setCheckable(True)
+    history_header_layout.addWidget(history_label)
+    history_header_layout.addStretch(1)
+    history_header_layout.addWidget(global_history_btn)
+    shop_shell_layout.addWidget(history_header)
+    local_history = QListWidget()
+    local_history.setObjectName("shopLocalHistoryList")
+    local_history.setMaximumHeight(82)
+    local_history.setStyleSheet(
+        "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: palette(base); color: palette(text); padding: 3px; }"
+        " QListWidget::item { padding: 4px 6px; }"
+    )
+    global_history = QListWidget()
+    global_history.setObjectName("shopGlobalHistoryList")
+    global_history.setMaximumHeight(82)
+    global_history.setVisible(False)
+    global_history.setStyleSheet(local_history.styleSheet())
+    shop_shell_layout.addWidget(local_history)
+    shop_shell_layout.addWidget(global_history)
+
+    shop_toast = QLabel("")
+    shop_toast.setObjectName("shopToastLabel")
+    shop_toast.setWordWrap(True)
+    shop_toast.setStyleSheet("color: #4CAF50; font-weight: 600;")
+    shop_shell_layout.addWidget(shop_toast)
+    shop_layout.addWidget(shop_shell, 1)
+
+    shop_state = {
+        "shop_id": "",
+        "row_id": "",
+        "sell_item": "",
+        "service_kind": "",
+        "service_id": "",
+    }
+
+    def _safe_object_suffix(value: str) -> str:
+        return "".join(ch if ch.isalnum() else "_" for ch in value)[:80]
+
+    def _visible_shop_defs() -> list:
+        return [
+            shop for shop in SHOP_DATA.values()
+            if shop.get("visibility") != "hidden"
+        ]
+
+    def _visible_service_defs() -> list:
+        rows = []
+        for service in SHOP_SERVICES.values():
+            if service.get("visibility") == "visible":
+                rows.append(("service", service))
+        for action in SHOP_VENDOR_ACTIONS.values():
+            if action.get("visibility") == "visible":
+                rows.append(("vendor_action", action))
+        return rows
+
+    def _format_shop_price(value, currency_name: str) -> str:
+        if value is None:
+            return "N/A"
+        try:
+            amount = int(value)
+        except (TypeError, ValueError):
+            return "N/A"
+        return f"{amount:,} {currency_name}"
+
+    def _inventory_count_for_ui(item_name: str) -> int:
+        inventory = player_data.get("inventory", {}) or {}
+        try:
+            return max(0, int(inventory.get(item_name, 0) or 0))
+        except (TypeError, ValueError):
+            return 0
+
+    def _replace_player_data(new_data: dict) -> None:
+        player_data.clear()
+        player_data.update(new_data)
+
+    def _persist_shop_state() -> None:
+        try:
+            on_save_skill(state.get("active", current_skill) or "None")
+        except Exception:
+            pass
+
+    def _refresh_after_shop_mutation(message: str) -> None:
+        shop_toast.setText(message)
+        _populate_shop_selector()
+        _render_shop_detail()
+        _populate_sell_inventory()
+        _populate_shop_history()
+        try:
+            _refresh_equipment_views()
+        except Exception:
+            pass
+
+    def _shop_view() -> dict:
+        visible = _visible_shop_defs()
+        if not visible:
+            return {"exists": False, "rows": []}
+        if not shop_state["shop_id"] or all(shop.get("id") != shop_state["shop_id"] for shop in visible):
+            shop_state["shop_id"] = visible[0]["id"]
+        return shop_view_model_pure(player_data, shop_state["shop_id"])
+
+    def _selected_buy_row(view: dict | None = None) -> Optional[dict]:
+        view = view if view is not None else _shop_view()
+        rows = view.get("rows", []) if isinstance(view, dict) else []
+        if not rows:
+            return None
+        row = next((candidate for candidate in rows if candidate.get("id") == shop_state["row_id"]), None)
+        if row is None:
+            row = rows[0]
+            shop_state["row_id"] = row.get("id", "")
+        return row
+
+    def _stock_tile_text(row: dict, currency_name: str) -> str:
+        stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
+        price = _format_shop_price(row.get("buy_price"), currency_name)
+        marker = "LOCK" if row.get("lock_reason") else ""
+        return "\n".join(part for part in (str(row.get("item_name", "Item")), stock, price, marker) if part)
+
+    def _render_stock_grid() -> None:
+        _clear_layout(stock_grid)
+        view = _shop_view()
+        rows = view.get("rows", []) if view.get("exists") else []
+        if not rows:
+            empty = QLabel("No stock rows available.")
+            empty.setStyleSheet(f"color: {dim_text_css(empty)};")
+            stock_grid.addWidget(empty, 0, 0)
+            return
+        currency_name = str(view.get("currency_item_name", "Coins"))
+        selected_row_id = shop_state["row_id"]
+        for index, row in enumerate(rows):
+            row_id = str(row.get("id", ""))
+            btn = QPushButton(_stock_tile_text(row, currency_name))
+            btn.setObjectName(f"shopStockTile_{_safe_object_suffix(row_id)}")
+            btn.setProperty("shopRowId", row_id)
+            btn.setMinimumSize(92, 66)
+            btn.setCheckable(True)
+            btn.setChecked(row_id == selected_row_id)
+            btn.setToolTip(str(row.get("lock_reason") or row.get("item_name", "")))
+            border = "#4CAF50" if row_id == selected_row_id else "palette(mid)"
+            foreground = dim_text_css(btn) if row.get("lock_reason") else "palette(text)"
+            btn.setStyleSheet(
+                f"QPushButton {{ text-align: center; padding: 5px; border: 1px solid {border};"
+                f" border-radius: 6px; color: {foreground}; background: rgba(255,255,255,0.03); }}"
+                " QPushButton:hover { border-color: #4CAF50; }"
+            )
+            btn.clicked.connect(lambda _=False, rid=row_id: _select_stock_row(rid))
+            stock_grid.addWidget(btn, index // 6, index % 6)
+
+    def _select_stock_row(row_id: str) -> None:
+        shop_state["row_id"] = row_id
+        _render_stock_grid()
+        _refresh_transaction_panel()
+
+    def _populate_sell_inventory() -> None:
+        current = shop_state.get("sell_item", "")
+        sell_inventory.clear()
+        inventory = player_data.get("inventory", {}) or {}
+        items = [
+            (name, int(amount or 0))
+            for name, amount in sorted(inventory.items())
+            if isinstance(name, str) and int(amount or 0) > 0
+        ]
+        if not items:
+            empty = QListWidgetItem("Your bank has no sellable items.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            sell_inventory.addItem(empty)
+            shop_state["sell_item"] = ""
+            return
+        selected_item = current if any(name == current for name, _amount in items) else items[0][0]
+        shop_state["sell_item"] = selected_item
+        for name, amount in items:
+            item = QListWidgetItem(f"{name} x{amount:,}")
+            item.setData(Qt.ItemDataRole.UserRole, name)
+            sell_inventory.addItem(item)
+            if name == selected_item:
+                sell_inventory.setCurrentItem(item)
+
+    def _set_quantity(value: int) -> None:
+        shop_custom_qty.blockSignals(True)
+        shop_custom_qty.setValue(max(1, min(999999, int(value))))
+        shop_custom_qty.blockSignals(False)
+        _refresh_transaction_panel()
+
+    def _set_all_quantity() -> None:
+        if shop_mode_tabs.currentIndex() == 0:
+            row = _selected_buy_row()
+            if row is not None:
+                _set_quantity(max(1, int(row.get("current_quantity", 1) or 1)))
+                return
+        else:
+            item_name = shop_state.get("sell_item", "")
+            if item_name:
+                _set_quantity(max(1, _inventory_count_for_ui(item_name)))
+
+    def _refresh_transaction_panel() -> None:
+        view = _shop_view()
+        shop_id = str(view.get("shop_id", ""))
+        qty = int(shop_custom_qty.value())
+        if shop_mode_tabs.currentIndex() == 0:
+            row = _selected_buy_row(view)
+            if row is None:
+                shop_selected_label.setText("Select an item")
+                shop_preview_label.setText("No stock row selected.")
+                shop_action_btn.setText("Buy")
+                shop_action_btn.setEnabled(False)
+                return
+            item_name = str(row.get("item_name", "Item"))
+            price = _format_shop_price(row.get("buy_price"), str(view.get("currency_item_name", "Coins")))
+            stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
+            shop_selected_label.setText(f"{item_name} · Stock {stock} · Buy {price}")
+            preview = preview_shop_buy_pure(player_data, shop_id, str(row.get("id", "")), qty)
+            if preview.get("allowed"):
+                amount = int(preview.get("quantity", qty) or qty)
+                total = int(preview.get("total_price", 0) or 0)
+                currency = str(preview.get("currency_item_name", view.get("currency_item_name", "Coins")))
+                suffix = " (clamped)" if preview.get("clamped") else ""
+                shop_preview_label.setText(f"Buy {amount:,} x {item_name} for {total:,} {currency}.{suffix}")
+                shop_action_btn.setText(f"Buy {amount:,}")
+                shop_action_btn.setEnabled(True)
+            else:
+                reason = str(row.get("lock_reason") or preview.get("reason", "unavailable"))
+                shop_preview_label.setText(reason)
+                shop_action_btn.setText("Buy")
+                shop_action_btn.setEnabled(False)
+        else:
+            item_name = shop_state.get("sell_item", "")
+            shop_action_btn.setText("Sell")
+            if not item_name:
+                shop_selected_label.setText("Select an item")
+                shop_preview_label.setText("No bank item selected.")
+                shop_action_btn.setEnabled(False)
+                return
+            owned = _inventory_count_for_ui(item_name)
+            shop_selected_label.setText(f"{item_name} · You have {owned:,}")
+            preview = preview_shop_sell_pure(player_data, shop_id, item_name, qty)
+            if preview.get("allowed"):
+                amount = int(preview.get("quantity", qty) or qty)
+                total = int(preview.get("total_price", 0) or 0)
+                currency = str(preview.get("currency_item_name", view.get("currency_item_name", "Coins")))
+                suffix = " (clamped)" if preview.get("clamped") else ""
+                shop_preview_label.setText(f"Sell {amount:,} x {item_name} for {total:,} {currency}.{suffix}")
+                shop_action_btn.setText(f"Sell {amount:,}")
+                shop_action_btn.setEnabled(True)
+            else:
+                shop_preview_label.setText(str(preview.get("reason", "unavailable")))
+                shop_action_btn.setEnabled(False)
+
+    def _apply_shop_transaction() -> None:
+        view = _shop_view()
+        shop_id = str(view.get("shop_id", ""))
+        qty = int(shop_custom_qty.value())
+        if shop_mode_tabs.currentIndex() == 0:
+            row = _selected_buy_row(view)
+            if row is None:
+                return
+            new_data, result = apply_shop_buy_pure(player_data, shop_id, str(row.get("id", "")), qty)
+            if not result.get("allowed"):
+                _refresh_transaction_panel()
+                return
+            _replace_player_data(new_data)
+            _persist_shop_state()
+            _refresh_after_shop_mutation(f"Bought {int(result.get('quantity', 0) or 0):,} x {result.get('item_name', row.get('item_name', 'item'))}.")
+        else:
+            item_name = shop_state.get("sell_item", "")
+            if not item_name:
+                return
+            new_data, result = apply_shop_sell_pure(player_data, shop_id, item_name, qty)
+            if not result.get("allowed"):
+                _refresh_transaction_panel()
+                return
+            _replace_player_data(new_data)
+            _persist_shop_state()
+            _refresh_after_shop_mutation(f"Sold {int(result.get('quantity', 0) or 0):,} x {item_name}.")
+
+    def _service_text(kind: str, row: dict) -> str:
+        label = "Service" if kind == "service" else "Vendor"
+        provider = str(row.get("provider", ""))
+        price = _format_shop_price(row.get("price", 0), str(row.get("currency_item_name", "Coins")))
+        outputs = ", ".join(
+            f"{item.get('item_name')} x{item.get('quantity', 1)}"
+            for item in row.get("outputs", [])[:2]
+        )
+        right = f" -> {outputs}" if outputs else ""
+        return f"{label}: {row.get('display_name', row.get('id'))} · {provider} · {price}{right}"
+
+    def _populate_services() -> None:
+        current_id = shop_state.get("service_id", "")
+        service_list.clear()
+        rows = _visible_service_defs()
+        if not rows:
+            empty = QListWidgetItem("No live services or vendor actions.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            service_list.addItem(empty)
+            return
+        selected = current_id if any(row.get("id") == current_id for _kind, row in rows) else rows[0][1].get("id", "")
+        shop_state["service_id"] = str(selected)
+        for kind, row in rows:
+            item = QListWidgetItem(_service_text(kind, row))
+            item.setData(Qt.ItemDataRole.UserRole, {"kind": kind, "id": row.get("id", "")})
+            service_list.addItem(item)
+            if row.get("id") == selected:
+                shop_state["service_kind"] = kind
+                service_list.setCurrentItem(item)
+        _refresh_service_preview()
+
+    def _selected_service_def() -> tuple[str, Optional[dict]]:
+        kind = shop_state.get("service_kind", "")
+        service_id = shop_state.get("service_id", "")
+        if kind == "service":
+            return kind, SHOP_SERVICES.get(service_id)
+        if kind == "vendor_action":
+            return kind, SHOP_VENDOR_ACTIONS.get(service_id)
+        return "", None
+
+    def _refresh_service_preview() -> None:
+        kind, row = _selected_service_def()
+        if row is None:
+            service_preview.setText("Select a service or vendor action.")
+            service_use_btn.setEnabled(False)
+            return
+        qty = int(service_qty.value())
+        if kind == "service":
+            preview = preview_shop_service_pure(player_data, str(row.get("id", "")), qty)
+        else:
+            preview = preview_shop_vendor_action_pure(player_data, str(row.get("id", "")), qty)
+        if preview.get("allowed"):
+            amount = int(preview.get("quantity", qty) or qty)
+            total = int(preview.get("total_price", 0) or 0)
+            currency = str(preview.get("currency_item_name", row.get("currency_item_name", "Coins")))
+            suffix = " (clamped)" if preview.get("clamped") else ""
+            service_preview.setText(f"Use {row.get('display_name', row.get('id'))} {amount:,} time(s) for {total:,} {currency}.{suffix}")
+            service_use_btn.setEnabled(True)
+        else:
+            service_preview.setText(str(row.get("lock_reason") or preview.get("reason", "unavailable")))
+            service_use_btn.setEnabled(False)
+
+    def _apply_service_transaction() -> None:
+        kind, row = _selected_service_def()
+        if row is None:
+            return
+        qty = int(service_qty.value())
+        if kind == "service":
+            new_data, result = apply_shop_service_pure(player_data, str(row.get("id", "")), qty)
+        else:
+            new_data, result = apply_shop_vendor_action_pure(player_data, str(row.get("id", "")), qty)
+        if not result.get("allowed"):
+            _refresh_service_preview()
+            return
+        _replace_player_data(new_data)
+        _persist_shop_state()
+        _refresh_after_shop_mutation(f"Used {row.get('display_name', 'vendor action')} {int(result.get('quantity', 0) or 0):,} time(s).")
+        _refresh_service_preview()
+
+    def _populate_shop_history() -> None:
+        local_history.clear()
+        global_history.clear()
+        view = _shop_view()
+        shop_id = str(view.get("shop_id", ""))
+        local_rows = shop_history_rows_pure(player_data, shop_id=shop_id, limit=4)
+        global_rows = shop_history_rows_pure(player_data, limit=8)
+        if not local_rows:
+            empty = QListWidgetItem("No recent activity for this shop.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            local_history.addItem(empty)
+        else:
+            for event in local_rows:
+                local_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
+        if not global_rows:
+            empty = QListWidgetItem("No global shop activity yet.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            global_history.addItem(empty)
+        else:
+            for event in global_rows:
+                global_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
+
+    def _render_shop_detail() -> None:
+        view = _shop_view()
+        if not view.get("exists"):
+            shop_title.setText("No shops available")
+            shop_meta.setText("")
+            _render_stock_grid()
+            _refresh_transaction_panel()
+            _populate_shop_history()
+            return
+        shop_title.setText(str(view.get("display_name", "NPC shop")))
+        meta_parts = [str(view.get("currency_item_name", "Coins"))]
+        if view.get("general_store"):
+            meta_parts.append("General store")
+        if view.get("lock_reason"):
+            meta_parts.append(str(view.get("lock_reason")))
+        shop_meta.setText(" · ".join(meta_parts))
+        if not shop_state["row_id"] and view.get("rows"):
+            shop_state["row_id"] = str(view["rows"][0].get("id", ""))
+        _render_stock_grid()
+        _populate_sell_inventory()
+        _refresh_transaction_panel()
+        _populate_shop_history()
+
+    def _shop_selector_label_from_result(result: dict) -> str:
+        kind = result.get("kind")
+        if kind == "stock":
+            price = _format_shop_price(result.get("buy_price"), "Coins")
+            stock = f"{int(result.get('current_quantity', 0) or 0):,}/{int(result.get('default_quantity', 0) or 0):,}"
+            lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
+            return f"{result.get('item_name')} · {result.get('shop_name')} · Stock {stock} · {price}{lock}"
+        label = "Service" if kind == "service" else "Vendor"
+        lock = f" · {result.get('lock_reason')}" if result.get("lock_reason") else ""
+        return f"{label}: {result.get('display_name')} · {result.get('provider')} · {result.get('price', 0):,} {result.get('currency_item_name', 'Coins')}{lock}"
+
+    def _populate_shop_selector() -> None:
+        current_shop_id = shop_state.get("shop_id", "")
+        query = shop_search.text().strip()
+        shop_selector.clear()
+        if query:
+            results = search_shop_catalog_pure(player_data, query, include_locked=True, include_hidden=False, limit=80).get("results", [])
+            if results:
+                selected_item = None
+                for result in results:
+                    item = QListWidgetItem(_shop_selector_label_from_result(result))
+                    item.setData(Qt.ItemDataRole.UserRole, dict(result))
+                    if result.get("visibility") == "visible_locked" or result.get("lock_reason"):
+                        item.setForeground(dim_text_color(shop_selector))
+                    shop_selector.addItem(item)
+                    if result.get("kind") == "stock" and result.get("shop_id") == current_shop_id and selected_item is None:
+                        selected_item = item
+                if selected_item is not None:
+                    shop_selector.setCurrentItem(selected_item)
+                elif shop_selector.count():
+                    shop_selector.setCurrentRow(0)
+                return
+            empty = QListWidgetItem("No visible shop stock, service, or vendor action matches this search.")
+            empty.setFlags(Qt.ItemFlag.NoItemFlags)
+            shop_selector.addItem(empty)
+            return
+        visible = sorted(
+            _visible_shop_defs(),
+            key=lambda shop: (shop.get("visibility") != "visible", str(shop.get("display_name", ""))),
+        )
+        for shop in visible:
+            view = shop_view_model_pure(player_data, str(shop.get("id", "")))
+            rows = view.get("rows", [])
+            live_count = sum(1 for row in rows if row.get("can_buy"))
+            locked_count = sum(1 for row in rows if row.get("lock_reason"))
+            suffix = []
+            if live_count:
+                suffix.append(f"{live_count} live")
+            if locked_count:
+                suffix.append(f"{locked_count} locked")
+            if shop.get("general_store"):
+                suffix.append("general store")
+            if shop.get("lock_reason"):
+                suffix.append(str(shop.get("lock_reason")))
+            label = f"{shop.get('display_name', shop.get('id'))} · " + (" · ".join(suffix) if suffix else "read-only")
+            item = QListWidgetItem(label)
+            item.setData(Qt.ItemDataRole.UserRole, {"kind": "shop", "shop_id": shop.get("id", "")})
+            if shop.get("visibility") != "visible":
+                item.setForeground(dim_text_color(shop_selector))
+            shop_selector.addItem(item)
+            if shop.get("id") == current_shop_id:
+                shop_selector.setCurrentItem(item)
+        if shop_selector.currentItem() is None and shop_selector.count():
+            shop_selector.setCurrentRow(0)
+
+    def _on_shop_selector_clicked(item: QListWidgetItem) -> None:
+        payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        if not isinstance(payload, dict):
+            return
+        kind = payload.get("kind")
+        if kind == "shop":
+            shop_state["shop_id"] = str(payload.get("shop_id", ""))
+            shop_state["row_id"] = ""
+            _render_shop_detail()
+            return
+        if kind == "stock":
+            shop_state["shop_id"] = str(payload.get("shop_id", ""))
+            shop_state["row_id"] = str(payload.get("row_id", ""))
+            _render_shop_detail()
+            return
+        if kind in {"service", "vendor_action"}:
+            shop_state["service_kind"] = str(kind)
+            shop_state["service_id"] = str(payload.get("id", ""))
+            _populate_services()
+            _refresh_service_preview()
+
+    def _on_sell_item_clicked(item: QListWidgetItem) -> None:
+        item_name = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        if isinstance(item_name, str):
+            shop_state["sell_item"] = item_name
+            _refresh_transaction_panel()
+
+    def _on_service_clicked(item: QListWidgetItem) -> None:
+        payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
+        if isinstance(payload, dict):
+            shop_state["service_kind"] = str(payload.get("kind", ""))
+            shop_state["service_id"] = str(payload.get("id", ""))
+            _refresh_service_preview()
+
+    shop_search.textChanged.connect(lambda _text="": (_populate_shop_selector(), _render_shop_detail()))
+    shop_selector.itemClicked.connect(_on_shop_selector_clicked)
+    shop_selector.currentItemChanged.connect(lambda current, _previous: _on_shop_selector_clicked(current) if current is not None else None)
+    sell_inventory.itemClicked.connect(_on_sell_item_clicked)
+    sell_inventory.currentItemChanged.connect(lambda current, _previous: _on_sell_item_clicked(current) if current is not None else None)
+    shop_mode_tabs.currentChanged.connect(lambda _index=0: _refresh_transaction_panel())
+    for amount, btn in shop_quantity_buttons.items():
+        btn.clicked.connect(lambda _=False, qty=amount: _set_quantity(qty))
+    shop_custom_qty.valueChanged.connect(lambda _value=1: _refresh_transaction_panel())
+    shop_all_qty.clicked.connect(lambda _=False: _set_all_quantity())
+    shop_action_btn.clicked.connect(lambda _=False: _apply_shop_transaction())
+    service_list.itemClicked.connect(_on_service_clicked)
+    service_list.currentItemChanged.connect(lambda current, _previous: _on_service_clicked(current) if current is not None else None)
+    service_qty.valueChanged.connect(lambda _value=1: _refresh_service_preview())
+    service_use_btn.clicked.connect(lambda _=False: _apply_service_transaction())
+    global_history_btn.toggled.connect(lambda checked=False: global_history.setVisible(bool(checked)))
+
+    _populate_shop_selector()
+    selected_shop_item = shop_selector.currentItem()
+    if selected_shop_item is not None:
+        _on_shop_selector_clicked(selected_shop_item)
+    _populate_services()
+    _render_shop_detail()
+
+    tabs.addTab(shop_tab, "Shop")
+    tabs.setTabToolTip(tabs.indexOf(shop_tab), "Browse source-backed NPC shops and vendor services")
 
     # ---- Quests tab --------------------------------------------------------
     quests_tab = QWidget()

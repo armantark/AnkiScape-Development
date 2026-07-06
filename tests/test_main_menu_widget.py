@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QCheckBox, QComboBox, QDialog, QLabel, QListWidget, QPushButton, QIcon, QImage, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QCheckBox, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -389,6 +389,46 @@ def _find_named_label(dialog: "QDialog", object_name: str) -> "QLabel":
     raise AssertionError(f"label {object_name!r} not found")
 
 
+def _find_named_list(dialog: "QDialog", object_name: str) -> "QListWidget":
+    for lw in dialog.findChildren(QListWidget):
+        if lw.objectName() == object_name:
+            return lw
+    raise AssertionError(f"list {object_name!r} not found")
+
+
+def _find_named_button(dialog: "QDialog", object_name: str) -> "QPushButton":
+    for button in dialog.findChildren(QPushButton):
+        if button.objectName() == object_name:
+            return button
+    raise AssertionError(f"button {object_name!r} not found")
+
+
+def _find_named_line_edit(dialog: "QDialog", object_name: str) -> "QLineEdit":
+    for line_edit in dialog.findChildren(QLineEdit):
+        if line_edit.objectName() == object_name:
+            return line_edit
+    raise AssertionError(f"line edit {object_name!r} not found")
+
+
+def _find_main_tabs(dialog: "QDialog") -> "QTabWidget":
+    for tabs in dialog.findChildren(QTabWidget):
+        labels = [tabs.tabText(i) for i in range(tabs.count())]
+        if "Skills" in labels and "Shop" in labels and "Bank" in labels:
+            return tabs
+    raise AssertionError("main tab widget not found")
+
+
+def _open_shop_tab(dialog: "QDialog") -> None:
+    tabs = _find_main_tabs(dialog)
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Shop")
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
+def _list_texts(list_widget: "QListWidget") -> list[str]:
+    return [list_widget.item(i).text() for i in range(list_widget.count())]
+
+
 def _find_equipment_list(dialog: "QDialog") -> "QListWidget":
     """The Equipment tab's worn-slot list, identified by its objectName."""
     for lw in dialog.findChildren(QListWidget):
@@ -506,6 +546,194 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_shop_tab_renders_and_keeps_hidden_reward_shops_out_of_browse_and_search(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        hidden_name = fixtures["hidden_reward_shop"]["display_name"]
+        dialog = self._open(fixtures["fixture_player_data"])
+        _open_shop_tab(dialog)
+
+        selector = _find_named_list(dialog, "shopSelectionList")
+        self.assertTrue(selector.count(), "shop selector did not render visible shops")
+        self.assertFalse(any(hidden_name in text for text in _list_texts(selector)))
+
+        search = _find_named_line_edit(dialog, "shopSearchInput")
+        search.setText("Stardust")
+        QApplication.processEvents()
+        self.assertFalse(any(hidden_name in text for text in _list_texts(selector)))
+        self.assertIn("No visible shop", selector.item(0).text())
+
+        labels = [label.text() for label in dialog.findChildren(QLabel)]
+        self.assertIn("Services / Vendor Actions", labels)
+
+    def test_shop_feather_search_shows_locked_rows_and_disables_buy(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        dialog = self._open(fixtures["fixture_player_data"])
+        _open_shop_tab(dialog)
+
+        search = _find_named_line_edit(dialog, "shopSearchInput")
+        search.setText("Feather")
+        QApplication.processEvents()
+        selector = _find_named_list(dialog, "shopSelectionList")
+        locked_item = None
+        for index in range(selector.count()):
+            item = selector.item(index)
+            payload = item.data(Qt.ItemDataRole.UserRole)
+            if isinstance(payload, dict) and payload.get("kind") == "stock" and payload.get("item_name") == "Feather":
+                locked_item = item
+                break
+        self.assertIsNotNone(locked_item, "Feather search did not render stock-source comparison rows")
+        selector.setCurrentItem(locked_item)
+        QApplication.processEvents()
+
+        preview = _find_named_label(dialog, "shopPreviewLabel")
+        button = _find_named_button(dialog, "shopTransactionButton")
+        self.assertIn("price_policy_unresolved", preview.text())
+        self.assertFalse(button.isEnabled())
+
+    def test_shop_live_stock_buy_updates_inventory_and_history(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        pd = fixtures["fixture_player_data"]
+        live_view = fixtures["normal_coin_stock_shop"]
+        live_row = next(row for row in live_view["rows"] if row["can_buy"])
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+
+        search = _find_named_line_edit(dialog, "shopSearchInput")
+        search.setText(live_row["item_name"])
+        QApplication.processEvents()
+        selector = _find_named_list(dialog, "shopSelectionList")
+        target = None
+        for index in range(selector.count()):
+            item = selector.item(index)
+            payload = item.data(Qt.ItemDataRole.UserRole)
+            if isinstance(payload, dict) and payload.get("shop_id") == live_view["shop_id"] and payload.get("row_id") == live_row["id"]:
+                target = item
+                break
+        self.assertIsNotNone(target, "live stock row was not selectable from item search")
+        selector.setCurrentItem(target)
+        QApplication.processEvents()
+
+        before_item = pd["inventory"].get(live_row["item_name"], 0)
+        before_coins = pd["inventory"]["Coins"]
+        button = _find_named_button(dialog, "shopTransactionButton")
+        self.assertTrue(button.isEnabled(), _find_named_label(dialog, "shopPreviewLabel").text())
+        button.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"].get(live_row["item_name"], 0), before_item + 1)
+        self.assertEqual(pd["inventory"]["Coins"], before_coins - int(live_row["buy_price"]))
+        history_texts = _list_texts(_find_named_list(dialog, "shopLocalHistoryList"))
+        self.assertTrue(any(text.startswith("Bought 1 x") for text in history_texts), history_texts)
+
+    def test_shop_general_store_sell_creates_temporary_stock(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+
+        fixtures = build_shop_frontend_fixtures()
+        pd = fixtures["fixture_player_data"]
+        general_shop_id = fixtures["player_sold_stock"]["shop_id"]
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+
+        selector = _find_named_list(dialog, "shopSelectionList")
+        general_item = None
+        for index in range(selector.count()):
+            item = selector.item(index)
+            payload = item.data(Qt.ItemDataRole.UserRole)
+            if isinstance(payload, dict) and payload.get("shop_id") == general_shop_id:
+                general_item = item
+                break
+        self.assertIsNotNone(general_item, "visible general store was not present in browsing")
+        selector.setCurrentItem(general_item)
+        QApplication.processEvents()
+
+        mode_tabs = dialog.findChild(QTabWidget, "shopModeTabs")
+        self.assertIsNotNone(mode_tabs)
+        mode_tabs.setCurrentIndex(1)
+        QApplication.processEvents()
+        sell_list = _find_named_list(dialog, "shopSellInventoryList")
+        beer_item = next(
+            sell_list.item(i)
+            for i in range(sell_list.count())
+            if sell_list.item(i).data(Qt.ItemDataRole.UserRole) == "Beer"
+        )
+        sell_list.setCurrentItem(beer_item)
+        QApplication.processEvents()
+        before_beer = pd["inventory"]["Beer"]
+        before_coins = pd["inventory"]["Coins"]
+        button = _find_named_button(dialog, "shopTransactionButton")
+        self.assertTrue(button.isEnabled(), _find_named_label(dialog, "shopPreviewLabel").text())
+        button.click()
+        QApplication.processEvents()
+
+        self.assertEqual(pd["inventory"]["Beer"], before_beer - 1)
+        self.assertGreater(pd["inventory"]["Coins"], before_coins)
+        mode_tabs.setCurrentIndex(0)
+        QApplication.processEvents()
+        stock_buttons = [
+            button for button in dialog.findChildren(QPushButton)
+            if button.property("shopRowId") and "Beer" in button.text()
+        ]
+        self.assertTrue(stock_buttons, "player-sold Beer did not appear as temporary shop stock")
+
+    def test_shop_service_and_vendor_actions_apply_and_feed_global_history(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+        from shop_data import SHOP_VENDOR_ACTIONS
+
+        fixtures = build_shop_frontend_fixtures()
+        pd = fixtures["fixture_player_data"]
+        service_id = fixtures["service_transaction"]["service_id"]
+        vendor_action_id = fixtures["vendor_action_transaction"]["action_id"]
+        dialog = self._open(pd)
+        _open_shop_tab(dialog)
+
+        service_list = _find_named_list(dialog, "shopServiceList")
+
+        def _select_service_row(row_id: str) -> None:
+            for index in range(service_list.count()):
+                item = service_list.item(index)
+                payload = item.data(Qt.ItemDataRole.UserRole)
+                if isinstance(payload, dict) and payload.get("id") == row_id:
+                    service_list.setCurrentItem(item)
+                    QApplication.processEvents()
+                    return
+            raise AssertionError(f"service/vendor row {row_id!r} not found")
+
+        _select_service_row(service_id)
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        before_cowhide = pd["inventory"]["Cowhide"]
+        before_leather = pd["inventory"].get("Leather", 0)
+        self.assertTrue(use_button.isEnabled(), _find_named_label(dialog, "shopServicePreviewLabel").text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"]["Cowhide"], before_cowhide - 1)
+        self.assertEqual(pd["inventory"].get("Leather", 0), before_leather + 1)
+
+        service_list = _find_named_list(dialog, "shopServiceList")
+        _select_service_row(vendor_action_id)
+        vendor_output = SHOP_VENDOR_ACTIONS[vendor_action_id]["outputs"][0]
+        vendor_output_name = vendor_output["item_name"]
+        vendor_output_quantity = int(vendor_output["quantity"])
+        before_vendor_output = pd["inventory"].get(vendor_output_name, 0)
+        use_button = _find_named_button(dialog, "shopServiceUseButton")
+        self.assertTrue(use_button.isEnabled(), _find_named_label(dialog, "shopServicePreviewLabel").text())
+        use_button.click()
+        QApplication.processEvents()
+        self.assertEqual(pd["inventory"].get(vendor_output_name, 0), before_vendor_output + vendor_output_quantity)
+
+        global_button = _find_named_button(dialog, "shopGlobalHistoryButton")
+        global_button.click()
+        QApplication.processEvents()
+        global_history = _find_named_list(dialog, "shopGlobalHistoryList")
+        history_texts = _list_texts(global_history)
+        self.assertTrue(any("Used" in text for text in history_texts), history_texts)
+        self.assertTrue(any("Completed" in text for text in history_texts), history_texts)
 
     def test_achievement_tab_renders_metadata_counts_and_completed_rows(self) -> None:
         pd = _make_player_data()
