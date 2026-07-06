@@ -3,6 +3,31 @@
 ## Current Focus
 Protect the local fork before any large expansion. The agreed direction is to augment the existing add-on, not rebuild it first.
 
+## NPC shop frontend follow-up
+The NPC shop frontend follow-up on 2026-07-06 is complete on
+`codex/npc-shop-frontend`. The Shop tab now renders item imagery from the shared
+`ITEM_DEFINITIONS.asset_path` manifest for stock tiles, item-first search rows,
+sell inventory rows, and service/vendor command rows. Eight focused sprites for
+currently actionable shop/service content live in `shopitems/` with provenance:
+the five Papa Mambo seeds, Oak plank, Newspaper, and Kebab. `constants.py`
+exposes them through `SHOP_ITEM_IMAGES`, merged into the item registry like the
+other skill item folders.
+
+Current-state availability now comes from backend preview payloads, not Qt
+guesses. `shop_logic.py` preview results include owned/required currency,
+stock availability, sell owned counts, and structured service/vendor
+requirements plus missing requirement rows. The Qt transaction and service
+preview labels render those fields as player-facing current-save facts such as
+`Need 2 Coins, you have 0` or `Missing requirements: Cowhide 0/1`. Static
+catalog locks remain exactly backend-sourced (`price_policy_unresolved`,
+`currency_not_implemented`, `unknown_item`, hidden reward/activity shops) and
+are not inferred from quest/skill names in the frontend.
+
+Verification for this pass:
+`python3 run_tests.py` passed with 748 tests and 143 skipped, and
+`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+passed with 748 tests.
+
 ## Equipment backend contract
 The backend equipment pass is complete. `tools/generate_equipment_data.py`
 joins checked-in Smithing recipe metadata, local 2011Scape `items.yml`

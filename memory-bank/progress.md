@@ -46,6 +46,20 @@
   passed with 738 tests (135 skipped), and
   `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 738 tests.
+- NPC shop frontend imagery/current-state follow-up is in place as of
+  2026-07-06. The Shop tab renders registry item icons on stock tiles,
+  item-first search rows, sell inventory rows, and service/vendor rows. A
+  dedicated `shopitems/` folder now holds focused actionable sprites for Papa
+  Mambo seeds, Oak plank, Newspaper, and Kebab, wired through
+  `SHOP_ITEM_IMAGES` and `ITEM_DEFINITIONS` with provenance. Backend preview
+  APIs now return current-save owned/required counts for buy/sell/service-like
+  actions, including structured missing service requirements; Qt renders those
+  facts in preview labels and the shop header without inventing prices, lock
+  reasons, quest/skill gates, stock policy, or hidden-shop behavior. Static
+  catalog locks remain backend-authored and visible as their exact reasons.
+  Verification: `python3 run_tests.py` passed with 748 tests (143 skipped), and
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+  passed with 748 tests.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NPC Shop Assets + Current State Complete</title>
+  <style>
+    :root {
+      --bg: #090b0f;
+      --panel: #151923;
+      --panel-2: #1d2430;
+      --line: #2e3848;
+      --text: #eef3fa;
+      --muted: #9ba8ba;
+      --green: #58d68d;
+      --blue: #70a7ff;
+      --gold: #f4c05f;
+      --red: #ff7474;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #090b0f 0%, #121925 62%, #090b0f 100%);
+      color: var(--text);
+      font-family: Avenir Next, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main {
+      width: min(1180px, calc(100vw - 32px));
+      margin: 0 auto;
+      padding: 30px 0 48px;
+    }
+    .mono, .badge { font-family: "SFMono-Regular", Menlo, Consolas, monospace; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(88, 214, 141, 0.42);
+      border-radius: 999px;
+      background: rgba(88, 214, 141, 0.12);
+      color: #c8f7da;
+      padding: 7px 10px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 12px 0 8px;
+      max-width: 760px;
+      font-size: clamp(2rem, 4.3vw, 4.1rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+    p { margin: 0; color: var(--muted); line-height: 1.55; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(21, 25, 35, 0.92);
+      padding: 13px;
+      min-height: 90px;
+    }
+    .metric strong {
+      display: block;
+      font-size: 1.55rem;
+      margin-bottom: 2px;
+    }
+    .metric small {
+      color: var(--muted);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(21, 25, 35, 0.92);
+      overflow: hidden;
+    }
+    .card h2 {
+      margin: 0;
+      padding: 14px 14px 8px;
+      font-size: 1rem;
+    }
+    .body { padding: 0 14px 14px; }
+    .shop {
+      border: 1px solid #3d485a;
+      border-radius: 9px;
+      background: #0f141b;
+      padding: 10px;
+    }
+    .bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      border: 1px solid #3d485a;
+      border-radius: 7px;
+      background: #151b25;
+      padding: 8px 10px;
+      margin-bottom: 8px;
+      font-size: 0.82rem;
+    }
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    .slot {
+      aspect-ratio: 1;
+      border: 1px solid #3d485a;
+      border-radius: 6px;
+      background: #1a202b;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      font-size: 0.66rem;
+      padding: 6px;
+      position: relative;
+    }
+    .slot.live { border-color: rgba(88, 214, 141, 0.7); }
+    .slot.lock { opacity: 0.62; }
+    .slot .icon {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #48556b;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 4px;
+      background: #232b38;
+      color: var(--gold);
+      font-weight: 900;
+    }
+    .preview {
+      border: 1px solid #3d485a;
+      border-radius: 8px;
+      background: #141b25;
+      padding: 9px 10px;
+      color: #dfe8f6;
+      font-size: 0.82rem;
+    }
+    .flow { display: grid; gap: 8px; }
+    .row {
+      display: grid;
+      grid-template-columns: 34px 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border-bottom: 1px solid rgba(46, 56, 72, 0.74);
+      padding: 9px 0;
+    }
+    .row:last-child { border-bottom: none; }
+    .dot {
+      width: 28px;
+      height: 28px;
+      border: 1px solid #465369;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      background: #1d2430;
+      font-weight: 900;
+    }
+    .pill {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .green { color: #c8f7da; border: 1px solid rgba(88, 214, 141, 0.4); background: rgba(88, 214, 141, 0.12); }
+    .blue { color: #d4e6ff; border: 1px solid rgba(112, 167, 255, 0.4); background: rgba(112, 167, 255, 0.13); }
+    .gold { color: #ffe6aa; border: 1px solid rgba(244, 192, 95, 0.42); background: rgba(244, 192, 95, 0.13); }
+    .red { color: #ffd4d4; border: 1px solid rgba(255, 116, 116, 0.42); background: rgba(255, 116, 116, 0.12); }
+    @media (max-width: 900px) {
+      header, .grid { grid-template-columns: 1fr; }
+      .slots { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <section>
+        <span class="badge">Complete</span>
+        <h1>Shop images and current-save previews are live.</h1>
+        <p>The frontend now uses real registry imagery and backend-owned preview details. It still does not invent prices, unlock gates, sell policy, stock behavior, or hidden reward-shop visibility.</p>
+      </section>
+      <section class="metrics">
+        <div class="metric"><strong>8</strong><small>new focused shop sprites</small></div>
+        <div class="metric"><strong>748</strong><small>run_tests.py passing tests</small></div>
+        <div class="metric"><strong>748</strong><small>offscreen Qt passing tests</small></div>
+        <div class="metric"><strong>0</strong><small>frontend-invented locks</small></div>
+      </section>
+    </header>
+    <section class="grid">
+      <article class="card">
+        <h2>Player-Facing Result</h2>
+        <div class="body">
+          <div class="shop">
+            <div class="bar"><strong>Papa Mambo's Shop</strong><span class="mono">Coins: 100,000 owned</span></div>
+            <div class="slots">
+              <div class="slot live"><div class="icon">E</div>Erzille seed</div>
+              <div class="slot live"><div class="icon">U</div>Ugune seed</div>
+              <div class="slot live"><div class="icon">A</div>Argway seed</div>
+              <div class="slot live"><div class="icon">S</div>Shengo seed</div>
+              <div class="slot live"><div class="icon">S</div>Samaden seed</div>
+              <div class="slot lock"><div class="icon">?</div>Backend locked</div>
+            </div>
+            <div class="preview">Buy 1 x Beer for 2 Coins. You have 100,000 Coins.</div>
+            <div class="preview" style="margin-top:8px;">Need 2 Coins, you have 0.</div>
+            <div class="preview" style="margin-top:8px;">Missing requirements: Cowhide 0/1.</div>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>What Changed</h2>
+        <div class="body">
+          <div class="flow">
+            <div class="row"><div class="dot">1</div><div><strong>Assets</strong><br>Added `shopitems/` sprites for live Papa Mambo seeds plus Oak plank, Newspaper, and Kebab with provenance.</div><span class="pill green">Done</span></div>
+            <div class="row"><div class="dot">2</div><div><strong>Registry</strong><br>`SHOP_ITEM_IMAGES` now merges into `ITEM_DEFINITIONS`, so Qt uses the same asset path contract as Bank/Stats.</div><span class="pill blue">Done</span></div>
+            <div class="row"><div class="dot">3</div><div><strong>Previews</strong><br>Buy/sell/service previews now expose owned counts, required counts, shortfalls, and structured missing requirements.</div><span class="pill gold">Done</span></div>
+            <div class="row"><div class="dot">4</div><div><strong>Guardrail</strong><br>Quest/skill shop gates are still not guessed in Qt. Static catalog locks remain exact backend reasons.</div><span class="pill red">Kept</span></div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
