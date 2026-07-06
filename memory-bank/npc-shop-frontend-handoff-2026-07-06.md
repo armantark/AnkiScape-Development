@@ -64,6 +64,21 @@ The first frontend slice should add Qt tests for:
 
 Manual QA after Qt wiring should use Pinchtab against Anki or the local UI surface because the backend currently has no browser-facing surface to drive.
 
+## Frontend Implementation Result
+
+Completed: 2026-07-06
+
+- Added a top-level `Shop` tab in `ui.py` without replacing `Skills`, `Quests`, `Bank`, `Equipment`, `Stats`, `Achievements`, or `Settings`.
+- The Shop tab renders search, shop selection, a selected-shop stock panel, Buy/Sell modes, RuneScape-style quantity controls, service/vendor action rows, shop-local history, and global recent activity.
+- Qt rendering delegates prices, lock reasons, sell policy, stock mutation, service/vendor eligibility, search result visibility, and history rows to `shop_logic.py` APIs.
+- Hidden reward/activity shops remain out of normal browse and item-first search through `include_hidden=False` and visible-shop filtering.
+- Added targeted offscreen Qt coverage in `tests/test_main_menu_widget.py` for hidden-shop exclusion, Feather locked search, live stock buy, general-store sell/player-sold stock, service/vendor actions, and global history.
+
+Verification:
+
+- `python3 run_tests.py`: 743 tests passed, 140 skipped.
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`: 743 tests passed.
+
 ## Copy-Paste Frontend Prompt
 
 ```text
