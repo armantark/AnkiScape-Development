@@ -252,9 +252,9 @@ _OVERLAY_TARGET_KEYS = {
     "smithing": "current_smith",
     "runecrafting": "current_runecrafting",
 }
-# v1 treats carried outputs as unstackable (one slot each); the real cache
-# `stackable` set is wired with the loot/bag slice.
-_OVERLAY_STACKABLE_NAMES: frozenset[str] = frozenset()
+# A stackable occupies one slot for any quantity (then holds up to the int cap);
+# use the real cache stackable set so a stack is not miscounted as N slots.
+_OVERLAY_STACKABLE_NAMES: frozenset[str] = STACKABLE_ITEM_NAMES
 
 
 def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:

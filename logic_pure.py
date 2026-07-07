@@ -15,6 +15,14 @@ except ImportError:
     from inventory_pure import CARRIED_CAPACITY, carried_slots_used
 
 try:
+    from .item_values import STACKABLE_ITEM_NAMES
+except ImportError:
+    try:
+        from item_values import STACKABLE_ITEM_NAMES
+    except ImportError:  # values not generated in this checkout
+        STACKABLE_ITEM_NAMES = frozenset()
+
+try:
     from .skill_registry import get_skill, implemented_skill_definitions
 except ImportError:
     from skill_registry import get_skill, implemented_skill_definitions
@@ -1925,7 +1933,7 @@ def _combat_loot_slots(data, target_id):
     view = carried.get(target_id) if isinstance(carried, Mapping) else None
     if not isinstance(view, Mapping):
         return 0
-    return carried_slots_used(view, frozenset())
+    return carried_slots_used(view, STACKABLE_ITEM_NAMES)
 
 
 def _combat_deposit_loot(data, target_id):
