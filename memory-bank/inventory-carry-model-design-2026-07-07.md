@@ -151,7 +151,27 @@ handler. Remaining prep before writing it:
 Verify with new `test_runtime_actions.py` cases (28 gather ticks → 29th banks,
 no XP → 30th gathers), then a light offscreen/live smoke.
 
-### 2f / 2g findings (2026-07-07) — blockers to resolve first
+### 2f loot filter — SHIPPED (2026-07-07)
+
+The observable behaviour the owner asked for ("no auto-hoarding every tiny drop")
+is live: `item_values.py` builds a 943-item value table from committed shop buy
+prices (the cache value for coin shops) plus the real cache `stackable` set, and
+`inventory_pure.filter_loot_pure` runs in `handle_combat_answer` — after a kill,
+below-threshold known-value unstackable drops are left on the floor; stackables,
+coins, and unknown-value items are always kept. Default threshold lowered from a
+placeholder 50 to **10** (keep a monster's real drops like raw meat; leave only
+near-worthless junk); tunable.
+
+Two refinements remain, both genuinely gated:
+- **Full-cache value table** (all items, not just the 943 shop items) needs the
+  JDK-24 cache dump — the machine has JDK 23, so unknown-value drops are kept
+  conservatively until then.
+- **Kept loot competes for carried slots / drops on death** needs combat to feed
+  drops into a carried pack; combat runs its own `combat_supply_loadout` +
+  bank-run, so this is a real integration whose feel needs the live app and owner
+  validation.
+
+### 2f / 2g findings (2026-07-07) — earlier blocker notes
 
 - **2f loot filter needs a runtime item→value table — and the extractor is
   environment-blocked (verified 2026-07-07).** `loot_should_pick_up` is built and
