@@ -304,6 +304,11 @@ except Exception:
     from constants import ITEM_DEFINITIONS  # type: ignore
     from item_registry import ItemDefinition, item_definitions_by_storage_key  # type: ignore
 
+try:
+    from . import inventory_pure
+except Exception:
+    import inventory_pure  # type: ignore
+
 # Central debug logger (support both package and flat import in tests)
 try:
     from .debug import debug_log as _debug_log  # type: ignore
@@ -1652,6 +1657,7 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_utility=None,
+    on_set_carried_pack_mode=None,
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -4317,6 +4323,81 @@ def show_main_menu(
     bk_layout = QVBoxLayout(bank_tab)
     bk_layout.setContentsMargins(12, 12, 12, 12)
     bk_layout.setSpacing(8)
+
+    # Carried inventory overlay — the 28-slot pack the review loop draws from and
+    # banks when full. Collapsible header; the casual packing mode lives here.
+    _PACK_MODE_CHOICES = (("Balanced", "balanced"), ("Max output", "max_output"), ("Max safety", "max_safety"))
+
+    def _carried_panel_summary_text() -> str:
+        carried = player_data.get("carried_inventory") or {}
+        run = player_data.get("skilling_bank_run") or {}
+        total_slots = 0
+        carried_targets = 0
+        for view in carried.values():
+            if isinstance(view, dict) and view:
+                total_slots += inventory_pure.carried_slots_used(view, frozenset())
+                carried_targets += 1
+        if run:
+            status = f"Banking… {int(run.get('reviews_remaining', 0))} review(s) left"
+        elif total_slots:
+            status = f"{total_slots} slot(s) held across {carried_targets} target(s)"
+        else:
+            status = "Pack empty — nothing carried yet"
+        return (
+            f"{status}. The pack fills to {inventory_pure.CARRIED_CAPACITY} slots "
+            "as you gather or process, then a bank run costs one review."
+        )
+
+    carried_header = QPushButton("▸  Carried inventory")
+    carried_header.setObjectName("carriedInventoryHeader")
+    carried_header.setCheckable(True)
+    carried_header.setChecked(False)
+    carried_header.setStyleSheet("QPushButton { text-align: left; font-weight: 600; border: none; padding: 4px 2px; }")
+
+    carried_body = QWidget()
+    carried_body.setVisible(False)
+    cb_layout = QVBoxLayout(carried_body)
+    cb_layout.setContentsMargins(10, 2, 4, 6)
+    cb_layout.setSpacing(6)
+
+    mode_row = QWidget()
+    mode_layout = QHBoxLayout(mode_row)
+    mode_layout.setContentsMargins(0, 0, 0, 0)
+    mode_layout.setSpacing(8)
+    mode_label = QLabel("Packing mode")
+    mode_label.setStyleSheet("color: palette(text);")
+    carried_mode_combo = QComboBox()
+    carried_mode_combo.setObjectName("carriedPackModeCombo")
+    for label, mode_id in _PACK_MODE_CHOICES:
+        carried_mode_combo.addItem(label, mode_id)
+    _current_mode = str(player_data.get("carried_pack_mode", "balanced"))
+    carried_mode_combo.setCurrentIndex(max(0, carried_mode_combo.findData(_current_mode)))
+    if on_set_carried_pack_mode is not None:
+        carried_mode_combo.currentIndexChanged.connect(
+            lambda _index: on_set_carried_pack_mode(carried_mode_combo.currentData() or "balanced")
+        )
+    mode_layout.addWidget(mode_label)
+    mode_layout.addWidget(carried_mode_combo, 1)
+    cb_layout.addWidget(mode_row)
+
+    carried_summary = QLabel(_carried_panel_summary_text())
+    carried_summary.setObjectName("carriedInventorySummary")
+    carried_summary.setWordWrap(True)
+    carried_summary.setStyleSheet(f"color: {dim_text_css(carried_summary)};")
+    cb_layout.addWidget(carried_summary)
+
+    def _toggle_carried_body(checked: bool) -> None:
+        carried_body.setVisible(bool(checked))
+        carried_header.setText(("▾  Carried inventory") if checked else ("▸  Carried inventory"))
+
+    carried_header.toggled.connect(_toggle_carried_body)
+
+    def _refresh_carried_panel() -> None:
+        carried_summary.setText(_carried_panel_summary_text())
+
+    bk_layout.addWidget(carried_header)
+    bk_layout.addWidget(carried_body)
+
     bank_list = QListWidget()
     bank_list.setIconSize(QSize(28, 28))
     bank_list.setAlternatingRowColors(True)
@@ -4372,6 +4453,7 @@ def show_main_menu(
             _render_panel()
 
     def _populate_bank_list() -> None:
+        _refresh_carried_panel()
         bank_list.clear()
         inv = player_data.get("inventory", {}) or {}
         groups = grouped_inventory(inv)

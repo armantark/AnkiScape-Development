@@ -699,6 +699,7 @@ def _on_main_menu():
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
+        on_set_carried_pack_mode=lambda mode: _set_value("carried_pack_mode", mode),
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
