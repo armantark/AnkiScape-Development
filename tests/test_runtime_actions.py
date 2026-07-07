@@ -109,13 +109,17 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
         self.assertGreater(player_data["attack_exp"], 0.0)
         self.assertGreater(player_data["constitution_exp"], 0.0)
-        self.assertEqual(player_data["inventory"]["Bones"], 1)
+        # Loot filter: Bones (value 1, unstackable) fall below the default
+        # threshold and are left; Raw chicken (value 60) is kept; Feathers are
+        # stackable so always kept.
+        self.assertEqual(player_data["inventory"].get("Bones", 0), 0)
         self.assertEqual(player_data["inventory"]["Raw chicken"], 1)
         self.assertEqual(player_data["inventory"]["Feather"], 5)
         telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
         self.assertEqual(telemetry["attempts"], 1)
         self.assertEqual(telemetry["successes"], 1)
-        self.assertEqual(telemetry["outputs"], {"Bones": 1, "Raw chicken": 1, "Feather": 5})
+        # Telemetry records the loot actually kept (Bones were filtered out).
+        self.assertEqual(telemetry["outputs"], {"Raw chicken": 1, "Feather": 5})
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Chicken"])
