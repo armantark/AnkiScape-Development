@@ -3410,29 +3410,23 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_utility_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()
-        pd["current_utility"] = "gather_thin_snails"
+        pd["current_utility"] = "gather_lean_snails"
         dialog = self._open(pd)
         utility_tree = self._open_utility(dialog)
 
-        snails = _utility_row(utility_tree, "gather_thin_snails")
-        yak = _utility_row(utility_tree, "scavenge_raw_yak_meat")
+        snails = _utility_row(utility_tree, "gather_lean_snails")
         self.assertFalse(snails.flags() & Qt.ItemFlag.ItemIsEnabled)
         self.assertIn("Priest in Peril", snails.toolTip(0))
-        self.assertFalse(yak.flags() & Qt.ItemFlag.ItemIsEnabled)
-        self.assertIn("The Fremennik Isles", yak.toolTip(0))
 
         before = list(self._utility_calls)
         utility_tree.itemClicked.emit(snails, 0)
-        utility_tree.itemActivated.emit(yak, 0)
         QApplication.processEvents()
         self.assertEqual(self._utility_calls, before, "quest-locked utility rows must not be selectable")
 
         pd["quests"]["priest_in_peril"] = {"started": True, "progress": 6, "completed": True}
-        pd["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
         unlocked_dialog = self._open(pd)
         unlocked_tree = self._open_utility(unlocked_dialog)
-        self.assertTrue(_utility_row(unlocked_tree, "gather_thin_snails").flags() & Qt.ItemFlag.ItemIsEnabled)
-        self.assertTrue(_utility_row(unlocked_tree, "scavenge_raw_yak_meat").flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertTrue(_utility_row(unlocked_tree, "gather_lean_snails").flags() & Qt.ItemFlag.ItemIsEnabled)
 
     def test_hud_shows_utility_activity_without_xp(self) -> None:
         hud = self._ui.ReviewHUD(None)

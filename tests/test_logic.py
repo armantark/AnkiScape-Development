@@ -445,7 +445,17 @@ class TestLogic(unittest.TestCase):
     def test_retired_shop_bridge_activities_stay_gone(self):
         # These temporary bridges were retired on 2026-07-06 once their outputs
         # became live NPC shop stock; a reappearance means a data regression.
-        for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
+        retired_ids = (
+            "scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies",
+            # Cooking pass 2026-07-07: outputs are live shop stock.
+            "buy_bucket", "gather_potatoes", "gather_onions", "gather_eggs",
+            "gather_redberries", "gather_cooking_apples", "gather_tomatoes",
+            "gather_cheese", "gather_cabbage", "gather_sweetcorn", "gather_spice",
+            "scavenge_raw_chicken", "scavenge_raw_beef", "scavenge_raw_bear_meat",
+            "scavenge_raw_rat_meat", "scavenge_raw_rabbit", "scavenge_raw_yak_meat",
+            "gather_thin_snails",
+        )
+        for retired in retired_ids:
             self.assertNotIn(retired, UTILITY_ACTIVITY_DATA)
 
     def test_combat_landed_hit_damage_matches_darkan_random_semantics(self):
@@ -575,20 +585,6 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok)
         self.assertEqual(processed, 0)
         self.assertEqual(empty_inv, {})
-
-    def test_buy_bucket_spends_coins(self):
-        inv = {"Coins": 4}
-        new_inv, exp, ok, processed = apply_utility_activity_pure(
-            "buy_bucket",
-            inv,
-            UTILITY_ACTIVITY_DATA,
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(processed, 2)
-        self.assertEqual(new_inv["Coins"], 0)
-        self.assertEqual(new_inv["Bucket"], 2)
 
     def test_has_crafting_materials_and_apply(self):
         crafting_data = {
@@ -5052,7 +5048,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(
             utility_activity_locked_reasons_pure(
                 player_data,
-                "gather_thin_snails",
+                "gather_lean_snails",
                 UTILITY_ACTIVITY_DATA,
                 QUEST_UNLOCK_RULES,
             ),
@@ -5071,16 +5067,6 @@ class TestLogic(unittest.TestCase):
             cooking_target_locked_reasons_pure(player_data, "cook_yak", COOKING_DATA, QUEST_UNLOCK_RULES),
             ("The Fremennik Isles",),
         )
-        self.assertEqual(
-            utility_activity_locked_reasons_pure(
-                player_data,
-                "scavenge_raw_yak_meat",
-                UTILITY_ACTIVITY_DATA,
-                QUEST_UNLOCK_RULES,
-            ),
-            ("The Fremennik Isles",),
-        )
-
         player_data["quests"]["priest_in_peril"] = {"started": True, "progress": 6, "completed": True}
         player_data["quests"]["the_fremennik_isles"] = {"started": True, "progress": 6, "completed": True}
         self.assertEqual(
@@ -5100,16 +5086,6 @@ class TestLogic(unittest.TestCase):
             ),
             (),
         )
-        self.assertEqual(
-            utility_activity_locked_reasons_pure(
-                player_data,
-                "scavenge_raw_yak_meat",
-                UTILITY_ACTIVITY_DATA,
-                QUEST_UNLOCK_RULES,
-            ),
-            (),
-        )
-
     def test_wicked_hood_claim_requires_rune_mysteries(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         rows = claim_rows_pure(player_data, CLAIM_DATA)

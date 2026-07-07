@@ -22,7 +22,7 @@ class TestStorageMigrationExtra(unittest.TestCase):
     def test_retired_utility_activity_saves_migrate_to_default(self):
         # Bridges retired 2026-07-06 once their outputs became live NPC shop
         # stock; stale saves must not error on the next utility review.
-        for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
+        for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies", "buy_bucket", "gather_potatoes", "scavenge_raw_yak_meat", "gather_thin_snails"):
             data = {"current_utility": retired}
             out = migrate_loaded_data(data, ORE_DATA)
             self.assertEqual(out["current_utility"], "make_soft_clay", retired)

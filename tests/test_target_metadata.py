@@ -1087,20 +1087,20 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("No XP", nests.tooltip)
         self.assertIn("Locked: cut trees until a bird nest drops.", nests.tooltip)
 
-        bucket = _row(rows, "buy_bucket")
-        self.assertFalse(bucket.enabled)
-        self.assertIn("Coins x2 (you have 0)", bucket.tooltip)
+        tanning = _row(rows, "tan_soft_leather")
+        self.assertFalse(tanning.enabled)
+        self.assertIn("Coins x1 (you have 0)", tanning.tooltip)
 
         funded_rows = utility_activity_rows(
-            {"inventory": {"Coins": 2}, "current_utility": "buy_bucket"},
+            {"inventory": {"Coins": 1, "Cowhide": 1}, "current_utility": "tan_soft_leather"},
             UTILITY_ACTIVITY_DATA,
             UTILITY_ITEM_IMAGES,
             BIRD_NEST_OPEN_TABLES,
             DEFAULT_UTILITY_ACTIVITY,
         )
-        funded_bucket = _row(funded_rows, "buy_bucket")
-        self.assertTrue(funded_bucket.current)
-        self.assertTrue(funded_bucket.enabled)
+        funded_tanning = _row(funded_rows, "tan_soft_leather")
+        self.assertTrue(funded_tanning.current)
+        self.assertTrue(funded_tanning.enabled)
 
     def test_utility_rows_flag_one_shot_activities(self):
         # No live activity uses deactivate_after_run since buy_hunter_supplies
@@ -1128,7 +1128,7 @@ class TargetMetadataTest(unittest.TestCase):
 
     def test_utility_rows_apply_region_quest_unlock_rules(self):
         rows = utility_activity_rows(
-            {"inventory": {}, "current_utility": "gather_thin_snails"},
+            {"inventory": {}, "current_utility": "gather_lean_snails"},
             UTILITY_ACTIVITY_DATA,
             UTILITY_ITEM_IMAGES,
             BIRD_NEST_OPEN_TABLES,
@@ -1136,19 +1136,17 @@ class TargetMetadataTest(unittest.TestCase):
             QUEST_UNLOCK_RULES,
         )
 
-        snails = _row(rows, "gather_thin_snails")
-        yak = _row(rows, "scavenge_raw_yak_meat")
+        # scavenge_raw_yak_meat retired 2026-07-07 (shop-covered); the
+        # surviving Morytania snail bridges keep the region-lock coverage.
+        snails = _row(rows, "gather_lean_snails")
         self.assertFalse(snails.enabled)
         self.assertIn("Priest in Peril", snails.tooltip)
-        self.assertFalse(yak.enabled)
-        self.assertIn("The Fremennik Isles", yak.tooltip)
 
         unlocked_rows = utility_activity_rows(
             {
                 "inventory": {},
                 "quests": {
                     "priest_in_peril": {"started": True, "progress": 6, "completed": True},
-                    "the_fremennik_isles": {"started": True, "progress": 6, "completed": True},
                 },
             },
             UTILITY_ACTIVITY_DATA,
@@ -1157,8 +1155,7 @@ class TargetMetadataTest(unittest.TestCase):
             DEFAULT_UTILITY_ACTIVITY,
             QUEST_UNLOCK_RULES,
         )
-        self.assertTrue(_row(unlocked_rows, "gather_thin_snails").enabled)
-        self.assertTrue(_row(unlocked_rows, "scavenge_raw_yak_meat").enabled)
+        self.assertTrue(_row(unlocked_rows, "gather_lean_snails").enabled)
 
 
 if __name__ == "__main__":

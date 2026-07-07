@@ -7632,13 +7632,14 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
         PRIEST_IN_PERIL_ID,
         "target",
         "utility",
-        ("gather_thin_snails", "gather_lean_snails", "gather_fat_snails"),
+        ("gather_lean_snails", "gather_fat_snails"),
         "Priest in Peril",
         PRIEST_IN_PERIL_SOURCE,
     ),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "firemaking", ("arctic_pine_logs",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "cooking", ("cook_yak",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
-    QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "utility", ("scavenge_raw_yak_meat",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
+    # scavenge_raw_yak_meat retired 2026-07-07 (Raw yak meat is live shop
+    # stock); the cook_yak Cooking rule below keeps the Fremennik Isles gate.
     QuestUnlockRule(EAGLES_PEAK_ID, "target", "hunter", ("catch_ferret",), "Eagles' Peak", HUNTER_EAGLES_PEAK_SOURCE),
     QuestUnlockRule(AS_A_FIRST_RESORT_ID, "target", "hunter", ("catch_wimpy_bird",), "As a First Resort", HUNTER_AS_A_FIRST_RESORT_SOURCE),
     QuestUnlockRule(ROCKING_OUT_ID, "target", "hunter", ("catch_pirate_impling_puro_puro", "catch_pirate_impling_world"), "Rocking Out", HUNTER_ROCKING_OUT_SOURCE),

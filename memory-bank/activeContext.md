@@ -100,6 +100,19 @@ leather, battlestaff, and weaving rows all lit up through shop supply. Audits:
 `memory-bank/source-audits/coin-economy-audit-2026-07-06.md` and
 `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 
+The Cooking shop-integration pass (2026-07-07) executed the kanban follow-up
+on the owner-approved bridge-retirement precedent: the 17 shop-covered
+gather/scavenge bridges (Potato, Onion, Egg, Redberries, Cooking apple,
+Tomato, Cheese, Cabbage, Sweetcorn, Spice, Raw
+chicken/beef/bear/rat/rabbit/yak meat, Thin snail) and `buy_bucket` are
+retired — every output is live NPC shop stock at cache prices. Storage
+config is 27; stale `current_utility` saves migrate to the default. Kept:
+Wool/Flax/Grain/Mushrooms/ugthanki/Lean+Fat snails (no shop route), all
+cooking-prep processing, and the coin conversions. The dead
+`scavenge_raw_yak_meat` quest-unlock rule was removed with a note that
+`cook_yak` keeps the Fremennik Isles gate; the Morytania snail rule now
+covers only the surviving lean/fat bridges.
+
 The parity-deviation audit thread (2026-07-06/07) is complete:
 `memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md` classifies
 every mechanics-glue surface as parity/adaptation/declared, and its Sweep

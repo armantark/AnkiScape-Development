@@ -80,15 +80,35 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 26
+CURRENT_CONFIG_VERSION = 27
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
 # Saves that still point at one migrate back to the default activity.
+# 2026-07-07 added the shop-covered Cooking gather/scavenge bridges and
+# buy_bucket (all outputs are live NPC shop stock at cache prices).
 _RETIRED_UTILITY_ACTIVITIES = {
     "scavenge_chicken_feathers",
     "gather_fishing_bait",
     "buy_hunter_supplies",
+    "buy_bucket",
+    "gather_potatoes",
+    "gather_onions",
+    "gather_eggs",
+    "gather_redberries",
+    "gather_cooking_apples",
+    "gather_tomatoes",
+    "gather_cheese",
+    "gather_cabbage",
+    "gather_sweetcorn",
+    "gather_spice",
+    "scavenge_raw_chicken",
+    "scavenge_raw_beef",
+    "scavenge_raw_bear_meat",
+    "scavenge_raw_rat_meat",
+    "scavenge_raw_rabbit",
+    "scavenge_raw_yak_meat",
+    "gather_thin_snails",
 }
 _EQUIPMENT_SLOT_IDS = {
     "head",

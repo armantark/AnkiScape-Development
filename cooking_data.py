@@ -40,12 +40,6 @@ WATER_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/objs/watersource/WaterContainerData.kt"
 )
-GENERAL_STORE_SOURCE_PATH = (
-    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
-    "gg/rsmod/plugins/content/areas/lumbridge/lumbridge_general_store.plugin.kts"
-)
-# 2011Scape general stores stock buckets at 2 coins each (OSRS wiki cross-check).
-BUCKET_SHOP_PRICE = 2
 _FLOUR_WATER_REQUIREMENTS: Mapping[str, int] = {"Pot of flour": 1, "Bucket of water": 1}
 _FLOUR_WATER_BYPRODUCTS: Mapping[str, int] = {"Empty pot": 1, "Bucket": 1}
 COOKING_PREP_BRIDGE_SOURCE = "AnkiScape no-XP Cooking prep bridge, item IDs audited from 2011Scape Items.kt/items.yml."
@@ -188,14 +182,6 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
     CookingPrepActivity("make_pie_shell", "Make pie shell", {"Pastry dough": 1, "Pie dish": 1}, "Pie shell"),
     CookingPrepActivity("fill_bowl_of_water", "Fill bowl with water", {"Bowl": 1}, "Bowl of water", source=WATER_SOURCE_PATH),
     CookingPrepActivity("draw_bucket_of_water", "Draw bucket of water", {"Bucket": 1}, "Bucket of water", source=WATER_SOURCE_PATH),
-    CookingPrepActivity(
-        "buy_bucket",
-        "Buy bucket",
-        {"Coins": BUCKET_SHOP_PRICE},
-        "Bucket",
-        group="gathering",
-        source=GENERAL_STORE_SOURCE_PATH,
-    ),
     CookingPrepActivity("prepare_uncooked_egg", "Prepare uncooked egg", {"Egg": 1, "Bowl": 1}, "Uncooked egg"),
     CookingPrepActivity("chop_onion", "Chop onion", {"Onion": 1}, "Chopped onion"),
     CookingPrepActivity("slice_mushrooms", "Slice mushrooms", {"Mushrooms": 1}, "Sliced mushrooms"),
@@ -217,25 +203,14 @@ COOKING_PREP_ACTIVITIES: Tuple[CookingPrepActivity, ...] = (
     CookingPrepActivity("assemble_uncooked_stew", "Assemble uncooked stew", {"Bowl of water": 1, "Potato": 1, "Cooked meat": 1}, "Uncooked stew"),
     CookingPrepActivity("assemble_uncooked_curry", "Assemble uncooked curry", {"Uncooked stew": 1, "Spice": 1}, "Uncooked curry"),
     CookingPrepActivity("assemble_uncooked_pizza", "Assemble uncooked pizza", {"Pizza base": 1, "Tomato": 1, "Cheese": 1}, "Uncooked pizza"),
-    CookingPrepActivity("gather_potatoes", "Gather potatoes", {}, "Potato", group="gathering"),
-    CookingPrepActivity("gather_onions", "Gather onions", {}, "Onion", group="gathering"),
-    CookingPrepActivity("gather_eggs", "Gather eggs", {}, "Egg", group="gathering"),
-    CookingPrepActivity("gather_redberries", "Gather redberries", {}, "Redberries", group="gathering"),
-    CookingPrepActivity("gather_cooking_apples", "Gather cooking apples", {}, "Cooking apple", group="gathering"),
-    CookingPrepActivity("gather_tomatoes", "Gather tomatoes", {}, "Tomato", group="gathering"),
-    CookingPrepActivity("gather_cheese", "Gather cheese", {}, "Cheese", group="gathering"),
-    CookingPrepActivity("gather_cabbage", "Gather cabbage", {}, "Cabbage", group="gathering"),
+    # 2026-07-07: the shop-covered gather/scavenge bridges (Potato, Onion,
+    # Egg, Redberries, Cooking apple, Tomato, Cheese, Cabbage, Sweetcorn,
+    # Spice, Raw chicken/beef/bear/rat/rabbit/yak meat, Thin snail) and
+    # buy_bucket were retired: every output is live NPC shop stock at cache
+    # prices, and combat drops/Fishing remain the free food routes. Only
+    # bridges with no shop route stay below.
     CookingPrepActivity("gather_mushrooms", "Gather mushrooms", {}, "Mushrooms", group="gathering"),
-    CookingPrepActivity("gather_sweetcorn", "Gather sweetcorn", {}, "Sweetcorn", group="gathering"),
-    CookingPrepActivity("gather_spice", "Gather spice", {}, "Spice", group="gathering"),
-    CookingPrepActivity("scavenge_raw_chicken", "Scavenge raw chicken", {}, "Raw chicken", group="gathering"),
-    CookingPrepActivity("scavenge_raw_beef", "Scavenge raw beef", {}, "Raw beef", group="gathering"),
-    CookingPrepActivity("scavenge_raw_bear_meat", "Scavenge raw bear meat", {}, "Raw bear meat", group="gathering"),
-    CookingPrepActivity("scavenge_raw_rat_meat", "Scavenge raw rat meat", {}, "Raw rat meat", group="gathering"),
-    CookingPrepActivity("scavenge_raw_rabbit", "Scavenge raw rabbit", {}, "Raw rabbit", group="gathering"),
     CookingPrepActivity("scavenge_raw_ugthanki_meat", "Scavenge raw ugthanki meat", {}, "Raw ugthanki meat", group="gathering"),
-    CookingPrepActivity("scavenge_raw_yak_meat", "Scavenge raw yak meat", {}, "Raw yak meat", group="gathering"),
-    CookingPrepActivity("gather_thin_snails", "Gather thin snails", {}, "Thin snail", group="gathering"),
     CookingPrepActivity("gather_lean_snails", "Gather lean snails", {}, "Lean snail", group="gathering"),
     CookingPrepActivity("gather_fat_snails", "Gather fat snails", {}, "Fat snail", group="gathering"),
 )

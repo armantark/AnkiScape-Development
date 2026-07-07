@@ -878,13 +878,14 @@ review-paced coin-paid Utility conversions, Molten glass recipe). See
 `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`, and
 `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 
-Follow-up candidate (not scheduled): retire/reprice the ~20 Cooking
-gather/scavenge bridges plus `buy_bucket` whose outputs are live shop stock
-(Potato, Onion, Egg, Redberries, Cooking apple, Tomato, Cheese, Cabbage,
-Sweetcorn, Spice, raw meats, Thin snail, Pot of flour, Pizza base, buckets,
-water containers). That reprices most of Cooking at once, so it needs its own
-balance pass; the coverage table lives in the stage-1 join in
-`memory-bank/source-audits/coin-economy-audit-2026-07-06.md`'s context.
+Follow-up executed 2026-07-07: the 17 shop-covered Cooking gather/scavenge
+bridges plus `buy_bucket` are retired (storage config 27 migrates stale
+`current_utility` saves). Bridges with no shop route stay: Wool, Flax, Grain,
+Mushrooms, Raw ugthanki meat, Lean/Fat snails, all cooking-prep processing,
+and the four coin conversions. Free food routes remain combat drops and
+Fishing. One recorded nuance: `scavenge_raw_yak_meat` carried a Fremennik
+Isles quest lock that the shop route does not (shops have no quest gates by
+design); the `cook_yak` Cooking rule keeps the gate on the XP action.
 
 Backend detail (historical): the source-backed catalog, pure transaction
 APIs, shared-stock state, market clock, undo-aware review snapshots, vendor

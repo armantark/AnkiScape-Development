@@ -135,6 +135,12 @@
   leather/battlestaff/weaving rows that shop supply lit up. Audits:
   `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`,
   `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+- The Cooking shop-integration pass is complete as of 2026-07-07: the 17
+  shop-covered gather/scavenge bridges and `buy_bucket` are retired on the
+  established precedent (outputs are live shop stock at cache prices),
+  storage config 27 migrates stale `current_utility` saves, the seven
+  no-shop-route bridges and all processing activities remain, and the yak
+  quest-gate nuance is recorded on the kanban. Both suites pass.
 - The parity-deviation audit is complete as of 2026-07-07 (five commits,
   `1fba39d`..`daa6a66`). The ledger
   (`memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md`)

@@ -57,7 +57,10 @@ class TestCookingData(unittest.TestCase):
             {"Pizza base": 1, "Empty pot": 1, "Bucket": 1},
         )
         self.assertEqual(data["draw_bucket_of_water"]["requirements"], {"Bucket": 1})
-        self.assertEqual(data["buy_bucket"]["requirements"], {"Coins": 2})
+        # Shop-covered gather bridges and buy_bucket retired 2026-07-07:
+        # their outputs are live NPC shop stock at cache prices.
+        for retired in ("buy_bucket", "gather_potatoes", "gather_cheese", "scavenge_raw_yak_meat", "gather_thin_snails"):
+            self.assertNotIn(retired, data)
         self.assertEqual(data["make_pie_shell"]["requirements"], {"Pastry dough": 1, "Pie dish": 1})
         self.assertEqual(
             data["assemble_uncooked_pizza"]["requirements"],
