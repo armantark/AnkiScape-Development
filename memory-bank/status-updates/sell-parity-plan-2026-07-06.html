@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darkan Sell-Mechanics Parity — Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:1040px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--accent); background:rgba(79,140,255,0.15); border:1px solid rgba(79,140,255,0.4); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.9rem; margin-bottom:0.5rem; }
+.subtitle { color:var(--text-dim); font-size:0.95rem; max-width:780px; margin-bottom:1.8rem; }
+table { width:100%; border-collapse:collapse; font-size:0.82rem; margin:1rem 0; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); text-align:left; padding:0.4rem 0.55rem; border-bottom:1px solid var(--border); }
+td { padding:0.45rem 0.55rem; border-bottom:1px solid rgba(42,48,64,0.5); color:var(--text-dim); vertical-align:top; }
+td.k { color:var(--text); font-weight:500; }
+td code, p code, li code { font-family:'JetBrains Mono',monospace; font-size:0.78em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-bottom:1rem; }
+.card h3 { font-weight:500; font-size:1rem; margin-bottom:0.4rem; }
+.card p, .card li { color:var(--text-dim); font-size:0.87rem; }
+.card ul { margin:0.3rem 0 0.3rem 1.2rem; }
+.warn { background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.3); border-radius:8px; padding:0.8rem 1rem; font-size:0.85rem; color:var(--text-dim); margin-top:0.8rem; }
+.warn b { color:var(--amber); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">PRE-IMPLEMENTATION PLAN · 2026-07-06</div>
+    <h1>Absolute Darkan Parity for Sell Mechanics</h1>
+    <p class="subtitle">
+        Owner directive: sell mechanics follow Darkan's <code>Shop.java</code> exactly. That removes the
+        AnkiScape-invented conservatism added earlier today (name-minimum prices, live-buy clamp, the
+        vendor ÷3 heuristic) and adds the engine behaviors we hadn't modeled. Audit of
+        <code>Shop.java</code> + <code>ShopItem.java</code> vs <code>shop_logic.py</code>:
+    </p>
+
+    <table>
+        <tr><th>Darkan behavior</th><th>Ours today</th><th>Action</th></tr>
+        <tr><td class="k">getSellPrice = per-item cache sellPrice, 0→1 floor, then coin/Tokkul enum override — identical at every shop</td><td>Stocked-row price at stocking shops; name-minimum table clamped by live buys elsewhere; vendor ÷3 heuristic</td><td>Uniform canonical per-item price everywhere; kill clamp + heuristic</td></tr>
+        <tr><td class="k">Currency item itself can't be sold</td><td>Not guarded</td><td>Add guard</td></tr>
+        <tr><td class="k">General store non-stock sales fill a 40 − main_stock slot pool; full → sale refused</td><td>Unlimited temporary rows</td><td>Add capacity + <code>shop_full</code> denial</td></tr>
+        <tr><td class="k">Sold-into-main-stock overstock decays toward the row's default</td><td>Bug: selling to a stocking shop seeds the row as temporary with default 0 → decays to zero</td><td>Seed stocked rows from their definition</td></tr>
+        <tr><td class="k">buyOnly refusal · specialist stock-only (incl. 0-qty rows) · tradeable gate · qty clamp · overstock/temp decay per restock ticks</td><td>Already implemented</td><td>None — verified in source</td></tr>
+    </table>
+
+    <div class="card">
+        <h3>Canonical item id per storage name</h3>
+        <p>Darkan prices the exact id in your inventory; AnkiScape's flat inventory only has names, so each
+        name needs one canonical id: <b>the id live shop stock uses for that name</b> (what players actually
+        buy), else the lowest tradeable id in items.yml. The generated <code>SHOP_PLAYER_SELL_PRICES</code>
+        becomes that id's exact <code>getSellPrice</code>. Swordfish returns to 120 everywhere (the
+        Dungeoneering-variant 3-coin minimum disappears).</p>
+    </div>
+
+    <div class="warn"><b>Accepted consequence (owner-directed):</b> the anti-arbitrage clamp is removed, so
+    Rasolo's 1-coin Poison → 825-coin sell flip comes back — but it is <i>authentic Darkan behavior</i>,
+    bounded exactly the way the engine bounds it: shop stock per restock interval, and our restock clock is
+    review-paced. The strict-arbitrage test is replaced by parity tests (uniform price across shop types,
+    0→1 floor, currency guard, shop-full refusal, stocked-row decay-to-default).</p>
+
+    <div class="card">
+        <h3>Steps</h3>
+        <ul>
+            <li>Generator: canonical-id sell table (floor before override, override unfloored — exact getSellPrice order); drop <code>clamp_player_sell_prices_to_live_buy</code>; regenerate.</li>
+            <li><code>shop_logic.py</code>: uniform sell price; currency guard; general-store slot capacity; stocked-row state seeding fix.</li>
+            <li>Tests: parity suite replaces the arbitrage test; rerun coin-loop tests against new prices.</li>
+            <li>Docs: economy audit parity section supersedes the clamp section; kanban/activeContext/progress updated; results artifact.</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

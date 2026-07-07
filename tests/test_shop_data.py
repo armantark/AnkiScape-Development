@@ -87,26 +87,21 @@ class TestShopData(unittest.TestCase):
         # now, not through the shop catalog export.
         self.assertNotIn("Leather", extra_items)
 
-    def test_no_strict_buy_sell_arbitrage_in_live_stock(self):
-        """No item's player-sell price may EXCEED any live shop buy price —
-        AnkiScape's flat name-keyed inventory merges item ids, so a cheap
-        custom-priced stock row plus a high cache sellPrice on a same-named id
-        would mint coins in a buy/sell loop (the generator clamps for this).
-        Equality is allowed: zero-profit round trips are what the authentic
-        Shop.java math produces for value-1 items and spirit shards."""
-        from shop_data import SHOP_PLAYER_SELL_PRICES
+    def test_player_price_tables_follow_darkan_price_math(self):
+        """Absolute Darkan sell parity (owner decision 2026-07-06): the
+        tables are Shop.java getSellPrice/getBuyPrice for each name's
+        canonical id — floored to 1, never clamped or name-minimized."""
+        from shop_data import SHOP_PLAYER_BUY_PRICES, SHOP_PLAYER_SELL_PRICES
 
-        violations = []
-        for shop in SHOP_DATA.values():
-            if shop.get("visibility") != "visible":
-                continue
-            for row in shop["stock"]:
-                if row["disposition"] != "live":
-                    continue
-                sell = SHOP_PLAYER_SELL_PRICES.get(row["item_name"])
-                if sell is not None and sell > int(row["buy_price"]):
-                    violations.append((row["item_name"], shop["id"], row["buy_price"], sell))
-        self.assertEqual(violations, [])
+        self.assertGreater(len(SHOP_PLAYER_SELL_PRICES), 6000)
+        self.assertTrue(all(price >= 1 for price in SHOP_PLAYER_SELL_PRICES.values()))
+        self.assertTrue(all(price >= 1 for price in SHOP_PLAYER_BUY_PRICES.values()))
+        # Canonical id = the id live shops stock: Swordfish is id 373
+        # (sellPrice 120), not the 3-coin variant id that no shop stocks.
+        self.assertEqual(SHOP_PLAYER_SELL_PRICES["Swordfish"], 120)
+        # Rasolo's custom 1-coin Poison id is canonical for its name, and its
+        # own cache sellPrice is 1 — the engine allows no flip profit here.
+        self.assertEqual(SHOP_PLAYER_SELL_PRICES["Poison"], 1)
 
     def test_machine_readable_ledger_matches_catalog_summary(self):
         ledger_path = Path("memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json")

@@ -122,9 +122,13 @@
   with an end-to-end coinless gather→sell→buy test. Stage 3 (owner
   amendment) converted the tanning/sawmill shop services into review-paced
   coin-paid Utility conversions (batch 28, coins per unit; instant services
-  rejected as pacing-destroying), emptied `SHOP_SERVICES`, clamped the sell
-  table against live buy prices with a strict-arbitrage test, and fixed the
-  latent single-output utility registration bug in `item_registry`. Stage 4
+  rejected as pacing-destroying), emptied `SHOP_SERVICES`, and fixed the
+  latent single-output utility registration bug in `item_registry`. A
+  follow-up owner decision replaced the interim sell-price clamp with
+  absolute Darkan sell parity: canonical-id getSellPrice/getBuyPrice tables,
+  a currency-item guard, the 40-minus-main-stock general-store slot pool
+  with `shop_full` refusals, sold-into-stock decay toward row defaults, and
+  engine-priced buy-backs of player-sold stock (764 tests in both suites). Stage 4
   added the source-backed `glass_molten_glass` furnace recipe (Soda ash +
   Bucket of sand → Molten glass + returned Bucket, 20 XP) via a new optional
   `byproducts` recipe field, unlocking glassblowing alongside the gem/silver/

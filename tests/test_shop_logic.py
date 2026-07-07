@@ -222,6 +222,93 @@ class TestShopLogic(unittest.TestCase):
             self.assertTrue(preview["allowed"], f"{item_name}: {preview.get('reason')}")
             self.assertGreaterEqual(int(preview["unit_price"]), 1, item_name)
 
+    def test_sell_price_is_uniform_across_shop_types(self):
+        # Darkan getSellPrice depends only on the item: the same Swordfish
+        # pays the same at a shop that stocks it and at a general store.
+        from shop_data import SHOP_PLAYER_SELL_PRICES
+
+        stocking_shop = next(
+            shop for shop in SHOP_DATA.values()
+            if shop["visibility"] == "visible"
+            and any(r["item_name"] == "Swordfish" and r["disposition"] == "live" for r in shop["stock"])
+        )
+        general = _general_store()
+        data = build_shop_fixture_player_data()
+        data["inventory"]["Swordfish"] = 2
+        at_stocking = preview_shop_sell_pure(data, stocking_shop["id"], "Swordfish", 1)
+        at_general = preview_shop_sell_pure(data, general["id"], "Swordfish", 1)
+        self.assertTrue(at_stocking["allowed"] and at_general["allowed"])
+        self.assertEqual(at_stocking["unit_price"], SHOP_PLAYER_SELL_PRICES["Swordfish"])
+        self.assertEqual(at_general["unit_price"], SHOP_PLAYER_SELL_PRICES["Swordfish"])
+
+    def test_selling_the_currency_item_is_refused(self):
+        general = _general_store()
+        data = build_shop_fixture_player_data()
+        preview = preview_shop_sell_pure(data, general["id"], "Coins", 1)
+        self.assertFalse(preview["allowed"])
+        self.assertEqual(preview["reason"], "currency_item")
+
+    def test_general_store_refuses_new_items_when_slot_pool_is_full(self):
+        # Shop.java: general stock holds MAX_SHOP_ITEMS(40) - main stock
+        # slots; a sale needing a new slot fails when the pool is full.
+        general = _general_store()
+        capacity = max(0, 40 - len(general["stock"]))
+        data = build_shop_fixture_player_data()
+        group = data["shop_stock_state"].setdefault(general["shared_stock_group"], {"rows": {}})
+        for index in range(capacity):
+            group["rows"][f"{general['id']}:temporary:filler_{index}"] = {
+                "item_name": f"Filler {index}",
+                "current_quantity": 1,
+                "default_quantity": 0,
+                "temporary": True,
+            }
+        data["inventory"]["Swordfish"] = 1
+        preview = preview_shop_sell_pure(data, general["id"], "Swordfish", 1)
+        self.assertFalse(preview["allowed"])
+        self.assertEqual(preview["reason"], "shop_full")
+        # An item with an existing slot still sells into it.
+        data["inventory"]["Beer"] = 2
+        group["rows"][f"{general['id']}:temporary:beer"] = {
+            "item_name": "Beer",
+            "current_quantity": 1,
+            "default_quantity": 0,
+            "temporary": True,
+        }
+        still_allowed = preview_shop_sell_pure(data, general["id"], "Beer", 1)
+        self.assertTrue(still_allowed["allowed"], still_allowed.get("reason"))
+
+    def test_selling_into_main_stock_decays_toward_default_not_zero(self):
+        # Selling an item its shop stocks raises that row above default;
+        # restock then decays it back toward the default (ShopItem.capStock),
+        # and the row is never flagged temporary.
+        shop = next(
+            s for s in SHOP_DATA.values()
+            if s["visibility"] == "visible" and not s["buy_only"]
+            and any(r["item_name"] == "Feather" and r["disposition"] == "live" for r in s["stock"])
+        )
+        row = next(r for r in shop["stock"] if r["item_name"] == "Feather")
+        data = build_shop_fixture_player_data()
+        data["inventory"]["Feather"] = 5
+        data, result = apply_shop_sell_pure(data, shop["id"], "Feather", 5)
+        self.assertTrue(result["allowed"], result.get("reason"))
+        view = shop_view_model_pure(data, shop["id"])
+        sold_row = next(v for v in view["rows"] if v["id"] == row["id"])
+        self.assertEqual(sold_row["current_quantity"], row["default_quantity"] + 5)
+        advanced = advance_shop_market_clock_pure(data, answered_cards=row["restock_ticks"])
+        decayed = next(v for v in shop_view_model_pure(advanced, shop["id"])["rows"] if v["id"] == row["id"])
+        self.assertEqual(decayed["current_quantity"], row["default_quantity"] + 4)
+
+    def test_player_sold_stock_buys_back_at_darkan_buy_price(self):
+        from shop_data import SHOP_PLAYER_BUY_PRICES
+
+        general = _general_store()
+        data = build_shop_fixture_player_data()
+        data, result = apply_shop_sell_pure(data, general["id"], "Beer", 1)
+        self.assertTrue(result["allowed"])
+        view = shop_view_model_pure(data, general["id"])
+        beer_row = next(v for v in view["rows"] if v["item_name"] == "Beer" and v["current_quantity"] == 1)
+        self.assertEqual(beer_row["buy_price"], SHOP_PLAYER_BUY_PRICES["Beer"])
+
     def test_gather_sell_buy_coin_loop_end_to_end(self):
         # A coinless player sells gathered goods to a general store, then
         # spends the proceeds on shop stock; both legs record history events.

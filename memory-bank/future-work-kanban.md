@@ -16,8 +16,11 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   not re-add them); processing conversions (tanning, sawmill) are review-paced
   coin-paid Utility/Activities, never instant shop services (2011 runs were
   inventory-bounded; the review loop is the friction stand-in — do not
-  re-litigate); `SHOP_PLAYER_SELL_PRICES` closes the general-store income loop
-  and is clamped against live buy prices to prevent name-collision arbitrage.
+  re-litigate); `SHOP_PLAYER_SELL_PRICES` closes the general-store income loop; a
+  same-day owner decision then made sell mechanics absolute Darkan parity
+  (canonical-id getSellPrice/getBuyPrice, currency guard, 40-slot general
+  stock pool, decay-to-default) and removed the interim clamp — see
+  `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`.
   The Cooking gather/scavenge bridges are a follow-up candidate (see the
   completed NPC shop card). The Grand Exchange remains parked in
   `memory-bank/fake-grand-exchange-design.md`, and shops absorbed much of its

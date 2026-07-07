@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Darkan Sell-Mechanics Parity — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:1040px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.9rem; margin-bottom:0.5rem; }
+.subtitle { color:var(--text-dim); font-size:0.95rem; max-width:780px; margin-bottom:1.8rem; }
+table { width:100%; border-collapse:collapse; font-size:0.82rem; margin:1rem 0; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); text-align:left; padding:0.4rem 0.55rem; border-bottom:1px solid var(--border); }
+td { padding:0.45rem 0.55rem; border-bottom:1px solid rgba(42,48,64,0.5); color:var(--text-dim); vertical-align:top; }
+td.k { color:var(--text); font-weight:500; }
+td.ok { color:var(--green); font-family:'JetBrains Mono',monospace; font-size:0.72rem; }
+td code, p code { font-family:'JetBrains Mono',monospace; font-size:0.78em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-bottom:1rem; }
+.card h3 { font-weight:500; font-size:1rem; margin-bottom:0.4rem; }
+.card p { color:var(--text-dim); font-size:0.87rem; margin-bottom:0.5rem; }
+.verify { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.3rem; font-family:'JetBrains Mono',monospace; font-size:0.74rem; line-height:2; color:var(--text-dim); }
+.verify b { color:var(--green); font-weight:600; }
+.note { color:var(--text-dim); font-size:0.8rem; margin-top:0.8rem; }
+.twist { background:rgba(74,222,128,0.06); border:1px solid rgba(74,222,128,0.25); border-radius:8px; padding:0.8rem 1rem; font-size:0.85rem; color:var(--text-dim); margin:0.8rem 0; }
+.twist b { color:var(--green); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-06</div>
+    <h1>Absolute Darkan Sell-Mechanics Parity</h1>
+    <p class="subtitle">
+        Every sell-side behavior now matches <code>Shop.java</code> / <code>ShopItem.java</code> line for
+        line; every AnkiScape-invented conservatism (name-minimum prices, live-buy clamp, ÷3 buyback) is
+        gone. 764 tests pass in both suites.
+    </p>
+
+    <table>
+        <tr><th>Engine behavior</th><th>Status</th></tr>
+        <tr><td class="k">getSellPrice: per-item cache sellPrice, 0→1 floor, coin enum override — identical at every shop (Swordfish pays 120 at The Shrimp &amp; Parrot AND at any general store)</td><td class="ok">IMPLEMENTED</td></tr>
+        <tr><td class="k">getBuyPrice for player-sold stock buy-backs (value floored 0→1 + enum override) — replaces the invented ÷3 markup</td><td class="ok">IMPLEMENTED</td></tr>
+        <tr><td class="k">Currency item can't be sold (<code>currency_item</code> denial)</td><td class="ok">IMPLEMENTED</td></tr>
+        <tr><td class="k">General stock pool = 40 − main stock slots; new items refused when full (<code>shop_full</code>)</td><td class="ok">IMPLEMENTED</td></tr>
+        <tr><td class="k">Sold-into-main-stock overstock decays toward the row's default (capStock), never zero — fixed a seeding bug that flagged such rows temporary</td><td class="ok">FIXED</td></tr>
+        <tr><td class="k">buyOnly refusal · specialist stock-only incl. 0-qty rows · tradeable gate · qty clamp · temp-stock decay/slot-free</td><td class="ok">ALREADY IN PARITY</td></tr>
+    </table>
+
+    <div class="card">
+        <h3>Canonical id per storage name</h3>
+        <p>Darkan prices the exact inventory id; our flat inventory has names, so each name resolves to the
+        id live shop stock actually uses (else the lowest tradeable items.yml id), and both generated
+        tables (<code>SHOP_PLAYER_SELL_PRICES</code> / <code>SHOP_PLAYER_BUY_PRICES</code>, 6,820 names)
+        are the engine's exact math for that id.</p>
+        <div class="twist"><b>The feared arbitrage dissolved on its own:</b> under true parity the
+        canonical "Poison" is the id Rasolo stocks — and its own cache sellPrice is 1, so the
+        buy-1/sell-825 flip never existed in the engine; the 825 belonged to a different id no shop
+        stocks, an artifact of the old name-minimum rule. The interim clamp and strict-arbitrage test are
+        replaced by parity tests (uniform price across shop types, floors, currency guard, shop-full,
+        decay-to-default, engine buy-backs).</div>
+    </div>
+
+    <div class="verify">
+        python3 run_tests.py → <b>OK</b> · 764 tests, 144 skipped<br>
+        QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests → <b>OK</b> · 764 tests
+    </div>
+    <p class="note">Plan (unmodified): <code>memory-bank/status-updates/sell-parity-plan-2026-07-06.html</code>.
+    Decision recorded in <code>coin-economy-audit-2026-07-06.md</code>, the kanban, activeContext, and progress.</p>
+</div>
+</body>
+</html>

@@ -633,58 +633,80 @@ def _coverage_summary(
     }
 
 
+def _darkan_get_sell_price(price_inputs: dict[str, Any]) -> int | None:
+    """Shop.java getSellPrice, exactly: cache sellPrice floored 0->1, then the
+    coin sell enum override wins unfloored when present."""
+    base = _cache_int(price_inputs, "sell_price")
+    if base is None or base < 0:
+        return None
+    if base == 0:
+        base = 1
+    override = _enum_override(price_inputs, "coin_sell_override")
+    return override if override is not None else base
+
+
+def _darkan_get_buy_price(price_inputs: dict[str, Any]) -> int | None:
+    """Shop.java getBuyPrice for a no-custom-price coin row, exactly: cache
+    value floored 0->1, then the coin buy enum override wins unfloored."""
+    base = _cache_int(price_inputs, "value")
+    if base is None or base < 0:
+        return None
+    if base == 0:
+        base = 1
+    override = _enum_override(price_inputs, "coin_buy_override")
+    return override if override is not None else base
+
+
 def build_player_sell_prices(
     items: dict[int, ItemMeta],
     price_inputs: dict[int, dict[str, Any]],
-) -> dict[str, int]:
-    """Coin sell price for every tradeable 2011 item, keyed by storage name.
-
-    Mirrors Shop.java's player-sale math (ItemDefinitions.sellPrice plus the
-    coin sell enum override). Names shared by several item ids keep the lowest
-    resolved price so name aliasing can never inflate a payout.
+    shops: Iterable[dict[str, Any]],
+) -> tuple[dict[str, int], dict[str, int]]:
+    """Coin sell price per storage name — absolute Darkan parity (owner
+    decision 2026-07-06): the price is Shop.java getSellPrice for the name's
+    canonical item id, identical at every shop. AnkiScape's flat inventory
+    only has names, so the canonical id is the id live shop stock uses for
+    that name (what players actually buy), falling back to the lowest
+    tradeable id in items.yml. No clamping: buy-low/sell-high flips that the
+    Darkan engine allows (custom-priced stock vs cache sellPrice) stay, and
+    are bounded the way the engine bounds them — stock per review-paced
+    restock interval. Also returns the matching getBuyPrice table (cache value
+    floored 0->1 plus coin buy enum override) so buying back player-sold
+    temporary stock prices exactly like the engine.
     """
-    prices: dict[str, int] = {}
-    for item_id, meta in items.items():
+    stock_id_by_name: dict[str, int] = {}
+    for shop in shops:
+        for row in shop.get("stock", []):
+            name = row.get("item_name", "")
+            item_id = row.get("item_id")
+            if not name or not isinstance(item_id, int):
+                continue
+            if row.get("disposition") == "live" and name not in stock_id_by_name:
+                stock_id_by_name[name] = item_id
+
+    canonical: dict[str, int] = {}
+    for item_id, meta in sorted(items.items()):
         if not meta.tradeable:
-            continue
-        cache_row = price_inputs.get(item_id)
-        if not cache_row:
-            continue
-        sell_price = _cache_shop_sell_price(cache_row, 995)
-        if sell_price is None or sell_price < 0:
             continue
         name = _item_name(items, item_id)
         if not name or name.startswith("Item ") or name.lower().startswith("null"):
             continue
-        existing = prices.get(name)
-        prices[name] = sell_price if existing is None else min(existing, sell_price)
-    return dict(sorted(prices.items()))
+        canonical.setdefault(name, item_id)
+    canonical.update(stock_id_by_name)
 
-
-def clamp_player_sell_prices_to_live_buy(
-    prices: dict[str, int],
-    shops: Iterable[dict[str, Any]],
-) -> dict[str, int]:
-    """Cap each name's player-sell price at its cheapest live shop buy price.
-
-    AnkiScape's flat name-keyed inventory merges every item id sharing a name,
-    so a cheap custom-priced stock row (e.g. Rasolo's 1-coin Poison) plus a
-    high cache sellPrice on a same-named id would otherwise mint coins in a
-    buy/sell loop. Equality stays allowed: zero-profit round trips are what
-    the authentic Shop.java math produces for value-1 items and spirit shards.
-    """
-    clamped = dict(prices)
-    for shop in shops:
-        if shop.get("visibility") != "visible":
+    sell_prices: dict[str, int] = {}
+    buy_prices: dict[str, int] = {}
+    for name, item_id in canonical.items():
+        cache_row = price_inputs.get(item_id)
+        if not cache_row:
             continue
-        for row in shop.get("stock", []):
-            if row.get("disposition") != "live":
-                continue
-            name = row.get("item_name", "")
-            buy_price = row.get("buy_price")
-            if name in clamped and isinstance(buy_price, int):
-                clamped[name] = min(clamped[name], buy_price)
-    return clamped
+        sell_price = _darkan_get_sell_price(cache_row)
+        if sell_price is not None:
+            sell_prices[name] = sell_price
+        buy_price = _darkan_get_buy_price(cache_row)
+        if buy_price is not None:
+            buy_prices[name] = buy_price
+    return dict(sorted(sell_prices.items())), dict(sorted(buy_prices.items()))
 
 
 def _py_repr(value: Any) -> str:
@@ -739,6 +761,10 @@ SHOP_EXTRA_ITEM_DATA: Dict[str, Dict[str, Any]] = {_py_repr(item_specs)}
 # ItemDefinitions.sellPrice + coin sell enum override). General-store sales of
 # items no shop stocks resolve through this table instead of failing closed.
 SHOP_PLAYER_SELL_PRICES: Dict[str, int] = {_py_repr(catalog.get("player_sell_prices", {}))}
+
+# Shop.java getBuyPrice for the same canonical ids (cache value floored 0->1
+# plus the coin buy enum override); prices buy-backs of player-sold stock.
+SHOP_PLAYER_BUY_PRICES: Dict[str, int] = {_py_repr(catalog.get("player_buy_prices", {}))}
 
 
 def shop_extra_items_as_dict() -> Dict[str, Dict[str, Any]]:
@@ -857,9 +883,8 @@ def main() -> None:
         java_home=args.darkan_java_home,
     )
     catalog, ledger = build_catalog(args.darkan_shops, args.items_2011, price_inputs, args.darkan_cache)
-    catalog["player_sell_prices"] = clamp_player_sell_prices_to_live_buy(
-        build_player_sell_prices(items, price_inputs),
-        catalog["shops"],
+    catalog["player_sell_prices"], catalog["player_buy_prices"] = build_player_sell_prices(
+        items, price_inputs, catalog["shops"]
     )
     catalog["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
     ledger["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])

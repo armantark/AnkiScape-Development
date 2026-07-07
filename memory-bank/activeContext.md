@@ -85,8 +85,11 @@ services became review-paced coin-paid Utility conversions
 runs were inventory-bounded and the review loop is the friction stand-in, so
 instant Use-x1000 services were rejected — `SHOP_SERVICES` is now an empty
 contract slot and only the Bartender/Benny/Karim vendor actions remain in the
-Shop tab. The sell table is clamped at each name's cheapest live buy price
-(strict-arbitrage test) because the flat name-keyed inventory merges item ids.
+Shop tab. A later owner decision made sell mechanics absolute Darkan parity: the
+tables are canonical-id `getSellPrice`/`getBuyPrice` (no clamps or name
+minimums), the currency item cannot be sold, general-store player stock uses
+the engine's 40-minus-main-stock slot pool, and sold-into-stock overstock
+decays toward the row's default.
 A latent `item_registry` bug was fixed where single-output utility activities
 never registered (empty `outputs` mapping shadowed the `output_item`
 fallback). (4) Molten glass became a source-backed furnace recipe

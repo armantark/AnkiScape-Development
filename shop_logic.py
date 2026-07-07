@@ -15,6 +15,7 @@ try:
         SHOP_DATA,
         SHOP_DATA_VERSION,
         SHOP_ID_ALIASES,
+        SHOP_PLAYER_BUY_PRICES,
         SHOP_PLAYER_SELL_PRICES,
         SHOP_SERVICES,
         SHOP_VENDOR_ACTIONS,
@@ -24,6 +25,7 @@ except ImportError:
         SHOP_DATA,
         SHOP_DATA_VERSION,
         SHOP_ID_ALIASES,
+        SHOP_PLAYER_BUY_PRICES,
         SHOP_PLAYER_SELL_PRICES,
         SHOP_SERVICES,
         SHOP_VENDOR_ACTIONS,
@@ -295,7 +297,13 @@ def apply_shop_sell_pure(player_data: Mapping[str, Any], shop_id: str, item_name
     row_id = preview["row_id"]
     before_row = copy.deepcopy(group_state["rows"].get(row_id)) if row_id in group_state["rows"] else None
     if row_id not in group_state["rows"]:
-        group_state["rows"][row_id] = _temporary_stock_row(item_name, preview["unit_price"])
+        stocked_row = _stocked_row_for_item(shop, item_name)
+        if stocked_row is not None and stocked_row["id"] == row_id:
+            # Sold-into-main-stock overstock decays toward the row's default
+            # (ShopItem.capStock), not toward zero like player-sold slots.
+            group_state["rows"][row_id] = _state_row_from_definition(stocked_row)
+        else:
+            group_state["rows"][row_id] = _temporary_stock_row(item_name, preview["unit_price"])
     group_state["rows"][row_id]["current_quantity"] += amount
     after_row = copy.deepcopy(group_state["rows"][row_id])
     _add_inventory(data, item_name, -amount)
@@ -644,19 +652,28 @@ def _preview_sell_from_state(
     if owned_quantity <= 0:
         return _denied("missing_item", requested_quantity=requested, shop_id=shop["id"], item_name=item_name, owned_quantity=0)
 
+    if item_name == shop["currency_item_name"]:
+        # Shop.java: item.getId() == currency -> "You can't sell this item."
+        return _denied("currency_item", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
     stocked_row = _stocked_row_for_item(shop, item_name)
     if not shop["general_store"] and stocked_row is None:
         return _denied("specialist_shop_stock_only", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
     if not _item_tradeable(item_name):
         return _denied("item_not_tradeable", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
 
-    unit_price = None
     row_id = f"{shop['id']}:temporary:{_item_slug(item_name)}"
     if stocked_row is not None:
         row_id = stocked_row["id"]
-        unit_price = _clean_optional_int(stocked_row.get("sell_price"))
-    if unit_price is None:
-        unit_price = _sell_price_for_item(item_name)
+    elif row_id not in group_state.get("rows", {}):
+        # Shop.java: general stock is MAX_SHOP_ITEMS(40) minus the main stock;
+        # a sale needing a new slot fails when the pool is full.
+        temporary_rows = sum(
+            1 for state in group_state.get("rows", {}).values() if bool(state.get("temporary"))
+        )
+        if temporary_rows >= max(0, 40 - len(shop["stock"])):
+            return _denied("shop_full", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
+    # Darkan getSellPrice depends only on the item, never the shop.
+    unit_price = _sell_price_for_item(item_name)
     if unit_price is None:
         return _denied("sell_price_unresolved", requested_quantity=requested, shop_id=shop["id"], item_name=item_name)
     amount = min(requested, owned_quantity)
@@ -824,25 +841,11 @@ def _item_tradeable(item_name: str) -> bool:
 
 
 def _sell_price_for_item(item_name: str) -> Optional[int]:
-    prices = []
-    for shop in SHOP_DATA.values():
-        for row in shop.get("stock", []):
-            if row.get("item_name") == item_name:
-                sell_price = _clean_optional_int(row.get("sell_price"))
-                if sell_price is not None:
-                    prices.append(sell_price)
-    for action in SHOP_VENDOR_ACTIONS.values():
-        for item in action.get("outputs", []):
-            if item.get("item_name") == item_name:
-                price = _clean_int(action.get("price"), 0, minimum=0)
-                if price > 0:
-                    prices.append(max(1, price // 3))
-    if not prices:
-        # No shop stocks it: fall back to the generated Shop.java player-sale
-        # price (ItemDefinitions.sellPrice + coin sell enum override).
-        fallback = SHOP_PLAYER_SELL_PRICES.get(item_name)
-        return int(fallback) if fallback is not None else None
-    return min(prices)
+    # Darkan Shop.java getSellPrice is a property of the item alone —
+    # identical at every shop. The generated table is that math for the
+    # name's canonical item id.
+    price = SHOP_PLAYER_SELL_PRICES.get(item_name)
+    return int(price) if price is not None else None
 
 
 def _temporary_stock_row(item_name: str, unit_price: int) -> Dict[str, Any]:
@@ -853,7 +856,7 @@ def _temporary_stock_row(item_name: str, unit_price: int) -> Dict[str, Any]:
         "default_quantity": 0,
         "restock_ticks": 50,
         "restock_amount": 1,
-        "buy_price": max(1, unit_price * 3),
+        "buy_price": max(1, _clean_int(SHOP_PLAYER_BUY_PRICES.get(item_name), unit_price, minimum=1)),
         "sell_price": unit_price,
         "tradeable": _item_tradeable(item_name),
         "temporary": True,

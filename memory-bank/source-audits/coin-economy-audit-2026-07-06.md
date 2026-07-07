@@ -13,13 +13,11 @@ and does every legitimate income route resolve instead of failing closed?
   imported drop tables (goblins, guards, barbarians, humanoids broadly).
   Source: per-target local 2011Scape drop tables recorded in the combat source
   audits.
-- **General-store sales:** general stores buy any tradeable item. Stocked
-  items use their stock row's Shop.java sell price; **unstocked items resolve
-  through the new generated `SHOP_PLAYER_SELL_PRICES` table** (6,736 names) —
-  `ItemDefinitions.sellPrice` plus the coin sell enum override for every
-  tradeable 2011 item, extracted by `tools/DumpDarkanShopPriceInputs.java`
-  from the Darkan cache. Names shared by several item ids keep the lowest
-  resolved price so aliasing can never inflate a payout.
+- **General-store sales:** general stores buy any tradeable item at the
+  generated `SHOP_PLAYER_SELL_PRICES` price (6,820 names) — Shop.java
+  `getSellPrice` for each name's canonical item id, extracted by
+  `tools/DumpDarkanShopPriceInputs.java` from the Darkan cache (see the sell
+  parity section below for the canonical-id rule).
 - **Specialist-shop sales:** specialist shops still buy only their own stock
   (unchanged fail-closed policy).
 - **Vendor sales:** `bartender_sell_beer_glass` (Darkan
@@ -53,26 +51,23 @@ cooking, `make_soft_clay`) already runs through reviews. `SHOP_SERVICES` stays
 as an empty fail-closed contract slot for future genuinely instant services.
 Do not re-litigate this by moving conversions back into the Shop tab.
 
-## Arbitrage guard
+## Sell parity (supersedes the earlier arbitrage clamp)
 
-`SHOP_PLAYER_SELL_PRICES` is clamped at each name's cheapest live shop buy
-price at generation time: the flat name-keyed inventory merges every item id
-sharing a name, so a cheap custom-priced stock row (Rasolo's 1-coin Poison)
-plus a high cache sellPrice on a same-named id would otherwise mint coins in
-a buy/sell loop. Equality (zero-profit round trips) stays — that is what the
-authentic Shop.java math produces for value-1 items and spirit shards.
-Pinned by `tests/test_shop_data.py::test_no_strict_buy_sell_arbitrage_in_live_stock`.
-
-## Honest exclusions
-
-- Items whose local `items.yml` marks `tradeable: false` stay unsellable even
-  when 2011-era live-game behavior differed (e.g. `Chinchompa`); the local
-  source is the authority.
-- The registry's quest-catalog pseudo-items (scraped reward phrases, plurals,
-  place names) are marked tradeable by default but are not real inventory
-  outputs; they are outside the sellability guarantee. The guarantee is pinned
-  to representative real outputs by
-  `tests/test_shop_logic.py::test_primary_skill_outputs_sell_at_general_stores`.
+Owner decision, 2026-07-06 (later the same day): sell mechanics follow Darkan
+`Shop.java` exactly. `SHOP_PLAYER_SELL_PRICES` / `SHOP_PLAYER_BUY_PRICES` are
+`getSellPrice` / `getBuyPrice` for each name's canonical item id (the id live
+shop stock uses, else the lowest tradeable id) — cache price floored 0->1,
+coin enum override wins, identical at every shop. The earlier name-minimum
+rule, live-buy clamp, and vendor divide-by-3 buyback heuristic are removed as
+inventions. Additional engine behaviors implemented for parity: the currency
+item itself cannot be sold (`currency_item`), general-store player-sold stock
+occupies a 40-minus-main-stock slot pool that refuses new items when full
+(`shop_full`), sold-into-main-stock overstock decays toward the row's default
+rather than zero, and player-sold stock buys back at the engine's
+`getBuyPrice`. The feared Poison flip does not exist under true parity: the
+canonical Poison id is the one Rasolo stocks, and its own cache sellPrice is
+1, so the buy-1/sell-1 round trip pays nothing. Pinned by the parity tests in
+`tests/test_shop_data.py` and `tests/test_shop_logic.py`.
 
 ## Alchemy relationship (for the future noncombat Magic slice)
 
@@ -84,10 +79,12 @@ alch = `value x 0.4` (2011Scape `magic/alchemy/alchemy.plugin.kts`
 the item-value floor and the reason the parked GE design is "alch-anchored".
 Nature runes are already live shop stock at 372 Coins (Baba Yaga's,
 Lundail's, Magic Guild), which makes alching low-value items a coin sink —
-authentic. **Guard required when alch ships:** the payout is `0.6 x value`,
-but custom-priced stock rows can sell far below value (Rasolo's 1-coin
-Poison), so alch payouts must be clamped or verified against live shop buy
-prices exactly like `SHOP_PLAYER_SELL_PRICES`, or buy-to-alch mints coins.
+authentic. **Decision needed when alch ships:** the payout is `0.6 x value`,
+and custom-priced stock rows can sell far below value (Rasolo's 1-coin
+Poison), so buy-to-alch can profit. In the real engine that loop exists too,
+bounded by stock per restock interval — under the absolute-parity stance the
+bound is the review-paced market clock, but audit the worst custom-price rows
+before accepting it.
 
 ## Verification
 
