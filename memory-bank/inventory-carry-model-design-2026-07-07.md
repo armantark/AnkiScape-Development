@@ -11,15 +11,19 @@ intentionally did not wire UI, combat, skilling, shops, bank runs, death, or
 - `inventory_pure.py` now owns the standalone 28-slot API: slot accounting,
   capacity checks, high-alch loot filtering, money-pouch balance helpers, and
   carried state defaults/sanitization.
-- `storage_pure.py` seeds `money_pouch`, `carried_inventory`,
-  `carried_pack_mode`, and `loot_value_threshold` on new and migrated saves.
-- **The money pouch is intentionally dormant.** Coins still live in the flat
-  `inventory["Coins"]` because every current spend/earn path (shop buy/sell in
-  `shop_logic.py`, the item-charge purchase in `logic_pure.py`) transacts
-  through `inventory[currency_name]`. Moving coins into the pouch before those
-  readers are repointed would strand them away from the spend path — so the
-  coins→pouch migration and the `CURRENT_CONFIG_VERSION` bump ride with the
-  next (wiring) slice, atomically with the repoint.
+- `storage_pure.py` seeds `carried_inventory`, `carried_pack_mode`, and
+  `loot_value_threshold` on new and migrated saves.
+- **The money pouch is not a separate store (correction 2026-07-07).** Coins
+  stay canonical in the flat `inventory["Coins"]` — the same store shops,
+  quests, and crafting already transact through — and the "money pouch" is just
+  that balance surfaced under a pouch label (`inventory_pure.money_pouch_balance`
+  reads it read-only). The design goal (coins never occupy a carried slot, never
+  drop on death) is met by the overlay/death/loot paths simply *excluding* coins
+  (`inventory_pure.COIN_ITEM_NAME`), not by relocating them. This avoids a large,
+  risky economy repoint (coins flow through the generic requirement/reward engine
+  across dozens of quests, crafting recipes, shops, and death-office reclaim) and
+  removes any chance of stranding a coin balance. No `CURRENT_CONFIG_VERSION` bump
+  is needed for the coin model.
 - Tests: `test_inventory_pure.py` covers the new pure API; the migration tests
   assert the overlay keys are seeded while coins remain in the flat inventory.
 
@@ -149,11 +153,14 @@ drag-vs-list; how it subsumes `combat_supply_loadout`; storage migration.
 - **Wilderness ambush counter unifies** with the carried-slot model (same 28,
   one accumulator — collapse `wilderness_shop_slots` into the carry model).
 - **Quest items stay abstracted** — they do not compete for carried slots.
-- **Coins go in a Money pouch — zero carried slots.** Correction: the Money
-  pouch released 6 Dec 2011, ~2 months after the Oct-4 rev-667 baseline, so it
-  is a clean **documented pre-EOC exception** (per the source hierarchy) rather
-  than an invention. Adopting it means coins never occupy a carried slot, which
-  is also what the owner wanted. Bank stays infinite.
+- **Coins go in a Money pouch — zero carried slots.** The Money pouch released
+  6 Dec 2011, ~2 months after the Oct-4 rev-667 baseline, so it is a clean
+  **documented pre-EOC exception** (per the source hierarchy) rather than an
+  invention. Adopting it means coins never occupy a carried slot, which is also
+  what the owner wanted. Bank stays infinite. *Implementation (2026-07-07):* the
+  pouch is not a separate coin store — coins stay canonical in the flat bank and
+  are excluded from the carried grid and the death drop. See the foundation-slice
+  note above.
 - **Skilling bank-run cost = 1 review.** Flat, everywhere (combat keeps 2).
 - **Per-target persistence:** the carried inventory is saved *per selected
   target*. Switching a target banks its loadout (free — a menu reorg, not a

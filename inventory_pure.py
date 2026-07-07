@@ -11,6 +11,9 @@ from typing import Any
 
 
 CARRIED_CAPACITY = 28
+# Coins are the money pouch: canonical in the flat bank, never carried, never
+# dropped on death. Kept as a name so the overlay/death/loot paths can exclude it.
+COIN_ITEM_NAME = "Coins"
 HIGH_ALCH_VALUE_FACTOR = 0.6
 # Declared AnkiScape balance knob for automatic loot pickup, not a source value.
 DEFAULT_LOOT_VALUE_THRESHOLD = 50
@@ -78,22 +81,23 @@ def loot_should_pick_up(
 
 
 def money_pouch_balance(player_data: Mapping[str, Any]) -> int:
+    """The money-pouch balance: the coin count surfaced from the flat bank.
+
+    Coins are the money pouch. They live canonically in ``inventory[COIN_ITEM_NAME]``
+    (the same store shops, quests, and crafting already transact through) and are
+    simply never placed in a carried slot and never dropped on death. There is no
+    separate coin store, so nothing to repoint and no way to strand a balance.
+    """
     if not isinstance(player_data, Mapping):
         return 0
-    return _clean_int(player_data.get("money_pouch"), 0, minimum=0)
-
-
-def add_to_money_pouch(player_data: MutableMapping[str, Any], amount: Any) -> int:
-    balance = money_pouch_balance(player_data)
-    delta = _clean_int(amount, 0)
-    new_balance = max(0, balance + delta)
-    player_data["money_pouch"] = new_balance
-    return new_balance
+    inventory = player_data.get("inventory")
+    if not isinstance(inventory, Mapping):
+        return 0
+    return _clean_int(inventory.get(COIN_ITEM_NAME), 0, minimum=0)
 
 
 def default_carried_state() -> dict[str, Any]:
     return {
-        "money_pouch": 0,
         "carried_inventory": {},
         "carried_pack_mode": _DEFAULT_PACK_MODE,
         "loot_value_threshold": DEFAULT_LOOT_VALUE_THRESHOLD,
@@ -102,7 +106,6 @@ def default_carried_state() -> dict[str, Any]:
 
 def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
     defaults = default_carried_state()
-    player_data["money_pouch"] = _clean_int(player_data.get("money_pouch"), defaults["money_pouch"], minimum=0)
     player_data["carried_inventory"] = _sanitize_carried_inventory(player_data.get("carried_inventory"))
 
     pack_mode = player_data.get("carried_pack_mode", defaults["carried_pack_mode"])

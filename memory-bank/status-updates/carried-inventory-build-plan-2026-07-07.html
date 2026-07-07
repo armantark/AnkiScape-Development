@@ -67,11 +67,11 @@ code{font-family:'JetBrains Mono',monospace;font-size:0.82em;background:var(--su
 <div class="wrap">
   <div class="badge">BUILD PLAN · 28-SLOT CARRIED INVENTORY · 2026-07-07</div>
   <h1>Carried inventory — staged build</h1>
-  <p class="sub">The design is fully grilled and locked. This is the implementation roadmap: three slices, each its own reviewed + tested commit. Slice 1 is shipped. The heart of the risk lives in slice 2, and it is called out below before a line of it is written.</p>
+  <p class="sub">The design is fully grilled and locked. This is the implementation roadmap: three slices, each its own reviewed + tested commit. Slice 1 is shipped. What first looked like the scariest piece — a coins repoint — dissolved once I saw coins never need to move at all (see below).</p>
 
   <div class="rail">
-    <div class="stage done"><div class="tick">✓ SHIPPED · aa12f34</div><div class="st">1 · Foundation</div><p>Pure 28-slot primitives + dormant money pouch + state seeding.</p><div class="bar"></div></div>
-    <div class="stage next"><div class="tick">◑ NEXT</div><div class="st">2 · Wiring</div><p>Coins→pouch repoint, consume/deposit, auto bank-runs, death, loot.</p><div class="bar"></div></div>
+    <div class="stage done"><div class="tick">✓ SHIPPED · aa12f34</div><div class="st">1 · Foundation</div><p>Pure 28-slot primitives + coin-as-bank pouch view + state seeding.</p><div class="bar"></div></div>
+    <div class="stage next"><div class="tick">◑ NEXT</div><div class="st">2 · Wiring</div><p>Consume/deposit, auto bank-runs, Keep/Drop, death, loot, ambush unify.</p><div class="bar"></div></div>
     <div class="stage later"><div class="tick">○ AFTER</div><div class="st">3 · Bags + UI</div><p>Coal bag + collapsible bank-side carried panel + preset dropdown.</p><div class="bar"></div></div>
   </div>
 
@@ -90,41 +90,29 @@ code{font-family:'JetBrains Mono',monospace;font-size:0.82em;background:var(--su
     </div>
     <div class="card">
       <h3><span class="pri done">shipped</span> State seeded, pouch dormant</h3>
-      <p>Four keys seeded on new and migrated saves; no behavior wired yet.</p>
+      <p>Three keys seeded on new and migrated saves; no behavior wired yet.</p>
       <ul>
-        <li><code>money_pouch</code> · <code>carried_inventory</code> · <code>carried_pack_mode</code> · <code>loot_value_threshold</code></li>
-        <li>Coins deliberately <b>not</b> moved yet — see the hazard below</li>
+        <li><code>carried_inventory</code> · <code>carried_pack_mode</code> · <code>loot_value_threshold</code></li>
+        <li>Coins never move — the pouch is a read-only view of bank coins</li>
         <li>No config-version bump this slice (additive setdefault seeding)</li>
       </ul>
       <div class="deleg"><span>built by</span><span class="chip gpt">gpt-5.5 · codex</span><span>reviewed by</span><span class="chip opus">opus-4.8</span></div>
     </div>
   </div>
 
-  <h2>The hazard that shapes slice 2</h2>
-  <div class="hazard">
-    <h3>⚠ Coins can be stranded if the pouch goes live before the readers move</h3>
-    <p>Every coin transaction today — shop buy/sell in <code>shop_logic.py</code>, the item-charge purchase in <code>logic_pure.py</code> — reads and writes <code>inventory["Coins"]</code>. If a migration moves coins into <code>money_pouch</code> <em>before</em> those readers are repointed, the shop looks at an empty <code>inventory["Coins"]</code> and the player is silently broke.</p>
+  <h2>The hazard that dissolved</h2>
+  <div class="hazard" style="border-color:rgba(74,222,128,0.4);background:linear-gradient(180deg,rgba(74,222,128,0.06),rgba(74,222,128,0.02));">
+    <h3 style="color:var(--green);">✓ Coins never move, so nothing can be stranded</h3>
+    <p>The scare was: coins flow through the generic requirement/reward engine everywhere — dozens of quests (<code>required_inventory: {Coins: N}</code> and Coins rewards), crafting recipes in <code>constants.py</code>, shop buy/sell, death-office reclaim. A separate coin store would force repointing all of it, and moving coins before the readers moved would leave the shop reading an empty <code>inventory["Coins"]</code> and the player silently broke.</p>
+    <p>But the carried grid is an <em>overlay over the flat bank</em>. The design only needs coins to (a) take zero carried slots and (b) survive death. Both hold if the overlay and death-drop simply <b>exclude</b> coins — coins stay canonical in <code>inventory["Coins"]</code> exactly as today. The "money pouch" is just that balance under a pouch label.</p>
     <div class="flow">
-      <span class="box bad">migrate Coins→pouch</span><span class="arr">then</span><span class="box">shop reads inventory["Coins"]=0</span><span class="arr">→</span><span class="box bad">player broke</span>
+      <span class="box ok">coins stay in bank</span><span class="arr">+</span><span class="box ok">overlay excludes coins</span><span class="arr">=</span><span class="box ok">0 slots, death-safe, no repoint</span>
     </div>
-    <div class="flow" style="margin-top:0.5rem;">
-      <span class="box ok">repoint readers → pouch</span><span class="arr">+</span><span class="box ok">migrate Coins→pouch</span><span class="arr">=</span><span class="box ok">atomic, safe</span>
-    </div>
-    <p style="margin-top:0.6rem;">So slice 1 shipped the pouch <b>dormant</b>. The coins move and the <code>CURRENT_CONFIG_VERSION</code> bump ride <em>with</em> the repoint in slice 2, in one commit — never apart.</p>
+    <p style="margin-top:0.6rem;">So the separate <code>money_pouch</code> key from slice 1 was removed; <code>money_pouch_balance()</code> is now a read-only view of bank coins. No economy repoint, no version bump.</p>
   </div>
 
   <h2>Slice 2 — Wiring (next)</h2>
   <div class="grid">
-    <div class="card">
-      <h3><span class="pri crit">critical</span> Coins → money pouch repoint</h3>
-      <p>Make the pouch the single source of coin truth, atomically.</p>
-      <ul>
-        <li>Repoint all <code>inventory[currency_name]</code> coin reads/writes to the pouch</li>
-        <li>Drop <code>Coins</code> from the seeded default inventory</li>
-        <li>Migration moves existing coins + bumps config version — same commit</li>
-      </ul>
-      <div class="tags"><span class="tag">shop_logic.py</span><span class="tag">logic_pure.py</span><span class="tag">storage_pure.py</span></div>
-    </div>
     <div class="card">
       <h3><span class="pri next">core</span> Consume / deposit + auto bank-runs</h3>
       <p>Actions draw from and fill the 28 slots; bank-runs auto-execute.</p>

@@ -114,7 +114,6 @@ class TestStoragePure(unittest.TestCase):
             "runecrafting_pouches",
             "item_charges",
             "unlocked_abilities",
-            "money_pouch",
             "carried_inventory",
             "carried_pack_mode",
             "loot_value_threshold",
@@ -173,7 +172,6 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["runecrafting_pouches"], {})
         self.assertEqual(data["item_charges"], {})
         self.assertEqual(data["unlocked_abilities"], [])
-        self.assertEqual(data["money_pouch"], 0)
         self.assertEqual(data["carried_inventory"], {})
         self.assertEqual(data["carried_pack_mode"], "balanced")
         self.assertEqual(data["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
@@ -276,7 +274,6 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
         self.assertEqual(migrated["shop_stock_state"], {})
         self.assertEqual(migrated["shop_events"], [])
-        self.assertEqual(migrated["money_pouch"], 0)
         self.assertEqual(migrated["carried_inventory"], {})
         self.assertEqual(migrated["carried_pack_mode"], "balanced")
         self.assertEqual(migrated["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)

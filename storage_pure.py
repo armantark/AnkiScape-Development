@@ -612,10 +612,10 @@ def migrate_loaded_data(
     _migrate_legacy_crafting_inventory(inv)
     data["inventory"] = inv
 
-    # Seed the carried-inventory overlay keys on old saves. The money pouch is
-    # dormant for now: coins still live in the flat inventory until the coin
-    # readers are repointed to the pouch (a later, atomic slice). Moving coins
-    # before that repoint would strand them away from the shop spend path.
+    # Seed the carried-inventory overlay keys on old saves. Coins stay canonical
+    # in the flat inventory (the money pouch is just that balance surfaced under a
+    # pouch label); the overlay and death-drop exclude coins, so no coin store is
+    # moved and no balance can be stranded.
     inventory_pure.sanitize_carried_state(data)
 
     # Ensure achievements structure exists

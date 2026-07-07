@@ -10,7 +10,6 @@ from inventory_pure import (
     high_alch_value,
     loot_should_pick_up,
     money_pouch_balance,
-    add_to_money_pouch,
     sanitize_carried_state,
 )
 
@@ -57,14 +56,12 @@ class TestInventoryPure(unittest.TestCase):
         self.assertTrue(loot_should_pick_up("Oak logs", 84, 50, stackable))
         self.assertTrue(loot_should_pick_up("Oak logs", 100, 50, stackable))
 
-    def test_money_pouch_balance_and_add_clamps_at_zero(self):
-        player_data = {}
-
-        self.assertEqual(money_pouch_balance(player_data), 0)
-        self.assertEqual(add_to_money_pouch(player_data, 100), 100)
-        self.assertEqual(money_pouch_balance(player_data), 100)
-        self.assertEqual(add_to_money_pouch(player_data, -150), 0)
-        self.assertEqual(player_data["money_pouch"], 0)
+    def test_money_pouch_balance_reads_flat_bank_coins(self):
+        # The pouch is a read-only view of coins in the flat bank; no separate store.
+        self.assertEqual(money_pouch_balance({}), 0)
+        self.assertEqual(money_pouch_balance({"inventory": {"Coins": 1000}}), 1000)
+        self.assertEqual(money_pouch_balance({"inventory": {}}), 0)
+        self.assertEqual(money_pouch_balance({"inventory": {"Coins": -5}}), 0)
 
     def test_sanitize_carried_state_empty_dict_defaults(self):
         player_data = {}
@@ -75,7 +72,6 @@ class TestInventoryPure(unittest.TestCase):
 
     def test_sanitize_carried_state_corrects_junk_types(self):
         player_data = {
-            "money_pouch": "not coins",
             "carried_inventory": {"target": {"Oak logs": "2", "Shrimps": -5, 3: 1}, "bad": "items"},
             "carried_pack_mode": "unsafe",
             "loot_value_threshold": "bad",
@@ -83,7 +79,6 @@ class TestInventoryPure(unittest.TestCase):
 
         sanitize_carried_state(player_data)
 
-        self.assertEqual(player_data["money_pouch"], 0)
         self.assertEqual(player_data["carried_inventory"], {"target": {"Oak logs": 2}})
         self.assertEqual(player_data["carried_pack_mode"], "balanced")
         self.assertEqual(player_data["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)

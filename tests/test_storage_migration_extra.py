@@ -59,7 +59,6 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(base["agility_level"], 1)
         self.assertEqual(base["agility_exp"], 0)
         self.assertEqual(base["unlocked_abilities"], [])
-        self.assertEqual(base["money_pouch"], 0)
         self.assertEqual(base["carried_inventory"], {})
         self.assertEqual(base["carried_pack_mode"], "balanced")
         self.assertEqual(base["loot_value_threshold"], 50)
@@ -75,7 +74,6 @@ class TestStorageMigrationExtra(unittest.TestCase):
         # readers are repointed. Only the overlay keys are seeded here.
         data = {"config_version": 1, "inventory": {"Coins": 1000, "Oak logs": 5}}
         out = migrate_loaded_data(data, ORE_DATA)
-        self.assertEqual(out["money_pouch"], 0)
         self.assertEqual(out["carried_inventory"], {})
         self.assertEqual(out["carried_pack_mode"], "balanced")
         self.assertEqual(out["inventory"]["Coins"], 1000)
