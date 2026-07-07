@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carried Inventory — Build Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,0.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.5;padding:2.4rem 1.4rem 4rem;}
+.wrap{max-width:980px;margin:0 auto;}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:600;letter-spacing:0.14em;color:var(--accent);background:var(--accent-glow);border:1px solid rgba(79,140,255,0.35);border-radius:999px;padding:0.3rem 0.9rem;margin-bottom:0.9rem;}
+h1{font-weight:700;font-size:1.9rem;letter-spacing:-0.01em;margin-bottom:0.4rem;}
+.sub{color:var(--text-dim);font-size:0.95rem;max-width:70ch;}
+h2{font-size:0.78rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin:2.1rem 0 0.9rem;}
+.rail{display:flex;gap:0.6rem;margin:1.4rem 0 0.4rem;flex-wrap:wrap;}
+.stage{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.9rem 1rem;position:relative;overflow:hidden;}
+.stage.done{border-color:rgba(74,222,128,0.4);}
+.stage.next{border-color:rgba(251,191,36,0.45);}
+.stage .tick{font-family:'JetBrains Mono',monospace;font-size:0.6rem;letter-spacing:0.1em;font-weight:600;}
+.stage.done .tick{color:var(--green);}
+.stage.next .tick{color:var(--amber);}
+.stage.later .tick{color:var(--text-dim);}
+.stage .st{font-weight:500;font-size:0.95rem;margin:0.3rem 0 0.2rem;color:var(--text);}
+.stage p{font-size:0.8rem;color:var(--text-dim);}
+.stage .bar{position:absolute;left:0;bottom:0;height:3px;}
+.stage.done .bar{width:100%;background:var(--green);}
+.stage.next .bar{width:8%;background:var(--amber);}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:0.9rem;}
+@media(max-width:820px){.grid{grid-template-columns:1fr;}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;}
+.card h3{font-size:1.02rem;font-weight:500;margin-bottom:0.55rem;display:flex;align-items:center;gap:0.5rem;}
+.pri{font-family:'JetBrains Mono',monospace;font-size:0.58rem;font-weight:600;letter-spacing:0.08em;padding:0.16rem 0.5rem;border-radius:999px;text-transform:uppercase;}
+.pri.crit{color:var(--red);background:rgba(255,92,92,0.12);border:1px solid rgba(255,92,92,0.35);}
+.pri.done{color:var(--green);background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);}
+.pri.next{color:var(--amber);background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);}
+.pri.later{color:var(--purple);background:rgba(167,139,250,0.12);border:1px solid rgba(167,139,250,0.35);}
+.card p{font-size:0.86rem;color:var(--text-dim);margin-bottom:0.5rem;}
+.card ul{list-style:none;margin:0.3rem 0 0.4rem;}
+.card li{font-size:0.83rem;color:var(--text-dim);padding:0.16rem 0 0.16rem 1.1rem;position:relative;}
+.card li::before{content:"→";position:absolute;left:0;color:var(--accent);}
+.tags{display:flex;flex-wrap:wrap;gap:0.35rem;margin-top:0.55rem;}
+.tag{font-family:'JetBrains Mono',monospace;font-size:0.62rem;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:0.12rem 0.45rem;color:var(--text-dim);}
+code{font-family:'JetBrains Mono',monospace;font-size:0.82em;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:0.03em 0.32em;color:var(--text);}
+.hazard{background:linear-gradient(180deg,rgba(255,92,92,0.07),rgba(255,92,92,0.02));border:1px solid rgba(255,92,92,0.35);border-radius:var(--radius);padding:1.1rem 1.3rem;margin-top:0.4rem;}
+.hazard h3{color:var(--red);font-weight:500;font-size:1rem;margin-bottom:0.5rem;font-family:'Outfit',sans-serif;}
+.hazard p{font-size:0.86rem;color:var(--text-dim);margin-bottom:0.5rem;}
+.flow{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem;font-family:'JetBrains Mono',monospace;font-size:0.7rem;}
+.flow .box{background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.6rem;color:var(--text);}
+.flow .box.bad{border-color:rgba(255,92,92,0.5);color:#ffb4b4;}
+.flow .box.ok{border-color:rgba(74,222,128,0.5);color:#bff5d0;}
+.flow .arr{color:var(--text-dim);}
+.verify{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:0.85rem 1.2rem;font-family:'JetBrains Mono',monospace;font-size:0.74rem;line-height:1.9;color:var(--text-dim);margin-top:1rem;}
+.verify b{color:var(--green);}
+.deleg{display:flex;align-items:center;gap:0.6rem;font-size:0.8rem;color:var(--text-dim);margin-top:0.6rem;}
+.chip{font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:600;padding:0.16rem 0.5rem;border-radius:5px;border:1px solid var(--border);background:var(--surface-2);}
+.chip.gpt{color:#7fe0a8;border-color:rgba(74,222,128,0.35);}
+.chip.opus{color:#9fc0ff;border-color:rgba(79,140,255,0.35);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">BUILD PLAN · 28-SLOT CARRIED INVENTORY · 2026-07-07</div>
+  <h1>Carried inventory — staged build</h1>
+  <p class="sub">The design is fully grilled and locked. This is the implementation roadmap: three slices, each its own reviewed + tested commit. Slice 1 is shipped. The heart of the risk lives in slice 2, and it is called out below before a line of it is written.</p>
+
+  <div class="rail">
+    <div class="stage done"><div class="tick">✓ SHIPPED · aa12f34</div><div class="st">1 · Foundation</div><p>Pure 28-slot primitives + dormant money pouch + state seeding.</p><div class="bar"></div></div>
+    <div class="stage next"><div class="tick">◑ NEXT</div><div class="st">2 · Wiring</div><p>Coins→pouch repoint, consume/deposit, auto bank-runs, death, loot.</p><div class="bar"></div></div>
+    <div class="stage later"><div class="tick">○ AFTER</div><div class="st">3 · Bags + UI</div><p>Coal bag + collapsible bank-side carried panel + preset dropdown.</p><div class="bar"></div></div>
+  </div>
+
+  <h2>Slice 1 — Foundation (done)</h2>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="pri done">shipped</span> inventory_pure.py</h3>
+      <p>A dependency-free overlay module — the primitives every later slice consumes.</p>
+      <ul>
+        <li>Stackable-aware slot accounting (stackable = 1 slot; unstackable = N)</li>
+        <li>Capacity / has-room checks against the 28 boundary</li>
+        <li>High-alch loot filter (<code>0.6 × cache value ≥ threshold</code>)</li>
+        <li>Money-pouch balance helpers + carried-state sanitize</li>
+      </ul>
+      <div class="tags"><span class="tag">inventory_pure.py</span><span class="tag">tests/test_inventory_pure.py</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="pri done">shipped</span> State seeded, pouch dormant</h3>
+      <p>Four keys seeded on new and migrated saves; no behavior wired yet.</p>
+      <ul>
+        <li><code>money_pouch</code> · <code>carried_inventory</code> · <code>carried_pack_mode</code> · <code>loot_value_threshold</code></li>
+        <li>Coins deliberately <b>not</b> moved yet — see the hazard below</li>
+        <li>No config-version bump this slice (additive setdefault seeding)</li>
+      </ul>
+      <div class="deleg"><span>built by</span><span class="chip gpt">gpt-5.5 · codex</span><span>reviewed by</span><span class="chip opus">opus-4.8</span></div>
+    </div>
+  </div>
+
+  <h2>The hazard that shapes slice 2</h2>
+  <div class="hazard">
+    <h3>⚠ Coins can be stranded if the pouch goes live before the readers move</h3>
+    <p>Every coin transaction today — shop buy/sell in <code>shop_logic.py</code>, the item-charge purchase in <code>logic_pure.py</code> — reads and writes <code>inventory["Coins"]</code>. If a migration moves coins into <code>money_pouch</code> <em>before</em> those readers are repointed, the shop looks at an empty <code>inventory["Coins"]</code> and the player is silently broke.</p>
+    <div class="flow">
+      <span class="box bad">migrate Coins→pouch</span><span class="arr">then</span><span class="box">shop reads inventory["Coins"]=0</span><span class="arr">→</span><span class="box bad">player broke</span>
+    </div>
+    <div class="flow" style="margin-top:0.5rem;">
+      <span class="box ok">repoint readers → pouch</span><span class="arr">+</span><span class="box ok">migrate Coins→pouch</span><span class="arr">=</span><span class="box ok">atomic, safe</span>
+    </div>
+    <p style="margin-top:0.6rem;">So slice 1 shipped the pouch <b>dormant</b>. The coins move and the <code>CURRENT_CONFIG_VERSION</code> bump ride <em>with</em> the repoint in slice 2, in one commit — never apart.</p>
+  </div>
+
+  <h2>Slice 2 — Wiring (next)</h2>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="pri crit">critical</span> Coins → money pouch repoint</h3>
+      <p>Make the pouch the single source of coin truth, atomically.</p>
+      <ul>
+        <li>Repoint all <code>inventory[currency_name]</code> coin reads/writes to the pouch</li>
+        <li>Drop <code>Coins</code> from the seeded default inventory</li>
+        <li>Migration moves existing coins + bumps config version — same commit</li>
+      </ul>
+      <div class="tags"><span class="tag">shop_logic.py</span><span class="tag">logic_pure.py</span><span class="tag">storage_pure.py</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="pri next">core</span> Consume / deposit + auto bank-runs</h3>
+      <p>Actions draw from and fill the 28 slots; bank-runs auto-execute.</p>
+      <ul>
+        <li>Gathering fills carried; full → auto-bank, costs 1 review (combat keeps 2)</li>
+        <li>Keep/Drop per target (Drop = never bank = fastest XP)</li>
+        <li>Presets via <code>pack_carried_inventory_pure</code> (balanced/output/safety)</li>
+      </ul>
+      <div class="tags"><span class="tag">logic_pure.py</span><span class="tag">inventory_pure.py</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="pri next">core</span> Death · undo · ambush unify</h3>
+      <p>The three cross-cutting interactions from the Johari pass.</p>
+      <ul>
+        <li>Death drops the carried grid into the grave (extend equipment path)</li>
+        <li>Undo snapshot rolls back a bank-run inside a review</li>
+        <li>Collapse <code>wilderness_shop_slots</code> into the carried-slot counter</li>
+      </ul>
+      <div class="tags"><span class="tag">shop_logic.py</span><span class="tag">logic_pure.py</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="pri next">core</span> Loot value filter</h3>
+      <p>Auto-pickup by high-alch value; stackables always taken.</p>
+      <ul>
+        <li>Below-threshold junk is left → no slot cost, perceived penalty intact</li>
+        <li>Picked-up loot competes for slots → helps trigger bank-runs, drops on death</li>
+        <li>GE market value swaps in later (one-line metric change)</li>
+      </ul>
+      <div class="tags"><span class="tag">inventory_pure.py</span><span class="tag">combat</span></div>
+    </div>
+  </div>
+
+  <h2>Slice 3 — Bags + UI (after)</h2>
+  <div class="grid">
+    <div class="card">
+      <h3><span class="pri later">content</span> Coal bag (live-but-inert)</h3>
+      <p>Register + implement 27-coal-in-one-slot now; unobtainable until a source (Dungeoneering) ships. Lights up with zero further changes.</p>
+      <div class="tags"><span class="tag">item registry</span><span class="tag">inventory_pure.py</span></div>
+    </div>
+    <div class="card">
+      <h3><span class="pri later">ux</span> Collapsible carried panel</h3>
+      <p>Click-from-bank fill beside the bank (advanced); preset mode dropdown (casual); per-drop loot checkboxes. Opus owns this — it's taste-heavy.</p>
+      <div class="deleg"><span>owner of this slice</span><span class="chip opus">opus-4.8</span></div>
+    </div>
+  </div>
+
+  <div class="verify">python3 run_tests.py → <b>OK</b> · 786 tests, 145 skipped &nbsp;·&nbsp; slice-1 pins: slot accounting · loot filter · pouch clamp · sanitize · key-seed migration<br>delegation: slice 1 &amp; slice 2 mechanical fill → <b>gpt-5.5 (codex)</b>, reviewed by opus · slice 3 UI → opus</div>
+</div>
+</body>
+</html>
