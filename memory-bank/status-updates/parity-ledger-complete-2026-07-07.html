@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parity Ledger Complete</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --green:#4ade80; --amber:#fbbf24; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:960px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.8rem; margin-bottom:0.6rem; }
+p, td, li { color:var(--text-dim); font-size:0.9rem; }
+table { width:100%; border-collapse:collapse; margin:1rem 0; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); text-align:left; padding:0.4rem 0.5rem; border-bottom:1px solid var(--border); }
+td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(42,48,64,0.5); vertical-align:top; }
+td.s { font-family:'JetBrains Mono',monospace; font-size:0.68rem; white-space:nowrap; color:var(--green); }
+td.s.w { color:var(--amber); }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.verify { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.3rem; font-family:'JetBrains Mono',monospace; font-size:0.74rem; line-height:2; color:var(--text-dim); margin-top:1rem; }
+.verify b { color:var(--green); }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-07 · 5 COMMITS</div>
+    <h1>Parity Ledger Complete — Every Mechanics Surface Classified</h1>
+    <p>The audit you asked for is done end to end. Fixes made along the way (each pinned by a new test):</p>
+    <table>
+        <tr><th>Surface</th><th>Result</th></tr>
+        <tr><td>Combat formulas (accuracy, rolls, max hits)</td><td class="s">EXACT MATCH vs CombatFormula.kt</td></tr>
+        <tr><td>Landed-hit damage roll</td><td class="s w">FIXED — engine rolls 1..maxHit−1 (bytecode-verified Utils.random); ours allowed 0-damage landed hits</td></tr>
+        <tr><td>All 7 skilling rolls (mining, WC, fishing, hunter, cooking, firemaking, iron smelt)</td><td class="s w">MADE SOURCE-EXACT — two engine helper families decoded; iron is really 51–81%, crayfish 59/255, shrimps 129/255; mining's pickaxe ratio declared as cadence-fold</td></tr>
+        <tr><td>Special attack regen (10 per 50 ticks)</td><td class="s">PARITY</td></tr>
+        <tr><td>Recovery packets / dragon pickaxe / sqrt pacing adapter</td><td class="s">DECLARED ADAPTATIONS</td></tr>
+    </table>
+    <p>The ledger (<code>memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md</code>) now ends
+    with the standing convention: new mechanics code cites an engine line per constant and pins it with a
+    stable-id test, or classifies itself as adaptation. The only remaining probability transform in the
+    whole game is the one deliberate sqrt pacing knob.</p>
+    <div class="verify">python3 run_tests.py → <b>OK</b> · 766 tests, 144 skipped<br>
+    offscreen Qt discover → <b>OK</b> · 766 tests · commits 1fba39d…daa6a66</div>
+</div>
+</body>
+</html>

@@ -100,6 +100,24 @@ leather, battlestaff, and weaving rows all lit up through shop supply. Audits:
 `memory-bank/source-audits/coin-economy-audit-2026-07-06.md` and
 `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 
+The parity-deviation audit thread (2026-07-06/07) is complete:
+`memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md` classifies
+every mechanics-glue surface as parity/adaptation/declared, and its Sweep
+Status section records the standing convention — new mechanics code cites an
+engine line per constant and pins it with a stable-id test, or classifies
+itself in the ledger. Fixes made during the sweep, each pinned by a new
+test: the landed-hit combat damage roll (Darkan rolls 1..maxHit-1, verified
+by bytecode disassembly of core-2.0.5.jar; ours allowed 0-damage landed
+hits), the dragon pickaxe bonus key (display-name string -> cache item id
+15261), and all seven probabilistic skilling rolls made source-exact (two
+engine helper families decoded: the 3-arg floor/+1 interpolate for
+Mining/Woodcutting/Cooking/Firemaking via `_scape2011_interpolate_255`, and
+the 5-arg (interp+1)/cap form for Fishing and iron smelting; Hunter ports
+`Utils.skillSuccess` exactly). Iron smelting is really 51..81 percent, not
+the nominal 50..80. The sqrt review-pacing adapter
+(`0.20 + sqrt(source) * 0.72`, cap 0.95) is now the only non-source
+probability transform in the game.
+
 Verification after the short-window/provider fix:
 `python3 run_tests.py` passed with 751 tests and 144 skipped, and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`

@@ -135,6 +135,16 @@
   leather/battlestaff/weaving rows that shop supply lit up. Audits:
   `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`,
   `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+- The parity-deviation audit is complete as of 2026-07-07 (five commits,
+  `1fba39d`..`daa6a66`). The ledger
+  (`memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md`)
+  classifies every mechanics-glue surface; combat formulas match
+  CombatFormula.kt exactly; the landed-hit damage roll and all seven
+  skilling source rolls were made source-exact (engine helper families
+  decoded, Utils semantics bytecode-verified); special-attack regen is at
+  parity; recovery packets and the sqrt pacing adapter are the declared
+  adaptations. Standing convention: new mechanics constants cite an engine
+  line and get a stable-id-keyed pin test. Both suites pass with 766 tests.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The
