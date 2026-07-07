@@ -9791,6 +9791,18 @@
     "source_wiki": "rs3",
     "timestamp": "2019-12-01T00:03:22Z"
   },
+  "shopitems/antlers.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Antlers.png",
+    "file_title": "Antlers.png",
+    "image_url": "https://runescape.wiki/images/Antlers.png?56724",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "421d102662c44c4b953a5e68bac37f6510adf46b",
+    "size": 663,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T00:53:15Z"
+  },
   "shopitems/erzille_seed.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Erzille_seed_5.png",
     "file_title": "Erzille seed 5.png",
@@ -9803,6 +9815,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-03T05:16:56Z"
   },
+  "shopitems/feather_headdress.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Feather_headdress_%28blue%29.png",
+    "file_title": "Feather headdress (blue).png",
+    "image_url": "https://runescape.wiki/images/Feather_headdress_%28blue%29.png?1c835",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "211f82c246b6f152e759834524b43beac9860363",
+    "size": 1070,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T03:35:33Z"
+  },
   "shopitems/kebab.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Kebab.png",
     "file_title": "Kebab.png",
@@ -9814,6 +9838,18 @@
     "size": 707,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:58:32Z"
+  },
+  "shopitems/lizard_skull.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Lizard_skull.png",
+    "file_title": "Lizard skull.png",
+    "image_url": "https://runescape.wiki/images/Lizard_skull.png?f1d84",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "6ede89d7ff810b49e9cb6b5ed69d779dda967252",
+    "size": 1239,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T05:13:05Z"
   },
   "shopitems/newspaper.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Newspaper.png",
@@ -9839,6 +9875,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:02:28Z"
   },
+  "shopitems/pouch.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Pouch.png",
+    "file_title": "Pouch.png",
+    "image_url": "https://runescape.wiki/images/Pouch.png?1aebc",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "061b8c9c76e622e5aeba06042facf5d1e9ead4ea",
+    "size": 1482,
+    "source_wiki": "rs3",
+    "timestamp": "2016-05-02T06:38:14Z"
+  },
   "shopitems/samaden_seed.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Samaden_seed_5.png",
     "file_title": "Samaden seed 5.png",
@@ -9862,6 +9910,30 @@
     "size": 502,
     "source_wiki": "rs3",
     "timestamp": "2016-05-03T05:52:21Z"
+  },
+  "shopitems/spirit_shard_pack.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spirit_shard_pack.png",
+    "file_title": "Spirit shard pack.png",
+    "image_url": "https://runescape.wiki/images/Spirit_shard_pack.png?f10d0",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "4fd8db77c16a3e3d6038c8f4fac4d600e770bbb2",
+    "size": 912,
+    "source_wiki": "rs3",
+    "timestamp": "2026-05-22T03:11:36Z"
+  },
+  "shopitems/spirit_shards.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Spirit_shards.png",
+    "file_title": "Spirit shards.png",
+    "image_url": "https://runescape.wiki/images/Spirit_shards.png?c6d94",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "f3b19a3f5234c6e4758119ef4e439342ef9b9c2e",
+    "size": 259,
+    "source_wiki": "rs3",
+    "timestamp": "2019-12-08T10:12:37Z"
   },
   "shopitems/ugune_seed.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Ugune_seed_5.png",

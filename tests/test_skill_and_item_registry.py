@@ -463,6 +463,12 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Oak plank",
             "Newspaper",
             "Kebab",
+            "Antlers",
+            "Lizard skull",
+            "Feather headdress",
+            "Spirit shards",
+            "Pouch",
+            "Spirit shard pack",
         )
         for item_name in expected:
             self.assertIn(item_name, SHOP_ITEM_IMAGES)

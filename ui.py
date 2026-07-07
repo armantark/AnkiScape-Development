@@ -45,6 +45,7 @@ try:
         QUrl,
         QEvent,
         QLineEdit,
+        QToolButton,
     )
     HAS_QT = True
 except Exception:
@@ -2795,7 +2796,8 @@ def show_main_menu(
     stock_scroll = QScrollArea()
     stock_scroll.setObjectName("shopStockScroll")
     stock_scroll.setWidgetResizable(True)
-    stock_scroll.setMinimumHeight(156)
+    stock_scroll.setMinimumHeight(78)
+    stock_scroll.setMaximumHeight(78)
     stock_scroll.setStyleSheet("QScrollArea#shopStockScroll { border: 1px solid palette(mid); border-radius: 8px; }")
     stock_content = QWidget()
     stock_grid = QGridLayout(stock_content)
@@ -2884,7 +2886,7 @@ def show_main_menu(
     service_row_layout.setSpacing(8)
     service_list = QListWidget()
     service_list.setObjectName("shopServiceList")
-    service_list.setMaximumHeight(88)
+    service_list.setMaximumHeight(44)
     service_list.setIconSize(QSize(24, 24))
     service_list.setAlternatingRowColors(True)
     service_list.setStyleSheet(
@@ -2930,7 +2932,7 @@ def show_main_menu(
     shop_shell_layout.addWidget(history_header)
     local_history = QListWidget()
     local_history.setObjectName("shopLocalHistoryList")
-    local_history.setMaximumHeight(82)
+    local_history.setMaximumHeight(54)
     local_history.setStyleSheet(
         "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
         " background: palette(base); color: palette(text); padding: 3px; }"
@@ -2938,7 +2940,7 @@ def show_main_menu(
     )
     global_history = QListWidget()
     global_history.setObjectName("shopGlobalHistoryList")
-    global_history.setMaximumHeight(82)
+    global_history.setMaximumHeight(54)
     global_history.setVisible(False)
     global_history.setStyleSheet(local_history.styleSheet())
     shop_shell_layout.addWidget(local_history)
@@ -2974,11 +2976,15 @@ def show_main_menu(
             if shop.get("visibility") == "visible" and row.get("disposition") == "live"
         )
 
+    def _shop_selector_sort_key(shop: dict) -> tuple:
+        return (
+            _shop_live_row_count(shop) == 0,
+            shop.get("visibility") != "visible",
+            str(shop.get("display_name", "")),
+        )
+
     def _default_shop_id() -> str:
-        visible = _visible_shop_defs()
-        live_shop = next((shop for shop in visible if _shop_live_row_count(shop) > 0), None)
-        if live_shop is not None:
-            return str(live_shop.get("id", ""))
+        visible = sorted(_visible_shop_defs(), key=_shop_selector_sort_key)
         return str(visible[0].get("id", "")) if visible else ""
 
     def _visible_service_defs() -> list:
@@ -3089,10 +3095,21 @@ def show_main_menu(
         return row
 
     def _stock_tile_text(row: dict, currency_name: str) -> str:
+        return str(row.get("item_name", "Item"))
+
+    def _shop_row_tooltip(row: dict, currency_name: str) -> str:
+        parts = [str(row.get("item_name", "Item"))]
         stock = f"{int(row.get('current_quantity', 0) or 0):,}/{int(row.get('default_quantity', 0) or 0):,}"
-        price = _format_shop_price(row.get("buy_price"), currency_name)
-        marker = "LOCK" if row.get("lock_reason") else ""
-        return "\n".join(part for part in (str(row.get("item_name", "Item")), stock, price, marker) if part)
+        parts.append(f"Stock: {stock}")
+        parts.append(f"Buy: {_format_shop_price(row.get('buy_price'), currency_name)}")
+        parts.append(f"Sell: {_format_shop_price(row.get('sell_price'), currency_name)}")
+        if row.get("lock_reason"):
+            parts.append(f"Locked: {row.get('lock_reason')}")
+        if row.get("price_source"):
+            parts.append(str(row.get("price_source")))
+        if row.get("source"):
+            parts.append(str(row.get("source")))
+        return "\n".join(parts)
 
     def _render_stock_grid() -> None:
         _clear_layout(stock_grid)
@@ -3107,23 +3124,29 @@ def show_main_menu(
         selected_row_id = shop_state["row_id"]
         for index, row in enumerate(rows):
             row_id = str(row.get("id", ""))
-            btn = QPushButton(_stock_tile_text(row, currency_name))
+            btn = QToolButton()
+            btn.setText(_stock_tile_text(row, currency_name))
             btn.setObjectName(f"shopStockTile_{_safe_object_suffix(row_id)}")
             btn.setProperty("shopRowId", row_id)
-            btn.setMinimumSize(92, 66)
+            btn.setMinimumSize(100, 58)
             icon_path = _item_icon_path(str(row.get("item_name", "")))
             if icon_path:
                 btn.setIcon(QIcon(icon_path))
-                btn.setIconSize(QSize(30, 30))
+                btn.setIconSize(QSize(28, 28))
+            if hasattr(btn, "setToolButtonStyle"):
+                try:
+                    btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)  # type: ignore[attr-defined]
+                except Exception:
+                    pass
             btn.setCheckable(True)
             btn.setChecked(row_id == selected_row_id)
-            btn.setToolTip(str(row.get("lock_reason") or row.get("item_name", "")))
+            btn.setToolTip(_shop_row_tooltip(row, currency_name))
             border = "#4CAF50" if row_id == selected_row_id else "palette(mid)"
             foreground = dim_text_css(btn) if row.get("lock_reason") else "palette(text)"
             btn.setStyleSheet(
-                f"QPushButton {{ text-align: center; padding: 5px; border: 1px solid {border};"
+                f"QToolButton {{ text-align: center; padding: 5px; border: 1px solid {border};"
                 f" border-radius: 6px; color: {foreground}; background: rgba(255,255,255,0.03); }}"
-                " QPushButton:hover { border-color: #4CAF50; }"
+                " QToolButton:hover { border-color: #4CAF50; }"
             )
             btn.clicked.connect(lambda _=False, rid=row_id: _select_stock_row(rid))
             stock_grid.addWidget(btn, index // 6, index % 6)
@@ -3426,14 +3449,7 @@ def show_main_menu(
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
             shop_selector.addItem(empty)
             return
-        visible = sorted(
-            _visible_shop_defs(),
-            key=lambda shop: (
-                _shop_live_row_count(shop) == 0,
-                shop.get("visibility") != "visible",
-                str(shop.get("display_name", "")),
-            ),
-        )
+        visible = sorted(_visible_shop_defs(), key=_shop_selector_sort_key)
         for shop in visible:
             view = shop_view_model_pure(player_data, str(shop.get("id", "")))
             rows = view.get("rows", [])
@@ -4003,15 +4019,15 @@ def show_main_menu(
 
     # Import here to keep headless safety for static analyzers
     try:
-        from aqt.qt import QToolButton  # type: ignore
+        from aqt.qt import QToolButton as StatsToolButton  # type: ignore
     except Exception:
-        QToolButton = QPushButton  # fallback for typing
+        StatsToolButton = QPushButton  # fallback for typing
 
     button_group = QButtonGroup()
     button_group.setExclusive(True)
     buttons = {}
     for idx, (name, icon_path) in enumerate(skills_info):
-        btn = QToolButton()
+        btn = StatsToolButton()
         btn.setCheckable(True)
         btn.setToolTip(name)
         if os.path.exists(icon_path):

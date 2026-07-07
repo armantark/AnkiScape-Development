@@ -570,10 +570,11 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_shop_defaults_to_a_live_stock_shop(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
+        from shop_logic import shop_view_model_pure
 
         fixtures = build_shop_frontend_fixtures()
-        live_view = fixtures["normal_coin_stock_shop"]
-        dialog = self._open(fixtures["fixture_player_data"])
+        player_data = fixtures["fixture_player_data"]
+        dialog = self._open(player_data)
         _open_shop_tab(dialog)
 
         title = _find_named_label(dialog, "shopDetailTitle")
@@ -581,8 +582,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         buy_button = _find_named_button(dialog, "shopTransactionButton")
         preview = _find_named_label(dialog, "shopPreviewLabel")
 
-        self.assertEqual(title.text(), live_view["display_name"])
-        self.assertIn(live_view["display_name"], selector.item(0).text())
+        # The default shop is whichever backend shop the selector ranks first;
+        # it must be live (buyable) rather than a locked/read-only shop.
+        first_payload = selector.item(0).data(Qt.ItemDataRole.UserRole)
+        self.assertEqual(first_payload.get("kind"), "shop")
+        default_view = shop_view_model_pure(player_data, first_payload["shop_id"])
+        self.assertEqual(title.text(), default_view["display_name"])
+        self.assertTrue(any(row.get("can_buy") for row in default_view["rows"]))
         self.assertTrue(buy_button.isEnabled(), preview.text())
 
     def test_shop_icons_render_for_stock_search_sell_and_services(self) -> None:
@@ -593,10 +599,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         _open_shop_tab(dialog)
 
         stock_buttons = [
-            button for button in dialog.findChildren(QPushButton)
+            button for button in dialog.findChildren(QToolButton)
             if button.property("shopRowId")
         ]
         self.assertTrue(any(not button.icon().isNull() for button in stock_buttons), "live stock tiles should use item icons")
+        self.assertTrue(
+            any(button.toolButtonStyle() == Qt.ToolButtonStyle.ToolButtonTextUnderIcon for button in stock_buttons),
+            "stock tile icons should render above the text",
+        )
 
         sell_list = _find_named_list(dialog, "shopSellInventoryList")
         beer_item = next(
@@ -643,31 +653,38 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("you have 0", preview.text())
         self.assertFalse(buy_button.isEnabled())
 
-    def test_shop_feather_search_shows_locked_rows_and_disables_buy(self) -> None:
+    def test_shop_locked_currency_search_shows_backend_reason_and_disables_buy(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
 
         fixtures = build_shop_frontend_fixtures()
+        locked_view = fixtures["locked_read_only_shop"]
+        locked_row = locked_view["rows"][0]
         dialog = self._open(fixtures["fixture_player_data"])
         _open_shop_tab(dialog)
 
         search = _find_named_line_edit(dialog, "shopSearchInput")
-        search.setText("Feather")
+        search.setText(locked_row["item_name"])
         QApplication.processEvents()
         selector = _find_named_list(dialog, "shopSelectionList")
         locked_item = None
         for index in range(selector.count()):
             item = selector.item(index)
             payload = item.data(Qt.ItemDataRole.UserRole)
-            if isinstance(payload, dict) and payload.get("kind") == "stock" and payload.get("item_name") == "Feather":
+            if (
+                isinstance(payload, dict)
+                and payload.get("kind") == "stock"
+                and payload.get("shop_id") == locked_view["shop_id"]
+                and payload.get("row_id") == locked_row["id"]
+            ):
                 locked_item = item
                 break
-        self.assertIsNotNone(locked_item, "Feather search did not render stock-source comparison rows")
+        self.assertIsNotNone(locked_item, "locked search did not render stock-source comparison rows")
         selector.setCurrentItem(locked_item)
         QApplication.processEvents()
 
         preview = _find_named_label(dialog, "shopPreviewLabel")
         button = _find_named_button(dialog, "shopTransactionButton")
-        self.assertIn("price_policy_unresolved", preview.text())
+        self.assertIn("currency_not_implemented", preview.text())
         self.assertFalse(button.isEnabled())
 
     def test_shop_live_stock_buy_updates_inventory_and_history(self) -> None:
@@ -752,7 +769,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         mode_tabs.setCurrentIndex(0)
         QApplication.processEvents()
         stock_buttons = [
-            button for button in dialog.findChildren(QPushButton)
+            button for button in dialog.findChildren(QToolButton)
             if button.property("shopRowId") and "Beer" in button.text()
         ]
         self.assertTrue(stock_buttons, "player-sold Beer did not appear as temporary shop stock")

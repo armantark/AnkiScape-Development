@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPC Shop Price Policy Fix — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 300;
+    line-height: 1.55;
+    padding: 2.5rem 1.5rem 4rem;
+}
+.wrap { max-width: 1080px; margin: 0 auto; }
+.badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    color: var(--green);
+    background: rgba(74, 222, 128, 0.12);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    border-radius: 999px;
+    padding: 0.3rem 0.9rem;
+    margin-bottom: 1rem;
+}
+h1 { font-weight: 700; font-size: 2rem; margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-dim); font-size: 0.95rem; max-width: 760px; margin-bottom: 2rem; }
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 2.4rem;
+}
+.metric {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+}
+.metric .num { font-weight: 700; font-size: 1.7rem; }
+.metric .num.green { color: var(--green); }
+.metric .num.amber { color: var(--amber); }
+.metric .num.red { color: var(--red); }
+.metric .num.accent { color: var(--accent); }
+.metric .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 0.2rem;
+}
+.metric .delta { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.35rem; font-family: 'JetBrains Mono', monospace; }
+.metric .delta b { color: var(--green); font-weight: 600; }
+h2 {
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin: 2.2rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.2rem 1.3rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.card h3 { font-weight: 500; font-size: 1rem; margin-bottom: 0.5rem; }
+.card p { color: var(--text-dim); font-size: 0.86rem; margin-bottom: 0.6rem; }
+.plabel {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.45rem;
+}
+.plabel.fix { color: var(--red); }
+.plabel.data { color: var(--amber); }
+.plabel.ui { color: var(--purple); }
+.plabel.kept { color: var(--green); }
+.tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.63rem;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.15rem 0.5rem;
+    color: var(--text-dim);
+}
+/* before/after shop tile mockups */
+.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 0.7rem; }
+.pane {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem;
+}
+.pane .pane-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.12em;
+    color: var(--text-dim);
+    margin-bottom: 0.5rem;
+}
+.tile-row { display: flex; gap: 0.45rem; }
+.tile {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 0.3rem;
+    text-align: center;
+    font-size: 0.62rem;
+}
+.tile .ico { font-size: 1rem; display: block; margin-bottom: 0.2rem; }
+.tile.locked { color: #5a6275; }
+.tile.locked .sub { color: var(--red); font-size: 0.52rem; font-family: 'JetBrains Mono', monospace; }
+.tile.live { color: var(--text); }
+.tile.live .sub { color: var(--text-dim); font-size: 0.52rem; }
+.tile.selected { border-color: var(--green); }
+.tip {
+    margin-top: 0.5rem;
+    background: #10131a;
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+    padding: 0.45rem 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.58rem;
+    color: var(--text-dim);
+    line-height: 1.7;
+}
+/* stacked bar */
+.stack { display: flex; height: 26px; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); margin: 0.6rem 0 0.4rem; }
+.stack div { min-width: 2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.72rem; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 0.35rem; }
+/* pipeline */
+.flow { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin-top: 0.8rem; }
+.flow .node {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.66rem;
+}
+.flow .node em { display: block; font-style: normal; color: var(--text-dim); font-size: 0.58rem; margin-top: 0.15rem; }
+.flow .arrow { color: var(--accent); font-size: 0.9rem; }
+/* checklist */
+.check { list-style: none; margin-top: 0.4rem; }
+.check li {
+    display: flex; gap: 0.6rem; align-items: baseline;
+    padding: 0.42rem 0;
+    border-bottom: 1px solid rgba(42, 48, 64, 0.55);
+    font-size: 0.88rem;
+}
+.check li:last-child { border-bottom: none; }
+.check .ok { color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+.check code, p code, li code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78em;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.05em 0.35em;
+    color: var(--text);
+}
+.verify {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.74rem;
+    line-height: 2;
+    color: var(--text-dim);
+}
+.verify b { color: var(--green); font-weight: 600; }
+.note { color: var(--text-dim); font-size: 0.8rem; margin-top: 0.8rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-06</div>
+    <h1>NPC Shop Price Policy Fix — Results</h1>
+    <p class="subtitle">
+        Normal coin shops were rendering as locked walls of <code>price_policy_unresolved</code>.
+        The fix stayed at the generator/contract layer: a new Java helper reads real price inputs
+        out of the Darkan cache, the generator applies Shop.java's exact price math, and Qt keeps
+        rendering whatever the backend says. No prices, lock reasons, or stock policy were invented
+        in the frontend.
+    </p>
+
+    <div class="metrics">
+        <div class="metric"><div class="num green">2,695</div><div class="label">Live stock rows</div><div class="delta">was <b>13</b> before the fix</div></div>
+        <div class="metric"><div class="num amber">60</div><div class="label">Locked rows (non-coin)</div><div class="delta">was 2,742</div></div>
+        <div class="metric"><div class="num red">21</div><div class="label">Blocked unknown-item rows</div><div class="delta">unchanged, still hidden</div></div>
+        <div class="metric"><div class="num accent">0</div><div class="label">price_policy_unresolved</div><div class="delta">lock reason retired</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom: 1.1rem;">
+        <div class="plabel data">STOCK ROW DISPOSITIONS · 2,776 TOTAL</div>
+        <div class="stack">
+            <div style="background: var(--green); flex: 2695;" title="Live: 2695"></div>
+            <div style="background: var(--amber); flex: 60;" title="Locked: 60"></div>
+            <div style="background: var(--red); flex: 21;" title="Blocked: 21"></div>
+        </div>
+        <div class="legend">
+            <span><span class="dot" style="background: var(--green);"></span>live 2,695</span>
+            <span><span class="dot" style="background: var(--amber);"></span>locked currency_not_implemented 60</span>
+            <span><span class="dot" style="background: var(--red);"></span>blocked unknown_item 21</span>
+        </div>
+        <p class="note">The only remaining lock reasons are <code>currency_not_implemented</code> (Tokkul-style
+        currencies AnkiScape doesn't have yet) and <code>unknown_item</code> (rows the item registry can't name).
+        Every visible coin row now buys with a source-backed price.</p>
+    </div>
+
+    <h2>What changed</h2>
+    <div class="grid">
+        <div class="card">
+            <div class="plabel fix">ROOT FIX · PRICE PIPELINE</div>
+            <h3>Darkan cache prices, extracted once at generation time</h3>
+            <p>A new Java helper opens the Darkan cache exactly the way the live server does and dumps
+            the three inputs Shop.java uses: item value, item sell price, and the coin/Tokkul enum
+            overrides. The generator joins those into the runtime catalog so every coin row carries
+            real <code>buy_price</code>/<code>sell_price</code> plus a <code>price_policy</code>/<code>price_source</code> audit trail.</p>
+            <div class="flow">
+                <div class="node">darkan-cache<em>Cache.init (path needs trailing slash)</em></div>
+                <div class="arrow">→</div>
+                <div class="node">DumpDarkanShopPriceInputs.java<em>value · sellPrice · enum overrides</em></div>
+                <div class="arrow">→</div>
+                <div class="node">generate_npc_shop_data.py<em>Shop.java price math</em></div>
+                <div class="arrow">→</div>
+                <div class="node">shop_data.py<em>priced live rows</em></div>
+            </div>
+            <div class="tags"><span class="tag">tools/DumpDarkanShopPriceInputs.java</span><span class="tag">tools/generate_npc_shop_data.py</span><span class="tag">shop_data.py</span></div>
+        </div>
+        <div class="card">
+            <div class="plabel data">PRICE SEMANTICS · MIRRORS SHOP.JAVA</div>
+            <h3>Custom prices override buys only</h3>
+            <p>Where a shop JSON declares a custom price, it overrides the buy price only. Otherwise the
+            buy price comes from <code>ItemDefinitions.value</code> plus the coin enum override, and the sell
+            price from <code>ItemDefinitions.sellPrice</code> plus the sell enum override — the same branch
+            structure as the Darkan server. Nothing is estimated or interpolated.</p>
+            <ul class="check">
+                <li><span class="ok">✓</span><span>Feather rows are live with cache prices (previously the canonical locked example)</span></li>
+                <li><span class="ok">✓</span><span>Non-coin shops stay visible + read-only with <code>currency_not_implemented</code></span></li>
+                <li><span class="ok">✓</span><span>Unknown-item rows stay blocked/hidden as generated</span></li>
+                <li><span class="ok">✓</span><span>Hidden reward/activity shops stay out of browse and item-first search</span></li>
+            </ul>
+            <div class="tags"><span class="tag">shop_logic.py</span><span class="tag">tests/test_shop_data.py</span><span class="tag">tests/test_shop_logic.py</span></div>
+        </div>
+        <div class="card">
+            <div class="plabel ui">FRONTEND POLISH · TILE FACES</div>
+            <h3>Icon-over-text tiles; metadata moved to tooltips</h3>
+            <p>Stock tiles became <code>QToolButton</code>s with <code>ToolButtonTextUnderIcon</code>. The tile face is
+            icon + item name only; stock counts, buy/sell prices, price source, and lock reasons moved
+            into tooltips and the selected-row preview. Verified offscreen at 720px and 1100px widths:
+            no horizontal scrollbar, no partial tile rows.</p>
+            <div class="ba">
+                <div class="pane">
+                    <div class="pane-label">BEFORE — 4-LINE TILE FACES</div>
+                    <div class="tile-row">
+                        <div class="tile locked"><span class="ico">🪶</span>Feather<br><span class="sub">0/1000 · — · LOCK</span></div>
+                        <div class="tile locked"><span class="ico">🐟</span>Raw cod<br><span class="sub">0/10 · — · LOCK</span></div>
+                    </div>
+                </div>
+                <div class="pane">
+                    <div class="pane-label">AFTER — ICON + NAME, DATA IN TOOLTIP</div>
+                    <div class="tile-row">
+                        <div class="tile live selected"><span class="ico">🪶</span>Feather</div>
+                        <div class="tile live"><span class="ico">🐟</span>Raw cod</div>
+                    </div>
+                    <div class="tip">Feather · Stock: 1,000/1,000<br>Buy: 2 Coins · Sell: 1 Coins<br>darkan cache value + coin override</div>
+                </div>
+            </div>
+            <div class="tags"><span class="tag">ui.py</span><span class="tag">tests/test_main_menu_widget.py</span></div>
+        </div>
+        <div class="card">
+            <div class="plabel kept">ASSETS · SUMMONING SUPPLIES</div>
+            <h3>Six sprites for the now-default first shop screen</h3>
+            <p>The default Shop view surfaces Summoning Supplies rows, so their sprites were fetched with
+            provenance: Antlers, Lizard skull, Feather headdress, Spirit shards, Pouch, and Spirit shard
+            pack. That brings <code>shopitems/</code> to fourteen focused sprites, all registered through
+            <code>SHOP_ITEM_IMAGES</code> and asserted in the registry tests.</p>
+            <div class="tags"><span class="tag">shopitems/*.png</span><span class="tag">assets_provenance.json</span><span class="tag">tests/test_skill_and_item_registry.py</span></div>
+        </div>
+    </div>
+
+    <h2>Verification</h2>
+    <div class="verify">
+        python3 run_tests.py → <b>OK</b> · 749 tests, 143 skipped<br>
+        QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests → <b>OK</b> · 749 tests<br>
+        offscreen Shop-tab screenshot smoke at 720×620 and 1100×780 → <b>hbar_max=0</b>, tiles render icon-over-text, live prices visible
+    </div>
+    <p class="note">Compare against the unmodified plan artifact:
+    <code>memory-bank/status-updates/npc-shop-price-policy-fix-plan-2026-07-06.html</code>. The contract boundary
+    held — Qt still computes no prices, lock reasons, stock behavior, sell policy, or service semantics.</p>
+</div>
+</body>
+</html>

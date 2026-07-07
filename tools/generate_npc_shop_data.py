@@ -10,7 +10,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import subprocess
+import tempfile
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
@@ -20,11 +23,20 @@ from typing import Any, Iterable
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_DARKAN_SHOPS = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/data/items/shops")
 DEFAULT_DARKAN_CONTENT = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/src/main/java/com/rs/game/content")
+DEFAULT_DARKAN_CACHE = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-cache")
+DEFAULT_DARKAN_JAVA_HOME = Path("/Users/ArmanTarkhanian1/Documents/2012scape with bots/.jdks/jdk-24.0.2+12/Contents/Home")
+DEFAULT_DARKAN_CORE_JAR = Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/rs.darkan/core/2.0.5/5a13ad7bada8a9b1587bfa72fb013283102c6b7d/core-2.0.5.jar")
+DEFAULT_DARKAN_DEPENDENCY_JARS = (
+    Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/it.unimi.dsi/fastutil/8.5.15/1e885b40c9563ab0d3899b871fd0b30e958705dc/fastutil-8.5.15.jar"),
+    Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-api/2.20.0/1fe6082e660daf07c689a89c94dc0f49c26b44bb/log4j-api-2.20.0.jar"),
+    Path("/Users/ArmanTarkhanian1/.gradle/caches/modules-2/files-2.1/org.apache.logging.log4j/log4j-core/2.20.0/eb2a9a47b1396e00b5eee1264296729a70565cc0/log4j-core-2.20.0.jar"),
+)
 DEFAULT_2011_ITEMS = Path("/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml")
 
 SHOP_DATA_PATH = REPO_ROOT / "shop_data.py"
 LEDGER_PATH = REPO_ROOT / "memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json"
 SUMMARY_PATH = REPO_ROOT / "memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md"
+DARKAN_PRICE_HELPER = REPO_ROOT / "tools/DumpDarkanShopPriceInputs.java"
 
 SHOP_DATA_VERSION = 1
 DARKAN_DEFAULT_RESTOCK_TICKS = 50
@@ -243,10 +255,161 @@ def _visibility_for_shop(shop_id: str, currency_id: int) -> tuple[str, str]:
     return "visible", ""
 
 
-def _price_for_row(raw_item: dict[str, Any], item_id: int) -> tuple[int | None, int | None, str, str]:
+def _raw_item_id(raw_item: dict[str, Any]) -> int:
+    raw_item_ref = raw_item.get("item", -1)
+    if isinstance(raw_item_ref, dict):
+        return int(raw_item_ref.get("id", -1) or -1)
+    return int(raw_item_ref)
+
+
+def collect_source_shop_item_ids(darkan_shops: Path) -> set[int]:
+    item_ids: set[int] = set()
+    for path in sorted(darkan_shops.glob("*.json")):
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        for raw_item in raw.get("items", []):
+            if isinstance(raw_item, dict):
+                item_id = _raw_item_id(raw_item)
+                if item_id >= 0:
+                    item_ids.add(item_id)
+    return item_ids
+
+
+def _java_tool(java_home: Path, name: str) -> str:
+    tool_path = java_home / "bin" / name
+    return str(tool_path if tool_path.exists() else name)
+
+
+def _darkan_cache_arg(cache_path: Path) -> str:
+    raw = str(cache_path)
+    return raw if raw.endswith(os.sep) else raw + os.sep
+
+
+def load_darkan_shop_price_inputs(
+    cache_path: Path,
+    item_ids: Iterable[int],
+    *,
+    core_jar: Path,
+    dependency_jars: Iterable[Path],
+    java_home: Path,
+) -> dict[int, dict[str, Any]]:
+    ids = sorted({int(item_id) for item_id in item_ids if int(item_id) >= 0})
+    if not ids:
+        return {}
+    required_paths = [cache_path, core_jar, DARKAN_PRICE_HELPER, *dependency_jars]
+    missing = [str(path) for path in required_paths if not path.exists()]
+    if missing:
+        raise FileNotFoundError("Missing Darkan price extraction input(s): " + ", ".join(missing))
+
+    classpath = os.pathsep.join(str(path) for path in [core_jar, *dependency_jars])
+    with tempfile.TemporaryDirectory(prefix="ankiscape-shop-prices-") as temp_dir:
+        temp = Path(temp_dir)
+        class_dir = temp / "classes"
+        class_dir.mkdir()
+        ids_path = temp / "item_ids.txt"
+        output_path = temp / "prices.json"
+        ids_path.write_text("\n".join(str(item_id) for item_id in ids) + "\n", encoding="utf-8")
+
+        try:
+            subprocess.run(
+                [
+                    _java_tool(java_home, "javac"),
+                    "-cp",
+                    classpath,
+                    "-d",
+                    str(class_dir),
+                    str(DARKAN_PRICE_HELPER),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            subprocess.run(
+                [
+                    _java_tool(java_home, "java"),
+                    "-cp",
+                    os.pathsep.join([str(class_dir), classpath]),
+                    "DumpDarkanShopPriceInputs",
+                    _darkan_cache_arg(cache_path),
+                    str(ids_path),
+                    str(output_path),
+                ],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except subprocess.CalledProcessError as exc:
+            detail = (exc.stderr or exc.stdout or str(exc)).strip()
+            raise RuntimeError(f"Darkan shop price extraction failed: {detail}") from exc
+
+        parsed = json.loads(output_path.read_text(encoding="utf-8"))
+    rows = parsed.get("items", {})
+    return {int(item_id): dict(row) for item_id, row in rows.items() if isinstance(row, dict)}
+
+
+def _cache_int(price_inputs: dict[str, Any], key: str) -> int | None:
+    value = price_inputs.get(key)
+    if isinstance(value, int):
+        return value
+    return None
+
+
+def _cache_base_price(price_inputs: dict[str, Any], key: str) -> int | None:
+    value = _cache_int(price_inputs, key)
+    if value is None:
+        return None
+    return max(1, value)
+
+
+def _enum_override(price_inputs: dict[str, Any], key: str) -> int | None:
+    value = _cache_int(price_inputs, key)
+    if value is None or value == -1:
+        return None
+    return value
+
+
+def _cache_shop_buy_price(price_inputs: dict[str, Any], currency_id: int) -> int | None:
+    base_value = _cache_base_price(price_inputs, "value")
+    if base_value is None:
+        return None
+    if currency_id == 995:
+        override = _enum_override(price_inputs, "coin_buy_override")
+        return override if override is not None else base_value
+    if currency_id == 6529:
+        override = _enum_override(price_inputs, "tokkul_buy_override")
+        return override if override is not None else (base_value * 3 // 2)
+    return base_value
+
+
+def _cache_shop_sell_price(price_inputs: dict[str, Any], currency_id: int) -> int | None:
+    base_value = _cache_base_price(price_inputs, "sell_price")
+    if base_value is None:
+        return None
+    if currency_id == 995:
+        override = _enum_override(price_inputs, "coin_sell_override")
+        return override if override is not None else base_value
+    if currency_id == 6529:
+        override = _enum_override(price_inputs, "tokkul_sell_override")
+        return override if override is not None else base_value
+    return base_value
+
+
+def _price_for_row(
+    raw_item: dict[str, Any],
+    item_id: int,
+    currency_id: int,
+    price_inputs: dict[int, dict[str, Any]],
+) -> tuple[int | None, int | None, str, str]:
+    cache_row = price_inputs.get(item_id, {})
     custom_price = raw_item.get("customPrice")
     if isinstance(custom_price, int) and custom_price > 0:
-        return custom_price, max(0, custom_price // 3), "custom_price", "Darkan shop JSON customPrice"
+        sell_price = _cache_shop_sell_price(cache_row, currency_id)
+        if sell_price is not None:
+            return custom_price, sell_price, "custom_buy_darkan_sell_price", "Darkan shop JSON customPrice for buy; Darkan Shop.java getSellPrice for sell"
+        return custom_price, None, "custom_buy_sell_unresolved", "Darkan shop JSON customPrice for buy; Darkan cache sell price unavailable"
+    buy_price = _cache_shop_buy_price(cache_row, currency_id)
+    sell_price = _cache_shop_sell_price(cache_row, currency_id)
+    if buy_price is not None:
+        return buy_price, sell_price, "darkan_shop_cache_price", "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides"
     manual = MANUAL_ITEM_PRICES.get(item_id)
     if manual:
         buy = manual.get("buy")
@@ -265,6 +428,7 @@ def _stock_rows(
     shop_visibility: str,
     shop_lock_reason: str,
     items: dict[int, ItemMeta],
+    price_inputs: dict[int, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for index, raw_item in enumerate(raw_items):
@@ -278,7 +442,7 @@ def _stock_rows(
         restock_ticks = int(raw_item.get("restockTicks", DARKAN_DEFAULT_RESTOCK_TICKS) or DARKAN_DEFAULT_RESTOCK_TICKS)
         item_meta = items.get(item_id)
         fallback_name = _safe_str(raw_item.get("_name"), f"Item {item_id}")
-        buy_price, sell_price, price_policy, price_source = _price_for_row(raw_item, item_id)
+        buy_price, sell_price, price_policy, price_source = _price_for_row(raw_item, item_id, currency_id, price_inputs)
         row_visibility = shop_visibility
         lock_reason = shop_lock_reason
         disposition = "live"
@@ -323,8 +487,14 @@ def _stock_rows(
     return rows
 
 
-def build_catalog(darkan_shops: Path, items_path: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+def build_catalog(
+    darkan_shops: Path,
+    items_path: Path,
+    price_inputs: dict[int, dict[str, Any]] | None = None,
+    darkan_cache: Path | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     items = load_2011_items(items_path)
+    resolved_price_inputs = price_inputs or {}
     shops: list[dict[str, Any]] = []
     ledger_shops: list[dict[str, Any]] = []
     source_paths = sorted(darkan_shops.glob("*.json"))
@@ -354,6 +524,7 @@ def build_catalog(darkan_shops: Path, items_path: Path) -> tuple[dict[str, Any],
             visibility,
             lock_reason,
             items,
+            resolved_price_inputs,
         )
         shop_disposition = "hidden" if visibility == "hidden" else ("locked" if visibility == "visible_locked" else "visible")
         if rows and all(row["disposition"] == "blocked" for row in rows) and visibility != "hidden":
@@ -427,6 +598,7 @@ def build_catalog(darkan_shops: Path, items_path: Path) -> tuple[dict[str, Any],
         "shop_data_version": SHOP_DATA_VERSION,
         "source_roots": {
             "darkan_shops": str(darkan_shops),
+            "darkan_cache": str(darkan_cache) if darkan_cache is not None else "",
             "items_2011scape": str(items_path),
         },
         "summary": summary,
@@ -587,8 +759,9 @@ def write_summary(ledger: dict[str, Any], path: Path) -> None:
         "## Sources",
         "",
         f"- Darkan shop JSON: `{ledger['source_roots']['darkan_shops']}`",
+        f"- Darkan cache price inputs: `{ledger['source_roots']['darkan_cache']}`",
         f"- 2011Scape item names/tradeability: `{ledger['source_roots']['items_2011scape']}`",
-        "- 2011Scape shop model and Darkan shop model were used as behavior references for stock, restock, general-store sell policy, and player-sold temporary stock.",
+        "- 2011Scape shop model and Darkan shop model were used as behavior references for stock, restock, price policy, general-store sell policy, and player-sold temporary stock.",
         "",
         "## Coverage",
         "",
@@ -607,8 +780,8 @@ def write_summary(ledger: dict[str, Any], path: Path) -> None:
         "",
         "## Disposition Policy",
         "",
-        "- Coin stock rows with a source-backed custom price or direct content literal are live.",
-        "- Coin stock rows without a resolved Darkan cache item value are visible but locked, so gameplay fails closed rather than inventing prices.",
+        "- Coin stock rows with a source-backed custom price, Darkan cache value, or direct content literal are live.",
+        "- Darkan cache prices mirror `Shop.java`: custom prices override buy price only; otherwise buy price uses ItemDefinitions.value plus coin/Tokkul enum overrides, while sell price uses ItemDefinitions.sellPrice plus sell enum overrides.",
         "- Non-coin shops are visible but read-only until their currencies exist in AnkiScape.",
         "- Reward/activity-dependent shop families are hidden from normal player search until their owning system exists.",
         "- The developer test shop is excluded and still appears in the JSON ledger with an explicit disposition.",
@@ -619,7 +792,7 @@ def write_summary(ledger: dict[str, Any], path: Path) -> None:
         "",
         "## Manual Test Notes",
         "",
-        "Backend manual testing is pure-Python for this turn. The future UI thread should verify Shop-tab rendering and transactions through Pinchtab after wiring the frontend surface.",
+        "Backend contract testing is pure-Python. Qt frontend passes should verify Shop-tab rendering and transactions through offscreen Qt tests plus a local visual smoke check.",
     ]
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -628,13 +801,25 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--darkan-shops", type=Path, default=DEFAULT_DARKAN_SHOPS)
     parser.add_argument("--darkan-content", type=Path, default=DEFAULT_DARKAN_CONTENT)
+    parser.add_argument("--darkan-cache", type=Path, default=DEFAULT_DARKAN_CACHE)
+    parser.add_argument("--darkan-java-home", type=Path, default=DEFAULT_DARKAN_JAVA_HOME)
+    parser.add_argument("--darkan-core-jar", type=Path, default=DEFAULT_DARKAN_CORE_JAR)
+    parser.add_argument("--darkan-dependency-jar", type=Path, action="append", default=None)
     parser.add_argument("--items-2011", type=Path, default=DEFAULT_2011_ITEMS)
     parser.add_argument("--shop-data-out", type=Path, default=SHOP_DATA_PATH)
     parser.add_argument("--ledger-out", type=Path, default=LEDGER_PATH)
     parser.add_argument("--summary-out", type=Path, default=SUMMARY_PATH)
     args = parser.parse_args()
 
-    catalog, ledger = build_catalog(args.darkan_shops, args.items_2011)
+    item_ids = collect_source_shop_item_ids(args.darkan_shops)
+    price_inputs = load_darkan_shop_price_inputs(
+        args.darkan_cache,
+        item_ids,
+        core_jar=args.darkan_core_jar,
+        dependency_jars=tuple(args.darkan_dependency_jar or DEFAULT_DARKAN_DEPENDENCY_JARS),
+        java_home=args.darkan_java_home,
+    )
+    catalog, ledger = build_catalog(args.darkan_shops, args.items_2011, price_inputs, args.darkan_cache)
     args.shop_data_out.parent.mkdir(parents=True, exist_ok=True)
     args.ledger_out.parent.mkdir(parents=True, exist_ok=True)
     args.summary_out.parent.mkdir(parents=True, exist_ok=True)

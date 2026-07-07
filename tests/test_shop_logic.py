@@ -103,7 +103,7 @@ class TestShopLogic(unittest.TestCase):
         data = build_shop_fixture_player_data()
         preview = preview_shop_buy_pure(data, shop["id"], row["id"], 1)
         self.assertFalse(preview["allowed"])
-        self.assertIn(preview["reason"], {"price_policy_unresolved", "currency_not_implemented"})
+        self.assertEqual(preview["reason"], "currency_not_implemented")
 
     def test_previews_include_current_player_state_counts(self):
         shop, row = _live_shop_and_row()
@@ -117,7 +117,8 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(buy_preview["required_currency"], row["buy_price"])
         self.assertEqual(buy_preview["currency_item_name"], "Coins")
 
-        sell_preview = preview_shop_sell_pure(data, shop["id"], "Beer", 1)
+        sell_shop = _general_store()
+        sell_preview = preview_shop_sell_pure(data, sell_shop["id"], "Beer", 1)
         self.assertTrue(sell_preview["allowed"])
         self.assertEqual(sell_preview["owned_quantity"], data["inventory"]["Beer"])
 

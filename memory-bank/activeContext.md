@@ -5,13 +5,29 @@ Protect the local fork before any large expansion. The agreed direction is to au
 
 ## NPC shop frontend follow-up
 The NPC shop frontend follow-up on 2026-07-06 is complete on
-`codex/npc-shop-frontend`. The Shop tab now renders item imagery from the shared
+`codex/npc-shop-frontend`. The price-policy follow-up resolved the former
+`price_policy_unresolved` wall at the generator/contract layer:
+`tools/generate_npc_shop_data.py` now extracts Darkan cache
+`ItemDefinitions.value`, `ItemDefinitions.sellPrice`, and the `Shop.java`
+coin/Tokkul enum overrides through `tools/DumpDarkanShopPriceInputs.java`.
+Generated coverage is now 2,695 live stock rows, 60 locked non-coin rows, and
+21 blocked unknown-item rows; no visible coin stock row is locked for unresolved
+price policy.
+
+The Shop tab now renders item imagery from the shared
 `ITEM_DEFINITIONS.asset_path` manifest for stock tiles, item-first search rows,
-sell inventory rows, and service/vendor command rows. Eight focused sprites for
-currently actionable shop/service content live in `shopitems/` with provenance:
-the five Papa Mambo seeds, Oak plank, Newspaper, and Kebab. `constants.py`
-exposes them through `SHOP_ITEM_IMAGES`, merged into the item registry like the
-other skill item folders.
+sell inventory rows, and service/vendor command rows. Stock tiles are
+`QToolButton` controls using icon-over-text presentation; row stock/price/source
+details live in tooltips and selected-row preview text rather than crowding the
+tile face. The Shop tab deterministically defaults to the selector's
+first-ranked shop (live shops sort before locked ones, then by display name),
+so with the price policy resolved that is `'Two Feet' Charley's Fish Shop`, not
+a locked wall. Fourteen focused sprites for actionable shop/service content
+live in `shopitems/` with provenance: Summoning Supplies sprites (Antlers,
+Lizard skull, Feather headdress, Spirit shards, Pouch, Spirit shard pack), the
+five Papa Mambo seeds, Oak plank, Newspaper, and Kebab. `constants.py` exposes
+them through `SHOP_ITEM_IMAGES`, merged into the item registry like the other
+skill item folders.
 
 Current-state availability now comes from backend preview payloads, not Qt
 guesses. `shop_logic.py` preview results include owned/required currency,
@@ -19,14 +35,14 @@ stock availability, sell owned counts, and structured service/vendor
 requirements plus missing requirement rows. The Qt transaction and service
 preview labels render those fields as player-facing current-save facts such as
 `Need 2 Coins, you have 0` or `Missing requirements: Cowhide 0/1`. Static
-catalog locks remain exactly backend-sourced (`price_policy_unresolved`,
-`currency_not_implemented`, `unknown_item`, hidden reward/activity shops) and
-are not inferred from quest/skill names in the frontend.
+catalog locks remain exactly backend-sourced (`currency_not_implemented`,
+`unknown_item`, hidden reward/activity shops) and are not inferred from
+quest/skill names in the frontend.
 
 Verification for this pass:
-`python3 run_tests.py` passed with 748 tests and 143 skipped, and
+`python3 run_tests.py` passed with 749 tests and 143 skipped, and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passed with 748 tests.
+passed with 749 tests.
 
 ## Equipment backend contract
 The backend equipment pass is complete. `tools/generate_equipment_data.py`

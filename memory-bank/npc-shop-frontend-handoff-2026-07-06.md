@@ -6,7 +6,7 @@ Backend status: complete for the first source-backed NPC shop contract. The fron
 
 ## Backend Modules
 
-- `shop_data.py`: generated runtime catalog from local Darkan shop JSON and 2011Scape item metadata. It includes shop visibility, row dispositions, currency state, source paths, services, vendor actions, aliases, and coverage summary.
+- `shop_data.py`: generated runtime catalog from local Darkan shop JSON, Darkan cache price inputs, and 2011Scape item metadata. It includes shop visibility, row dispositions, currency state, source paths, services, vendor actions, aliases, and coverage summary.
 - `shop_logic.py`: pure APIs for shop view models, search, buy/sell previews, buy/sell application, service/vendor actions, market-clock advancement, event history, and rollback.
 - `shop_fixtures.py`: deterministic fixture bundle for frontend development and Qt tests.
 - `storage_pure.py`: profile defaults/migration now seed `shop_data_version`, `shop_market_clock`, `shop_stock_state`, `shop_events`, and `shop_next_event_id`.
@@ -29,7 +29,7 @@ Use `shop_fixtures.build_shop_frontend_fixtures()` as the first UI contract. It 
 - `history`
 - `search_after_transactions`
 
-These fixtures deliberately cover visible, locked, hidden, shared-stock, temporary player-sold stock, direct vendor, processing service, error, search, and history states.
+These fixtures deliberately cover visible, locked, hidden, shared-stock, temporary player-sold stock, direct vendor, processing service, error, search, and history states. `feather_multi_shop_search` now demonstrates item-first comparison across live coin-stock rows; locked-row examples come from `locked_read_only_shop` / `non_coin_locked_shop`.
 
 ## UI Contract
 
@@ -55,7 +55,8 @@ These fixtures deliberately cover visible, locked, hidden, shared-stock, tempora
 The first frontend slice should add Qt tests for:
 
 - Shop tab/menu entry appears without replacing Bank/Stats/Skills.
-- Search for `Feather` shows multiple locked source rows and does not allow purchase.
+- Search for `Feather` shows multiple live source rows backed by Darkan cache prices.
+- A locked non-coin search row shows the backend lock reason and does not allow purchase.
 - A normal live shop row can preview and buy with enough Coins.
 - Locked/non-coin/hidden cases render their backend lock states.
 - A general-store sell creates visible temporary stock, then buying it back works.
@@ -72,12 +73,13 @@ Completed: 2026-07-06
 - The Shop tab renders search, shop selection, a selected-shop stock panel, Buy/Sell modes, RuneScape-style quantity controls, service/vendor action rows, shop-local history, and global recent activity.
 - Qt rendering delegates prices, lock reasons, sell policy, stock mutation, service/vendor eligibility, search result visibility, and history rows to `shop_logic.py` APIs.
 - Hidden reward/activity shops remain out of normal browse and item-first search through `include_hidden=False` and visible-shop filtering.
-- Added targeted offscreen Qt coverage in `tests/test_main_menu_widget.py` for hidden-shop exclusion, Feather locked search, live stock buy, general-store sell/player-sold stock, service/vendor actions, and global history.
+- Added targeted offscreen Qt coverage in `tests/test_main_menu_widget.py` for hidden-shop exclusion, locked non-coin search, live stock buy, general-store sell/player-sold stock, service/vendor actions, global history, and icon-over-text stock tiles.
+- The follow-up price-policy pass resolved normal coin stock from Darkan cache values and enum overrides, leaving visible locks for non-coin currencies and blocked rows for unknown items rather than `price_policy_unresolved`.
 
-Verification:
+Verification (after the price-policy pass):
 
-- `python3 run_tests.py`: 743 tests passed, 140 skipped.
-- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`: 743 tests passed.
+- `python3 run_tests.py`: 749 tests passed, 143 skipped.
+- `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`: 749 tests passed.
 
 ## Copy-Paste Frontend Prompt
 

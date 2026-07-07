@@ -60,6 +60,23 @@
   Verification: `python3 run_tests.py` passed with 748 tests (143 skipped), and
   `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 748 tests.
+- NPC shop price policy is resolved as of 2026-07-06. Normal coin shops no
+  longer render as walls of `price_policy_unresolved` locks:
+  `tools/DumpDarkanShopPriceInputs.java` extracts `ItemDefinitions.value`,
+  `ItemDefinitions.sellPrice`, and the coin/Tokkul enum overrides from the
+  Darkan cache (JDK 24 + the Darkan core jar; `Cache.init` needs the cache path
+  with a trailing slash), and `tools/generate_npc_shop_data.py` applies the
+  `Shop.java` price math when emitting `shop_data.py`. Generated coverage is
+  now 2,695 live stock rows, 60 locked `currency_not_implemented` rows, and 21
+  blocked `unknown_item` rows; every visible coin row carries source-backed
+  buy/sell prices plus `price_policy`/`price_source` audit fields that surface
+  in row view models and Qt tooltips. Stock tiles are icon-over-text
+  `QToolButton`s with metadata moved off the tile face, and the Shop tab
+  deterministically defaults to the selector's first-ranked live shop. Six
+  Summoning Supplies sprites joined `shopitems/` with provenance.
+  Verification: `python3 run_tests.py` passed with 749 tests (143 skipped), and
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+  passed with 749 tests.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The

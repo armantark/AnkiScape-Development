@@ -562,6 +562,8 @@ def _row_view(row: Mapping[str, Any], row_state: Mapping[str, Any], shop: Mappin
         "visibility": row["visibility"],
         "lock_reason": row["lock_reason"],
         "disposition": row["disposition"],
+        "price_policy": row.get("price_policy", ""),
+        "price_source": row.get("price_source", ""),
         "can_buy": can_buy,
         "can_sell_to_shop": not bool(shop["buy_only"]) and (bool(shop["general_store"]) or row["disposition"] == "live"),
         "source": row["source"],

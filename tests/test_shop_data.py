@@ -19,7 +19,7 @@ class TestShopData(unittest.TestCase):
         self.assertEqual(SHOP_COVERAGE_SUMMARY["runtime_shop_count"], 273)
         self.assertEqual(SHOP_COVERAGE_SUMMARY["excluded_shop_count"], 1)
         self.assertGreater(SHOP_COVERAGE_SUMMARY["stock_row_count"], 2700)
-        self.assertGreater(SHOP_COVERAGE_SUMMARY["locked_stock_row_count"], SHOP_COVERAGE_SUMMARY["live_stock_row_count"])
+        self.assertGreater(SHOP_COVERAGE_SUMMARY["live_stock_row_count"], SHOP_COVERAGE_SUMMARY["locked_stock_row_count"])
         self.assertNotIn("a_test_shop", SHOP_DATA)
 
     def test_every_stock_row_has_runtime_disposition_and_source(self):
@@ -31,10 +31,23 @@ class TestShopData(unittest.TestCase):
                 self.assertTrue(row["source_path"].endswith(".json"))
                 if row["disposition"] == "live":
                     self.assertIsInstance(row["buy_price"], int)
+                    self.assertIsInstance(row["sell_price"], int)
                     self.assertEqual(shop["currency_id"], 995)
                     self.assertTrue(shop["currency_implemented"])
 
-    def test_feather_rows_are_present_but_fail_closed_without_cache_price(self):
+    def test_coin_stock_uses_darkan_cache_price_policy_without_unresolved_price_locks(self):
+        unresolved_rows = [
+            (shop, row)
+            for shop in SHOP_DATA.values()
+            for row in shop["stock"]
+            if row["lock_reason"] == "price_policy_unresolved" or row["price_policy"] == "cache_price_unresolved"
+        ]
+        self.assertEqual(unresolved_rows, [])
+        self.assertTrue(
+            any(row["price_policy"] == "darkan_shop_cache_price" for shop in SHOP_DATA.values() for row in shop["stock"])
+        )
+
+    def test_feather_rows_are_live_with_darkan_cache_prices(self):
         feather_rows = [
             (shop, row)
             for shop in SHOP_DATA.values()
@@ -42,10 +55,11 @@ class TestShopData(unittest.TestCase):
             if row["item_name"] == "Feather"
         ]
         self.assertGreaterEqual(len(feather_rows), 2)
-        for _shop, row in feather_rows:
-            self.assertIn(row["disposition"], {"locked", "blocked"})
-            if row["disposition"] == "locked":
-                self.assertEqual(row["lock_reason"], "price_policy_unresolved")
+        for shop, row in feather_rows:
+            self.assertEqual(shop["currency_id"], 995)
+            self.assertEqual(row["disposition"], "live")
+            self.assertEqual(row["lock_reason"], "")
+            self.assertIsInstance(row["buy_price"], int)
 
     def test_non_coin_shops_are_visible_locked(self):
         non_coin_shops = [shop for shop in SHOP_DATA.values() if shop["currency_id"] != 995]
