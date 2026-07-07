@@ -148,24 +148,32 @@ drag-vs-list; how it subsumes `combat_supply_loadout`; storage migration.
 - **Subsumes `combat_supply_loadout`** and the storage migration shape — both
   inferred at implementation time, not pre-specified.
 
-### Loot drops (owner Q, 2026-07-07 — nothing to model for the default)
+### Loot drops (owner-decided 2026-07-07 — value-filtered pickup)
 
-Loot only needs a keep/ignore filter if it competes for the 28 carried slots.
-So:
+Loot **does** compete for carried slots (this reverses an earlier
+over-simplification of "loot auto-banks with no slot cost" — that removed the
+authentic "is this worth carrying?" tension). Pickup is auto-managed by a value
+filter so the casual player never micromanages, but junk still carries a
+perceived penalty (it would eat slots → earlier bank runs), so the filter
+leaves it:
 
-- **Default / casual: loot auto-banks.** Drops go straight to the infinite bank
-  (exactly like combat does today) — no pickup decision, no slot competition,
-  no junk problem. Combat's teeth live entirely in the food/supply loadout
-  (bring N food, bank when it runs out); loot auto-banking never touches that.
-  Casual combat therefore has **zero** loot complexity.
-- **Advanced (deferrable): loot occupies carried slots + a keep/drop filter.**
-  This is where "ignore vs keep" matters — a min-maxer skips junk so loot
-  doesn't force early bank runs, trading space management for kills-per-trip.
-  It reuses the casual/advanced split; it is one more advanced lever, not a new
-  system, and is not a prerequisite for anything.
+- **Default: high-alch-value filter.** A drop is picked up iff its high-alch
+  value (`0.6 * cache value`, already extracted for shop pricing — no GE
+  needed) is at or above a threshold. Below-threshold junk is left, so it never
+  eats a slot. The threshold is a **declared AnkiScape balance knob** (tunable,
+  not a source value).
+- **Stackables are always picked up.** A stackable costs at most one slot ever,
+  so there is no space penalty — grab it unconditionally (runes, ammo, charms;
+  coins go to the Money pouch regardless). No filtering for that whole class.
+- **Later: GE market value, optionally.** Same filter, swap the value metric
+  from high-alch to market price once the GE exists — a one-line change.
+- **Advanced: per-drop checkboxes.** Tick exactly which drops to keep/bank,
+  overriding the threshold (e.g. "keep bones" once Prayer matters).
 
-Decision: model nothing for loot in v1. Default = everything auto-banks
-(current behavior). The loot filter is future advanced content.
+Consequences: loot picked up this trip is in the carried grid, so it drops on
+death (authentic) and its accumulation contributes to triggering bank runs
+alongside food/supply depletion. v1 is fully buildable now (cache value is in
+hand).
 
 ### Preset modes (proposal — casual dropdown)
 
