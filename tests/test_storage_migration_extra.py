@@ -19,6 +19,16 @@ class TestStorageMigrationExtra(unittest.TestCase):
         for ore in MINING_OUTPUT_ITEMS:
             self.assertIn(ore, out["inventory"])  # seeded
 
+    def test_retired_utility_activity_saves_migrate_to_default(self):
+        # Bridges retired 2026-07-06 once their outputs became live NPC shop
+        # stock; stale saves must not error on the next utility review.
+        for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
+            data = {"current_utility": retired}
+            out = migrate_loaded_data(data, ORE_DATA)
+            self.assertEqual(out["current_utility"], "make_soft_clay", retired)
+        kept = migrate_loaded_data({"current_utility": "gather_wool"}, ORE_DATA)
+        self.assertEqual(kept["current_utility"], "gather_wool")
+
     def test_total_exp_preserved_when_mining_exp_present(self):
         # Current behavior: if mining_exp exists, total_exp is not migrated/popped
         data = {"total_exp": 123, "mining_exp": 999}

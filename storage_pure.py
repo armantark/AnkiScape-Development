@@ -80,8 +80,16 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 25
+CURRENT_CONFIG_VERSION = 26
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
+# Temporary Utility bridges retired on 2026-07-06 once their outputs became
+# live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
+# Saves that still point at one migrate back to the default activity.
+_RETIRED_UTILITY_ACTIVITIES = {
+    "scavenge_chicken_feathers",
+    "gather_fishing_bait",
+    "buy_hunter_supplies",
+}
 _EQUIPMENT_SLOT_IDS = {
     "head",
     "cape",
@@ -547,6 +555,8 @@ def migrate_loaded_data(
     for key, value in default_target_state().items():
         data.setdefault(key, value)
     data.setdefault("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if data.get("current_utility") in _RETIRED_UTILITY_ACTIVITIES:
+        data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     _migrate_legacy_mining_target(data, ORE_DATA)
     _migrate_legacy_woodcutting_target(data)
     _migrate_legacy_smithing_target(data)

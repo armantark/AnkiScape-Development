@@ -422,8 +422,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         # player knows the review did something despite earning no XP.
         self.assertEqual(calls["gains"], ["+3 Soft clay"])
 
-    def test_feather_scavenging_utility_grants_feathers_without_skill_xp(self):
-        addon = _load_addon_as_package("ankiscape_feather_utility_integration")
+    def test_wool_gathering_utility_grants_wool_without_skill_xp(self):
+        addon = _load_addon_as_package("ankiscape_wool_utility_integration")
 
         calls = {"save": 0, "gains": []}
         addon.check_achievements = lambda _data: None
@@ -434,17 +434,17 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.player_data = {
             "inventory": {},
-            "fletching_exp": 0,
-            "current_utility": "scavenge_chicken_feathers",
+            "crafting_exp": 0,
+            "current_utility": "gather_wool",
             "completed_achievements": [],
         }
 
         addon.on_utility_answer()
 
-        self.assertEqual(addon.player_data["inventory"]["Feather"], 28)
-        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Wool"], 28)
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["+28 Feather"])
+        self.assertEqual(calls["gains"], ["+28 Wool"])
 
     def test_runecrafting_answer_crafts_air_runes_and_awards_exp(self):
         addon = _load_addon_as_package("ankiscape_runecrafting_integration")
@@ -1880,8 +1880,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertAlmostEqual(addon.player_data["fletching_exp"], 10.0)
         self.assertEqual(calls["xp"], [50.0, 10.0])
 
-    def test_utility_multiplier_runs_feather_scavenging_ticks(self):
-        addon = _load_addon_as_package("ankiscape_feather_multiplier_integration")
+    def test_utility_multiplier_runs_wool_gathering_ticks(self):
+        addon = _load_addon_as_package("ankiscape_wool_multiplier_integration")
 
         calls = {"save": 0, "gains": []}
         addon.check_achievements = lambda _data: None
@@ -1893,8 +1893,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda text: calls["gains"].append(text))
         addon.player_data = {
             "inventory": {},
-            "fletching_exp": 0,
-            "current_utility": "scavenge_chicken_feathers",
+            "crafting_exp": 0,
+            "current_utility": "gather_wool",
             "completed_achievements": [],
         }
 
@@ -1904,42 +1904,17 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.exp_awarded = False
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.player_data["inventory"]["Feather"], 56)
-        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Wool"], 56)
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(calls["save"], 2)
-        self.assertEqual(calls["gains"], ["+56 Feather"])
+        self.assertEqual(calls["gains"], ["+56 Wool"])
 
-    def test_utility_fishing_bait_batches_without_skill_xp(self):
-        addon = _load_addon_as_package("ankiscape_fishing_bait_utility_integration")
-
-        calls = {"save": 0, "gains": []}
-        addon.check_achievements = lambda _data: None
-        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
-        addon.update_review_hud = lambda _data, _skill: None
-        addon._refresh_skill_availability = lambda: None
-        addon.show_error_message = lambda _title, message: self.fail(message)
-        addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 1}))
-        addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda text: calls["gains"].append(text))
-        addon.player_data = {
-            "inventory": {},
-            "fishing_exp": 0,
-            "current_utility": "gather_fishing_bait",
-            "completed_achievements": [],
-        }
-
-        addon.current_skill = "Utility / Activities"
-        addon.card_turned = True
-        addon.answer_shown = True
-        addon.exp_awarded = False
-        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
-
-        self.assertEqual(addon.player_data["inventory"]["Fishing bait"], 28)
-        self.assertEqual(addon.player_data["fishing_exp"], 0)
-        self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["+28 Fishing bait"])
-
-    def test_hunter_supply_purchase_runs_once_and_switches_off(self):
-        addon = _load_addon_as_package("ankiscape_hunter_supply_purchase_integration")
+    def test_one_shot_utility_purchase_runs_once_and_switches_off(self):
+        # No shipped activity uses deactivate_after_run since the
+        # buy_hunter_supplies bridge was retired (its gear is live NPC shop
+        # stock), but the runtime one-shot path stays supported; exercise it
+        # with an injected activity spec.
+        addon = _load_addon_as_package("ankiscape_one_shot_purchase_integration")
 
         calls = {"save": 0, "gains": []}
         addon.check_achievements = lambda _data: None
@@ -1949,9 +1924,18 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.mw = _DummyMW(_DummyCol({"ankiscape_review_action_multiplier": 10}))
         addon.mw.exp_popup = types.SimpleNamespace(show_text=lambda text: calls["gains"].append(text))
+        addon.UTILITY_ACTIVITY_DATA["one_shot_bundle"] = {
+            "display_name": "Buy one-shot bundle",
+            "requirements": {"Coins": 500},
+            "outputs": {"Bird snare": 1, "Impling jar": 10},
+            "batch_size": 1,
+            "deactivate_after_run": True,
+            "group": "shopping",
+            "source": "test fixture",
+        }
         addon.player_data = {
             "inventory": {"Coins": 500},
-            "current_utility": "buy_hunter_supplies",
+            "current_utility": "one_shot_bundle",
             "completed_achievements": [],
         }
 
@@ -1965,11 +1949,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.mw.col.get_config("ankiscape_current_skill"), "None")
         self.assertEqual(addon.player_data["inventory"]["Coins"], 0)
         self.assertEqual(addon.player_data["inventory"]["Bird snare"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Box trap"], 1)
-        self.assertEqual(addon.player_data["inventory"]["Butterfly jar"], 10)
         self.assertEqual(addon.player_data["inventory"]["Impling jar"], 10)
         self.assertEqual(calls["save"], 1)
-        self.assertEqual(calls["gains"], ["Bought Hunter supplies"])
+        self.assertEqual(calls["gains"], ["Bought one-shot bundle"])
 
     def test_bad_review_action_multiplier_config_falls_back_to_one_tick(self):
         addon = _load_addon_as_package("ankiscape_bad_review_multiplier_integration")
@@ -2426,8 +2408,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
-    def test_feather_scavenging_rolls_back_on_undo(self):
-        addon = _load_addon_as_package("ankiscape_feather_undo_integration")
+    def test_wool_gathering_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_wool_undo_integration")
 
         calls = {"save": 0}
         addon.check_achievements = lambda _data: None
@@ -2437,8 +2419,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.player_data = {
             "inventory": {},
-            "fletching_exp": 0,
-            "current_utility": "scavenge_chicken_feathers",
+            "crafting_exp": 0,
+            "current_utility": "gather_wool",
             "completed_achievements": [],
         }
         addon.current_skill = "Utility / Activities"
@@ -2448,8 +2430,8 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.player_data["inventory"], {"Feather": 28})
-        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(addon.player_data["inventory"], {"Wool": 28})
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
         changes = types.SimpleNamespace(
@@ -2459,7 +2441,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._on_state_did_undo(changes)
 
         self.assertEqual(addon.player_data["inventory"], {})
-        self.assertEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 

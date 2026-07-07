@@ -49,7 +49,6 @@ try:
     )
     from .fishing_data import (
         DEFAULT_FISHING_TARGET,
-        FISHING_BAIT_SHOP_SOURCE_PATH,
         fishing_extra_items_as_dict,
         fishing_methods_as_dict,
         fishing_output_items,
@@ -61,7 +60,6 @@ try:
         hunter_extra_items_as_dict,
         hunter_item_names,
         hunter_output_items,
-        hunter_supply_activities_as_dict,
         hunter_supply_item_names,
         hunter_targets_as_dict,
     )
@@ -156,7 +154,6 @@ except ImportError:
     )
     from fishing_data import (
         DEFAULT_FISHING_TARGET,
-        FISHING_BAIT_SHOP_SOURCE_PATH,
         fishing_extra_items_as_dict,
         fishing_methods_as_dict,
         fishing_output_items,
@@ -168,7 +165,6 @@ except ImportError:
         hunter_extra_items_as_dict,
         hunter_item_names,
         hunter_output_items,
-        hunter_supply_activities_as_dict,
         hunter_supply_item_names,
         hunter_targets_as_dict,
     )
@@ -293,29 +289,6 @@ UTILITY_ACTIVITY_DATA = {
         "group": "gathering",
         "source": "OSRS Bow string > Strategy > Manual Spinning",
     },
-    "scavenge_chicken_feathers": {
-        "display_name": "Scavenge chicken feathers",
-        "requirements": {},
-        "output_item": "Feather",
-        "output_qty": 1,
-        "batch_size": 28,
-        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "scavenge_chicken_feathers.png"),
-        "group": "gathering",
-        "source": (
-            "2011Scape ranged_instructor.plugin.kts says arrows need chickens for feathers; "
-            "chicken_level_1.plugin.kts drops Feather. AnkiScape temporary scavenging bridge until Combat/GE."
-        ),
-    },
-    "gather_fishing_bait": {
-        "display_name": "Gather fishing bait",
-        "requirements": {},
-        "output_item": "Fishing bait",
-        "output_qty": 1,
-        "batch_size": 28,
-        "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "gather_fishing_bait.png"),
-        "group": "gathering",
-        "source": f"{FISHING_BAIT_SHOP_SOURCE_PATH}: Lumbridge Fishing Supplies stock, temporary no-XP bridge.",
-    },
     "open_bird_nest": {
         "display_name": "Open bird nests",
         "requirements": {},
@@ -327,7 +300,6 @@ UTILITY_ACTIVITY_DATA = {
     },
 }
 UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
-UTILITY_ACTIVITY_DATA.update(hunter_supply_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 

@@ -1067,44 +1067,64 @@ class TargetMetadataTest(unittest.TestCase):
 
     def test_utility_rows_preserve_activity_icons_no_xp_text_and_locks(self):
         rows = utility_activity_rows(
-            {"inventory": {}, "current_utility": "scavenge_chicken_feathers"},
+            {"inventory": {}, "current_utility": "gather_wool"},
             UTILITY_ACTIVITY_DATA,
             UTILITY_ITEM_IMAGES,
             BIRD_NEST_OPEN_TABLES,
             DEFAULT_UTILITY_ACTIVITY,
         )
 
-        feathers = _row(rows, "scavenge_chicken_feathers")
+        wool = _row(rows, "gather_wool")
         nests = _row(rows, "open_bird_nest")
 
-        self.assertTrue(feathers.current)
-        self.assertTrue(feathers.enabled)
-        self.assertEqual(os.path.basename(feathers.icon_path or ""), "scavenge_chicken_feathers.png")
-        self.assertIn("No skill XP", feathers.tooltip)
-        self.assertIn("Output: Feather x1", feathers.tooltip)
-        self.assertIn("No materials required", feathers.tooltip)
+        self.assertTrue(wool.current)
+        self.assertTrue(wool.enabled)
+        self.assertEqual(os.path.basename(wool.icon_path or ""), "gather_wool.png")
+        self.assertIn("No skill XP", wool.tooltip)
+        self.assertIn("Output: Wool x1", wool.tooltip)
+        self.assertIn("No materials required", wool.tooltip)
         self.assertFalse(nests.enabled)
         self.assertIn("No XP", nests.tooltip)
         self.assertIn("Locked: cut trees until a bird nest drops.", nests.tooltip)
 
-        hunter_supplies = _row(rows, "buy_hunter_supplies")
-        self.assertFalse(hunter_supplies.enabled)
-        self.assertIn("Runs once, then switches off", hunter_supplies.tooltip)
-        self.assertIn("Bird snare x1", hunter_supplies.tooltip)
-        self.assertIn("Butterfly jar x10", hunter_supplies.tooltip)
-        self.assertIn("Coins x500 (you have 0)", hunter_supplies.tooltip)
+        bucket = _row(rows, "buy_bucket")
+        self.assertFalse(bucket.enabled)
+        self.assertIn("Coins x2 (you have 0)", bucket.tooltip)
 
         funded_rows = utility_activity_rows(
-            {"inventory": {"Coins": 500}, "current_utility": "buy_hunter_supplies"},
+            {"inventory": {"Coins": 2}, "current_utility": "buy_bucket"},
             UTILITY_ACTIVITY_DATA,
             UTILITY_ITEM_IMAGES,
             BIRD_NEST_OPEN_TABLES,
             DEFAULT_UTILITY_ACTIVITY,
         )
-        funded_hunter_supplies = _row(funded_rows, "buy_hunter_supplies")
-        self.assertTrue(funded_hunter_supplies.current)
-        self.assertTrue(funded_hunter_supplies.enabled)
-        self.assertEqual(os.path.basename(funded_hunter_supplies.icon_path or ""), "bird_snare.png")
+        funded_bucket = _row(funded_rows, "buy_bucket")
+        self.assertTrue(funded_bucket.current)
+        self.assertTrue(funded_bucket.enabled)
+
+    def test_utility_rows_flag_one_shot_activities(self):
+        # No live activity uses deactivate_after_run since buy_hunter_supplies
+        # was retired, but the tooltip branch stays supported for future rows.
+        activity_data = {
+            "one_shot_bundle": {
+                "display_name": "One-shot bundle",
+                "requirements": {},
+                "outputs": {"Bird snare": 1},
+                "batch_size": 1,
+                "deactivate_after_run": True,
+                "group": "shopping",
+                "source": "test fixture",
+            },
+        }
+        rows = utility_activity_rows(
+            {"inventory": {}, "current_utility": "one_shot_bundle"},
+            activity_data,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        one_shot = _row(rows, "one_shot_bundle")
+        self.assertIn("Runs once, then switches off", one_shot.tooltip)
 
     def test_utility_rows_apply_region_quest_unlock_rules(self):
         rows = utility_activity_rows(

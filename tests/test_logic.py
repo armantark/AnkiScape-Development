@@ -439,26 +439,11 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(processed, 28)
         self.assertEqual(new_inv["Wool"], 28)
 
-    def test_apply_feather_scavenging_batches_without_inputs_or_xp(self):
-        inv = {}
-
-        self.assertTrue(can_perform_utility_activity_pure(
-            inv,
-            "scavenge_chicken_feathers",
-            UTILITY_ACTIVITY_DATA,
-        ))
-
-        new_inv, exp, ok, processed = apply_utility_activity_pure(
-            "scavenge_chicken_feathers",
-            inv,
-            UTILITY_ACTIVITY_DATA,
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(processed, 28)
-        self.assertEqual(new_inv["Feather"], 28)
-        self.assertEqual(inv, {})
+    def test_retired_shop_bridge_activities_stay_gone(self):
+        # These temporary bridges were retired on 2026-07-06 once their outputs
+        # became live NPC shop stock; a reappearance means a data regression.
+        for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
+            self.assertNotIn(retired, UTILITY_ACTIVITY_DATA)
 
     def test_wet_flour_returns_empty_pot_and_bucket(self):
         inv = {"Pot of flour": 2, "Bucket of water": 2}
@@ -1218,28 +1203,33 @@ class TestLogic(unittest.TestCase):
             ({"skill_id": "fletching", "amount": 5.0},),
         )
 
-    def test_fishing_material_gates_and_utility_bait_batch(self):
+    def test_fishing_material_gates(self):
+        # Fishing bait itself now comes from live NPC shop stock (the
+        # gather_fishing_bait bridge was retired), so only the gates remain.
         self.assertTrue(has_fishing_bait_pure({"Fishing bait": 1}, FISHING_DATA["catch_sardine_herring"]))
         self.assertFalse(has_fishing_bait_pure({}, FISHING_DATA["catch_sardine_herring"]))
         self.assertTrue(has_fishing_bait_pure({"Caviar": 1}, FISHING_DATA["catch_leaping_fish"]))
         self.assertFalse(can_fish_method_pure(5, {}, "catch_sardine_herring", FISHING_DATA))
 
-        self.assertTrue(can_perform_utility_activity_pure({}, "gather_fishing_bait", UTILITY_ACTIVITY_DATA))
-        inv, exp, ok, processed = apply_utility_activity_pure(
-            "gather_fishing_bait",
-            {},
-            UTILITY_ACTIVITY_DATA,
-        )
-        self.assertTrue(ok)
-        self.assertEqual(exp, 0)
-        self.assertEqual(processed, 28)
-        self.assertEqual(inv["Fishing bait"], 28)
-
     def test_utility_activity_supports_one_shot_multi_output_purchase(self):
+        # The buy_hunter_supplies bridge is retired, but the one-shot
+        # multi-output machinery it exercised stays supported for future
+        # activities; cover it with a synthetic spec.
+        activity_data = {
+            "one_shot_bundle": {
+                "display_name": "One-shot bundle",
+                "requirements": {"Coins": 500},
+                "outputs": {"Bird snare": 1, "Impling jar": 10},
+                "batch_size": 1,
+                "deactivate_after_run": True,
+                "group": "shopping",
+                "source": "test fixture",
+            },
+        }
         inv, exp, ok, processed = apply_utility_activity_pure(
-            "buy_hunter_supplies",
+            "one_shot_bundle",
             {"Coins": 500},
-            UTILITY_ACTIVITY_DATA,
+            activity_data,
         )
 
         self.assertTrue(ok)
@@ -1247,8 +1237,6 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(processed, 1)
         self.assertEqual(inv["Coins"], 0)
         self.assertEqual(inv["Bird snare"], 1)
-        self.assertEqual(inv["Box trap"], 1)
-        self.assertEqual(inv["Butterfly jar"], 10)
         self.assertEqual(inv["Impling jar"], 10)
 
     def test_hunter_reusable_tools_gate_targets_without_being_consumed(self):

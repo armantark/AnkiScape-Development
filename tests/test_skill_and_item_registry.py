@@ -421,8 +421,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "make_soft_clay": "make_soft_clay.png",
             "gather_wool": "gather_wool.png",
             "gather_flax": "gather_flax.png",
-            "scavenge_chicken_feathers": "scavenge_chicken_feathers.png",
-            "gather_fishing_bait": "gather_fishing_bait.png",
             "open_bird_nest": "open_bird_nest.png",
         }
         self.assertTrue(set(expected_files).issubset(UTILITY_ACTIVITY_DATA))
@@ -432,18 +430,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertEqual(os.path.basename(icon_path), file_name)
             self.assertEqual(os.path.basename(os.path.dirname(icon_path)), "activityicons")
             self.assertTrue(os.path.exists(icon_path), f"{activity_key} icon path is missing")
-        feather_source = UTILITY_ACTIVITY_DATA["scavenge_chicken_feathers"]["source"]
-        self.assertIn("ranged_instructor.plugin.kts", feather_source)
-        self.assertIn("chicken_level_1.plugin.kts", feather_source)
-        bait_source = UTILITY_ACTIVITY_DATA["gather_fishing_bait"]["source"]
-        self.assertIn("lumbridge_fishing_supplies.plugin.kts", bait_source)
-        hunter_source = UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["source"]
-        self.assertIn("alecks_hunter_emporium.json", hunter_source)
-        self.assertIn("elnocks_backup_supply.json", hunter_source)
-        self.assertTrue(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["deactivate_after_run"])
-        self.assertEqual(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["requirements"], {"Coins": 500})
-        self.assertEqual(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["outputs"]["Bird snare"], 1)
-        self.assertEqual(UTILITY_ACTIVITY_DATA["buy_hunter_supplies"]["outputs"]["Impling jar"], 10)
+        # Retired 2026-07-06: their outputs are live NPC shop stock now.
+        self.assertNotIn("scavenge_chicken_feathers", UTILITY_ACTIVITY_DATA)
+        self.assertNotIn("gather_fishing_bait", UTILITY_ACTIVITY_DATA)
+        self.assertNotIn("buy_hunter_supplies", UTILITY_ACTIVITY_DATA)
         self.assertIn("gather_grain", UTILITY_ACTIVITY_DATA)
         self.assertEqual(UTILITY_ACTIVITY_DATA["gather_grain"]["group"], "gathering")
         self.assertIn("assemble_uncooked_pizza", UTILITY_ACTIVITY_DATA)

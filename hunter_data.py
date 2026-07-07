@@ -36,11 +36,6 @@ HUNTER_ROPE_SHOP_SOURCE = (
     "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
     "data/items/shops/shantay_pass_shop.json"
 )
-HUNTER_SUPPLY_SHOP_PRICE_SOURCE = (
-    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
-    "src/main/java/com/rs/engine/Shop.java"
-)
-
 HUNTER_BIRD_SNARING_SOURCE = "https://www.2011.rs/kb/hunter_bird_snaring_level_1"
 HUNTER_BUTTERFLY_SOURCE = "https://www.2011.rs/kb/hunter_butterfly_netting_level_15"
 HUNTER_DEADFALL_SOURCE = "https://www.2011.rs/kb/hunter_deadfall_level_23"
@@ -55,7 +50,6 @@ AS_A_FIRST_RESORT_SOURCE = "https://www.2011.rs/kb/as_a_first_resort_members"
 PRIEST_IN_PERIL_SOURCE = "https://runescape.wiki/w/Priest_in_Peril?oldid=6487728"
 
 DEFAULT_HUNTER_TARGET = "catch_crimson_swift"
-HUNTER_SUPPLY_BUNDLE_COST = 500
 
 HUNTER_GROUP_LABELS = {
     "bird_snaring": "Bird snaring",
@@ -773,26 +767,11 @@ def hunter_supply_item_names() -> Tuple[str, ...]:
     return tuple(item_name for item_name, _amount in HUNTER_SUPPLY_BUNDLE)
 
 
-def hunter_supply_activities_as_dict() -> Dict[str, Dict[str, object]]:
-    return {
-        "buy_hunter_supplies": {
-            "display_name": "Buy Hunter supplies",
-            "requirements": {"Coins": HUNTER_SUPPLY_BUNDLE_COST},
-            "outputs": dict(HUNTER_SUPPLY_BUNDLE),
-            "batch_size": 1,
-            "deactivate_after_run": True,
-            "icon_item": "Bird snare",
-            "group": "shopping",
-            "source": (
-                f"{HUNTER_SUPPLY_SHOP_SOURCE}: Aleck's Hunter Emporium stock; "
-                f"{HUNTER_IMPLING_JAR_SHOP_SOURCE}: Elnock's Backup Supply for impling jars; "
-                f"{HUNTER_SMALL_NET_SHOP_SOURCE}: small fishing net stock; "
-                f"{HUNTER_ROPE_SHOP_SOURCE}: rope stock; "
-                f"{HUNTER_SUPPLY_SHOP_PRICE_SOURCE}: coin shop pricing. "
-                "AnkiScape bridge price buys one starter/restock bundle until shops/GE get a full UI."
-            ),
-        },
-    }
+# The temporary `buy_hunter_supplies` Utility bridge was retired on 2026-07-06:
+# every bundle item is individually live NPC shop stock at real cache prices
+# (Aleck's Hunter Emporium, Elnock's Backup Supply, net/rope shops), so the
+# flat-price bundle no longer earns its keep. HUNTER_SUPPLY_BUNDLE stays as the
+# item-registration manifest for that gear.
 
 
 def _hunter_extra_category(item_name: str) -> str:

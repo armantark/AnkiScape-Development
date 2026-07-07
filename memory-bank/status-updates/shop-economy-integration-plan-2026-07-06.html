@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop-Economy Integration Pass — Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff; --accent-glow: rgba(79,140,255,0.15);
+    --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; line-height: 1.55; padding: 2.5rem 1.5rem 4rem; }
+.wrap { max-width: 1080px; margin: 0 auto; }
+.badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; color: var(--accent); background: var(--accent-glow); border: 1px solid rgba(79,140,255,0.4); border-radius: 999px; padding: 0.3rem 0.9rem; margin-bottom: 1rem; }
+h1 { font-weight: 700; font-size: 2rem; margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-dim); font-size: 0.95rem; max-width: 800px; margin-bottom: 2rem; }
+h2 { font-weight: 700; font-size: 1.15rem; margin: 2.2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.3rem; margin-bottom: 1.1rem; }
+.card h3 { font-weight: 500; font-size: 1.05rem; margin-bottom: 0.5rem; }
+.card p { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 0.6rem; }
+.plabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.45rem; }
+.plabel.s1 { color: var(--red); } .plabel.s2 { color: var(--amber); } .plabel.s3 { color: var(--green); }
+.tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.tag { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 0.15rem 0.5rem; color: var(--text-dim); }
+p code, li code, td code { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.05em 0.35em; color: var(--text); }
+ul.plain { margin: 0.4rem 0 0.4rem 1.2rem; color: var(--text-dim); font-size: 0.87rem; }
+ul.plain li { margin-bottom: 0.35rem; }
+table { width: 100%; border-collapse: collapse; font-size: 0.8rem; margin-top: 0.6rem; }
+th { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); text-align: left; padding: 0.35rem 0.5rem; border-bottom: 1px solid var(--border); }
+td { padding: 0.4rem 0.5rem; border-bottom: 1px solid rgba(42,48,64,0.5); color: var(--text-dim); }
+td.y { color: var(--green); font-family: 'JetBrains Mono', monospace; }
+.contract { background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.25); border-radius: var(--radius); padding: 0.9rem 1.2rem; font-size: 0.85rem; color: var(--text-dim); margin-top: 1.2rem; }
+.contract b { color: var(--green); font-weight: 500; }
+.defer { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.3); border-radius: var(--radius); padding: 0.9rem 1.2rem; font-size: 0.85rem; color: var(--text-dim); margin-top: 1.2rem; }
+.defer b { color: var(--amber); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">PRE-IMPLEMENTATION PLAN · 2026-07-06</div>
+    <h1>Shop-Economy Integration Pass</h1>
+    <p class="subtitle">
+        NPC shops shipped with 2,695 live priced rows, but the rest of the game still acts like they don't
+        exist: free "temporary bridge" activities duplicate shop stock, nobody has verified a player can
+        actually earn the coins the shops charge, and recipes that were parked as input-starved now have
+        purchasable inputs. Three stages, in order, each committed separately.
+    </p>
+
+    <div class="card">
+        <div class="plabel s1">STAGE 1 · RETIRE SHOP-COVERED BRIDGES</div>
+        <h3>Remove the three activities whose own source notes say "temporary until shops"</h3>
+        <ul class="plain">
+            <li><code>scavenge_chicken_feathers</code> — note says "temporary scavenging bridge until Combat/GE". Feathers are now live in 13 shops at 6 Coins, and the Chicken combat target drops them.</li>
+            <li><code>gather_fishing_bait</code> — note says "temporary no-XP bridge" citing Lumbridge Fishing Supplies stock. Fishing bait is live at 3 Coins in the fishing shops.</li>
+            <li><code>buy_hunter_supplies</code> — note says "until shops/GE get a full UI". All 11 bundle items are individually live (Aleck's Hunter Emporium and friends), at real cache prices instead of the flat bundle price.</li>
+        </ul>
+        <p>Storage config bumps 25 → 26: saves whose <code>current_utility</code> points at a removed id
+        migrate to the default activity instead of erroring on the next review. Item registrations stay
+        (Feather, bait, and Hunter gear now resolve as shop stock); orphaned activity icons are removed
+        from the manifest. Tests updated for the removed rows plus a migration test.</p>
+        <div class="tags"><span class="tag">constants.py</span><span class="tag">hunter_data.py</span><span class="tag">storage_pure.py</span><span class="tag">tests</span></div>
+    </div>
+
+    <div class="card">
+        <div class="plabel s2">STAGE 2 · CLOSE THE COIN LOOP</div>
+        <h3>Prove gather → sell → buy works end to end, and write down the income map</h3>
+        <p>Spending exists (267 coin shops, services); income is combat Coins drops, general-store selling,
+        and the bartender glass sale — but no one has verified the loop end to end. Deliverables:</p>
+        <ul class="plain">
+            <li>A source-audit doc mapping every coin income route with its data source, plus a data check that the primary gathering outputs (logs, ores, fish, gems, hides) are tradeable and sellable at a general store.</li>
+            <li>An integration test: a player with gathered goods sells to a general store via <code>apply_shop_sell_pure</code>, gains coins, buys Feathers with them, and the whole sequence stays undo-compatible through the existing shop event rollback.</li>
+            <li>Any key-mismatch or sell-policy bug the audit surfaces gets fixed at the backend layer, not papered over in Qt.</li>
+        </ul>
+        <div class="tags"><span class="tag">memory-bank/source-audits/</span><span class="tag">tests/test_shop_logic.py</span></div>
+    </div>
+
+    <div class="card">
+        <div class="plabel s3">STAGE 3 · LIGHT UP SHOP-SUPPLIED CRAFTING LOOPS</div>
+        <h3>One new source-backed recipe + an audit of everything shops just unlocked</h3>
+        <p>The parked "dependency-heavy Crafting loops" card assumed inputs had no source. The shop join
+        says otherwise:</p>
+        <table>
+            <tr><th>Input now purchasable</th><th>Recipes it feeds</th><th>Route</th></tr>
+            <tr><td>Uncut sapphire/emerald/ruby/diamond</td><td>Gem cutting → jewellery chains</td><td class="y">Ardougne Gem Stall</td></tr>
+            <tr><td>Silver bar</td><td>All seven silver-casting recipes</td><td class="y">silver stalls</td></tr>
+            <tr><td>Leather / Hard leather</td><td>Leather armour family</td><td class="y">Ellis tanning services</td></tr>
+            <tr><td>Battlestaff</td><td>Battlestaff attachment rows</td><td class="y">staff shops (orbs still unsourced)</td></tr>
+            <tr><td>Ball of wool, Jute fibre, Hair</td><td>Weaving/rope rows</td><td class="y">craft shops</td></tr>
+            <tr><td>Soda ash + Bucket of sand</td><td>Glassblowing — blocked on Molten glass</td><td class="y">needs the missing recipe ↓</td></tr>
+        </table>
+        <p style="margin-top:0.7rem;">The one real gap is <b>Molten glass</b>: glassblowing products exist but nothing produces their
+        input. The 2011Scape furnace source (<code>furnaces.plugin.kts · handleMoltenGlass</code>) defines it
+        exactly: 1 Soda ash + 1 Bucket of sand → Molten glass <i>plus the Bucket back</i>, 20 Crafting XP, no
+        level gate. That needs a small optional <code>byproducts</code> field on Crafting recipes (the schema
+        is single-output today), the recipe row, a Molten glass icon with provenance, and tests. Recipe notes
+        that still say "input-starved until molten glass source exists" get refreshed, and the kanban's
+        NPC-shop and parked-Crafting cards get their statuses corrected.</p>
+        <div class="tags"><span class="tag">crafting_data.py</span><span class="tag">logic_pure.py</span><span class="tag">tools/fetch_assets.py</span><span class="tag">memory-bank/future-work-kanban.md</span></div>
+    </div>
+
+    <div class="defer">
+        <b>Deliberately out of scope:</b> the ~20 Cooking gather/scavenge bridges whose outputs are also
+        shop-live (Potato, Egg, Cheese, raw meats, …) and Cooking's <code>buy_bucket</code>. Retiring those
+        reprices all of Cooking at once — that's its own balance pass, recorded on the kanban as a follow-up
+        candidate with the coverage table from this audit. <code>make_soft_clay</code>, wool, flax, grain, and
+        nest opening keep their bridges: shops don't sell those outputs.
+    </div>
+
+    <div class="contract">
+        <b>Invariants:</b> audited 2011 base XP stays separate from pacing knobs; retired content is removed,
+        not hidden; the Molten glass row renders like any other recipe (no "new!" tagging, no special state);
+        Qt keeps rendering backend truth only; every reward stays Anki-undo compatible.
+    </div>
+</div>
+</body>
+</html>

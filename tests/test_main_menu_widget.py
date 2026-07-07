@@ -3226,10 +3226,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         util_texts = [it.text(0) for it in _tree_items(utility_tree)]
         self.assertIn("Make soft clay", util_texts)
         self.assertIn("Gather wool", util_texts)
-        self.assertIn("Scavenge chicken feathers", util_texts)
-        self.assertIn("Gather fishing bait", util_texts)
         self.assertIn("Gather grain", util_texts)
         self.assertIn("Make bread dough", util_texts)
+        # Retired 2026-07-06: outputs are live NPC shop stock now.
+        self.assertNotIn("Scavenge chicken feathers", util_texts)
+        self.assertNotIn("Gather fishing bait", util_texts)
+        self.assertNotIn("Buy Hunter supplies", util_texts)
 
     # ---- Crafting parity (family-grouped CRAFTING_DATA recipe tree) --------
     def test_crafting_groups_recipes_by_family(self) -> None:
@@ -3390,21 +3392,23 @@ class MainMenuWidgetTest(unittest.TestCase):
                 continue
             self.assertFalse(row.icon(0).isNull(), f"{row.text(0)} should have an activity icon")
 
-    def test_feather_scavenging_is_enabled_and_selectable_from_utility(self) -> None:
+    def test_wool_gathering_is_enabled_and_selectable_from_utility(self) -> None:
+        # gather_wool stands in for the retired scavenge_chicken_feathers
+        # bridge (feathers are live NPC shop stock now).
         utility_tree = self._open_utility(self.dialog)
-        feather_row = _utility_row(utility_tree, "scavenge_chicken_feathers")
+        wool_row = _utility_row(utility_tree, "gather_wool")
 
-        self.assertTrue(feather_row.flags() & Qt.ItemFlag.ItemIsEnabled)
-        self.assertFalse(feather_row.icon(0).isNull())
-        self.assertIn("No skill XP", feather_row.toolTip(0))
-        self.assertIn("Output: Feather x1", feather_row.toolTip(0))
-        self.assertIn("No materials required", feather_row.toolTip(0))
+        self.assertTrue(wool_row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertFalse(wool_row.icon(0).isNull())
+        self.assertIn("No skill XP", wool_row.toolTip(0))
+        self.assertIn("Output: Wool x1", wool_row.toolTip(0))
+        self.assertIn("No materials required", wool_row.toolTip(0))
 
         self._utility_calls.clear()
-        utility_tree.itemClicked.emit(feather_row, 0)
+        utility_tree.itemClicked.emit(wool_row, 0)
         QApplication.processEvents()
 
-        self.assertEqual(self._utility_calls, ["scavenge_chicken_feathers"])
+        self.assertEqual(self._utility_calls, ["gather_wool"])
 
     def test_utility_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()

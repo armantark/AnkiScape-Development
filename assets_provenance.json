@@ -1,16 +1,4 @@
 {
-  "activityicons/gather_fishing_bait.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Fishing_bait.png",
-    "file_title": "Fishing bait.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Fishing_bait.png?4a487",
-    "license_string": "unknown",
-    "mediatype": "BITMAP",
-    "mime": "image/png",
-    "sha1": "aaea82045768fde877cd41654c0dacb1bcd8cab1",
-    "size": 199,
-    "source_wiki": "osrs",
-    "timestamp": "2021-08-20T14:57:01Z"
-  },
   "activityicons/gather_flax.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Flax.png",
     "file_title": "Flax.png",
@@ -58,18 +46,6 @@
     "size": 679,
     "source_wiki": "rs3",
     "timestamp": "2021-12-13T02:02:42Z"
-  },
-  "activityicons/scavenge_chicken_feathers.png": {
-    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Feather.png",
-    "file_title": "Feather.png",
-    "image_url": "https://oldschool.runescape.wiki/images/Feather.png?97fe8",
-    "license_string": "unknown",
-    "mediatype": "BITMAP",
-    "mime": "image/png",
-    "sha1": "8fbb526d1542155c94cb4ade9f972ee4e4c0634b",
-    "size": 411,
-    "source_wiki": "osrs",
-    "timestamp": "2021-08-20T14:55:58Z"
   },
   "bars/bluritebar.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Blurite_bar.png",
