@@ -1,13 +1,60 @@
 # 28-Slot Carried Inventory — Design (owner-grilled 2026-07-07)
 
-Status: **slices 1–3 substantially shipped (2026-07-07).** Foundation, the live
-overlay (churn teeth, 1-review bank-runs, Keep/Drop), death-drop, the Coal-bag
-mechanic, and the collapsible Bank-tab panel are built and tested (814 tests).
-Remaining: **2f** loot filter (blocked on a runtime item→value table — needs a
-full-cache dump), **2g** ambush-unify (resolved as *keep separate*), the advanced
-UI (click-from-bank fill, Keep/Drop toggle, loot checkboxes), and a live
-render-check of the panel in an aqt environment (Qt is unavailable in the build
-env, so the offscreen UI test only runs there).
+Status: **feature-complete (2026-07-07).** All eight core decisions, both
+casual and advanced modes, the full-cache loot filter, combat-loot integration,
+and the 4×7 advanced grid UI are built and tested (846 tests, plus 151/151 in a
+dedicated aqt+PyQt6 verification venv this build environment doesn't have by
+default). Held-item-vs-mode wiring (moulds/glassblowing pipe) is the one
+deliberately deferred item — no recipe gates on it yet, so there's nothing to
+hang the wiring off. See "Slice 2 — wiring plan", "2f loot filter — SHIPPED",
+and the final section below for the advanced-grid rebuild and the size-policy
+bug it surfaced. **Caveat:** verification is structural/functional (Qt geometry
+probes, interaction tests) — actual visual polish has not been confirmed inside
+a real Anki install, and ad hoc offscreen screenshots from a bare pip Qt venv
+are not trustworthy stand-ins for that (dimensions, fonts, and theme all differ
+from Anki's bundled Qt).
+
+## Advanced 4×7 grid — restored after an earlier flattening (2026-07-07, later)
+
+An earlier pass (documented in "Slice 2 — wiring plan" below) replaced the
+design's real arrangeable pack with a churn-only throughput meter and declared
+the advanced grid "obviated" by that architecture. That was wrong — decision 3
+requires "the player sets the 4×7 layout... once; the system auto-executes it
+at every bank run," which needs a real per-target pack to exist. Restored:
+
+- `pack_processing_inputs_pure` / `apply_carried_layout_pure` (`inventory_pure.py`)
+  actually repack the carried view on every completed bank run (casual: split
+  capacity evenly across a recipe's required materials; advanced: replay the
+  saved `{item: count}` layout), instead of just clearing it to `{}`.
+- Processing skills (Smithing/Crafting/Fletching/Firemaking/Cooking/
+  Runecrafting) now draw recipe inputs from that pack via a scoped-inventory +
+  reconciliation pattern in `run_answer_with_carried_overlay` — the handler
+  itself is never rewritten, only its momentary view of `player_data["inventory"]`
+  is capped to what the pack holds, then reconciled back. A new `force` signal
+  on the gate triggers a bank-run when a lopsided recipe runs one ingredient dry
+  before churn reaches capacity; if the bank is also dry the handler's own
+  materials check fires normally (no forced loop).
+- `carried_primed_targets` gives a target's first-ever engagement a **free**
+  pack-seed — you don't pay a review to "start with inventory," only to refill
+  after depletion. (Discovered via 5 broken integration tests on the first pass —
+  forcing a review-costing bank-run just to seed a brand-new target was a real
+  regression, fixed before it shipped.)
+- `layout_to_grid_cells_pure` expands a layout into exactly 28 slot-accurate
+  display cells (pure math), so the UI layer does zero game-logic judgment.
+- UI (delegated to an Opus subagent, then reviewed): an "Advanced: arrange my
+  own 28-slot pack" checkbox, the 28-cell grid (click a cell to remove one
+  unit), a Clear button, and a bank-menu "Add to carried layout" action.
+- **Bug found in review, not by screenshot:** a plain `QWidget` housing 28
+  fixed-size cell buttons defaults to a `Preferred` size policy, so the parent
+  `QVBoxLayout` compressed the whole grid down to a 15px sliver under space
+  pressure — every cell still reported its correct 44×44 size, but the
+  container's actual geometry didn't match its own `sizeHint()`. Caught via Qt
+  geometry probes (`grid.geometry()` vs `grid.sizeHint()`), not by trusting a
+  screenshot. Fixed with an explicit `Fixed` size policy sized to the grid's
+  exact dimensions. Two permanent regression tests now assert real Qt geometry
+  (not pixels) so this can't silently return.
+- Held-item-vs-mode (moulds, glassblowing pipe) remains the one deferred item —
+  no cannonball or gated-pipe recipe exists yet to hang the requirement on.
 
 ## Foundation slice implemented (2026-07-07)
 

@@ -69,15 +69,15 @@ ol.dec li b{color:var(--text);font-weight:500;}
 </head>
 <body>
 <div class="wrap">
-  <div class="badge">SPEC RECOVERY · CARRIED INVENTORY · full designed spec</div>
+  <div class="badge">SPEC RECOVERED &amp; BUILT · CARRIED INVENTORY</div>
   <h1>The carried inventory, as actually designed</h1>
-  <p class="sub">Re-laid from the design doc after the build flattened it. The headline the implementation dropped: <b>two modes</b> — a casual auto-managed supplies view, and an <b>advanced 4×7 grid you arrange yourself</b>. The churn build quietly replaced the real 28-slot pack with a throughput meter and cut the grid as "obviated." This is the whole board again, with an honest built-vs-missing ledger.</p>
+  <p class="sub">Re-laid from the design doc after an earlier build flattened it, then rebuilt for real: <b>two modes</b> — a casual auto-managed pack, and an <b>advanced 4×7 grid you arrange yourself</b> — both now backed by one real per-target arranged pack instead of the throughput-only meter that used to stand in for it. Ledger below is current as of the rebuild.</p>
 
-  <h2>The two modes — the core the build flattened</h2>
+  <h2>The two modes — both now real</h2>
   <div class="modes">
     <div class="mode casual">
-      <h3>Casual (default) <span class="pill on">mostly shipped</span></h3>
-      <p class="role">Auto-managed. The simplified supplies panel (already on the Equipment tab) plus a packing-mode preset. You never arrange anything; bank runs pack themselves. <b>This should stay</b> as the non-advanced experience.</p>
+      <h3>Casual (default) <span class="pill on">shipped</span></h3>
+      <p class="role">Auto-managed. The simplified supplies panel (already on the Equipment tab) plus a packing-mode preset. You never arrange anything; bank runs pack themselves. <b>This stays</b> as the non-advanced experience.</p>
       <div class="supplies">
         <div class="row"><span>Packing mode</span><b>Balanced ▾</b></div>
         <div class="row"><span>Food</span><b>auto (to threshold)</b></div>
@@ -86,7 +86,7 @@ ol.dec li b{color:var(--text);font-weight:500;}
       </div>
     </div>
     <div class="mode adv">
-      <h3>Advanced (opt-in) <span class="pill off">not built</span></h3>
+      <h3>Advanced (opt-in) <span class="pill on">shipped</span></h3>
       <p class="role">A real 4×7 (28-slot) inventory you arrange <b>once per target</b> — food, inputs, bags, moulds — and the system auto-executes that exact layout at every bank run. Smart layouts beat the casual default by ~10–20% fewer bank-run reviews.</p>
       <div class="grid47">
         <div class="cell food"><span class="ic">🍖</span><span class="q">20</span></div>
@@ -142,15 +142,15 @@ ol.dec li b{color:var(--text);font-weight:500;}
     <tr><td><b>Money pouch (coins 0 slots)</b></td><td><span class="st done">shipped</span></td><td>Coins excluded from the pack; view over bank coins.</td></tr>
     <tr><td><b>Combat loot competes / drops on death</b></td><td><span class="st done">shipped</span></td><td>Unified combat bank-run.</td></tr>
     <tr><td><b>Coal bag mechanic</b></td><td><span class="st done">shipped</span></td><td>Raises capacity when owned — but see below (no grid to place it in).</td></tr>
-    <tr><td><b>The real 28-slot arrangeable pack</b></td><td><span class="st div">diverged</span></td><td>Replaced by a churn scalar. No arranged loadout exists underneath.</td></tr>
-    <tr><td><b>Advanced 4×7 grid UI</b></td><td><span class="st miss">missing</span></td><td>The headline advanced experience — arrange food/inputs/bags/moulds by hand.</td></tr>
-    <tr><td><b>Advanced-mode toggle</b></td><td><span class="st miss">missing</span></td><td>Switch between casual supplies and the grid.</td></tr>
-    <tr><td><b>Grid drives consume + refill</b></td><td><span class="st miss">missing</span></td><td>"Arrange once → auto-execute at every bank run" per target.</td></tr>
-    <tr><td><b>Held-item resolves vs the mode</b></td><td><span class="st miss">missing</span></td><td>Advanced: mould must occupy a slot; casual: owned-in-bank. Audit exists, not wired.</td></tr>
-    <tr><td><b>Bags placed in the grid</b></td><td><span class="st miss">missing</span></td><td>Coal bag is a capacity bump today, not a slot you fill from the grid.</td></tr>
+    <tr><td><b>The real 28-slot arrangeable pack</b></td><td><span class="st done">shipped (2026-07-07, later)</span></td><td>Restored: <code>pack_processing_inputs_pure</code> / <code>apply_carried_layout_pure</code> actually repack the view on every bank run; processing handlers now draw from that pack (scoped-inventory + reconciliation), not the infinite bank.</td></tr>
+    <tr><td><b>Advanced 4×7 grid UI</b></td><td><span class="st done">shipped (2026-07-07, later)</span></td><td>28 clickable cells in the Bank panel, slot-accurate (stackable = 1 cell w/ count, unstackable = 1 cell/unit), click-from-bank-menu to add, click-cell to remove, Clear button.</td></tr>
+    <tr><td><b>Advanced-mode toggle</b></td><td><span class="st done">shipped (2026-07-07, later)</span></td><td>Per-target checkbox; hidden entirely off a skilling target, same convention as Keep/Drop.</td></tr>
+    <tr><td><b>Grid drives consume + refill</b></td><td><span class="st done">shipped (2026-07-07, later)</span></td><td>Advanced targets replay the saved layout at every bank run; a fresh target's pack primes for free on first engagement (no charge to "start with inventory").</td></tr>
+    <tr><td><b>Held-item resolves vs the mode</b></td><td><span class="st miss">still missing</span></td><td>Advanced: mould must occupy a slot; casual: owned-in-bank. Audit exists, not wired — deliberately deferred, no cannonball/glassblowing-pipe recipe gate exists yet to hang it on.</td></tr>
+    <tr><td><b>Bags placed in the grid</b></td><td><span class="st div">partial</span></td><td>Coal bag raises effective capacity when owned + carried; it is not yet a literal grid cell you place.</td></tr>
   </table>
 
-  <p class="sub" style="margin-top:1.2rem;">Bottom line: the <b>casual half is real and tested</b>; the <b>advanced half — the 4×7 grid and everything that hangs off it — was designed and never built.</b> Restoring it means adding a genuine per-target arranged pack under advanced mode, the grid UI to edit it, the mode toggle, and wiring held-item + bag placement to that grid. The casual supplies view stays exactly as-is for non-advanced players.</p>
+  <p class="sub" style="margin-top:1.2rem;">Bottom line, updated: the advanced half shipped. A real per-target arranged pack now backs the grid — casual and advanced both run through the same repack-on-bank-run machinery, they just differ in who decides the contents (a preset function vs. the player's saved layout). Building the grid surfaced and fixed a genuine bug along the way: a plain container housing 28 fixed-size cells defaulted to a size policy that let a parent layout compress it to a sliver — caught via Qt geometry probes, not screenshots, and now permanently guarded by a regression test. <b>Caveat:</b> verification here is structural/functional (Qt geometry, click wiring, 151/151 tests green in a dedicated aqt+PyQt6 venv) — actual visual polish has not been confirmed inside the real Anki app, and offscreen screenshots from a bare pip-installed Qt should not be trusted as representative of it.</p>
 </div>
 </body>
 </html>
