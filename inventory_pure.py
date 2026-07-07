@@ -181,6 +181,57 @@ def pack_carried_inventory_pure(
     return carried
 
 
+# Skilling banks at one review (combat keeps its own two); tunable.
+SKILLING_BANK_RUN_REVIEWS = 1
+
+
+def sanitize_bank_run_state(raw: Any, max_reviews: int) -> dict[str, Any]:
+    if not isinstance(raw, Mapping):
+        return {}
+    remaining = min(_clean_int(raw.get("reviews_remaining"), 0, minimum=0), max_reviews)
+    if remaining <= 0:
+        return {}
+    state: dict[str, Any] = {"reviews_remaining": remaining}
+    target_id = raw.get("target_id")
+    if isinstance(target_id, str):
+        state["target_id"] = target_id
+    return state
+
+
+def bank_run_progress_pure(
+    state: Any,
+    needed: bool,
+    target_id: Any,
+    reviews_cost: int,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Advance a bank-run state machine one review, mirroring combat's.
+
+    The overlay is empty (or full) and the bank can refill: the caller passes
+    ``needed=True`` and this charges ``reviews_cost`` review-answers before the
+    refill. Returns ``(new_state, event)``; ``event`` carries ``started``,
+    ``completed`` (the caller repacks the carried subset on completion), and the
+    remaining review count. A run for a different target is abandoned.
+    """
+    state = sanitize_bank_run_state(state, reviews_cost)
+    if state and state.get("target_id") not in (None, target_id):
+        state = {}
+    started = False
+    if not state and needed:
+        state = {"reviews_remaining": max(1, int(reviews_cost))}
+        if isinstance(target_id, str):
+            state["target_id"] = target_id
+        started = True
+    if not state:
+        return {}, {"active": False, "started": False, "completed": False, "reviews_remaining": 0}
+    remaining = _clean_int(state.get("reviews_remaining"), 0, minimum=0) - 1
+    if remaining <= 0:
+        return {}, {"active": True, "started": started, "completed": True, "reviews_remaining": 0}
+    new_state: dict[str, Any] = {"reviews_remaining": remaining}
+    if isinstance(target_id, str):
+        new_state["target_id"] = target_id
+    return new_state, {"active": True, "started": started, "completed": False, "reviews_remaining": remaining}
+
+
 def default_carried_state() -> dict[str, Any]:
     return {
         "carried_inventory": {},

@@ -11,6 +11,7 @@ from inventory_pure import (
     loot_should_pick_up,
     money_pouch_balance,
     pack_carried_inventory_pure,
+    bank_run_progress_pure,
     sanitize_carried_state,
 )
 
@@ -126,6 +127,42 @@ class TestPackCarriedInventory(unittest.TestCase):
         carried = pack_carried_inventory_pure(bank, {"primary": "Nature rune"}, "balanced", {"Nature rune"})
         self.assertEqual(carried["Nature rune"], 5000)
         self.assertEqual(carried_slots_used(carried, {"Nature rune"}), 1)
+
+
+class TestBankRunStateMachine(unittest.TestCase):
+    def test_one_review_run_starts_and_completes_in_one_answer(self):
+        state, event = bank_run_progress_pure({}, needed=True, target_id="coal", reviews_cost=1)
+        self.assertEqual(state, {})
+        self.assertTrue(event["started"])
+        self.assertTrue(event["completed"])
+
+    def test_no_run_when_not_needed(self):
+        state, event = bank_run_progress_pure({}, needed=False, target_id="coal", reviews_cost=1)
+        self.assertEqual(state, {})
+        self.assertFalse(event["active"])
+        self.assertFalse(event["completed"])
+
+    def test_two_review_run_takes_two_answers(self):
+        # First answer starts the run and consumes one review, still in progress.
+        state, event = bank_run_progress_pure({}, needed=True, target_id="rats", reviews_cost=2)
+        self.assertEqual(state, {"reviews_remaining": 1, "target_id": "rats"})
+        self.assertTrue(event["started"])
+        self.assertFalse(event["completed"])
+        # Second answer completes it (needed is irrelevant once a run is active).
+        state, event = bank_run_progress_pure(state, needed=False, target_id="rats", reviews_cost=2)
+        self.assertEqual(state, {})
+        self.assertTrue(event["completed"])
+
+    def test_switching_target_abandons_an_active_run(self):
+        active = {"reviews_remaining": 1, "target_id": "rats"}
+        state, event = bank_run_progress_pure(active, needed=False, target_id="coal", reviews_cost=2)
+        self.assertEqual(state, {})
+        self.assertFalse(event["active"])
+
+    def test_sanitize_caps_remaining_at_cost_and_drops_empty(self):
+        state, _ = bank_run_progress_pure({"reviews_remaining": 99, "target_id": "rats"}, False, "rats", 2)
+        # capped to 2 then decremented to 1
+        self.assertEqual(state, {"reviews_remaining": 1, "target_id": "rats"})
 
 
 if __name__ == "__main__":
