@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carried Inventory — Full Spec (as designed)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,0.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.5;padding:2.4rem 1.4rem 4rem;}
+.wrap{max-width:1000px;margin:0 auto;}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.68rem;font-weight:600;letter-spacing:0.14em;color:var(--amber);background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);border-radius:999px;padding:0.3rem 0.9rem;margin-bottom:0.9rem;}
+h1{font-weight:700;font-size:1.95rem;letter-spacing:-0.01em;margin-bottom:0.4rem;}
+.sub{color:var(--text-dim);font-size:0.95rem;max-width:74ch;}
+h2{font-size:0.78rem;font-family:'JetBrains Mono',monospace;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);margin:2.2rem 0 0.9rem;border-bottom:1px solid var(--border);padding-bottom:0.4rem;}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:820px){.modes{grid-template-columns:1fr;}}
+.mode{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;}
+.mode.casual{border-color:rgba(74,222,128,0.35);}
+.mode.adv{border-color:rgba(255,92,92,0.4);}
+.mode h3{font-size:1.05rem;font-weight:500;margin-bottom:0.2rem;display:flex;align-items:center;justify-content:space-between;gap:0.5rem;}
+.pill{font-family:'JetBrains Mono',monospace;font-size:0.56rem;font-weight:600;letter-spacing:0.08em;padding:0.16rem 0.5rem;border-radius:999px;text-transform:uppercase;white-space:nowrap;}
+.pill.on{color:var(--green);background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.35);}
+.pill.off{color:var(--red);background:rgba(255,92,92,0.12);border:1px solid rgba(255,92,92,0.35);}
+.mode .role{font-size:0.8rem;color:var(--text-dim);margin-bottom:0.8rem;}
+/* casual supplies mock */
+.supplies{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 0.8rem;font-size:0.8rem;}
+.supplies .row{display:flex;justify-content:space-between;padding:0.18rem 0;color:var(--text-dim);}
+.supplies .row b{color:var(--text);font-weight:500;}
+.supplies .sel{margin-top:0.5rem;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:0.3rem 0.5rem;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--accent);}
+/* 4x7 grid mock */
+.grid47{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:0.2rem;}
+.cell{aspect-ratio:1;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:0.62rem;color:var(--text-dim);position:relative;}
+.cell .ic{font-size:1rem;line-height:1;}
+.cell .q{font-family:'JetBrains Mono',monospace;font-size:0.54rem;color:var(--text);position:absolute;bottom:2px;right:3px;}
+.cell.food{border-color:rgba(74,222,128,0.4);}
+.cell.mat{border-color:rgba(79,140,255,0.4);}
+.cell.bag{border-color:rgba(167,139,250,0.5);}
+.cell.tool{border-color:rgba(251,191,36,0.45);}
+.cell.empty{opacity:0.4;}
+.legend{display:flex;flex-wrap:wrap;gap:0.5rem 0.9rem;margin-top:0.6rem;font-size:0.7rem;color:var(--text-dim);}
+.legend span::before{content:"";display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle;border:1px solid;}
+.legend .f::before{border-color:var(--green);}
+.legend .m::before{border-color:var(--accent);}
+.legend .b::before{border-color:var(--purple);}
+.legend .t::before{border-color:var(--amber);}
+.note{background:linear-gradient(180deg,rgba(255,92,92,0.06),rgba(255,92,92,0.02));border:1px solid rgba(255,92,92,0.35);border-radius:var(--radius);padding:1rem 1.2rem;margin-top:0.5rem;}
+.note h3{color:var(--red);font-weight:500;font-size:1rem;margin-bottom:0.4rem;}
+.note p{font-size:0.86rem;color:var(--text-dim);margin-bottom:0.4rem;}
+table{width:100%;border-collapse:collapse;margin-top:0.4rem;font-size:0.84rem;}
+th{font-family:'JetBrains Mono',monospace;font-size:0.6rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-dim);text-align:left;padding:0.5rem 0.6rem;border-bottom:1px solid var(--border);}
+td{padding:0.5rem 0.6rem;border-bottom:1px solid rgba(42,48,64,0.5);color:var(--text-dim);vertical-align:top;}
+td b{color:var(--text);font-weight:500;}
+.st{font-family:'JetBrains Mono',monospace;font-size:0.62rem;font-weight:600;padding:0.14rem 0.45rem;border-radius:5px;white-space:nowrap;}
+.st.done{color:var(--green);background:rgba(74,222,128,0.12);}
+.st.div{color:var(--amber);background:rgba(251,191,36,0.12);}
+.st.miss{color:var(--red);background:rgba(255,92,92,0.12);}
+code{font-family:'JetBrains Mono',monospace;font-size:0.82em;background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:0.03em 0.32em;color:var(--text);}
+ol.dec{list-style:none;counter-reset:d;margin-top:0.3rem;}
+ol.dec li{counter-increment:d;position:relative;padding:0.35rem 0 0.35rem 2rem;font-size:0.86rem;color:var(--text-dim);border-bottom:1px solid rgba(42,48,64,0.4);}
+ol.dec li::before{content:counter(d);position:absolute;left:0;top:0.35rem;width:1.4rem;height:1.4rem;background:var(--accent-glow);border:1px solid rgba(79,140,255,0.35);border-radius:6px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:0.7rem;display:flex;align-items:center;justify-content:center;}
+ol.dec li b{color:var(--text);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">SPEC RECOVERY · CARRIED INVENTORY · full designed spec</div>
+  <h1>The carried inventory, as actually designed</h1>
+  <p class="sub">Re-laid from the design doc after the build flattened it. The headline the implementation dropped: <b>two modes</b> — a casual auto-managed supplies view, and an <b>advanced 4×7 grid you arrange yourself</b>. The churn build quietly replaced the real 28-slot pack with a throughput meter and cut the grid as "obviated." This is the whole board again, with an honest built-vs-missing ledger.</p>
+
+  <h2>The two modes — the core the build flattened</h2>
+  <div class="modes">
+    <div class="mode casual">
+      <h3>Casual (default) <span class="pill on">mostly shipped</span></h3>
+      <p class="role">Auto-managed. The simplified supplies panel (already on the Equipment tab) plus a packing-mode preset. You never arrange anything; bank runs pack themselves. <b>This should stay</b> as the non-advanced experience.</p>
+      <div class="supplies">
+        <div class="row"><span>Packing mode</span><b>Balanced ▾</b></div>
+        <div class="row"><span>Food</span><b>auto (to threshold)</b></div>
+        <div class="row"><span>Potions / Ammo / Runes</span><b>auto</b></div>
+        <div class="sel">bank run → "banked: 20 food / 8 coal · +1 review"</div>
+      </div>
+    </div>
+    <div class="mode adv">
+      <h3>Advanced (opt-in) <span class="pill off">not built</span></h3>
+      <p class="role">A real 4×7 (28-slot) inventory you arrange <b>once per target</b> — food, inputs, bags, moulds — and the system auto-executes that exact layout at every bank run. Smart layouts beat the casual default by ~10–20% fewer bank-run reviews.</p>
+      <div class="grid47">
+        <div class="cell food"><span class="ic">🍖</span><span class="q">20</span></div>
+        <div class="cell food"><span class="ic">🍖</span></div>
+        <div class="cell food"><span class="ic">🍖</span></div>
+        <div class="cell food"><span class="ic">🍖</span></div>
+        <div class="cell food"><span class="ic">🍖</span></div>
+        <div class="cell food"><span class="ic">🍖</span></div>
+        <div class="cell tool"><span class="ic">⚙️</span></div>
+        <div class="cell mat"><span class="ic">⛏️</span><span class="q">∞</span></div>
+        <div class="cell bag"><span class="ic">🎒</span><span class="q">27</span></div>
+        <div class="cell mat"><span class="ic">🪨</span></div>
+        <div class="cell mat"><span class="ic">🪨</span></div>
+        <div class="cell mat"><span class="ic">🪨</span></div>
+        <div class="cell empty"></div>
+        <div class="cell empty"></div>
+        <div class="cell empty"></div>
+        <div class="cell empty"></div>
+      </div>
+      <div class="legend"><span class="f">Food</span><span class="m">Material</span><span class="b">Bag (packs 27)</span><span class="t">Mould / non-belt tool</span></div>
+    </div>
+  </div>
+
+  <div class="note">
+    <h3>⚠ The architectural divergence to own</h3>
+    <p>The designed pack is a <b>real arrangeable set of 28 item slots</b> (decision 3 + 5): you place inputs, they're consumed, and the bank run refills that layout. What shipped is a <b>churn scalar</b> — a per-target counter that adds <code>max(gained, consumed)</code> slots per action and forces a bank run at 28. It reproduces the <em>teeth</em>, but there is no arranged loadout underneath it, so advanced mode has nothing to arrange.</p>
+    <p>Reconciliation: keep the churn meter as the <b>casual</b> engine (it's fine — it's auto), and add a <b>real per-target arranged pack</b> for advanced mode that drives consumption and refill from the layout you set. That's the missing chunk, not a UI skin over what exists.</p>
+  </div>
+
+  <h2>The eight core decisions (unchanged, for reference)</h2>
+  <ol class="dec">
+    <li><b>Teeth for everyone.</b> The 28-slot limit is real; bank runs cost reviews. A bag is worth exactly a bank run.</li>
+    <li><b>Overlay, not replacement.</b> Flat bank stays the source of truth; the 28 slots are a capacity+ordering layer over it. Bank is infinite.</li>
+    <li><b>Shared execution, swappable policy.</b> Bank runs always auto-execute. Casual = preset dropdown; <b>advanced = arrange the 4×7 once, auto-executed.</b></li>
+    <li><b>Advanced yields more</b> — but a small ~10–20% edge, never a 2× gulf that punishes casuals.</li>
+    <li><b>Input + output teeth, unified.</b> The same 28 slots are drawn from (food/inputs) and deposited to (gathered/loot).</li>
+    <li><b>Stackable = one slot;</b> bags pack an unstackable material into one slot — the entire reason bags exist.</li>
+    <li><b>Every bank run costs a review</b> (combat 2, skilling 1). Drop = never bank = fastest XP.</li>
+    <li><b>Keep/Drop per gathering target.</b> Keep banks the product; Drop bypasses the pack for max XP/action.</li>
+  </ol>
+  <p class="sub" style="margin-top:0.6rem;">Plus: held-item requirements resolve against the mode (advanced: the mould must sit in your 28 slots; casual: "owned in bank" suffices — toolbelt absorbs belt-able tools). Death drops the pack into the grave. Undo rolls it back. Coins → Money pouch (0 slots). Quest items abstracted. Per-target loadout persistence.</p>
+
+  <h2>Built vs missing — the honest ledger</h2>
+  <table>
+    <tr><th>Spec element</th><th>Status</th><th>Note</th></tr>
+    <tr><td><b>Teeth / bank runs cost reviews</b></td><td><span class="st done">shipped</span></td><td>Churn meter + <code>bank_run_progress_pure</code>; combat 2, skilling 1.</td></tr>
+    <tr><td><b>Overlay over flat bank</b></td><td><span class="st done">shipped</span></td><td>View over the flat store; bank infinite.</td></tr>
+    <tr><td><b>Input + output unified teeth</b></td><td><span class="st done">shipped</span></td><td>Churn <code>max(gained, consumed)</code>.</td></tr>
+    <tr><td><b>Casual packing presets</b></td><td><span class="st done">shipped</span></td><td>Balanced / Max-output / Max-safety via <code>pack_carried_inventory_pure</code> + dropdown.</td></tr>
+    <tr><td><b>Keep/Drop per target</b></td><td><span class="st done">shipped</span></td><td>Toggle in the panel (gathering skills).</td></tr>
+    <tr><td><b>Loot filter + threshold + per-drop</b></td><td><span class="st done">shipped</span></td><td>Full 10.7k cache value table; per-drop Auto/Keep/Leave in combat.</td></tr>
+    <tr><td><b>Death drops the pack</b></td><td><span class="st done">shipped</span></td><td>Carried view graved + removed from bank.</td></tr>
+    <tr><td><b>Money pouch (coins 0 slots)</b></td><td><span class="st done">shipped</span></td><td>Coins excluded from the pack; view over bank coins.</td></tr>
+    <tr><td><b>Combat loot competes / drops on death</b></td><td><span class="st done">shipped</span></td><td>Unified combat bank-run.</td></tr>
+    <tr><td><b>Coal bag mechanic</b></td><td><span class="st done">shipped</span></td><td>Raises capacity when owned — but see below (no grid to place it in).</td></tr>
+    <tr><td><b>The real 28-slot arrangeable pack</b></td><td><span class="st div">diverged</span></td><td>Replaced by a churn scalar. No arranged loadout exists underneath.</td></tr>
+    <tr><td><b>Advanced 4×7 grid UI</b></td><td><span class="st miss">missing</span></td><td>The headline advanced experience — arrange food/inputs/bags/moulds by hand.</td></tr>
+    <tr><td><b>Advanced-mode toggle</b></td><td><span class="st miss">missing</span></td><td>Switch between casual supplies and the grid.</td></tr>
+    <tr><td><b>Grid drives consume + refill</b></td><td><span class="st miss">missing</span></td><td>"Arrange once → auto-execute at every bank run" per target.</td></tr>
+    <tr><td><b>Held-item resolves vs the mode</b></td><td><span class="st miss">missing</span></td><td>Advanced: mould must occupy a slot; casual: owned-in-bank. Audit exists, not wired.</td></tr>
+    <tr><td><b>Bags placed in the grid</b></td><td><span class="st miss">missing</span></td><td>Coal bag is a capacity bump today, not a slot you fill from the grid.</td></tr>
+  </table>
+
+  <p class="sub" style="margin-top:1.2rem;">Bottom line: the <b>casual half is real and tested</b>; the <b>advanced half — the 4×7 grid and everything that hangs off it — was designed and never built.</b> Restoring it means adding a genuine per-target arranged pack under advanced mode, the grid UI to edit it, the mode toggle, and wiring held-item + bag placement to that grid. The casual supplies view stays exactly as-is for non-advanced players.</p>
+</div>
+</body>
+</html>
