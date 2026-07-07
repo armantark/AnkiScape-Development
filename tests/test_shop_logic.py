@@ -177,6 +177,19 @@ class TestShopLogic(unittest.TestCase):
         self.assertTrue(beer_result["allowed"])
         self.assertEqual(after_beer["inventory"]["Beer"], after_news["inventory"]["Beer"] + 1)
 
+    def test_vendor_actions_are_one_per_interaction(self):
+        # Dialogue parity: Karim hands over exactly one kebab per
+        # conversation; requested bulk quantities clamp to a single use.
+        data = build_shop_fixture_player_data()
+        preview = preview_shop_vendor_action_pure(data, "karim_buy_kebab", 50)
+        self.assertTrue(preview["allowed"])
+        self.assertEqual(preview["quantity"], 1)
+        updated, result = apply_shop_vendor_action_pure(data, "karim_buy_kebab", 50)
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["quantity"], 1)
+        self.assertEqual(updated["inventory"].get("Kebab", 0), data["inventory"].get("Kebab", 0) + 1)
+        self.assertEqual(updated["inventory"]["Coins"], data["inventory"]["Coins"] - 1)
+
     def test_search_history_and_fixture_bundle(self):
         data = build_shop_fixture_player_data()
         search = search_shop_catalog_pure(data, "Feather", include_locked=True, limit=10)

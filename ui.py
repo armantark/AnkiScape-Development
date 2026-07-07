@@ -2976,6 +2976,10 @@ def show_main_menu(
     service_qty.setObjectName("shopServiceQuantitySpin")
     service_qty.setRange(1, 999999)
     service_qty.setValue(1)
+    # Vendor actions are one interaction per use (dialogue parity, owner
+    # decision 2026-07-07); the backend clamps quantity to 1, so the spinner
+    # is hidden until a genuinely batchable instant service exists.
+    service_qty.setVisible(False)
     service_controls_layout.addWidget(service_qty)
     service_use_btn = QPushButton("Use")
     service_use_btn.setObjectName("shopServiceUseButton")

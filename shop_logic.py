@@ -346,7 +346,10 @@ def preview_shop_vendor_action_pure(player_data: Mapping[str, Any], action_id: s
     action = SHOP_VENDOR_ACTIONS.get(action_id)
     if action is None:
         return _denied("unknown_vendor_action", requested_quantity=quantity)
-    return _preview_service_like(player_data, action, quantity)
+    # Dialogue parity (owner decision 2026-07-07): every vendor action is one
+    # interaction per use — Karim hands over exactly one kebab per
+    # conversation. The quantity spinner was an AnkiScape invention.
+    return _preview_service_like(player_data, action, 1)
 
 
 def apply_shop_vendor_action_pure(player_data: Mapping[str, Any], action_id: str, quantity: int = 1) -> tuple[Dict[str, Any], Dict[str, Any]]:
@@ -354,7 +357,8 @@ def apply_shop_vendor_action_pure(player_data: Mapping[str, Any], action_id: str
     data = ensure_shop_state_pure(player_data)
     if action is None:
         return data, _denied("unknown_vendor_action", requested_quantity=quantity)
-    return _apply_service_like(data, action, "vendor_action", quantity)
+    # Dialogue parity: one interaction per use regardless of requested qty.
+    return _apply_service_like(data, action, "vendor_action", 1)
 
 
 def apply_shop_transaction_pure(player_data: Mapping[str, Any], transaction_type: str, **kwargs: Any) -> tuple[Dict[str, Any], Dict[str, Any]]:

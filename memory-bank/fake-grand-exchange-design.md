@@ -275,3 +275,9 @@ shortcut rather than an unpaced faucet. The GE gates nothing on the buy side
 — quests and levels gate equipping/using, which AnkiScape already models —
 so it deliberately coexists with the shop access-gating pass. Not scheduled;
 sequenced after vendor dialogue parity and the shop gating pass.
+
+## Ironman toggle (owner, 2026-07-07)
+
+A gameplay setting must let the player toggle **ironman mode**, whose sole
+effect is disabling the GE (shops, drops, and conversions stay available —
+it is not a full ironman ruleset). Ships with the GE slice, defaulting off.
