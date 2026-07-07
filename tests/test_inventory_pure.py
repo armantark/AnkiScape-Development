@@ -15,10 +15,13 @@ from inventory_pure import (
     carried_bank_run_gate_pure,
     carried_fold_gains_pure,
     carried_action_churn_pure,
+    carried_advanced_for,
     carried_keep_for,
     effective_carried_capacity,
     filter_loot_pure,
     inventory_delta_gains,
+    pack_processing_inputs_pure,
+    apply_carried_layout_pure,
     sanitize_carried_state,
 )
 
@@ -186,6 +189,77 @@ class TestLootFilter(unittest.TestCase):
         # exempt from a "leave" and always kept.
         self.assertEqual(kept, {"Bones": 3, "Coins": 50})
         self.assertEqual(left, {"Rune bar": 1})
+
+
+class TestProcessingPackAndAdvancedLayout(unittest.TestCase):
+    def test_pack_processing_inputs_splits_evenly_capped_by_bank(self):
+        bank = {"Tin ore": 100, "Copper ore": 100}
+        packed = pack_processing_inputs_pure(bank, {"Tin ore": 1, "Copper ore": 1}, 28, set())
+        self.assertEqual(packed, {"Tin ore": 14, "Copper ore": 14})
+
+    def test_pack_processing_inputs_caps_by_scarce_bank_supply(self):
+        bank = {"Tin ore": 3, "Copper ore": 100}
+        packed = pack_processing_inputs_pure(bank, {"Tin ore": 1, "Copper ore": 1}, 28, set())
+        self.assertEqual(packed, {"Tin ore": 3, "Copper ore": 14})
+
+    def test_pack_processing_inputs_single_requirement_fills_all_capacity(self):
+        bank = {"Logs": 500}
+        packed = pack_processing_inputs_pure(bank, {"Logs": 1}, 28, set())
+        self.assertEqual(packed, {"Logs": 28})
+
+    def test_pack_processing_inputs_stackable_takes_one_slot_then_unstackables_split_rest(self):
+        bank = {"Nature rune": 9999, "Pure essence": 100}
+        packed = pack_processing_inputs_pure(bank, {"Nature rune": 1, "Pure essence": 1}, 28, {"Nature rune"})
+        self.assertEqual(packed["Nature rune"], 9999)
+        self.assertEqual(packed["Pure essence"], 27)
+
+    def test_pack_processing_inputs_empty_requirements_or_bank(self):
+        self.assertEqual(pack_processing_inputs_pure({}, {"Logs": 1}, 28, set()), {})
+        self.assertEqual(pack_processing_inputs_pure({"Logs": 5}, {}, 28, set()), {})
+
+    def test_apply_carried_layout_caps_by_bank_and_capacity(self):
+        bank = {"Iron ore": 10, "Ammo mould": 1}
+        layout = {"Ammo mould": 1, "Iron ore": 50}
+        applied = apply_carried_layout_pure(bank, layout, 28, set())
+        self.assertEqual(applied["Ammo mould"], 1)
+        self.assertEqual(applied["Iron ore"], 10)
+
+    def test_apply_carried_layout_stops_at_capacity(self):
+        bank = {f"Item {i}": 1 for i in range(30)}
+        layout = {f"Item {i}": 1 for i in range(30)}
+        applied = apply_carried_layout_pure(bank, layout, 5, set())
+        self.assertEqual(sum(applied.values()), 5)
+
+    def test_carried_advanced_for_defaults_false(self):
+        self.assertFalse(carried_advanced_for({}, "smelt_bronze_bar"))
+        self.assertTrue(carried_advanced_for({"carried_advanced_targets": {"smelt_bronze_bar": True}}, "smelt_bronze_bar"))
+        self.assertFalse(carried_advanced_for({"carried_advanced_targets": {"other": True}}, "smelt_bronze_bar"))
+
+    def test_sanitize_seeds_layout_and_advanced_targets(self):
+        data = {}
+        sanitize_carried_state(data)
+        self.assertEqual(data["carried_layout"], {})
+        self.assertEqual(data["carried_advanced_targets"], {})
+
+
+class TestGateForceTrigger(unittest.TestCase):
+    def test_force_triggers_a_bank_run_even_with_low_churn(self):
+        # A lopsided recipe can run out of one input long before churn hits
+        # capacity; `force` lets the caller (processing) trigger banking anyway.
+        state, view, churn, event, act = carried_bank_run_gate_pure(
+            {"Iron ore": 0, "Coal": 20}, churn=2, keep=True, stackable_names=set(),
+            target_id="smelt_iron_bar", bank_run_state={}, force=True,
+        )
+        self.assertFalse(act)
+        self.assertTrue(event["active"])
+
+    def test_no_force_no_full_churn_means_act_normally(self):
+        state, view, churn, event, act = carried_bank_run_gate_pure(
+            {"Iron ore": 5}, churn=2, keep=True, stackable_names=set(),
+            target_id="smelt_iron_bar", bank_run_state={}, force=False,
+        )
+        self.assertTrue(act)
+        self.assertFalse(event["active"])
 
 
 class TestBagCapacity(unittest.TestCase):

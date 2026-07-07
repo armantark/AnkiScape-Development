@@ -6,6 +6,7 @@ from runtime_actions import (
     can_start_action,
     handle_cooking_answer,
     handle_combat_answer,
+    handle_firemaking_answer,
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
@@ -1457,6 +1458,88 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertTrue(result)
         self.assertTrue(marker["called"])
         self.assertNotIn("carried_inventory", player_data)
+
+
+class TestProcessingPackOverlay(unittest.TestCase):
+    """Processing skills draw recipe inputs from the carried pack, not the bank."""
+
+    def _firemaking_ctx(self, player_data):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        return _context(player_data, calls, random_values=[0.0] * 200), calls
+
+    def _base_player_data(self, logs):
+        return {
+            "inventory": {"Logs": logs},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+
+    def test_first_engagement_primes_the_pack_for_free_and_acts(self):
+        player_data = self._base_player_data(5)
+        ctx, calls = self._firemaking_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+
+        self.assertTrue(result)
+        self.assertEqual(calls["activity"], [])  # no bank-run toast on priming
+        self.assertEqual(player_data["inventory"]["Logs"], 4)
+        self.assertEqual(player_data["inventory"]["Ashes"], 1)
+        # The pack was seeded with all 5 logs, then one was consumed.
+        self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 4})
+        self.assertIn("logs", player_data["carried_primed_targets"])
+
+    def test_pack_depletes_then_forces_a_bank_run_leaving_bank_remainder(self):
+        # 30 logs but a 28-slot pack: the pack primes to 28, 28 actions drain it,
+        # and 2 logs never left the bank.
+        player_data = self._base_player_data(30)
+        for _ in range(28):
+            ctx, calls = self._firemaking_ctx(player_data)
+            result = run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+            self.assertTrue(result)
+            self.assertEqual(calls["activity"], [])
+        self.assertEqual(player_data["inventory"]["Ashes"], 28)
+        self.assertEqual(player_data["inventory"]["Logs"], 2)
+        self.assertEqual(player_data["carried_inventory"].get("logs", {}), {})
+
+        # The pack is dry but the bank has 2 more: this answer is spent banking,
+        # not firemaking (no XP tick, a bank-run toast, no additional Ashes).
+        ctx, calls = self._firemaking_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+        self.assertTrue(result)
+        self.assertTrue(any("Bank run" in msg for msg in calls["activity"]))
+        self.assertEqual(player_data["inventory"]["Ashes"], 28)
+        self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 2})
+
+        # And firemaking resumes from the repacked (now 2-log) pack.
+        ctx, calls = self._firemaking_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Ashes"], 29)
+        self.assertEqual(player_data["inventory"]["Logs"], 1)
+
+    def test_out_of_materials_in_both_pack_and_bank_fails_normally_no_forced_loop(self):
+        player_data = self._base_player_data(0)
+        ctx, calls = self._firemaking_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+        # The handler's own "out of materials" path fires; no bank-run is forced
+        # since the bank cannot supply it either.
+        self.assertFalse(result)
+        self.assertEqual(calls["activity"], [])
+        self.assertTrue(calls.get("deactivated"))
+
+    def test_advanced_layout_seeds_the_pack_instead_of_the_casual_full_fill(self):
+        player_data = self._base_player_data(100)
+        player_data["carried_advanced_targets"] = {"logs": True}
+        player_data["carried_layout"] = {"logs": {"Logs": 6}}
+        ctx, calls = self._firemaking_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+
+        self.assertTrue(result)
+        # Seeded to the saved layout's 6, not a casual full-capacity fill of 28;
+        # only the 1 log actually consumed leaves the real bank (99 stay banked).
+        self.assertEqual(player_data["inventory"]["Logs"], 99)
+        self.assertEqual(player_data["carried_inventory"]["logs"], {"Logs": 5})
 
 
 if __name__ == "__main__":

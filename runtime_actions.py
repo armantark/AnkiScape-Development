@@ -256,6 +256,48 @@ _OVERLAY_TARGET_KEYS = {
 # use the real cache stackable set so a stack is not miscounted as N slots.
 _OVERLAY_STACKABLE_NAMES: frozenset[str] = STACKABLE_ITEM_NAMES
 
+# Processing skills draw recipe inputs from the carried pack (gated + consumed);
+# gathering skills fill the pack with their product instead. Combat has its own
+# supply_loadout system and is not routed through this wrapper at all.
+_PROCESSING_HANDLER_KEYS = frozenset(
+    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting"}
+)
+_PROCESSING_DATA_TABLES = {
+    "cooking": (COOKING_DATA, "current_cooking", DEFAULT_COOKING_TARGET),
+    "crafting": (CRAFTING_DATA, "current_craft", "form_pot_unfired"),
+    "fletching": (FLETCHING_DATA, "current_fletch", DEFAULT_FLETCHING_TARGET),
+    "firemaking": (FIREMAKING_DATA, "current_firemaking", DEFAULT_FIREMAKING_TARGET),
+    "smithing": (SMITHING_DATA, "current_smith", DEFAULT_SMITHING_TARGET),
+    "runecrafting": (RUNECRAFTING_DATA, "current_runecrafting", DEFAULT_RUNECRAFTING_TARGET),
+}
+
+
+def _processing_requirements_for(handler_key: str, player_data: dict[str, Any]) -> dict[str, int]:
+    """The recipe inputs a processing target needs per action, ``{item: count}``.
+
+    Read from each skill's own data table so this stays a thin lookup, not a
+    handler rewrite. Runecrafting has no fixed ``requirements`` dict (any of its
+    ``essence_items`` works); resolve it to whichever essence the player actually
+    holds, preferring Pure essence, so the pack has something concrete to carry.
+    """
+    table_info = _PROCESSING_DATA_TABLES.get(handler_key)
+    if table_info is None:
+        return {}
+    table, target_key, default_target = table_info
+    target = player_data.get(target_key, default_target)
+    spec = table.get(target)
+    if not isinstance(spec, dict):
+        return {}
+    requirements = spec.get("requirements")
+    if isinstance(requirements, dict) and requirements:
+        return {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+    essence_items = spec.get("essence_items")
+    if isinstance(essence_items, (list, tuple)) and essence_items:
+        inventory = player_data.get("inventory", {}) or {}
+        essence = "Pure essence" if "Pure essence" in essence_items and inventory.get("Pure essence", 0) else essence_items[0]
+        return {essence: 1}
+    return {}
+
 
 def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:
     container = player_data.get(map_key)
@@ -268,15 +310,55 @@ def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id
     player_data[map_key] = container
 
 
+def _pack_can_supply(view: dict[str, Any], requirements: dict[str, int]) -> bool:
+    return all(int(view.get(item, 0) or 0) >= need for item, need in requirements.items())
+
+
+def _bank_can_supply(bank: dict[str, Any], requirements: dict[str, int]) -> bool:
+    return all(int(bank.get(item, 0) or 0) >= need for item, need in requirements.items())
+
+
+def _repack_view_for_target(
+    is_processing: bool,
+    advanced: bool,
+    layout: dict[str, int],
+    bank: dict[str, Any],
+    requirements: dict[str, int],
+    capacity: int,
+    mode: Any,
+) -> dict[str, int]:
+    """The freshly-packed carried view after a completed bank run.
+
+    Advanced targets replay their saved layout (capped by the bank). Casual
+    processing targets get their recipe inputs split by
+    ``pack_processing_inputs_pure``. Casual gathering targets start empty — the
+    gathered product fills the pack from actions, it is never pre-loaded.
+    """
+    if advanced:
+        return inventory_pure.apply_carried_layout_pure(bank, layout, capacity, _OVERLAY_STACKABLE_NAMES)
+    if is_processing:
+        return inventory_pure.pack_processing_inputs_pure(bank, requirements, capacity, _OVERLAY_STACKABLE_NAMES)
+    return {}
+
+
 def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
     """Run one skilling tick through the 28-slot carried overlay.
 
-    Before the tick, `carried_bank_run_gate_pure` decides whether the pack is full
-    (``churn`` reached 28): if so, this answer is spent on a bank-run — the handler
-    is not called, no XP is awarded, and the run/view/churn reset. Otherwise the
-    handler acts, and the tick's churn (max slots gained/consumed) and any kept
-    output fold into the per-target view. Handlers without carried teeth (utility,
-    quests) run untouched.
+    Gathering skills fill the pack with their product (Keep) or bypass it
+    entirely (Drop); the pack banks when full. Processing skills instead *draw*
+    their recipe inputs from the pack: the handler only sees as much of each
+    required material as the pack currently holds, so the pack — not the
+    infinite bank — is what limits actions-per-trip. This is what gives the
+    advanced 4x7 layout real consequence: a well-arranged pack (matching a
+    recipe's true ratio) yields more actions before a bank-run than an even
+    casual split.
+
+    Before the tick, the gate decides whether this answer is spent banking
+    instead of acting: churn reaching capacity (either skill), or — processing
+    only — the pack running out of a required input the bank could still
+    supply. On a completed bank run the pack is repacked from the bank (casual
+    preset / processing split, or the advanced saved layout) rather than simply
+    cleared. Handlers without carried teeth (utility, quests) run untouched.
     """
     target_key = _OVERLAY_TARGET_KEYS.get(handler_key)
     if target_key is None:
@@ -284,23 +366,52 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     player_data = ctx.player_data
     target_id = str(player_data.get(target_key, ""))
-    keep = inventory_pure.carried_keep_for(player_data, target_id)
-    view = (player_data.get("carried_inventory") or {}).get(target_id, {})
+    is_processing = handler_key in _PROCESSING_HANDLER_KEYS
+    # Keep/Drop is a gathering-only choice; processing always draws from (and
+    # refills) its pack — there is no "drop the product" for a recipe's inputs.
+    keep = True if is_processing else inventory_pure.carried_keep_for(player_data, target_id)
+    view = dict((player_data.get("carried_inventory") or {}).get(target_id, {}))
     churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
     bank_run = player_data.get("skilling_bank_run", {})
+    advanced = inventory_pure.carried_advanced_for(player_data, target_id)
+    layout = (player_data.get("carried_layout") or {}).get(target_id, {})
+    bank = player_data.get("inventory", {}) or {}
     # A carried bag raises the bank-run threshold for its material (fewer trips).
     owned_bags = {
         bag for bag in inventory_pure.BAG_DEFINITIONS
-        if int((player_data.get("inventory") or {}).get(bag, 0) or 0) > 0
+        if int(bank.get(bag, 0) or 0) > 0
     }
     capacity = inventory_pure.effective_carried_capacity(view, owned_bags)
 
+    requirements = _processing_requirements_for(handler_key, player_data) if is_processing else {}
+
+    # First-ever engagement with a processing target seeds the pack for free —
+    # you already "have inventory" the moment you arrive, same as gathering
+    # starting empty; the review cost is only for *refilling after depletion*,
+    # never for the initial load (owner: no free banking, but this isn't a trip).
+    primed = target_id in (player_data.get("carried_primed_targets") or {})
+    if is_processing and requirements and not primed:
+        view = _repack_view_for_target(
+            is_processing, advanced, layout, bank, requirements, capacity, player_data.get("carried_pack_mode")
+        )
+        _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
+
+    force = bool(
+        is_processing and requirements
+        and not _pack_can_supply(view, requirements)
+        and _bank_can_supply(bank, requirements)
+    )
+
     new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
         view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
-        inventory_pure.SKILLING_BANK_RUN_REVIEWS, capacity,
+        inventory_pure.SKILLING_BANK_RUN_REVIEWS, capacity, force,
     )
 
     if not act:
+        if event.get("completed"):
+            new_view = _repack_view_for_target(
+                is_processing, advanced, layout, bank, requirements, capacity, player_data.get("carried_pack_mode")
+            )
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
@@ -308,13 +419,43 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         ctx.save_player_data()
         return True
 
-    inv_before = dict(player_data.get("inventory", {}) or {})
+    if is_processing and requirements:
+        # Scope the handler's input access to what the pack holds, run it, then
+        # reconcile: the real bank only loses what was actually consumed, and the
+        # pack is decremented by the same amount. Every other item (outputs,
+        # byproducts) passes through untouched, since it was never capped.
+        scoped_inventory = dict(bank)
+        for item_name, need in requirements.items():
+            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+        player_data["inventory"] = scoped_inventory
+        result = handler(ctx)
+        after_scoped = player_data.get("inventory", {}) or {}
+        reconciled = dict(after_scoped)
+        for item_name, _need in requirements.items():
+            true_before = int(bank.get(item_name, 0) or 0)
+            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
+            after_amount = int(after_scoped.get(item_name, 0) or 0)
+            consumed = max(0, capped_before - after_amount)
+            reconciled[item_name] = max(0, true_before - consumed)
+            if consumed > 0:
+                new_view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
+        new_view = {name: count for name, count in new_view.items() if count > 0}
+        player_data["inventory"] = reconciled
+        if result is not False:
+            player_data["skilling_bank_run"] = new_state
+            churn_delta = inventory_pure.carried_action_churn_pure(bank, reconciled, _OVERLAY_STACKABLE_NAMES)
+            _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
+            _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
+            ctx.save_player_data()
+        return result
+
+    inv_before = dict(bank)
     result = handler(ctx)
     if result is not False:
         player_data["skilling_bank_run"] = new_state
         # Drop bypasses the pack entirely (no churn, no banking, fastest XP);
-        # Keep accrues churn and folds the product in. Consumption skills are Keep
-        # with an empty view, so their input churn still bites.
+        # Keep accrues churn and folds the product in. Consumption skills with no
+        # recipe requirements (shouldn't normally happen) still get churn teeth.
         if keep:
             inv_after = player_data.get("inventory", {}) or {}
             churn_delta = inventory_pure.carried_action_churn_pure(inv_before, inv_after, _OVERLAY_STACKABLE_NAMES)

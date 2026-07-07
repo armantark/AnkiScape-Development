@@ -255,6 +255,89 @@ def pack_carried_inventory_pure(
     return carried
 
 
+def pack_processing_inputs_pure(
+    bank: Mapping[str, int],
+    requirements: Mapping[str, int],
+    capacity: int,
+    stackable_names: set[str] | frozenset[str],
+) -> dict[str, int]:
+    """Fill a processing target's carried pack with its recipe inputs.
+
+    Casual policy for processing (Smithing/Crafting/Fletching/Firemaking/Cooking/
+    Runecrafting): split available slots evenly across the recipe's distinct
+    required materials, capped by what the bank holds. Stackable materials (e.g.
+    runecrafting essence isn't stackable, but a hypothetical stackable input would
+    be) take one slot for any count; unstackable materials take one slot per unit,
+    so an even split maximizes actions-per-trip for balanced recipes. Never
+    invents materials — every count is capped by bank supply.
+    """
+    if not isinstance(bank, Mapping) or not isinstance(requirements, Mapping):
+        return {}
+    items = [name for name in requirements if isinstance(name, str)]
+    if not items:
+        return {}
+
+    def _bank(name: str) -> int:
+        return _clean_int(bank.get(name), 0, minimum=0)
+
+    capacity = _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
+    carried: dict[str, int] = {}
+    remaining_capacity = capacity
+
+    stackable_items = [name for name in items if name in stackable_names]
+    unstackable_items = [name for name in items if name not in stackable_names]
+
+    for name in stackable_items:
+        available = _bank(name)
+        if available > 0 and remaining_capacity > 0:
+            carried[name] = available
+            remaining_capacity -= 1
+
+    if unstackable_items:
+        share = max(0, remaining_capacity) // len(unstackable_items)
+        extra = max(0, remaining_capacity) % len(unstackable_items)
+        for index, name in enumerate(unstackable_items):
+            slots = share + (1 if index < extra else 0)
+            carried[name] = min(_bank(name), slots)
+
+    return {name: count for name, count in carried.items() if count > 0}
+
+
+def apply_carried_layout_pure(
+    bank: Mapping[str, int],
+    layout: Mapping[str, int],
+    capacity: int,
+    stackable_names: set[str] | frozenset[str],
+) -> dict[str, int]:
+    """Apply an advanced player's saved layout, capped by the bank and capacity.
+
+    The layout is the arrangement the player set once in the 4x7 grid; this caps
+    each entry by what the bank actually holds (never invents materials) and by
+    the slot budget (in case a bag was removed and capacity shrank since saving).
+    Entries are applied in the saved order, first-come-first-served on capacity.
+    """
+    if not isinstance(bank, Mapping) or not isinstance(layout, Mapping):
+        return {}
+    capacity = _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
+    carried: dict[str, int] = {}
+    for item_name, desired_count in layout.items():
+        if not isinstance(item_name, str):
+            continue
+        want = min(_clean_int(desired_count, 0, minimum=0), _clean_int(bank.get(item_name), 0, minimum=0))
+        if want <= 0:
+            continue
+        if item_name in stackable_names:
+            already_present = item_name in carried
+            if already_present or carried_slots_used(carried, stackable_names) < capacity:
+                carried[item_name] = carried.get(item_name, 0) + want
+        else:
+            placed = 0
+            while placed < want and carried_slots_used(carried, stackable_names) < capacity:
+                carried[item_name] = carried.get(item_name, 0) + 1
+                placed += 1
+    return carried
+
+
 # Skilling banks at one review (combat keeps its own two); tunable.
 SKILLING_BANK_RUN_REVIEWS = 1
 
@@ -360,6 +443,7 @@ def carried_bank_run_gate_pure(
     bank_run_state: Any,
     reviews_cost: int = SKILLING_BANK_RUN_REVIEWS,
     capacity: int = CARRIED_CAPACITY,
+    force: bool = False,
 ) -> tuple[dict[str, Any], dict[str, int], int, dict[str, Any], bool]:
     """Decide, **before** an action tick, whether the tick is spent banking.
 
@@ -367,11 +451,14 @@ def carried_bank_run_gate_pure(
     must bank before acting again, so the next answer buys the bank-run instead of
     skill XP — exactly how combat spends answers when supplies run out. ``capacity``
     defaults to ``CARRIED_CAPACITY`` but a bag raises it (see
-    ``effective_carried_capacity``).
+    ``effective_carried_capacity``). ``force`` is an additional, more precise
+    trigger: processing targets pass it when the carried pack has run out of a
+    required input even though churn hasn't reached capacity yet (a lopsided
+    recipe can run dry early) — the pack literally cannot supply the next action.
 
     Returns ``(new_bank_run_state, new_view, new_churn, event, act)``. ``act=False``
     means skip the action this tick (it went to banking); on a completed run the
-    view clears and churn resets (items stay banked in the flat store). Under
+    view clears and churn resets (the caller repacks both from the bank). Under
     **Drop** nothing is carried and nothing banks, so the tick always acts.
     """
     view = dict(view) if isinstance(view, Mapping) else {}
@@ -381,7 +468,7 @@ def carried_bank_run_gate_pure(
     if not keep:
         return {}, view, churn, idle, True
     active = bool(sanitize_bank_run_state(bank_run_state, reviews_cost))
-    full = churn >= capacity
+    full = churn >= capacity or bool(force)
     if not (active or full):
         return sanitize_bank_run_state(bank_run_state, reviews_cost), view, churn, idle, True
     new_state, event = bank_run_progress_pure(bank_run_state, True, target_id, reviews_cost)
@@ -422,7 +509,18 @@ def default_carried_state() -> dict[str, Any]:
         "carried_pack_mode": _DEFAULT_PACK_MODE,
         "loot_value_threshold": DEFAULT_LOOT_VALUE_THRESHOLD,
         "loot_overrides": {},              # {item: "keep"|"leave"} advanced per-drop
+        "carried_layout": {},              # {target_id: {item: count}} — advanced saved 4x7 arrangement
+        "carried_advanced_targets": {},    # {target_id: True} — targets using advanced mode
+        "carried_primed_targets": {},      # {target_id: True} — processing pack seeded at least once, free
     }
+
+
+def carried_advanced_for(player_data: Mapping[str, Any], target_id: str) -> bool:
+    """Whether a target is in advanced (hand-arranged layout) mode."""
+    if not isinstance(player_data, Mapping):
+        return False
+    advanced = player_data.get("carried_advanced_targets")
+    return bool(isinstance(advanced, Mapping) and advanced.get(target_id))
 
 
 def carried_keep_for(player_data: Mapping[str, Any], target_id: str) -> bool:
@@ -483,6 +581,22 @@ def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
         player_data.get("loot_value_threshold"),
         defaults["loot_value_threshold"],
         minimum=0,
+    )
+
+    player_data["carried_layout"] = _sanitize_carried_inventory(player_data.get("carried_layout"))
+
+    raw_advanced = player_data.get("carried_advanced_targets")
+    player_data["carried_advanced_targets"] = (
+        {str(target_id): True for target_id, value in raw_advanced.items() if isinstance(target_id, str) and value}
+        if isinstance(raw_advanced, Mapping)
+        else {}
+    )
+
+    raw_primed = player_data.get("carried_primed_targets")
+    player_data["carried_primed_targets"] = (
+        {str(target_id): True for target_id, value in raw_primed.items() if isinstance(target_id, str) and value}
+        if isinstance(raw_primed, Mapping)
+        else {}
     )
 
 
