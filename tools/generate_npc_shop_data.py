@@ -75,6 +75,123 @@ MANUAL_ITEM_PRICES = {
 # instant purchases/sales belong in VENDOR_ACTIONS below.
 SERVICE_ROWS: list[dict[str, Any]] = []
 
+# Hand-audited shop access walls (owner-grilled hybrid, 2026-07-07). Shops
+# absent from this table are open by decision — uncertainty defaults open and
+# is revisitable via the ledger. Kinds:
+#   quest: requires the named quest completed (or started when staged access
+#          is how 2011 granted it — mirrors the route-precedent catalog)
+#   skill: guild-style level wall
+#   skill_total: combined-level wall (Warriors' Guild)
+#   wilderness: open, but purchases carry the declared ambush risk
+SHOP_ACCESS_RULES: dict[str, dict[str, Any]] = {
+    # Zanaris (Lost City completed)
+    "zanaris_general_store": {"kind": "quest", "quest_id": "lost_city", "stage": "completed", "label": "Lost City"},
+    "chaeldars_slayer_equipment": {"kind": "quest", "quest_id": "lost_city", "stage": "completed", "label": "Lost City"},
+    # Ape Atoll (Monkey Madness in progress grants access)
+    "solihibs_food_stall": {"kind": "quest", "quest_id": "monkey_madness", "stage": "started", "label": "Monkey Madness"},
+    "dagas_scimitar_smithy": {"kind": "quest", "quest_id": "monkey_madness", "stage": "started", "label": "Monkey Madness"},
+    "tutabs_magical_market": {"kind": "quest", "quest_id": "monkey_madness", "stage": "started", "label": "Monkey Madness"},
+    "hamabs_crafting_emporium": {"kind": "quest", "quest_id": "monkey_madness", "stage": "started", "label": "Monkey Madness"},
+    # Neitiznot/Jatizso (The Fremennik Isles grants island access at start)
+    "neitiznot_supplies": {"kind": "quest", "quest_id": "the_fremennik_isles", "stage": "started", "label": "The Fremennik Isles"},
+    "keepa_kettilons_store": {"kind": "quest", "quest_id": "the_fremennik_isles", "stage": "started", "label": "The Fremennik Isles"},
+    "contraband_yak_produce": {"kind": "quest", "quest_id": "the_fremennik_isles", "stage": "started", "label": "The Fremennik Isles"},
+    "flosis_fishmongers": {"kind": "quest", "quest_id": "the_fremennik_isles", "stage": "started", "label": "The Fremennik Isles"},
+    "weapons_galore": {"kind": "quest", "quest_id": "the_fremennik_isles", "stage": "started", "label": "The Fremennik Isles"},
+    # Rellekka commerce (The Fremennik Trials completed)
+    "skulgrimens_battle_gear": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "yrsas_accoutrements": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "fremennik_fishmonger": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "fremennik_fur_trader": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "sigmund_the_merchant": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    # Miscellania/Etceteria (reached via Fremennik Trials completion)
+    "miscellanian_clothes_shop": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "miscellanian_food_shop": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "miscellanian_general_store": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "greengrocer_of_miscellania": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "etceteria_fish": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "island_greengrocer": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    "island_fishmonger": {"kind": "quest", "quest_id": "the_fremennik_trials", "stage": "completed", "label": "The Fremennik Trials"},
+    # Lunar Isle (Lunar Diplomacy grants access mid-quest)
+    "moon_clan_fine_clothes": {"kind": "quest", "quest_id": "lunar_diplomacy", "stage": "started", "label": "Lunar Diplomacy"},
+    "moon_clan_general_store": {"kind": "quest", "quest_id": "lunar_diplomacy", "stage": "started", "label": "Lunar Diplomacy"},
+    "baba_yagas_magic_shop": {"kind": "quest", "quest_id": "lunar_diplomacy", "stage": "started", "label": "Lunar Diplomacy"},
+    "baba_yagas_magic_shop_afterquest": {"kind": "quest", "quest_id": "lunar_diplomacy", "stage": "completed", "label": "Lunar Diplomacy"},
+    # Guild grounds behind quests
+    "legends_guild_general_store": {"kind": "quest", "quest_id": "legends_quest", "stage": "started", "label": "Legends' Quest"},
+    "legends_guild_shop_of_useful_items": {"kind": "quest", "quest_id": "legends_quest", "stage": "started", "label": "Legends' Quest"},
+    "happy_heroes_emporium": {"kind": "quest", "quest_id": "heroes_quest", "stage": "completed", "label": "Heroes' Quest"},
+    "valaines_shop_of_champions": {"kind": "quest_points", "quest_points": 32, "label": "32 Quest Points"},
+    "oziach": {"kind": "quest", "quest_id": "dragon_slayer", "stage": "completed", "label": "Dragon Slayer"},
+    "initiate_rank_armory": {"kind": "quest", "quest_id": "recruitment_drive", "stage": "completed", "label": "Recruitment Drive"},
+    # West Ardougne (Plague City opens the wall passage)
+    "west_ardougne_general_store": {"kind": "quest", "quest_id": "plague_city", "stage": "started", "label": "Plague City"},
+    # Lletya (elf lands open once Regicide is done; Lletya itself is found in
+    # the Mourning's End chain — Regicide completion is the honest floor)
+    "lletya_archery_shop": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
+    "lletya_food_store": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
+    "lletya_general_store": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
+    "lletya_seamstress": {"kind": "quest", "quest_id": "regicide", "stage": "completed", "label": "Regicide"},
+    # Dorgesh-Kaan (Death to the Dorgeshuun completed)
+    "dorgesh_kaan_general_supplies": {"kind": "quest", "quest_id": "death_to_the_dorgeshuun", "stage": "completed", "label": "Death to the Dorgeshuun"},
+    "dorgeshkaan_general_supplies": {"kind": "quest", "quest_id": "death_to_the_dorgeshuun", "stage": "completed", "label": "Death to the Dorgeshuun"},
+    "miltogs_lamps": {"kind": "quest", "quest_id": "death_to_the_dorgeshuun", "stage": "completed", "label": "Death to the Dorgeshuun"},
+    "nardocks_bone_weapons": {"kind": "quest", "quest_id": "death_to_the_dorgeshuun", "stage": "completed", "label": "Death to the Dorgeshuun"},
+    # Keldagrim (city opens at The Giant Dwarf start)
+    "keldagrim_crossbow_shop": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "keldagrim_stonemason": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "keldagrims_best_bread": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "silver_cog_silver_stall": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "vermundis_clothes_stall": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "vigrs_warhammers": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "gunsliks_assorted_items": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    "dwarven_shopping_store": {"kind": "quest", "quest_id": "the_giant_dwarf", "stage": "started", "label": "The Giant Dwarf"},
+    # Mos Le'Harmless (Cabin Fever completed)
+    "the_other_inn_and_harpoon_joe_s_house_of_rum": {"kind": "quest", "quest_id": "cabin_fever", "stage": "completed", "label": "Cabin Fever"},
+    "dodgy_mike_s_second_hand_clothing": {"kind": "quest", "quest_id": "cabin_fever", "stage": "completed", "label": "Cabin Fever"},
+    # Burgh de Rott (In Aid of the Myreque rebuilds the town)
+    "razmire_builders": {"kind": "quest", "quest_id": "in_aid_of_the_myreque", "stage": "started", "label": "In Aid of the Myreque"},
+    "razmire_general": {"kind": "quest", "quest_id": "in_aid_of_the_myreque", "stage": "started", "label": "In Aid of the Myreque"},
+    # Canifis (Priest in Peril — the existing Morytania precedent)
+    "canifis_general_store": {"kind": "quest", "quest_id": "priest_in_peril", "stage": "completed", "label": "Priest in Peril"},
+    "barkers_haberdashery": {"kind": "quest", "quest_id": "priest_in_peril", "stage": "completed", "label": "Priest in Peril"},
+    "rufuss_meat_emporium": {"kind": "quest", "quest_id": "priest_in_peril", "stage": "completed", "label": "Priest in Peril"},
+    "mazchnas_slayer_equipment": {"kind": "quest", "quest_id": "priest_in_peril", "stage": "completed", "label": "Priest in Peril"},
+    # Shilo Village (quest completed)
+    "fernaheis_fishing_shop": {"kind": "quest", "quest_id": "shilo_village", "stage": "completed", "label": "Shilo Village"},
+    "seddus_adventure_store": {"kind": "quest", "quest_id": "shilo_village", "stage": "completed", "label": "Shilo Village"},
+    "duradels_slayer_equipment": {"kind": "quest", "quest_id": "shilo_village", "stage": "completed", "label": "Shilo Village"},
+    # Tai Bwo Wannai Trio unlocks Tiadeche's stall
+    "tiadeches_karambwan_stall": {"kind": "quest", "quest_id": "tai_bwo_wannai_trio", "stage": "completed", "label": "Tai Bwo Wannai Trio"},
+    # Skill-guild walls
+    "fishing_guild_shop": {"kind": "skill", "skill": "fishing", "level": 68, "label": "68 Fishing"},
+    "magic_guild_store_robes": {"kind": "skill", "skill": "magic", "level": 66, "label": "66 Magic"},
+    "magic_guild_store_runes": {"kind": "skill", "skill": "magic", "level": 66, "label": "66 Magic"},
+    "scavvos_rune_shop": {"kind": "skill", "skill": "magic", "level": 66, "label": "66 Magic"},
+    "aarons_archery_appendages": {"kind": "skill", "skill": "ranged", "level": 40, "label": "40 Ranged"},
+    "dargauds_bow_and_arrows": {"kind": "skill", "skill": "ranged", "level": 40, "label": "40 Ranged"},
+    "authentic_throwing_weapons": {"kind": "skill", "skill": "ranged", "level": 40, "label": "40 Ranged"},
+    "warrior_guild_armory": {"kind": "skill_total", "skills": ("attack", "strength"), "total": 130, "label": "Attack + Strength 130"},
+    "warrior_guild_food_shop": {"kind": "skill_total", "skills": ("attack", "strength"), "total": 130, "label": "Attack + Strength 130"},
+    "warrior_guild_potion_shop": {"kind": "skill_total", "skills": ("attack", "strength"), "total": 130, "label": "Attack + Strength 130"},
+    # Wilderness commerce (open, but ambush-risky by owner decision)
+    "mage_arena_staves": {"kind": "wilderness", "label": "Wilderness"},
+    "lundails_arena_rune_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "chamber_guardian_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "bandit_camp_free": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_darren_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_edmond_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_edward_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_ian_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_larry_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_neil_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_richard_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_sam_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "team_cape_simon_shop": {"kind": "wilderness", "label": "Wilderness"},
+    "william_team_cape_shop": {"kind": "wilderness", "label": "Wilderness"},
+}
+
+
 VENDOR_ACTIONS = [
     {
         "id": "bartender_buy_beer",
@@ -883,6 +1000,13 @@ def main() -> None:
         java_home=args.darkan_java_home,
     )
     catalog, ledger = build_catalog(args.darkan_shops, args.items_2011, price_inputs, args.darkan_cache)
+    access_counts: dict[str, int] = {}
+    for shop in catalog["shops"]:
+        rule = SHOP_ACCESS_RULES.get(shop["id"])
+        shop["access"] = dict(rule) if rule else None
+        access_counts[rule["kind"] if rule else "open"] = access_counts.get(rule["kind"] if rule else "open", 0) + 1
+    catalog["summary"]["access_gate_counts"] = dict(sorted(access_counts.items()))
+    ledger["summary"]["access_gate_counts"] = dict(sorted(access_counts.items()))
     catalog["player_sell_prices"], catalog["player_buy_prices"] = build_player_sell_prices(
         items, price_inputs, catalog["shops"]
     )

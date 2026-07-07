@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shop Access Gates — Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --amber:#fbbf24; --red:#ff5c5c; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:960px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--accent); background:rgba(79,140,255,0.15); border:1px solid rgba(79,140,255,0.4); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.8rem; margin-bottom:0.6rem; }
+p, li { color:var(--text-dim); font-size:0.9rem; }
+ol { margin:0.6rem 0 0.6rem 1.4rem; }
+li { margin-bottom:0.45rem; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1rem; }
+.risk { background:rgba(255,92,92,0.06); border:1px solid rgba(255,92,92,0.3); border-radius:8px; padding:0.8rem 1rem; margin-top:0.8rem; font-size:0.85rem; color:var(--text-dim); }
+.risk b { color:var(--red); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">PRE-IMPLEMENTATION PLAN · 2026-07-07</div>
+    <h1>Shop Access Gates + Wilderness Ambush</h1>
+    <p>Owner-grilled hybrid (2026-07-07): every shop classified in an access ledger; gates implemented
+    only where real walls exist; Wilderness shopping carries a declared, kill-capable ambush risk.</p>
+    <div class="card">
+        <ol>
+            <li><b style="color:var(--text)">Access classification</b> — hand-audited
+            <code>SHOP_ACCESS_RULES</code> in the generator (shop_id → quest / route-stage / guild-skill /
+            wilderness / open, each with a source note), emitted onto shop rows and into the coverage
+            ledger. Uncertainty defaults open, recorded.</li>
+            <li><b style="color:var(--text)">Runtime locks</b> — <code>shop_logic</code> evaluates access
+            against the save at view/preview/apply time (quest gates use the existing quest-state shapes;
+            guild gates check the skill level), producing a dynamic <code>lock_reason</code>
+            ("Requires Lost City", "Requires 68 Fishing") rendered through the existing
+            visible-locked surface. Buys and sells both deny while locked.</li>
+            <li><b style="color:var(--text)">Wilderness ambush</b> — persistent
+            <code>wilderness_shop_slots</code> accumulator; each purchase adds slots (stackables one per
+            type, unstackables one per item); every completed 28-slot block rolls 1%; on trigger, one
+            PKer-style hit via the real combat damage roll (declared max 250 LP, engine 1..max−1
+            semantics) lands on <code>combat_lifepoints</code>; death routes through the normal grave
+            path. Damage/death state rides the purchase's shop event for rollback. Qt shows the
+            dangerous-action confirmation on Wilderness purchases (session-scoped) and a Wilderness flag
+            in the shop header.</li>
+            <li>Tests (gate evaluation per class, ambush slot math, kill path, rollback), access-ledger
+            audit doc, results artifact, both suites, commit per convention.</li>
+        </ol>
+    </div>
+    <div class="risk"><b>Declared inventions:</b> the ambush formula (1% per 28 slots, 250 LP max) and
+    the review-model gate evaluation are AnkiScape adaptations — both get ledger rows. The gate list
+    itself is source-auditable per shop (quest walls from the 2011 game's access requirements).</div>
+</div>
+</body>
+</html>

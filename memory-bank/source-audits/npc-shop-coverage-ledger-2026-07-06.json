@@ -30235,6 +30235,14 @@
     "items_2011scape": "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
   },
   "summary": {
+    "access_gate_counts": {
+      "open": 187,
+      "quest": 61,
+      "quest_points": 1,
+      "skill": 7,
+      "skill_total": 3,
+      "wilderness": 14
+    },
     "blocked_stock_row_count": 21,
     "currency_counts": {
       "13727": 1,

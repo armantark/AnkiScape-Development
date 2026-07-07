@@ -118,6 +118,45 @@ def advance_shop_market_clock_pure(player_data: Mapping[str, Any], answered_card
     return data
 
 
+def shop_access_lock_reason_pure(player_data: Mapping[str, Any], shop: Mapping[str, Any]) -> Optional[str]:
+    """Owner-grilled access gates (2026-07-07): quest/route walls, guild
+    skill walls, and quest-point walls evaluated against the save. Wilderness
+    is access-open (its cost is the ambush risk, not a lock)."""
+    rule = shop.get("access")
+    if not isinstance(rule, Mapping):
+        return None
+    kind = rule.get("kind")
+    label = str(rule.get("label", "access requirement"))
+    if kind == "quest":
+        quests = player_data.get("quests", {}) or {}
+        state = quests.get(str(rule.get("quest_id", "")), {}) or {}
+        if str(rule.get("stage", "completed")) == "started":
+            if bool(state.get("started")) or bool(state.get("completed")):
+                return None
+            return f"Requires starting {label}"
+        if bool(state.get("completed")):
+            return None
+        return f"Requires {label}"
+    if kind == "quest_points":
+        required = int(rule.get("quest_points", 0) or 0)
+        if int(player_data.get("quest_points", 0) or 0) >= required:
+            return None
+        return f"Requires {label}"
+    if kind == "skill":
+        skill = str(rule.get("skill", ""))
+        required = int(rule.get("level", 1) or 1)
+        if int(player_data.get(f"{skill}_level", 1) or 1) >= required:
+            return None
+        return f"Requires {label}"
+    if kind == "skill_total":
+        total = sum(int(player_data.get(f"{skill}_level", 1) or 1) for skill in rule.get("skills", ()))
+        if total >= int(rule.get("total", 0) or 0):
+            return None
+        return f"Requires {label}"
+    return None
+
+
+
 def resolve_shop_id(shop_id: str) -> str:
     return SHOP_ID_ALIASES.get(shop_id, shop_id)
 
@@ -138,6 +177,11 @@ def shop_view_model_pure(player_data: Mapping[str, Any], shop_id: str) -> Dict[s
         if row_id in seen_row_ids or not bool(row_state.get("temporary")):
             continue
         rows.append(_row_view(_temporary_row_definition(row_id, row_state), row_state, shop))
+    access_lock = shop_access_lock_reason_pure(data, shop)
+    if access_lock:
+        for row_view in rows:
+            row_view["can_buy"] = False
+            row_view["can_sell_to_shop"] = False
     return {
         "exists": True,
         "shop_id": shop["id"],
@@ -148,7 +192,8 @@ def shop_view_model_pure(player_data: Mapping[str, Any], shop_id: str) -> Dict[s
         "buy_only": shop["buy_only"],
         "shared_stock_group": shop["shared_stock_group"],
         "visibility": shop["visibility"],
-        "lock_reason": shop["lock_reason"],
+        "lock_reason": access_lock or shop["lock_reason"],
+        "wilderness": (shop.get("access") or {}).get("kind") == "wilderness",
         "market_tick": data["shop_market_clock"]["market_tick"],
         "rows": rows,
     }
@@ -595,6 +640,9 @@ def _preview_buy_from_state(
     requested = max(1, int(quantity))
     if shop["visibility"] != "visible":
         return _denied(shop.get("lock_reason") or "shop_not_visible", requested_quantity=requested, shop_id=shop["id"], row_id=row["id"])
+    access_lock = shop_access_lock_reason_pure(data, shop)
+    if access_lock:
+        return _denied(access_lock, requested_quantity=requested, shop_id=shop["id"], row_id=row["id"])
     if row["disposition"] != "live":
         return _denied(row.get("lock_reason") or "stock_row_not_live", requested_quantity=requested, shop_id=shop["id"], row_id=row["id"])
     unit_price = _clean_optional_int(row.get("buy_price"))
@@ -652,6 +700,9 @@ def _preview_sell_from_state(
         return _denied(shop.get("lock_reason") or "shop_not_visible", requested_quantity=requested, shop_id=shop["id"])
     if shop["buy_only"]:
         return _denied("shop_buy_only", requested_quantity=requested, shop_id=shop["id"])
+    access_lock = shop_access_lock_reason_pure(data, shop)
+    if access_lock:
+        return _denied(access_lock, requested_quantity=requested, shop_id=shop["id"])
     owned_quantity = _inventory_count(data, item_name)
     if owned_quantity <= 0:
         return _denied("missing_item", requested_quantity=requested, shop_id=shop["id"], item_name=item_name, owned_quantity=0)

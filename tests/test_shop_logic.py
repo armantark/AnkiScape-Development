@@ -177,6 +177,49 @@ class TestShopLogic(unittest.TestCase):
         self.assertTrue(beer_result["allowed"])
         self.assertEqual(after_beer["inventory"]["Beer"], after_news["inventory"]["Beer"] + 1)
 
+    def test_shop_access_gates_evaluate_against_the_save(self):
+        # Owner-grilled hybrid gating: quest walls lock buys/sells with a
+        # human-readable reason and open when the save satisfies the rule;
+        # every gated quest id must exist in the catalog.
+        from shop_data import SHOP_DATA
+        from quest_data import QUESTS_BY_ID
+        from shop_logic import shop_access_lock_reason_pure
+
+        for shop in SHOP_DATA.values():
+            rule = shop.get("access")
+            if rule and rule.get("kind") == "quest":
+                self.assertIn(rule["quest_id"], QUESTS_BY_ID, shop["id"])
+
+        data = build_shop_fixture_player_data()
+        view = shop_view_model_pure(data, "zanaris_general_store")
+        self.assertEqual(view["lock_reason"], "Requires Lost City")
+        self.assertFalse(any(row["can_buy"] for row in view["rows"]))
+        preview = preview_shop_buy_pure(data, "zanaris_general_store", view["rows"][0]["id"], 1)
+        self.assertFalse(preview["allowed"])
+        self.assertEqual(preview["reason"], "Requires Lost City")
+
+        data["quests"] = {"lost_city": {"started": True, "progress": 6, "completed": True}}
+        unlocked = shop_view_model_pure(data, "zanaris_general_store")
+        self.assertEqual(unlocked["lock_reason"], "")
+        self.assertTrue(any(row["can_buy"] for row in unlocked["rows"]))
+
+        # Guild skill wall and started-stage wall.
+        low = build_shop_fixture_player_data()
+        self.assertEqual(
+            shop_access_lock_reason_pure(low, SHOP_DATA["fishing_guild_shop"]),
+            "Requires 68 Fishing",
+        )
+        low["fishing_level"] = 68
+        self.assertIsNone(shop_access_lock_reason_pure(low, SHOP_DATA["fishing_guild_shop"]))
+        self.assertEqual(
+            shop_access_lock_reason_pure(low, SHOP_DATA["keldagrim_stonemason"]),
+            "Requires starting The Giant Dwarf",
+        )
+        # Wilderness shops stay access-open; the flag drives the ambush risk.
+        wild = shop_view_model_pure(low, "mage_arena_staves")
+        self.assertTrue(wild["wilderness"])
+        self.assertEqual(wild["lock_reason"], "")
+
     def test_vendor_actions_are_one_per_interaction(self):
         # Dialogue parity: Karim hands over exactly one kebab per
         # conversation; requested bulk quantities clamp to a single use.
