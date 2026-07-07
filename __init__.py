@@ -837,9 +837,12 @@ def _on_main_menu():
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
         on_set_loot_override=_set_loot_override,
         loot_override_rows=_current_combat_loot_rows(),
+        carried_pack_target_active=_current_carried_pack_target() is not None,
         on_set_carried_advanced=_set_carried_advanced,
         carried_advanced_state=_current_carried_advanced_state(),
-        carried_layout_cells=_current_carried_layout_cells(),
+        # A callback, not a snapshot: the grid re-reads live player_data after
+        # every add/clear, so it can refresh without rebuilding the whole dialog.
+        get_carried_layout_cells=_current_carried_layout_cells,
         on_add_to_carried_layout=_add_to_carried_layout,
         on_clear_carried_layout=_clear_carried_layout,
         on_set_combat=lambda target: _set_value("current_combat_target", target),
