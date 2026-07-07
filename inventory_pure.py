@@ -232,6 +232,62 @@ def bank_run_progress_pure(
     return new_state, {"active": True, "started": started, "completed": False, "reviews_remaining": remaining}
 
 
+def inventory_delta_gains(inv_before: Any, inv_after: Any) -> dict[str, int]:
+    """The positive per-item delta between two flat-inventory snapshots.
+
+    This is how the overlay learns what an action produced without knowing any
+    skill's internals: a tick's gains are whatever went up in the flat store.
+    Coins are excluded — they are the money pouch, never carried.
+    """
+    if not isinstance(inv_after, Mapping):
+        return {}
+    before = inv_before if isinstance(inv_before, Mapping) else {}
+    gains: dict[str, int] = {}
+    for item_name, after_count in inv_after.items():
+        if not isinstance(item_name, str) or item_name == COIN_ITEM_NAME:
+            continue
+        gained = _clean_int(after_count, 0) - _clean_int(before.get(item_name, 0), 0)
+        if gained > 0:
+            gains[item_name] = gained
+    return gains
+
+
+def advance_carried_overlay_pure(
+    view: Any,
+    produced: Any,
+    keep: bool,
+    stackable_names: set[str] | frozenset[str],
+    target_id: Any,
+    bank_run_state: Any,
+    reviews_cost: int = SKILLING_BANK_RUN_REVIEWS,
+) -> tuple[dict[str, int], dict[str, Any], dict[str, Any]]:
+    """Fold one action tick's output into the carried view and drive the bank-run.
+
+    ``view`` is ``carried_inventory[target_id]`` (what is in hand). Under **Keep**,
+    the tick's ``produced`` items accumulate into it; when it fills to
+    ``CARRIED_CAPACITY`` slots a bank-run is triggered (``bank_run_progress_pure``)
+    and, on completion, the view clears (the items stay banked in the flat store).
+    Under **Drop** nothing is carried and nothing banks — the fastest-XP path.
+
+    Returns ``(new_view, new_bank_run_state, event)``.
+    """
+    view = dict(view) if isinstance(view, Mapping) else {}
+    if not keep:
+        return {}, {}, {"active": False, "started": False, "completed": False, "reviews_remaining": 0}
+    if isinstance(produced, Mapping):
+        for item_name, qty in produced.items():
+            if not isinstance(item_name, str) or item_name == COIN_ITEM_NAME:
+                continue
+            gained = _clean_int(qty, 0, minimum=0)
+            if gained > 0:
+                view[item_name] = view.get(item_name, 0) + gained
+    full = carried_slots_used(view, stackable_names) >= CARRIED_CAPACITY
+    new_state, event = bank_run_progress_pure(bank_run_state, full, target_id, reviews_cost)
+    if event.get("completed"):
+        view = {}
+    return view, new_state, event
+
+
 def default_carried_state() -> dict[str, Any]:
     return {
         "carried_inventory": {},

@@ -12,6 +12,8 @@ from inventory_pure import (
     money_pouch_balance,
     pack_carried_inventory_pure,
     bank_run_progress_pure,
+    advance_carried_overlay_pure,
+    inventory_delta_gains,
     sanitize_carried_state,
 )
 
@@ -163,6 +165,46 @@ class TestBankRunStateMachine(unittest.TestCase):
         state, _ = bank_run_progress_pure({"reviews_remaining": 99, "target_id": "rats"}, False, "rats", 2)
         # capped to 2 then decremented to 1
         self.assertEqual(state, {"reviews_remaining": 1, "target_id": "rats"})
+
+
+class TestCarriedOverlayAdvance(unittest.TestCase):
+    def test_delta_gains_excludes_coins_and_losses(self):
+        before = {"Coal": 5, "Coins": 100, "Bronze bar": 2}
+        after = {"Coal": 8, "Coins": 150, "Bronze bar": 1}
+        self.assertEqual(inventory_delta_gains(before, after), {"Coal": 3})
+
+    def test_keep_accumulates_until_full_then_banks_and_clears(self):
+        view, state = {}, {}
+        # 27 single-coal ticks accumulate without banking.
+        for _ in range(27):
+            view, state, event = advance_carried_overlay_pure(
+                view, {"Coal": 1}, keep=True, stackable_names=set(),
+                target_id="coal", bank_run_state=state,
+            )
+            self.assertFalse(event["completed"])
+        self.assertEqual(carried_slots_used(view, set()), 27)
+        # The 28th fills the pack -> a 1-review bank-run completes and clears it.
+        view, state, event = advance_carried_overlay_pure(
+            view, {"Coal": 1}, keep=True, stackable_names=set(),
+            target_id="coal", bank_run_state=state,
+        )
+        self.assertTrue(event["completed"])
+        self.assertEqual(view, {})
+
+    def test_drop_never_carries_or_banks(self):
+        view, state, event = advance_carried_overlay_pure(
+            {"Coal": 20}, {"Coal": 1}, keep=False, stackable_names=set(),
+            target_id="coal", bank_run_state={},
+        )
+        self.assertEqual(view, {})
+        self.assertFalse(event["active"])
+
+    def test_coins_never_enter_the_view(self):
+        view, _, _ = advance_carried_overlay_pure(
+            {}, {"Coins": 500, "Coal": 2}, keep=True, stackable_names=set(),
+            target_id="coal", bank_run_state={},
+        )
+        self.assertEqual(view, {"Coal": 2})
 
 
 if __name__ == "__main__":
