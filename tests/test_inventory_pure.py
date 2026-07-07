@@ -14,6 +14,7 @@ from inventory_pure import (
     bank_run_progress_pure,
     carried_bank_run_gate_pure,
     carried_fold_gains_pure,
+    carried_action_churn_pure,
     inventory_delta_gains,
     sanitize_carried_state,
 )
@@ -174,38 +175,74 @@ class TestCarriedOverlayAdvance(unittest.TestCase):
         after = {"Coal": 8, "Coins": 150, "Bronze bar": 1}
         self.assertEqual(inventory_delta_gains(before, after), {"Coal": 3})
 
-    def _mine_one_tick(self, view, state):
-        """A gather tick: gate (act?), and if acting, fold one coal into the view."""
-        state, view, event, act = carried_bank_run_gate_pure(
-            view, keep=True, stackable_names=set(), target_id="coal", bank_run_state=state,
+    def test_churn_is_max_of_gained_and_consumed_slots(self):
+        # Gather: gain 1, consume 0 -> 1.
+        self.assertEqual(carried_action_churn_pure({}, {"Coal": 1}, set()), 1)
+        # Consumption (firemaking): consume 1 log, gain nothing -> 1.
+        self.assertEqual(carried_action_churn_pure({"Logs": 5}, {"Logs": 4}, set()), 1)
+        # Multi-output gather: gain 3 -> 3.
+        self.assertEqual(carried_action_churn_pure({}, {"Coal": 3}, set()), 3)
+        # 1:1 processing: consume 1 bar, gain 1 item -> max(1,1) = 1.
+        self.assertEqual(
+            carried_action_churn_pure({"Steel bar": 2}, {"Steel bar": 1, "Dart tip": 1}, set()), 1
+        )
+
+    def _gather_tick(self, view, churn, state, gain=None, consume_before=None, consume_after=None):
+        """One tick: gate, and if acting apply the churn and fold gains."""
+        state, view, churn, event, act = carried_bank_run_gate_pure(
+            view, churn, keep=True, stackable_names=set(), target_id="coal", bank_run_state=state,
         )
         if act:
-            view = carried_fold_gains_pure(view, {"Coal": 1}, set())
-        return view, state, event, act
+            if consume_before is not None:
+                churn += carried_action_churn_pure(consume_before, consume_after, set())
+            else:
+                churn += carried_action_churn_pure({}, gain or {}, set())
+                view = carried_fold_gains_pure(view, gain or {}, set())
+        return view, churn, state, event, act
 
-    def test_pack_fills_then_a_tick_is_spent_banking_and_clears(self):
-        view, state = {}, {}
+    def test_gathering_fills_then_a_tick_banks_no_xp_then_resumes(self):
+        view, churn, state = {}, 0, {}
         acted = 0
         for _ in range(28):
-            view, state, event, act = self._mine_one_tick(view, state)
+            view, churn, state, event, act = self._gather_tick(view, churn, state, gain={"Coal": 1})
             acted += 1 if act else 0
-        # 28 gather ticks all acted (pack now full at 28 slots), none banked yet.
         self.assertEqual(acted, 28)
+        self.assertEqual(churn, CARRIED_CAPACITY)
         self.assertEqual(carried_slots_used(view, set()), CARRIED_CAPACITY)
-        # The next tick is spent banking: no action, 1-review run completes, view clears.
-        view, state, event, act = self._mine_one_tick(view, state)
+        # 29th tick is spent banking: no action, run completes, view + churn reset.
+        view, churn, state, event, act = self._gather_tick(view, churn, state, gain={"Coal": 1})
         self.assertFalse(act)
         self.assertTrue(event["completed"])
         self.assertEqual(view, {})
-        # And the following tick gathers again.
-        view, state, event, act = self._mine_one_tick(view, state)
+        self.assertEqual(churn, 0)
+        # 30th gathers again.
+        view, churn, state, event, act = self._gather_tick(view, churn, state, gain={"Coal": 1})
         self.assertTrue(act)
         self.assertEqual(carried_slots_used(view, set()), 1)
 
+    def test_consumption_skill_gets_teeth_with_an_empty_view(self):
+        # Firemaking burns a log per tick and produces nothing carried; churn still
+        # accrues from consumed input slots, so it banks at 28 with an empty view.
+        view, churn, state = {}, 0, {}
+        logs = 100
+        for _ in range(28):
+            view, churn, state, event, act = self._gather_tick(
+                view, churn, state, consume_before={"Logs": logs}, consume_after={"Logs": logs - 1}
+            )
+            if act:
+                logs -= 1
+        self.assertEqual(churn, CARRIED_CAPACITY)
+        self.assertEqual(view, {})  # nothing carried, but teeth still bite
+        view, churn, state, event, act = self._gather_tick(
+            view, churn, state, consume_before={"Logs": logs}, consume_after={"Logs": logs - 1}
+        )
+        self.assertFalse(act)
+        self.assertTrue(event["completed"])
+
     def test_drop_always_acts_and_never_banks(self):
         # Drop never banks; it also does not destroy items already in the pack.
-        state, view, event, act = carried_bank_run_gate_pure(
-            {"Coal": 28}, keep=False, stackable_names=set(), target_id="coal", bank_run_state={},
+        state, view, churn, event, act = carried_bank_run_gate_pure(
+            {"Coal": 28}, 999, keep=False, stackable_names=set(), target_id="coal", bank_run_state={},
         )
         self.assertTrue(act)
         self.assertEqual(view, {"Coal": 28})

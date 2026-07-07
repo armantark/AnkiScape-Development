@@ -252,37 +252,65 @@ def inventory_delta_gains(inv_before: Any, inv_after: Any) -> dict[str, int]:
     return gains
 
 
+def carried_action_churn_pure(
+    inv_before: Any,
+    inv_after: Any,
+    stackable_names: set[str] | frozenset[str],
+) -> int:
+    """The slots one action churned = max(slots gained, slots consumed).
+
+    This is the unified teeth signal: gathering churns its output slots,
+    consumption churns its input slots, 1:1 processing churns one. Accumulated,
+    it forces a bank-run every ``CARRIED_CAPACITY`` slots regardless of skill.
+    Coins are excluded (they are the money pouch).
+    """
+    gains = inventory_delta_gains(inv_before, inv_after)
+    before = inv_before if isinstance(inv_before, Mapping) else {}
+    after = inv_after if isinstance(inv_after, Mapping) else {}
+    losses: dict[str, int] = {}
+    for item_name, before_count in before.items():
+        if not isinstance(item_name, str) or item_name == COIN_ITEM_NAME:
+            continue
+        lost = _clean_int(before_count, 0) - _clean_int(after.get(item_name, 0), 0)
+        if lost > 0:
+            losses[item_name] = lost
+    return max(carried_slots_used(gains, stackable_names), carried_slots_used(losses, stackable_names))
+
+
 def carried_bank_run_gate_pure(
     view: Any,
+    churn: Any,
     keep: bool,
     stackable_names: set[str] | frozenset[str],
     target_id: Any,
     bank_run_state: Any,
     reviews_cost: int = SKILLING_BANK_RUN_REVIEWS,
-) -> tuple[dict[str, Any], dict[str, int], dict[str, Any], bool]:
+) -> tuple[dict[str, Any], dict[str, int], int, dict[str, Any], bool]:
     """Decide, **before** an action tick, whether the tick is spent banking.
 
-    The teeth: when the carried pack is full (``CARRIED_CAPACITY`` slots) the
+    The teeth: once accumulated ``churn`` reaches ``CARRIED_CAPACITY`` slots the
     player must bank before acting again, so the next answer buys the bank-run
     instead of skill XP — exactly how combat spends answers when supplies run out.
 
-    Returns ``(new_bank_run_state, new_view, event, act)``. ``act=False`` means the
-    caller must skip the action this tick (it went to banking). On a completed run
-    the view clears (the items stay banked in the flat store). Under **Drop**
-    nothing is carried and nothing banks, so the tick always acts.
+    Returns ``(new_bank_run_state, new_view, new_churn, event, act)``. ``act=False``
+    means skip the action this tick (it went to banking); on a completed run the
+    view clears and churn resets (items stay banked in the flat store). Under
+    **Drop** nothing is carried and nothing banks, so the tick always acts.
     """
     view = dict(view) if isinstance(view, Mapping) else {}
+    churn = _clean_int(churn, 0, minimum=0)
     idle = {"active": False, "started": False, "completed": False, "reviews_remaining": 0}
     if not keep:
-        return {}, view, idle, True
+        return {}, view, churn, idle, True
     active = bool(sanitize_bank_run_state(bank_run_state, reviews_cost))
-    full = carried_slots_used(view, stackable_names) >= CARRIED_CAPACITY
+    full = churn >= CARRIED_CAPACITY
     if not (active or full):
-        return sanitize_bank_run_state(bank_run_state, reviews_cost), view, idle, True
+        return sanitize_bank_run_state(bank_run_state, reviews_cost), view, churn, idle, True
     new_state, event = bank_run_progress_pure(bank_run_state, True, target_id, reviews_cost)
     if event.get("completed"):
         view = {}
-    return new_state, view, event, False
+        churn = 0
+    return new_state, view, churn, event, False
 
 
 def carried_fold_gains_pure(

@@ -88,6 +88,66 @@ the owned total is in hand right now*. Rationale:
 This reconciles "real item dict" with "least-invasive": item-level knowledge for
 death/loot/bags, but no storage split.
 
+### Unified teeth — output view + input budget (refinement 2026-07-07)
+
+The pure overlay built so far (`carried_bank_run_gate_pure` / `carried_fold_gains_pure`)
+models **output teeth** correctly: gathered/produced items accumulate in the view
+and a full pack (28 slots) forces a bank-run. But consumption skills (Firemaking
+burns logs and produces nothing; net-consumption processing) would never fill an
+output pack, so they'd get no teeth — contradicting decision 5 (input + output,
+unified).
+
+RS reality: whatever the slot mechanics, the cadence is ~28 actions per bank run
+(28 empty → fill, or 28 inputs → consume, or 28 in → 28 out). The cleanest
+slot-accurate unified trigger is a single **churn scalar**, not two counters:
+
+- Per action, `churn += max(output_slots_gained, input_slots_consumed)`, both read
+  from the inventory delta (positive side = gained, negative side = consumed).
+- Bank-run when `churn >= CARRIED_CAPACITY`; on completion reset `churn = 0` and
+  clear the output view.
+
+Why max() and one scalar: gathering (gain 1, consume 0) and consumption (gain 0,
+consume 1) both churn 1/action → bank at 28; a 3-output gather churns 3/action →
+banks at ~9 (pack really is full then); 1:1 processing churns 1/action. So churn
+replaces the `carried_slots_used(view) >= 28` check in the gate. The item **view**
+stays exactly as built — it is the death/loot content record, cleared on bank —
+but it is no longer the trigger. `carried_churn` ({target_id: int}) is new state.
+**Refactor the gate to take churn before writing the runtime wrapper.**
+
+### 2d integration is unit-testable (key finding 2026-07-07)
+
+The skilling handlers live in `runtime_actions.py` and are exercised in
+`tests/test_runtime_actions.py` through a plain `RuntimeActionContext` built from
+lambda stubs — **no live Anki needed.** So 2d lands as a tested wrapper in
+`runtime_actions.py`, not a blind `__init__.py` edit. Concrete shape:
+
+```
+def run_with_carried_overlay(ctx, skill_id, target_key, handler):
+    target_id = str(player_data.get(target_key, ""))
+    keep = carried_keep_drop.get(target_id, "keep") != "drop"
+    view  = carried_inventory.get(target_id, {})
+    state = player_data.get("skilling_bank_run", {})
+    new_state, new_view, event, act = carried_bank_run_gate_pure(view, keep, ...)
+    if not act:            # this answer buys the bank-run, no XP
+        persist state+view; ctx.show_activity_gain("Bank run"); return True
+    before = dict(inventory); result = handler(ctx); after = inventory
+    if result is not False and keep:
+        fold inventory_delta_gains(before, after) into the view; persist
+    return result
+```
+
+Then `on_good_answer`'s skilling branch calls this wrapper instead of the raw
+handler. Remaining prep before writing it:
+- Add `carried_keep_drop` ({target_id: "keep"|"drop"}, default keep) to
+  `default_carried_state` + `sanitize_carried_state` and a `skilling_bank_run`
+  state key.
+- Build the `skill_id -> target_key` map (e.g. mining→`current_mining`,
+  crafting→`current_craft`, fishing→`current_fishing`, …) from the handlers.
+- Stackable set: pass empty for v1 (gathering outputs are unstackable); wire the
+  real cache `stackable` set with the loot/bag slice.
+Verify with new `test_runtime_actions.py` cases (28 gather ticks → 29th banks,
+no XP → 30th gathers), then a light offscreen/live smoke.
+
 ### Remaining slice-2 sub-slices (each its own tested commit)
 
 - **2c — skilling bank-run state machine** (pure, mirrors combat; 1 review).
