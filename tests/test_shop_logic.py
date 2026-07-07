@@ -13,6 +13,7 @@ from shop_logic import (
     preview_shop_buy_pure,
     preview_shop_sell_pure,
     preview_shop_service_pure,
+    preview_shop_vendor_action_pure,
     rollback_shop_event_pure,
     sanitize_shop_state_pure,
     search_shop_catalog_pure,
@@ -122,13 +123,13 @@ class TestShopLogic(unittest.TestCase):
         self.assertTrue(sell_preview["allowed"])
         self.assertEqual(sell_preview["owned_quantity"], data["inventory"]["Beer"])
 
-        data["inventory"]["Cowhide"] = 0
-        service_preview = preview_shop_service_pure(data, "al_kharid_tanner_soft_leather", 1)
-        self.assertFalse(service_preview["allowed"])
-        self.assertEqual(service_preview["reason"], "missing_requirements")
+        data["inventory"]["Beer glass"] = 0
+        vendor_preview = preview_shop_vendor_action_pure(data, "bartender_sell_beer_glass", 1)
+        self.assertFalse(vendor_preview["allowed"])
+        self.assertEqual(vendor_preview["reason"], "missing_requirements")
         self.assertIn(
-            {"item_name": "Cowhide", "required_quantity": 1, "owned_quantity": 0, "shortfall": 1, "kind": "item"},
-            service_preview["missing_requirements"],
+            {"item_name": "Beer glass", "required_quantity": 1, "owned_quantity": 0, "shortfall": 1, "kind": "item"},
+            vendor_preview["missing_requirements"],
         )
 
     def test_restock_uses_market_tick_for_touched_shop(self):
@@ -160,13 +161,15 @@ class TestShopLogic(unittest.TestCase):
         self.assertEqual(preview["reason"], "specialist_shop_stock_only")
 
     def test_services_vendor_actions_and_generic_transaction_wrapper(self):
+        # Processing conversions (tanning, sawmill) are review-paced
+        # Utility/Activities now, not instant shop services; the service APIs
+        # stay as a fail-closed contract slot for future instant services.
         data = build_shop_fixture_player_data()
-        after_tan, tan_result = apply_shop_service_pure(data, "al_kharid_tanner_soft_leather", 1)
-        self.assertTrue(tan_result["allowed"])
-        self.assertEqual(after_tan["inventory"]["Cowhide"], data["inventory"]["Cowhide"] - 1)
-        self.assertEqual(after_tan["inventory"]["Leather"], 1)
+        service_preview = preview_shop_service_pure(data, "al_kharid_tanner_soft_leather", 1)
+        self.assertFalse(service_preview["allowed"])
+        self.assertEqual(service_preview["reason"], "unknown_service")
 
-        after_news, news_result = apply_shop_vendor_action_pure(after_tan, "benny_buy_varrock_herald", 1)
+        after_news, news_result = apply_shop_vendor_action_pure(data, "benny_buy_varrock_herald", 1)
         self.assertTrue(news_result["allowed"])
         self.assertEqual(after_news["inventory"]["Newspaper"], 1)
 
@@ -184,13 +187,12 @@ class TestShopLogic(unittest.TestCase):
             "feather_multi_shop_search",
             "locked_read_only_shop",
             "player_sold_stock",
-            "service_transaction",
             "vendor_action_transaction",
             "history",
         ):
             self.assertIn(key, fixtures)
         self.assertTrue(fixtures["player_sold_stock"]["result"]["allowed"])
-        self.assertGreaterEqual(len(fixtures["history"]), 4)
+        self.assertGreaterEqual(len(fixtures["history"]), 3)
 
         shop, row = _live_shop_and_row()
         updated, result = apply_shop_buy_pure(data, shop["id"], row["id"], 1)

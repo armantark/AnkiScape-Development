@@ -445,6 +445,47 @@ class TestLogic(unittest.TestCase):
         for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
             self.assertNotIn(retired, UTILITY_ACTIVITY_DATA)
 
+    def test_coin_paid_conversions_batch_with_per_unit_coins(self):
+        # Tanning/sawmill conversions are review-paced no-XP batches with
+        # coins consumed per unit, mirroring 2011's inventory-bounded runs
+        # (they are deliberately NOT instant shop services).
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "tan_soft_leather",
+            {"Cowhide": 40, "Coins": 100},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 28)  # batch cap, not hides or coins
+        self.assertEqual(new_inv["Leather"], 28)
+        self.assertEqual(new_inv["Cowhide"], 12)
+        self.assertEqual(new_inv["Coins"], 72)
+
+        # Coins bound the batch when scarcer than inputs.
+        new_inv, _exp, ok, processed = apply_utility_activity_pure(
+            "tan_hard_leather",
+            {"Cowhide": 28, "Coins": 10},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(processed, 3)  # 10 coins // 3 per hide
+        self.assertEqual(new_inv["Hard leather"], 3)
+        self.assertEqual(new_inv["Coins"], 1)
+
+        new_inv, _exp, ok, processed = apply_utility_activity_pure(
+            "convert_oak_logs_to_oak_planks",
+            {"Oak logs": 5, "Coins": 600},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(processed, 2)  # 600 coins // 250 per plank
+        self.assertEqual(new_inv["Oak plank"], 2)
+        self.assertEqual(new_inv["Coins"], 100)
+
+        self.assertFalse(
+            can_perform_utility_activity_pure({"Logs": 5}, "convert_logs_to_planks", UTILITY_ACTIVITY_DATA)
+        )
+
     def test_wet_flour_returns_empty_pot_and_bucket(self):
         inv = {"Pot of flour": 2, "Bucket of water": 2}
         new_inv, exp, ok, processed = apply_utility_activity_pure(

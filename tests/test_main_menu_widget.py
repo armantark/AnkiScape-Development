@@ -655,12 +655,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(seed_item.icon().isNull(), "item-first search rows should use shop item icons")
 
         service_list = _find_named_list(dialog, "shopServiceList")
-        oak_item = next(
+        kebab_item = next(
             service_list.item(i)
             for i in range(service_list.count())
-            if "oak planks" in service_list.item(i).text()
+            if "kebab" in service_list.item(i).text().lower()
         )
-        self.assertFalse(oak_item.icon().isNull(), "service rows should use output item icons")
+        self.assertFalse(kebab_item.icon().isNull(), "vendor rows should use output item icons")
 
     def test_shop_preview_uses_current_player_currency_state(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
@@ -804,11 +804,11 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_shop_service_providers_browse_as_their_own_selector_entries(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
-        from shop_data import SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+        from shop_data import SHOP_VENDOR_ACTIONS
 
         fixtures = build_shop_frontend_fixtures()
-        service_id = fixtures["service_transaction"]["service_id"]
-        provider = str(SHOP_SERVICES[service_id]["provider"])
+        action_id = fixtures["vendor_action_transaction"]["action_id"]
+        provider = str(SHOP_VENDOR_ACTIONS[action_id]["provider"])
         dialog = self._open(fixtures["fixture_player_data"])
         _open_shop_tab(dialog)
 
@@ -837,8 +837,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             self.assertIsInstance(payload, dict)
             source_kind = payload.get("kind")
             row_id = payload.get("id")
-            source = SHOP_SERVICES if source_kind == "service" else SHOP_VENDOR_ACTIONS
-            self.assertEqual(str(source[row_id]["provider"]), provider)
+            self.assertEqual(source_kind, "vendor_action")
+            self.assertEqual(str(SHOP_VENDOR_ACTIONS[row_id]["provider"]), provider)
 
     def test_shop_service_and_vendor_actions_apply_and_feed_global_history(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
@@ -846,7 +846,6 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         fixtures = build_shop_frontend_fixtures()
         pd = fixtures["fixture_player_data"]
-        service_id = fixtures["service_transaction"]["service_id"]
         vendor_action_id = fixtures["vendor_action_transaction"]["action_id"]
         dialog = self._open(pd)
         _open_shop_tab(dialog)
@@ -863,15 +862,15 @@ class MainMenuWidgetTest(unittest.TestCase):
                     return
             raise AssertionError(f"service/vendor row {row_id!r} not found")
 
-        _select_service_row(service_id)
+        _select_service_row("bartender_sell_beer_glass")
         use_button = _find_named_button(dialog, "shopServiceUseButton")
-        before_cowhide = pd["inventory"]["Cowhide"]
-        before_leather = pd["inventory"].get("Leather", 0)
+        before_glass = pd["inventory"]["Beer glass"]
+        before_coins = pd["inventory"]["Coins"]
         self.assertTrue(use_button.isEnabled(), _find_named_label(dialog, "shopServicePreviewLabel").text())
         use_button.click()
         QApplication.processEvents()
-        self.assertEqual(pd["inventory"]["Cowhide"], before_cowhide - 1)
-        self.assertEqual(pd["inventory"].get("Leather", 0), before_leather + 1)
+        self.assertEqual(pd["inventory"]["Beer glass"], before_glass - 1)
+        self.assertGreater(pd["inventory"]["Coins"], before_coins)
 
         service_list = _find_named_list(dialog, "shopServiceList")
         _select_service_row(vendor_action_id)
@@ -890,7 +889,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         global_history = _find_named_list(dialog, "shopGlobalHistoryList")
         history_texts = _list_texts(global_history)
-        self.assertTrue(any("Used" in text for text in history_texts), history_texts)
         self.assertTrue(any("Completed" in text for text in history_texts), history_texts)
 
     def test_achievement_tab_renders_metadata_counts_and_completed_rows(self) -> None:

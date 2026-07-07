@@ -65,56 +65,15 @@ MANUAL_ITEM_PRICES = {
     11169: {"buy": 50, "source": "world/areas/varrock/npcs/Benny.java"},
 }
 
-SERVICE_ROWS = [
-    {
-        "id": "al_kharid_tanner_soft_leather",
-        "display_name": "Tan soft leather",
-        "provider": "Ellis",
-        "location": "Al Kharid",
-        "currency_id": 995,
-        "price": 1,
-        "inputs": [{"item_id": 1739, "quantity": 1}],
-        "outputs": [{"item_id": 1741, "quantity": 1}],
-        "source": "Darkan Tanning.Leather.SOFT via Al Kharid Ellis/Lunar tan-leather references",
-        "service_type": "processing",
-    },
-    {
-        "id": "al_kharid_tanner_hard_leather",
-        "display_name": "Tan hard leather",
-        "provider": "Ellis",
-        "location": "Al Kharid",
-        "currency_id": 995,
-        "price": 3,
-        "inputs": [{"item_id": 1739, "quantity": 1}],
-        "outputs": [{"item_id": 1743, "quantity": 1}],
-        "source": "Darkan Tanning.Leather.HARD via Al Kharid Ellis/Lunar tan-leather references",
-        "service_type": "processing",
-    },
-    {
-        "id": "sawmill_normal_plank",
-        "display_name": "Convert logs to planks",
-        "provider": "Sawmill operator",
-        "location": "Varrock sawmill",
-        "currency_id": 995,
-        "price": 100,
-        "inputs": [{"item_id": 1511, "quantity": 1}],
-        "outputs": [{"item_id": 960, "quantity": 1}],
-        "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
-        "service_type": "processing",
-    },
-    {
-        "id": "sawmill_oak_plank",
-        "display_name": "Convert oak logs to oak planks",
-        "provider": "Sawmill operator",
-        "location": "Varrock sawmill",
-        "currency_id": 995,
-        "price": 250,
-        "inputs": [{"item_id": 1521, "quantity": 1}],
-        "outputs": [{"item_id": 8778, "quantity": 1}],
-        "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
-        "service_type": "processing",
-    },
-]
+# Processing-type conversions (Ellis tanning, sawmill planks) are deliberately
+# NOT shop services: 2011 tanning/plank runs were inventory-bounded (28
+# unstackable items per bank run) and AnkiScape's review loop is the stand-in
+# for that friction, so they live as no-XP Utility/Activities in constants.py
+# (tan_soft_leather, tan_hard_leather, convert_logs_to_planks,
+# convert_oak_logs_to_oak_planks) with the same Darkan source strings. An
+# instant "Use x1000" shop service would delete source pacing. Only genuinely
+# instant purchases/sales belong in VENDOR_ACTIONS below.
+SERVICE_ROWS: list[dict[str, Any]] = []
 
 VENDOR_ACTIONS = [
     {
@@ -702,6 +661,32 @@ def build_player_sell_prices(
     return dict(sorted(prices.items()))
 
 
+def clamp_player_sell_prices_to_live_buy(
+    prices: dict[str, int],
+    shops: Iterable[dict[str, Any]],
+) -> dict[str, int]:
+    """Cap each name's player-sell price at its cheapest live shop buy price.
+
+    AnkiScape's flat name-keyed inventory merges every item id sharing a name,
+    so a cheap custom-priced stock row (e.g. Rasolo's 1-coin Poison) plus a
+    high cache sellPrice on a same-named id would otherwise mint coins in a
+    buy/sell loop. Equality stays allowed: zero-profit round trips are what
+    the authentic Shop.java math produces for value-1 items and spirit shards.
+    """
+    clamped = dict(prices)
+    for shop in shops:
+        if shop.get("visibility") != "visible":
+            continue
+        for row in shop.get("stock", []):
+            if row.get("disposition") != "live":
+                continue
+            name = row.get("item_name", "")
+            buy_price = row.get("buy_price")
+            if name in clamped and isinstance(buy_price, int):
+                clamped[name] = min(clamped[name], buy_price)
+    return clamped
+
+
 def _py_repr(value: Any) -> str:
     if isinstance(value, tuple):
         inner = ", ".join(_py_repr(v) for v in value)
@@ -872,7 +857,10 @@ def main() -> None:
         java_home=args.darkan_java_home,
     )
     catalog, ledger = build_catalog(args.darkan_shops, args.items_2011, price_inputs, args.darkan_cache)
-    catalog["player_sell_prices"] = build_player_sell_prices(items, price_inputs)
+    catalog["player_sell_prices"] = clamp_player_sell_prices_to_live_buy(
+        build_player_sell_prices(items, price_inputs),
+        catalog["shops"],
+    )
     catalog["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
     ledger["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
     args.shop_data_out.parent.mkdir(parents=True, exist_ok=True)

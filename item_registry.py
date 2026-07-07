@@ -251,8 +251,10 @@ def build_item_definitions(
     if utility_activity_data is not None:
         image_map = utility_item_images or {}
         for spec in utility_activity_data.values():
-            outputs = spec.get("outputs", {})
-            if isinstance(outputs, Mapping):
+            # An empty/missing "outputs" mapping must fall back to
+            # "output_item", or single-output activities never register.
+            outputs = spec.get("outputs")
+            if isinstance(outputs, Mapping) and outputs:
                 output_names = tuple(item_name for item_name in outputs if isinstance(item_name, str))
             else:
                 output_name = spec.get("output_item")

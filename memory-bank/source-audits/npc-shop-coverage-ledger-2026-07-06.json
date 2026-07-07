@@ -1,131 +1,6 @@
 {
   "generated_at": "2026-07-06",
-  "services": [
-    {
-      "currency_id": 995,
-      "currency_implemented": true,
-      "currency_item_name": "Coins",
-      "currency_name": "Coins",
-      "display_name": "Tan soft leather",
-      "id": "al_kharid_tanner_soft_leather",
-      "inputs": [
-        {
-          "item_id": 1739,
-          "item_name": "Cowhide",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "location": "Al Kharid",
-      "lock_reason": "",
-      "outputs": [
-        {
-          "item_id": 1741,
-          "item_name": "Leather",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "price": 1,
-      "provider": "Ellis",
-      "service_type": "processing",
-      "source": "Darkan Tanning.Leather.SOFT via Al Kharid Ellis/Lunar tan-leather references",
-      "visibility": "visible"
-    },
-    {
-      "currency_id": 995,
-      "currency_implemented": true,
-      "currency_item_name": "Coins",
-      "currency_name": "Coins",
-      "display_name": "Tan hard leather",
-      "id": "al_kharid_tanner_hard_leather",
-      "inputs": [
-        {
-          "item_id": 1739,
-          "item_name": "Cowhide",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "location": "Al Kharid",
-      "lock_reason": "",
-      "outputs": [
-        {
-          "item_id": 1743,
-          "item_name": "Hard leather",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "price": 3,
-      "provider": "Ellis",
-      "service_type": "processing",
-      "source": "Darkan Tanning.Leather.HARD via Al Kharid Ellis/Lunar tan-leather references",
-      "visibility": "visible"
-    },
-    {
-      "currency_id": 995,
-      "currency_implemented": true,
-      "currency_item_name": "Coins",
-      "currency_name": "Coins",
-      "display_name": "Convert logs to planks",
-      "id": "sawmill_normal_plank",
-      "inputs": [
-        {
-          "item_id": 1511,
-          "item_name": "Logs",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "location": "Varrock sawmill",
-      "lock_reason": "",
-      "outputs": [
-        {
-          "item_id": 960,
-          "item_name": "Plank",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "price": 100,
-      "provider": "Sawmill operator",
-      "service_type": "processing",
-      "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
-      "visibility": "visible"
-    },
-    {
-      "currency_id": 995,
-      "currency_implemented": true,
-      "currency_item_name": "Coins",
-      "currency_name": "Coins",
-      "display_name": "Convert oak logs to oak planks",
-      "id": "sawmill_oak_plank",
-      "inputs": [
-        {
-          "item_id": 1521,
-          "item_name": "Oak logs",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "location": "Varrock sawmill",
-      "lock_reason": "",
-      "outputs": [
-        {
-          "item_id": 8778,
-          "item_name": "Oak plank",
-          "quantity": 1,
-          "tradeable": true
-        }
-      ],
-      "price": 250,
-      "provider": "Sawmill operator",
-      "service_type": "processing",
-      "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
-      "visibility": "visible"
-    }
-  ],
+  "services": [],
   "shop_data_version": 1,
   "shops": [
     {
@@ -30375,7 +30250,7 @@
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6736,
     "runtime_shop_count": 273,
-    "service_count": 4,
+    "service_count": 0,
     "source_shop_count": 274,
     "stock_row_count": 2776,
     "vendor_action_count": 4,

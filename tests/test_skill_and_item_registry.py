@@ -450,7 +450,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Argway seed",
             "Shengo seed",
             "Samaden seed",
-            "Oak plank",
             "Newspaper",
             "Kebab",
             "Antlers",
@@ -470,6 +469,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in expected:
             self.assertIn(item_name, SHOP_ITEM_IMAGES)
             self.assertEqual(by_storage_key[item_name].asset_path, SHOP_ITEM_IMAGES[item_name])
+        # Coin-paid conversion outputs register through the Utility path now
+        # (the sawmill/tanning shop services became review-paced activities),
+        # but must still resolve their existing art.
+        for item_name in ("Oak plank", "Plank", "Leather", "Hard leather"):
+            self.assertTrue(by_storage_key[item_name].asset_path, item_name)
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
 
     def test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps(self):

@@ -2408,6 +2408,46 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_tanning_review_batches_28_hides_and_rolls_back_on_undo(self):
+        # Review-paced conversion: one answered card tans up to 28 hides for
+        # 28 coins (1 coin per hide), and Anki undo restores both.
+        addon = _load_addon_as_package("ankiscape_tanning_undo_integration")
+
+        calls = {"save": 0}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Cowhide": 30, "Coins": 100},
+            "crafting_exp": 0,
+            "current_utility": "tan_soft_leather",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Utility / Activities"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Leather"], 28)
+        self.assertEqual(addon.player_data["inventory"]["Cowhide"], 2)
+        self.assertEqual(addon.player_data["inventory"]["Coins"], 72)
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Cowhide": 30, "Coins": 100})
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_wool_gathering_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_wool_undo_integration")
 

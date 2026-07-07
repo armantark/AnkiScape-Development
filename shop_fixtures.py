@@ -5,11 +5,10 @@ from __future__ import annotations
 from typing import Any, Dict, Mapping
 
 try:
-    from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+    from .shop_data import SHOP_DATA, SHOP_VENDOR_ACTIONS
     from .shop_logic import (
         apply_shop_buy_pure,
         apply_shop_sell_pure,
-        apply_shop_service_pure,
         apply_shop_vendor_action_pure,
         default_shop_state_pure,
         preview_shop_buy_pure,
@@ -18,11 +17,10 @@ try:
         shop_view_model_pure,
     )
 except ImportError:
-    from shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+    from shop_data import SHOP_DATA, SHOP_VENDOR_ACTIONS
     from shop_logic import (
         apply_shop_buy_pure,
         apply_shop_sell_pure,
-        apply_shop_service_pure,
         apply_shop_vendor_action_pure,
         default_shop_state_pure,
         preview_shop_buy_pure,
@@ -53,13 +51,11 @@ def build_shop_frontend_fixtures() -> Dict[str, Any]:
     general_store = _first_general_store()
     non_coin_shop = _first_non_coin_shop()
     hidden_shop = _first_hidden_shop()
-    service_id = _first_id(SHOP_SERVICES)
     vendor_action_id = _first_id(SHOP_VENDOR_ACTIONS)
 
     after_buy, buy_result = apply_shop_buy_pure(player_data, live_shop["id"], live_row["id"], 2)
     after_sell, sell_result = apply_shop_sell_pure(after_buy, general_store["id"], "Beer", 1)
-    after_service, service_result = apply_shop_service_pure(after_sell, service_id, 1)
-    after_vendor, vendor_result = apply_shop_vendor_action_pure(after_service, vendor_action_id, 1)
+    after_vendor, vendor_result = apply_shop_vendor_action_pure(after_sell, vendor_action_id, 1)
 
     return {
         "fixture_player_data": player_data,
@@ -78,10 +74,6 @@ def build_shop_frontend_fixtures() -> Dict[str, Any]:
             "shop_id": general_store["id"],
             "result": sell_result,
             "view": shop_view_model_pure(after_sell, general_store["id"]),
-        },
-        "service_transaction": {
-            "service_id": service_id,
-            "result": service_result,
         },
         "vendor_action_transaction": {
             "action_id": vendor_action_id,

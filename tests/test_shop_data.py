@@ -73,13 +73,40 @@ class TestShopData(unittest.TestCase):
             self.assertEqual(shop["lock_reason"], "currency_not_implemented")
 
     def test_services_vendor_actions_and_extra_items_are_exported(self):
-        self.assertIn("al_kharid_tanner_soft_leather", SHOP_SERVICES)
-        self.assertIn("sawmill_oak_plank", SHOP_SERVICES)
+        # Processing conversions (tanning, sawmill) are review-paced
+        # Utility/Activities, not instant shop services; SHOP_SERVICES stays
+        # an empty contract slot until a genuinely instant service exists.
+        self.assertEqual(SHOP_SERVICES, {})
         self.assertIn("bartender_buy_beer", SHOP_VENDOR_ACTIONS)
         self.assertIn("benny_buy_varrock_herald", SHOP_VENDOR_ACTIONS)
+        self.assertIn("karim_buy_kebab", SHOP_VENDOR_ACTIONS)
         extra_items = shop_extra_items_as_dict()
-        for item_name in ("Beer", "Silk", "Newspaper", "Cowhide", "Leather", "Oak plank"):
+        for item_name in ("Beer", "Silk", "Newspaper"):
             self.assertIn(item_name, extra_items)
+        # Conversion inputs/outputs register through the Utility/combat paths
+        # now, not through the shop catalog export.
+        self.assertNotIn("Leather", extra_items)
+
+    def test_no_strict_buy_sell_arbitrage_in_live_stock(self):
+        """No item's player-sell price may EXCEED any live shop buy price —
+        AnkiScape's flat name-keyed inventory merges item ids, so a cheap
+        custom-priced stock row plus a high cache sellPrice on a same-named id
+        would mint coins in a buy/sell loop (the generator clamps for this).
+        Equality is allowed: zero-profit round trips are what the authentic
+        Shop.java math produces for value-1 items and spirit shards."""
+        from shop_data import SHOP_PLAYER_SELL_PRICES
+
+        violations = []
+        for shop in SHOP_DATA.values():
+            if shop.get("visibility") != "visible":
+                continue
+            for row in shop["stock"]:
+                if row["disposition"] != "live":
+                    continue
+                sell = SHOP_PLAYER_SELL_PRICES.get(row["item_name"])
+                if sell is not None and sell > int(row["buy_price"]):
+                    violations.append((row["item_name"], shop["id"], row["buy_price"], sell))
+        self.assertEqual(violations, [])
 
     def test_machine_readable_ledger_matches_catalog_summary(self):
         ledger_path = Path("memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json")

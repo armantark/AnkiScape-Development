@@ -269,6 +269,47 @@ UTILITY_ACTIVITY_DATA = {
         "group": "material_processing",
         "source": "OSRS Soft clay > Creation > Container",
     },
+    # Coin-paid NPC conversions. These were briefly shop "services", but 2011
+    # tanning/plank runs were inventory-bounded (28 unstackable items per bank
+    # run) and the review loop is AnkiScape's stand-in for that friction, so
+    # they run as review-paced no-XP batches instead of instant Use-x1000
+    # buttons. Coins are consumed per unit like any other requirement.
+    "tan_soft_leather": {
+        "display_name": "Tan soft leather",
+        "requirements": {"Cowhide": 1, "Coins": 1},
+        "output_item": "Leather",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "material_processing",
+        "source": "Darkan Tanning.Leather.SOFT via Al Kharid Ellis/Lunar tan-leather references",
+    },
+    "tan_hard_leather": {
+        "display_name": "Tan hard leather",
+        "requirements": {"Cowhide": 1, "Coins": 3},
+        "output_item": "Hard leather",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "material_processing",
+        "source": "Darkan Tanning.Leather.HARD via Al Kharid Ellis/Lunar tan-leather references",
+    },
+    "convert_logs_to_planks": {
+        "display_name": "Convert logs to planks",
+        "requirements": {"Logs": 1, "Coins": 100},
+        "output_item": "Plank",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "material_processing",
+        "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
+    },
+    "convert_oak_logs_to_oak_planks": {
+        "display_name": "Convert oak logs to oak planks",
+        "requirements": {"Oak logs": 1, "Coins": 250},
+        "output_item": "Oak plank",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "material_processing",
+        "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
+    },
     "gather_wool": {
         "display_name": "Gather wool",
         "requirements": {},
@@ -310,6 +351,12 @@ UTILITY_ITEM_IMAGES = {
     "Flax": os.path.join(CRAFTED_ITEMS_FOLDER, "flax.png"),
     "Feather": os.path.join(FLETCHED_ITEMS_FOLDER, "feather.png"),
     "Fishing bait": os.path.join(FISHING_ITEMS_FOLDER, "fishing_bait.png"),
+    # Coin-paid conversion outputs (art shared with the folders that first
+    # fetched it; keeps these registered even if no shop stocks them).
+    "Leather": os.path.join(CRAFTED_ITEMS_FOLDER, "leather.png"),
+    "Hard leather": os.path.join(CRAFTED_ITEMS_FOLDER, "hard_leather.png"),
+    "Plank": os.path.join(QUEST_ITEMS_FOLDER, "plank.png"),
+    "Oak plank": os.path.join(SHOP_ITEMS_FOLDER, "oak_plank.png"),
 }
 
 TREE_IMAGES = {tree.split('.')[0]: os.path.join(trees_folder, tree) for tree in os.listdir(trees_folder) if tree.endswith('.png')}
@@ -759,7 +806,10 @@ ITEM_DEFINITIONS = build_item_definitions(
     BAR_DATA,
     BAR_IMAGES,
     CRAFTING_DATA,
-    CRAFTED_ITEM_IMAGES,
+    # Glassmaking inputs (Soda ash, Bucket of sand) are Crafting materials
+    # whose art was fetched as shop stock; merge so their registration keeps
+    # an asset. Crafted art wins on collisions.
+    {**SHOP_ITEM_IMAGES, **CRAFTED_ITEM_IMAGES},
     FLETCHING_DATA,
     FLETCHED_ITEM_IMAGES,
     HUNTER_DATA,
