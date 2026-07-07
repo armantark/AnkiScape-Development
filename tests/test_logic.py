@@ -446,6 +446,22 @@ class TestLogic(unittest.TestCase):
         for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
             self.assertNotIn(retired, UTILITY_ACTIVITY_DATA)
 
+    def test_dragon_pickaxe_source_bonus_applies_by_item_id(self):
+        # Mining.kt gives PickaxeType.DRAGON extra rolls at 1.12x base;
+        # AnkiScape folds that source constant into every roll, keyed on the
+        # cache item id (15261), never a display-name string. This pins the
+        # bonus so a spec-shape change can't silently disable it again.
+        from constants import MINING_PICKAXE_DATA, ORE_DATA
+        from logic_pure import mining_source_roll_chance_pure
+
+        dragon = MINING_PICKAXE_DATA["dragon_pickaxe"]
+        self.assertEqual(dragon["item_id"], 15261)
+        target = min(ORE_DATA.values(), key=lambda t: float(t.get("low_chance", 99)))
+        same_ratio_non_dragon = dict(dragon, item_id=0)
+        boosted = mining_source_roll_chance_pure(1, target, dragon)
+        base = mining_source_roll_chance_pure(1, target, same_ratio_non_dragon)
+        self.assertAlmostEqual(boosted / base, 1.12, places=6)
+
     def test_molten_glass_smelt_returns_bucket_byproduct(self):
         # Shop-purchasable inputs close the glassblowing loop: smelting awards
         # the source 20 XP, consumes both inputs, and returns the emptied

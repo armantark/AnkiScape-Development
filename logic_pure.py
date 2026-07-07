@@ -4798,7 +4798,11 @@ def mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec):
     level_progress = max(0.0, min((float(mining_level) - 1.0) / 98.0, 1.0))
     interpolated = low + ((high - low) * level_progress)
     ratio = float(pickaxe_spec.get("ratio", 1.0))
-    if "dragon" in str(pickaxe_spec.get("display_name", "")).lower():
+    # Mining.kt gives PickaxeType.DRAGON an accumulator: +0.2 per swing, and
+    # each fifth swing rolls again at 1.12x base. AnkiScape folds that bonus
+    # into every roll as a declared simplification of the same source
+    # constant, keyed on the stable pickaxe id (gilded variants share it).
+    if _non_negative_int(pickaxe_spec.get("item_id"), 0) == 15261:  # Dragon pickaxe
         ratio *= 1.12
     return max(0.0, min((interpolated * ratio) / 255.0, 1.0))
 

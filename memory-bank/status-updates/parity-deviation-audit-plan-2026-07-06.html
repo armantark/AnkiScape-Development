@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parity Deviation Audit — Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:960px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--accent); background:rgba(79,140,255,0.15); border:1px solid rgba(79,140,255,0.4); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.8rem; margin-bottom:0.6rem; }
+p, li { color:var(--text-dim); font-size:0.92rem; }
+ol { margin:0.8rem 0 0.8rem 1.4rem; }
+li { margin-bottom:0.5rem; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">PRE-AUDIT PLAN · 2026-07-06</div>
+    <h1>Parity Deviation Audit — Mechanics Glue Code</h1>
+    <p>Data tables carry per-row source citations; today's two parity misses both lived in
+    <em>mechanics code</em> where no citation convention exists. This audit sweeps that tier and
+    classifies every finding as <b>adaptation</b> (Anki-model, by design), <b>declared</b>
+    (documented simplification), or <b>invention</b> (unjustified — needs a fix or an owner decision).</p>
+    <div class="card">
+        <ol>
+            <li>Review-odds adapter: the source-chance → per-review probability transform vs the 2011Scape per-tick rolls it feeds on.</li>
+            <li>Combat burst engine: tick timing, auto-eat ordering, recovery packets, special energy vs the source combat loop.</li>
+            <li>Shop restock semantics: <code>restock_amount</code> vs ShopItem.tickRestock's strict one-unit steps.</li>
+            <li>Mechanical sweep: bare numeric literals in <code>logic_pure.py</code> / <code>runtime_actions.py</code> / <code>shop_logic.py</code> without source justification.</li>
+        </ol>
+        <p>Deliverable: <code>memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md</code>
+        + trivially-fixable inventions fixed inline; judgment calls listed for owner decision.
+        Both suites must stay green.</p>
+    </div>
+</div>
+</body>
+</html>

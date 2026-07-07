@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parity Deviation Audit — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --green:#4ade80; --amber:#fbbf24; --red:#ff5c5c; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:960px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.8rem; margin-bottom:0.6rem; }
+p, li, td { color:var(--text-dim); font-size:0.9rem; }
+table { width:100%; border-collapse:collapse; margin:1rem 0; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); text-align:left; padding:0.4rem 0.5rem; border-bottom:1px solid var(--border); }
+td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(42,48,64,0.5); vertical-align:top; }
+td.s { font-family:'JetBrains Mono',monospace; font-size:0.7rem; white-space:nowrap; }
+.ok { color:var(--green); } .warn { color:var(--amber); } .bad { color:var(--red); }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1rem; }
+ol { margin:0.5rem 0 0.5rem 1.3rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-06</div>
+    <h1>Parity Deviation Audit — Results</h1>
+    <p>The mechanics-glue tier is now inventoried in
+    <code>memory-bank/source-audits/parity-deviation-ledger-2026-07-06.md</code>. One live bug found
+    and fixed; everything else classified.</p>
+    <table>
+        <tr><th>Area</th><th>Verdict</th></tr>
+        <tr><td>Shop sell/buy/restock mechanics</td><td class="s ok">PARITY (fixed earlier today)</td></tr>
+        <tr><td>Review-odds adapter (<code>0.20 + sqrt(source)·0.72</code>, cap 0.95)</td><td class="s ok">ADAPTATION — the one pacing knob</td></tr>
+        <tr><td>Mining source roll (interpolate ÷255)</td><td class="s ok">PARITY with Mining.kt</td></tr>
+        <tr><td>Dragon pickaxe 1.12× bonus</td><td class="s warn">WAS UNFLAGGED — source-backed constant, but keyed on a display-name string with zero test coverage; now keyed on cache item id 15261, declared as a simplification of the source accumulator, and pinned by a test that caught its own first regression during the fix</td></tr>
+        <tr><td>Arithmetic literals in <code>runtime_actions.py</code>/<code>shop_logic.py</code></td><td class="s ok">CLEAN</td></tr>
+    </table>
+    <div class="card">
+        <p><b style="color:var(--text)">Honest coverage note:</b> three surfaces remain un-audited and are
+        scoped in the ledger as follow-ups, largest first:</p>
+        <ol>
+            <li>Combat burst engine glue (cadence, auto-eat ordering, recovery packets, special energy)</li>
+            <li>Woodcutting/Fishing/Hunter source-roll formulas (same treatment Mining got)</li>
+            <li>Cooking burn curves and the Smithing iron 50–80% curve re-verification</li>
+        </ol>
+        <p>Verification: <code>python3 run_tests.py</code> and the offscreen Qt suite both pass with 765 tests.</p>
+    </div>
+</div>
+</body>
+</html>
