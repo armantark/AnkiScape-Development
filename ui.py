@@ -1663,6 +1663,12 @@ def show_main_menu(
     on_set_loot_threshold=None,
     on_set_loot_override=None,
     loot_override_rows=(),
+    carried_pack_target_active=False,
+    on_set_carried_advanced=None,
+    carried_advanced_state=False,
+    get_carried_layout_cells=None,
+    on_add_to_carried_layout=None,
+    on_clear_carried_layout=None,
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -4395,6 +4401,132 @@ def show_main_menu(
             keep_drop_check.toggled.connect(lambda checked: on_set_carried_keep_drop(bool(checked)))
         cb_layout.addWidget(keep_drop_check)
 
+    # Advanced layout editor — the player hand-arranges a fixed {item: count}
+    # pack once per target; the game refills that exact 28-slot layout from the
+    # bank every time the pack empties. Only meaningful when a skilling target is
+    # selected (gathering or processing), same convention as the Keep/Drop check.
+    # The refresh closure is defined unconditionally so _refresh_carried_panel and
+    # the bank context menu can always call it (a no-op when the grid is absent).
+    advanced_checkbox = None
+    carried_cell_buttons = []
+    carried_cell_items = [None] * inventory_pure.CARRIED_CAPACITY
+
+    def _refresh_carried_layout_grid() -> None:
+        if not carried_cell_buttons:
+            return
+        if get_carried_layout_cells is not None:
+            cells = tuple(get_carried_layout_cells())
+        else:
+            cells = ((None, 0),) * inventory_pure.CARRIED_CAPACITY
+        for idx, cell_button in enumerate(carried_cell_buttons):
+            item_name, count = cells[idx] if idx < len(cells) else (None, 0)
+            carried_cell_items[idx] = item_name
+            if item_name:
+                count = int(count)
+                cell_button.setText(f"{item_name}\n×{count}" if count > 1 else str(item_name))
+                suffix = f" ×{count}" if count > 1 else ""
+                cell_button.setToolTip(f"{item_name}{suffix} — click to remove one")
+                cell_button.setEnabled(on_add_to_carried_layout is not None)
+                cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
+            else:
+                cell_button.setText("")
+                cell_button.setToolTip("Empty slot")
+                cell_button.setEnabled(False)
+                cell_button.setStyleSheet(_CARRIED_CELL_EMPTY_CSS)
+
+    if carried_pack_target_active:
+        _dim_cell = dim_text_css(carried_body)
+        _CARRIED_CELL_FILLED_CSS = (
+            "QPushButton { border: 1px solid palette(mid); border-radius: 4px; "
+            "background: transparent; color: palette(text); font-size: 9px; padding: 2px; }"
+            "QPushButton:hover { border: 1px solid palette(highlight); }"
+        )
+        _CARRIED_CELL_EMPTY_CSS = (
+            "QPushButton { border: 1px dashed palette(mid); border-radius: 4px; "
+            "background: transparent; color: " + _dim_cell + "; font-size: 9px; }"
+        )
+
+        advanced_check = QCheckBox("Advanced: arrange my own 28-slot pack")
+        advanced_check.setObjectName("carriedAdvancedModeCheck")
+        advanced_check.setChecked(bool(carried_advanced_state))
+        advanced_checkbox = advanced_check
+        cb_layout.addWidget(advanced_check)
+
+        _CARRIED_CELL_SIZE = 44
+        _CARRIED_CELL_SPACING = 4
+        _CARRIED_GRID_COLS = 4
+        _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
+
+        grid_container = QWidget()
+        grid_container.setObjectName("carriedLayoutGrid")
+        grid_layout = QGridLayout(grid_container)
+        grid_layout.setContentsMargins(0, 4, 0, 4)
+        grid_layout.setSpacing(_CARRIED_CELL_SPACING)
+        for i in range(inventory_pure.CARRIED_CAPACITY):
+            cell_btn = QPushButton()
+            cell_btn.setObjectName(f"carriedLayoutCell::{i}")
+            cell_btn.setFlat(True)
+            cell_btn.setFixedSize(_CARRIED_CELL_SIZE, _CARRIED_CELL_SIZE)
+
+            def _on_cell_clicked(_checked=False, idx=i):
+                name = carried_cell_items[idx]
+                if not name or on_add_to_carried_layout is None:
+                    return
+                on_add_to_carried_layout(name, -1)
+                _refresh_carried_layout_grid()
+
+            cell_btn.clicked.connect(_on_cell_clicked)
+            grid_layout.addWidget(cell_btn, i // _CARRIED_GRID_COLS, i % _CARRIED_GRID_COLS)
+            carried_cell_buttons.append(cell_btn)
+        # A plain QWidget's default (Preferred) size policy lets a parent
+        # QVBoxLayout compress it below its sizeHint when the dialog is short on
+        # room — that would clip a 7-row grid of fixed-size buttons down to a
+        # sliver. Fixed policy + an exact sizeHint-matching size guarantees all 28
+        # cells always get their real, non-negotiable geometry.
+        grid_container.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
+        _grid_margins = grid_layout.contentsMargins()
+        grid_container.setFixedSize(
+            _CARRIED_GRID_COLS * _CARRIED_CELL_SIZE + (_CARRIED_GRID_COLS - 1) * _CARRIED_CELL_SPACING
+            + _grid_margins.left() + _grid_margins.right(),
+            _CARRIED_GRID_ROWS * _CARRIED_CELL_SIZE + (_CARRIED_GRID_ROWS - 1) * _CARRIED_CELL_SPACING
+            + _grid_margins.top() + _grid_margins.bottom(),
+        )
+        grid_row = QWidget()
+        grid_row_layout = QHBoxLayout(grid_row)
+        grid_row_layout.setContentsMargins(0, 0, 0, 0)
+        grid_row_layout.addWidget(grid_container)
+        grid_row_layout.addStretch(1)
+        cb_layout.addWidget(grid_row)
+
+        clear_layout_btn = QPushButton("Clear layout")
+        clear_layout_btn.setObjectName("carriedLayoutClearButton")
+        clear_layout_btn.setStyleSheet("QPushButton { padding: 2px 10px; }")
+
+        def _on_clear_layout(_checked=False) -> None:
+            if on_clear_carried_layout is not None:
+                on_clear_carried_layout()
+            _refresh_carried_layout_grid()
+
+        clear_layout_btn.clicked.connect(_on_clear_layout)
+        clear_row = QWidget()
+        clear_row_layout = QHBoxLayout(clear_row)
+        clear_row_layout.setContentsMargins(0, 0, 0, 0)
+        clear_row_layout.setSpacing(8)
+        clear_row_layout.addWidget(clear_layout_btn)
+        clear_row_layout.addStretch(1)
+        cb_layout.addWidget(clear_row)
+
+        def _on_advanced_toggled(checked: bool) -> None:
+            if on_set_carried_advanced is not None:
+                on_set_carried_advanced(bool(checked))
+            grid_row.setVisible(bool(checked))
+            clear_row.setVisible(bool(checked))
+
+        advanced_check.toggled.connect(_on_advanced_toggled)
+        grid_row.setVisible(bool(carried_advanced_state))
+        clear_row.setVisible(bool(carried_advanced_state))
+        _refresh_carried_layout_grid()
+
     # Loot filter knob — leave combat drops whose high-alch value is under this
     # (the coarse form of per-drop control; 0 keeps everything).
     loot_row = QWidget()
@@ -4462,6 +4594,7 @@ def show_main_menu(
 
     def _refresh_carried_panel() -> None:
         carried_summary.setText(_carried_panel_summary_text())
+        _refresh_carried_layout_grid()
 
     bk_layout.addWidget(carried_header)
     bk_layout.addWidget(carried_body)
@@ -4926,6 +5059,17 @@ def show_main_menu(
                         QMessageBox.information(bank_list, item_name, message)
 
             consume_action.triggered.connect(_do_consume)
+            menu.addSeparator()
+
+        if (carried_pack_target_active and advanced_checkbox is not None
+                and advanced_checkbox.isChecked() and on_add_to_carried_layout is not None):
+            add_to_layout_action = menu.addAction("Add to carried layout")
+            add_to_layout_action.triggered.connect(
+                lambda _checked=False, name=item_name: (
+                    on_add_to_carried_layout(name, 1),
+                    _refresh_carried_layout_grid(),
+                )
+            )
             menu.addSeparator()
 
         discard_action = menu.addAction(f"Discard all ({amount})")

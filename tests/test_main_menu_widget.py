@@ -425,6 +425,13 @@ def _open_shop_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_bank_tab(dialog: "QDialog") -> None:
+    tabs = _find_main_tabs(dialog)
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Bank")
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
 def _open_first_shop(dialog: "QDialog") -> None:
     """Browse-first Shop tab: no shop opens until one is clicked."""
     selector = _find_named_list(dialog, "shopSelectionList")
@@ -626,6 +633,94 @@ class MainMenuWidgetTest(unittest.TestCase):
 
         dialog = self._open(_make_player_data(), carried_keep_drop_state=None)
         self.assertIsNone(dialog.findChild(QCheckBox, "carriedKeepDropCheck"))
+        dialog.deleteLater()
+
+    def test_carried_layout_grid_present_wired_and_never_geometrically_compressed(self) -> None:
+        # Regression guard: a plain QWidget housing 28 fixed-size cell buttons
+        # defaults to a Preferred size policy, which a parent QVBoxLayout can
+        # compress under space pressure -- silently clipping the grid down to a
+        # sliver even though every cell reports its correct fixed size. Assert
+        # actual Qt geometry (not a screenshot) so this can't regress unnoticed.
+        from aqt.qt import QCheckBox, QComboBox, QPushButton, QWidget
+
+        add_calls: list = []
+        clear_calls: list = []
+        advanced_calls: list = []
+
+        def get_cells():
+            return tuple([("Iron ore", 1)] * 5 + [("Air rune", 5000)] + [(None, 0)] * 22)
+
+        dialog = self._open(
+            _make_player_data(),
+            carried_pack_target_active=True,
+            on_set_carried_advanced=lambda v: advanced_calls.append(v),
+            carried_advanced_state=True,
+            get_carried_layout_cells=get_cells,
+            on_add_to_carried_layout=lambda name, delta: add_calls.append((name, delta)),
+            on_clear_carried_layout=lambda: clear_calls.append(True),
+        )
+        # Layouts don't activate offscreen until the dialog is actually shown
+        # (see .claude/rules/qt-offscreen-screenshots.md) -- without this, every
+        # cell's geometry reads back as a stale (0, 0), masking the very
+        # compression bug this test exists to catch.
+        dialog.show()
+        dialog.resize(560, 640)
+        for _ in range(6):
+            QApplication.processEvents()
+        _open_bank_tab(dialog)
+        header = dialog.findChild(QPushButton, "carriedInventoryHeader")
+        header.setChecked(True)
+        for _ in range(6):
+            QApplication.processEvents()
+
+        advanced_check = dialog.findChild(QCheckBox, "carriedAdvancedModeCheck")
+        self.assertIsNotNone(advanced_check)
+        self.assertTrue(advanced_check.isChecked())
+
+        grid = dialog.findChild(QWidget, "carriedLayoutGrid")
+        self.assertIsNotNone(grid, "carried layout grid missing")
+        self.assertTrue(grid.isVisibleTo(grid.window()))
+
+        # All 28 cells exist and sit at their real, uncompressed geometry.
+        cells = [dialog.findChild(QPushButton, f"carriedLayoutCell::{i}") for i in range(28)]
+        self.assertTrue(all(cell is not None for cell in cells))
+        # The container's actual size must equal its own sizeHint -- if a parent
+        # layout compressed it, these would diverge (the bug this test guards).
+        self.assertEqual(grid.size(), grid.sizeHint())
+        for cell in cells:
+            self.assertEqual(cell.size().width(), 44)
+            self.assertEqual(cell.size().height(), 44)
+        # Row 6 (the last of 7 rows) must be positioned below row 0, not clipped
+        # into the same pixels -- the concrete symptom of the compression bug.
+        self.assertGreater(cells[27].geometry().y(), cells[0].geometry().y() + 200)
+
+        # Clicking a filled cell removes one unit via the callback.
+        cells[0].click()
+        QApplication.processEvents()
+        self.assertIn(("Iron ore", -1), add_calls)
+
+        # Unchecking advanced mode hides the grid and fires the callback.
+        advanced_check.setChecked(False)
+        QApplication.processEvents()
+        self.assertFalse(grid.isVisibleTo(grid.window()))
+        self.assertIn(False, advanced_calls)
+
+        # Clear button fires its callback.
+        advanced_check.setChecked(True)
+        QApplication.processEvents()
+        clear_btn = dialog.findChild(QPushButton, "carriedLayoutClearButton")
+        self.assertIsNotNone(clear_btn)
+        clear_btn.click()
+        QApplication.processEvents()
+        self.assertEqual(clear_calls, [True])
+        dialog.deleteLater()
+
+    def test_carried_layout_grid_absent_without_a_skilling_target(self) -> None:
+        from aqt.qt import QCheckBox, QWidget
+
+        dialog = self._open(_make_player_data(), carried_pack_target_active=False)
+        self.assertIsNone(dialog.findChild(QCheckBox, "carriedAdvancedModeCheck"))
+        self.assertIsNone(dialog.findChild(QWidget, "carriedLayoutGrid"))
         dialog.deleteLater()
 
     def test_shop_tab_renders_and_keeps_hidden_reward_shops_out_of_browse_and_search(self) -> None:
