@@ -1,8 +1,9 @@
 # 28-Slot Carried Inventory — Design (owner-grilled 2026-07-07)
 
-Status: **designed, not implemented.** Grilled decisions locked; no code yet.
-This is a substantial slice that touches the flat inventory, so it wants its
-own implementation pass with its own status artifacts.
+Status: **design complete (2026-07-07), not implemented.** The grill is
+finished — every fork resolved (see Resolved section). Ready to build on the
+owner's go; still a substantial slice touching the flat inventory, so it lands
+as its own pass with status artifacts.
 
 ## The problem it solves
 
@@ -121,6 +122,67 @@ A one-round known/unknown pass surfaced four items beyond the original
 Plus the original known-unknowns: which preset modes exist; v1 bag roster +
 capacities (source-audit each); exact skilling bank-run cost; grid UI
 drag-vs-list; how it subsumes `combat_supply_loadout`; storage migration.
+
+### Resolved (owner, 2026-07-07 — grill essentially complete)
+
+- **Death drops the carried inventory** (into the grave, alongside equipment —
+  extend the existing grave path from equipment-only to equipment + carried).
+- **Undo rolls back everything** a bank run / consume touched (standard snapshot).
+- **Wilderness ambush counter unifies** with the carried-slot model (same 28,
+  one accumulator — collapse `wilderness_shop_slots` into the carry model).
+- **Quest items stay abstracted** — they do not compete for carried slots.
+- **Coins take one carried slot** (stackable → trivial; no money pouch existed
+  until ~2013, confirmed absent from the Oct-2011 cache). Bank stays infinite.
+- **Skilling bank-run cost = 1 review.** Flat, everywhere (combat keeps 2).
+- **Per-target persistence:** the carried inventory is saved *per selected
+  target*. Switching a target banks its loadout (free — a menu reorg, not a
+  mid-session depletion) and restores/repacks the new target's saved loadout;
+  only mid-session depletion refills cost the 1 review.
+- **UI:** no drag-grid. Click items from the bank to fill a **collapsible
+  carried-inventory side panel** next to the bank. Manual click-fill IS advanced
+  mode; the saved layout auto-refills per target. Casual mode skips clicking via
+  a preset dropdown (below).
+- **Subsumes `combat_supply_loadout`** and the storage migration shape — both
+  inferred at implementation time, not pre-specified.
+
+### Preset modes (proposal — casual dropdown)
+
+Presets only bite where categories compete (combat food/potions/supplies;
+gathering-with-bags). For pure single-material processing they're moot (you
+carry the one input). Proposed set — a small, honest three, implemented as one
+pure `pack_carried_inventory_pure(player_data, target, mode)` that returns the
+28-slot fill from the bank:
+
+1. **Balanced (default):** pack required inputs, keep a safety reserve in combat
+   (food covering the auto-eat threshold), fill the rest with the primary
+   material. The sensible casual default.
+2. **Max output:** no safety reserve — every free slot to the primary
+   input/material for the most actions per bank run (in combat: minimal food,
+   riskier, for when you out-gear the target).
+3. **Max safety** (combat-meaningful): bias slots to food/potions, fewer
+   supplies — survive tougher fights.
+
+**Bags are not a preset choice** — they auto-apply whenever owned (strictly
+better: pack an unstackable into one slot), under any mode. So the dropdown is
+just the ratio strategy; the pack function consults owned bags automatically.
+
+### Bag roster (audit 2026-07-07)
+
+Present in the Oct-2011 cache (`items.yml`): **Coal bag**, **Gem bag**, **Bolt
+pouch**. Absent (correctly): Money pouch, Rune pouch — later additions.
+
+- **Coal bag** — v1 confident pick. Dungeoneering reward (skill launched Dec
+  2010), holds 27 coal in one slot. Iconic mining/smithing bag.
+- **Gem bag** — in the cache, but its *release date* is uncertain (may post-date
+  Oct 2011). **Cross-check a runescape.wiki 2011 revision before shipping**; do
+  not invent its capacity.
+- **Bolt pouch** — Ranged ammo; relevant once Ranged carries bolts.
+
+Recommendation: ship **Coal bag** in v1 (confident, iconic, 27-coal capacity),
+defer Gem bag pending the wiki date check, and add Bolt pouch with the Ranged
+ammo path. Each bag's *source* (how you obtain it) still needs deciding —
+Dungeoneering doesn't exist in AnkiScape, so v1 bags likely come from a shop or
+a token/claim until a reward system exists (live-but-unsourced otherwise).
 
 ### Surfaced tacit assumptions (now explicit)
 

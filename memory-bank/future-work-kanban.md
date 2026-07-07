@@ -380,7 +380,7 @@ mid-fight, which needs auto-eat to model stat side effects.
 ### Next - 28-Slot Carried Inventory (owner-grilled 2026-07-07)
 
 Full design: `memory-bank/inventory-carry-model-design-2026-07-07.md`.
-Locked decisions: teeth for everyone (A), as an *overlay* over the flat bank
+**Design complete (2026-07-07) — ready to build on go.** Locked decisions: teeth for everyone (A), as an *overlay* over the flat bank
 (not a replacement — protects the parity price tables); bank runs always
 auto-execute (no per-empty menu) with a swappable packing policy (dumb +
 transparent default auto-manager, or set-once advanced layout, mirroring how
@@ -391,8 +391,7 @@ slot, unstackables one each, bags pack unstackables); gathering banks free,
 processing/combat cost 1 review (combat keeps 2); per-target Keep/Drop toggle
 for power-gathering. This subsumes `combat_supply_loadout` and the recurring
 28-constants. Held-item requirements resolve against the toggle (carried if
-ON, owned-in-bank if OFF) — the cannonball-mould rule. Warrants its own implementation grill/pass (default
-auto-manager heuristic, bag roster, UI); do NOT start without one.
+ON, owned-in-bank if OFF) — the cannonball-mould rule. Grill finished: casual = 3 preset pack modes (Balanced/Max-output/Max-safety) via a pure `pack_carried_inventory_pure`; advanced = click-from-bank into a collapsible side panel, saved per target; bags auto-apply when owned (Coal bag confident v1 @ 27 coal, Gem bag pending a wiki 2011 date check, Bolt pouch with Ranged); death drops carried inventory into the grave; undo rolls back; Wilderness ambush counter unifies; coins take one slot (no money pouch until ~2013); bank stays infinite; per-target loadout persistence (switch banks free, mid-session refill costs 1 review). Bag *sourcing* (no Dungeoneering) is the one open sub-item.
 
 Small correction already agreed: the combat eat-queue is an *ordered* consume
 list (fix the framing + let stat-food be queued in, solving the kebab/beer
