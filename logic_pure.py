@@ -1219,9 +1219,42 @@ def _set_combat_death_office_items(data, items, source="combat_death_office"):
         data["death_office"] = {}
 
 
+def _carried_inventory_grave_counts(data):
+    """Unbanked carried item counts across all targets ({item: total count}).
+
+    Death drops the carried inventory (coins/quest already excluded from the view)
+    into the grave alongside equipment. Only one target is active at a time but the
+    per-target views persist, so their union is what is "in hand" and at risk.
+    """
+    carried = data.get("carried_inventory")
+    counts = {}
+    if not isinstance(carried, Mapping):
+        return counts
+    for view in carried.values():
+        if not isinstance(view, Mapping):
+            continue
+        for item_name, count in view.items():
+            if isinstance(item_name, str):
+                counts[item_name] = counts.get(item_name, 0) + _non_negative_int(count, 0)
+    return {item_name: count for item_name, count in counts.items() if count > 0}
+
+
 def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_death"):
     equipment = dict(data.get("equipment", {}) or {})
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
+    # Carried items are a view over the flat store: remove them from the bank and
+    # drop them into the grave, expanded one grave entry per unit. The overlay
+    # resets on death.
+    carried_counts = _carried_inventory_grave_counts(data)
+    if carried_counts:
+        inventory = dict(data.get("inventory", {}) or {})
+        for item_name, count in carried_counts.items():
+            inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - count)
+            grave_items.extend([item_name] * count)
+        data["inventory"] = inventory
+    data["carried_inventory"] = {}
+    data["carried_churn"] = {}
+    data["skilling_bank_run"] = {}
     existing_grave_items = _combat_grave_items(data.get("combat_grave", {}) or {})
     if existing_grave_items:
         existing_office_items = _combat_death_office_items(data.get("death_office", {}) or {})

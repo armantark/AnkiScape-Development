@@ -3185,6 +3185,41 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(died["death_office"]["items"], ["Cape", "Bronze sword"])
         self.assertEqual(died["death_office"]["reclaim_cost"], 200)
 
+    def test_combat_death_drops_carried_inventory_into_grave(self):
+        player = _player(
+            current_combat_target="killer",
+            attack_level=1,
+            strength_level=1,
+            combat_lifepoints=1,
+            equipment={"weapon": "Iron sword"},
+            inventory={"Coal": 30, "Coins": 100},
+            carried_inventory={"copper_ore": {"Coal": 28}},
+            carried_churn={"copper_ore": 28},
+            skilling_bank_run={"reviews_remaining": 1, "target_id": "copper_ore"},
+        )
+
+        died, ok, result = apply_combat_burst_pure(
+            player,
+            _KILLER_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["died"])
+        # Carried coal joins the equipment in the grave, one entry per unit.
+        self.assertEqual(died["combat_grave"]["items"].count("Coal"), 28)
+        self.assertIn("Iron sword", died["combat_grave"]["items"])
+        # Carried items are a view over the flat store, so they leave the bank;
+        # coins (the money pouch) are untouched.
+        self.assertEqual(died["inventory"]["Coal"], 2)
+        self.assertEqual(died["inventory"]["Coins"], 100)
+        # The overlay resets on death.
+        self.assertEqual(died["carried_inventory"], {})
+        self.assertEqual(died["carried_churn"], {})
+        self.assertEqual(died["skilling_bank_run"], {})
+
     def test_death_office_reclaim_consumes_coins_and_returns_items_to_inventory(self):
         player = _player(
             inventory={"Coins": 250, "Bones": 1},
