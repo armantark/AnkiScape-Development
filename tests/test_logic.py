@@ -1112,7 +1112,8 @@ class TestLogic(unittest.TestCase):
         logs = FIREMAKING_DATA["logs"]
         magic = FIREMAKING_DATA["magic_logs"]
 
-        self.assertAlmostEqual(firemaking_source_roll_chance_pure(1, logs), 65 / 255)
+        # 3-arg source interpolate adds +1 inside the helper: 66/255 at level 1.
+        self.assertAlmostEqual(firemaking_source_roll_chance_pure(1, logs), 66 / 255)
         self.assertEqual(firemaking_source_roll_chance_pure(99, logs), 1.0)
         self.assertLess(
             firemaking_source_roll_chance_pure(40, {"low_chance": 40, "high_chance": 200}),
@@ -1369,7 +1370,8 @@ class TestLogic(unittest.TestCase):
         shrimps = COOKING_DATA["cook_shrimps"]
         shark = COOKING_DATA["cook_shark"]
 
-        self.assertAlmostEqual(cooking_source_roll_chance_pure(1, shrimps), 128 / 255)
+        # 3-arg source interpolate adds +1 inside the helper: 129/255 at level 1.
+        self.assertAlmostEqual(cooking_source_roll_chance_pure(1, shrimps), 129 / 255)
         self.assertEqual(cooking_source_roll_chance_pure(99, shrimps), 1.0)
         self.assertLess(
             cooking_source_roll_chance_pure(80, shark),

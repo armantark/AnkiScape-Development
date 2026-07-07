@@ -5102,14 +5102,18 @@ def _hunter_outputs_from_spec(spec):
 
 
 def hunter_source_roll_chance_pure(hunter_level, target_spec):
-    """Approximate Darkan/2011-style Hunter catch odds before Anki pacing."""
+    """Exact Darkan Hunter catch odds (Utils.skillSuccess, verified by
+    bytecode disassembly of core-2.0.5.jar): chance = int(rate1 +
+    (rate99 - rate1) * level / 99), clamped to 0..256, success iff
+    nextInt(255) <= chance, i.e. probability (chance + 1)/255."""
     if bool(target_spec.get("deterministic", False)):
         return 1.0
-    low = float(target_spec.get("rate1", 128))
-    high = float(target_spec.get("rate99", 256))
-    level_progress = max(0.0, min((float(hunter_level) - 1.0) / 98.0, 1.0))
-    interpolated = low + ((high - low) * level_progress)
-    return max(0.0, min(interpolated / 256.0, 1.0))
+    low = int(_non_negative_float(target_spec.get("rate1", 128), 128.0))
+    high = int(_non_negative_float(target_spec.get("rate99", 256), 256.0))
+    level = max(1, _positive_int(hunter_level, 1))
+    chance = int(low + (high - low) * (level / 99.0))
+    chance = max(0, min(chance, 256))
+    return max(0.0, min((chance + 1) / 255.0, 1.0))
 
 
 def calculate_hunter_success_probability_pure(
@@ -5506,11 +5510,13 @@ def cooking_target_locked_reasons_pure(player_data, target, cooking_data, quest_
 
 
 def cooking_source_roll_chance_pure(cooking_level, target_spec):
-    """Approximate the 2011Scape raw Cooking roll before Anki pacing."""
-    low = float(target_spec.get("low_chance", 1))
-    high = float(target_spec.get("high_chance", 255))
-    level_progress = max(0.0, min((float(cooking_level) - 1.0) / 98.0, 1.0))
-    interpolated = low + ((high - low) * level_progress)
+    """Exact 2011Scape Cooking roll (CookingAction.kt): the shared 3-arg
+    interpolate helper (floors + 1) with success on interp > nextInt(255)."""
+    interpolated = _scape2011_interpolate_255(
+        target_spec.get("low_chance", 1),
+        target_spec.get("high_chance", 255),
+        _positive_int(cooking_level, 1),
+    )
     return max(0.0, min(interpolated / 255.0, 1.0))
 
 
@@ -5555,11 +5561,14 @@ def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, ro
 
 
 def firemaking_source_roll_chance_pure(firemaking_level, target_spec):
-    """Approximate the 2011Scape raw Firemaking roll before Anki pacing."""
-    low = float(target_spec.get("low_chance", 65))
-    high = float(target_spec.get("high_chance", 513))
-    level_progress = max(0.0, min((float(firemaking_level) - 1.0) / 98.0, 1.0))
-    interpolated = low + ((high - low) * level_progress)
+    """Exact 2011Scape Firemaking roll (FiremakingAction.kt): the shared
+    3-arg interpolate helper (floors + 1) with success on
+    interp > nextInt(255)."""
+    interpolated = _scape2011_interpolate_255(
+        target_spec.get("low_chance", 65),
+        target_spec.get("high_chance", 513),
+        _positive_int(firemaking_level, 1),
+    )
     return max(0.0, min(interpolated / 255.0, 1.0))
 
 

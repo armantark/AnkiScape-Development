@@ -50,7 +50,18 @@ implemented exactly:
   functions were made source-exact on 2026-07-07 and the affected pinned
   expectations updated (crayfish 59/255, iron 0.51/0.66/0.81).
 
-Hunter rolls remain on the follow-up list.
+- **Hunter** (`Utils.skillSuccess`, bytecode-verified): chance =
+  `int(rate1 + (rate99 - rate1) * level / 99)` clamped 0..256, success on
+  `nextInt(255) <= chance` -> `(chance + 1)/255`. Ours used `(level-1)/98`
+  over 256 — made source-exact 2026-07-07.
+- **Cooking and Firemaking** both use the 3-arg floor/+1 helper with
+  `interp > nextInt(255)` — made source-exact via
+  `_scape2011_interpolate_255` (shrimps level 1 is 129/255; normal logs
+  66/255), pinned expectations updated.
+
+All seven probabilistic source rolls (mining, woodcutting, fishing, hunter,
+cooking, firemaking, iron smelting) are now exact ports of their engine
+formulas; the only remaining transform is the declared sqrt pacing adapter.
 
 ## Standing adaptations (by design, not deviations)
 
@@ -61,13 +72,9 @@ id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
 
 ## Not yet line-audited (scoped follow-ups)
 
-1. **Fishing/Hunter source-roll formulas** — same spot-check Woodcutting and
-   Mining received.
-2. **Cooking burn curves and Smithing iron 50-80% curve** — implemented from
-   audits at build time; a re-verification pass is cheap insurance.
-3. **Combat recovery packets / special-energy regen** — the burst core is now
-   audited (see above); the safe-boundary recovery glue is the remaining
-   combat surface.
+1. **Combat recovery packets / special-energy regen** — the burst core and
+   every skilling roll are now audited; the safe-boundary recovery glue is
+   the last unswept mechanics surface.
 
 Follow-up prompt: audit each area against the Source Hierarchy, add a ledger
 row per finding, pin every source constant with a test keyed on stable ids.
