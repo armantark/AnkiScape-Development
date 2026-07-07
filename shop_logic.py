@@ -15,6 +15,7 @@ try:
         SHOP_DATA,
         SHOP_DATA_VERSION,
         SHOP_ID_ALIASES,
+        SHOP_PLAYER_SELL_PRICES,
         SHOP_SERVICES,
         SHOP_VENDOR_ACTIONS,
     )
@@ -23,6 +24,7 @@ except ImportError:
         SHOP_DATA,
         SHOP_DATA_VERSION,
         SHOP_ID_ALIASES,
+        SHOP_PLAYER_SELL_PRICES,
         SHOP_SERVICES,
         SHOP_VENDOR_ACTIONS,
     )
@@ -836,7 +838,10 @@ def _sell_price_for_item(item_name: str) -> Optional[int]:
                 if price > 0:
                     prices.append(max(1, price // 3))
     if not prices:
-        return None
+        # No shop stocks it: fall back to the generated Shop.java player-sale
+        # price (ItemDefinitions.sellPrice + coin sell enum override).
+        fallback = SHOP_PLAYER_SELL_PRICES.get(item_name)
+        return int(fallback) if fallback is not None else None
     return min(prices)
 
 

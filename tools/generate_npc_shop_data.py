@@ -674,6 +674,34 @@ def _coverage_summary(
     }
 
 
+def build_player_sell_prices(
+    items: dict[int, ItemMeta],
+    price_inputs: dict[int, dict[str, Any]],
+) -> dict[str, int]:
+    """Coin sell price for every tradeable 2011 item, keyed by storage name.
+
+    Mirrors Shop.java's player-sale math (ItemDefinitions.sellPrice plus the
+    coin sell enum override). Names shared by several item ids keep the lowest
+    resolved price so name aliasing can never inflate a payout.
+    """
+    prices: dict[str, int] = {}
+    for item_id, meta in items.items():
+        if not meta.tradeable:
+            continue
+        cache_row = price_inputs.get(item_id)
+        if not cache_row:
+            continue
+        sell_price = _cache_shop_sell_price(cache_row, 995)
+        if sell_price is None or sell_price < 0:
+            continue
+        name = _item_name(items, item_id)
+        if not name or name.startswith("Item ") or name.lower().startswith("null"):
+            continue
+        existing = prices.get(name)
+        prices[name] = sell_price if existing is None else min(existing, sell_price)
+    return dict(sorted(prices.items()))
+
+
 def _py_repr(value: Any) -> str:
     if isinstance(value, tuple):
         inner = ", ".join(_py_repr(v) for v in value)
@@ -721,6 +749,11 @@ SHOP_VENDOR_ACTIONS: Dict[str, Dict[str, Any]] = {_py_repr(vendor_map)}
 SHOP_COVERAGE_SUMMARY: Dict[str, Any] = {_py_repr(catalog["summary"])}
 
 SHOP_EXTRA_ITEM_DATA: Dict[str, Dict[str, Any]] = {_py_repr(item_specs)}
+
+# Coin sell price for every tradeable 2011 item (Shop.java player-sale math:
+# ItemDefinitions.sellPrice + coin sell enum override). General-store sales of
+# items no shop stocks resolve through this table instead of failing closed.
+SHOP_PLAYER_SELL_PRICES: Dict[str, int] = {_py_repr(catalog.get("player_sell_prices", {}))}
 
 
 def shop_extra_items_as_dict() -> Dict[str, Dict[str, Any]]:
@@ -825,15 +858,23 @@ def main() -> None:
     parser.add_argument("--summary-out", type=Path, default=SUMMARY_PATH)
     args = parser.parse_args()
 
-    item_ids = collect_source_shop_item_ids(args.darkan_shops)
+    items = load_2011_items(args.items_2011)
+    item_ids = set(collect_source_shop_item_ids(args.darkan_shops))
+    # Player sales at general stores follow the same Shop.java sell math as
+    # stock rows, but for ANY tradeable item the player holds — so the cache
+    # dump covers every tradeable 2011 item, not just shop stock.
+    tradeable_ids = {item_id for item_id, meta in items.items() if meta.tradeable}
     price_inputs = load_darkan_shop_price_inputs(
         args.darkan_cache,
-        item_ids,
+        item_ids | tradeable_ids,
         core_jar=args.darkan_core_jar,
         dependency_jars=tuple(args.darkan_dependency_jar or DEFAULT_DARKAN_DEPENDENCY_JARS),
         java_home=args.darkan_java_home,
     )
     catalog, ledger = build_catalog(args.darkan_shops, args.items_2011, price_inputs, args.darkan_cache)
+    catalog["player_sell_prices"] = build_player_sell_prices(items, price_inputs)
+    catalog["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
+    ledger["summary"]["player_sell_price_count"] = len(catalog["player_sell_prices"])
     args.shop_data_out.parent.mkdir(parents=True, exist_ok=True)
     args.ledger_out.parent.mkdir(parents=True, exist_ok=True)
     args.summary_out.parent.mkdir(parents=True, exist_ok=True)

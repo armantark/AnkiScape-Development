@@ -198,6 +198,65 @@ class TestShopLogic(unittest.TestCase):
         history = shop_history_rows_pure(updated, shop["id"])
         self.assertEqual(history[0]["type"], "buy")
 
+    def test_primary_skill_outputs_sell_at_general_stores(self):
+        # Coin-loop guarantee: representative gathered/crafted/combat outputs
+        # must resolve a Shop.java sell price even when no shop stocks them
+        # (SHOP_PLAYER_SELL_PRICES fallback), so income is never fail-closed.
+        outputs = (
+            "Logs", "Oak logs", "Willow logs", "Maple logs", "Yew logs",
+            "Iron ore", "Coal", "Gold ore", "Mithril ore",
+            "Bronze bar", "Iron bar", "Steel bar", "Silver bar",
+            "Raw shrimps", "Raw trout", "Raw lobster", "Raw swordfish",
+            "Uncut sapphire", "Uncut emerald", "Uncut ruby",
+            "Bones", "Big bones", "Cowhide", "Leather", "Hard leather",
+            "Wool", "Ball of wool", "Flax", "Bow string",
+            "Grey wolf fur", "Feather", "Arrow shaft", "Sapphire ring",
+        )
+        general = _general_store()
+        data = build_shop_fixture_player_data()
+        for item_name in outputs:
+            data["inventory"][item_name] = 5
+            preview = preview_shop_sell_pure(data, general["id"], item_name, 1)
+            self.assertTrue(preview["allowed"], f"{item_name}: {preview.get('reason')}")
+            self.assertGreaterEqual(int(preview["unit_price"]), 1, item_name)
+
+    def test_gather_sell_buy_coin_loop_end_to_end(self):
+        # A coinless player sells gathered goods to a general store, then
+        # spends the proceeds on shop stock; both legs record history events.
+        general = _general_store()
+        feather_shop = next(
+            shop for shop in SHOP_DATA.values()
+            if shop["visibility"] == "visible"
+            and any(r["item_name"] == "Feather" and r["disposition"] == "live" for r in shop["stock"])
+        )
+        feather_row = next(r for r in feather_shop["stock"] if r["item_name"] == "Feather")
+
+        data = build_shop_fixture_player_data()
+        data["inventory"]["Coins"] = 0
+        data["inventory"]["Oak logs"] = 20
+
+        sell_preview = preview_shop_sell_pure(data, general["id"], "Oak logs", 20)
+        self.assertTrue(sell_preview["allowed"], sell_preview.get("reason"))
+        data, sell_result = apply_shop_sell_pure(data, general["id"], "Oak logs", 20)
+        self.assertTrue(sell_result["allowed"])
+        earned = int(sell_result["total_price"])
+        self.assertGreater(earned, 0)
+        self.assertEqual(data["inventory"]["Coins"], earned)
+        self.assertEqual(data["inventory"]["Oak logs"], 0)
+
+        unit = int(feather_row["buy_price"])
+        affordable = max(1, min(5, earned // unit))
+        data, buy_result = apply_shop_buy_pure(data, feather_shop["id"], feather_row["id"], affordable)
+        self.assertTrue(buy_result["allowed"], buy_result.get("reason"))
+        self.assertEqual(data["inventory"].get("Feather", 0), int(buy_result["quantity"]))
+        self.assertEqual(
+            data["inventory"]["Coins"],
+            earned - int(buy_result["total_price"]),
+        )
+        types = [event["type"] for event in shop_history_rows_pure(data, limit=4)]
+        self.assertIn("sell", types)
+        self.assertIn("buy", types)
+
 
 if __name__ == "__main__":
     unittest.main()
