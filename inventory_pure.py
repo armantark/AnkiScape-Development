@@ -96,6 +96,91 @@ def money_pouch_balance(player_data: Mapping[str, Any]) -> int:
     return _clean_int(inventory.get(COIN_ITEM_NAME), 0, minimum=0)
 
 
+def coerce_pack_mode(mode: Any) -> str:
+    return mode if mode in _VALID_PACK_MODES else _DEFAULT_PACK_MODE
+
+
+def pack_carried_inventory_pure(
+    bank: Mapping[str, int],
+    spec: Mapping[str, Any],
+    mode: Any,
+    stackable_names: set[str] | frozenset[str],
+) -> dict[str, int]:
+    """Fill up to ``CARRIED_CAPACITY`` slots from ``bank`` for one target.
+
+    This is the casual preset packer: the player picks a ``mode`` and the loadout
+    falls out of it, so no per-depletion micromanagement is needed. It never
+    invents materials — every count is capped by what the bank actually holds.
+
+    ``spec`` describes the target's carry needs (all keys optional):
+      ``required``: {item: count} held items that must be carried (e.g. a mould),
+        one slot each. Packed first; a target cannot run without them.
+      ``food``: [item, ...] ordered food candidates (combat); empty for skilling.
+      ``food_reserve``: slots to reserve for food under the balanced mode.
+      ``primary``: the material that fills the remaining slots.
+
+    ``mode`` shifts only the food reserve: ``max_output`` drops it to zero (every
+    free slot to the primary), ``max_safety`` doubles it, ``balanced`` uses it
+    as given. Bags (which pack an unstackable material into one slot) land with
+    the bag slice; they will apply automatically when owned, under any mode.
+    """
+    mode = coerce_pack_mode(mode)
+    if not isinstance(bank, Mapping):
+        bank = {}
+    if not isinstance(spec, Mapping):
+        spec = {}
+
+    carried: dict[str, int] = {}
+
+    def _bank(name: str) -> int:
+        return _clean_int(bank.get(name), 0, minimum=0)
+
+    # 1. Required held items — one slot each, only what the bank can supply.
+    required = spec.get("required") or {}
+    if isinstance(required, Mapping):
+        for item_name, count in required.items():
+            if not isinstance(item_name, str):
+                continue
+            want = min(_clean_int(count, 0, minimum=0), _bank(item_name))
+            if want > 0 and carried_has_room_for(carried, item_name, want, stackable_names):
+                carried[item_name] = carried.get(item_name, 0) + want
+
+    # 2. Food reserve — mode-scaled, drawn in the target's preferred order.
+    reserve = _clean_int(spec.get("food_reserve"), 0, minimum=0)
+    if mode == "max_output":
+        reserve = 0
+    elif mode == "max_safety":
+        reserve *= 2
+    food = spec.get("food") or ()
+    for item_name in food:
+        if reserve <= 0:
+            break
+        if not isinstance(item_name, str):
+            continue
+        want = min(reserve, _bank(item_name))
+        # Food is unstackable; each unit is a slot, so it also draws down reserve.
+        placed = 0
+        while placed < want and carried_has_room_for(carried, item_name, 1, stackable_names):
+            carried[item_name] = carried.get(item_name, 0) + 1
+            placed += 1
+        reserve -= placed
+
+    # 3. Primary material fills whatever slots remain.
+    primary = spec.get("primary")
+    if isinstance(primary, str) and primary:
+        available = _bank(primary)
+        if primary in stackable_names:
+            # A stackable takes a single slot for any count.
+            if available > 0 and carried_has_room_for(carried, primary, available, stackable_names):
+                carried[primary] = carried.get(primary, 0) + available
+        else:
+            while available > 0 and carried_has_room_for(carried, primary, 1, stackable_names):
+                carried[primary] = carried.get(primary, 0) + 1
+                available -= 1
+
+    return carried
+
+
 def default_carried_state() -> dict[str, Any]:
     return {
         "carried_inventory": {},
