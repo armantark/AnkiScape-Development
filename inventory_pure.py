@@ -337,15 +337,54 @@ def carried_fold_gains_pure(
 
 def default_carried_state() -> dict[str, Any]:
     return {
-        "carried_inventory": {},
+        "carried_inventory": {},           # {target_id: {item: count}} — death/loot content
+        "carried_churn": {},               # {target_id: int} — slots churned since last bank
+        "carried_keep_drop": {},           # {target_id: "keep"|"drop"} — default keep
+        "skilling_bank_run": {},           # active {reviews_remaining, target_id} run
         "carried_pack_mode": _DEFAULT_PACK_MODE,
         "loot_value_threshold": DEFAULT_LOOT_VALUE_THRESHOLD,
     }
 
 
+def carried_keep_for(player_data: Mapping[str, Any], target_id: str) -> bool:
+    """Whether a gathering target keeps its product (default) or drops it."""
+    if not isinstance(player_data, Mapping):
+        return True
+    keep_drop = player_data.get("carried_keep_drop")
+    if not isinstance(keep_drop, Mapping):
+        return True
+    return keep_drop.get(target_id, "keep") != "drop"
+
+
 def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
     defaults = default_carried_state()
     player_data["carried_inventory"] = _sanitize_carried_inventory(player_data.get("carried_inventory"))
+
+    raw_churn = player_data.get("carried_churn")
+    player_data["carried_churn"] = (
+        {
+            str(target_id): _clean_int(value, 0, minimum=0)
+            for target_id, value in raw_churn.items()
+            if isinstance(target_id, str) and _clean_int(value, 0, minimum=0) > 0
+        }
+        if isinstance(raw_churn, Mapping)
+        else {}
+    )
+
+    raw_keep_drop = player_data.get("carried_keep_drop")
+    player_data["carried_keep_drop"] = (
+        {
+            str(target_id): "drop"
+            for target_id, value in raw_keep_drop.items()
+            if isinstance(target_id, str) and value == "drop"
+        }
+        if isinstance(raw_keep_drop, Mapping)
+        else {}
+    )
+
+    player_data["skilling_bank_run"] = sanitize_bank_run_state(
+        player_data.get("skilling_bank_run"), SKILLING_BANK_RUN_REVIEWS
+    )
 
     pack_mode = player_data.get("carried_pack_mode", defaults["carried_pack_mode"])
     player_data["carried_pack_mode"] = pack_mode if pack_mode in _VALID_PACK_MODES else defaults["carried_pack_mode"]

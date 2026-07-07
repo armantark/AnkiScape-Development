@@ -15,6 +15,7 @@ from inventory_pure import (
     carried_bank_run_gate_pure,
     carried_fold_gains_pure,
     carried_action_churn_pure,
+    carried_keep_for,
     inventory_delta_gains,
     sanitize_carried_state,
 )
@@ -75,6 +76,23 @@ class TestInventoryPure(unittest.TestCase):
         sanitize_carried_state(player_data)
 
         self.assertEqual(player_data, default_carried_state())
+
+    def test_keep_for_defaults_to_keep_and_reads_drop(self):
+        self.assertTrue(carried_keep_for({}, "coal"))
+        self.assertTrue(carried_keep_for({"carried_keep_drop": {"coal": "keep"}}, "coal"))
+        self.assertFalse(carried_keep_for({"carried_keep_drop": {"coal": "drop"}}, "coal"))
+        self.assertTrue(carried_keep_for({"carried_keep_drop": {"oak": "drop"}}, "coal"))
+
+    def test_sanitize_keeps_only_drop_entries_and_positive_churn(self):
+        data = {
+            "carried_keep_drop": {"coal": "drop", "oak": "keep", 3: "drop"},
+            "carried_churn": {"coal": 5, "oak": 0, "bad": "x"},
+            "skilling_bank_run": {"reviews_remaining": 9, "target_id": "coal"},
+        }
+        sanitize_carried_state(data)
+        self.assertEqual(data["carried_keep_drop"], {"coal": "drop"})
+        self.assertEqual(data["carried_churn"], {"coal": 5})
+        self.assertEqual(data["skilling_bank_run"], {"reviews_remaining": 1, "target_id": "coal"})
 
     def test_sanitize_carried_state_corrects_junk_types(self):
         player_data = {
