@@ -82,6 +82,19 @@ id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
   this is an **adaptation** by definition, not a formula to diverge from.
   Its own QA baseline is the 2026-06-25 hardening pass.
 
+## Shop access pass additions (2026-07-07, owner-grilled)
+
+- **Access gates**: quest/route/guild walls evaluated against the save
+  (`shop_access_lock_reason_pure`). The wall list is a hand audit of 2011
+  access requirements (86 gated/flagged shops, 187 open by decision) —
+  classification, not formula; recorded in the coverage ledger.
+- **Wilderness ambush**: declared invention (owner spec) — 1% per completed
+  28 purchase-slot block, one hit of uniform 1..249 LP (engine landed-hit
+  semantics with a declared 250 max), death via the normal PvM grave path,
+  rollback-safe. Constants live in `shop_logic.py` `_WILDERNESS_*`.
+- **Vendor one-per-click**: dialogue parity replacing the invented quantity
+  spinner (`Utils`-free; the engine grants one item per dialogue).
+
 ## Sweep status: complete
 
 Every mechanics-glue surface is classified. Inventions found and fixed:

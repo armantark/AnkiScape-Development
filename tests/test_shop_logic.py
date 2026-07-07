@@ -220,6 +220,56 @@ class TestShopLogic(unittest.TestCase):
         self.assertTrue(wild["wilderness"])
         self.assertEqual(wild["lock_reason"], "")
 
+    def test_wilderness_ambush_slots_trigger_damage_and_rollback(self):
+        # Owner-declared mechanic: every completed 28 purchase-slot block from
+        # a Wilderness shop rolls 1% for a PKer-style hit (1..249 lifepoints,
+        # can kill via the normal grave path). Stackables occupy one slot per
+        # purchase; unstackables one per item. Rollback restores everything.
+        from shop_data import SHOP_DATA
+
+        shop = SHOP_DATA["william_team_cape_shop"]
+        rows = [r for r in shop["stock"] if r["disposition"] == "live"]
+        data = build_shop_fixture_player_data()
+        data["combat_lifepoints"] = 100
+        data["equipment"] = {"weapon": "Bronze sword"}
+
+        safe = lambda: 0.5
+        data, first = apply_shop_buy_pure(data, shop["id"], rows[0]["id"], 10, rng=safe)
+        self.assertEqual(first["wilderness_ambush"], {"slots": 10, "slots_before": 0, "triggered": False})
+        data, _second = apply_shop_buy_pure(data, shop["id"], rows[1]["id"], 10, rng=safe)
+
+        deadly = iter([0.005, 0.9])
+        data, third = apply_shop_buy_pure(data, shop["id"], rows[2]["id"], 10, rng=lambda: next(deadly))
+        ambush = third["wilderness_ambush"]
+        self.assertTrue(ambush["triggered"])
+        self.assertTrue(ambush["died"])
+        self.assertEqual(ambush["damage"], 1 + int(0.9 * 249))
+        self.assertEqual(data["combat_grave"]["source"], "wilderness_shop_ambush")
+        self.assertEqual(data["combat_grave"]["items"], ["Bronze sword"])
+        self.assertEqual(data["equipment"], {})
+
+        back, rollback = rollback_shop_event_pure(data, third["event_id"])
+        self.assertTrue(rollback["allowed"])
+        self.assertEqual(back["combat_lifepoints"], 100)
+        self.assertEqual(back["wilderness_shop_slots"], 20)
+        self.assertNotIn("combat_grave", back)
+        self.assertEqual(back["equipment"], {"weapon": "Bronze sword"})
+
+    def test_wilderness_stackables_occupy_one_slot_per_purchase(self):
+        from shop_data import SHOP_DATA
+
+        shop = SHOP_DATA["lundails_arena_rune_shop"]
+        row = next(r for r in shop["stock"] if r["disposition"] == "live" and r["stackable"])
+        data = build_shop_fixture_player_data()
+        data, result = apply_shop_buy_pure(data, shop["id"], row["id"], 50, rng=lambda: 0.5)
+        self.assertEqual(result["wilderness_ambush"]["slots"], 1)
+        self.assertEqual(data["wilderness_shop_slots"], 1)
+        # Non-wilderness purchases never touch the accumulator.
+        open_shop, open_row = _live_shop_and_row()
+        data, open_result = apply_shop_buy_pure(data, open_shop["id"], open_row["id"], 2)
+        self.assertNotIn("wilderness_ambush", open_result)
+        self.assertEqual(data["wilderness_shop_slots"], 1)
+
     def test_vendor_actions_are_one_per_interaction(self):
         # Dialogue parity: Karim hands over exactly one kebab per
         # conversation; requested bulk quantities clamp to a single use.

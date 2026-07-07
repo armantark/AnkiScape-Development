@@ -135,6 +135,13 @@
   leather/battlestaff/weaving rows that shop supply lit up. Audits:
   `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`,
   `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+- The shop access pass is complete as of 2026-07-07 (owner-grilled):
+  vendor actions are one-per-click, all 267 shops carry hand-audited access
+  rules evaluated against the save (quest/route/guild walls, human-readable
+  lock reasons), and Wilderness shopping rolls the declared 1%-per-28-slots
+  ambush (1..249 LP, kill-capable via the grave path, rollback-safe,
+  session-confirmed in Qt). Stock rows gained a cache-extracted `stackable`
+  flag. Both suites pass with 769 tests.
 - The Cooking shop-integration pass is complete as of 2026-07-07: the 17
   shop-covered gather/scavenge bridges and `buy_bucket` are retired on the
   established precedent (outputs are live shop stock at cache prices),

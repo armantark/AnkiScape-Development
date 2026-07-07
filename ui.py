@@ -3343,6 +3343,32 @@ def show_main_menu(
                 shop_preview_label.setText(_preview_denial_text(preview))
                 shop_action_btn.setEnabled(False)
 
+    def _confirm_wilderness_purchase(view: dict) -> bool:
+        # Owner-declared ambush risk: confirm once per session before buying
+        # in the Wilderness (same precedent as dangerous combat targets).
+        if not view.get("wilderness") or shop_state.get("wilderness_confirmed"):
+            return True
+        answer = QMessageBox.question(
+            dialog,
+            "Wilderness purchase",
+            "This shop is in the Wilderness: every 28 items bought risks an"
+            " ambush that can kill you. Buy here anyway?",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if answer != QMessageBox.StandardButton.Yes:
+            return False
+        shop_state["wilderness_confirmed"] = True
+        return True
+
+    def _ambush_toast_suffix(result: dict) -> str:
+        ambush = result.get("wilderness_ambush") or {}
+        if not ambush.get("triggered"):
+            return ""
+        if ambush.get("died"):
+            return " You were ambushed and killed — your gear is in a grave!"
+        return f" You were ambushed for {int(ambush.get('damage', 0) or 0)} damage!"
+
     def _apply_shop_transaction() -> None:
         view = _shop_view()
         shop_id = str(view.get("shop_id", ""))
@@ -3351,13 +3377,18 @@ def show_main_menu(
             row = _selected_buy_row(view)
             if row is None:
                 return
+            if not _confirm_wilderness_purchase(view):
+                return
             new_data, result = apply_shop_buy_pure(player_data, shop_id, str(row.get("id", "")), qty)
             if not result.get("allowed"):
                 _refresh_transaction_panel()
                 return
             _replace_player_data(new_data)
             _persist_shop_state()
-            _refresh_after_shop_mutation(f"Bought {int(result.get('quantity', 0) or 0):,} x {result.get('item_name', row.get('item_name', 'item'))}.")
+            _refresh_after_shop_mutation(
+                f"Bought {int(result.get('quantity', 0) or 0):,} x {result.get('item_name', row.get('item_name', 'item'))}."
+                + _ambush_toast_suffix(result)
+            )
         else:
             item_name = shop_state.get("sell_item", "")
             if not item_name:
@@ -3523,6 +3554,8 @@ def show_main_menu(
         shop_title.setText(str(view.get("display_name", "NPC shop")))
         currency_name = str(view.get("currency_item_name", "Coins"))
         meta_parts = [f"{currency_name}: {_inventory_count_for_ui(currency_name):,} owned"]
+        if view.get("wilderness"):
+            meta_parts.append("Wilderness — you can be attacked")
         if view.get("general_store"):
             meta_parts.append("General store")
         if view.get("lock_reason"):

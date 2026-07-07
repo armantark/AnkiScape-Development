@@ -43,6 +43,7 @@ public final class DumpDarkanShopPriceInputs {
                 }
                 json.append("{")
                         .append("\"value\":").append(defs.getValue()).append(',')
+                        .append("\"stackable\":").append(defs.stackable).append(',')
                         .append("\"sell_price\":").append(defs.getSellPrice()).append(',')
                         .append("\"coin_buy_override\":").append(coinBuy.getIntValue(itemId)).append(',')
                         .append("\"coin_sell_override\":").append(coinSell.getIntValue(itemId)).append(',')

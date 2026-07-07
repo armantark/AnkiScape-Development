@@ -8,6 +8,7 @@ market clock without importing Anki.
 from __future__ import annotations
 
 import copy
+import random
 from typing import Any, Dict, Iterable, Mapping, Optional
 
 try:
@@ -42,6 +43,7 @@ def default_shop_state_pure() -> Dict[str, Any]:
         "shop_stock_state": {},
         "shop_events": [],
         "shop_next_event_id": 1,
+        "wilderness_shop_slots": 0,
     }
 
 
@@ -99,6 +101,7 @@ def sanitize_shop_state_pure(raw: Mapping[str, Any] | None) -> Dict[str, Any]:
         "shop_stock_state": clean_stock,
         "shop_events": clean_events[-MAX_SHOP_EVENT_HISTORY:],
         "shop_next_event_id": _clean_int(data.get("shop_next_event_id"), 1, minimum=1),
+        "wilderness_shop_slots": _clean_int(data.get("wilderness_shop_slots"), 0, minimum=0),
     }
 
 
@@ -272,7 +275,69 @@ def preview_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: 
     return _preview_buy_from_state(data, shop, row, group_state, quantity)
 
 
-def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: str, quantity: int = 1) -> tuple[Dict[str, Any], Dict[str, Any]]:
+# Owner-declared Wilderness ambush (grill 2026-07-07): every completed block
+# of 28 purchase-slots from a Wilderness shop rolls 1% for one PKer-style hit.
+# Stackables occupy one slot per purchase; unstackables one slot per item.
+# The damage roll reuses the engine's landed-hit semantics (uniform
+# 1..maxHit-1) with a declared max hit of 250 lifepoints; death routes through
+# the normal PvM grave path. This is an AnkiScape invention, ledger-declared.
+_WILDERNESS_SLOTS_PER_TRIP = 28
+_WILDERNESS_AMBUSH_CHANCE = 0.01
+_WILDERNESS_AMBUSH_MAX_HIT_LP = 250
+_WILDERNESS_RESTORE_KEYS = (
+    "combat_lifepoints",
+    "combat_grave",
+    "death_office",
+    "combat_encounter",
+    "combat_status_effects",
+    "equipment",
+)
+
+
+def _apply_wilderness_ambush(data: Dict[str, Any], shop: Mapping[str, Any], row: Mapping[str, Any], amount: int, rng) -> Optional[Dict[str, Any]]:
+    if (shop.get("access") or {}).get("kind") != "wilderness":
+        return None
+    from logic_pure import _combat_apply_pvm_death, combat_max_lifepoints_pure
+
+    slots = 1 if bool(row.get("stackable")) else max(1, int(amount))
+    before_slots = _clean_int(data.get("wilderness_shop_slots"), 0, minimum=0)
+    total_slots = before_slots + slots
+    data["wilderness_shop_slots"] = total_slots
+    blocks = (total_slots // _WILDERNESS_SLOTS_PER_TRIP) - (before_slots // _WILDERNESS_SLOTS_PER_TRIP)
+    if blocks <= 0:
+        return {"slots": slots, "slots_before": before_slots, "triggered": False}
+
+    max_lp = combat_max_lifepoints_pure(data)
+    lp_before = max(0, _clean_int(data.get("combat_lifepoints"), max_lp, minimum=0)) or max_lp
+    damage = 0
+    for _ in range(blocks):
+        if float(rng()) < _WILDERNESS_AMBUSH_CHANCE:
+            roll = max(0.0, min(float(rng()), 0.999999999))
+            damage += 1 + int(roll * (_WILDERNESS_AMBUSH_MAX_HIT_LP - 1))
+    if damage <= 0:
+        return {"slots": slots, "slots_before": before_slots, "triggered": False}
+
+    restore = {key: copy.deepcopy(data.get(key)) for key in _WILDERNESS_RESTORE_KEYS}
+    lp_after = lp_before - damage
+    died = lp_after <= 0
+    if died:
+        _combat_apply_pvm_death(data, max_lp, grave_source="wilderness_shop_ambush")
+    else:
+        data["combat_lifepoints"] = lp_after
+    return {
+        "slots": slots,
+        "slots_before": before_slots,
+        "triggered": True,
+        "damage": damage,
+        "lifepoints_before": lp_before,
+        "lifepoints_after": max(0, lp_after),
+        "died": died,
+        "restore": restore,
+    }
+
+
+
+def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: str, quantity: int = 1, rng=None) -> tuple[Dict[str, Any], Dict[str, Any]]:
     data = ensure_shop_state_pure(player_data)
     shop = _shop_or_none(shop_id)
     if shop is None:
@@ -298,6 +363,7 @@ def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: st
     group_state["rows"][row["id"]]["current_quantity"] = max(0, before_row["current_quantity"] - amount)
     after_row = copy.deepcopy(group_state["rows"][row["id"]])
     data["shop_stock_state"][shop["shared_stock_group"]] = _compress_group_state(group_state)
+    ambush = _apply_wilderness_ambush(data, shop, row, amount, rng or random.random)
     event = _build_event(
         data,
         "buy",
@@ -310,9 +376,13 @@ def apply_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: st
         stock_set={shop["shared_stock_group"]: {row["id"]: before_row}},
         stock_delta={shop["shared_stock_group"]: {row["id"]: {"before": before_row, "after": after_row}}},
     )
+    if ambush is not None:
+        event["wilderness_ambush"] = copy.deepcopy(ambush)
     _append_event(data, event)
     result = dict(preview)
     result["event_id"] = event["event_id"]
+    if ambush is not None:
+        result["wilderness_ambush"] = {k: v for k, v in ambush.items() if k != "restore"}
     return data, result
 
 
@@ -448,6 +518,19 @@ def rollback_shop_event_pure(player_data: Mapping[str, Any], event_id: Optional[
                 data["shop_stock_state"][group_id] = compressed
             else:
                 data["shop_stock_state"].pop(group_id, None)
+    ambush = event.get("wilderness_ambush")
+    if isinstance(ambush, Mapping):
+        # Undo the slot accounting; restore combat/death state if it triggered.
+        slots_before = _clean_int(ambush.get("slots_before"), 0, minimum=0)
+        data["wilderness_shop_slots"] = slots_before
+        restore = ambush.get("restore")
+        if ambush.get("triggered") and isinstance(restore, Mapping):
+            for key in _WILDERNESS_RESTORE_KEYS:
+                if key in restore:
+                    if restore[key] is None:
+                        data.pop(key, None)  # the key did not exist pre-ambush
+                    else:
+                        data[key] = copy.deepcopy(restore[key])
     rollback_event = {
         "event_id": _next_event_id(data),
         "type": "rollback",

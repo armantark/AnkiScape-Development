@@ -572,6 +572,9 @@ def _stock_rows(
                 "source_path": str(shop_path),
                 "source": DARKAN_SOURCE,
                 "tradeable": bool(item_meta.tradeable) if item_meta else False,
+                # Cache stackable flag (Wilderness ambush slot accounting:
+                # stackables occupy one slot per item type per purchase).
+                "stackable": bool((price_inputs.get(item_id) or {}).get("stackable") == 1),
             }
         )
     return rows

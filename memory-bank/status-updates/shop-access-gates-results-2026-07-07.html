@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shop Access Gates — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --green:#4ade80; --amber:#fbbf24; --red:#ff5c5c; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:960px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.8rem; margin-bottom:0.6rem; }
+p, li, td { color:var(--text-dim); font-size:0.9rem; }
+.metrics { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.9rem; margin:1.4rem 0; }
+.metric { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0.9rem 1rem; }
+.metric .num { font-weight:700; font-size:1.5rem; }
+.metric .num.g { color:var(--green); } .metric .num.a { color:var(--amber); } .metric .num.r { color:var(--red); }
+.metric .label { font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); margin-top:0.2rem; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:1rem; }
+.card ul { margin:0.4rem 0 0.3rem 1.2rem; }
+.card li { margin-bottom:0.4rem; }
+.verify { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.3rem; font-family:'JetBrains Mono',monospace; font-size:0.74rem; line-height:2; color:var(--text-dim); margin-top:1rem; }
+.verify b { color:var(--green); }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-07</div>
+    <h1>Shop Access Gates + Wilderness Ambush</h1>
+    <p>The owner-grilled hybrid, shipped: shops now know where they are.</p>
+    <div class="metrics">
+        <div class="metric"><div class="num g">187</div><div class="label">Open by decision</div></div>
+        <div class="metric"><div class="num a">61</div><div class="label">Quest walls</div></div>
+        <div class="metric"><div class="num a">11</div><div class="label">Guild / QP walls</div></div>
+        <div class="metric"><div class="num r">14</div><div class="label">Wilderness (ambush)</div></div>
+    </div>
+    <div class="card">
+        <ul>
+            <li><b style="color:var(--text)">Gates</b> — hand-audited <code>SHOP_ACCESS_RULES</code>
+            emit onto shop rows and the coverage ledger; <code>shop_access_lock_reason_pure</code>
+            evaluates them against the save at view/preview time. Locked shops show human-readable
+            reasons ("Requires Lost City", "Requires starting The Giant Dwarf", "Requires 68
+            Fishing") through the existing visible-locked surface; buys and sells both deny. Every
+            gated quest id is test-verified against the quest catalog.</li>
+            <li><b style="color:var(--text)">Wilderness ambush</b> — your spec exactly: every completed
+            28 purchase-slot block (stackables one slot per purchase — a new cache-extracted
+            <code>stackable</code> flag on every stock row) rolls 1%; a hit deals uniform 1..249 LP
+            using the engine's landed-hit semantics against a declared 250 max, and can kill —
+            equipment goes to a normal grave sourced <code>wilderness_shop_ambush</code>. Fully
+            rollback-safe through the shop event (including restoring death state). Qt confirms once
+            per session, shows "Wilderness — you can be attacked" in the header, and toasts ambush
+            outcomes.</li>
+            <li><b style="color:var(--text)">Vendor one-per-click</b> — shipped earlier in the pass:
+            backend clamps every vendor action to a single interaction; the quantity spinner is
+            hidden.</li>
+        </ul>
+    </div>
+    <div class="verify">python3 run_tests.py → <b>OK</b> · 769 tests, 144 skipped<br>
+    offscreen Qt discover → <b>OK</b> · 769 tests<br>
+    new pins: gate evaluation per class · quest-id validation · ambush slot math, kill path, rollback-to-absence · stackable slot accounting</div>
+</div>
+</body>
+</html>

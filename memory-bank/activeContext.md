@@ -100,6 +100,21 @@ leather, battlestaff, and weaving rows all lit up through shop supply. Audits:
 `memory-bank/source-audits/coin-economy-audit-2026-07-06.md` and
 `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 
+The shop access pass (2026-07-07, owner-grilled) is complete. Vendor
+actions are one-per-click (dialogue parity; qty spinner hidden). All 267
+visible shops carry a hand-audited `access` rule (187 open, 61 quest walls,
+1 quest-point wall, 7 guild skill walls, 3 Warriors' Guild combined walls,
+14 Wilderness); `shop_access_lock_reason_pure` evaluates them against the
+save at view/preview time with human-readable lock reasons, started-stage
+access where 2011 granted it, and test-verified quest ids. Wilderness shops
+are access-open but every completed 28 purchase-slot block (stackables one
+slot per purchase) rolls 1% for an ambush hit of 1..249 LP that can kill via
+the normal grave path — rollback-safe through the shop event, confirmed once
+per session in Qt, with a header warning and ambush toasts. The stock rows
+now carry a cache-extracted `stackable` flag. Deferred by owner decision:
+the GE (bulk shortcut over the cache-exchangeable subset, with an ironman
+toggle that disables only the GE) and the edible Kebab/Beer slice.
+
 The Cooking shop-integration pass (2026-07-07) executed the kanban follow-up
 on the owner-approved bridge-retirement precedent: the 17 shop-covered
 gather/scavenge bridges (Potato, Onion, Egg, Redberries, Cooking apple,
