@@ -67,6 +67,27 @@ knowledge of *what* is carried. So `carried_inventory[target_id]` is a real
    **Drop** bypasses the subset entirely (no bank, fastest XP).
 3. Coins and quest items are excluded from the subset (see coin note above).
 
+### 2d mechanism decision — item-level view over the single flat store
+
+The carried subset is a real per-target item dict (settled above), but it is a
+**view over the unified flat store, not a second physical store.** The flat
+inventory stays the single source of truth that shops, quests, and the UI read as
+the bank. `carried_inventory[target_id]` = `{item: count}` marks *which subset of
+the owned total is in hand right now*. Rationale:
+
+- Per-skill handlers (`apply_crafting_pure`, `apply_mining_pure`, …) keep
+  consuming from / producing to `player_data["inventory"]` unchanged — no handler
+  rewrite, no transient inventory-swap, no risk to the ~20 modules reading it.
+- The overlay logic lives in **one pure function** called from `on_good_answer`
+  after each tick: it updates the carried view (inputs drawn / outputs kept),
+  decides when 28 slots are exhausted, and drives `bank_run_progress_pure`. This
+  keeps 2d unit-testable; the `__init__.py` change is a thin call.
+- Death-drop subtracts the carried view from the flat store into the grave
+  (coins/quest items excluded). Loot/bags update the same view.
+
+This reconciles "real item dict" with "least-invasive": item-level knowledge for
+death/loot/bags, but no storage split.
+
 ### Remaining slice-2 sub-slices (each its own tested commit)
 
 - **2c — skilling bank-run state machine** (pure, mirrors combat; 1 review).
