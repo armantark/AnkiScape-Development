@@ -70,11 +70,22 @@ utilities; 10 answered cards = one market tick; combat bursts simulate 50
 source ticks; flat name-keyed inventory (canonical-id price tables absorb the
 id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
 
-## Not yet line-audited (scoped follow-ups)
+## Combat recovery / special energy (closes the sweep)
 
-1. **Combat recovery packets / special-energy regen** — the burst core and
-   every skilling roll are now audited; the safe-boundary recovery glue is
-   the last unswept mechanics surface.
+- **Special attack regen**: Darkan restores 10% every 50 ticks
+  (`Player.java` tick loop -> `CombatDefinitions.restoreSpecialAttack`,
+  base 10; auras unimplemented). Ours is `10 per 50 ticks` pro-rated across
+  burst ticks — identical in expectation, continuous-vs-stepped cadence is
+  the standard declared adaptation. **parity**
+- **Safe-boundary recovery packets** (food/potion/ammo/rune refills between
+  fights): no engine counterpart exists — real players bank manually — so
+  this is an **adaptation** by definition, not a formula to diverge from.
+  Its own QA baseline is the 2026-06-25 hardening pass.
 
-Follow-up prompt: audit each area against the Source Hierarchy, add a ledger
-row per finding, pin every source constant with a test keyed on stable ids.
+## Sweep status: complete
+
+Every mechanics-glue surface is classified. Inventions found and fixed:
+sell-price heuristics (2026-07-06), the landed-hit damage roll, and the
+seven skilling rolls' interpolation semantics (2026-07-07). When adding new
+mechanics code, cite the engine line for every constant and pin it with a
+stable-id-keyed test, or classify the behavior here.
