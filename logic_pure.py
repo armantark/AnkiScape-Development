@@ -671,8 +671,11 @@ def calculate_iron_smelting_success_probability_pure(smithing_level, has_ring_of
     if has_ring_of_forging:
         return 1.0
     level = max(15, min(_positive_int(smithing_level, 15), 45))
-    chance_percent = 50 + ((80 - 50) * (level - 15) // (45 - 15))
-    return chance_percent / 100.0
+    # SmeltingAction.rollIronBar: level.coerceAtMost(45).interpolate(50, 80,
+    # 15, 45, 100) -> success iff nextInt(100) <= interp, i.e. probability
+    # (interp + 1)/100 — the source curve is 51%..81%, not 50%..80%.
+    interp = 50 + ((80 - 50) * (level - 15) // (45 - 15))
+    return min(1.0, (interp + 1) / 100.0)
 
 
 def smithing_success_probability_pure(target, spec, smithing_level, has_ring_of_forging=False):
@@ -4798,12 +4801,22 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
     return player_data, 0, False, "Unsupported Runecrafting target"
 
 
+def _scape2011_interpolate_255(low, high, level):
+    # MiscExt.kt 3-arg interpolate: floor(low*(99-level)/98 +
+    # floor(high*(level-1)/98) + 1). Success in Mining/Woodcutting is
+    # `interp > nextInt(255)`, i.e. probability interp/255.
+    level = max(1, min(int(level), 99))
+    return floor((int(low) * (99 - level)) / 98.0 + floor((int(high) * (level - 1)) / 98.0) + 1)
+
+
 def mining_source_roll_chance_pure(mining_level, target_spec, pickaxe_spec):
-    """Approximate the 2011Scape raw mining roll before Anki pacing is applied."""
-    low = float(target_spec.get("low_chance", 0))
-    high = float(target_spec.get("high_chance", 0))
-    level_progress = max(0.0, min((float(mining_level) - 1.0) / 98.0, 1.0))
-    interpolated = low + ((high - low) * level_progress)
+    """Exact 2011Scape mining roll (Mining.kt): the interpolated chance is
+    ratio-free in source (the pickaxe sets roll cadence via
+    ticksBetweenRolls); AnkiScape folds that cadence into the per-action
+    chance as a declared adaptation of the one-roll-per-review model."""
+    interpolated = float(_scape2011_interpolate_255(
+        target_spec.get("low_chance", 0), target_spec.get("high_chance", 0), _positive_int(mining_level, 1)
+    ))
     ratio = float(pickaxe_spec.get("ratio", 1.0))
     # Mining.kt gives PickaxeType.DRAGON an accumulator: +0.2 per swing, and
     # each fifth swing rolls again at 1.12x base. AnkiScape folds that bonus
@@ -4863,11 +4876,13 @@ def can_mine_target_pure(mining_level, target_id, ore_data, inventory, toolbelt,
 
 
 def woodcutting_source_roll_chance_pure(woodcutting_level, target_spec, axe_spec):
-    """Approximate the 2011Scape raw chop roll before Anki pacing is applied."""
-    low = float(target_spec.get("low_chance", 0)) * float(axe_spec.get("ratio", 1.0))
-    high = float(target_spec.get("high_chance", 0)) * float(axe_spec.get("ratio", 1.0))
-    level_progress = max(0.0, min((float(woodcutting_level) - 1.0) / 98.0, 1.0))
-    interpolated = low + ((high - low) * level_progress)
+    """Exact 2011Scape chop roll (Woodcutting.kt): the axe ratio scales the
+    chance inputs (truncated to int) before the shared interpolate helper,
+    and success is `interp > nextInt(255)`."""
+    ratio = float(axe_spec.get("ratio", 1.0))
+    low = int(float(target_spec.get("low_chance", 0)) * ratio)
+    high = int(float(target_spec.get("high_chance", 0)) * ratio)
+    interpolated = _scape2011_interpolate_255(low, high, _positive_int(woodcutting_level, 1))
     return max(0.0, min(interpolated / 255.0, 1.0))
 
 
@@ -4932,12 +4947,14 @@ def apply_woodcutting_action_pure(
 
 
 def fishing_source_roll_chance_pure(fishing_level, fish_spec):
-    """Approximate the 2011Scape raw fish roll before Anki pacing is applied."""
-    low = float(fish_spec.get("min_chance", 0))
-    high = float(fish_spec.get("max_chance", 0))
-    level_progress = max(0.0, min((float(fishing_level) - 1.0) / 98.0, 1.0))
-    interpolated = low + ((high - low) * level_progress)
-    return max(0.0, min(interpolated / 255.0, 1.0))
+    """Exact 2011Scape fish roll (Fish.kt: level.interpolate(min, max, 1, 99,
+    255)): integer-division linear interpolation, success iff
+    nextInt(255) <= interp, i.e. probability (interp + 1)/255."""
+    low = int(_non_negative_float(fish_spec.get("min_chance", 0), 0.0))
+    high = int(_non_negative_float(fish_spec.get("max_chance", 0), 0.0))
+    level = max(1, min(_positive_int(fishing_level, 1), 99))
+    interp = low + ((high - low) * (level - 1)) // 98
+    return max(0.0, min((interp + 1) / 255.0, 1.0))
 
 
 def calculate_fishing_success_probability_pure(

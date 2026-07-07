@@ -27,19 +27,30 @@ by design), **declared** (documented simplification of a source mechanic), or
 | Prayer multipliers / combat-mod plugins | Prayer unimplemented => multiplier 1.0 is exact for a prayer-less player; slayer-helm-style modifier plugins out of scope | adaptation |
 | Engagement cadence | Player attacks at tick 0 then every weapon-speed ticks; enemy offset by its own speed; auto-eat is AnkiScape's stand-in for manual eating | adaptation |
 
-## Gathering source rolls
+## Gathering and processing source rolls (now source-exact)
 
-Weights match everywhere (`low*(99-lvl)/98 + high*(lvl-1)/98`, ratio-scaled
-inputs for WC), but the shared 2011Scape helper (`MiscExt.kt:51`) is
-`floor(low*(99-level)/98 + floor(high*(level-1)/98) + 1)` and success is
-`RANDOM.nextInt(cap) <= interp`, i.e. probability `(interp + 1)/255` — our
-mining/woodcutting/fishing rolls use the un-floored linear form with plain
-`/255`, so they systematically under-roll by roughly 2/255 (~0.8pp) plus
-flooring nuances. Classified **declared approximation** for now (the rolls
-feed the sqrt pacing adapter with a 0.20 floor, which dwarfs the delta);
-an exactness fix needs per-skill verification of where each source applies
-the tool ratio before the floor. Fishing (`Fish.kt:77` roll cap 255) and
-Hunter remain to be walked.
+The first pass misread the helper family; the corrected picture, now
+implemented exactly:
+
+- **MiscExt.kt 3-arg interpolate** (Mining, Woodcutting):
+  `floor(low*(99-lvl)/98 + floor(high*(lvl-1)/98) + 1)`, success on
+  `interp > nextInt(255)` -> probability `interp/255`. Implemented in
+  `_scape2011_interpolate_255`.
+- **MiscExt.kt 5-arg Boolean interpolate** (Fishing cap 255, iron smelting
+  cap 100): integer-division linear interpolation, success on
+  `nextInt(cap) <= interp` -> probability `(interp+1)/cap`. Iron smelting is
+  therefore exactly 51%..81% (not the nominal 50..80); fishing crayfish at
+  level 1 is 59/255.
+- **Mining pickaxe ratio**: the source chance is ratio-free — the pickaxe
+  sets roll cadence (`ticksBetweenRolls`). AnkiScape folds cadence into the
+  per-action chance (`interp * ratio / 255`) as a **declared adaptation** of
+  the one-roll-per-review model; Woodcutting's ratio genuinely scales the
+  chance inputs in source (`(low*ratio).toInt()`), matched exactly.
+- The old linear un-floored forms under-rolled by up to ~1pp; all four roll
+  functions were made source-exact on 2026-07-07 and the affected pinned
+  expectations updated (crayfish 59/255, iron 0.51/0.66/0.81).
+
+Hunter rolls remain on the follow-up list.
 
 ## Standing adaptations (by design, not deviations)
 

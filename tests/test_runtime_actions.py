@@ -1310,7 +1310,7 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["attempts"], 1)
         self.assertEqual(telemetry["failures"], 1)
         self.assertEqual(telemetry["failure_kinds"], {"smelt_fail": 1})
-        self.assertAlmostEqual(telemetry["expected_successes"], 0.5)
+        self.assertAlmostEqual(telemetry["expected_successes"], 0.51)
 
 
 if __name__ == "__main__":

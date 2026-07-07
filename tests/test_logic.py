@@ -267,10 +267,12 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(inv["Iron bar"], 2)
 
     def test_iron_smelting_success_probability_matches_source_curve(self):
-        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(15), 0.50)
-        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(30), 0.65)
-        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(45), 0.80)
-        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(99), 0.80)
+        # SmeltingAction success is nextInt(100) <= interp -> (interp+1)/100:
+        # the exact source curve is 51%..81%, not the nominal 50..80 labels.
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(15), 0.51)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(30), 0.66)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(45), 0.81)
+        self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(99), 0.81)
         self.assertAlmostEqual(calculate_iron_smelting_success_probability_pure(15, has_ring_of_forging=True), 1.0)
 
     def test_apply_smithing_action_pure_models_iron_failure_only(self):
@@ -1167,7 +1169,8 @@ class TestLogic(unittest.TestCase):
         crayfish = FISHING_DATA["catch_crayfish"]["fish"][0]
         shark = FISHING_DATA["catch_sharks"]["fish"][0]
 
-        self.assertAlmostEqual(fishing_source_roll_chance_pure(1, crayfish), 58 / 255)
+        # Fish.kt roll cap 255, success on <=: probability (interp + 1)/255.
+        self.assertAlmostEqual(fishing_source_roll_chance_pure(1, crayfish), 59 / 255)
         self.assertEqual(fishing_source_roll_chance_pure(99, crayfish), 1.0)
         self.assertLess(
             fishing_source_roll_chance_pure(76, shark),
