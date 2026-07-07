@@ -153,14 +153,18 @@ no XP → 30th gathers), then a light offscreen/live smoke.
 
 ### 2f / 2g findings (2026-07-07) — blockers to resolve first
 
-- **2f loot filter needs a runtime item→value table.** `loot_should_pick_up` is
-  built and tested, but the cache `value` was only extracted into the generator's
-  *shop prices*, not a runtime name→value map. Combat drops (`_combat_roll_drops`)
-  also bank directly today; combat uses `combat_supply_loadout`, not the carried
-  pack. So 2f is two jobs: (a) plumb the extracted cache `value` into a runtime
-  table (e.g. emit an `ITEM_VALUES` map from `generate_npc_shop_data.py`), and
-  (b) route rolled combat drops through the filter into a carried pack. Do (a)
-  first as its own slice.
+- **2f loot filter needs a runtime item→value table — and the extractor is
+  environment-blocked (verified 2026-07-07).** `loot_should_pick_up` is built and
+  tested, but it needs values for *drop* items. There is no name→cache_id map for
+  drops (`ItemDefinition` carries a slug `id`, not the numeric cache id; enemy
+  drops are keyed by name), so the value table must come from a cache dump that
+  reads names directly. The Darkan cache, core jar, and dep jars are all present,
+  **but the core jar is compiled for JDK 24 (class file v68) and this machine only
+  has JDK 23/17/8 — running the dump throws `UnsupportedClassVersionError`.** So
+  2f-a (the `ITEM_VALUES` dump) is blocked until JDK 24 is installed. 2f-b (route
+  rolled combat drops through the filter) additionally needs combat to feed drops
+  into a carried pack — combat uses `combat_supply_loadout` with its own bank-run,
+  so this is a real integration, and its feel can only be verified in the live app.
 - **2g ambush unify — reconsider.** `wilderness_shop_slots` counts *shop purchase*
   volume (28 bought → 1% ambush); the carried `churn` counts *skilling* slots.
   These measure unrelated flows; folding them into one accumulator would conflate
