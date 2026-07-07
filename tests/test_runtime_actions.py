@@ -83,6 +83,39 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
 
+    def test_combat_full_loot_pack_forces_a_bank_run_that_deposits_it(self):
+        # A full carried loot pack (28 slots) forces a bank run: the answer banks
+        # instead of fighting, the loot is deposited (view cleared, but the items
+        # stay in the flat inventory), and no kill happens this answer.
+        full_loot = {f"Trophy {i}": 1 for i in range(28)}
+        player_data = {
+            "inventory": dict(full_loot),
+            "equipment": {},
+            "current_combat_target": "chicken",
+            "combat_attack_style": "accurate",
+            "combat_lifepoints": 100,
+            "combat_auto_eat_food": ["Shrimps"],
+            "attack_level": 99,
+            "strength_level": 99,
+            "defense_level": 99,
+            "constitution_level": 10,
+            "attack_exp": 0.0,
+            "constitution_exp": 0.0,
+            "carried_inventory": {"chicken": dict(full_loot)},
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "saves": 0, "errors": []}
+        # The combat bank run costs two review answers; the loot deposits on
+        # completion, and no kill happens while banking.
+        handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0]))
+        self.assertEqual(player_data.get("carried_inventory", {}).get("chicken"), dict(full_loot))
+        handle_combat_answer(_context(player_data, calls, [0.0, 0.999999, 0.0]))
+
+        # Loot deposited: view cleared, items still banked, no kill credited.
+        self.assertIsNone(player_data.get("carried_inventory", {}).get("chicken"))
+        self.assertEqual(player_data["inventory"]["Trophy 0"], 1)
+        self.assertEqual(player_data.get("combat_kill_counts", {}).get("chicken", 0), 0)
+
     def test_combat_handler_runs_review_burst_and_records_drops(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -115,6 +148,9 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"].get("Bones", 0), 0)
         self.assertEqual(player_data["inventory"]["Raw chicken"], 1)
         self.assertEqual(player_data["inventory"]["Feather"], 5)
+        # Kept loot also folds into the combat target's carried view (it competes
+        # for slots and drops on death); coins would be excluded.
+        self.assertEqual(player_data["carried_inventory"]["chicken"], {"Raw chicken": 1, "Feather": 5})
         telemetry = player_data["action_telemetry"]["actions"]["combat:chicken"]
         self.assertEqual(telemetry["attempts"], 1)
         self.assertEqual(telemetry["successes"], 1)

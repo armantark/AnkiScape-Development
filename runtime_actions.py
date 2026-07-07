@@ -499,6 +499,16 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
             for item_name, amount in left.items():
                 inventory[item_name] = max(0, int(inventory.get(item_name, 0) or 0) - amount)
             player_data["inventory"] = inventory
+        # Kept loot competes for carried slots: fold it into the combat target's
+        # carried view (coins excluded) so it drops on death and, once the pack
+        # fills, forces a bank run alongside supply depletion. Banking deposits it.
+        if drops:
+            carried = player_data.get("carried_inventory")
+            if not isinstance(carried, dict):
+                carried = {}
+            existing = carried.get(target_id) if isinstance(carried.get(target_id), dict) else {}
+            carried[target_id] = inventory_pure.carried_fold_gains_pure(existing, drops, STACKABLE_ITEM_NAMES)
+            player_data["carried_inventory"] = carried
     _record_action(
         ctx,
         "combat",

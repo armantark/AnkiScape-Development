@@ -10,6 +10,11 @@ except ImportError:
     from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 try:
+    from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
+except ImportError:
+    from inventory_pure import CARRIED_CAPACITY, carried_slots_used
+
+try:
     from .skill_registry import get_skill, implemented_skill_definitions
 except ImportError:
     from skill_registry import get_skill, implemented_skill_definitions
@@ -1912,6 +1917,29 @@ def _combat_banked_antipoison_count(data):
     return sum(_non_negative_int(inventory.get(item_name, 0), 0) for item_name in COMBAT_ANTIPOISON_POTION_DATA)
 
 
+def _combat_loot_slots(data, target_id):
+    """Carried slots the kept combat loot for this target occupies."""
+    if not isinstance(target_id, str):
+        return 0
+    carried = data.get("carried_inventory")
+    view = carried.get(target_id) if isinstance(carried, Mapping) else None
+    if not isinstance(view, Mapping):
+        return 0
+    return carried_slots_used(view, frozenset())
+
+
+def _combat_deposit_loot(data, target_id):
+    """Banking deposits carried loot: it stays in the flat store but is no longer
+    at risk (cleared from the carried view, so death no longer drops it)."""
+    if not isinstance(target_id, str):
+        return
+    carried = data.get("carried_inventory")
+    if isinstance(carried, Mapping) and target_id in carried:
+        carried = dict(carried)
+        carried.pop(target_id, None)
+        data["carried_inventory"] = carried
+
+
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     _combat_refill_food_loadout(data)
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
@@ -1924,9 +1952,15 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
         _combat_refill_ranged_ammo_loadout(data, ranged_weapon_spec)
     elif combat_class == "magic":
         _combat_refill_magic_rune_loadout(data, spell_spec, equipment_data)
+    # The same bank trip deposits accumulated loot (owner: loot banks alongside
+    # supply depletion).
+    _combat_deposit_loot(data, target_id)
 
 
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
+    # A full loot pack forces a bank run just as running out of supplies does.
+    if _combat_loot_slots(data, target_id) >= CARRIED_CAPACITY:
+        return True
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
         return True
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
