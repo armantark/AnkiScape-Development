@@ -31,11 +31,12 @@ those five constants are all approximating.
    inventory empties (that would be "playing a game with learning on the
    side"). Default and advanced run identical machinery; they differ only in
    who decides the packing:
-   - **Default (casual):** a dumb-but-transparent auto-manager packs the grid
-     and refills. Frictionless — you just answer cards. Transparency is
-     required: the player sees e.g. "banked: packed 20 food / 8 coal, +1
-     review," which is both honest feedback and the breadcrumb that tells an
-     optimizer there is headroom.
+   - **Default (casual):** a **mode dropdown** of named preset packing
+     strategies (e.g. balanced / max-food / max-materials) — not one opaque
+     auto-manager, so each preset is individually inspectable and sane. The
+     eat-queue is subsumed here (owner 2026-07-07): consume order falls out of
+     the chosen mode. Transparency: the player sees e.g. "banked: 20 food /
+     8 coal, +1 review."
    - **Advanced (opt-in):** the player sets the 4×7 layout / packing policy
      *once*; the system auto-executes it at every bank run. No per-depletion
      micromanagement. A smart layout (bags, food-vs-supply split, order) beats
@@ -100,18 +101,36 @@ tinderbox, gathering tools — the 2011 belt) needs no slot; only non-belt tools
 residual is tiny. Full map:
 `memory-bank/source-audits/held-item-interactions-audit-2026-07-07.md`.
 
-## Not yet decided (for the implementation grill or judgment)
+## Johari pass (2026-07-07) — the focused pre-code grill agenda
 
-- Exact default auto-manager heuristic (proportional fill? food-to-threshold
-  then supplies?). Judgment, but must be *competent* — a dumb default that
-  makes casual players silently worse is the one unacceptable outcome.
-- Transparency surface wording / where it shows (review HUD toast vs a small
-  banked-log panel).
-- Which bags exist v1 (coal bag, gem bag, rune pouch?) and their capacities —
-  source-audit each.
-- Whether the 4×7 grid is drag-arrangeable in advanced mode or list-ordered.
-- Interaction with the existing `combat_supply_loadout` (this model should
-  subsume it, not sit beside it).
+A one-round known/unknown pass surfaced four items beyond the original
+"not-yet-decided" list. The implementation grill must cover, in priority order:
+
+1. **Death + carried inventory (load-bearing).** RS drops carried inventory on
+   death (except protected). AnkiScape's grave/death-office covers *equipment*
+   only. Does the carried grid also drop on death, into the grave? Biggest open
+   interaction.
+2. **Undo snapshot for a bank run inside a review.** Bank runs mutate state and
+   cost reviews *during* a card answer; Anki-undo must roll it all back. Known
+   constraint, unsurfaced design.
+3. **Unify (or separate) the carried-slot counter with the Wilderness ambush's
+   existing 28 purchase-slot counter** — same number, different meaning; check
+   for conflict.
+4. **Quest items competing for carried slots** (RS quest-inventory pressure).
+
+Plus the original known-unknowns: which preset modes exist; v1 bag roster +
+capacities (source-audit each); exact skilling bank-run cost; grid UI
+drag-vs-list; how it subsumes `combat_supply_loadout`; storage migration.
+
+### Surfaced tacit assumptions (now explicit)
+
+- **The carried inventory is skill-agnostic and persists across skill
+  switches** — "combat loadout" and "skilling materials" are the *same* 28
+  slots. This is the RS loop falling out for free (mine coal → switch to
+  Smithing → forge from carried → bank when dry).
+- Bank = infinite; only the carried grid is limited.
+- Coins/currency are exempt from carried slots.
+- Worn equipment is already outside the 28 (separate Equipment tab).
 
 ## Scope note
 
