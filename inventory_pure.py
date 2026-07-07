@@ -16,7 +16,11 @@ CARRIED_CAPACITY = 28
 COIN_ITEM_NAME = "Coins"
 HIGH_ALCH_VALUE_FACTOR = 0.6
 # Declared AnkiScape balance knob for automatic loot pickup, not a source value.
-DEFAULT_LOOT_VALUE_THRESHOLD = 50
+# A drop is left only if its high-alch value is under this many coins, so the
+# default leaves near-worthless junk (feathers, ashes) while keeping a monster's
+# real drops (raw meat ~high-alch 35). Tunable; owner may raise it for a harsher
+# no-hoarding penalty or lower it toward keep-everything.
+DEFAULT_LOOT_VALUE_THRESHOLD = 10
 
 _DEFAULT_PACK_MODE = "balanced"
 _VALID_PACK_MODES = frozenset({"balanced", "max_output", "max_safety"})
@@ -103,6 +107,39 @@ def loot_should_pick_up(
         return True
     clean_threshold = _clean_int(threshold, DEFAULT_LOOT_VALUE_THRESHOLD, minimum=0)
     return high_alch_value(item_cache_value) >= clean_threshold
+
+
+def filter_loot_pure(
+    drops: Any,
+    values: Any,
+    threshold: Any,
+    stackable_names: set[str] | frozenset[str],
+) -> tuple[dict[str, int], dict[str, int]]:
+    """Split rolled drops into ``(kept, left)`` by the high-alch value filter.
+
+    The owner's rule: do not auto-hoard every tiny drop. A drop is **left** only
+    when its value is known *and* below the high-alch threshold *and* it is not a
+    stackable — everything else is **kept**. Unknown-value items are kept (never
+    leave a possibly-valuable drop for lack of a price); stackables and coins are
+    always kept (a stackable costs at most one slot; coins are the money pouch).
+    """
+    kept: dict[str, int] = {}
+    left: dict[str, int] = {}
+    if not isinstance(drops, Mapping):
+        return kept, left
+    value_map = values if isinstance(values, Mapping) else {}
+    for item_name, count in drops.items():
+        if not isinstance(item_name, str):
+            continue
+        amount = _clean_int(count, 0, minimum=0)
+        if amount <= 0:
+            continue
+        value = value_map.get(item_name)
+        if value is None or item_name == COIN_ITEM_NAME or loot_should_pick_up(item_name, value, threshold, stackable_names):
+            kept[item_name] = amount
+        else:
+            left[item_name] = amount
+    return kept, left
 
 
 def money_pouch_balance(player_data: Mapping[str, Any]) -> int:

@@ -17,6 +17,7 @@ from inventory_pure import (
     carried_action_churn_pure,
     carried_keep_for,
     effective_carried_capacity,
+    filter_loot_pure,
     inventory_delta_gains,
     sanitize_carried_state,
 )
@@ -150,6 +151,29 @@ class TestPackCarriedInventory(unittest.TestCase):
         carried = pack_carried_inventory_pure(bank, {"primary": "Nature rune"}, "balanced", {"Nature rune"})
         self.assertEqual(carried["Nature rune"], 5000)
         self.assertEqual(carried_slots_used(carried, {"Nature rune"}), 1)
+
+
+class TestLootFilter(unittest.TestCase):
+    def test_splits_kept_and_left_by_value_with_safe_defaults(self):
+        values = {"Rune bar": 2000, "Feather": 6, "Raw chicken": 60}
+        stackable = {"Feather"}
+        kept, left = filter_loot_pure(
+            {"Rune bar": 1, "Feather": 100, "Raw chicken": 1, "Bones": 3, "Coins": 50},
+            values, threshold=10, stackable_names=stackable,
+        )
+        # Rune bar (high value) kept; Feather stackable-kept; Raw chicken (h-alch 36
+        # >= 10) kept; Bones unknown-value kept; Coins always kept.
+        self.assertEqual(kept, {"Rune bar": 1, "Feather": 100, "Raw chicken": 1, "Bones": 3, "Coins": 50})
+        self.assertEqual(left, {})
+
+    def test_leaves_only_below_threshold_known_unstackable_junk(self):
+        values = {"Feather": 6, "Rune bar": 2000}
+        kept, left = filter_loot_pure(
+            {"Feather": 40, "Rune bar": 1}, values, threshold=10, stackable_names=set(),
+        )
+        # Feather high-alch 3 < 10 and not stackable here -> left; Rune bar kept.
+        self.assertEqual(kept, {"Rune bar": 1})
+        self.assertEqual(left, {"Feather": 40})
 
 
 class TestBagCapacity(unittest.TestCase):

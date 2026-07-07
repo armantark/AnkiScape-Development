@@ -61,7 +61,7 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(base["unlocked_abilities"], [])
         self.assertEqual(base["carried_inventory"], {})
         self.assertEqual(base["carried_pack_mode"], "balanced")
-        self.assertEqual(base["loot_value_threshold"], 50)
+        self.assertEqual(base["loot_value_threshold"], 10)
 
     def test_migration_normalizes_unlocked_abilities_and_legacy_fletching_target(self):
         data = {"current_fletch": "oak_arrow_shafts", "unlocked_abilities": ["broad_fletching", 42, "broad_fletching"]}

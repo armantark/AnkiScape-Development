@@ -210,8 +210,10 @@ except ImportError:  # pragma: no cover - flat import path used by tests
 
 try:
     from . import inventory_pure
+    from .item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
 except ImportError:  # pragma: no cover - exercised via flat imports in tests
     import inventory_pure
+    from item_values import ITEM_VALUES, STACKABLE_ITEM_NAMES
 
 
 @dataclass
@@ -486,6 +488,17 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     drops = result.get("drops", {}) if isinstance(result, dict) else {}
     if not isinstance(drops, dict):
         drops = {}
+    # Loot filter (owner: no auto-hoarding every tiny drop). The burst already
+    # added the drops to the flat inventory, so leave below-value junk by removing
+    # it again; stackables, coins, and unknown-value items are kept.
+    if drops:
+        threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
+        drops, left = inventory_pure.filter_loot_pure(drops, ITEM_VALUES, threshold, STACKABLE_ITEM_NAMES)
+        if left:
+            inventory = player_data.get("inventory", {}) or {}
+            for item_name, amount in left.items():
+                inventory[item_name] = max(0, int(inventory.get(item_name, 0) or 0) - amount)
+            player_data["inventory"] = inventory
     _record_action(
         ctx,
         "combat",
