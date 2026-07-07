@@ -25,12 +25,22 @@ A same-day UI-polish pass then reworked Shop-tab navigation to browse-first:
 the tab opens with no default shop, the shop list takes the full tab height,
 clicking a shop opens the detail panel (compact list above it), and a
 `Close ✕` control (`shopDetailCollapseButton`) collapses the detail and
-restores the full list. The stock grid is at least two full tile rows tall and
-stretches with the dialog, tiles pack top-left via virtual stretch cells, and
-Services / Vendor Actions live in their own framed `shopServicesPanel`. All
-shop icons route through `_pixel_item_icon`, which nearest-neighbor upscales
-sprites to uniform slot sizes (32px tiles, 24px lists) with device-pixel-ratio
-awareness, fixing the tiny-vs-normal icon mix.
+restores the full list. All shop icons route through `_pixel_item_icon`, which
+nearest-neighbor upscales sprites to uniform slot sizes (32px tiles, 24px
+lists) with device-pixel-ratio awareness, fixing the tiny-vs-normal icon mix.
+
+A follow-up fix from live-app feedback rebudgeted the detail panel for short
+Anki windows (the first cut's fixed minimums overflowed a ~560pt window and
+sections painted over each other). The stock grid guarantees one full tile row
+(86px floor) and stretches on taller dialogs, tiles pack top-left via virtual
+stretch cells, history lists and the toast flex/hide, and a trailing shell
+stretch keeps sections top-aligned. Services / Vendor Actions no longer render
+under every shop: the backend ties services to provider NPCs (Ellis, Sawmill
+operator, Bartender, Benny, Karim), not shops, so providers now browse as
+their own selector rows (`kind="provider"`, e.g. `Ellis · Al Kharid · 2
+services`) and the framed `shopServicesPanel` appears only in provider mode,
+with shop mode showing stock/transaction/history only. Item-first search
+clicks on service rows open the owning provider.
 
 The asset backfill is generator-derived: `tools/fetch_shop_assets.py` builds
 its manifest from `SHOP_DATA` (visible live/locked stock lacking any registry
@@ -54,12 +64,12 @@ catalog locks remain exactly backend-sourced (`currency_not_implemented`,
 `unknown_item`, hidden reward/activity shops) and are not inferred from
 quest/skill names in the frontend.
 
-Verification after the UI-polish/backfill pass:
-`python3 run_tests.py` passed with 750 tests and 143 skipped, and
+Verification after the short-window/provider fix:
+`python3 run_tests.py` passed with 751 tests and 144 skipped, and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passed with 750 tests. Offscreen light and dark-palette screenshots confirmed
-browse-first navigation, icon-over-text tiles with uniform sprites, and the
-framed services panel.
+passed with 751 tests. Offscreen dark-palette screenshots at 1000x560 (the
+live-app failure size) confirmed no section overlap in shop mode and a
+top-aligned provider services view.
 
 ## Equipment backend contract
 The backend equipment pass is complete. `tools/generate_equipment_data.py`

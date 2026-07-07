@@ -94,6 +94,21 @@
   Verification: `python3 run_tests.py` passed with 750 tests (143 skipped), and
   `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 750 tests.
+- NPC shop short-window and services-provider fix is complete as of
+  2026-07-06, from live-app feedback: the polish pass's fixed minimums
+  overflowed a ~560pt Anki window and sections painted over each other, and
+  global services rendered under every shop. The detail panel now compresses
+  gracefully (one-full-tile-row stock floor at 86px that stretches on taller
+  dialogs, flexing history lists, auto-hidden toast, trailing shell stretch
+  for top alignment), and services moved out of shop details entirely:
+  service/vendor providers (Ellis, Sawmill operator, Bartender, Benny, Karim)
+  browse as their own selector rows and the `shopServicesPanel` renders only
+  in provider mode, matching the backend model where services belong to NPC
+  providers, not shops. Item-first search clicks on service rows open the
+  owning provider. Verification: `python3 run_tests.py` passed with 751 tests
+  (144 skipped), `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest
+  discover tests` passed with 751 tests, and offscreen dark screenshots at
+  1000x560 confirmed both modes.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The

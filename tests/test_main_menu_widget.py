@@ -602,6 +602,11 @@ class MainMenuWidgetTest(unittest.TestCase):
         buy_button = _find_named_button(dialog, "shopTransactionButton")
         self.assertTrue(buy_button.isEnabled(), _find_named_label(dialog, "shopPreviewLabel").text())
 
+        # Shops never advertise the global services; those belong to providers.
+        services_panel = dialog.findChild(QWidget, "shopServicesPanel")
+        self.assertIsNotNone(services_panel)
+        self.assertFalse(services_panel.isVisibleTo(dialog))
+
         # The collapse control returns the space to the shop list.
         collapse = next(
             button for button in dialog.findChildren(QToolButton)
@@ -796,6 +801,44 @@ class MainMenuWidgetTest(unittest.TestCase):
             if button.property("shopRowId") and "Beer" in button.text()
         ]
         self.assertTrue(stock_buttons, "player-sold Beer did not appear as temporary shop stock")
+
+    def test_shop_service_providers_browse_as_their_own_selector_entries(self) -> None:
+        from shop_fixtures import build_shop_frontend_fixtures
+        from shop_data import SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+
+        fixtures = build_shop_frontend_fixtures()
+        service_id = fixtures["service_transaction"]["service_id"]
+        provider = str(SHOP_SERVICES[service_id]["provider"])
+        dialog = self._open(fixtures["fixture_player_data"])
+        _open_shop_tab(dialog)
+
+        selector = _find_named_list(dialog, "shopSelectionList")
+        provider_item = None
+        for index in range(selector.count()):
+            payload = selector.item(index).data(Qt.ItemDataRole.UserRole)
+            if isinstance(payload, dict) and payload.get("kind") == "provider" and payload.get("provider") == provider:
+                provider_item = selector.item(index)
+                break
+        self.assertIsNotNone(provider_item, f"provider row for {provider!r} missing from browse list")
+        selector.setCurrentItem(provider_item)
+        QApplication.processEvents()
+
+        # Provider mode shows only that provider's services; the shop-only
+        # panels (stock/transaction) stay hidden.
+        title = _find_named_label(dialog, "shopDetailTitle")
+        self.assertEqual(title.text(), provider)
+        services_panel = dialog.findChild(QWidget, "shopServicesPanel")
+        self.assertTrue(services_panel.isVisibleTo(dialog))
+        mode_tabs = dialog.findChild(QTabWidget, "shopModeTabs")
+        self.assertFalse(mode_tabs.isVisibleTo(dialog))
+        service_list = _find_named_list(dialog, "shopServiceList")
+        for index in range(service_list.count()):
+            payload = service_list.item(index).data(Qt.ItemDataRole.UserRole)
+            self.assertIsInstance(payload, dict)
+            source_kind = payload.get("kind")
+            row_id = payload.get("id")
+            source = SHOP_SERVICES if source_kind == "service" else SHOP_VENDOR_ACTIONS
+            self.assertEqual(str(source[row_id]["provider"]), provider)
 
     def test_shop_service_and_vendor_actions_apply_and_feed_global_history(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures

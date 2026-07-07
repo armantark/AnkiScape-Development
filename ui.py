@@ -2848,8 +2848,9 @@ def show_main_menu(
     stock_scroll = QScrollArea()
     stock_scroll.setObjectName("shopStockScroll")
     stock_scroll.setWidgetResizable(True)
-    # Two full tile rows (2 x 66px tiles + spacing/margins) fit without clipping.
-    stock_scroll.setMinimumHeight(182)
+    # One full tile row is the hard floor (short Anki windows must compress
+    # gracefully, never overlap); taller dialogs stretch to show more rows.
+    stock_scroll.setMinimumHeight(86)
     stock_scroll.setStyleSheet("QScrollArea#shopStockScroll { border: 1px solid palette(mid); border-radius: 8px; }")
     stock_content = QWidget()
     stock_grid = QGridLayout(stock_content)
@@ -2884,7 +2885,7 @@ def show_main_menu(
     )
     sell_layout.addWidget(sell_inventory, 1)
     shop_mode_tabs.addTab(sell_page, "Sell Items")
-    shop_shell_layout.addWidget(shop_mode_tabs, 1)
+    shop_shell_layout.addWidget(shop_mode_tabs, 4)
 
     transaction_panel = QWidget()
     transaction_panel.setObjectName("shopTransactionPanel")
@@ -2944,6 +2945,9 @@ def show_main_menu(
     services_panel_layout = QVBoxLayout(services_panel)
     services_panel_layout.setContentsMargins(8, 6, 8, 8)
     services_panel_layout.setSpacing(5)
+    # Hug the content: in provider mode this panel is the only section, and
+    # without a cap it stretches and floats its rows mid-air.
+    services_panel.setMaximumHeight(190)
     services_header = QLabel("Services / Vendor Actions")
     services_header.setObjectName("shopServicesHeader")
     services_header.setStyleSheet("font-weight: 600; color: palette(text);")
@@ -2954,7 +2958,7 @@ def show_main_menu(
     service_row_layout.setSpacing(8)
     service_list = QListWidget()
     service_list.setObjectName("shopServiceList")
-    service_list.setMaximumHeight(44)
+    service_list.setMaximumHeight(72)
     service_list.setIconSize(QSize(24, 24))
     service_list.setAlternatingRowColors(True)
     service_list.setStyleSheet(
@@ -3001,7 +3005,7 @@ def show_main_menu(
     shop_shell_layout.addWidget(history_header)
     local_history = QListWidget()
     local_history.setObjectName("shopLocalHistoryList")
-    local_history.setMaximumHeight(54)
+    local_history.setMaximumHeight(44)
     local_history.setStyleSheet(
         "QListWidget { border: 1px solid palette(mid); border-radius: 8px;"
         " background: palette(base); color: palette(text); padding: 3px; }"
@@ -3009,7 +3013,7 @@ def show_main_menu(
     )
     global_history = QListWidget()
     global_history.setObjectName("shopGlobalHistoryList")
-    global_history.setMaximumHeight(54)
+    global_history.setMaximumHeight(44)
     global_history.setVisible(False)
     global_history.setStyleSheet(local_history.styleSheet())
     shop_shell_layout.addWidget(local_history)
@@ -3019,13 +3023,21 @@ def show_main_menu(
     shop_toast.setObjectName("shopToastLabel")
     shop_toast.setWordWrap(True)
     shop_toast.setStyleSheet("color: #4CAF50; font-weight: 600;")
+    shop_toast.setVisible(False)
     shop_shell_layout.addWidget(shop_toast)
+    # Absorbs leftover height so sections stay top-aligned (dominant in
+    # provider mode, where every stretchy section is hidden).
+    shop_shell_layout.addStretch(1)
     shop_layout.addWidget(shop_shell, 3)
 
     shop_state = {
         "shop_id": "",
         "row_id": "",
         "sell_item": "",
+        # Selected service/vendor provider (Ellis, Bartender, ...). Providers
+        # are their own selector entries because the backend attaches services
+        # to NPC providers, not to any shop.
+        "provider": "",
         "service_kind": "",
         "service_id": "",
     }
@@ -3057,7 +3069,7 @@ def show_main_menu(
         # gets its height back when the detail panel is collapsed.
         shop_shell.setVisible(detail_open)
         shop_placeholder.setVisible(not detail_open)
-        shop_selector.setMaximumHeight(132 if detail_open else 16777215)
+        shop_selector.setMaximumHeight(104 if detail_open else 16777215)
 
     def _visible_service_defs() -> list:
         rows = []
@@ -3138,6 +3150,7 @@ def show_main_menu(
 
     def _refresh_after_shop_mutation(message: str) -> None:
         shop_toast.setText(message)
+        shop_toast.setVisible(bool(message))
         _populate_shop_selector()
         _render_shop_detail()
         _populate_sell_inventory()
@@ -3368,6 +3381,9 @@ def show_main_menu(
         current_id = shop_state.get("service_id", "")
         service_list.clear()
         rows = _visible_service_defs()
+        provider = shop_state.get("provider", "")
+        if provider:
+            rows = [(kind, row) for kind, row in rows if str(row.get("provider", "")) == provider]
         if not rows:
             empty = QListWidgetItem("No live services or vendor actions.")
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
@@ -3457,13 +3473,49 @@ def show_main_menu(
             for event in global_rows:
                 global_history.addItem(QListWidgetItem(str(event.get("display", event.get("event_id", "Shop event")))))
 
+    def _set_shop_detail_mode(mode: str) -> None:
+        # "shop": stock/sell/transaction/history. "provider": services only —
+        # the backend attaches services to provider NPCs, never to shops, so a
+        # shop detail must not advertise unrelated global services.
+        is_shop = mode == "shop"
+        shop_mode_tabs.setVisible(is_shop)
+        transaction_panel.setVisible(is_shop)
+        history_header.setVisible(is_shop)
+        local_history.setVisible(is_shop)
+        if not is_shop:
+            global_history.setVisible(False)
+            global_history_btn.setChecked(False)
+        services_panel.setVisible(not is_shop)
+
     def _render_shop_detail() -> None:
+        provider = shop_state.get("provider", "")
+        if provider:
+            provider_rows = [
+                (kind, row)
+                for kind, row in _visible_service_defs()
+                if str(row.get("provider", "")) == provider
+            ]
+            if not provider_rows:
+                shop_state["provider"] = ""
+                _sync_shop_detail_visibility(False)
+                return
+            _sync_shop_detail_visibility(True)
+            _set_shop_detail_mode("provider")
+            shop_title.setText(provider)
+            location = next(
+                (str(row.get("location", "")) for _kind, row in provider_rows if row.get("location")),
+                "",
+            )
+            shop_meta.setText(location)
+            _populate_services()
+            return
         view = _shop_view()
         if not view.get("exists"):
             shop_state["row_id"] = ""
             _sync_shop_detail_visibility(False)
             return
         _sync_shop_detail_visibility(True)
+        _set_shop_detail_mode("shop")
         shop_title.setText(str(view.get("display_name", "NPC shop")))
         currency_name = str(view.get("currency_item_name", "Coins"))
         meta_parts = [f"{currency_name}: {_inventory_count_for_ui(currency_name):,} owned"]
@@ -3555,10 +3607,44 @@ def show_main_menu(
                 shop_selector.blockSignals(True)
                 shop_selector.setCurrentItem(item)
                 shop_selector.blockSignals(False)
+        # Service/vendor providers browse as their own entries after the shops;
+        # the backend ties services to NPC providers, not shops.
+        providers: dict = {}
+        for kind, row in _visible_service_defs():
+            providers.setdefault(str(row.get("provider", "")), []).append((kind, row))
+        current_provider = shop_state.get("provider", "")
+        for provider in sorted(name for name in providers if name):
+            provider_rows = providers[provider]
+            location = next(
+                (str(row.get("location", "")) for _kind, row in provider_rows if row.get("location")),
+                "",
+            )
+            count = len(provider_rows)
+            parts = [provider]
+            if location:
+                parts.append(location)
+            parts.append(f"{count} service{'s' if count != 1 else ''}")
+            item = QListWidgetItem(" · ".join(parts))
+            item.setData(Qt.ItemDataRole.UserRole, {"kind": "provider", "provider": provider})
+            icon_name = next(
+                (
+                    _service_icon_item_name(row)
+                    for _kind, row in provider_rows
+                    if _service_icon_item_name(row)
+                ),
+                "",
+            )
+            _set_list_item_icon(item, icon_name)
+            shop_selector.addItem(item)
+            if provider == current_provider:
+                shop_selector.blockSignals(True)
+                shop_selector.setCurrentItem(item)
+                shop_selector.blockSignals(False)
 
     def _collapse_shop_detail() -> None:
         shop_state["shop_id"] = ""
         shop_state["row_id"] = ""
+        shop_state["provider"] = ""
         shop_selector.blockSignals(True)
         shop_selector.clearSelection()
         shop_selector.setCurrentItem(None)
@@ -3573,17 +3659,30 @@ def show_main_menu(
         if kind == "shop":
             shop_state["shop_id"] = str(payload.get("shop_id", ""))
             shop_state["row_id"] = ""
+            shop_state["provider"] = ""
             _render_shop_detail()
             return
         if kind == "stock":
             shop_state["shop_id"] = str(payload.get("shop_id", ""))
             shop_state["row_id"] = str(payload.get("row_id", ""))
+            shop_state["provider"] = ""
+            _render_shop_detail()
+            return
+        if kind == "provider":
+            shop_state["provider"] = str(payload.get("provider", ""))
+            shop_state["shop_id"] = ""
+            shop_state["row_id"] = ""
             _render_shop_detail()
             return
         if kind in {"service", "vendor_action"}:
+            source = SHOP_SERVICES if kind == "service" else SHOP_VENDOR_ACTIONS
+            service_row = source.get(str(payload.get("id", "")), {})
+            shop_state["provider"] = str(service_row.get("provider", ""))
+            shop_state["shop_id"] = ""
+            shop_state["row_id"] = ""
             shop_state["service_kind"] = str(kind)
             shop_state["service_id"] = str(payload.get("id", ""))
-            _populate_services()
+            _render_shop_detail()
             _refresh_service_preview()
 
     def _on_sell_item_clicked(item: QListWidgetItem) -> None:
