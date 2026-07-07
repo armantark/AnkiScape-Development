@@ -100,6 +100,16 @@ leather, battlestaff, and weaving rows all lit up through shop supply. Audits:
 `memory-bank/source-audits/coin-economy-audit-2026-07-06.md` and
 `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 
+Edible Kebab and Beer are implemented (2026-07-07). The drain-only combat
+scaffolding was generalized into a signed `combat_current_levels` substrate
+(engine `setCurrentLevel` model; restores 1 toward base per 100 ticks both
+directions) — shared infrastructure future potions reuse via
+`apply_combat_stat_delta_pure`. `apply_consumable_pure` applies the
+source-audited effects (kebab random table; beer +10 LP/+4% Str/-7% Atk),
+consumed via a Bank right-click Eat/Drink action (`on_consume_item`). Storage
+config 28. Combat auto-eat still ignores both (not in COMBAT_FOOD_DATA); the
+in-combat opt-in is the one remaining follow-up.
+
 The shop access pass (2026-07-07, owner-grilled) is complete. Vendor
 actions are one-per-click (dialogue parity; qty spinner hidden). All 267
 visible shops carry a hand-audited `access` rule (187 open, 61 quest walls,

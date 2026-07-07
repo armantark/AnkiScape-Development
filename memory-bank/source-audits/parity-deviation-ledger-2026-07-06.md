@@ -95,6 +95,19 @@ id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
 - **Vendor one-per-click**: dialogue parity replacing the invented quantity
   spinner (`Utils`-free; the engine grants one item per dialogue).
 
+## Consumables / current-level substrate (2026-07-07)
+
+- **Current-level substrate**: `combat_current_levels` mirrors the engine's
+  `setCurrentLevel` (absolute current per skill, absence = base; restore +1
+  toward base per 100 ticks, both directions — `Player.java` 100-tick loop).
+  Generalized from the drain-only scaffolding (which was never populated);
+  combat accuracy/max-hit unchanged when no entry exists. **parity**
+- **Beer** (`PotionType.BEER`): +1 Constitution tick (10 LP), +floor(4% cur
+  Strength), -floor(7% cur Attack) — exact. **parity**
+- **Kebab** (`Foods.kt calculateKebabEffect`, wiki oldid 4868155): full
+  random-effect table (nothing / 10% heal / 100-200 / 300+boost / dodgy
+  drain) ported exactly. **parity**
+
 ## Sweep status: complete
 
 Every mechanics-glue surface is classified. Inventions found and fixed:

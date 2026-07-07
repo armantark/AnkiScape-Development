@@ -2154,7 +2154,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "combat_attack_style": "ranged_accurate",
             "combat_lifepoints": 20,
             "combat_special_attack_energy": 35,
-            "combat_stat_drains": {"attack": 2},
+            "combat_current_levels": {"attack": 2},
             "combat_recovery_progress": {},
             "combat_supply_loadout": {},
             "combat_auto_eat_food": ["Shark"],
@@ -2173,7 +2173,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Bronze arrows"], 10)
         self.assertEqual(addon.player_data["combat_lifepoints"], 100)
         self.assertEqual(addon.player_data["combat_special_attack_energy"], 45)
-        self.assertEqual(addon.player_data["combat_stat_drains"], {"attack": 2})
+        self.assertEqual(addon.player_data["combat_current_levels"], {"attack": 2})
         self.assertEqual(addon.player_data["combat_recovery_progress"], {"stat_drain_ticks": 50})
         self.assertEqual(
             addon.player_data["combat_supply_loadout"],
@@ -2193,7 +2193,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["fletching_exp"], 0)
         self.assertEqual(addon.player_data["combat_lifepoints"], 20)
         self.assertEqual(addon.player_data["combat_special_attack_energy"], 35)
-        self.assertEqual(addon.player_data["combat_stat_drains"], {"attack": 2})
+        self.assertEqual(addon.player_data["combat_current_levels"], {"attack": 2})
         self.assertEqual(addon.player_data["combat_recovery_progress"], {})
         self.assertEqual(addon.player_data["combat_supply_loadout"], {})
 

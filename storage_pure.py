@@ -80,7 +80,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 27
+CURRENT_CONFIG_VERSION = 28
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -615,6 +615,10 @@ def migrate_loaded_data(
     data.setdefault("cooking_burn_count", 0)
     data.setdefault("hunter_success_count", 0)
     data["action_telemetry"] = sanitize_action_telemetry_pure(data.get("action_telemetry"))
+    # v28: the drain-only combat_stat_drains scaffolding was generalized
+    # into signed combat_current_levels; the dead key is dropped (it was
+    # never populated) and sanitize seeds the new one.
+    data.pop("combat_stat_drains", None)
     data.update(sanitize_combat_state_pure(data))
 
     # Progress key retained (not critical)

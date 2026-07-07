@@ -1,6 +1,9 @@
 import copy
 import unittest
 from logic_pure import (
+    apply_consumable_pure,
+    apply_combat_stat_delta_pure,
+    _combat_effective_skill_level,
     get_exp_to_next_level,
     calculate_new_level,
     get_newly_completed_achievements,
@@ -488,6 +491,66 @@ class TestLogic(unittest.TestCase):
         boosted = mining_source_roll_chance_pure(1, target, dragon)
         base = mining_source_roll_chance_pure(1, target, same_ratio_non_dragon)
         self.assertAlmostEqual(boosted / base, 1.12, places=6)
+
+    def test_stat_delta_substrate_boosts_and_drains_toward_base(self):
+        # Reusable current-level helper (shared with future potions): boosts
+        # raise current above base, drains lower it, and landing back on base
+        # drops the entry.
+        data = {"attack_level": 60, "combat_current_levels": {}}
+        apply_combat_stat_delta_pure(data, "attack", 5)
+        self.assertEqual(data["combat_current_levels"], {"attack": 65})
+        self.assertEqual(_combat_effective_skill_level(data, "attack", 1), 65)
+        apply_combat_stat_delta_pure(data, "attack", -5)
+        self.assertEqual(data["combat_current_levels"], {})
+        apply_combat_stat_delta_pure(data, "attack", -70)
+        self.assertEqual(_combat_effective_skill_level(data, "attack", 1), 1)  # clamps at 1
+
+    def test_beer_applies_source_potion_effect(self):
+        # PotionType.BEER: +1 Constitution tick (10 LP), +4% current Strength,
+        # -7% current Attack (floored).
+        pd = {
+            "inventory": {"Beer": 2}, "constitution_level": 10,
+            "strength_level": 50, "attack_level": 60, "combat_lifepoints": 30,
+        }
+        data, result = apply_consumable_pure(pd, "Beer")
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["healed"], 10)
+        self.assertEqual(result["boosts"], {"strength": 2})   # floor(50*0.04)
+        self.assertEqual(result["drains"], {"attack": 4})     # floor(60*0.07)
+        self.assertEqual(_combat_effective_skill_level(data, "strength", 1), 52)
+        self.assertEqual(_combat_effective_skill_level(data, "attack", 1), 56)
+        self.assertEqual(data["inventory"]["Beer"], 1)
+        self.assertEqual(pd["inventory"]["Beer"], 2)  # input never mutated
+
+    def test_kebab_random_effect_table_matches_source(self):
+        # calculateKebabEffect roll bands (wiki oldid 4868155).
+        pd = {
+            "inventory": {"Kebab": 5}, "constitution_level": 99,
+            "attack_level": 99, "strength_level": 99, "defense_level": 99,
+            "combat_lifepoints": 100,
+        }
+        # roll 0.5 -> 50.0 -> common 10% heal band (99 LP of a 990 max).
+        _d, common = apply_consumable_pure(pd, "Kebab", rng=lambda: 0.5)
+        self.assertEqual(common["healed"], 99)
+        self.assertEqual(common["boosts"], {})
+        # roll 0.93 -> 93.0 -> rare boost band: heal 300 + 2..3 to Att/Str/Def.
+        boost_rolls = iter([0.93, 0.0, 0.0, 0.0])
+        d3, boost = apply_consumable_pure(pd, "Kebab", rng=lambda: next(boost_rolls))
+        self.assertEqual(boost["healed"], 300)
+        self.assertEqual(boost["boosts"], {"attack": 2, "strength": 2, "defense": 2})
+        self.assertEqual(_combat_effective_skill_level(d3, "attack", 1), 101)
+        # roll 0.99 -> 99.0 -> dodgy drain band.
+        drain_rolls = iter([0.99, 0.0, 0.0])
+        _d4, drain = apply_consumable_pure(pd, "Kebab", rng=lambda: next(drain_rolls))
+        self.assertTrue(drain["drains"])
+
+    def test_consumable_rejects_missing_and_non_consumable_items(self):
+        _d, missing = apply_consumable_pure({"inventory": {}}, "Beer")
+        self.assertFalse(missing["allowed"])
+        self.assertEqual(missing["reason"], "missing_item")
+        _d2, bad = apply_consumable_pure({"inventory": {"Logs": 1}}, "Logs")
+        self.assertFalse(bad["allowed"])
+        self.assertEqual(bad["reason"], "not_a_consumable")
 
     def test_molten_glass_smelt_returns_bucket_byproduct(self):
         # Shop-purchasable inputs close the glassblowing loop: smelting awards

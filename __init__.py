@@ -1,6 +1,7 @@
 # __init__.py
 
 from .constants import (
+    CONSUMABLE_DATA,
     ORE_DATA,
     TREE_DATA,
     BAR_DATA,
@@ -34,6 +35,7 @@ import random
 import os
 import datetime
 from .logic_pure import (
+    apply_consumable_pure,
     can_smith_any_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
@@ -713,6 +715,7 @@ def _on_main_menu():
         on_equip_item=on_equip_item,
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
+        on_consume_item=on_consume_item,
     )
 
 
@@ -915,6 +918,24 @@ def on_discard_item(item_name):
     return True
 
 
+def on_consume_item(item_name):
+    """Eat/drink a stat-affecting consumable from the Bank (Kebab, Beer).
+    Direct player action like discard: applies the source effect, saves, and
+    returns the result dict (or None when nothing was consumed)."""
+    new_data, result = apply_consumable_pure(player_data, item_name)
+    if not result.get("allowed"):
+        return None
+    player_data.clear()
+    player_data.update(new_data)
+    save_player_data()
+    _refresh_skill_availability()
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return result
+
+
 def _can_start_current_action() -> bool:
     handler_key = review_action_handler_key(current_skill)
     return runtime_actions.can_start_action(_runtime_action_context(), handler_key)
@@ -928,7 +949,7 @@ def _registered_answer_handler(skill):
 _COMBAT_RECOVERY_STATE_KEYS = (
     "combat_lifepoints",
     "combat_special_attack_energy",
-    "combat_stat_drains",
+    "combat_current_levels",
     "combat_status_effects",
     "combat_supply_loadout",
     "combat_grave",

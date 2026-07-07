@@ -2340,6 +2340,48 @@ GUARD_DROPS = {
 }
 
 
+# Stat-affecting consumables (edible, but excluded from COMBAT_FOOD_DATA so
+# combat auto-eat never picks them by default — owner decision 2026-07-07:
+# eligible only if the player explicitly opts in). Effects are applied by
+# logic_pure.apply_consumable_pure; the tables below are source-audited in
+# memory-bank/source-audits/kebab-beer-consumables-2026-07-07.md.
+KEBAB_SOURCE = f"{FOOD_SOURCE_PATH}: calculateKebabEffect (wiki oldid 4868155)"
+BEER_SOURCE = f"{POTION_TYPE_SOURCE_PATH}: BEER beerHealth/beerStrength/beerDrain"
+
+CONSUMABLE_DATA: Dict[str, dict] = {
+    # Kebab: roll nextDouble(100) over the source effect table. Heal amounts
+    # are lifepoints (AnkiScape level*10 model); boosts/drains are levels.
+    "Kebab": {
+        "kind": "kebab_random",
+        "source": KEBAB_SOURCE,
+        "effect_table": (
+            {"upto": 8.71, "message": "That kebab didn't seem to do a lot."},
+            {"upto": 69.95, "heal_max_pct": 0.10, "message": "It restores some health."},
+            {"upto": 91.07, "heal_range": (100, 200), "message": "That was a good kebab. You feel a lot better."},
+            {"upto": 94.72, "heal": 300, "boost_levels": {"attack": (2, 3), "strength": (2, 3), "defense": (2, 3)},
+             "message": "Wow, that was an amazing kebab! You feel really invigorated."},
+            {"upto": 100.0, "drain_random_skill": (2, 4), "message": "That kebab tasted a bit dodgy."},
+        ),
+    },
+    # Beer: engine potion. +1 Constitution tick (10 LP), +4% current Strength,
+    # -7% current Attack (floored).
+    "Beer": {
+        "kind": "beer",
+        "source": BEER_SOURCE,
+        "heal_constitution_ticks": 1,
+        "strength_boost_pct": 0.04,
+        "attack_drain_pct": 0.07,
+        "message": "You drink the beer. You feel slightly reinvigorated... and slightly dizzy.",
+    },
+}
+
+# Skills a kebab's dodgy roll can drain (source: any non-Constitution skill id).
+KEBAB_DRAINABLE_SKILLS = (
+    "attack", "strength", "defense", "ranged", "magic", "prayer", "mining",
+    "smithing", "fishing", "cooking", "woodcutting", "firemaking", "crafting",
+    "fletching", "runecrafting", "hunter",
+)
+
 COMBAT_FOOD_DATA: Dict[str, dict] = {
     "Crayfish": {"heal_lifepoints": 20, "source": FOOD_SOURCE_PATH},
     "Shrimps": {"heal_lifepoints": 30, "source": FOOD_SOURCE_PATH},

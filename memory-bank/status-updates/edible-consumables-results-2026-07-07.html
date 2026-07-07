@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Edible Kebab & Beer — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:960px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.8rem; margin-bottom:0.6rem; }
+p, li, td { color:var(--text-dim); font-size:0.9rem; }
+h2 { font-size:1rem; font-weight:500; margin:1.3rem 0 0.5rem; color:var(--text); }
+table { width:100%; border-collapse:collapse; margin:0.6rem 0; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); text-align:left; padding:0.4rem 0.5rem; border-bottom:1px solid var(--border); }
+td { padding:0.4rem 0.5rem; border-bottom:1px solid rgba(42,48,64,0.5); vertical-align:top; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.3rem; margin-top:0.6rem; }
+.key { color:var(--purple); font-weight:500; }
+.verify { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.3rem; font-family:'JetBrains Mono',monospace; font-size:0.74rem; line-height:2; color:var(--text-dim); margin-top:1rem; }
+.verify b { color:var(--green); }
+.note { background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.3); border-radius:8px; padding:0.7rem 1rem; margin-top:0.8rem; font-size:0.85rem; color:var(--text-dim); }
+.note b { color:var(--amber); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-07</div>
+    <h1>Edible Kebab & Beer — and the substrate potions will reuse</h1>
+    <p>The visible feature is small; the reusable part is the point. You flagged that potions need the
+    same temporary-level model, so I built it as shared infrastructure rather than a kebab hack.</p>
+
+    <h2>The substrate (<span class="key">combat_current_levels</span>)</h2>
+    <div class="card">
+        <p>The drain-only <code>combat_stat_drains</code> scaffolding — which was never actually populated
+        — became a signed <b>current-level</b> model that mirrors the engine's <code>setCurrentLevel</code>:
+        an absolute current level per skill, absence meaning "at base", restoring 1 toward base every 100
+        ticks in <em>both</em> directions (boosts decay down, drains recover up). Combat accuracy and
+        max-hit are untouched when no entry exists — the parity-audited core is unchanged. Future potions
+        (Attack/Strength/Defence pots, etc.) apply through the one shared helper
+        <code>apply_combat_stat_delta_pure</code>.</p>
+    </div>
+
+    <h2>The consumables (source-exact)</h2>
+    <table>
+        <tr><th>Item</th><th>Effect</th><th>Source</th></tr>
+        <tr><td>Beer</td><td>+10 LP, +floor(4% current Strength), −floor(7% current Attack)</td><td><code>PotionType.BEER</code></td></tr>
+        <tr><td>Kebab</td><td>random table: 8.71% nothing · 61% heal 10% max · 21% heal 100–200 · 3.65% heal 300 + (2–3 to Att/Str/Def) · rare dodgy skill drain</td><td><code>Foods.kt calculateKebabEffect</code> (wiki oldid 4868155)</td></tr>
+    </table>
+    <p><code>apply_consumable_pure</code> is undo-safe (never mutates its input). A Bank right-click
+    <b>Eat/Drink</b> action routes through the new <code>on_consume_item</code> callback and shows the
+    source flavour message. Storage config bumps to 28 (drops the dead scaffolding key).</p>
+
+    <div class="note"><b>Owner decision honored:</b> combat auto-eat still ignores both (they are simply
+    not in <code>COMBAT_FOOD_DATA</code>), so nothing drinks beer mid-fight and drains your Attack by
+    surprise. The one remaining follow-up is the opt-in that lets you deliberately rank them into
+    in-combat food priority — deferred because it needs auto-eat to understand stat side effects.</div>
+
+    <div class="verify">python3 run_tests.py → <b>OK</b> · 774 tests, 145 skipped<br>
+    offscreen Qt discover → <b>OK</b> · 774 tests<br>
+    new pins: stat-delta boost/drain/clamp · beer source math · kebab random table bands · Bank Drink action</div>
+</div>
+</body>
+</html>

@@ -1668,6 +1668,7 @@ def show_main_menu(
     on_equip_item=None,
     on_unequip_slot=None,
     on_discard_item=None,
+    on_consume_item=None,
 ):
     """Show the consolidated window.
 
@@ -4751,6 +4752,32 @@ def show_main_menu(
             menu.addSeparator()
 
         amount = int((player_data.get("inventory", {}) or {}).get(item_name, 0) or 0)
+
+        try:
+            from .constants import CONSUMABLE_DATA  # type: ignore
+        except Exception:
+            try:
+                from constants import CONSUMABLE_DATA  # type: ignore
+            except Exception:
+                CONSUMABLE_DATA = {}
+        if item_name in CONSUMABLE_DATA:
+            verb = "Drink" if CONSUMABLE_DATA[item_name].get("kind") == "beer" else "Eat"
+            consume_action = menu.addAction(f"{verb} {item_name}")
+            consume_action.setEnabled(amount > 0 and on_consume_item is not None)
+
+            def _do_consume(_checked: bool = False) -> None:
+                if on_consume_item is None:
+                    return
+                result = on_consume_item(item_name)
+                if result:
+                    _refresh_equipment_views()
+                    message = str(result.get("message", ""))
+                    if message:
+                        QMessageBox.information(bank_list, item_name, message)
+
+            consume_action.triggered.connect(_do_consume)
+            menu.addSeparator()
+
         discard_action = menu.addAction(f"Discard all ({amount})")
         discard_action.setEnabled(amount > 0 and on_discard_item is not None)
 

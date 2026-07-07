@@ -92,7 +92,7 @@ def _player(**overrides):
         "combat_auto_eat_food": ["Shrimps"],
         "combat_supply_loadout": {},
         "combat_special_attack_energy": 100,
-        "combat_stat_drains": {},
+        "combat_current_levels": {},
         "combat_status_effects": {},
         "combat_recovery_progress": {},
         "combat_encounter": {},
@@ -3069,7 +3069,7 @@ class CombatLogicTest(unittest.TestCase):
             inventory={"Shark": 30},
             combat_lifepoints=20,
             combat_special_attack_energy=35,
-            combat_stat_drains={"attack": 2, "strength": 1},
+            combat_current_levels={"attack": 97, "strength": 98},  # base 99, drained
             combat_recovery_progress={"stat_drain_ticks": 50},
             combat_auto_eat_food=["Shark"],
         )
@@ -3078,7 +3078,9 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(recovered["combat_lifepoints"], 100)
         self.assertEqual(recovered["combat_special_attack_energy"], 45)
-        self.assertEqual(recovered["combat_stat_drains"], {"attack": 1})
+        # One recovery step (100 ticks): each current moves 1 toward base 99;
+        # strength reaches base and drops, attack goes 97 -> 98.
+        self.assertEqual(recovered["combat_current_levels"], {"attack": 98})
         self.assertEqual(recovered["combat_recovery_progress"], {})
         self.assertEqual(recovered["combat_supply_loadout"]["food"], {})
         self.assertEqual(recovered["inventory"]["Shark"], 30)

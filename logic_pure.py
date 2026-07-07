@@ -21,6 +21,8 @@ try:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        CONSUMABLE_DATA,
+        KEBAB_DRAINABLE_SKILLS,
         COMBAT_MAGIC_STAFF_DATA,
         COMBAT_MAGIC_SPELL_DATA,
         COMBAT_RANGED_AMMO_DATA,
@@ -43,6 +45,8 @@ except ImportError:
         COMBAT_BURST_TICKS,
         COMBAT_ENEMY_DATA,
         COMBAT_FOOD_DATA,
+        CONSUMABLE_DATA,
+        KEBAB_DRAINABLE_SKILLS,
         COMBAT_MAGIC_STAFF_DATA,
         COMBAT_MAGIC_SPELL_DATA,
         COMBAT_RANGED_AMMO_DATA,
@@ -1019,7 +1023,12 @@ COMBAT_BANK_RUN_REVIEWS = 2
 COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
 COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM = 100
-_COMBAT_DRAINABLE_SKILLS = ("attack", "strength", "defense", "ranged", "magic", "prayer")
+# Skills whose *current* level can differ from base via drains/boosts
+# (engine setCurrentLevel model). Kebab can also drop a random non-combat
+# skill, so the substrate accepts any skill id; this tuple is the combat
+# set that feeds accuracy/max-hit.
+_COMBAT_AFFECTABLE_SKILLS = ("attack", "strength", "defense", "ranged", "magic", "prayer")
+_COMBAT_DRAINABLE_SKILLS = _COMBAT_AFFECTABLE_SKILLS  # back-compat alias
 _COMBAT_MELEE_STYLE_IDS = ("accurate", "aggressive", "defensive", "controlled")
 _COMBAT_RANGED_STYLE_IDS = ("ranged_accurate", "ranged_rapid", "ranged_longrange")
 _COMBAT_MAGIC_EQUIPMENT_TYPES = {"staff", "elemental_staff", "battlestaff"}
@@ -1043,7 +1052,7 @@ def default_combat_state_pure():
         "combat_auto_eat_food": list(_DEFAULT_COMBAT_AUTO_EAT_FOOD),
         "combat_supply_loadout": default_combat_supply_loadout_pure(),
         "combat_special_attack_energy": COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
-        "combat_stat_drains": {},
+        "combat_current_levels": {},
         "combat_status_effects": {},
         "combat_recovery_progress": {},
         "combat_bank_run": {},
@@ -1087,14 +1096,20 @@ def _sanitize_combat_supply_loadout(raw_loadout):
     return loadout
 
 
-def _sanitize_combat_stat_drains(raw_drains):
-    if not isinstance(raw_drains, Mapping):
+def _sanitize_combat_current_levels(raw_levels):
+    """Absolute current skill levels that differ from base (engine
+    setCurrentLevel model). Absence of a skill means "at base". Values are
+    signed to represent both drains (current < base) and boosts
+    (current > base); any skill id is accepted since kebab can drop a random
+    non-combat skill."""
+    if not isinstance(raw_levels, Mapping):
         return {}
-    return {
-        str(skill_id): _non_negative_int(amount, 0)
-        for skill_id, amount in raw_drains.items()
-        if skill_id in _COMBAT_DRAINABLE_SKILLS and _non_negative_int(amount, 0) > 0
-    }
+    cleaned = {}
+    for skill_id, level in raw_levels.items():
+        if not isinstance(skill_id, str):
+            continue
+        cleaned[skill_id] = max(1, _signed_int(level, 1))
+    return cleaned
 
 
 def _sanitize_combat_status_effects(raw_effects):
@@ -1275,7 +1290,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_auto_eat_food": auto_food,
         "combat_supply_loadout": _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout")),
         "combat_special_attack_energy": min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, special_energy),
-        "combat_stat_drains": _sanitize_combat_stat_drains(player_data.get("combat_stat_drains")),
+        "combat_current_levels": _sanitize_combat_current_levels(player_data.get("combat_current_levels")),
         "combat_status_effects": _sanitize_combat_status_effects(player_data.get("combat_status_effects")),
         "combat_recovery_progress": _sanitize_combat_recovery_progress(player_data.get("combat_recovery_progress")),
         "combat_bank_run": _sanitize_combat_bank_run(player_data.get("combat_bank_run")),
@@ -1402,11 +1417,16 @@ def _combat_effective_player_magic_level(player_data):
     return floor(_combat_effective_skill_level(player_data, "magic", 1)) + 8
 
 
+def _combat_base_skill_level(player_data, skill_id, default=1):
+    return _positive_int(player_data.get(f"{skill_id}_level", default), default)
+
+
 def _combat_effective_skill_level(player_data, skill_id, default):
-    base_level = _positive_int(player_data.get(f"{skill_id}_level", default), default)
-    drains = player_data.get("combat_stat_drains", {}) or {}
-    drain = _non_negative_int(drains.get(skill_id, 0), 0) if isinstance(drains, Mapping) else 0
-    return max(1, base_level - drain)
+    base_level = _combat_base_skill_level(player_data, skill_id, default)
+    currents = player_data.get("combat_current_levels", {}) or {}
+    if isinstance(currents, Mapping) and skill_id in currents:
+        return max(1, _signed_int(currents.get(skill_id), base_level))
+    return base_level
 
 
 def _combat_accuracy(attacker_roll, defender_roll):
@@ -2068,22 +2088,33 @@ def _combat_regenerate_special_attack_energy(data, ticks):
     data["combat_special_attack_energy"] = min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, energy + regen)
 
 
-def _combat_recover_stat_drains(data, ticks):
-    drains = _sanitize_combat_stat_drains(data.get("combat_stat_drains"))
+def _combat_recover_current_levels(data, ticks):
+    """Restore boosted/drained current levels toward base by one level per
+    COMBAT_STAT_DRAIN_RECOVERY_TICKS ticks (engine restoreTick cadence:
+    +1 toward max every 100 ticks). Boosts decay down, drains recover up."""
+    currents = _sanitize_combat_current_levels(data.get("combat_current_levels"))
     progress = _sanitize_combat_recovery_progress(data.get("combat_recovery_progress"))
-    if not drains:
+    if not currents:
         progress.pop("stat_drain_ticks", None)
-        data["combat_stat_drains"] = {}
+        data["combat_current_levels"] = {}
         data["combat_recovery_progress"] = progress
         return
     stat_drain_ticks = _non_negative_int(progress.get("stat_drain_ticks", 0), 0) + max(0, _non_negative_int(ticks, 0))
-    recovered_levels = stat_drain_ticks // COMBAT_STAT_DRAIN_RECOVERY_TICKS
+    steps = stat_drain_ticks // COMBAT_STAT_DRAIN_RECOVERY_TICKS
     stat_drain_ticks = stat_drain_ticks % COMBAT_STAT_DRAIN_RECOVERY_TICKS
-    if recovered_levels > 0:
-        drains = {skill_id: max(0, amount - recovered_levels) for skill_id, amount in drains.items()}
-        drains = {skill_id: amount for skill_id, amount in drains.items() if amount > 0}
-    progress["stat_drain_ticks"] = stat_drain_ticks if drains and stat_drain_ticks > 0 else 0
-    data["combat_stat_drains"] = drains
+    if steps > 0:
+        restored = {}
+        for skill_id, current in currents.items():
+            base = _combat_base_skill_level(data, skill_id, current)
+            if current < base:
+                current = min(base, current + steps)
+            elif current > base:
+                current = max(base, current - steps)
+            if current != base:
+                restored[skill_id] = current
+        currents = restored
+    progress["stat_drain_ticks"] = stat_drain_ticks if currents and stat_drain_ticks > 0 else 0
+    data["combat_current_levels"] = currents
     data["combat_recovery_progress"] = {key: value for key, value in progress.items() if value > 0}
 
 
@@ -2289,6 +2320,98 @@ def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
     return current_lifepoints, None
 
 
+def apply_combat_stat_delta_pure(data, skill_id, delta):
+    """Reusable current-level mutation (shared by consumables and future
+    potions). Reads the effective current level (base if unset), applies the
+    signed delta, clamps at 1, and stores an absolute current level — dropping
+    the entry when it lands back on base. Mutates and returns ``data``."""
+    currents = dict(_sanitize_combat_current_levels(data.get("combat_current_levels")))
+    base = _combat_base_skill_level(data, skill_id, currents.get(skill_id, 1))
+    current = currents.get(skill_id, base)
+    updated = max(1, current + _signed_int(delta, 0))
+    if updated == base:
+        currents.pop(skill_id, None)
+    else:
+        currents[skill_id] = updated
+    data["combat_current_levels"] = currents
+    return data
+
+
+def _consumable_heal(data, amount):
+    max_lp = combat_max_lifepoints_pure(data)
+    current = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
+    healed = min(max_lp, current + max(0, int(amount)))
+    data["combat_lifepoints"] = healed
+    return healed - current
+
+
+def apply_consumable_pure(player_data, item_name, rng=None):
+    """Eat/drink a stat-affecting consumable (Kebab, Beer). Consumes one from
+    inventory, applies the source effect (heal + current-level boosts/drains),
+    and returns (new_data, result). Undo-safe: never mutates the input."""
+    rng = rng or (lambda: 0.0)
+    spec = CONSUMABLE_DATA.get(item_name)
+    if spec is None:
+        return dict(player_data), {"allowed": False, "reason": "not_a_consumable"}
+    data = _copy_player_data_with_nested(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    if _non_negative_int(inventory.get(item_name, 0), 0) <= 0:
+        return dict(player_data), {"allowed": False, "reason": "missing_item", "item_name": item_name}
+    inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) - 1
+    if inventory[item_name] <= 0:
+        inventory.pop(item_name, None)
+    data["inventory"] = inventory
+
+    healed = 0
+    boosts = {}
+    drains = {}
+    message = str(spec.get("message", ""))
+
+    if spec["kind"] == "kebab_random":
+        roll = max(0.0, min(float(rng()) * 100.0, 99.999999))
+        outcome = next(o for o in spec["effect_table"] if roll < float(o["upto"]))
+        message = str(outcome.get("message", message))
+        if "heal_max_pct" in outcome:
+            healed = _consumable_heal(data, int(combat_max_lifepoints_pure(data) * float(outcome["heal_max_pct"])))
+        elif "heal_range" in outcome:
+            lo, hi = outcome["heal_range"]
+            healed = _consumable_heal(data, lo + int(max(0.0, min(float(rng()), 0.999999999)) * (hi - lo)))
+        elif "heal" in outcome:
+            healed = _consumable_heal(data, int(outcome["heal"]))
+        for skill_id, (lo, hi) in (outcome.get("boost_levels", {}) or {}).items():
+            amount = lo + int(max(0.0, min(float(rng()), 0.999999999)) * (hi - lo))
+            apply_combat_stat_delta_pure(data, skill_id, amount)
+            boosts[skill_id] = amount
+        if "drain_random_skill" in outcome:
+            lo, hi = outcome["drain_random_skill"]
+            amount = lo + int(max(0.0, min(float(rng()), 0.999999999)) * (hi - lo))
+            index = min(len(KEBAB_DRAINABLE_SKILLS) - 1, int(max(0.0, min(float(rng()), 0.999999999)) * len(KEBAB_DRAINABLE_SKILLS)))
+            skill_id = KEBAB_DRAINABLE_SKILLS[index]
+            apply_combat_stat_delta_pure(data, skill_id, -amount)
+            drains[skill_id] = amount
+    elif spec["kind"] == "beer":
+        healed = _consumable_heal(data, _positive_int(spec.get("heal_constitution_ticks", 1), 1) * 10)
+        current_strength = _combat_effective_skill_level(data, "strength", 1)
+        current_attack = _combat_effective_skill_level(data, "attack", 1)
+        str_boost = int(floor(current_strength * float(spec.get("strength_boost_pct", 0.0))))
+        atk_drain = int(floor(current_attack * float(spec.get("attack_drain_pct", 0.0))))
+        if str_boost > 0:
+            apply_combat_stat_delta_pure(data, "strength", str_boost)
+            boosts["strength"] = str_boost
+        if atk_drain > 0:
+            apply_combat_stat_delta_pure(data, "attack", -atk_drain)
+            drains["attack"] = atk_drain
+
+    return data, {
+        "allowed": True,
+        "item_name": item_name,
+        "healed": healed,
+        "boosts": boosts,
+        "drains": drains,
+        "message": message,
+    }
+
+
 def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipment_data=None):
     enemy_data = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_data.get(target_id)
@@ -2409,7 +2532,7 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     else:
         data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
-    _combat_recover_stat_drains(data, SAFE_COMBAT_RECOVERY_TICKS)
+    _combat_recover_current_levels(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_consume_antipoison_if_needed(data)
     status_result = _combat_advance_status_effects(data, SAFE_COMBAT_RECOVERY_TICKS)
     if status_result.get("died"):
@@ -2864,7 +2987,7 @@ def _copy_player_data_with_nested(player_data):
     copied["death_office"] = _sanitize_death_office_state(player_data.get("death_office", {}) or {})
     copied["combat_auto_eat_food"] = list(player_data.get("combat_auto_eat_food", []) or [])
     copied["combat_supply_loadout"] = _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout"))
-    copied["combat_stat_drains"] = dict(player_data.get("combat_stat_drains", {}) or {})
+    copied["combat_current_levels"] = dict(player_data.get("combat_current_levels", {}) or {})
     copied["combat_status_effects"] = dict(player_data.get("combat_status_effects", {}) or {})
     copied["combat_recovery_progress"] = dict(player_data.get("combat_recovery_progress", {}) or {})
     copied["combat_bank_run"] = _sanitize_combat_bank_run(player_data.get("combat_bank_run"))

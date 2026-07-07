@@ -2849,6 +2849,60 @@ class MainMenuWidgetTest(unittest.TestCase):
             )
             self.assertFalse(row.icon().isNull(), f"{item_name} row has no icon")
 
+    def test_bank_offers_drink_action_for_consumables(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Beer": 2}
+        pd["strength_level"] = 50
+        pd["attack_level"] = 60
+        pd["combat_lifepoints"] = 30
+        consumed: list[str] = []
+
+        def _consume(item_name: str):
+            from logic_pure import apply_consumable_pure
+            new_data, result = apply_consumable_pure(pd, item_name)
+            if result.get("allowed"):
+                pd.clear()
+                pd.update(new_data)
+                consumed.append(item_name)
+                return result
+            return None
+
+        self._captured.clear()
+        self._ui.show_main_menu(
+            player_data=pd,
+            current_skill="Mining",
+            can_smelt_any_bar=True,
+            on_save_skill=lambda *a: None,
+            on_set_ore=lambda *a: None,
+            on_set_tree=lambda *a: None,
+            on_set_bar=lambda *a: None,
+            on_set_smith=lambda *a: None,
+            on_set_craft=lambda *a: None,
+            on_set_fletch=lambda *a: None,
+            on_set_firemaking=lambda *a: None,
+            on_set_fishing=lambda *a: None,
+            on_set_cooking=lambda *a: None,
+            on_set_utility=lambda *a: None,
+            on_discard_item=lambda *a: True,
+            on_consume_item=_consume,
+        )
+        dialog = self._captured[-1]
+        menu = dialog._ankiscape_equip_menu_for("Beer")
+        drink = next(a for a in menu.actions() if a.text() == "Drink Beer")
+        self.assertTrue(drink.isEnabled())
+
+        original_info = self._ui.QMessageBox.information
+        self._ui.QMessageBox.information = lambda *a, **k: None
+        try:
+            drink.trigger()
+            QApplication.processEvents()
+        finally:
+            self._ui.QMessageBox.information = original_info
+
+        self.assertEqual(consumed, ["Beer"])
+        self.assertEqual(pd["inventory"]["Beer"], 1)
+        self.assertEqual(pd["combat_current_levels"], {"strength": 52, "attack": 56})
+
     def test_bank_groups_food_with_icons_and_discard_all_confirmation(self) -> None:
         pd = _make_player_data()
         pd["inventory"] = {"Shrimps": 3}

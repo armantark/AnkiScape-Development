@@ -367,17 +367,15 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   already models). Not scheduled until the owner calls it; sequence is
   vendor parity -> shop gating pass -> GE.
 
-### Next - Edible Kebab and Beer (owner-approved 2026-07-07)
+### Done - Edible Kebab and Beer (2026-07-07)
 
-Source audit complete:
-`memory-bank/source-audits/kebab-beer-consumables-2026-07-07.md` (kebab's
-wiki-pinned random-effect table; beer as an engine potion: +1 Constitution
-tick, +4% Strength, -7% Attack). Blocking dependency: a temporary
-current-level substrate (current vs base skill levels, restoring 1 toward
-base per interval like the engine's 100-tick loop) — build that first, then
-wire both consumables with exact source effects. Auto-eat eligibility is
-opt-in only via the player's food priority. No new skill; decisions all
-made in the 2026-07-07 grill.
+Implemented. The drain-only scaffolding became a signed
+`combat_current_levels` substrate (shared by future potions via
+`apply_combat_stat_delta_pure`); `apply_consumable_pure` ports the exact
+source effects, consumed via a Bank right-click Eat/Drink action; storage
+config 28. Combat auto-eat ignores both (not in COMBAT_FOOD_DATA) — the one
+remaining follow-up is the in-combat food-priority opt-in for drinking them
+mid-fight, which needs auto-eat to model stat side effects.
 
 ## Priority Board
 

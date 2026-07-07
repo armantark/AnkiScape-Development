@@ -73,7 +73,7 @@ class TestStoragePure(unittest.TestCase):
             "combat_auto_eat_food",
             "combat_supply_loadout",
             "combat_special_attack_energy",
-            "combat_stat_drains",
+            "combat_current_levels",
             "combat_status_effects",
             "combat_recovery_progress",
             "combat_encounter",
@@ -143,7 +143,7 @@ class TestStoragePure(unittest.TestCase):
         self.assertIn("Shrimps", data["combat_auto_eat_food"])
         self.assertEqual(data["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
         self.assertEqual(data["combat_special_attack_energy"], 100)
-        self.assertEqual(data["combat_stat_drains"], {})
+        self.assertEqual(data["combat_current_levels"], {})
         self.assertEqual(data["combat_status_effects"], {})
         self.assertEqual(data["combat_recovery_progress"], {})
         self.assertEqual(data["combat_encounter"], {})
@@ -249,7 +249,8 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["combat_lifepoints"], 100)
         self.assertEqual(migrated["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
         self.assertEqual(migrated["combat_special_attack_energy"], 100)
-        self.assertEqual(migrated["combat_stat_drains"], {})
+        self.assertEqual(migrated["combat_current_levels"], {})
+        self.assertNotIn("combat_stat_drains", migrated)
         self.assertEqual(migrated["combat_status_effects"], {})
         self.assertEqual(migrated["combat_recovery_progress"], {})
         self.assertEqual(migrated["combat_encounter"], {})

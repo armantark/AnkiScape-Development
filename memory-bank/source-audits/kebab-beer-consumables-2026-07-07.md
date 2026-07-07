@@ -1,7 +1,8 @@
 # Kebab and Beer Consumables — Source Audit
 
-Audited: 2026-07-07 (implementation deferred to its own slice; owner decided
-both become edible with source effects, auto-eat opt-in only).
+Audited and **implemented** 2026-07-07 (owner: both edible with source
+effects; combat auto-eat opt-in only, satisfied by excluding them from
+COMBAT_FOOD_DATA).
 
 ## Kebab (2011Scape `Foods.kt calculateKebabEffect`, wiki-pinned Oct 2011:
 `https://runescape.wiki/w/Kebab?oldid=4868155`)
@@ -25,13 +26,22 @@ Strategies applied to current levels: `beerHealth` = +1 Constitution tick
 (10 LP heal), `beerStrength` = `+floor(currentStrength * 0.04)`,
 `beerDrain` = `-floor(currentAttack * 0.07)`.
 
-## Blocking dependency
+## Implementation
 
-Both need a **temporary current-level substrate** (current vs base skill
-levels with restoration over time). AnkiScape's combat recovery has
-stat-drain *scaffolding* only; `attack_level` etc. are persistent base
-levels today. The slice must build current-level state (restore 1 toward
-base per N reviews, mirroring the engine's 100-tick restore loop) before
-wiring either consumable. Auto-eat: both stay out of the default auto-eat
-table — eligible only when the player explicitly ranks them in food
-priority (owner decision).
+The drain-only `combat_stat_drains` scaffolding was generalized into a signed
+`combat_current_levels` substrate (engine `setCurrentLevel` model: absolute
+current levels, absence = base; restores 1 toward base per 100 ticks in both
+directions). This is shared infrastructure future potions reuse via
+`apply_combat_stat_delta_pure`. `apply_consumable_pure(player_data, item_name,
+rng)` consumes one item, applies heals + boosts/drains, and is undo-safe.
+`CONSUMABLE_DATA` (combat_data.py) holds the source tables; the Bank
+right-click Eat/Drink action routes through `on_consume_item`. Storage config
+28 drops the dead scaffolding key. Combat auto-eat still ignores both (they
+are not in COMBAT_FOOD_DATA), satisfying the opt-in decision; a future
+food-priority opt-in for in-combat drinking remains available.
+
+### Remaining follow-up
+
+Kebab/beer are consumable from the Bank (out of combat). In-combat auto-eat
+opt-in (ranking them in food priority so auto-eat may drink them) is the
+one deferred piece; it needs auto-eat to understand stat side effects.
