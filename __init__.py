@@ -682,6 +682,38 @@ def _on_main_menu():
         except Exception:
             pass
 
+    # Keep/Drop is a gathering choice (power-gather = drop the product for the
+    # fastest XP). Resolve it against the currently-selected gathering target.
+    _GATHERING_HANDLER_KEYS = {"mining", "woodcutting", "fishing", "hunter"}
+
+    def _current_gathering_target():
+        handler_key = review_action_handler_key(current_skill)
+        if handler_key not in _GATHERING_HANDLER_KEYS:
+            return None
+        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+        target_id = player_data.get(target_key) if target_key else None
+        return str(target_id) if target_id else None
+
+    def _current_gathering_keep_drop_state():
+        target_id = _current_gathering_target()
+        if target_id is None:
+            return None
+        return (player_data.get("carried_keep_drop") or {}).get(target_id, "keep")
+
+    def _set_carried_keep_drop(drop: bool):
+        target_id = _current_gathering_target()
+        if target_id is None:
+            return
+        keep_drop = player_data.get("carried_keep_drop")
+        if not isinstance(keep_drop, dict):
+            keep_drop = {}
+        if drop:
+            keep_drop[target_id] = "drop"
+        else:
+            keep_drop.pop(target_id, None)
+        player_data["carried_keep_drop"] = keep_drop
+        save_player_data()
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -700,6 +732,8 @@ def _on_main_menu():
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_pack_mode=lambda mode: _set_value("carried_pack_mode", mode),
+        on_set_carried_keep_drop=_set_carried_keep_drop,
+        carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),

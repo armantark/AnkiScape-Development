@@ -512,8 +512,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._ui = ui
         self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
-    def _open(self, player_data: dict, current_skill: str = "Mining") -> "QDialog":
+    def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
         self._ui.show_main_menu(
+            **extra,
             player_data=player_data,
             current_skill=current_skill,
             can_smelt_any_bar=True,
@@ -577,6 +578,30 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertTrue(body.isVisibleTo(body.parentWidget()))
         self.assertIn("▾", header.text())
+
+    def test_carried_keep_drop_toggle_present_for_gathering_and_wired(self) -> None:
+        from aqt.qt import QCheckBox
+
+        calls: list = []
+        dialog = self._open(
+            _make_player_data(),
+            carried_keep_drop_state="keep",
+            on_set_carried_keep_drop=lambda drop: calls.append(drop),
+        )
+        check = dialog.findChild(QCheckBox, "carriedKeepDropCheck")
+        self.assertIsNotNone(check, "Keep/Drop toggle missing when a gathering target is active")
+        self.assertFalse(check.isChecked())  # default keep
+        check.setChecked(True)
+        QApplication.processEvents()
+        self.assertEqual(calls[-1], True)  # toggling to drop calls back with True
+        dialog.deleteLater()
+
+    def test_carried_keep_drop_toggle_absent_without_gathering_target(self) -> None:
+        from aqt.qt import QCheckBox
+
+        dialog = self._open(_make_player_data(), carried_keep_drop_state=None)
+        self.assertIsNone(dialog.findChild(QCheckBox, "carriedKeepDropCheck"))
+        dialog.deleteLater()
 
     def test_shop_tab_renders_and_keeps_hidden_reward_shops_out_of_browse_and_search(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures

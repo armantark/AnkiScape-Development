@@ -1658,6 +1658,8 @@ def show_main_menu(
     on_set_runecrafting=None,
     on_set_utility=None,
     on_set_carried_pack_mode=None,
+    on_set_carried_keep_drop=None,
+    carried_keep_drop_state=None,
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -4379,6 +4381,16 @@ def show_main_menu(
     mode_layout.addWidget(mode_label)
     mode_layout.addWidget(carried_mode_combo, 1)
     cb_layout.addWidget(mode_row)
+
+    # Keep/Drop toggle — only meaningful for a gathering target (power-gather =
+    # drop the product for the fastest XP, no banking). Absent otherwise.
+    if carried_keep_drop_state is not None:
+        keep_drop_check = QCheckBox("Drop gathered products (power-gather, no banking)")
+        keep_drop_check.setObjectName("carriedKeepDropCheck")
+        keep_drop_check.setChecked(carried_keep_drop_state == "drop")
+        if on_set_carried_keep_drop is not None:
+            keep_drop_check.toggled.connect(lambda checked: on_set_carried_keep_drop(bool(checked)))
+        cb_layout.addWidget(keep_drop_check)
 
     carried_summary = QLabel(_carried_panel_summary_text())
     carried_summary.setObjectName("carriedInventorySummary")
