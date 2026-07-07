@@ -29,10 +29,17 @@ by design), **declared** (documented simplification of a source mechanic), or
 
 ## Gathering source rolls
 
-Woodcutting: `(low*ratio, high*ratio)` interpolate /255 matches
-`Woodcutting.kt` (source truncates ratio-scaled chances to int; ours keeps
-floats — sub-1-point nuance, declared). Mining audited above. Fishing/Hunter
-rolls remain on the follow-up list.
+Weights match everywhere (`low*(99-lvl)/98 + high*(lvl-1)/98`, ratio-scaled
+inputs for WC), but the shared 2011Scape helper (`MiscExt.kt:51`) is
+`floor(low*(99-level)/98 + floor(high*(level-1)/98) + 1)` and success is
+`RANDOM.nextInt(cap) <= interp`, i.e. probability `(interp + 1)/255` — our
+mining/woodcutting/fishing rolls use the un-floored linear form with plain
+`/255`, so they systematically under-roll by roughly 2/255 (~0.8pp) plus
+flooring nuances. Classified **declared approximation** for now (the rolls
+feed the sqrt pacing adapter with a 0.20 floor, which dwarfs the delta);
+an exactness fix needs per-skill verification of where each source applies
+the tool ratio before the floor. Fishing (`Fish.kt:77` roll cap 255) and
+Hunter remain to be walked.
 
 ## Standing adaptations (by design, not deviations)
 
