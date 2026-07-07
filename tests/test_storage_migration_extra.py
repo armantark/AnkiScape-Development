@@ -59,12 +59,27 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(base["agility_level"], 1)
         self.assertEqual(base["agility_exp"], 0)
         self.assertEqual(base["unlocked_abilities"], [])
+        self.assertEqual(base["money_pouch"], 0)
+        self.assertEqual(base["carried_inventory"], {})
+        self.assertEqual(base["carried_pack_mode"], "balanced")
+        self.assertEqual(base["loot_value_threshold"], 50)
 
     def test_migration_normalizes_unlocked_abilities_and_legacy_fletching_target(self):
         data = {"current_fletch": "oak_arrow_shafts", "unlocked_abilities": ["broad_fletching", 42, "broad_fletching"]}
         out = migrate_loaded_data(data, ORE_DATA)
         self.assertEqual(out["current_fletch"], "arrow_shafts")
         self.assertEqual(out["unlocked_abilities"], ["broad_fletching"])
+
+    def test_carried_state_keys_seeded_on_old_saves(self):
+        # The pouch is dormant: coins stay in the flat inventory until the coin
+        # readers are repointed. Only the overlay keys are seeded here.
+        data = {"config_version": 1, "inventory": {"Coins": 1000, "Oak logs": 5}}
+        out = migrate_loaded_data(data, ORE_DATA)
+        self.assertEqual(out["money_pouch"], 0)
+        self.assertEqual(out["carried_inventory"], {})
+        self.assertEqual(out["carried_pack_mode"], "balanced")
+        self.assertEqual(out["inventory"]["Coins"], 1000)
+        self.assertEqual(out["inventory"]["Oak logs"], 5)
 
 
 if __name__ == "__main__":

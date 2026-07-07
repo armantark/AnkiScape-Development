@@ -1,9 +1,27 @@
 # 28-Slot Carried Inventory — Design (owner-grilled 2026-07-07)
 
-Status: **design complete (2026-07-07), not implemented.** The grill is
-finished — every fork resolved (see Resolved section). Ready to build on the
-owner's go; still a substantial slice touching the flat inventory, so it lands
-as its own pass with status artifacts.
+Status: **foundation slice implemented (2026-07-07).** The grill is finished —
+every fork resolved (see Resolved section). The first implementation pass added
+the pure carried-inventory primitives and seeded the overlay state keys, but
+intentionally did not wire UI, combat, skilling, shops, bank runs, death, or
+`wilderness_shop_slots` unification.
+
+## Foundation slice implemented (2026-07-07)
+
+- `inventory_pure.py` now owns the standalone 28-slot API: slot accounting,
+  capacity checks, high-alch loot filtering, money-pouch balance helpers, and
+  carried state defaults/sanitization.
+- `storage_pure.py` seeds `money_pouch`, `carried_inventory`,
+  `carried_pack_mode`, and `loot_value_threshold` on new and migrated saves.
+- **The money pouch is intentionally dormant.** Coins still live in the flat
+  `inventory["Coins"]` because every current spend/earn path (shop buy/sell in
+  `shop_logic.py`, the item-charge purchase in `logic_pure.py`) transacts
+  through `inventory[currency_name]`. Moving coins into the pouch before those
+  readers are repointed would strand them away from the spend path — so the
+  coins→pouch migration and the `CURRENT_CONFIG_VERSION` bump ride with the
+  next (wiring) slice, atomically with the repoint.
+- Tests: `test_inventory_pure.py` covers the new pure API; the migration tests
+  assert the overlay keys are seeded while coins remain in the flat inventory.
 
 ## The problem it solves
 

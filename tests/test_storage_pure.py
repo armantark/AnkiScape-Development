@@ -5,6 +5,7 @@ from storage_pure import (
     migrate_loaded_data,
     CURRENT_CONFIG_VERSION,
 )
+from inventory_pure import DEFAULT_LOOT_VALUE_THRESHOLD
 from constants import (
     BAR_DATA,
     CRAFTING_DATA,
@@ -113,6 +114,10 @@ class TestStoragePure(unittest.TestCase):
             "runecrafting_pouches",
             "item_charges",
             "unlocked_abilities",
+            "money_pouch",
+            "carried_inventory",
+            "carried_pack_mode",
+            "loot_value_threshold",
             "shop_data_version",
             "shop_market_clock",
             "shop_stock_state",
@@ -168,6 +173,10 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["runecrafting_pouches"], {})
         self.assertEqual(data["item_charges"], {})
         self.assertEqual(data["unlocked_abilities"], [])
+        self.assertEqual(data["money_pouch"], 0)
+        self.assertEqual(data["carried_inventory"], {})
+        self.assertEqual(data["carried_pack_mode"], "balanced")
+        self.assertEqual(data["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
         self.assertEqual(data["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
         self.assertEqual(data["shop_stock_state"], {})
         self.assertEqual(data["shop_events"], [])
@@ -267,6 +276,10 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
         self.assertEqual(migrated["shop_stock_state"], {})
         self.assertEqual(migrated["shop_events"], [])
+        self.assertEqual(migrated["money_pouch"], 0)
+        self.assertEqual(migrated["carried_inventory"], {})
+        self.assertEqual(migrated["carried_pack_mode"], "balanced")
+        self.assertEqual(migrated["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)
         for ore in MINING_OUTPUT_ITEMS:

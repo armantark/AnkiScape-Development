@@ -2,6 +2,7 @@
 from typing import Dict, Iterable, Optional, Any
 
 try:
+    from . import inventory_pure
     from .cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
     from .crafting_data import (
         DEFAULT_CRAFTING_TARGET,
@@ -41,6 +42,7 @@ try:
         LEGACY_TREE_TARGETS,
     )
 except ImportError:
+    import inventory_pure
     from cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
     from crafting_data import (
         DEFAULT_CRAFTING_TARGET,
@@ -180,6 +182,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["runecrafting_pouches"] = {}
     data["item_charges"] = {}
     data["unlocked_abilities"] = []
+    data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
     return data
 
@@ -608,6 +611,12 @@ def migrate_loaded_data(
     _migrate_legacy_bar_inventory(inv)
     _migrate_legacy_crafting_inventory(inv)
     data["inventory"] = inv
+
+    # Seed the carried-inventory overlay keys on old saves. The money pouch is
+    # dormant for now: coins still live in the flat inventory until the coin
+    # readers are repointed to the pouch (a later, atomic slice). Moving coins
+    # before that repoint would strand them away from the shop spend path.
+    inventory_pure.sanitize_carried_state(data)
 
     # Ensure achievements structure exists
     data.setdefault("completed_achievements", [])
