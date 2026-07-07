@@ -107,6 +107,10 @@ id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
 - **Kebab** (`Foods.kt calculateKebabEffect`, wiki oldid 4868155): full
   random-effect table (nothing / 10% heal / 100-200 / 300+boost / dodgy
   drain) ported exactly. **parity**
+- **Stat potions** (`PotionType.kt`, 2026-07-07): regular boost floor(base/10)+3,
+  super floor(15*base/100)+5, computed off base, capped (boost-to-floor via
+  `apply_combat_stat_boost_to_pure`); Attack/Strength/Defence/Combat/Super
+  variants/Ranging/Magic, all doses. **parity**
 
 ## Sweep status: complete
 

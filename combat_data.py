@@ -2375,6 +2375,12 @@ CONSUMABLE_DATA: Dict[str, dict] = {
     },
 }
 
+try:
+    from .potion_data import potion_consumables_as_dict
+except ImportError:
+    from potion_data import potion_consumables_as_dict
+CONSUMABLE_DATA.update(potion_consumables_as_dict())
+
 # Skills a kebab's dodgy roll can drain (source: any non-Constitution skill id).
 KEBAB_DRAINABLE_SKILLS = (
     "attack", "strength", "defense", "ranged", "magic", "prayer", "mining",

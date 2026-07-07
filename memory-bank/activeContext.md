@@ -100,6 +100,16 @@ leather, battlestaff, and weaving rows all lit up through shop supply. Audits:
 `memory-bank/source-audits/coin-economy-audit-2026-07-06.md` and
 `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 
+Standard combat stat potions are implemented (2026-07-07) on the same
+substrate: `potion_data.py` holds the nine families (Attack/Strength/Defence/
+Combat/Super attack/strength/defence/Ranging/Magic) across doses (1)-(4), wired
+into `CONSUMABLE_DATA` and `apply_consumable_pure` (kind `potion`) via the new
+`apply_combat_stat_boost_to_pure` boost-to-floor helper (source formulas from
+`PotionType.kt`: regular floor(base/10)+3, super floor(15*base/100)+5, computed
+off base, capped, cures a drain, no stacking). Drinking decrements the dose to
+the next dose or a Vial. Deferred: Prayer/restore potions and Herblore mixing
+to source them (live-but-inert until then).
+
 Edible Kebab and Beer are implemented (2026-07-07). The drain-only combat
 scaffolding was generalized into a signed `combat_current_levels` substrate
 (engine `setCurrentLevel` model; restores 1 toward base per 100 ticks both

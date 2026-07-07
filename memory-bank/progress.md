@@ -135,6 +135,12 @@
   leather/battlestaff/weaving rows that shop supply lit up. Audits:
   `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`,
   `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+- Standard combat stat potions are implemented as of 2026-07-07 on the
+  kebab/beer current-level substrate: nine families across doses (1)-(4)
+  (`potion_data.py`) with source-exact boost formulas (`PotionType.kt`) via a
+  new boost-to-floor helper, dose-decrement to Vial, and Bank Drink. Prayer/
+  restore potions and Herblore sourcing deferred. Both suites pass with 778
+  tests.
 - Edible Kebab and Beer are implemented as of 2026-07-07 with a reusable
   signed current-level substrate (`combat_current_levels`, engine
   setCurrentLevel model, restore toward base) that future potions share via

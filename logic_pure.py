@@ -2337,6 +2337,27 @@ def apply_combat_stat_delta_pure(data, skill_id, delta):
     return data
 
 
+def apply_combat_stat_boost_to_pure(data, skill_id, boost):
+    """Potion-style boost (shared by all stat potions): sets current to
+    base + boost *as a floor* — it cures a drained stat and boosts to the
+    ceiling, but never lowers an already-higher boost and never stacks past
+    base + boost (engine `boostCap`). Mutates and returns ``data``."""
+    base = _combat_base_skill_level(data, skill_id, 1)
+    target = base + max(0, int(boost))
+    current = _combat_effective_skill_level(data, skill_id, base)
+    if target > current:
+        apply_combat_stat_delta_pure(data, skill_id, target - current)
+    return data
+
+
+def _potion_boost_amount(base_level, strategy):
+    # PotionType.kt: regular = floor(base/10)+3, super = floor(15*base/100)+5.
+    base = max(1, int(base_level))
+    if strategy == "s":
+        return int(15 * base / 100) + 5
+    return base // 10 + 3
+
+
 def _consumable_heal(data, amount):
     max_lp = combat_max_lifepoints_pure(data)
     current = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
@@ -2401,6 +2422,18 @@ def apply_consumable_pure(player_data, item_name, rng=None):
         if atk_drain > 0:
             apply_combat_stat_delta_pure(data, "attack", -atk_drain)
             drains["attack"] = atk_drain
+    elif spec["kind"] == "potion":
+        for skill_id in spec.get("skills", ()):
+            base = _combat_base_skill_level(data, skill_id, 1)
+            amount = _potion_boost_amount(base, spec.get("strategy", "r"))
+            apply_combat_stat_boost_to_pure(data, skill_id, amount)
+            boosts[skill_id] = amount
+        # Leave the next-lower dose (or an empty Vial at dose 1) in inventory.
+        leaves = str(spec.get("leaves", ""))
+        if leaves:
+            inv = dict(data.get("inventory", {}) or {})
+            inv[leaves] = _non_negative_int(inv.get(leaves, 0), 0) + 1
+            data["inventory"] = inv
 
     return data, {
         "allowed": True,

@@ -86,6 +86,7 @@ try:
         runecrafting_targets_as_dict,
     )
     from .shop_data import shop_extra_items_as_dict
+    from .potion_data import potion_items_as_dict, potion_item_names
     from .mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -192,6 +193,7 @@ except ImportError:
         runecrafting_targets_as_dict,
     )
     from shop_data import shop_extra_items_as_dict
+    from potion_data import potion_items_as_dict, potion_item_names
     from mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -779,6 +781,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
+    **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {

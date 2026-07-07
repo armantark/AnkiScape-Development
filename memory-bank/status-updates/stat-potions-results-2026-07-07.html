@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Stat Potions — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:900px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--green); background:rgba(74,222,128,0.12); border:1px solid rgba(74,222,128,0.35); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.75rem; margin-bottom:0.5rem; }
+p, li, td { color:var(--text-dim); font-size:0.9rem; }
+h2 { font-size:1rem; font-weight:500; margin:1.4rem 0 0.5rem; color:var(--text); }
+table { width:100%; border-collapse:collapse; margin:0.6rem 0; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.08em; color:var(--text-dim); text-align:left; padding:0.4rem 0.5rem; border-bottom:1px solid var(--border); }
+td { padding:0.4rem 0.5rem; border-bottom:1px solid rgba(42,48,64,0.5); vertical-align:top; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; color:var(--text); }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.2rem; margin-top:0.6rem; }
+.key { color:var(--purple); }
+.verify { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.3rem; font-family:'JetBrains Mono',monospace; font-size:0.74rem; line-height:2; color:var(--text-dim); margin-top:1rem; }
+.verify b { color:var(--green); }
+.note { background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.3); border-radius:8px; padding:0.7rem 1rem; margin-top:0.9rem; font-size:0.85rem; color:var(--text-dim); }
+.note b { color:var(--amber); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-07</div>
+    <h1>Standard Combat Stat Potions</h1>
+    <p>The payoff of the substrate built for kebab/beer: potions were mostly a <em>data</em> job once the
+    current-level model existed. Nine families, all doses, source-exact.</p>
+
+    <h2>What shipped</h2>
+    <table>
+        <tr><th>Family</th><th>Skill(s)</th><th>Boost @ base 99</th></tr>
+        <tr><td>Attack / Strength / Defence potion</td><td>Att / Str / Def</td><td>+12 (regular)</td></tr>
+        <tr><td>Combat potion</td><td>Attack + Strength</td><td>+12 each</td></tr>
+        <tr><td>Super attack / strength / defence</td><td>Att / Str / Def</td><td>+19 (super)</td></tr>
+        <tr><td>Ranging potion / Magic potion</td><td>Ranged / Magic</td><td>+12 (regular)</td></tr>
+    </table>
+    <p>All in doses (1)–(4). Drinking applies the boost and leaves the next-lower dose, or an empty
+    <code>Vial</code> at dose 1. Consumed through the same Bank right-click that eats kebabs — now labelled
+    <b>Drink</b>.</p>
+
+    <h2>The engine (source-exact, reusable)</h2>
+    <div class="card">
+        <p>New <span class="key">apply_combat_stat_boost_to_pure</span> — a <b>boost-to-floor</b> helper on
+        the current-level substrate. From <code>PotionType.kt</code>: regular = <code>floor(base/10)+3</code>,
+        super = <code>floor(15·base/100)+5</code>, computed off <em>base</em> level and capped. So a potion
+        <b>cures a drained stat and boosts to base+boost, but never stacks past it</b> and never lowers a
+        higher boost active — exactly the engine's <code>boostCap</code> behaviour, verified by test. The
+        boost decays back toward base at the same 100-tick cadence the substrate already restores at.</p>
+    </div>
+
+    <div class="note"><b>Deliberately deferred (live-but-inert, the standard pattern):</b> Prayer potions
+    (need a Prayer skill), restore / super-restore potions (need the drain path to be player-reachable),
+    and Herblore mixing to actually <em>produce</em> them. Until a source exists, the potions are fully
+    wired and drinkable from whatever you own — the same state as any material-gated recipe.</div>
+
+    <div class="verify">python3 run_tests.py → <b>OK</b> · 778 tests, 145 skipped<br>
+    offscreen Qt discover → <b>OK</b> · 778 tests<br>
+    new pins: r/s boost formulas · boost-to-floor cure-without-stack · dose-decrement to Vial · combat-potion dual boost</div>
+</div>
+</body>
+</html>

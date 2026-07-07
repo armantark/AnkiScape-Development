@@ -72,14 +72,18 @@ Excalibur follow the same shape once Prayer / special-heal exist.
 Already have infrastructure as of today:
 - **Kebab, Beer** — implemented via `apply_consumable_pure` + the
   `combat_current_levels` substrate.
-- **Potions** — the next big consumable family. They reuse
-  `apply_combat_stat_delta_pure` (the substrate built for kebab/beer): Attack/
-  Strength/Defence/Ranged/Magic potions set current = base + boost; the boost
-  decays toward base at the source restore cadence already implemented. Prayer
-  potions need Prayer points first. Antipoison/immunity already exist in
-  `combat_status_effects`. Source: Darkan `PotionType.kt` / `Potions.kt`
-  (`beerStrength`/`beerDrain` already ported; the potion boost formulas live in
-  the same file).
+- **Standard combat potions — IMPLEMENTED 2026-07-07.** Attack, Strength,
+  Defence, Combat, Super attack/strength/defence, Ranging, Magic — all doses
+  (1)-(4) in `potion_data.py`, wired into `CONSUMABLE_DATA` and
+  `apply_consumable_pure` (kind `potion`) via the new
+  `apply_combat_stat_boost_to_pure` boost-to-floor helper. Source formulas
+  (`PotionType.kt`): regular = floor(base/10)+3, super = floor(15*base/100)+5,
+  computed off base, capped (cures a drain + boosts, never stacks past
+  base+boost). Drinking decrements the dose (→ next dose, or Vial at dose 1).
+  Deferred: Prayer potions (need a Prayer skill), restore/super-restore (need
+  the drain path to be player-reachable), and Herblore mixing to *produce*
+  them — until then they are live-but-inert like any material-gated content.
+  Antipoison/immunity already live in `combat_status_effects`.
 
 ## Dependency ordering (what unblocks what)
 

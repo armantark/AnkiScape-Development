@@ -3,6 +3,8 @@ import unittest
 from logic_pure import (
     apply_consumable_pure,
     apply_combat_stat_delta_pure,
+    apply_combat_stat_boost_to_pure,
+    _potion_boost_amount,
     _combat_effective_skill_level,
     get_exp_to_next_level,
     calculate_new_level,
@@ -504,6 +506,42 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(data["combat_current_levels"], {})
         apply_combat_stat_delta_pure(data, "attack", -70)
         self.assertEqual(_combat_effective_skill_level(data, "attack", 1), 1)  # clamps at 1
+
+    def test_potion_boost_formulas_match_source(self):
+        # PotionType.kt: regular = floor(base/10)+3, super = floor(15*base/100)+5.
+        self.assertEqual(_potion_boost_amount(40, "r"), 7)
+        self.assertEqual(_potion_boost_amount(99, "r"), 12)
+        self.assertEqual(_potion_boost_amount(99, "s"), 19)
+        self.assertEqual(_potion_boost_amount(1, "s"), 5)
+
+    def test_potion_boost_is_a_floor_that_cures_drains_without_stacking(self):
+        # boost-to-floor: sets current to base+boost, cures a drain, never
+        # stacks past base+boost, never lowers a higher boost.
+        data = {"strength_level": 50}
+        apply_combat_stat_delta_pure(data, "strength", -5)  # drained to 45
+        apply_combat_stat_boost_to_pure(data, "strength", 8)  # -> base+8 = 58
+        self.assertEqual(_combat_effective_skill_level(data, "strength", 1), 58)
+        apply_combat_stat_boost_to_pure(data, "strength", 8)  # no stack
+        self.assertEqual(_combat_effective_skill_level(data, "strength", 1), 58)
+        apply_combat_stat_boost_to_pure(data, "strength", 3)  # smaller, no lower
+        self.assertEqual(_combat_effective_skill_level(data, "strength", 1), 58)
+
+    def test_stat_potion_boosts_and_decrements_dose(self):
+        pd = {"inventory": {"Strength potion (3)": 1}, "strength_level": 40}
+        data, result = apply_consumable_pure(pd, "Strength potion (3)")
+        self.assertTrue(result["allowed"])
+        self.assertEqual(result["boosts"], {"strength": 7})
+        self.assertEqual(_combat_effective_skill_level(data, "strength", 1), 47)
+        self.assertEqual(data["inventory"].get("Strength potion (2)"), 1)
+        self.assertNotIn("Strength potion (3)", data["inventory"])
+        self.assertEqual(pd["inventory"]["Strength potion (3)"], 1)  # input untouched
+
+    def test_combat_potion_boosts_both_and_last_dose_leaves_vial(self):
+        pc = {"inventory": {"Combat potion (1)": 1}, "attack_level": 50, "strength_level": 60}
+        data, result = apply_consumable_pure(pc, "Combat potion (1)")
+        self.assertEqual(set(result["boosts"]), {"attack", "strength"})
+        self.assertEqual(data["inventory"].get("Vial"), 1)
+        self.assertNotIn("Combat potion (1)", data["inventory"])
 
     def test_beer_applies_source_potion_effect(self):
         # PotionType.BEER: +1 Constitution tick (10 LP), +4% current Strength,

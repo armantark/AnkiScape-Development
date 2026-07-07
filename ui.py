@@ -4761,7 +4761,7 @@ def show_main_menu(
             except Exception:
                 CONSUMABLE_DATA = {}
         if item_name in CONSUMABLE_DATA:
-            verb = "Drink" if CONSUMABLE_DATA[item_name].get("kind") == "beer" else "Eat"
+            verb = "Eat" if CONSUMABLE_DATA[item_name].get("kind") == "kebab_random" else "Drink"
             consume_action = menu.addAction(f"{verb} {item_name}")
             consume_action.setEnabled(amount > 0 and on_consume_item is not None)
 
