@@ -26,6 +26,61 @@ intentionally did not wire UI, combat, skilling, shops, bank runs, death, or
   is needed for the coin model.
 - Tests: `test_inventory_pure.py` covers the new pure API; the migration tests
   assert the overlay keys are seeded while coins remain in the flat inventory.
+- `pack_carried_inventory_pure(bank, spec, mode, stackable_names)` (the casual
+  preset packer named in the design) is built and tested: required held items
+  first, a mode-scaled food reserve, then the primary material fills the rest,
+  every count capped by the bank. Bag packing is deferred to the bag slice.
+
+## Slice 2 — wiring plan (seam confirmed 2026-07-07)
+
+The invasive core-loop change. The integration seam is confirmed:
+
+- **Where actions happen:** `__init__.py::on_good_answer` dispatches a per-skill
+  handler via `_registered_answer_handler(current_skill)`. Combat runs once and
+  already owns its loadout + bank-run. Skilling handlers loop
+  `_review_action_multiplier()` times, and each tick calls the handler, which
+  consumes inputs from and writes outputs to `player_data["inventory"]` directly
+  (e.g. `apply_crafting_pure`, `apply_mining_pure`). This loop is the insertion
+  point for the skilling overlay + bank-run.
+- **Combat is the template**, already built: `combat_supply_loadout` is a carried
+  subset drawn from the bank; `combat_bank_run` = `{reviews_remaining, target_id}`
+  charges `COMBAT_BANK_RUN_REVIEWS` (2) and refills on completion
+  (`_combat_progress_or_start_bank_run`). Slice 2 generalizes this to skilling at
+  1 review.
+
+### Key wiring decision — the carried subset is a real item dict, not a meter
+
+A tempting shortcut is to model "carried" as a virtual capacity meter over the
+single flat store (decrement per action, charge a review when exhausted). It is
+rejected: death-drop, loot-competes-for-slots, and bags all need **item-level**
+knowledge of *what* is carried. So `carried_inventory[target_id]` is a real
+`{item: count}` subset, and the skilling handler must consume from it:
+
+1. Before a skilling tick, ensure the carried subset can supply the action's
+   inputs. If it cannot but the bank can, start/continue a `skilling_bank_run`
+   (1 review; mirror `_combat_progress_or_start_bank_run`) *instead of* acting;
+   on completion, repack the carried subset from the bank via
+   `pack_carried_inventory_pure` (casual) or the saved per-target layout
+   (advanced), and resume.
+2. The tick consumes inputs from the carried subset. Gathering with **Keep**
+   deposits outputs into the carried subset and auto-banks (1 review) when full;
+   **Drop** bypasses the subset entirely (no bank, fastest XP).
+3. Coins and quest items are excluded from the subset (see coin note above).
+
+### Remaining slice-2 sub-slices (each its own tested commit)
+
+- **2c — skilling bank-run state machine** (pure, mirrors combat; 1 review).
+- **2d — handler-loop integration** in `on_good_answer`: consume-from-carried +
+  bank-run interception + Keep/Drop, one processing skill first, then the rest.
+- **2e — death drop:** extend the grave path to drop the carried subset
+  (coins/quest items excluded) alongside equipment.
+- **2f — loot filter application:** combat drops routed through
+  `loot_should_pick_up`; picked-up loot enters the carried subset.
+- **2g — ambush unify:** collapse `wilderness_shop_slots` into the carried-slot
+  accounting.
+
+Undo already snapshots `player_data` around a review (`_capture_player_data_snapshot`
+in `on_answer_card`), so bank-run mutations roll back for free — verify, don't rebuild.
 
 ## The problem it solves
 

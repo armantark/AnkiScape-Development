@@ -1,6 +1,23 @@
 # Active Context
 
 ## Current Focus
+Building the 28-slot carried inventory in staged, tested commits (owner goal:
+"finish all slices"). Design + roadmap: `inventory-carry-model-design-2026-07-07.md`
+and `status-updates/carried-inventory-build-plan-2026-07-07.html`.
+
+- **Slice 1 (done):** `inventory_pure.py` — 28-slot accounting, high-alch loot
+  filter, and `pack_carried_inventory_pure` (casual preset packer). Overlay state
+  keys seeded via `storage_pure`.
+- **Coins model (settled):** the money pouch is a read-only view of bank coins
+  (`money_pouch_balance`), not a separate store — coins stay canonical in
+  `inventory["Coins"]` and are excluded from the carried subset / death drop. No
+  economy repoint, no config-version bump.
+- **Slice 2 (next):** wire the overlay + a 1-review skilling bank-run into the
+  `on_good_answer` handler loop, then death-drop / loot / ambush-unify. Seam and
+  sub-slices are recorded in the design doc's "Slice 2 — wiring plan" section.
+- **Slice 3 (after):** Coal bag + collapsible bank-side carried panel UI.
+
+## Prior focus
 Protect the local fork before any large expansion. The agreed direction is to augment the existing add-on, not rebuild it first.
 
 ## NPC shop frontend follow-up
