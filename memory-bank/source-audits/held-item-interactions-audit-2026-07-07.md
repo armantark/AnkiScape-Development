@@ -34,12 +34,23 @@ become real requirements resolved by the rule above.
 | Cannonball smithing | Ammo mould | Darkan `Effect.java` / smithing | not implemented |
 | Gem cutting | Chisel | crafting/gems | not gated |
 
-Decision needed per row: does AnkiScape adopt the tool gate (authentic, but the
-toolbelt already auto-resolves gathering tools — moulds/hammers are the
-inventory-carried analog), or keep the current "level + materials only"
-simplification when inventory management is OFF? Natural answer: the tool gate
-is **only meaningful with inventory management ON** — OFF, owning the tool
-satisfies it silently (matches today's behavior), so no casual disruption.
+**The toolbelt resolves most of these (owner refinement 2026-07-07).** Just
+like real 2011: any tool *addable to the toolbelt* is always available and
+needs no inventory slot; only tools that **cannot** go on the belt must be
+carried. The 2011 belt included hammer, chisel, needle, knife, tinderbox (plus
+the gathering tools AnkiScape's toolbelt already holds). So of the table above,
+hammer / firemaking tinderbox / needle / chisel / knife all dissolve into
+belt items — leaving a **tiny residual of genuinely non-belt tools**:
+
+- **Moulds** (jewellery, silver, ammo/cannonball) — not belt-able → carried.
+- **Glassblowing pipe** — not belt-able → carried.
+
+Those are the only Category-1 items that occupy an inventory slot, and only
+when inventory management is ON. With it OFF, owning the mould/pipe satisfies
+the gate silently (matches today). So Category 1 shrinks from "gate every
+skill" to "expand the toolbelt to its 2011 contents, and require moulds/pipe in
+the carried grid." Implementation: extend the toolbelt's belt-able set to the
+2011 list; add mould/pipe as carried requirements under the inventory model.
 
 ## Category 2 — Held passive effects (modify an action while present)
 

@@ -94,8 +94,11 @@ cleanly:
   if the item is anywhere in the bank. No carry cost; the requirement is just
   a possession gate.
 
-This is the general rule for the whole held-item audit below, not just moulds.
-See `memory-bank/source-audits/held-item-interactions-audit-2026-07-07.md`.
+The toolbelt shrinks this: any belt-able tool (hammer, chisel, needle, knife,
+tinderbox, gathering tools — the 2011 belt) needs no slot; only non-belt tools
+(moulds, glassblowing pipe) are carried requirements. So the carried-tool
+residual is tiny. Full map:
+`memory-bank/source-audits/held-item-interactions-audit-2026-07-07.md`.
 
 ## Not yet decided (for the implementation grill or judgment)
 
