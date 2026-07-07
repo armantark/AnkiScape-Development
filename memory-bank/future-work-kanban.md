@@ -367,6 +367,18 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   already models). Not scheduled until the owner calls it; sequence is
   vendor parity -> shop gating pass -> GE.
 
+### Next - Edible Kebab and Beer (owner-approved 2026-07-07)
+
+Source audit complete:
+`memory-bank/source-audits/kebab-beer-consumables-2026-07-07.md` (kebab's
+wiki-pinned random-effect table; beer as an engine potion: +1 Constitution
+tick, +4% Strength, -7% Attack). Blocking dependency: a temporary
+current-level substrate (current vs base skill levels, restoring 1 toward
+base per interval like the engine's 100-tick loop) — build that first, then
+wire both consumables with exact source effects. Auto-eat eligibility is
+opt-in only via the player's food priority. No new skill; decisions all
+made in the 2026-07-07 grill.
+
 ## Priority Board
 
 ### P0 - Existing Skill Architecture And Old Debt (Complete)
