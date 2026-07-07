@@ -74,6 +74,21 @@ Pinned by `tests/test_shop_data.py::test_no_strict_buy_sell_arbitrage_in_live_st
   to representative real outputs by
   `tests/test_shop_logic.py::test_primary_skill_outputs_sell_at_general_stores`.
 
+## Alchemy relationship (for the future noncombat Magic slice)
+
+All shop prices key off the same cache `value` field that alchemy uses:
+buy price = `value` (+ coin enum override), high alch = `value x 0.6`, low
+alch = `value x 0.4` (2011Scape `magic/alchemy/alchemy.plugin.kts`
+`coinModifier`), and the shop-pays `sellPrice` usually sits below low alch
+(Swordfish: 400 buy / 240 high / 160 low / 120 shop). Alchemy is therefore
+the item-value floor and the reason the parked GE design is "alch-anchored".
+Nature runes are already live shop stock at 372 Coins (Baba Yaga's,
+Lundail's, Magic Guild), which makes alching low-value items a coin sink —
+authentic. **Guard required when alch ships:** the payout is `0.6 x value`,
+but custom-priced stock rows can sell far below value (Rasolo's 1-coin
+Poison), so alch payouts must be clamped or verified against live shop buy
+prices exactly like `SHOP_PLAYER_SELL_PRICES`, or buy-to-alch mints coins.
+
 ## Verification
 
 - `python3 -m unittest tests.test_shop_logic tests.test_shop_data`
