@@ -1660,6 +1660,7 @@ def show_main_menu(
     on_set_carried_pack_mode=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
+    on_set_loot_threshold=None,
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -4391,6 +4392,30 @@ def show_main_menu(
         if on_set_carried_keep_drop is not None:
             keep_drop_check.toggled.connect(lambda checked: on_set_carried_keep_drop(bool(checked)))
         cb_layout.addWidget(keep_drop_check)
+
+    # Loot filter knob — leave combat drops whose high-alch value is under this
+    # (the coarse form of per-drop control; 0 keeps everything).
+    loot_row = QWidget()
+    loot_layout = QHBoxLayout(loot_row)
+    loot_layout.setContentsMargins(0, 0, 0, 0)
+    loot_layout.setSpacing(8)
+    loot_label = QLabel("Leave loot under")
+    loot_label.setStyleSheet("color: palette(text);")
+    loot_spin = QSpinBox()
+    loot_spin.setObjectName("carriedLootThresholdSpin")
+    loot_spin.setRange(0, 100000)
+    loot_spin.setSingleStep(5)
+    loot_spin.setSuffix(" gp value")
+    try:
+        _loot_threshold = int(player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD))
+    except (TypeError, ValueError):
+        _loot_threshold = inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD
+    loot_spin.setValue(max(0, _loot_threshold))
+    if on_set_loot_threshold is not None:
+        loot_spin.valueChanged.connect(lambda value: on_set_loot_threshold(int(value)))
+    loot_layout.addWidget(loot_label)
+    loot_layout.addWidget(loot_spin, 1)
+    cb_layout.addWidget(loot_row)
 
     carried_summary = QLabel(_carried_panel_summary_text())
     carried_summary.setObjectName("carriedInventorySummary")

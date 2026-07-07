@@ -151,6 +151,27 @@ handler. Remaining prep before writing it:
 Verify with new `test_runtime_actions.py` cases (28 gather ticks → 29th banks,
 no XP → 30th gathers), then a light offscreen/live smoke.
 
+### Click-from-bank manual layout — obviated by the churn overlay (2026-07-07)
+
+The original "click items from the bank to fill a carried loadout" was a feature
+of the *split-storage* model (physically pre-load 28 slots). The overlay actually
+built is a **view over the flat store + churn meter**: gathering fills the pack
+from actions, and processing draws inputs from the infinite bank on demand — there
+is no pre-loaded loadout to hand-fill. So click-from-bank does not map onto the
+chosen architecture. The advanced controls that *do* fit are shipped in the Bank
+panel: packing mode, the Keep/Drop power-gather toggle, and the **loot-value
+threshold** spinbox (the coarse form of the per-drop "loot checkboxes", driving
+the 2f filter). If a split-storage loadout is ever wanted, it would be a separate
+model change, not a UI addition.
+
+### 2g ambush unify — SHIPPED as one shared constant (2026-07-07)
+
+`shop_logic._WILDERNESS_SLOTS_PER_TRIP` now *is* `inventory_pure.CARRIED_CAPACITY`,
+so a Wilderness "trip" and the carry model share a single 28 source of truth. The
+two *accumulators* stay distinct on purpose: `wilderness_shop_slots` counts shop
+purchase volume, `carried_churn` counts skilling slots — collapsing them would
+conflate unrelated flows.
+
 ### 2f loot filter — SHIPPED (2026-07-07)
 
 The observable behaviour the owner asked for ("no auto-hoarding every tiny drop")

@@ -566,6 +566,9 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(summary)
         self.assertIn("bank run", summary.text().lower())
 
+        loot_spin = self.dialog.findChild(QSpinBox, "carriedLootThresholdSpin")
+        self.assertIsNotNone(loot_spin, "loot-threshold spinbox not found")
+
         header = self.dialog.findChild(QPushButton, "carriedInventoryHeader")
         self.assertIsNotNone(header)
         self.assertTrue(header.isCheckable())

@@ -32,6 +32,11 @@ except ImportError:
         SHOP_VENDOR_ACTIONS,
     )
 
+try:
+    from .inventory_pure import CARRIED_CAPACITY
+except ImportError:
+    from inventory_pure import CARRIED_CAPACITY
+
 
 MAX_SHOP_EVENT_HISTORY = 200
 
@@ -281,7 +286,11 @@ def preview_shop_buy_pure(player_data: Mapping[str, Any], shop_id: str, row_id: 
 # The damage roll reuses the engine's landed-hit semantics (uniform
 # 1..maxHit-1) with a declared max hit of 250 lifepoints; death routes through
 # the normal PvM grave path. This is an AnkiScape invention, ledger-declared.
-_WILDERNESS_SLOTS_PER_TRIP = 28
+# The "trip" is one carried inventory's worth of purchases, so it shares the
+# single 28-slot constant with the carry model (2g: one source of truth for 28;
+# the accumulators stay distinct because shop-purchase volume and skilling churn
+# measure different things).
+_WILDERNESS_SLOTS_PER_TRIP = CARRIED_CAPACITY
 _WILDERNESS_AMBUSH_CHANCE = 0.01
 _WILDERNESS_AMBUSH_MAX_HIT_LP = 250
 _WILDERNESS_RESTORE_KEYS = (
