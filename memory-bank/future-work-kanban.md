@@ -347,6 +347,26 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
 - Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
 
+- Owner grill 2026-07-07 resolved three open shop-economy questions.
+  (1) Vendor actions become one-per-click (dialogue parity; the quantity
+  spinner was an invention); Kebab and Beer become edible with source
+  effects in a future slice, but stat-affecting food is auto-eat eligible
+  only when the player explicitly ranks it in their food priority.
+  (2) Shop access gets hybrid gating: a full 267-shop access ledger, with
+  gates implemented via a new `shop` QuestUnlockRule kind for quest/route
+  walls (stage-based where the route-precedent catalog uses stages), guild
+  skill walls included, uncertainty defaulting open. Wilderness shops add a
+  declared ambush mechanic: every completed 28 purchase-slots (stackables
+  one slot per type) rolls 1% for a PKer-style hit (real damage roll,
+  declared ~250 LP max, can kill through the normal grave path, dangerous
+  confirmation UX, rollback-safe).
+  (3) The GE is explicitly anti-ironman: a bulk shortcut for the GE-able
+  subset (cache `exchangeable` flag, a subset of tradeable), keeping the
+  grilled stochastic-fill engine unchanged; it gates nothing on the buy
+  side (authentic — quests/levels gate equipping/using, which AnkiScape
+  already models). Not scheduled until the owner calls it; sequence is
+  vendor parity -> shop gating pass -> GE.
+
 ## Priority Board
 
 ### P0 - Existing Skill Architecture And Old Debt (Complete)

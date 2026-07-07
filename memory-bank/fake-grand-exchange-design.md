@@ -263,3 +263,15 @@ Frontend second:
 - Whether to seed any starter Coins after playtesting.
 - How much recent trade history to persist for logging/debugging without bloating Anki config. Do not build an in-game price history chart in v1; RuneScape-style history is external/wiki/API, not in the GE interface.
 - Whether alchemy values should be scraped alongside GE guide prices, buy limits, or Magic source audit.
+
+## Role update (owner grill, 2026-07-07)
+
+The GE's purpose is explicitly anti-ironman convenience: a bulk shortcut for
+buying any **GE-able** item (a subset of tradeable — extract the cache
+`exchangeable` flag via the existing Darkan dump tool, no curation). The
+grilled engine above stands unchanged (hidden true price, stochastic fills on
+the market clock, 8 slots, buy limits): the limits are what make it a
+shortcut rather than an unpaced faucet. The GE gates nothing on the buy side
+— quests and levels gate equipping/using, which AnkiScape already models —
+so it deliberately coexists with the shop access-gating pass. Not scheduled;
+sequenced after vendor dialogue parity and the shop gating pass.
