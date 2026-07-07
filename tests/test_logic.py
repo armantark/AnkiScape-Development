@@ -446,6 +446,21 @@ class TestLogic(unittest.TestCase):
         for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
             self.assertNotIn(retired, UTILITY_ACTIVITY_DATA)
 
+    def test_combat_landed_hit_damage_matches_darkan_random_semantics(self):
+        # CombatFormula.kt rolls Utils.random(1, maxHit) on landed hits, and
+        # Utils.random(min, max) = min + nextInt(|max-min|): uniform
+        # 1..maxHit-1 lifepoints, never 0 and never the displayed max.
+        from logic_pure import _combat_roll_damage_lifepoints
+
+        # max hit 5.0 old-HP = 50 lifepoints: rolls span 1..49.
+        self.assertEqual(_combat_roll_damage_lifepoints(5.0, lambda: 0.0), 1)
+        self.assertEqual(_combat_roll_damage_lifepoints(5.0, lambda: 0.999999999), 49)
+        # A 1-lifepoint max hit always deals exactly 1 on a landed hit.
+        self.assertEqual(_combat_roll_damage_lifepoints(0.1, lambda: 0.0), 1)
+        self.assertEqual(_combat_roll_damage_lifepoints(0.1, lambda: 0.99), 1)
+        # No max hit means no damage (accuracy-roll misses are handled upstream).
+        self.assertEqual(_combat_roll_damage_lifepoints(0.0, lambda: 0.5), 0)
+
     def test_dragon_pickaxe_source_bonus_applies_by_item_id(self):
         # Mining.kt gives PickaxeType.DRAGON extra rolls at 1.12x base;
         # AnkiScape folds that source constant into every roll, keyed on the

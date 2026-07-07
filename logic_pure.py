@@ -1642,14 +1642,21 @@ def _combat_npc_xp_multiplier(enemy):
 
 
 def _combat_roll_damage_lifepoints(max_hit_old_hp, rng):
-    max_damage = max(0.0, float(max_hit_old_hp) * 10.0)
+    # Darkan CombatFormula.kt rolls Utils.random(minHit=1, maxHit) on a landed
+    # hit, and Utils.random(min, max) is min + nextInt(|max - min|): uniform
+    # 1..maxHit-1 lifepoints, never 0 and never the displayed max (maxHit 1
+    # always deals 1). A 0 can only come from the accuracy roll failing.
+    max_damage = int(max(0.0, float(max_hit_old_hp) * 10.0))
     if max_damage <= 0:
         return 0
+    spread = max_damage - 1
+    if spread <= 0:
+        return 1
     try:
         roll = float(rng())
     except (TypeError, ValueError):
         roll = 0.0
-    return max(0, int(max(0.0, min(roll, 0.999999999)) * max_damage))
+    return 1 + int(max(0.0, min(roll, 0.999999999)) * spread)
 
 
 def _combat_apply_xp(xp_rewards, style_id, damage_lifepoints, npc_xp_multiplier):

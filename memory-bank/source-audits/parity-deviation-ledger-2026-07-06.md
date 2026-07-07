@@ -16,6 +16,24 @@ by design), **declared** (documented simplification of a source mechanic), or
 | Dragon pickaxe bonus | Source (`Mining.kt:59-71`): +0.2 accumulator per swing, every fifth swing rolls again at 1.12x base. AnkiScape folds the 1.12 into every roll (continuous instead of every-fifth-swing — slightly generous at the margin). Was keyed on a `"dragon" in display_name` string with no test; now keyed on cache item id 15261 and pinned by `test_dragon_pickaxe_source_bonus_applies_by_item_id` | declared (was unflagged) |
 | Arithmetic-literal sweep | `runtime_actions.py` and `shop_logic.py` contain no remaining unexplained arithmetic literals | clean |
 
+## Combat burst engine (audited vs Darkan CombatFormula.kt)
+
+| Area | Finding | Class |
+| --- | --- | --- |
+| Accuracy probability | `1-(def+2)/(2*(atk+1))` / `atk/(2*(def+1))` — exact match | parity |
+| Attack/defence rolls | `(floor(level)+style+8) * (bonus+64)` with +3 accurate / +1 controlled — exact match | parity |
+| Melee/ranged max hit | old-HP `0.5 + eff*(bonus+64)/640` x10 == Darkan LP `5 + strLvl*(strBonus+64)/64`, same style structure | parity |
+| Landed-hit damage roll | Darkan rolls `Utils.random(1, maxHit)` = `1 + nextInt(maxHit-1)`: uniform 1..maxHit-1, never 0, never max (verified by bytecode disassembly of core-2.0.5.jar). Ours rolled 0..max-1, allowing 0-damage landed hits — **fixed** in `_combat_roll_damage_lifepoints` and pinned by `test_combat_landed_hit_damage_matches_darkan_random_semantics` (it previously had zero coverage) | fixed invention |
+| Prayer multipliers / combat-mod plugins | Prayer unimplemented => multiplier 1.0 is exact for a prayer-less player; slayer-helm-style modifier plugins out of scope | adaptation |
+| Engagement cadence | Player attacks at tick 0 then every weapon-speed ticks; enemy offset by its own speed; auto-eat is AnkiScape's stand-in for manual eating | adaptation |
+
+## Gathering source rolls
+
+Woodcutting: `(low*ratio, high*ratio)` interpolate /255 matches
+`Woodcutting.kt` (source truncates ratio-scaled chances to int; ours keeps
+floats — sub-1-point nuance, declared). Mining audited above. Fishing/Hunter
+rolls remain on the follow-up list.
+
 ## Standing adaptations (by design, not deviations)
 
 One review = one action tick; actions-per-review multiplier; batch-28
@@ -25,15 +43,13 @@ id ambiguity); no spatial world/banking/travel; Anki-undo snapshots.
 
 ## Not yet line-audited (scoped follow-ups)
 
-1. **Combat burst engine glue** — per-target data is audited, but attack
-   cadence, auto-eat ordering, recovery packets, and special-energy regen have
-   never been compared line-by-line against the source combat scripts. This is
-   the largest remaining surface.
-2. **Woodcutting/Fishing/Hunter source-roll formulas** — they feed the shared
-   adapter like Mining; each `*_source_roll_chance_pure` should get the same
-   spot-check against its source plugin that Mining got here.
-3. **Cooking burn curves and Smithing iron 50-80% curve** — implemented from
+1. **Fishing/Hunter source-roll formulas** — same spot-check Woodcutting and
+   Mining received.
+2. **Cooking burn curves and Smithing iron 50-80% curve** — implemented from
    audits at build time; a re-verification pass is cheap insurance.
+3. **Combat recovery packets / special-energy regen** — the burst core is now
+   audited (see above); the safe-boundary recovery glue is the remaining
+   combat surface.
 
 Follow-up prompt: audit each area against the Source Hierarchy, add a ledger
 row per finding, pin every source constant with a test keyed on stable ids.
