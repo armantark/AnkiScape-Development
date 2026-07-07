@@ -208,6 +208,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
     from skill_registry import get_skill  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
 
+try:
+    from . import inventory_pure
+except ImportError:  # pragma: no cover - exercised via flat imports in tests
+    import inventory_pure
+
 
 @dataclass
 class RuntimeActionContext:
@@ -228,6 +233,89 @@ class RuntimeActionContext:
     implemented_exp_keys_snapshot: Callable[[], dict[str, float]]
     show_quest_exp_delta: Callable[[dict[str, float]], None]
     review_action_multiplier: int = 1
+
+
+# Handler keys that draw from / fill the 28-slot carried inventory, mapped to the
+# player_data key holding their selected target. Utility (no-XP batching) and
+# quests do not take carried teeth, so they are absent.
+_OVERLAY_TARGET_KEYS = {
+    "mining": "current_ore",
+    "woodcutting": "current_tree",
+    "fishing": "current_fishing",
+    "hunter": "current_hunter",
+    "cooking": "current_cooking",
+    "crafting": "current_craft",
+    "fletching": "current_fletch",
+    "firemaking": "current_firemaking",
+    "smithing": "current_smith",
+    "runecrafting": "current_runecrafting",
+}
+# v1 treats carried outputs as unstackable (one slot each); the real cache
+# `stackable` set is wired with the loot/bag slice.
+_OVERLAY_STACKABLE_NAMES: frozenset[str] = frozenset()
+
+
+def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:
+    container = player_data.get(map_key)
+    if not isinstance(container, dict):
+        container = {}
+    if value:
+        container[target_id] = value
+    else:
+        container.pop(target_id, None)
+    player_data[map_key] = container
+
+
+def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str, handler) -> bool:
+    """Run one skilling tick through the 28-slot carried overlay.
+
+    Before the tick, `carried_bank_run_gate_pure` decides whether the pack is full
+    (``churn`` reached 28): if so, this answer is spent on a bank-run — the handler
+    is not called, no XP is awarded, and the run/view/churn reset. Otherwise the
+    handler acts, and the tick's churn (max slots gained/consumed) and any kept
+    output fold into the per-target view. Handlers without carried teeth (utility,
+    quests) run untouched.
+    """
+    target_key = _OVERLAY_TARGET_KEYS.get(handler_key)
+    if target_key is None:
+        return handler(ctx)
+
+    player_data = ctx.player_data
+    target_id = str(player_data.get(target_key, ""))
+    keep = inventory_pure.carried_keep_for(player_data, target_id)
+    view = (player_data.get("carried_inventory") or {}).get(target_id, {})
+    churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
+    bank_run = player_data.get("skilling_bank_run", {})
+
+    new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
+        view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
+        inventory_pure.SKILLING_BANK_RUN_REVIEWS,
+    )
+
+    if not act:
+        player_data["skilling_bank_run"] = new_state
+        _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
+        _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)
+        ctx.show_activity_gain("Bank run — restocked supplies (+1 review)")
+        ctx.save_player_data()
+        return True
+
+    inv_before = dict(player_data.get("inventory", {}) or {})
+    result = handler(ctx)
+    if result is not False:
+        player_data["skilling_bank_run"] = new_state
+        # Drop bypasses the pack entirely (no churn, no banking, fastest XP);
+        # Keep accrues churn and folds the product in. Consumption skills are Keep
+        # with an empty view, so their input churn still bites.
+        if keep:
+            inv_after = player_data.get("inventory", {}) or {}
+            churn_delta = inventory_pure.carried_action_churn_pure(inv_before, inv_after, _OVERLAY_STACKABLE_NAMES)
+            gains = inventory_pure.inventory_delta_gains(inv_before, inv_after)
+            new_view = inventory_pure.carried_fold_gains_pure(new_view, gains, _OVERLAY_STACKABLE_NAMES)
+            _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
+            _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
+        ctx.save_player_data()
+    return result
 
 
 def missing_materials_text(requirements: dict[str, int], inventory: dict[str, Any]) -> str:

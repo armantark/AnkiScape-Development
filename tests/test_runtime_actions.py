@@ -11,6 +11,7 @@ from runtime_actions import (
     handle_hunter_answer,
     handle_quest_answer,
     handle_smithing_answer,
+    run_answer_with_carried_overlay,
 )
 
 
@@ -1311,6 +1312,76 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["failures"], 1)
         self.assertEqual(telemetry["failure_kinds"], {"smelt_fail": 1})
         self.assertAlmostEqual(telemetry["expected_successes"], 0.51)
+
+
+class TestCarriedOverlayWrapper(unittest.TestCase):
+    """The overlay wrapper that runs a skilling tick through the 28-slot pack."""
+
+    def _mining_ctx(self, player_data):
+        calls = {"xp": [], "saves": 0, "errors": [], "activity": []}
+        ctx = _context(player_data, calls)
+        return ctx, calls
+
+    def _fake_gather(self, ctx):
+        # Stand-in gathering handler: one Coal per acting tick.
+        inv = ctx.player_data.setdefault("inventory", {})
+        inv["Coal"] = inv.get("Coal", 0) + 1
+        return True
+
+    def test_gathering_banks_on_the_29th_answer_with_no_xp(self):
+        player_data = {"inventory": {}, "current_ore": "copper_ore"}
+        for _ in range(28):
+            ctx, calls = self._mining_ctx(player_data)
+            result = run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
+            self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Coal"], 28)
+        self.assertEqual(player_data["carried_inventory"]["copper_ore"], {"Coal": 28})
+        self.assertEqual(player_data["carried_churn"]["copper_ore"], 28)
+
+        # 29th answer buys the bank-run: handler is not called (Coal stays 28),
+        # a bank-run toast fires, and the pack + churn reset.
+        ctx, calls = self._mining_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
+        self.assertTrue(result)
+        self.assertEqual(player_data["inventory"]["Coal"], 28)
+        self.assertTrue(any("Bank run" in msg for msg in calls["activity"]))
+        self.assertNotIn("copper_ore", player_data.get("carried_inventory", {}))
+        self.assertNotIn("copper_ore", player_data.get("carried_churn", {}))
+
+        # 30th gathers again from a fresh pack.
+        ctx, calls = self._mining_ctx(player_data)
+        run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
+        self.assertEqual(player_data["inventory"]["Coal"], 29)
+        self.assertEqual(player_data["carried_inventory"]["copper_ore"], {"Coal": 1})
+
+    def test_drop_mode_never_banks_and_carries_nothing(self):
+        player_data = {
+            "inventory": {},
+            "current_ore": "copper_ore",
+            "carried_keep_drop": {"copper_ore": "drop"},
+        }
+        for _ in range(40):
+            ctx, calls = self._mining_ctx(player_data)
+            result = run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
+            self.assertTrue(result)
+            self.assertEqual(calls["activity"], [])  # never a bank-run toast
+        self.assertEqual(player_data["inventory"]["Coal"], 40)
+        self.assertEqual(player_data.get("carried_inventory", {}), {})
+        self.assertEqual(player_data.get("carried_churn", {}), {})
+
+    def test_untracked_handler_key_runs_untouched(self):
+        player_data = {"inventory": {}}
+        marker = {"called": False}
+
+        def handler(ctx):
+            marker["called"] = True
+            return True
+
+        ctx, calls = self._mining_ctx(player_data)
+        result = run_answer_with_carried_overlay(ctx, "quest", handler)
+        self.assertTrue(result)
+        self.assertTrue(marker["called"])
+        self.assertNotIn("carried_inventory", player_data)
 
 
 if __name__ == "__main__":

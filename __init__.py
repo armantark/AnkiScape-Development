@@ -990,7 +990,9 @@ def on_good_answer(before_state=None):
                 for tick_index in range(_review_action_multiplier()):
                     if tick_index > 0 and not _can_start_current_action():
                         break
-                    result = handler(_runtime_action_context())
+                    result = runtime_actions.run_answer_with_carried_overlay(
+                        _runtime_action_context(), handler_key, handler
+                    )
                     if result is not False:
                         review_progressed = True
                     if result is False or current_skill == "None":
