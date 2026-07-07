@@ -131,8 +131,11 @@ drag-vs-list; how it subsumes `combat_supply_loadout`; storage migration.
 - **Wilderness ambush counter unifies** with the carried-slot model (same 28,
   one accumulator — collapse `wilderness_shop_slots` into the carry model).
 - **Quest items stay abstracted** — they do not compete for carried slots.
-- **Coins take one carried slot** (stackable → trivial; no money pouch existed
-  until ~2013, confirmed absent from the Oct-2011 cache). Bank stays infinite.
+- **Coins go in a Money pouch — zero carried slots.** Correction: the Money
+  pouch released 6 Dec 2011, ~2 months after the Oct-4 rev-667 baseline, so it
+  is a clean **documented pre-EOC exception** (per the source hierarchy) rather
+  than an invention. Adopting it means coins never occupy a carried slot, which
+  is also what the owner wanted. Bank stays infinite.
 - **Skilling bank-run cost = 1 review.** Flat, everywhere (combat keeps 2).
 - **Per-target persistence:** the carried inventory is saved *per selected
   target*. Switching a target banks its loadout (free — a menu reorg, not a
@@ -144,6 +147,25 @@ drag-vs-list; how it subsumes `combat_supply_loadout`; storage migration.
   a preset dropdown (below).
 - **Subsumes `combat_supply_loadout`** and the storage migration shape — both
   inferred at implementation time, not pre-specified.
+
+### Loot drops (owner Q, 2026-07-07 — nothing to model for the default)
+
+Loot only needs a keep/ignore filter if it competes for the 28 carried slots.
+So:
+
+- **Default / casual: loot auto-banks.** Drops go straight to the infinite bank
+  (exactly like combat does today) — no pickup decision, no slot competition,
+  no junk problem. Combat's teeth live entirely in the food/supply loadout
+  (bring N food, bank when it runs out); loot auto-banking never touches that.
+  Casual combat therefore has **zero** loot complexity.
+- **Advanced (deferrable): loot occupies carried slots + a keep/drop filter.**
+  This is where "ignore vs keep" matters — a min-maxer skips junk so loot
+  doesn't force early bank runs, trading space management for kills-per-trip.
+  It reuses the casual/advanced split; it is one more advanced lever, not a new
+  system, and is not a prerequisite for anything.
+
+Decision: model nothing for loot in v1. Default = everything auto-banks
+(current behavior). The loot filter is future advanced content.
 
 ### Preset modes (proposal — casual dropdown)
 
@@ -180,9 +202,10 @@ pouch**. Absent (correctly): Money pouch, Rune pouch — later additions.
 
 Recommendation: ship **Coal bag** in v1 (confident, iconic, 27-coal capacity),
 defer Gem bag pending the wiki date check, and add Bolt pouch with the Ranged
-ammo path. Each bag's *source* (how you obtain it) still needs deciding —
-Dungeoneering doesn't exist in AnkiScape, so v1 bags likely come from a shop or
-a token/claim until a reward system exists (live-but-unsourced otherwise).
+ammo path. **Owner decision:** register + implement the Coal bag now and leave
+it unobtainable (live-but-inert) until Dungeoneering or another source exists —
+it lights up with zero changes when the source ships. No stopgap shop/token
+source needed.
 
 ### Surfaced tacit assumptions (now explicit)
 
