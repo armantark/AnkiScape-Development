@@ -16,6 +16,7 @@ from inventory_pure import (
     carried_fold_gains_pure,
     carried_action_churn_pure,
     carried_keep_for,
+    effective_carried_capacity,
     inventory_delta_gains,
     sanitize_carried_state,
 )
@@ -149,6 +150,30 @@ class TestPackCarriedInventory(unittest.TestCase):
         carried = pack_carried_inventory_pure(bank, {"primary": "Nature rune"}, "balanced", {"Nature rune"})
         self.assertEqual(carried["Nature rune"], 5000)
         self.assertEqual(carried_slots_used(carried, {"Nature rune"}), 1)
+
+
+class TestBagCapacity(unittest.TestCase):
+    def test_coal_bag_raises_capacity_only_when_carrying_coal(self):
+        self.assertEqual(effective_carried_capacity({"Coal": 5}, set()), CARRIED_CAPACITY)
+        self.assertEqual(effective_carried_capacity({"Coal": 5}, {"Coal bag"}), CARRIED_CAPACITY + 27)
+        # Owned but not carrying coal -> no bump.
+        self.assertEqual(effective_carried_capacity({"Oak logs": 5}, {"Coal bag"}), CARRIED_CAPACITY)
+
+    def test_gate_uses_the_raised_capacity(self):
+        # With a coal bag (capacity 55), churn 40 does not yet force a bank-run.
+        state, view, churn, event, act = carried_bank_run_gate_pure(
+            {"Coal": 40}, 40, keep=True, stackable_names=set(), target_id="coal",
+            bank_run_state={}, capacity=CARRIED_CAPACITY + 27,
+        )
+        self.assertTrue(act)
+        self.assertFalse(event["active"])
+        # At 55 it does.
+        state, view, churn, event, act = carried_bank_run_gate_pure(
+            {"Coal": 55}, 55, keep=True, stackable_names=set(), target_id="coal",
+            bank_run_state={}, capacity=CARRIED_CAPACITY + 27,
+        )
+        self.assertFalse(act)
+        self.assertTrue(event["completed"])
 
 
 class TestBankRunStateMachine(unittest.TestCase):

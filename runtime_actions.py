@@ -286,10 +286,16 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     view = (player_data.get("carried_inventory") or {}).get(target_id, {})
     churn = (player_data.get("carried_churn") or {}).get(target_id, 0)
     bank_run = player_data.get("skilling_bank_run", {})
+    # A carried bag raises the bank-run threshold for its material (fewer trips).
+    owned_bags = {
+        bag for bag in inventory_pure.BAG_DEFINITIONS
+        if int((player_data.get("inventory") or {}).get(bag, 0) or 0) > 0
+    }
+    capacity = inventory_pure.effective_carried_capacity(view, owned_bags)
 
     new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
         view, churn, keep, _OVERLAY_STACKABLE_NAMES, target_id, bank_run,
-        inventory_pure.SKILLING_BANK_RUN_REVIEWS,
+        inventory_pure.SKILLING_BANK_RUN_REVIEWS, capacity,
     )
 
     if not act:

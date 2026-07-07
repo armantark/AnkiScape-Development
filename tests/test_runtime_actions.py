@@ -1369,6 +1369,17 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(player_data.get("carried_inventory", {}), {})
         self.assertEqual(player_data.get("carried_churn", {}), {})
 
+    def test_coal_bag_defers_the_bank_run(self):
+        # Owning a Coal bag raises coal capacity to 55, so 40 gathers do not bank
+        # (they would without the bag, which banks at 28).
+        player_data = {"inventory": {"Coal bag": 1}, "current_ore": "coal_rock"}
+        for _ in range(40):
+            ctx, calls = self._mining_ctx(player_data)
+            run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
+            self.assertEqual(calls["activity"], [])  # no bank-run yet
+        self.assertEqual(player_data["carried_churn"]["coal_rock"], 40)
+        self.assertEqual(player_data["inventory"]["Coal"], 40)
+
     def test_untracked_handler_key_runs_untouched(self):
         player_data = {"inventory": {}}
         marker = {"called": False}

@@ -21,6 +21,31 @@ DEFAULT_LOOT_VALUE_THRESHOLD = 50
 _DEFAULT_PACK_MODE = "balanced"
 _VALID_PACK_MODES = frozenset({"balanced", "max_output", "max_safety"})
 
+# Bags pack an otherwise-unstackable material into one slot, so a carried bag is
+# worth exactly the extra capacity it grants — fewer bank runs. {bag: (material,
+# extra_capacity)}. The Coal bag is present in the Oct-2011 cache but has no
+# in-game source yet (Dungeoneering), so it ships live-but-inert: owning one is
+# impossible today, but the mechanic lights up with zero further changes.
+BAG_DEFINITIONS: dict[str, tuple[str, int]] = {
+    "Coal bag": ("Coal", 27),
+}
+
+
+def effective_carried_capacity(view: Any, owned_bags: Any) -> int:
+    """Slots before a bank-run, raised by any owned bag whose material is carried.
+
+    A bag replaces up to ``extra_capacity`` one-slot items with a single slot, so
+    the trip holds that many more of the material — i.e. the churn threshold rises
+    by the bag's capacity while that material is what's being carried.
+    """
+    capacity = CARRIED_CAPACITY
+    if not isinstance(view, Mapping) or not isinstance(owned_bags, (set, frozenset, dict, Mapping)):
+        return capacity
+    for bag_name, (material, extra) in BAG_DEFINITIONS.items():
+        if bag_name in owned_bags and _clean_int(view.get(material, 0), 0) > 0:
+            capacity += max(0, int(extra))
+    return capacity
+
 
 def carried_slots_used(carried: Mapping[str, int], stackable_names: set[str] | frozenset[str]) -> int:
     """Return occupied carried slots using RuneScape stackability semantics."""
@@ -285,12 +310,15 @@ def carried_bank_run_gate_pure(
     target_id: Any,
     bank_run_state: Any,
     reviews_cost: int = SKILLING_BANK_RUN_REVIEWS,
+    capacity: int = CARRIED_CAPACITY,
 ) -> tuple[dict[str, Any], dict[str, int], int, dict[str, Any], bool]:
     """Decide, **before** an action tick, whether the tick is spent banking.
 
-    The teeth: once accumulated ``churn`` reaches ``CARRIED_CAPACITY`` slots the
-    player must bank before acting again, so the next answer buys the bank-run
-    instead of skill XP — exactly how combat spends answers when supplies run out.
+    The teeth: once accumulated ``churn`` reaches ``capacity`` slots the player
+    must bank before acting again, so the next answer buys the bank-run instead of
+    skill XP — exactly how combat spends answers when supplies run out. ``capacity``
+    defaults to ``CARRIED_CAPACITY`` but a bag raises it (see
+    ``effective_carried_capacity``).
 
     Returns ``(new_bank_run_state, new_view, new_churn, event, act)``. ``act=False``
     means skip the action this tick (it went to banking); on a completed run the
@@ -299,11 +327,12 @@ def carried_bank_run_gate_pure(
     """
     view = dict(view) if isinstance(view, Mapping) else {}
     churn = _clean_int(churn, 0, minimum=0)
+    capacity = _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
     idle = {"active": False, "started": False, "completed": False, "reviews_remaining": 0}
     if not keep:
         return {}, view, churn, idle, True
     active = bool(sanitize_bank_run_state(bank_run_state, reviews_cost))
-    full = churn >= CARRIED_CAPACITY
+    full = churn >= capacity
     if not (active or full):
         return sanitize_bank_run_state(bank_run_state, reviews_cost), view, churn, idle, True
     new_state, event = bank_run_progress_pure(bank_run_state, True, target_id, reviews_cost)
