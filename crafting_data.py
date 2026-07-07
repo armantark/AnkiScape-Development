@@ -33,6 +33,9 @@ class CraftingRecipe:
     category: str = "crafted"
     notes: str = ""
     source_item_id: Optional[int] = None
+    # Extra items returned alongside the output (e.g. the emptied bucket from
+    # molten glass smelting). Granted per action like the output, never gated.
+    byproducts: Tuple[Tuple[str, int], ...] = ()
 
 
 def _req(*pairs: Tuple[str, int]) -> Tuple[Tuple[str, int], ...]:
@@ -47,6 +50,11 @@ SILVER_SOURCE = f"{CRAFTING_SOURCE_ROOT}/silver/SilverData.kt"
 JEWELLERY_SOURCE = f"{CRAFTING_SOURCE_ROOT}/jewellery/JewelleryData.kt"
 LEATHER_SOURCE = f"{CRAFTING_SOURCE_ROOT}/leather/LeatherData.kt"
 GLASS_SOURCE = f"{CRAFTING_SOURCE_ROOT}/glassblowing/GlassData.kt"
+# Molten glass smelting lives with the furnace objects, not the crafting skill tree.
+FURNACE_GLASS_SOURCE = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/objs/furnaces/furnaces.plugin.kts"
+)
 BATTLESTAFF_SOURCE = f"{CRAFTING_SOURCE_ROOT}/weaponry/BattlestaffData.kt"
 WEAVING_SOURCE = f"{CRAFTING_SOURCE_ROOT}/weaving/WeavingData.kt"
 
@@ -134,9 +142,10 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("leather_green_dhide_body", "Green d'hide body", "leather", "needle", 63, 186.0, _req(("Green dragon leather", 3)), "Green d'hide body", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
     CraftingRecipe("leather_blue_dhide_body", "Blue d'hide body", "leather", "needle", 71, 210.0, _req(("Blue dragon leather", 3)), "Blue d'hide body", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
     CraftingRecipe("leather_black_dhide_body", "Black d'hide body", "leather", "needle", 84, 258.0, _req(("Black dragon leather", 3)), "Black d'hide body", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("glass_beer_glass", "Beer glass", "glass", "glassblowing", 1, 17.5, _req(("Molten glass", 1)), "Beer glass", source=GLASS_SOURCE, source_enum="BEER_GLASS", notes="Live target; input-starved until molten glass source exists."),
-    CraftingRecipe("glass_vial", "Vial", "glass", "glassblowing", 33, 35.0, _req(("Molten glass", 1)), "Vial", source=GLASS_SOURCE, source_enum="EMPTY_VIAL", notes="Live target; input-starved until molten glass source exists."),
-    CraftingRecipe("glass_unpowered_orb", "Unpowered orb", "glass", "glassblowing", 46, 52.5, _req(("Molten glass", 1)), "Unpowered orb", source=GLASS_SOURCE, source_enum="UNPOWERED_ORB", notes="Live target; input-starved until molten glass source exists."),
+    CraftingRecipe("glass_molten_glass", "Molten glass", "glass", "furnace", 1, 20.0, _req(("Soda ash", 1), ("Bucket of sand", 1)), "Molten glass", byproducts=(("Bucket", 1),), source=FURNACE_GLASS_SOURCE, source_enum="", notes="Furnace smelt (handleMoltenGlass); returns the emptied bucket. Inputs are live NPC shop stock."),
+    CraftingRecipe("glass_beer_glass", "Beer glass", "glass", "glassblowing", 1, 17.5, _req(("Molten glass", 1)), "Beer glass", source=GLASS_SOURCE, source_enum="BEER_GLASS"),
+    CraftingRecipe("glass_vial", "Vial", "glass", "glassblowing", 33, 35.0, _req(("Molten glass", 1)), "Vial", source=GLASS_SOURCE, source_enum="EMPTY_VIAL"),
+    CraftingRecipe("glass_unpowered_orb", "Unpowered orb", "glass", "glassblowing", 46, 52.5, _req(("Molten glass", 1)), "Unpowered orb", source=GLASS_SOURCE, source_enum="UNPOWERED_ORB"),
     CraftingRecipe("battlestaff_water_battlestaff", "Water battlestaff", "battlestaff", "attach_orb", 54, 100.0, _req(("Battlestaff", 1), ("Water orb", 1)), "Water battlestaff", source=BATTLESTAFF_SOURCE, source_enum="WATER_BATTLESTAFF", notes="Orb acquisition/enchanting belongs to future Magic or Utility design."),
     CraftingRecipe("battlestaff_air_battlestaff", "Air battlestaff", "battlestaff", "attach_orb", 66, 137.5, _req(("Battlestaff", 1), ("Air orb", 1)), "Air battlestaff", source=BATTLESTAFF_SOURCE, source_enum="AIR_BATTLESTAFF", notes="Orb acquisition/enchanting belongs to future Magic or Utility design."),
     CraftingRecipe("weave_strip_of_cloth", "Strip of cloth", "weaving", "loom", 10, 12.0, _req(("Ball of wool", 4)), "Strip of cloth", source=WEAVING_SOURCE, source_enum="STRIP_OF_CLOTH"),
@@ -201,6 +210,7 @@ def crafting_recipes_as_dict() -> Dict[str, Dict[str, object]]:
             "category": recipe.category,
             "notes": recipe.notes,
             "source_item_id": recipe.source_item_id,
+            "byproducts": dict(recipe.byproducts),
         }
         for recipe in CRAFTING_RECIPES
     }

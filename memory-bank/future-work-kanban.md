@@ -9,10 +9,19 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
 - Arrowtips are not an unresolved source gap. They are smithable through Smithing.
 - Feathers are no longer an unresolved Fletching input gap. P2 added a
   no-XP Utility/Activities bridge, `Scavenge chicken feathers`, on 2026-06-15.
-- The NPC shop backend is complete as of 2026-07-06. Frontend work should start
-  from `memory-bank/npc-shop-frontend-handoff-2026-07-06.md`, not from the older
-  seed alone. The Grand Exchange remains parked in
-  `memory-bank/fake-grand-exchange-design.md`.
+- NPC shops are complete end to end as of 2026-07-06 (backend, Qt frontend,
+  price policy, and the shop-economy integration pass). Standing decisions from
+  that pass: the `scavenge_chicken_feathers` / `gather_fishing_bait` /
+  `buy_hunter_supplies` bridges are retired (outputs are live shop stock — do
+  not re-add them); processing conversions (tanning, sawmill) are review-paced
+  coin-paid Utility/Activities, never instant shop services (2011 runs were
+  inventory-bounded; the review loop is the friction stand-in — do not
+  re-litigate); `SHOP_PLAYER_SELL_PRICES` closes the general-store income loop
+  and is clamped against live buy prices to prevent name-collision arbitrage.
+  The Cooking gather/scavenge bridges are a follow-up candidate (see the
+  completed NPC shop card). The Grand Exchange remains parked in
+  `memory-bank/fake-grand-exchange-design.md`, and shops absorbed much of its
+  original rationale.
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
@@ -850,17 +859,34 @@ Future replacement prompt:
 In the AnkiScape repo, do not redo P2 feather sourcing. Feathers already have the temporary Utility/Activities bridge `Scavenge chicken feathers`. Only revisit feathers when Combat chicken drops or the Grand Exchange is explicitly in scope; then decide whether to keep, remove, or rebalance the bridge route.
 ```
 
-### P3 - NPC Shops Frontend Candidate
+### Completed - NPC Shops (Backend + Frontend + Economy Integration)
 
 User story: As a player, I want source-backed NPC shops, so tools, bait,
 materials, and shop-only rewards can enter play through authentic RuneScape
 interfaces instead of temporary Utility bridges.
 
-Backend status: Complete on 2026-07-06. The source-backed catalog, pure
-transaction APIs, shared-stock state, market clock, undo-aware review snapshots,
-services, vendor actions, fixtures, audit ledger, storage migration, and tests
-are implemented. See `memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md`
-and `memory-bank/npc-shop-frontend-handoff-2026-07-06.md`.
+Status: Complete on 2026-07-06 through four passes: backend catalog, Qt Shop
+tab (browse-first navigation, uniform nearest-neighbor icons, 547-sprite
+backfill), price policy from Darkan cache inputs, and the shop-economy
+integration pass (bridges retired, coin loop closed with the
+`SHOP_PLAYER_SELL_PRICES` fallback + arbitrage clamp, tanning/sawmill as
+review-paced coin-paid Utility conversions, Molten glass recipe). See
+`memory-bank/npc-shop-frontend-handoff-2026-07-06.md`,
+`memory-bank/source-audits/coin-economy-audit-2026-07-06.md`, and
+`memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+
+Follow-up candidate (not scheduled): retire/reprice the ~20 Cooking
+gather/scavenge bridges plus `buy_bucket` whose outputs are live shop stock
+(Potato, Onion, Egg, Redberries, Cooking apple, Tomato, Cheese, Cabbage,
+Sweetcorn, Spice, raw meats, Thin snail, Pot of flour, Pizza base, buckets,
+water containers). That reprices most of Cooking at once, so it needs its own
+balance pass; the coverage table lives in the stage-1 join in
+`memory-bank/source-audits/coin-economy-audit-2026-07-06.md`'s context.
+
+Backend detail (historical): the source-backed catalog, pure transaction
+APIs, shared-stock state, market clock, undo-aware review snapshots, vendor
+actions, fixtures, audit ledger, storage migration, and tests are implemented.
+See `memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md`.
 
 Completed backend scope:
 
@@ -932,11 +958,19 @@ In the AnkiScape repo, use memory-bank/future-work-kanban.md and memory-bank/fak
 
 User story: As a player, I eventually want Crafting inputs to come from real source chains, but those chains should wait until their supporting systems are worth implementing.
 
-Parked examples:
+Status 2026-07-06: Largely unlocked by the shop-economy integration pass —
+see `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+Uncut gems, silver bars, battlestaves, wool/jute/hair, and elemental runes are
+live shop stock; Leather/Hard leather come from the `tan_soft_leather` /
+`tan_hard_leather` coin-paid Utility conversions; Molten glass is a
+source-backed furnace recipe (`glass_molten_glass`) fed by shop-bought Soda
+ash and Buckets of sand.
+
+Still parked:
 
 - Dragonstone and onyx supply.
-- Leather and hide chains beyond current practical needs.
-- Molten glass, battlestaves, orbs, roots, and rune-dependent flows.
+- Dragonhide drops and dragon-leather tanning (dhide bodies stay inert).
+- Battlestaff orbs (obelisk charging belongs to future Magic design).
 - Any broader acquisition loop that mainly exists to support Crafting completeness.
 
 Move out of parked only when:

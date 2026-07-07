@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop-Economy Integration Pass — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff; --accent-glow: rgba(79,140,255,0.15);
+    --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; line-height: 1.55; padding: 2.5rem 1.5rem 4rem; }
+.wrap { max-width: 1080px; margin: 0 auto; }
+.badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; color: var(--green); background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; margin-bottom: 1rem; }
+h1 { font-weight: 700; font-size: 2rem; margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-dim); font-size: 0.95rem; max-width: 800px; margin-bottom: 2rem; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.9rem; margin-bottom: 2.2rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.metric .num { font-weight: 700; font-size: 1.6rem; }
+.metric .num.green { color: var(--green); } .metric .num.amber { color: var(--amber); } .metric .num.accent { color: var(--accent); } .metric .num.purple { color: var(--purple); }
+.metric .label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-top: 0.2rem; }
+.metric .delta { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.35rem; font-family: 'JetBrains Mono', monospace; }
+h2 { font-weight: 700; font-size: 1.15rem; margin: 2.2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+.stage { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.3rem; margin-bottom: 1.1rem; }
+.stage h3 { font-weight: 500; font-size: 1.02rem; margin-bottom: 0.5rem; }
+.stage p { color: var(--text-dim); font-size: 0.87rem; margin-bottom: 0.55rem; }
+.plabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.45rem; }
+.plabel.s1 { color: var(--red); } .plabel.s2 { color: var(--amber); } .plabel.s3 { color: var(--purple); } .plabel.s4 { color: var(--green); }
+.tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.tag { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 0.15rem 0.5rem; color: var(--text-dim); }
+p code, li code { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.05em 0.35em; color: var(--text); }
+ul.plain { margin: 0.3rem 0 0.4rem 1.2rem; color: var(--text-dim); font-size: 0.86rem; }
+ul.plain li { margin-bottom: 0.3rem; }
+.flow { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.7rem 0; }
+.flow .node { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.8rem; font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; }
+.flow .node em { display: block; font-style: normal; color: var(--text-dim); font-size: 0.58rem; margin-top: 0.15rem; }
+.flow .arrow { color: var(--accent); font-size: 0.9rem; }
+.verify { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; line-height: 2; color: var(--text-dim); }
+.verify b { color: var(--green); font-weight: 600; }
+.note { color: var(--text-dim); font-size: 0.8rem; margin-top: 0.8rem; }
+.decision { background: rgba(251,191,36,0.06); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 0.7rem 0.9rem; font-size: 0.83rem; color: var(--text-dim); margin-top: 0.6rem; }
+.decision b { color: var(--amber); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-06 · 4 COMMITS</div>
+    <h1>Shop-Economy Integration Pass — Results</h1>
+    <p class="subtitle">
+        The shops now power the rest of the game: the free bridges they obsoleted are gone, a coinless
+        player can earn coins by selling anything tradeable, conversions run at review pace like every
+        other processing action, and the recipes that shop supply unblocked are alive — including
+        glassblowing, whose missing Molten glass step is now a source-backed furnace recipe.
+    </p>
+
+    <div class="metrics">
+        <div class="metric"><div class="num green">6,736</div><div class="label">Sell prices generated</div><div class="delta">every tradeable 2011 item</div></div>
+        <div class="metric"><div class="num amber">3</div><div class="label">Bridges retired</div><div class="delta">feathers · bait · hunter bundle</div></div>
+        <div class="metric"><div class="num purple">4</div><div class="label">Coin-paid conversions</div><div class="delta">review-paced, batch 28</div></div>
+        <div class="metric"><div class="num green">+1</div><div class="label">Recipe: Molten glass</div><div class="delta">glassblowing unblocked</div></div>
+        <div class="metric"><div class="num accent">759 + 759</div><div class="label">Tests passing (both suites)</div><div class="delta">144 skipped non-Qt</div></div>
+    </div>
+
+    <h2>The four stages</h2>
+    <div class="stage">
+        <div class="plabel s1">STAGE 1 · BRIDGES RETIRED</div>
+        <h3>Shop-covered temporary activities removed</h3>
+        <p><code>scavenge_chicken_feathers</code> (13 shops sell Feather at 6gp, chickens drop them),
+        <code>gather_fishing_bait</code> (3gp in fishing shops), and <code>buy_hunter_supplies</code>
+        (all 11 bundle items individually live at real cache prices) are gone — each one's own source
+        note said "temporary until shops". Storage config 26 migrates stale <code>current_utility</code>
+        saves to the default activity. The one-shot/multi-output runtime machinery keeps synthetic-spec
+        test coverage for future activities. The ~20 Cooking gather bridges stay for a separate balance
+        pass (recorded on the kanban).</p>
+        <div class="tags"><span class="tag">constants.py</span><span class="tag">hunter_data.py</span><span class="tag">storage_pure.py</span></div>
+    </div>
+    <div class="stage">
+        <div class="plabel s2">STAGE 2 · COIN LOOP CLOSED</div>
+        <h3>Every tradeable item sells at its Shop.java price</h3>
+        <p>Selling to a general store only worked for items some shop stocked; Oak logs, Bones, Cowhide,
+        Wool, Flax, bars, and furs all failed closed with <code>sell_price_unresolved</code>. The
+        generator now dumps Darkan cache price inputs for all 8,911 tradeable items.yml entries and
+        emits <code>SHOP_PLAYER_SELL_PRICES</code> (6,736 names); <code>shop_logic</code> falls back to
+        it when no stock row prices an item.</p>
+        <div class="flow">
+            <div class="node">chop Oak logs<em>gathering skill</em></div>
+            <div class="arrow">→</div>
+            <div class="node">sell 20 @ 6gp<em>any general store</em></div>
+            <div class="arrow">→</div>
+            <div class="node">120 Coins<em>income, finally</em></div>
+            <div class="arrow">→</div>
+            <div class="node">buy 20 Feathers<em>fishing shop, 6gp</em></div>
+        </div>
+        <p>That loop is pinned end-to-end by a coinless-player integration test, plus a data test that
+        representative outputs from every gathering family sell for ≥ 1 coin.</p>
+        <div class="tags"><span class="tag">tools/generate_npc_shop_data.py</span><span class="tag">shop_logic.py</span><span class="tag">coin-economy-audit-2026-07-06.md</span></div>
+    </div>
+    <div class="stage">
+        <div class="plabel s3">STAGE 3 · CONVERSIONS AT REVIEW PACE (OWNER AMENDMENT)</div>
+        <h3>Tanning and sawmill moved out of the Shop tab</h3>
+        <p>The four processing services became no-XP <code>material_processing</code> Utility activities:
+        <code>tan_soft_leather</code> (Cowhide + 1gp → Leather), <code>tan_hard_leather</code> (+3gp),
+        <code>convert_logs_to_planks</code> (Logs + 100gp), <code>convert_oak_logs_to_oak_planks</code>
+        (Oak logs + 250gp) — batch 28, coins consumed per unit, same Darkan source strings, undo rides
+        the normal review snapshot.</p>
+        <div class="decision"><b>Decision (do not re-litigate):</b> 2011 conversion runs were
+        inventory-bounded at 28 unstackable items per bank run, and the review loop is AnkiScape's
+        stand-in for that friction. An instant "Use x1000" service deletes source pacing while smelting,
+        cooking, and soft clay already run through reviews. <code>SHOP_SERVICES</code> stays as an empty
+        fail-closed contract slot; only Bartender/Benny/Karim's genuinely instant vendor actions remain
+        as Shop-tab providers.</div>
+        <p style="margin-top:0.6rem;">Also in this stage: the sell table is clamped at each name's
+        cheapest live buy price — the flat name-keyed inventory merges item ids, so Rasolo's 1-coin
+        "Poison" plus an 825-coin cache sellPrice on a same-named id would have minted coins (zero-profit
+        equality stays; it's what authentic Shop.java math produces). And a latent
+        <code>item_registry</code> bug died: single-output utility activities never registered because an
+        empty <code>outputs</code> mapping shadowed the <code>output_item</code> fallback.</p>
+        <div class="tags"><span class="tag">constants.py</span><span class="tag">shop_fixtures.py</span><span class="tag">item_registry.py</span><span class="tag">test_no_strict_buy_sell_arbitrage_in_live_stock</span></div>
+    </div>
+    <div class="stage">
+        <div class="plabel s4">STAGE 4 · MOLTEN GLASS + UNLOCK AUDIT</div>
+        <h3>The one missing recipe, straight from the furnace source</h3>
+        <p><code>glass_molten_glass</code>: 1 Soda ash + 1 Bucket of sand → Molten glass <i>plus the
+        emptied Bucket back</i>, 20 Crafting XP, level 1 — exactly
+        <code>furnaces.plugin.kts · handleMoltenGlass</code>. The bucket return added a small optional
+        <code>byproducts</code> field to Crafting recipes (pure logic + "Also returns:" tooltip line).
+        Both inputs are live shop stock, so glassblowing (Beer glass, Vial, Unpowered orb) is now fully
+        playable; the stale "input-starved" notes on those rows are gone. The audit records everything
+        else shop supply lit up with zero row changes:</p>
+        <ul class="plain">
+            <li>Uncut sapphire → diamond (gem stalls) — gem cutting + jewellery chains</li>
+            <li>Silver bar (silver stalls) — all seven silver castings</li>
+            <li>Leather / Hard leather (stage-3 conversions) — leather armour</li>
+            <li>Battlestaff, Ball of wool, Jute fibre, Hair, elemental runes — attachment/weaving/urn rows</li>
+            <li>Still honest gaps: dragonhide, battlestaff orbs, dragonstone/onyx</li>
+        </ul>
+        <div class="tags"><span class="tag">crafting_data.py</span><span class="tag">logic_pure.py</span><span class="tag">shop-supplied-crafting-unlock-audit-2026-07-06.md</span></div>
+    </div>
+
+    <h2>Verification</h2>
+    <div class="verify">
+        python3 run_tests.py → <b>OK</b> · 759 tests, 144 skipped<br>
+        QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests → <b>OK</b> · 759 tests<br>
+        new coverage: retired-bridge regression guards · config-26 migration · coinless gather→sell→buy · per-unit-coin batch caps · tan-28-hides review + undo rollback · strict-arbitrage data pin · molten glass source values + byproduct
+    </div>
+    <p class="note">Plan artifact (unmodified):
+    <code>memory-bank/status-updates/shop-economy-integration-plan-2026-07-06.html</code> — the mid-pass
+    owner amendment (stage 3) is the one deliberate divergence from it. Kanban, activeContext, progress,
+    and the shop handoff all record the standing decisions.</p>
+</div>
+</body>
+</html>

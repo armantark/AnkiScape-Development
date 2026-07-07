@@ -36,9 +36,32 @@ closes that gap at the backend layer; Qt is unchanged.
 
 ## Spend routes
 
-267 live coin shops (2,695 priced rows), 4 processing services (Ellis tanning,
-sawmill planks), 4 vendor purchases, and Death's Office reclaim
-(100 Coins/item).
+267 live coin shops (2,695 priced rows), 4 coin-paid Utility conversions
+(Ellis tanning at 1/3 Coins per hide, sawmill planks at 100/250 Coins per
+log), 4 instant vendor actions (Bartender, Benny, Karim), and Death's Office
+reclaim (100 Coins/item).
+
+## Pacing decision: conversions are review-paced, not shop services
+
+The tanning/sawmill conversions briefly shipped as instant Shop-tab services
+and were deliberately converted to no-XP `material_processing`
+Utility/Activities (batch 28, coins consumed per unit): 2011 conversion runs
+were inventory-bounded at 28 unstackable items per bank run, and the review
+loop is AnkiScape's stand-in for that friction. An instant "Use x1000" button
+would have deleted source pacing while every comparable conversion (smelting,
+cooking, `make_soft_clay`) already runs through reviews. `SHOP_SERVICES` stays
+as an empty fail-closed contract slot for future genuinely instant services.
+Do not re-litigate this by moving conversions back into the Shop tab.
+
+## Arbitrage guard
+
+`SHOP_PLAYER_SELL_PRICES` is clamped at each name's cheapest live shop buy
+price at generation time: the flat name-keyed inventory merges every item id
+sharing a name, so a cheap custom-priced stock row (Rasolo's 1-coin Poison)
+plus a high cache sellPrice on a same-named id would otherwise mint coins in
+a buy/sell loop. Equality (zero-profit round trips) stays — that is what the
+authentic Shop.java math produces for value-1 items and spirit shards.
+Pinned by `tests/test_shop_data.py::test_no_strict_buy_sell_arbitrage_in_live_stock`.
 
 ## Honest exclusions
 

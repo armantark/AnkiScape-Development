@@ -112,6 +112,25 @@
   (144 skipped), `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest
   discover tests` passed with 751 tests, and offscreen dark screenshots at
   1000x560 confirmed both modes.
+- The shop-economy integration pass is complete as of 2026-07-06, in four
+  commits on `codex/npc-shop-frontend`. Stage 1 retired the
+  `scavenge_chicken_feathers`, `gather_fishing_bait`, and
+  `buy_hunter_supplies` bridges (outputs are live shop stock; storage config
+  26 migrates stale `current_utility` saves). Stage 2 closed the coin loop:
+  `SHOP_PLAYER_SELL_PRICES` (6,736 tradeable names, Shop.java player-sale
+  math from the Darkan cache) backs general-store sales of unstocked items,
+  with an end-to-end coinless gather→sell→buy test. Stage 3 (owner
+  amendment) converted the tanning/sawmill shop services into review-paced
+  coin-paid Utility conversions (batch 28, coins per unit; instant services
+  rejected as pacing-destroying), emptied `SHOP_SERVICES`, clamped the sell
+  table against live buy prices with a strict-arbitrage test, and fixed the
+  latent single-output utility registration bug in `item_registry`. Stage 4
+  added the source-backed `glass_molten_glass` furnace recipe (Soda ash +
+  Bucket of sand → Molten glass + returned Bucket, 20 XP) via a new optional
+  `byproducts` recipe field, unlocking glassblowing alongside the gem/silver/
+  leather/battlestaff/weaving rows that shop supply lit up. Audits:
+  `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`,
+  `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The

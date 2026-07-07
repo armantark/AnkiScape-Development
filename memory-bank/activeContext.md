@@ -69,6 +69,34 @@ catalog locks remain exactly backend-sourced (`currency_not_implemented`,
 `unknown_item`, hidden reward/activity shops) and are not inferred from
 quest/skill names in the frontend.
 
+The shop-economy integration pass (same day) then connected the shops to the
+rest of the game in four committed stages. (1) The temporary
+`scavenge_chicken_feathers`, `gather_fishing_bait`, and `buy_hunter_supplies`
+Utility bridges were retired — their outputs are live shop stock — with a
+config-26 migration resetting stale `current_utility` saves. (2) The coin
+loop was closed: the generator dumps Darkan cache price inputs for every
+tradeable 2011 item and emits `SHOP_PLAYER_SELL_PRICES` (6,736 names, Shop.java
+player-sale math), which `shop_logic` uses as the sell-price fallback so
+general stores buy any tradeable gathered output instead of failing closed
+with `sell_price_unresolved`. (3) By owner decision, the four processing shop
+services became review-paced coin-paid Utility conversions
+(`tan_soft_leather`, `tan_hard_leather`, `convert_logs_to_planks`,
+`convert_oak_logs_to_oak_planks`; batch 28, coins per unit): 2011 conversion
+runs were inventory-bounded and the review loop is the friction stand-in, so
+instant Use-x1000 services were rejected — `SHOP_SERVICES` is now an empty
+contract slot and only the Bartender/Benny/Karim vendor actions remain in the
+Shop tab. The sell table is clamped at each name's cheapest live buy price
+(strict-arbitrage test) because the flat name-keyed inventory merges item ids.
+A latent `item_registry` bug was fixed where single-output utility activities
+never registered (empty `outputs` mapping shadowed the `output_item`
+fallback). (4) Molten glass became a source-backed furnace recipe
+(`glass_molten_glass`: Soda ash + Bucket of sand → Molten glass + returned
+Bucket, 20 XP, from `furnaces.plugin.kts`), closing the glassblowing loop via
+a new optional `byproducts` recipe field; gem cutting, silver casting,
+leather, battlestaff, and weaving rows all lit up through shop supply. Audits:
+`memory-bank/source-audits/coin-economy-audit-2026-07-06.md` and
+`memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
+
 Verification after the short-window/provider fix:
 `python3 run_tests.py` passed with 751 tests and 144 skipped, and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`

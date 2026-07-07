@@ -96,6 +96,7 @@ from logic_pure import (
 )
 from storage_pure import default_player_data
 from constants import (
+    CRAFTING_DATA,
     ACHIEVEMENTS,
     CLAIM_DATA,
     GLORY_GEM_DROP_CHANCE,
@@ -444,6 +445,22 @@ class TestLogic(unittest.TestCase):
         # became live NPC shop stock; a reappearance means a data regression.
         for retired in ("scavenge_chicken_feathers", "gather_fishing_bait", "buy_hunter_supplies"):
             self.assertNotIn(retired, UTILITY_ACTIVITY_DATA)
+
+    def test_molten_glass_smelt_returns_bucket_byproduct(self):
+        # Shop-purchasable inputs close the glassblowing loop: smelting awards
+        # the source 20 XP, consumes both inputs, and returns the emptied
+        # bucket alongside the Molten glass.
+        new_inv, exp, ok = apply_crafting_pure(
+            "glass_molten_glass",
+            {"Soda ash": 1, "Bucket of sand": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 20.0)
+        self.assertEqual(new_inv["Molten glass"], 1)
+        self.assertEqual(new_inv["Bucket"], 1)
+        self.assertEqual(new_inv["Soda ash"], 0)
+        self.assertEqual(new_inv["Bucket of sand"], 0)
 
     def test_coin_paid_conversions_batch_with_per_unit_coins(self):
         # Tanning/sawmill conversions are review-paced no-XP batches with

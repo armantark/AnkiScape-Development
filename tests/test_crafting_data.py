@@ -28,6 +28,19 @@ class TestCraftingData(unittest.TestCase):
             self.assertTrue(recipe.output_item, recipe.id)
             self.assertTrue(recipe.source.endswith((".kt", ".kts")), recipe.id)
 
+    def test_molten_glass_matches_furnace_source(self):
+        # furnaces.plugin.kts handleMoltenGlass: 1 Soda ash + 1 Bucket of sand
+        # -> Molten glass + the emptied Bucket back, 20.0 Crafting XP.
+        data = crafting_recipes_as_dict()
+        spec = data["glass_molten_glass"]
+        self.assertEqual(spec["level"], 1)
+        self.assertEqual(spec["exp"], 20.0)
+        self.assertEqual(spec["requirements"], {"Soda ash": 1, "Bucket of sand": 1})
+        self.assertEqual(spec["output_item"], "Molten glass")
+        self.assertEqual(spec["byproducts"], {"Bucket": 1})
+        self.assertEqual(spec["family"], "glass")
+        self.assertTrue(spec["source"].endswith("furnaces/furnaces.plugin.kts"))
+
 
 if __name__ == "__main__":
     unittest.main()

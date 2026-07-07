@@ -205,6 +205,10 @@ def crafting_target_rows(
             f"Base XP: {spec.get('exp', 0)} per action\n"
             f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
+        byproducts = spec.get("byproducts") or {}
+        if isinstance(byproducts, Mapping) and byproducts:
+            returned = ", ".join(f"{name} x{qty}" for name, qty in byproducts.items())
+            tooltip += f"\nAlso returns: {returned}"
         if locked_reasons:
             tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 

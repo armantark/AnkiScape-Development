@@ -24,7 +24,6 @@ Use `shop_fixtures.build_shop_frontend_fixtures()` as the first UI contract. It 
 - `hidden_reward_shop`
 - `shared_stock_shop`
 - `player_sold_stock`
-- `service_transaction`
 - `vendor_action_transaction`
 - `history`
 - `search_after_transactions`
@@ -48,7 +47,7 @@ These fixtures deliberately cover visible, locked, hidden, shared-stock, tempora
 - Treat visible locked rows as inspectable but inert. Show the backend `lock_reason`; do not override it in frontend copy.
 - General stores can show temporary player-sold stock. Specialist shops reject selling non-stock items.
 - Non-coin shops are read-only until their currencies exist as implemented inventory systems.
-- Services and vendor actions are not ordinary stock rows. Render them as command rows or a separate section.
+- Services and vendor actions are not ordinary stock rows. Render them as command rows or a separate section. Since the shop-economy integration pass, `SHOP_SERVICES` is an empty contract slot: processing conversions (tanning, sawmill) are review-paced coin-paid Utility/Activities, and only the instant vendor actions (Bartender, Benny, Karim) appear in the Shop tab.
 
 ## Frontend Test Targets
 
@@ -60,7 +59,7 @@ The first frontend slice should add Qt tests for:
 - A normal live shop row can preview and buy with enough Coins.
 - Locked/non-coin/hidden cases render their backend lock states.
 - A general-store sell creates visible temporary stock, then buying it back works.
-- Tanning and direct vendor actions preview/apply correctly.
+- Direct vendor actions preview/apply correctly (tanning/sawmill conversions moved to review-paced Utility/Activities in the shop-economy integration pass).
 - History rows show recent transaction events and rollback events.
 
 Manual QA after Qt wiring should use Pinchtab against Anki or the local UI surface because the backend currently has no browser-facing surface to drive.

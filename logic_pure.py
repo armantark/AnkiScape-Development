@@ -514,6 +514,9 @@ def apply_crafting_pure(item, inventory, crafting_data):
     output_item = spec.get("output_item", item)
     output_qty = _positive_int(spec.get("output_qty", 1))
     new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)
+    # Source-backed byproducts (e.g. molten glass returns the emptied bucket).
+    for byproduct, amount in (spec.get("byproducts") or {}).items():
+        new_inv[byproduct] = new_inv.get(byproduct, 0) + (_positive_int(amount) * batch_count)
     exp = spec.get("exp", 0) * batch_count
     return new_inv, exp, True
 
