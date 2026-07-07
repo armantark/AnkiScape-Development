@@ -1,10 +1,13 @@
 # 28-Slot Carried Inventory — Design (owner-grilled 2026-07-07)
 
-Status: **foundation slice implemented (2026-07-07).** The grill is finished —
-every fork resolved (see Resolved section). The first implementation pass added
-the pure carried-inventory primitives and seeded the overlay state keys, but
-intentionally did not wire UI, combat, skilling, shops, bank runs, death, or
-`wilderness_shop_slots` unification.
+Status: **slices 1–3 substantially shipped (2026-07-07).** Foundation, the live
+overlay (churn teeth, 1-review bank-runs, Keep/Drop), death-drop, the Coal-bag
+mechanic, and the collapsible Bank-tab panel are built and tested (814 tests).
+Remaining: **2f** loot filter (blocked on a runtime item→value table — needs a
+full-cache dump), **2g** ambush-unify (resolved as *keep separate*), the advanced
+UI (click-from-bank fill, Keep/Drop toggle, loot checkboxes), and a live
+render-check of the panel in an aqt environment (Qt is unavailable in the build
+env, so the offscreen UI test only runs there).
 
 ## Foundation slice implemented (2026-07-07)
 
