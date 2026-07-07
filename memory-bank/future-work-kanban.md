@@ -390,13 +390,27 @@ gem, rune — finally matter; source-authentic stackable rule (stackables one
 slot, unstackables one each, bags pack unstackables); gathering banks free,
 processing/combat cost 1 review (combat keeps 2); per-target Keep/Drop toggle
 for power-gathering. This subsumes `combat_supply_loadout` and the recurring
-28-constants. Warrants its own implementation grill/pass (default
+28-constants. Held-item requirements resolve against the toggle (carried if
+ON, owned-in-bank if OFF) — the cannonball-mould rule. Warrants its own implementation grill/pass (default
 auto-manager heuristic, bag roster, UI); do NOT start without one.
 
 Small correction already agreed: the combat eat-queue is an *ordered* consume
 list (fix the framing + let stat-food be queued in, solving the kebab/beer
 in-combat opt-in) — this is the cheap, safe part and can ship independently
 of the full inventory model.
+
+### Next - Potions + held-item interactions (audit 2026-07-07)
+
+`memory-bank/source-audits/held-item-interactions-audit-2026-07-07.md` maps
+the whole territory of items that act by *being present*, in three categories:
+required tool-present gates (hammer/tinderbox/mould/needle — currently not
+gated), held passive effects (ring of forging is the one modeled proof; holy
+wrench, Enhanced Excalibur heal follow the same predicate shape), and
+consumables. Recommendation/ordering: **potions next** (unblocked — they reuse
+the `combat_current_levels` substrate + `apply_combat_stat_delta_pure` built
+for kebab/beer; source `PotionType.kt`), then fold tool-present gates + bags
+into the inventory model where they mean something, then holy wrench / Excalibur
+after Prayer + special-heal exist. Each row is its own source-audited slice.
 
 ## Priority Board
 

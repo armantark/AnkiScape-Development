@@ -64,22 +64,38 @@ those five constants are all approximating.
    bag, and it only exists because of this rule. (The Wilderness ambush already
    reads the cache `stackable` flag; reuse it.)
 
-7. **Bank-run cost is asymmetric.**
-   - **Gathering: free auto-banking.** Gathering already costs a card per
-     action; charging a review to bank ore too would feel like "wasting" a
-     hard-earned review. Bags in gathering save *slots/clicks* (advanced
-     convenience), not reviews.
-   - **Processing / combat: 1 review per bank run** (combat keeps its existing
-     2 for precedent; both tunable). This is where the food-vs-supplies
-     balancing the owner named actually lives, so that's where the review-cost
-     teeth belong.
+7. **Every bank run costs a review (owner correction 2026-07-07 — no free
+   banking).** A bank run costs review-answers everywhere, gathering included
+   (combat keeps its existing 2; skilling starts at 1; tunable). This *sharpens*
+   the Keep/Drop toggle below: Drop = never bank = never pay = fastest XP;
+   Keep = pay bank-run reviews for materials. Bags reduce the number of bank
+   runs, so they buy back reviews in every skill — which is exactly why gem
+   bags (mining), coal bags (mining/smithing), and rune pouches all earn their
+   keep.
 
 8. **Gathering Keep/Drop toggle (per target).** Power-gathering vs collecting:
-   - **Keep** (default): product goes to the carried grid, free auto-bank when
-     full. You get materials.
+   - **Keep** (default): product goes to the carried grid, auto-bank when full
+     (costs a bank-run review, per decision 7). You get materials.
    - **Drop:** no product, no banking, maximum XP/action. Bypasses the
      inventory entirely. This is the authentic power-mining / power-chopping
      choice and the real reason "some skills you bank, others you drop."
+
+## Held-item requirements meet the toggle (the cannonball-mould rule)
+
+Many actions require a *held item to be present* — the cannonball mould for
+cannonball smithing, a chisel for gem cutting, a needle for leather, a
+tinderbox for firemaking, etc. The carried-inventory toggle resolves "present"
+cleanly:
+
+- **Inventory management ON (advanced):** the required item must be in your 28
+  carried slots — it occupies space, a real cost (bringing a mould means one
+  fewer slot of coal).
+- **Inventory management OFF (default):** "present" means "owned" — satisfied
+  if the item is anywhere in the bank. No carry cost; the requirement is just
+  a possession gate.
+
+This is the general rule for the whole held-item audit below, not just moulds.
+See `memory-bank/source-audits/held-item-interactions-audit-2026-07-07.md`.
 
 ## Not yet decided (for the implementation grill or judgment)
 
