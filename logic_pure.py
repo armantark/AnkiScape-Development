@@ -1780,6 +1780,39 @@ def _combat_slot_drop_quantity(slot, rng):
     return max(1, _positive_int(slot.get("quantity", 1), 1))
 
 
+def combat_enemy_drop_item_names_pure(enemy):
+    """Distinct item names an enemy can drop (guaranteed + all table slots,
+    nested tables included), in encounter order. For the advanced loot UI."""
+    names = []
+    seen = set()
+
+    def add(candidate):
+        if isinstance(candidate, str) and candidate and candidate not in seen:
+            seen.add(candidate)
+            names.append(candidate)
+
+    def walk_table(table):
+        if not isinstance(table, Mapping):
+            return
+        for slot in table.get("slots", ()) or ():
+            if not isinstance(slot, Mapping):
+                continue
+            add(slot.get("item"))
+            walk_table(slot.get("table"))
+
+    if not isinstance(enemy, Mapping):
+        return tuple()
+    drops = enemy.get("drops", {})
+    if not isinstance(drops, Mapping):
+        return tuple()
+    for entry in drops.get("guaranteed", ()) or ():
+        if isinstance(entry, (list, tuple)) and entry:
+            add(entry[0])
+    for table in drops.get("tables", ()) or ():
+        walk_table(table)
+    return tuple(names)
+
+
 def _combat_roll_drop_table(table, rng, drops):
     if not isinstance(table, Mapping):
         return

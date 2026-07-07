@@ -42,6 +42,7 @@ from logic_pure import (
     apply_safe_combat_recovery_pure,
     combat_death_office_reclaim_cost_pure,
     combat_death_office_summary_pure,
+    combat_enemy_drop_item_names_pure,
     combat_poison_damage_for_ticks_pure,
     combat_poison_immunity_ticks_pure,
     combat_poison_ticks_for_initial_damage_pure,
@@ -119,6 +120,31 @@ _KILLER_ENEMY_DATA = {
         "source": "test",
     }
 }
+
+
+class CombatDropItemNamesTest(unittest.TestCase):
+    def test_flattens_guaranteed_and_nested_table_items_in_order(self):
+        enemy = {
+            "drops": {
+                "guaranteed": [["Bones", 1], ["Raw beef", 1]],
+                "tables": [
+                    {"slots": [
+                        {"item": "Cowhide"},
+                        {"slots": 1},  # empty slot -> nothing
+                        {"table": {"slots": [{"item": "Rare gem"}]}},
+                    ]},
+                ],
+            }
+        }
+        self.assertEqual(
+            combat_enemy_drop_item_names_pure(enemy),
+            ("Bones", "Raw beef", "Cowhide", "Rare gem"),
+        )
+
+    def test_handles_missing_or_malformed_drops(self):
+        self.assertEqual(combat_enemy_drop_item_names_pure({}), ())
+        self.assertEqual(combat_enemy_drop_item_names_pure({"drops": None}), ())
+        self.assertEqual(combat_enemy_drop_item_names_pure(None), ())
 
 
 class CombatLogicTest(unittest.TestCase):

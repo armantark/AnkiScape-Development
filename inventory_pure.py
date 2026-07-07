@@ -114,28 +114,40 @@ def filter_loot_pure(
     values: Any,
     threshold: Any,
     stackable_names: set[str] | frozenset[str],
+    overrides: Any = None,
 ) -> tuple[dict[str, int], dict[str, int]]:
-    """Split rolled drops into ``(kept, left)`` by the high-alch value filter.
+    """Split rolled drops into ``(kept, left)``.
 
-    The owner's rule: do not auto-hoard every tiny drop. A drop is **left** only
-    when its value is known *and* below the high-alch threshold *and* it is not a
-    stackable — everything else is **kept**. Unknown-value items are kept (never
-    leave a possibly-valuable drop for lack of a price); stackables and coins are
-    always kept (a stackable costs at most one slot; coins are the money pouch).
+    ``overrides`` ({item: "keep"|"leave"}) is the advanced per-drop control and
+    wins first: an explicit "keep" is picked up even below the threshold, an
+    explicit "leave" is dropped even if valuable (coins are exempt — they are the
+    money pouch and always kept). Otherwise the casual rule applies: do not
+    auto-hoard tiny drops — a drop is **left** only when its value is known *and*
+    below the high-alch threshold *and* it is not a stackable; unknown-value items
+    are kept (never leave a possibly-valuable drop for lack of a price), and
+    stackables and coins are always kept.
     """
     kept: dict[str, int] = {}
     left: dict[str, int] = {}
     if not isinstance(drops, Mapping):
         return kept, left
     value_map = values if isinstance(values, Mapping) else {}
+    override_map = overrides if isinstance(overrides, Mapping) else {}
     for item_name, count in drops.items():
         if not isinstance(item_name, str):
             continue
         amount = _clean_int(count, 0, minimum=0)
         if amount <= 0:
             continue
+        override = override_map.get(item_name)
+        if item_name == COIN_ITEM_NAME or override == "keep":
+            kept[item_name] = amount
+            continue
+        if override == "leave":
+            left[item_name] = amount
+            continue
         value = value_map.get(item_name)
-        if value is None or item_name == COIN_ITEM_NAME or loot_should_pick_up(item_name, value, threshold, stackable_names):
+        if value is None or loot_should_pick_up(item_name, value, threshold, stackable_names):
             kept[item_name] = amount
         else:
             left[item_name] = amount
@@ -409,6 +421,7 @@ def default_carried_state() -> dict[str, Any]:
         "skilling_bank_run": {},           # active {reviews_remaining, target_id} run
         "carried_pack_mode": _DEFAULT_PACK_MODE,
         "loot_value_threshold": DEFAULT_LOOT_VALUE_THRESHOLD,
+        "loot_overrides": {},              # {item: "keep"|"leave"} advanced per-drop
     }
 
 
@@ -450,6 +463,17 @@ def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
 
     player_data["skilling_bank_run"] = sanitize_bank_run_state(
         player_data.get("skilling_bank_run"), SKILLING_BANK_RUN_REVIEWS
+    )
+
+    raw_overrides = player_data.get("loot_overrides")
+    player_data["loot_overrides"] = (
+        {
+            str(item): value
+            for item, value in raw_overrides.items()
+            if isinstance(item, str) and value in ("keep", "leave")
+        }
+        if isinstance(raw_overrides, Mapping)
+        else {}
     )
 
     pack_mode = player_data.get("carried_pack_mode", defaults["carried_pack_mode"])

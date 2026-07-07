@@ -599,6 +599,28 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(calls[-1], True)  # toggling to drop calls back with True
         dialog.deleteLater()
 
+    def test_per_drop_loot_override_combos_present_and_wired(self) -> None:
+        from aqt.qt import QComboBox
+
+        calls: list = []
+        rows = (
+            {"item": "Bones", "mode": "keep"},
+            {"item": "Raw chicken", "mode": "auto"},
+        )
+        dialog = self._open(
+            _make_player_data(),
+            loot_override_rows=rows,
+            on_set_loot_override=lambda item, mode: calls.append((item, mode)),
+        )
+        bones_combo = dialog.findChild(QComboBox, "lootOverride::Bones")
+        self.assertIsNotNone(bones_combo, "per-drop override combo missing")
+        self.assertEqual(bones_combo.currentData(), "keep")  # reflects saved state
+        # Switch Bones to Leave -> callback fires with ("Bones", "leave").
+        bones_combo.setCurrentIndex(bones_combo.findData("leave"))
+        QApplication.processEvents()
+        self.assertIn(("Bones", "leave"), calls)
+        dialog.deleteLater()
+
     def test_carried_keep_drop_toggle_absent_without_gathering_target(self) -> None:
         from aqt.qt import QCheckBox
 

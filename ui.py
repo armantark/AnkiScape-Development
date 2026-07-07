@@ -1661,6 +1661,8 @@ def show_main_menu(
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
     on_set_loot_threshold=None,
+    on_set_loot_override=None,
+    loot_override_rows=(),
     on_set_combat=None,
     on_set_combat_style=None,
     on_set_combat_spell=None,
@@ -4416,6 +4418,35 @@ def show_main_menu(
     loot_layout.addWidget(loot_label)
     loot_layout.addWidget(loot_spin, 1)
     cb_layout.addWidget(loot_row)
+
+    # Advanced per-drop loot control: for the selected enemy's drops, force
+    # keep/leave overriding the value threshold (Auto = follow the threshold).
+    if loot_override_rows:
+        drops_label = QLabel("Per-drop loot (this enemy)")
+        drops_label.setStyleSheet("color: palette(text);")
+        cb_layout.addWidget(drops_label)
+        for _row in loot_override_rows:
+            _item_name = str(_row.get("item", ""))
+            if not _item_name:
+                continue
+            drop_row = QWidget()
+            drop_layout = QHBoxLayout(drop_row)
+            drop_layout.setContentsMargins(8, 0, 0, 0)
+            drop_layout.setSpacing(8)
+            name_label = QLabel(_item_name)
+            name_label.setStyleSheet(f"color: {dim_text_css(name_label)};")
+            mode_combo = QComboBox()
+            mode_combo.setObjectName(f"lootOverride::{_item_name}")
+            for _label, _mode in (("Auto", "auto"), ("Keep", "keep"), ("Leave", "leave")):
+                mode_combo.addItem(_label, _mode)
+            mode_combo.setCurrentIndex(max(0, mode_combo.findData(str(_row.get("mode", "auto")))))
+            if on_set_loot_override is not None:
+                mode_combo.currentIndexChanged.connect(
+                    lambda _i, name=_item_name, combo=mode_combo: on_set_loot_override(name, combo.currentData() or "auto")
+                )
+            drop_layout.addWidget(name_label, 1)
+            drop_layout.addWidget(mode_combo)
+            cb_layout.addWidget(drop_row)
 
     carried_summary = QLabel(_carried_panel_summary_text())
     carried_summary.setObjectName("carriedInventorySummary")

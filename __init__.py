@@ -1,6 +1,7 @@
 # __init__.py
 
 from .constants import (
+    COMBAT_ENEMY_DATA,
     CONSUMABLE_DATA,
     ORE_DATA,
     TREE_DATA,
@@ -36,6 +37,7 @@ import os
 import datetime
 from .logic_pure import (
     apply_consumable_pure,
+    combat_enemy_drop_item_names_pure,
     can_smith_any_pure,
     has_crafting_materials_pure,
     can_craft_item_pure,
@@ -714,6 +716,32 @@ def _on_main_menu():
         player_data["carried_keep_drop"] = keep_drop
         save_player_data()
 
+    def _current_combat_loot_rows():
+        # Advanced per-drop loot control for the enemy currently selected. Each row
+        # is {item, mode} where mode is auto/keep/leave from loot_overrides.
+        if review_action_handler_key(current_skill) != "combat":
+            return ()
+        target_id = player_data.get("current_combat_target")
+        enemy = COMBAT_ENEMY_DATA.get(target_id) if isinstance(target_id, str) else None
+        if not enemy:
+            return ()
+        overrides = player_data.get("loot_overrides") or {}
+        rows = []
+        for item_name in combat_enemy_drop_item_names_pure(enemy):
+            rows.append({"item": item_name, "mode": overrides.get(item_name, "auto")})
+        return tuple(rows)
+
+    def _set_loot_override(item_name: str, mode: str):
+        overrides = player_data.get("loot_overrides")
+        if not isinstance(overrides, dict):
+            overrides = {}
+        if mode in ("keep", "leave"):
+            overrides[item_name] = mode
+        else:
+            overrides.pop(item_name, None)
+        player_data["loot_overrides"] = overrides
+        save_player_data()
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -735,6 +763,8 @@ def _on_main_menu():
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
+        on_set_loot_override=_set_loot_override,
+        loot_override_rows=_current_combat_loot_rows(),
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),

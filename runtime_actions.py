@@ -493,7 +493,10 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     # it again; stackables, coins, and unknown-value items are kept.
     if drops:
         threshold = player_data.get("loot_value_threshold", inventory_pure.DEFAULT_LOOT_VALUE_THRESHOLD)
-        drops, left = inventory_pure.filter_loot_pure(drops, ITEM_VALUES, threshold, STACKABLE_ITEM_NAMES)
+        overrides = player_data.get("loot_overrides")
+        drops, left = inventory_pure.filter_loot_pure(
+            drops, ITEM_VALUES, threshold, STACKABLE_ITEM_NAMES, overrides
+        )
         if left:
             inventory = player_data.get("inventory", {}) or {}
             for item_name, amount in left.items():

@@ -175,6 +175,18 @@ class TestLootFilter(unittest.TestCase):
         self.assertEqual(kept, {"Rune bar": 1})
         self.assertEqual(left, {"Feather": 40})
 
+    def test_overrides_win_over_threshold_and_value(self):
+        values = {"Bones": 1, "Rune bar": 2000}
+        overrides = {"Bones": "keep", "Rune bar": "leave"}
+        kept, left = filter_loot_pure(
+            {"Bones": 3, "Rune bar": 1, "Coins": 50}, values, threshold=10,
+            stackable_names=set(), overrides=overrides,
+        )
+        # Force-keep a below-threshold item; force-leave a valuable one; coins are
+        # exempt from a "leave" and always kept.
+        self.assertEqual(kept, {"Bones": 3, "Coins": 50})
+        self.assertEqual(left, {"Rune bar": 1})
+
 
 class TestBagCapacity(unittest.TestCase):
     def test_coal_bag_raises_capacity_only_when_carrying_coal(self):
