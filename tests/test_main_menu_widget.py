@@ -425,6 +425,13 @@ def _open_shop_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_first_shop(dialog: "QDialog") -> None:
+    """Browse-first Shop tab: no shop opens until one is clicked."""
+    selector = _find_named_list(dialog, "shopSelectionList")
+    selector.setCurrentItem(selector.item(0))
+    QApplication.processEvents()
+
+
 def _list_texts(list_widget: "QListWidget") -> list[str]:
     return [list_widget.item(i).text() for i in range(list_widget.count())]
 
@@ -568,7 +575,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
         self.assertIn("Services / Vendor Actions", labels)
 
-    def test_shop_defaults_to_a_live_stock_shop(self) -> None:
+    def test_shop_opens_browse_first_and_detail_is_collapsible(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
         from shop_logic import shop_view_model_pure
 
@@ -577,19 +584,33 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog = self._open(player_data)
         _open_shop_tab(dialog)
 
-        title = _find_named_label(dialog, "shopDetailTitle")
+        shell = dialog.findChild(QWidget, "shopDetailShell")
         selector = _find_named_list(dialog, "shopSelectionList")
-        buy_button = _find_named_button(dialog, "shopTransactionButton")
-        preview = _find_named_label(dialog, "shopPreviewLabel")
+        title = _find_named_label(dialog, "shopDetailTitle")
 
-        # The default shop is whichever backend shop the selector ranks first;
-        # it must be live (buyable) rather than a locked/read-only shop.
+        # No default shop: the detail panel stays closed until a shop is clicked.
+        self.assertIsNotNone(shell)
+        self.assertFalse(shell.isVisibleTo(dialog))
+        self.assertIsNone(selector.currentItem())
+
+        _open_first_shop(dialog)
         first_payload = selector.item(0).data(Qt.ItemDataRole.UserRole)
         self.assertEqual(first_payload.get("kind"), "shop")
-        default_view = shop_view_model_pure(player_data, first_payload["shop_id"])
-        self.assertEqual(title.text(), default_view["display_name"])
-        self.assertTrue(any(row.get("can_buy") for row in default_view["rows"]))
-        self.assertTrue(buy_button.isEnabled(), preview.text())
+        opened_view = shop_view_model_pure(player_data, first_payload["shop_id"])
+        self.assertTrue(shell.isVisibleTo(dialog))
+        self.assertEqual(title.text(), opened_view["display_name"])
+        buy_button = _find_named_button(dialog, "shopTransactionButton")
+        self.assertTrue(buy_button.isEnabled(), _find_named_label(dialog, "shopPreviewLabel").text())
+
+        # The collapse control returns the space to the shop list.
+        collapse = next(
+            button for button in dialog.findChildren(QToolButton)
+            if button.objectName() == "shopDetailCollapseButton"
+        )
+        collapse.click()
+        QApplication.processEvents()
+        self.assertFalse(shell.isVisibleTo(dialog))
+        self.assertIsNone(selector.currentItem())
 
     def test_shop_icons_render_for_stock_search_sell_and_services(self) -> None:
         from shop_fixtures import build_shop_frontend_fixtures
@@ -597,6 +618,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         fixtures = build_shop_frontend_fixtures()
         dialog = self._open(fixtures["fixture_player_data"])
         _open_shop_tab(dialog)
+        _open_first_shop(dialog)
 
         stock_buttons = [
             button for button in dialog.findChildren(QToolButton)
@@ -643,6 +665,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         pd["inventory"]["Coins"] = 0
         dialog = self._open(pd)
         _open_shop_tab(dialog)
+        _open_first_shop(dialog)
 
         meta = _find_named_label(dialog, "shopDetailMeta")
         preview = _find_named_label(dialog, "shopPreviewLabel")

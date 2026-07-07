@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPC Shop UI Polish + Asset Backfill — Results</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; font-weight: 300; line-height: 1.55; padding: 2.5rem 1.5rem 4rem; }
+.wrap { max-width: 1080px; margin: 0 auto; }
+.badge { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em; color: var(--green); background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.35); border-radius: 999px; padding: 0.3rem 0.9rem; margin-bottom: 1rem; }
+h1 { font-weight: 700; font-size: 2rem; margin-bottom: 0.5rem; }
+.subtitle { color: var(--text-dim); font-size: 0.95rem; max-width: 780px; margin-bottom: 2rem; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.9rem; margin-bottom: 2.2rem; }
+.metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; }
+.metric .num { font-weight: 700; font-size: 1.7rem; }
+.metric .num.green { color: var(--green); }
+.metric .num.amber { color: var(--amber); }
+.metric .num.accent { color: var(--accent); }
+.metric .label { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); margin-top: 0.2rem; }
+.metric .delta { font-size: 0.75rem; color: var(--text-dim); margin-top: 0.35rem; font-family: 'JetBrains Mono', monospace; }
+.metric .delta b { color: var(--green); font-weight: 600; }
+h2 { font-weight: 700; font-size: 1.15rem; margin: 2.2rem 0 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.3rem; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.card h3 { font-weight: 500; font-size: 1rem; margin-bottom: 0.5rem; }
+.card p { color: var(--text-dim); font-size: 0.86rem; margin-bottom: 0.6rem; }
+.plabel { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.45rem; }
+.plabel.fix { color: var(--red); }
+.plabel.nav { color: var(--amber); }
+.plabel.layout { color: var(--purple); }
+.plabel.done { color: var(--green); }
+.tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.6rem; }
+.tag { font-family: 'JetBrains Mono', monospace; font-size: 0.63rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 0.15rem 0.5rem; color: var(--text-dim); }
+.ba { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin-top: 0.7rem; }
+.pane { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.7rem; }
+.pane .pane-label { font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; letter-spacing: 0.12em; color: var(--text-dim); margin-bottom: 0.5rem; }
+.tile-row { display: flex; gap: 0.45rem; margin-bottom: 0.45rem; }
+.tile-row:last-child { margin-bottom: 0; }
+.tile { flex: 1; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.2rem; text-align: center; font-size: 0.6rem; color: var(--text); background: rgba(255,255,255,0.03); }
+.tile .ico { display: block; margin: 0 auto 0.2rem; image-rendering: pixelated; }
+.tile .ico.norm { font-size: 1.15rem; line-height: 1.2rem; }
+.tile .ico.tiny { font-size: 0.55rem; line-height: 1.2rem; }
+.tile.sel { border-color: var(--green); }
+.tile.empty { border-style: dashed; color: var(--text-dim); }
+p code, li code { font-family: 'JetBrains Mono', monospace; font-size: 0.78em; background: var(--surface-2); border: 1px solid var(--border); border-radius: 4px; padding: 0.05em 0.35em; color: var(--text); }
+.check { list-style: none; margin-top: 0.4rem; }
+.check li { display: flex; gap: 0.6rem; align-items: baseline; padding: 0.4rem 0; border-bottom: 1px solid rgba(42,48,64,0.55); font-size: 0.86rem; }
+.check li:last-child { border-bottom: none; }
+.check .ok { color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+.verify { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.3rem; font-family: 'JetBrains Mono', monospace; font-size: 0.74rem; line-height: 2; color: var(--text-dim); }
+.verify b { color: var(--green); font-weight: 600; }
+.note { color: var(--text-dim); font-size: 0.8rem; margin-top: 0.8rem; }
+.gap-list { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--text-dim); background: var(--surface-2); border: 1px dashed var(--border); border-radius: 8px; padding: 0.6rem 0.8rem; line-height: 1.9; margin-top: 0.6rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">COMPLETED · 2026-07-06</div>
+    <h1>NPC Shop UI Polish + Asset Backfill — Results</h1>
+    <p class="subtitle">
+        All five feedback items from the live-tab review are done: the missing item and shop icons are
+        backfilled from the wiki, icon sizes are uniform via nearest-neighbor scaling, the stock grid is
+        taller and packs correctly, services are visually separated, and the tab is now browse-first with
+        a collapsible detail panel. Qt still renders backend truth only.
+    </p>
+
+    <div class="metrics">
+        <div class="metric"><div class="num green">547</div><div class="label">Sprites backfilled</div><div class="delta">shopitems/ · provenance recorded</div></div>
+        <div class="metric"><div class="num green">269 / 272</div><div class="label">Shops with selector icons</div><div class="delta">was <b>222</b> (50 blank)</div></div>
+        <div class="metric"><div class="num amber">24</div><div class="label">Pinned icon gaps</div><div class="delta">was 570 missing items</div></div>
+        <div class="metric"><div class="num accent">750 + 750</div><div class="label">Tests passing (both suites)</div><div class="delta">143 skipped non-Qt</div></div>
+    </div>
+
+    <h2>What changed</h2>
+    <div class="grid">
+        <div class="card">
+            <div class="plabel fix">ASSETS · GENERATOR-DERIVED BACKFILL</div>
+            <h3>570-item manifest, 547 sprites fetched</h3>
+            <p>New <code>tools/fetch_shop_assets.py</code> derives its manifest from <code>SHOP_DATA</code>
+            (visible live/locked stock with no registry asset anywhere) and fetched through the shared
+            rate-limited wiki client. <code>SHOP_ITEM_IMAGES</code> existence-scans the folder, so the new
+            art wired itself into the item registry, and shop selector icons (first stock icon) filled in
+            for free. A new registry test pins the surviving gap list so future generator growth can't
+            silently ship iconless stock.</p>
+            <div class="gap-list">Unresolvable (color-variant-only wiki files): Boots, Hat, Shirt, Skirt, Shorts, Trousers, Gloves, Robe top/bottoms, Fremennik cloak/shirt, pirate + villager + tribal clothing, Shantay pass, Damaged book · Registry identity collision: Willow-blackjack (backend follow-up flagged)</div>
+            <div class="tags"><span class="tag">tools/fetch_shop_assets.py</span><span class="tag">shopitems/</span><span class="tag">assets_provenance.json</span><span class="tag">tests/test_skill_and_item_registry.py</span></div>
+        </div>
+        <div class="card">
+            <div class="plabel fix">ICONS · NEAREST-NEIGHBOR SCALING</div>
+            <h3>Uniform crisp sprites at every call site</h3>
+            <p>Wiki sprites vary from ~12px to ~40px and QIcon never upscales, which produced the
+            tiny-vs-normal mix. New <code>_pixel_item_icon</code> scales every sprite to its slot
+            (32px tiles, 24px lists) with <code>FastTransformation</code> — nearest neighbor, no blur —
+            sized for the screen's device pixel ratio and cached. Stock tiles, the shop selector, search
+            rows, sell rows, and service rows all route through it.</p>
+            <div class="ba">
+                <div class="pane">
+                    <div class="pane-label">BEFORE — RAW QICON SIZES</div>
+                    <div class="tile-row">
+                        <div class="tile"><span class="ico tiny">🥄</span>Spade</div>
+                        <div class="tile"><span class="ico norm">🍅</span>Tomato</div>
+                        <div class="tile empty">Rake (no icon)</div>
+                    </div>
+                </div>
+                <div class="pane">
+                    <div class="pane-label">AFTER — UNIFORM 32PX, PIXELATED</div>
+                    <div class="tile-row">
+                        <div class="tile"><span class="ico norm">🥄</span>Spade</div>
+                        <div class="tile"><span class="ico norm">🍅</span>Tomato</div>
+                        <div class="tile sel"><span class="ico norm">🧹</span>Rake</div>
+                    </div>
+                </div>
+            </div>
+            <div class="tags"><span class="tag">ui.py</span></div>
+        </div>
+        <div class="card">
+            <div class="plabel nav">NAVIGATION · BROWSE-FIRST</div>
+            <h3>No default shop; click to open; Close ✕ collapses</h3>
+            <p>The tab opens to a full-height shop list (~19 shops visible at once) with a hint line.
+            Clicking a shop compacts the list and opens the detail panel; the <code>Close ✕</code> button
+            collapses it and clears the selection. Search results no longer auto-select either — nothing
+            opens until you choose it. The old auto-selected default (and its accidental
+            <code>setCurrentRow(0)</code> path) is gone.</p>
+            <ul class="check">
+                <li><span class="ok">✓</span><span>Opens with detail hidden, no selector current item</span></li>
+                <li><span class="ok">✓</span><span>Click opens; title matches the backend view model</span></li>
+                <li><span class="ok">✓</span><span>Collapse hides the panel and restores list height</span></li>
+            </ul>
+            <div class="tags"><span class="tag">ui.py</span><span class="tag">tests/test_main_menu_widget.py</span></div>
+        </div>
+        <div class="card">
+            <div class="plabel layout">LAYOUT · STOCK GRID + SERVICES</div>
+            <h3>Taller grid, top-left packing, framed services</h3>
+            <p>The stock area guarantees two full tile rows (182px minimum) and stretches with the dialog
+            — Alice's 29-row general store now shows ~18 tiles before scrolling instead of 6. Virtual
+            stretch cells (column 6, row 199) pack tiles top-left, killing the centered-with-huge-gaps
+            look. Services / Vendor Actions moved into a framed <code>shopServicesPanel</code> with its own
+            header and inline qty + Use controls, matching the transaction panel's visual weight. Verified
+            with light and dark palettes; all colors stay palette-derived.</p>
+            <div class="tags"><span class="tag">ui.py</span><span class="tag">.claude/rules/qt-dark-mode-text.md</span></div>
+        </div>
+    </div>
+
+    <h2>Verification</h2>
+    <div class="verify">
+        python3 run_tests.py → <b>OK</b> · 750 tests, 143 skipped<br>
+        QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests → <b>OK</b> · 750 tests<br>
+        8 shop Qt tests updated/added: browse-first open, click-to-open, collapse, icons, buy/sell/service flows<br>
+        offscreen screenshots (light + dark palette): browse list, 'Two Feet' fish shop, Alice's Farming Shop with full garden-tool iconography
+    </div>
+    <p class="note">Plan artifact (unmodified, for comparison):
+    <code>memory-bank/status-updates/npc-shop-ui-polish-plan-2026-07-06.html</code>. Contract boundary held —
+    prices, lock reasons, stock behavior, sell policy, and service semantics all remain backend-owned.</p>
+</div>
+</body>
+</html>

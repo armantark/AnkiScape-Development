@@ -19,15 +19,30 @@ The Shop tab now renders item imagery from the shared
 sell inventory rows, and service/vendor command rows. Stock tiles are
 `QToolButton` controls using icon-over-text presentation; row stock/price/source
 details live in tooltips and selected-row preview text rather than crowding the
-tile face. The Shop tab deterministically defaults to the selector's
-first-ranked shop (live shops sort before locked ones, then by display name),
-so with the price policy resolved that is `'Two Feet' Charley's Fish Shop`, not
-a locked wall. Fourteen focused sprites for actionable shop/service content
-live in `shopitems/` with provenance: Summoning Supplies sprites (Antlers,
-Lizard skull, Feather headdress, Spirit shards, Pouch, Spirit shard pack), the
-five Papa Mambo seeds, Oak plank, Newspaper, and Kebab. `constants.py` exposes
-them through `SHOP_ITEM_IMAGES`, merged into the item registry like the other
-skill item folders.
+tile face.
+
+A same-day UI-polish pass then reworked Shop-tab navigation to browse-first:
+the tab opens with no default shop, the shop list takes the full tab height,
+clicking a shop opens the detail panel (compact list above it), and a
+`Close ✕` control (`shopDetailCollapseButton`) collapses the detail and
+restores the full list. The stock grid is at least two full tile rows tall and
+stretches with the dialog, tiles pack top-left via virtual stretch cells, and
+Services / Vendor Actions live in their own framed `shopServicesPanel`. All
+shop icons route through `_pixel_item_icon`, which nearest-neighbor upscales
+sprites to uniform slot sizes (32px tiles, 24px lists) with device-pixel-ratio
+awareness, fixing the tiny-vs-normal icon mix.
+
+The asset backfill is generator-derived: `tools/fetch_shop_assets.py` builds
+its manifest from `SHOP_DATA` (visible live/locked stock lacking any registry
+asset) and fetched 547 sprites into `shopitems/` with provenance, on top of the
+fourteen earlier focused sprites (Summoning Supplies, Papa Mambo seeds, Oak
+plank, Newspaper, Kebab). `SHOP_ITEM_IMAGES` existence-scans the folder, so
+269 of 272 visible shops now resolve selector icons. Twenty-four visible stock
+items remain deliberately iconless: 23 generic clothing names whose wiki files
+are color-variant-only (Boots, Hat, Villager robe, etc.) and `Willow-blackjack`,
+whose registry identity collides with the quest catalog's `Willow blackjack`
+(flagged for a backend follow-up). The pinned gap list is asserted by
+`test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`.
 
 Current-state availability now comes from backend preview payloads, not Qt
 guesses. `shop_logic.py` preview results include owned/required currency,
@@ -39,10 +54,12 @@ catalog locks remain exactly backend-sourced (`currency_not_implemented`,
 `unknown_item`, hidden reward/activity shops) and are not inferred from
 quest/skill names in the frontend.
 
-Verification for this pass:
-`python3 run_tests.py` passed with 749 tests and 143 skipped, and
+Verification after the UI-polish/backfill pass:
+`python3 run_tests.py` passed with 750 tests and 143 skipped, and
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
-passed with 749 tests.
+passed with 750 tests. Offscreen light and dark-palette screenshots confirmed
+browse-first navigation, icon-over-text tiles with uniform sprites, and the
+framed services panel.
 
 ## Equipment backend contract
 The backend equipment pass is complete. `tools/generate_equipment_data.py`

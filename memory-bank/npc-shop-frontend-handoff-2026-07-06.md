@@ -75,6 +75,7 @@ Completed: 2026-07-06
 - Hidden reward/activity shops remain out of normal browse and item-first search through `include_hidden=False` and visible-shop filtering.
 - Added targeted offscreen Qt coverage in `tests/test_main_menu_widget.py` for hidden-shop exclusion, locked non-coin search, live stock buy, general-store sell/player-sold stock, service/vendor actions, global history, and icon-over-text stock tiles.
 - The follow-up price-policy pass resolved normal coin stock from Darkan cache values and enum overrides, leaving visible locks for non-coin currencies and blocked rows for unknown items rather than `price_policy_unresolved`.
+- A UI-polish pass made the Shop tab browse-first (no default shop; click to open; `Close ✕` collapses the detail so the full-height shop list returns), gave the stock grid at least two full tile rows with top-left packing, framed Services / Vendor Actions as their own panel, and normalized all shop icons through nearest-neighbor `_pixel_item_icon` scaling. `tools/fetch_shop_assets.py` backfilled 547 `shopitems/` sprites from the `SHOP_DATA`-derived manifest; the remaining 24 iconless stock items are pinned in `test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`.
 
 Verification (after the price-policy pass):
 

@@ -681,6 +681,41 @@ def _item_icon_path(item_name: str) -> Optional[str]:
     return None
 
 
+# Wiki sprites range from ~12px to ~40px and QIcon never upscales, so raw
+# QIcon(path) renders small pixel art tiny next to normal-sized art. This
+# helper normalizes every icon to the slot size with nearest-neighbor scaling
+# (crisp pixels, no blur), sized for the screen's device pixel ratio.
+_PIXEL_ICON_CACHE: dict = {}
+
+
+def _pixel_item_icon(item_name: str, size: int) -> Optional["QIcon"]:
+    icon_path = _item_icon_path(item_name)
+    if not icon_path:
+        return None
+    key = (icon_path, size)
+    icon = _PIXEL_ICON_CACHE.get(key)
+    if icon is not None:
+        return icon
+    pixmap = QPixmap(icon_path)
+    if pixmap.isNull():
+        return None
+    try:
+        ratio = float(QApplication.primaryScreen().devicePixelRatio())
+    except Exception:
+        ratio = 1.0
+    target = max(1, int(size * ratio))
+    pixmap = pixmap.scaled(
+        target,
+        target,
+        Qt.AspectRatioMode.KeepAspectRatio,
+        Qt.TransformationMode.FastTransformation,
+    )
+    pixmap.setDevicePixelRatio(ratio)
+    icon = QIcon(pixmap)
+    _PIXEL_ICON_CACHE[key] = icon
+    return icon
+
+
 def grouped_inventory(inventory: dict) -> list:
     """Group owned items by registry category in display order.
 
@@ -2750,7 +2785,9 @@ def show_main_menu(
 
     shop_selector = QListWidget()
     shop_selector.setObjectName("shopSelectionList")
-    shop_selector.setMaximumHeight(116)
+    # Max height is managed by _sync_shop_detail_visibility: full height while
+    # browsing, compact while a shop's detail panel is open.
+    shop_selector.setMinimumHeight(116)
     shop_selector.setIconSize(QSize(24, 24))
     shop_selector.setAlternatingRowColors(True)
     shop_selector.setStyleSheet(
@@ -2759,7 +2796,12 @@ def show_main_menu(
         " QListWidget::item { padding: 5px 7px; border-radius: 6px; }"
         " QListWidget::item:selected { background: rgba(76,175,80,0.30); color: palette(text); }"
     )
-    shop_layout.addWidget(shop_selector)
+    shop_layout.addWidget(shop_selector, 1)
+
+    shop_placeholder = QLabel("Click a shop to browse its stock, prices, and services.")
+    shop_placeholder.setObjectName("shopDetailPlaceholder")
+    shop_placeholder.setStyleSheet(f"color: {dim_text_css(shop_placeholder)}; padding: 2px;")
+    shop_layout.addWidget(shop_placeholder)
 
     shop_shell = QWidget()
     shop_shell.setObjectName("shopDetailShell")
@@ -2781,8 +2823,18 @@ def show_main_menu(
     shop_meta = QLabel("")
     shop_meta.setObjectName("shopDetailMeta")
     shop_meta.setStyleSheet(f"color: {dim_text_css(shop_meta)};")
+    shop_collapse_btn = QToolButton()
+    shop_collapse_btn.setObjectName("shopDetailCollapseButton")
+    shop_collapse_btn.setText("Close ✕")
+    shop_collapse_btn.setToolTip("Collapse this shop panel and return to the shop list")
+    shop_collapse_btn.setStyleSheet(
+        "QToolButton { border: 1px solid palette(mid); border-radius: 6px;"
+        " padding: 2px 8px; color: palette(text); background: transparent; }"
+        " QToolButton:hover { border-color: #4CAF50; }"
+    )
     shop_header_layout.addWidget(shop_title, 1)
     shop_header_layout.addWidget(shop_meta)
+    shop_header_layout.addWidget(shop_collapse_btn)
     shop_shell_layout.addWidget(shop_header)
 
     shop_mode_tabs = QTabWidget()
@@ -2796,13 +2848,18 @@ def show_main_menu(
     stock_scroll = QScrollArea()
     stock_scroll.setObjectName("shopStockScroll")
     stock_scroll.setWidgetResizable(True)
-    stock_scroll.setMinimumHeight(78)
-    stock_scroll.setMaximumHeight(78)
+    # Two full tile rows (2 x 66px tiles + spacing/margins) fit without clipping.
+    stock_scroll.setMinimumHeight(182)
     stock_scroll.setStyleSheet("QScrollArea#shopStockScroll { border: 1px solid palette(mid); border-radius: 8px; }")
     stock_content = QWidget()
     stock_grid = QGridLayout(stock_content)
     stock_grid.setContentsMargins(6, 6, 6, 6)
     stock_grid.setSpacing(6)
+    # Pack tiles top-left instead of letting the grid center/stretch them
+    # across leftover space (which produced floating tiles and huge gaps).
+    # Column 6 and row 199 are virtual stretch-only cells past any real tile.
+    stock_grid.setColumnStretch(6, 1)
+    stock_grid.setRowStretch(199, 1)
     stock_scroll.setWidget(stock_content)
     buy_layout.addWidget(stock_scroll, 1)
     shop_mode_tabs.addTab(buy_page, "Buy Items")
@@ -2876,10 +2933,21 @@ def show_main_menu(
     transaction_layout.addWidget(shop_preview_label)
     shop_shell_layout.addWidget(transaction_panel)
 
+    # Services and vendor actions are not ordinary stock rows; frame them as
+    # their own panel so they read as a separate section, not trailing widgets.
+    services_panel = QWidget()
+    services_panel.setObjectName("shopServicesPanel")
+    services_panel.setStyleSheet(
+        "QWidget#shopServicesPanel { border: 1px solid palette(mid); border-radius: 8px;"
+        " background: rgba(255,255,255,0.03); }"
+    )
+    services_panel_layout = QVBoxLayout(services_panel)
+    services_panel_layout.setContentsMargins(8, 6, 8, 8)
+    services_panel_layout.setSpacing(5)
     services_header = QLabel("Services / Vendor Actions")
     services_header.setObjectName("shopServicesHeader")
     services_header.setStyleSheet("font-weight: 600; color: palette(text);")
-    shop_shell_layout.addWidget(services_header)
+    services_panel_layout.addWidget(services_header)
     service_row = QWidget()
     service_row_layout = QHBoxLayout(service_row)
     service_row_layout.setContentsMargins(0, 0, 0, 0)
@@ -2910,12 +2978,13 @@ def show_main_menu(
     service_controls_layout.addWidget(service_use_btn)
     service_controls_layout.addStretch(1)
     service_row_layout.addWidget(service_controls)
-    shop_shell_layout.addWidget(service_row)
+    services_panel_layout.addWidget(service_row)
     service_preview = QLabel("")
     service_preview.setObjectName("shopServicePreviewLabel")
     service_preview.setWordWrap(True)
     service_preview.setStyleSheet(f"color: {dim_text_css(service_preview)};")
-    shop_shell_layout.addWidget(service_preview)
+    services_panel_layout.addWidget(service_preview)
+    shop_shell_layout.addWidget(services_panel)
 
     history_header = QWidget()
     history_header_layout = QHBoxLayout(history_header)
@@ -2951,7 +3020,7 @@ def show_main_menu(
     shop_toast.setWordWrap(True)
     shop_toast.setStyleSheet("color: #4CAF50; font-weight: 600;")
     shop_shell_layout.addWidget(shop_toast)
-    shop_layout.addWidget(shop_shell, 1)
+    shop_layout.addWidget(shop_shell, 3)
 
     shop_state = {
         "shop_id": "",
@@ -2983,9 +3052,12 @@ def show_main_menu(
             str(shop.get("display_name", "")),
         )
 
-    def _default_shop_id() -> str:
-        visible = sorted(_visible_shop_defs(), key=_shop_selector_sort_key)
-        return str(visible[0].get("id", "")) if visible else ""
+    def _sync_shop_detail_visibility(detail_open: bool) -> None:
+        # Browse-first: the shop list owns the tab until a shop is opened, and
+        # gets its height back when the detail panel is collapsed.
+        shop_shell.setVisible(detail_open)
+        shop_placeholder.setVisible(not detail_open)
+        shop_selector.setMaximumHeight(132 if detail_open else 16777215)
 
     def _visible_service_defs() -> list:
         rows = []
@@ -3050,9 +3122,9 @@ def show_main_menu(
         return ""
 
     def _set_list_item_icon(item: QListWidgetItem, item_name: str) -> None:
-        icon_path = _item_icon_path(item_name)
-        if icon_path:
-            item.setIcon(QIcon(icon_path))
+        icon = _pixel_item_icon(item_name, 24)
+        if icon is not None:
+            item.setIcon(icon)
 
     def _replace_player_data(new_data: dict) -> None:
         player_data.clear()
@@ -3076,12 +3148,14 @@ def show_main_menu(
             pass
 
     def _shop_view() -> dict:
-        visible = _visible_shop_defs()
-        if not visible:
+        # No default shop: until the user clicks a shop, there is no detail
+        # view. An invalid/stale id degrades to the browse state rather than
+        # silently swapping in a different shop.
+        shop_id = shop_state["shop_id"]
+        if not shop_id or all(shop.get("id") != shop_id for shop in _visible_shop_defs()):
+            shop_state["shop_id"] = ""
             return {"exists": False, "rows": []}
-        if not shop_state["shop_id"] or all(shop.get("id") != shop_state["shop_id"] for shop in visible):
-            shop_state["shop_id"] = _default_shop_id()
-        return shop_view_model_pure(player_data, shop_state["shop_id"])
+        return shop_view_model_pure(player_data, shop_id)
 
     def _selected_buy_row(view: dict | None = None) -> Optional[dict]:
         view = view if view is not None else _shop_view()
@@ -3128,11 +3202,11 @@ def show_main_menu(
             btn.setText(_stock_tile_text(row, currency_name))
             btn.setObjectName(f"shopStockTile_{_safe_object_suffix(row_id)}")
             btn.setProperty("shopRowId", row_id)
-            btn.setMinimumSize(100, 58)
-            icon_path = _item_icon_path(str(row.get("item_name", "")))
-            if icon_path:
-                btn.setIcon(QIcon(icon_path))
-                btn.setIconSize(QSize(28, 28))
+            btn.setMinimumSize(104, 66)
+            icon = _pixel_item_icon(str(row.get("item_name", "")), 32)
+            if icon is not None:
+                btn.setIcon(icon)
+                btn.setIconSize(QSize(32, 32))
             if hasattr(btn, "setToolButtonStyle"):
                 try:
                     btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon)  # type: ignore[attr-defined]
@@ -3386,12 +3460,10 @@ def show_main_menu(
     def _render_shop_detail() -> None:
         view = _shop_view()
         if not view.get("exists"):
-            shop_title.setText("No shops available")
-            shop_meta.setText("")
-            _render_stock_grid()
-            _refresh_transaction_panel()
-            _populate_shop_history()
+            shop_state["row_id"] = ""
+            _sync_shop_detail_visibility(False)
             return
+        _sync_shop_detail_visibility(True)
         shop_title.setText(str(view.get("display_name", "NPC shop")))
         currency_name = str(view.get("currency_item_name", "Coins"))
         meta_parts = [f"{currency_name}: {_inventory_count_for_ui(currency_name):,} owned"]
@@ -3441,9 +3513,9 @@ def show_main_menu(
                     if result.get("kind") == "stock" and result.get("shop_id") == current_shop_id and selected_item is None:
                         selected_item = item
                 if selected_item is not None:
+                    shop_selector.blockSignals(True)
                     shop_selector.setCurrentItem(selected_item)
-                elif shop_selector.count():
-                    shop_selector.setCurrentRow(0)
+                    shop_selector.blockSignals(False)
                 return
             empty = QListWidgetItem("No visible shop stock, service, or vendor action matches this search.")
             empty.setFlags(Qt.ItemFlag.NoItemFlags)
@@ -3480,9 +3552,18 @@ def show_main_menu(
                 item.setForeground(dim_text_color(shop_selector))
             shop_selector.addItem(item)
             if shop.get("id") == current_shop_id:
+                shop_selector.blockSignals(True)
                 shop_selector.setCurrentItem(item)
-        if shop_selector.currentItem() is None and shop_selector.count():
-            shop_selector.setCurrentRow(0)
+                shop_selector.blockSignals(False)
+
+    def _collapse_shop_detail() -> None:
+        shop_state["shop_id"] = ""
+        shop_state["row_id"] = ""
+        shop_selector.blockSignals(True)
+        shop_selector.clearSelection()
+        shop_selector.setCurrentItem(None)
+        shop_selector.blockSignals(False)
+        _render_shop_detail()
 
     def _on_shop_selector_clicked(item: QListWidgetItem) -> None:
         payload = item.data(Qt.ItemDataRole.UserRole) if item is not None else None
@@ -3534,11 +3615,9 @@ def show_main_menu(
     service_qty.valueChanged.connect(lambda _value=1: _refresh_service_preview())
     service_use_btn.clicked.connect(lambda _=False: _apply_service_transaction())
     global_history_btn.toggled.connect(lambda checked=False: global_history.setVisible(bool(checked)))
+    shop_collapse_btn.clicked.connect(lambda _=False: _collapse_shop_detail())
 
     _populate_shop_selector()
-    selected_shop_item = shop_selector.currentItem()
-    if selected_shop_item is not None:
-        _on_shop_selector_clicked(selected_shop_item)
     _populate_services()
     _render_shop_detail()
 

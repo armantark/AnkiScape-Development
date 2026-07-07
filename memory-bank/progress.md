@@ -77,6 +77,23 @@
   Verification: `python3 run_tests.py` passed with 749 tests (143 skipped), and
   `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 749 tests.
+- NPC shop UI polish + asset backfill is complete as of 2026-07-06, from
+  maintainer feedback on the live tab. The Shop tab is now browse-first: no
+  default shop opens, the shop list takes the full tab height, clicking a shop
+  opens the detail panel, and a `Close ✕` control collapses it again. The
+  stock grid shows at least two full tile rows, stretches with the dialog, and
+  packs tiles top-left; Services / Vendor Actions moved into their own framed
+  panel. Every shop icon routes through `_pixel_item_icon`, a nearest-neighbor
+  scaler that upsizes small pixel sprites to uniform 32px tile / 24px list
+  slots with device-pixel-ratio awareness. `tools/fetch_shop_assets.py`
+  derives its manifest from `SHOP_DATA` and backfilled 547 sprites into
+  `shopitems/` with provenance, so 269 of 272 visible shops resolve selector
+  icons; the 24 remaining gaps (23 color-variant-only clothing wiki titles
+  plus the `Willow-blackjack` registry identity collision) are pinned by
+  `test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`.
+  Verification: `python3 run_tests.py` passed with 750 tests (143 skipped), and
+  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
+  passed with 750 tests.
 - Review-action telemetry and shared probability normalization are in place as of 2026-06-20. Storage config version 19 seeds and migrates `player_data["action_telemetry"]`; runtime records started actions for every skill/action family, including dry RNG attempts and Cooking burns; probabilistic source-chance helpers now share the AnkiScape review adapter. At Lv 18, the big-net mackerel row now has about a 37.7% catch chance per action tick instead of about 24.7%.
 - The full quest reward surface now carries generated item rewards, source-backed journal/checklist stages, and structured XP lamp rewards. Lamp rewards are flattened into Bank Claims with preserved skill options/minimum levels; implemented skill XP is granted immediately and unimplemented skill XP parks in `pending_skill_exp_rewards`.
 - The quest stage-gate surface now has broad generated/focused coverage. The

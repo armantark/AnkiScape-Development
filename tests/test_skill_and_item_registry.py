@@ -469,11 +469,50 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Spirit shards",
             "Pouch",
             "Spirit shard pack",
+            # Backfill pass: derived from SHOP_DATA by tools/fetch_shop_assets.py.
+            # (Spade resolves through the quest item registry, not shopitems/.)
+            "Rake",
+            "Seed dibber",
+            "Secateurs",
+            "Gardening trowel",
+            "Watering can",
         )
         for item_name in expected:
             self.assertIn(item_name, SHOP_ITEM_IMAGES)
             self.assertEqual(by_storage_key[item_name].asset_path, SHOP_ITEM_IMAGES[item_name])
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps(self):
+        """Every visible live/locked shop row resolves an icon except a pinned
+        set of wiki-unresolvable items (color-variant clothing files) and the
+        Willow-blackjack registry identity collision. New gaps mean the shop
+        generator grew stock without a matching asset fetch."""
+        import os
+
+        from shop_data import SHOP_DATA
+
+        known_gaps = {
+            "Boots", "Damaged book", "Fremennik cloak", "Fremennik shirt",
+            "Gloves", "Hat", "Karidian headpiece", "Pirate bandana",
+            "Pirate leggings", "Robe bottoms", "Robe top", "Shantay pass",
+            "Shirt", "Shorts", "Skirt", "Stripy pirate shirt", "Tribal top",
+            "Trousers", "Villager armband", "Villager hat", "Villager robe",
+            "Villager sandals", "Woven top", "Willow-blackjack",
+        }
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        missing = set()
+        for shop in SHOP_DATA.values():
+            if shop.get("visibility") == "hidden":
+                continue
+            for row in shop.get("stock", []):
+                name = row.get("item_name", "")
+                if not name or row.get("disposition") == "blocked":
+                    continue
+                definition = by_storage_key.get(name)
+                asset_path = definition.asset_path if definition else None
+                if not (asset_path and os.path.exists(asset_path)):
+                    missing.add(name)
+        self.assertEqual(missing - known_gaps, set())
 
     def test_combat_items_are_registered_with_icons(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
