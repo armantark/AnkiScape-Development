@@ -77,6 +77,7 @@ from .ui import (
     migrate_legacy_settings,
 )
 from . import ui
+from . import inventory_pure
 from .deck_injection_pure import DeckBrowserContent as _DBC, inject_into_deck_browser_content
 from .injectors import inject_reviewer_floating_button as _inject_reviewer_floating_button
 from .injectors import inject_overview_floating_button as _inject_overview_floating_button
@@ -742,6 +743,77 @@ def _on_main_menu():
         player_data["loot_overrides"] = overrides
         save_player_data()
 
+    # The 4x7 carried-pack grid applies to every skilling target the overlay
+    # tracks (gathering AND processing) — a superset of the gathering-only
+    # Keep/Drop toggle above.
+    def _current_carried_pack_target():
+        handler_key = review_action_handler_key(current_skill)
+        target_key = runtime_actions._OVERLAY_TARGET_KEYS.get(handler_key)
+        target_id = player_data.get(target_key) if target_key else None
+        return str(target_id) if target_id else None
+
+    def _current_carried_advanced_state():
+        target_id = _current_carried_pack_target()
+        if target_id is None:
+            return False
+        return target_id in (player_data.get("carried_advanced_targets") or {})
+
+    def _current_carried_layout_cells():
+        # Exactly 28 (item_name_or_None, display_count) cells, slot-accurate
+        # (stackables get one cell showing their full count; unstackables get
+        # one cell per unit) — pure display math, already capacity-capped.
+        target_id = _current_carried_pack_target()
+        if target_id is None:
+            return tuple((None, 0) for _ in range(inventory_pure.CARRIED_CAPACITY))
+        layout = (player_data.get("carried_layout") or {}).get(target_id, {})
+        return tuple(
+            inventory_pure.layout_to_grid_cells_pure(layout, runtime_actions._OVERLAY_STACKABLE_NAMES)
+        )
+
+    def _set_carried_advanced(enabled: bool):
+        target_id = _current_carried_pack_target()
+        if target_id is None:
+            return
+        advanced = player_data.get("carried_advanced_targets")
+        if not isinstance(advanced, dict):
+            advanced = {}
+        if enabled:
+            advanced[target_id] = True
+        else:
+            advanced.pop(target_id, None)
+        player_data["carried_advanced_targets"] = advanced
+        save_player_data()
+
+    def _add_to_carried_layout(item_name: str, delta: int):
+        target_id = _current_carried_pack_target()
+        if target_id is None:
+            return
+        layout = player_data.get("carried_layout")
+        if not isinstance(layout, dict):
+            layout = {}
+        target_layout = dict(layout.get(target_id, {}))
+        new_count = max(0, int(target_layout.get(item_name, 0)) + int(delta))
+        if new_count > 0:
+            target_layout[item_name] = new_count
+        else:
+            target_layout.pop(item_name, None)
+        if target_layout:
+            layout[target_id] = target_layout
+        else:
+            layout.pop(target_id, None)
+        player_data["carried_layout"] = layout
+        save_player_data()
+
+    def _clear_carried_layout():
+        target_id = _current_carried_pack_target()
+        if target_id is None:
+            return
+        layout = player_data.get("carried_layout")
+        if isinstance(layout, dict):
+            layout.pop(target_id, None)
+            player_data["carried_layout"] = layout
+        save_player_data()
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -765,6 +837,11 @@ def _on_main_menu():
         on_set_loot_threshold=lambda value: _set_value("loot_value_threshold", value),
         on_set_loot_override=_set_loot_override,
         loot_override_rows=_current_combat_loot_rows(),
+        on_set_carried_advanced=_set_carried_advanced,
+        carried_advanced_state=_current_carried_advanced_state(),
+        carried_layout_cells=_current_carried_layout_cells(),
+        on_add_to_carried_layout=_add_to_carried_layout,
+        on_clear_carried_layout=_clear_carried_layout,
         on_set_combat=lambda target: _set_value("current_combat_target", target),
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),

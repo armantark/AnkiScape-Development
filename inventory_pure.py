@@ -500,6 +500,40 @@ def carried_fold_gains_pure(
     return view
 
 
+def layout_to_grid_cells_pure(
+    layout: Any,
+    stackable_names: set[str] | frozenset[str],
+    capacity: int = CARRIED_CAPACITY,
+) -> list[tuple[str | None, int]]:
+    """Expand a ``{item: count}`` layout into exactly ``capacity`` grid cells.
+
+    Each cell is ``(item_name, display_count)``; an empty cell is ``(None, 0)``.
+    A stackable item takes one cell showing its full count; an unstackable item
+    takes one cell per unit (each showing count 1). Overflow beyond ``capacity``
+    is simply not shown — this is a display of the *saved* layout, and
+    ``apply_carried_layout_pure`` is what actually caps it at bank-run time.
+    """
+    capacity = _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
+    cells: list[tuple[str | None, int]] = []
+    if isinstance(layout, Mapping):
+        for item_name, raw_count in layout.items():
+            if not isinstance(item_name, str) or len(cells) >= capacity:
+                continue
+            count = _clean_int(raw_count, 0, minimum=0)
+            if count <= 0:
+                continue
+            if item_name in stackable_names:
+                cells.append((item_name, count))
+            else:
+                for _ in range(count):
+                    if len(cells) >= capacity:
+                        break
+                    cells.append((item_name, 1))
+    while len(cells) < capacity:
+        cells.append((None, 0))
+    return cells[:capacity]
+
+
 def default_carried_state() -> dict[str, Any]:
     return {
         "carried_inventory": {},           # {target_id: {item: count}} — death/loot content

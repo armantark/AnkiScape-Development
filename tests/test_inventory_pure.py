@@ -22,6 +22,7 @@ from inventory_pure import (
     inventory_delta_gains,
     pack_processing_inputs_pure,
     apply_carried_layout_pure,
+    layout_to_grid_cells_pure,
     sanitize_carried_state,
 )
 
@@ -240,6 +241,24 @@ class TestProcessingPackAndAdvancedLayout(unittest.TestCase):
         sanitize_carried_state(data)
         self.assertEqual(data["carried_layout"], {})
         self.assertEqual(data["carried_advanced_targets"], {})
+
+
+class TestLayoutToGridCells(unittest.TestCase):
+    def test_unstackable_takes_one_cell_per_unit_stackable_takes_one_cell(self):
+        cells = layout_to_grid_cells_pure({"Logs": 3, "Nature rune": 500}, {"Nature rune"}, capacity=28)
+        self.assertEqual(len(cells), 28)
+        non_empty = [c for c in cells if c[0] is not None]
+        self.assertEqual(non_empty.count(("Logs", 1)), 3)
+        self.assertIn(("Nature rune", 500), non_empty)
+        self.assertEqual(cells.count((None, 0)), 28 - 4)
+
+    def test_empty_layout_is_all_empty_cells(self):
+        self.assertEqual(layout_to_grid_cells_pure({}, set(), capacity=28), [(None, 0)] * 28)
+
+    def test_overflow_beyond_capacity_is_simply_not_shown(self):
+        cells = layout_to_grid_cells_pure({"Logs": 40}, set(), capacity=28)
+        self.assertEqual(len(cells), 28)
+        self.assertEqual(cells.count(("Logs", 1)), 28)
 
 
 class TestGateForceTrigger(unittest.TestCase):
