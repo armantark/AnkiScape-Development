@@ -183,14 +183,23 @@ coins, and unknown-value items are always kept. Default threshold lowered from a
 placeholder 50 to **10** (keep a monster's real drops like raw meat; leave only
 near-worthless junk); tunable.
 
-Two refinements remain, both genuinely gated:
-- **Full-cache value table** (all items, not just the 943 shop items) needs the
-  JDK-24 cache dump — the machine has JDK 23, so unknown-value drops are kept
-  conservatively until then.
-- **Kept loot competes for carried slots / drops on death** needs combat to feed
-  drops into a carried pack; combat runs its own `combat_supply_loadout` +
-  bank-run, so this is a real integration whose feel needs the live app and owner
-  validation.
+Both earlier-gated refinements are now **also shipped**:
+- **Full-cache value table — DONE.** Installed `openjdk@25` (runs the core jar's
+  class-file v68), added `tools/DumpDarkanItemValues.java` + `tools/gen_item_values.py`,
+  and generated `item_values_generated.py` (10,768 real `getValue()` entries, 1,130
+  stackable names, noted variants excluded). `item_values.py` layers it over the
+  shop-price fallback, so drops have real cache values — no more keep-on-unknown
+  for common items.
+- **Kept loot competes for carried slots / drops on death — DONE (owner chose the
+  unified model).** Kept loot folds into the combat target's carried view, so it
+  drops on death via the existing carried death-path and, once the pack fills to
+  28, forces the *existing* combat bank-run (alongside food/ammo depletion); the
+  bank trip deposits the loot. `logic_pure._combat_loot_slots` /
+  `_combat_deposit_loot`; fold in `handle_combat_answer`.
+
+**The carried-inventory model is fully implemented across all three slices.**
+The only non-code item is a live render/feel pass in a real Anki+Qt environment
+(the offscreen UI tests run there; Qt is absent from the build env).
 
 ### 2f / 2g findings (2026-07-07) — earlier blocker notes
 
