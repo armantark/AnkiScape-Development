@@ -252,28 +252,51 @@ def inventory_delta_gains(inv_before: Any, inv_after: Any) -> dict[str, int]:
     return gains
 
 
-def advance_carried_overlay_pure(
+def carried_bank_run_gate_pure(
     view: Any,
-    produced: Any,
     keep: bool,
     stackable_names: set[str] | frozenset[str],
     target_id: Any,
     bank_run_state: Any,
     reviews_cost: int = SKILLING_BANK_RUN_REVIEWS,
-) -> tuple[dict[str, int], dict[str, Any], dict[str, Any]]:
-    """Fold one action tick's output into the carried view and drive the bank-run.
+) -> tuple[dict[str, Any], dict[str, int], dict[str, Any], bool]:
+    """Decide, **before** an action tick, whether the tick is spent banking.
 
-    ``view`` is ``carried_inventory[target_id]`` (what is in hand). Under **Keep**,
-    the tick's ``produced`` items accumulate into it; when it fills to
-    ``CARRIED_CAPACITY`` slots a bank-run is triggered (``bank_run_progress_pure``)
-    and, on completion, the view clears (the items stay banked in the flat store).
-    Under **Drop** nothing is carried and nothing banks — the fastest-XP path.
+    The teeth: when the carried pack is full (``CARRIED_CAPACITY`` slots) the
+    player must bank before acting again, so the next answer buys the bank-run
+    instead of skill XP — exactly how combat spends answers when supplies run out.
 
-    Returns ``(new_view, new_bank_run_state, event)``.
+    Returns ``(new_bank_run_state, new_view, event, act)``. ``act=False`` means the
+    caller must skip the action this tick (it went to banking). On a completed run
+    the view clears (the items stay banked in the flat store). Under **Drop**
+    nothing is carried and nothing banks, so the tick always acts.
     """
     view = dict(view) if isinstance(view, Mapping) else {}
+    idle = {"active": False, "started": False, "completed": False, "reviews_remaining": 0}
     if not keep:
-        return {}, {}, {"active": False, "started": False, "completed": False, "reviews_remaining": 0}
+        return {}, view, idle, True
+    active = bool(sanitize_bank_run_state(bank_run_state, reviews_cost))
+    full = carried_slots_used(view, stackable_names) >= CARRIED_CAPACITY
+    if not (active or full):
+        return sanitize_bank_run_state(bank_run_state, reviews_cost), view, idle, True
+    new_state, event = bank_run_progress_pure(bank_run_state, True, target_id, reviews_cost)
+    if event.get("completed"):
+        view = {}
+    return new_state, view, event, False
+
+
+def carried_fold_gains_pure(
+    view: Any,
+    produced: Any,
+    stackable_names: set[str] | frozenset[str],
+) -> dict[str, int]:
+    """Fold a Keep action tick's gains into the carried view (coins excluded).
+
+    Called **after** a tick that acted, so the produced items accumulate in the
+    pack until the next gate spends a tick banking them. ``stackable_names`` is
+    accepted for symmetry with the rest of the overlay API.
+    """
+    view = dict(view) if isinstance(view, Mapping) else {}
     if isinstance(produced, Mapping):
         for item_name, qty in produced.items():
             if not isinstance(item_name, str) or item_name == COIN_ITEM_NAME:
@@ -281,11 +304,7 @@ def advance_carried_overlay_pure(
             gained = _clean_int(qty, 0, minimum=0)
             if gained > 0:
                 view[item_name] = view.get(item_name, 0) + gained
-    full = carried_slots_used(view, stackable_names) >= CARRIED_CAPACITY
-    new_state, event = bank_run_progress_pure(bank_run_state, full, target_id, reviews_cost)
-    if event.get("completed"):
-        view = {}
-    return view, new_state, event
+    return view
 
 
 def default_carried_state() -> dict[str, Any]:

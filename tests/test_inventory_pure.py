@@ -12,7 +12,8 @@ from inventory_pure import (
     money_pouch_balance,
     pack_carried_inventory_pure,
     bank_run_progress_pure,
-    advance_carried_overlay_pure,
+    carried_bank_run_gate_pure,
+    carried_fold_gains_pure,
     inventory_delta_gains,
     sanitize_carried_state,
 )
@@ -173,37 +174,45 @@ class TestCarriedOverlayAdvance(unittest.TestCase):
         after = {"Coal": 8, "Coins": 150, "Bronze bar": 1}
         self.assertEqual(inventory_delta_gains(before, after), {"Coal": 3})
 
-    def test_keep_accumulates_until_full_then_banks_and_clears(self):
-        view, state = {}, {}
-        # 27 single-coal ticks accumulate without banking.
-        for _ in range(27):
-            view, state, event = advance_carried_overlay_pure(
-                view, {"Coal": 1}, keep=True, stackable_names=set(),
-                target_id="coal", bank_run_state=state,
-            )
-            self.assertFalse(event["completed"])
-        self.assertEqual(carried_slots_used(view, set()), 27)
-        # The 28th fills the pack -> a 1-review bank-run completes and clears it.
-        view, state, event = advance_carried_overlay_pure(
-            view, {"Coal": 1}, keep=True, stackable_names=set(),
-            target_id="coal", bank_run_state=state,
+    def _mine_one_tick(self, view, state):
+        """A gather tick: gate (act?), and if acting, fold one coal into the view."""
+        state, view, event, act = carried_bank_run_gate_pure(
+            view, keep=True, stackable_names=set(), target_id="coal", bank_run_state=state,
         )
+        if act:
+            view = carried_fold_gains_pure(view, {"Coal": 1}, set())
+        return view, state, event, act
+
+    def test_pack_fills_then_a_tick_is_spent_banking_and_clears(self):
+        view, state = {}, {}
+        acted = 0
+        for _ in range(28):
+            view, state, event, act = self._mine_one_tick(view, state)
+            acted += 1 if act else 0
+        # 28 gather ticks all acted (pack now full at 28 slots), none banked yet.
+        self.assertEqual(acted, 28)
+        self.assertEqual(carried_slots_used(view, set()), CARRIED_CAPACITY)
+        # The next tick is spent banking: no action, 1-review run completes, view clears.
+        view, state, event, act = self._mine_one_tick(view, state)
+        self.assertFalse(act)
         self.assertTrue(event["completed"])
         self.assertEqual(view, {})
+        # And the following tick gathers again.
+        view, state, event, act = self._mine_one_tick(view, state)
+        self.assertTrue(act)
+        self.assertEqual(carried_slots_used(view, set()), 1)
 
-    def test_drop_never_carries_or_banks(self):
-        view, state, event = advance_carried_overlay_pure(
-            {"Coal": 20}, {"Coal": 1}, keep=False, stackable_names=set(),
-            target_id="coal", bank_run_state={},
+    def test_drop_always_acts_and_never_banks(self):
+        # Drop never banks; it also does not destroy items already in the pack.
+        state, view, event, act = carried_bank_run_gate_pure(
+            {"Coal": 28}, keep=False, stackable_names=set(), target_id="coal", bank_run_state={},
         )
-        self.assertEqual(view, {})
+        self.assertTrue(act)
+        self.assertEqual(view, {"Coal": 28})
         self.assertFalse(event["active"])
 
-    def test_coins_never_enter_the_view(self):
-        view, _, _ = advance_carried_overlay_pure(
-            {}, {"Coins": 500, "Coal": 2}, keep=True, stackable_names=set(),
-            target_id="coal", bank_run_state={},
-        )
+    def test_fold_excludes_coins(self):
+        view = carried_fold_gains_pure({}, {"Coins": 500, "Coal": 2}, set())
         self.assertEqual(view, {"Coal": 2})
 
 
