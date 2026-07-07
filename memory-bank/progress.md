@@ -88,9 +88,12 @@
   slots with device-pixel-ratio awareness. `tools/fetch_shop_assets.py`
   derives its manifest from `SHOP_DATA` and backfilled 547 sprites into
   `shopitems/` with provenance, so 269 of 272 visible shops resolve selector
-  icons; the 24 remaining gaps (23 color-variant-only clothing wiki titles
-  plus the `Willow-blackjack` registry identity collision) are pinned by
-  `test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`.
+  icons; the remaining gaps (color-variant-only clothing wiki titles) are
+  pinned by `test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`.
+  The `Willow-blackjack` identity collision was then fixed at the generator
+  layer: `ITEM_NAME_NORMALIZATIONS` maps item 4600 to the quest catalog's
+  `Willow blackjack` storage key, so the shop row, quest gates, icon, and
+  Bank category all share one registered item.
   Verification: `python3 run_tests.py` passed with 750 tests (143 skipped), and
   `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
   passed with 750 tests.

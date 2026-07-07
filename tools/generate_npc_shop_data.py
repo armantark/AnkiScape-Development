@@ -229,7 +229,21 @@ def load_2011_items(path: Path) -> dict[int, ItemMeta]:
     }
 
 
+# Storage-key normalizations where the items.yml cache name differs from the
+# storage key another AnkiScape system already registered for the same item.
+# 4600: items.yml spells it "Willow-blackjack" but The Feud quest catalog
+# registers the identical weapon as "Willow blackjack"; without normalization
+# the two keys slug-collide and the shop item silently loses its registry
+# entry, icon, and Bank category.
+ITEM_NAME_NORMALIZATIONS: dict[int, str] = {
+    4600: "Willow blackjack",
+}
+
+
 def _item_name(items: dict[int, ItemMeta], item_id: int, fallback: str | None = None) -> str:
+    normalized = ITEM_NAME_NORMALIZATIONS.get(item_id)
+    if normalized:
+        return normalized
     meta = items.get(item_id)
     if meta:
         return meta.name

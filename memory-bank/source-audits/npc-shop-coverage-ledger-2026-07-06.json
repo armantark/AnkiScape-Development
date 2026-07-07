@@ -3622,7 +3622,7 @@
           "disposition": "live",
           "id": "blackjack_seller:0:4600",
           "item_id": 4600,
-          "item_name": "Willow-blackjack",
+          "item_name": "Willow blackjack",
           "lock_reason": "",
           "price_policy": "darkan_shop_cache_price",
           "price_source": "Darkan Shop.java getBuyPrice/getSellPrice via cache item definitions and enum overrides",

@@ -47,12 +47,17 @@ its manifest from `SHOP_DATA` (visible live/locked stock lacking any registry
 asset) and fetched 547 sprites into `shopitems/` with provenance, on top of the
 fourteen earlier focused sprites (Summoning Supplies, Papa Mambo seeds, Oak
 plank, Newspaper, Kebab). `SHOP_ITEM_IMAGES` existence-scans the folder, so
-269 of 272 visible shops now resolve selector icons. Twenty-four visible stock
-items remain deliberately iconless: 23 generic clothing names whose wiki files
-are color-variant-only (Boots, Hat, Villager robe, etc.) and `Willow-blackjack`,
-whose registry identity collides with the quest catalog's `Willow blackjack`
-(flagged for a backend follow-up). The pinned gap list is asserted by
-`test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`.
+269 of 272 visible shops now resolve selector icons. Twenty-three visible
+stock items remain deliberately iconless: generic clothing names whose wiki
+files are color-variant-only (Boots, Hat, Villager robe, etc.). The pinned gap
+list is asserted by
+`test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps`. The former
+24th gap is resolved: shop item 4600 was items.yml's `Willow-blackjack`, which
+slug-collided with The Feud quest catalog's `Willow blackjack` and silently
+lost its registry entry; `ITEM_NAME_NORMALIZATIONS` in
+`tools/generate_npc_shop_data.py` now normalizes cache names to storage keys
+other systems already registered for the same item, so the shop sells the
+quest item's key and shares its icon.
 
 Current-state availability now comes from backend preview payloads, not Qt
 guesses. `shop_logic.py` preview results include owned/required currency,

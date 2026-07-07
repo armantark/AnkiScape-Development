@@ -484,9 +484,9 @@ class TestSkillAndItemRegistry(unittest.TestCase):
 
     def test_npc_shop_visible_stock_icon_coverage_has_only_known_gaps(self):
         """Every visible live/locked shop row resolves an icon except a pinned
-        set of wiki-unresolvable items (color-variant clothing files) and the
-        Willow-blackjack registry identity collision. New gaps mean the shop
-        generator grew stock without a matching asset fetch."""
+        set of wiki-unresolvable items (color-variant clothing files). New
+        gaps mean the shop generator grew stock without a matching asset
+        fetch."""
         import os
 
         from shop_data import SHOP_DATA
@@ -497,7 +497,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "Pirate leggings", "Robe bottoms", "Robe top", "Shantay pass",
             "Shirt", "Shorts", "Skirt", "Stripy pirate shirt", "Tribal top",
             "Trousers", "Villager armband", "Villager hat", "Villager robe",
-            "Villager sandals", "Woven top", "Willow-blackjack",
+            "Villager sandals", "Woven top",
         }
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         missing = set()
