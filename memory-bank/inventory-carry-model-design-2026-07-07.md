@@ -148,6 +148,23 @@ handler. Remaining prep before writing it:
 Verify with new `test_runtime_actions.py` cases (28 gather ticks → 29th banks,
 no XP → 30th gathers), then a light offscreen/live smoke.
 
+### 2f / 2g findings (2026-07-07) — blockers to resolve first
+
+- **2f loot filter needs a runtime item→value table.** `loot_should_pick_up` is
+  built and tested, but the cache `value` was only extracted into the generator's
+  *shop prices*, not a runtime name→value map. Combat drops (`_combat_roll_drops`)
+  also bank directly today; combat uses `combat_supply_loadout`, not the carried
+  pack. So 2f is two jobs: (a) plumb the extracted cache `value` into a runtime
+  table (e.g. emit an `ITEM_VALUES` map from `generate_npc_shop_data.py`), and
+  (b) route rolled combat drops through the filter into a carried pack. Do (a)
+  first as its own slice.
+- **2g ambush unify — reconsider.** `wilderness_shop_slots` counts *shop purchase*
+  volume (28 bought → 1% ambush); the carried `churn` counts *skilling* slots.
+  These measure unrelated flows; folding them into one accumulator would conflate
+  buying with gathering. Recommendation: keep them separate (they already share the
+  28 constant); do not force a merge. Revisit only if a unified "trip" concept
+  emerges.
+
 ### Remaining slice-2 sub-slices (each its own tested commit)
 
 - **2c — skilling bank-run state machine** (pure, mirrors combat; 1 review).
