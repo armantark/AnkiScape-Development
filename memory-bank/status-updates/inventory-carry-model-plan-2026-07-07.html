@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>28-Slot Carried Inventory — Design</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:900px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; letter-spacing:0.12em; color:var(--accent); background:rgba(79,140,255,0.15); border:1px solid rgba(79,140,255,0.4); border-radius:999px; padding:0.3rem 0.9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:1.75rem; margin-bottom:0.5rem; }
+.sub { color:var(--text-dim); font-size:0.92rem; margin-bottom:1.6rem; }
+.decisions { display:grid; gap:0.7rem; }
+.d { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0.85rem 1.1rem; display:grid; grid-template-columns:auto 1fr; gap:0.9rem; align-items:start; }
+.n { font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; color:var(--bg); background:var(--accent); border-radius:6px; padding:0.15rem 0.5rem; height:fit-content; }
+.d h3 { font-size:0.95rem; font-weight:500; margin-bottom:0.2rem; }
+.d p { color:var(--text-dim); font-size:0.85rem; }
+.d .key { color:var(--purple); }
+h2 { font-size:1.05rem; font-weight:500; margin:1.6rem 0 0.6rem; }
+.grid { display:grid; grid-template-columns:repeat(4, 1fr); gap:0.35rem; max-width:280px; margin:0.6rem 0; }
+.slot { aspect-ratio:1; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; }
+.slot.food { border-color:rgba(74,222,128,0.5); }
+.slot.coal { border-color:rgba(139,149,168,0.6); }
+.slot.bag { border-color:rgba(167,139,250,0.6); }
+.mode { display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-top:0.6rem; }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:0.9rem 1.1rem; }
+.card h4 { font-size:0.85rem; font-weight:500; margin-bottom:0.3rem; }
+.card p { color:var(--text-dim); font-size:0.82rem; }
+.card.def h4 { color:var(--green); } .card.adv h4 { color:var(--amber); }
+.note { background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.3); border-radius:8px; padding:0.7rem 1rem; margin-top:1.2rem; font-size:0.85rem; color:var(--text-dim); }
+.note b { color:var(--amber); font-weight:500; }
+code { font-family:'JetBrains Mono',monospace; font-size:0.8em; background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:0.05em 0.35em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="badge">DESIGN · GRILLED 2026-07-07 · NOT YET BUILT</div>
+    <h1>28-Slot Carried Inventory</h1>
+    <p class="sub">The number 28 already recurs everywhere — combat food cap, batch-28 utilities, the
+    tanning "one inventory load", the Wilderness ambush's slot count. They're all shadows of one missing
+    primitive: a real carried inventory. This makes it explicit, and gives coal/gem/rune bags a reason to exist.</p>
+
+    <div class="grid">
+        <div class="slot food">🍖</div><div class="slot food">🍖</div><div class="slot coal">⛏</div><div class="slot bag">🎒</div>
+        <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
+    </div>
+
+    <div class="decisions">
+        <div class="d"><span class="n">1</span><div><h3>Teeth, for everyone</h3><p>A bag is worth <span class="key">exactly the cost of a bank run</span> — so the limit is real, not cosmetic, or bags are inert.</p></div></div>
+        <div class="d"><span class="n">2</span><div><h3>Overlay, not replacement</h3><p>The flat bank stays source of truth (protects the parity price tables + every module reading <code>inventory[name]</code>). The grid is a carried subset — an ordering + capacity layer.</p></div></div>
+        <div class="d"><span class="n">3</span><div><h3>Auto-execute always; swap the policy</h3><p>Bank runs never open a menu. Default = a dumb-but-<span class="key">transparent</span> auto-manager. Advanced = set the layout once, auto-executed. Exactly how combat auto-eat already works.</p></div></div>
+        <div class="d"><span class="n">4</span><div><h3>Advanced beats default — by a little</h3><p>~10–20% fewer bank-run reviews. A nudge, never a 2x gulf that punishes casuals.</p></div></div>
+        <div class="d"><span class="n">5</span><div><h3>Input + output, unified</h3><p>Processing/combat drain the grid; gathering fills it. One model everywhere — so mining coal bags and gem bags finally matter.</p></div></div>
+        <div class="d"><span class="n">6</span><div><h3>Stackable rule (source-authentic)</h3><p>Stackables = 1 slot; unstackables = 1 each. A bag packs an unstackable (coal, gems) into one slot. That IS the bag's whole value.</p></div></div>
+        <div class="d"><span class="n">7</span><div><h3>Asymmetric bank cost</h3><p>Gathering banks <span class="key">free</span> (already one card per action). Processing/combat cost 1 review (combat keeps its existing 2). That's where the food-vs-supplies balancing lives.</p></div></div>
+        <div class="d"><span class="n">8</span><div><h3>Keep / Drop per gathering target</h3><p><b>Keep</b> = product to grid, free auto-bank. <b>Drop</b> = no product, no banking, max XP. Authentic power-mining, and the real "some you bank, some you drop."</p></div></div>
+    </div>
+
+    <h2>Default vs Advanced — same machinery, different driver</h2>
+    <div class="mode">
+        <div class="card def"><h4>Default (casual)</h4><p>Just answer cards. The auto-manager packs & refills. You see "banked: 20 food / 8 coal, +1 review." Zero setup — download and play.</p></div>
+        <div class="card adv"><h4>Advanced (opt-in)</h4><p>Set the 4×7 layout & bags once. Auto-executed at every bank run. A smart pack beats the dumb default for more XP/review.</p></div>
+    </div>
+
+    <div class="note"><b>Warrants its own implementation grill before any code.</b> Still open: the default
+    auto-manager heuristic (must be competent — a dumb default that silently makes casuals worse is the one
+    unacceptable outcome), the v1 bag roster + capacities, the transparency surface, and subsuming the
+    existing <code>combat_supply_loadout</code>. The cheap, safe part — making the combat eat-queue an
+    ordered consume list (which also lets you queue kebab/beer in-combat) — can ship independently.</div>
+</div>
+</body>
+</html>

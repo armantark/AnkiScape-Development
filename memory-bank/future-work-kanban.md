@@ -377,6 +377,27 @@ config 28. Combat auto-eat ignores both (not in COMBAT_FOOD_DATA) — the one
 remaining follow-up is the in-combat food-priority opt-in for drinking them
 mid-fight, which needs auto-eat to model stat side effects.
 
+### Next - 28-Slot Carried Inventory (owner-grilled 2026-07-07)
+
+Full design: `memory-bank/inventory-carry-model-design-2026-07-07.md`.
+Locked decisions: teeth for everyone (A), as an *overlay* over the flat bank
+(not a replacement — protects the parity price tables); bank runs always
+auto-execute (no per-empty menu) with a swappable packing policy (dumb +
+transparent default auto-manager, or set-once advanced layout, mirroring how
+combat auto-eat already works); advanced yields a *small* XP/review edge;
+input+output teeth unified (B), so gathering fills the grid and bags — coal,
+gem, rune — finally matter; source-authentic stackable rule (stackables one
+slot, unstackables one each, bags pack unstackables); gathering banks free,
+processing/combat cost 1 review (combat keeps 2); per-target Keep/Drop toggle
+for power-gathering. This subsumes `combat_supply_loadout` and the recurring
+28-constants. Warrants its own implementation grill/pass (default
+auto-manager heuristic, bag roster, UI); do NOT start without one.
+
+Small correction already agreed: the combat eat-queue is an *ordered* consume
+list (fix the framing + let stat-food be queued in, solving the kebab/beer
+in-combat opt-in) — this is the cheap, safe part and can ship independently
+of the full inventory model.
+
 ## Priority Board
 
 ### P0 - Existing Skill Architecture And Old Debt (Complete)
