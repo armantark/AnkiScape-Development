@@ -2235,6 +2235,7 @@ class TestIntegrationSmoke(unittest.TestCase):
             "current_combat_spell": "fire_strike",
             "combat_auto_eat_food": ["Shark"],
             "combat_supply_loadout": {},
+            "combat_pack_mode": "max_safety",  # fill the 28-slot budget with food
             "combat_encounter": {},
             "constitution_level": 10,
         }
@@ -2246,10 +2247,10 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.player_data["combat_auto_eat_food"] = ["Shark"]
         self.assertTrue(addon.on_refill_combat_loadout())
-        self.assertEqual(addon.player_data["combat_supply_loadout"]["food"], {"Shark": 30})
+        self.assertEqual(addon.player_data["combat_supply_loadout"]["food"], {"Shark": 28})
         self.assertEqual(addon.player_data["combat_supply_loadout"]["potions"], {"Antipoison (2)": 1})
         self.assertEqual(addon.player_data["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
-        self.assertEqual(addon.player_data["inventory"]["Shark"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Shark"], 2)
         self.assertEqual(addon.player_data["inventory"]["Antipoison (2)"], 0)
         self.assertEqual(addon.player_data["inventory"]["Fire rune"], 5)
 

@@ -1038,6 +1038,24 @@ COMBAT_POISON_TIMER_SOURCE_PATH = (
 )
 COMBAT_FOOD_LOADOUT_CAPACITY = 28
 COMBAT_BANK_RUN_REVIEWS = 2
+
+# Combat packing mode allocates the 28-slot food+stat-potion budget: the mode
+# sets how many slots of food to carry, and stat potions fill the remainder.
+# Max-safety fills the trip with food; max-output carries minimal food (risky,
+# for out-gearing a target) and leaves room for damage potions; balanced is a
+# mix. These slot caps are AnkiScape balance knobs, tunable.
+_COMBAT_DEFAULT_PACK_MODE = "balanced"
+_COMBAT_VALID_PACK_MODES = ("balanced", "max_output", "max_safety")
+_COMBAT_FOOD_CAP_BY_MODE = {"max_safety": 28, "balanced": 18, "max_output": 8}
+
+
+def _combat_coerce_pack_mode(mode):
+    return mode if mode in _COMBAT_VALID_PACK_MODES else _COMBAT_DEFAULT_PACK_MODE
+
+
+def _combat_food_slot_cap(data):
+    mode = _combat_coerce_pack_mode(data.get("combat_pack_mode", _COMBAT_DEFAULT_PACK_MODE))
+    return min(COMBAT_FOOD_LOADOUT_CAPACITY, _COMBAT_FOOD_CAP_BY_MODE.get(mode, 18))
 COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
 COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM = 100
@@ -1069,6 +1087,7 @@ def default_combat_state_pure():
         "combat_auto_eat_threshold_percent": 40,
         "combat_auto_eat_food": list(_DEFAULT_COMBAT_AUTO_EAT_FOOD),
         "combat_supply_loadout": default_combat_supply_loadout_pure(),
+        "combat_pack_mode": _COMBAT_DEFAULT_PACK_MODE,
         "combat_special_attack_energy": COMBAT_SPECIAL_ATTACK_MAX_ENERGY,
         "combat_current_levels": {},
         "combat_status_effects": {},
@@ -1349,6 +1368,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         ),
         "combat_auto_eat_food": auto_food,
         "combat_supply_loadout": _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout")),
+        "combat_pack_mode": _combat_coerce_pack_mode(player_data.get("combat_pack_mode", _COMBAT_DEFAULT_PACK_MODE)),
         "combat_special_attack_energy": min(COMBAT_SPECIAL_ATTACK_MAX_ENERGY, special_energy),
         "combat_current_levels": _sanitize_combat_current_levels(player_data.get("combat_current_levels")),
         "combat_status_effects": _sanitize_combat_status_effects(player_data.get("combat_status_effects")),
@@ -1875,14 +1895,22 @@ def _combat_refill_food_loadout(data):
         data["combat_supply_loadout"] = loadout
         return
     inventory = dict(inventory)
+    # Food is capped by the packing mode's slot allocation (food is unstackable,
+    # so count == slots); the freed slots leave room for damage potions.
+    food_cap = _combat_food_slot_cap(data)
+    loaded_food = sum(_non_negative_int(amount, 0) for amount in food_loadout.values())
     for item_name in data.get("combat_auto_eat_food", ()) or ():
+        if loaded_food >= food_cap:
+            break
         if item_name not in COMBAT_FOOD_DATA:
             continue
         available = _non_negative_int(inventory.get(item_name, 0), 0)
         if available <= 0:
             continue
-        inventory[item_name] = 0
-        food_loadout[item_name] = _non_negative_int(food_loadout.get(item_name, 0), 0) + available
+        take = min(available, food_cap - loaded_food)
+        inventory[item_name] = available - take
+        food_loadout[item_name] = _non_negative_int(food_loadout.get(item_name, 0), 0) + take
+        loaded_food += take
     loadout["food"] = {item: amount for item, amount in food_loadout.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
@@ -2563,8 +2591,10 @@ def _combat_auto_drink_potions(data, combat_class):
 
 
 def _combat_refill_stat_potions(data):
-    """Load owned stat-potion doses from the bank into the combat loadout (all of
-    them; the food+potion budget/allocation lands with the packing-mode slice)."""
+    """Load owned stat-potion doses into the combat loadout, filling the budget
+    the packing mode left after food. Each flask is one slot (unstackable), so
+    max-safety (food fills 28) leaves no room and loads none, while max-output
+    (little food) leaves plenty for damage potions."""
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     stat_potions = dict(loadout.get("stat_potions", {}) or {})
     inventory = data.get("inventory", {}) or {}
@@ -2572,12 +2602,19 @@ def _combat_refill_stat_potions(data):
         data["combat_supply_loadout"] = loadout
         return
     inventory = dict(inventory)
-    for item_name in _COMBAT_STAT_POTION_ITEM_NAMES:
+    food_slots = sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values())
+    potion_slots = sum(_non_negative_int(amount, 0) for amount in stat_potions.values())
+    remaining = max(0, COMBAT_FOOD_LOADOUT_CAPACITY - food_slots - potion_slots)
+    for item_name in sorted(_COMBAT_STAT_POTION_ITEM_NAMES):
+        if remaining <= 0:
+            break
         available = _non_negative_int(inventory.get(item_name, 0), 0)
         if available <= 0:
             continue
-        inventory[item_name] = 0
-        stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) + available
+        take = min(available, remaining)
+        inventory[item_name] = available - take
+        stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) + take
+        remaining -= take
     loadout["stat_potions"] = {name: amount for name, amount in stat_potions.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
@@ -3275,6 +3312,13 @@ def combat_supply_loadout_summary_pure(player_data):
 def combat_has_active_encounter_pure(player_data):
     encounter = player_data.get("combat_encounter", {}) or {}
     return isinstance(encounter, Mapping) and isinstance(encounter.get("target_id"), str)
+
+
+def set_combat_pack_mode_pure(player_data, mode):
+    data = _copy_player_data_with_nested(player_data)
+    data.update(sanitize_combat_state_pure(data))
+    data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
+    return data
 
 
 def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):

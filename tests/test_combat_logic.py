@@ -169,11 +169,27 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Combat potion (3)": 1})
 
     def test_refill_loads_stat_potions_from_the_bank(self):
-        player = self._melee(inventory={"Shrimps": 5, "Super strength (4)": 3})
+        player = self._melee(inventory={"Shrimps": 5, "Super strength (4)": 3}, combat_pack_mode="max_output")
         refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
         self.assertTrue(ok, reason)
         self.assertEqual(refilled["combat_supply_loadout"]["stat_potions"], {"Super strength (4)": 3})
         self.assertEqual(refilled["inventory"]["Super strength (4)"], 0)
+
+    def test_pack_mode_allocates_the_food_and_potion_budget(self):
+        def loaded(mode):
+            player = self._melee(
+                inventory={"Shark": 100, "Super strength (4)": 20},
+                combat_auto_eat_food=["Shark"],
+                combat_pack_mode=mode,
+            )
+            lo = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)[0]["combat_supply_loadout"]
+            return sum(lo["food"].values()), sum(lo["stat_potions"].values())
+
+        # Max-safety fills the 28 budget with food (no room for potions); max-output
+        # carries minimal food and leaves the rest for damage potions; balanced is a mix.
+        self.assertEqual(loaded("max_safety"), (28, 0))
+        self.assertEqual(loaded("balanced"), (18, 10))
+        self.assertEqual(loaded("max_output"), (8, 20))
 
 
 class CombatDropItemNamesTest(unittest.TestCase):
@@ -3152,6 +3168,7 @@ class CombatLogicTest(unittest.TestCase):
             combat_current_levels={"attack": 97, "strength": 98},  # base 99, drained
             combat_recovery_progress={"stat_drain_ticks": 50},
             combat_auto_eat_food=["Shark"],
+            combat_pack_mode="max_safety",  # fill the 28-slot budget with food
         )
 
         recovered = apply_safe_combat_recovery_pure(player)
@@ -3168,8 +3185,9 @@ class CombatLogicTest(unittest.TestCase):
 
         refilled = apply_safe_combat_recovery_pure(recovered)
 
-        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 30})
-        self.assertEqual(refilled["inventory"]["Shark"], 0)
+        # The 28-slot budget caps food (max_safety = all food); 2 Shark stay banked.
+        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 28})
+        self.assertEqual(refilled["inventory"]["Shark"], 2)
         self.assertEqual(refilled["combat_bank_run"], {})
 
     def test_safe_recovery_resets_mismatched_bank_run_before_refill(self):
@@ -3347,15 +3365,16 @@ class CombatLogicTest(unittest.TestCase):
             equipment={"weapon": "Staff of fire"},
             inventory={"Shark": 30, "Antipoison (2)": 1, "Air rune": 5, "Mind rune": 5, "Fire rune": 5},
             combat_auto_eat_food=["Shark"],
+            combat_pack_mode="max_safety",  # fill the 28-slot budget with food
         )
 
         refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
 
         self.assertTrue(ok, reason)
-        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 30})
+        self.assertEqual(refilled["combat_supply_loadout"]["food"], {"Shark": 28})
         self.assertEqual(refilled["combat_supply_loadout"]["potions"], {"Antipoison (2)": 1})
         self.assertEqual(refilled["combat_supply_loadout"]["runes"], {"Air rune": 5, "Mind rune": 5})
-        self.assertEqual(refilled["inventory"]["Shark"], 0)
+        self.assertEqual(refilled["inventory"]["Shark"], 2)  # 28 loaded, 2 over the budget stay banked
         self.assertEqual(refilled["inventory"]["Antipoison (2)"], 0)
         self.assertEqual(refilled["inventory"]["Air rune"], 0)
         self.assertEqual(refilled["inventory"]["Mind rune"], 0)
