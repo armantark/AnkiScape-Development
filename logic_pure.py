@@ -1039,14 +1039,17 @@ COMBAT_POISON_TIMER_SOURCE_PATH = (
 COMBAT_FOOD_LOADOUT_CAPACITY = 28
 COMBAT_BANK_RUN_REVIEWS = 2
 
-# Combat packing mode allocates the 28-slot food+stat-potion budget: the mode
-# sets how many slots of food to carry, and stat potions fill the remainder.
-# Max-safety fills the trip with food; max-output carries minimal food (risky,
-# for out-gearing a target) and leaves room for damage potions; balanced is a
-# mix. These slot caps are AnkiScape balance knobs, tunable.
+# Combat packing mode allocates the single 28-slot inventory across three axes:
+# food (survival), stat-potion flasks (damage), and the slots left empty for
+# loot (fewer bank interruptions). Potions are capped as a small flask count
+# (each flask is 4 doses, so a couple last a whole trip and refill every bank
+# run — carrying 20 would be absurd). Max-safety leans food; max-output carries
+# little food + more damage potions and leaves the most room for loot (confident
+# out-gearing); balanced is a mix. All caps are tunable AnkiScape balance knobs.
 _COMBAT_DEFAULT_PACK_MODE = "balanced"
 _COMBAT_VALID_PACK_MODES = ("balanced", "max_output", "max_safety")
-_COMBAT_FOOD_CAP_BY_MODE = {"max_safety": 28, "balanced": 18, "max_output": 8}
+_COMBAT_FOOD_CAP_BY_MODE = {"max_safety": 20, "balanced": 14, "max_output": 8}
+_COMBAT_POTION_FLASK_CAP_BY_MODE = {"max_safety": 2, "balanced": 4, "max_output": 6}
 
 
 def _combat_coerce_pack_mode(mode):
@@ -1055,7 +1058,12 @@ def _combat_coerce_pack_mode(mode):
 
 def _combat_food_slot_cap(data):
     mode = _combat_coerce_pack_mode(data.get("combat_pack_mode", _COMBAT_DEFAULT_PACK_MODE))
-    return min(COMBAT_FOOD_LOADOUT_CAPACITY, _COMBAT_FOOD_CAP_BY_MODE.get(mode, 18))
+    return min(COMBAT_FOOD_LOADOUT_CAPACITY, _COMBAT_FOOD_CAP_BY_MODE.get(mode, 14))
+
+
+def _combat_potion_flask_cap(data):
+    mode = _combat_coerce_pack_mode(data.get("combat_pack_mode", _COMBAT_DEFAULT_PACK_MODE))
+    return _COMBAT_POTION_FLASK_CAP_BY_MODE.get(mode, 4)
 COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS = 1000
 COMBAT_GRAVE_RECOVERY_REVIEWS = 5
 COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM = 100
@@ -2025,7 +2033,7 @@ def _combat_deposit_loot(data, target_id):
 
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     _combat_refill_food_loadout(data)
-    _combat_refill_stat_potions(data)
+    _combat_refill_stat_potions(data, combat_class)
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
@@ -2042,8 +2050,10 @@ def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon
 
 
 def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
-    # A full loot pack forces a bank run just as running out of supplies does.
-    if _combat_loot_slots(data, target_id) >= CARRIED_CAPACITY:
+    # One 28-slot inventory: supplies (food/potions/ammo/runes) and loot share it,
+    # so a bank run is forced when together they fill it. As food is eaten the
+    # freed slots become loot room, exactly like a real inventory.
+    if _combat_supply_slots_used(data) + _combat_loot_slots(data, target_id) >= CARRIED_CAPACITY:
         return True
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
         return True
@@ -2590,11 +2600,25 @@ def _combat_auto_drink_potions(data, combat_class):
     return events
 
 
-def _combat_refill_stat_potions(data):
-    """Load owned stat-potion doses into the combat loadout, filling the budget
-    the packing mode left after food. Each flask is one slot (unstackable), so
-    max-safety (food fills 28) leaves no room and loads none, while max-output
-    (little food) leaves plenty for damage potions."""
+def _combat_relevant_potion_items(combat_class):
+    """Style-relevant stat-potion dose items, best-first: supers before regulars,
+    a Combat potion (boosts both melee stats from one slot) preferred, fuller
+    flasks first. Used so a small potion cap is never wasted on an off-style flask."""
+    relevant_skills = set(_combat_relevant_potion_skills(combat_class))
+    items = []
+    for item_name, (base_name, skills, strategy, dose) in _COMBAT_STAT_POTION_BY_DOSE.items():
+        if relevant_skills.intersection(skills):
+            covers_two = len(skills) > 1
+            rank = (1 if strategy == "s" else 0, 1 if covers_two else 0, int(dose))
+            items.append((rank, item_name))
+    items.sort(reverse=True)
+    return [item_name for _rank, item_name in items]
+
+
+def _combat_refill_stat_potions(data, combat_class="melee"):
+    """Load style-relevant stat-potion flasks into the loadout, up to the packing
+    mode's flask cap (a couple of doses last a whole trip and refill every bank
+    run). One flask = one slot; off-style potions are never loaded."""
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     stat_potions = dict(loadout.get("stat_potions", {}) or {})
     inventory = data.get("inventory", {}) or {}
@@ -2602,22 +2626,36 @@ def _combat_refill_stat_potions(data):
         data["combat_supply_loadout"] = loadout
         return
     inventory = dict(inventory)
-    food_slots = sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values())
-    potion_slots = sum(_non_negative_int(amount, 0) for amount in stat_potions.values())
-    remaining = max(0, COMBAT_FOOD_LOADOUT_CAPACITY - food_slots - potion_slots)
-    for item_name in sorted(_COMBAT_STAT_POTION_ITEM_NAMES):
-        if remaining <= 0:
+    cap = _combat_potion_flask_cap(data)
+    loaded = sum(_non_negative_int(amount, 0) for amount in stat_potions.values())
+    for item_name in _combat_relevant_potion_items(combat_class):
+        if loaded >= cap:
             break
         available = _non_negative_int(inventory.get(item_name, 0), 0)
         if available <= 0:
             continue
-        take = min(available, remaining)
+        take = min(available, cap - loaded)
         inventory[item_name] = available - take
         stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) + take
-        remaining -= take
+        loaded += take
     loadout["stat_potions"] = {name: amount for name, amount in stat_potions.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout
+
+
+def _combat_supply_slots_used(data):
+    """Slots the combat loadout occupies in the shared 28-slot inventory. Food and
+    unstackable potions cost one slot each; ammo/runes/cannonballs are stackable,
+    so one slot per distinct stack. What's left is room for loot."""
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    slots = 0
+    for key in ("food", "potions", "stat_potions"):
+        slots += sum(_non_negative_int(amount, 0) for amount in (loadout.get(key, {}) or {}).values())
+    for key in ("ammo", "runes"):
+        slots += sum(1 for amount in (loadout.get(key, {}) or {}).values() if _non_negative_int(amount, 0) > 0)
+    if _non_negative_int(loadout.get("cannonballs", 0), 0) > 0:
+        slots += 1
+    return slots
 
 
 def _consumable_heal(data, amount):
@@ -3349,12 +3387,12 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
         return data, False, "An active fight cannot refill supplies between review bursts."
     _combat_refill_food_loadout(data)
     _combat_refill_antipoison_loadout(data)
-    _combat_refill_stat_potions(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
         combat_attack_style_for_equipment_pure(data, equipment_data or {}),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
     )
     combat_class = str(style.get("combat_class", "melee"))
+    _combat_refill_stat_potions(data, combat_class)
     if combat_class == "ranged":
         _weapon_name, _equipment_spec, weapon_spec = _combat_ranged_weapon_spec(data, equipment_data or {})
         _combat_refill_ranged_ammo_loadout(data, weapon_spec)
