@@ -26,6 +26,31 @@ except ImportError:
         ITEM_VALUES_GENERATED, STACKABLE_ITEM_NAMES_GENERATED = {}, frozenset()
 
 
+def _plural_alias(name: str) -> str:
+    """AnkiScape names some stacks in the plural where the cache is singular
+    ('Arrow shafts' vs 'Arrow shaft', 'Bronze arrows' vs 'Bronze arrow')."""
+    return f"{name}s"
+
+
+def _add_plural_aliases(values: Dict[str, int], stackable: set) -> None:
+    """Register the plural form of each cache name as an alias of the singular.
+
+    Without this the lookup silently misses for every plural-named registry item
+    (219 of them), so a stackable item like Arrow shafts is treated as UNSTACKABLE:
+    slot accounting then counts 15 shafts as 15 slots, and Fletching forces a bank
+    run every other action. Aliases never overwrite a real cache entry, so a genuine
+    distinct item whose name happens to be another's plural is left alone.
+    """
+    for name in list(stackable):
+        alias = _plural_alias(name)
+        if alias not in stackable and alias not in values:
+            stackable.add(alias)
+    for name, value in list(values.items()):
+        alias = _plural_alias(name)
+        if alias not in values:
+            values[alias] = value
+
+
 def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str]]":
     # Shop-derived tables are the fallback; the generated cache values override.
     values: Dict[str, int] = {}
@@ -42,6 +67,7 @@ def _build_item_tables() -> "tuple[Dict[str, int], FrozenSet[str]]":
                 stackable.add(name)
     values.update(ITEM_VALUES_GENERATED)  # real cache getValue() wins over the proxy
     stackable |= set(STACKABLE_ITEM_NAMES_GENERATED)
+    _add_plural_aliases(values, stackable)
     return values, frozenset(stackable)
 
 

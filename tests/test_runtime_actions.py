@@ -1588,6 +1588,32 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertEqual(observed["refresh"], [99])
         self.assertEqual(observed["partial"], [])  # suppressed inside the scope
 
+    def test_churn_per_action_matches_real_runescape_trip_lengths(self):
+        # Balance guard for the invented churn=28 knob. Cross-checked against RS:
+        # smelting bronze carries 14 tin + 14 copper, so 14 smelts per trip; fletching
+        # 28 logs into *stacking* arrow shafts is 28 actions per trip. Regression here
+        # means slot accounting has drifted (e.g. a stackable read as unstackable,
+        # which once made Fletching bank every other action).
+        import runtime_actions as RA
+
+        cases = [
+            ("fletching", "current_fletch", "arrow_shafts", {"Logs": 500}, "fletching_level", 1),
+            ("firemaking", "current_firemaking", "logs", {"Logs": 500}, "firemaking_level", 1),
+            ("cooking", "current_cooking", "cook_shrimps", {"Raw shrimps": 500}, "cooking_level", 1),
+            ("smithing", "current_smith", "smelt_bronze_bar",
+             {"Tin ore": 500, "Copper ore": 500}, "smithing_level", 2),
+        ]
+        for key, target_key, target, inventory, level_key, expected_churn in cases:
+            with self.subTest(skill=key):
+                player_data = {
+                    "inventory": dict(inventory), target_key: target,
+                    level_key: 99, f"{key}_exp": 0, "completed_achievements": [],
+                }
+                calls = {"xp": [], "errors": [], "activity": []}
+                ctx = _context(player_data, calls, random_values=[0.0] * 40)
+                run_answer_with_carried_overlay(ctx, key, RA.answer_handler_for_key(key))
+                self.assertEqual(player_data["carried_churn"][target], expected_churn)
+
     def test_advanced_layout_seeds_the_pack_instead_of_the_casual_full_fill(self):
         player_data = self._base_player_data(100)
         player_data["carried_advanced_targets"] = {"logs": True}

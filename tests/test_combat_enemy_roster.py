@@ -80,6 +80,25 @@ ITEM_GATED_ENEMIES_NOT_MODELLED = ("gargoyle", "rockslug")
 
 
 class CombatEnemyRosterDataTest(unittest.TestCase):
+    def test_no_enemy_id_collides_with_a_skilling_target_id(self):
+        # carried_inventory is keyed by target id, and combat targets and skilling
+        # targets share that one namespace. A collision would make a combat bank run
+        # wipe a skilling pack's view, and a combat death drop that skill's carried
+        # materials. There is no collision today; this keeps it that way loudly.
+        from constants import (
+            ORE_DATA, TREE_DATA, FISHING_DATA, HUNTER_DATA, COOKING_DATA, CRAFTING_DATA,
+            FLETCHING_DATA, FIREMAKING_DATA, SMITHING_DATA, RUNECRAFTING_DATA,
+        )
+
+        skilling_ids = set()
+        for table in (ORE_DATA, TREE_DATA, FISHING_DATA, HUNTER_DATA, COOKING_DATA,
+                      CRAFTING_DATA, FLETCHING_DATA, FIREMAKING_DATA, SMITHING_DATA,
+                      RUNECRAFTING_DATA):
+            skilling_ids |= set(table)
+
+        self.assertEqual(set(COMBAT_ENEMY_DATA) & skilling_ids, set())
+
+
     def test_item_gated_enemies_stay_out_until_the_mechanic_exists(self):
         for enemy_name in ITEM_GATED_ENEMIES_NOT_MODELLED:
             self.assertNotIn(enemy_name, COMBAT_ENEMY_DATA)
