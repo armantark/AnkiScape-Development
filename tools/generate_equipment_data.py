@@ -711,6 +711,32 @@ def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedE
     return tuple(generated)
 
 
+def _stronghold_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
+    """Fancy boots (9005) and Fighting boots (9006), the Stronghold of Security
+    completion reward. The player picks one; both are stat-identical, so the
+    choice is purely cosmetic. Bonuses come straight from their items.yml blocks."""
+    generated = []
+    for item_id, item_name in ((9005, "Fancy boots"), (9006, "Fighting boots")):
+        source_item = items.get(item_id)
+        block = source_item.equipment if source_item is not None else None
+        generated.append(
+            GeneratedEquipmentItem(
+                item_name=item_name,
+                slot="feet",
+                combat_skill="defense",
+                required_level=1,
+                two_handed=False,
+                equipment_type="feet",
+                bonuses=_bonuses_from_block(block),
+                attack_speed=_int_from_block(block, "attack_speed", 4),
+                source_item_id=item_id,
+                source=f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; Stronghold of Security reward",
+                source_status="items.yml equipment block",
+            )
+        )
+    return tuple(generated)
+
+
 def _dedupe_equipment_items(items: Sequence[GeneratedEquipmentItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     by_name: Dict[str, GeneratedEquipmentItem] = {}
     for item in items:
@@ -869,6 +895,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         tuple(_smithing_equipment_items(items))
         + tuple(_mining_bonus_equipment_items(items))
         + tuple(_legacy_equipment_items(items))
+        + tuple(_stronghold_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))
         + tuple(_fletching_equipment_items(items, items_by_name))
         + tuple(_shop_equipment_items(items, items_by_name))

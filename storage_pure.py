@@ -22,10 +22,12 @@ try:
         default_combat_state_pure,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
+        default_stronghold_state_pure,
         sanitize_action_telemetry_pure,
         sanitize_combat_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
+        sanitize_stronghold_state_pure,
     )
     from .shop_logic import default_shop_state_pure, sanitize_shop_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -62,10 +64,12 @@ except ImportError:
         default_combat_state_pure,
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
+        default_stronghold_state_pure,
         sanitize_action_telemetry_pure,
         sanitize_combat_state_pure,
         sanitize_quest_combat_active_encounters_pure,
         sanitize_quest_combat_config_pure,
+        sanitize_stronghold_state_pure,
     )
     from shop_logic import default_shop_state_pure, sanitize_shop_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
@@ -179,6 +183,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["pending_skill_exp_rewards"] = {}
     data["claims"] = default_claim_states()
     data["wicked_hood"] = {"fed_altars": []}
+    data["stronghold_of_security"] = default_stronghold_state_pure()
     data["runecrafting_pouches"] = {}
     data["item_charges"] = {}
     data["unlocked_abilities"] = []
@@ -624,6 +629,7 @@ def migrate_loaded_data(
     data.setdefault("cooking_burn_count", 0)
     data.setdefault("hunter_success_count", 0)
     data["action_telemetry"] = sanitize_action_telemetry_pure(data.get("action_telemetry"))
+    data["stronghold_of_security"] = sanitize_stronghold_state_pure(data.get("stronghold_of_security"))
     # v28: the drain-only combat_stat_drains scaffolding was generalized
     # into signed combat_current_levels; the dead key is dropped (it was
     # never populated) and sanitize seeds the new one.

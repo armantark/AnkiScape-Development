@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stronghold of Security — Results</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2128; --muted:#5b6572;
+    --line:#e3e7ec; --accent:#7b5cff; --accent2:#2ea3ff;
+    --gold:#e0a800; --enemy:#e5534b; --ok:#2f9e44; --warn:#e5883b; --todo:#7b8494;
+    --chip:#eef0f4; --shadow:rgba(20,24,33,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --panel:#171b21; --ink:#e6e9ee; --muted:#9aa4b2;
+      --line:#262c34; --accent:#9d86ff; --accent2:#54b6ff; --chip:#20262e;
+      --shadow:rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+  header.hero{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);font-weight:700}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;max-width:74ch}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:38px 0 14px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 1px 3px var(--shadow)}
+  .pad{padding:18px 20px}
+  .grid{display:grid;gap:14px}
+  @media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}}
+  p.lead{margin:.2em 0 0}
+  .row{display:flex;gap:13px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:none}
+  .row .k{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--chip);
+    display:flex;align-items:center;justify-content:center;font-size:15px}
+  .row .h{font-weight:650;font-size:14px}
+  .row .d{color:var(--muted);font-size:13px}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .steps{display:flex;gap:0;align-items:stretch;flex-wrap:wrap}
+  .step{flex:1;min-width:150px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin:6px;
+    position:relative;background:var(--bg)}
+  .step .n{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .step .t{font-weight:650;font-size:14px;margin:3px 0 4px}
+  .step .d{font-size:12px;color:var(--muted)}
+  .step.done{border-color:var(--ok);background:rgba(47,158,68,.08)}
+  .step .badge{position:absolute;top:11px;right:12px;font-size:15px;color:var(--ok)}
+  .reward{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 18px}
+  .coin{font-weight:700;color:var(--gold);font-size:15px;display:flex;align-items:center;gap:7px}
+  .coin::before{content:"";width:18px;height:18px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#ffe27a,#e0a800 70%);flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(160,120,0,.5)}
+  .bootpick{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .boot{border:1px solid var(--line);border-radius:10px;padding:10px 13px;font-size:13px;background:var(--panel);
+    display:flex;flex-direction:column;gap:2px;min-width:150px}
+  .boot .bn{font-weight:650}
+  .boot .bb{font-size:11px;color:var(--muted)}
+  .boot .id{font-size:10px;color:var(--todo);font-family:ui-monospace,Menlo,monospace}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .tag.ok{background:rgba(47,158,68,.14);color:var(--ok)}
+  ul.tests{margin:0;padding-left:20px}
+  ul.tests li{margin:6px 0;font-size:14px}
+  ul.tests li code{font-size:12px}
+  .file{display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+    padding:10px 16px;border-bottom:1px solid var(--line);font-size:13px}
+  .file:last-child{border-bottom:none}
+  .file .p{font-family:ui-monospace,Menlo,monospace;font-size:12px}
+  .file .n{color:var(--muted);font-size:12px;text-align:right}
+  .banner{display:flex;gap:12px;align-items:center;padding:16px 18px;border-radius:12px;
+    background:rgba(47,158,68,.10);border:1px solid rgba(47,158,68,.30);margin-bottom:6px}
+  .banner .big{font-size:22px}
+  .banner b{color:var(--ok)}
+  .note{background:rgba(46,163,255,.08);border:1px solid rgba(46,163,255,.25);border-radius:11px;
+    padding:14px 16px;font-size:13px;margin-top:14px}
+  .note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AnkiScape · Results / Shipped</div>
+  <h1>Stronghold of Security — Built</h1>
+  <p class="sub">The one-time landmark shipped exactly as planned: four no-combat steps that advance one
+  per review, a completion payout of 10,000 coins plus a cosmetic boot choice, and two new stat-identical
+  feet-slot items. It lives in the Utility hub under a new <b>Landmarks</b> group, entirely outside the
+  parity-locked quest catalog. This was the final item on the combat-overhaul list.</p>
+  <div class="meta">
+    <span><b>Steps</b> 4, no combat</span>
+    <span><b>Reward</b> 10,000 coins + boots</span>
+    <span><b>New equipment</b> Fancy boots (9005), Fighting boots (9006)</span>
+    <span><b>Decisions</b> D1–D4 all as recommended</span>
+  </div>
+</header>
+
+<section class="banner">
+  <span class="big">✅</span>
+  <div><b>All four planned decisions landed unchanged.</b> New feature tests pass; the full offscreen
+  suite is green (see the test panel below).</div>
+</section>
+
+<h2>What shipped, against the plan</h2>
+<section class="panel">
+  <div class="row"><div class="k">🏛️</div><div><div class="h">D1 · Utility hub, new "Landmarks" group <span class="tag ok">as planned</span></div>
+    <div class="d">Injected by hand into <code>_build_utility_list</code> as a distinct top-level group, since a
+    step counter isn't a repeatable <code>UTILITY_ACTIVITY_DATA</code> conversion. It renders beside the
+    other activities without pretending to be one.</div></div></div>
+  <div class="row"><div class="k">4️⃣</div><div><div class="h">D2 · One review per step, 4 total <span class="tag ok">as planned</span></div>
+    <div class="d">Each review while the card is active calls <code>apply_stronghold_step_pure</code> once,
+    advancing <code>0→1→2→3→4</code>. No XP or items en route.</div></div></div>
+  <div class="row"><div class="k">👢</div><div><div class="h">D3 · Boot-choice dialog at completion <span class="tag ok">as planned</span></div>
+    <div class="d">Clearing step 4 fires a deferred (<code>QTimer.singleShot</code>) modal so it never pops
+    mid-answer. The same dialog is reachable from the card if the player dismisses it — the row shows
+    "Claim your reward ✨" until claimed.</div></div></div>
+  <div class="row"><div class="k">🐎</div><div><div class="h">D4 · Four horsemen step names <span class="tag ok">as planned</span></div>
+    <div class="d">Vault of War → Catacomb of Famine → Pit of Pestilence → Sepulchre of Death, surfaced in
+    the per-step "Cleared the …" toast.</div></div></div>
+</section>
+
+<h2>The four steps, as they read in-game</h2>
+<section class="panel pad">
+  <div class="steps">
+    <div class="step done"><div class="badge">✓</div><div class="n">Step 1 · War</div><div class="t">Vault of War</div>
+      <div class="d">Entry level. No reward.</div></div>
+    <div class="step done"><div class="badge">✓</div><div class="n">Step 2 · Famine</div><div class="t">Catacomb of Famine</div>
+      <div class="d">No reward en route.</div></div>
+    <div class="step done"><div class="badge">✓</div><div class="n">Step 3 · Pestilence</div><div class="t">Pit of Pestilence</div>
+      <div class="d">No reward en route.</div></div>
+    <div class="step done"><div class="badge">✓</div><div class="n">Step 4 · Death</div><div class="t">Sepulchre of Death</div>
+      <div class="d">Flips <code>completed</code>; pays out.</div></div>
+  </div>
+  <div class="reward">
+    <span class="coin">+10,000 Coins</span>
+    <span style="color:var(--muted);font-size:13px">and one of:</span>
+    <div class="bootpick">
+      <div class="boot"><span class="bn">Fancy boots</span><span class="bb">feet · def +1/+2/+3, magic −3, ranged −1</span><span class="id">item id 9005</span></div>
+      <div class="boot"><span class="bn">Fighting boots</span><span class="bb">feet · identical bonuses</span><span class="id">item id 9006</span></div>
+    </div>
+  </div>
+  <div class="note"><b>Idempotency held.</b> The grant is guarded on <code>boots_choice is None</code>: a second
+  claim is inert, adds no coins and no second boot. Once claimed, the card renders "✓ (chosen boots)" and is
+  disabled. A fifth review is a no-op and never re-prompts.</div>
+</section>
+
+<h2>Where the code landed</h2>
+<section class="panel">
+  <div class="file"><span class="p">tools/generate_equipment_data.py</span><span class="n">new <code>_stronghold_equipment_items</code> — regenerable, source-cited</span></div>
+  <div class="file"><span class="p">equipment_data.py</span><span class="n">+2 entries (555 total); bonuses from items.yml 9005/9006</span></div>
+  <div class="file"><span class="p">logic_pure.py</span><span class="n">default/sanitize state, <code>apply_stronghold_step_pure</code>, <code>grant_stronghold_reward_pure</code></span></div>
+  <div class="file"><span class="p">storage_pure.py</span><span class="n">seed in <code>default_player_data</code> + backfill in <code>migrate_loaded_data</code></span></div>
+  <div class="file"><span class="p">runtime_actions.py</span><span class="n"><code>_handle_stronghold_answer</code> + <code>prompt_stronghold_reward</code> ctx callback</span></div>
+  <div class="file"><span class="p">ui.py</span><span class="n">Landmarks group + row, branching click handler, <code>show_stronghold_reward_dialog</code></span></div>
+  <div class="file"><span class="p">__init__.py</span><span class="n"><code>_claim_stronghold_reward</code>, deferred <code>_prompt_stronghold_reward</code>, wired into ctx + menu</span></div>
+</section>
+
+<h2>Tests &amp; verification</h2>
+<section class="panel pad">
+  <p class="lead" style="margin-top:0"><b>New coverage</b> — one behavior file plus additions to the two
+  existing harnesses:</p>
+  <ul class="tests">
+    <li><code>tests/test_stronghold_of_security.py</code> — step advance 0→4 then no-op; grant is exactly
+      +10,000 coins and one boot, and inert on a second claim; unknown-boot and incomplete-state rejection;
+      sanitize clamps/repairs; storage default + migration backfill; and a review-integration test proving
+      four reviews clear it and the fourth pops the reward callback exactly once.</li>
+    <li><code>tests/test_equipment_data.py</code> — both boots are feet-slot, level 1, with the exact
+      items.yml bonuses and identical stat blocks; roster count updated to 555.</li>
+    <li><code>tests/test_main_menu_widget.py</code> — the Landmarks row selects the activity when unfinished,
+      opens the claim dialog when completed-and-unclaimed, and is inert once claimed (offscreen Qt).</li>
+  </ul>
+  <div class="note"><b>Dark mode checked.</b> The claim row is enabled (uses <code>palette(text)</code>); the
+  claimed/disabled row uses <code>dim_text_css</code> (derived from the Text role), so both stay legible on a
+  Fusion dark palette — no <code>palette(mid)</code> used for text. Full suite: <b id="suite">918 tests, all green (197s, offscreen)</b></div>
+</section>
+
+</div>
+</body>
+</html>

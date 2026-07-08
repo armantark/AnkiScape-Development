@@ -57,6 +57,8 @@ from .logic_pure import (
     reclaim_death_office_items_pure,
     firemaking_target_locked_reasons_pure,
     apply_utility_activity_pure,
+    grant_stronghold_reward_pure,
+    STRONGHOLD_REWARD_COINS,
     sanitize_review_action_multiplier,
     can_equip_item_pure,
     equip_item_pure,
@@ -401,6 +403,7 @@ def _runtime_action_context() -> RuntimeActionContext:
         implemented_exp_keys_snapshot=_implemented_exp_keys_snapshot,
         show_quest_exp_delta=_show_quest_exp_delta,
         review_action_multiplier=_review_action_multiplier(),
+        prompt_stronghold_reward=_prompt_stronghold_reward,
     )
 
 
@@ -863,6 +866,7 @@ def _on_main_menu():
         on_set_quest=on_set_quest,
         on_set_quest_route_choice=on_set_quest_route_choice,
         on_claim_reward=on_claim_reward,
+        on_claim_stronghold_reward=_claim_stronghold_reward,
         on_set_floating_enabled=_set_floating_enabled,
         on_set_floating_position=_set_floating_position,
         on_equip_item=on_equip_item,
@@ -1008,6 +1012,40 @@ def on_claim_reward(claim_id, selected_skill_id=None):
     except Exception:
         pass
     return True
+
+
+def _claim_stronghold_reward() -> bool:
+    """Open the boot-choice dialog and grant the Stronghold reward. Safe to call
+    from the hub card or, deferred, when the run completes mid-review."""
+    state = player_data.get("stronghold_of_security") or {}
+    if not state.get("completed") or state.get("boots_choice") is not None:
+        return False
+    choice = ui.show_stronghold_reward_dialog()
+    if not choice or not grant_stronghold_reward_pure(player_data, choice):
+        return False
+    check_achievements(player_data)
+    save_player_data()
+    _refresh_skill_availability()
+    _show_activity_gain(f"Claimed {choice} and {STRONGHOLD_REWARD_COINS:,} coins from the Stronghold of Security!")
+    try:
+        update_review_hud(player_data, current_skill)
+    except Exception:
+        pass
+    return True
+
+
+def _prompt_stronghold_reward() -> None:
+    """Fired from the review-answer handler the moment the Stronghold is cleared.
+    Deferred to the event loop so the boot-choice modal never pops in the middle
+    of Anki's answer-card processing."""
+    try:
+        from aqt.qt import QTimer  # type: ignore
+    except Exception:
+        QTimer = None  # type: ignore
+    if QTimer is not None:
+        QTimer.singleShot(0, _claim_stronghold_reward)
+    else:
+        _claim_stronghold_reward()
 
 
 def initialize_menu():

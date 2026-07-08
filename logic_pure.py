@@ -614,6 +614,82 @@ def apply_utility_activity_pure(activity_key, inventory, utility_activity_data):
         new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)
     return new_inv, 0, True, batch_count
 
+
+# --- Stronghold of Security (one-time landmark) ---------------------------
+# The Stronghold has four levels, one per horseman of the apocalypse. The
+# player walks one level per review; finishing the last level unlocks a choice
+# between two stat-identical boots plus a 10k-coin cash bag (2011Scape reward).
+STRONGHOLD_STEP_NAMES = (
+    "Vault of War",
+    "Catacomb of Famine",
+    "Pit of Pestilence",
+    "Sepulchre of Death",
+)
+STRONGHOLD_TOTAL_STEPS = len(STRONGHOLD_STEP_NAMES)
+STRONGHOLD_REWARD_COINS = 10000
+STRONGHOLD_BOOT_CHOICES = ("Fancy boots", "Fighting boots")
+
+
+def default_stronghold_state_pure():
+    """Fresh Stronghold progress: not started, no reward taken."""
+    return {"step": 0, "completed": False, "boots_choice": None}
+
+
+def sanitize_stronghold_state_pure(raw):
+    """Coerce a loaded Stronghold blob back into shape, clamping the step and
+    keeping ``completed`` consistent with it."""
+    state = default_stronghold_state_pure()
+    if isinstance(raw, Mapping):
+        try:
+            step = int(raw.get("step", 0))
+        except (TypeError, ValueError):
+            step = 0
+        state["step"] = max(0, min(step, STRONGHOLD_TOTAL_STEPS))
+        state["completed"] = bool(raw.get("completed")) or state["step"] >= STRONGHOLD_TOTAL_STEPS
+        choice = raw.get("boots_choice")
+        state["boots_choice"] = choice if choice in STRONGHOLD_BOOT_CHOICES else None
+    return state
+
+
+def apply_stronghold_step_pure(player_data):
+    """Advance the Stronghold of Security by one level (one review = one step).
+
+    Steps run 0 -> STRONGHOLD_TOTAL_STEPS with no XP or items earned en route;
+    reaching the final level flips ``completed``. A no-op once completed.
+    Returns {"advanced", "step", "completed", "just_completed"}.
+    """
+    state = player_data.setdefault("stronghold_of_security", default_stronghold_state_pure())
+    if state.get("completed"):
+        return {
+            "advanced": False,
+            "step": int(state.get("step", STRONGHOLD_TOTAL_STEPS)),
+            "completed": True,
+            "just_completed": False,
+        }
+    step = min(int(state.get("step", 0)) + 1, STRONGHOLD_TOTAL_STEPS)
+    just_completed = step >= STRONGHOLD_TOTAL_STEPS
+    state["step"] = step
+    state["completed"] = just_completed
+    return {"advanced": True, "step": step, "completed": just_completed, "just_completed": just_completed}
+
+
+def grant_stronghold_reward_pure(player_data, boots_choice):
+    """One-time completion reward: STRONGHOLD_REWARD_COINS coins plus the chosen
+    boots. Guarded on an unset ``boots_choice`` so it can fire only once.
+    Returns True when the reward was granted.
+    """
+    if boots_choice not in STRONGHOLD_BOOT_CHOICES:
+        return False
+    state = player_data.setdefault("stronghold_of_security", default_stronghold_state_pure())
+    if not state.get("completed") or state.get("boots_choice") is not None:
+        return False
+    inventory = player_data.setdefault("inventory", {})
+    inventory["Coins"] = inventory.get("Coins", 0) + STRONGHOLD_REWARD_COINS
+    inventory[boots_choice] = inventory.get(boots_choice, 0) + 1
+    state["boots_choice"] = boots_choice
+    return True
+
+
 def apply_smelt_pure(bar_name, inventory, bar_data):
     """
     Attempt to smelt a specific bar. Returns (new_inventory, exp, success).

@@ -204,6 +204,11 @@ except Exception:
     from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure  # type: ignore
 
 try:
+    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS
+except Exception:
+    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS  # type: ignore
+
+try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
 except Exception:
     from equipment_data import EQUIPMENT_BONUS_FIELDS  # type: ignore
@@ -653,6 +658,11 @@ def equipment_full_tooltip(item_name: str, lock_reason: str = "") -> str:
 # so the hub surfaces it as a synthetic, visually-distinct entry.
 _UTILITY_HUB_NAME = "Utility / Activities"
 _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
+# The Stronghold of Security is a one-time landmark rather than a repeatable
+# materials-conversion activity, so it lives outside UTILITY_ACTIVITY_DATA and is
+# injected into the hub as its own "Landmarks" group. This key doubles as the
+# current_utility target id and the player_data state key.
+_STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
 _COMBAT_HUB_NAME = "Combat"
 # The individual skills a combat burst can train, with their player_data level
 # and exp keys. Constitution defaults to level 10 (RS classic); everything else
@@ -1668,6 +1678,46 @@ def show_achievement_dialog(achievement: str, data: dict):
     dialog.exec()
 
 
+def show_stronghold_reward_dialog() -> Optional[str]:
+    """Boot-choice reward for clearing the Stronghold of Security. Both pairs are
+    stat-identical, so the copy makes clear the pick is purely cosmetic. Returns
+    the chosen boot name, or None if the player dismissed the dialog unclaimed."""
+    dialog = QDialog(mw)
+    dialog.setWindowTitle("Stronghold of Security — Cleared!")
+    dialog.setMinimumWidth(440)
+    layout = QVBoxLayout()
+
+    title = QLabel("You escaped the Stronghold of Security!")
+    title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    title.setStyleSheet("font-size: 16px; font-weight: bold;")
+    layout.addWidget(title)
+
+    body = QLabel(
+        f"Claim your reward: {STRONGHOLD_REWARD_COINS:,} coins and a pair of boots. "
+        "Both pairs share the same stats, so choose whichever look you prefer."
+    )
+    body.setWordWrap(True)
+    body.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    layout.addWidget(body)
+
+    chosen = {"boots": None}
+    button_row = QHBoxLayout()
+    for boots in STRONGHOLD_BOOT_CHOICES:
+        btn = QPushButton(boots)
+
+        def _pick(_checked=False, name=boots):
+            chosen["boots"] = name
+            dialog.accept()
+
+        btn.clicked.connect(_pick)
+        button_row.addWidget(btn)
+    layout.addLayout(button_row)
+
+    dialog.setLayout(layout)
+    dialog.exec()
+    return chosen["boots"]
+
+
 def create_menu(on_main_menu):
     """Create a single AnkiScape > Menu entry that opens the consolidated window."""
     menu = QMenu("AnkiScape", mw)
@@ -1738,6 +1788,7 @@ def show_main_menu(
     on_set_quest=None,
     on_set_quest_route_choice=None,
     on_claim_reward=None,
+    on_claim_stronghold_reward=None,
     on_set_floating_enabled=None,
     on_set_floating_position=None,
     on_equip_item=None,
@@ -2706,6 +2757,49 @@ def show_main_menu(
                     group_has_current = True
             parent.setExpanded(group_has_current)
 
+        # Landmarks: the one-time Stronghold of Security. Injected by hand because
+        # it is a step counter, not a repeatable UTILITY_ACTIVITY_DATA activity.
+        sh_state = player_data.get("stronghold_of_security") or {}
+        sh_completed = bool(sh_state.get("completed"))
+        sh_claimed = sh_state.get("boots_choice") is not None
+        sh_step = max(0, min(int(sh_state.get("step", 0) or 0), STRONGHOLD_TOTAL_STEPS))
+        if sh_completed and not sh_claimed:
+            sh_label = "Stronghold of Security — Claim your reward ✨"
+            sh_tooltip = (
+                f"Cleared! Click to choose your boots and collect {STRONGHOLD_REWARD_COINS:,} coins."
+            )
+        elif sh_completed:
+            sh_label = f"Stronghold of Security ✓  ({sh_state.get('boots_choice')})"
+            sh_tooltip = "Completed. Reward already claimed."
+        else:
+            next_name = STRONGHOLD_STEP_NAMES[sh_step] if sh_step < STRONGHOLD_TOTAL_STEPS else STRONGHOLD_STEP_NAMES[-1]
+            sh_label = f"Stronghold of Security — {sh_step}/{STRONGHOLD_TOTAL_STEPS}  (next: {next_name})"
+            sh_tooltip = (
+                "A one-time landmark. Set it as your activity and each review clears "
+                "one level. No XP along the way, but coins and boots at the end."
+            )
+        landmark_parent = QTreeWidgetItem(["Landmarks  (1)"])
+        landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
+        landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
+        lm_font = landmark_parent.font(0)
+        lm_font.setBold(True)
+        landmark_parent.setFont(0, lm_font)
+        tree.addTopLevelItem(landmark_parent)
+        sh_child = QTreeWidgetItem([sh_label])
+        sh_child.setData(0, Qt.ItemDataRole.UserRole, _STRONGHOLD_UTILITY_KEY)
+        sh_child.setToolTip(0, sh_tooltip)
+        sh_icon = os.path.join(current_dir, "icon", "attack_icon.png")
+        if os.path.exists(sh_icon):
+            sh_child.setIcon(0, QIcon(sh_icon))
+        if sh_completed and sh_claimed:
+            sh_child.setDisabled(True)
+        landmark_parent.addChild(sh_child)
+        if current == _STRONGHOLD_UTILITY_KEY and not sh_completed:
+            selected_child = sh_child
+            landmark_parent.setExpanded(True)
+        else:
+            landmark_parent.setExpanded(sh_completed and not sh_claimed)
+
         if selected_child is not None:
             tree.setCurrentItem(selected_child)
 
@@ -2714,6 +2808,15 @@ def show_main_menu(
                 return
             activity_id = item.data(0, Qt.ItemDataRole.UserRole)
             if not activity_id or str(activity_id).startswith("__utility_group__"):
+                return
+            if activity_id == _STRONGHOLD_UTILITY_KEY:
+                state = player_data.get("stronghold_of_security") or {}
+                if state.get("completed"):
+                    if state.get("boots_choice") is None and on_claim_stronghold_reward is not None:
+                        on_claim_stronghold_reward()
+                    return
+                if on_set_utility is not None:
+                    on_set_utility(activity_id)
                 return
             if on_set_utility is not None:
                 on_set_utility(activity_id)

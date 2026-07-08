@@ -508,6 +508,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._quest_calls: list = []
         self._quest_choice_calls: list = []
         self._claim_calls: list = []
+        # Seam for the Stronghold of Security landmark's "claim reward" click.
+        self._stronghold_claim_calls: list = []
 
         # Stop exec() from blocking; capture the live dialog so we can drive it.
         def _fake_exec(self_dialog):  # type: ignore[no-untyped-def]
@@ -556,6 +558,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_quest=lambda quest_id: self._quest_calls.append(quest_id),
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
+            on_claim_stronghold_reward=lambda: self._stronghold_claim_calls.append(True) or True,
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
         return self._captured[-1]
@@ -3746,6 +3749,55 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
 
         self.assertEqual(self._utility_calls, ["gather_wool"])
+
+    def test_stronghold_landmark_row_selects_activity_when_unfinished(self) -> None:
+        pd = _make_player_data()
+        pd["stronghold_of_security"] = {"step": 1, "completed": False, "boots_choice": None}
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+
+        row = _utility_row(utility_tree, "stronghold_of_security")
+        self.assertTrue(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("1/4", row.text(0))
+        self.assertFalse(row.icon(0).isNull())
+
+        self._utility_calls.clear()
+        utility_tree.itemClicked.emit(row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._utility_calls, ["stronghold_of_security"])
+        self.assertEqual(self._stronghold_claim_calls, [])
+
+    def test_stronghold_landmark_row_claims_reward_when_completed_unclaimed(self) -> None:
+        pd = _make_player_data()
+        pd["stronghold_of_security"] = {"step": 4, "completed": True, "boots_choice": None}
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+
+        row = _utility_row(utility_tree, "stronghold_of_security")
+        self.assertIn("Claim", row.text(0))
+
+        self._utility_calls.clear()
+        utility_tree.itemClicked.emit(row, 0)
+        QApplication.processEvents()
+        # A completed-but-unclaimed landmark opens the reward dialog rather than
+        # (re)selecting the activity.
+        self.assertEqual(self._stronghold_claim_calls, [True])
+        self.assertEqual(self._utility_calls, [])
+
+    def test_stronghold_landmark_row_is_inert_once_claimed(self) -> None:
+        pd = _make_player_data()
+        pd["stronghold_of_security"] = {"step": 4, "completed": True, "boots_choice": "Fancy boots"}
+        dialog = self._open(pd)
+        utility_tree = self._open_utility(dialog)
+
+        row = _utility_row(utility_tree, "stronghold_of_security")
+        self.assertFalse(row.flags() & Qt.ItemFlag.ItemIsEnabled)
+        self.assertIn("Fancy boots", row.text(0))
+
+        utility_tree.itemClicked.emit(row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._stronghold_claim_calls, [])
+        self.assertEqual(self._utility_calls, [])
 
     def test_utility_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()

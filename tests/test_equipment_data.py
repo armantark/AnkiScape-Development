@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 553)
+        self.assertEqual(len(EQUIPMENT_DATA), 555)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -263,6 +263,24 @@ class TestEquipmentData(unittest.TestCase):
         self.assertIsNone(varrock.combat_skill)
         self.assertEqual(varrock.equipment_type, "extra_ore")
         self.assertGreater(varrock.bonuses.defence_stab, 0)
+
+    def test_stronghold_reward_boots_are_stat_identical_feet_slot(self):
+        # The Stronghold of Security completion reward offers two cosmetic boot
+        # choices; both must be feet-slot, level-1, and share identical bonuses so
+        # the pick is purely visual.
+        fancy = EQUIPMENT_DATA["Fancy boots"]
+        fighting = EQUIPMENT_DATA["Fighting boots"]
+        for boots, source_item_id in ((fancy, 9005), (fighting, 9006)):
+            with self.subTest(boots=boots.item_name):
+                self.assertEqual(boots.slot, "feet")
+                self.assertEqual(boots.required_level, 1)
+                self.assertEqual(boots.source_item_id, source_item_id)
+                self.assertEqual(boots.bonuses.defence_stab, 1)
+                self.assertEqual(boots.bonuses.defence_slash, 2)
+                self.assertEqual(boots.bonuses.defence_crush, 3)
+                self.assertEqual(boots.bonuses.attack_magic, -3)
+                self.assertEqual(boots.bonuses.attack_ranged, -1)
+        self.assertEqual(fancy.bonuses, fighting.bonuses)
 
 
 if __name__ == "__main__":

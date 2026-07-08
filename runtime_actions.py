@@ -66,6 +66,7 @@ try:
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
         apply_smithing_action_pure,
+        apply_stronghold_step_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -107,6 +108,8 @@ try:
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
         utility_activity_locked_reasons_pure,
+        STRONGHOLD_STEP_NAMES,
+        STRONGHOLD_TOTAL_STEPS,
     )
     from .skill_registry import get_skill
     from .smithing_data import DEFAULT_SMITHING_TARGET
@@ -164,6 +167,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
         apply_smithing_action_pure,
+        apply_stronghold_step_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -205,6 +209,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
         utility_activity_locked_reasons_pure,
+        STRONGHOLD_STEP_NAMES,
+        STRONGHOLD_TOTAL_STEPS,
     )
     from skill_registry import get_skill  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
@@ -236,6 +242,9 @@ class RuntimeActionContext:
     implemented_exp_keys_snapshot: Callable[[], dict[str, float]]
     show_quest_exp_delta: Callable[[dict[str, float]], None]
     review_action_multiplier: int = 1
+    # Fired once when the Stronghold of Security is finished, so the UI can pop
+    # the boot-choice reward dialog. Optional so older call sites keep working.
+    prompt_stronghold_reward: Optional[Callable[[], None]] = None
 
 
 # Handler keys that draw from / fill the 28-slot carried inventory, mapped to the
@@ -837,9 +846,41 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
+
+
+def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
+    """One review = one Stronghold level. Awards nothing en route; the final
+    level flips the state to complete and pops the boot-choice reward dialog."""
+    player_data = ctx.player_data
+    info = apply_stronghold_step_pure(player_data)
+    if not info["advanced"]:
+        # Already cleared — nothing left to do, so switch off the activity.
+        ctx.deactivate_current_skill()
+        return False
+
+    _record_action(ctx, "utility", STRONGHOLD_UTILITY_KEY, True, expected_success_chance=1.0)
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+
+    step = info["step"]
+    if info["just_completed"]:
+        ctx.deactivate_current_skill()
+        ctx.show_activity_gain("Stronghold of Security cleared — claim your reward!")
+        if callable(ctx.prompt_stronghold_reward):
+            ctx.prompt_stronghold_reward()
+    else:
+        level_name = STRONGHOLD_STEP_NAMES[step - 1]
+        ctx.show_activity_gain(f"Cleared the {level_name} ({step}/{STRONGHOLD_TOTAL_STEPS})")
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if activity_key == STRONGHOLD_UTILITY_KEY:
+        return _handle_stronghold_answer(ctx)
     if activity_key not in UTILITY_ACTIVITY_DATA:
         activity_key = DEFAULT_UTILITY_ACTIVITY
         player_data["current_utility"] = activity_key
@@ -1781,6 +1822,9 @@ def _can_start_smithing_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
     activity_key = ctx.player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
+    if activity_key == STRONGHOLD_UTILITY_KEY:
+        state = ctx.player_data.get("stronghold_of_security") or {}
+        return not state.get("completed")
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,
