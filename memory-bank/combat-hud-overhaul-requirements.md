@@ -94,5 +94,8 @@ area, with the code facts I've already confirmed.
 
 **Combat overhaul complete.** Remaining owner request (deferred, do next): standalone one-time
 Stronghold of Security activity — 4-step, no-combat, rewards 10,000 coins + one-time choice of
-Fancy or Fighting boots (both zero-bonus cosmetics, to be added as equipment). Kept out of the
-parity-locked quest catalog (no quest points / journal entry).
+Fancy or Fighting boots (items.yml 9005/9006 — stat-identical so the choice is cosmetic, but NOT
+zero-bonus: each gives defence_stab +1 / defence_slash +2 / defence_crush +3, attack_magic -3,
+attack_ranged -1; to be added as feet-slot equipment with those exact sourced bonuses). NOTE: item
+ids are 9005/9006, not 3105/3107 (3105 = Rock climbing boots, already in equipment_data.py). Kept out
+of the parity-locked quest catalog (no quest points / journal entry).

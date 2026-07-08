@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attack Types (Stab / Slash / Crush) — Plan</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2128; --muted:#5b6572;
+    --line:#e3e7ec; --accent:#7b5cff; --accent2:#2ea3ff;
+    --gold:#e0a800; --enemy:#e5534b; --ok:#2f9e44; --warn:#e5883b; --todo:#7b8494;
+    --chip:#eef0f4; --shadow:rgba(20,24,33,.08);
+    --stab:#3f8cff; --slash:#e0663b; --crush:#8b5cf6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --panel:#171b21; --ink:#e6e9ee; --muted:#9aa4b2;
+      --line:#262c34; --accent:#9d86ff; --accent2:#54b6ff; --chip:#20262e;
+      --shadow:rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+  header.hero{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;max-width:74ch}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:38px 0 14px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 1px 3px var(--shadow)}
+  .pad{padding:18px 20px}
+  .grid{display:grid;gap:14px}
+  @media(min-width:720px){.grid.two{grid-template-columns:1fr 1fr}}
+  p.lead{margin:.2em 0 0}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .locked{display:flex;gap:13px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .locked:last-child{border-bottom:none}
+  .locked .k{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--chip);
+    display:flex;align-items:center;justify-content:center;font-size:15px}
+  .locked .h{font-weight:650;font-size:14px}
+  .locked .d{color:var(--muted);font-size:13px}
+  /* attack-type chips */
+  .atk{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 7px;border-radius:20px;white-space:nowrap;color:#fff}
+  .atk.stab{background:var(--stab)} .atk.slash{background:var(--slash)} .atk.crush{background:var(--crush)}
+  .atk.rng{background:#2f9e44} .atk.mag{background:#c9448f}
+  /* weapon comparison table */
+  .cmp{width:100%;border-collapse:collapse;font-size:13px}
+  .cmp th,.cmp td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .cmp th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .cmp td.w{font-weight:650}
+  .cmp tr:last-child td{border-bottom:none}
+  .cmpwrap{overflow-x:auto}
+  /* before/after selector mock */
+  .mock{display:flex;flex-direction:column;gap:6px;padding:14px 16px}
+  .mrow{display:flex;gap:9px;align-items:center;border:1px solid var(--line);border-radius:9px;
+    padding:9px 12px;background:var(--bg);font-size:13px}
+  .mrow.sel{border-color:var(--accent);background:rgba(123,92,255,.10)}
+  .mrow .nm{font-weight:650;min-width:96px}
+  .mrow .xp{color:var(--muted);font-size:12px;margin-left:auto}
+  .caption{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);
+    font-weight:700;padding:12px 16px 0}
+  /* decisions */
+  .dec{padding:16px 18px;border-bottom:1px solid var(--line)}
+  .dec:last-of-type{border-bottom:none}
+  .dec .q{font-weight:650;margin-bottom:2px}
+  .dec .why{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 12px;
+    cursor:pointer;font-size:13px;user-select:none;transition:.12s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(123,92,255,.10);font-weight:600}
+  .opt .rec{font-size:10px;color:var(--ok);font-weight:700;margin-left:5px}
+  .copybar{display:flex;gap:10px;align-items:center;padding:16px 18px;flex-wrap:wrap}
+  button.copy{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px 18px;
+    font-weight:650;font-size:14px;cursor:pointer}
+  button.copy:hover{filter:brightness(1.08)}
+  .copyout{flex:1;min-width:220px;font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  ol.phases{list-style:none;counter-reset:p;padding:0;margin:0}
+  ol.phases li{counter-increment:p;padding:12px 16px 12px 52px;position:relative;border-bottom:1px solid var(--line)}
+  ol.phases li:last-child{border-bottom:none}
+  ol.phases li::before{content:counter(p);position:absolute;left:14px;top:12px;width:24px;height:24px;
+    border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700}
+  ol.phases b{font-weight:650}
+  ol.phases .t{font-size:12px;color:var(--muted)}
+  .note{background:rgba(46,163,255,.08);border:1px solid rgba(46,163,255,.25);border-radius:11px;
+    padding:14px 16px;font-size:13px;color:var(--ink);margin-top:14px}
+  .note b{color:var(--accent2)}
+  .warnnote{background:rgba(229,136,59,.10);border:1px solid rgba(229,136,59,.3)}
+  .warnnote b{color:var(--warn)}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .tag.s{background:rgba(47,158,68,.14);color:var(--ok)}
+  .tag.m{background:rgba(229,136,59,.16);color:var(--warn)}
+  ul.tests{margin:0;padding-left:20px}
+  ul.tests li{margin:5px 0;font-size:14px}
+  .src{font-size:11px;color:var(--todo);font-family:ui-monospace,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AnkiScape · Plan / Proposal</div>
+  <h1>Attack types — stab, slash &amp; crush</h1>
+  <p class="sub">You noticed the attack-style selector says <b>&ldquo;Aggressive&rdquo;</b> but never which
+  physical attack it is. The catch: the attack type isn't a property of the style — it comes from the
+  <b>weapon</b> plus which slot you pick. A mace&rsquo;s Aggressive is <span class="atk crush">crush</span>;
+  a dagger&rsquo;s Aggressive is <span class="atk stab">stab</span>; an axe&rsquo;s third slot is
+  <span class="atk crush">crush</span> even though its others are <span class="atk slash">slash</span>.
+  So &ldquo;Aggressive&rdquo; genuinely can&rsquo;t name a type on its own. This plan wires the real
+  per-weapon table in and surfaces the type. Nothing here is built yet — this is for sign-off.</p>
+  <div class="meta">
+    <span><b>Scope</b> Data model + formula + UI</span>
+    <span><b>Parity source</b> AttackStyleData.kt (163 lines)</span>
+    <span><b>Risk</b> <span class="tag m">Medium — touches combat math</span></span>
+  </div>
+</header>
+
+<h2>What&rsquo;s true today</h2>
+<div class="panel">
+  <div class="locked">
+    <div class="k">🎯</div>
+    <div><div class="h">The style selector shows four fixed melee styles</div>
+      <div class="d">Accurate / Aggressive / Defensive / Controlled, identical for every weapon.
+      <code>COMBAT_ATTACK_STYLE_DATA</code> (combat_data.py:81) stores <code>display_name</code>,
+      <code>combat_class</code>, <code>xp_mode</code> — but <b>no attack type</b>.</div></div>
+  </div>
+  <div class="locked">
+    <div class="k">🧮</div>
+    <div><div class="h">The damage formula ignores attack type entirely</div>
+      <div class="d">Melee accuracy uses <code>max(attack_stab, attack_slash, attack_crush)</code>
+      (logic_pure.py:1518) against the enemy&rsquo;s <code>max(defence_*)</code> (logic_pure.py:1530).
+      A parity shortcut — so stab/slash/crush is currently invisible <em>and</em> mathematically inert.</div></div>
+  </div>
+  <div class="locked">
+    <div class="k">🗂️</div>
+    <div><div class="h">The authoritative key already exists in the source data</div>
+      <div class="d">Every weapon&rsquo;s equipment block in <code>items.yml</code> carries
+      <code>weapon_type</code> (Bronze dagger → <code>weapon_type: 5</code> = DAGGER). Our generator
+      currently derives only a <em>coarse</em> <code>equipment_type</code> string and leaves 84 weapons
+      (Dragon dagger, Black 2h sword, Dragon scimitar…) in a generic <code>"weapon"</code> bucket.
+      <code>weapon_type</code> resolves all of them authoritatively.</div></div>
+  </div>
+</div>
+
+<h2>The parity model (AttackStyleData.kt)</h2>
+<div class="panel pad">
+  <p class="lead" style="margin-top:0">2011Scape resolves the type with
+  <code>WeaponCombatData.getAttackStyleType(weaponType, combatStyle)</code>: find the weapon-type row,
+  then read the style slot. The type depends on <b>both</b>. Same &ldquo;slot&rdquo;, different weapon,
+  different type:</p>
+  <div class="cmpwrap" style="margin-top:12px">
+  <table class="cmp">
+    <thead><tr><th>Weapon type</th><th>Slot 1 (Accurate)</th><th>Slot 2 (Aggressive)</th><th>Slot 3</th><th>Slot 4 (Defensive)</th></tr></thead>
+    <tbody>
+      <tr><td class="w">Dagger</td>
+        <td><span class="atk stab">stab</span> Att</td>
+        <td><span class="atk stab">stab</span> Str</td>
+        <td><span class="atk slash">slash</span> Str</td>
+        <td><span class="atk stab">stab</span> Def</td></tr>
+      <tr><td class="w">Longsword</td>
+        <td><span class="atk slash">slash</span> Att</td>
+        <td><span class="atk slash">slash</span> Str</td>
+        <td><span class="atk stab">stab</span> Shared</td>
+        <td><span class="atk slash">slash</span> Def</td></tr>
+      <tr><td class="w">Mace</td>
+        <td><span class="atk crush">crush</span> Att</td>
+        <td><span class="atk crush">crush</span> Str</td>
+        <td><span class="atk stab">stab</span> Shared</td>
+        <td><span class="atk crush">crush</span> Def</td></tr>
+      <tr><td class="w">Battleaxe</td>
+        <td><span class="atk slash">slash</span> Att</td>
+        <td><span class="atk slash">slash</span> Str</td>
+        <td><span class="atk crush">crush</span> Str</td>
+        <td><span class="atk slash">slash</span> Def</td></tr>
+      <tr><td class="w">Spear</td>
+        <td><span class="atk stab">stab</span> Shared</td>
+        <td><span class="atk slash">slash</span> Shared</td>
+        <td><span class="atk crush">crush</span> Shared</td>
+        <td><span class="atk stab">stab</span> Def</td></tr>
+      <tr><td class="w">Unarmed / typeless</td>
+        <td><span class="atk crush">crush</span> Att</td>
+        <td><span class="atk crush">crush</span> Str</td>
+        <td>—</td>
+        <td><span class="atk crush">crush</span> Def</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p class="src" style="margin:12px 0 0">…/content/combat/AttackStyleData.kt · WeaponType ids in api/WeaponType.kt · enemies already carry separate defence_stab/slash/crush (combat_data.py)</p>
+</div>
+
+<h2>Before / after — what you&rsquo;d see</h2>
+<div class="grid two">
+  <div class="panel">
+    <div class="caption">Today — Dragon mace equipped</div>
+    <div class="mock">
+      <div class="mrow"><span class="nm">Accurate</span><span class="xp">→ Attack</span></div>
+      <div class="mrow sel"><span class="nm">Aggressive</span><span class="xp">→ Strength</span></div>
+      <div class="mrow"><span class="nm">Defensive</span><span class="xp">→ Defence</span></div>
+      <div class="mrow"><span class="nm">Controlled</span><span class="xp">→ shared</span></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="caption">After — Dragon mace (weapon-aware)</div>
+    <div class="mock">
+      <div class="mrow"><span class="nm">Accurate</span><span class="atk crush">crush</span><span class="xp">→ Attack</span></div>
+      <div class="mrow sel"><span class="nm">Aggressive</span><span class="atk crush">crush</span><span class="xp">→ Strength</span></div>
+      <div class="mrow"><span class="nm">Controlled</span><span class="atk stab">stab</span><span class="xp">→ shared</span></div>
+      <div class="mrow"><span class="nm">Defensive</span><span class="atk crush">crush</span><span class="xp">→ Defence</span></div>
+    </div>
+  </div>
+</div>
+
+<h2>Proposed build</h2>
+<div class="panel">
+  <ol class="phases">
+    <li><b>Capture <code>weapon_type</code> in the generator.</b>
+      <div class="t">Add <code>weapon_type: int</code> to <code>EquipmentItem</code> and read it from the
+      items.yml equipment block in <code>tools/generate_equipment_data.py</code>; regenerate
+      <code>equipment_data.py</code>. Non-weapons / typeless → <code>-1</code>.</div></li>
+    <li><b>Port the parity table into <code>combat_data.py</code>.</b>
+      <div class="t">A <code>WEAPON_TYPE_STYLES</code> map: weapon_type id → ordered list of
+      <code>(weapon_style, style_type, xp_mode)</code> rows, transcribed verbatim from
+      AttackStyleData.kt with a cite-and-pin source line. UNARMED covers <code>-1</code> / fists.</div></li>
+    <li><b>Resolver + selection.</b>
+      <div class="t">Given the equipped weapon, return its available style rows; the player&rsquo;s
+      <code>current_combat_style</code> indexes into them. Replaces the fixed four-style assumption for melee.</div></li>
+    <li><b>Formula uses the resolved type</b> <span class="tag m">Decision D1</span>
+      <div class="t">Melee accuracy reads the specific <code>attack_&lt;type&gt;</code> vs the enemy&rsquo;s
+      matching <code>defence_&lt;type&gt;</code>, replacing the two <code>max()</code> calls
+      (logic_pure.py:1518 / 1530). XP mode is unchanged.</div></li>
+    <li><b>Surface the type in the selector</b> <span class="tag m">Decision D2</span>
+      <div class="t">Each style label gains its attack-type chip (stab/slash/crush), driven by the equipped weapon.</div></li>
+  </ol>
+</div>
+
+<h2>Decisions to lock before I build</h2>
+<div class="panel">
+  <div class="dec">
+    <div class="q">D1 · How far does the type go?</div>
+    <div class="why">The type can be display-only, or it can actually drive the damage math (true parity).</div>
+    <div class="opts" data-d="D1">
+      <div class="opt sel" data-v="Full parity: formula uses the specific attack/defence type, replacing max()">Full parity — type drives the math<span class="rec">◆ REC</span></div>
+      <div class="opt" data-v="Display-only: show the type in the label but keep the max() formula">Display-only label, keep max()</div>
+    </div>
+    <div class="why" style="margin-top:8px">Rec matches <b>parity-over-safeguards</b>: the enemy&rsquo;s per-type
+    defences already exist, so max() is a shortcut we can now retire. Display-only would show a type the math ignores — mildly misleading.</div>
+  </div>
+  <div class="dec">
+    <div class="q">D2 · Selector layout</div>
+    <div class="why">Different weapons expose 3 or 4 slots (e.g. spear is four controlled types; whip is three).</div>
+    <div class="opts" data-d="D2">
+      <div class="opt sel" data-v="Dynamic per-weapon style slots, each labeled with its attack type">Dynamic per-weapon slots<span class="rec">◆ REC</span></div>
+      <div class="opt" data-v="Keep four fixed melee buttons, just annotate each with an attack type">Keep 4 fixed buttons, annotate</div>
+    </div>
+    <div class="why" style="margin-top:8px">Rec is parity-true and avoids showing a &ldquo;Controlled&rdquo; slot a
+    weapon doesn&rsquo;t actually have. Slightly more UI work than annotating the existing four.</div>
+  </div>
+  <div class="dec">
+    <div class="q">D3 · Typeless weapons &amp; fists</div>
+    <div class="why">Fists and items with <code>weapon_type: -1</code> (staves used as melee, oddments) need a rule.</div>
+    <div class="opts" data-d="D3">
+      <div class="opt sel" data-v="Fall back to the UNARMED table (crush), per AttackStyleData.kt">UNARMED → crush (parity)<span class="rec">◆ REC</span></div>
+      <div class="opt" data-v="Treat typeless weapons with the old max() behavior">Typeless keep max()</div>
+    </div>
+  </div>
+  <div class="copybar">
+    <button class="copy" onclick="copyDecisions()">Copy decisions as prompt</button>
+    <div class="copyout" id="copyout">Pick options above, then copy — paste back to me to start the build.</div>
+  </div>
+</div>
+
+<div class="note warnnote"><b>Heads-up:</b> D1 changes live combat numbers. Against enemies whose
+per-type defences differ, choosing the type they&rsquo;re weak to will hit more often than today&rsquo;s
+max() (which always used their <em>strongest</em> defence). That&rsquo;s the correct RuneScape behavior,
+but it is a real balance shift — flagging it so it&rsquo;s a deliberate choice.</div>
+
+<h2>Test plan</h2>
+<div class="panel pad">
+  <ul class="tests">
+    <li><b>Unit:</b> resolver returns the exact AttackStyleData rows for dagger / longsword / mace / axe / spear / unarmed (table above), including the crush-in-slot-3 axe case.</li>
+    <li><b>Unit:</b> generator captures <code>weapon_type</code> for a sampled weapon of each type; typeless → <code>-1</code>.</li>
+    <li><b>Integration:</b> a burst with a mace vs. an enemy weak to crush out-damages the same burst vs. an enemy weak to stab (formula honors the type).</li>
+    <li><b>Regression:</b> full offscreen suite green; XP-mode split (Attack/Str/Def/shared + Constitution) unchanged.</li>
+    <li><b>Manual (offscreen render):</b> selector shows correct type chips when swapping equipped weapon; screenshot at laptop size per the offscreen-screenshot rule.</li>
+  </ul>
+</div>
+
+<script>
+  document.querySelectorAll('.opts').forEach(function(g){
+    g.querySelectorAll('.opt').forEach(function(o){
+      o.addEventListener('click',function(){
+        g.querySelectorAll('.opt').forEach(function(x){x.classList.remove('sel')});
+        o.classList.add('sel'); buildPrompt();
+      });
+    });
+  });
+  function buildPrompt(){
+    var parts=[];
+    document.querySelectorAll('.opts').forEach(function(g){
+      var sel=g.querySelector('.opt.sel');
+      if(sel) parts.push(g.dataset.d+': '+sel.dataset.v);
+    });
+    document.getElementById('copyout').textContent=parts.join('  |  ');
+    return 'Build the attack-types feature with these decisions — '+parts.join('; ')+'.';
+  }
+  function copyDecisions(){
+    var t=buildPrompt();
+    navigator.clipboard.writeText(t).then(function(){
+      var o=document.getElementById('copyout'); var old=o.textContent;
+      o.textContent='Copied ✓  '+t;
+    });
+  }
+  buildPrompt();
+</script>
+
+</div>
+</body>
+</html>

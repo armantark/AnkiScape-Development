@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stronghold of Security — Plan</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2128; --muted:#5b6572;
+    --line:#e3e7ec; --accent:#7b5cff; --accent2:#2ea3ff;
+    --gold:#e0a800; --enemy:#e5534b; --ok:#2f9e44; --warn:#e5883b; --todo:#7b8494;
+    --chip:#eef0f4; --shadow:rgba(20,24,33,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --panel:#171b21; --ink:#e6e9ee; --muted:#9aa4b2;
+      --line:#262c34; --accent:#9d86ff; --accent2:#54b6ff; --chip:#20262e;
+      --shadow:rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+  header.hero{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;max-width:72ch}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:38px 0 14px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 1px 3px var(--shadow)}
+  .pad{padding:18px 20px}
+  .grid{display:grid;gap:14px}
+  @media(min-width:720px){.grid.two{grid-template-columns:1fr 1fr}}
+  p.lead{margin:.2em 0 0}
+  .locked{display:flex;gap:13px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .locked:last-child{border-bottom:none}
+  .locked .k{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--chip);
+    display:flex;align-items:center;justify-content:center;font-size:15px}
+  .locked .h{font-weight:650;font-size:14px}
+  .locked .d{color:var(--muted);font-size:13px}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  /* four-step tracker mock */
+  .steps{display:flex;gap:0;align-items:stretch;flex-wrap:wrap}
+  .step{flex:1;min-width:150px;border:1px solid var(--line);border-radius:12px;padding:13px 14px;margin:6px;
+    position:relative;background:var(--bg)}
+  .step .n{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .step .t{font-weight:650;font-size:14px;margin:3px 0 4px}
+  .step .d{font-size:12px;color:var(--muted)}
+  .step.done{border-color:var(--ok);background:rgba(47,158,68,.08)}
+  .step.done .badge{color:var(--ok)}
+  .step.cur{border-color:var(--accent);background:rgba(123,92,255,.09)}
+  .step .badge{position:absolute;top:11px;right:12px;font-size:15px;color:var(--muted)}
+  /* reward mock */
+  .reward{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:16px 18px}
+  .coin{font-weight:700;color:var(--gold);font-size:15px;display:flex;align-items:center;gap:7px}
+  .coin::before{content:"";width:18px;height:18px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#ffe27a,#e0a800 70%);flex:0 0 auto;
+    box-shadow:0 0 0 1px rgba(160,120,0,.5)}
+  .bootpick{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+  .boot{border:1px solid var(--line);border-radius:10px;padding:10px 13px;font-size:13px;background:var(--panel);
+    display:flex;flex-direction:column;gap:2px;min-width:150px}
+  .boot .bn{font-weight:650}
+  .boot .bb{font-size:11px;color:var(--muted)}
+  .boot .id{font-size:10px;color:var(--todo);font-family:ui-monospace,Menlo,monospace}
+  /* decisions */
+  .dec{padding:16px 18px;border-bottom:1px solid var(--line)}
+  .dec:last-of-type{border-bottom:none}
+  .dec .q{font-weight:650;margin-bottom:2px}
+  .dec .why{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 12px;
+    cursor:pointer;font-size:13px;user-select:none;transition:.12s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(123,92,255,.10);font-weight:600}
+  .opt .rec{font-size:10px;color:var(--ok);font-weight:700;margin-left:5px}
+  .copybar{display:flex;gap:10px;align-items:center;padding:16px 18px;flex-wrap:wrap}
+  button.copy{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px 18px;
+    font-weight:650;font-size:14px;cursor:pointer}
+  button.copy:hover{filter:brightness(1.08)}
+  .copyout{flex:1;min-width:220px;font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  /* phases */
+  ol.phases{list-style:none;counter-reset:p;padding:0;margin:0}
+  ol.phases li{counter-increment:p;padding:12px 16px 12px 52px;position:relative;border-bottom:1px solid var(--line)}
+  ol.phases li:last-child{border-bottom:none}
+  ol.phases li::before{content:counter(p);position:absolute;left:14px;top:12px;width:24px;height:24px;
+    border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700}
+  ol.phases b{font-weight:650}
+  ol.phases .t{font-size:12px;color:var(--muted)}
+  .note{background:rgba(46,163,255,.08);border:1px solid rgba(46,163,255,.25);border-radius:11px;
+    padding:14px 16px;font-size:13px;color:var(--ink);margin-top:14px}
+  .note b{color:var(--accent2)}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .tag.s{background:rgba(47,158,68,.14);color:var(--ok)}
+  .tag.m{background:rgba(229,136,59,.16);color:var(--warn)}
+  ul.tests{margin:0;padding-left:20px}
+  ul.tests li{margin:5px 0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AnkiScape · Plan / Proposal</div>
+  <h1>Stronghold of Security</h1>
+  <p class="sub">A one-time, no-combat activity that walks the player through the four dungeons of the
+  Stronghold and pays out on completion: 10,000 coins plus a one-time choice between Fancy boots and
+  Fighting boots. Deliberately kept <b>out</b> of the parity-locked quest catalog — no quest points,
+  no journal entry. This is the last item on the combat-overhaul list; nothing here is built yet.</p>
+  <div class="meta">
+    <span><b>Type</b> Standalone activity (not a quest)</span>
+    <span><b>Steps</b> 4, no combat</span>
+    <span><b>Reward</b> 10,000 coins + boots choice</span>
+    <span><b>New equipment</b> Fancy boots, Fighting boots</span>
+    <span><b>Status</b> Awaiting sign-off</span>
+  </div>
+</header>
+
+<h2>What you already locked</h2>
+<section class="panel">
+  <div class="locked"><div class="k">🏛️</div><div><div class="h">Standalone activity, not a quest</div>
+    <div class="d">Lives outside <code>quest_data.py</code> (parity-locked). No quest points, no journal
+    entry, no combat-level gate. It borrows the quest catalog's <i>flavor</i>, not its machinery.</div></div></div>
+  <div class="locked"><div class="k">4️⃣</div><div><div class="h">Four steps, no fighting</div>
+    <div class="d">A short linear walk-through. Each step advances by reviewing — no enemies, no LP, no death.</div></div></div>
+  <div class="locked"><div class="k">🪙</div><div><div class="h">Reward: 10,000 coins + choice of boots</div>
+    <div class="d">Paid once, on completion. The boots are a one-time either/or pick.</div></div></div>
+  <div class="locked"><div class="k">👢</div><div><div class="h">Both boots are new feet-slot equipment (choice is cosmetic)</div>
+    <div class="d">Fancy boots (id 9005) and Fighting boots (id 9006) don't exist yet. Per
+    <code>items.yml</code> they are <b>mechanically identical</b> — same bonuses, differing only in
+    appearance — so the pick is purely cosmetic. They are <b>not</b> zero-bonus: each gives
+    <code>+1</code> stab / <code>+2</code> slash / <code>+3</code> crush defence with a <code>-3</code>
+    magic / <code>-1</code> ranged attack penalty.</div></div></div>
+</section>
+
+<h2>Parity flavor — the four horsemen</h2>
+<section class="panel pad">
+  <p class="lead" style="margin-top:0">Real OSRS structure maps cleanly onto the four steps. In-game the
+  Stronghold is four dungeons named for the horsemen of the apocalypse, and the two rewards you named come
+  from two of them:</p>
+  <div class="steps">
+    <div class="step"><div class="n">Step 1 · War</div><div class="t">Vault of War</div>
+      <div class="d">Entry level. Safety questions, no reward.</div></div>
+    <div class="step"><div class="n">Step 2 · Famine</div><div class="t">Catacomb of Famine</div>
+      <div class="d">In RS: grants the <b>boots choice</b>.</div></div>
+    <div class="step"><div class="n">Step 3 · Pestilence</div><div class="t">Pit of Pestilence</div>
+      <div class="d">Deeper level, no reward.</div></div>
+    <div class="step"><div class="n">Step 4 · Death</div><div class="t">Sepulchre of Death</div>
+      <div class="d">In RS: grants the <b>10,000 coins</b>.</div></div>
+  </div>
+  <div class="note"><b>Simplification:</b> RS hands the boots out after level 2 and the coins after level 4.
+  Since AnkiScape has no in-dungeon dialogue trees, the proposal pays <b>both</b> rewards together on
+  completing step 4. The four names are cosmetic labels for the four steps — the money and boots stay the
+  same. Flip the flavor off in Decision D4 if you'd rather see plain "Step 1–4".</div>
+</section>
+
+<h2>Proposed model</h2>
+<section class="panel pad">
+  <p class="lead" style="margin-top:0"><b>Where it lives.</b> The Utility / Activities hub already renders a
+  grouped tree of no-XP activities and advances the selected one per review (<code>current_utility</code> →
+  <code>apply_utility_activity_pure</code>). The Stronghold slots in there as a distinct one-time card under a
+  new <code>landmarks</code> group, so it sits beside the other activities without pretending to be a
+  repeatable material conversion.</p>
+
+  <p class="lead"><b>State.</b> One new nested key on <code>player_data</code>:</p>
+  <div style="margin:6px 0 12px"><code>player_data["stronghold_of_security"] = {"step": 0, "completed": False, "boots_choice": None}</code></div>
+
+  <p class="lead"><b>Advance.</b> While the Stronghold card is the active activity, each review advances
+  <code>step</code> by one (0→1→2→3→4). A new pure helper — <code>apply_stronghold_step_pure(player_data)</code> —
+  owns this, mirroring <code>apply_utility_activity_pure</code>'s "return a new copy, don't mutate" contract.
+  No XP, no items along the way.</p>
+
+  <p class="lead"><b>Completion.</b> When <code>step</code> reaches 4, the helper flips <code>completed=True</code>,
+  and the UI surfaces a one-time boot-choice dialog. Choosing grants the reward through the existing
+  inventory-add pattern:</p>
+  <div style="margin:6px 0 4px"><code>inventory["Coins"] += 10000</code> · <code>inventory[chosen_boots] += 1</code> · <code>stronghold["boots_choice"] = chosen</code></div>
+
+  <div class="reward">
+    <span class="coin">+10,000 Coins</span>
+    <span style="color:var(--muted);font-size:13px">and one of:</span>
+    <div class="bootpick">
+      <div class="boot"><span class="bn">Fancy boots</span><span class="bb">feet · def +1/+2/+3, magic −3, ranged −1</span><span class="id">item id 9005 · appearance 1810</span></div>
+      <div class="boot"><span class="bn">Fighting boots</span><span class="bb">feet · identical bonuses</span><span class="id">item id 9006 · appearance 1811</span></div>
+    </div>
+  </div>
+
+  <p class="lead"><b>Idempotency.</b> Once <code>completed</code> is true, the card renders "Completed ✓",
+  stops advancing, and the reward can never be granted twice (guarded on <code>boots_choice is None</code>,
+  the same one-shot pattern as a <code>claims[...]["claimed"]</code> flag).</p>
+
+  <p class="lead"><b>New equipment.</b> Two <code>EquipmentItem</code> entries in <code>equipment_data.py</code>,
+  both <code>slot="feet"</code>, <code>required_level=1</code>, carrying the exact <code>items.yml</code> bonuses
+  (defence_stab +1, defence_slash +2, defence_crush +3, attack_magic −3, attack_ranged −1; all else 0),
+  <code>attack_speed=4</code>, <code>source</code> citing items.yml 9005 / 9006 and the Stronghold of Security.
+  The two are stat-identical, so the choice is cosmetic — no invented zeros, per parity-over-safeguards.</p>
+</section>
+
+<h2>Decisions to lock</h2>
+<section class="panel">
+  <div class="dec" data-k="home">
+    <div class="q">D1 · Where does it live?</div>
+    <div class="why">It's a one-time linear flow, not a repeatable conversion — but the activity plumbing already exists.</div>
+    <div class="opts">
+      <div class="opt sel" data-v="Utility/Activities hub, new 'landmarks' group">Utility hub · new group<span class="rec">✓ rec</span></div>
+      <div class="opt" data-v="its own new dedicated surface/panel">Own dedicated panel</div>
+      <div class="opt" data-v="a Claim entry in the existing claims list">Claims list entry</div>
+    </div>
+  </div>
+  <div class="dec" data-k="cadence">
+    <div class="q">D2 · How fast do the steps advance?</div>
+    <div class="why">The whole thing is four steps. How much reviewing should reaching the reward take?</div>
+    <div class="opts">
+      <div class="opt sel" data-v="one review per step (4 reviews total)">1 review / step — 4 total<span class="rec">✓ rec</span></div>
+      <div class="opt" data-v="N reviews per step (configurable, e.g. 5 each = 20 total)">N reviews / step</div>
+      <div class="opt" data-v="four explicit clicks, no review gating">4 clicks, no review gate</div>
+    </div>
+  </div>
+  <div class="dec" data-k="boots">
+    <div class="q">D3 · Boot-choice UX</div>
+    <div class="why">The pick is permanent, so it wants a clear moment.</div>
+    <div class="opts">
+      <div class="opt sel" data-v="a choice dialog popped at completion">Dialog at completion<span class="rec">✓ rec</span></div>
+      <div class="opt" data-v="grant both boots, skip the choice">Grant both, no choice</div>
+      <div class="opt" data-v="pick the boots up front before starting">Pick up front</div>
+    </div>
+  </div>
+  <div class="dec" data-k="flavor">
+    <div class="q">D4 · Step naming</div>
+    <div class="why">Cosmetic only — doesn't touch mechanics.</div>
+    <div class="opts">
+      <div class="opt sel" data-v="the four horsemen dungeon names (War/Famine/Pestilence/Death)">Horsemen dungeon names<span class="rec">✓ rec</span></div>
+      <div class="opt" data-v="plain Step 1 through Step 4">Plain "Step 1–4"</div>
+    </div>
+  </div>
+  <div class="copybar">
+    <button class="copy" onclick="copyPrompt()">Copy decisions as prompt</button>
+    <div class="copyout" id="copyout">Picks the recommended option for each unless you change them.</div>
+  </div>
+</section>
+
+<h2>Build order — staged, commit each</h2>
+<section class="panel">
+  <ol class="phases">
+    <li><b>Equipment first.</b> <span class="tag s">small</span> Add Fancy boots (9005) + Fighting boots (9006)
+      to <code>equipment_data.py</code> (and the item registry) with their exact items.yml bonuses, feet slot,
+      source citing items.yml. <span class="t">Verifiable in isolation: they appear as equippable gear with the sourced stats.</span></li>
+    <li><b>Backend state + advance + reward.</b> <span class="tag m">medium</span> New
+      <code>stronghold_of_security</code> state, <code>apply_stronghold_step_pure</code>, and the completion
+      grant (10k coins + chosen boots, one-shot guarded). Pure functions, fully unit-testable.</li>
+    <li><b>UI card + choice dialog.</b> <span class="tag m">medium</span> The one-time card in the Utility hub
+      (progress "Step n / 4", "Completed ✓"), wired to advance on review, plus the boot-choice dialog on
+      completion. Offscreen render check per the Qt screenshot rule.</li>
+    <li><b>Tests.</b> <span class="tag s">small</span> Advance sequence, completion grant, no double-grant,
+      boots registered, choice persisted. Run the full offscreen suite.</li>
+  </ol>
+</section>
+
+<h2>Test plan</h2>
+<section class="panel pad">
+  <ul class="tests">
+    <li><b>Unit:</b> <code>apply_stronghold_step_pure</code> advances 0→4, is a no-op at 4, never mutates input.</li>
+    <li><b>Unit:</b> completion grants exactly +10,000 Coins and exactly one chosen boot; a second call grants nothing.</li>
+    <li><b>Unit:</b> both boots exist as feet-slot equipment with the exact items.yml bonuses and resolve through the equip path.</li>
+    <li><b>Integration:</b> selecting the card as <code>current_utility</code> advances it on a review tick.</li>
+    <li><b>Offscreen render:</b> card shows step progress and the "Completed ✓" state in dark mode.</li>
+    <li><b>Manual:</b> run the four reviews, pick each boot on a fresh profile, confirm coins + boot land and the card locks.</li>
+  </ul>
+</section>
+
+<script>
+  document.querySelectorAll('.dec').forEach(function(dec){
+    dec.querySelectorAll('.opt').forEach(function(opt){
+      opt.addEventListener('click', function(){
+        dec.querySelectorAll('.opt').forEach(function(o){o.classList.remove('sel');});
+        opt.classList.add('sel');
+      });
+    });
+  });
+  function copyPrompt(){
+    var labels={home:'Home',cadence:'Step cadence',boots:'Boot-choice UX',flavor:'Step naming'};
+    var lines=['Implement the Stronghold of Security activity with these decisions:'];
+    document.querySelectorAll('.dec').forEach(function(dec){
+      var k=dec.getAttribute('data-k');
+      var sel=dec.querySelector('.opt.sel');
+      lines.push('- '+labels[k]+': '+(sel?sel.getAttribute('data-v'):'(unset)'));
+    });
+    var text=lines.join('\n');
+    navigator.clipboard.writeText(text).then(function(){
+      document.getElementById('copyout').textContent='Copied — paste into chat to confirm.';
+    },function(){
+      document.getElementById('copyout').textContent=text;
+    });
+  }
+</script>
+
+</div>
+</body>
+</html>
