@@ -5391,15 +5391,15 @@ def show_main_menu(
 
     # Load current settings (safe defaults if config unavailable)
     floating_enabled = True
-    floating_position = "right"
+    floating_position = "center"
     floating_xp_enabled = True
     popups_enabled = True
     review_hud_enabled = True
     try:
         if mw and getattr(mw, 'col', None):
             floating_enabled = bool(mw.col.get_config("ankiscape_floating_enabled", True))
-            pos = mw.col.get_config("ankiscape_floating_position", "right")
-            floating_position = pos if pos in ("left", "right") else "right"
+            pos = mw.col.get_config("ankiscape_floating_position", "center")
+            floating_position = pos if pos in ("left", "right", "center") else "center"
         floating_xp_enabled = get_config_bool("ankiscape_floating_xp_enabled", True)
         popups_enabled = get_config_bool("ankiscape_popups_enabled", True)
         review_hud_enabled = get_config_bool("ankiscape_review_hud_enabled", True)
@@ -5478,11 +5478,15 @@ def show_main_menu(
     rb_group = QButtonGroup(pos_row)
     rb_right = QRadioButton("Bottom right")
     rb_left = QRadioButton("Bottom left")
+    rb_center = QRadioButton("Under XP bar")
     rb_group.addButton(rb_right)
     rb_group.addButton(rb_left)
+    rb_group.addButton(rb_center)
     rb_right.setChecked(floating_position == "right")
     rb_left.setChecked(floating_position == "left")
+    rb_center.setChecked(floating_position == "center")
     prl.addWidget(rb_left)
+    prl.addWidget(rb_center)
     prl.addWidget(rb_right)
     prl.addStretch(1)
 
@@ -5505,6 +5509,7 @@ def show_main_menu(
     def _sync_pos_enabled():
         rb_left.setEnabled(enabled_cb.isChecked())
         rb_right.setEnabled(enabled_cb.isChecked())
+        rb_center.setEnabled(enabled_cb.isChecked())
     _sync_pos_enabled()
     enabled_cb.stateChanged.connect(lambda _=None: _sync_pos_enabled())
 
@@ -5513,6 +5518,7 @@ def show_main_menu(
     if callable(on_set_floating_position):
         rb_left.toggled.connect(lambda checked=False: checked and on_set_floating_position("left"))
         rb_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("right"))
+        rb_center.toggled.connect(lambda checked=False: checked and on_set_floating_position("center"))
 
     def _apply_review_action_multiplier(value: int) -> None:
         # Clamp before persisting so the backend sees an integer action count.

@@ -52,7 +52,7 @@ def should_force_pass_through(message: object) -> bool:
     return False
 
 def build_reviewer_js(position: str, icon_data_uri: str) -> str:
-    pos = position if position in ("left", "right") else "right"
+    pos = position if position in ("left", "right", "center") else "center"
     js = r"""
         (function(){
             try{
@@ -69,7 +69,14 @@ def build_reviewer_js(position: str, icon_data_uri: str) -> str:
                 }
                 wrap.style.left = '';
                 wrap.style.right = '';
-                if ('__POS__' === 'left') { wrap.style.left = '16px'; } else { wrap.style.right = '16px'; }
+                wrap.style.transform = '';
+                // 'center' sits directly under the ReviewHUD (the XP bar), which
+                // ui.py's ReviewHUD._reposition() always centers horizontally and
+                // anchors 72px above the window bottom — 16px here lands the
+                // button just beneath it without overlapping Anki's own controls.
+                if ('__POS__' === 'left') { wrap.style.left = '16px'; }
+                else if ('__POS__' === 'center') { wrap.style.left = '50%'; wrap.style.transform = 'translateX(-50%)'; }
+                else { wrap.style.right = '16px'; }
 
                 var btn = document.getElementById('ankiscape-btn');
                 if (!btn) {
@@ -410,12 +417,12 @@ def inject_reviewer_floating_button(_=None) -> None:
         return
     try:
         enabled = True
-        pos = "right"
+        pos = "center"
         try:
             enabled = bool(mw.col.get_config("ankiscape_floating_enabled", True))
-            pos = mw.col.get_config("ankiscape_floating_position", "right")
-            if pos not in ("left", "right"):
-                pos = "right"
+            pos = mw.col.get_config("ankiscape_floating_position", "center")
+            if pos not in ("left", "right", "center"):
+                pos = "center"
         except Exception:
             pass
         if not enabled:
