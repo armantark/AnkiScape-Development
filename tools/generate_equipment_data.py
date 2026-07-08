@@ -7,7 +7,7 @@ import argparse
 import ast
 import re
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Dict, Mapping, Optional, Sequence, Tuple
 
@@ -187,6 +187,7 @@ class GeneratedEquipmentItem:
     source: str
     source_status: str
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
+    weapon_type: int = -1
 
 
 def _read(path: Path) -> str:
@@ -746,6 +747,7 @@ def _item_repr(item: GeneratedEquipmentItem) -> str:
         f"        source={item.source!r},\n"
         f"        source_status={item.source_status!r},\n"
         f"        skill_requirements={item.skill_requirements!r},\n"
+        f"        weapon_type={item.weapon_type},\n"
         "    )"
     )
 
@@ -808,6 +810,7 @@ class EquipmentItem:
     source: str
     source_status: str
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
+    weapon_type: int = -1
 
 
 EQUIPMENT_SLOTS: Tuple[EquipmentSlot, ...] = (
@@ -834,10 +837,26 @@ def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": item.source,
             "source_status": item.source_status,
             "skill_requirements": item.skill_requirements,
+            "weapon_type": item.weapon_type,
         }}
         for item_name, item in EQUIPMENT_DATA.items()
     }}
 '''
+
+
+def _with_weapon_type(
+    item: GeneratedEquipmentItem, items: Mapping[int, SourceItem]
+) -> GeneratedEquipmentItem:
+    """Attach the items.yml ``weapon_type`` id so combat can pick the right
+    attack style (stab/slash/crush) per weapon. Only weapon-slot items carry a
+    meaningful type; everything else keeps the -1 (unarmed/typeless) default."""
+    if item.slot != "weapon":
+        return item
+    source = items.get(item.source_item_id)
+    weapon_type = _int_from_block(source.equipment, "weapon_type", -1) if source else -1
+    if weapon_type == item.weapon_type:
+        return item
+    return replace(item, weapon_type=weapon_type)
 
 
 def generate(game_root: Path, output_path: Path) -> None:
@@ -856,6 +875,7 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_drop_equipment_items(items, items_by_name))
         + tuple(_smithing_recipe_equipment_items(items, items_by_name))
     )
+    equipment_items = tuple(_with_weapon_type(item, items) for item in equipment_items)
     output_path.write_text(_render_module(equipment_items), encoding="utf-8")
 
 

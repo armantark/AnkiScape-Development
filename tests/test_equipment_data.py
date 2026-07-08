@@ -34,6 +34,15 @@ class TestEquipmentData(unittest.TestCase):
         # smithing-recipe source, not the type-based armour/weapon selector.
         self.assertEqual(EQUIPMENT_DATA["Rune hatchet"].slot, "weapon")
 
+    def test_weapon_type_is_captured_for_the_attack_type_selector(self):
+        # The generator records the RS WeaponType id per weapon so the attack-type
+        # selector can look up its AttackStyleData slots. Non-weapon and typeless
+        # weapon rows carry -1 (they fall back to the UNARMED table).
+        self.assertEqual(EQUIPMENT_DATA["Rune 2h sword"].weapon_type, 7)
+        self.assertEqual(EQUIPMENT_DATA["Rune scimitar"].weapon_type, 6)
+        self.assertEqual(EQUIPMENT_DATA["Cape"].weapon_type, -1)
+        self.assertEqual(EQUIPMENT_DATA["Toy kite"].weapon_type, -1)
+
     def test_smithed_armour_and_weapon_requirements(self):
         self.assertEqual(EQUIPMENT_DATA["Bronze platebody"].slot, "body")
         self.assertEqual(EQUIPMENT_DATA["Bronze platebody"].combat_skill, "defense")

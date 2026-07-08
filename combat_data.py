@@ -22,6 +22,9 @@ MELEE_FORMULA_SOURCE_PATH = (
 MELEE_STRATEGY_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/strategy/MeleeCombatStrategy.kt"
 )
+ATTACK_STYLE_SOURCE_PATH = (
+    f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/AttackStyleData.kt"
+)
 RANGED_FORMULA_SOURCE_PATH = (
     f"{COMBAT_SOURCE_ROOT}/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/combat/formula/RangedCombatFormula.kt"
 )
@@ -131,6 +134,171 @@ COMBAT_ATTACK_STYLE_DATA: Dict[str, dict] = {
         "xp_mode": "magic",
         "source": f"{MAGIC_FORMULA_SOURCE_PATH}: Combat.CASTING_SPELL + MagicCombatStrategy.addCombatXp",
     },
+}
+
+
+# ``weapon_type`` ids (items.yml -> equipment.weapon_type) grouped by attack-style
+# behaviour, transcribed slot-for-slot from AttackStyleData.kt's
+# ``WeaponCombatData`` enum. Each row is one selectable combat style, in
+# CombatStyle ordinal order, carrying:
+#   * weapon_style -> drives the accuracy/effective-level bonus
+#     (accurate/aggressive/defensive/controlled), matching COMBAT_ATTACK_STYLE_DATA.
+#   * style_type   -> the melee attack type the formula rolls against
+#     (stab/slash/crush): D1 full parity replaces the old max() with attack_<type>
+#     vs defence_<type>.
+#   * xp_mode      -> which skill(s) the hit trains. This is *independent* of
+#     weapon_style: the two-handed-sword slot 3 is AGGRESSIVE for accuracy yet
+#     SHARED for xp (the one AttackStyleData anomaly), so xp is resolved per-slot.
+# WeaponType ids: NONE=0 STAFF=1 AXE=2 SCEPTRE=3 PICKAXE=4 DAGGER=5 LONG_SWORD=6
+# TWO_HANDED=7 MACE=8 CLAWS=9 HAMMER=10 WHIP=11 HAMMER_EXTRA=12 SPEAR=14
+# HALBERD=15 SCYTHE=22 FLAIL=23.
+_ATTACK_STYLE_SRC = ATTACK_STYLE_SOURCE_PATH
+
+# Typeless weapons and bare fists (weapon_type -1 / NONE / staves / sceptres /
+# hammers) fall back to this UNARMED table -> all crush (D3).
+WEAPON_TYPE_UNARMED_STYLES: Tuple[dict, ...] = (
+    {"weapon_style": "accurate", "style_type": "crush", "xp_mode": "attack",
+     "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.UNARMED slot 0"},
+    {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "strength",
+     "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.UNARMED slot 1"},
+    {"weapon_style": "defensive", "style_type": "crush", "xp_mode": "defense",
+     "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.UNARMED slot 2"},
+)
+
+WEAPON_TYPE_ATTACK_STYLES: Dict[int, Tuple[dict, ...]] = {
+    # UNARMED group: NONE, STAFF, SCEPTRE, HAMMER, HAMMER_EXTRA.
+    0: WEAPON_TYPE_UNARMED_STYLES,
+    1: WEAPON_TYPE_UNARMED_STYLES,
+    3: WEAPON_TYPE_UNARMED_STYLES,
+    10: WEAPON_TYPE_UNARMED_STYLES,
+    12: WEAPON_TYPE_UNARMED_STYLES,
+    # AXE
+    2: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.AXE slot 0"},
+        {"weapon_style": "aggressive", "style_type": "slash", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.AXE slot 1"},
+        {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.AXE slot 2"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.AXE slot 3"},
+    ),
+    # PICKAXE
+    4: (
+        {"weapon_style": "accurate", "style_type": "stab", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.PICKAXE slot 0"},
+        {"weapon_style": "aggressive", "style_type": "stab", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.PICKAXE slot 1"},
+        {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.PICKAXE slot 2"},
+        {"weapon_style": "defensive", "style_type": "stab", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.PICKAXE slot 3"},
+    ),
+    # DAGGER
+    5: (
+        {"weapon_style": "accurate", "style_type": "stab", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.DAGGER slot 0"},
+        {"weapon_style": "aggressive", "style_type": "stab", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.DAGGER slot 1"},
+        {"weapon_style": "aggressive", "style_type": "slash", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.DAGGER slot 2"},
+        {"weapon_style": "defensive", "style_type": "stab", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.DAGGER slot 3"},
+    ),
+    # LONG_SWORD
+    6: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.LONGSWORD slot 0"},
+        {"weapon_style": "aggressive", "style_type": "slash", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.LONGSWORD slot 1"},
+        {"weapon_style": "controlled", "style_type": "stab", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.LONGSWORD slot 2"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.LONGSWORD slot 3"},
+    ),
+    # TWO_HANDED_SWORD -- slot 2 is the AttackStyleData anomaly: AGGRESSIVE for
+    # accuracy/effective-level, but SHARED xp (splits like controlled).
+    7: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.TWO_HANDED_SWORD slot 0"},
+        {"weapon_style": "aggressive", "style_type": "slash", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.TWO_HANDED_SWORD slot 1"},
+        {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.TWO_HANDED_SWORD slot 2 (aggressive/crush/SHARED anomaly)"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.TWO_HANDED_SWORD slot 3"},
+    ),
+    # MACE
+    8: (
+        {"weapon_style": "accurate", "style_type": "crush", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.MACE slot 0"},
+        {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.MACE slot 1"},
+        {"weapon_style": "controlled", "style_type": "stab", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.MACE slot 2"},
+        {"weapon_style": "defensive", "style_type": "crush", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.MACE slot 3"},
+    ),
+    # CLAWS
+    9: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.CLAWS slot 0"},
+        {"weapon_style": "aggressive", "style_type": "slash", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.CLAWS slot 1"},
+        {"weapon_style": "controlled", "style_type": "stab", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.CLAWS slot 2"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.CLAWS slot 3"},
+    ),
+    # WHIP
+    11: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.WHIP slot 0"},
+        {"weapon_style": "controlled", "style_type": "slash", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.WHIP slot 1"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.WHIP slot 2"},
+    ),
+    # SPEAR
+    14: (
+        {"weapon_style": "controlled", "style_type": "stab", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SPEAR slot 0"},
+        {"weapon_style": "controlled", "style_type": "slash", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SPEAR slot 1"},
+        {"weapon_style": "controlled", "style_type": "crush", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SPEAR slot 2"},
+        {"weapon_style": "defensive", "style_type": "stab", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SPEAR slot 3"},
+    ),
+    # HALBERD
+    15: (
+        {"weapon_style": "controlled", "style_type": "stab", "xp_mode": "shared",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.HALBERD slot 0"},
+        {"weapon_style": "aggressive", "style_type": "slash", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.HALBERD slot 1"},
+        {"weapon_style": "defensive", "style_type": "stab", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.HALBERD slot 2"},
+    ),
+    # SCYTHE
+    22: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SCYTHE slot 0"},
+        {"weapon_style": "aggressive", "style_type": "stab", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SCYTHE slot 1"},
+        {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SCYTHE slot 2"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.SCYTHE slot 3"},
+    ),
+    # FLAIL
+    23: (
+        {"weapon_style": "accurate", "style_type": "slash", "xp_mode": "attack",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.FLAIL slot 0"},
+        {"weapon_style": "aggressive", "style_type": "crush", "xp_mode": "strength",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.FLAIL slot 1"},
+        {"weapon_style": "defensive", "style_type": "slash", "xp_mode": "defense",
+         "source": f"{_ATTACK_STYLE_SRC}: WeaponCombatData.FLAIL slot 2"},
+    ),
 }
 
 

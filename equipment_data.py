@@ -53,6 +53,7 @@ class EquipmentItem:
     source: str
     source_status: str
     skill_requirements: Tuple[Tuple[str, int], ...] = ()
+    weapon_type: int = -1
 
 
 EQUIPMENT_SLOTS: Tuple[EquipmentSlot, ...] = (
@@ -83,6 +84,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1205; BRONZE_DAGGER',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=5,
     ),
     'Bronze mace': EquipmentItem(
         item_name='Bronze mace',
@@ -97,6 +99,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1422; BRONZE_MACE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=8,
     ),
     'Bronze med helm': EquipmentItem(
         item_name='Bronze med helm',
@@ -111,6 +114,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1139; BRONZE_MED_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze sword': EquipmentItem(
         item_name='Bronze sword',
@@ -125,6 +129,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1277; BRONZE_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=5,
     ),
     'Bronze scimitar': EquipmentItem(
         item_name='Bronze scimitar',
@@ -139,6 +144,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1321; BRONZE_SCIMITAR',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Bronze longsword': EquipmentItem(
         item_name='Bronze longsword',
@@ -153,6 +159,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1291; BRONZE_LONGSWORD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Bronze knife': EquipmentItem(
         item_name='Bronze knife',
@@ -167,6 +174,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 864; BRONZE_THROWINGKNFIE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Bronze full helm': EquipmentItem(
         item_name='Bronze full helm',
@@ -181,6 +189,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1155; BRONZE_FULL_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze sq shield': EquipmentItem(
         item_name='Bronze sq shield',
@@ -195,6 +204,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1173; BRONZE_SQUARE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze warhammer': EquipmentItem(
         item_name='Bronze warhammer',
@@ -209,6 +219,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1337; BRONZE_WAR_HAMMER',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=10,
     ),
     'Bronze battleaxe': EquipmentItem(
         item_name='Bronze battleaxe',
@@ -223,6 +234,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1375; BRONZE_BATTLEAXE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     ),
     'Bronze chainbody': EquipmentItem(
         item_name='Bronze chainbody',
@@ -237,6 +249,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1103; BRONZE_CHAINBODY',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze kiteshield': EquipmentItem(
         item_name='Bronze kiteshield',
@@ -251,6 +264,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1189; BRONZE_KITESHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze claws': EquipmentItem(
         item_name='Bronze claws',
@@ -265,6 +279,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3095; BRONZE_CLAWS',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=9,
     ),
     'Bronze 2h sword': EquipmentItem(
         item_name='Bronze 2h sword',
@@ -279,6 +294,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1307; BRONZE_TWO_HANDED',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=7,
     ),
     'Bronze plateskirt': EquipmentItem(
         item_name='Bronze plateskirt',
@@ -293,6 +309,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1087; BRONZE_PLATE_SKIRT',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze platelegs': EquipmentItem(
         item_name='Bronze platelegs',
@@ -307,6 +324,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1075; BRONZE_PLATELEGS',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze platebody': EquipmentItem(
         item_name='Bronze platebody',
@@ -321,6 +339,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1117; BRONZE_PLATEBODY',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron dagger': EquipmentItem(
         item_name='Iron dagger',
@@ -335,6 +354,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1203; IRON_DAGGER',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=5,
     ),
     'Iron mace': EquipmentItem(
         item_name='Iron mace',
@@ -349,6 +369,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1420; IRON_MACE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=8,
     ),
     'Iron med helm': EquipmentItem(
         item_name='Iron med helm',
@@ -363,6 +384,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1137; IRON_MED_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron sword': EquipmentItem(
         item_name='Iron sword',
@@ -377,6 +399,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1279; IRON_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=5,
     ),
     'Iron scimitar': EquipmentItem(
         item_name='Iron scimitar',
@@ -391,6 +414,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1323; IRON_SCIMITAR',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Iron longsword': EquipmentItem(
         item_name='Iron longsword',
@@ -405,6 +429,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1293; IRON_LONGSWORD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Iron knife': EquipmentItem(
         item_name='Iron knife',
@@ -419,6 +444,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 863; IRON_KNIFE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Iron full helm': EquipmentItem(
         item_name='Iron full helm',
@@ -433,6 +459,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1153; IRON_FULL_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron sq shield': EquipmentItem(
         item_name='Iron sq shield',
@@ -447,6 +474,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1175; IRON_SQUARE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron warhammer': EquipmentItem(
         item_name='Iron warhammer',
@@ -461,6 +489,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1335; IRON_WARHAMMER',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=10,
     ),
     'Iron battleaxe': EquipmentItem(
         item_name='Iron battleaxe',
@@ -475,6 +504,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1363; IRON_BATTLEAXE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     ),
     'Iron chainbody': EquipmentItem(
         item_name='Iron chainbody',
@@ -489,6 +519,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1101; IRON_CHAINBODY',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron kiteshield': EquipmentItem(
         item_name='Iron kiteshield',
@@ -503,6 +534,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1191; IRON_KITE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron claws': EquipmentItem(
         item_name='Iron claws',
@@ -517,6 +549,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3096; IRON_CLAWS',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=9,
     ),
     'Iron 2h sword': EquipmentItem(
         item_name='Iron 2h sword',
@@ -531,6 +564,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1309; IRON_TWO_HANDED_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=7,
     ),
     'Iron plateskirt': EquipmentItem(
         item_name='Iron plateskirt',
@@ -545,6 +579,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1081; IRON_PLATESKIRT',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron platelegs': EquipmentItem(
         item_name='Iron platelegs',
@@ -559,6 +594,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1067; IRON_PLATELEGS',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron platebody': EquipmentItem(
         item_name='Iron platebody',
@@ -573,6 +609,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1115; IRON_PLATEBODY',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Steel dagger': EquipmentItem(
         item_name='Steel dagger',
@@ -587,6 +624,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1207; STEEL_DAGGER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=5,
     ),
     'Steel mace': EquipmentItem(
         item_name='Steel mace',
@@ -601,6 +639,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1424; STEEL_MACE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=8,
     ),
     'Steel med helm': EquipmentItem(
         item_name='Steel med helm',
@@ -615,6 +654,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1141; STEEL_MED_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel sword': EquipmentItem(
         item_name='Steel sword',
@@ -629,6 +669,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1281; STEEL_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=5,
     ),
     'Steel scimitar': EquipmentItem(
         item_name='Steel scimitar',
@@ -643,6 +684,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1325; STEEL_SCIMITAR',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=6,
     ),
     'Steel longsword': EquipmentItem(
         item_name='Steel longsword',
@@ -657,6 +699,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1295; STEEL_LONGSWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=6,
     ),
     'Steel knife': EquipmentItem(
         item_name='Steel knife',
@@ -671,6 +714,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 865; STEEL_THROWING_KNIFE',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 5),),
+        weapon_type=18,
     ),
     'Steel full helm': EquipmentItem(
         item_name='Steel full helm',
@@ -685,6 +729,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1157; STEEL_FULL_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel sq shield': EquipmentItem(
         item_name='Steel sq shield',
@@ -699,6 +744,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1177; STEEL_SQUARE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel warhammer': EquipmentItem(
         item_name='Steel warhammer',
@@ -713,6 +759,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1339; STEEL_WARHAMMER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=10,
     ),
     'Steel battleaxe': EquipmentItem(
         item_name='Steel battleaxe',
@@ -727,6 +774,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1365; STEEL_BATTLE_HATCHET',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=2,
     ),
     'Steel chainbody': EquipmentItem(
         item_name='Steel chainbody',
@@ -741,6 +789,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1105; STEEL_CHAINBODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel kiteshield': EquipmentItem(
         item_name='Steel kiteshield',
@@ -755,6 +804,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1193; STEEL_KITE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel claws': EquipmentItem(
         item_name='Steel claws',
@@ -769,6 +819,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3097; STEEL_CLAWS',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=9,
     ),
     'Steel 2h sword': EquipmentItem(
         item_name='Steel 2h sword',
@@ -783,6 +834,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1311; STEEL_TWO_HANDED_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=7,
     ),
     'Steel plateskirt': EquipmentItem(
         item_name='Steel plateskirt',
@@ -797,6 +849,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1083; STEEL_PLATE_SKIRT',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel platelegs': EquipmentItem(
         item_name='Steel platelegs',
@@ -811,6 +864,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1069; STEEL_PLATELEGS',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Steel platebody': EquipmentItem(
         item_name='Steel platebody',
@@ -825,6 +879,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1119; STEEL_PLATEBODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Mithril dagger': EquipmentItem(
         item_name='Mithril dagger',
@@ -839,6 +894,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1209; MITHRIL_DAGGER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=5,
     ),
     'Mithril mace': EquipmentItem(
         item_name='Mithril mace',
@@ -853,6 +909,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1428; MITHRIL_MACE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=8,
     ),
     'Mithril med helm': EquipmentItem(
         item_name='Mithril med helm',
@@ -867,6 +924,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1143; MITHRIL_MED_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril sword': EquipmentItem(
         item_name='Mithril sword',
@@ -881,6 +939,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1285; MITHRIL_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=5,
     ),
     'Mithril scimitar': EquipmentItem(
         item_name='Mithril scimitar',
@@ -895,6 +954,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1329; MITHRIL_SCIMITAR',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=6,
     ),
     'Mithril longsword': EquipmentItem(
         item_name='Mithril longsword',
@@ -909,6 +969,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1299; MITHRIL_LONGSWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=6,
     ),
     'Mithril knife': EquipmentItem(
         item_name='Mithril knife',
@@ -923,6 +984,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 866; MITHRIL_KNIFE',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=18,
     ),
     'Mithril full helm': EquipmentItem(
         item_name='Mithril full helm',
@@ -937,6 +999,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1159; MITHRIL_FULL_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril sq shield': EquipmentItem(
         item_name='Mithril sq shield',
@@ -951,6 +1014,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1181; MITHRIL_SQUARE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril warhammer': EquipmentItem(
         item_name='Mithril warhammer',
@@ -965,6 +1029,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1343; MITHRIL_WARHAMMER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=10,
     ),
     'Mithril battleaxe': EquipmentItem(
         item_name='Mithril battleaxe',
@@ -979,6 +1044,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1369; MITHRIL_BATTLEAXE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=2,
     ),
     'Mithril chainbody': EquipmentItem(
         item_name='Mithril chainbody',
@@ -993,6 +1059,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1109; MITHRIL_CHAINBODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril kiteshield': EquipmentItem(
         item_name='Mithril kiteshield',
@@ -1007,6 +1074,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1197; MITHRIL_KITE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril claws': EquipmentItem(
         item_name='Mithril claws',
@@ -1021,6 +1089,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3099; MITHRIL_CLAWS',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=9,
     ),
     'Mithril 2h sword': EquipmentItem(
         item_name='Mithril 2h sword',
@@ -1035,6 +1104,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1315; MITHRIL_TWO_HANDED_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=7,
     ),
     'Mithril plateskirt': EquipmentItem(
         item_name='Mithril plateskirt',
@@ -1049,6 +1119,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1085; MITHRIL_PLATESKIRT',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril platelegs': EquipmentItem(
         item_name='Mithril platelegs',
@@ -1063,6 +1134,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1071; MITHRIL_PLATELEGS',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Mithril platebody': EquipmentItem(
         item_name='Mithril platebody',
@@ -1077,6 +1149,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1121; MITHRIL_PLATEBODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Adamant dagger': EquipmentItem(
         item_name='Adamant dagger',
@@ -1091,6 +1164,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1211; ADAMANT_DAGGER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=5,
     ),
     'Adamant mace': EquipmentItem(
         item_name='Adamant mace',
@@ -1105,6 +1179,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1430; ADAMANT_MACE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=8,
     ),
     'Adamant med helm': EquipmentItem(
         item_name='Adamant med helm',
@@ -1119,6 +1194,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1145; ADAMANT_MEDIUM_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant sword': EquipmentItem(
         item_name='Adamant sword',
@@ -1133,6 +1209,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1287; ADAMANT_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=5,
     ),
     'Adamant scimitar': EquipmentItem(
         item_name='Adamant scimitar',
@@ -1147,6 +1224,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1331; ADAMANT_SCIMITAR',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=6,
     ),
     'Adamant longsword': EquipmentItem(
         item_name='Adamant longsword',
@@ -1161,6 +1239,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1301; ADAMANT_LONGSWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=6,
     ),
     'Adamant knife': EquipmentItem(
         item_name='Adamant knife',
@@ -1175,6 +1254,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 867; ADAMANT_KNIFE',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=18,
     ),
     'Adamant full helm': EquipmentItem(
         item_name='Adamant full helm',
@@ -1189,6 +1269,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1161; ADAMANT_FULL_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant sq shield': EquipmentItem(
         item_name='Adamant sq shield',
@@ -1203,6 +1284,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1183; ADAMANT_SQUARE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant warhammer': EquipmentItem(
         item_name='Adamant warhammer',
@@ -1217,6 +1299,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1345; ADAMANT_WARHAMMER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=10,
     ),
     'Adamant battleaxe': EquipmentItem(
         item_name='Adamant battleaxe',
@@ -1231,6 +1314,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1371; ADAMANT_BATTLEAXE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=2,
     ),
     'Adamant chainbody': EquipmentItem(
         item_name='Adamant chainbody',
@@ -1245,6 +1329,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1111; ADAMANT_CHAINBODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant kiteshield': EquipmentItem(
         item_name='Adamant kiteshield',
@@ -1259,6 +1344,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1199; ADAMANT_KITESHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant claws': EquipmentItem(
         item_name='Adamant claws',
@@ -1273,6 +1359,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3100; ADAMANT_CLAWS',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=9,
     ),
     'Adamant 2h sword': EquipmentItem(
         item_name='Adamant 2h sword',
@@ -1287,6 +1374,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1317; ADAMANT_TWO_HANDED_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=7,
     ),
     'Adamant plateskirt': EquipmentItem(
         item_name='Adamant plateskirt',
@@ -1301,6 +1389,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1091; ADAMANT_PLATE_SKIRT',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant platelegs': EquipmentItem(
         item_name='Adamant platelegs',
@@ -1315,6 +1404,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1073; ADAMANT_PLATE_LEGS',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Adamant platebody': EquipmentItem(
         item_name='Adamant platebody',
@@ -1329,6 +1419,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1123; ADAMANT_PLATE_BODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Rune dagger': EquipmentItem(
         item_name='Rune dagger',
@@ -1343,6 +1434,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1213; RUNE_DAGGER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=5,
     ),
     'Rune mace': EquipmentItem(
         item_name='Rune mace',
@@ -1357,6 +1449,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1432; RUNITE_MACE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=8,
     ),
     'Rune med helm': EquipmentItem(
         item_name='Rune med helm',
@@ -1371,6 +1464,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1147; RUNITE_MEDIUM_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune sword': EquipmentItem(
         item_name='Rune sword',
@@ -1385,6 +1479,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1289; RUNITE_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=5,
     ),
     'Rune scimitar': EquipmentItem(
         item_name='Rune scimitar',
@@ -1399,6 +1494,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1333; RUNITE_SCIMITAR',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=6,
     ),
     'Rune longsword': EquipmentItem(
         item_name='Rune longsword',
@@ -1413,6 +1509,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1303; RUNITE_LONGSWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=6,
     ),
     'Rune knife': EquipmentItem(
         item_name='Rune knife',
@@ -1427,6 +1524,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 868; RUNITE_KNIFE',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=18,
     ),
     'Rune full helm': EquipmentItem(
         item_name='Rune full helm',
@@ -1441,6 +1539,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1163; RUNITE_FULL_HELM',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune sq shield': EquipmentItem(
         item_name='Rune sq shield',
@@ -1455,6 +1554,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1185; RUNITE_SQUARE_SHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune warhammer': EquipmentItem(
         item_name='Rune warhammer',
@@ -1469,6 +1569,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1347; RUNITE_WARHAMMER',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=10,
     ),
     'Rune battleaxe': EquipmentItem(
         item_name='Rune battleaxe',
@@ -1483,6 +1584,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1373; RUNITE_BATTLEAXE',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=2,
     ),
     'Rune chainbody': EquipmentItem(
         item_name='Rune chainbody',
@@ -1497,6 +1599,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1113; RUNITE_CHAINBODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune kiteshield': EquipmentItem(
         item_name='Rune kiteshield',
@@ -1511,6 +1614,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1201; RUNITE_KITESHIELD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune claws': EquipmentItem(
         item_name='Rune claws',
@@ -1525,6 +1629,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3101; RUNITE_CLAWS',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=9,
     ),
     'Rune 2h sword': EquipmentItem(
         item_name='Rune 2h sword',
@@ -1539,6 +1644,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1319; RUNITE_TWO_HANDED_SWORD',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=7,
     ),
     'Rune plateskirt': EquipmentItem(
         item_name='Rune plateskirt',
@@ -1553,6 +1659,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1093; RUNITE_PLATE_SKIRT',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune platelegs': EquipmentItem(
         item_name='Rune platelegs',
@@ -1567,6 +1674,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1079; RUNITE_PLATE_LEGS',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Rune platebody': EquipmentItem(
         item_name='Rune platebody',
@@ -1581,6 +1689,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1127; RUNITE_PLATE_BODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Amulet of glory': EquipmentItem(
         item_name='Amulet of glory',
@@ -1595,6 +1704,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1704; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of glory (1)': EquipmentItem(
         item_name='Amulet of glory (1)',
@@ -1609,6 +1719,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1706; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of glory (2)': EquipmentItem(
         item_name='Amulet of glory (2)',
@@ -1623,6 +1734,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1708; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of glory (3)': EquipmentItem(
         item_name='Amulet of glory (3)',
@@ -1637,6 +1749,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1710; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of glory (4)': EquipmentItem(
         item_name='Amulet of glory (4)',
@@ -1651,6 +1764,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1712; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Varrock armour 1': EquipmentItem(
         item_name='Varrock armour 1',
@@ -1665,6 +1779,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11756; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Varrock armour 2': EquipmentItem(
         item_name='Varrock armour 2',
@@ -1679,6 +1794,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11757; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Varrock armour 3': EquipmentItem(
         item_name='Varrock armour 3',
@@ -1693,6 +1809,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11758; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Varrock armour 4': EquipmentItem(
         item_name='Varrock armour 4',
@@ -1707,6 +1824,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 19757; /Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/mining/Mining.kt',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Air tiara': EquipmentItem(
         item_name='Air tiara',
@@ -1721,6 +1839,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5527; Altar.kt; AIR_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Binding necklace': EquipmentItem(
         item_name='Binding necklace',
@@ -1735,6 +1854,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5521; legacy equipment_data.py; BINDING_NECKLACE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Blood tiara': EquipmentItem(
         item_name='Blood tiara',
@@ -1749,6 +1869,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5549; Altar.kt; BLOOD_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Body tiara': EquipmentItem(
         item_name='Body tiara',
@@ -1763,6 +1884,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5533; Altar.kt; BODY_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Brass necklace': EquipmentItem(
         item_name='Brass necklace',
@@ -1777,6 +1899,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1009; BRASS_NECKLACE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze spear': EquipmentItem(
         item_name='Bronze spear',
@@ -1791,6 +1914,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1237; BRONZE_SPEAR',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=14,
     ),
     'Cape': EquipmentItem(
         item_name='Cape',
@@ -1805,6 +1929,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1019; CAPE_1019',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Chaos tiara': EquipmentItem(
         item_name='Chaos tiara',
@@ -1819,6 +1944,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5543; Altar.kt; CHAOS_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     "Chef's hat": EquipmentItem(
         item_name="Chef's hat",
@@ -1833,6 +1959,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1949; CHEFS_HAT',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Cosmic tiara': EquipmentItem(
         item_name='Cosmic tiara',
@@ -1847,6 +1974,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5539; Altar.kt; COSMIC_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Death tiara': EquipmentItem(
         item_name='Death tiara',
@@ -1861,6 +1989,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5547; Altar.kt; DEATH_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Earth tiara': EquipmentItem(
         item_name='Earth tiara',
@@ -1875,6 +2004,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5535; Altar.kt; EARTH_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Fire battlestaff': EquipmentItem(
         item_name='Fire battlestaff',
@@ -1889,6 +2019,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1393; FIRE_BATTLESTAFF',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30), ('magic', 30)),
+        weapon_type=1,
     ),
     'Fire tiara': EquipmentItem(
         item_name='Fire tiara',
@@ -1903,6 +2034,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5537; Altar.kt; FIRE_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron spear': EquipmentItem(
         item_name='Iron spear',
@@ -1917,6 +2049,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1239; IRON_SPEAR',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=14,
     ),
     'Law tiara': EquipmentItem(
         item_name='Law tiara',
@@ -1931,6 +2064,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5545; Altar.kt; LAW_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Mind tiara': EquipmentItem(
         item_name='Mind tiara',
@@ -1945,6 +2079,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5529; Altar.kt; MIND_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Nature tiara': EquipmentItem(
         item_name='Nature tiara',
@@ -1959,6 +2094,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5541; Altar.kt; NATURE_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Obsidian cape': EquipmentItem(
         item_name='Obsidian cape',
@@ -1973,6 +2109,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6568; OBSIDIAN_CAPE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Staff': EquipmentItem(
         item_name='Staff',
@@ -1987,6 +2124,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1379; STAFF',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Staff of air': EquipmentItem(
         item_name='Staff of air',
@@ -2001,6 +2139,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1381; STAFF_OF_AIR',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Staff of earth': EquipmentItem(
         item_name='Staff of earth',
@@ -2015,6 +2154,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1385; STAFF_OF_EARTH',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Staff of fire': EquipmentItem(
         item_name='Staff of fire',
@@ -2029,6 +2169,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1387; STAFF_OF_FIRE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Staff of water': EquipmentItem(
         item_name='Staff of water',
@@ -2043,6 +2184,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1383; STAFF_OF_WATER',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Steel spear': EquipmentItem(
         item_name='Steel spear',
@@ -2057,6 +2199,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1241; STEEL_SPEAR',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=14,
     ),
     'Toktz-ket-xil': EquipmentItem(
         item_name='Toktz-ket-xil',
@@ -2071,6 +2214,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6524; TOKTZKETXIL',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 60),),
+        weapon_type=-1,
     ),
     'Tzhaar-ket-om': EquipmentItem(
         item_name='Tzhaar-ket-om',
@@ -2085,6 +2229,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6528; TZHAARKETOM',
         source_status='items.yml equipment block',
         skill_requirements=(('strength', 60),),
+        weapon_type=10,
     ),
     'Water tiara': EquipmentItem(
         item_name='Water tiara',
@@ -2099,6 +2244,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5531; Altar.kt; WATER_TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Wicked hood': EquipmentItem(
         item_name='Wicked hood',
@@ -2113,6 +2259,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='external RuneScape wiki; not present in local 2011Scape rev-667 source',
         source_status='manual Runecrafting v1 equipment entry',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Clay ring': EquipmentItem(
         item_name='Clay ring',
@@ -2127,6 +2274,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 20053; CLAY_RING',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Silver sickle': EquipmentItem(
         item_name='Silver sickle',
@@ -2141,6 +2289,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2961; SILVER_SICKLE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Tiara': EquipmentItem(
         item_name='Tiara',
@@ -2155,6 +2304,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5525; TIARA',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 23),),
+        weapon_type=-1,
     ),
     'Gold ring': EquipmentItem(
         item_name='Gold ring',
@@ -2169,6 +2319,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1635; GOLD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Gold necklace': EquipmentItem(
         item_name='Gold necklace',
@@ -2183,6 +2334,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1654; GOLD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Gold bracelet': EquipmentItem(
         item_name='Gold bracelet',
@@ -2197,6 +2349,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11069; GOLD',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 7),),
+        weapon_type=-1,
     ),
     'Gold amulet': EquipmentItem(
         item_name='Gold amulet',
@@ -2211,6 +2364,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1692; GOLD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Sapphire ring': EquipmentItem(
         item_name='Sapphire ring',
@@ -2225,6 +2379,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1637; SAPPHIRE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Sapphire necklace': EquipmentItem(
         item_name='Sapphire necklace',
@@ -2239,6 +2394,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1656; SAPPHIRE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Sapphire bracelet': EquipmentItem(
         item_name='Sapphire bracelet',
@@ -2253,6 +2409,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11072; SAPPHIRE',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 23),),
+        weapon_type=-1,
     ),
     'Sapphire amulet': EquipmentItem(
         item_name='Sapphire amulet',
@@ -2267,6 +2424,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1694; SAPPHIRE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Emerald ring': EquipmentItem(
         item_name='Emerald ring',
@@ -2281,6 +2439,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1639; EMERALD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Emerald necklace': EquipmentItem(
         item_name='Emerald necklace',
@@ -2295,6 +2454,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1658; EMERALD',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ruby ring': EquipmentItem(
         item_name='Ruby ring',
@@ -2309,6 +2469,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1641; RUBY',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ruby necklace': EquipmentItem(
         item_name='Ruby necklace',
@@ -2323,6 +2484,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1660; RUBY',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Diamond ring': EquipmentItem(
         item_name='Diamond ring',
@@ -2337,6 +2499,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1643; DIAMOND',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Diamond necklace': EquipmentItem(
         item_name='Diamond necklace',
@@ -2351,6 +2514,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1662; DIAMOND',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Dragonstone ring': EquipmentItem(
         item_name='Dragonstone ring',
@@ -2365,6 +2529,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1645; DRAGONSTONE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Dragon necklace': EquipmentItem(
         item_name='Dragon necklace',
@@ -2379,6 +2544,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1664; DRAGONSTONE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Dragonstone ammy': EquipmentItem(
         item_name='Dragonstone ammy',
@@ -2393,6 +2559,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1702; DRAGONSTONE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Onyx ring': EquipmentItem(
         item_name='Onyx ring',
@@ -2407,6 +2574,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6575; ONYX',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Onyx necklace': EquipmentItem(
         item_name='Onyx necklace',
@@ -2421,6 +2589,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6577; ONYX',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Onyx amulet': EquipmentItem(
         item_name='Onyx amulet',
@@ -2435,6 +2604,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6581; ONYX',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Leather gloves': EquipmentItem(
         item_name='Leather gloves',
@@ -2449,6 +2619,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1059; LEATHER',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Leather boots': EquipmentItem(
         item_name='Leather boots',
@@ -2463,6 +2634,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1061; LEATHER',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 7),),
+        weapon_type=-1,
     ),
     'Leather body': EquipmentItem(
         item_name='Leather body',
@@ -2477,6 +2649,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1129; LEATHER',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 14),),
+        weapon_type=-1,
     ),
     'Hardleather body': EquipmentItem(
         item_name='Hardleather body',
@@ -2491,6 +2664,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1131; HARD_LEATHER',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 28),),
+        weapon_type=-1,
     ),
     "Green d'hide body": EquipmentItem(
         item_name="Green d'hide body",
@@ -2505,6 +2679,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1135; GREEN_DRAGONHIDE',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 63),),
+        weapon_type=-1,
     ),
     "Blue d'hide body": EquipmentItem(
         item_name="Blue d'hide body",
@@ -2519,6 +2694,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2499; BLUE_DRAGONHIDE',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 71),),
+        weapon_type=-1,
     ),
     "Black d'hide body": EquipmentItem(
         item_name="Black d'hide body",
@@ -2533,6 +2709,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2503; BLACK_DRAGONHIDE',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 84),),
+        weapon_type=-1,
     ),
     'Water battlestaff': EquipmentItem(
         item_name='Water battlestaff',
@@ -2547,6 +2724,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1395; WATER_BATTLESTAFF',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Air battlestaff': EquipmentItem(
         item_name='Air battlestaff',
@@ -2561,6 +2739,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1397; AIR_BATTLESTAFF',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Studded body': EquipmentItem(
         item_name='Studded body',
@@ -2575,6 +2754,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1133; STUDDED_BODY',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 41),),
+        weapon_type=-1,
     ),
     'Shortbow': EquipmentItem(
         item_name='Shortbow',
@@ -2589,6 +2769,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 841; SHORTBOW',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=16,
     ),
     'Longbow': EquipmentItem(
         item_name='Longbow',
@@ -2603,6 +2784,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 839; LONGBOW',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=16,
     ),
     'Oak shortbow': EquipmentItem(
         item_name='Oak shortbow',
@@ -2617,6 +2799,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 843; OAK_SHORTBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 5),),
+        weapon_type=16,
     ),
     'Oak longbow': EquipmentItem(
         item_name='Oak longbow',
@@ -2631,6 +2814,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 845; OAK_LONGBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 5),),
+        weapon_type=16,
     ),
     'Willow shortbow': EquipmentItem(
         item_name='Willow shortbow',
@@ -2645,6 +2829,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 849; WILLOW_SHORTBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=16,
     ),
     'Willow longbow': EquipmentItem(
         item_name='Willow longbow',
@@ -2659,6 +2844,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 847; WILLOW_LONGBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=16,
     ),
     'Maple shortbow': EquipmentItem(
         item_name='Maple shortbow',
@@ -2673,6 +2859,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 853; MAPLE_SHORTBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=16,
     ),
     'Maple longbow': EquipmentItem(
         item_name='Maple longbow',
@@ -2687,6 +2874,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 851; MAPLE_LONGBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=16,
     ),
     'Yew shortbow': EquipmentItem(
         item_name='Yew shortbow',
@@ -2701,6 +2889,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 857; YEW_SHORTBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=16,
     ),
     'Yew longbow': EquipmentItem(
         item_name='Yew longbow',
@@ -2715,6 +2904,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 855; YEW_LONGBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=16,
     ),
     'Magic shortbow': EquipmentItem(
         item_name='Magic shortbow',
@@ -2729,6 +2919,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 861; MAGIC_SHORTBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 50),),
+        weapon_type=16,
     ),
     'Magic longbow': EquipmentItem(
         item_name='Magic longbow',
@@ -2743,6 +2934,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 859; MAGIC_LONGBOW',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 50),),
+        weapon_type=16,
     ),
     'Bronze arrows': EquipmentItem(
         item_name='Bronze arrows',
@@ -2757,6 +2949,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 882; BRONZE',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron arrows': EquipmentItem(
         item_name='Iron arrows',
@@ -2771,6 +2964,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 884; IRON',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 15),),
+        weapon_type=-1,
     ),
     'Steel arrows': EquipmentItem(
         item_name='Steel arrows',
@@ -2785,6 +2979,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 886; STEEL',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Mithril arrows': EquipmentItem(
         item_name='Mithril arrows',
@@ -2799,6 +2994,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 888; MITHRIL',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 45),),
+        weapon_type=-1,
     ),
     'Broad arrows': EquipmentItem(
         item_name='Broad arrows',
@@ -2813,6 +3009,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4160; BROAD',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 52),),
+        weapon_type=-1,
     ),
     'Adamant arrows': EquipmentItem(
         item_name='Adamant arrows',
@@ -2827,6 +3024,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 890; ADAMANT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 60),),
+        weapon_type=-1,
     ),
     'Rune arrows': EquipmentItem(
         item_name='Rune arrows',
@@ -2841,6 +3039,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 892; RUNE',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 75),),
+        weapon_type=-1,
     ),
     'Dragon arrows': EquipmentItem(
         item_name='Dragon arrows',
@@ -2855,6 +3054,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11212; DRAGON',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 90),),
+        weapon_type=-1,
     ),
     'Bronze bolts': EquipmentItem(
         item_name='Bronze bolts',
@@ -2869,6 +3069,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 877; BRONZE_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 9),),
+        weapon_type=-1,
     ),
     'Blurite bolts': EquipmentItem(
         item_name='Blurite bolts',
@@ -2883,6 +3084,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9139; BLURITE_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 24),),
+        weapon_type=-1,
     ),
     'Iron bolts': EquipmentItem(
         item_name='Iron bolts',
@@ -2897,6 +3099,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9140; IRON_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 39),),
+        weapon_type=-1,
     ),
     'Silver bolts': EquipmentItem(
         item_name='Silver bolts',
@@ -2911,6 +3114,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9145; SILVER_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 43),),
+        weapon_type=-1,
     ),
     'Steel bolts': EquipmentItem(
         item_name='Steel bolts',
@@ -2925,6 +3129,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9141; STEEL_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 46),),
+        weapon_type=-1,
     ),
     'Mithril bolts': EquipmentItem(
         item_name='Mithril bolts',
@@ -2939,6 +3144,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9142; MITHRIL_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 54),),
+        weapon_type=-1,
     ),
     'Broad-tipped bolts': EquipmentItem(
         item_name='Broad-tipped bolts',
@@ -2953,6 +3159,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 13280; BROAD_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 55),),
+        weapon_type=-1,
     ),
     'Adamant bolts': EquipmentItem(
         item_name='Adamant bolts',
@@ -2967,6 +3174,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9143; ADAMANT_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 61),),
+        weapon_type=-1,
     ),
     'Runite bolts': EquipmentItem(
         item_name='Runite bolts',
@@ -2981,6 +3189,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9144; RUNITE_BOLT',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 69),),
+        weapon_type=-1,
     ),
     'Opal bolts': EquipmentItem(
         item_name='Opal bolts',
@@ -2995,6 +3204,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 879; tip_opal_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 11),),
+        weapon_type=-1,
     ),
     'Jade bolts': EquipmentItem(
         item_name='Jade bolts',
@@ -3009,6 +3219,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9335; tip_jade_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 26),),
+        weapon_type=-1,
     ),
     'Pearl bolts': EquipmentItem(
         item_name='Pearl bolts',
@@ -3023,6 +3234,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 880; tip_pearl_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 41),),
+        weapon_type=-1,
     ),
     'Topaz bolts': EquipmentItem(
         item_name='Topaz bolts',
@@ -3037,6 +3249,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9336; tip_topaz_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 48),),
+        weapon_type=-1,
     ),
     'Barbed bolts': EquipmentItem(
         item_name='Barbed bolts',
@@ -3051,6 +3264,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 881; tip_barbed_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 51),),
+        weapon_type=-1,
     ),
     'Sapphire bolts': EquipmentItem(
         item_name='Sapphire bolts',
@@ -3065,6 +3279,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9337; tip_sapphire_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 56),),
+        weapon_type=-1,
     ),
     'Emerald bolts': EquipmentItem(
         item_name='Emerald bolts',
@@ -3079,6 +3294,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9338; tip_emerald_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 58),),
+        weapon_type=-1,
     ),
     'Mith grapple': EquipmentItem(
         item_name='Mith grapple',
@@ -3093,6 +3309,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9419; attach_mithril_grapple',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ruby bolts': EquipmentItem(
         item_name='Ruby bolts',
@@ -3107,6 +3324,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9339; tip_ruby_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 63),),
+        weapon_type=-1,
     ),
     'Diamond bolts': EquipmentItem(
         item_name='Diamond bolts',
@@ -3121,6 +3339,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9340; tip_diamond_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 65),),
+        weapon_type=-1,
     ),
     'Dragon bolts': EquipmentItem(
         item_name='Dragon bolts',
@@ -3135,6 +3354,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9341; tip_dragon_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 71),),
+        weapon_type=-1,
     ),
     'Onyx bolts': EquipmentItem(
         item_name='Onyx bolts',
@@ -3149,6 +3369,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9342; tip_onyx_bolts',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 73),),
+        weapon_type=-1,
     ),
     'Bronze darts': EquipmentItem(
         item_name='Bronze darts',
@@ -3163,6 +3384,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 806; BRONZE_DART',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Iron darts': EquipmentItem(
         item_name='Iron darts',
@@ -3177,6 +3399,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 807; IRON_DART',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 22),),
+        weapon_type=18,
     ),
     'Steel darts': EquipmentItem(
         item_name='Steel darts',
@@ -3191,6 +3414,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 808; STEEL_DART',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 37),),
+        weapon_type=18,
     ),
     'Mithril darts': EquipmentItem(
         item_name='Mithril darts',
@@ -3205,6 +3429,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 809; MITHRIL_DART',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 52),),
+        weapon_type=18,
     ),
     'Adamant darts': EquipmentItem(
         item_name='Adamant darts',
@@ -3219,6 +3444,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 810; ADAMANT_DART',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 67),),
+        weapon_type=18,
     ),
     'Rune darts': EquipmentItem(
         item_name='Rune darts',
@@ -3233,6 +3459,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 811; RUNE_DART',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 81),),
+        weapon_type=18,
     ),
     'Dragon darts': EquipmentItem(
         item_name='Dragon darts',
@@ -3247,6 +3474,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 11230; DRAGON_DART',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 95),),
+        weapon_type=18,
     ),
     'Antlers': EquipmentItem(
         item_name='Antlers',
@@ -3261,6 +3489,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12204; SHOP_DATA stock; Summoning Supplies',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Lizard skull': EquipmentItem(
         item_name='Lizard skull',
@@ -3275,6 +3504,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12207; SHOP_DATA stock; Summoning Supplies',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Feather headdress': EquipmentItem(
         item_name='Feather headdress',
@@ -3289,6 +3519,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12210; SHOP_DATA stock; Summoning Supplies',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 50),),
+        weapon_type=-1,
     ),
     'Coif': EquipmentItem(
         item_name='Coif',
@@ -3303,6 +3534,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1169; SHOP_DATA stock; Aaron's Archery Appendages",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=-1,
     ),
     'Leather chaps': EquipmentItem(
         item_name='Leather chaps',
@@ -3317,6 +3549,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1095; SHOP_DATA stock; Aaron's Archery Appendages",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Leather cowl': EquipmentItem(
         item_name='Leather cowl',
@@ -3331,6 +3564,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1167; SHOP_DATA stock; Aaron's Archery Appendages",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Leather vambraces': EquipmentItem(
         item_name='Leather vambraces',
@@ -3345,6 +3579,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1063; SHOP_DATA stock; Aaron's Archery Appendages",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Studded chaps': EquipmentItem(
         item_name='Studded chaps',
@@ -3359,6 +3594,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1097; SHOP_DATA stock; Aaron's Archery Appendages",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=-1,
     ),
     'Bronze pickaxe': EquipmentItem(
         item_name='Bronze pickaxe',
@@ -3373,6 +3609,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1265; SHOP_DATA stock; Aemad's Adventuring Supplies",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=4,
     ),
     'Iron hatchet': EquipmentItem(
         item_name='Iron hatchet',
@@ -3387,6 +3624,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1349; SHOP_DATA stock; Aemad's Adventuring Supplies",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     ),
     'Woven top': EquipmentItem(
         item_name='Woven top',
@@ -3401,6 +3639,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5024; SHOP_DATA stock; Agmundi Quality Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Shirt': EquipmentItem(
         item_name='Shirt',
@@ -3415,6 +3654,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5030; SHOP_DATA stock; Agmundi Quality Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Trousers': EquipmentItem(
         item_name='Trousers',
@@ -3429,6 +3669,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5036; SHOP_DATA stock; Agmundi Quality Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Shorts': EquipmentItem(
         item_name='Shorts',
@@ -3443,6 +3684,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5042; SHOP_DATA stock; Agmundi Quality Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Skirt': EquipmentItem(
         item_name='Skirt',
@@ -3457,6 +3699,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5048; SHOP_DATA stock; Agmundi Quality Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bolt rack': EquipmentItem(
         item_name='Bolt rack',
@@ -3471,6 +3714,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4740; SHOP_DATA stock; Ak-Haranu's Exotic Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 70),),
+        weapon_type=-1,
     ),
     'Butterfly net': EquipmentItem(
         item_name='Butterfly net',
@@ -3485,6 +3729,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 10010; SHOP_DATA stock; Aleck's Hunter Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=10,
     ),
     'Noose wand': EquipmentItem(
         item_name='Noose wand',
@@ -3499,6 +3744,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 10150; SHOP_DATA stock; Aleck's Hunter Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=14,
     ),
     'Amulet of farming (8)': EquipmentItem(
         item_name='Amulet of farming (8)',
@@ -3513,6 +3759,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 12622; SHOP_DATA stock; Alice's Farming Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black 2h sword': EquipmentItem(
         item_name='Black 2h sword',
@@ -3527,6 +3774,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1313; SHOP_DATA stock; Armoury',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=7,
     ),
     'Crossbow': EquipmentItem(
         item_name='Crossbow',
@@ -3541,6 +3789,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 837; SHOP_DATA stock; Armoury',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=17,
     ),
     'Bronze javelin': EquipmentItem(
         item_name='Bronze javelin',
@@ -3555,6 +3804,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 825; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Iron javelin': EquipmentItem(
         item_name='Iron javelin',
@@ -3569,6 +3819,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 826; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Steel javelin': EquipmentItem(
         item_name='Steel javelin',
@@ -3583,6 +3834,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 827; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 5),),
+        weapon_type=18,
     ),
     'Mithril javelin': EquipmentItem(
         item_name='Mithril javelin',
@@ -3597,6 +3849,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 828; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=18,
     ),
     'Adamant javelin': EquipmentItem(
         item_name='Adamant javelin',
@@ -3611,6 +3864,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 829; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=18,
     ),
     'Rune javelin': EquipmentItem(
         item_name='Rune javelin',
@@ -3625,6 +3879,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 830; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=18,
     ),
     'Bronze thrownaxe': EquipmentItem(
         item_name='Bronze thrownaxe',
@@ -3639,6 +3894,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 800; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Iron thrownaxe': EquipmentItem(
         item_name='Iron thrownaxe',
@@ -3653,6 +3909,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 801; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=18,
     ),
     'Steel thrownaxe': EquipmentItem(
         item_name='Steel thrownaxe',
@@ -3667,6 +3924,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 802; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 5),),
+        weapon_type=18,
     ),
     'Mithril thrownaxe': EquipmentItem(
         item_name='Mithril thrownaxe',
@@ -3681,6 +3939,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 803; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 20),),
+        weapon_type=18,
     ),
     'Adamant thrownaxe': EquipmentItem(
         item_name='Adamant thrownaxe',
@@ -3695,6 +3954,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 804; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=18,
     ),
     'Rune thrownaxe': EquipmentItem(
         item_name='Rune thrownaxe',
@@ -3709,6 +3969,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 805; SHOP_DATA stock; Authentic Throwing Weapons',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=18,
     ),
     'Battlestaff': EquipmentItem(
         item_name='Battlestaff',
@@ -3723,6 +3984,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1391; SHOP_DATA stock; Baba Yaga's Magic Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30), ('magic', 30)),
+        weapon_type=1,
     ),
     'Desert shirt': EquipmentItem(
         item_name='Desert shirt',
@@ -3737,6 +3999,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1833; SHOP_DATA stock; Bandit Bargains',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Desert robe': EquipmentItem(
         item_name='Desert robe',
@@ -3751,6 +4014,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1835; SHOP_DATA stock; Bandit Bargains',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Desert boots': EquipmentItem(
         item_name='Desert boots',
@@ -3765,6 +4029,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1837; SHOP_DATA stock; Bandit Bargains',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Boots': EquipmentItem(
         item_name='Boots',
@@ -3779,6 +4044,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 2894; SHOP_DATA stock; Barker's Haberdashery",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Robe top': EquipmentItem(
         item_name='Robe top',
@@ -3793,6 +4059,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 2896; SHOP_DATA stock; Barker's Haberdashery",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Robe bottoms': EquipmentItem(
         item_name='Robe bottoms',
@@ -3807,6 +4074,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 2898; SHOP_DATA stock; Barker's Haberdashery",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Hat': EquipmentItem(
         item_name='Hat',
@@ -3821,6 +4089,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 2900; SHOP_DATA stock; Barker's Haberdashery",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Gloves': EquipmentItem(
         item_name='Gloves',
@@ -3835,6 +4104,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 2902; SHOP_DATA stock; Barker's Haberdashery",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Wizard hat': EquipmentItem(
         item_name='Wizard hat',
@@ -3849,6 +4119,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 579; SHOP_DATA stock; Betty's Magic Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Willow-blackjack': EquipmentItem(
         item_name='Willow-blackjack',
@@ -3863,6 +4134,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4600; SHOP_DATA stock; Blackjack Seller',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=10,
     ),
     'Dragon dagger': EquipmentItem(
         item_name='Dragon dagger',
@@ -3877,6 +4149,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1215; SHOP_DATA stock; Blades by Urbi',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=5,
     ),
     'Bronze hatchet': EquipmentItem(
         item_name='Bronze hatchet',
@@ -3891,6 +4164,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1351; SHOP_DATA stock; Bob's Brilliant Axes",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     ),
     'Steel hatchet': EquipmentItem(
         item_name='Steel hatchet',
@@ -3905,6 +4179,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1353; SHOP_DATA stock; Bob's Brilliant Axes",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=2,
     ),
     'Damaged book': EquipmentItem(
         item_name='Damaged book',
@@ -3919,6 +4194,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3839; SHOP_DATA stock; Book shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black battleaxe': EquipmentItem(
         item_name='Black battleaxe',
@@ -3933,6 +4209,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1367; SHOP_DATA stock; Brian's Battleaxe Bazaar",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=2,
     ),
     'Sling': EquipmentItem(
         item_name='Sling',
@@ -3947,6 +4224,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 19830; SHOP_DATA stock; Burthorpe Guard Quartermaster',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=24,
     ),
     'Wooden shield': EquipmentItem(
         item_name='Wooden shield',
@@ -3961,6 +4239,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1171; SHOP_DATA stock; Cassie's Shield Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Mirror shield': EquipmentItem(
         item_name='Mirror shield',
@@ -3975,6 +4254,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4156; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Leaf-bladed spear': EquipmentItem(
         item_name='Leaf-bladed spear',
@@ -3989,6 +4269,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4158; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 55),),
+        weapon_type=14,
     ),
     'Face mask': EquipmentItem(
         item_name='Face mask',
@@ -4003,6 +4284,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4164; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Earmuffs': EquipmentItem(
         item_name='Earmuffs',
@@ -4017,6 +4299,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4166; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Nose peg': EquipmentItem(
         item_name='Nose peg',
@@ -4031,6 +4314,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4168; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     "Slayer's staff": EquipmentItem(
         item_name="Slayer's staff",
@@ -4045,6 +4329,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4170; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(('magic', 50),),
+        weapon_type=1,
     ),
     'Spiny helmet': EquipmentItem(
         item_name='Spiny helmet',
@@ -4059,6 +4344,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4551; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Slayer gloves': EquipmentItem(
         item_name='Slayer gloves',
@@ -4073,6 +4359,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6720; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Unlit bug lantern': EquipmentItem(
         item_name='Unlit bug lantern',
@@ -4087,6 +4374,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7051; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Insulated boots': EquipmentItem(
         item_name='Insulated boots',
@@ -4101,6 +4389,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7159; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Witchwood icon': EquipmentItem(
         item_name='Witchwood icon',
@@ -4115,6 +4404,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 8923; SHOP_DATA stock; Chaeldar's Slayer Equipment",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Saradomin staff': EquipmentItem(
         item_name='Saradomin staff',
@@ -4129,6 +4419,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2415; SHOP_DATA stock; Mage Arena Staves',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Guthix staff': EquipmentItem(
         item_name='Guthix staff',
@@ -4143,6 +4434,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2416; SHOP_DATA stock; Mage Arena Staves',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Zamorak staff': EquipmentItem(
         item_name='Zamorak staff',
@@ -4157,6 +4449,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2417; SHOP_DATA stock; Mage Arena Staves',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Bronze crossbow': EquipmentItem(
         item_name='Bronze crossbow',
@@ -4171,6 +4464,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9174; SHOP_DATA stock; Holoy's Crossbow Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=17,
     ),
     'Iron crossbow': EquipmentItem(
         item_name='Iron crossbow',
@@ -4185,6 +4479,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9177; SHOP_DATA stock; Holoy's Crossbow Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 26),),
+        weapon_type=17,
     ),
     'Steel crossbow': EquipmentItem(
         item_name='Steel crossbow',
@@ -4199,6 +4494,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9179; SHOP_DATA stock; Holoy's Crossbow Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 31),),
+        weapon_type=17,
     ),
     'Mith crossbow': EquipmentItem(
         item_name='Mith crossbow',
@@ -4213,6 +4509,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9181; SHOP_DATA stock; Holoy's Crossbow Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 36),),
+        weapon_type=17,
     ),
     'Adamant crossbow': EquipmentItem(
         item_name='Adamant crossbow',
@@ -4227,6 +4524,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9183; SHOP_DATA stock; Holoy's Crossbow Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 46),),
+        weapon_type=17,
     ),
     'Rune crossbow': EquipmentItem(
         item_name='Rune crossbow',
@@ -4241,6 +4539,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9185; SHOP_DATA stock; Holoy's Crossbow Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 61),),
+        weapon_type=17,
     ),
     'Wooden spoon': EquipmentItem(
         item_name='Wooden spoon',
@@ -4255,6 +4554,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7433; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Egg whisk': EquipmentItem(
         item_name='Egg whisk',
@@ -4269,6 +4569,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7435; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=5,
     ),
     'Spork': EquipmentItem(
         item_name='Spork',
@@ -4283,6 +4584,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7437; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=5,
     ),
     'Spatula': EquipmentItem(
         item_name='Spatula',
@@ -4297,6 +4599,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7439; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=7,
     ),
     'Frying pan': EquipmentItem(
         item_name='Frying pan',
@@ -4311,6 +4614,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7441; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=10,
     ),
     'Skewer': EquipmentItem(
         item_name='Skewer',
@@ -4325,6 +4629,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7443; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=6,
     ),
     'Rolling pin': EquipmentItem(
         item_name='Rolling pin',
@@ -4339,6 +4644,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7445; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=10,
     ),
     'Kitchen knife': EquipmentItem(
         item_name='Kitchen knife',
@@ -4353,6 +4659,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7447; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=5,
     ),
     'Meat tenderiser': EquipmentItem(
         item_name='Meat tenderiser',
@@ -4367,6 +4674,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7449; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=10,
     ),
     'Cleaver': EquipmentItem(
         item_name='Cleaver',
@@ -4381,6 +4689,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7451; SHOP_DATA stock; Culinaromancer's Chest",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=6,
     ),
     'Dragon scimitar': EquipmentItem(
         item_name='Dragon scimitar',
@@ -4395,6 +4704,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4587; SHOP_DATA stock; Daga's Scimitar Smithy",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=6,
     ),
     'Holy symbol': EquipmentItem(
         item_name='Holy symbol',
@@ -4409,6 +4719,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1718; SHOP_DATA stock; Davon's Amulet Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of magic': EquipmentItem(
         item_name='Amulet of magic',
@@ -4423,6 +4734,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1727; SHOP_DATA stock; Davon's Amulet Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of defence': EquipmentItem(
         item_name='Amulet of defence',
@@ -4437,6 +4749,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1729; SHOP_DATA stock; Davon's Amulet Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of strength': EquipmentItem(
         item_name='Amulet of strength',
@@ -4451,6 +4764,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1725; SHOP_DATA stock; Davon's Amulet Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of power': EquipmentItem(
         item_name='Amulet of power',
@@ -4465,6 +4779,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1731; SHOP_DATA stock; Davon's Amulet Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Toy kite': EquipmentItem(
         item_name='Toy kite',
@@ -4479,6 +4794,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 12844; SHOP_DATA stock; Diango's Toy Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Willow blackjack (o)': EquipmentItem(
         item_name='Willow blackjack (o)',
@@ -4493,6 +4809,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6412; SHOP_DATA stock; Dodgy Derek's Dirty Deals",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=10,
     ),
     'Pirate boots': EquipmentItem(
         item_name='Pirate boots',
@@ -4507,6 +4824,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7114; SHOP_DATA stock; Dodgy Mike's Second-hand Clothing",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Stripy pirate shirt': EquipmentItem(
         item_name='Stripy pirate shirt',
@@ -4521,6 +4839,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7110; SHOP_DATA stock; Dodgy Mike's Second-hand Clothing",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Pirate bandana': EquipmentItem(
         item_name='Pirate bandana',
@@ -4535,6 +4854,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7112; SHOP_DATA stock; Dodgy Mike's Second-hand Clothing",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Pirate leggings': EquipmentItem(
         item_name='Pirate leggings',
@@ -4549,6 +4869,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 7116; SHOP_DATA stock; Dodgy Mike's Second-hand Clothing",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Priest gown': EquipmentItem(
         item_name='Priest gown',
@@ -4563,6 +4884,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 428; SHOP_DATA stock; Fancy Clothes Store',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Brown apron': EquipmentItem(
         item_name='Brown apron',
@@ -4577,6 +4899,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1757; SHOP_DATA stock; Fancy Clothes Store',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Pink skirt': EquipmentItem(
         item_name='Pink skirt',
@@ -4591,6 +4914,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1013; SHOP_DATA stock; Fancy Clothes Store',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black skirt': EquipmentItem(
         item_name='Black skirt',
@@ -4605,6 +4929,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1015; SHOP_DATA stock; Fancy Clothes Store',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Blue skirt': EquipmentItem(
         item_name='Blue skirt',
@@ -4619,6 +4944,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1011; SHOP_DATA stock; Fancy Clothes Store',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Eye patch': EquipmentItem(
         item_name='Eye patch',
@@ -4633,6 +4959,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1025; SHOP_DATA stock; Fancy Clothes Store',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Orb of oculus': EquipmentItem(
         item_name='Orb of oculus',
@@ -4647,6 +4974,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 15484; SHOP_DATA stock; Faruq's Tools for Games",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Rock climbing boots': EquipmentItem(
         item_name='Rock climbing boots',
@@ -4661,6 +4989,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3105; SHOP_DATA stock; Freda's Boots",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Tribal top': EquipmentItem(
         item_name='Tribal top',
@@ -4675,6 +5004,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6341; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Villager robe': EquipmentItem(
         item_name='Villager robe',
@@ -4689,6 +5019,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6343; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Villager hat': EquipmentItem(
         item_name='Villager hat',
@@ -4703,6 +5034,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6345; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Villager sandals': EquipmentItem(
         item_name='Villager sandals',
@@ -4717,6 +5049,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6349; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Villager armband': EquipmentItem(
         item_name='Villager armband',
@@ -4731,6 +5064,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6347; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Opal machete': EquipmentItem(
         item_name='Opal machete',
@@ -4745,6 +5079,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6313; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Jade machete': EquipmentItem(
         item_name='Jade machete',
@@ -4759,6 +5094,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6315; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Red topaz machete': EquipmentItem(
         item_name='Red topaz machete',
@@ -4773,6 +5109,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6317; SHOP_DATA stock; Gabooty's Tai Bwo Wannai Cooperative",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Ogre arrows': EquipmentItem(
         item_name='Ogre arrows',
@@ -4787,6 +5124,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 2866; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Ogre kilt': EquipmentItem(
         item_name='Ogre kilt',
@@ -4801,6 +5139,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12561; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ogre top': EquipmentItem(
         item_name='Ogre top',
@@ -4815,6 +5154,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12563; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ogre boots': EquipmentItem(
         item_name='Ogre boots',
@@ -4829,6 +5169,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12565; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Davy kebbit hat': EquipmentItem(
         item_name='Davy kebbit hat',
@@ -4843,6 +5184,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12568; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ogre wig': EquipmentItem(
         item_name='Ogre wig',
@@ -4857,6 +5199,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12559; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ogre club': EquipmentItem(
         item_name='Ogre club',
@@ -4871,6 +5214,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 12570; SHOP_DATA stock; Gift Shop',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=10,
     ),
     'Emerald amulet': EquipmentItem(
         item_name='Emerald amulet',
@@ -4885,6 +5229,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1696; SHOP_DATA stock; Grum's Gold Exchange",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ruby amulet': EquipmentItem(
         item_name='Ruby amulet',
@@ -4899,6 +5244,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1698; SHOP_DATA stock; Grum's Gold Exchange",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Diamond amulet': EquipmentItem(
         item_name='Diamond amulet',
@@ -4913,6 +5259,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1700; SHOP_DATA stock; Grum's Gold Exchange",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Emerald bracelet': EquipmentItem(
         item_name='Emerald bracelet',
@@ -4927,6 +5274,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 11076; SHOP_DATA stock; Grum's Gold Exchange",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Ruby bracelet': EquipmentItem(
         item_name='Ruby bracelet',
@@ -4941,6 +5289,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 11085; SHOP_DATA stock; Grum's Gold Exchange",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Diamond bracelet': EquipmentItem(
         item_name='Diamond bracelet',
@@ -4955,6 +5304,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 11092; SHOP_DATA stock; Grum's Gold Exchange",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Dragon battleaxe': EquipmentItem(
         item_name='Dragon battleaxe',
@@ -4969,6 +5319,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1377; SHOP_DATA stock; Happy Heroes' Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=2,
     ),
     'Dragon mace': EquipmentItem(
         item_name='Dragon mace',
@@ -4983,6 +5334,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1434; SHOP_DATA stock; Happy Heroes' Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=8,
     ),
     'Bronze brutal': EquipmentItem(
         item_name='Bronze brutal',
@@ -4997,6 +5349,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4773; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Iron brutal': EquipmentItem(
         item_name='Iron brutal',
@@ -5011,6 +5364,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4778; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Steel brutal': EquipmentItem(
         item_name='Steel brutal',
@@ -5025,6 +5379,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4783; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Black brutal': EquipmentItem(
         item_name='Black brutal',
@@ -5039,6 +5394,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4788; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Mithril brutal': EquipmentItem(
         item_name='Mithril brutal',
@@ -5053,6 +5409,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4793; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Adamant brutal': EquipmentItem(
         item_name='Adamant brutal',
@@ -5067,6 +5424,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4798; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Rune brutal': EquipmentItem(
         item_name='Rune brutal',
@@ -5081,6 +5439,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4803; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=-1,
     ),
     'Comp ogre bow': EquipmentItem(
         item_name='Comp ogre bow',
@@ -5095,6 +5454,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4827; SHOP_DATA stock; Hickton's Archery Emporium",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 30),),
+        weapon_type=16,
     ),
     'Black platebody': EquipmentItem(
         item_name='Black platebody',
@@ -5109,6 +5469,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1125; SHOP_DATA stock; Horvik's Armour Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Initiate sallet': EquipmentItem(
         item_name='Initiate sallet',
@@ -5123,6 +5484,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5574; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Initiate hauberk': EquipmentItem(
         item_name='Initiate hauberk',
@@ -5137,6 +5499,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5575; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Initiate cuisse': EquipmentItem(
         item_name='Initiate cuisse',
@@ -5151,6 +5514,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5576; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20),),
+        weapon_type=-1,
     ),
     'Proselyte sallet': EquipmentItem(
         item_name='Proselyte sallet',
@@ -5165,6 +5529,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9672; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Proselyte hauberk': EquipmentItem(
         item_name='Proselyte hauberk',
@@ -5179,6 +5544,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9674; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Proselyte cuisse': EquipmentItem(
         item_name='Proselyte cuisse',
@@ -5193,6 +5559,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9676; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Proselyte tasset': EquipmentItem(
         item_name='Proselyte tasset',
@@ -5207,6 +5574,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9678; SHOP_DATA stock; Initiate Rank Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 30),),
+        weapon_type=-1,
     ),
     'Machete': EquipmentItem(
         item_name='Machete',
@@ -5221,6 +5589,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 975; SHOP_DATA stock; Jiminua's Jungle Store",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=6,
     ),
     'Dragon longsword': EquipmentItem(
         item_name='Dragon longsword',
@@ -5235,6 +5604,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1305; SHOP_DATA stock; Jukat's Dragon Sword Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=6,
     ),
     'Black longsword': EquipmentItem(
         item_name='Black longsword',
@@ -5249,6 +5619,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1297; SHOP_DATA stock; King Lathas' Armoury",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=6,
     ),
     'Cape of legends': EquipmentItem(
         item_name='Cape of legends',
@@ -5263,6 +5634,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1052; SHOP_DATA stock; Legends' Guild Shop of Useful Items",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black platelegs': EquipmentItem(
         item_name='Black platelegs',
@@ -5277,6 +5649,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1077; SHOP_DATA stock; Louie's Armoured Legs Bazaar",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Mystic hat': EquipmentItem(
         item_name='Mystic hat',
@@ -5291,6 +5664,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4089; SHOP_DATA stock; Magic Guild Store Robes',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20), ('magic', 20)),
+        weapon_type=-1,
     ),
     'Mystic robe top': EquipmentItem(
         item_name='Mystic robe top',
@@ -5305,6 +5679,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4091; SHOP_DATA stock; Magic Guild Store Robes',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20), ('magic', 20)),
+        weapon_type=-1,
     ),
     'Mystic robe bottom': EquipmentItem(
         item_name='Mystic robe bottom',
@@ -5319,6 +5694,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4093; SHOP_DATA stock; Magic Guild Store Robes',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20), ('magic', 20)),
+        weapon_type=-1,
     ),
     'Mystic gloves': EquipmentItem(
         item_name='Mystic gloves',
@@ -5333,6 +5709,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4095; SHOP_DATA stock; Magic Guild Store Robes',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20), ('magic', 20)),
+        weapon_type=-1,
     ),
     'Mystic boots': EquipmentItem(
         item_name='Mystic boots',
@@ -5347,6 +5724,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4097; SHOP_DATA stock; Magic Guild Store Robes',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 20), ('magic', 20)),
+        weapon_type=-1,
     ),
     'Mining helmet': EquipmentItem(
         item_name='Mining helmet',
@@ -5361,6 +5739,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 5014; SHOP_DATA stock; Miltog's Lamps",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Fremennik shirt': EquipmentItem(
         item_name='Fremennik shirt',
@@ -5375,6 +5754,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3767; SHOP_DATA stock; Miscellanian Clothes Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Fremennik robe': EquipmentItem(
         item_name='Fremennik robe',
@@ -5389,6 +5769,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3793; SHOP_DATA stock; Miscellanian Clothes Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Fremennik skirt': EquipmentItem(
         item_name='Fremennik skirt',
@@ -5403,6 +5784,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3795; SHOP_DATA stock; Miscellanian Clothes Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan helm': EquipmentItem(
         item_name='Moonclan helm',
@@ -5417,6 +5799,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9068; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan hat': EquipmentItem(
         item_name='Moonclan hat',
@@ -5431,6 +5814,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9069; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan armour': EquipmentItem(
         item_name='Moonclan armour',
@@ -5445,6 +5829,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9070; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan skirt': EquipmentItem(
         item_name='Moonclan skirt',
@@ -5459,6 +5844,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9071; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan gloves': EquipmentItem(
         item_name='Moonclan gloves',
@@ -5473,6 +5859,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9072; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan boots': EquipmentItem(
         item_name='Moonclan boots',
@@ -5487,6 +5874,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9073; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Moonclan cape': EquipmentItem(
         item_name='Moonclan cape',
@@ -5501,6 +5889,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9074; SHOP_DATA stock; Moon Clan Fine Clothes',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     "Dorgeshuun c'bow": EquipmentItem(
         item_name="Dorgeshuun c'bow",
@@ -5515,6 +5904,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 8880; SHOP_DATA stock; Nardock's Bone Weapons",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 28),),
+        weapon_type=17,
     ),
     'Bone bolts': EquipmentItem(
         item_name='Bone bolts',
@@ -5529,6 +5919,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 8882; SHOP_DATA stock; Nardock's Bone Weapons",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 28),),
+        weapon_type=-1,
     ),
     'Bone dagger': EquipmentItem(
         item_name='Bone dagger',
@@ -5543,6 +5934,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 8872; SHOP_DATA stock; Nardock's Bone Weapons",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=5,
     ),
     'Bone spear': EquipmentItem(
         item_name='Bone spear',
@@ -5557,6 +5949,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 5016; SHOP_DATA stock; Nardock's Bone Weapons",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=14,
     ),
     'Bone club': EquipmentItem(
         item_name='Bone club',
@@ -5571,6 +5964,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 5018; SHOP_DATA stock; Nardock's Bone Weapons",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=10,
     ),
     'Iron pickaxe': EquipmentItem(
         item_name='Iron pickaxe',
@@ -5585,6 +5979,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1267; SHOP_DATA stock; Nurmof's Pickaxe Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=4,
     ),
     'Steel pickaxe': EquipmentItem(
         item_name='Steel pickaxe',
@@ -5599,6 +5994,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1269; SHOP_DATA stock; Nurmof's Pickaxe Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=4,
     ),
     'Mithril pickaxe': EquipmentItem(
         item_name='Mithril pickaxe',
@@ -5613,6 +6009,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1273; SHOP_DATA stock; Nurmof's Pickaxe Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=4,
     ),
     'Adamant pickaxe': EquipmentItem(
         item_name='Adamant pickaxe',
@@ -5627,6 +6024,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1271; SHOP_DATA stock; Nurmof's Pickaxe Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30),),
+        weapon_type=4,
     ),
     'Rune pickaxe': EquipmentItem(
         item_name='Rune pickaxe',
@@ -5641,6 +6039,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1275; SHOP_DATA stock; Nurmof's Pickaxe Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40),),
+        weapon_type=4,
     ),
     'Witchdoctor legs': EquipmentItem(
         item_name='Witchdoctor legs',
@@ -5655,6 +6054,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 20045; SHOP_DATA stock; Papa Mambo's Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Witchdoctor robes': EquipmentItem(
         item_name='Witchdoctor robes',
@@ -5669,6 +6069,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 20044; SHOP_DATA stock; Papa Mambo's Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Mud pie': EquipmentItem(
         item_name='Mud pie',
@@ -5683,6 +6084,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 7170; SHOP_DATA stock; Pie Shop',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=13,
     ),
     'Black chainbody': EquipmentItem(
         item_name='Black chainbody',
@@ -5697,6 +6099,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1107; SHOP_DATA stock; Quality Armour Shop',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Black kiteshield': EquipmentItem(
         item_name='Black kiteshield',
@@ -5711,6 +6114,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1195; SHOP_DATA stock; Quality Armour Shop',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Bronze halberd': EquipmentItem(
         item_name='Bronze halberd',
@@ -5725,6 +6129,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3190; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=15,
     ),
     'Iron halberd': EquipmentItem(
         item_name='Iron halberd',
@@ -5739,6 +6144,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3192; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=15,
     ),
     'Steel halberd': EquipmentItem(
         item_name='Steel halberd',
@@ -5753,6 +6159,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3194; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5),),
+        weapon_type=15,
     ),
     'Black halberd': EquipmentItem(
         item_name='Black halberd',
@@ -5767,6 +6174,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3196; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 5), ('strength', 10)),
+        weapon_type=15,
     ),
     'Mithril halberd': EquipmentItem(
         item_name='Mithril halberd',
@@ -5781,6 +6189,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3198; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20), ('strength', 10)),
+        weapon_type=15,
     ),
     'Adamant halberd': EquipmentItem(
         item_name='Adamant halberd',
@@ -5795,6 +6204,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3200; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 30), ('strength', 15)),
+        weapon_type=15,
     ),
     'Rune halberd': EquipmentItem(
         item_name='Rune halberd',
@@ -5809,6 +6219,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3202; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 40), ('strength', 20)),
+        weapon_type=15,
     ),
     'Dragon halberd': EquipmentItem(
         item_name='Dragon halberd',
@@ -5823,6 +6234,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3204; SHOP_DATA stock; Quartermaster's Stores",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60), ('strength', 30)),
+        weapon_type=15,
     ),
     'Black plateskirt': EquipmentItem(
         item_name='Black plateskirt',
@@ -5837,6 +6249,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1089; SHOP_DATA stock; Ranael's Super Skirt Store",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Fremennik cloak': EquipmentItem(
         item_name='Fremennik cloak',
@@ -5851,6 +6264,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 3787; SHOP_DATA stock; Rasolo the Wandering Merchant',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Frog-leather body': EquipmentItem(
         item_name='Frog-leather body',
@@ -5865,6 +6279,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 10954; SHOP_DATA stock; Reldak's Leather Armour",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 25), ('ranged', 25)),
+        weapon_type=-1,
     ),
     'Frog-leather chaps': EquipmentItem(
         item_name='Frog-leather chaps',
@@ -5879,6 +6294,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 10956; SHOP_DATA stock; Reldak's Leather Armour",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 25), ('ranged', 25)),
+        weapon_type=-1,
     ),
     'Frog-leather boots': EquipmentItem(
         item_name='Frog-leather boots',
@@ -5893,6 +6309,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 10958; SHOP_DATA stock; Reldak's Leather Armour",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 25), ('ranged', 25)),
+        weapon_type=-1,
     ),
     'Pink robe bottoms': EquipmentItem(
         item_name='Pink robe bottoms',
@@ -5907,6 +6324,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 646; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Green robe bottoms': EquipmentItem(
         item_name='Green robe bottoms',
@@ -5921,6 +6339,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 648; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Blue robe bottoms': EquipmentItem(
         item_name='Blue robe bottoms',
@@ -5935,6 +6354,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 650; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Cream robe bottoms': EquipmentItem(
         item_name='Cream robe bottoms',
@@ -5949,6 +6369,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 652; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Turquoise robe bottoms': EquipmentItem(
         item_name='Turquoise robe bottoms',
@@ -5963,6 +6384,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 654; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Pink hat': EquipmentItem(
         item_name='Pink hat',
@@ -5977,6 +6399,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 656; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Green hat': EquipmentItem(
         item_name='Green hat',
@@ -5991,6 +6414,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 658; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Blue hat': EquipmentItem(
         item_name='Blue hat',
@@ -6005,6 +6429,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 660; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Cream hat': EquipmentItem(
         item_name='Cream hat',
@@ -6019,6 +6444,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 662; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Turquoise hat': EquipmentItem(
         item_name='Turquoise hat',
@@ -6033,6 +6459,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 664; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Pink robe top': EquipmentItem(
         item_name='Pink robe top',
@@ -6047,6 +6474,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 636; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Green robe top': EquipmentItem(
         item_name='Green robe top',
@@ -6061,6 +6489,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 638; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Blue robe top': EquipmentItem(
         item_name='Blue robe top',
@@ -6075,6 +6504,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 640; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Cream robe top': EquipmentItem(
         item_name='Cream robe top',
@@ -6089,6 +6519,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 642; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Turquoise robe top': EquipmentItem(
         item_name='Turquoise robe top',
@@ -6103,6 +6534,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 644; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Pink boots': EquipmentItem(
         item_name='Pink boots',
@@ -6117,6 +6549,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 626; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Green boots': EquipmentItem(
         item_name='Green boots',
@@ -6131,6 +6564,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 628; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Blue boots': EquipmentItem(
         item_name='Blue boots',
@@ -6145,6 +6579,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 630; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Cream boots': EquipmentItem(
         item_name='Cream boots',
@@ -6159,6 +6594,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 632; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Turquoise boots': EquipmentItem(
         item_name='Turquoise boots',
@@ -6173,6 +6609,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 634; SHOP_DATA stock; Rometti's Fine Fashions",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     "Green d'hide chaps": EquipmentItem(
         item_name="Green d'hide chaps",
@@ -6187,6 +6624,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1099; SHOP_DATA stock; Scavvo's Rune Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=-1,
     ),
     "Green d'hide vambraces": EquipmentItem(
         item_name="Green d'hide vambraces",
@@ -6201,6 +6639,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1065; SHOP_DATA stock; Scavvo's Rune Shop",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 40),),
+        weapon_type=-1,
     ),
     'Black med helm': EquipmentItem(
         item_name='Black med helm',
@@ -6215,6 +6654,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1151; SHOP_DATA stock; Seddus's Adventure Store",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Black warhammer': EquipmentItem(
         item_name='Black warhammer',
@@ -6229,6 +6669,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1341; SHOP_DATA stock; Skulgrimen's Battle Gear",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=10,
     ),
     'Archer helm': EquipmentItem(
         item_name='Archer helm',
@@ -6243,6 +6684,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3749; SHOP_DATA stock; Skulgrimen's Battle Gear",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 45),),
+        weapon_type=-1,
     ),
     'Berserker helm': EquipmentItem(
         item_name='Berserker helm',
@@ -6257,6 +6699,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3751; SHOP_DATA stock; Skulgrimen's Battle Gear",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 45),),
+        weapon_type=-1,
     ),
     'Warrior helm': EquipmentItem(
         item_name='Warrior helm',
@@ -6271,6 +6714,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3753; SHOP_DATA stock; Skulgrimen's Battle Gear",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 45),),
+        weapon_type=-1,
     ),
     'Farseer helm': EquipmentItem(
         item_name='Farseer helm',
@@ -6285,6 +6729,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3755; SHOP_DATA stock; Skulgrimen's Battle Gear",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 45),),
+        weapon_type=-1,
     ),
     'Team-4 cape': EquipmentItem(
         item_name='Team-4 cape',
@@ -6299,6 +6744,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4321; SHOP_DATA stock; Darren's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-14 cape': EquipmentItem(
         item_name='Team-14 cape',
@@ -6313,6 +6759,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4341; SHOP_DATA stock; Darren's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-24 cape': EquipmentItem(
         item_name='Team-24 cape',
@@ -6327,6 +6774,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4361; SHOP_DATA stock; Darren's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-34 cape': EquipmentItem(
         item_name='Team-34 cape',
@@ -6341,6 +6789,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4381; SHOP_DATA stock; Darren's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-44 cape': EquipmentItem(
         item_name='Team-44 cape',
@@ -6355,6 +6804,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4401; SHOP_DATA stock; Darren's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-8 cape': EquipmentItem(
         item_name='Team-8 cape',
@@ -6369,6 +6819,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4329; SHOP_DATA stock; Edmond's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-18 cape': EquipmentItem(
         item_name='Team-18 cape',
@@ -6383,6 +6834,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4349; SHOP_DATA stock; Edmond's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-28 cape': EquipmentItem(
         item_name='Team-28 cape',
@@ -6397,6 +6849,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4369; SHOP_DATA stock; Edmond's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-38 cape': EquipmentItem(
         item_name='Team-38 cape',
@@ -6411,6 +6864,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4389; SHOP_DATA stock; Edmond's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-48 cape': EquipmentItem(
         item_name='Team-48 cape',
@@ -6425,6 +6879,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4409; SHOP_DATA stock; Edmond's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-5 cape': EquipmentItem(
         item_name='Team-5 cape',
@@ -6439,6 +6894,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4323; SHOP_DATA stock; Edward's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-15 cape': EquipmentItem(
         item_name='Team-15 cape',
@@ -6453,6 +6909,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4343; SHOP_DATA stock; Edward's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-25 cape': EquipmentItem(
         item_name='Team-25 cape',
@@ -6467,6 +6924,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4363; SHOP_DATA stock; Edward's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-35 cape': EquipmentItem(
         item_name='Team-35 cape',
@@ -6481,6 +6939,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4383; SHOP_DATA stock; Edward's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-45 cape': EquipmentItem(
         item_name='Team-45 cape',
@@ -6495,6 +6954,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4403; SHOP_DATA stock; Edward's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-2 cape': EquipmentItem(
         item_name='Team-2 cape',
@@ -6509,6 +6969,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4317; SHOP_DATA stock; Ian's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-12 cape': EquipmentItem(
         item_name='Team-12 cape',
@@ -6523,6 +6984,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4337; SHOP_DATA stock; Ian's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-22 cape': EquipmentItem(
         item_name='Team-22 cape',
@@ -6537,6 +6999,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4357; SHOP_DATA stock; Ian's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-32 cape': EquipmentItem(
         item_name='Team-32 cape',
@@ -6551,6 +7014,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4377; SHOP_DATA stock; Ian's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-42 cape': EquipmentItem(
         item_name='Team-42 cape',
@@ -6565,6 +7029,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4397; SHOP_DATA stock; Ian's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-3 cape': EquipmentItem(
         item_name='Team-3 cape',
@@ -6579,6 +7044,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4319; SHOP_DATA stock; Larry's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-13 cape': EquipmentItem(
         item_name='Team-13 cape',
@@ -6593,6 +7059,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4339; SHOP_DATA stock; Larry's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-23 cape': EquipmentItem(
         item_name='Team-23 cape',
@@ -6607,6 +7074,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4359; SHOP_DATA stock; Larry's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-33 cape': EquipmentItem(
         item_name='Team-33 cape',
@@ -6621,6 +7089,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4379; SHOP_DATA stock; Larry's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-43 cape': EquipmentItem(
         item_name='Team-43 cape',
@@ -6635,6 +7104,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4399; SHOP_DATA stock; Larry's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-7 cape': EquipmentItem(
         item_name='Team-7 cape',
@@ -6649,6 +7119,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4327; SHOP_DATA stock; Neil's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-17 cape': EquipmentItem(
         item_name='Team-17 cape',
@@ -6663,6 +7134,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4347; SHOP_DATA stock; Neil's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-27 cape': EquipmentItem(
         item_name='Team-27 cape',
@@ -6677,6 +7149,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4367; SHOP_DATA stock; Neil's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-37 cape': EquipmentItem(
         item_name='Team-37 cape',
@@ -6691,6 +7164,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4387; SHOP_DATA stock; Neil's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-47 cape': EquipmentItem(
         item_name='Team-47 cape',
@@ -6705,6 +7179,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4407; SHOP_DATA stock; Neil's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-6 cape': EquipmentItem(
         item_name='Team-6 cape',
@@ -6719,6 +7194,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4325; SHOP_DATA stock; Richard's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-16 cape': EquipmentItem(
         item_name='Team-16 cape',
@@ -6733,6 +7209,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4345; SHOP_DATA stock; Richard's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-26 cape': EquipmentItem(
         item_name='Team-26 cape',
@@ -6747,6 +7224,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4365; SHOP_DATA stock; Richard's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-36 cape': EquipmentItem(
         item_name='Team-36 cape',
@@ -6761,6 +7239,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4385; SHOP_DATA stock; Richard's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-46 cape': EquipmentItem(
         item_name='Team-46 cape',
@@ -6775,6 +7254,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4405; SHOP_DATA stock; Richard's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-10 cape': EquipmentItem(
         item_name='Team-10 cape',
@@ -6789,6 +7269,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4333; SHOP_DATA stock; Sam's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-20 cape': EquipmentItem(
         item_name='Team-20 cape',
@@ -6803,6 +7284,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4353; SHOP_DATA stock; Sam's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-30 cape': EquipmentItem(
         item_name='Team-30 cape',
@@ -6817,6 +7299,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4373; SHOP_DATA stock; Sam's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-40 cape': EquipmentItem(
         item_name='Team-40 cape',
@@ -6831,6 +7314,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4393; SHOP_DATA stock; Sam's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-50 cape': EquipmentItem(
         item_name='Team-50 cape',
@@ -6845,6 +7329,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4413; SHOP_DATA stock; Sam's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-9 cape': EquipmentItem(
         item_name='Team-9 cape',
@@ -6859,6 +7344,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4331; SHOP_DATA stock; Simon's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-19 cape': EquipmentItem(
         item_name='Team-19 cape',
@@ -6873,6 +7359,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4351; SHOP_DATA stock; Simon's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-29 cape': EquipmentItem(
         item_name='Team-29 cape',
@@ -6887,6 +7374,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4371; SHOP_DATA stock; Simon's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-39 cape': EquipmentItem(
         item_name='Team-39 cape',
@@ -6901,6 +7389,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4391; SHOP_DATA stock; Simon's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-49 cape': EquipmentItem(
         item_name='Team-49 cape',
@@ -6915,6 +7404,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4411; SHOP_DATA stock; Simon's Wilderness Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'White apron': EquipmentItem(
         item_name='White apron',
@@ -6929,6 +7419,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1005; SHOP_DATA stock; Thessalia's Fine Clothes",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Tyras helm': EquipmentItem(
         item_name='Tyras helm',
@@ -6943,6 +7434,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 9629; SHOP_DATA stock; Trader Stan's Trading Post",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 5),),
+        weapon_type=-1,
     ),
     'Citizen top': EquipmentItem(
         item_name='Citizen top',
@@ -6957,6 +7449,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9640; SHOP_DATA stock; Trader Sven',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Citizen trousers': EquipmentItem(
         item_name='Citizen trousers',
@@ -6971,6 +7464,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9642; SHOP_DATA stock; Trader Sven',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Citizen shoes': EquipmentItem(
         item_name='Citizen shoes',
@@ -6985,6 +7479,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9644; SHOP_DATA stock; Trader Sven',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Vyrewatch top': EquipmentItem(
         item_name='Vyrewatch top',
@@ -6999,6 +7494,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9634; SHOP_DATA stock; Trader Sven',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Vyrewatch legs': EquipmentItem(
         item_name='Vyrewatch legs',
@@ -7013,6 +7509,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9636; SHOP_DATA stock; Trader Sven',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Vyrewatch shoes': EquipmentItem(
         item_name='Vyrewatch shoes',
@@ -7027,6 +7524,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 9638; SHOP_DATA stock; Trader Sven',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Toktz-xil-ul': EquipmentItem(
         item_name='Toktz-xil-ul',
@@ -7041,6 +7539,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6522; SHOP_DATA stock; TzHaar-Hur-Tel's Equipment Store",
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 60),),
+        weapon_type=18,
     ),
     'Toktz-xil-ak': EquipmentItem(
         item_name='Toktz-xil-ak',
@@ -7055,6 +7554,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6523; SHOP_DATA stock; TzHaar-Hur-Tel's Equipment Store",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=5,
     ),
     'Toktz-xil-ek': EquipmentItem(
         item_name='Toktz-xil-ek',
@@ -7069,6 +7569,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6525; SHOP_DATA stock; TzHaar-Hur-Tel's Equipment Store",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=6,
     ),
     'Toktz-mej-tal': EquipmentItem(
         item_name='Toktz-mej-tal',
@@ -7083,6 +7584,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6526; SHOP_DATA stock; TzHaar-Hur-Tel's Equipment Store",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60), ('magic', 60)),
+        weapon_type=1,
     ),
     'Tzhaar-ket-em': EquipmentItem(
         item_name='Tzhaar-ket-em',
@@ -7097,6 +7599,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 6527; SHOP_DATA stock; TzHaar-Hur-Tel's Equipment Store",
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 60),),
+        weapon_type=10,
     ),
     'Black full helm': EquipmentItem(
         item_name='Black full helm',
@@ -7111,6 +7614,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1165; SHOP_DATA stock; Valaine's Shop of Champions",
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Black sword': EquipmentItem(
         item_name='Black sword',
@@ -7125,6 +7629,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1283; SHOP_DATA stock; Varrock Sword Shop',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=5,
     ),
     'Black dagger': EquipmentItem(
         item_name='Black dagger',
@@ -7139,6 +7644,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1217; SHOP_DATA stock; Warrior Guild Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=5,
     ),
     'White claws': EquipmentItem(
         item_name='White claws',
@@ -7153,6 +7659,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6587; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=9,
     ),
     'White battleaxe': EquipmentItem(
         item_name='White battleaxe',
@@ -7167,6 +7674,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6589; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=2,
     ),
     'White dagger': EquipmentItem(
         item_name='White dagger',
@@ -7181,6 +7689,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6591; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=5,
     ),
     'White halberd': EquipmentItem(
         item_name='White halberd',
@@ -7195,6 +7704,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6599; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=15,
     ),
     'White mace': EquipmentItem(
         item_name='White mace',
@@ -7209,6 +7719,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6601; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=8,
     ),
     'White magic staff': EquipmentItem(
         item_name='White magic staff',
@@ -7223,6 +7734,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6603; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=1,
     ),
     'White sword': EquipmentItem(
         item_name='White sword',
@@ -7237,6 +7749,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6605; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=5,
     ),
     'White longsword': EquipmentItem(
         item_name='White longsword',
@@ -7251,6 +7764,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6607; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=6,
     ),
     'White 2h sword': EquipmentItem(
         item_name='White 2h sword',
@@ -7265,6 +7779,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6609; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=7,
     ),
     'White scimitar': EquipmentItem(
         item_name='White scimitar',
@@ -7279,6 +7794,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6611; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=6,
     ),
     'White warhammer': EquipmentItem(
         item_name='White warhammer',
@@ -7293,6 +7809,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6613; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=10,
     ),
     'White chainbody': EquipmentItem(
         item_name='White chainbody',
@@ -7307,6 +7824,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6615; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White platebody': EquipmentItem(
         item_name='White platebody',
@@ -7321,6 +7839,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6617; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White boots': EquipmentItem(
         item_name='White boots',
@@ -7335,6 +7854,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6619; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White med helm': EquipmentItem(
         item_name='White med helm',
@@ -7349,6 +7869,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6621; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White full helm': EquipmentItem(
         item_name='White full helm',
@@ -7363,6 +7884,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6623; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White platelegs': EquipmentItem(
         item_name='White platelegs',
@@ -7377,6 +7899,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6625; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White plateskirt': EquipmentItem(
         item_name='White plateskirt',
@@ -7391,6 +7914,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6627; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White gloves': EquipmentItem(
         item_name='White gloves',
@@ -7405,6 +7929,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6629; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White sq shield': EquipmentItem(
         item_name='White sq shield',
@@ -7419,6 +7944,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6631; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'White kiteshield': EquipmentItem(
         item_name='White kiteshield',
@@ -7433,6 +7959,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 6633; SHOP_DATA stock; White Knight Armory',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Team-1 cape': EquipmentItem(
         item_name='Team-1 cape',
@@ -7447,6 +7974,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4315; SHOP_DATA stock; William's Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-11 cape': EquipmentItem(
         item_name='Team-11 cape',
@@ -7461,6 +7989,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4335; SHOP_DATA stock; William's Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-21 cape': EquipmentItem(
         item_name='Team-21 cape',
@@ -7475,6 +8004,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4355; SHOP_DATA stock; William's Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-31 cape': EquipmentItem(
         item_name='Team-31 cape',
@@ -7489,6 +8019,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4375; SHOP_DATA stock; William's Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Team-41 cape': EquipmentItem(
         item_name='Team-41 cape',
@@ -7503,6 +8034,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 4395; SHOP_DATA stock; William's Cape Shop",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Amulet of accuracy': EquipmentItem(
         item_name='Amulet of accuracy',
@@ -7517,6 +8049,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1478; SHOP_DATA stock; Wizard Mizgog',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Fremennik hat': EquipmentItem(
         item_name='Fremennik hat',
@@ -7531,6 +8064,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3797; SHOP_DATA stock; Yrsa's Accoutrements",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Fremennik boots': EquipmentItem(
         item_name='Fremennik boots',
@@ -7545,6 +8079,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 3791; SHOP_DATA stock; Yrsa's Accoutrements",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Magic staff': EquipmentItem(
         item_name='Magic staff',
@@ -7559,6 +8094,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source="data/cfg/items.yml item 1389; SHOP_DATA stock; Zaff's Superior Staves",
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=1,
     ),
     'Gardening boots': EquipmentItem(
         item_name='Gardening boots',
@@ -7573,6 +8109,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5345; COMBAT_ENEMY_DATA table drop; Farmer; Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Zamorak robe top': EquipmentItem(
         item_name='Zamorak robe top',
@@ -7587,6 +8124,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 10460; COMBAT_ENEMY_DATA table drop; Monk of Zamorak; Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black sq shield': EquipmentItem(
         item_name='Black sq shield',
@@ -7601,6 +8139,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1179; COMBAT_ENEMY_DATA table drop; Moss giant; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 10),),
+        weapon_type=-1,
     ),
     'Mithril spear': EquipmentItem(
         item_name='Mithril spear',
@@ -7615,6 +8154,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1243; COMBAT_ENEMY_DATA table drop; Moss giant; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 20),),
+        weapon_type=14,
     ),
     'Grain': EquipmentItem(
         item_name='Grain',
@@ -7629,6 +8169,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 5607; COMBAT_ENEMY_DATA table drop; Skeleton; Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black hatchet': EquipmentItem(
         item_name='Black hatchet',
@@ -7643,6 +8184,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1361; COMBAT_ENEMY_DATA table drop; Black demon; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 10),),
+        weapon_type=2,
     ),
     'Abyssal whip': EquipmentItem(
         item_name='Abyssal whip',
@@ -7657,6 +8199,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4151; COMBAT_ENEMY_DATA table drop; Abyssal demon; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('attack', 70),),
+        weapon_type=11,
     ),
     'Dragon med helm': EquipmentItem(
         item_name='Dragon med helm',
@@ -7671,6 +8214,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1149; COMBAT_ENEMY_DATA table drop; Abyssal demon; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 60),),
+        weapon_type=-1,
     ),
     'Rune boots': EquipmentItem(
         item_name='Rune boots',
@@ -7685,6 +8229,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4131; COMBAT_ENEMY_DATA table drop; Nechryael; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('defense', 40),),
+        weapon_type=-1,
     ),
     'Steel arrow (p)': EquipmentItem(
         item_name='Steel arrow (p)',
@@ -7699,6 +8244,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 887; COMBAT_ENEMY_DATA table drop; Werewolf; Main',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 5),),
+        weapon_type=-1,
     ),
     'Shade robe': EquipmentItem(
         item_name='Shade robe',
@@ -7713,6 +8259,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 546; COMBAT_ENEMY_DATA table drop; Shade; Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Bronze boots': EquipmentItem(
         item_name='Bronze boots',
@@ -7727,6 +8274,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4119; COMBAT_ENEMY_DATA table drop; Cave crawler; Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Iron boots': EquipmentItem(
         item_name='Iron boots',
@@ -7741,6 +8289,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 4121; COMBAT_ENEMY_DATA table drop; Cockatrice; Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black robe': EquipmentItem(
         item_name='Black robe',
@@ -7755,6 +8304,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 581; COMBAT_ENEMY_DATA table drop; Ankou (level 75); Main',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=-1,
     ),
     'Black knife': EquipmentItem(
         item_name='Black knife',
@@ -7769,6 +8319,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 869; COMBAT_ENEMY_DATA table drop; Ankou (level 75); Main',
         source_status='items.yml equipment block',
         skill_requirements=(('ranged', 10),),
+        weapon_type=18,
     ),
     'Mithril hatchet': EquipmentItem(
         item_name='Mithril hatchet',
@@ -7783,6 +8334,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1355; MITHRIL_HATCHET',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     ),
     'Adamant hatchet': EquipmentItem(
         item_name='Adamant hatchet',
@@ -7797,6 +8349,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1357; ADAMANT_HATCHET',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     ),
     'Rune hatchet': EquipmentItem(
         item_name='Rune hatchet',
@@ -7811,6 +8364,7 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source='data/cfg/items.yml item 1359; RUNITE_HATCHET',
         source_status='items.yml equipment block',
         skill_requirements=(),
+        weapon_type=2,
     )
 }
 
@@ -7830,6 +8384,7 @@ def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": item.source,
             "source_status": item.source_status,
             "skill_requirements": item.skill_requirements,
+            "weapon_type": item.weapon_type,
         }
         for item_name, item in EQUIPMENT_DATA.items()
     }

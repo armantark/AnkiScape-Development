@@ -199,9 +199,9 @@ except Exception:
     from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 try:
-    from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_attack_style_trained_skills_pure
+    from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
 except Exception:
-    from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_attack_style_trained_skills_pure  # type: ignore
+    from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -2309,13 +2309,11 @@ def show_main_menu(
         _style_combo_ref = {"combo": None}
 
         def _rebuild_style_combo() -> None:
-            style_id = combat_attack_style_for_equipment_pure(player_data, EQUIPMENT_ITEM_DATA)
-            current_class = str(COMBAT_ATTACK_STYLE_DATA.get(style_id, {}).get("combat_class", "melee"))
-            options = [
-                (sid, spec)
-                for sid, spec in COMBAT_ATTACK_STYLE_DATA.items()
-                if str(spec.get("combat_class")) == current_class
-            ]
+            # D2: the options are the equipped weapon's actual AttackStyleData slots,
+            # each labeled with its attack type (stab/slash/crush). Selecting a row
+            # stores both the weapon_style and the style_type, so parity keys off the
+            # exact slot the player picked.
+            options = combat_weapon_style_options_pure(player_data, EQUIPMENT_ITEM_DATA)
             old = _style_combo_ref["combo"]
             if old is not None:
                 old.setParent(None)
@@ -2327,13 +2325,19 @@ def show_main_menu(
                 return
             combo = QComboBox()
             combo.setObjectName("combatStyleCombo")
-            for sid, spec in options:
-                # Spell out which skills each style trains, so the choice of XP is
-                # visible at the point of selection (e.g. "Controlled — Attack +
-                # Strength + Defence + Constitution").
-                trains = " + ".join(combat_attack_style_trained_skills_pure(sid))
-                combo.addItem(f"{spec.get('display_name', sid)} — {trains}", sid)
-            combo.setCurrentIndex(max(0, combo.findData(style_id)))
+            current_index = 0
+            for index, option in enumerate(options):
+                # Spell out which skills each slot trains, so the choice of XP is
+                # visible at the point of selection (e.g. "Aggressive (Crush) —
+                # Attack + Strength + Defence + Constitution" for the 2h shared slot).
+                trains = " + ".join(option["trained_skills"])
+                combo.addItem(
+                    f"{option['display_name']} — {trains}",
+                    (option["weapon_style"], option["style_type"]),
+                )
+                if option["is_current"]:
+                    current_index = index
+            combo.setCurrentIndex(current_index)
             if on_set_combat_style is not None:
                 combo.currentIndexChanged.connect(
                     lambda _index, c=combo: on_set_combat_style(c.currentData())

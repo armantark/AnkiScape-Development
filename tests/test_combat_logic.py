@@ -37,6 +37,11 @@ from combat_data import (
 from constants import EQUIPMENT_DATA
 from logic_pure import (
     _combat_apply_pvm_death,
+    _combat_attack_bonus_from_totals,
+    _combat_defence_bonus_from_totals,
+    combat_melee_attack_type_pure,
+    combat_weapon_attack_style_slots_pure,
+    combat_weapon_style_options_pure,
     _combat_roll_drops,
     _combat_enemy_attack_class,
     _combat_enemy_bonuses,
@@ -3824,6 +3829,149 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(immune_preview["poison_damage"], 0)
         self.assertEqual(immune_preview["poison_chance"], 0.0)
         self.assertEqual(immune_preview["poison_immunity_ticks"], 100)
+
+
+class CombatAttackTypeResolverTest(unittest.TestCase):
+    """D1/D2/D3 attack-type feature: the equipped weapon's AttackStyleData slots
+    drive which stab/slash/crush bonus the formula uses and which skill the XP
+    trains, including the two-handed-sword aggressive/crush/SHARED anomaly."""
+
+    def _melee(self, weapon, weapon_style, style_type="auto"):
+        return _player(
+            equipment={"weapon": weapon},
+            combat_attack_style=weapon_style,
+            combat_attack_style_type=style_type,
+        )
+
+    def test_resolver_picks_the_weapons_slot_for_each_style(self):
+        cases = {
+            # weapon, weapon_style -> (style_type, xp_style_id)
+            ("Bronze dagger", "accurate"): ("stab", "accurate"),
+            ("Bronze longsword", "controlled"): ("stab", "controlled"),
+            ("Bronze mace", "accurate"): ("crush", "accurate"),
+            ("Bronze spear", "controlled"): ("stab", "controlled"),
+        }
+        for (weapon, style), expected in cases.items():
+            with self.subTest(weapon=weapon, style=style):
+                self.assertEqual(
+                    combat_melee_attack_type_pure(self._melee(weapon, style), EQUIPMENT_DATA),
+                    expected,
+                )
+
+    def test_axe_aggressive_crush_slot_is_distinct_from_aggressive_slash(self):
+        # AXE has two aggressive slots (slash then crush); the style_type
+        # preference selects between them without changing the xp routing.
+        battleaxe = "Bronze battleaxe"
+        self.assertEqual(
+            combat_melee_attack_type_pure(self._melee(battleaxe, "aggressive", "slash"), EQUIPMENT_DATA),
+            ("slash", "aggressive"),
+        )
+        self.assertEqual(
+            combat_melee_attack_type_pure(self._melee(battleaxe, "aggressive", "crush"), EQUIPMENT_DATA),
+            ("crush", "aggressive"),
+        )
+
+    def test_two_handed_sword_aggressive_crush_shared_anomaly(self):
+        # The 2h slot 3 is weaponStyle=AGGRESSIVE (so effective-level uses the
+        # aggressive weapon_style) but xpMode=SHARED, so XP is split like
+        # controlled. This is the only slot where the two diverge.
+        crush_slot = self._melee("Bronze 2h sword", "aggressive", "crush")
+        self.assertEqual(
+            combat_melee_attack_type_pure(crush_slot, EQUIPMENT_DATA),
+            ("crush", "controlled"),
+        )
+        # Same weapon_style with auto/slash stays the plain aggressive slot.
+        self.assertEqual(
+            combat_melee_attack_type_pure(self._melee("Bronze 2h sword", "aggressive"), EQUIPMENT_DATA),
+            ("slash", "aggressive"),
+        )
+
+    def test_unarmed_falls_back_to_crush_and_snaps_unavailable_styles(self):
+        # D3: bare fists use the UNARMED table (all crush). A stored style the
+        # table does not offer (controlled) snaps to the first slot.
+        self.assertEqual(
+            combat_melee_attack_type_pure(self._melee(None, "accurate"), EQUIPMENT_DATA),
+            ("crush", "accurate"),
+        )
+        fists = _player(equipment={}, combat_attack_style="controlled")
+        self.assertEqual(
+            combat_melee_attack_type_pure(fists, EQUIPMENT_DATA),
+            ("crush", "accurate"),
+        )
+
+    def test_two_handed_crush_slot_shares_xp_through_a_full_burst(self):
+        # End-to-end: the SHARED anomaly must route XP three ways even though the
+        # weapon_style is aggressive. A plain aggressive slot trains strength only.
+        shared = self._melee("Bronze 2h sword", "aggressive", "crush")
+        new_shared, ok, result = apply_combat_burst_pure(
+            shared, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=50, rng=_rng([0.0, 0.999999, 0.0])
+        )
+        self.assertTrue(ok and result["killed"])
+        self.assertGreater(new_shared["attack_exp"], 0.0)
+        self.assertGreater(new_shared["strength_exp"], 0.0)
+        self.assertGreater(new_shared["defense_exp"], 0.0)
+
+        pure = self._melee("Bronze 2h sword", "aggressive", "slash")
+        new_pure, ok, result = apply_combat_burst_pure(
+            pure, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=50, rng=_rng([0.0, 0.999999, 0.0])
+        )
+        self.assertTrue(ok and result["killed"])
+        self.assertEqual(new_pure["attack_exp"], 0.0)
+        self.assertEqual(new_pure["defense_exp"], 0.0)
+        self.assertGreater(new_pure["strength_exp"], 0.0)
+
+    def test_ranged_and_magic_have_no_style_type(self):
+        bow = _player(
+            equipment={"weapon": "Shortbow"},
+            combat_attack_style="ranged_rapid",
+            inventory={"Bronze arrows": 5},
+        )
+        self.assertEqual(combat_melee_attack_type_pure(bow, EQUIPMENT_DATA), (None, "ranged_rapid"))
+
+    def test_weapon_style_options_name_the_attack_type_per_slot(self):
+        options = combat_weapon_style_options_pure(
+            self._melee("Bronze longsword", "aggressive"), EQUIPMENT_DATA
+        )
+        self.assertEqual(
+            [(o["weapon_style"], o["style_type"], o["display_name"]) for o in options],
+            [
+                ("accurate", "slash", "Accurate (Slash)"),
+                ("aggressive", "slash", "Aggressive (Slash)"),
+                ("controlled", "stab", "Controlled (Stab)"),
+                ("defensive", "slash", "Defensive (Slash)"),
+            ],
+        )
+        # Exactly the aggressive/slash slot is current.
+        self.assertEqual([o["is_current"] for o in options], [False, True, False, False])
+
+    def test_slots_transcribe_the_unarmed_table_for_typeless_weapons(self):
+        slots = combat_weapon_attack_style_slots_pure(_player(equipment={}), EQUIPMENT_DATA)
+        self.assertEqual(
+            [(s["weapon_style"], s["style_type"]) for s in slots],
+            [("accurate", "crush"), ("aggressive", "crush"), ("defensive", "crush")],
+        )
+
+
+class CombatAttackTypeParityTest(unittest.TestCase):
+    """D1 parity: the chosen attack type selects the exact per-type bonus rather
+    than the old best-of-three max(). max() only survives when no concrete type is
+    resolved (enemy-side rolls carry no melee sub-type)."""
+
+    _TOTALS = {"attack_stab": 5, "attack_slash": 40, "attack_crush": 12,
+               "defence_stab": 7, "defence_slash": 50, "defence_crush": 3}
+
+    def test_attack_bonus_uses_the_specific_type(self):
+        self.assertEqual(_combat_attack_bonus_from_totals(self._TOTALS, style_type="stab"), 5)
+        self.assertEqual(_combat_attack_bonus_from_totals(self._TOTALS, style_type="crush"), 12)
+
+    def test_defence_bonus_uses_the_specific_type(self):
+        self.assertEqual(_combat_defence_bonus_from_totals(self._TOTALS, style_type="crush"), 3)
+        self.assertEqual(_combat_defence_bonus_from_totals(self._TOTALS, style_type="slash"), 50)
+
+    def test_unresolved_type_keeps_max_fallback(self):
+        # No style_type (e.g. enemy-side rolls) -> best-of-three, as before.
+        self.assertEqual(_combat_attack_bonus_from_totals(self._TOTALS), 40)
+        self.assertEqual(_combat_defence_bonus_from_totals(self._TOTALS), 50)
 
 
 if __name__ == "__main__":

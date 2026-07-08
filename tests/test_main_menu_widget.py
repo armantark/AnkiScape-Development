@@ -1296,27 +1296,52 @@ class MainMenuWidgetTest(unittest.TestCase):
         style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
         self.assertIsNotNone(style_combo, "ranged weapon should expose an attack-style selector")
         # Only ranged styles are offered (never melee/magic).
+        # Ranged combo data is a (weapon_style, style_type) pair; ranged has no
+        # per-hit stab/slash/crush choice, so style_type is always "auto".
         ids = [style_combo.itemData(i) for i in range(style_combo.count())]
-        self.assertEqual(ids, ["ranged_accurate", "ranged_rapid", "ranged_longrange"])
-        self.assertEqual(style_combo.currentData(), "ranged_accurate")
+        self.assertEqual(
+            ids,
+            [
+                ("ranged_accurate", "auto"),
+                ("ranged_rapid", "auto"),
+                ("ranged_longrange", "auto"),
+            ],
+        )
+        self.assertEqual(style_combo.currentData(), ("ranged_accurate", "auto"))
         # Selecting a style persists it via on_set_combat_style.
-        style_combo.setCurrentIndex(style_combo.findData("ranged_rapid"))
+        style_combo.setCurrentIndex(ids.index(("ranged_rapid", "auto")))
         QApplication.processEvents()
-        self.assertEqual(self._combat_style_calls[-1], "ranged_rapid")
+        self.assertEqual(self._combat_style_calls[-1], ("ranged_rapid", "auto"))
 
     def test_melee_weapon_style_selector_offers_only_melee_styles(self) -> None:
         pd = _make_player_data()
-        pd.update({"current_combat_target": "chicken", "combat_attack_style": "aggressive"})
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "aggressive",
+                "equipment": {"weapon": "Bronze longsword"},
+            }
+        )
         dialog = self._open(pd, current_skill="Combat")
 
         style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
         self.assertIsNotNone(style_combo)
+        # A longsword's four slots each carry their own attack type; the combo
+        # data is a (weapon_style, style_type) pair per slot.
         ids = [style_combo.itemData(i) for i in range(style_combo.count())]
-        self.assertEqual(ids, ["accurate", "aggressive", "defensive", "controlled"])
-        self.assertEqual(style_combo.currentData(), "aggressive")
-        style_combo.setCurrentIndex(style_combo.findData("defensive"))
+        self.assertEqual(
+            ids,
+            [
+                ("accurate", "slash"),
+                ("aggressive", "slash"),
+                ("controlled", "stab"),
+                ("defensive", "slash"),
+            ],
+        )
+        self.assertEqual(style_combo.currentData(), ("aggressive", "slash"))
+        style_combo.setCurrentIndex(ids.index(("defensive", "slash")))
         QApplication.processEvents()
-        self.assertEqual(self._combat_style_calls[-1], "defensive")
+        self.assertEqual(self._combat_style_calls[-1], ("defensive", "slash"))
 
     def test_combat_exposes_loadout_controls(self) -> None:
         pd = _make_player_data()

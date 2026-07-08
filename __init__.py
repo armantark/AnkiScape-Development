@@ -852,7 +852,7 @@ def _on_main_menu():
         on_add_to_carried_layout=_add_to_carried_layout,
         on_clear_carried_layout=_clear_carried_layout,
         on_set_combat=lambda target: _set_value("current_combat_target", target),
-        on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
+        on_set_combat_style=_set_combat_attack_style,
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
         on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
         on_set_combat_pack_mode=on_set_combat_pack_mode,
@@ -882,6 +882,15 @@ def _smelt_target_for_bar(bar_name: str) -> str:
 def _set_legacy_bar_target(bar_name: str):
     player_data["current_bar"] = bar_name
     _set_value("current_smith", _smelt_target_for_bar(bar_name))
+
+
+def _set_combat_attack_style(selection):
+    """The combat style combo emits a (weapon_style, style_type) pair so the
+    orthogonal attack-type field is stored alongside the weapon_style. Set the
+    weapon_style directly, then persist+refresh once via the style_type write."""
+    weapon_style, style_type = selection
+    player_data["combat_attack_style"] = weapon_style
+    _set_value("combat_attack_style_type", style_type)
 
 
 def _set_value(key: str, value):

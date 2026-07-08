@@ -55,6 +55,8 @@ try:
         POTION_TYPE_SOURCE_PATH,
         RANGED_FORMULA_SOURCE_PATH,
         RANGED_STRATEGY_SOURCE_PATH,
+        WEAPON_TYPE_ATTACK_STYLES,
+        WEAPON_TYPE_UNARMED_STYLES,
     )
 except ImportError:
     from combat_data import (  # type: ignore
@@ -79,6 +81,8 @@ except ImportError:
         POTION_TYPE_SOURCE_PATH,
         RANGED_FORMULA_SOURCE_PATH,
         RANGED_STRATEGY_SOURCE_PATH,
+        WEAPON_TYPE_ATTACK_STYLES,
+        WEAPON_TYPE_UNARMED_STYLES,
     )
 
 REVIEW_SUCCESS_MINIMUM = 0.20
@@ -1088,6 +1092,18 @@ _COMBAT_DRAINABLE_SKILLS = _COMBAT_AFFECTABLE_SKILLS  # back-compat alias
 _COMBAT_MELEE_STYLE_IDS = ("accurate", "aggressive", "defensive", "controlled")
 _COMBAT_RANGED_STYLE_IDS = ("ranged_accurate", "ranged_rapid", "ranged_longrange")
 _COMBAT_MAGIC_EQUIPMENT_TYPES = {"staff", "elemental_staff", "battlestaff"}
+# "auto" lets the resolver pick the first slot for the chosen weapon_style;
+# stab/slash/crush force a specific melee attack type (D1 parity).
+_COMBAT_MELEE_STYLE_TYPES = ("auto", "stab", "slash", "crush")
+# AttackStyleData xp_mode -> the _combat_apply_xp style id that trains the same
+# skill(s). "shared" trains attack/strength/defence three ways like "controlled",
+# which is how the two-handed-sword aggressive/crush/SHARED anomaly is trained.
+_COMBAT_XP_MODE_TO_STYLE_ID = {
+    "attack": "accurate",
+    "strength": "aggressive",
+    "defense": "defensive",
+    "shared": "controlled",
+}
 
 
 def combat_max_lifepoints_pure(player_data):
@@ -1102,6 +1118,7 @@ def default_combat_state_pure():
     return {
         "current_combat_target": DEFAULT_COMBAT_TARGET,
         "combat_attack_style": DEFAULT_COMBAT_ATTACK_STYLE,
+        "combat_attack_style_type": "auto",
         "current_combat_spell": DEFAULT_COMBAT_SPELL,
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
@@ -1423,6 +1440,9 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     style = player_data.get("combat_attack_style", defaults["combat_attack_style"])
     if style not in style_data:
         style = defaults["combat_attack_style"]
+    style_type = player_data.get("combat_attack_style_type", defaults["combat_attack_style_type"])
+    if style_type not in _COMBAT_MELEE_STYLE_TYPES:
+        style_type = defaults["combat_attack_style_type"]
     spell = player_data.get("current_combat_spell", defaults["current_combat_spell"])
     if spell not in COMBAT_MAGIC_SPELL_DATA:
         spell = defaults["current_combat_spell"]
@@ -1450,6 +1470,7 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
     return {
         "current_combat_target": target,
         "combat_attack_style": style,
+        "combat_attack_style_type": style_type,
         "current_combat_spell": spell,
         "combat_lifepoints": max(0, min(current_lp, max_lp + COMBAT_MAX_OVERHEAL_BONUS_LIFEPOINTS)),
         "combat_auto_eat_threshold_percent": max(
@@ -1515,11 +1536,16 @@ def combat_target_locked_reasons_pure(player_data, target_id, enemy_data=None, s
     return ("unsupported combat class",)
 
 
-def _combat_attack_bonus_from_totals(totals, combat_class="melee"):
+def _combat_attack_bonus_from_totals(totals, combat_class="melee", style_type=None):
     if combat_class == "magic":
         return _equipment_bonus_value(totals, "attack_magic")
     if combat_class == "ranged":
         return _equipment_bonus_value(totals, "attack_ranged")
+    # D1 parity: the player's chosen attack type picks the specific bonus rather
+    # than the old best-of-three max(). max() only survives when no concrete type
+    # is resolved (e.g. enemy-side attacks, which carry no melee sub-type).
+    if style_type in ("stab", "slash", "crush"):
+        return _equipment_bonus_value(totals, f"attack_{style_type}")
     return max(
         _equipment_bonus_value(totals, "attack_stab"),
         _equipment_bonus_value(totals, "attack_slash"),
@@ -1527,11 +1553,14 @@ def _combat_attack_bonus_from_totals(totals, combat_class="melee"):
     )
 
 
-def _combat_defence_bonus_from_totals(totals, combat_class="melee"):
+def _combat_defence_bonus_from_totals(totals, combat_class="melee", style_type=None):
     if combat_class == "magic":
         return _equipment_bonus_value(totals, "defence_magic")
     if combat_class == "ranged":
         return _equipment_bonus_value(totals, "defence_ranged")
+    # D1 parity: the enemy resists the exact attack type the player is throwing.
+    if style_type in ("stab", "slash", "crush"):
+        return _equipment_bonus_value(totals, f"defence_{style_type}")
     return max(
         _equipment_bonus_value(totals, "defence_stab"),
         _equipment_bonus_value(totals, "defence_slash"),
@@ -1706,13 +1735,63 @@ def _combat_weapon_is_magic(player_data, equipment_data=None):
     return weapon_name in COMBAT_MAGIC_STAFF_DATA or equipment_type in _COMBAT_MAGIC_EQUIPMENT_TYPES
 
 
+def _combat_weapon_type_id(player_data, equipment_data=None):
+    """The equipped weapon's items.yml ``weapon_type`` id, or -1 for bare fists /
+    typeless weapons (which fall back to the UNARMED table, D3)."""
+    weapon_name = _combat_equipped_weapon_name(player_data)
+    if not isinstance(weapon_name, str):
+        return -1
+    equipment_spec = equipment_data.get(weapon_name) if isinstance(equipment_data, Mapping) else None
+    return _signed_int(_equipment_value(equipment_spec, "weapon_type", -1), -1)
+
+
+def combat_weapon_attack_style_slots_pure(player_data, equipment_data=None):
+    """Ordered melee attack-style slots (weapon_style/style_type/xp_mode) the
+    equipped weapon offers, transcribed from AttackStyleData.kt. Typeless weapons
+    and bare fists fall back to the UNARMED table (all crush, D3). Drives the D2
+    per-weapon style selector."""
+    weapon_type = _combat_weapon_type_id(player_data, equipment_data)
+    return WEAPON_TYPE_ATTACK_STYLES.get(weapon_type, WEAPON_TYPE_UNARMED_STYLES)
+
+
+def _combat_resolve_melee_slot(player_data, equipment_data=None):
+    """The AttackStyleData slot the player actually swings with: the stored
+    combat_attack_style (weapon_style) narrowed to a slot the equipped weapon
+    offers, then narrowed again by the orthogonal combat_attack_style_type
+    preference. Guarantees weapon_style, style_type and xp_mode stay mutually
+    consistent even after a weapon swap leaves a now-unavailable style stored."""
+    slots = combat_weapon_attack_style_slots_pure(player_data, equipment_data)
+    stored_style = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
+    chosen_type = str(player_data.get("combat_attack_style_type", "auto"))
+    matching = [slot for slot in slots if slot["weapon_style"] == stored_style]
+    if not matching:
+        return slots[0]
+    if chosen_type in ("stab", "slash", "crush"):
+        for slot in matching:
+            if slot["style_type"] == chosen_type:
+                return slot
+    return matching[0]
+
+
 def combat_attack_style_for_equipment_pure(player_data, equipment_data=None):
     stored_style = str(player_data.get("combat_attack_style", DEFAULT_COMBAT_ATTACK_STYLE))
     if _combat_weapon_is_ranged(player_data, equipment_data):
         return stored_style if stored_style in _COMBAT_RANGED_STYLE_IDS else "ranged_accurate"
     if _combat_weapon_is_magic(player_data, equipment_data):
         return "magic_standard"
-    return stored_style if stored_style in _COMBAT_MELEE_STYLE_IDS else DEFAULT_COMBAT_ATTACK_STYLE
+    return _combat_resolve_melee_slot(player_data, equipment_data)["weapon_style"]
+
+
+def combat_melee_attack_type_pure(player_data, equipment_data=None):
+    """(style_type, xp_style_id) for the equipped melee weapon. style_type
+    ("stab"/"slash"/"crush") drives the D1 attack/defence-type parity; xp_style_id
+    feeds _combat_apply_xp and captures the two-handed-sword aggressive/crush/SHARED
+    anomaly. Returns (None, resolved-style-id) for ranged/magic, where the existing
+    max()/xp paths already apply."""
+    if _combat_weapon_is_ranged(player_data, equipment_data) or _combat_weapon_is_magic(player_data, equipment_data):
+        return None, combat_attack_style_for_equipment_pure(player_data, equipment_data)
+    slot = _combat_resolve_melee_slot(player_data, equipment_data)
+    return slot["style_type"], _COMBAT_XP_MODE_TO_STYLE_ID[slot["xp_mode"]]
 
 
 def _combat_ranged_ammo_count(player_data, ammo_name, target_id):
@@ -2910,6 +2989,11 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
     combat_class = str(style.get("combat_class", "melee"))
+    melee_style_type = (
+        _combat_resolve_melee_slot(player_data, equipment_data)["style_type"]
+        if combat_class == "melee"
+        else None
+    )
     spell_id, spell_spec = _combat_selected_magic_spell(player_data)
     if combat_class == "ranged":
         weapon_name, _weapon_equipment, weapon_spec = _combat_ranged_weapon_spec(player_data, equipment_data)
@@ -2927,10 +3011,10 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         weapon_name = None
         ammo_name = None
         player_attack_roll = _combat_effective_player_attack_level(player_data, style_id) * (
-            _combat_attack_bonus_from_totals(player_totals) + 64
+            _combat_attack_bonus_from_totals(player_totals, style_type=melee_style_type) + 64
         )
     enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
-        _combat_defence_bonus_from_totals(enemy_totals, combat_class) + 64
+        _combat_defence_bonus_from_totals(enemy_totals, combat_class, style_type=melee_style_type) + 64
     )
     accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
     if combat_class == "ranged":
@@ -3136,6 +3220,15 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     data["combat_attack_style"] = style_id
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE])
     combat_class = str(style.get("combat_class", "melee"))
+    # melee_style_type feeds the D1 attack/defence-type parity; melee_xp_style_id
+    # captures the two-handed-sword aggressive/crush/SHARED xp anomaly (defaults to
+    # style_id, so ranged/magic keep their existing xp path unchanged).
+    melee_style_type = None
+    melee_xp_style_id = style_id
+    if combat_class == "melee":
+        _melee_slot = _combat_resolve_melee_slot(data, equipment_data)
+        melee_style_type = _melee_slot["style_type"]
+        melee_xp_style_id = _COMBAT_XP_MODE_TO_STYLE_ID[_melee_slot["xp_mode"]]
     weapon_name, weapon_spec, ranged_weapon_spec = _combat_ranged_weapon_spec(data, equipment_data)
     spell_id, spell_spec = _combat_selected_magic_spell(data)
     locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
@@ -3208,10 +3301,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
     else:
         player_attack_roll = _combat_effective_player_attack_level(data, style_id) * (
-            _combat_attack_bonus_from_totals(player_totals) + 64
+            _combat_attack_bonus_from_totals(player_totals, style_type=melee_style_type) + 64
         )
         enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
-            _combat_defence_bonus_from_totals(enemy_totals) + 64
+            _combat_defence_bonus_from_totals(enemy_totals, style_type=melee_style_type) + 64
         )
         player_max_hit = _combat_melee_max_hit_old_hp(
             _combat_effective_player_strength_level(data, style_id),
@@ -3314,7 +3407,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if combat_class == "magic":
                 _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
             elif damage > 0:
-                _combat_apply_xp(xp_rewards, style_id, damage, npc_xp_multiplier)
+                _combat_apply_xp(xp_rewards, melee_xp_style_id, damage, npc_xp_multiplier)
             if enemy_lp <= 0:
                 kills += 1
                 killed = True
@@ -4079,6 +4172,45 @@ def combat_attack_style_trained_skills_pure(style_id):
     return tuple(_COMBAT_EXP_KEY_DISPLAY[key] for key in ordered)
 
 
+def combat_weapon_style_options_pure(player_data, equipment_data=None):
+    """UI-ready attack-style options for the equipped weapon (D2 per-weapon slots).
+
+    For a melee weapon this is one row per AttackStyleData slot, each carrying the
+    weapon_style and style_type to persist, a display name that names the attack
+    type (e.g. "Aggressive (Crush)"), the skills it actually trains, and whether it
+    is the current selection. Ranged/magic keep the class-filtered
+    COMBAT_ATTACK_STYLE_DATA rows with a fixed "auto" style_type. Each row is
+    ``{weapon_style, style_type, display_name, trained_skills, is_current}``."""
+    if _combat_weapon_is_ranged(player_data, equipment_data) or _combat_weapon_is_magic(player_data, equipment_data):
+        current = combat_attack_style_for_equipment_pure(player_data, equipment_data)
+        combat_class = str(COMBAT_ATTACK_STYLE_DATA.get(current, {}).get("combat_class", "ranged"))
+        return [
+            {
+                "weapon_style": sid,
+                "style_type": "auto",
+                "display_name": str(spec.get("display_name", sid)),
+                "trained_skills": combat_attack_style_trained_skills_pure(sid),
+                "is_current": sid == current,
+            }
+            for sid, spec in COMBAT_ATTACK_STYLE_DATA.items()
+            if str(spec.get("combat_class")) == combat_class
+        ]
+    slots = combat_weapon_attack_style_slots_pure(player_data, equipment_data)
+    current_slot = _combat_resolve_melee_slot(player_data, equipment_data)
+    return [
+        {
+            "weapon_style": slot["weapon_style"],
+            "style_type": slot["style_type"],
+            "display_name": f"{slot['weapon_style'].title()} ({slot['style_type'].title()})",
+            "trained_skills": combat_attack_style_trained_skills_pure(
+                _COMBAT_XP_MODE_TO_STYLE_ID[slot["xp_mode"]]
+            ),
+            "is_current": slot is current_slot,
+        }
+        for slot in slots
+    ]
+
+
 def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
     """Structured view the combat HUD renders: player and enemy health bars, the
     skills the current attack style trains (the XP chips), and the running kill
@@ -4104,6 +4236,9 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
 
     style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
     style = COMBAT_ATTACK_STYLE_DATA.get(style_id, {})
+    # xp_style_id captures the two-handed-sword aggressive/crush/SHARED anomaly so
+    # the XP chips name the skills actually trained, not what weapon_style implies.
+    _melee_style_type, xp_style_id = combat_melee_attack_type_pure(player_data, equipment_data)
 
     kills_total = _non_negative_int((player_data.get("combat_kill_counts", {}) or {}).get(target_id, 0), 0)
     last = player_data.get("combat_last_result", {}) or {}
@@ -4131,7 +4266,7 @@ def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
         "enemy_carried": bool(carried),
         "attack_style_id": style_id,
         "attack_style_name": str(style.get("display_name", style_id)),
-        "trained_skills": combat_attack_style_trained_skills_pure(style_id),
+        "trained_skills": combat_attack_style_trained_skills_pure(xp_style_id),
         "kills_total": kills_total,
         "last_kills": last_kills,
         "last_outcome": last_outcome,
