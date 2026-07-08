@@ -732,9 +732,12 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
     kill_phrase = f"{kills} × {display_name}" if kills != 1 else display_name
     if result.get("died"):
         if kills > 0:
-            ctx.show_activity_gain(f"Defeated {kill_phrase}, then died; gear moved to grave")
+            ctx.show_activity_gain(f"☠ YOU DIED — defeated {kill_phrase} first; gear moved to grave")
         else:
-            ctx.show_activity_gain(f"Defeated by {display_name}; gear moved to grave")
+            ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
+    elif result.get("fled"):
+        prefix = f"Defeated {kill_phrase}, then f" if kills > 0 else "F"
+        ctx.show_activity_gain(f"{prefix}led {display_name} — out of food, auto-fled to survive")
     elif kills > 0:
         ctx.show_activity_gain(f"Defeated {kill_phrase}")
     else:
@@ -1380,7 +1383,7 @@ def handle_quest_answer(ctx: RuntimeActionContext) -> bool:
             remaining = int(result.get("bank_run_reviews_remaining", 0) or 0)
             ctx.show_activity_gain(f"{display_name}: bank run ({remaining} reviews remaining)")
         elif result.get("died"):
-            ctx.show_activity_gain(f"Defeated by {display_name}; gear moved to grave")
+            ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
         elif result.get("killed"):
             ctx.show_activity_gain(f"Defeated {display_name}{quantity_text}")
         else:

@@ -3244,7 +3244,9 @@ class CombatLogicTest(unittest.TestCase):
 
         recovered = apply_safe_combat_recovery_pure(player)
 
-        self.assertEqual(recovered["combat_lifepoints"], 70)
+        # Leave-combat rest heals a third of the missing 60 LP (40 -> 60), then the
+        # poison tick subtracts 30 -> 30.
+        self.assertEqual(recovered["combat_lifepoints"], 30)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["ticks_left"], 10)
         self.assertEqual(recovered["combat_status_effects"]["poison"]["tick_progress"], 20)
         self.assertEqual(combat_status_summary_pure(recovered), "Poisoned: 30 LP in 10 ticks")
@@ -3289,7 +3291,9 @@ class CombatLogicTest(unittest.TestCase):
 
         recovered = apply_safe_combat_recovery_pure(player)
 
-        self.assertEqual(recovered["combat_lifepoints"], 100)
+        # Antipoison cures before the tick, so no poison damage; the leave-combat
+        # rest heals a third of the missing 50 LP (50 -> 67).
+        self.assertEqual(recovered["combat_lifepoints"], 67)
         self.assertNotIn("poison", recovered["combat_status_effects"])
         self.assertEqual(recovered["combat_status_effects"]["poison_immunity"]["ticks_left"], 1450)
         self.assertIn("PotionType.kt", recovered["combat_status_effects"]["poison_immunity"]["source"])
@@ -3411,7 +3415,8 @@ class CombatLogicTest(unittest.TestCase):
 
         recovered = apply_safe_combat_recovery_pure(player)
 
-        self.assertEqual(recovered["combat_lifepoints"], 100)
+        # Leave-combat rest heals a third of the missing 80 LP (20 -> 47).
+        self.assertEqual(recovered["combat_lifepoints"], 47)
         self.assertEqual(recovered["combat_special_attack_energy"], 45)
         # One recovery step (100 ticks): each current moves 1 toward base 99;
         # strength reaches base and drops, attack goes 97 -> 98.
@@ -3502,6 +3507,7 @@ class CombatLogicTest(unittest.TestCase):
             attack_level=1,
             strength_level=1,
             combat_lifepoints=1,
+            combat_auto_flee=False,  # exercise the death path, not the auto-flee bail-out
             equipment={"weapon": "Iron sword"},
             combat_grave={"items": ["Bronze sword"], "reviews_remaining": 3, "source": "combat_death"},
             death_office={"items": ["Cape"], "source": "combat_stacked_grave"},
@@ -3533,6 +3539,7 @@ class CombatLogicTest(unittest.TestCase):
             attack_level=1,
             strength_level=1,
             combat_lifepoints=1,
+            combat_auto_flee=False,  # exercise the death path, not the auto-flee bail-out
             equipment={"weapon": "Iron sword"},
             inventory={"Bones": 10, "Coal": 30, "Coins": 100},
             carried_inventory={
@@ -3565,6 +3572,120 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(died["skilling_bank_run"], {"reviews_remaining": 1, "target_id": "copper_ore"})
         # Coins (the money pouch) are never carried.
         self.assertEqual(died["inventory"]["Coins"], 100)
+
+    def test_auto_flee_bails_out_when_low_lp_and_out_of_food(self):
+        player = _player(
+            current_combat_target="killer",
+            combat_lifepoints=1,
+            equipment={"weapon": "Iron sword"},
+            combat_supply_loadout={},  # no food to auto-eat
+        )
+
+        fled, ok, result = apply_combat_burst_pure(
+            player, _KILLER_ENEMY_DATA, EQUIPMENT_DATA, ticks=5, rng=lambda: 0.0,
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["fled"])
+        self.assertFalse(result["died"])
+        self.assertEqual(result["stop_reason"], "auto_flee")
+        # Fleeing keeps the gear on and clears the encounter — no grave, no death.
+        self.assertEqual(fled["equipment"], {"weapon": "Iron sword"})
+        self.assertEqual(fled["combat_grave"], {})
+        self.assertEqual(fled["combat_encounter"], {})
+
+    def test_combat_burst_resets_the_leave_combat_rest_window(self):
+        player = _player(combat_rest_reviews=5)
+
+        new_data, ok, _result = apply_combat_burst_pure(
+            player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=lambda: 0.5,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(new_data["combat_rest_reviews"], 0)
+
+    def test_leave_combat_rest_heals_to_full_over_three_reviews(self):
+        player = _player(combat_lifepoints=10, combat_auto_eat_food=[], combat_supply_loadout={})
+
+        first = apply_safe_combat_recovery_pure(player)
+        second = apply_safe_combat_recovery_pure(first)
+        third = apply_safe_combat_recovery_pure(second)
+
+        self.assertEqual(first["combat_lifepoints"], 40)   # 10 + ceil(90/3)
+        self.assertEqual(second["combat_lifepoints"], 70)  # 40 + ceil(60/2)
+        self.assertEqual(third["combat_lifepoints"], 100)  # 70 + ceil(30/1) -> full
+        self.assertEqual(third["combat_rest_reviews"], 3)
+
+    def test_death_grave_snapshots_worn_loadout_and_reclaim_reequips_it(self):
+        player = _player(
+            current_combat_target="killer",
+            attack_level=1,
+            strength_level=1,
+            combat_lifepoints=1,
+            combat_auto_flee=False,
+            equipment={"weapon": "Iron sword"},
+            combat_auto_eat_food=[],
+            combat_supply_loadout={},
+        )
+
+        died, ok, result = apply_combat_burst_pure(
+            player,
+            _KILLER_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=5,
+            rng=_rng([0.999999, 0.0, 0.999999]),
+        )
+
+        self.assertTrue(ok)
+        self.assertTrue(result["died"])
+        self.assertEqual(died["combat_grave"]["loadout"], {"weapon": "Iron sword"})
+        self.assertEqual(died["equipment"], {})
+
+        # Grave auto-reclaims after COMBAT_GRAVE_RECOVERY_REVIEWS safe reviews, and
+        # the worn loadout re-equips into the (now empty) slot instead of the bank.
+        recovered = died
+        for _ in range(5):
+            recovered = apply_safe_combat_recovery_pure(recovered)
+
+        self.assertEqual(recovered["combat_grave"], {})
+        self.assertEqual(recovered["equipment"], {"weapon": "Iron sword"})
+        self.assertNotIn("Iron sword", recovered.get("inventory", {}))
+
+    def test_death_office_reclaim_reequips_worn_loadout_into_empty_slots(self):
+        player = _player(
+            inventory={"Coins": 500},
+            equipment={},
+            death_office={
+                "items": ["Iron sword", "Bones", "Bones"],
+                "source": "combat_stacked_grave",
+                "loadout": {"weapon": "Iron sword"},
+            },
+        )
+
+        reclaimed, ok, reason = reclaim_death_office_items_pure(player)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(reclaimed["equipment"], {"weapon": "Iron sword"})
+        self.assertEqual(reclaimed["inventory"]["Bones"], 2)
+        self.assertNotIn("Iron sword", reclaimed["inventory"])
+        self.assertEqual(reclaimed["death_office"], {})
+
+    def test_reclaim_leaves_graved_piece_in_bank_when_slot_already_refilled(self):
+        player = _player(
+            inventory={"Coins": 500},
+            equipment={"weapon": "Rune sword"},  # already re-geared since dying
+            death_office={
+                "items": ["Iron sword"],
+                "source": "combat_stacked_grave",
+                "loadout": {"weapon": "Iron sword"},
+            },
+        )
+
+        reclaimed, ok, reason = reclaim_death_office_items_pure(player)
+
+        self.assertTrue(ok, reason)
+        self.assertEqual(reclaimed["equipment"], {"weapon": "Rune sword"})
+        self.assertEqual(reclaimed["inventory"]["Iron sword"], 1)
 
     def test_death_office_reclaim_consumes_coins_and_returns_items_to_inventory(self):
         player = _player(

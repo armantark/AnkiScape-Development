@@ -215,7 +215,9 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(player_data["combat_kill_counts"], {"chicken": 1})
         self.assertEqual(player_data["inventory"].get("Bronze arrows", 0), 0)
-        self.assertEqual(player_data["combat_supply_loadout"]["ammo"], {"Bronze arrows": 1})
+        # Chain kills keep firing after the first kill within the tick budget, so
+        # the second carried arrow is spent on the follow-up shot too.
+        self.assertEqual(player_data["combat_supply_loadout"]["ammo"], {})
         self.assertEqual(player_data["attack_exp"], 0.0)
         self.assertGreater(player_data["ranged_exp"], 0.0)
         self.assertGreater(player_data["constitution_exp"], 0.0)

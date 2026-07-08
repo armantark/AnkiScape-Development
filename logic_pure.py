@@ -1021,6 +1021,15 @@ _DEFAULT_COMBAT_AUTO_EAT_FOOD = (
     "Shrimps",
     "Crayfish",
 )
+# RS-classic natural regeneration is ~1 hitpoint per game-minute; a lifepoint is
+# 1/10th of a hitpoint, and a safe (non-combat) review models one burst window
+# (COMBAT_BURST_TICKS * 0.6s ~= 30s ~= half a game-minute), so a rested-out review
+# regenerates ~5 LP. This is the slow baseline; leaving combat grants an
+# accelerated "rest" that reaches full LP over COMBAT_REST_FULL_HEAL_REVIEWS.
+NATURAL_COMBAT_RECOVERY_LIFEPOINTS = 5
+COMBAT_REST_FULL_HEAL_REVIEWS = 3
+# Overheal (LP above max, from potions/brews) still bleeds off at the old faster
+# rate — natural regen only ever climbs toward the cap, never away from it.
 SAFE_COMBAT_RECOVERY_LIFEPOINTS = 100
 SAFE_COMBAT_RECOVERY_TICKS = COMBAT_BURST_TICKS
 COMBAT_SPECIAL_ATTACK_MAX_ENERGY = 100
@@ -1096,6 +1105,8 @@ def default_combat_state_pure():
         "current_combat_spell": DEFAULT_COMBAT_SPELL,
         "combat_lifepoints": 100,
         "combat_auto_eat_threshold_percent": 40,
+        "combat_auto_flee": True,
+        "combat_rest_reviews": 0,
         "combat_auto_eat_food": list(_DEFAULT_COMBAT_AUTO_EAT_FOOD),
         "combat_supply_loadout": default_combat_supply_loadout_pure(),
         "combat_pack_mode": _COMBAT_DEFAULT_PACK_MODE,
@@ -1225,6 +1236,44 @@ def _combat_grave_items(raw_grave):
     return [str(item_name) for item_name in raw_items if isinstance(item_name, str) and item_name]
 
 
+def _combat_stored_loadout(raw_state):
+    """The worn slot->item snapshot taken at death, used to auto-re-equip on
+    reclaim. Absent/malformed entries just drop the piece back into the pack."""
+    if not isinstance(raw_state, Mapping):
+        return {}
+    raw_loadout = raw_state.get("loadout", {}) or {}
+    if not isinstance(raw_loadout, Mapping):
+        return {}
+    return {
+        str(slot): str(name)
+        for slot, name in raw_loadout.items()
+        if isinstance(slot, str) and slot and isinstance(name, str) and name
+    }
+
+
+def _combat_reclaim_items_to_player(data, items, loadout):
+    """Return reclaimed gear to the player: re-equip the worn loadout into any
+    still-empty slot, then drop everything else back into the inventory. A slot
+    the player has re-filled since dying keeps its newer item, so the graved piece
+    falls to the inventory instead of clobbering it."""
+    remaining = [str(item_name) for item_name in items if isinstance(item_name, str) and item_name]
+    if isinstance(loadout, Mapping) and loadout:
+        equipment = dict(data.get("equipment", {}) or {})
+        for slot, item_name in loadout.items():
+            if not isinstance(slot, str) or not isinstance(item_name, str) or not item_name:
+                continue
+            if equipment.get(slot):
+                continue
+            if item_name in remaining:
+                remaining.remove(item_name)
+                equipment[slot] = item_name
+        data["equipment"] = equipment
+    inventory = dict(data.get("inventory", {}) or {})
+    for item_name in remaining:
+        inventory[item_name] = inventory.get(item_name, 0) + 1
+    data["inventory"] = inventory
+
+
 def _sanitize_combat_grave_state(raw_grave):
     if not isinstance(raw_grave, Mapping):
         return {}
@@ -1236,11 +1285,15 @@ def _sanitize_combat_grave_state(raw_grave):
         COMBAT_GRAVE_RECOVERY_REVIEWS,
     )
     source = raw_grave.get("source", "combat_death")
-    return {
+    state = {
         "items": items,
         "reviews_remaining": min(reviews_remaining, COMBAT_GRAVE_RECOVERY_REVIEWS),
         "source": source if isinstance(source, str) and source else "combat_death",
     }
+    loadout = _combat_stored_loadout(raw_grave)
+    if loadout:
+        state["loadout"] = loadout
+    return state
 
 
 def _sanitize_death_office_state(raw_office):
@@ -1256,6 +1309,9 @@ def _sanitize_death_office_state(raw_office):
     stored_cost = _non_negative_int(raw_office.get("reclaim_cost", 0), 0)
     if stored_cost > 0:
         state["reclaim_cost"] = stored_cost
+    loadout = _combat_stored_loadout(raw_office)
+    if loadout:
+        state["loadout"] = loadout
     return state
 
 
@@ -1264,14 +1320,17 @@ def _combat_death_office_items(raw_office):
     return list(office.get("items", ()) or ())
 
 
-def _set_combat_death_office_items(data, items, source="combat_death_office"):
+def _set_combat_death_office_items(data, items, source="combat_death_office", loadout=None):
     clean_items = [str(item_name) for item_name in items if isinstance(item_name, str) and item_name]
     if clean_items:
-        data["death_office"] = {
+        office = {
             "items": clean_items,
             "source": source,
             "reclaim_cost": len(clean_items) * COMBAT_DEATH_OFFICE_RECLAIM_COINS_PER_ITEM,
         }
+        if isinstance(loadout, Mapping) and loadout:
+            office["loadout"] = dict(loadout)
+        data["death_office"] = office
     else:
         data["death_office"] = {}
 
@@ -1322,19 +1381,29 @@ def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_de
                 container = dict(container)
                 container.pop(fought_target, None)
                 data[map_key] = container
-    existing_grave_items = _combat_grave_items(data.get("combat_grave", {}) or {})
+    existing_grave = data.get("combat_grave", {}) or {}
+    existing_grave_items = _combat_grave_items(existing_grave)
     if existing_grave_items:
-        existing_office_items = _combat_death_office_items(data.get("death_office", {}) or {})
+        existing_office = data.get("death_office", {}) or {}
+        existing_office_items = _combat_death_office_items(existing_office)
+        # A second death before the first grave is reclaimed pushes the old grave
+        # to Death's Office; carry both loadouts so either set still re-equips.
+        stacked_loadout = {
+            **_combat_stored_loadout(existing_grave),
+            **_combat_stored_loadout(existing_office),
+        }
         _set_combat_death_office_items(
             data,
             existing_office_items + existing_grave_items,
             "combat_stacked_grave",
+            stacked_loadout,
         )
     data["equipment"] = {}
     data["combat_grave"] = {
         "items": grave_items,
         "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
         "source": grave_source,
+        "loadout": equipment,
     } if grave_items else {}
     data["combat_encounter"] = {}
     data["combat_status_effects"] = {}
@@ -1387,6 +1456,8 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
             1,
             min(_positive_int(player_data.get("combat_auto_eat_threshold_percent", 40), 40), 99),
         ),
+        "combat_auto_flee": bool(player_data.get("combat_auto_flee", True)),
+        "combat_rest_reviews": _non_negative_int(player_data.get("combat_rest_reviews", 0), 0),
         "combat_auto_eat_food": auto_food,
         "combat_supply_loadout": _sanitize_combat_supply_loadout(player_data.get("combat_supply_loadout")),
         "combat_pack_mode": _combat_coerce_pack_mode(player_data.get("combat_pack_mode", _COMBAT_DEFAULT_PACK_MODE)),
@@ -2534,6 +2605,29 @@ def _combat_consume_auto_food(data, current_lifepoints, max_lifepoints, rng):
     return current_lifepoints, None
 
 
+def _combat_auto_eat_food_available(data):
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    food_loadout = loadout.get("food", {}) or {}
+    for item_name in data.get("combat_auto_eat_food", ()) or ():
+        if item_name in COMBAT_FOOD_DATA and _positive_int(food_loadout.get(item_name, 0), 0) > 0:
+            return True
+    return False
+
+
+def _combat_should_auto_flee(data, current_lifepoints, max_lifepoints):
+    """Auto-flee bails out of the burst when LP has fallen to the auto-eat
+    threshold and there is no food left to recover with — the "dying silently"
+    case. Enabled by default; the last-ditch heal has already been attempted by
+    the caller, so reaching here means the player genuinely cannot recover."""
+    if not data.get("combat_auto_flee", True):
+        return False
+    threshold_percent = _positive_int(data.get("combat_auto_eat_threshold_percent", 40), 40)
+    threshold = max(1, int(max_lifepoints * threshold_percent / 100.0))
+    if current_lifepoints > threshold:
+        return False
+    return not _combat_auto_eat_food_available(data)
+
+
 def apply_combat_stat_delta_pure(data, skill_id, delta):
     """Reusable current-level mutation (shared by consumables and future
     potions). Reads the effective current level (base if unset), applies the
@@ -2918,10 +3012,22 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
     equipment_data = equipment_data or {}
     max_lp = combat_max_lifepoints_pure(data)
     current_lp = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
+    rest_reviews = _non_negative_int(data.get("combat_rest_reviews", 0), 0)
     if current_lp > max_lp:
         data["combat_lifepoints"] = max(max_lp, current_lp - SAFE_COMBAT_RECOVERY_LIFEPOINTS)
-    else:
-        data["combat_lifepoints"] = min(max_lp, current_lp + SAFE_COMBAT_RECOVERY_LIFEPOINTS)
+    elif current_lp < max_lp:
+        # Just left combat: heal to full over COMBAT_REST_FULL_HEAL_REVIEWS reviews
+        # (a share of the missing LP each review, so the last one tops off). Once
+        # that rest window is spent, fall back to the slow natural-regen trickle.
+        missing = max_lp - current_lp
+        turns_left = COMBAT_REST_FULL_HEAL_REVIEWS - rest_reviews
+        if turns_left >= 1:
+            heal = -(-missing // turns_left)  # ceil so the final rest review reaches full
+        else:
+            heal = NATURAL_COMBAT_RECOVERY_LIFEPOINTS
+        heal = max(heal, NATURAL_COMBAT_RECOVERY_LIFEPOINTS)
+        data["combat_lifepoints"] = min(max_lp, current_lp + heal)
+    data["combat_rest_reviews"] = rest_reviews + 1
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_recover_current_levels(data, SAFE_COMBAT_RECOVERY_TICKS)
     _combat_consume_antipoison_if_needed(data)
@@ -2961,11 +3067,11 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
         )
         grave["reviews_remaining"] = remaining
         if remaining <= 0:
-            inventory = dict(data.get("inventory", {}) or {})
-            for item_name in grave.get("items", ()) or ():
-                if isinstance(item_name, str):
-                    inventory[item_name] = inventory.get(item_name, 0) + 1
-            data["inventory"] = inventory
+            _combat_reclaim_items_to_player(
+                data,
+                grave.get("items", ()) or (),
+                _combat_stored_loadout(grave),
+            )
             data["combat_grave"] = {}
         else:
             data["combat_grave"] = grave
@@ -3006,9 +3112,12 @@ def reclaim_death_office_items_pure(player_data):
     if coins < cost:
         return player_data, False, f"Need {cost} Coins to reclaim this gear."
     inventory["Coins"] = coins - cost
-    for item_name in items:
-        inventory[item_name] = inventory.get(item_name, 0) + 1
     data["inventory"] = inventory
+    _combat_reclaim_items_to_player(
+        data,
+        items,
+        _combat_stored_loadout(data.get("death_office", {}) or {}),
+    )
     data["death_office"] = {}
     return data, True, ""
 
@@ -3145,10 +3254,14 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     kills = 0
     killed = False
     died = False
+    fled = False
     out_of_ammo = False
     out_of_runes = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
+    # This is a live combat review, so the out-of-combat rest window restarts from
+    # zero; the next non-combat review begins healing you back toward full.
+    data["combat_rest_reviews"] = 0
 
     for tick in range(total_ticks):
         ticks_elapsed = tick + 1
@@ -3167,6 +3280,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             player_lp, food_event = _combat_consume_auto_food(data, player_lp, max_player_lp, rng)
             if food_event:
                 food_used.append(food_event)
+
+        if _combat_should_auto_flee(data, player_lp, max_player_lp):
+            fled = True
+            break
 
         if tick >= next_player_attack and enemy_lp > 0:
             next_player_attack += player_attack_speed
@@ -3265,9 +3382,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
 
     if died:
         player_lp = _combat_apply_pvm_death(data, max_player_lp)
-    elif enemy_lp <= 0 or enemy_lp >= enemy_max_lp:
-        # No partial progress to carry: either nothing was fought or the burst
-        # ended right after a kill respawned a fresh full-LP enemy.
+    elif fled or enemy_lp <= 0 or enemy_lp >= enemy_max_lp:
+        # No partial progress to carry: the player fled, nothing was fought, or the
+        # burst ended right after a kill respawned a fresh full-LP enemy.
         data["combat_encounter"] = {}
     else:
         data["combat_encounter"] = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
@@ -3287,7 +3404,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "killed": killed,
         "kills": kills,
         "died": died,
-        "stop_reason": "out_of_ammo" if out_of_ammo else "out_of_runes" if out_of_runes else "",
+        "fled": fled,
+        "stop_reason": (
+            "out_of_ammo" if out_of_ammo
+            else "out_of_runes" if out_of_runes
+            else "auto_flee" if fled
+            else ""
+        ),
         "food_used": tuple(food_used),
         "potions_used": tuple(potions_used),
         "ammo_used": dict(ammo_used),
@@ -4662,6 +4785,10 @@ def apply_quest_combat_encounter_pure(player_data, quest_id, quest_data, encount
 
     combat_player_data = _copy_player_data_with_nested(player_data)
     combat_player_data["current_combat_target"] = quest_target_id
+    # Quest battles are deliberate, story-gating fights: they resolve to a kill or
+    # a death rather than silently auto-fleeing out of the encounter (which would
+    # soft-lock quest progress). Auto-flee stays scoped to the regular combat loop.
+    combat_player_data["combat_auto_flee"] = False
     if saved_lifepoints > 0:
         combat_player_data["combat_encounter"] = {
             "target_id": quest_target_id,

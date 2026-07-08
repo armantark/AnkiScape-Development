@@ -2171,7 +2171,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon.player_data["inventory"]["Arrow shafts"], 30)
         self.assertEqual(addon.player_data["inventory"]["Shark"], 30)
         self.assertEqual(addon.player_data["inventory"]["Bronze arrows"], 10)
-        self.assertEqual(addon.player_data["combat_lifepoints"], 100)
+        # One leave-combat rest review heals a ceil-share of the missing 80 LP
+        # (ceil(80/3) = 27), topping the player to full over three reviews.
+        self.assertEqual(addon.player_data["combat_lifepoints"], 47)
         self.assertEqual(addon.player_data["combat_special_attack_energy"], 45)
         self.assertEqual(addon.player_data["combat_current_levels"], {"attack": 2})
         self.assertEqual(addon.player_data["combat_recovery_progress"], {"stat_drain_ticks": 50})
