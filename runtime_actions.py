@@ -344,7 +344,12 @@ def _repack_view_for_target(
     gathered product fills the pack from actions, it is never pre-loaded.
     """
     if advanced:
-        return inventory_pure.apply_carried_layout_pure(bank, layout, capacity, _OVERLAY_STACKABLE_NAMES)
+        # The grid is 28 cells and an inventory is 28 slots. Never pass the
+        # bag-inflated capacity here: that would hand the bag's extra room to every
+        # item in the layout, not just the bagged material (bags-in-the-grid is a
+        # separate, unbuilt feature).
+        return inventory_pure.apply_carried_layout_pure(
+            bank, layout, inventory_pure.CARRIED_CAPACITY, _OVERLAY_STACKABLE_NAMES)
     if is_processing:
         # Pack against the real 28 slots and let the packer model the bag (which
         # holds its material in one slot). Inflating `capacity` instead would hand

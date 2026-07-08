@@ -203,6 +203,14 @@ class TestProcessingPackAndAdvancedLayout(unittest.TestCase):
         self.assertEqual(applied["Ammo mould"], 1)
         self.assertEqual(applied["Iron ore"], 10)
 
+    def test_advanced_layout_never_packs_beyond_a_real_inventory(self):
+        # The grid is 28 cells and an inventory is 28 slots. A saved layout can hold
+        # more (nothing capped it), and passing the bag-inflated capacity here once
+        # packed 40 coal into a 28-slot inventory.
+        bank = {"Coal": 500, "Coal bag": 1}
+        packed = apply_carried_layout_pure(bank, {"Coal": 40}, CARRIED_CAPACITY, set())
+        self.assertEqual(carried_slots_used(packed, set()), CARRIED_CAPACITY)
+
     def test_apply_carried_layout_stops_at_capacity(self):
         bank = {f"Item {i}": 1 for i in range(30)}
         layout = {f"Item {i}": 1 for i in range(30)}

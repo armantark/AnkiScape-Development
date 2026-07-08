@@ -793,6 +793,12 @@ def _on_main_menu():
         if not isinstance(layout, dict):
             layout = {}
         target_layout = dict(layout.get(target_id, {}))
+        # The grid is 28 cells; anything past that would be saved but never shown,
+        # so the player could neither see nor click it off again.
+        if int(delta) > 0 and not inventory_pure.carried_has_room_for(
+            target_layout, item_name, int(delta), runtime_actions._OVERLAY_STACKABLE_NAMES
+        ):
+            return
         new_count = max(0, int(target_layout.get(item_name, 0)) + int(delta))
         if new_count > 0:
             target_layout[item_name] = new_count
