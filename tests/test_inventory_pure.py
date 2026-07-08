@@ -155,20 +155,42 @@ class TestProcessingPackAndAdvancedLayout(unittest.TestCase):
         self.assertEqual(packed, {"Tin ore": 14, "Copper ore": 14})
 
     def test_pack_processing_inputs_caps_by_scarce_bank_supply(self):
+        # Only 3 tin means only 3 smelts are possible, so carrying more than 3 copper
+        # would waste slots on a material that can never be used.
         bank = {"Tin ore": 3, "Copper ore": 100}
         packed = pack_processing_inputs_pure(bank, {"Tin ore": 1, "Copper ore": 1}, 28, set())
-        self.assertEqual(packed, {"Tin ore": 3, "Copper ore": 14})
+        self.assertEqual(packed, {"Tin ore": 3, "Copper ore": 3})
+
+    def test_pack_processing_inputs_honours_the_recipe_ratio_not_an_even_split(self):
+        # Steel is 1 iron : 2 coal. An even 14/14 runs dry after 7 smelts and wastes
+        # 7 iron slots; the ratio-aware pack gets 9 smelts out of the same 28 slots.
+        bank = {"Iron ore": 500, "Coal": 500}
+        packed = pack_processing_inputs_pure(bank, {"Iron ore": 1, "Coal": 2}, 28, set())
+        self.assertEqual(packed, {"Iron ore": 9, "Coal": 18})
+
+    def test_a_coal_bag_doubles_a_steel_smelting_trip(self):
+        # The bag holds 27 coal in one slot, freeing slots for iron: 18 iron + 36 coal
+        # (27 bagged, 9 loose) = 28 slots => 18 smelts, exactly as in the real game.
+        bank = {"Iron ore": 500, "Coal": 500}
+        reqs = {"Iron ore": 1, "Coal": 2}
+        self.assertEqual(pack_processing_inputs_pure(bank, reqs, 28, set()), {"Iron ore": 9, "Coal": 18})
+        self.assertEqual(
+            pack_processing_inputs_pure(bank, reqs, 28, set(), {"Coal": 27}),
+            {"Iron ore": 18, "Coal": 36},
+        )
 
     def test_pack_processing_inputs_single_requirement_fills_all_capacity(self):
         bank = {"Logs": 500}
         packed = pack_processing_inputs_pure(bank, {"Logs": 1}, 28, set())
         self.assertEqual(packed, {"Logs": 28})
 
-    def test_pack_processing_inputs_stackable_takes_one_slot_then_unstackables_split_rest(self):
+    def test_pack_processing_inputs_stackable_takes_one_slot_then_unstackables_fill_rest(self):
+        # The stackable rune costs one slot no matter the count, leaving 27 for
+        # essence -> 27 actions, and exactly 27 of each is carried (a pack holds the
+        # trip's worth, not the bank's entire stack).
         bank = {"Nature rune": 9999, "Pure essence": 100}
         packed = pack_processing_inputs_pure(bank, {"Nature rune": 1, "Pure essence": 1}, 28, {"Nature rune"})
-        self.assertEqual(packed["Nature rune"], 9999)
-        self.assertEqual(packed["Pure essence"], 27)
+        self.assertEqual(packed, {"Nature rune": 27, "Pure essence": 27})
 
     def test_pack_processing_inputs_empty_requirements_or_bank(self):
         self.assertEqual(pack_processing_inputs_pure({}, {"Logs": 1}, 28, set()), {})

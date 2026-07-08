@@ -167,52 +167,66 @@ def money_pouch_balance(player_data: Mapping[str, Any]) -> int:
     return _clean_int(inventory.get(COIN_ITEM_NAME), 0, minimum=0)
 
 
+def _processing_pack_slots(
+    actions: int,
+    requirements: Mapping[str, int],
+    stackable_names: set[str] | frozenset[str],
+    bags: Mapping[str, int],
+) -> int:
+    """Slots a pack holding ``actions`` worth of a recipe's inputs would occupy."""
+    total = 0
+    for item_name, need in requirements.items():
+        units = _clean_int(need, 0, minimum=0) * actions
+        if units <= 0:
+            continue
+        if item_name in stackable_names:
+            total += 1
+        elif item_name in bags:
+            # The bag holds its capacity in one slot; the overflow rides loose.
+            total += 1 + max(0, units - _clean_int(bags.get(item_name), 0, minimum=0))
+        else:
+            total += units
+    return total
+
+
 def pack_processing_inputs_pure(
     bank: Mapping[str, int],
     requirements: Mapping[str, int],
     capacity: int,
     stackable_names: set[str] | frozenset[str],
+    bags: Mapping[str, int] | None = None,
 ) -> dict[str, int]:
     """Fill a processing target's carried pack with its recipe inputs.
 
-    Casual policy for processing (Smithing/Crafting/Fletching/Firemaking/Cooking/
-    Runecrafting): split available slots evenly across the recipe's distinct
-    required materials, capped by what the bank holds. Stackable materials (e.g.
-    runecrafting essence isn't stackable, but a hypothetical stackable input would
-    be) take one slot for any count; unstackable materials take one slot per unit,
-    so an even split maximizes actions-per-trip for balanced recipes. Never
-    invents materials — every count is capped by bank supply.
+    Packs the most *actions* the 28 slots can carry, honouring the recipe's ratio.
+    An even split across materials is wrong: Steel needs 1 iron : 2 coal, so an even
+    14/14 runs out of coal after 7 smelts and wastes 7 iron slots. Solving for the
+    largest whole number of actions the budget allows gives 9 iron + 18 coal, i.e.
+    9 smelts — and with a Coal bag (27 coal in one slot) it frees the slots to reach
+    18, which is exactly what a coal bag buys you in the real game.
+
+    Never invents materials: the action count is also capped by what the bank holds.
     """
     if not isinstance(bank, Mapping) or not isinstance(requirements, Mapping):
         return {}
-    items = [name for name in requirements if isinstance(name, str)]
-    if not items:
+    needs = {
+        name: _clean_int(need, 0, minimum=0)
+        for name, need in requirements.items()
+        if isinstance(name, str) and _clean_int(need, 0, minimum=0) > 0
+    }
+    if not needs:
         return {}
-
-    def _bank(name: str) -> int:
-        return _clean_int(bank.get(name), 0, minimum=0)
-
+    bags = bags if isinstance(bags, Mapping) else {}
     capacity = _clean_int(capacity, CARRIED_CAPACITY, minimum=1)
-    carried: dict[str, int] = {}
-    remaining_capacity = capacity
 
-    stackable_items = [name for name in items if name in stackable_names]
-    unstackable_items = [name for name in items if name not in stackable_names]
-
-    for name in stackable_items:
-        available = _bank(name)
-        if available > 0 and remaining_capacity > 0:
-            carried[name] = available
-            remaining_capacity -= 1
-
-    if unstackable_items:
-        share = max(0, remaining_capacity) // len(unstackable_items)
-        extra = max(0, remaining_capacity) % len(unstackable_items)
-        for index, name in enumerate(unstackable_items):
-            slots = share + (1 if index < extra else 0)
-            carried[name] = min(_bank(name), slots)
-
-    return {name: count for name, count in carried.items() if count > 0}
+    # Never pack more trips than the bank can supply of the scarcest material.
+    max_actions = min(_clean_int(bank.get(name), 0, minimum=0) // need for name, need in needs.items())
+    actions = 0
+    while actions < max_actions and _processing_pack_slots(actions + 1, needs, stackable_names, bags) <= capacity:
+        actions += 1
+    if actions <= 0:
+        return {}
+    return {name: need * actions for name, need in needs.items()}
 
 
 def apply_carried_layout_pure(

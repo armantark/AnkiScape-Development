@@ -319,6 +319,15 @@ def _bank_can_supply(bank: dict[str, Any], requirements: dict[str, int]) -> bool
     return all(int(bank.get(item, 0) or 0) >= need for item, need in requirements.items())
 
 
+def _owned_bag_capacities(bank: dict[str, Any]) -> dict[str, int]:
+    """{material: bag capacity} for each bag the player owns (Coal bag -> Coal: 27)."""
+    return {
+        material: extra
+        for bag_name, (material, extra) in inventory_pure.BAG_DEFINITIONS.items()
+        if int(bank.get(bag_name, 0) or 0) > 0
+    }
+
+
 def _repack_view_for_target(
     is_processing: bool,
     advanced: bool,
@@ -337,7 +346,13 @@ def _repack_view_for_target(
     if advanced:
         return inventory_pure.apply_carried_layout_pure(bank, layout, capacity, _OVERLAY_STACKABLE_NAMES)
     if is_processing:
-        return inventory_pure.pack_processing_inputs_pure(bank, requirements, capacity, _OVERLAY_STACKABLE_NAMES)
+        # Pack against the real 28 slots and let the packer model the bag (which
+        # holds its material in one slot). Inflating `capacity` instead would hand
+        # the extra room to every material, not just the bagged one.
+        return inventory_pure.pack_processing_inputs_pure(
+            bank, requirements, inventory_pure.CARRIED_CAPACITY,
+            _OVERLAY_STACKABLE_NAMES, _owned_bag_capacities(bank),
+        )
     return {}
 
 
