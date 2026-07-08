@@ -79,10 +79,10 @@ ol.dec li b{color:var(--text);font-weight:500;}
       <h3>Casual (default) <span class="pill on">shipped</span></h3>
       <p class="role">Auto-managed. The simplified supplies panel (already on the Equipment tab) plus a packing-mode preset. You never arrange anything; bank runs pack themselves. <b>This stays</b> as the non-advanced experience.</p>
       <div class="supplies">
-        <div class="row"><span>Packing mode</span><b>Balanced ▾</b></div>
-        <div class="row"><span>Food</span><b>auto (to threshold)</b></div>
-        <div class="row"><span>Potions / Ammo / Runes</span><b>auto</b></div>
-        <div class="sel">bank run → "banked: 20 food / 8 coal · +1 review"</div>
+        <div class="row"><span>Pack contents</span><b>inferred</b></div>
+        <div class="row"><span>Processing inputs</span><b>even split, capped by bank</b></div>
+        <div class="row"><span>Gathering</span><b>fills from actions</b></div>
+        <div class="sel">bank run → approximate (~28 actions) · +1 review</div>
       </div>
     </div>
     <div class="mode adv">
@@ -132,7 +132,7 @@ ol.dec li b{color:var(--text);font-weight:500;}
   <ol class="dec">
     <li><b>Teeth for everyone.</b> The 28-slot limit is real; bank runs cost reviews. A bag is worth exactly a bank run.</li>
     <li><b>Overlay, not replacement.</b> Flat bank stays the source of truth; the 28 slots are a capacity+ordering layer over it. Bank is infinite.</li>
-    <li><b>Shared execution, swappable policy.</b> Bank runs always auto-execute. Casual = preset dropdown; <b>advanced = arrange the 4×7 once, auto-executed.</b></li>
+    <li><b>Shared execution, swappable policy.</b> Bank runs always auto-execute. Casual = inferred pack (even-split processing inputs / action-filled gathering); <b>advanced = arrange the 4×7 once, auto-executed.</b> (The design floated a preset dropdown, but it had no competing categories to arbitrate for skilling and was cut — see the ledger.)</li>
     <li><b>Advanced yields more</b> — but a small ~10–20% edge, never a 2× gulf that punishes casuals.</li>
     <li><b>Input + output teeth, unified.</b> The same 28 slots are drawn from (food/inputs) and deposited to (gathered/loot).</li>
     <li><b>Stackable = one slot;</b> bags pack an unstackable material into one slot — the entire reason bags exist.</li>
@@ -147,7 +147,7 @@ ol.dec li b{color:var(--text);font-weight:500;}
     <tr><td><b>Teeth / bank runs cost reviews</b></td><td><span class="st done">shipped</span></td><td>Churn meter + <code>bank_run_progress_pure</code>; combat 2, skilling 1.</td></tr>
     <tr><td><b>Overlay over flat bank</b></td><td><span class="st done">shipped</span></td><td>View over the flat store; bank infinite.</td></tr>
     <tr><td><b>Input + output unified teeth</b></td><td><span class="st done">shipped</span></td><td>Churn <code>max(gained, consumed)</code>.</td></tr>
-    <tr><td><b>Casual packing presets</b></td><td><span class="st done">shipped</span></td><td>Balanced / Max-output / Max-safety via <code>pack_carried_inventory_pure</code> + dropdown.</td></tr>
+    <tr><td><b>Casual packing (inferred)</b></td><td><span class="st done">shipped</span></td><td>Even-split processing inputs (<code>pack_processing_inputs_pure</code>) / action-filled gathering. The Balanced/Max-output/Max-safety dropdown was cut — no competing categories for skilling, and combat runs its own supply system.</td></tr>
     <tr><td><b>Keep/Drop per target</b></td><td><span class="st done">shipped</span></td><td>Toggle in the panel (gathering skills).</td></tr>
     <tr><td><b>Loot filter + threshold + per-drop</b></td><td><span class="st done">shipped</span></td><td>Full 10.7k cache value table; per-drop Auto/Keep/Leave in combat.</td></tr>
     <tr><td><b>Death drops the pack</b></td><td><span class="st done">shipped</span></td><td>Carried view graved + removed from bank.</td></tr>

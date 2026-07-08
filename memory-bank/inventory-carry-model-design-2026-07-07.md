@@ -457,7 +457,21 @@ death (authentic) and its accumulation contributes to triggering bank runs
 alongside food/supply depletion. v1 is fully buildable now (cache value is in
 hand).
 
-### Preset modes (proposal — casual dropdown)
+### Preset modes — CUT (2026-07-07, later)
+
+> **Superseded.** The Balanced/Max-output/Max-safety dropdown described below was
+> built and then removed. As the note itself predicted ("presets only bite where
+> categories compete"), skilling has no competing categories to arbitrate — its
+> casual pack is just *inferred* (`pack_processing_inputs_pure` splits a recipe's
+> inputs evenly; gathering fills from actions) — and the one place presets would
+> bite, combat, runs an entirely separate `combat_supply_loadout` system that was
+> never wired to the mode. The dropdown was therefore a control that changed
+> nothing: `pack_carried_inventory_pure` (its only mode-varying implementation)
+> was called from nowhere but its own tests. Owner call: skilling should "just
+> infer and have simulated/approximate bank runs"; tuning lives in the advanced
+> 4×7 grid instead. Removed the dropdown, callback, `carried_pack_mode` state,
+> and `pack_carried_inventory_pure`. The original proposal is kept below for the
+> record.
 
 Presets only bite where categories compete (combat food/potions/supplies;
 gathering-with-bags). For pure single-material processing they're moot (you
