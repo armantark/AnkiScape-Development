@@ -1277,31 +1277,39 @@ def _set_combat_death_office_items(data, items, source="combat_death_office"):
 
 
 def _carried_inventory_grave_counts(data):
-    """Unbanked carried item counts across all targets ({item: total count}).
+    """What is actually in hand at death ({item: count}) — the carried view of the
+    target being fought, i.e. the loot from this trip.
 
-    Death drops the carried inventory (coins/quest already excluded from the view)
-    into the grave alongside equipment. Only one target is active at a time but the
-    per-target views persist, so their union is what is "in hand" and at risk.
+    NOT the union of every target's view. `carried_inventory` keeps a saved pack per
+    target, so a player who has trained Firemaking, Cooking, and Smithing has a
+    dormant ~28-item pack sitting under each of those target ids. Draining all of
+    them on a combat death both dropped materials from skills the player was not
+    doing and staged more than 28 slots of items — more than one inventory can hold.
+    A dormant pack is a loadout resting in the bank, not something you are carrying.
     """
     carried = data.get("carried_inventory")
-    counts = {}
     if not isinstance(carried, Mapping):
-        return counts
-    for view in carried.values():
-        if not isinstance(view, Mapping):
-            continue
-        for item_name, count in view.items():
-            if isinstance(item_name, str):
-                counts[item_name] = counts.get(item_name, 0) + _non_negative_int(count, 0)
-    return {item_name: count for item_name, count in counts.items() if count > 0}
+        return {}
+    target_id = data.get("current_combat_target")
+    view = carried.get(target_id) if isinstance(target_id, str) else None
+    if not isinstance(view, Mapping):
+        return {}
+    counts = {}
+    for item_name, count in view.items():
+        if isinstance(item_name, str):
+            amount = _non_negative_int(count, 0)
+            if amount > 0:
+                counts[item_name] = amount
+    return counts
 
 
 def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_death"):
     equipment = dict(data.get("equipment", {}) or {})
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     # Carried items are a view over the flat store: remove them from the bank and
-    # drop them into the grave, expanded one grave entry per unit. The overlay
-    # resets on death.
+    # drop them into the grave, expanded one grave entry per unit. Only the view of
+    # the target being fought is at risk — other targets' saved packs are loadouts
+    # resting in the bank, not carried, so they must survive the death.
     carried_counts = _carried_inventory_grave_counts(data)
     if carried_counts:
         inventory = dict(data.get("inventory", {}) or {})
@@ -1309,9 +1317,14 @@ def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_de
             inventory[item_name] = max(0, _non_negative_int(inventory.get(item_name, 0), 0) - count)
             grave_items.extend([item_name] * count)
         data["inventory"] = inventory
-    data["carried_inventory"] = {}
-    data["carried_churn"] = {}
-    data["skilling_bank_run"] = {}
+    fought_target = data.get("current_combat_target")
+    if isinstance(fought_target, str):
+        for map_key in ("carried_inventory", "carried_churn"):
+            container = data.get(map_key)
+            if isinstance(container, Mapping) and fought_target in container:
+                container = dict(container)
+                container.pop(fought_target, None)
+                data[map_key] = container
     existing_grave_items = _combat_grave_items(data.get("combat_grave", {}) or {})
     if existing_grave_items:
         existing_office_items = _combat_death_office_items(data.get("death_office", {}) or {})

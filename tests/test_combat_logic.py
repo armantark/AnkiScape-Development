@@ -3456,15 +3456,23 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(died["death_office"]["items"], ["Cape", "Bronze sword"])
         self.assertEqual(died["death_office"]["reclaim_cost"], 200)
 
-    def test_combat_death_drops_carried_inventory_into_grave(self):
+    def test_combat_death_drops_only_the_fought_targets_loot_not_dormant_packs(self):
+        # Only the trip you are ON is in hand. `carried_inventory` also holds a saved
+        # pack per skilling target; those are loadouts resting in the bank. Draining
+        # them on a combat death dropped materials from skills the player was not
+        # doing, and staged more than 28 slots of items — more than one inventory
+        # can physically hold.
         player = _player(
             current_combat_target="killer",
             attack_level=1,
             strength_level=1,
             combat_lifepoints=1,
             equipment={"weapon": "Iron sword"},
-            inventory={"Coal": 30, "Coins": 100},
-            carried_inventory={"copper_ore": {"Coal": 28}},
+            inventory={"Bones": 10, "Coal": 30, "Coins": 100},
+            carried_inventory={
+                "killer": {"Bones": 3},        # loot from THIS fight -> at risk
+                "copper_ore": {"Coal": 28},    # dormant Mining pack -> must survive
+            },
             carried_churn={"copper_ore": 28},
             skilling_bank_run={"reviews_remaining": 1, "target_id": "copper_ore"},
         )
@@ -3479,17 +3487,18 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertTrue(ok)
         self.assertTrue(result["died"])
-        # Carried coal joins the equipment in the grave, one entry per unit.
-        self.assertEqual(died["combat_grave"]["items"].count("Coal"), 28)
+        # This fight's loot joins the equipment in the grave, one entry per unit.
+        self.assertEqual(died["combat_grave"]["items"].count("Bones"), 3)
         self.assertIn("Iron sword", died["combat_grave"]["items"])
-        # Carried items are a view over the flat store, so they leave the bank;
-        # coins (the money pouch) are untouched.
-        self.assertEqual(died["inventory"]["Coal"], 2)
+        # Looted bones are a view over the flat store, so they leave the bank.
+        self.assertEqual(died["inventory"]["Bones"], 7)
+        # The dormant Mining pack is untouched: coal stays banked, pack survives.
+        self.assertEqual(died["inventory"]["Coal"], 30)
+        self.assertEqual(died["carried_inventory"], {"copper_ore": {"Coal": 28}})
+        self.assertEqual(died["carried_churn"], {"copper_ore": 28})
+        self.assertEqual(died["skilling_bank_run"], {"reviews_remaining": 1, "target_id": "copper_ore"})
+        # Coins (the money pouch) are never carried.
         self.assertEqual(died["inventory"]["Coins"], 100)
-        # The overlay resets on death.
-        self.assertEqual(died["carried_inventory"], {})
-        self.assertEqual(died["carried_churn"], {})
-        self.assertEqual(died["skilling_bank_run"], {})
 
     def test_death_office_reclaim_consumes_coins_and_returns_items_to_inventory(self):
         player = _player(
