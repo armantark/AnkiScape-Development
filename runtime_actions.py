@@ -736,8 +736,13 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         else:
             ctx.show_activity_gain(f"☠ YOU DIED — killed by {display_name}; gear moved to grave")
     elif result.get("fled"):
+        # Auto-flee is the "you can't win this" signal: switch combat off entirely
+        # (current_skill -> "None"), exactly like running out of materials for an
+        # artisan activity, so the next review doesn't walk straight back into the
+        # same losing fight. The player re-opens the menu to resume.
+        ctx.deactivate_current_skill()
         prefix = f"Defeated {kill_phrase}, then f" if kills > 0 else "F"
-        ctx.show_activity_gain(f"{prefix}led {display_name} — out of food, auto-fled to survive")
+        ctx.show_activity_gain(f"{prefix}led {display_name} — out of food; combat switched off to stop you dying")
     elif kills > 0:
         ctx.show_activity_gain(f"Defeated {kill_phrase}")
     else:
