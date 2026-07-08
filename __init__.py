@@ -50,6 +50,7 @@ from .logic_pure import (
     apply_claim_pure,
     apply_safe_combat_recovery_pure,
     set_combat_auto_eat_threshold_pure,
+    set_combat_pack_mode_pure,
     set_combat_auto_eat_food_pure,
     refill_combat_supply_loadout_pure,
     unload_combat_supply_loadout_pure,
@@ -848,6 +849,7 @@ def _on_main_menu():
         on_set_combat_style=lambda style: _set_value("combat_attack_style", style),
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
         on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
+        on_set_combat_pack_mode=on_set_combat_pack_mode,
         on_set_combat_auto_eat_food=on_set_combat_auto_eat_food,
         on_refill_combat_loadout=on_refill_combat_loadout,
         on_unload_combat_loadout=on_unload_combat_loadout,
@@ -902,6 +904,11 @@ def _save_combat_state_update(new_data):
 
 def on_set_combat_auto_eat_threshold(threshold_percent):
     _save_combat_state_update(set_combat_auto_eat_threshold_pure(player_data, threshold_percent))
+    return True
+
+
+def on_set_combat_pack_mode(mode):
+    _save_combat_state_update(set_combat_pack_mode_pure(player_data, mode))
     return True
 
 

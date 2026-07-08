@@ -1674,6 +1674,7 @@ def show_main_menu(
     on_set_combat_spell=None,
     on_set_combat_auto_eat_threshold=None,
     on_set_combat_auto_eat_food=None,
+    on_set_combat_pack_mode=None,
     on_refill_combat_loadout=None,
     on_unload_combat_loadout=None,
     on_reclaim_death_office=None,
@@ -2279,6 +2280,28 @@ def show_main_menu(
         auto_eat_layout.addWidget(threshold_label)
         auto_eat_layout.addWidget(threshold_spin, 1)
         layout.addWidget(auto_eat_row)
+
+        # Supply mode allocates the 28-slot food+stat-potion budget: max-safety
+        # fills up on food, max-output trades food for damage potions.
+        supply_mode_row = QWidget()
+        supply_mode_layout = QHBoxLayout(supply_mode_row)
+        supply_mode_layout.setContentsMargins(0, 0, 0, 0)
+        supply_mode_layout.setSpacing(8)
+        supply_mode_label = QLabel("Supply mode")
+        supply_mode_label.setStyleSheet("color: palette(text);")
+        supply_mode_combo = QComboBox()
+        supply_mode_combo.setObjectName("combatPackModeCombo")
+        for _label, _mode_id in (("Balanced", "balanced"), ("Max output", "max_output"), ("Max safety", "max_safety")):
+            supply_mode_combo.addItem(_label, _mode_id)
+        _current_pack_mode = str(player_data.get("combat_pack_mode", "balanced"))
+        supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(_current_pack_mode)))
+        if on_set_combat_pack_mode is not None:
+            supply_mode_combo.currentIndexChanged.connect(
+                lambda _index: on_set_combat_pack_mode(supply_mode_combo.currentData() or "balanced")
+            )
+        supply_mode_layout.addWidget(supply_mode_label)
+        supply_mode_layout.addWidget(supply_mode_combo, 1)
+        layout.addWidget(supply_mode_row)
 
         supply_summary = QLabel(_combat_loadout_summary_text(player_data))
         supply_summary.setObjectName("combatLoadoutSummaryLabel")

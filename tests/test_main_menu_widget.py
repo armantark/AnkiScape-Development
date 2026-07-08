@@ -711,6 +711,29 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(clear_calls, [True])
         dialog.deleteLater()
 
+    def test_combat_supply_mode_dropdown_present_and_wired(self) -> None:
+        from aqt.qt import QComboBox
+
+        calls: list = []
+        player = _make_player_data()
+        player["combat_pack_mode"] = "balanced"
+        dialog = self._open(
+            player,
+            current_skill="Combat",
+            on_set_combat_pack_mode=lambda mode: calls.append(mode),
+        )
+        combo = dialog.findChild(QComboBox, "combatPackModeCombo")
+        self.assertIsNotNone(combo, "combat supply-mode dropdown missing")
+        self.assertEqual(
+            [combo.itemData(i) for i in range(combo.count())],
+            ["balanced", "max_output", "max_safety"],
+        )
+        self.assertEqual(combo.currentData(), "balanced")
+        combo.setCurrentIndex(combo.findData("max_output"))
+        QApplication.processEvents()
+        self.assertIn("max_output", calls)
+        dialog.deleteLater()
+
     def test_carried_layout_grid_absent_without_a_skilling_target(self) -> None:
         from aqt.qt import QCheckBox, QWidget
 
