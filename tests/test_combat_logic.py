@@ -36,6 +36,7 @@ from combat_data import (
 )
 from constants import EQUIPMENT_DATA
 from logic_pure import (
+    _combat_apply_pvm_death,
     _combat_roll_drops,
     _combat_enemy_attack_class,
     _combat_enemy_bonuses,
@@ -243,6 +244,35 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(sum(player["combat_supply_loadout"]["potions"].values()), 2)
         self.assertEqual(player["inventory"]["Antipoison (4)"], 48)
 
+    def test_a_stale_carried_view_cannot_duplicate_items_through_the_grave(self):
+        # The view is a view over the bank, but the bank can shrink underneath it:
+        # discard the looted bones, sell them, or eat looted food. Graving what the
+        # view *claims* rather than what the bank *holds* would mint the difference
+        # when the grave is reclaimed. Loot 10 bones, discard 8, die -> grave 2.
+        player = {
+            "inventory": {"Bones": 2}, "equipment": {}, "constitution_level": 10,
+            "current_combat_target": "chicken",
+            "carried_inventory": {"chicken": {"Bones": 10}},  # view outlived the items
+            "carried_churn": {}, "skilling_bank_run": {},
+        }
+        _combat_apply_pvm_death(player, 100)
+        self.assertEqual(player["combat_grave"]["items"].count("Bones"), 2)
+        self.assertEqual(player["inventory"]["Bones"], 0)
+
+    def test_a_stale_carried_view_does_not_occupy_phantom_loot_slots(self):
+        # 20 food + a view claiming 8 trophies the bank no longer has must not fire a
+        # bank run: those slots are not really occupied, and banking has nothing to
+        # deposit.
+        player = self._melee(
+            combat_supply_loadout={"food": {"Shark": 20}},
+            current_combat_target="chicken",
+            inventory={},  # the trophies were sold/discarded
+            carried_inventory={"chicken": {f"Trophy {i}": 1 for i in range(8)}},
+        )
+        _out, _ok, result = apply_combat_burst_pure(
+            player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertNotEqual(result.get("reason"), "combat_bank_run")
+
     def test_a_full_supply_loadout_with_no_loot_never_forces_a_bank_run(self):
         # Banking only deposits loot, so with nothing to deposit a "full" inventory
         # cannot be relieved by banking — it must not trigger one.
@@ -263,12 +293,20 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
             combat_supply_loadout={"food": {"Shark": 20}},
             current_combat_target="chicken",
         )
-        under = dict(base, carried_inventory={"chicken": {f"Trophy {i}": 1 for i in range(7)}})
-        _out, ok, result = apply_combat_burst_pure(under, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+
+        # Kept loot lives in the bank too (the view is a view over it), so the
+        # fixture must back every carried trophy with a real banked item.
+        def _with_loot(n):
+            trophies = {f"Trophy {i}": 1 for i in range(n)}
+            return dict(
+                base,
+                inventory=dict(base.get("inventory", {}) or {}, **trophies),
+                carried_inventory={"chicken": trophies},
+            )
+        _out, ok, result = apply_combat_burst_pure(_with_loot(7), COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
         self.assertNotEqual(result.get("reason"), "combat_bank_run")
 
-        over = dict(base, carried_inventory={"chicken": {f"Trophy {i}": 1 for i in range(8)}})
-        _out2, ok2, result2 = apply_combat_burst_pure(over, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        _out2, ok2, result2 = apply_combat_burst_pure(_with_loot(8), COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
         self.assertEqual(result2.get("reason"), "combat_bank_run")  # 20 + 8 = 28 -> bank
 
     def test_pack_mode_allocates_the_food_and_potion_budget(self):

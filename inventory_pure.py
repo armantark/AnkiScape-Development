@@ -468,6 +468,30 @@ def carried_advanced_for(player_data: Mapping[str, Any], target_id: str) -> bool
     return bool(isinstance(advanced, Mapping) and advanced.get(target_id))
 
 
+def clamp_carried_view_to_bank(view: Any, bank: Any) -> dict[str, int]:
+    """A carried view capped by what the bank actually still holds.
+
+    The view is a *view over the flat store*, never a second store — but the bank
+    can shrink underneath it without the view knowing (discarding an item, selling
+    it to a shop, eating looted food, a quest consuming it, another skill spending
+    the same material). Too many mutation sites to defend individually, so the
+    invariant `view <= bank` is enforced wherever the view is read for real effect.
+    Without this, a view that outlived its items would grave more than existed and
+    mint the difference on reclaim.
+    """
+    if not isinstance(view, Mapping):
+        return {}
+    bank = bank if isinstance(bank, Mapping) else {}
+    clamped: dict[str, int] = {}
+    for item_name, count in view.items():
+        if not isinstance(item_name, str):
+            continue
+        amount = min(_clean_int(count, 0, minimum=0), _clean_int(bank.get(item_name), 0, minimum=0))
+        if amount > 0:
+            clamped[item_name] = amount
+    return clamped
+
+
 def carried_keep_for(player_data: Mapping[str, Any], target_id: str) -> bool:
     """Whether a gathering target keeps its product (default) or drops it."""
     if not isinstance(player_data, Mapping):
@@ -480,7 +504,18 @@ def carried_keep_for(player_data: Mapping[str, Any], target_id: str) -> bool:
 
 def sanitize_carried_state(player_data: MutableMapping[str, Any]) -> None:
     defaults = default_carried_state()
-    player_data["carried_inventory"] = _sanitize_carried_inventory(player_data.get("carried_inventory"))
+    carried = _sanitize_carried_inventory(player_data.get("carried_inventory"))
+    # Self-heal on load: a view may have outlived its items (an item discarded,
+    # sold, or eaten out of the bank between sessions). Clamp every view so no
+    # downstream reader ever sees a pack claiming more than the bank holds.
+    bank = player_data.get("inventory")
+    if isinstance(bank, Mapping):
+        carried = {
+            target_id: clamped
+            for target_id, view in carried.items()
+            if (clamped := clamp_carried_view_to_bank(view, bank))
+        }
+    player_data["carried_inventory"] = carried
 
     raw_churn = player_data.get("carried_churn")
     player_data["carried_churn"] = (

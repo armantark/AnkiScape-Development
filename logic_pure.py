@@ -10,9 +10,9 @@ except ImportError:
     from equipment_data import EQUIPMENT_BONUS_FIELDS, EquipmentBonuses
 
 try:
-    from .inventory_pure import CARRIED_CAPACITY, carried_slots_used
+    from .inventory_pure import CARRIED_CAPACITY, carried_slots_used, clamp_carried_view_to_bank
 except ImportError:
-    from inventory_pure import CARRIED_CAPACITY, carried_slots_used
+    from inventory_pure import CARRIED_CAPACITY, carried_slots_used, clamp_carried_view_to_bank
 
 try:
     from .item_values import STACKABLE_ITEM_NAMES
@@ -1294,13 +1294,10 @@ def _carried_inventory_grave_counts(data):
     view = carried.get(target_id) if isinstance(target_id, str) else None
     if not isinstance(view, Mapping):
         return {}
-    counts = {}
-    for item_name, count in view.items():
-        if isinstance(item_name, str):
-            amount = _non_negative_int(count, 0)
-            if amount > 0:
-                counts[item_name] = amount
-    return counts
+    # Clamp to what the bank still holds. The view can outlive its items (discard,
+    # shop sale, eating looted food), and graving more than existed would mint the
+    # difference when the grave is reclaimed.
+    return clamp_carried_view_to_bank(view, data.get("inventory"))
 
 
 def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_death"):
@@ -2047,14 +2044,16 @@ def _combat_banked_antipoison_count(data):
 
 
 def _combat_loot_slots(data, target_id):
-    """Carried slots the kept combat loot for this target occupies."""
+    """Carried slots the kept combat loot for this target occupies. Clamped to the
+    bank so loot the player has since sold/discarded/eaten cannot occupy phantom
+    slots and force a bank run that has nothing to deposit."""
     if not isinstance(target_id, str):
         return 0
     carried = data.get("carried_inventory")
     view = carried.get(target_id) if isinstance(carried, Mapping) else None
     if not isinstance(view, Mapping):
         return 0
-    return carried_slots_used(view, STACKABLE_ITEM_NAMES)
+    return carried_slots_used(clamp_carried_view_to_bank(view, data.get("inventory")), STACKABLE_ITEM_NAMES)
 
 
 def _combat_deposit_loot(data, target_id):
