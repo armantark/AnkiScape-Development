@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import re
 import sys
 from dataclasses import dataclass
@@ -94,6 +95,13 @@ ATTACK_TYPES = {
     "TYPE_TWO_HAND_SWORD",
 }
 RANGED_TYPES = {"TYPE_THROWING_KNIFE"}
+COMBAT_SKILL_IDS: Mapping[int, str] = {
+    0: "attack",
+    1: "defense",
+    2: "strength",
+    4: "ranged",
+    6: "magic",
+}
 FALLBACK_SLOT_BY_SMITHING_TYPE: Mapping[str, SlotId] = {
     "TYPE_MEDIUM_HELM": "head",
     "TYPE_FULL_HELM": "head",
@@ -320,6 +328,43 @@ def _combat_requirements(combat_skill: Optional[str], required_level: int) -> Tu
     return ((combat_skill, required_level),)
 
 
+def _source_skill_requirements(block: Optional[Mapping[str, BonusValue]]) -> Tuple[Tuple[str, int], ...]:
+    raw_requirements = block.get("skill_reqs") if block is not None else None
+    if not isinstance(raw_requirements, str):
+        return ()
+    try:
+        parsed = ast.literal_eval(raw_requirements)
+    except (SyntaxError, ValueError):
+        return ()
+    requirements = []
+    if not isinstance(parsed, list):
+        return ()
+    for requirement in parsed:
+        if not isinstance(requirement, dict):
+            continue
+        skill_id = requirement.get("skill")
+        level = requirement.get("level")
+        if not isinstance(skill_id, int) or not isinstance(level, int):
+            continue
+        skill = COMBAT_SKILL_IDS.get(skill_id)
+        if skill is not None and level > 1:
+            requirements.append((skill, level))
+    return tuple(requirements)
+
+
+def _source_required_level(
+    combat_skill: Optional[str],
+    skill_requirements: Tuple[Tuple[str, int], ...],
+) -> int:
+    if not skill_requirements:
+        return 1
+    if combat_skill is not None:
+        for skill, level in skill_requirements:
+            if skill == combat_skill:
+                return level
+    return max(level for _, level in skill_requirements)
+
+
 def _equipment_type_for_recipe(item_name: str, slot: SlotId) -> str:
     if item_name in RANGED_BOW_EQUIPMENT:
         return RANGED_BOW_EQUIPMENT[item_name][1]
@@ -332,6 +377,37 @@ def _required_level_for_recipe_equipment(item_name: str, combat_skill: Optional[
     if combat_skill is None:
         return 1
     return recipe_level if isinstance(recipe_level, int) else 1
+
+
+def _canonical_equipment_item_name(source_item: SourceItem) -> str:
+    if _slot_from_source(source_item.equipment, "weapon") == "ammunition" and source_item.name.endswith(" arrow"):
+        return f"{source_item.name}s"
+    return source_item.name
+
+
+def _equipment_item_from_source_item(source_item: SourceItem, source_note: str) -> Optional[GeneratedEquipmentItem]:
+    block = source_item.equipment
+    if not _has_mappable_equipment_slot(block):
+        return None
+    slot = _slot_from_source(block, "weapon")
+    bonuses = _bonuses_from_block(block)
+    combat_skill = _combat_skill_for_recipe_equipment(slot, bonuses)
+    skill_requirements = _source_skill_requirements(block)
+    required_level = _source_required_level(combat_skill, skill_requirements)
+    return GeneratedEquipmentItem(
+        item_name=_canonical_equipment_item_name(source_item),
+        slot=slot,
+        combat_skill=combat_skill,
+        required_level=required_level,
+        two_handed=_int_from_block(block, "equip_type", -1) == 5,
+        equipment_type=_equipment_type_for_recipe(source_item.name, slot),
+        bonuses=bonuses,
+        attack_speed=_int_from_block(block, "attack_speed", 0),
+        source_item_id=source_item.item_id,
+        source=f"{ITEMS_YML_RELATIVE.as_posix()} item {source_item.item_id}; {source_note}",
+        source_status="items.yml equipment block",
+        skill_requirements=skill_requirements,
+    )
 
 
 def _recipe_equipment_item(
@@ -442,6 +518,121 @@ def _fletching_equipment_items(
         equipment_item = _recipe_equipment_item(recipe_key, recipe, items, items_by_name)
         if equipment_item is not None:
             generated.append(equipment_item)
+    return tuple(generated)
+
+
+def _smithing_recipe_equipment_items(
+    items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    """Emit equipment for every smithable output with an equip block.
+
+    The type-based ``_smithing_equipment_items`` selector maps armour and weapon
+    families but skips smithable tools that are also wieldable (e.g. hatchets), so
+    higher tiers that nothing drops fall through. Merged last, this only adds the
+    net-new names that source-obtainable smithing recipes would otherwise miss.
+    """
+    try:
+        from constants import SMITHING_DATA
+    except ImportError as exc:
+        raise RuntimeError("Run this script from the add-on root so constants.py is importable.") from exc
+
+    generated = []
+    for recipe_key, recipe in SMITHING_DATA.items():
+        equipment_item = _recipe_equipment_item(recipe_key, recipe, items, items_by_name)
+        if equipment_item is not None:
+            generated.append(equipment_item)
+    return tuple(generated)
+
+
+def _resolve_source_item_by_name(
+    item_name: object,
+    items_by_name: Mapping[str, SourceItem],
+) -> Optional[SourceItem]:
+    if not isinstance(item_name, str) or not item_name:
+        return None
+    source_item = items_by_name.get(item_name)
+    if source_item is not None:
+        return source_item
+    for candidate in (f"{item_name}s", f"{item_name}es"):
+        source_item = items_by_name.get(candidate)
+        if source_item is not None:
+            return source_item
+    if item_name.endswith(" arrows"):
+        source_item = items_by_name.get(f"{item_name[:-7]} arrow")
+        if source_item is not None:
+            return source_item
+    if item_name.endswith("y"):
+        source_item = items_by_name.get(f"{item_name[:-1]}ies")
+        if source_item is not None:
+            return source_item
+    return None
+
+
+def _shop_equipment_items(
+    items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    try:
+        from shop_data import SHOP_DATA
+    except ImportError as exc:
+        raise RuntimeError("Run this script from the add-on root so shop_data.py is importable.") from exc
+
+    generated = []
+    for shop in SHOP_DATA.values():
+        shop_name = shop.get("display_name") or shop.get("source_name") or shop.get("id") or "shop stock"
+        for stock_item in shop.get("stock", ()):
+            if not isinstance(stock_item, Mapping):
+                continue
+            item_id = stock_item.get("item_id")
+            source_item = items.get(item_id) if isinstance(item_id, int) else None
+            if source_item is None:
+                source_item = _resolve_source_item_by_name(stock_item.get("item_name"), items_by_name)
+            if source_item is None:
+                continue
+            equipment_item = _equipment_item_from_source_item(source_item, f"SHOP_DATA stock; {shop_name}")
+            if equipment_item is not None:
+                generated.append(equipment_item)
+    return tuple(generated)
+
+
+def _drop_equipment_items(
+    items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    try:
+        from combat_data import COMBAT_ENEMY_DATA
+    except ImportError as exc:
+        raise RuntimeError("Run this script from the add-on root so combat_data.py is importable.") from exc
+
+    generated = []
+    for enemy in COMBAT_ENEMY_DATA.values():
+        enemy_name = enemy.get("display_name") or enemy.get("name") or enemy.get("id") or "combat drop"
+        drops = enemy.get("drops") or {}
+        if not isinstance(drops, Mapping):
+            continue
+        for guaranteed_drop in drops.get("guaranteed", ()):
+            if not guaranteed_drop:
+                continue
+            source_item = _resolve_source_item_by_name(guaranteed_drop[0], items_by_name)
+            if source_item is None:
+                continue
+            equipment_item = _equipment_item_from_source_item(source_item, f"COMBAT_ENEMY_DATA guaranteed drop; {enemy_name}")
+            if equipment_item is not None:
+                generated.append(equipment_item)
+        for table in drops.get("tables", ()):
+            if not isinstance(table, Mapping):
+                continue
+            table_name = table.get("name") or "drop table"
+            for slot in table.get("slots", ()):
+                if not isinstance(slot, Mapping):
+                    continue
+                source_item = _resolve_source_item_by_name(slot.get("item"), items_by_name)
+                if source_item is None:
+                    continue
+                equipment_item = _equipment_item_from_source_item(
+                    source_item,
+                    f"COMBAT_ENEMY_DATA table drop; {enemy_name}; {table_name}",
+                )
+                if equipment_item is not None:
+                    generated.append(equipment_item)
     return tuple(generated)
 
 
@@ -661,6 +852,9 @@ def generate(game_root: Path, output_path: Path) -> None:
         + tuple(_legacy_equipment_items(items))
         + tuple(_crafting_equipment_items(items, items_by_name))
         + tuple(_fletching_equipment_items(items, items_by_name))
+        + tuple(_shop_equipment_items(items, items_by_name))
+        + tuple(_drop_equipment_items(items, items_by_name))
+        + tuple(_smithing_recipe_equipment_items(items, items_by_name))
     )
     output_path.write_text(_render_module(equipment_items), encoding="utf-8")
 

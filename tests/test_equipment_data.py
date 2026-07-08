@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 227)
+        self.assertEqual(len(EQUIPMENT_DATA), 553)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -30,6 +30,9 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Leather boots"].slot, "feet")
         self.assertEqual(EQUIPMENT_DATA["Bronze arrows"].slot, "ammunition")
         self.assertEqual(EQUIPMENT_DATA["Gold ring"].slot, "ring")
+        # Smithable-but-undropped wieldable tools reach the roster via the
+        # smithing-recipe source, not the type-based armour/weapon selector.
+        self.assertEqual(EQUIPMENT_DATA["Rune hatchet"].slot, "weapon")
 
     def test_smithed_armour_and_weapon_requirements(self):
         self.assertEqual(EQUIPMENT_DATA["Bronze platebody"].slot, "body")
@@ -182,16 +185,61 @@ class TestEquipmentData(unittest.TestCase):
         as_dict = equipment_items_as_dict()
         self.assertEqual(as_dict["Fire battlestaff"]["skill_requirements"], (("attack", 30), ("magic", 30)))
 
-    def test_components_and_gathering_tools_are_excluded(self):
+    def test_shop_and_combat_drop_equipment_items_are_equippable(self):
+        expected_items = {
+            "Bronze boots": ("feet", 4119, 1, 1, 2, 3, 0),
+            "Iron boots": ("feet", 4121, 1, 2, 3, 4, 0),
+            "Rune boots": ("feet", 4131, 40, 12, 13, 14, 2),
+            "Dragon med helm": ("head", 1149, 60, 33, 35, 32, 0),
+            "Abyssal whip": ("weapon", 4151, 70, 0, 0, 0, 82),
+            "Mystic gloves": ("hands", 4095, 20, 0, 0, 0, 0),
+            "Obsidian cape": ("cape", 6568, 1, 9, 9, 9, 0),
+        }
+        for item_name, (slot, source_item_id, required_level, stab_def, slash_def, crush_def, strength) in expected_items.items():
+            with self.subTest(item_name=item_name):
+                item = EQUIPMENT_DATA[item_name]
+                self.assertEqual(item.slot, slot)
+                self.assertEqual(item.source_item_id, source_item_id)
+                self.assertEqual(item.required_level, required_level)
+                self.assertEqual(item.attack_speed, 4)
+                self.assertEqual(item.bonuses.defence_stab, stab_def)
+                self.assertEqual(item.bonuses.defence_slash, slash_def)
+                self.assertEqual(item.bonuses.defence_crush, crush_def)
+                self.assertEqual(item.bonuses.melee_strength, strength)
+
+        self.assertEqual(EQUIPMENT_DATA["Abyssal whip"].bonuses.attack_slash, 82)
+        self.assertEqual(EQUIPMENT_DATA["Mystic gloves"].bonuses.attack_magic, 3)
+        self.assertEqual(EQUIPMENT_DATA["Mystic gloves"].bonuses.defence_magic, 3)
+
+    def test_drop_and_shop_ammunition_uses_existing_plural_rows(self):
+        for singular_name in ("Bronze arrow", "Iron arrow"):
+            self.assertNotIn(singular_name, EQUIPMENT_DATA)
+        for plural_name in ("Bronze arrows", "Iron arrows", "Bronze bolts", "Iron bolts"):
+            self.assertIn(plural_name, EQUIPMENT_DATA)
+            self.assertEqual(EQUIPMENT_DATA[plural_name].slot, "ammunition")
+
+    def test_fist_of_guthix_metal_gauntlets_remain_unobtainable(self):
         for item_name in (
-            "Bronze pickaxe",
-            "Bronze hatchet",
+            "Bronze gauntlets",
+            "Iron gauntlets",
+            "Steel gauntlets",
+            "Mithril gauntlets",
+            "Adamant gauntlets",
+            "Rune gauntlets",
+            "Dragon gauntlets",
+        ):
+            self.assertNotIn(item_name, EQUIPMENT_DATA)
+
+    def test_components_are_excluded_but_equippable_shop_tools_are_included(self):
+        for item_name in (
             "Bronze arrowtips",
             "Bronze bolts (unf)",
             "Bronze limbs",
             "Steel studs",
         ):
             self.assertNotIn(item_name, EQUIPMENT_DATA)
+        self.assertEqual(EQUIPMENT_DATA["Bronze pickaxe"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Bronze hatchet"].slot, "weapon")
 
     def test_mining_bonus_items_are_equipment_with_combat_bonuses(self):
         glory = EQUIPMENT_DATA["Amulet of glory (4)"]
