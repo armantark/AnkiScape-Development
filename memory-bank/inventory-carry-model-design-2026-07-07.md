@@ -457,21 +457,33 @@ death (authentic) and its accumulation contributes to triggering bank runs
 alongside food/supply depletion. v1 is fully buildable now (cache value is in
 hand).
 
-### Preset modes — CUT (2026-07-07, later)
+### Preset modes — cut for skilling, rebuilt for combat (2026-07-07, later)
 
-> **Superseded.** The Balanced/Max-output/Max-safety dropdown described below was
-> built and then removed. As the note itself predicted ("presets only bite where
-> categories compete"), skilling has no competing categories to arbitrate — its
-> casual pack is just *inferred* (`pack_processing_inputs_pure` splits a recipe's
-> inputs evenly; gathering fills from actions) — and the one place presets would
-> bite, combat, runs an entirely separate `combat_supply_loadout` system that was
-> never wired to the mode. The dropdown was therefore a control that changed
-> nothing: `pack_carried_inventory_pure` (its only mode-varying implementation)
-> was called from nowhere but its own tests. Owner call: skilling should "just
-> infer and have simulated/approximate bank runs"; tuning lives in the advanced
-> 4×7 grid instead. Removed the dropdown, callback, `carried_pack_mode` state,
-> and `pack_carried_inventory_pure`. The original proposal is kept below for the
-> record.
+> **Resolved in two moves.** First cut: skilling has no competing categories for a
+> mode to arbitrate, so its casual pack is just *inferred* (`pack_processing_inputs_pure`
+> splits a recipe's inputs evenly; gathering fills from actions), tuning lives in
+> the advanced 4×7 grid, and the skilling dropdown + `carried_pack_mode` +
+> `pack_carried_inventory_pure` were removed. Then the owner said the presets **must
+> stay for combat** — which surfaced that they had no real tradeoff there either,
+> because combat banks when *food* runs out and food was the only bulky supply
+> (ammo/runes stack to one slot). So the presets were rebuilt on a real mechanic:
+>
+> - **Slice A — combat auto-drinks stat potions.** `combat_supply_loadout` gained a
+>   `stat_potions` category; `_combat_auto_drink_potions` tops up the style-relevant
+>   boost at burst start (melee: strength+attack, ranged: ranging, magic: magic),
+>   flowing through `combat_current_levels` into max-hit/accuracy. One flask lasts
+>   until its boost decays; supers/fuller flasks first; Combat potion boosts both.
+> - **Slice B — the 28-slot food+potion budget.** `COMBAT_FOOD_LOADOUT_CAPACITY`
+>   (28, previously defined-but-unused — combat loaded unlimited food) is now a real
+>   shared budget. `combat_pack_mode` (combat-scoped state) sets the food cap and
+>   potions fill the rest: max_safety 28/0, balanced 18/10, max_output 8/up-to-20.
+>   That is the genuine tradeoff — max_output carries less food (banks sooner if hit)
+>   but more damage potions, rewarding out-gearing exactly as the design intended.
+> - **Slice C — the dropdown** is back in the *combat setup* panel (not the Bank
+>   carried panel), wired to `combat_pack_mode`.
+>
+> Held-item-vs-mode (moulds/pipe) remains the one deferred piece. The original
+> preset proposal is kept below for the record.
 
 Presets only bite where categories compete (combat food/potions/supplies;
 gathering-with-bags). For pure single-material processing they're moot (you
