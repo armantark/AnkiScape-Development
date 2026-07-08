@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carried Pack IA — Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,0.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;
+  line-height:1.55;padding:48px 24px;max-width:1080px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--green);background:rgba(74,222,128,0.12);
+  border:1px solid rgba(74,222,128,0.3);padding:5px 12px;border-radius:999px}
+h1{font-weight:700;font-size:2.1rem;margin:16px 0 8px;letter-spacing:-0.02em}
+.sub{color:var(--text-dim);font-size:0.98rem;max-width:74ch}
+section{margin-top:44px}
+.h{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px}
+.card h3{font-size:0.95rem;font-weight:500;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.card .desc{color:var(--text-dim);font-size:0.86rem;margin-bottom:14px}
+.tagx{font-family:'JetBrains Mono',monospace;font-size:0.62rem;padding:2px 7px;border-radius:5px;font-weight:600}
+.tagx.done{color:var(--green);background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3)}
+/* metrics */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media(max-width:760px){.metrics{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 16px;text-align:center}
+.metric .n{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:600;color:var(--text)}
+.metric .n.g{color:var(--green)}.metric .n.a{color:var(--accent)}.metric .n.p{color:var(--purple)}
+.metric .l{font-size:0.72rem;color:var(--text-dim);margin-top:4px;text-transform:uppercase;letter-spacing:0.05em}
+/* mock */
+.mock{background:#12161d;border:1px solid var(--border);border-radius:10px;padding:16px;font-size:0.82rem}
+.mock .lbl{font-weight:500;color:var(--text);margin-bottom:8px;font-size:0.86rem}
+.mlabel{font-family:'JetBrains Mono',monospace;font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);margin-bottom:8px}
+.pill{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:0.74rem}
+.pill span{padding:5px 14px}
+.pill .on-keep{background:rgba(74,222,128,0.22);color:#bbf7d0;border-right:1px solid var(--border)}
+.pill .on-drop{background:rgba(255,92,92,0.22);color:#ffc7c7}
+.pill .off{color:var(--text-dim)}
+.pill .divider{border-right:1px solid var(--border)}
+.switch{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:0.74rem}
+.switch span{padding:5px 16px;color:var(--text-dim)}
+.switch .on{background:var(--accent-glow);color:var(--text);border-right:1px solid var(--border)}
+.gridmock{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:180px;margin-top:6px}
+.gcell{aspect-ratio:1;border:1px dashed var(--border);border-radius:5px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--text-dim)}
+.gcell.f{border:1px solid var(--accent);color:var(--text);background:var(--accent-glow)}
+.gcell.plus{border-style:dashed;color:var(--accent);font-size:0.95rem}
+.strike{opacity:0.5;text-decoration:line-through}
+.swap{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center}
+.swaparr{font-size:1.5rem;color:var(--accent);text-align:center}
+ul{list-style:none;margin-top:4px}
+li{padding:5px 0 5px 22px;position:relative;font-size:0.88rem;color:var(--text-dim)}
+li::before{content:"✓";position:absolute;left:2px;top:5px;color:var(--green);font-size:0.8rem;font-weight:600}
+li b{color:var(--text);font-weight:500}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.ft{font-family:'JetBrains Mono',monospace;font-size:0.66rem;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:6px;padding:4px 9px;color:var(--text-dim)}
+.foot{margin-top:48px;color:var(--text-dim);font-size:0.82rem;font-family:'JetBrains Mono',monospace;
+  border-top:1px solid var(--border);padding-top:16px}
+.note{color:var(--text-dim);font-size:0.85rem;margin-top:10px;max-width:74ch}
+.note b{color:var(--text);font-weight:500}
+</style>
+</head>
+<body>
+<span class="badge">Completed · 2026-07-08</span>
+<h1>Carried Pack — IA Redesign Shipped</h1>
+<p class="sub">The advanced-loadout controls were reorganized into two mutually-exclusive views of the same 28 slots. Every change locked in the prior planning round is now live in <code>ui.py</code> and the widget suite is green. Presentation only — no backend, storage, or parity math touched.</p>
+
+<section>
+<div class="h">Verification</div>
+<div class="metrics">
+  <div class="metric"><div class="n g">154</div><div class="l">tests passing</div></div>
+  <div class="metric"><div class="n a">4</div><div class="l">tests rewritten</div></div>
+  <div class="metric"><div class="n p">5</div><div class="l">UI edits shipped</div></div>
+  <div class="metric"><div class="n">0</div><div class="l">backend changes</div></div>
+</div>
+<p class="note"><b>Run:</b> <code>QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest tests.test_main_menu_widget</code> — 154 tests, ~185s, all green. Geometry probes (not screenshots) guard the grid against silent compression, per the offscreen-Qt rule.</p>
+</section>
+
+<section>
+<div class="h">What shipped</div>
+<div class="grid2">
+
+  <div class="card">
+    <h3><span class="tagx done">A · done</span> Binary Keep | Drop pill</h3>
+    <div class="desc">The 3-state <code>‹ Auto/Keep/Leave ›</code> stepper became a two-segment pill. Neither segment lit = Auto (follow the value threshold); clicking a lit segment clears back to Auto.</div>
+    <div class="swap">
+      <div class="mock">
+        <div class="mlabel">before</div>
+        <span class="mono" style="font-size:0.74rem;color:var(--text-dim)">‹ &nbsp;Keep&nbsp; ›</span>
+      </div>
+      <div class="swaparr">→</div>
+      <div class="mock">
+        <div class="mlabel">after</div>
+        <span class="pill"><span class="on-keep">Keep</span><span class="off">Drop</span></span>
+      </div>
+    </div>
+    <div class="tags"><span class="ft">lootOverrideKeep::{item}</span><span class="ft">lootOverrideDrop::{item}</span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="tagx done">B · done</span> Refill gone, Clear added</h3>
+    <div class="desc">Refill was removed — supplies auto-refill at bank runs. Unload became a plain <b>Clear inventory</b> button for switching training targets. State still persists between targets.</div>
+    <div class="mock">
+      <div class="mlabel">supply controls</div>
+      <span class="mono strike" style="font-size:0.74rem">[ Refill supplies ]</span><br>
+      <span class="mono" style="font-size:0.74rem;color:var(--text)">[ Clear inventory ]</span>
+    </div>
+    <div class="tags"><span class="ft">combatClearInventoryButton</span><span class="ft">on_unload_combat_loadout</span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="tagx done">C · done</span> Grid on both tabs</h3>
+    <div class="desc">The 4×7 carried grid now renders in both the Bank and Equipment tabs via one factory built twice. The primary (Equipment) instance keeps canonical object names; the Bank instance suffixes <code>Bank</code> to stay unique.</div>
+    <div class="gridmock">
+      <div class="gcell f">×5</div><div class="gcell f">air</div><div class="gcell plus">+</div><div class="gcell plus">+</div>
+      <div class="gcell plus">+</div><div class="gcell plus">+</div><div class="gcell plus">+</div><div class="gcell plus">+</div>
+    </div>
+    <div class="tags"><span class="ft">carriedLayoutGrid</span><span class="ft">carriedLayoutGridBank</span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="tagx done">D · done</span> Click-to-fill picker</h3>
+    <div class="desc">Empty slots are now clickable and show a <b>+</b>. Clicking one opens a picker sourced from the bank inventory. The bank right-click <b>“Add to carried layout”</b> path was kept alongside it.</div>
+    <div class="mock">
+      <div class="mlabel">flow</div>
+      <span class="mono" style="font-size:0.74rem;color:var(--text-dim)">empty slot <span style="color:var(--accent)">→</span> picker <span style="color:var(--accent)">→</span> on_add_to_carried_layout(name, 1)</span>
+    </div>
+    <div class="tags"><span class="ft">_prompt_add_to_pack</span><span class="ft">_pack_pickable_items</span></div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <h3><span class="tagx done">E · done</span> Auto ↔ Custom swap in place</h3>
+    <div class="desc">The Auto|Custom segmented switch swaps the two views of the same 28 slots. <b>Auto</b> shows the supply-mode dropdown, the “Food: N loaded” summary, and the bank-run status. <b>Custom</b> shows the manual 28-slot grid. Toggling syncs both tab instances at once.</div>
+    <div class="swap" style="margin-top:6px">
+      <div class="mock">
+        <div class="mlabel">auto view</div>
+        <span class="switch"><span class="on">Auto</span><span>Custom</span></span>
+        <div class="mono" style="font-size:0.72rem;color:var(--text-dim);margin-top:10px">Balanced ▾ · Food: 3 loaded<br>Bank run ready</div>
+      </div>
+      <div class="swaparr">⇄</div>
+      <div class="mock">
+        <div class="mlabel">custom view</div>
+        <span class="switch"><span>Auto</span><span class="on">Custom</span></span>
+        <div class="gridmock" style="max-width:130px"><div class="gcell f">×5</div><div class="gcell f">air</div><div class="gcell plus">+</div><div class="gcell plus">+</div></div>
+      </div>
+    </div>
+    <div class="tags"><span class="ft">carriedModeAuto / carriedModeCustom</span><span class="ft">combatPackModeCombo</span><span class="ft">combatLoadoutSummaryLabel</span><span class="ft">combatBankRunLabel</span><span class="ft">_sync_carried_switches</span></div>
+  </div>
+
+</div>
+</section>
+
+<section>
+<div class="h">Tests updated to the new UI</div>
+<div class="card">
+<ul>
+  <li><b>test_per_drop_loot_override_pill_present_and_wired</b> — asserts the Keep/Drop pill, verifies clicking Drop fires <code>("Bones","leave")</code> and re-clicking clears to <code>("Bones","auto")</code>; keep-all still bulk-applies.</li>
+  <li><b>test_carried_layout_grid_present_wired_and_never_geometrically_compressed</b> — swaps the old checkbox for the Auto|Custom pill; keeps all 44px-cell / sizeHint geometry guards.</li>
+  <li><b>test_carried_layout_grid_reachable_without_an_active_pack_target</b> — asserts both switch segments and the grid exist with no active pack target.</li>
+  <li><b>test_combat_exposes_loadout_controls</b> — drops Refill/Unload; asserts summary + bank-run labels survive and <code>combatClearInventoryButton</code> fires the unload callback.</li>
+</ul>
+<div class="tags"><span class="ft">tests/test_main_menu_widget.py</span></div>
+</div>
+</section>
+
+<section>
+<div class="h">Next</div>
+<p class="note">Ready for your play-test. The two views share one backend (<code>carried_advanced_targets</code>, <code>apply_carried_layout_pure</code>, <code>combat_supply_loadout</code>) which was left untouched, so existing saves and per-target state carry over unchanged.</p>
+</section>
+
+<div class="foot">ui.py · tests/test_main_menu_widget.py · branch codex/npc-shop-frontend · 2026-07-08</div>
+</body>
+</html>

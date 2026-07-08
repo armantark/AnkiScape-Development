@@ -2327,45 +2327,12 @@ def show_main_menu(
         auto_eat_layout.addWidget(threshold_spin, 1)
         layout.addWidget(auto_eat_row)
 
-        # Supply mode allocates the 28-slot food+stat-potion budget: max-safety
-        # fills up on food, max-output trades food for damage potions.
-        supply_mode_row = QWidget()
-        supply_mode_layout = QHBoxLayout(supply_mode_row)
-        supply_mode_layout.setContentsMargins(0, 0, 0, 0)
-        supply_mode_layout.setSpacing(8)
-        supply_mode_label = QLabel("Supply mode")
-        supply_mode_label.setStyleSheet("color: palette(text);")
-        supply_mode_combo = QComboBox()
-        supply_mode_combo.setObjectName("combatPackModeCombo")
-        for _label, _mode_id in (("Balanced", "balanced"), ("Max output", "max_output"), ("Max safety", "max_safety")):
-            supply_mode_combo.addItem(_label, _mode_id)
-        _current_pack_mode = str(player_data.get("combat_pack_mode", "balanced"))
-        supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(_current_pack_mode)))
-        if on_set_combat_pack_mode is not None:
-            supply_mode_combo.currentIndexChanged.connect(
-                lambda _index: on_set_combat_pack_mode(supply_mode_combo.currentData() or "balanced")
-            )
-        supply_mode_layout.addWidget(supply_mode_label)
-        supply_mode_layout.addWidget(supply_mode_combo, 1)
-        layout.addWidget(supply_mode_row)
-
-        supply_summary = QLabel(_combat_loadout_summary_text(player_data))
-        supply_summary.setObjectName("combatLoadoutSummaryLabel")
-        supply_summary.setWordWrap(True)
-        supply_summary.setStyleSheet(f"color: {dim_text_css(supply_summary)};")
-        layout.addWidget(supply_summary)
-
-        bank_run_label = QLabel(_combat_bank_run_text())
-        bank_run_label.setObjectName("combatBankRunLabel")
-        bank_run_label.setStyleSheet(f"color: {dim_text_css(bank_run_label)};")
-        layout.addWidget(bank_run_label)
-
         # ---- Loot from this enemy ----
         # Deciding what to pick up belongs with the live combat controls, not the
         # Bank tab. The default view is coarse: a value threshold plus a single
-        # "keep everything" toggle. Per-drop overrides are opt-in behind the same
-        # "Advanced" disclosure the carried-pack grid uses, rendered as icon cells
-        # with a ‹ mode › stepper (Auto → Keep → Leave) instead of a row of combos.
+        # "keep everything" toggle. Per-drop overrides are opt-in behind an
+        # "Advanced" disclosure, rendered as icon cells with a binary Keep | Drop
+        # pill (neither segment lit = follow the value threshold).
         loot_header = QLabel("Loot")
         loot_header.setStyleSheet("color: palette(text); font-weight: 600;")
         layout.addWidget(loot_header)
@@ -2394,25 +2361,14 @@ def show_main_menu(
 
         if loot_override_rows:
             _LOOT_MODES = ("auto", "keep", "leave")
-            _LOOT_MODE_LABELS = {"auto": "Auto", "keep": "Keep", "leave": "Leave"}
             loot_cell_state: dict = {}
-            loot_mode_labels: dict = {}
-
-            def _loot_pill_css(target_label, mode: str) -> str:
-                if mode == "keep":
-                    return ("background: rgba(76,175,80,0.30); color: palette(text);"
-                            " border-radius: 6px; padding: 1px 4px; font-size: 10px;")
-                if mode == "leave":
-                    return ("background: rgba(192,69,59,0.30); color: palette(text);"
-                            " border-radius: 6px; padding: 1px 4px; font-size: 10px;")
-                return f"color: {dim_text_css(target_label)}; font-size: 10px; padding: 1px 4px;"
+            loot_pill_refreshers: dict = {}
 
             def _apply_loot_cell(item_name: str, mode: str) -> None:
                 loot_cell_state[item_name] = mode
-                label = loot_mode_labels.get(item_name)
-                if label is not None:
-                    label.setText(_LOOT_MODE_LABELS[mode])
-                    label.setStyleSheet(_loot_pill_css(label, mode))
+                refresh = loot_pill_refreshers.get(item_name)
+                if refresh is not None:
+                    refresh(mode)
 
             keep_all_check = QCheckBox("Keep every drop from this enemy")
             keep_all_check.setObjectName("combatLootKeepAllCheck")
@@ -2437,7 +2393,7 @@ def show_main_menu(
             keep_all_check.toggled.connect(_on_keep_all)
             layout.addWidget(keep_all_check)
 
-            loot_adv_check = QCheckBox("Advanced: per-drop keep / leave")
+            loot_adv_check = QCheckBox("Advanced: keep or drop specific drops")
             loot_adv_check.setObjectName("combatLootAdvancedCheck")
             layout.addWidget(loot_adv_check)
 
@@ -2448,18 +2404,32 @@ def show_main_menu(
             loot_grid_layout.setSpacing(6)
             _LOOT_GRID_COLS = 2
 
-            def _make_loot_stepper(item_name: str, delta: int):
-                def _step(_checked: bool = False) -> None:
-                    current = loot_cell_state.get(item_name, "auto")
-                    idx = (_LOOT_MODES.index(current) + delta) % len(_LOOT_MODES)
-                    new_mode = _LOOT_MODES[idx]
-                    _apply_loot_cell(item_name, new_mode)
-                    if on_set_loot_override is not None:
-                        on_set_loot_override(item_name, new_mode)
-                    _sync_keep_all()
-                return _step
+            # Each drop gets a joined two-segment pill — Keep | Drop. Neither
+            # segment lit means "Auto": that drop follows the "Leave loot under N
+            # gp" threshold. Clicking a lit segment again clears back to Auto, so
+            # the binary switch still reaches all three backend modes the engine
+            # understands (auto / keep / leave).
+            def _seg_css(side: str, active: bool, accent: str) -> str:
+                radius = (
+                    "border-top-left-radius:6px;border-bottom-left-radius:6px;border-right:none;"
+                    if side == "left"
+                    else "border-top-right-radius:6px;border-bottom-right-radius:6px;"
+                )
+                if active:
+                    face = f"background:{accent};color:palette(text);font-weight:600;"
+                else:
+                    face = f"background:transparent;color:{dim_text_css(loot_grid_container)};"
+                return (
+                    f"QPushButton{{border:1px solid palette(mid);{radius}"
+                    f"padding:2px 12px;font-size:11px;{face}}}"
+                )
 
-            _step_css = "QPushButton { padding: 0; font-size: 13px; font-weight: 600; }"
+            def _set_loot_mode(name: str, new_mode: str) -> None:
+                _apply_loot_cell(name, new_mode)
+                if on_set_loot_override is not None:
+                    on_set_loot_override(name, new_mode)
+                _sync_keep_all()
+
             _cell_idx = 0
             for _r in loot_override_rows:
                 item_name = str(_r.get("item", ""))
@@ -2470,17 +2440,9 @@ def show_main_menu(
                     mode = "auto"
                 cell = QWidget()
                 cell.setObjectName(f"combatLootCell{_cell_idx}")
-                cell.setStyleSheet(
-                    f"QWidget#combatLootCell{_cell_idx} {{ border: 1px solid palette(mid);"
-                    " border-radius: 6px; background: palette(base); }"
-                )
-                cell_layout = QVBoxLayout(cell)
-                cell_layout.setContentsMargins(6, 4, 6, 4)
-                cell_layout.setSpacing(3)
-                head_row = QWidget()
-                head_layout = QHBoxLayout(head_row)
-                head_layout.setContentsMargins(0, 0, 0, 0)
-                head_layout.setSpacing(6)
+                cell_layout = QHBoxLayout(cell)
+                cell_layout.setContentsMargins(2, 2, 2, 2)
+                cell_layout.setSpacing(8)
                 icon_label = QLabel()
                 _def = _item_def_for(item_name)
                 _icon = _bank_icon_path(item_name, _def.asset_path if _def is not None else None)
@@ -2489,33 +2451,39 @@ def show_main_menu(
                 icon_label.setFixedWidth(24)
                 name_label = QLabel(item_name)
                 name_label.setStyleSheet("color: palette(text); font-size: 11px;")
-                head_layout.addWidget(icon_label)
-                head_layout.addWidget(name_label, 1)
-                cell_layout.addWidget(head_row)
-                ctrl_row = QWidget()
-                ctrl_layout = QHBoxLayout(ctrl_row)
-                ctrl_layout.setContentsMargins(0, 0, 0, 0)
-                ctrl_layout.setSpacing(4)
-                prev_btn = QPushButton("‹")
-                prev_btn.setObjectName(f"lootOverridePrev::{item_name}")
-                prev_btn.setFixedSize(24, 22)
-                prev_btn.setStyleSheet(_step_css)
-                mode_label = QLabel()
-                mode_label.setObjectName(f"lootOverrideMode::{item_name}")
-                mode_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                next_btn = QPushButton("›")
-                next_btn.setObjectName(f"lootOverrideNext::{item_name}")
-                next_btn.setFixedSize(24, 22)
-                next_btn.setStyleSheet(_step_css)
-                prev_btn.setEnabled(on_set_loot_override is not None)
-                next_btn.setEnabled(on_set_loot_override is not None)
-                prev_btn.clicked.connect(_make_loot_stepper(item_name, -1))
-                next_btn.clicked.connect(_make_loot_stepper(item_name, 1))
-                ctrl_layout.addWidget(prev_btn)
-                ctrl_layout.addWidget(mode_label, 1)
-                ctrl_layout.addWidget(next_btn)
-                cell_layout.addWidget(ctrl_row)
-                loot_mode_labels[item_name] = mode_label
+                keep_btn = QPushButton("Keep")
+                keep_btn.setObjectName(f"lootOverrideKeep::{item_name}")
+                keep_btn.setFixedHeight(24)
+                drop_btn = QPushButton("Drop")
+                drop_btn.setObjectName(f"lootOverrideDrop::{item_name}")
+                drop_btn.setFixedHeight(24)
+                keep_btn.setEnabled(on_set_loot_override is not None)
+                drop_btn.setEnabled(on_set_loot_override is not None)
+
+                def _refresh_pill(new_mode: str, kb=keep_btn, db=drop_btn) -> None:
+                    kb.setStyleSheet(_seg_css("left", new_mode == "keep", "rgba(76,175,80,0.35)"))
+                    db.setStyleSheet(_seg_css("right", new_mode == "leave", "rgba(192,69,59,0.35)"))
+
+                loot_pill_refreshers[item_name] = _refresh_pill
+                keep_btn.clicked.connect(
+                    lambda _c=False, name=item_name: _set_loot_mode(
+                        name, "auto" if loot_cell_state.get(name) == "keep" else "keep"
+                    )
+                )
+                drop_btn.clicked.connect(
+                    lambda _c=False, name=item_name: _set_loot_mode(
+                        name, "auto" if loot_cell_state.get(name) == "leave" else "leave"
+                    )
+                )
+                pill = QWidget()
+                pill_layout = QHBoxLayout(pill)
+                pill_layout.setContentsMargins(0, 0, 0, 0)
+                pill_layout.setSpacing(0)
+                pill_layout.addWidget(keep_btn)
+                pill_layout.addWidget(drop_btn)
+                cell_layout.addWidget(icon_label)
+                cell_layout.addWidget(name_label, 1)
+                cell_layout.addWidget(pill)
                 _apply_loot_cell(item_name, mode)
                 loot_grid_layout.addWidget(cell, _cell_idx // _LOOT_GRID_COLS, _cell_idx % _LOOT_GRID_COLS)
                 _cell_idx += 1
@@ -2528,34 +2496,9 @@ def show_main_menu(
         def _refresh_combat_setup_panel() -> None:
             mode_label.setText(f"Combat mode: {_combat_mode_text()}")
             _rebuild_style_combo()
-            supply_summary.setText(_combat_loadout_summary_text(player_data))
-            bank_run_label.setText(_combat_bank_run_text())
 
         _combat_setup_refreshers.append(_refresh_combat_setup_panel)
 
-        loadout_button_row = QWidget()
-        button_layout = QHBoxLayout(loadout_button_row)
-        button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(8)
-
-        def _run_loadout_callback(callback):
-            if callback is None:
-                return
-            ok = callback()
-            if ok is not False:
-                _refresh_combat_setup_panel()
-
-        refill_button = QPushButton("Refill supplies")
-        refill_button.setObjectName("combatRefillLoadoutButton")
-        refill_button.setEnabled(on_refill_combat_loadout is not None)
-        refill_button.clicked.connect(lambda _checked=False: _run_loadout_callback(on_refill_combat_loadout))
-        unload_button = QPushButton("Unload supplies")
-        unload_button.setObjectName("combatUnloadLoadoutButton")
-        unload_button.setEnabled(on_unload_combat_loadout is not None)
-        unload_button.clicked.connect(lambda _checked=False: _run_loadout_callback(on_unload_combat_loadout))
-        button_layout.addWidget(refill_button)
-        button_layout.addWidget(unload_button)
-        layout.addWidget(loadout_button_row)
         layout.addStretch(1)
         return panel
 
@@ -4616,17 +4559,23 @@ def show_main_menu(
             keep_drop_check.toggled.connect(lambda checked: on_set_carried_keep_drop(bool(checked)))
         cb_layout.addWidget(keep_drop_check)
 
-    # Advanced layout editor — the player hand-arranges a fixed {item: count}
-    # pack once per target; the game refills that exact 28-slot layout from the
-    # bank every time the pack empties. The editor itself lives on the Equipment
-    # tab (worn + carried gear together) and is built by _build_carried_layout_editor
-    # below, so it is always reachable regardless of whether a specific
-    # in-combat/in-skilling pack target happens to be active right now. The CSS and
-    # refresh closure are defined unconditionally so _refresh_carried_panel and the
-    # bank context menu can always call them (a no-op until the grid is built).
-    advanced_checkbox = None
-    carried_cell_buttons = []
-    carried_cell_items = [None] * inventory_pure.CARRIED_CAPACITY
+    # Carried-pack section — one control with two mutually-exclusive views of the
+    # same 28 slots, switched by an Auto | Custom pill:
+    #   * Auto   — pick a supply mode (Balanced/Max output/Max safety); the game
+    #              auto-fills food + stat potions and refills them at bank runs.
+    #   * Custom — hand-arrange an exact {item: count} 28-slot layout the game
+    #              refills verbatim.
+    # The same section is built on both the Equipment and Bank tabs, so the
+    # registries below keep every instance in sync: one grid refresher per section
+    # repaints its own 28 cells, one switch setter per section reflects the
+    # advanced flag without re-firing the backend, and one auto-view refresher per
+    # section keeps its supply summary + bank-run text (and pack-mode combo)
+    # current. carried_mode_state is the single source of truth the bank context
+    # menu reads to decide whether "Add to carried layout" applies.
+    carried_grid_refreshers: list = []
+    carried_switch_setters: list = []
+    carried_section_refreshers: list = []
+    carried_mode_state = {"advanced": bool(carried_advanced_state)}
     _dim_cell = dim_text_css(carried_body)
     _CARRIED_CELL_FILLED_CSS = (
         "QPushButton { border: 1px solid palette(mid); border-radius: 4px; "
@@ -4636,75 +4585,213 @@ def show_main_menu(
     _CARRIED_CELL_EMPTY_CSS = (
         "QPushButton { border: 1px dashed palette(mid); border-radius: 4px; "
         "background: transparent; color: " + _dim_cell + "; font-size: 9px; }"
+        "QPushButton:hover { border: 1px solid palette(highlight); }"
     )
 
     def _refresh_carried_layout_grid() -> None:
-        if not carried_cell_buttons:
+        for _refresh in carried_grid_refreshers:
+            _refresh()
+
+    def _refresh_carried_sections() -> None:
+        for _refresh in carried_section_refreshers:
+            _refresh()
+
+    def _pack_pickable_items() -> list:
+        """Distinct bank item names offered by the empty-slot picker."""
+        inv = player_data.get("inventory", {}) or {}
+        names: list = []
+        for _label, rows in grouped_inventory(inv):
+            for name, _amount, _asset in rows:
+                if name and name not in names:
+                    names.append(name)
+        return names
+
+    def _prompt_add_to_pack() -> None:
+        """Empty-slot click: pick a bank item to add to the custom pack."""
+        if on_add_to_carried_layout is None:
             return
-        if get_carried_layout_cells is not None:
-            cells = tuple(get_carried_layout_cells())
-        else:
-            cells = ((None, 0),) * inventory_pure.CARRIED_CAPACITY
-        for idx, cell_button in enumerate(carried_cell_buttons):
-            item_name, count = cells[idx] if idx < len(cells) else (None, 0)
-            carried_cell_items[idx] = item_name
-            if item_name:
-                count = int(count)
-                cell_button.setText(f"{item_name}\n×{count}" if count > 1 else str(item_name))
-                suffix = f" ×{count}" if count > 1 else ""
-                cell_button.setToolTip(f"{item_name}{suffix} — click to remove one")
-                cell_button.setEnabled(on_add_to_carried_layout is not None)
-                cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
-            else:
-                cell_button.setText("")
-                cell_button.setToolTip("Empty slot")
-                cell_button.setEnabled(False)
-                cell_button.setStyleSheet(_CARRIED_CELL_EMPTY_CSS)
+        names = _pack_pickable_items()
+        if not names:
+            QMessageBox.information(dialog, "Carried pack", "Your bank is empty — nothing to add.")
+            return
+        choice, ok = QInputDialog.getItem(dialog, "Add to carried pack", "Item:", names, 0, False)
+        if ok and choice:
+            on_add_to_carried_layout(str(choice), 1)
+            _refresh_carried_layout_grid()
 
-    def _build_carried_layout_editor() -> QWidget:
-        """The always-available 28-slot pack editor (checkbox + grid + Clear).
+    def _sync_carried_switches(advanced: bool) -> None:
+        carried_mode_state["advanced"] = bool(advanced)
+        for setter in carried_switch_setters:
+            setter(bool(advanced))
 
-        Placed on the Equipment tab so a player can arrange their carried pack at
-        any time; it does not depend on carried_pack_target_active.
+    def _build_carried_pack_section(primary: bool) -> QWidget:
+        """One carried-pack control (Auto | Custom pill + both views).
+
+        Built on both the Equipment and Bank tabs; `primary` (Equipment) carries
+        the canonical object names the tests query, while the secondary instance
+        suffixes "Bank" so every object name stays unique in the widget tree.
         """
-        nonlocal advanced_checkbox
+        name_suffix = "" if primary else "Bank"
         container = QWidget()
-        editor_layout = QVBoxLayout(container)
-        editor_layout.setContentsMargins(0, 0, 0, 0)
-        editor_layout.setSpacing(6)
+        section_layout = QVBoxLayout(container)
+        section_layout.setContentsMargins(0, 0, 0, 0)
+        section_layout.setSpacing(6)
 
-        advanced_check = QCheckBox("Advanced: arrange my own 28-slot pack")
-        advanced_check.setObjectName("carriedAdvancedModeCheck")
-        advanced_check.setChecked(bool(carried_advanced_state))
-        advanced_checkbox = advanced_check
-        editor_layout.addWidget(advanced_check)
+        # --- Auto | Custom segmented switch ---
+        def _switch_css(side: str, active: bool) -> str:
+            radius = (
+                "border-top-left-radius:6px;border-bottom-left-radius:6px;border-right:none;"
+                if side == "left"
+                else "border-top-right-radius:6px;border-bottom-right-radius:6px;"
+            )
+            if active:
+                face = "background:palette(highlight);color:palette(highlighted-text);font-weight:600;"
+            else:
+                face = f"background:transparent;color:{dim_text_css(container)};"
+            return f"QPushButton{{border:1px solid palette(mid);{radius}padding:3px 18px;font-size:11px;{face}}}"
+
+        auto_btn = QPushButton("Auto")
+        auto_btn.setObjectName(f"carriedModeAuto{name_suffix}")
+        auto_btn.setCheckable(True)
+        custom_btn = QPushButton("Custom")
+        custom_btn.setObjectName(f"carriedModeCustom{name_suffix}")
+        custom_btn.setCheckable(True)
+
+        auto_view = QWidget()
+        custom_view = QWidget()
+
+        def _apply_mode(advanced: bool) -> None:
+            auto_btn.setChecked(not advanced)
+            custom_btn.setChecked(advanced)
+            auto_btn.setStyleSheet(_switch_css("left", not advanced))
+            custom_btn.setStyleSheet(_switch_css("right", advanced))
+            auto_view.setVisible(not advanced)
+            custom_view.setVisible(advanced)
+
+        carried_switch_setters.append(_apply_mode)
+
+        def _on_switch(advanced: bool) -> None:
+            _apply_mode(bool(advanced))
+            if on_set_carried_advanced is not None:
+                on_set_carried_advanced(bool(advanced))
+            _sync_carried_switches(bool(advanced))
+
+        auto_btn.clicked.connect(lambda _c=False: _on_switch(False))
+        custom_btn.clicked.connect(lambda _c=False: _on_switch(True))
+
+        switch_row = QWidget()
+        switch_layout = QHBoxLayout(switch_row)
+        switch_layout.setContentsMargins(0, 0, 0, 0)
+        switch_layout.setSpacing(0)
+        switch_layout.addWidget(auto_btn)
+        switch_layout.addWidget(custom_btn)
+        switch_layout.addStretch(1)
+        section_layout.addWidget(switch_row)
+
+        # --- Auto view: supply mode + summary + bank run + Clear inventory ---
+        auto_layout = QVBoxLayout(auto_view)
+        auto_layout.setContentsMargins(0, 2, 0, 0)
+        auto_layout.setSpacing(6)
+
+        supply_mode_row = QWidget()
+        supply_mode_layout = QHBoxLayout(supply_mode_row)
+        supply_mode_layout.setContentsMargins(0, 0, 0, 0)
+        supply_mode_layout.setSpacing(8)
+        supply_mode_label = QLabel("Supply mode")
+        supply_mode_label.setStyleSheet("color: palette(text);")
+        supply_mode_combo = QComboBox()
+        supply_mode_combo.setObjectName(f"combatPackModeCombo{name_suffix}")
+        for _label, _mode_id in (("Balanced", "balanced"), ("Max output", "max_output"), ("Max safety", "max_safety")):
+            supply_mode_combo.addItem(_label, _mode_id)
+        supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(str(player_data.get("combat_pack_mode", "balanced")))))
+
+        def _on_pack_mode(_index: int) -> None:
+            if on_set_combat_pack_mode is not None:
+                on_set_combat_pack_mode(supply_mode_combo.currentData() or "balanced")
+            _refresh_carried_sections()
+
+        supply_mode_combo.currentIndexChanged.connect(_on_pack_mode)
+        supply_mode_layout.addWidget(supply_mode_label)
+        supply_mode_layout.addWidget(supply_mode_combo, 1)
+        auto_layout.addWidget(supply_mode_row)
+
+        supply_summary = QLabel(_combat_loadout_summary_text(player_data))
+        supply_summary.setObjectName(f"combatLoadoutSummaryLabel{name_suffix}")
+        supply_summary.setWordWrap(True)
+        supply_summary.setStyleSheet(f"color: {dim_text_css(supply_summary)};")
+        auto_layout.addWidget(supply_summary)
+
+        bank_run_label = QLabel(_combat_bank_run_text())
+        bank_run_label.setObjectName(f"combatBankRunLabel{name_suffix}")
+        bank_run_label.setWordWrap(True)
+        bank_run_label.setStyleSheet(f"color: {dim_text_css(bank_run_label)};")
+        auto_layout.addWidget(bank_run_label)
+
+        clear_inv_btn = QPushButton("Clear inventory")
+        clear_inv_btn.setObjectName(f"combatClearInventoryButton{name_suffix}")
+        clear_inv_btn.setStyleSheet("QPushButton { padding: 2px 10px; }")
+        clear_inv_btn.setEnabled(on_unload_combat_loadout is not None)
+
+        def _on_clear_inventory(_checked=False) -> None:
+            if on_unload_combat_loadout is not None:
+                on_unload_combat_loadout()
+            _refresh_carried_sections()
+
+        clear_inv_btn.clicked.connect(_on_clear_inventory)
+        clear_inv_row = QWidget()
+        clear_inv_layout = QHBoxLayout(clear_inv_row)
+        clear_inv_layout.setContentsMargins(0, 0, 0, 0)
+        clear_inv_layout.addWidget(clear_inv_btn)
+        clear_inv_layout.addStretch(1)
+        auto_layout.addWidget(clear_inv_row)
+        section_layout.addWidget(auto_view)
+
+        def _refresh_auto_view() -> None:
+            supply_summary.setText(_combat_loadout_summary_text(player_data))
+            bank_run_label.setText(_combat_bank_run_text())
+            _mode = str(player_data.get("combat_pack_mode", "balanced"))
+            supply_mode_combo.blockSignals(True)
+            supply_mode_combo.setCurrentIndex(max(0, supply_mode_combo.findData(_mode)))
+            supply_mode_combo.blockSignals(False)
+
+        carried_section_refreshers.append(_refresh_auto_view)
+
+        # --- Custom view: hand-arranged 28-slot grid + Clear layout ---
+        custom_layout = QVBoxLayout(custom_view)
+        custom_layout.setContentsMargins(0, 2, 0, 0)
+        custom_layout.setSpacing(6)
 
         _CARRIED_CELL_SIZE = 44
         _CARRIED_CELL_SPACING = 4
         _CARRIED_GRID_COLS = 4
         _CARRIED_GRID_ROWS = inventory_pure.CARRIED_CAPACITY // _CARRIED_GRID_COLS
 
+        cell_buttons: list = []
+        cell_items: list = [None] * inventory_pure.CARRIED_CAPACITY
+
         grid_container = QWidget()
-        grid_container.setObjectName("carriedLayoutGrid")
+        grid_container.setObjectName(f"carriedLayoutGrid{name_suffix}")
         grid_layout = QGridLayout(grid_container)
         grid_layout.setContentsMargins(0, 4, 0, 4)
         grid_layout.setSpacing(_CARRIED_CELL_SPACING)
         for i in range(inventory_pure.CARRIED_CAPACITY):
             cell_btn = QPushButton()
-            cell_btn.setObjectName(f"carriedLayoutCell::{i}")
+            cell_btn.setObjectName(f"carriedLayoutCell{name_suffix}::{i}")
             cell_btn.setFlat(True)
             cell_btn.setFixedSize(_CARRIED_CELL_SIZE, _CARRIED_CELL_SIZE)
 
             def _on_cell_clicked(_checked=False, idx=i):
-                name = carried_cell_items[idx]
-                if not name or on_add_to_carried_layout is None:
-                    return
-                on_add_to_carried_layout(name, -1)
-                _refresh_carried_layout_grid()
+                name = cell_items[idx]
+                if name:
+                    if on_add_to_carried_layout is not None:
+                        on_add_to_carried_layout(name, -1)
+                        _refresh_carried_layout_grid()
+                else:
+                    _prompt_add_to_pack()
 
             cell_btn.clicked.connect(_on_cell_clicked)
             grid_layout.addWidget(cell_btn, i // _CARRIED_GRID_COLS, i % _CARRIED_GRID_COLS)
-            carried_cell_buttons.append(cell_btn)
+            cell_buttons.append(cell_btn)
         # A plain QWidget's default (Preferred) size policy lets a parent
         # QVBoxLayout compress it below its sizeHint when the dialog is short on
         # room — that would clip a 7-row grid of fixed-size buttons down to a
@@ -4723,10 +4810,15 @@ def show_main_menu(
         grid_row_layout.setContentsMargins(0, 0, 0, 0)
         grid_row_layout.addWidget(grid_container)
         grid_row_layout.addStretch(1)
-        editor_layout.addWidget(grid_row)
+        custom_layout.addWidget(grid_row)
+
+        pack_hint = QLabel("Click an empty slot (or right-click a bank item) to add it. Click a filled slot to remove one.")
+        pack_hint.setWordWrap(True)
+        pack_hint.setStyleSheet(f"color: {dim_text_css(container)}; font-size: 10px;")
+        custom_layout.addWidget(pack_hint)
 
         clear_layout_btn = QPushButton("Clear layout")
-        clear_layout_btn.setObjectName("carriedLayoutClearButton")
+        clear_layout_btn.setObjectName(f"carriedLayoutClearButton{name_suffix}")
         clear_layout_btn.setStyleSheet("QPushButton { padding: 2px 10px; }")
 
         def _on_clear_layout(_checked=False) -> None:
@@ -4735,30 +4827,45 @@ def show_main_menu(
             _refresh_carried_layout_grid()
 
         clear_layout_btn.clicked.connect(_on_clear_layout)
-        clear_row = QWidget()
-        clear_row_layout = QHBoxLayout(clear_row)
-        clear_row_layout.setContentsMargins(0, 0, 0, 0)
-        clear_row_layout.setSpacing(8)
-        clear_row_layout.addWidget(clear_layout_btn)
-        clear_row_layout.addStretch(1)
-        editor_layout.addWidget(clear_row)
+        clear_layout_row = QWidget()
+        clear_layout_row_layout = QHBoxLayout(clear_layout_row)
+        clear_layout_row_layout.setContentsMargins(0, 0, 0, 0)
+        clear_layout_row_layout.addWidget(clear_layout_btn)
+        clear_layout_row_layout.addStretch(1)
+        custom_layout.addWidget(clear_layout_row)
+        section_layout.addWidget(custom_view)
 
-        def _on_advanced_toggled(checked: bool) -> None:
-            if on_set_carried_advanced is not None:
-                on_set_carried_advanced(bool(checked))
-            grid_row.setVisible(bool(checked))
-            clear_row.setVisible(bool(checked))
+        def _refresh_grid() -> None:
+            if get_carried_layout_cells is not None:
+                cells = tuple(get_carried_layout_cells())
+            else:
+                cells = ((None, 0),) * inventory_pure.CARRIED_CAPACITY
+            for idx, cell_button in enumerate(cell_buttons):
+                item_name, count = cells[idx] if idx < len(cells) else (None, 0)
+                cell_items[idx] = item_name
+                if item_name:
+                    count = int(count)
+                    cell_button.setText(f"{item_name}\n×{count}" if count > 1 else str(item_name))
+                    suffix = f" ×{count}" if count > 1 else ""
+                    cell_button.setToolTip(f"{item_name}{suffix} — click to remove one")
+                    cell_button.setEnabled(on_add_to_carried_layout is not None)
+                    cell_button.setStyleSheet(_CARRIED_CELL_FILLED_CSS)
+                else:
+                    cell_button.setText("+")
+                    cell_button.setToolTip("Empty slot — click to add a bank item")
+                    cell_button.setEnabled(on_add_to_carried_layout is not None)
+                    cell_button.setStyleSheet(_CARRIED_CELL_EMPTY_CSS)
 
-        advanced_check.toggled.connect(_on_advanced_toggled)
-        grid_row.setVisible(bool(carried_advanced_state))
-        clear_row.setVisible(bool(carried_advanced_state))
-        _refresh_carried_layout_grid()
+        carried_grid_refreshers.append(_refresh_grid)
+
+        _apply_mode(bool(carried_mode_state["advanced"]))
+        _refresh_grid()
+        _refresh_auto_view()
         return container
 
-    # The per-enemy loot filter and the 28-slot pack editor moved to the
-    # Equipment tab (with the live combat controls); the Bank keeps a pointer so
-    # players still discover them from here.
-    carried_pointer = QLabel("Arrange a custom 28-slot pack and set loot filters in the Equipment tab.")
+    # The per-enemy loot filter stays on the Equipment tab (with the live combat
+    # controls); the Bank keeps a pointer so players still discover it from here.
+    carried_pointer = QLabel("Set per-enemy loot filters in the Equipment tab.")
     carried_pointer.setObjectName("carriedEquipmentPointer")
     carried_pointer.setWordWrap(True)
     carried_pointer.setStyleSheet(f"color: {dim_text_css(carried_pointer)};")
@@ -4770,6 +4877,10 @@ def show_main_menu(
     carried_summary.setStyleSheet(f"color: {dim_text_css(carried_summary)};")
     cb_layout.addWidget(carried_summary)
 
+    # A second carried-pack section (secondary instance) so the Auto|Custom
+    # switch and the 28-slot grid are reachable right here on the Bank tab.
+    cb_layout.addWidget(_build_carried_pack_section(primary=False))
+
     def _toggle_carried_body(checked: bool) -> None:
         carried_body.setVisible(bool(checked))
         carried_header.setText(("▾  Carried inventory") if checked else ("▸  Carried inventory"))
@@ -4778,6 +4889,7 @@ def show_main_menu(
 
     def _refresh_carried_panel() -> None:
         carried_summary.setText(_carried_panel_summary_text())
+        _refresh_carried_sections()
         _refresh_carried_layout_grid()
 
     bk_layout.addWidget(carried_header)
@@ -5245,8 +5357,7 @@ def show_main_menu(
             consume_action.triggered.connect(_do_consume)
             menu.addSeparator()
 
-        if (advanced_checkbox is not None
-                and advanced_checkbox.isChecked() and on_add_to_carried_layout is not None):
+        if carried_mode_state["advanced"] and on_add_to_carried_layout is not None:
             add_to_layout_action = menu.addAction("Add to carried layout")
             add_to_layout_action.triggered.connect(
                 lambda _checked=False, name=item_name: (
@@ -5384,12 +5495,13 @@ def show_main_menu(
     totals_label.setStyleSheet("font-family: monospace; color: palette(text);")
     eq_left_layout.addWidget(totals_label)
 
-    # Carried pack layout — worn and carried gear belong together, so the
-    # always-available 28-slot editor lives here beside the worn slots.
+    # Carried pack — worn and carried gear belong together, so the primary
+    # carried-pack section (Auto|Custom switch + both views) lives here beside
+    # the worn slots.
     carried_pack_header = QLabel("Carried pack")
     carried_pack_header.setStyleSheet("color: palette(text); font-weight: 600;")
     eq_left_layout.addWidget(carried_pack_header)
-    eq_left_layout.addWidget(_build_carried_layout_editor())
+    eq_left_layout.addWidget(_build_carried_pack_section(primary=True))
     eq_left_layout.addStretch(1)
 
     combat_setup_panel = _build_combat_setup_panel()

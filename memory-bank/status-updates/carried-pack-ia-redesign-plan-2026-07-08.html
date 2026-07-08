@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carried Pack IA — Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,0.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;
+  line-height:1.55;padding:48px 24px;max-width:1080px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--amber);background:rgba(251,191,36,0.12);
+  border:1px solid rgba(251,191,36,0.3);padding:5px 12px;border-radius:999px}
+h1{font-weight:700;font-size:2.1rem;margin:16px 0 8px;letter-spacing:-0.02em}
+.sub{color:var(--text-dim);font-size:0.98rem;max-width:74ch}
+section{margin-top:44px}
+.h{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px}
+.card.bad{border-color:rgba(255,92,92,0.35)}
+.card.good{border-color:rgba(74,222,128,0.35)}
+.card h3{font-size:0.95rem;font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.tagx{font-family:'JetBrains Mono',monospace;font-size:0.62rem;padding:2px 7px;border-radius:5px;font-weight:600}
+.tagx.b{color:var(--red);background:rgba(255,92,92,0.12);border:1px solid rgba(255,92,92,0.3)}
+.tagx.g{color:var(--green);background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3)}
+ul{list-style:none;margin-top:4px}
+li{padding:5px 0 5px 20px;position:relative;font-size:0.9rem;color:var(--text-dim)}
+li::before{content:"";position:absolute;left:2px;top:12px;width:6px;height:6px;border-radius:50%;background:var(--border)}
+li.k::before{background:var(--green)}
+li b{color:var(--text);font-weight:500}
+/* mock */
+.mock{background:#12161d;border:1px solid var(--border);border-radius:10px;padding:16px;font-size:0.82rem}
+.mock .lbl{font-weight:500;color:var(--text);margin-bottom:8px;font-size:0.86rem}
+.mock .dim{color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:0.76rem;line-height:1.7}
+.pill{display:inline-flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:0.74rem}
+.pill span{padding:5px 14px;cursor:default}
+.pill .seg-keep{color:var(--green)}
+.pill .seg-drop{color:var(--red)}
+.pill .on-keep{background:rgba(74,222,128,0.22);color:#bbf7d0;border-right:1px solid var(--border)}
+.pill .on-drop{background:rgba(255,92,92,0.22);color:#ffc7c7}
+.pill .off{color:var(--text-dim)}
+.pill .divider{border-right:1px solid var(--border)}
+.cellrow{display:flex;gap:10px;align-items:center;padding:7px 0;border-bottom:1px dashed var(--border)}
+.cellrow:last-child{border-bottom:none}
+.cellrow .ic{width:22px;height:22px;border-radius:5px;background:var(--surface-2);display:inline-block;flex:0 0 22px}
+.cellrow .nm{flex:1;font-size:0.82rem}
+.gridmock{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;max-width:210px}
+.gcell{aspect-ratio:1;border:1px dashed var(--border);border-radius:5px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;font-size:0.6rem;color:var(--text-dim)}
+.gcell.f{border:1px solid var(--accent);color:var(--text);background:var(--accent-glow)}
+.gcell.plus{border-style:dashed;color:var(--accent);font-size:0.95rem}
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:6px}
+.step{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:0.8rem}
+.arrow{color:var(--accent);font-family:'JetBrains Mono',monospace}
+.swap{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+.swaparr{font-size:1.6rem;color:var(--accent)}
+.decision{display:flex;gap:12px;align-items:flex-start;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);border-radius:10px;padding:14px 16px;margin-top:12px}
+.decision .q{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em;font-weight:600;white-space:nowrap;padding-top:2px}
+.decision .a{font-size:0.88rem}
+.decision .a b{color:var(--text)}
+.scope{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:0.72rem;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:6px;padding:5px 10px;color:var(--text-dim)}
+.chip b{color:var(--accent);font-weight:600}
+.foot{margin-top:48px;color:var(--text-dim);font-size:0.82rem;font-family:'JetBrains Mono',monospace;
+  border-top:1px solid var(--border);padding-top:16px}
+.note{color:var(--text-dim);font-size:0.82rem;margin-top:8px}
+</style>
+</head>
+<body>
+
+<span class="badge">◒ Plan — awaiting build</span>
+<h1>Carried pack: one pack, two views</h1>
+<p class="sub">Play-test feedback exposed that the 28-slot carried pack has two disconnected UIs for the <i>same</i> slots — an automatic "Supply mode" summary in the Combat panel, and a manual grid on the Equipment tab that has no obvious way to fill it. The fix unifies them: the pack is auto-managed by default, and toggling <b>Custom</b> swaps the auto view out for the manual grid in the same spot. Plus a binary keep/drop loot pill and a real fill flow.</p>
+
+<section>
+  <div class="h">The core mental-model fix — swap, don't stack</div>
+  <div class="swap">
+    <div class="card">
+      <div class="mock">
+        <div class="lbl">Auto pack <span class="tagx g" style="margin-left:6px">default</span></div>
+        <div class="dim">Supply mode &nbsp;[ Balanced ▾ ]<br>Food: 0 loaded<br>Potions: none loaded<br>Runes: Air rune ×5, Mind rune ×5<br>Bank run: ready</div>
+        <div style="margin-top:10px"><span class="step">Clear pack</span></div>
+      </div>
+    </div>
+    <div class="swaparr">⇄</div>
+    <div class="card">
+      <div class="mock">
+        <div class="lbl">Custom pack <span class="tagx" style="margin-left:6px;color:var(--accent);background:var(--accent-glow);border:1px solid var(--border)">toggled on</span></div>
+        <div class="gridmock" style="margin:6px 0 10px">
+          <div class="gcell f">Lob<br>×3</div><div class="gcell f">Str<br>pot</div><div class="gcell plus">+</div><div class="gcell"></div>
+          <div class="gcell"></div><div class="gcell"></div><div class="gcell"></div><div class="gcell"></div>
+        </div>
+        <div style="margin-top:2px"><span class="step">Clear layout</span></div>
+      </div>
+    </div>
+  </div>
+  <p class="note">The <code>Auto | Custom</code> switch sits above the swappable body. Combat mode, attack style, spell and auto-eat stay put — only the <i>how-the-pack-is-filled</i> region swaps. Backed by the existing <code>carried_advanced_targets[target_id]</code> flag, so it is remembered per training target.</p>
+</section>
+
+<section>
+  <div class="h">Loot control — binary segmented pill</div>
+  <div class="grid2">
+    <div class="card bad">
+      <h3><span class="tagx b">before</span> 3-state stepper, per drop</h3>
+      <div class="mock"><div class="dim">‹&nbsp;&nbsp;&nbsp;Auto&nbsp;&nbsp;&nbsp;›<br>‹&nbsp;&nbsp;&nbsp;Auto&nbsp;&nbsp;&nbsp;›<br>‹&nbsp;&nbsp;&nbsp;Auto&nbsp;&nbsp;&nbsp;›</div></div>
+      <ul><li>Ambiguous arrows; "Auto/Keep/Leave" cycling is a guessing game.</li></ul>
+    </div>
+    <div class="card good">
+      <h3><span class="tagx g">after</span> keep/drop pill</h3>
+      <div class="mock">
+        <div class="cellrow"><span class="ic"></span><span class="nm">Cowhide</span><span class="pill"><span class="seg-keep on-keep">Keep</span><span class="seg-drop off">Drop</span></span></div>
+        <div class="cellrow"><span class="ic"></span><span class="nm">Bones</span><span class="pill"><span class="seg-keep off divider">Keep</span><span class="seg-drop on-drop">Drop</span></span></div>
+        <div class="cellrow"><span class="ic"></span><span class="nm">Raw beef</span><span class="pill"><span class="seg-keep off divider">Keep</span><span class="seg-drop off">Drop</span></span></div>
+      </div>
+      <ul>
+        <li class="k">Two joined segments with text, one highlighted — a real "switch".</li>
+        <li class="k"><b>Neither lit = Auto</b>: that drop follows the <code>Leave loot under N gp</code> threshold. Click a segment to override; click it again to clear back to Auto.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="decision"><span class="q">Your call</span><span class="a"><b>Binary</b> keep/drop, because engaging per-drop control already means rejecting auto for that item. The gp threshold stays and governs everything you don't explicitly flip.</span></div>
+</section>
+
+<section>
+  <div class="h">Filling the manual pack — a real flow</div>
+  <div class="card">
+    <div class="flow">
+      <span class="step">Click an empty slot</span><span class="arrow">→</span>
+      <span class="step">Item picker (your bank, with icons)</span><span class="arrow">→</span>
+      <span class="step">adds one to the pack</span>
+    </div>
+    <div class="flow" style="margin-top:14px">
+      <span class="step">Click a filled slot</span><span class="arrow">→</span><span class="step">removes one</span>
+      <span style="color:var(--text-dim);font-size:0.78rem">(already works)</span>
+    </div>
+    <div class="flow" style="margin-top:14px">
+      <span class="step">Bank right-click → "Add to carried layout"</span>
+      <span style="color:var(--text-dim);font-size:0.78rem">(kept)</span>
+    </div>
+    <p class="note">No Qt drag-and-drop this pass — click-to-pick is discoverable, reliable, and testable offscreen. Picker lists bank items with quantity, filtered to what you actually own.</p>
+  </div>
+</section>
+
+<section>
+  <div class="h">The grid lives in both tabs</div>
+  <div class="grid2">
+    <div class="card"><h3>Equipment tab</h3><ul>
+      <li class="k">Full pack panel: <code>Auto | Custom</code> switch + swappable body.</li>
+      <li>Sits with worn gear + combat setup, where you plan a loadout.</li>
+    </ul></div>
+    <div class="card"><h3>Bank tab</h3><ul>
+      <li class="k">The same 28-slot grid, so you can arrange while looking at your bank.</li>
+      <li>Both grids read/write the one <code>carried_layout</code>; a shared refresh keeps them in lock-step, and the two switches stay synced.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section>
+  <div class="h">Refill / Unload → one Clear</div>
+  <div class="card">
+    <ul>
+      <li><b>"Refill supplies" removed.</b> Supplies already top up automatically at every bank run in combat (<code>_combat_refill_context_supplies</code>, logic_pure.py:2172), so the button was a redundant pre-load.</li>
+      <li class="k"><b>Single "Clear pack" button.</b> Wipes the current pack back to the bank — the real need you flagged for when you switch training focus. State is still remembered per target, so switching away and back restores it.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="h">Scope — Equipment/IA only, no mechanics change</div>
+  <div class="scope">
+    <span class="chip"><b>ui.py</b> pack panel + swap + loot pill + picker</span>
+    <span class="chip"><b>ui.py</b> grid factory → instantiable ×2</span>
+    <span class="chip">bank right-click kept</span>
+    <span class="chip">tests: loot pill, picker, both-tab grids, swap</span>
+    <span class="chip" style="color:var(--green)">logic_pure / inventory_pure — untouched</span>
+  </div>
+  <p class="note">All backend hooks already exist (<code>on_set_loot_override</code>, <code>on_add_to_carried_layout</code>, <code>on_set_carried_advanced</code>, <code>carried_keep_for</code>). This is a presentation-layer rewire; the combat math and save format do not change.</p>
+</section>
+
+<div class="foot">
+  plan · branch codex/npc-shop-frontend · 2026-07-08 &nbsp;|&nbsp; model: opus-4.8 (taste-heavy IA) &nbsp;|&nbsp; results artifact to follow
+</div>
+
+</body>
+</html>

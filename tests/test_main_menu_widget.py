@@ -612,8 +612,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(calls[-1], True)  # toggling to drop calls back with True
         dialog.deleteLater()
 
-    def test_per_drop_loot_override_stepper_present_and_wired(self) -> None:
-        from aqt.qt import QCheckBox, QLabel, QPushButton, QWidget
+    def test_per_drop_loot_override_pill_present_and_wired(self) -> None:
+        from aqt.qt import QCheckBox, QPushButton, QWidget
 
         calls: list = []
         rows = (
@@ -626,19 +626,22 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_loot_override=lambda item, mode: calls.append((item, mode)),
         )
         # The per-drop overrides now live in the Combat setup panel (Equipment tab)
-        # as icon cells with a ‹ mode › stepper, behind an Advanced disclosure.
+        # as icon cells with a binary Keep | Drop pill, behind an Advanced
+        # disclosure. Neither segment lit means "Auto" (follow the value threshold).
         grid = dialog.findChild(QWidget, "combatLootOverrideGrid")
         self.assertIsNotNone(grid, "per-drop override grid missing")
-        bones_mode = dialog.findChild(QLabel, "lootOverrideMode::Bones")
-        bones_next = dialog.findChild(QPushButton, "lootOverrideNext::Bones")
-        self.assertIsNotNone(bones_mode, "per-drop mode label missing")
-        self.assertIsNotNone(bones_next, "per-drop stepper missing")
-        self.assertEqual(bones_mode.text(), "Keep")  # reflects saved state
-        # Stepping forward cycles Keep -> Leave and fires the callback.
-        bones_next.click()
+        bones_keep = dialog.findChild(QPushButton, "lootOverrideKeep::Bones")
+        bones_drop = dialog.findChild(QPushButton, "lootOverrideDrop::Bones")
+        self.assertIsNotNone(bones_keep, "per-drop Keep segment missing")
+        self.assertIsNotNone(bones_drop, "per-drop Drop segment missing")
+        # Clicking Drop on a saved-Keep drop switches it to Leave and fires back.
+        bones_drop.click()
         QApplication.processEvents()
         self.assertIn(("Bones", "leave"), calls)
-        self.assertEqual(bones_mode.text(), "Leave")
+        # Clicking the already-lit Drop segment again clears back to Auto.
+        bones_drop.click()
+        QApplication.processEvents()
+        self.assertEqual(calls[-1], ("Bones", "auto"))
 
         # The simple "keep everything" toggle bulk-applies keep via the same callback.
         keep_all = dialog.findChild(QCheckBox, "combatLootKeepAllCheck")
@@ -661,7 +664,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         # compress under space pressure -- silently clipping the grid down to a
         # sliver even though every cell reports its correct fixed size. Assert
         # actual Qt geometry (not a screenshot) so this can't regress unnoticed.
-        from aqt.qt import QCheckBox, QComboBox, QPushButton, QWidget
+        from aqt.qt import QPushButton, QWidget
 
         add_calls: list = []
         clear_calls: list = []
@@ -692,9 +695,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         for _ in range(6):
             QApplication.processEvents()
 
-        advanced_check = dialog.findChild(QCheckBox, "carriedAdvancedModeCheck")
-        self.assertIsNotNone(advanced_check)
-        self.assertTrue(advanced_check.isChecked())
+        # The Auto|Custom segmented pill replaced the old advanced checkbox.
+        # Custom mode is active (carried_advanced_state=True), so the manual
+        # grid is the visible view.
+        auto_btn = dialog.findChild(QPushButton, "carriedModeAuto")
+        custom_btn = dialog.findChild(QPushButton, "carriedModeCustom")
+        self.assertIsNotNone(auto_btn)
+        self.assertIsNotNone(custom_btn)
+        self.assertTrue(custom_btn.isChecked())
 
         grid = dialog.findChild(QWidget, "carriedLayoutGrid")
         self.assertIsNotNone(grid, "carried layout grid missing")
@@ -718,14 +726,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertIn(("Iron ore", -1), add_calls)
 
-        # Unchecking advanced mode hides the grid and fires the callback.
-        advanced_check.setChecked(False)
+        # Switching to Auto hides the grid and fires the callback.
+        auto_btn.click()
         QApplication.processEvents()
         self.assertFalse(grid.isVisibleTo(grid.window()))
         self.assertIn(False, advanced_calls)
 
         # Clear button fires its callback.
-        advanced_check.setChecked(True)
+        custom_btn.click()
         QApplication.processEvents()
         clear_btn = dialog.findChild(QPushButton, "carriedLayoutClearButton")
         self.assertIsNotNone(clear_btn)
@@ -758,13 +766,14 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.deleteLater()
 
     def test_carried_layout_grid_reachable_without_an_active_pack_target(self) -> None:
-        from aqt.qt import QCheckBox, QWidget
+        from aqt.qt import QPushButton, QWidget
 
         # Regression: the advanced editor used to disappear entirely when no pack
         # target was active. It now lives on the Equipment tab and is always
         # available so players can arrange their carried pack at any time.
         dialog = self._open(_make_player_data(), carried_pack_target_active=False)
-        self.assertIsNotNone(dialog.findChild(QCheckBox, "carriedAdvancedModeCheck"))
+        self.assertIsNotNone(dialog.findChild(QPushButton, "carriedModeAuto"))
+        self.assertIsNotNone(dialog.findChild(QPushButton, "carriedModeCustom"))
         self.assertIsNotNone(dialog.findChild(QWidget, "carriedLayoutGrid"))
         dialog.deleteLater()
 
@@ -1326,18 +1335,20 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         dialog = self._open(pd, current_skill="Combat")
 
+        # The supply-mode summary and bank-run status moved into the carried-pack
+        # section's Auto view; Refill was removed (supplies auto-refill at bank
+        # runs) and Unload became a plain "Clear inventory" button.
         threshold_spin = dialog.findChild(QSpinBox, "combatAutoEatThresholdSpin")
         summary_label = dialog.findChild(QLabel, "combatLoadoutSummaryLabel")
         bank_run_label = dialog.findChild(QLabel, "combatBankRunLabel")
-        refill_button = dialog.findChild(QPushButton, "combatRefillLoadoutButton")
-        unload_button = dialog.findChild(QPushButton, "combatUnloadLoadoutButton")
+        clear_button = dialog.findChild(QPushButton, "combatClearInventoryButton")
 
         self.assertIsNotNone(threshold_spin)
         self.assertIsNone(dialog.findChild(QComboBox, "combatFoodCombo"))
         self.assertIsNotNone(summary_label)
         self.assertIsNotNone(bank_run_label)
-        self.assertIsNotNone(refill_button)
-        self.assertIsNotNone(unload_button)
+        self.assertIsNotNone(clear_button)
+        self.assertIsNone(dialog.findChild(QPushButton, "combatRefillLoadoutButton"))
         self.assertEqual(threshold_spin.value(), 55)
         self.assertIn("Food: 3 loaded", summary_label.text())
         self.assertIn("Potions: Antipoison (1) x1", summary_label.text())
@@ -1349,10 +1360,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._combat_threshold_calls[-1], 60)
 
-        refill_button.click()
-        unload_button.click()
+        clear_button.click()
         QApplication.processEvents()
-        self.assertEqual(self._combat_refill_calls, [True])
         self.assertEqual(self._combat_unload_calls, [True])
 
     def test_fishing_is_selectable_and_shows_output_first_target_list(self) -> None:
