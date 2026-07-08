@@ -8,6 +8,7 @@ coordination.
 
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass
 from typing import Any, Callable, Optional
 
@@ -422,8 +423,21 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         scoped_inventory = dict(bank)
         for item_name, need in requirements.items():
             scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+
+        # While the inventory is scoped it does NOT reflect the real bank, so the
+        # handler must not persist it or evaluate anything against it. Suppress the
+        # handler's own save and achievement check for the duration and fire them
+        # once afterwards against the reconciled bank. Without this a save inside
+        # the handler writes the capped bank to disk, and achievements gated on a
+        # bank quantity would see only what fits in the pack.
+        deferred_achievement_check = []
+        scoped_ctx = dataclasses.replace(
+            ctx,
+            save_player_data=lambda: None,
+            check_achievements=lambda _data: deferred_achievement_check.append(True),
+        )
         player_data["inventory"] = scoped_inventory
-        result = handler(ctx)
+        result = handler(scoped_ctx)
         after_scoped = player_data.get("inventory", {}) or {}
         reconciled = dict(after_scoped)
         for item_name, _need in requirements.items():
@@ -441,7 +455,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             churn_delta = inventory_pure.carried_action_churn_pure(bank, reconciled, _OVERLAY_STACKABLE_NAMES)
             _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
             _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
-            ctx.save_player_data()
+        # Always run against the true bank, even on a failed tick, so a suppressed
+        # save can never leave the capped inventory as the last thing written.
+        if deferred_achievement_check:
+            ctx.check_achievements(player_data)
+        ctx.save_player_data()
         return result
 
     inv_before = dict(bank)

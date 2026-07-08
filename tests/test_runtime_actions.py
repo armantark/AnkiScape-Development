@@ -1,3 +1,4 @@
+import dataclasses
 import unittest
 
 from runtime_actions import (
@@ -1527,6 +1528,35 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertFalse(result)
         self.assertEqual(calls["activity"], [])
         self.assertTrue(calls.get("deactivated"))
+
+    def test_scoped_inventory_never_leaks_the_capped_bank_to_saves_or_achievements(self):
+        # While a processing tick runs, player_data["inventory"] is temporarily
+        # capped to what the pack holds. The handler must not persist that or
+        # evaluate achievements against it: a save would write a truncated bank to
+        # disk, and a "own N logs" achievement would see only the pack's 28.
+        observed = {"saves": [], "achievements": []}
+        player_data = {
+            "inventory": {"Logs": 100},
+            "firemaking_level": 1,
+            "firemaking_exp": 0,
+            "current_firemaking": "logs",
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "errors": [], "activity": []}
+        ctx = _context(player_data, calls, random_values=[0.0] * 20)
+        ctx = dataclasses.replace(
+            ctx,
+            save_player_data=lambda: observed["saves"].append(player_data["inventory"].get("Logs")),
+            check_achievements=lambda data: observed["achievements"].append(data["inventory"].get("Logs")),
+        )
+
+        run_answer_with_carried_overlay(ctx, "firemaking", handle_firemaking_answer)
+
+        # Bank truly went 100 -> 99 (one log burned), even though the pack held 28.
+        self.assertEqual(player_data["inventory"]["Logs"], 99)
+        self.assertEqual(observed["achievements"], [99])
+        self.assertNotIn(27, observed["saves"])
+        self.assertEqual(observed["saves"], [99])
 
     def test_advanced_layout_seeds_the_pack_instead_of_the_casual_full_fill(self):
         player_data = self._base_player_data(100)
