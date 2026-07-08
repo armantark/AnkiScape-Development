@@ -175,6 +175,33 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(refilled["combat_supply_loadout"]["stat_potions"], {"Super strength (4)": 3})
         self.assertEqual(refilled["inventory"]["Super strength (4)"], 0)
 
+    def test_six_dose_flask_is_registered_drinkable_and_auto_drunk(self):
+        from potion_data import potion_items_as_dict, potion_consumables_as_dict
+
+        items = potion_items_as_dict()
+        consumables = potion_consumables_as_dict()
+        # Flask (6) is a real registered, drinkable item that walks down to (5).
+        self.assertIn("Super strength flask (6)", items)
+        self.assertEqual(items["Super strength flask (6)"]["item_id"], 23279)
+        self.assertEqual(consumables["Super strength flask (6)"]["leaves"], "Super strength flask (5)")
+        # A drained flask leaves an empty Potion flask, not a Vial.
+        self.assertEqual(consumables["Super strength flask (1)"]["leaves"], "Potion flask")
+
+        # Combat auto-drinks a flask and it lasts 6 doses (vs a vial's 4).
+        player = self._melee(combat_supply_loadout={"stat_potions": {"Super strength flask (6)": 1}})
+        out, ok, _ = apply_combat_burst_pure(player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertEqual(out["combat_current_levels"]["strength"], 62)
+        self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Super strength flask (5)": 1})
+
+    def test_full_flask_is_preferred_over_a_vial(self):
+        # Carrying both, the fuller flask (6 doses) is drunk before the vial (4).
+        player = self._melee(
+            combat_supply_loadout={"stat_potions": {"Super strength (4)": 1, "Super strength flask (6)": 1}},
+        )
+        out, ok, _ = apply_combat_burst_pure(player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertIn("Super strength (4)", out["combat_supply_loadout"]["stat_potions"])  # vial untouched
+        self.assertEqual(out["combat_supply_loadout"]["stat_potions"]["Super strength flask (5)"], 1)  # flask sipped
+
     def test_style_relevant_potions_load_and_off_style_ones_do_not(self):
         # Melee: strength/attack potions load (supers first, covering both stats);
         # a magic potion is off-style and never loaded.

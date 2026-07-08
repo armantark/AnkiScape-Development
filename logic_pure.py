@@ -28,9 +28,9 @@ except ImportError:
     from skill_registry import get_skill, implemented_skill_definitions
 
 try:
-    from .potion_data import POTION_FAMILIES, potion_dose_name
+    from .potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 except ImportError:
-    from potion_data import POTION_FAMILIES, potion_dose_name
+    from potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 
 try:
     from .combat_data import (
@@ -2520,14 +2520,17 @@ def _potion_boost_amount(base_level, strategy):
 
 
 def _build_combat_potion_dose_lookup():
-    """dose-item-name -> (base_name, skills, strategy, dose_int) for every stat
-    potion the combat loadout can auto-drink."""
+    """dose-item-name -> (base_name, skills, strategy, dose_int, is_flask) for every
+    stat potion the combat loadout can auto-drink. Includes both the (1)-(4) vials
+    and the (1)-(6) flasks — a flask holds more doses, so it lasts longer per slot."""
     lookup = {}
     for base_name, spec in POTION_FAMILIES.items():
         skills = tuple(spec["skills"])
         strategy = str(spec["strategy"])
         for dose in spec["doses"]:
-            lookup[potion_dose_name(base_name, dose)] = (base_name, skills, strategy, int(dose))
+            lookup[potion_dose_name(base_name, dose)] = (base_name, skills, strategy, int(dose), False)
+        for dose in spec.get("flask_doses", {}):
+            lookup[potion_flask_name(base_name, dose)] = (base_name, skills, strategy, int(dose), True)
     return lookup
 
 
@@ -2558,7 +2561,7 @@ def _combat_pick_potion_for_skill(stat_potions, skill_id):
         entry = _COMBAT_STAT_POTION_BY_DOSE.get(item_name)
         if entry is None or skill_id not in entry[1]:
             continue
-        _base, _skills, strategy, dose = entry
+        _base, _skills, strategy, dose, _is_flask = entry
         rank = (1 if strategy == "s" else 0, dose)
         if best_rank is None or rank > best_rank:
             best, best_rank = item_name, rank
@@ -2582,13 +2585,13 @@ def _combat_auto_drink_potions(data, combat_class):
         item_name = _combat_pick_potion_for_skill(stat_potions, skill_id)
         if item_name is None:
             continue
-        base_name, skills, strategy, dose = _COMBAT_STAT_POTION_BY_DOSE[item_name]
-        # Consume one dose: the flask drops to the next-lower dose (dropped at 0/empty).
+        base_name, skills, strategy, dose, is_flask = _COMBAT_STAT_POTION_BY_DOSE[item_name]
+        # Consume one dose: the vial/flask drops to the next-lower dose (dropped at 0/empty).
         stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) - 1
         if stat_potions[item_name] <= 0:
             stat_potions.pop(item_name, None)
         if dose > 1:
-            lower = potion_dose_name(base_name, dose - 1)
+            lower = potion_flask_name(base_name, dose - 1) if is_flask else potion_dose_name(base_name, dose - 1)
             stat_potions[lower] = _non_negative_int(stat_potions.get(lower, 0), 0) + 1
         # Apply the boost to every stat the family covers (Combat potion = both).
         for boosted_skill in skills:
@@ -2606,9 +2609,10 @@ def _combat_relevant_potion_items(combat_class):
     flasks first. Used so a small potion cap is never wasted on an off-style flask."""
     relevant_skills = set(_combat_relevant_potion_skills(combat_class))
     items = []
-    for item_name, (base_name, skills, strategy, dose) in _COMBAT_STAT_POTION_BY_DOSE.items():
+    for item_name, (base_name, skills, strategy, dose, _is_flask) in _COMBAT_STAT_POTION_BY_DOSE.items():
         if relevant_skills.intersection(skills):
             covers_two = len(skills) > 1
+            # More doses per slot ranks higher, so a full flask (6) beats a vial (4).
             rank = (1 if strategy == "s" else 0, 1 if covers_two else 0, int(dose))
             items.append((rank, item_name))
     items.sort(reverse=True)
