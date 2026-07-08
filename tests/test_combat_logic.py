@@ -122,6 +122,60 @@ _KILLER_ENEMY_DATA = {
 }
 
 
+class CombatStatPotionAutoDrinkTest(unittest.TestCase):
+    def _melee(self, **overrides):
+        base = dict(
+            current_combat_target="chicken",
+            combat_attack_style="aggressive",
+            attack_level=50,
+            strength_level=50,
+            defense_level=50,
+            constitution_level=20,
+            combat_lifepoints=200,
+            combat_auto_eat_food=["Shrimps"],
+        )
+        base.update(overrides)
+        return _player(**base)
+
+    def test_melee_drinks_strength_potion_boosts_and_consumes_a_dose(self):
+        player = self._melee(combat_supply_loadout={"stat_potions": {"Super strength (4)": 1}})
+        out, ok, result = apply_combat_burst_pure(player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertTrue(ok)
+        # Super strength on base 50 = 50 + floor(15*50/100)+5 = 62.
+        self.assertEqual(out["combat_current_levels"]["strength"], 62)
+        # The (4) flask dropped to a (3).
+        self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Super strength (3)": 1})
+        self.assertIn({"item": "Super strength (4)", "skills": ("strength",)}, result["potions_used"])
+
+    def test_no_potion_means_no_boost(self):
+        out, ok, _ = apply_combat_burst_pure(self._melee(), COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertNotIn("strength", out.get("combat_current_levels", {}))
+
+    def test_does_not_redrink_while_the_boost_is_still_active(self):
+        # Start already boosted (as if drunk last burst); the flask must not be sipped again.
+        player = self._melee(
+            combat_current_levels={"strength": 62},
+            combat_supply_loadout={"stat_potions": {"Super strength (4)": 1}},
+        )
+        out, ok, _ = apply_combat_burst_pure(player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Super strength (4)": 1})
+
+    def test_combat_potion_boosts_both_attack_and_strength_from_one_dose(self):
+        player = self._melee(combat_supply_loadout={"stat_potions": {"Combat potion (4)": 1}})
+        out, ok, _ = apply_combat_burst_pure(player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        # Regular boost on base 50 = 50 + floor(50/10)+3 = 58, on both stats, one dose spent.
+        self.assertEqual(out["combat_current_levels"]["strength"], 58)
+        self.assertEqual(out["combat_current_levels"]["attack"], 58)
+        self.assertEqual(out["combat_supply_loadout"]["stat_potions"], {"Combat potion (3)": 1})
+
+    def test_refill_loads_stat_potions_from_the_bank(self):
+        player = self._melee(inventory={"Shrimps": 5, "Super strength (4)": 3})
+        refilled, ok, reason = refill_combat_supply_loadout_pure(player, EQUIPMENT_DATA)
+        self.assertTrue(ok, reason)
+        self.assertEqual(refilled["combat_supply_loadout"]["stat_potions"], {"Super strength (4)": 3})
+        self.assertEqual(refilled["inventory"]["Super strength (4)"], 0)
+
+
 class CombatDropItemNamesTest(unittest.TestCase):
     def test_flattens_guaranteed_and_nested_table_items_in_order(self):
         enemy = {
@@ -3319,7 +3373,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertFalse(ok)
         self.assertIn("active fight", reason)
         self.assertEqual(refilled["inventory"]["Shark"], 30)
-        self.assertEqual(refilled["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+        self.assertEqual(refilled["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
 
     def test_unload_combat_supply_loadout_returns_supplies_to_bank(self):
         player = _player(
@@ -3341,7 +3395,7 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(unloaded["inventory"]["Bronze arrows"], 5)
         self.assertEqual(unloaded["inventory"]["Air rune"], 7)
         self.assertEqual(unloaded["inventory"]["Cannonball"], 2)
-        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
+        self.assertEqual(unloaded["combat_supply_loadout"], {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0})
 
     def test_combat_loadout_preferences_are_sanitized(self):
         player = _player(combat_auto_eat_food=["Shrimps", "Shark"], combat_auto_eat_threshold_percent=40)

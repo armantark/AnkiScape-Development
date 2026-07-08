@@ -28,6 +28,11 @@ except ImportError:
     from skill_registry import get_skill, implemented_skill_definitions
 
 try:
+    from .potion_data import POTION_FAMILIES, potion_dose_name
+except ImportError:
+    from potion_data import POTION_FAMILIES, potion_dose_name
+
+try:
     from .combat_data import (
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ANTIPOISON_POTION_DATA,
@@ -1052,7 +1057,7 @@ def combat_max_lifepoints_pure(player_data):
 
 
 def default_combat_supply_loadout_pure():
-    return {"food": {}, "potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0}
+    return {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0}
 
 
 def default_combat_state_pure():
@@ -1095,6 +1100,15 @@ def _sanitize_combat_supply_loadout(raw_loadout):
             for item_name, amount in raw_potions.items()
             if isinstance(item_name, str)
             and item_name in COMBAT_ANTIPOISON_POTION_DATA
+            and _non_negative_int(amount, 0) > 0
+        }
+    raw_stat_potions = raw_loadout.get("stat_potions", {})
+    if isinstance(raw_stat_potions, Mapping):
+        loadout["stat_potions"] = {
+            str(item_name): _non_negative_int(amount, 0)
+            for item_name, amount in raw_stat_potions.items()
+            if isinstance(item_name, str)
+            and item_name in _COMBAT_STAT_POTION_ITEM_NAMES
             and _non_negative_int(amount, 0) > 0
         }
     for key in ("ammo", "runes"):
@@ -1983,6 +1997,7 @@ def _combat_deposit_loot(data, target_id):
 
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
     _combat_refill_food_loadout(data)
+    _combat_refill_stat_potions(data)
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
     enemy = enemy_lookup.get(target_id, {}) if isinstance(target_id, str) and isinstance(enemy_lookup, Mapping) else {}
     target_poison = _positive_int(enemy.get("poison_damage", 0), 0) if isinstance(enemy, Mapping) else 0
@@ -2466,6 +2481,108 @@ def _potion_boost_amount(base_level, strategy):
     return base // 10 + 3
 
 
+def _build_combat_potion_dose_lookup():
+    """dose-item-name -> (base_name, skills, strategy, dose_int) for every stat
+    potion the combat loadout can auto-drink."""
+    lookup = {}
+    for base_name, spec in POTION_FAMILIES.items():
+        skills = tuple(spec["skills"])
+        strategy = str(spec["strategy"])
+        for dose in spec["doses"]:
+            lookup[potion_dose_name(base_name, dose)] = (base_name, skills, strategy, int(dose))
+    return lookup
+
+
+_COMBAT_STAT_POTION_BY_DOSE = _build_combat_potion_dose_lookup()
+_COMBAT_STAT_POTION_ITEM_NAMES = frozenset(_COMBAT_STAT_POTION_BY_DOSE)
+
+
+def _combat_relevant_potion_skills(combat_class):
+    """The stat(s) a potion should boost for the active combat style — the ones
+    that actually raise output (max hit / accuracy). Defence is not an output
+    stat, so it is not auto-potioned."""
+    if combat_class == "ranged":
+        return ("ranged",)
+    if combat_class == "magic":
+        return ("magic",)
+    return ("strength", "attack")
+
+
+def _combat_pick_potion_for_skill(stat_potions, skill_id):
+    """Choose the loadout stat-potion dose to drink for ``skill_id``: prefer a
+    super potion (bigger boost), then the higher dose (drink the fuller flask
+    first, RS-style). Returns the dose item name or None."""
+    best = None
+    best_rank = None
+    for item_name, count in stat_potions.items():
+        if _non_negative_int(count, 0) <= 0:
+            continue
+        entry = _COMBAT_STAT_POTION_BY_DOSE.get(item_name)
+        if entry is None or skill_id not in entry[1]:
+            continue
+        _base, _skills, strategy, dose = entry
+        rank = (1 if strategy == "s" else 0, dose)
+        if best_rank is None or rank > best_rank:
+            best, best_rank = item_name, rank
+    return best
+
+
+def _combat_auto_drink_potions(data, combat_class):
+    """Drink carried stat potions at burst start to (re)apply the output boosts
+    for the active style. Only drinks a stat that has no active boost (effective
+    <= base), so one flask lasts until its boost fully decays. Drinking a dose
+    consumes it (a (4) leaves a (3); a (1) empties). Returns the drink events."""
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    stat_potions = dict(loadout.get("stat_potions", {}) or {})
+    if not stat_potions:
+        return []
+    events = []
+    for skill_id in _combat_relevant_potion_skills(combat_class):
+        base = _combat_base_skill_level(data, skill_id, 1)
+        if _combat_effective_skill_level(data, skill_id, base) > base:
+            continue  # a boost is already active on this stat
+        item_name = _combat_pick_potion_for_skill(stat_potions, skill_id)
+        if item_name is None:
+            continue
+        base_name, skills, strategy, dose = _COMBAT_STAT_POTION_BY_DOSE[item_name]
+        # Consume one dose: the flask drops to the next-lower dose (dropped at 0/empty).
+        stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) - 1
+        if stat_potions[item_name] <= 0:
+            stat_potions.pop(item_name, None)
+        if dose > 1:
+            lower = potion_dose_name(base_name, dose - 1)
+            stat_potions[lower] = _non_negative_int(stat_potions.get(lower, 0), 0) + 1
+        # Apply the boost to every stat the family covers (Combat potion = both).
+        for boosted_skill in skills:
+            boost = _potion_boost_amount(_combat_base_skill_level(data, boosted_skill, 1), strategy)
+            apply_combat_stat_boost_to_pure(data, boosted_skill, boost)
+        events.append({"item": item_name, "skills": tuple(skills)})
+    loadout["stat_potions"] = {name: amount for name, amount in stat_potions.items() if amount > 0}
+    data["combat_supply_loadout"] = loadout
+    return events
+
+
+def _combat_refill_stat_potions(data):
+    """Load owned stat-potion doses from the bank into the combat loadout (all of
+    them; the food+potion budget/allocation lands with the packing-mode slice)."""
+    loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
+    stat_potions = dict(loadout.get("stat_potions", {}) or {})
+    inventory = data.get("inventory", {}) or {}
+    if not isinstance(inventory, Mapping):
+        data["combat_supply_loadout"] = loadout
+        return
+    inventory = dict(inventory)
+    for item_name in _COMBAT_STAT_POTION_ITEM_NAMES:
+        available = _non_negative_int(inventory.get(item_name, 0), 0)
+        if available <= 0:
+            continue
+        inventory[item_name] = 0
+        stat_potions[item_name] = _non_negative_int(stat_potions.get(item_name, 0), 0) + available
+    loadout["stat_potions"] = {name: amount for name, amount in stat_potions.items() if amount > 0}
+    data["inventory"] = inventory
+    data["combat_supply_loadout"] = loadout
+
+
 def _consumable_heal(data, amount):
     max_lp = combat_max_lifepoints_pure(data)
     current = _non_negative_int(data.get("combat_lifepoints", max_lp), max_lp)
@@ -2798,6 +2915,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
 
+    # Auto-drink carried stat potions before the rolls are computed, so the boost
+    # flows through the effective-level reads into this burst's max-hit/accuracy.
+    stat_potion_events = _combat_auto_drink_potions(data, combat_class)
+
     max_player_lp = combat_max_lifepoints_pure(data)
     player_lp = max(
         0,
@@ -2875,7 +2996,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     player_damage = 0
     enemy_damage = 0
     food_used = []
-    potions_used = []
+    potions_used = list(stat_potion_events)
     ammo_used = {}
     runes_used = {}
     status_damage = {}
@@ -3143,6 +3264,8 @@ def combat_supply_loadout_summary_pure(player_data):
         "food_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("food", {}) or {}).values()),
         "potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("potions", {}) or {}).values()),
         "potions_loaded_items": dict(loadout.get("potions", {}) or {}),
+        "stat_potions_loaded": sum(_non_negative_int(amount, 0) for amount in (loadout.get("stat_potions", {}) or {}).values()),
+        "stat_potions_loaded_items": dict(loadout.get("stat_potions", {}) or {}),
         "ammo_loaded": dict(loadout.get("ammo", {}) or {}),
         "runes_loaded": dict(loadout.get("runes", {}) or {}),
         "cannonballs_loaded": _non_negative_int(loadout.get("cannonballs", 0), 0),
@@ -3182,6 +3305,7 @@ def refill_combat_supply_loadout_pure(player_data, equipment_data=None):
         return data, False, "An active fight cannot refill supplies between review bursts."
     _combat_refill_food_loadout(data)
     _combat_refill_antipoison_loadout(data)
+    _combat_refill_stat_potions(data)
     style = COMBAT_ATTACK_STYLE_DATA.get(
         combat_attack_style_for_equipment_pure(data, equipment_data or {}),
         COMBAT_ATTACK_STYLE_DATA[DEFAULT_COMBAT_ATTACK_STYLE],
@@ -3203,7 +3327,7 @@ def unload_combat_supply_loadout_pure(player_data):
         return data, False, "An active fight cannot unload supplies between review bursts."
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     inventory = dict(data.get("inventory", {}) or {})
-    for key in ("food", "potions", "ammo", "runes"):
+    for key in ("food", "potions", "stat_potions", "ammo", "runes"):
         for item_name, amount in (loadout.get(key, {}) or {}).items():
             if isinstance(item_name, str):
                 inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) + _non_negative_int(amount, 0)
