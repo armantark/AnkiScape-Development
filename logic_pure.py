@@ -1050,6 +1050,9 @@ _COMBAT_DEFAULT_PACK_MODE = "balanced"
 _COMBAT_VALID_PACK_MODES = ("balanced", "max_output", "max_safety")
 _COMBAT_FOOD_CAP_BY_MODE = {"max_safety": 20, "balanced": 14, "max_output": 8}
 _COMBAT_POTION_FLASK_CAP_BY_MODE = {"max_safety": 2, "balanced": 4, "max_output": 6}
+# One dose cures poison; two cover a trip and refill at every bank run. Mode does
+# not scale this — antipoison is a cure, not a food/damage tradeoff.
+_COMBAT_ANTIPOISON_SLOT_CAP = 2
 
 
 def _combat_coerce_pack_mode(mode):
@@ -2075,7 +2078,13 @@ def _combat_bank_run_needed(data, target_id, combat_class, ranged_weapon_spec, s
     # One 28-slot inventory: supplies (food/potions/ammo/runes) and loot share it,
     # so a bank run is forced when together they fill it. As food is eaten the
     # freed slots become loot room, exactly like a real inventory.
-    if _combat_supply_slots_used(data) + _combat_loot_slots(data, target_id) >= CARRIED_CAPACITY:
+    #
+    # Guard: only *loot* is deposited by a bank run, so with nothing to deposit a
+    # full inventory cannot be relieved by banking. Requiring loot here means an
+    # over-budget supply loadout can never softlock combat into a permanent
+    # bank-run loop (it would refill the same supplies and re-trigger forever).
+    loot_slots = _combat_loot_slots(data, target_id)
+    if loot_slots > 0 and _combat_supply_slots_used(data) + loot_slots >= CARRIED_CAPACITY:
         return True
     if _combat_loaded_food_count(data) <= 0 and _combat_banked_auto_food_count(data) > 0:
         return True
@@ -2308,15 +2317,25 @@ def combat_poison_immunity_ticks_pure(player_data):
 
 
 def _combat_refill_antipoison_loadout(data):
+    """Load a couple of antipoison doses — one cures the poison, so two cover a
+    trip and refill at every bank run. Uncapped, this loaded the player's entire
+    antipoison stock into the loadout, which (since each unstackable dose costs a
+    slot) could push supplies past the whole 28-slot inventory and softlock combat
+    into a permanent bank-run loop."""
     loadout = _sanitize_combat_supply_loadout(data.get("combat_supply_loadout"))
     potion_loadout = dict(loadout.get("potions", {}) or {})
     inventory = dict(data.get("inventory", {}) or {})
+    loaded = sum(_non_negative_int(amount, 0) for amount in potion_loadout.values())
     for item_name in COMBAT_ANTIPOISON_POTION_DATA:
-        amount = _non_negative_int(inventory.get(item_name, 0), 0)
-        if amount <= 0:
+        if loaded >= _COMBAT_ANTIPOISON_SLOT_CAP:
+            break
+        available = _non_negative_int(inventory.get(item_name, 0), 0)
+        if available <= 0:
             continue
-        potion_loadout[item_name] = _non_negative_int(potion_loadout.get(item_name, 0), 0) + amount
-        inventory[item_name] = 0
+        take = min(available, _COMBAT_ANTIPOISON_SLOT_CAP - loaded)
+        potion_loadout[item_name] = _non_negative_int(potion_loadout.get(item_name, 0), 0) + take
+        inventory[item_name] = available - take
+        loaded += take
     loadout["potions"] = {item_name: amount for item_name, amount in potion_loadout.items() if amount > 0}
     data["inventory"] = inventory
     data["combat_supply_loadout"] = loadout

@@ -217,6 +217,44 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertIn("Super strength (4)", lo["stat_potions"])
         self.assertNotIn("Magic potion (4)", lo["stat_potions"])
 
+    def test_antipoison_refill_is_capped_and_cannot_softlock_combat(self):
+        # Regression: the antipoison refill loaded the player's ENTIRE stock. Each
+        # unstackable dose costs a slot, so 50 potions pushed supplies to 70 slots,
+        # making `supply + loot >= 28` permanently true — every answer became a bank
+        # run and the player could never fight a poisonous enemy.
+        from logic_pure import _combat_supply_slots_used, CARRIED_CAPACITY
+
+        player = {
+            "inventory": {"Shark": 100, "Antipoison (4)": 50}, "equipment": {},
+            "attack_level": 99, "strength_level": 99, "defense_level": 99,
+            "constitution_level": 99, "current_combat_target": "poison_scorpion",
+            "combat_attack_style": "aggressive", "combat_lifepoints": 990,
+            "combat_auto_eat_food": ["Shark"], "combat_pack_mode": "max_safety",
+        }
+        fights = 0
+        for _ in range(6):
+            player, _ok, result = apply_combat_burst_pure(
+                player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=5, rng=_rng([0.5] * 40))
+            if result.get("reason") != "combat_bank_run":
+                fights += 1
+        self.assertGreater(fights, 0, "combat softlocked into a permanent bank-run loop")
+        self.assertLessEqual(_combat_supply_slots_used(player), CARRIED_CAPACITY)
+        # Only a couple of doses are carried; the rest stay banked.
+        self.assertEqual(sum(player["combat_supply_loadout"]["potions"].values()), 2)
+        self.assertEqual(player["inventory"]["Antipoison (4)"], 48)
+
+    def test_a_full_supply_loadout_with_no_loot_never_forces_a_bank_run(self):
+        # Banking only deposits loot, so with nothing to deposit a "full" inventory
+        # cannot be relieved by banking — it must not trigger one.
+        player = self._melee(
+            combat_supply_loadout={"food": {"Shark": 28}},  # supplies alone fill it
+            current_combat_target="chicken",
+            carried_inventory={},  # no loot to deposit
+        )
+        _out, _ok, result = apply_combat_burst_pure(
+            player, COMBAT_ENEMY_DATA, EQUIPMENT_DATA, ticks=1, rng=_rng([0.0]))
+        self.assertNotEqual(result.get("reason"), "combat_bank_run")
+
     def test_supplies_and_loot_share_one_28_slot_budget(self):
         # 20 slots of supplies + 7 loot = 27 (room left, fights on); + 8 loot = 28,
         # so supplies+loot fill the one inventory and a bank run is forced. Before
