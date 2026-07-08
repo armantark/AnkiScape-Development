@@ -2597,11 +2597,13 @@ class CombatLogicTest(unittest.TestCase):
     def test_cow_calf_burst_grants_source_guaranteed_drops(self):
         player = _player(current_combat_target="cow_calf")
 
+        # ticks=1 restricts the burst to a single player attack, isolating one
+        # kill's guaranteed drops now that a burst chains kills across the window.
         new_data, ok, result = apply_combat_burst_pure(
             player,
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
-            ticks=500,
+            ticks=1,
             rng=_rng([0.0, 0.999999, 0.0]),
         )
 
@@ -2632,6 +2634,30 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(new_data["inventory"]["Bones"], 1)
         self.assertEqual(new_data["inventory"]["Raw chicken"], 1)
         self.assertEqual(new_data["inventory"]["Feather"], 5)
+
+    def test_combat_burst_chains_multiple_kills_within_tick_budget(self):
+        # A constant 0.5 roll always lands the player's near-max hit (one-shotting
+        # a chicken) while the chicken's own attack always misses against defence
+        # 99, so a full 50-tick burst should defeat several respawns rather than
+        # stopping after the first kill and wasting the rest of the window.
+        player = _player()
+
+        new_data, ok, result = apply_combat_burst_pure(
+            player,
+            COMBAT_ENEMY_DATA,
+            EQUIPMENT_DATA,
+            ticks=50,
+            rng=lambda: 0.5,
+        )
+
+        self.assertTrue(ok)
+        self.assertGreater(result["kills"], 1)
+        self.assertTrue(result["killed"])
+        self.assertFalse(result["died"])
+        self.assertEqual(new_data["combat_kill_counts"], {"chicken": result["kills"]})
+        # Each defeated chicken drops one guaranteed Bones, so the aggregated
+        # loot scales with the kill count.
+        self.assertEqual(new_data["inventory"]["Bones"], result["kills"])
 
     def test_aggressive_style_routes_melee_xp_to_strength(self):
         player = _player(combat_attack_style="aggressive")
@@ -2680,11 +2706,13 @@ class CombatLogicTest(unittest.TestCase):
             combat_supply_loadout={"ammo": {"Bronze arrows": 2}},
         )
 
+        # ticks=1 keeps the burst to one shot so this stays a single-kill ammo
+        # check; chaining is covered separately.
         new_data, ok, result = apply_combat_burst_pure(
             player,
             COMBAT_ENEMY_DATA,
             EQUIPMENT_DATA,
-            ticks=50,
+            ticks=1,
             rng=_rng([0.0, 0.999999, 0.0]),
         )
 

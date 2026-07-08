@@ -728,10 +728,15 @@ def handle_combat_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_exp(xp_total)
 
     display_name = str(result.get("display_name") or "enemy")
+    kills = int(result.get("kills", 0) or 0)
+    kill_phrase = f"{kills} × {display_name}" if kills != 1 else display_name
     if result.get("died"):
-        ctx.show_activity_gain(f"Defeated by {display_name}; gear moved to grave")
-    elif result.get("killed"):
-        ctx.show_activity_gain(f"Defeated {display_name}")
+        if kills > 0:
+            ctx.show_activity_gain(f"Defeated {kill_phrase}, then died; gear moved to grave")
+        else:
+            ctx.show_activity_gain(f"Defeated by {display_name}; gear moved to grave")
+    elif kills > 0:
+        ctx.show_activity_gain(f"Defeated {kill_phrase}")
     else:
         ctx.show_activity_gain(
             f"{display_name}: {int(result.get('player_damage', 0) or 0)} damage dealt, "

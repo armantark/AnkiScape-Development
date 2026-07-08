@@ -3142,6 +3142,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     status_expired = []
     xp_rewards = {}
     drops = {}
+    kills = 0
     killed = False
     died = False
     out_of_ammo = False
@@ -3198,9 +3199,19 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             elif damage > 0:
                 _combat_apply_xp(xp_rewards, style_id, damage, npc_xp_multiplier)
             if enemy_lp <= 0:
+                kills += 1
                 killed = True
-                drops = _combat_roll_drops(enemy, rng)
-                break
+                kill_drops = _combat_roll_drops(enemy, rng)
+                for drop_name, drop_amount in kill_drops.items():
+                    drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
+                # Chain into the next spawn of the same target for the remaining
+                # tick budget instead of ending the burst on the first kill (the
+                # old `break` wasted up to half of a ~30s review window). A fresh
+                # enemy respawns at full LP and re-engages after its normal attack
+                # delay, so it gets no free instant hit on the kill tick.
+                enemy_lp = enemy_max_lp
+                next_enemy_attack = tick + 1 + enemy_attack_speed
+                continue
 
         if tick >= next_enemy_attack and enemy_lp > 0:
             next_enemy_attack += enemy_attack_speed
@@ -3244,13 +3255,20 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     for exp_key, amount in xp_rewards.items():
         data[exp_key] = data.get(exp_key, 0.0) + amount
 
-    if killed:
+    # Chaining means a single burst can defeat several enemies and still end in
+    # a partial survivor or a death, so kills, death, and the carried encounter
+    # are now independent rather than mutually exclusive branches.
+    if kills > 0:
         kill_counts = dict(data.get("combat_kill_counts", {}) or {})
-        kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + 1
+        kill_counts[target_id] = _positive_int(kill_counts.get(target_id, 0), 0) + kills
         data["combat_kill_counts"] = kill_counts
-        data["combat_encounter"] = {}
-    elif died:
+
+    if died:
         player_lp = _combat_apply_pvm_death(data, max_player_lp)
+    elif enemy_lp <= 0 or enemy_lp >= enemy_max_lp:
+        # No partial progress to carry: either nothing was fought or the burst
+        # ended right after a kill respawned a fresh full-LP enemy.
+        data["combat_encounter"] = {}
     else:
         data["combat_encounter"] = {"target_id": target_id, "enemy_lifepoints": enemy_lp}
 
@@ -3267,6 +3285,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "enemy_lifepoints": enemy_lp,
         "player_lifepoints": player_lp,
         "killed": killed,
+        "kills": kills,
         "died": died,
         "stop_reason": "out_of_ammo" if out_of_ammo else "out_of_runes" if out_of_runes else "",
         "food_used": tuple(food_used),

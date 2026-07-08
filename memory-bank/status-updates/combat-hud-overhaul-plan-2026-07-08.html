@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combat HUD + Mechanics Overhaul — Plan</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2128; --muted:#5b6572;
+    --line:#e3e7ec; --accent:#7b5cff; --accent2:#2ea3ff;
+    --hp:#3fb950; --enemy:#e5534b; --xp-atk:#e0a800; --xp-str:#e5534b;
+    --xp-def:#2ea3ff; --xp-hp:#3fb950; --chip:#eef0f4; --shadow:rgba(20,24,33,.08);
+    --ok:#2f9e44; --warn:#e5883b; --todo:#7b8494;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --panel:#171b21; --ink:#e6e9ee; --muted:#9aa4b2;
+      --line:#262c34; --accent:#9d86ff; --accent2:#54b6ff; --chip:#20262e;
+      --shadow:rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+  header.hero{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;max-width:70ch}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:38px 0 14px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 1px 3px var(--shadow)}
+  .grid{display:grid;gap:14px}
+  @media(min-width:720px){.grid.two{grid-template-columns:1fr 1fr}}
+  /* HUD mockups */
+  .mock{padding:18px;display:flex;flex-direction:column;gap:6px}
+  .mock .cap{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:6px}
+  .hud{background:#12151b;border:1px solid #2a303a;border-radius:12px;padding:10px 12px;color:#e6e9ee;
+    display:flex;flex-direction:column;gap:7px;position:relative;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  .hud .row1{display:flex;align-items:center;gap:9px}
+  .hud .ic{width:26px;height:26px;border-radius:6px;background:linear-gradient(135deg,#7b5cff,#2ea3ff);flex:0 0 auto}
+  .hud .ttl{font-weight:700;font-size:13px}
+  .hud .lv{color:#9aa4b2;font-weight:500;font-size:12px}
+  .bar{height:12px;border-radius:6px;background:#232a33;overflow:hidden;position:relative}
+  .bar > i{display:block;height:100%;border-radius:6px}
+  .bar b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);font-style:normal}
+  .barlbl{display:flex;justify-content:space-between;font-size:10px;color:#9aa4b2;margin:-2px 0 -1px}
+  .chips{display:flex;gap:5px;flex-wrap:wrap}
+  .xpchip{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#20262e;color:#9aa4b2}
+  .xpchip.on{color:#12151b}
+  .xpchip.atk.on{background:var(--xp-atk)} .xpchip.str.on{background:var(--xp-str);color:#fff}
+  .xpchip.def.on{background:var(--xp-def)} .xpchip.hp.on{background:var(--xp-hp)}
+  .hud .sub{font-size:11px;color:#c6ccd6}
+  .menubtn{position:absolute;width:30px;height:30px;border-radius:50%;
+    background:linear-gradient(135deg,#7b5cff,#2ea3ff);border:2px solid #12151b;
+    display:flex;align-items:center;justify-content:center;font-size:14px}
+  .menubtn.center{left:50%;transform:translateX(-50%);bottom:-40px}
+  .menubtn.right{right:-40px;top:50%;transform:translateY(-50%)}
+  .callout{font-size:11px;color:var(--muted);margin-top:26px}
+  .callout.tight{margin-top:8px}
+  /* ask cards */
+  .ask{padding:15px 16px;display:flex;gap:13px;align-items:flex-start}
+  .ask .n{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:var(--chip);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--accent)}
+  .ask .body{flex:1;min-width:0}
+  .ask .h{font-weight:650;font-size:14px;margin-bottom:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ask .d{color:var(--muted);font-size:13px}
+  .ask .where{font-size:12px;color:var(--muted);margin-top:5px}
+  .ask code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .tag.mech{background:rgba(123,92,255,.14);color:var(--accent)}
+  .tag.ui{background:rgba(46,163,255,.14);color:var(--accent2)}
+  .tag.s{background:rgba(47,158,68,.14);color:var(--ok)}
+  .tag.m{background:rgba(229,136,59,.16);color:var(--warn)}
+  .tag.l{background:rgba(229,83,75,.16);color:var(--enemy)}
+  /* decisions */
+  .dec{padding:16px 18px;border-bottom:1px solid var(--line)}
+  .dec:last-of-type{border-bottom:none}
+  .dec .q{font-weight:650;margin-bottom:2px}
+  .dec .why{font-size:12px;color:var(--muted);margin-bottom:10px}
+  .opts{display:flex;gap:8px;flex-wrap:wrap}
+  .opt{border:1px solid var(--line);background:var(--bg);border-radius:9px;padding:8px 12px;
+    cursor:pointer;font-size:13px;user-select:none;transition:.12s}
+  .opt:hover{border-color:var(--accent)}
+  .opt.sel{border-color:var(--accent);background:rgba(123,92,255,.10);font-weight:600}
+  .opt .rec{font-size:10px;color:var(--ok);font-weight:700;margin-left:5px}
+  .copybar{display:flex;gap:10px;align-items:center;padding:16px 18px;flex-wrap:wrap}
+  button.copy{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:10px 18px;
+    font-weight:650;font-size:14px;cursor:pointer}
+  button.copy:hover{filter:brightness(1.08)}
+  .copyout{flex:1;min-width:220px;font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  /* phases */
+  ol.phases{list-style:none;counter-reset:p;padding:0;margin:0}
+  ol.phases li{counter-increment:p;padding:12px 16px 12px 52px;position:relative;border-bottom:1px solid var(--line)}
+  ol.phases li:last-child{border-bottom:none}
+  ol.phases li::before{content:counter(p);position:absolute;left:14px;top:12px;width:24px;height:24px;
+    border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700}
+  ol.phases b{font-weight:650}
+  ol.phases .t{font-size:12px;color:var(--muted)}
+  .note{background:rgba(46,163,255,.08);border:1px solid rgba(46,163,255,.25);border-radius:11px;
+    padding:14px 16px;font-size:13px;color:var(--ink)}
+  .note b{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AnkiScape · Plan / Proposal</div>
+  <h1>Combat HUD &amp; Mechanics Overhaul</h1>
+  <p class="sub">Eleven pieces of steering from the live play-test, resolved into one coherent
+  pass over the combat review loop, the floating HUD, and the death flow. Nothing here is built
+  yet — this is the pre-implementation proposal for sign-off.</p>
+  <div class="meta">
+    <span><b>Date</b> 2026-07-08</span>
+    <span><b>Branch</b> main (solo)</span>
+    <span><b>Scope</b> logic_pure · runtime_actions · ui · injectors</span>
+    <span><b>Tracking</b> combat-hud-overhaul-requirements.md</span>
+  </div>
+</header>
+
+<!-- ============ THE PROBLEM, SEEN ============ -->
+<h2>The problem, as played</h2>
+<div class="grid two">
+  <div class="panel mock">
+    <div class="cap">Today</div>
+    <div class="hud">
+      <div class="row1"><span class="ic"></span>
+        <span class="ttl">Combat <span class="lv">— Lv 12</span></span></div>
+      <div class="bar"><i style="width:65%;background:var(--hp)"></i><b>65 / 100 LP</b></div>
+      <div class="sub">Cow</div>
+      <div class="menubtn center">☰</div>
+    </div>
+    <p class="callout">One bar (your LP, mistaken for the enemy's). One flat XP number elsewhere.
+    Menu button floats below, unrelated to the bar. No enemy HP, no kill count, no death signal,
+    no per-skill XP. A death goes completely unannounced.</p>
+  </div>
+
+  <div class="panel mock">
+    <div class="cap">Proposed</div>
+    <div class="hud">
+      <div class="row1"><span class="ic"></span>
+        <span class="ttl">Combat <span class="lv">— Lv 12</span></span></div>
+      <div class="barlbl"><span>You</span><span>65 / 100</span></div>
+      <div class="bar"><i style="width:65%;background:var(--hp)"></i></div>
+      <div class="barlbl"><span>Cow</span><span>34 / 80</span></div>
+      <div class="bar"><i style="width:42%;background:var(--enemy)"></i></div>
+      <div class="chips">
+        <span class="xpchip atk on">ATK +18</span>
+        <span class="xpchip hp on">HP +6</span>
+        <span class="xpchip str">STR</span>
+        <span class="xpchip def">DEF</span>
+      </div>
+      <div class="sub">⚔ Defeated 2 × Cow · fighting Cow</div>
+      <div class="menubtn right">☰</div>
+    </div>
+    <p class="callout">Two bars (you + enemy), XP chips lit for the skills your style actually
+    trains, a kill tally, and the menu button anchored to the right of the bar. Full per-skill
+    XP progress bars live on the Combat stats screen, matching every other skill.</p>
+  </div>
+</div>
+<p class="note callout tight"><b>Chips are indicative.</b> Accurate lights ATK+HP, Aggressive
+STR+HP, Defensive DEF+HP, Controlled splits ATK/STR/DEF+HP — so the HUD itself answers
+"where is my XP going?" without opening a menu.</p>
+
+<!-- ============ THE ELEVEN ASKS ============ -->
+<h2>The eleven asks &amp; how each is met</h2>
+<div class="grid">
+
+  <div class="panel ask">
+    <div class="n">1</div><div class="body">
+    <div class="h">Chain kills <span class="tag mech">Mechanics</span> <span class="tag m">Med</span></div>
+    <div class="d">A 50-tick (~30s) burst should keep killing weak enemies until the tick budget is
+    spent, instead of stopping after the first kill and wasting half the window.</div>
+    <div class="where">Replace the <code>break</code> at <code>logic_pure.py:3200</code> with a
+    respawn-and-continue loop: on kill, tally it, roll drops, reset enemy LP to max, keep consuming
+    ticks. Return <code>kills</code> + aggregated <code>drops</code>/<code>xp_rewards</code>.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">2</div><div class="body">
+    <div class="h">Kill-count indicator <span class="tag ui">HUD</span> <span class="tag s">Small</span></div>
+    <div class="d">Show how many enemies fell this review — "Defeated 2 × Cow".</div>
+    <div class="where">Surface <code>result["kills"]</code> from the burst → HUD sub-line +
+    post-review activity message (<code>runtime_actions.py:730</code>).</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">3</div><div class="body">
+    <div class="h">Two health bars <span class="tag ui">HUD</span> <span class="tag m">Med</span></div>
+    <div class="d">Player LP <em>and</em> current enemy LP, so the enemy's health is visible.</div>
+    <div class="where">Add a second bar + labels in the combat branch of
+    <code>ui.py:1197</code>. Enemy live LP from <code>combat_enemy_current_lifepoints_pure</code>
+    over <code>stats.hitpoints</code>; pass through <code>set_data</code>'s player_data.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">4</div><div class="body">
+    <div class="h">Show where XP goes <span class="tag ui">HUD</span> <span class="tag s">Small</span></div>
+    <div class="d">The flat XP drop hides that combat feeds Attack/Strength/Defence <em>and</em>
+    Constitution. Break it out.</div>
+    <div class="where">XP chips row driven by the burst's <code>xp_rewards</code> keys
+    (<code>attack_exp/strength_exp/defense_exp/constitution_exp</code>), lit per active style.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">5</div><div class="body">
+    <div class="h">Per-skill combat XP bars <span class="tag ui">HUD</span> <span class="tag m">Med</span></div>
+    <div class="d">"No real way to see progress/xp for individual combat skills" — give them XP bars
+    like every other skill.</div>
+    <div class="where">Reuse <code>compute_level_progress</code> for attack/strength/defence/
+    constitution on the Combat stats screen (main menu), where non-combat skills already show theirs.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">6</div><div class="body">
+    <div class="h">Menu button to the right of the bar <span class="tag ui">HUD</span> <span class="tag s">Small</span></div>
+    <div class="d">It currently floats centered <em>under</em> the bar; move it to the bar's right edge.</div>
+    <div class="where">New <code>hud-right</code> anchor in <code>build_reviewer_js</code>
+    (<code>injectors.py:54</code>): <code>left: calc(50% + halfHudWidth + gap)</code> instead of
+    the centered/edge modes. Add the radio in Settings.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">7</div><div class="body">
+    <div class="h">Death indication <span class="tag mech">Mechanics</span> <span class="tag s">Small</span></div>
+    <div class="d">"I apparently died and didn't even realize it." Deaths must be loud.</div>
+    <div class="where">When <code>result["died"]</code> is true, fire a tooltip/dialog +
+    activity message from <code>handle_combat_answer</code>, and flag the HUD state red.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">8</div><div class="body">
+    <div class="h">Auto-flee option <span class="tag mech">Mechanics</span> <span class="tag m">Med</span></div>
+    <div class="d">Optionally leave combat when HP is too low and you can't heal (out of food), so you
+    stop dying silently.</div>
+    <div class="where">New config toggle; checked in the burst / post-burst path. Triggers a leave
+    (clear <code>combat_encounter</code>, drop to safe) with a notice. Threshold decision below.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">9</div><div class="body">
+    <div class="h">Attack style labels its XP <span class="tag ui">HUD</span> <span class="tag s">Small</span></div>
+    <div class="d">The style selector should say which XP each style trains.</div>
+    <div class="where">Append "— trains Attack", "— trains Strength", etc. to the style combo
+    entries in the combat setup panel (<code>ui.py</code> style_row ~2250).</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">10</div><div class="body">
+    <div class="h">Re-equip on reclaim <span class="tag mech">Mechanics</span> <span class="tag m">Med</span></div>
+    <div class="d">Reclaiming gear from death should auto-re-equip the same items you had on.</div>
+    <div class="where">In the grave/death-office reclaim path, snapshot the equipped set at death
+    (<code>_combat_apply_pvm_death</code>, <code>logic_pure.py:1303</code>) and re-apply it on reclaim
+    instead of dumping everything to the pack.</div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">11</div><div class="body">
+    <div class="h">Resolve the LP-fluctuation / parity question <span class="tag mech">Mechanics</span> <span class="tag m">Decision</span></div>
+    <div class="d">The bar goes up/down — "bank healing wasn't introduced till 2013." <b>Confirmed:</b>
+    it's <em>not</em> bank healing. It's <code>apply_safe_combat_recovery_pure</code> (+100 LP per
+    safe review, a full heal at Con 10) — an out-of-combat rest heal, a tuning knob.</div>
+    <div class="where">Decision below: keep as-is, or slow toward RS-classic natural regen.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ DECISIONS ============ -->
+<h2>Four decisions I need from you</h2>
+<div class="panel" id="decpanel">
+
+  <div class="dec" data-key="hud">
+    <div class="q">How much detail on the always-on HUD?</div>
+    <div class="why">The HUD is a compact floating overlay. Two health bars + XP chips + kill line fit;
+    four full XP progress bars would crowd it.</div>
+    <div class="opts">
+      <div class="opt sel" data-v="Two bars + XP chips on HUD; full XP bars on Combat stats screen">Bars + chips on HUD, full XP bars in menu<span class="rec">◆ rec</span></div>
+      <div class="opt" data-v="Everything on the HUD including four mini XP bars">Everything on the HUD</div>
+      <div class="opt" data-v="Keep HUD minimal; put XP detail only in the post-review toast">Minimal HUD, detail in toast</div>
+    </div>
+  </div>
+
+  <div class="dec" data-key="flee">
+    <div class="q">Auto-flee: default and trigger?</div>
+    <div class="why">Ask #8. Needs a default state and a threshold definition.</div>
+    <div class="opts">
+      <div class="opt sel" data-v="Auto-flee ON by default, triggers when LP below auto-eat threshold and no food remains">On, when below auto-eat &amp; out of food<span class="rec">◆ rec</span></div>
+      <div class="opt" data-v="Auto-flee OFF by default, opt-in toggle, same low-HP+no-food trigger">Off by default, opt-in</div>
+      <div class="opt" data-v="Auto-flee ON, triggers at a fixed low LP percentage regardless of food">On, fixed low-LP %</div>
+    </div>
+  </div>
+
+  <div class="dec" data-key="recovery">
+    <div class="q">Safe-recovery rate (the up/down LP) — parity call?</div>
+    <div class="why">Ask #11. Currently +100/safe review (instant full heal at Con 10). Your rule is
+    parity over safeguards.</div>
+    <div class="opts">
+      <div class="opt sel" data-v="Keep +100/review as-is for now; only relabel it clearly as out-of-combat rest, revisit later">Keep as-is, just label it clearly<span class="rec">◆ rec</span></div>
+      <div class="opt" data-v="Slow to RS-classic natural regen (~1 LP per game-minute equivalent per review)">Slow toward RS-classic regen</div>
+      <div class="opt" data-v="Make the recovery rate a config knob so I can tune it live">Make it a config knob</div>
+    </div>
+  </div>
+
+  <div class="dec" data-key="order">
+    <div class="q">Build order — one big pass or staged?</div>
+    <div class="why">Some asks are pure-engine (testable headless), others are HUD (need a play-test).</div>
+    <div class="opts">
+      <div class="opt sel" data-v="Staged: engine first (chain kills, kills, death, auto-flee, re-equip, recovery), then HUD, then polish — commit each stage">Staged, commit per stage<span class="rec">◆ rec</span></div>
+      <div class="opt" data-v="One combined pass, single commit at the end">One combined pass</div>
+    </div>
+  </div>
+
+  <div class="copybar">
+    <button class="copy" id="copybtn">Copy my decisions as a prompt</button>
+    <div class="copyout" id="copyout">Pick options above, then copy — paste back to me to lock the plan.</div>
+  </div>
+</div>
+
+<!-- ============ PROPOSED ORDER ============ -->
+<h2>Proposed implementation order (staged)</h2>
+<div class="panel">
+  <ol class="phases">
+    <li><b>Engine — chain kills + telemetry.</b> <span class="t">Rework the burst loop to
+      respawn-and-continue; return <code>kills</code>, aggregated drops &amp; per-skill
+      <code>xp_rewards</code>, and a clear <code>died</code>. Unit-test headless in <code>.venv-qt</code>.</span></li>
+    <li><b>Engine — death &amp; recovery.</b> <span class="t">Loud death signal, auto-flee check,
+      snapshot-and-re-equip on reclaim, and the safe-recovery relabel/tune per your call.</span></li>
+    <li><b>HUD — two bars + XP chips + kill line.</b> <span class="t">Rebuild the combat branch of
+      <code>set_data</code>; verify with geometry probes (offscreen rule) then a Pinchtab play-test.</span></li>
+    <li><b>HUD — menu button anchor + style labels + Combat XP bars.</b> <span class="t">
+      <code>hud-right</code> anchor, style-combo XP labels, per-skill XP bars on the stats screen.</span></li>
+    <li><b>Verify + results artifact.</b> <span class="t">Full widget suite, manual play-test,
+      then a results artifact comparing against this plan.</span></li>
+  </ol>
+</div>
+
+<script>
+  const panel = document.getElementById('decpanel');
+  panel.querySelectorAll('.dec').forEach(dec=>{
+    dec.querySelectorAll('.opt').forEach(opt=>{
+      opt.addEventListener('click',()=>{
+        dec.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+        opt.classList.add('sel');
+      });
+    });
+  });
+  document.getElementById('copybtn').addEventListener('click',()=>{
+    const labels={hud:'HUD detail',flee:'Auto-flee',recovery:'Safe-recovery',order:'Build order'};
+    let lines=['Locking the combat overhaul plan. My decisions:'];
+    panel.querySelectorAll('.dec').forEach(dec=>{
+      const sel=dec.querySelector('.opt.sel');
+      lines.push('- '+labels[dec.dataset.key]+': '+(sel?sel.dataset.v:'(none)'));
+    });
+    lines.push('Proceed with the staged build.');
+    const text=lines.join('\n');
+    navigator.clipboard.writeText(text).then(()=>{
+      document.getElementById('copyout').textContent='Copied — paste it back to me.';
+    },()=>{
+      document.getElementById('copyout').textContent=text;
+    });
+  });
+</script>
+
+</div>
+</body>
+</html>
