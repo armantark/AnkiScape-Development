@@ -432,6 +432,13 @@ def _open_bank_tab(dialog: "QDialog") -> None:
     QApplication.processEvents()
 
 
+def _open_equipment_tab(dialog: "QDialog") -> None:
+    tabs = _find_main_tabs(dialog)
+    index = next(i for i in range(tabs.count()) if tabs.tabText(i) == "Equipment")
+    tabs.setCurrentIndex(index)
+    QApplication.processEvents()
+
+
 def _open_first_shop(dialog: "QDialog") -> None:
     """Browse-first Shop tab: no shop opens until one is clicked."""
     selector = _find_named_list(dialog, "shopSelectionList")
@@ -567,15 +574,18 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIsNotNone(summary)
         self.assertIn("bank run", summary.text().lower())
 
-        loot_spin = self.dialog.findChild(QSpinBox, "carriedLootThresholdSpin")
-        self.assertIsNotNone(loot_spin, "loot-threshold spinbox not found")
+        # The loot-threshold spinner moved to the Equipment tab's combat controls;
+        # the Bank keeps a pointer to it instead.
+        self.assertIsNone(self.dialog.findChild(QSpinBox, "carriedLootThresholdSpin"))
+        self.assertIsNotNone(self.dialog.findChild(QSpinBox, "combatLootThresholdSpin"))
+        self.assertIsNotNone(self.dialog.findChild(QLabel, "carriedEquipmentPointer"))
         # No packing-mode dropdown: skilling packs are inferred, not player-picked.
         self.assertIsNone(self.dialog.findChild(QComboBox, "carriedPackModeCombo"))
 
         header = self.dialog.findChild(QPushButton, "carriedInventoryHeader")
         self.assertIsNotNone(header)
         self.assertTrue(header.isCheckable())
-        body = loot_spin.parentWidget().parentWidget()  # loot_row -> carried_body
+        body = summary.parentWidget()  # carried_summary lives directly on carried_body
         # Collapsed by default; toggling the header reveals the body. Use
         # isVisibleTo (local intent) since the Bank tab itself may be inactive.
         self.assertFalse(body.isVisibleTo(body.parentWidget()))
@@ -602,8 +612,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertEqual(calls[-1], True)  # toggling to drop calls back with True
         dialog.deleteLater()
 
-    def test_per_drop_loot_override_combos_present_and_wired(self) -> None:
-        from aqt.qt import QComboBox
+    def test_per_drop_loot_override_stepper_present_and_wired(self) -> None:
+        from aqt.qt import QCheckBox, QLabel, QPushButton, QWidget
 
         calls: list = []
         rows = (
@@ -615,13 +625,27 @@ class MainMenuWidgetTest(unittest.TestCase):
             loot_override_rows=rows,
             on_set_loot_override=lambda item, mode: calls.append((item, mode)),
         )
-        bones_combo = dialog.findChild(QComboBox, "lootOverride::Bones")
-        self.assertIsNotNone(bones_combo, "per-drop override combo missing")
-        self.assertEqual(bones_combo.currentData(), "keep")  # reflects saved state
-        # Switch Bones to Leave -> callback fires with ("Bones", "leave").
-        bones_combo.setCurrentIndex(bones_combo.findData("leave"))
+        # The per-drop overrides now live in the Combat setup panel (Equipment tab)
+        # as icon cells with a ‹ mode › stepper, behind an Advanced disclosure.
+        grid = dialog.findChild(QWidget, "combatLootOverrideGrid")
+        self.assertIsNotNone(grid, "per-drop override grid missing")
+        bones_mode = dialog.findChild(QLabel, "lootOverrideMode::Bones")
+        bones_next = dialog.findChild(QPushButton, "lootOverrideNext::Bones")
+        self.assertIsNotNone(bones_mode, "per-drop mode label missing")
+        self.assertIsNotNone(bones_next, "per-drop stepper missing")
+        self.assertEqual(bones_mode.text(), "Keep")  # reflects saved state
+        # Stepping forward cycles Keep -> Leave and fires the callback.
+        bones_next.click()
         QApplication.processEvents()
         self.assertIn(("Bones", "leave"), calls)
+        self.assertEqual(bones_mode.text(), "Leave")
+
+        # The simple "keep everything" toggle bulk-applies keep via the same callback.
+        keep_all = dialog.findChild(QCheckBox, "combatLootKeepAllCheck")
+        self.assertIsNotNone(keep_all)
+        keep_all.setChecked(True)
+        QApplication.processEvents()
+        self.assertIn(("Raw chicken", "keep"), calls)
         dialog.deleteLater()
 
     def test_carried_keep_drop_toggle_absent_without_gathering_target(self) -> None:
@@ -663,9 +687,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         dialog.resize(560, 640)
         for _ in range(6):
             QApplication.processEvents()
-        _open_bank_tab(dialog)
-        header = dialog.findChild(QPushButton, "carriedInventoryHeader")
-        header.setChecked(True)
+        # The 28-slot editor now lives on the Equipment tab, always reachable.
+        _open_equipment_tab(dialog)
         for _ in range(6):
             QApplication.processEvents()
 
@@ -734,12 +757,15 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("max_output", calls)
         dialog.deleteLater()
 
-    def test_carried_layout_grid_absent_without_a_skilling_target(self) -> None:
+    def test_carried_layout_grid_reachable_without_an_active_pack_target(self) -> None:
         from aqt.qt import QCheckBox, QWidget
 
+        # Regression: the advanced editor used to disappear entirely when no pack
+        # target was active. It now lives on the Equipment tab and is always
+        # available so players can arrange their carried pack at any time.
         dialog = self._open(_make_player_data(), carried_pack_target_active=False)
-        self.assertIsNone(dialog.findChild(QCheckBox, "carriedAdvancedModeCheck"))
-        self.assertIsNone(dialog.findChild(QWidget, "carriedLayoutGrid"))
+        self.assertIsNotNone(dialog.findChild(QCheckBox, "carriedAdvancedModeCheck"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "carriedLayoutGrid"))
         dialog.deleteLater()
 
     def test_shop_tab_renders_and_keeps_hidden_reward_shops_out_of_browse_and_search(self) -> None:
@@ -1245,6 +1271,43 @@ class MainMenuWidgetTest(unittest.TestCase):
         spell_combo.setCurrentIndex(fire_wave_index)
         QApplication.processEvents()
         self.assertEqual(self._combat_spell_calls[-1], "fire_wave")
+
+    def test_ranged_weapon_exposes_attack_style_selector_and_wires_it(self) -> None:
+        pd = _make_player_data()
+        pd.update(
+            {
+                "current_combat_target": "chicken",
+                "combat_attack_style": "ranged_accurate",
+                "equipment": {"weapon": "Shortbow"},
+                "ranged_level": 20,
+            }
+        )
+        dialog = self._open(pd, current_skill="Combat")
+
+        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
+        self.assertIsNotNone(style_combo, "ranged weapon should expose an attack-style selector")
+        # Only ranged styles are offered (never melee/magic).
+        ids = [style_combo.itemData(i) for i in range(style_combo.count())]
+        self.assertEqual(ids, ["ranged_accurate", "ranged_rapid", "ranged_longrange"])
+        self.assertEqual(style_combo.currentData(), "ranged_accurate")
+        # Selecting a style persists it via on_set_combat_style.
+        style_combo.setCurrentIndex(style_combo.findData("ranged_rapid"))
+        QApplication.processEvents()
+        self.assertEqual(self._combat_style_calls[-1], "ranged_rapid")
+
+    def test_melee_weapon_style_selector_offers_only_melee_styles(self) -> None:
+        pd = _make_player_data()
+        pd.update({"current_combat_target": "chicken", "combat_attack_style": "aggressive"})
+        dialog = self._open(pd, current_skill="Combat")
+
+        style_combo = dialog.findChild(QComboBox, "combatStyleCombo")
+        self.assertIsNotNone(style_combo)
+        ids = [style_combo.itemData(i) for i in range(style_combo.count())]
+        self.assertEqual(ids, ["accurate", "aggressive", "defensive", "controlled"])
+        self.assertEqual(style_combo.currentData(), "aggressive")
+        style_combo.setCurrentIndex(style_combo.findData("defensive"))
+        QApplication.processEvents()
+        self.assertEqual(self._combat_style_calls[-1], "defensive")
 
     def test_combat_exposes_loadout_controls(self) -> None:
         pd = _make_player_data()

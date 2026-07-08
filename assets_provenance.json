@@ -7163,6 +7163,18 @@
     "source_wiki": "rs3",
     "timestamp": "2016-05-02T09:33:24Z"
   },
+  "icon/attack_icon.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Attack_icon_%28detail%29.png",
+    "file_title": "Attack icon (detail).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Attack_icon_%28detail%29.png?a4903",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "e84d93310dba7904c345ac577c2bff651b52cd15",
+    "size": 366,
+    "source_wiki": "osrs",
+    "timestamp": "2022-01-19T13:54:36Z"
+  },
   "icon/cooking_icon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Cooking_icon_%28detail%29.png",
     "file_title": "Cooking icon (detail).png",
