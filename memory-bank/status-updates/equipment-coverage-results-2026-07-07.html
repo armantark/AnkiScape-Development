@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Equipment Coverage — Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,0.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;
+  line-height:1.55;padding:48px 24px;max-width:1080px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.7rem;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--green);background:rgba(74,222,128,0.12);
+  border:1px solid rgba(74,222,128,0.3);padding:5px 12px;border-radius:999px}
+h1{font-weight:700;font-size:2.1rem;margin:16px 0 8px;letter-spacing:-0.02em}
+.sub{color:var(--text-dim);font-size:0.98rem;max-width:70ch}
+.headline{display:flex;gap:28px;flex-wrap:wrap;align-items:baseline;margin:34px 0 10px}
+.big{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:2.6rem;line-height:1}
+.big .from{color:var(--text-dim);font-size:1.4rem}
+.big .arrow{color:var(--accent);padding:0 8px}
+.big .to{color:var(--green)}
+.big-label{color:var(--text-dim);font-size:0.8rem;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;margin-top:6px}
+section{margin-top:40px}
+.h{font-family:'JetBrains Mono',monospace;font-size:0.75rem;font-weight:600;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+/* slot bars */
+.slots{display:grid;gap:10px}
+.slot{display:grid;grid-template-columns:110px 1fr 88px;align-items:center;gap:14px}
+.slot .name{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text-dim)}
+.track{position:relative;height:26px;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.bar-before{position:absolute;top:0;left:0;height:100%;background:var(--surface-2);border-right:1px solid var(--border)}
+.bar-after{position:absolute;top:0;left:0;height:100%;background:linear-gradient(90deg,rgba(79,140,255,0.5),rgba(74,222,128,0.5))}
+.slot .nums{font-family:'JetBrains Mono',monospace;font-size:0.8rem;text-align:right}
+.slot .nums .z{color:var(--red)}
+.slot .nums b{color:var(--green);font-weight:600}
+.empty-tag{color:var(--red);font-size:0.68rem}
+/* pipeline */
+.pipe{display:flex;flex-wrap:wrap;gap:10px;align-items:stretch}
+.src{flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}
+.src.newnode{border-color:rgba(74,222,128,0.4);box-shadow:0 0 0 1px rgba(74,222,128,0.15)}
+.src .t{font-family:'JetBrains Mono',monospace;font-size:0.78rem;font-weight:600}
+.src .d{color:var(--text-dim);font-size:0.8rem;margin-top:5px}
+.src .n{margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:var(--accent)}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--text-dim);
+  background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;margin-top:8px}
+.newpill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:0.6rem;color:var(--green);
+  background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);border-radius:999px;padding:1px 7px;margin-left:6px}
+/* recon */
+.recon{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px 24px}
+.recon .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px dashed var(--border)}
+.recon .row:last-child{border-bottom:none}
+.recon .k{color:var(--text-dim);font-size:0.9rem}
+.recon .v{font-family:'JetBrains Mono',monospace;font-weight:600}
+.ok{color:var(--green)}.warn{color:var(--amber)}
+.callout{margin-top:14px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.3);
+  border-radius:10px;padding:14px 16px;font-size:0.88rem}
+.callout .lbl{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--purple);text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
+.examples{display:flex;flex-wrap:wrap;gap:7px;margin-top:14px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:0.72rem;background:var(--surface-2);
+  border:1px solid var(--border);border-radius:6px;padding:5px 10px}
+.chip b{color:var(--accent);font-weight:600}
+.foot{margin-top:40px;color:var(--text-dim);font-size:0.82rem;font-family:'JetBrains Mono',monospace;
+  border-top:1px solid var(--border);padding-top:16px}
+</style>
+</head>
+<body>
+
+<span class="badge">✓ Goal met — all equippables equippable</span>
+<h1>Equipment roster: every obtainable item, equippable</h1>
+<p class="sub">The generator built <code>EQUIPMENT_DATA</code> from smithing recipes alone, so four slots were empty and anything crafted, fletched, bought, or looted could never be worn — the root of "I can't equip much besides a bronze sword." It now unions all five implemented acquisition paths.</p>
+
+<div class="headline">
+  <div>
+    <div class="big"><span class="from">158</span><span class="arrow">→</span><span class="to">553</span></div>
+    <div class="big-label">equippable items</div>
+  </div>
+  <div>
+    <div class="big"><span class="from">4</span><span class="arrow">→</span><span class="to">0</span></div>
+    <div class="big-label">empty slots</div>
+  </div>
+  <div>
+    <div class="big"><span class="to">876</span></div>
+    <div class="big-label">tests passing</div>
+  </div>
+</div>
+
+<section>
+  <div class="h">Slot coverage — before / after</div>
+  <div class="slots" id="slots"></div>
+</section>
+
+<section>
+  <div class="h">The acquisition pipeline — 6 sources, deduped by name</div>
+  <div class="pipe">
+    <div class="src"><div class="t">Smithing</div><div class="d">Type-based armour & weapon selector (original)</div><div class="n">158 seed</div></div>
+    <div class="src"><div class="t">Mining + legacy</div><div class="d">Pickaxes, manual Runecrafting entry</div></div>
+    <div class="src newnode"><div class="t">Crafting <span class="newpill">pass 1</span></div><div class="d">Leather gloves/boots, gem rings & amulets</div></div>
+    <div class="src newnode"><div class="t">Fletching <span class="newpill">pass 1</span></div><div class="d">Arrows, bolts, darts, knives, bows</div></div>
+    <div class="src newnode"><div class="t">NPC shops <span class="newpill">pass 2</span></div><div class="d">273 shops, resolved by item_id then name</div><div class="n">+ vambraces, coifs, robes</div></div>
+    <div class="src newnode"><div class="t">Combat drops <span class="newpill">pass 2</span></div><div class="d">130 enemies; singular↔plural ammo aliasing</div><div class="n">+ metal boots, whip, dragon helm</div></div>
+    <div class="src newnode"><div class="t">Smithing recipes <span class="newpill">pass 3</span></div><div class="d">Merged last — net-new wieldable tools only</div><div class="n">+ Mithril/Adamant/Rune hatchet</div></div>
+  </div>
+  <div class="callout" style="margin-top:16px">
+    <span class="lbl">Why pass 3</span><br>
+    The type-based smithing selector maps armour and weapon families but skips smithable <i>tools</i> that are also wieldable. Bronze/Iron/Steel hatchet slipped in via drops; the higher tiers nothing drops did not. Merging a recipe-based smithing source <i>last</i> adds exactly those three names without relabelling any of the 550 existing rows.
+  </div>
+</section>
+
+<section>
+  <div class="h">Source reconciliation — the completeness proof</div>
+  <div class="recon">
+    <div class="row"><span class="k">Equippable in <code>items.yml</code> AND obtainable via an implemented path</span><span class="v">525 names</span></div>
+    <div class="row"><span class="k">Present in <code>EQUIPMENT_DATA</code></span><span class="v ok">553 names</span></div>
+    <div class="row"><span class="k">Obtainable-but-not-equippable (real gaps)</span><span class="v ok">0</span></div>
+    <div class="row"><span class="k">Duplicate-name cosmetics collapsed (name-keyed bank)</span><span class="v warn">~88 ids → 1 name each</span></div>
+    <div class="row"><span class="k">Singular ammo names covered by their plural</span><span class="v ok">16, no dupes</span></div>
+    <div class="examples">
+      <span class="chip">Bronze boots <b>feet</b></span>
+      <span class="chip">Rune boots <b>feet</b></span>
+      <span class="chip">Leather vambraces <b>hands</b></span>
+      <span class="chip">Dragon med helm <b>head</b></span>
+      <span class="chip">Abyssal whip <b>weapon</b></span>
+      <span class="chip">Mystic gloves <b>hands</b></span>
+      <span class="chip">Obsidian cape <b>cape</b></span>
+      <span class="chip">Rune hatchet <b>weapon</b></span>
+    </div>
+  </div>
+  <div class="callout">
+    <span class="lbl">The one deliberate exclusion</span><br>
+    <b>Fist of Guthix metal gauntlets</b> (Bronze→Dragon, ids 12985–13006) have no smithing, crafting, fletching, shop, or drop path — they are minigame-reward-only. They stay out by design, parked with the <code>minigames-activities-design-seed.md</code>. The same is true for <b>metal boots above Rune</b> that the current roster does not yet drop. These are content/acquisition slices, not generator gaps.
+  </div>
+</section>
+
+<div class="foot">
+  source-faithful · all bonuses from data/cfg/items.yml · nothing hand-added or invented<br>
+  commits 1601d53 · 758c1a4 &nbsp;|&nbsp; tools/generate_equipment_data.py · equipment_data.py &nbsp;|&nbsp; 2026-07-07
+</div>
+
+<script>
+const data=[
+  ['weapon',82,194,false],['head',26,65,false],['body',16,53,false],
+  ['legs',12,46,false],['neck',7,29,false],['cape',2,56,false],
+  ['shield',13,21,false],['feet',0,24,true],['hands',0,14,true],
+  ['ammunition',0,40,true],['ring',0,8,true]
+];
+const max=Math.max(...data.map(d=>d[2]));
+document.getElementById('slots').innerHTML=data.map(([name,b,a,wasEmpty])=>`
+  <div class="slot">
+    <div class="name">${name}${wasEmpty?' <span class="empty-tag">was empty</span>':''}</div>
+    <div class="track">
+      <div class="bar-after" style="width:${a/max*100}%"></div>
+      <div class="bar-before" style="width:${b/max*100}%"></div>
+    </div>
+    <div class="nums"><span class="${b===0?'z':''}">${b}</span> → <b>${a}</b></div>
+  </div>`).join('');
+</script>
+</body>
+</html>
