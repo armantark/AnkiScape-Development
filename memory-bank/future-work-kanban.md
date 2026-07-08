@@ -26,6 +26,13 @@ Use this board as the handoff source for near-term AnkiScape follow-up threads. 
   `memory-bank/fake-grand-exchange-design.md`, and shops absorbed much of its
   original rationale.
 - Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
+- Minigames/activities (Fist of Guthix, Pest Control, etc.) are parked as a
+  seed in `memory-bank/minigames-activities-design-seed.md` (captured
+  2026-07-07). Owner intent: model them as extra activities in the existing
+  Utility/Activities hub, with random events for variety, and use their reward
+  shops to unblock minigame-only gear. This is the acquisition path for the
+  parked metal gauntlets (FoG) and complements the drop-only metal boots. Do not
+  build from the seed until it is grilled.
 - Special Mining and Woodcutting content should stay parked for now.
 - Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
 - Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
