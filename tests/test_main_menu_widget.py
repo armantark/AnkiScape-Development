@@ -563,23 +563,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
 
     def test_bank_carried_inventory_panel_is_present_and_collapsible(self) -> None:
-        combo = self.dialog.findChild(QComboBox, "carriedPackModeCombo")
-        self.assertIsNotNone(combo, "carried-inventory pack-mode combo not found")
-        self.assertEqual(
-            [combo.itemData(i) for i in range(combo.count())],
-            ["balanced", "max_output", "max_safety"],
-        )
         summary = self.dialog.findChild(QLabel, "carriedInventorySummary")
         self.assertIsNotNone(summary)
         self.assertIn("bank run", summary.text().lower())
 
         loot_spin = self.dialog.findChild(QSpinBox, "carriedLootThresholdSpin")
         self.assertIsNotNone(loot_spin, "loot-threshold spinbox not found")
+        # No packing-mode dropdown: skilling packs are inferred, not player-picked.
+        self.assertIsNone(self.dialog.findChild(QComboBox, "carriedPackModeCombo"))
 
         header = self.dialog.findChild(QPushButton, "carriedInventoryHeader")
         self.assertIsNotNone(header)
         self.assertTrue(header.isCheckable())
-        body = combo.parentWidget().parentWidget()  # mode_row -> carried_body
+        body = loot_spin.parentWidget().parentWidget()  # loot_row -> carried_body
         # Collapsed by default; toggling the header reveals the body. Use
         # isVisibleTo (local intent) since the Bank tab itself may be inactive.
         self.assertFalse(body.isVisibleTo(body.parentWidget()))

@@ -60,7 +60,6 @@ class TestStorageMigrationExtra(unittest.TestCase):
         self.assertEqual(base["agility_exp"], 0)
         self.assertEqual(base["unlocked_abilities"], [])
         self.assertEqual(base["carried_inventory"], {})
-        self.assertEqual(base["carried_pack_mode"], "balanced")
         self.assertEqual(base["loot_value_threshold"], 10)
 
     def test_migration_normalizes_unlocked_abilities_and_legacy_fletching_target(self):
@@ -75,7 +74,6 @@ class TestStorageMigrationExtra(unittest.TestCase):
         data = {"config_version": 1, "inventory": {"Coins": 1000, "Oak logs": 5}}
         out = migrate_loaded_data(data, ORE_DATA)
         self.assertEqual(out["carried_inventory"], {})
-        self.assertEqual(out["carried_pack_mode"], "balanced")
         self.assertEqual(out["inventory"]["Coins"], 1000)
         self.assertEqual(out["inventory"]["Oak logs"], 5)
 

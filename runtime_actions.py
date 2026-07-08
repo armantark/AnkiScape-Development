@@ -325,7 +325,6 @@ def _repack_view_for_target(
     bank: dict[str, Any],
     requirements: dict[str, int],
     capacity: int,
-    mode: Any,
 ) -> dict[str, int]:
     """The freshly-packed carried view after a completed bank run.
 
@@ -391,9 +390,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     # never for the initial load (owner: no free banking, but this isn't a trip).
     primed = target_id in (player_data.get("carried_primed_targets") or {})
     if is_processing and requirements and not primed:
-        view = _repack_view_for_target(
-            is_processing, advanced, layout, bank, requirements, capacity, player_data.get("carried_pack_mode")
-        )
+        view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
         _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
 
     force = bool(
@@ -409,9 +406,7 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
     if not act:
         if event.get("completed"):
-            new_view = _repack_view_for_target(
-                is_processing, advanced, layout, bank, requirements, capacity, player_data.get("carried_pack_mode")
-            )
+            new_view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
         player_data["skilling_bank_run"] = new_state
         _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
         _set_carried_target_map(player_data, "carried_churn", target_id, new_churn)

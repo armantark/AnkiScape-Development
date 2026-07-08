@@ -115,7 +115,6 @@ class TestStoragePure(unittest.TestCase):
             "item_charges",
             "unlocked_abilities",
             "carried_inventory",
-            "carried_pack_mode",
             "loot_value_threshold",
             "shop_data_version",
             "shop_market_clock",
@@ -173,7 +172,6 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(data["item_charges"], {})
         self.assertEqual(data["unlocked_abilities"], [])
         self.assertEqual(data["carried_inventory"], {})
-        self.assertEqual(data["carried_pack_mode"], "balanced")
         self.assertEqual(data["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
         self.assertEqual(data["shop_market_clock"], {"version": 1, "answered_cards": 0, "market_tick": 0})
         self.assertEqual(data["shop_stock_state"], {})
@@ -275,7 +273,6 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["shop_stock_state"], {})
         self.assertEqual(migrated["shop_events"], [])
         self.assertEqual(migrated["carried_inventory"], {})
-        self.assertEqual(migrated["carried_pack_mode"], "balanced")
         self.assertEqual(migrated["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
         # Inventory preserved and completed with ore keys
         self.assertEqual(migrated["inventory"]["Copper ore"], 2)

@@ -1657,7 +1657,6 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_utility=None,
-    on_set_carried_pack_mode=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
     on_set_loot_threshold=None,
@@ -4336,9 +4335,9 @@ def show_main_menu(
     bk_layout.setSpacing(8)
 
     # Carried inventory overlay — the 28-slot pack the review loop draws from and
-    # banks when full. Collapsible header; the casual packing mode lives here.
-    _PACK_MODE_CHOICES = (("Balanced", "balanced"), ("Max output", "max_output"), ("Max safety", "max_safety"))
-
+    # banks when full. Collapsible header. Casual packing is inferred (even split
+    # for processing, action-filled for gathering) with approximate bank runs;
+    # players who want to tune it use the advanced 4x7 grid below.
     def _carried_panel_summary_text() -> str:
         carried = player_data.get("carried_inventory") or {}
         run = player_data.get("skilling_bank_run") or {}
@@ -4370,26 +4369,6 @@ def show_main_menu(
     cb_layout = QVBoxLayout(carried_body)
     cb_layout.setContentsMargins(10, 2, 4, 6)
     cb_layout.setSpacing(6)
-
-    mode_row = QWidget()
-    mode_layout = QHBoxLayout(mode_row)
-    mode_layout.setContentsMargins(0, 0, 0, 0)
-    mode_layout.setSpacing(8)
-    mode_label = QLabel("Packing mode")
-    mode_label.setStyleSheet("color: palette(text);")
-    carried_mode_combo = QComboBox()
-    carried_mode_combo.setObjectName("carriedPackModeCombo")
-    for label, mode_id in _PACK_MODE_CHOICES:
-        carried_mode_combo.addItem(label, mode_id)
-    _current_mode = str(player_data.get("carried_pack_mode", "balanced"))
-    carried_mode_combo.setCurrentIndex(max(0, carried_mode_combo.findData(_current_mode)))
-    if on_set_carried_pack_mode is not None:
-        carried_mode_combo.currentIndexChanged.connect(
-            lambda _index: on_set_carried_pack_mode(carried_mode_combo.currentData() or "balanced")
-        )
-    mode_layout.addWidget(mode_label)
-    mode_layout.addWidget(carried_mode_combo, 1)
-    cb_layout.addWidget(mode_row)
 
     # Keep/Drop toggle — only meaningful for a gathering target (power-gather =
     # drop the product for the fastest XP, no banking). Absent otherwise.

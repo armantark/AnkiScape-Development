@@ -10,7 +10,6 @@ from inventory_pure import (
     high_alch_value,
     loot_should_pick_up,
     money_pouch_balance,
-    pack_carried_inventory_pure,
     bank_run_progress_pure,
     carried_bank_run_gate_pure,
     carried_fold_gains_pure,
@@ -100,61 +99,18 @@ class TestInventoryPure(unittest.TestCase):
         self.assertEqual(data["carried_churn"], {"coal": 5})
         self.assertEqual(data["skilling_bank_run"], {"reviews_remaining": 1, "target_id": "coal"})
 
-    def test_sanitize_carried_state_corrects_junk_types(self):
+    def test_sanitize_carried_state_corrects_junk_types_and_drops_legacy_pack_mode(self):
         player_data = {
             "carried_inventory": {"target": {"Oak logs": "2", "Shrimps": -5, 3: 1}, "bad": "items"},
-            "carried_pack_mode": "unsafe",
+            "carried_pack_mode": "unsafe",  # legacy no-op preference — must be dropped
             "loot_value_threshold": "bad",
         }
 
         sanitize_carried_state(player_data)
 
         self.assertEqual(player_data["carried_inventory"], {"target": {"Oak logs": 2}})
-        self.assertEqual(player_data["carried_pack_mode"], "balanced")
+        self.assertNotIn("carried_pack_mode", player_data)
         self.assertEqual(player_data["loot_value_threshold"], DEFAULT_LOOT_VALUE_THRESHOLD)
-
-
-class TestPackCarriedInventory(unittest.TestCase):
-    def test_balanced_reserves_food_then_fills_primary_capped_at_28(self):
-        bank = {"Lobster": 100, "Coal": 100}
-        spec = {"food": ["Lobster"], "food_reserve": 6, "primary": "Coal"}
-        carried = pack_carried_inventory_pure(bank, spec, "balanced", set())
-        self.assertEqual(carried["Lobster"], 6)
-        self.assertEqual(carried["Coal"], CARRIED_CAPACITY - 6)
-        self.assertEqual(carried_slots_used(carried, set()), CARRIED_CAPACITY)
-
-    def test_max_output_drops_the_food_reserve(self):
-        bank = {"Lobster": 100, "Coal": 100}
-        spec = {"food": ["Lobster"], "food_reserve": 6, "primary": "Coal"}
-        carried = pack_carried_inventory_pure(bank, spec, "max_output", set())
-        self.assertNotIn("Lobster", carried)
-        self.assertEqual(carried["Coal"], CARRIED_CAPACITY)
-
-    def test_max_safety_doubles_the_food_reserve(self):
-        bank = {"Lobster": 100, "Coal": 100}
-        spec = {"food": ["Lobster"], "food_reserve": 6, "primary": "Coal"}
-        carried = pack_carried_inventory_pure(bank, spec, "max_safety", set())
-        self.assertEqual(carried["Lobster"], 12)
-        self.assertEqual(carried["Coal"], CARRIED_CAPACITY - 12)
-
-    def test_required_items_are_placed_first_and_capped_by_bank(self):
-        bank = {"Ammo mould": 1, "Steel bar": 100}
-        spec = {"required": {"Ammo mould": 1}, "primary": "Steel bar"}
-        carried = pack_carried_inventory_pure(bank, spec, "balanced", set())
-        self.assertEqual(carried["Ammo mould"], 1)
-        self.assertEqual(carried["Steel bar"], CARRIED_CAPACITY - 1)
-
-    def test_primary_never_exceeds_bank_supply(self):
-        bank = {"Coal": 5}
-        carried = pack_carried_inventory_pure(bank, {"primary": "Coal"}, "balanced", set())
-        self.assertEqual(carried["Coal"], 5)
-        self.assertEqual(carried_slots_used(carried, set()), 5)
-
-    def test_stackable_primary_takes_one_slot(self):
-        bank = {"Nature rune": 5000}
-        carried = pack_carried_inventory_pure(bank, {"primary": "Nature rune"}, "balanced", {"Nature rune"})
-        self.assertEqual(carried["Nature rune"], 5000)
-        self.assertEqual(carried_slots_used(carried, {"Nature rune"}), 1)
 
 
 class TestLootFilter(unittest.TestCase):
