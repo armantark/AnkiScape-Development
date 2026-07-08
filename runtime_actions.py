@@ -496,16 +496,25 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     result = handler(ctx)
     if result is not False:
         player_data["skilling_bank_run"] = new_state
-        # Drop bypasses the pack entirely (no churn, no banking, fastest XP);
-        # Keep accrues churn and folds the product in. Consumption skills with no
-        # recipe requirements (shouldn't normally happen) still get churn teeth.
+        inv_after = player_data.get("inventory", {}) or {}
+        gains = inventory_pure.inventory_delta_gains(inv_before, inv_after)
         if keep:
-            inv_after = player_data.get("inventory", {}) or {}
+            # Keep accrues churn and folds the product into the carried pack, which
+            # banks (costing a review) when full.
             churn_delta = inventory_pure.carried_action_churn_pure(inv_before, inv_after, _OVERLAY_STACKABLE_NAMES)
-            gains = inventory_pure.inventory_delta_gains(inv_before, inv_after)
             new_view = inventory_pure.carried_fold_gains_pure(new_view, gains, _OVERLAY_STACKABLE_NAMES)
             _set_carried_target_map(player_data, "carried_inventory", target_id, new_view)
             _set_carried_target_map(player_data, "carried_churn", target_id, new_churn + churn_delta)
+        elif gains:
+            # Drop is power-gathering: the XP is kept but the product is destroyed,
+            # never banked — that is the whole point (fastest XP, no bank-run reviews,
+            # but you keep no materials). Without this, Drop kept every item for free
+            # AND paid no review, strictly dominating Keep. Consumed inputs (e.g.
+            # fishing bait) are a real cost and are left alone; only gains are dropped.
+            drained = dict(inv_after)
+            for item_name, gained in gains.items():
+                drained[item_name] = max(0, int(drained.get(item_name, 0) or 0) - int(gained))
+            player_data["inventory"] = {name: count for name, count in drained.items() if count > 0}
         ctx.save_player_data()
     return result
 

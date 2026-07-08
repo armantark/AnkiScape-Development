@@ -1420,7 +1420,10 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Coal"], 29)
         self.assertEqual(player_data["carried_inventory"]["copper_ore"], {"Coal": 1})
 
-    def test_drop_mode_never_banks_and_carries_nothing(self):
+    def test_drop_mode_destroys_the_product_never_banks_and_keeps_nothing(self):
+        # Drop is power-gathering: XP is kept, the product is destroyed. Previously
+        # Drop kept every gathered item AND paid no bank-run review, so it strictly
+        # dominated Keep and the whole Keep/Drop tradeoff was meaningless.
         player_data = {
             "inventory": {},
             "current_ore": "copper_ore",
@@ -1431,9 +1434,31 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
             result = run_answer_with_carried_overlay(ctx, "mining", self._fake_gather)
             self.assertTrue(result)
             self.assertEqual(calls["activity"], [])  # never a bank-run toast
-        self.assertEqual(player_data["inventory"]["Coal"], 40)
+        # 40 gathers, XP awarded by the handler, but zero materials kept.
+        self.assertEqual(player_data["inventory"].get("Coal", 0), 0)
         self.assertEqual(player_data.get("carried_inventory", {}), {})
         self.assertEqual(player_data.get("carried_churn", {}), {})
+
+    def test_drop_mode_still_consumes_real_inputs_only_the_product_is_dropped(self):
+        # A consumed input (fishing bait) is a real cost and must not be refunded;
+        # only the produced item is destroyed.
+        def bait_fish(ctx):
+            inv = ctx.player_data.setdefault("inventory", {})
+            if inv.get("Fishing bait", 0) < 1:
+                return False
+            inv["Fishing bait"] -= 1
+            inv["Raw fish"] = inv.get("Raw fish", 0) + 1
+            return True
+
+        player_data = {
+            "inventory": {"Fishing bait": 5},
+            "current_fishing": "x",
+            "carried_keep_drop": {"x": "drop"},
+        }
+        ctx, _calls = self._mining_ctx(player_data)
+        run_answer_with_carried_overlay(ctx, "fishing", bait_fish)
+        self.assertEqual(player_data["inventory"]["Fishing bait"], 4)  # consumed, not refunded
+        self.assertEqual(player_data["inventory"].get("Raw fish", 0), 0)  # dropped
 
     def test_coal_bag_defers_the_bank_run(self):
         # Owning a Coal bag raises coal capacity to 55, so 40 gathers do not bank
