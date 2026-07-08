@@ -426,15 +426,23 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
 
         # While the inventory is scoped it does NOT reflect the real bank, so the
         # handler must not persist it or evaluate anything against it. Suppress the
-        # handler's own save and achievement check for the duration and fire them
-        # once afterwards against the reconciled bank. Without this a save inside
-        # the handler writes the capped bank to disk, and achievements gated on a
-        # bank quantity would see only what fits in the pack.
+        # handler's save, achievement check, and skill-availability refreshes for the
+        # duration and fire them once afterwards against the reconciled bank.
+        # Without this a save inside the handler writes the capped bank to disk,
+        # achievements gated on a bank quantity see only what fits in the pack, and
+        # the skill-availability UI is computed from the pack rather than the bank.
+        # `deactivate_current_skill` is deliberately left live: it must still fire
+        # when materials genuinely run out, and the bank-run gate above already
+        # prevents the handler from ever seeing an under-supplied pack.
         deferred_achievement_check = []
+        deferred_availability_refresh = []
         scoped_ctx = dataclasses.replace(
             ctx,
             save_player_data=lambda: None,
             check_achievements=lambda _data: deferred_achievement_check.append(True),
+            refresh_skill_availability=lambda: deferred_availability_refresh.append(True),
+            # Its return value only feeds the suppressed partial refresh below.
+            refresh_skill_availability_partial=lambda *_args: deferred_availability_refresh.append(True),
         )
         player_data["inventory"] = scoped_inventory
         result = handler(scoped_ctx)
@@ -459,6 +467,8 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         # save can never leave the capped inventory as the last thing written.
         if deferred_achievement_check:
             ctx.check_achievements(player_data)
+        if deferred_availability_refresh:
+            ctx.refresh_skill_availability()
         ctx.save_player_data()
         return result
 

@@ -1558,6 +1558,36 @@ class TestProcessingPackOverlay(unittest.TestCase):
         self.assertNotIn(27, observed["saves"])
         self.assertEqual(observed["saves"], [99])
 
+    def test_skill_availability_is_computed_from_the_bank_not_the_capped_pack(self):
+        # Same leak class: the availability UI must reflect the real bank, or a
+        # skill/recipe can look unavailable while the bank is full of materials.
+        from runtime_actions import handle_crafting_answer
+
+        observed = {"refresh": [], "partial": []}
+        player_data = {
+            "inventory": {"Uncut opal": 100},
+            "crafting_level": 99,
+            "crafting_exp": 0,
+            "current_craft": "cut_opal",
+            "completed_achievements": [],
+        }
+        calls = {"xp": [], "errors": [], "activity": []}
+        ctx = _context(player_data, calls, random_values=[0.0] * 20)
+        ctx = dataclasses.replace(
+            ctx,
+            refresh_skill_availability=lambda: observed["refresh"].append(
+                player_data["inventory"].get("Uncut opal")),
+            refresh_skill_availability_partial=lambda *_a: observed["partial"].append(
+                player_data["inventory"].get("Uncut opal")),
+        )
+
+        run_answer_with_carried_overlay(ctx, "crafting", handle_crafting_answer)
+
+        self.assertEqual(player_data["inventory"]["Uncut opal"], 99)
+        # One full refresh, after reconciliation, seeing the true bank (not 27).
+        self.assertEqual(observed["refresh"], [99])
+        self.assertEqual(observed["partial"], [])  # suppressed inside the scope
+
     def test_advanced_layout_seeds_the_pack_instead_of_the_casual_full_fill(self):
         player_data = self._base_player_data(100)
         player_data["carried_advanced_targets"] = {"logs": True}
