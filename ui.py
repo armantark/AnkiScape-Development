@@ -199,9 +199,9 @@ except Exception:
     from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 try:
-    from .logic_pure import combat_status_summary_pure, combat_hud_state_pure
+    from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_attack_style_trained_skills_pure
 except Exception:
-    from logic_pure import combat_status_summary_pure, combat_hud_state_pure  # type: ignore
+    from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_attack_style_trained_skills_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -654,6 +654,18 @@ def equipment_full_tooltip(item_name: str, lock_reason: str = "") -> str:
 _UTILITY_HUB_NAME = "Utility / Activities"
 _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
 _COMBAT_HUB_NAME = "Combat"
+# The individual skills a combat burst can train, with their player_data level
+# and exp keys. Constitution defaults to level 10 (RS classic); everything else
+# to 1. Order mirrors the RS combat tab. Prayer/Summoning are excluded — combat
+# reviews don't feed them (see _combat_apply_xp).
+_COMBAT_SKILL_BARS = (
+    ("Attack", "attack_level", "attack_exp", 1),
+    ("Strength", "strength_level", "strength_exp", 1),
+    ("Defence", "defense_level", "defense_exp", 1),
+    ("Ranged", "ranged_level", "ranged_exp", 1),
+    ("Magic", "magic_level", "magic_exp", 1),
+    ("Constitution", "constitution_level", "constitution_exp", 10),
+)
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
@@ -2316,7 +2328,11 @@ def show_main_menu(
             combo = QComboBox()
             combo.setObjectName("combatStyleCombo")
             for sid, spec in options:
-                combo.addItem(str(spec.get("display_name", sid)), sid)
+                # Spell out which skills each style trains, so the choice of XP is
+                # visible at the point of selection (e.g. "Controlled — Attack +
+                # Strength + Defence + Constitution").
+                trains = " + ".join(combat_attack_style_trained_skills_pure(sid))
+                combo.addItem(f"{spec.get('display_name', sid)} — {trains}", sid)
             combo.setCurrentIndex(max(0, combo.findData(style_id)))
             if on_set_combat_style is not None:
                 combo.currentIndexChanged.connect(
@@ -2547,11 +2563,50 @@ def show_main_menu(
         layout.addStretch(1)
         return panel
 
+    def _build_combat_skill_bars() -> QWidget:
+        # Per-skill XP progress, the same read-out the gathering/artisan skills
+        # get on the Stats screen — so the player can see combat XP land in
+        # Attack/Strength/Defence/Constitution (and Ranged/Magic) individually
+        # rather than as one opaque drop.
+        box = QWidget()
+        box_layout = QVBoxLayout(box)
+        box_layout.setContentsMargins(0, 0, 0, 0)
+        box_layout.setSpacing(4)
+        heading = QLabel("Combat XP")
+        heading.setStyleSheet("color: palette(text); font-weight: 600;")
+        box_layout.addWidget(heading)
+        grid = QGridLayout()
+        grid.setContentsMargins(0, 0, 0, 0)
+        grid.setHorizontalSpacing(8)
+        grid.setVerticalSpacing(4)
+        grid.setColumnStretch(1, 1)
+        for row, (display, level_key, exp_key, default_level) in enumerate(_COMBAT_SKILL_BARS):
+            level = int(player_data.get(level_key, default_level) or default_level)
+            exp = round(player_data.get(exp_key, 0) or 0, 1)
+            pct, remain, target_lv = compute_level_progress(level, exp, EXP_TABLE)
+            name_lbl = QLabel(f"{display} Lv {level}")
+            name_lbl.setStyleSheet("color: palette(text); font-size: 11px;")
+            bar = QProgressBar()
+            bar.setTextVisible(False)
+            bar.setFixedHeight(10)
+            bar.setRange(0, 100)
+            bar.setValue(pct)
+            bar.setToolTip(
+                f"{display}: level {level} • {exp:,.0f} XP"
+                + (f" • {remain:,.0f} to Lv {target_lv}" if level < 99 else " • max level")
+            )
+            grid.addWidget(name_lbl, row, 0)
+            grid.addWidget(bar, row, 1)
+        box_layout.addLayout(grid)
+        return box
+
     def _build_combat_list() -> QWidget:
         container = QWidget()
         layout = QVBoxLayout(container)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(8)
+
+        layout.addWidget(_build_combat_skill_bars())
 
         combat_images = _item_asset_paths()
         combat_rows = combat_target_rows(
@@ -5754,15 +5809,15 @@ def show_main_menu(
 
     # Load current settings (safe defaults if config unavailable)
     floating_enabled = True
-    floating_position = "center"
+    floating_position = "hud-right"
     floating_xp_enabled = True
     popups_enabled = True
     review_hud_enabled = True
     try:
         if mw and getattr(mw, 'col', None):
             floating_enabled = bool(mw.col.get_config("ankiscape_floating_enabled", True))
-            pos = mw.col.get_config("ankiscape_floating_position", "center")
-            floating_position = pos if pos in ("left", "right", "center") else "center"
+            pos = mw.col.get_config("ankiscape_floating_position", "hud-right")
+            floating_position = pos if pos in ("left", "right", "center", "hud-right") else "hud-right"
         floating_xp_enabled = get_config_bool("ankiscape_floating_xp_enabled", True)
         popups_enabled = get_config_bool("ankiscape_popups_enabled", True)
         review_hud_enabled = get_config_bool("ankiscape_review_hud_enabled", True)
@@ -5842,14 +5897,18 @@ def show_main_menu(
     rb_right = QRadioButton("Bottom right")
     rb_left = QRadioButton("Bottom left")
     rb_center = QRadioButton("Under XP bar")
+    rb_hud_right = QRadioButton("Right of bar")
     rb_group.addButton(rb_right)
     rb_group.addButton(rb_left)
     rb_group.addButton(rb_center)
+    rb_group.addButton(rb_hud_right)
     rb_right.setChecked(floating_position == "right")
     rb_left.setChecked(floating_position == "left")
     rb_center.setChecked(floating_position == "center")
+    rb_hud_right.setChecked(floating_position == "hud-right")
     prl.addWidget(rb_left)
     prl.addWidget(rb_center)
+    prl.addWidget(rb_hud_right)
     prl.addWidget(rb_right)
     prl.addStretch(1)
 
@@ -5873,6 +5932,7 @@ def show_main_menu(
         rb_left.setEnabled(enabled_cb.isChecked())
         rb_right.setEnabled(enabled_cb.isChecked())
         rb_center.setEnabled(enabled_cb.isChecked())
+        rb_hud_right.setEnabled(enabled_cb.isChecked())
     _sync_pos_enabled()
     enabled_cb.stateChanged.connect(lambda _=None: _sync_pos_enabled())
 
@@ -5882,6 +5942,7 @@ def show_main_menu(
         rb_left.toggled.connect(lambda checked=False: checked and on_set_floating_position("left"))
         rb_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("right"))
         rb_center.toggled.connect(lambda checked=False: checked and on_set_floating_position("center"))
+        rb_hud_right.toggled.connect(lambda checked=False: checked and on_set_floating_position("hud-right"))
 
     def _apply_review_action_multiplier(value: int) -> None:
         # Clamp before persisting so the backend sees an integer action count.

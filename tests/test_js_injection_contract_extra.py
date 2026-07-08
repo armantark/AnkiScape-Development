@@ -33,5 +33,20 @@ class TestJSInjectionContractExtra(unittest.TestCase):
         self.assertIn("mouseenter", js)
         self.assertIn("mouseleave", js)
 
+    def test_reviewer_hud_right_offsets_button_beside_the_bar(self):
+        # The hud-right branch places the button right of the centered HUD,
+        # vertically level with it.
+        self.assertIn("translateX(270px)", build_reviewer_js("hud-right", ICON))
+        self.assertIn("wrap.style.bottom = '72px'", build_reviewer_js("hud-right", ICON))
+        # __POS__ must have resolved to hud-right (the runtime comparisons use it).
+        self.assertIn("('hud-right' === 'left')", build_reviewer_js("hud-right", ICON))
+
+    def test_reviewer_unknown_position_falls_back_to_hud_right(self):
+        # An unrecognized/stale config value must resolve to the new default,
+        # not a screen corner.
+        self.assertIn("('hud-right' === 'left')", build_reviewer_js("bogus", ICON))
+        # A still-valid corner value is left untouched.
+        self.assertIn("('right' === 'left')", build_reviewer_js("right", ICON))
+
 if __name__ == "__main__":
     unittest.main()

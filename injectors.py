@@ -52,7 +52,7 @@ def should_force_pass_through(message: object) -> bool:
     return False
 
 def build_reviewer_js(position: str, icon_data_uri: str) -> str:
-    pos = position if position in ("left", "right", "center") else "center"
+    pos = position if position in ("left", "right", "center", "hud-right") else "hud-right"
     js = r"""
         (function(){
             try{
@@ -61,7 +61,6 @@ def build_reviewer_js(position: str, icon_data_uri: str) -> str:
                     wrap = document.createElement('div');
                     wrap.id = 'ankiscape-float';
                     wrap.style.position = 'fixed';
-                    wrap.style.bottom = '16px';
                     // Ensure only the button receives events
                     wrap.style.pointerEvents = 'none';
                     wrap.style.zIndex = '9999';
@@ -70,13 +69,17 @@ def build_reviewer_js(position: str, icon_data_uri: str) -> str:
                 wrap.style.left = '';
                 wrap.style.right = '';
                 wrap.style.transform = '';
-                // 'center' sits directly under the ReviewHUD (the XP bar), which
-                // ui.py's ReviewHUD._reposition() always centers horizontally and
-                // anchors 72px above the window bottom — 16px here lands the
-                // button just beneath it without overlapping Anki's own controls.
-                if ('__POS__' === 'left') { wrap.style.left = '16px'; }
-                else if ('__POS__' === 'center') { wrap.style.left = '50%'; wrap.style.transform = 'translateX(-50%)'; }
-                else { wrap.style.right = '16px'; }
+                // The ReviewHUD (the XP/HP bar) is centered horizontally by
+                // ui.py's ReviewHUD._reposition() and anchored 72px above the
+                // window bottom, clamped to at most 520px wide (≤260px each side
+                // of centre).
+                //   'center'    -> directly beneath the bar (16px above bottom).
+                //   'hud-right'  -> beside the bar's right edge, vertically level
+                //                   with it: 50% + 270px clears the widest HUD.
+                if ('__POS__' === 'left') { wrap.style.left = '16px'; wrap.style.bottom = '16px'; }
+                else if ('__POS__' === 'center') { wrap.style.left = '50%'; wrap.style.transform = 'translateX(-50%)'; wrap.style.bottom = '16px'; }
+                else if ('__POS__' === 'hud-right') { wrap.style.left = '50%'; wrap.style.transform = 'translateX(270px)'; wrap.style.bottom = '72px'; }
+                else { wrap.style.right = '16px'; wrap.style.bottom = '16px'; }
 
                 var btn = document.getElementById('ankiscape-btn');
                 if (!btn) {
@@ -417,12 +420,12 @@ def inject_reviewer_floating_button(_=None) -> None:
         return
     try:
         enabled = True
-        pos = "center"
+        pos = "hud-right"
         try:
             enabled = bool(mw.col.get_config("ankiscape_floating_enabled", True))
-            pos = mw.col.get_config("ankiscape_floating_position", "center")
-            if pos not in ("left", "right", "center"):
-                pos = "center"
+            pos = mw.col.get_config("ankiscape_floating_position", "hud-right")
+            if pos not in ("left", "right", "center", "hud-right"):
+                pos = "hud-right"
         except Exception:
             pass
         if not enabled:

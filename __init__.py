@@ -672,8 +672,8 @@ def _on_main_menu():
 
     def _set_floating_position(pos: str):
         try:
-            if pos not in ("left", "right", "center"):
-                pos = "center"
+            if pos not in ("left", "right", "center", "hud-right"):
+                pos = "hud-right"
             mw.col.set_config("ankiscape_floating_position", pos)
         except Exception:
             pass
