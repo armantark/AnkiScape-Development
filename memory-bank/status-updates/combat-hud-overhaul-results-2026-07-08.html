@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Combat HUD + Mechanics Overhaul — Results</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2128; --muted:#5b6572;
+    --line:#e3e7ec; --accent:#7b5cff; --accent2:#2ea3ff;
+    --hp:#3fb950; --enemy:#e5534b; --xp-atk:#e0a800; --xp-str:#e5534b;
+    --xp-def:#2ea3ff; --xp-hp:#3fb950; --chip:#eef0f4; --shadow:rgba(20,24,33,.08);
+    --ok:#2f9e44; --warn:#e5883b; --todo:#7b8494; --shift:#8a5bd6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --panel:#171b21; --ink:#e6e9ee; --muted:#9aa4b2;
+      --line:#262c34; --accent:#9d86ff; --accent2:#54b6ff; --chip:#20262e;
+      --shadow:rgba(0,0,0,.35); --shift:#b79bff;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 80px}
+  header.hero{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);font-weight:700}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;max-width:72ch}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:38px 0 14px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 1px 3px var(--shadow)}
+  .grid{display:grid;gap:14px}
+  @media(min-width:720px){.grid.two{grid-template-columns:1fr 1fr}}
+  /* scoreboard */
+  .score{display:flex;flex-wrap:wrap;gap:12px;margin:6px 0 4px}
+  .stat{flex:1 1 150px;background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;box-shadow:0 1px 3px var(--shadow)}
+  .stat .big{font-size:26px;font-weight:750;letter-spacing:-.01em}
+  .stat .lbl{font-size:12px;color:var(--muted);margin-top:2px}
+  .stat.good .big{color:var(--ok)}
+  /* real render captions */
+  .shots{display:grid;gap:14px}
+  @media(min-width:720px){.shots{grid-template-columns:1fr 1fr}}
+  .shot{padding:14px;display:flex;flex-direction:column;gap:9px}
+  .shot .cap{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+  .shot img{width:100%;height:auto;border-radius:10px;border:1px solid var(--line);background:#12151b;display:block}
+  .shot .d{font-size:12.5px;color:var(--muted)}
+  .shot.wide{grid-column:1 / -1}
+  /* delivered asks */
+  .ask{padding:15px 16px;display:flex;gap:13px;align-items:flex-start}
+  .ask .n{flex:0 0 auto;width:26px;height:26px;border-radius:8px;background:rgba(47,158,68,.14);
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--ok)}
+  .ask .body{flex:1;min-width:0}
+  .ask .h{font-weight:650;font-size:14px;margin-bottom:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ask .d{color:var(--muted);font-size:13px}
+  .ask .where{font-size:12px;color:var(--muted);margin-top:5px}
+  .ask code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .tag{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    padding:2px 8px;border-radius:20px;white-space:nowrap}
+  .tag.mech{background:rgba(123,92,255,.14);color:var(--accent)}
+  .tag.ui{background:rgba(46,163,255,.14);color:var(--accent2)}
+  .tag.done{background:rgba(47,158,68,.16);color:var(--ok)}
+  .tag.shift{background:rgba(138,91,214,.16);color:var(--shift)}
+  .check{color:var(--ok);font-weight:800;margin-right:2px}
+  /* decisions resolved */
+  .dec{padding:14px 16px;border-bottom:1px solid var(--line)}
+  .dec:last-child{border-bottom:0}
+  .dec .q{font-weight:650;font-size:14px}
+  .dec .a{font-size:13px;color:var(--ink);margin-top:5px}
+  .dec .a .pick{color:var(--ok);font-weight:650}
+  .dec .a.shift .pick{color:var(--shift)}
+  .dec .note{font-size:12px;color:var(--muted);margin-top:3px}
+  /* stages */
+  .phases{margin:0;padding:0 0 0 2px;list-style:none;counter-reset:st}
+  .phases li{position:relative;padding:12px 14px 12px 46px;border-bottom:1px solid var(--line)}
+  .phases li:last-child{border-bottom:0}
+  .phases li::before{counter-increment:st;content:counter(st);position:absolute;left:12px;top:12px;
+    width:24px;height:24px;border-radius:50%;background:rgba(47,158,68,.16);color:var(--ok);
+    font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+  .phases b{font-size:14px}
+  .phases .t{color:var(--muted);font-size:13px;display:block;margin-top:2px}
+  .phases code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .sha{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;
+    background:var(--chip);color:var(--muted);padding:1px 7px;border-radius:20px;margin-left:6px}
+  .callout{font-size:12px;color:var(--muted);margin-top:10px}
+  a{color:var(--accent2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AnkiScape · Combat overhaul · Results</div>
+  <h1>Combat HUD &amp; mechanics overhaul — shipped</h1>
+  <p class="sub">All eleven asks from the <a href="combat-hud-overhaul-plan-2026-07-08.html">plan</a>
+  are built, tested, and committed to <b>main</b> across four staged commits. This is the
+  after-the-fact record: what shipped, where it differs from the plan, and the verification behind it.
+  HUD images below are real offscreen Qt renders of the shipped widget in dark mode, not mockups.</p>
+  <div class="meta">
+    <span><b>Date</b> 2026-07-08</span>
+    <span><b>Branch</b> main (solo)</span>
+    <span><b>Touched</b> logic_pure · runtime_actions · ui · injectors · __init__</span>
+    <span><b>Tracking</b> combat-hud-overhaul-requirements.md</span>
+  </div>
+</header>
+
+<!-- ============ SCOREBOARD ============ -->
+<div class="score">
+  <div class="stat good"><div class="big">11 / 11</div><div class="lbl">asks delivered</div></div>
+  <div class="stat good"><div class="big">895</div><div class="lbl">tests passing (0 failures)</div></div>
+  <div class="stat"><div class="big">4</div><div class="lbl">staged commits on main</div></div>
+  <div class="stat"><div class="big">2</div><div class="lbl">plan deviations (below)</div></div>
+</div>
+
+<!-- ============ THE SHIPPED HUD ============ -->
+<h2>The shipped HUD, rendered</h2>
+<div class="shots">
+  <div class="shot panel">
+    <div class="cap">Full health · aggressive</div>
+    <img src="hud_full_health.png" alt="Combat HUD at full health, aggressive style">
+    <div class="d">Player LP bar (green) full, enemy bar (red) full, and the chip line
+    reads <b>Trains Strength • Constitution</b> — the two skills an aggressive burst feeds.</div>
+  </div>
+  <div class="shot panel">
+    <div class="cap">Mid-fight · wounded · controlled</div>
+    <img src="hud_wounded_carried.png" alt="Combat HUD wounded, carried enemy, controlled style">
+    <div class="d">You at 34/100, the carried Giant rat down to 12%, twelve kills banked this run
+    (<b>⚔ 12 kills</b>), and controlled lights all four: <b>Attack • Strength • Defence • Constitution</b>.</div>
+  </div>
+  <div class="shot panel wide">
+    <div class="cap">Combat XP bars — the Combat stats screen (dark mode)</div>
+    <img src="combat_xp_bars.png" alt="Per-skill combat XP progress bars">
+    <div class="d">Per-skill progress bars for Attack / Strength / Defence / Ranged / Magic /
+    Constitution, matching every other skill's stats read-out. Labels use <code>palette(text)</code>,
+    so they stay legible in dark mode (the recurring <code>palette(mid)</code> trap avoided).</div>
+  </div>
+</div>
+<p class="callout">The plan's two-bar + XP-chip mockup shipped almost exactly. One refinement:
+the HUD names the trained skills as words (<b>Trains Attack • Constitution</b>) rather than
+coloured ATK/HP pills — clearer at the HUD's small size and it survives theme changes without a
+custom palette.</p>
+
+<!-- ============ THE ELEVEN ASKS, DELIVERED ============ -->
+<h2>The eleven asks — all delivered</h2>
+<div class="grid">
+
+  <div class="panel ask">
+    <div class="n">1</div><div class="body">
+    <div class="h"><span class="check">✓</span>Chain kills <span class="tag mech">Mechanics</span> <span class="tag done">Done</span></div>
+    <div class="d">A burst now respawns weak enemies and keeps fighting until the 50-tick budget is
+    spent, tallying every kill and aggregating drops + XP.</div>
+    <div class="where">Burst loop reworked in <code>logic_pure.py</code>; the old kill-and-break
+    is gone. <span class="sha">1b1157f</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">2</div><div class="body">
+    <div class="h"><span class="check">✓</span>Kill-count indicator <span class="tag ui">HUD</span> <span class="tag done">Done</span></div>
+    <div class="d">The HUD chip line shows the running tally (<b>⚔ N kills</b>, singular/plural aware),
+    and the burst returns <code>kills</code> for the post-review message.</div>
+    <div class="where"><code>combat_hud_state_pure</code> → chip line in <code>set_data</code>. <span class="sha">1b1157f</span> / <span class="sha">623c915</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">3</div><div class="body">
+    <div class="h"><span class="check">✓</span>Two health bars <span class="tag ui">HUD</span> <span class="tag done">Done</span></div>
+    <div class="d">A second red enemy bar sits under the green player bar; enemy LP reflects the
+    carried encounter when one is in progress, else full stats.</div>
+    <div class="where">New <code>enemy_progress</code> bar in <code>ReviewHUD</code>; state from
+    <code>combat_hud_state_pure</code>. <span class="sha">623c915</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">4</div><div class="body">
+    <div class="h"><span class="check">✓</span>Show where XP goes <span class="tag ui">HUD</span> <span class="tag done">Done</span></div>
+    <div class="d">The chip line names exactly the skills the active style trains (always including
+    Constitution), so the HUD answers "where's my XP?" without a menu.</div>
+    <div class="where"><code>combat_attack_style_trained_skills_pure</code> — single source shared with
+    the style combo. <span class="sha">623c915</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">5</div><div class="body">
+    <div class="h"><span class="check">✓</span>Per-skill combat XP bars <span class="tag ui">HUD</span> <span class="tag done">Done</span></div>
+    <div class="d">Attack / Strength / Defence / Ranged / Magic / Constitution each get a progress
+    bar on the Combat hub panel, like every other skill.</div>
+    <div class="where">New <code>_build_combat_skill_bars</code> reusing
+    <code>compute_level_progress</code>. <span class="sha">841fb55</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">6</div><div class="body">
+    <div class="h"><span class="check">✓</span>Menu button to the right of the bar <span class="tag ui">HUD</span> <span class="tag done">Done</span></div>
+    <div class="d">New <code>hud-right</code> anchor places the button beside the centered HUD, level
+    with it — and it is now the default position.</div>
+    <div class="where"><code>build_reviewer_js</code> (<code>translateX(270px)</code>, bottom 72px) +
+    Settings radio + config validation. <span class="sha">841fb55</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">7</div><div class="body">
+    <div class="h"><span class="check">✓</span>Death indication <span class="tag mech">Mechanics</span> <span class="tag done">Done</span></div>
+    <div class="d">Death is now surfaced loudly instead of passing silently — the burst returns a
+    clear <code>died</code> signal that drives a notice.</div>
+    <div class="where">Death path in the burst + <code>handle_combat_answer</code>. <span class="sha">1698795</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">8</div><div class="body">
+    <div class="h"><span class="check">✓</span>Auto-flee <span class="tag mech">Mechanics</span> <span class="tag done">Done</span></div>
+    <div class="d">On by default. Bails out of the burst when LP has fallen to the auto-eat
+    threshold (40%) and no food remains — the "dying silently" case.</div>
+    <div class="where"><code>_combat_should_auto_flee</code>; scoped <em>off</em> inside quest
+    combat. <span class="sha">1698795</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">9</div><div class="body">
+    <div class="h"><span class="check">✓</span>Attack style labels its XP <span class="tag ui">HUD</span> <span class="tag done">Done</span></div>
+    <div class="d">The style combo spells out the trained skills, e.g.
+    <b>Controlled — Attack + Strength + Defence + Constitution</b>.</div>
+    <div class="where">Combo build in the combat setup panel, same
+    <code>combat_attack_style_trained_skills_pure</code> source as the HUD. <span class="sha">841fb55</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">10</div><div class="body">
+    <div class="h"><span class="check">✓</span>Re-equip on reclaim <span class="tag mech">Mechanics</span> <span class="tag done">Done</span></div>
+    <div class="d">Reclaiming gear from the grave / death office re-applies the equipped set you died
+    in, instead of dumping it all into the pack.</div>
+    <div class="where">Snapshot-and-re-equip in the reclaim path. <span class="sha">1698795</span></div>
+    </div>
+  </div>
+
+  <div class="panel ask">
+    <div class="n">11</div><div class="body">
+    <div class="h"><span class="check">✓</span>LP-fluctuation / parity <span class="tag mech">Mechanics</span> <span class="tag shift">Changed vs. plan</span></div>
+    <div class="d">Resolved by slowing recovery toward RS-classic: leaving combat heals to full over
+    <b>3 rest reviews</b> (<code>COMBAT_REST_FULL_HEAL_REVIEWS</code>), then a slow
+    <b>5 LP/review</b> trickle (<code>NATURAL_COMBAT_RECOVERY_LIFEPOINTS</code>) — not the old
+    instant +100.</div>
+    <div class="where"><code>apply_safe_combat_recovery_pure</code>. <span class="sha">1698795</span></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============ DECISIONS RESOLVED ============ -->
+<h2>The four decisions — how they landed</h2>
+<div class="panel">
+  <div class="dec">
+    <div class="q">How much detail on the always-on HUD?</div>
+    <div class="a"><span class="pick">As recommended:</span> two bars + XP chips on the HUD; the
+    full per-skill XP bars live on the Combat stats screen.</div>
+  </div>
+  <div class="dec">
+    <div class="q">Auto-flee: default and trigger?</div>
+    <div class="a"><span class="pick">As recommended:</span> ON by default, triggers when LP is at
+    or below the auto-eat threshold and no food remains.</div>
+  </div>
+  <div class="dec">
+    <div class="q">Safe-recovery rate — parity call?</div>
+    <div class="a shift"><span class="pick">Deviated from the recommendation.</span> The plan's pick
+    was "keep +100/review, just relabel it." You chose parity instead: heal to full over 3 rest
+    reviews, then a slow ~5 LP/review natural trickle.</div>
+    <div class="note">Consistent with the standing parity-over-safeguards rule — recorded so the
+    plan-vs-actual gap is intentional, not an accident.</div>
+  </div>
+  <div class="dec">
+    <div class="q">Build order?</div>
+    <div class="a"><span class="pick">As recommended:</span> staged, one commit per stage (four
+    stages below).</div>
+  </div>
+</div>
+
+<!-- ============ STAGES ============ -->
+<h2>How it was built — four staged commits</h2>
+<div class="panel">
+  <ol class="phases">
+    <li><b>Engine — chain kills + telemetry</b> <span class="sha">1b1157f</span>
+      <span class="t">Respawn-and-continue burst loop returning kills, aggregated drops and per-skill XP.</span></li>
+    <li><b>Engine — death &amp; recovery</b> <span class="sha">1698795</span>
+      <span class="t">Loud death signal, auto-flee, snapshot-and-re-equip on reclaim, and the
+      slowed natural recovery (ask #11).</span></li>
+    <li><b>HUD — two bars + XP chips + kill line</b> <span class="sha">623c915</span>
+      <span class="t">Rebuilt the combat branch of <code>set_data</code> around
+      <code>combat_hud_state_pure</code>.</span></li>
+    <li><b>HUD — menu anchor + style labels + Combat XP bars</b> <span class="sha">841fb55</span>
+      <span class="t"><code>hud-right</code> anchor (new default), style-combo XP labels,
+      per-skill XP bars on the stats screen.</span></li>
+  </ol>
+</div>
+
+<!-- ============ VERIFICATION ============ -->
+<h2>Verification</h2>
+<div class="panel" style="padding:16px 18px">
+  <p style="margin:.2em 0 .8em"><b>Automated —</b> full suite green:
+  <code>895 tests · 0 failures · 180s</code> under
+  <code>QT_QPA_PLATFORM=offscreen</code>. New coverage this overhaul:
+  <code>combat_attack_style_trained_skills_pure</code> (style→skills, incl. fallback),
+  <code>combat_hud_state_pure</code> (full/wounded/carried/kill-count), and the
+  <code>hud-right</code> JS-injection contract (offset + unknown-value fallback).</p>
+  <p style="margin:.2em 0 .8em"><b>Visual —</b> offscreen Qt renders of the shipped
+  <code>ReviewHUD</code> and the combat XP bars (the three images above), following the project's
+  offscreen-screenshot rule: <code>show()</code> → <code>resize()</code> → several
+  <code>processEvents()</code> before <code>grab()</code>, with geometry probes trusted over pixels.
+  Rendered against a Fusion dark palette to confirm dark-mode contrast.</p>
+  <p style="margin:.2em 0 0"><b>Confirmed by probe —</b> player/enemy bar fills track LP exactly
+  (full 100%, wounded 34%, carried enemy 12%); the chip line switches skills per style
+  (aggressive→Strength, controlled→all four, defensive→Defence); kill count is singular/plural aware.</p>
+</div>
+
+<p class="callout">Next, and only now that the combat pass is done: the deferred one-time
+<b>Stronghold of Security</b> activity — a standalone 4-step, no-combat run rewarding 10,000 coins
+and a one-time choice of Fancy or Fighting boots (both zero-bonus cosmetics to be added as equipment).</p>
+
+</div>
+</body>
+</html>

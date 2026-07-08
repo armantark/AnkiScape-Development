@@ -78,11 +78,21 @@ area, with the code facts I've already confirmed.
 - Chain kills: cap per burst? (tick budget is the natural cap; confirm no other.)
 
 ## Status
-- [ ] Plan artifact (HTML) → open in Arc, get sign-off
-- [ ] Chain kills + kill count
-- [ ] Two health bars in HUD
-- [ ] Per-skill combat XP bars + XP attribution
-- [ ] Menu button to right of bar
-- [ ] Attack-style XP labels
-- [ ] Death signal + auto-flee option
-- [ ] Re-equip on reclaim
+- [x] Plan artifact (HTML) → open in Arc, get sign-off (`combat-hud-overhaul-plan-2026-07-08.html`)
+- [x] Chain kills + kill count (Stage 1, `1b1157f`)
+- [x] Two health bars in HUD (Stage 3, `623c915`)
+- [x] Per-skill combat XP bars + XP attribution (Stage 3 chips + Stage 4 bars, `623c915`/`841fb55`)
+- [x] Menu button to right of bar — new `hud-right` anchor, now the default (Stage 4, `841fb55`)
+- [x] Attack-style XP labels (Stage 4, `841fb55`)
+- [x] Death signal + auto-flee option (Stage 2, `1698795`)
+- [x] Re-equip on reclaim (Stage 2, `1698795`)
+- [x] Safe-recovery parity (ask #11): heal-to-full over 3 rest reviews then ~5 LP/review
+  natural trickle — deviated from the plan's "keep +100" rec per parity-over-safeguards
+  (Stage 2, `1698795`)
+- [x] Verify + results artifact: 895 tests green; offscreen HUD/XP-bar renders;
+  `combat-hud-overhaul-results-2026-07-08.html`
+
+**Combat overhaul complete.** Remaining owner request (deferred, do next): standalone one-time
+Stronghold of Security activity — 4-step, no-combat, rewards 10,000 coins + one-time choice of
+Fancy or Fighting boots (both zero-bonus cosmetics, to be added as equipment). Kept out of the
+parity-locked quest catalog (no quest points / journal entry).
