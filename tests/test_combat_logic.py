@@ -37,6 +37,9 @@ from combat_data import (
 from constants import EQUIPMENT_DATA
 from logic_pure import (
     _combat_roll_drops,
+    _combat_enemy_attack_class,
+    _combat_enemy_bonuses,
+    _combat_enemy_max_hit_old_hp,
     apply_combat_burst_pure,
     apply_combat_poison_effect_pure,
     apply_safe_combat_recovery_pure,
@@ -246,6 +249,81 @@ class CombatStatPotionAutoDrinkTest(unittest.TestCase):
         self.assertEqual(loaded("max_safety"), (20, 2))
         self.assertEqual(loaded("balanced"), (14, 4))
         self.assertEqual(loaded("max_output"), (8, 6))
+
+
+class CombatEnemyAttackStyleTest(unittest.TestCase):
+    """The enemy attacks with ITS style: its accuracy comes off the matching attack
+    stat/bonus, and the player resists with the matching defence bonus."""
+
+    @staticmethod
+    def _enemy(style, strength=80, ranged=80, magic=80, **extra):
+        enemy = dict(
+            display_name="X", level=50, group="T", attack_style=style, attack_speed=4,
+            respawn_delay=10, slayer_xp=0.0,
+            stats={"hitpoints": 500, "attack": 80, "strength": strength, "defence": 1,
+                   "magic": magic, "ranged": ranged},
+            bonuses={k: 0 for k in (
+                "attack_stab", "attack_slash", "attack_crush", "defence_stab", "defence_slash",
+                "defence_crush", "defence_magic", "defence_ranged", "melee_strength")},
+            drops={"guaranteed": [], "tables": []}, source="synthetic",
+        )
+        enemy.update(extra)
+        return {"x": enemy}
+
+    @staticmethod
+    def _magic_robe_setup():
+        from equipment_data import EquipmentItem, EquipmentBonuses
+
+        robe = EquipmentItem(
+            item_name="Robe", slot="body", combat_skill="defense", required_level=1,
+            two_handed=False, equipment_type="body",
+            # +300 magic defence, zero melee defence
+            bonuses=EquipmentBonuses(0, 0, 0, 0, 0, 0, 0, 0, 300, 0, 0, 0, 0, 0),
+            attack_speed=4, source_item_id=0, source="t", source_status="t", skill_requirements={},
+        )
+        player = {
+            "inventory": {}, "equipment": {"body": "Robe"}, "attack_level": 50, "strength_level": 50,
+            "defense_level": 50, "magic_level": 50, "ranged_level": 50, "constitution_level": 50,
+            "combat_lifepoints": 500, "current_combat_target": "x",
+            "combat_attack_style": "aggressive", "combat_auto_eat_food": [],
+        }
+        return player, {"Robe": robe}
+
+    def test_magic_defence_resists_a_magic_enemy_but_not_a_melee_one(self):
+        player, equipment_data = self._magic_robe_setup()
+        _o, _ok, melee_result = apply_combat_burst_pure(
+            dict(player), self._enemy("melee"), equipment_data, ticks=1, rng=lambda: 0.5)
+        _o2, _ok2, magic_result = apply_combat_burst_pure(
+            dict(player), self._enemy("magic"), equipment_data, ticks=1, rng=lambda: 0.5)
+        # +300 magic defence barely helps against a melee attacker, but heavily
+        # blunts the mage. Before this change both used melee defence (0) equally.
+        self.assertGreater(melee_result["enemy_accuracy"], 0.5)
+        self.assertLess(magic_result["enemy_accuracy"], 0.2)
+
+    def test_ranged_enemy_max_hit_uses_its_ranged_stat_not_melee_strength(self):
+        weak_melee_strong_bow = self._enemy("ranged", strength=1, ranged=99)["x"]
+        same_but_melee = self._enemy("melee", strength=1, ranged=99)["x"]
+        totals = _combat_enemy_bonuses(weak_melee_strong_bow)
+        ranged_hit = _combat_enemy_max_hit_old_hp(weak_melee_strong_bow, 1 + 8, 0, totals)
+        melee_hit = _combat_enemy_max_hit_old_hp(same_but_melee, 1 + 8, 0, totals)
+        self.assertGreater(ranged_hit, 10.0)  # scales off ranged 99
+        self.assertLess(melee_hit, 2.0)       # scales off strength 1
+
+    def test_explicit_max_hit_wins_and_unknown_style_falls_back_to_melee(self):
+        # Magic NPC hits are spell-defined in the source, so they declare max_hit.
+        mage = {"attack_style": "magic", "max_hit": 120, "stats": {"strength": 1, "ranged": 1}}
+        totals = _combat_enemy_bonuses(mage)
+        self.assertEqual(_combat_enemy_max_hit_old_hp(mage, 9, 0, totals), 12.0)
+        self.assertEqual(_combat_enemy_attack_class({"attack_style": "nonsense"}), "melee")
+        self.assertEqual(_combat_enemy_attack_class({}), "melee")
+
+    def test_every_shipped_enemy_is_melee_or_declares_a_max_hit(self):
+        # Data guard: a non-melee enemy without an explicit max_hit would silently
+        # fall back to the melee-strength derivation, which is wrong for a caster.
+        for name, enemy in COMBAT_ENEMY_DATA.items():
+            if enemy.get("attack_style") == "magic":
+                with self.subTest(enemy=name):
+                    self.assertTrue(enemy.get("max_hit") or enemy.get("max_hit_old_hp"))
 
 
 class CombatDropItemNamesTest(unittest.TestCase):

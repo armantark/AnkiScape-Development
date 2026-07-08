@@ -1529,13 +1529,35 @@ def _combat_melee_max_hit_old_hp(effective_strength, strength_bonus):
     return max(0.0, 0.5 + float(effective_strength) * (float(strength_bonus) + 64.0) / 640.0)
 
 
-def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus):
+COMBAT_ENEMY_ATTACK_CLASSES = ("melee", "ranged", "magic")
+
+
+def _combat_enemy_attack_class(enemy):
+    """The style the ENEMY attacks with. Determines which of its attack bonuses
+    drives its accuracy and which of the player's defence bonuses resists it.
+    Unknown values fall back to melee (every roster enemy is melee today)."""
+    if not isinstance(enemy, Mapping):
+        return "melee"
+    style = enemy.get("attack_style", "melee")
+    return style if style in COMBAT_ENEMY_ATTACK_CLASSES else "melee"
+
+
+def _combat_enemy_max_hit_old_hp(enemy, effective_strength, strength_bonus, enemy_totals=None):
     configured_lp_hit = _positive_int(enemy.get("max_hit", 0), 0) if isinstance(enemy, Mapping) else 0
     if configured_lp_hit > 0:
         return configured_lp_hit / 10.0
     configured_old_hit = _positive_int(enemy.get("max_hit_old_hp", 0), 0) if isinstance(enemy, Mapping) else 0
     if configured_old_hit > 0:
         return float(configured_old_hit)
+    # A ranged attacker's hit scales off its ranged level + ranged strength, not
+    # melee strength. A magic attacker's hit is spell-defined in the source, so it
+    # must declare max_hit; without one we fall back to the melee derivation rather
+    # than silently dealing zero (the roster test forbids that data gap).
+    if enemy_totals is not None and _combat_enemy_attack_class(enemy) == "ranged":
+        return _combat_ranged_max_hit_old_hp(
+            _positive_int(enemy.get("stats", {}).get("ranged", 1), 1) + 8,
+            _equipment_bonus_value(enemy_totals, "ranged_strength"),
+        )
     return _combat_melee_max_hit_old_hp(effective_strength, strength_bonus)
 
 
@@ -2802,6 +2824,7 @@ def combat_target_preview_pure(player_data, target_id, enemy_data=None, equipmen
         enemy,
         _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
         _equipment_bonus_value(enemy_totals, "melee_strength"),
+        enemy_totals,
     )
     max_lp = combat_max_lifepoints_pure(player_data)
     current_lp = max(0, min(_positive_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
@@ -3056,17 +3079,22 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         )
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
 
-    enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get("attack", 1), 1) + 8) * (
-        _combat_attack_bonus_from_totals(enemy_totals) + 64
+    # The enemy attacks with ITS style: a mage's accuracy comes off its magic
+    # level + magic attack bonus, and the player resists with magic defence.
+    enemy_class = _combat_enemy_attack_class(enemy)
+    enemy_attack_stat = {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
+    enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8) * (
+        _combat_attack_bonus_from_totals(enemy_totals, enemy_class) + 64
     )
     player_defence_roll = _combat_effective_player_defence_level(data, style_id) * (
-        _combat_defence_bonus_from_totals(player_totals) + 64
+        _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
     )
     enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
     enemy_max_hit = _combat_enemy_max_hit_old_hp(
         enemy,
         _positive_int(enemy.get("stats", {}).get("strength", 1), 1) + 8,
         _equipment_bonus_value(enemy_totals, "melee_strength"),
+        enemy_totals,
     )
 
     total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
