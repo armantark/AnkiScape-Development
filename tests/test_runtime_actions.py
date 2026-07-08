@@ -1471,6 +1471,20 @@ class TestCarriedOverlayWrapper(unittest.TestCase):
         self.assertEqual(player_data["carried_churn"]["coal_rock"], 40)
         self.assertEqual(player_data["inventory"]["Coal"], 40)
 
+    def test_a_dry_gather_produces_no_churn_and_folds_nothing(self):
+        # A gather can succeed as a review but roll no product (a dry action). It
+        # must not churn or fold, or an unlucky streak would rack up phantom slots
+        # and force bank runs with nothing to deposit.
+        def dry_gather(ctx):
+            return True  # counted as an action, but produced nothing
+
+        player_data = {"inventory": {}, "current_ore": "copper"}
+        for _ in range(50):
+            ctx, _calls = self._mining_ctx(player_data)
+            run_answer_with_carried_overlay(ctx, "mining", dry_gather)
+        self.assertEqual(player_data.get("carried_churn", {}), {})
+        self.assertEqual(player_data.get("carried_inventory", {}), {})
+
     def test_untracked_handler_key_runs_untouched(self):
         player_data = {"inventory": {}}
         marker = {"called": False}
