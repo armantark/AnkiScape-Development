@@ -199,9 +199,9 @@ except Exception:
     from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 try:
-    from .logic_pure import combat_status_summary_pure
+    from .logic_pure import combat_status_summary_pure, combat_hud_state_pure
 except Exception:
-    from logic_pure import combat_status_summary_pure  # type: ignore
+    from logic_pure import combat_status_summary_pure, combat_hud_state_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -1052,7 +1052,8 @@ def current_target_display_name(skill: str, player_data: dict) -> Optional[str]:
 # UI Classes
 if HAS_QT:
     # Shared HUD theme
-    _HUD_ACCENT = "#4CAF50"  # Material green
+    _HUD_ACCENT = "#4CAF50"  # Material green (player health)
+    _HUD_ENEMY = "#E53935"  # Material red (enemy health)
     _HUD_BG = "rgba(20, 20, 20, 180)"
     _HUD_BORDER = "rgba(255, 255, 255, 60)"
 
@@ -1121,6 +1122,33 @@ if HAS_QT:
             self.target_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
             info.addWidget(self.target_lbl)
 
+            # Combat-only: a second health bar for the enemy, and a chip line
+            # naming the skills the current attack style trains plus the running
+            # kill count. Hidden for every non-combat skill (see set_data).
+            self.enemy_progress = QProgressBar()
+            self.enemy_progress.setTextVisible(False)
+            self.enemy_progress.setFixedHeight(8)
+            self.enemy_progress.setRange(0, 100)
+            self.enemy_progress.setValue(0)
+            self.enemy_progress.setStyleSheet(
+                f"""
+                QProgressBar {{
+                    background-color: rgba(255,255,255,0.15);
+                    border: 1px solid {_HUD_BORDER};
+                    border-radius: 5px;
+                }}
+                QProgressBar::chunk {{
+                    background-color: {_HUD_ENEMY};
+                    border-radius: 4px;
+                }}
+                """
+            )
+            info.addWidget(self.enemy_progress)
+
+            self.chips_lbl = QLabel("")
+            self.chips_lbl.setStyleSheet("color: rgba(255,255,255,0.6); font-size: 10px;")
+            info.addWidget(self.chips_lbl)
+
             root.addLayout(info, 1)
 
             # Aesthetic container style
@@ -1167,6 +1195,10 @@ if HAS_QT:
             """Update HUD content from player data and currently active skill."""
             skill = skill or "None"
             combat_status = combat_status_summary_pure(player_data)
+            # Enemy bar + chips are combat-only; keep them hidden unless the
+            # combat branch below explicitly turns them on.
+            self.enemy_progress.setVisible(False)
+            self.chips_lbl.setVisible(False)
             if skill in _UTILITY_SKILL_NAMES:
                 # Utility / Activities has no level or XP; show the active activity
                 # and make the no-XP nature explicit instead of a progress bar.
@@ -1195,10 +1227,7 @@ if HAS_QT:
                 self.show()
                 return
             if skill == _COMBAT_HUB_NAME:
-                target_name = current_target_display_name(skill, player_data) or "Enemy"
-                current_lp = max(0, int(player_data.get("combat_lifepoints", 100) or 0))
-                max_lp = max(10, int(player_data.get("constitution_level", 10) or 10) * 10)
-                pct = int((min(current_lp, max_lp) / max_lp) * 100)
+                state = combat_hud_state_pure(player_data)
                 ip = os.path.join(current_dir, "icon", "attack_icon.png")
                 if not os.path.exists(ip):
                     ip = self._placeholder_icon_path()
@@ -1207,14 +1236,30 @@ if HAS_QT:
                     self.icon_lbl.setPixmap(pm.scaled(28, 28, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
                 else:
                     self.icon_lbl.clear()
-                self.title_lbl.setText(f"Combat — Lv {player_combat_level_pure(player_data)}")
+                self.title_lbl.setText(f"Combat — Lv {state['combat_level']}")
+
+                # Player health bar
                 self.progress.setVisible(True)
-                self.progress.setValue(pct)
+                self.progress.setValue(state["player_pct"])
+                status_suffix = f" • {state['status']}" if state["status"] else ""
                 self.sub_lbl.setVisible(True)
-                status_suffix = f" • {combat_status}" if combat_status else ""
-                self.sub_lbl.setText(f"{current_lp}/{max_lp} LP{status_suffix}")
-                self.target_lbl.setText(target_name)
+                self.sub_lbl.setText(
+                    f"You {state['player_lifepoints']}/{state['player_max_lifepoints']} LP{status_suffix}"
+                )
+
+                # Enemy name + health bar
+                self.target_lbl.setText(state["enemy_name"])
                 self.target_lbl.setVisible(True)
+                self.enemy_progress.setVisible(True)
+                self.enemy_progress.setValue(state["enemy_pct"])
+
+                # Chip line: which skills this attack style trains, plus kills so far
+                trains = " • ".join(state["trained_skills"])
+                kills = state["kills_total"]
+                kill_txt = f"⚔ {kills} {'kill' if kills == 1 else 'kills'}"
+                self.chips_lbl.setText(f"Trains {trains}   {kill_txt}")
+                self.chips_lbl.setVisible(True)
+
                 self.adjustSize()
                 self._reposition()
                 self.show()

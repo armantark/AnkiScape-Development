@@ -2,6 +2,10 @@ import unittest
 
 from ui import compute_level_progress, current_target_display_name
 from constants import EXP_TABLE
+from logic_pure import (
+    combat_attack_style_trained_skills_pure,
+    combat_hud_state_pure,
+)
 
 class TestReviewHUDProgress(unittest.TestCase):
     def test_progress_basic_mid_level(self):
@@ -86,6 +90,72 @@ class TestCurrentTargetDisplayName(unittest.TestCase):
 
     def test_returns_none_for_unknown_skill(self):
         self.assertIsNone(current_target_display_name("Nonsense", {}))
+
+
+class TestCombatAttackStyleTrainedSkills(unittest.TestCase):
+    def test_melee_styles_name_their_skill_plus_constitution(self):
+        self.assertEqual(
+            combat_attack_style_trained_skills_pure("accurate"),
+            ("Attack", "Constitution"),
+        )
+        self.assertEqual(
+            combat_attack_style_trained_skills_pure("aggressive"),
+            ("Strength", "Constitution"),
+        )
+
+    def test_controlled_trains_all_three_melee_skills(self):
+        self.assertEqual(
+            combat_attack_style_trained_skills_pure("controlled"),
+            ("Attack", "Strength", "Defence", "Constitution"),
+        )
+
+    def test_ranged_longrange_adds_defence(self):
+        self.assertEqual(
+            combat_attack_style_trained_skills_pure("ranged_longrange"),
+            ("Ranged", "Defence", "Constitution"),
+        )
+
+    def test_unknown_style_falls_back_to_default(self):
+        self.assertEqual(
+            combat_attack_style_trained_skills_pure("bogus"),
+            combat_attack_style_trained_skills_pure("accurate"),
+        )
+
+
+class TestCombatHudStatePure(unittest.TestCase):
+    def test_full_health_uncarried_enemy_reports_full_bars(self):
+        state = combat_hud_state_pure({"current_combat_target": "chicken"})
+        self.assertEqual(state["player_pct"], 100)
+        self.assertEqual(state["enemy_pct"], 100)
+        self.assertFalse(state["enemy_carried"])
+        self.assertEqual(state["enemy_name"], "Chicken")
+        self.assertEqual(state["enemy_lifepoints"], state["enemy_max_lifepoints"])
+
+    def test_carried_encounter_reflects_wounded_enemy(self):
+        pd = {
+            "current_combat_target": "chicken",
+            "combat_lifepoints": 40,
+            "constitution_level": 10,
+            "combat_encounter": {"target_id": "chicken", "enemy_lifepoints": 9},
+        }
+        state = combat_hud_state_pure(pd)
+        self.assertTrue(state["enemy_carried"])
+        self.assertEqual(state["enemy_lifepoints"], 9)
+        self.assertLess(state["enemy_pct"], 100)
+        self.assertEqual(state["player_pct"], 40)  # 40/100
+
+    def test_encounter_for_other_target_is_not_carried(self):
+        pd = {
+            "current_combat_target": "chicken",
+            "combat_encounter": {"target_id": "giant_rat", "enemy_lifepoints": 1},
+        }
+        state = combat_hud_state_pure(pd)
+        self.assertFalse(state["enemy_carried"])
+        self.assertEqual(state["enemy_lifepoints"], state["enemy_max_lifepoints"])
+
+    def test_kill_count_surfaces_from_player_data(self):
+        pd = {"current_combat_target": "chicken", "combat_kill_counts": {"chicken": 7}}
+        self.assertEqual(combat_hud_state_pure(pd)["kills_total"], 7)
 
 
 if __name__ == "__main__":

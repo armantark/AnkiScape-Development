@@ -4047,6 +4047,98 @@ def player_combat_level_pure(player_data):
     return int(max(melee, ranged_score, magic_score))
 
 
+# Which skill exp keys each attack style feeds, mirroring _combat_apply_xp /
+# _combat_apply_magic_xp so the HUD chips and the Combat stats screen name
+# exactly the skills a burst will train. Constitution is always trained on damage
+# and is appended separately.
+_COMBAT_STYLE_XP_KEYS = {
+    "accurate": ("attack_exp",),
+    "aggressive": ("strength_exp",),
+    "defensive": ("defense_exp",),
+    "controlled": ("attack_exp", "strength_exp", "defense_exp"),
+    "ranged_accurate": ("ranged_exp",),
+    "ranged_rapid": ("ranged_exp",),
+    "ranged_longrange": ("ranged_exp", "defense_exp"),
+    "magic_standard": ("magic_exp",),
+}
+
+_COMBAT_EXP_KEY_DISPLAY = {
+    "attack_exp": "Attack",
+    "strength_exp": "Strength",
+    "defense_exp": "Defence",
+    "ranged_exp": "Ranged",
+    "magic_exp": "Magic",
+    "constitution_exp": "Constitution",
+}
+
+
+def combat_attack_style_trained_skills_pure(style_id):
+    """Display names of the skills a given attack style trains, Constitution last."""
+    keys = _COMBAT_STYLE_XP_KEYS.get(style_id, _COMBAT_STYLE_XP_KEYS[DEFAULT_COMBAT_ATTACK_STYLE])
+    ordered = list(keys) + ["constitution_exp"]
+    return tuple(_COMBAT_EXP_KEY_DISPLAY[key] for key in ordered)
+
+
+def combat_hud_state_pure(player_data, enemy_data=None, equipment_data=None):
+    """Structured view the combat HUD renders: player and enemy health bars, the
+    skills the current attack style trains (the XP chips), and the running kill
+    count. Kept pure so the Qt widget stays a thin renderer."""
+    enemy_data = enemy_data or COMBAT_ENEMY_DATA
+    max_lp = combat_max_lifepoints_pure(player_data)
+    current_lp = max(0, min(_non_negative_int(player_data.get("combat_lifepoints", max_lp), max_lp), max_lp))
+
+    target_id = player_data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    enemy = enemy_data.get(target_id) if isinstance(target_id, str) else None
+    if isinstance(enemy, Mapping):
+        enemy_name = str(enemy.get("display_name", target_id))
+        enemy_max_lp = _positive_int(enemy.get("stats", {}).get("hitpoints", 1), 1)
+    else:
+        enemy_name = "Enemy"
+        enemy_max_lp = 0
+    encounter = player_data.get("combat_encounter", {}) or {}
+    carried = isinstance(encounter, Mapping) and encounter.get("target_id") == target_id and enemy_max_lp > 0
+    if carried:
+        enemy_lp = max(0, min(_positive_int(encounter.get("enemy_lifepoints", enemy_max_lp), enemy_max_lp), enemy_max_lp))
+    else:
+        enemy_lp = enemy_max_lp
+
+    style_id = combat_attack_style_for_equipment_pure(player_data, equipment_data)
+    style = COMBAT_ATTACK_STYLE_DATA.get(style_id, {})
+
+    kills_total = _non_negative_int((player_data.get("combat_kill_counts", {}) or {}).get(target_id, 0), 0)
+    last = player_data.get("combat_last_result", {}) or {}
+    last = last if isinstance(last, Mapping) else {}
+    last_kills = _non_negative_int(last.get("kills", 0), 0)
+    if last.get("died"):
+        last_outcome = "died"
+    elif last.get("fled"):
+        last_outcome = "fled"
+    else:
+        last_outcome = ""
+
+    def _pct(value, ceiling):
+        return int((min(value, ceiling) / ceiling) * 100) if ceiling > 0 else 0
+
+    return {
+        "combat_level": player_combat_level_pure(player_data),
+        "player_lifepoints": current_lp,
+        "player_max_lifepoints": max_lp,
+        "player_pct": _pct(current_lp, max_lp),
+        "enemy_name": enemy_name,
+        "enemy_lifepoints": enemy_lp,
+        "enemy_max_lifepoints": enemy_max_lp,
+        "enemy_pct": _pct(enemy_lp, enemy_max_lp),
+        "enemy_carried": bool(carried),
+        "attack_style_id": style_id,
+        "attack_style_name": str(style.get("display_name", style_id)),
+        "trained_skills": combat_attack_style_trained_skills_pure(style_id),
+        "kills_total": kills_total,
+        "last_kills": last_kills,
+        "last_outcome": last_outcome,
+        "status": combat_status_summary_pure(player_data),
+    }
+
+
 def _quest_combat_stats(encounter):
     stats = encounter.get("npc_stats", {}) if isinstance(encounter, Mapping) else {}
     return stats if isinstance(stats, Mapping) else {}
