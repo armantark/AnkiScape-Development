@@ -110,6 +110,51 @@ NORMALIZED_MINING_BONUS_SLOTS: Mapping[str, SlotId] = {
     "amulet": "neck",
     "chest": "body",
 }
+RANGED_BOW_EQUIPMENT: Mapping[str, Tuple[int, str]] = {
+    "Shortbow": (1, "shortbow"),
+    "Longbow": (1, "longbow"),
+    "Oak shortbow": (5, "oak_shortbow"),
+    "Oak longbow": (5, "oak_longbow"),
+    "Willow shortbow": (20, "willow_shortbow"),
+    "Willow longbow": (20, "willow_longbow"),
+    "Maple shortbow": (30, "maple_shortbow"),
+    "Maple longbow": (30, "maple_longbow"),
+    "Yew shortbow": (40, "yew_shortbow"),
+    "Yew longbow": (40, "yew_longbow"),
+    "Magic shortbow": (50, "magic_shortbow"),
+    "Magic longbow": (50, "magic_longbow"),
+}
+LEGACY_EQUIPMENT_ITEMS: Tuple[Tuple[str, int, Optional[str], int, bool, str, str], ...] = (
+    ("Air tiara", 5527, None, 1, False, "runecrafting_access", "Altar.kt; AIR_TIARA"),
+    ("Binding necklace", 5521, None, 1, False, "binding_necklace", "legacy equipment_data.py; BINDING_NECKLACE"),
+    ("Blood tiara", 5549, None, 1, False, "runecrafting_access", "Altar.kt; BLOOD_TIARA"),
+    ("Body tiara", 5533, None, 1, False, "runecrafting_access", "Altar.kt; BODY_TIARA"),
+    ("Brass necklace", 1009, None, 1, False, "necklace", "BRASS_NECKLACE"),
+    ("Bronze spear", 1237, "attack", 1, True, "spear", "BRONZE_SPEAR"),
+    ("Cape", 1019, None, 1, False, "cape", "CAPE_1019"),
+    ("Chaos tiara", 5543, None, 1, False, "runecrafting_access", "Altar.kt; CHAOS_TIARA"),
+    ("Chef's hat", 1949, None, 1, False, "hat", "CHEFS_HAT"),
+    ("Cosmic tiara", 5539, None, 1, False, "runecrafting_access", "Altar.kt; COSMIC_TIARA"),
+    ("Death tiara", 5547, None, 1, False, "runecrafting_access", "Altar.kt; DEATH_TIARA"),
+    ("Earth tiara", 5535, None, 1, False, "runecrafting_access", "Altar.kt; EARTH_TIARA"),
+    ("Fire battlestaff", 1393, "attack", 30, False, "battlestaff", "FIRE_BATTLESTAFF"),
+    ("Fire tiara", 5537, None, 1, False, "runecrafting_access", "Altar.kt; FIRE_TIARA"),
+    ("Iron spear", 1239, "attack", 1, True, "spear", "IRON_SPEAR"),
+    ("Law tiara", 5545, None, 1, False, "runecrafting_access", "Altar.kt; LAW_TIARA"),
+    ("Mind tiara", 5529, None, 1, False, "runecrafting_access", "Altar.kt; MIND_TIARA"),
+    ("Nature tiara", 5541, None, 1, False, "runecrafting_access", "Altar.kt; NATURE_TIARA"),
+    ("Obsidian cape", 6568, None, 1, False, "obsidian_cape", "OBSIDIAN_CAPE"),
+    ("Staff", 1379, None, 1, False, "staff", "STAFF"),
+    ("Staff of air", 1381, None, 1, False, "elemental_staff", "STAFF_OF_AIR"),
+    ("Staff of earth", 1385, None, 1, False, "elemental_staff", "STAFF_OF_EARTH"),
+    ("Staff of fire", 1387, None, 1, False, "elemental_staff", "STAFF_OF_FIRE"),
+    ("Staff of water", 1383, None, 1, False, "elemental_staff", "STAFF_OF_WATER"),
+    ("Steel spear", 1241, "attack", 5, True, "spear", "STEEL_SPEAR"),
+    ("Toktz-ket-xil", 6524, "defense", 60, False, "obsidian_shield", "TOKTZKETXIL"),
+    ("Tzhaar-ket-om", 6528, "strength", 60, True, "obsidian_maul", "TZHAARKETOM"),
+    ("Water tiara", 5531, None, 1, False, "runecrafting_access", "Altar.kt; WATER_TIARA"),
+    ("Wicked hood", 22332, None, 1, False, "wicked_hood", "legacy equipment_data.py; WICKED_HOOD"),
+)
 
 
 @dataclass(frozen=True)
@@ -133,6 +178,7 @@ class GeneratedEquipmentItem:
     source_item_id: int
     source: str
     source_status: str
+    skill_requirements: Tuple[Tuple[str, int], ...] = ()
 
 
 def _read(path: Path) -> str:
@@ -252,6 +298,82 @@ def _mining_bonus_slot(raw_slot: object) -> SlotId:
     return "body"
 
 
+def _has_mappable_equipment_slot(block: Optional[Mapping[str, BonusValue]]) -> bool:
+    if block is None:
+        return False
+    return _int_from_block(block, "equip_slot", -1) in SOURCE_SLOT_IDS
+
+
+def _combat_skill_for_recipe_equipment(slot: SlotId, bonuses: Mapping[str, int]) -> Optional[str]:
+    if slot in {"head", "body", "shield", "legs", "hands", "feet"}:
+        return "defense"
+    if slot in {"ammunition", "weapon"} and (
+        int(bonuses.get("attack_ranged", 0)) != 0 or int(bonuses.get("ranged_strength", 0)) != 0
+    ):
+        return "ranged"
+    return None
+
+
+def _combat_requirements(combat_skill: Optional[str], required_level: int) -> Tuple[Tuple[str, int], ...]:
+    if combat_skill is None or required_level <= 1:
+        return ()
+    return ((combat_skill, required_level),)
+
+
+def _equipment_type_for_recipe(item_name: str, slot: SlotId) -> str:
+    if item_name in RANGED_BOW_EQUIPMENT:
+        return RANGED_BOW_EQUIPMENT[item_name][1]
+    return slot
+
+
+def _required_level_for_recipe_equipment(item_name: str, combat_skill: Optional[str], recipe_level: object) -> int:
+    if item_name in RANGED_BOW_EQUIPMENT:
+        return RANGED_BOW_EQUIPMENT[item_name][0]
+    if combat_skill is None:
+        return 1
+    return recipe_level if isinstance(recipe_level, int) else 1
+
+
+def _recipe_equipment_item(
+    recipe_key: str,
+    recipe: Mapping[str, object],
+    items: Mapping[int, SourceItem],
+    items_by_name: Mapping[str, SourceItem],
+) -> Optional[GeneratedEquipmentItem]:
+    source_item_id = recipe.get("source_item_id")
+    output_item = recipe.get("output_item")
+    if not isinstance(output_item, str) or not output_item:
+        return None
+    source_item = items.get(source_item_id) if isinstance(source_item_id, int) and source_item_id > 0 else None
+    if source_item is None:
+        source_item = items_by_name.get(output_item)
+    if source_item is None:
+        return None
+    block = source_item.equipment
+    if not _has_mappable_equipment_slot(block):
+        return None
+    source_item_id = source_item.item_id
+    slot = _slot_from_source(block, "weapon")
+    bonuses = _bonuses_from_block(block)
+    combat_skill = _combat_skill_for_recipe_equipment(slot, bonuses)
+    required_level = _required_level_for_recipe_equipment(output_item, combat_skill, recipe.get("level", 1))
+    source_enum = recipe.get("source_enum") or recipe_key
+    return GeneratedEquipmentItem(
+        item_name=output_item,
+        slot=slot,
+        combat_skill=combat_skill,
+        required_level=required_level,
+        two_handed=output_item in RANGED_BOW_EQUIPMENT,
+        equipment_type=_equipment_type_for_recipe(output_item, slot),
+        bonuses=bonuses,
+        attack_speed=_int_from_block(block, "attack_speed", 0),
+        source_item_id=source_item_id,
+        source=f"{ITEMS_YML_RELATIVE.as_posix()} item {source_item_id}; {source_enum}",
+        source_status="items.yml equipment block",
+        skill_requirements=_combat_requirements(combat_skill, required_level),
+    )
+
+
 def _smithing_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
     try:
         from smithing_data import SMITHING_RECIPES
@@ -285,8 +407,41 @@ def _smithing_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[Generate
                 source_item_id=recipe.source_item_id,
                 source=f"{ITEMS_YML_RELATIVE.as_posix()} item {recipe.source_item_id}; {recipe.source_enum}",
                 source_status=source_status,
+                skill_requirements=_combat_requirements(combat_skill, required_level),
             )
         )
+    return tuple(generated)
+
+
+def _crafting_equipment_items(
+    items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    try:
+        from constants import CRAFTING_DATA
+    except ImportError as exc:
+        raise RuntimeError("Run this script from the add-on root so constants.py is importable.") from exc
+
+    generated = []
+    for recipe_key, recipe in CRAFTING_DATA.items():
+        equipment_item = _recipe_equipment_item(recipe_key, recipe, items, items_by_name)
+        if equipment_item is not None:
+            generated.append(equipment_item)
+    return tuple(generated)
+
+
+def _fletching_equipment_items(
+    items: Mapping[int, SourceItem], items_by_name: Mapping[str, SourceItem]
+) -> Tuple[GeneratedEquipmentItem, ...]:
+    try:
+        from constants import FLETCHING_DATA
+    except ImportError as exc:
+        raise RuntimeError("Run this script from the add-on root so constants.py is importable.") from exc
+
+    generated = []
+    for recipe_key, recipe in FLETCHING_DATA.items():
+        equipment_item = _recipe_equipment_item(recipe_key, recipe, items, items_by_name)
+        if equipment_item is not None:
+            generated.append(equipment_item)
     return tuple(generated)
 
 
@@ -319,6 +474,66 @@ def _mining_bonus_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[Gene
     return tuple(generated)
 
 
+def _legacy_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[GeneratedEquipmentItem, ...]:
+    generated = []
+    for item_name, item_id, combat_skill, required_level, two_handed, equipment_type, source_note in LEGACY_EQUIPMENT_ITEMS:
+        source_item = items.get(item_id)
+        block = source_item.equipment if source_item is not None else None
+        if not _has_mappable_equipment_slot(block):
+            continue
+        generated.append(
+            GeneratedEquipmentItem(
+                item_name=item_name,
+                slot=_slot_from_source(block, "weapon"),
+                combat_skill=combat_skill,
+                required_level=required_level,
+                two_handed=two_handed,
+                equipment_type=equipment_type,
+                bonuses=_bonuses_from_block(block),
+                attack_speed=_int_from_block(block, "attack_speed", 0),
+                source_item_id=item_id,
+                source=f"{ITEMS_YML_RELATIVE.as_posix()} item {item_id}; {source_note}",
+                source_status="items.yml equipment block",
+                skill_requirements=(
+                    (("attack", 30), ("magic", 30))
+                    if item_name == "Fire battlestaff"
+                    else _combat_requirements(combat_skill, required_level)
+                ),
+            )
+        )
+    generated.append(
+        GeneratedEquipmentItem(
+            item_name="Wicked hood",
+            slot="head",
+            combat_skill=None,
+            required_level=1,
+            two_handed=False,
+            equipment_type="wicked_hood",
+            bonuses={field: 0 for field in BONUS_FIELDS},
+            attack_speed=4,
+            source_item_id=22332,
+            source="external RuneScape wiki; not present in local 2011Scape rev-667 source",
+            source_status="manual Runecrafting v1 equipment entry",
+        )
+    )
+    return tuple(generated)
+
+
+def _dedupe_equipment_items(items: Sequence[GeneratedEquipmentItem]) -> Tuple[GeneratedEquipmentItem, ...]:
+    by_name: Dict[str, GeneratedEquipmentItem] = {}
+    for item in items:
+        by_name.setdefault(item.item_name, item)
+    return tuple(by_name.values())
+
+
+def _source_items_by_name(items: Mapping[int, SourceItem]) -> Dict[str, SourceItem]:
+    by_name: Dict[str, SourceItem] = {}
+    for item in items.values():
+        if _has_mappable_equipment_slot(item.equipment):
+            by_name.setdefault(item.name, item)
+    return by_name
+
+
 def _bonus_repr(bonuses: Mapping[str, int]) -> str:
     args = ", ".join(f"{field}={int(bonuses.get(field, 0))}" for field in BONUS_FIELDS)
     return f"EquipmentBonuses({args})"
@@ -339,6 +554,7 @@ def _item_repr(item: GeneratedEquipmentItem) -> str:
         f"        source_item_id={item.source_item_id},\n"
         f"        source={item.source!r},\n"
         f"        source_status={item.source_status!r},\n"
+        f"        skill_requirements={item.skill_requirements!r},\n"
         "    )"
     )
 
@@ -400,6 +616,7 @@ class EquipmentItem:
     source_item_id: int
     source: str
     source_status: str
+    skill_requirements: Tuple[Tuple[str, int], ...] = ()
 
 
 EQUIPMENT_SLOTS: Tuple[EquipmentSlot, ...] = (
@@ -425,6 +642,7 @@ def equipment_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source_item_id": item.source_item_id,
             "source": item.source,
             "source_status": item.source_status,
+            "skill_requirements": item.skill_requirements,
         }}
         for item_name, item in EQUIPMENT_DATA.items()
     }}
@@ -436,7 +654,14 @@ def generate(game_root: Path, output_path: Path) -> None:
     if str(addon_root) not in sys.path:
         sys.path.insert(0, str(addon_root))
     items = _parse_items_yml(game_root / ITEMS_YML_RELATIVE)
-    equipment_items = tuple(_smithing_equipment_items(items)) + tuple(_mining_bonus_equipment_items(items))
+    items_by_name = _source_items_by_name(items)
+    equipment_items = _dedupe_equipment_items(
+        tuple(_smithing_equipment_items(items))
+        + tuple(_mining_bonus_equipment_items(items))
+        + tuple(_legacy_equipment_items(items))
+        + tuple(_crafting_equipment_items(items, items_by_name))
+        + tuple(_fletching_equipment_items(items, items_by_name))
+    )
     output_path.write_text(_render_module(equipment_items), encoding="utf-8")
 
 

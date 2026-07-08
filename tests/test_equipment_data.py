@@ -19,13 +19,17 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 158)
+        self.assertEqual(len(EQUIPMENT_DATA), 227)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
         self.assertEqual(EQUIPMENT_DATA["Air tiara"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Wicked hood"].slot, "head")
         self.assertEqual(EQUIPMENT_DATA["Binding necklace"].slot, "neck")
+        self.assertEqual(EQUIPMENT_DATA["Leather gloves"].slot, "hands")
+        self.assertEqual(EQUIPMENT_DATA["Leather boots"].slot, "feet")
+        self.assertEqual(EQUIPMENT_DATA["Bronze arrows"].slot, "ammunition")
+        self.assertEqual(EQUIPMENT_DATA["Gold ring"].slot, "ring")
 
     def test_smithed_armour_and_weapon_requirements(self):
         self.assertEqual(EQUIPMENT_DATA["Bronze platebody"].slot, "body")

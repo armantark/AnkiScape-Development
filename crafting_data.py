@@ -137,6 +137,7 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
 
     # Leather, glass, battlestaves, weaving, and selected source Crafting combinations.
     CraftingRecipe("leather_leather_gloves", "Leather gloves", "leather", "needle", 1, 13.8, _req(("Leather", 1)), "Leather gloves", source=LEATHER_SOURCE, source_enum="LEATHER"),
+    CraftingRecipe("leather_leather_boots", "Leather boots", "leather", "needle", 7, 16.2, _req(("Leather", 1)), "Leather boots", source=LEATHER_SOURCE, source_enum="LEATHER"),
     CraftingRecipe("leather_leather_body", "Leather body", "leather", "needle", 14, 25.0, _req(("Leather", 1)), "Leather body", source=LEATHER_SOURCE, source_enum="LEATHER"),
     CraftingRecipe("leather_hardleather_body", "Hardleather body", "leather", "needle", 28, 35.0, _req(("Hard leather", 1)), "Hardleather body", source=LEATHER_SOURCE, source_enum="HARD_LEATHER"),
     CraftingRecipe("leather_green_dhide_body", "Green d'hide body", "leather", "needle", 63, 186.0, _req(("Green dragon leather", 3)), "Green d'hide body", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
