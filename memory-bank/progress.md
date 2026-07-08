@@ -1340,6 +1340,21 @@ rollback. Deferred Hunter systems are recorded in
 `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`
 passed with 374 tests.
 
+Combat enemy roster Step 1 completed on 2026-07-07. The data-only pass added
+38 source-backed pure-melee gap enemies from the local 2011Scape
+`npcs/definitions` tree to `COMBAT_ENEMY_DATA`: baby dragons, demons,
+hellhound, rock crab, ghoul, werewolf, ice/earth warriors, Slayer enemies,
+Stronghold of Security enemies, Canifis/cave/TzHaar melee rows, and their real
+stats, bonuses, timings, Slayer/combat XP, drop tables, and source paths. No
+combat engine, runtime action, or UI file changed. The skipped set remains the
+audit's blocked-on-engine enemies (magic/ranged/hybrid attackers, revenants,
+dragonfire/bosses), the six ordinary-roster exclusions, and low-priority
+pure-melee quest/minigame/Abyss candidates deferred outside the Step-1 batch.
+Report: `memory-bank/source-audits/combat-enemy-roster-step1-data-report-2026-07-07.md`.
+Verification: `python3 -m py_compile combat_data.py tests/test_combat_enemy_roster.py`,
+`python3 -m unittest tests.test_combat_enemy_roster -v`, and
+`python3 run_tests.py` passed with 853 tests (152 skipped).
+
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 

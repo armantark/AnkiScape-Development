@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combat Enemy Roster Data Plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12;
+      --surface: #161a21;
+      --surface-2: #1e232c;
+      --border: #2a3040;
+      --text: #e8ecf4;
+      --text-dim: #8b95a8;
+      --accent: #4f8cff;
+      --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c;
+      --green: #4ade80;
+      --amber: #fbbf24;
+      --purple: #a78bfa;
+      --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 20% 0%, rgba(79, 140, 255, 0.14), transparent 34%), var(--bg);
+      color: var(--text);
+      font-family: Outfit, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    main { width: min(1180px, calc(100vw - 32px)); margin: 0 auto; padding: 40px 0 56px; }
+    .badge {
+      display: inline-flex;
+      border: 1px solid rgba(79, 140, 255, 0.35);
+      background: var(--accent-glow);
+      color: #9fc0ff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font: 700 0.72rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace;
+      letter-spacing: 0.04em;
+    }
+    h1 { margin: 14px 0 8px; font-size: clamp(2rem, 5vw, 4rem); line-height: 1; letter-spacing: 0; }
+    .subtitle { color: var(--text-dim); max-width: 850px; margin: 0 0 28px; }
+    .grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent), var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.22);
+    }
+    h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    .metric-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0; }
+    .metric { border: 1px solid var(--border); background: var(--surface-2); border-radius: 10px; padding: 12px; }
+    .num { display: block; font-size: 1.8rem; font-weight: 800; }
+    .label { color: var(--text-dim); font-size: 0.78rem; }
+    .flow { display: grid; gap: 10px; }
+    .step { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+    .step-num { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: var(--accent); color: white; font-weight: 800; }
+    .step p { margin: 0; color: var(--text-dim); }
+    .tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+    .tag { background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 5px 8px; font: 0.68rem JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace; color: #cbd5e1; }
+    .bar { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--border); }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--green), var(--accent)); width: 39%; }
+    .checklist { display: grid; gap: 9px; }
+    .check { display: flex; gap: 10px; align-items: center; padding: 9px 10px; background: rgba(255,255,255,0.025); border: 1px solid var(--border); border-radius: 9px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgba(251,191,36,0.12); flex: 0 0 auto; }
+    .skip .dot { background: var(--red); box-shadow: 0 0 0 4px rgba(255,92,92,0.12); }
+    .done .dot { background: var(--green); box-shadow: 0 0 0 4px rgba(74,222,128,0.12); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .pane { border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); padding: 14px; min-height: 180px; }
+    .pane h3 { margin: 0 0 10px; font-size: 0.74rem; font-family: JetBrains Mono, ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--text-dim); }
+    .enemy-pill { margin: 6px 0; padding: 7px 9px; border-radius: 8px; background: #111722; border-left: 3px solid var(--green); font-size: 0.82rem; }
+    .enemy-pill.blocked { border-left-color: var(--red); color: var(--text-dim); }
+    .foot { margin-top: 18px; color: var(--text-dim); font-size: 0.82rem; }
+    @media (max-width: 900px) {
+      .grid, .split, .metric-row { grid-template-columns: 1fr; }
+      main { width: min(100vw - 24px, 1180px); padding-top: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+    <h1>Combat roster data extraction</h1>
+    <p class="subtitle">Goal: add only 2011Scape pure-melee gap enemies as data, preserve combat engine behavior, and leave a source-visible report of every added or skipped candidate.</p>
+    <section class="grid">
+      <article class="card">
+        <h2>Backend Plan</h2>
+        <div class="flow">
+          <div class="step"><span class="step-num">1</span><p>Read the audit and build the exact Step-1 candidate list, excluding the six files flagged as ordinary-roster no-gos.</p></div>
+          <div class="step"><span class="step-num">2</span><p>Parse every candidate plugin for melee-only confirmation, stats, bonuses, attack speed, respawn delay, Slayer XP, and drops.</p></div>
+          <div class="step"><span class="step-num">3</span><p>Append new `COMBAT_ENEMY_DATA` entries only; no engine fields, no runtime behavior edits, and no existing enemy changes.</p></div>
+          <div class="step"><span class="step-num">4</span><p>Add a focused roster-schema test covering all newly added keys and drop-table shape.</p></div>
+          <div class="step"><span class="step-num">5</span><p>Run the requested compile, unittest, and full test runner commands; write the final report file and result artifact.</p></div>
+        </div>
+        <div class="tags">
+          <span class="tag">combat_data.py</span>
+          <span class="tag">tests/test_combat_enemy_roster.py</span>
+          <span class="tag">memory-bank/source-audits</span>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Scope Gauge</h2>
+        <div class="metric-row">
+          <div class="metric"><span class="num">94</span><span class="label">current roster enemies</span></div>
+          <div class="metric"><span class="num">87</span><span class="label">source gaps in audit</span></div>
+          <div class="metric"><span class="num">36</span><span class="label">Stage-1 targets</span></div>
+          <div class="metric"><span class="num">0</span><span class="label">engine files in scope</span></div>
+        </div>
+        <div class="bar" aria-label="planned roster expansion"><div class="fill"></div></div>
+        <p class="foot">The target count is expected to settle after source confirmation because any non-melee, dragonfire, shield, prayer, or ambiguous plugin is skipped and reported.</p>
+      </article>
+      <article class="card">
+        <h2>Candidate Split</h2>
+        <div class="split">
+          <div class="pane">
+            <h3>ADD IF CONFIRMED MELEE</h3>
+            <div class="enemy-pill">Demons: lesser, greater, black, abyssal, nechryael, death spawn</div>
+            <div class="enemy-pill">Training staples: hellhound, rock crab, ghoul, werewolf, ice warrior, earth warrior</div>
+            <div class="enemy-pill">Slayer/Stronghold block: banshee, shade, cave crawler, cockatrice, rockslug, cave bug, cave slime, flesh crawlers, ankous, catablepons, minotaurs</div>
+            <div class="enemy-pill">Other pure melee: baby dragons, gargoyle, crawling hand, cave goblin, Canifis citizen, TzHaar-Hur, ghost 77</div>
+          </div>
+          <div class="pane">
+            <h3>SKIP / REPORT</h3>
+            <div class="enemy-pill blocked">Dragonfire adults and King Black Dragon</div>
+            <div class="enemy-pill blocked">Magic/ranged/hybrid attackers and revenants</div>
+            <div class="enemy-pill blocked">Six audit exclusions: rocks, temple guardian, living rock protector, monks-of-Zamorak duplicate, gardener, Johnny the beard</div>
+            <div class="enemy-pill blocked">Any source ambiguity discovered during extraction</div>
+          </div>
+        </div>
+      </article>
+      <article class="card">
+        <h2>Verification Contract</h2>
+        <div class="checklist">
+          <div class="check"><span class="dot"></span><span>`python3 -m py_compile combat_data.py tests/test_combat_enemy_roster.py`</span></div>
+          <div class="check"><span class="dot"></span><span>`python3 -m unittest tests.test_combat_enemy_roster -v`</span></div>
+          <div class="check"><span class="dot"></span><span>`python3 run_tests.py` with counts reported</span></div>
+          <div class="check skip"><span class="dot"></span><span>No git commit, push, status-altering workflow, or global config changes</span></div>
+          <div class="check done"><span class="dot"></span><span>Frontend handoff: none expected; data-only backend change</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>
