@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cooking runtime review fixes</title>
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px Outfit,ui-sans-serif,system-ui,sans-serif}.wrap{max-width:1080px;margin:auto;padding:36px 20px 56px}.badge,.tag{font:700 12px JetBrains Mono,ui-monospace,monospace;letter-spacing:.08em}.badge{display:inline-block;padding:7px 10px;border:1px solid #415f9e;border-radius:999px;color:#9ec0ff;background:var(--accent-glow)}h1{font-size:clamp(28px,5vw,46px);margin:14px 0 8px}.sub{color:var(--text-dim);max-width:760px;line-height:1.55}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:28px 0}.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;min-height:180px}.n{color:var(--amber);font:700 13px JetBrains Mono,monospace}.card h2{font-size:18px;margin:10px 0}.card p,.flow{color:var(--text-dim);line-height:1.5}.tag{display:inline-block;margin-top:10px;padding:5px 7px;border-radius:6px;background:var(--surface-2);color:#bdc7da;letter-spacing:0}.flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}.node{padding:14px;background:var(--surface-2);border-radius:9px;color:var(--text);text-align:center}.arrow{padding:0 10px;color:var(--accent);font-size:24px}.proof{border-left:3px solid var(--green);padding:13px 16px;background:#11221a;border-radius:0 var(--radius) var(--radius) 0;color:#c9f3d8}.checks{margin-top:24px;display:grid;gap:8px}.check{padding:11px 14px;background:var(--surface);border-radius:8px;color:var(--text-dim)}.check b{color:var(--green)}@media(max-width:760px){.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr;gap:9px}.arrow{transform:rotate(90deg);text-align:center}}
+</style>
+<main class="wrap">
+  <span class="badge">REVIEW-FIX PLAN</span>
+  <h1>Cooking runtime extras: narrow merge blockers</h1>
+  <p class="sub">Correct only the live-handler gate, accidental unrelated bypasses, and missing icon registration identified after the original source-backed Cooking import.</p>
+  <section class="grid">
+    <article class="card"><div class="n">01 · RUNTIME</div><h2>Honor source no-level actions</h2><p>Move the Cooking runtime check into the same no-level contract already used by pure readiness and target metadata. Normal Cooking rows retain their level gate.</p><span class="tag">runtime_actions.py</span></article>
+    <article class="card"><div class="n">02 · SCOPE</div><h2>Restore Fishing + Hunter</h2><p>Remove the two generic bypasses added to handlers whose schemas do not define this Cooking-only field.</p><span class="tag">runtime_actions.py</span></article>
+    <article class="card"><div class="n">03 · ASSETS</div><h2>Register existing art</h2><p>Allow the four rows to contribute their raw/output items to Cooking’s registry, reusing existing Fishing, Shop, and Crafted image paths without fetching anything.</p><span class="tag">cooking_data.py · constants.py</span></article>
+  </section>
+  <section class="flow" aria-label="verification flow"><div class="node">level 0 + leaping trout<br>source formula executes</div><div class="arrow">→</div><div class="node">four target rows<br>non-null icon paths</div><div class="arrow">→</div><div class="node">focused tests + import gate</div></section>
+  <p class="proof"><b>Source boundary:</b> retain the emulator’s live gut-fish and range-seaweed bindings; no new method, balance adjustment, post-EOC content, Combat, or Prayer work.</p>
+  <section class="checks"><div class="check"><b>□</b> Runtime regression: level-0 synthetic Cooking state succeeds when its source formula roll succeeds.</div><div class="check"><b>□</b> Metadata regression: all new rows expose a real existing icon path.</div><div class="check"><b>□</b> Run the requested Cooking import command and focused runtime/data/metadata tests.</div></section>
+</main>
+</html>

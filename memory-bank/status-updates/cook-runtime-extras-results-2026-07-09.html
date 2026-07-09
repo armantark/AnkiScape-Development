@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cooking runtime extras — results</title>
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; } body { margin:0; background:radial-gradient(circle at 12% 0,#163729 0,transparent 34%),var(--bg); color:var(--text); font:16px/1.45 Outfit,ui-sans-serif,system-ui,sans-serif; } main { max-width:1120px; margin:auto; padding:42px 22px 64px; } .badge { display:inline-block; padding:5px 10px; border:1px solid #36845c; border-radius:999px; color:var(--green); background:#173a2a; font:700 11px/1 ui-monospace,SFMono-Regular,monospace; letter-spacing:.08em; } h1 { margin:14px 0 6px; font-size:clamp(30px,6vw,52px); line-height:1.04; } .lede { max-width:790px; color:var(--text-dim); } .metrics { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:27px 0; } .metric { padding:18px; border:1px solid var(--border); background:var(--surface); border-radius:var(--radius); } .metric b { display:block; color:var(--green); font-size:32px; line-height:1; } .metric span { color:var(--text-dim); font-size:13px; } .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; } article { padding:20px; border:1px solid var(--border); border-radius:var(--radius); background:linear-gradient(145deg,var(--surface),#11141a); } .label { color:var(--amber); font:700 11px/1 ui-monospace,SFMono-Regular,monospace; letter-spacing:.09em; } h2 { margin:8px 0; font-size:20px; } p { margin:8px 0; } ul { margin:10px 0 0; padding-left:19px; color:var(--text-dim); } li { margin:6px 0; } code { color:#c9dbff; background:var(--surface-2); border-radius:5px; padding:2px 5px; font:13px ui-monospace,SFMono-Regular,monospace; } .wide { grid-column:1/-1; } .flow { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:12px; } .node { border:1px solid var(--border); background:var(--surface-2); padding:8px 10px; border-radius:8px; font:13px ui-monospace,SFMono-Regular,monospace; } .arrow { color:var(--green); font-size:21px; } .pass { color:var(--green); } @media (max-width:740px) { .metrics,.grid { grid-template-columns:1fr; } .wide { grid-column:auto; } main { padding-top:28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETED · SOURCE-FAITHFUL</span>
+    <h1>Cooking runtime extras are live</h1>
+    <p class="lede">Four authenticated emulator bindings now sit alongside table Cooking without disturbing its existing review-scaled rows.</p>
+    <section class="metrics" aria-label="Completion metrics">
+      <div class="metric"><b>4</b><span>live source rows added</span></div>
+      <div class="metric"><b>344</b><span>focused tests passing</span></div>
+      <div class="metric"><b>0</b><span>new item IDs or assets needed</span></div>
+    </section>
+    <section class="grid">
+      <article>
+        <div class="label">GUT FISH · SOURCE LINES 14–93</div><h2>Formula-exact and independently rolled</h2>
+        <ul>
+          <li>Trout: Roe + 10 XP; offcuts at 1/2.</li>
+          <li>Salmon: Roe + 10 XP; offcuts at 3/4.</li>
+          <li>Sturgeon: Caviar + 15 XP; offcuts at 5/6.</li>
+          <li>Each source formula uses the current Cooking level, skips review caps, consumes the fish on failure, and has no invented level gate.</li>
+        </ul>
+        <div class="flow"><span class="node">success roll</span><span class="arrow">→</span><span class="node">fish consumed</span><span class="arrow">→</span><span class="node">output + XP</span><span class="arrow">→</span><span class="node">offcut roll</span></div>
+      </article>
+      <article>
+        <div class="label">SEAWEED · SOURCE LINES 21–61</div><h2>Range conversion, no chance roll</h2>
+        <p>Seaweed always becomes Soda ash when consumed, granting exactly 1 Cooking XP. The existing Crafting and shop registrations already provide both IDs and assets.</p>
+        <div class="flow"><span class="node">Seaweed</span><span class="arrow">→</span><span class="node">Soda ash</span><span class="arrow">→</span><span class="node">+1 Cooking XP</span></div>
+      </article>
+      <article>
+        <div class="label">PROOF</div><h2 class="pass">344 focused tests passed</h2>
+        <p>Data rows, source-formula boundaries, failure consumption, success-only byproducts, runtime telemetry/inventory, target metadata, item registry/storage, and Anki review undo all have deterministic coverage.</p>
+        <p><code>uv run python -c "import cooking_data"</code> passed. The bare <code>python</code> executable is absent from this worktree; its available system Python is too old for the project.</p>
+      </article>
+      <article>
+        <div class="label">DELIBERATE EXCLUSIONS</div><h2>Only live emulator bindings</h2>
+        <p>Karambwan and gnome Cooking stubs remain omitted: they are wiki-sourced/non-authenticated for this task and have no added live row here. Combat and Prayer were untouched.</p>
+      </article>
+      <article class="wide">
+        <div class="label">FILES</div><h2>Small, localized runtime path</h2>
+        <p><code>cooking_data.py</code> records the four rows and source metadata; <code>logic_pure.py</code> applies source formulas and output rolls; <code>runtime_actions.py</code> preserves roll order and failure telemetry; tests cover the data, pure action, runtime action, and undo hook.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

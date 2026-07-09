@@ -1675,6 +1675,82 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(burnt_inv["Raw shrimps"], 0)
         self.assertEqual(burnt_inv["Burnt shrimp"], 1)
 
+    def test_cooking_runtime_extra_formulas_and_inventory(self):
+        trout = COOKING_DATA["gut_leaping_trout"]
+        salmon = COOKING_DATA["gut_leaping_salmon"]
+        sturgeon = COOKING_DATA["gut_leaping_sturgeon"]
+
+        self.assertTrue(can_cook_target_pure(0, {"Leaping trout": 1}, "gut_leaping_trout", COOKING_DATA))
+        self.assertAlmostEqual(cooking_source_roll_chance_pure(1, trout), 1.0 / 150.0)
+        self.assertAlmostEqual(cooking_source_roll_chance_pure(99, trout), 66.0 / 150.0)
+        self.assertAlmostEqual(cooking_source_roll_chance_pure(1, salmon), 1.25 / 100.0)
+        self.assertEqual(cooking_source_roll_chance_pure(80, salmon), 1.0)
+        self.assertEqual(cooking_source_roll_chance_pure(80, sturgeon), 1.0)
+        self.assertEqual(calculate_cooking_success_probability_pure(1, trout), 1.0 / 150.0)
+        self.assertEqual(calculate_cooking_success_probability_pure(1, COOKING_DATA["burn_seaweed"]), 1.0)
+
+        trout_inv, trout_exp, trout_ok, trout_output, trout_failed = apply_cooking_action_pure(
+            "gut_leaping_trout",
+            {"Leaping trout": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=1.0 / 150.0,
+            byproduct_roll=0.5,
+        )
+        self.assertTrue(trout_ok)
+        self.assertFalse(trout_failed)
+        self.assertEqual(trout_output, "Roe")
+        self.assertEqual(trout_exp, 10.0)
+        self.assertEqual(trout_inv, {"Leaping trout": 0, "Roe": 1, "Fish offcuts": 1})
+
+        salmon_inv, _salmon_exp, _salmon_ok, _salmon_output, _salmon_failed = apply_cooking_action_pure(
+            "gut_leaping_salmon",
+            {"Leaping salmon": 1},
+            COOKING_DATA,
+            cooking_level=80,
+            roll=1.0,
+            byproduct_roll=0.75,
+        )
+        self.assertEqual(salmon_inv, {"Leaping salmon": 0, "Roe": 1, "Fish offcuts": 1})
+
+        sturgeon_inv, sturgeon_exp, _sturgeon_ok, sturgeon_output, _sturgeon_failed = apply_cooking_action_pure(
+            "gut_leaping_sturgeon",
+            {"Leaping sturgeon": 1},
+            COOKING_DATA,
+            cooking_level=80,
+            roll=1.0,
+            byproduct_roll=5.0 / 6.0,
+        )
+        self.assertEqual(sturgeon_output, "Caviar")
+        self.assertEqual(sturgeon_exp, 15.0)
+        self.assertEqual(sturgeon_inv, {"Leaping sturgeon": 0, "Caviar": 1, "Fish offcuts": 1})
+
+        failed_inv, failed_exp, failed_ok, failed_output, failed = apply_cooking_action_pure(
+            "gut_leaping_trout",
+            {"Leaping trout": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=1.0,
+        )
+        self.assertTrue(failed_ok)
+        self.assertTrue(failed)
+        self.assertEqual(failed_exp, 0)
+        self.assertIsNone(failed_output)
+        self.assertEqual(failed_inv, {"Leaping trout": 0})
+
+        seaweed_inv, seaweed_exp, seaweed_ok, seaweed_output, seaweed_failed = apply_cooking_action_pure(
+            "burn_seaweed",
+            {"Seaweed": 1},
+            COOKING_DATA,
+            cooking_level=1,
+            roll=1.0,
+        )
+        self.assertTrue(seaweed_ok)
+        self.assertFalse(seaweed_failed)
+        self.assertEqual(seaweed_output, "Soda ash")
+        self.assertEqual(seaweed_exp, 1.0)
+        self.assertEqual(seaweed_inv, {"Seaweed": 0, "Soda ash": 1})
+
     def test_rune_mysteries_progresses_on_reviews_and_rewards_once(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quest_stage_actions"] = {

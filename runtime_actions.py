@@ -1334,7 +1334,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    if player_level < spec.get("level", 1):
+    if not spec.get("source_no_level_requirement") and player_level < spec.get("level", 1):
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
         return False
 
@@ -1349,18 +1349,22 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     expected_success = calculate_cooking_success_probability_pure(player_level, spec)
+    roll = ctx.random_random()
+    byproduct_roll = ctx.random_random() if spec.get("byproduct_item") and roll <= expected_success else None
     new_inv, base_exp, ok, output_item, burned = apply_cooking_action_pure(
         target,
         player_data.get("inventory", {}),
         COOKING_DATA,
         player_level,
-        ctx.random_random(),
+        roll,
+        byproduct_roll,
     )
     if not ok:
         return False
 
     player_data["inventory"] = new_inv
     if burned:
+        failure_kind = str(spec.get("failure_kind", "burn"))
         _record_action(
             ctx,
             "cooking",
@@ -1368,9 +1372,10 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
             False,
             expected_success_chance=expected_success,
             output_item=output_item,
-            failure_kind="burn",
+            failure_kind=failure_kind,
         )
-        player_data["cooking_burn_count"] = player_data.get("cooking_burn_count", 0) + 1
+        if failure_kind == "burn":
+            player_data["cooking_burn_count"] = player_data.get("cooking_burn_count", 0) + 1
         ctx.check_achievements(player_data)
         ctx.save_player_data()
         ctx.refresh_skill_availability()

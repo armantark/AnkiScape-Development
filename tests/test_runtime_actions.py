@@ -1374,6 +1374,71 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["failure_kinds"], {"burn": 1})
         self.assertEqual(telemetry["outputs"], {"Burnt shrimp": 1})
 
+    def test_cooking_runtime_extra_gutting_uses_source_rolls(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Leaping sturgeon": 1},
+            "cooking_level": 80,
+            "cooking_exp": 0,
+            "current_cooking": "gut_leaping_sturgeon",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_cooking_answer(_context(player_data, calls, random_values=[1.0, 5.0 / 6.0]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"], {"Leaping sturgeon": 0, "Caviar": 1, "Fish offcuts": 1})
+        self.assertEqual(player_data["cooking_exp"], 15.0)
+        self.assertEqual(player_data["cooking_success_count"], 1)
+        self.assertEqual(calls["xp"], [15.0])
+        self.assertEqual(calls["saves"], 1)
+        telemetry = player_data["action_telemetry"]["actions"]["cooking:gut_leaping_sturgeon"]
+        self.assertEqual(telemetry["successes"], 1)
+        self.assertEqual(telemetry["outputs"], {"Caviar": 1})
+
+        failed_data = {
+            "inventory": {"Leaping trout": 1},
+            "cooking_level": 1,
+            "cooking_exp": 0,
+            "current_cooking": "gut_leaping_trout",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+        self.assertTrue(handle_cooking_answer(_context(failed_data, calls, random_values=[1.0])))
+        self.assertEqual(failed_data["inventory"], {"Leaping trout": 0})
+        self.assertEqual(failed_data["cooking_burn_count"], 0)
+        failed_telemetry = failed_data["action_telemetry"]["actions"]["cooking:gut_leaping_trout"]
+        self.assertEqual(failed_telemetry["failure_kinds"], {"gut": 1})
+
+    def test_cooking_runtime_extra_honors_source_no_level_requirement(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Leaping trout": 1},
+            "cooking_level": 0,
+            "cooking_exp": 0,
+            "current_cooking": "gut_leaping_trout",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_cooking_answer(_context(player_data, calls, random_values=[0.0, 0.0])))
+        self.assertEqual(player_data["inventory"], {"Leaping trout": 0, "Roe": 1, "Fish offcuts": 1})
+        self.assertEqual(player_data["cooking_exp"], 10.0)
+        self.assertEqual(calls["errors"], [])
+
+        ordinary_calls = {"xp": [], "saves": 0, "errors": []}
+        ordinary_data = {
+            "inventory": {"Raw shrimps": 1},
+            "cooking_level": 0,
+            "current_cooking": "cook_shrimps",
+        }
+        self.assertFalse(handle_cooking_answer(_context(ordinary_data, ordinary_calls)))
+        self.assertEqual(ordinary_calls["errors"], [("Insufficient level", "You need level 1 Cooking to cook raw shrimps.")])
+
     def test_smithing_iron_failure_consumes_ore_and_records_telemetry(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

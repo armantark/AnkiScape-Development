@@ -5,6 +5,8 @@ from cooking_data import (
     COOKING_SOURCE_PATH,
     COOKING_TARGETS,
     COOKING_TARGETS_BY_ID,
+    GUT_FISH_SOURCE_PATH,
+    SEAWEED_COOKING_SOURCE_PATH,
     cooking_extra_items_as_dict,
     cooking_prep_activities_as_dict,
     cooking_targets_as_dict,
@@ -15,7 +17,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 54)
+        self.assertEqual(len(COOKING_TARGETS), 58)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -30,6 +32,25 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["cook_summer_pie"]["exp"], 260.0)
         self.assertEqual(data["cook_rocktail"]["level"], 93)
         self.assertEqual(data["cook_rocktail"]["exp"], 225.0)
+
+    def test_runtime_extra_targets_preserve_live_source_rows(self):
+        data = cooking_targets_as_dict()
+
+        self.assertEqual(data["gut_leaping_trout"]["requirements"], {"Leaping trout": 1})
+        self.assertEqual(data["gut_leaping_trout"]["output_item"], "Roe")
+        self.assertEqual(data["gut_leaping_trout"]["exp"], 10.0)
+        self.assertEqual(data["gut_leaping_trout"]["source"], GUT_FISH_SOURCE_PATH)
+        self.assertTrue(data["gut_leaping_trout"]["source_no_level_requirement"])
+        self.assertEqual(data["gut_leaping_trout"]["byproduct_chance"], 0.5)
+        self.assertEqual(data["gut_leaping_salmon"]["byproduct_chance"], 0.75)
+        self.assertEqual(data["gut_leaping_sturgeon"]["output_item"], "Caviar")
+        self.assertEqual(data["gut_leaping_sturgeon"]["exp"], 15.0)
+        self.assertEqual(data["gut_leaping_sturgeon"]["byproduct_chance"], 5.0 / 6.0)
+        self.assertEqual(data["burn_seaweed"]["requirements"], {"Seaweed": 1})
+        self.assertEqual(data["burn_seaweed"]["output_item"], "Soda ash")
+        self.assertEqual(data["burn_seaweed"]["exp"], 1.0)
+        self.assertTrue(data["burn_seaweed"]["source_always_succeeds"])
+        self.assertEqual(data["burn_seaweed"]["source"], SEAWEED_COOKING_SOURCE_PATH)
 
     def test_secondary_sinew_targets_are_distinct_stable_actions(self):
         data = cooking_targets_as_dict()

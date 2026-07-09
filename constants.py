@@ -690,13 +690,26 @@ for _item_name in hunter_supply_item_names():
 
 COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}
-for _item_name in COOKING_EXTRA_ITEM_DATA:
+_COOKING_ITEM_NAMES = set(COOKING_EXTRA_ITEM_DATA)
+_COOKING_ITEM_NAMES.update(COOKING_RAW_ITEMS)
+_COOKING_ITEM_NAMES.update(COOKING_OUTPUT_ITEMS)
+for _item_name in _COOKING_ITEM_NAMES:
     _path = (
         FISHING_ITEM_IMAGES.get(_item_name)
         or CRAFTED_ITEM_IMAGES.get(_item_name)
         or ORE_IMAGES.get(_item_name)
         or BAR_IMAGES.get(_item_name)
-        or os.path.join(COOKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+        or next(
+            (
+                candidate
+                for candidate in (
+                    os.path.join(COOKING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"),
+                    os.path.join(SHOP_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"),
+                )
+                if os.path.exists(candidate)
+            ),
+            None,
+        )
     )
     if _path and os.path.exists(_path):
         COOKING_ITEM_IMAGES[_item_name] = _path

@@ -23,6 +23,14 @@ COOKING_PLUGIN_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/skills/cooking/raw_food_cooking.plugin.kts"
 )
+GUT_FISH_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/items/gut_fish.plugin.kts"
+)
+SEAWEED_COOKING_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/objs/cookingrange/seawead_cooking.plugin.kts"
+)
 ITEMS_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/api/cfg/Items.kt"
@@ -68,6 +76,12 @@ class CookingTarget:
     source: str = COOKING_SOURCE_PATH
     runtime_source: str = COOKING_RUNTIME_SOURCE_PATH
     status: str = "implemented"
+    source_success_formula: Mapping[str, float] = ()
+    source_always_succeeds: bool = False
+    source_no_level_requirement: bool = False
+    byproduct_item: str = ""
+    byproduct_chance: float = 0.0
+    failure_kind: str = "burn"
 
 
 @dataclass(frozen=True)
@@ -138,6 +152,10 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_rat', 'RAT', 'Cook raw rat meat', 'meat', 'RAW_RAT_MEAT', 2134, 'Raw rat meat', 'COOKED_MEAT', 2142, 'Cooked meat', 'BURNT_MEAT', 2146, 'Burnt meat', 1, 30.0, 128, 512, output_variant='primary'),
     CookingTarget('cook_ugthanki', 'UGTHANKI', 'Cook raw ugthanki meat', 'meat', 'RAW_UGTHANKI_MEAT', 1859, 'Raw ugthanki meat', 'UGTHANKI_MEAT', 1861, 'Ugthanki meat', 'BURNT_MEAT', 2146, 'Burnt meat', 1, 40.0, 30, 253, output_variant='primary'),
     CookingTarget('cook_yak', 'YAK', 'Cook raw yak meat', 'meat', 'RAW_YAK_MEAT', 10816, 'Raw yak meat', 'COOKED_MEAT', 2142, 'Cooked meat', 'BURNT_MEAT', 2146, 'Burnt meat', 1, 30.0, 128, 512, output_variant='primary'),
+    CookingTarget('gut_leaping_trout', 'LEAPING_TROUT', 'Gut leaping trout', 'fish', 'LEAPING_TROUT', 11328, 'Leaping trout', 'ROE', 11324, 'Roe', '', 0, '', 1, 10.0, 0, 0, source=GUT_FISH_SOURCE_PATH, runtime_source=GUT_FISH_SOURCE_PATH, source_success_formula={'base': 1.0, 'level_multiplier': 65.0, 'level_range': 98.0, 'cap': 99.0, 'divisor': 150.0}, source_no_level_requirement=True, byproduct_item='Fish offcuts', byproduct_chance=0.5, failure_kind='gut'),
+    CookingTarget('gut_leaping_salmon', 'LEAPING_SALMON', 'Gut leaping salmon', 'fish', 'LEAPING_SALMON', 11330, 'Leaping salmon', 'ROE', 11324, 'Roe', '', 0, '', 1, 10.0, 0, 0, source=GUT_FISH_SOURCE_PATH, runtime_source=GUT_FISH_SOURCE_PATH, source_success_formula={'base': 1.25, 'level_multiplier': 98.75, 'level_range': 79.0, 'cap': 100.0, 'divisor': 100.0}, source_no_level_requirement=True, byproduct_item='Fish offcuts', byproduct_chance=0.75, failure_kind='gut'),
+    CookingTarget('gut_leaping_sturgeon', 'LEAPING_STURGEON', 'Gut leaping sturgeon', 'fish', 'LEAPING_STURGEON', 11332, 'Leaping sturgeon', 'CAVIAR', 11326, 'Caviar', '', 0, '', 1, 15.0, 0, 0, source=GUT_FISH_SOURCE_PATH, runtime_source=GUT_FISH_SOURCE_PATH, source_success_formula={'base': 1.25, 'level_multiplier': 98.75, 'level_range': 79.0, 'cap': 100.0, 'divisor': 100.0}, source_no_level_requirement=True, byproduct_item='Fish offcuts', byproduct_chance=5.0 / 6.0, failure_kind='gut'),
+    CookingTarget('burn_seaweed', 'SEAWEED', 'Burn seaweed', 'materials', 'SEAWEED', 401, 'Seaweed', 'SODA_ASH', 1781, 'Soda ash', '', 0, '', 1, 1.0, 0, 0, source=SEAWEED_COOKING_SOURCE_PATH, runtime_source=SEAWEED_COOKING_SOURCE_PATH, source_always_succeeds=True, source_no_level_requirement=True, failure_kind='burn'),
 )
 
 COOKING_TARGETS_BY_ID: Dict[str, CookingTarget] = {target.id: target for target in COOKING_TARGETS}
@@ -266,9 +284,12 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
 }
 
 for _target in COOKING_TARGETS:
+    if _target.source in (GUT_FISH_SOURCE_PATH, SEAWEED_COOKING_SOURCE_PATH):
+        continue
     SOURCE_ITEM_DATA.setdefault(_target.raw_item, (_target.raw_item_id, True))
     SOURCE_ITEM_DATA.setdefault(_target.cooked_item, (_target.cooked_item_id, True))
-    SOURCE_ITEM_DATA.setdefault(_target.burnt_item, (_target.burnt_item_id, False))
+    if _target.burnt_item:
+        SOURCE_ITEM_DATA.setdefault(_target.burnt_item, (_target.burnt_item_id, False))
 
 
 _MATERIAL_CATEGORIES = {
@@ -305,6 +326,11 @@ def cooking_targets_as_dict() -> Dict[str, Dict[str, object]]:
             "source_enum": target.source_enum,
             "output_variant": target.output_variant,
             "status": target.status,
+            **({"source_success_formula": dict(target.source_success_formula)} if target.source_success_formula else {}),
+            **({"source_always_succeeds": True} if target.source_always_succeeds else {}),
+            **({"source_no_level_requirement": True} if target.source_no_level_requirement else {}),
+            **({"byproduct_item": target.byproduct_item, "byproduct_chance": target.byproduct_chance} if target.byproduct_item else {}),
+            **({"failure_kind": target.failure_kind} if target.failure_kind != "burn" else {}),
         }
         for target in COOKING_TARGETS
     }
@@ -315,7 +341,7 @@ def cooking_output_items() -> Tuple[str, ...]:
 
 
 def cooking_burnt_items() -> Tuple[str, ...]:
-    return tuple(dict.fromkeys(target.burnt_item for target in COOKING_TARGETS))
+    return tuple(dict.fromkeys(target.burnt_item for target in COOKING_TARGETS if target.burnt_item))
 
 
 def cooking_raw_items() -> Tuple[str, ...]:

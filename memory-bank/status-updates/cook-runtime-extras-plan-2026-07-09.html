@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cooking runtime extras — plan</title>
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; } body { margin:0; color:var(--text); background:radial-gradient(circle at top right,#17233d 0,transparent 33%),var(--bg); font:16px/1.45 Outfit,ui-sans-serif,system-ui,sans-serif; }
+    main { max-width:1050px; margin:auto; padding:42px 22px 60px; } .badge { display:inline-block; color:var(--accent); background:var(--accent-glow); border:1px solid #315ba0; border-radius:999px; padding:5px 10px; font:700 11px/1 ui-monospace,SFMono-Regular,monospace; letter-spacing:.08em; } h1 { margin:14px 0 6px; font-size:clamp(30px,6vw,52px); line-height:1.04; } .lede { color:var(--text-dim); max-width:750px; } .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:28px; } article { padding:20px; background:linear-gradient(145deg,var(--surface),#12151b); border:1px solid var(--border); border-radius:var(--radius); } article:hover { transform:translateY(-2px); box-shadow:0 12px 30px #0004; transition:.2s; } .label { color:var(--amber); font:700 11px/1 ui-monospace,SFMono-Regular,monospace; letter-spacing:.09em; } h2 { margin:8px 0; font-size:20px; } p { margin:8px 0; } code { color:#c9dbff; background:var(--surface-2); border-radius:5px; padding:2px 5px; font:13px ui-monospace,SFMono-Regular,monospace; } .flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:12px; } .node { padding:9px 11px; background:var(--surface-2); border:1px solid var(--border); border-radius:8px; font:13px ui-monospace,SFMono-Regular,monospace; } .arrow { color:var(--accent); font-size:22px; } ol { margin:14px 0 0; padding:0; list-style:none; counter-reset:steps; } li { display:flex; gap:12px; margin:13px 0; color:var(--text-dim); } li::before { counter-increment:steps; content:counter(steps); flex:0 0 25px; height:25px; text-align:center; color:var(--accent); border:1px solid var(--accent); border-radius:6px; font:700 13px/25px ui-monospace,SFMono-Regular,monospace; } .wide { grid-column:1/-1; } .guard { color:var(--green); } @media (max-width:720px) { .grid { grid-template-columns:1fr; } .wide { grid-column:auto; } main { padding-top:28px; } }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+    <h1>Live Cooking runtime extras</h1>
+    <p class="lede">Port only the four emulator-backed actions that sit outside the original cooking table, keeping their source formulas, consumption, XP, outputs, and side-rolls intact.</p>
+    <section class="grid">
+      <article>
+        <div class="label">SOURCE-LOCKED</div><h2>Three knife-on-fish actions</h2>
+        <p>Leaping trout, salmon, and sturgeon are consumed for Roe/Caviar only on a successful source-formula roll. Fish offcuts are a separate success-only roll.</p>
+        <div class="flow"><span class="node">Leaping fish</span><span class="arrow">→</span><span class="node">formula roll</span><span class="arrow">→</span><span class="node">bait + XP</span></div>
+      </article>
+      <article>
+        <div class="label">SOURCE-LOCKED</div><h2>Range seaweed action</h2>
+        <p>Seaweed is always consumed and converted to Soda ash for exactly 1 Cooking XP per review action. Existing Soda ash registration is retained.</p>
+        <div class="flow"><span class="node">Seaweed</span><span class="arrow">→</span><span class="node">Soda ash</span><span class="arrow">→</span><span class="node">1 XP</span></div>
+      </article>
+      <article>
+        <div class="label">TESTS</div><h2>Deterministic proof</h2>
+        <p>Cover formula boundaries, consumed-on-failure inventory state, successful outputs and offcut rolls, runtime XP/event behavior, and review undo restoration.</p>
+      </article>
+      <article>
+        <div class="label">GUARDRAILS</div><h2>Deliberate non-scope</h2>
+        <p class="guard">No wiki-based karambwan or gnome stub. No invented level gate. No Combat, Prayer, assets, refactor, commit, or network asset work.</p>
+      </article>
+      <article class="wide">
+        <div class="label">IMPLEMENTATION SEQUENCE</div>
+        <ol>
+          <li>Extend <code>cooking_data.py</code> with source-specific action metadata in the module’s current registration path.</li>
+          <li>Route only those rows through exact source chance and side-output behavior while leaving ordinary Cooking unchanged.</li>
+          <li>Add narrow data, pure-logic, runtime, and undo tests, then import-check the module and run the targeted suite.</li>
+        </ol>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

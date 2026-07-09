@@ -6537,7 +6537,7 @@ def can_cook_target_pure(cooking_level, inventory, target, cooking_data):
     spec = cooking_data.get(target)
     if not spec:
         return False
-    if int(cooking_level or 1) < _positive_int(spec.get("level", 1), 1):
+    if not spec.get("source_no_level_requirement") and int(cooking_level or 1) < _positive_int(spec.get("level", 1), 1):
         return False
     return has_cooking_materials_pure(target, inventory, cooking_data)
 
@@ -6549,7 +6549,7 @@ def cooking_target_locked_reasons_pure(player_data, target, cooking_data, quest_
     reasons = []
     cooking_level = _positive_int(player_data.get("cooking_level", 1), 1)
     required_level = _positive_int(spec.get("level", 1), 1)
-    if cooking_level < required_level:
+    if not spec.get("source_no_level_requirement") and cooking_level < required_level:
         reasons.append(f"Cooking level {required_level}")
     if not has_cooking_materials_pure(target, player_data.get("inventory", {}) or {}, cooking_data):
         reasons.append("materials")
@@ -6567,6 +6567,16 @@ def cooking_target_locked_reasons_pure(player_data, target, cooking_data, quest_
 def cooking_source_roll_chance_pure(cooking_level, target_spec):
     """Exact 2011Scape Cooking roll (CookingAction.kt): the shared 3-arg
     interpolate helper (floors + 1) with success on interp > nextInt(255)."""
+    source_formula = target_spec.get("source_success_formula")
+    if isinstance(source_formula, Mapping):
+        base = float(source_formula["base"])
+        level_multiplier = float(source_formula["level_multiplier"])
+        level_range = float(source_formula["level_range"])
+        cap = float(source_formula["cap"])
+        divisor = float(source_formula["divisor"])
+        return min(base + level_multiplier * (float(cooking_level) - 1) / level_range, cap) / divisor
+    if target_spec.get("source_always_succeeds"):
+        return 1.0
     interpolated = _scape2011_interpolate_255(
         target_spec.get("low_chance", 1),
         target_spec.get("high_chance", 255),
@@ -6584,10 +6594,12 @@ def calculate_cooking_success_probability_pure(
 ):
     """Translate source Cooking odds into one review-scale success probability."""
     source_chance = cooking_source_roll_chance_pure(cooking_level, target_spec)
+    if target_spec.get("source_success_formula") or target_spec.get("source_always_succeeds"):
+        return source_chance
     return normalize_review_success_probability_pure(source_chance, minimum, scale, cap)
 
 
-def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, roll):
+def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, roll, byproduct_roll=None):
     """Apply one Cooking action.
 
     Returns (inventory, exp, processed, output_item, burned). A failed burn still
@@ -6603,15 +6615,23 @@ def apply_cooking_action_pure(target, inventory, cooking_data, cooking_level, ro
         new_inv[material] = new_inv.get(material, 0) - amount
 
     success_probability = calculate_cooking_success_probability_pure(cooking_level, spec)
-    if float(roll) < success_probability:
+    source_runtime_action = bool(spec.get("source_success_formula") or spec.get("source_always_succeeds"))
+    succeeded = float(roll) <= success_probability if source_runtime_action else float(roll) < success_probability
+    if succeeded:
         output_item = spec.get("output_item", target)
         output_qty = _positive_int(spec.get("output_qty", 1), 1)
         new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+        byproduct_item = spec.get("byproduct_item")
+        if isinstance(byproduct_item, str) and byproduct_item and byproduct_roll is not None:
+            if float(byproduct_roll) <= float(spec.get("byproduct_chance", 0.0)):
+                new_inv[byproduct_item] = new_inv.get(byproduct_item, 0) + 1
         return new_inv, spec.get("exp", 0), True, output_item, False
 
     burnt_item = spec.get("burnt_item")
     if isinstance(burnt_item, str) and burnt_item:
         new_inv[burnt_item] = new_inv.get(burnt_item, 0) + 1
+    else:
+        burnt_item = None
     return new_inv, 0, True, burnt_item, True
 
 
