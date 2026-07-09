@@ -19,6 +19,10 @@ from logic_pure import (
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_fletching_pure,
+    apply_herblore_action_pure,
+    can_herblore_target_pure,
+    has_herblore_materials_pure,
+    herblore_target_locked_reasons_pure,
     apply_cooking_action_pure,
     apply_firemaking_action_pure,
     apply_fishing_action_pure,
@@ -1138,6 +1142,53 @@ class TestLogic(unittest.TestCase):
         self.assertFalse(ok2)
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, {})
+
+    def test_apply_herblore_action_pure_three_stage_pipeline(self):
+        from constants import HERBLORE_DATA
+
+        # Clean stage: grimy -> clean herb, herb XP awarded, gated on herb level.
+        clean = HERBLORE_DATA["clean_guam"]
+        self.assertEqual(clean["exp"], 2.5)
+        inv = {"Grimy guam": 2}
+        self.assertTrue(can_herblore_target_pure(3, inv, "clean_guam", HERBLORE_DATA))
+        self.assertFalse(can_herblore_target_pure(2, inv, "clean_guam", HERBLORE_DATA))
+        new_inv, exp, ok = apply_herblore_action_pure("clean_guam", inv, HERBLORE_DATA)
+        self.assertTrue(ok)
+        self.assertAlmostEqual(exp, 2.5)
+        self.assertEqual(new_inv["Grimy guam"], 1)
+        self.assertEqual(new_inv["Clean guam"], 1)
+        self.assertEqual(inv["Grimy guam"], 2)  # input untouched
+
+        # Unfinished stage: clean + Vial of water -> unf potion, ZERO XP.
+        unf_inv = {"Clean guam": 1, "Vial of water": 1}
+        new_unf, unf_exp, unf_ok = apply_herblore_action_pure("unf_guam", unf_inv, HERBLORE_DATA)
+        self.assertTrue(unf_ok)
+        self.assertEqual(unf_exp, 0.0)
+        self.assertEqual(new_unf["Guam potion (unf)"], 1)
+        self.assertEqual(new_unf["Clean guam"], 0)
+        self.assertEqual(new_unf["Vial of water"], 0)
+
+        # Finished stage: unf + secondary -> potion, recipe XP awarded.
+        fin = HERBLORE_DATA["finished_attack_potion"]
+        self.assertEqual(fin["exp"], 25.0)
+        fin_inv = {"Guam potion (unf)": 1, "Eye of newt": 1}
+        self.assertTrue(has_herblore_materials_pure("finished_attack_potion", fin_inv, HERBLORE_DATA))
+        new_fin, fin_exp, fin_ok = apply_herblore_action_pure("finished_attack_potion", fin_inv, HERBLORE_DATA)
+        self.assertTrue(fin_ok)
+        self.assertAlmostEqual(fin_exp, 25.0)
+        self.assertEqual(new_fin["Attack potion (3)"], 1)
+
+        # Missing materials and level gate both refuse and award nothing.
+        self.assertEqual(
+            herblore_target_locked_reasons_pure(
+                {"herblore_level": 1, "inventory": {}}, "clean_guam", HERBLORE_DATA
+            ),
+            ("Herblore level 3", "materials"),
+        )
+        no_inv, no_exp, no_ok = apply_herblore_action_pure("finished_attack_potion", {}, HERBLORE_DATA)
+        self.assertFalse(no_ok)
+        self.assertEqual(no_exp, 0)
+        self.assertEqual(no_inv, {})
 
     def test_action_telemetry_records_expected_observed_and_outputs(self):
         player_data = {}

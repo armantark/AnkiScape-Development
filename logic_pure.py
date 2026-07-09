@@ -6450,6 +6450,71 @@ def apply_fletching_pure(target, inventory, fletching_data):
     return new_inv, spec.get("exp", 0), True
 
 
+def has_herblore_materials_pure(target, inventory, herblore_data):
+    """Return True when inventory satisfies a Herblore target's material needs."""
+    spec = herblore_data.get(target)
+    if not spec:
+        return False
+    for material, amount in spec.get("requirements", {}).items():
+        if inventory.get(material, 0) < amount:
+            return False
+    return True
+
+
+def can_herblore_target_pure(herblore_level, inventory, target, herblore_data):
+    """Return True if level and materials allow the Herblore target."""
+    spec = herblore_data.get(target)
+    if not spec:
+        return False
+    if herblore_level < spec.get("level", 1):
+        return False
+    return has_herblore_materials_pure(target, inventory, herblore_data)
+
+
+def herblore_target_locked_reasons_pure(player_data, target, herblore_data, target_unlock_rules=()):
+    spec = herblore_data.get(target)
+    if not spec:
+        return ("unknown target",)
+    reasons = []
+    herblore_level = _positive_int(player_data.get("herblore_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if herblore_level < required_level:
+        reasons.append(f"Herblore level {required_level}")
+    if not has_herblore_materials_pure(target, player_data.get("inventory", {}) or {}, herblore_data):
+        reasons.append("materials")
+    reasons.extend(
+        target_unlock_locked_reasons_pure(
+            player_data,
+            "herblore",
+            target,
+            target_unlock_rules,
+        )
+    )
+    return tuple(dict.fromkeys(reasons))
+
+
+def apply_herblore_action_pure(target, inventory, herblore_data):
+    """Consume herblore inputs and produce the selected output.
+
+    The three pipeline stages (clean → unfinished → finished) share this one
+    processing path; each stage's XP is baked into the target's ``exp`` field
+    from HerbData.kt / PotionData.kt (herb XP for clean, zero for unfinished,
+    recipe XP for finished), so no stage-specific branching is needed here.
+    """
+    spec = herblore_data.get(target)
+    if not spec or not has_herblore_materials_pure(target, inventory, herblore_data):
+        return inventory, 0, False
+
+    new_inv = dict(inventory)
+    for material, amount in spec.get("requirements", {}).items():
+        new_inv[material] = new_inv.get(material, 0) - amount
+
+    output_item = spec.get("output_item", target)
+    output_qty = spec.get("output_qty", 1)
+    new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+    return new_inv, spec.get("exp", 0), True
+
+
 def has_cooking_materials_pure(target, inventory, cooking_data):
     """Return True when inventory has the raw/prepared item for one Cooking action."""
     spec = cooking_data.get(target)
