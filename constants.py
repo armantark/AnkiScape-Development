@@ -596,6 +596,13 @@ for _item_name, _fallback_item in {
     "Dragon bracelet": "Dragon necklace",
     "Onyx bracelet": "Onyx necklace",
     "Earth battlestaff": "Air battlestaff",
+    "Candle lantern": "Beer glass",
+    "Fishbowl": "Beer glass",
+    "Lantern lens": "Beer glass",
+    "Empty light orb": "Unpowered orb",
+    "Ring of slaying (8)": "Gold ring",
+    "Silvthrill rod": "Silver sickle",
+    "Silvthrill chain": "Silver sickle",
 }.items():
     _path = CRAFTED_ITEM_IMAGES.get(_fallback_item)
     if _path:
@@ -604,6 +611,11 @@ for _item_name, _fallback_item in {
 _path = os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png")
 if os.path.exists(_path):
     CRAFTED_ITEM_IMAGES["Unfinished net"] = _path
+
+_path = os.path.join(SHOP_ITEMS_FOLDER, "cape_of_legends.png")
+if os.path.exists(_path):
+    for _tier in range(10, 100, 10):
+        CRAFTED_ITEM_IMAGES[f"Milestone cape ({_tier})"] = _path
 
 
 _FLETCHING_ITEM_NAMES = set(fletching_item_names())
