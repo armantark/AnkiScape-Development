@@ -954,6 +954,14 @@ class TestLogic(unittest.TestCase):
     def test_best_mining_pickaxe_prefers_best_owned_usable_tool(self):
         pickaxe = best_mining_pickaxe_pure(
             41,
+            {"Rune pickaxe": 1, "Inferno adze": 1},
+            {"mining": ["bronze_pickaxe"]},
+            MINING_PICKAXE_DATA,
+        )
+        self.assertEqual(pickaxe["display_name"], "Inferno adze")
+
+        pickaxe = best_mining_pickaxe_pure(
+            41,
             {"Rune pickaxe": 1, "Dragon pickaxe": 1},
             {"mining": ["bronze_pickaxe"]},
             MINING_PICKAXE_DATA,

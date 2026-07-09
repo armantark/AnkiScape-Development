@@ -883,7 +883,7 @@ def best_mining_pickaxe_pure(mining_level, inventory, toolbelt, pickaxe_data):
         power = float(spec.get("ratio", 0))
         if "dragon" in str(spec.get("display_name", "")).lower():
             power *= 1.12
-        if best is None or power > best_power:
+        if best is None or power >= best_power:
             best = spec
             best_power = power
     return best
