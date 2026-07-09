@@ -5,6 +5,16 @@ No active build thread. The combat overhaul, the weapon-aware attack-type pass,
 the Stronghold of Security landmark, and the full Herblore skill are all shipped
 and committed (Herblore as of 2026-07-09).
 
+### Pestle-and-mortar remainder — COMPLETE in isolated worktree, verified 2026-07-09
+`herblore_data.py` now carries the 24 former gaps in the live 31-row
+`PestleAndMortarData` enumeration, with source/result cache IDs and the existing
+28-item Utility batch convention. `constants.py` registers the rows, reuses
+existing/fallback item art without a fetch, and keeps established quest art ahead
+of generic grind fallbacks. Super prayer now correctly consumes item 6810's cache
+name `Bonemeal`, not the invented `Wyvern bonemeal`; it remains input-starved and
+no Prayer, acquisition, XP, or Combat behavior was added. Targeted parity/item/
+icon/runtime/undo coverage plus the four affected test modules pass (261 tests).
+
 ### Inferno adze Woodcutting parity — COMPLETE, verified 2026-07-09
 `woodcutting_data.py` now promotes the source row (item 13661, Woodcutting 61,
 ratio 3.75) from deferred to active and carries its source-exact one-in-two

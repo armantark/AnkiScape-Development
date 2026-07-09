@@ -24,6 +24,10 @@ HERBLORE_SOURCE_ROOT = (
 )
 HERB_DATA_SOURCE_PATH = f"{HERBLORE_SOURCE_ROOT}/HerbData.kt"
 POTION_DATA_SOURCE_PATH = f"{HERBLORE_SOURCE_ROOT}/mixing/PotionData.kt"
+PESTLE_AND_MORTAR_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/items/pestle_and_mortar/PestleAndMortarData.kt"
+)
 
 DEFAULT_HERBLORE_TARGET = "clean_guam"
 VIAL_OF_WATER_ITEM = "Vial of water"
@@ -41,6 +45,18 @@ class HerbloreTarget:
     output_item: str
     output_qty: int = 1
     source: str = HERB_DATA_SOURCE_PATH
+
+
+@dataclass(frozen=True)
+class PestleAndMortarActivity:
+    id: str
+    display_name: str
+    source_item: str
+    source_item_id: int
+    output_item: str
+    output_item_id: int
+    source_enum: str
+    source: str = PESTLE_AND_MORTAR_SOURCE_PATH
 
 
 CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
@@ -145,7 +161,7 @@ FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_extreme_defence', 'Extreme defence (3)', "finished", 'standard', 90, 240.0, (('Super defence (3)', 1), ('Clean lantadyme', 1)), 'Extreme defence (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_extreme_magic', 'Extreme magic (3)', "finished", 'standard', 91, 250.0, (('Magic potion (3)', 1), ('Ground mud runes', 1)), 'Extreme magic (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_extreme_ranging', 'Extreme ranging (3)', "finished", 'standard', 92, 260.0, (('Ranging potion (3)', 1), ('Grenwall spikes', 1)), 'Extreme ranging (3)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_super_prayer', 'Super prayer (3)', "finished", 'standard', 94, 270.0, (('Prayer potion (3)', 1), ('Wyvern bonemeal', 1)), 'Super prayer (3)', source=POTION_DATA_SOURCE_PATH),
+    HerbloreTarget('finished_super_prayer', 'Super prayer (3)', "finished", 'standard', 94, 270.0, (('Prayer potion (3)', 1), ('Bonemeal', 1)), 'Super prayer (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_prayer_renewal', 'Prayer renewal (3)', "finished", 'standard', 94, 190.0, (('Fellstalk potion (unf)', 1), ('Morchella mushroom', 1)), 'Prayer renewal (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_agility_mix', 'Agility mix (2)', "finished", 'barbarian', 37, 27.0, (('Agility potion (2)', 1), ('Caviar', 1)), 'Agility mix (2)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_attack_mix', 'Attack mix (2)', "finished", 'barbarian', 4, 7.0, (('Attack potion (2)', 1), ('Caviar', 1)), 'Attack mix (2)', source=POTION_DATA_SOURCE_PATH),
@@ -218,6 +234,33 @@ FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_strong_survivalist', "Strong survivalist's potion", "finished", 'dungeoneering', 99, 315.5, (('Lycopus potion (unf)', 1), ('Firebreath whiskey', 1)), "Strong survivalist's potion", source=POTION_DATA_SOURCE_PATH),
 )
 
+PESTLE_AND_MORTAR_ACTIVITIES: Tuple[PestleAndMortarActivity, ...] = (
+    PestleAndMortarActivity('grind_anchovies', 'Grind anchovies', 'Anchovies', 319, 'Anchovy paste', 11266, 'AnchovyPaste'),
+    PestleAndMortarActivity('grind_tchiki_monkey_nuts', 'Grind tchiki monkey nuts', 'Tchiki monkey nuts', 7573, 'Tchiki nut paste', 7575, 'TchikiMonkeyNuts'),
+    PestleAndMortarActivity('grind_dramen_branch', 'Grind dramen branch', 'Dramen branch', 771, 'Cinnamon', 7472, 'DramenBranch'),
+    PestleAndMortarActivity('grind_garlic', 'Grind garlic', 'Garlic', 1550, 'Garlic powder', 4668, 'Garlic'),
+    PestleAndMortarActivity('grind_astral_rune_shards', 'Grind astral rune shards', 'Astral rune shards', 11156, 'Ground astral rune', 11155, 'AstralRuneShards'),
+    PestleAndMortarActivity('grind_bat_bones', 'Grind bat bones', 'Bat bones', 530, 'Ground bat bones', 2391, 'BatBones'),
+    PestleAndMortarActivity('grind_charcoal', 'Grind charcoal', 'Charcoal', 973, 'Ground charcoal', 704, 'Charcoal'),
+    PestleAndMortarActivity('grind_clean_guam', 'Grind clean guam', 'Clean guam', 249, 'Ground guam', 6681, 'Guam'),
+    PestleAndMortarActivity('grind_crab_meat', 'Grind crab meat', 'Crab meat', 7518, 'Ground crab meat', 7527, 'CrabMeat'),
+    PestleAndMortarActivity('grind_raw_cod', 'Grind raw cod', 'Raw cod', 341, 'Ground cod', 7528, 'Cod'),
+    PestleAndMortarActivity('grind_suqah_tooth', 'Grind suqah tooth', 'Suqah tooth', 9079, 'Ground tooth', 9082, 'SuqahTooth'),
+    PestleAndMortarActivity('grind_kelp', 'Grind kelp', 'Kelp', 7516, 'Ground kelp', 7517, 'Kelp'),
+    PestleAndMortarActivity('grind_rune_shards', 'Grind rune shards', 'Rune shards', 6466, 'Rune dust', 6467, 'RuneShards'),
+    PestleAndMortarActivity('grind_dried_thistle', 'Grind dried thistle', 'Dried thistle', 3263, 'Ground thistle', 3264, 'DriedThistle'),
+    PestleAndMortarActivity('grind_gorak_claws', 'Grind gorak claws', 'Gorak claws', 9016, 'Gorak claw powder', 9018, 'GorakClaw'),
+    PestleAndMortarActivity('grind_ashes', 'Grind ashes', 'Ashes', 592, 'Ground ashes', 8865, 'Ashes'),
+    PestleAndMortarActivity('grind_raw_karambwan', 'Grind raw karambwan', 'Raw karambwan', 3142, 'Karambwan paste', 3152, 'RawKarambwan'),
+    PestleAndMortarActivity('grind_cooked_karambwan', 'Grind cooked karambwan', 'Cooked karambwan', 3144, 'Karambwan paste', 3154, 'CookedKarambwan'),
+    PestleAndMortarActivity('grind_poison_karambwan', 'Grind poison karambwan', 'Poison karambwan', 3146, 'Karambwan paste', 3153, 'PoisonKarambwan'),
+    PestleAndMortarActivity('grind_diamond_root', 'Grind diamond root', 'Diamond root', 14703, 'Diamond root dust', 14704, 'DiamondRoot'),
+    PestleAndMortarActivity('grind_black_mushroom', 'Grind black mushroom', 'Black mushroom', 4620, 'Black mushroom ink', 4622, 'BlackMushroom'),
+    PestleAndMortarActivity('grind_shards_of_armadyl', 'Grind shards of armadyl', 'Shards of armadyl', 21776, 'Dust of armadyl', 21774, 'ShardOfArmadyl'),
+    PestleAndMortarActivity('grind_fishing_bait', 'Grind fishing bait', 'Fishing bait', 313, 'Ground fishing bait', 12129, 'FishingBait'),
+    PestleAndMortarActivity('grind_seaweed', 'Grind seaweed', 'Seaweed', 401, 'Ground seaweed', 6683, 'SeaWeed'),
+)
+
 HERBLORE_TARGETS: Tuple[HerbloreTarget, ...] = CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS
 HERBLORE_TARGETS_BY_ID: Dict[str, HerbloreTarget] = {t.id: t for t in HERBLORE_TARGETS}
 
@@ -227,9 +270,9 @@ HERBLORE_GROUP_LABELS: Dict[str, str] = {
     "finished": "Finished potions",
 }
 
-# Item absent from the value cache; registered by explicit fiat (Super prayer's
-# secondary, which stays input-starved until a source exists).
-_HERBLORE_UNCACHED_ITEMS = ("Wyvern bonemeal",)
+# Item 6810 is Super prayer's canonical secondary. It stays input-starved until
+# a source exists.
+_HERBLORE_UNCACHED_ITEMS = ("Bonemeal",)
 
 
 def _target_as_dict(target: HerbloreTarget) -> Dict[str, object]:
@@ -271,8 +314,27 @@ def herblore_item_names() -> Tuple[str, ...]:
     for t in HERBLORE_TARGETS:
         names.append(t.output_item)
         names.extend(name for name, _qty in t.requirements)
+    for activity in PESTLE_AND_MORTAR_ACTIVITIES:
+        names.extend((activity.source_item, activity.output_item))
     names.extend(_HERBLORE_UNCACHED_ITEMS)
     return tuple(dict.fromkeys(names))
+
+
+def pestle_and_mortar_activities_as_dict() -> Dict[str, Dict[str, object]]:
+    return {
+        activity.id: {
+            "display_name": activity.display_name,
+            "requirements": {activity.source_item: 1},
+            "output_item": activity.output_item,
+            "output_qty": 1,
+            "batch_size": 28,
+            "group": "grinding",
+            "source_item_id": activity.source_item_id,
+            "output_item_id": activity.output_item_id,
+            "source": activity.source,
+        }
+        for activity in PESTLE_AND_MORTAR_ACTIVITIES
+    }
 
 
 def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
@@ -280,16 +342,28 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     registered by another system dedupe by storage key at build time, so this
     only introduces the herblore-native herbs, unfinished potions, and the new
     dungeoneering/juju products."""
-    return {
-        name: {
+    pestle_item_ids = {
+        item_name: item_id
+        for activity in PESTLE_AND_MORTAR_ACTIVITIES
+        for item_name, item_id in (
+            (activity.source_item, activity.source_item_id),
+            (activity.output_item, activity.output_item_id),
+        )
+    }
+    result = {}
+    for name in herblore_item_names():
+        item = {
             "display_name": name,
             "output_item": name,
             "level": 1,
             "exp": 0.0,
-            "source": HERB_DATA_SOURCE_PATH,
+            "source": PESTLE_AND_MORTAR_SOURCE_PATH if name in pestle_item_ids else HERB_DATA_SOURCE_PATH,
             "category": "material",
             "tradeable": True,
         }
-        for name in herblore_item_names()
-    }
-
+        if name in pestle_item_ids:
+            item["item_id"] = pestle_item_ids[name]
+        elif name == "Bonemeal":
+            item["item_id"] = 6810
+        result[name] = item
+    return result

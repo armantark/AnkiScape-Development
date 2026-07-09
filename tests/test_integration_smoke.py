@@ -2384,9 +2384,9 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._refresh_skill_availability = lambda: None
         addon.show_error_message = lambda _title, message: self.fail(message)
         addon.player_data = {
-            "inventory": {"Clay": 2},
+            "inventory": {"Anchovies": 2},
             "crafting_exp": 0,
-            "current_utility": "make_soft_clay",
+            "current_utility": "grind_anchovies",
             "completed_achievements": [],
         }
         addon.current_skill = "Utility / Activities"
@@ -2396,7 +2396,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
 
-        self.assertEqual(addon.player_data["inventory"], {"Clay": 0, "Soft clay": 2})
+        self.assertEqual(addon.player_data["inventory"], {"Anchovies": 0, "Anchovy paste": 2})
         self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
 
@@ -2406,7 +2406,7 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
         addon._on_state_did_undo(changes)
 
-        self.assertEqual(addon.player_data["inventory"], {"Clay": 2})
+        self.assertEqual(addon.player_data["inventory"], {"Anchovies": 2})
         self.assertEqual(addon.player_data["crafting_exp"], 0)
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
