@@ -91,13 +91,39 @@ WIKI_TITLE_OVERRIDES: Dict[str, str] = {
     # wikis; fall back to the finished item's icon (same object, visually fine).
     "Plant pot (unfired)": "Plant pot",
     "Pot lid (unfired)": "Pot lid",
-    "Cracked mining urn (unf)": "Cracked mining urn",
-    "Cracked mining urn (nr)": "Cracked mining urn",
-    "Cracked cooking urn (unf)": "Cracked cooking urn",
-    "Cracked cooking urn (nr)": "Cracked cooking urn",
-    "Decorated mining urn (unf)": "Decorated mining urn",
-    "Decorated mining urn (nr)": "Decorated mining urn",
 }
+
+# Every pottery urn has unfired and non-runed intermediate states. The wikis
+# only publish the finished urn inventory icon, so reuse that authoritative
+# File title for each intermediate output.
+WIKI_TITLE_OVERRIDES.update(
+    {
+        name: name.rsplit(" (", 1)[0]
+        for name in crafting_output_items()
+        if " urn (" in name and name.endswith((" (unf)", " (nr)"))
+    }
+)
+
+# The wiki files call the unprefixed tiers "Plain" and call historical
+# smelting urns "smithing urns".
+_URN_WIKI_TITLES = {
+    "Cooking urn": "Plain cooking urn",
+    "Fishing urn": "Plain fishing urn",
+    "Mining urn": "Plain mining urn",
+    "Smelting urn": "Plain smithing urn",
+    "Woodcutting urn": "Plain woodcutting urn",
+    "Cracked smelting urn": "Cracked smithing urn",
+    "Fragile smelting urn": "Fragile smithing urn",
+    "Strong smelting urn": "Strong smithing urn",
+}
+WIKI_TITLE_OVERRIDES.update(
+    {
+        name: wiki_title
+        for name in crafting_output_items()
+        for urn_name, wiki_title in _URN_WIKI_TITLES.items()
+        if name == urn_name or name.startswith(f"{urn_name} (")
+    }
+)
 
 
 def _build_manifest() -> List[Tuple[str, str, Optional[str]]]:
