@@ -370,6 +370,18 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertFalse(by_storage_key["Inferno adze"].tradeable)
         self.assertFalse(by_storage_key["Varrock armour 4"].tradeable)
         self.assertEqual(by_storage_key["Varrock armour 4"].equipment_slot, "body")
+        for item_name in (
+            "Amulet of glory",
+            "Amulet of glory (t)",
+            "Amulet of glory (t1)",
+            "Amulet of glory (t2)",
+            "Amulet of glory (t3)",
+            "Amulet of glory (t4)",
+        ):
+            self.assertEqual(by_storage_key[item_name].category, "equipment")
+            self.assertEqual(by_storage_key[item_name].equipment_slot, "neck")
+            asset_path = by_storage_key[item_name].asset_path
+            self.assertTrue(asset_path is None or os.path.exists(asset_path))
         self.assertEqual(by_storage_key["Rune platebody"].equipment_slot, "body")
         self.assertEqual(by_storage_key["Rune platebody"].equipment_tier, 40)
         self.assertEqual(by_storage_key["Rune knife"].equipment_slot, "weapon")

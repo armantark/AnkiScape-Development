@@ -310,11 +310,38 @@ DEFERRED_MINING_PICKAXES: Tuple[MiningPickaxe, ...] = ()
 
 
 MINING_BONUS_ITEMS: Tuple[MiningBonusItem, ...] = (
-    MiningBonusItem("amulet_of_glory", "Amulet of glory", 1704, "amulet", "gem_chance"),
+    MiningBonusItem(
+        "amulet_of_glory",
+        "Amulet of glory",
+        8283,
+        "amulet",
+        "gem_chance",
+        notes="Mining.kt binds the plain-name bonus to AMULET_OF_GLORY_8283; item 1704 is not in that runtime equipment list.",
+    ),
     MiningBonusItem("amulet_of_glory_1", "Amulet of glory (1)", 1706, "amulet", "gem_chance"),
     MiningBonusItem("amulet_of_glory_2", "Amulet of glory (2)", 1708, "amulet", "gem_chance"),
     MiningBonusItem("amulet_of_glory_3", "Amulet of glory (3)", 1710, "amulet", "gem_chance"),
     MiningBonusItem("amulet_of_glory_4", "Amulet of glory (4)", 1712, "amulet", "gem_chance"),
+    MiningBonusItem(
+        "amulet_of_glory_t",
+        "Amulet of glory (t)",
+        10362,
+        "amulet",
+        "gem_chance",
+        notes="Canonical trimmed display-name row; item 10719 is the duplicate-name runtime alias.",
+    ),
+    MiningBonusItem("amulet_of_glory_t1", "Amulet of glory (t1)", 10360, "amulet", "gem_chance"),
+    MiningBonusItem("amulet_of_glory_t2", "Amulet of glory (t2)", 10358, "amulet", "gem_chance"),
+    MiningBonusItem("amulet_of_glory_t3", "Amulet of glory (t3)", 10356, "amulet", "gem_chance"),
+    MiningBonusItem("amulet_of_glory_t4", "Amulet of glory (t4)", 10354, "amulet", "gem_chance"),
+    MiningBonusItem(
+        "amulet_of_glory_t_10719",
+        "Amulet of glory (t)",
+        10719,
+        "amulet",
+        "gem_chance",
+        notes="Duplicate-name runtime alias for item 10362; retained in the ID-keyed bonus table while name-keyed item/equipment maps use 10362.",
+    ),
     MiningBonusItem("varrock_armour_1", "Varrock armour 1", 11756, "chest", "extra_ore", tier=1),
     MiningBonusItem("varrock_armour_2", "Varrock armour 2", 11757, "chest", "extra_ore", tier=2),
     MiningBonusItem("varrock_armour_3", "Varrock armour 3", 11758, "chest", "extra_ore", tier=3),
@@ -497,16 +524,19 @@ def mining_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "tradeable": pickaxe.tradeable,
         }
     for bonus_item in MINING_BONUS_ITEMS:
-        items[bonus_item.display_name] = {
-            "category": "equipment",
-            "source": bonus_item.source,
-            "item_id": bonus_item.item_id,
-            "equipment_slot": bonus_item.slot,
-            "equipment_type": bonus_item.bonus_type,
-            "tier": bonus_item.tier,
-            "status": bonus_item.status,
-            "tradeable": bonus_item.tradeable,
-        }
+        items.setdefault(
+            bonus_item.display_name,
+            {
+                "category": "equipment",
+                "source": bonus_item.source,
+                "item_id": bonus_item.item_id,
+                "equipment_slot": bonus_item.slot,
+                "equipment_type": bonus_item.bonus_type,
+                "tier": bonus_item.tier,
+                "status": bonus_item.status,
+                "tradeable": bonus_item.tradeable,
+            },
+        )
     return items
 
 

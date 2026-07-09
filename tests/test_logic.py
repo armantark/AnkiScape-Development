@@ -1107,6 +1107,23 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(extra, "Coal")
         self.assertEqual(new_inv["Coal"], 2)
 
+    def test_trimmed_glory_runtime_aliases_enable_the_existing_gem_bonus(self):
+        for item_name in (
+            "Amulet of glory",
+            "Amulet of glory (1)",
+            "Amulet of glory (2)",
+            "Amulet of glory (3)",
+            "Amulet of glory (4)",
+            "Amulet of glory (t)",
+            "Amulet of glory (t1)",
+            "Amulet of glory (t2)",
+            "Amulet of glory (t3)",
+            "Amulet of glory (t4)",
+        ):
+            with self.subTest(item_name=item_name):
+                bonus_state = equipment_bonus_state_pure({"neck": item_name}, MINING_BONUS_ITEM_DATA)
+                self.assertTrue(bonus_state["has_glory"])
+
     def test_can_equip_uses_real_combat_level_gate(self):
         ok, reason = can_equip_item_pure("Bronze platebody", EQUIPMENT_DATA, {"defense_level": 1})
         self.assertTrue(ok)

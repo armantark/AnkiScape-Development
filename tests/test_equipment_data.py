@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 555)
+        self.assertEqual(len(EQUIPMENT_DATA), 560)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -251,6 +251,10 @@ class TestEquipmentData(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Bronze hatchet"].slot, "weapon")
 
     def test_mining_bonus_items_are_equipment_with_combat_bonuses(self):
+        plain_glory = EQUIPMENT_DATA["Amulet of glory"]
+        self.assertEqual(plain_glory.source_item_id, 8283)
+        self.assertGreater(plain_glory.bonuses.attack_stab, 0)
+
         glory = EQUIPMENT_DATA["Amulet of glory (4)"]
         self.assertEqual(glory.slot, "neck")
         self.assertIsNone(glory.combat_skill)
@@ -263,6 +267,21 @@ class TestEquipmentData(unittest.TestCase):
         self.assertIsNone(varrock.combat_skill)
         self.assertEqual(varrock.equipment_type, "extra_ore")
         self.assertGreater(varrock.bonuses.defence_stab, 0)
+
+    def test_trimmed_glory_variants_are_equippable_mining_bonus_rows(self):
+        for item_name, source_item_id in (
+            ("Amulet of glory (t)", 10362),
+            ("Amulet of glory (t1)", 10360),
+            ("Amulet of glory (t2)", 10358),
+            ("Amulet of glory (t3)", 10356),
+            ("Amulet of glory (t4)", 10354),
+        ):
+            with self.subTest(item_name=item_name):
+                glory = EQUIPMENT_DATA[item_name]
+                self.assertEqual(glory.slot, "neck")
+                self.assertEqual(glory.equipment_type, "gem_chance")
+                self.assertEqual(glory.source_item_id, source_item_id)
+                self.assertGreater(glory.bonuses.attack_stab, 0)
 
     def test_stronghold_reward_boots_are_stat_identical_feet_slot(self):
         # The Stronghold of Security completion reward offers two cosmetic boot
