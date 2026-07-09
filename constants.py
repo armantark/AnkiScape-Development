@@ -632,8 +632,15 @@ for _item_name in FIREMAKING_EXTRA_ITEM_DATA:
 
 FISHING_EXTRA_ITEM_DATA = fishing_extra_items_as_dict()
 FISHING_ITEM_IMAGES = {}
+FISHING_SHARED_ITEM_IMAGES = {
+    "Raw lava eel": os.path.join(QUEST_ITEMS_FOLDER, "raw_lava_eel.png"),
+    "Raw rainbow fish": os.path.join(COOKING_ITEMS_FOLDER, "raw_rainbow_fish.png"),
+}
 for _item_name in set(FISHING_OUTPUT_ITEMS) | set(FISHING_EXTRA_ITEM_DATA):
-    _path = os.path.join(FISHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    _path = FISHING_SHARED_ITEM_IMAGES.get(
+        _item_name,
+        os.path.join(FISHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"),
+    )
     if os.path.exists(_path):
         FISHING_ITEM_IMAGES[_item_name] = _path
 

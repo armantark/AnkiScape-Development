@@ -139,11 +139,11 @@ FISHING_FISH: Tuple[FishingFish, ...] = (
     FishingFish("raw_karambwan", "RAW_KARAMBWAN", "Raw karambwan", 3142, 65, 5, 160, 50.0),
     FishingFish("rainbow_fish", "RAINBOW_FISH", "Raw rainbow fish", 10138, 38, 8, 64, 80.0),
     FishingFish("monkfish", "MONKFISH", "Raw monkfish", 7944, 62, 48, 90, 120.0),
-    FishingFish("karambwanji", "KARAMBWANJI", "Raw karambwanji", 3150, 5, 100, 256, 5.0),
+    FishingFish("karambwanji", "KARAMBWANJI", "Raw karambwanji", 3150, 5, 100, 256, 5.0, tradeable=False),
     FishingFish("slimy_eel", "SLIMY_EEL", "Slimy eel", 3379, 38, 10, 80, 65.0),
     FishingFish("cave_eel", "CAVE_EEL", "Raw cave eel", 5001, 28, 10, 80, 80.0),
-    FishingFish("lava_eel", "LAVA_EEL", "Raw lava eel", 2148, 53, 16, 96, 60.0),
-    FishingFish("frog_spawn", "FROG_SPAWN", "Frog spawn", 5004, 33, 16, 96, 75.0),
+    FishingFish("lava_eel", "LAVA_EEL", "Raw lava eel", 2148, 53, 16, 96, 60.0, tradeable=False),
+    FishingFish("frog_spawn", "FROG_SPAWN", "Frog spawn", 5004, 33, 16, 96, 75.0, tradeable=False),
     FishingFish("cavefish", "CAVEFISH", "Raw cavefish", 15264, 85, 5, 17, 300.0),
     FishingFish("rocktail", "ROCKTAIL", "Raw rocktail", 15270, 90, 5, 15, 380.0),
 )
@@ -265,6 +265,33 @@ FISHING_METHODS: Tuple[FishingMethod, ...] = (
         bait_items=("Feather", "Fishing bait", "Fish offcuts", "Roe", "Caviar"),
         source_spots=("BARBARIAN_ROD",),
     ),
+    FishingMethod(
+        "karambwanji_net",
+        "Catch karambwanji",
+        "KBWANJI_NET",
+        ("karambwanji",),
+    ),
+    FishingMethod(
+        "rainbow_fish",
+        "Catch rainbow fish",
+        "FLY_FISHING_ROD_RAINBOW_FISH",
+        ("rainbow_fish",),
+        bait_items=("Stripy feather",),
+    ),
+    FishingMethod(
+        "lava_eel",
+        "Catch lava eel",
+        "OILY_FISHING_ROD",
+        ("lava_eel",),
+        bait_items=("Fishing bait",),
+    ),
+    FishingMethod(
+        "lumbridge_swamp_eel_spawn",
+        "Catch slimy eel/frog spawn",
+        "LUMBDSWAMP_ROD",
+        ("slimy_eel", "frog_spawn"),
+        bait_items=("Fishing bait",),
+    ),
 )
 
 FISHING_METHODS_BY_ID: Dict[str, FishingMethod] = {method.id: method for method in FISHING_METHODS}
@@ -280,34 +307,6 @@ FISHING_MATERIAL_ITEM_IDS: Mapping[str, int] = {
 }
 
 DEFERRED_FISHING_CONTENT: Tuple[DeferredFishingContent, ...] = (
-    DeferredFishingContent(
-        "karambwanji_net",
-        "Catch karambwanji",
-        "source_unbound",
-        "FishingTool.KBWANJI_NET has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "rainbow_fish",
-        "Catch rainbow fish",
-        "source_unbound",
-        "FishingTool.FLY_FISHING_ROD_RAINBOW_FISH has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "lava_eel",
-        "Catch lava eel",
-        "source_unbound",
-        "FishingTool.OILY_FISHING_ROD has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "lumbridge_swamp_eel_spawn",
-        "Catch slimy eel/frog spawn",
-        "source_unbound",
-        "FishingTool.LUMBDSWAMP_ROD has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
     DeferredFishingContent(
         "cave_eel",
         "Catch cave eel",
