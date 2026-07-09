@@ -4643,6 +4643,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:57:01Z"
   },
+  "fishingitems/frog_spawn.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Frog_spawn.png",
+    "file_title": "Frog spawn.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Frog_spawn.png?16f62",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "57e1d1ff75bf115c820c9dd005de23d8ef004dd4",
+    "size": 768,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T14:57:10Z"
+  },
   "fishingitems/leaping_salmon.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Leaping_salmon.png",
     "file_title": "Leaping salmon.png",
@@ -4774,6 +4786,18 @@
     "size": 530,
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T15:03:02Z"
+  },
+  "fishingitems/raw_karambwanji.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Raw_karambwanji.png",
+    "file_title": "Raw karambwanji.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Raw_karambwanji.png?97482",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "a5e932b69fec85ee6225701359398e4adfc5a003",
+    "size": 582,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:02:58Z"
   },
   "fishingitems/raw_lobster.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Raw_lobster.png",
@@ -4942,6 +4966,18 @@
     "size": 415,
     "source_wiki": "osrs",
     "timestamp": "2021-08-23T20:43:57Z"
+  },
+  "fishingitems/stripy_feather.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Stripy_feather.png",
+    "file_title": "Stripy feather.png",
+    "image_url": "https://oldschool.runescape.wiki/images/Stripy_feather.png?a8970",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "1ecb0f37c541dc0e330ec1a903f135adf3b53a90",
+    "size": 391,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-20T15:06:31Z"
   },
   "fletcheditems/achey_tree_logs.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Achey_tree_logs.png",

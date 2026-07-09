@@ -97,7 +97,6 @@ class TestFishingData(unittest.TestCase):
                 ("rainbow_fish", "Catch rainbow fish", "FLY_FISHING_ROD_RAINBOW_FISH", ("rainbow_fish",), ("Stripy feather",), ()),
                 ("lava_eel", "Catch lava eel", "OILY_FISHING_ROD", ("lava_eel",), ("Fishing bait",), ()),
                 ("lumbridge_swamp_eel_spawn", "Catch slimy eel/frog spawn", "LUMBDSWAMP_ROD", ("slimy_eel", "frog_spawn"), ("Fishing bait",), ()),
-                ("cave_eel", "Catch cave eel", "CAVE_EEL", ("cave_eel",), (), ()),
             ],
         )
         self.assertEqual(set(FISHING_METHODS_BY_ID), {row[0] for row in rows})
@@ -128,7 +127,6 @@ class TestFishingData(unittest.TestCase):
         self.assertIn("Raw rainbow fish", fishing_output_items())
         self.assertIn("Raw karambwanji", fishing_output_items())
         self.assertIn("Raw lava eel", fishing_output_items())
-        self.assertIn("Raw cave eel", fishing_output_items())
         self.assertIn("Frog spawn", fishing_output_items())
 
         extra = fishing_extra_items_as_dict()
@@ -141,9 +139,14 @@ class TestFishingData(unittest.TestCase):
         self.assertIn("FishingTool.kt", FISHING_TOOL_SOURCE_PATH)
         self.assertIn("FishingSpot.kt", FISHING_SPOT_SOURCE_PATH)
         self.assertIn("lumbridge_fishing_supplies.plugin.kts", FISHING_BAIT_SHOP_SOURCE_PATH)
-        self.assertEqual(deferred_fishing_content_as_dict(), {})
-        self.assertEqual(DEFERRED_FISHING_CONTENT, ())
+        self.assertEqual(deferred_fishing_content_as_dict()["cave_eel"]["status"], "source_unbound")
+        self.assertEqual(len(DEFERRED_FISHING_CONTENT), 1)
         self.assertIn("cave_eel", fishing_fish_as_dict())
+
+    def test_source_item_tradeability_is_preserved(self):
+        fish = fishing_fish_as_dict()
+        for fish_id in ("karambwanji", "lava_eel", "frog_spawn"):
+            self.assertFalse(fish[fish_id]["tradeable"])
 
 
 if __name__ == "__main__":
