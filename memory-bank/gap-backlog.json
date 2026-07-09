@@ -275,16 +275,16 @@
       "note": "design input required \u2014 grill owner before building (not auto-filled)"
     },
     {
-      "id": "fletch-crossbow-javelin",
+      "id": "fletch-javelin-construction",
       "rank": 14,
       "skill": "Fletching",
       "root_cause": "stub",
       "severity": "major",
-      "title": "Add crossbow assembly + javelin construction",
-      "detail": "Emulator has stock whittling but not full crossbow assembly (stock+limbs+string) or javelins (bronze->dragon shafts/heads).",
-      "source": "wiki:Fletching",
+      "title": "Add javelin construction",
+      "detail": "Add bronze-through-dragon javelin shaft/head construction. game-main has no Fletching construction binding for this family, so exact inputs, levels, XP, and action modeling require pre-EOC wiki sourcing and owner design. Crossbow assembly was split into the source-backed fletch-crossbow-assembly transcription item after the fresh runtime audit found live CombinationData bindings.",
+      "source": "wiki:Javelin",
       "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "note": "crossbow assembly split out 2026-07-09; javelins still need owner grill"
     },
     {
       "id": "herb-overload-sanfew",
@@ -373,7 +373,7 @@
       "rank": 22,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Port remaining runtime-bound Crafting rows",
       "detail": "Faithfully transcribe only these game-main rows that have live runtime bindings but are absent from crafting_data.py: GlassData EMPTY_CANDLE_LANTERN (level 4, 19 XP), EMPTY_OIL_LAMP (12, 25), FISHBOWL (42, 42.5), LANTERN_LENS (49, 55), and EMPTY_LIGHT_ORB (87, 70); JewelleryData SLAYER_RING (gold bar + enchanted gem -> ring of slaying (8), level 75, 15 XP), retaining the source CRAFT_ROS unlock as a documented note without inventing a Slayer system; SilverData SILVTHRILL_ROD (silver bar + mithril bar + sapphire, level 25, 55 XP) and SILVTHRILL_CHAIN (silver bar + mithril bar, level 47, 100 XP); SpinningData CBOW_STRING1 (each of oak, willow, maple, yew, magic, and spirit roots is a source-accepted alternative input for one crossbow string at level 10 and 15 XP); and WeavingData MILESTONE_CAPES (tiers 10 through 90, balls of wool equal to tier/10, XP equal to tier). The milestone source gates on all skills at the tier; preserve that as a documented source constraint if the existing Crafting model cannot enforce it, and do not touch Combat or Prayer implementation. Input-starved rows are acceptable, but do not invent acquisition, bindings, values, or clamps. Use exact output names/IDs from game-main item definitions. Add focused tests and run tools/fetch_crafting_assets.py plus only necessary WIKI_TITLE_OVERRIDES until item-icon tests pass. PotteryData.NOT_URNS is a grouping wrapper, not an output row, and FishingTool.BARB_HARPOON has no FishingSpot binding; neither belongs in this task.",
       "source": "game-main:skills/crafting runtime-bound data and action plugins",
@@ -390,7 +390,12 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/craft-runtime-remainder/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-runtime-remainder/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-runtime-remainder/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-runtime-remainder/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-runtime-remainder/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approved for fold. The branch faithfully ports all 23 requested runtime-bound Crafting rows with exact game-main levels, XP, inputs, canonical output names, and IDs\u2014including the source's Silvthrill rod/Silvthril chain spelling split\u2014while documenting the CRAFT_ROS and all-skills milestone-cape gates without inventing systems; NOT_URNS, BARB_HARPOON, Combat, and Prayer remain untouched. Item-specific icons and provenance replace the rejected fallback art, with Candle lantern (empty) as the sole new title override. The 9 focused data tests, 2 registry/icon tests, grouped-target check, 4 Crafting logic checks, and full 932-test suite pass under /opt/homebrew/bin/python3.11, and crafting_data imports cleanly there; the literal python command cannot launch only because this environment has no python executable."
+      }
     },
     {
       "id": "mine-inferno-adze-tool",
@@ -423,6 +428,64 @@
         "blocking": [],
         "notes": "Approved: the patch promotes Inferno adze into MINING_PICKAXES with source-exact item 13661, Mining level 41, and 3 ticks between rolls; removes only its deferred row; and changes equal-power selection to the emulator's later-enum precedence, so Inferno adze wins the Rune tie without adding a Mining proc. The existing Woodcutting asset is reused, Combat and Prayer are untouched, the required import passed under Python 3.13, the seven focused parity/selection/icon tests passed, and the 930-test non-Qt suite passed with 157 expected skips."
       }
+    },
+    {
+      "id": "craft-combinations-polished-buttons",
+      "rank": 24,
+      "skill": "Crafting",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port remaining live Crafting combinations and button polishing",
+      "detail": "CombinationData.kt has 26 Crafting-default rows, all registered by item_combination.plugin.kts and executed by CombinationAction.kt; crafting_data.py currently represents only STUDDED_BODY and DRAGONSTONE_AMULET. Port the other 24 exact rows: STRANGE_SKULL, RUNED_SCEPTRE, SKULL_SCEPTRE, BULLSEYE_LANTERN, BULLSEYE_EMERALD_LANTERN, OIL_LANTERN, STUDDED_CHAPS, all five *_SPIKY_VAMBRACES, CRAB_HELMET, CRAB_CLAW, SEAWEED_NET, ARMADYL_BATTLESTAFF, GOLD/SAPPHIRE/EMERALD/RUBY/DIAMOND/ONYX_AMULET, UNBLESSED_SYMBOL, and UNPOWERED_SYMBOL. Preserve the source's exact inputs, outputs, levels, and XP, including legitimate zero-XP combinations. Also port polished_button.plugin.kts exactly: Buttons (688) -> Polished buttons (10496), Crafting level 3, 5 XP. Input-starved and quest-item rows remain normal source-backed targets; do not invent acquisition, quest, Combat, or Prayer behavior. Add focused parity/runtime/item tests.",
+      "source": "game-main:content/items/combine/CombinationData.kt,item_combination.plugin.kts,CombinationAction.kt; skills/crafting/other/polished_button.plugin.kts",
+      "note": "fresh shipped-skill completeness audit pass 2, 2026-07-09"
+    },
+    {
+      "id": "fletch-crossbow-assembly",
+      "rank": 25,
+      "skill": "Fletching",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port live crossbow assembly",
+      "detail": "CombinationData.kt and the generic item-combination runtime bind 14 Fletching actions: stock + limbs -> unstrung crossbow, then unstrung crossbow + crossbow string -> crossbow, for bronze, blurite, iron, steel, mithril, adamant, and rune. Port exact source levels 9/24/39/46/54/61/69 and exact 0.0 XP for both steps at each tier, with exact inputs, outputs, and item IDs. Build on the generic combination conventions landed by craft-combinations-polished-buttons rather than duplicating plumbing. Do not add javelins; they remain the separate fletch-javelin-construction stub. Add focused parity/runtime/item tests.",
+      "source": "game-main:content/items/combine/CombinationData.kt,item_combination.plugin.kts,CombinationAction.kt",
+      "depends_on": [
+        "craft-combinations-polished-buttons"
+      ],
+      "note": "split from fletch-javelin-construction by fresh runtime audit 2026-07-09"
+    },
+    {
+      "id": "cook-runtime-extras",
+      "rank": 26,
+      "skill": "Cooking",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port live fish-gutting and seaweed-cooking actions",
+      "detail": "Port the three knife-on-leaping-fish actions from gut_fish.plugin.kts with the source's exact Cooking-level success formulas. Leaping trout and salmon produce Roe and 10 Cooking XP on success; leaping sturgeon produces Caviar and 15 XP. Preserve Fish offcuts chances of 1/2, 3/4, and 5/6 respectively, and source failure consumption. Also port range-cooked Seaweed -> Soda ash for exactly 1 Cooking XP from seawead_cooking.plugin.kts. Fishing already supplies the leaping fish. Do not fold in the wiki-sourced karambwan/gnome Cooking stub, invent levels, or touch Combat/Prayer. Add focused deterministic formula, runtime, inventory, and undo tests.",
+      "source": "game-main:content/items/gut_fish.plugin.kts; content/objs/cookingrange/seawead_cooking.plugin.kts",
+      "note": "fresh shipped-skill completeness audit pass 2, 2026-07-09"
+    },
+    {
+      "id": "herb-pestle-remainder",
+      "rank": 27,
+      "skill": "Herblore",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Complete live pestle-and-mortar material preparation",
+      "detail": "PestleAndMortarData.values registers 31 live 1:1, zero-XP grinding rows through pestle_and_mortar.plugin.kts and GrindAction.kt; constants.py currently transcribes only seven. Port the remaining 24 exact Utility conversions: Anchovies, Tchiki monkey nuts, Dramen branch, Garlic, Astral rune shards, Bat bones, Charcoal, Clean guam, Crab meat, Raw cod, Suqah tooth, Kelp, Rune shards, Dried thistle, Gorak claws, Ashes, raw/cooked/poison karambwan, Diamond root, Black mushroom, Shards of Armadyl, Fishing bait, and Seaweed to their exact source outputs/IDs. Also correct finished_super_prayer's secondary storage key from invented `Wyvern bonemeal` to game-main item 6810's canonical name `Bonemeal`; do not add acquisition, XP, Combat, or Prayer behavior. Preserve existing Utility batching conventions and add parity/item/icon/runtime/undo tests.",
+      "source": "game-main:content/items/pestle_and_mortar/PestleAndMortarData.kt,pestle_and_mortar.plugin.kts,GrindAction.kt; skills/herblore/mixing/PotionData.kt",
+      "note": "fresh shipped-skill completeness audit pass 2, 2026-07-09"
+    },
+    {
+      "id": "mine-runtime-glory-variants",
+      "rank": 28,
+      "skill": "Mining",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Complete live Amulet of glory Mining bonus bindings",
+      "detail": "Mining.kt applies the exact 1/86 incidental-gem chance to charged glory IDs 1706/1708/1710/1712, trimmed IDs 10362/10360/10358/10356/10354, duplicate trimmed ID 10719, and duplicate plain-name ID 8283. AnkiScape has the four charged variants but omits every trimmed display variant and cites non-bound ID 1704 for the plain-name bonus row. Add the distinct trimmed variants through Mining bonus/equipment/item/asset tables; use source-bound 8283 as the plain-name bonus provenance and document the unavoidable duplicate-name aliases 10719/10362 under the existing name-keyed model. Retain the exact existing 1/86 behavior, rock exclusions, and standard equipment selection; do not invent a new proc, acquisition route, Combat, or Prayer behavior. Add focused parity/equipment/item/icon tests.",
+      "source": "game-main:skills/mining/Mining.kt:100-125; api/cfg/Items.kt glory constants",
+      "note": "fresh shipped-skill completeness audit pass 2, 2026-07-09"
     }
   ]
 }
