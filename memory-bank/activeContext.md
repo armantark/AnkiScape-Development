@@ -2,8 +2,32 @@
 
 ## Current Focus
 No active build thread. The combat overhaul, the weapon-aware attack-type pass,
-and the Stronghold of Security landmark are all shipped and committed as of
-2026-07-08.
+the Stronghold of Security landmark, and the full Herblore skill are all shipped
+and committed (Herblore as of 2026-07-09).
+
+### Herblore skill — COMPLETE (all 6 phases), verified 2026-07-09
+Three-stage pipeline (clean → unfinished → finished) with strict Darkan/2011Scape
+parity pulled from HerbData.kt / PotionData.kt / Herbs.kt via cite-and-pin, no
+invented clamps. 166 recipe targets (31 clean / 31 unf / 104 finished), 103
+distinct finished potions. Proof points in the live code:
+- **Parity data:** `herblore_data.py` — `HERBLORE_TARGETS`, `herblore_targets_as_dict()`,
+  and `herblore_finished_output_items()` (finished products only, for achievements).
+- **Engine:** `logic_pure.apply_herblore_action_pure` (~line 6496) — one shared path
+  for all three stages; XP is baked into each target's `exp` field.
+- **Economy (strict parity, zero code in Phase 5):** grimy inputs come from
+  `combat_data.COMBAT_MINOR_HERB_DROP_TABLE` (11 grimy herbs weighted /1024,
+  live on 22 enemy drop tables); vials + reachable secondaries from Darkan shops.
+  Input-starved secondaries (ground spawns / telegrab / Hunter / Summoning /
+  Farming) stay starved by design — do NOT wire `usefulHerbTable`.
+- **Achievements:** 7 added in `achievement_metadata.py` (catalog 113 → 120),
+  a level ladder (10/30/60/99) plus 3 finished-potion inventory milestones.
+- **Grind icons:** the `constants.py` grind loop registers each input's own icon
+  AND falls the XP-less dust outputs back to input art → make_soft_clay.png, so
+  shop-only inputs (e.g. Chocolate bar) keep their asset_path.
+
+Full suite: 919 tests, 0 failures. Manual e2e (offscreen simulation) walked the
+Attack potion chain: 2.5 → 0 → 25 XP, intermediates consumed, drinkable
+`Attack potion (3)` produced, First Potion achievement fires.
 
 ### 28-slot carried inventory — COMPLETE (all three slices), verified 2026-07-08
 The design doc header and the code agree: this is feature-complete, not a

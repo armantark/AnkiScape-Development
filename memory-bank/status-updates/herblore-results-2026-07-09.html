@@ -1,0 +1,184 @@
+<meta charset="utf-8">
+<title>Herblore — Shipped</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;
+  line-height:1.6;padding:48px 24px;max-width:1100px;margin:0 auto}
+h1,h2,h3{font-weight:700;line-height:1.2}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--green);background:rgba(74,222,128,.12);
+  border:1px solid rgba(74,222,128,.3);padding:6px 14px;border-radius:999px;margin-bottom:20px}
+header h1{font-size:2.1rem;margin-bottom:10px}
+header p{color:var(--text-dim);font-size:1rem;max-width:70ch}
+section{margin-top:44px}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent);margin-bottom:16px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+.metric .n{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1.7rem;color:var(--text)}
+.metric .n small{font-size:.9rem;color:var(--text-dim);font-weight:400}
+.metric .l{color:var(--text-dim);font-size:.82rem;margin-top:4px}
+.metric.good .n{color:var(--green)}
+.pipe{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.stage{flex:1;min-width:200px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;position:relative}
+.stage h3{font-size:1rem;margin-bottom:6px}
+.stage .item{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text-dim);margin:2px 0}
+.stage .xp{display:inline-block;margin-top:10px;font-family:'JetBrains Mono',monospace;font-size:.78rem;
+  font-weight:600;padding:3px 10px;border-radius:6px}
+.xp.on{color:var(--green);background:rgba(74,222,128,.12)}
+.xp.off{color:var(--text-dim);background:var(--surface-2)}
+.arrow{align-self:center;color:var(--accent);font-size:1.4rem;padding:0 10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.card h3{font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+.card p{color:var(--text-dim);font-size:.92rem;margin-bottom:8px}
+.pill{font-family:'JetBrains Mono',monospace;font-size:.62rem;font-weight:600;padding:3px 8px;border-radius:5px}
+.pill.plan{color:var(--amber);background:rgba(251,191,36,.12)}
+.pill.done{color:var(--green);background:rgba(74,222,128,.12)}
+.filetag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.66rem;
+  background:var(--surface-2);color:var(--text-dim);padding:3px 8px;border-radius:5px;margin:3px 4px 0 0}
+.term{background:#0a0c10;border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;
+  font-family:'JetBrains Mono',monospace;font-size:.8rem;line-height:1.7;overflow-x:auto}
+.term .ok{color:var(--green)}.term .dim{color:var(--text-dim)}.term .ac{color:var(--accent)}
+.ach{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.ach .row{display:flex;justify-content:space-between;align-items:center;background:var(--surface);
+  border:1px solid var(--border);border-radius:8px;padding:11px 14px}
+.ach .name{font-weight:500;font-size:.9rem}
+.ach .desc{color:var(--text-dim);font-size:.76rem}
+.diff{font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;padding:3px 8px;border-radius:5px;white-space:nowrap}
+.d-Easy{color:var(--green);background:rgba(74,222,128,.12)}
+.d-Moderate{color:var(--accent);background:var(--accent-glow)}
+.d-Difficult{color:var(--amber);background:rgba(251,191,36,.12)}
+.d-Very{color:var(--red);background:rgba(255,92,92,.12)}
+.note{border-left:3px solid var(--accent);padding:12px 16px;background:var(--surface);
+  border-radius:0 8px 8px 0;color:var(--text-dim);font-size:.9rem}
+.note strong{color:var(--text);font-weight:500}
+ul.tight{margin:6px 0 0 18px}ul.tight li{color:var(--text-dim);font-size:.9rem;margin:4px 0}
+@media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.grid2,.ach{grid-template-columns:1fr}.arrow{transform:rotate(90deg)}}
+</style>
+
+<header>
+  <div class="badge">Phase 6 · Shipped · 2026-07-09</div>
+  <h1>Herblore is live in AnkiScape</h1>
+  <p>The three-stage skill — clean the grimy herb, mix an unfinished vial, finish the potion —
+  is wired end to end with strict Darkan/2011Scape parity. Phase 6 closed out achievements,
+  the full regression suite, and the manual end-to-end proof.</p>
+</header>
+
+<section>
+  <div class="sec-label">By the numbers</div>
+  <div class="metrics">
+    <div class="metric"><div class="n">166</div><div class="l">recipe targets<br>(31 clean · 31 unf · 104 finished)</div></div>
+    <div class="metric"><div class="n">103</div><div class="l">distinct finished potions</div></div>
+    <div class="metric good"><div class="n">120 <small>← 113</small></div><div class="l">achievements (+7 Herblore)</div></div>
+    <div class="metric good"><div class="n">919</div><div class="l">tests passing (0 failures)</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label">The pipeline, proven end to end (Attack potion)</div>
+  <div class="pipe">
+    <div class="stage">
+      <h3>1 · Clean</h3>
+      <div class="item">Grimy guam → Clean guam</div>
+      <span class="xp on">+2.5 xp · herb XP</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <h3>2 · Unfinished</h3>
+      <div class="item">Clean guam + Vial of water</div>
+      <div class="item">→ Guam potion (unf)</div>
+      <span class="xp off">+0 xp · no XP by design</span>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <h3>3 · Finished</h3>
+      <div class="item">Guam (unf) + Eye of newt</div>
+      <div class="item">→ Attack potion (3)</div>
+      <span class="xp on">+25 xp · recipe XP</span>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label">Manual end-to-end run (offscreen simulation)</div>
+  <div class="term">
+<span class="dim">=== Attack potion pipeline ===</span><br>
+&nbsp;&nbsp;clean_guam&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ +&nbsp;&nbsp;2.5 xp&nbsp;&nbsp;produces 'Clean guam'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="ok">[OK]</span><br>
+&nbsp;&nbsp;unf_guam&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ +&nbsp;&nbsp;0.0 xp&nbsp;&nbsp;produces 'Guam potion (unf)'&nbsp;<span class="ok">[OK]</span><br>
+&nbsp;&nbsp;finished_attack_potion&nbsp;→ + 25.0 xp&nbsp;&nbsp;produces 'Attack potion (3)'&nbsp;&nbsp;<span class="ok">[OK]</span><br>
+&nbsp;&nbsp;<span class="dim">total XP across chain: 27.5</span><br><br>
+<span class="dim">=== final inventory ===</span><br>
+&nbsp;&nbsp;Attack potion (3)&nbsp;&nbsp;&nbsp;x1&nbsp;&nbsp;<span class="dim">(intermediates consumed)</span><br><br>
+Attack potion (3) item definition present;<br>
+&nbsp;&nbsp;<span class="ac">asset_path=…/shopitems/attack_potion_3.png exists=True</span><br>
+'First Potion' achievement fires with one potion held: <span class="ok">True</span><br><br>
+<span class="ok">ALL CHECKS PASSED</span>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label">Seven new Herblore achievements (113 → 120)</div>
+  <div class="ach">
+    <div class="row"><div><div class="name">First Potion</div><div class="desc">Mix your first potion</div></div><span class="diff d-Easy">Easy</span></div>
+    <div class="row"><div><div class="name">Novice Herbalist</div><div class="desc">Reach Herblore level 10</div></div><span class="diff d-Easy">Easy</span></div>
+    <div class="row"><div><div class="name">Potion Collector</div><div class="desc">Hold 100 finished potions at once</div></div><span class="diff d-Easy">Easy</span></div>
+    <div class="row"><div><div class="name">Intermediate Herbalist</div><div class="desc">Reach Herblore level 30</div></div><span class="diff d-Moderate">Moderate</span></div>
+    <div class="row"><div><div class="name">Potion Hoarder</div><div class="desc">Hold 1,000 finished potions at once</div></div><span class="diff d-Moderate">Moderate</span></div>
+    <div class="row"><div><div class="name">Expert Herbalist</div><div class="desc">Reach Herblore level 60</div></div><span class="diff d-Difficult">Difficult</span></div>
+    <div class="row"><div><div class="name">Master Herbalist</div><div class="desc">Reach Herblore level 99</div></div><span class="diff d-Very">Very Challenging</span></div>
+  </div>
+  <p style="color:var(--text-dim);font-size:.85rem;margin-top:12px">
+  "Mix a potion" milestones key off a new <code>herblore_finished_output_items()</code> helper so they
+  count only the finished products, never the clean-herb or unfinished intermediates.
+  The <em>Living Legend</em> meta-achievement rescaled itself automatically.</p>
+</section>
+
+<section>
+  <div class="sec-label">Plan vs. reality</div>
+  <div class="grid2">
+    <div class="card">
+      <h3><span class="pill done">HELD</span> Phase 5 economy: zero code</h3>
+      <p>The plan called for adding grimy-herb combat drops and shop secondaries. In practice the
+      economy was <strong>already at its authentic ceiling</strong> — the <code>minorHerbTable</code>
+      (11 grimy herbs weighted out of 1024) was live on 22 enemy drop tables, and Darkan shops already
+      stock the vials and reachable secondaries.</p>
+      <p>Per the strict-parity mandate, the input-starved potions (secondaries that only come from
+      ground spawns, telegrab, Hunter, Summoning, or Farming) stay starved. No shortcuts invented.
+      Phase 5 shipped as a no-op.</p>
+    </div>
+    <div class="card">
+      <h3><span class="pill plan">DETOUR</span> Grind-icon regression, caught & fixed</h3>
+      <p>Rewriting the grind icon loop to give the XP-less dust outputs a fallback icon accidentally
+      dropped the input-key registrations that shop-only items (like <code>Chocolate bar</code>) rely on
+      for their asset path — surfaced by the shop icon-coverage test.</p>
+      <p>Fixed by having the loop do <strong>both</strong>: register each input's own icon and give the
+      output dust a fallback chain (input art → generic material-processing icon). All 919 tests green.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sec-label">Files touched this phase</div>
+  <div>
+    <span class="filetag">herblore_data.py — herblore_finished_output_items()</span>
+    <span class="filetag">achievement_metadata.py — +7 achievements, new param</span>
+    <span class="filetag">constants.py — grind icon loop, HERBLORE_FINISHED_OUTPUT_ITEMS</span>
+    <span class="filetag">tests/test_achievement_metadata.py</span>
+    <span class="filetag">tests/test_main_menu_widget.py</span>
+    <span class="filetag">tests/test_storage_pure.py</span>
+  </div>
+  <div class="note" style="margin-top:18px">
+    <strong>Strict parity, no Java toolchain.</strong> Every recipe, XP value, and drop weight was pulled
+    directly from Darkan/2011Scape source (HerbData.kt / PotionData.kt / Herbs.kt) with cite-and-pin line
+    references. Nothing was clamped, invented, or balanced by hand.
+  </div>
+</section>
