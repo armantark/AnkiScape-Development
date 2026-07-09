@@ -18,7 +18,7 @@
       "title": "Port the five deferred emulator fishing methods",
       "detail": "karambwanji net, rainbow fish, lava eel (oily rod), Lumbridge swamp slimy-eel/frog-spawn dual-output. FOUR methods only. cave eel is OUT of scope: game-main defines Fish.CAVE_EEL but no FishingTool/FishingSpot binding exists, so it cannot be faithfully ported from the authoritative source; it stays in DEFERRED_FISHING_CONTENT (fishing_data.py:282-317). Source rows for the four live methods are in game-main Fish.kt / FishingTool.kt / FishingSpot.kt.",
       "source": "game-main:skills/fishing",
-      "status": "reviewing",
+      "status": "merged",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription",
       "branch": "gap/fish-transcription",
       "tier": "gpt-5.6-terra",
@@ -32,7 +32,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription/.gap-review/verdict.json",
-      "note": "re-scoped to 4 methods; cave_eel split out to needs_grill stub"
+      "note": "re-scoped to 4 methods; cave_eel split out to needs_grill stub",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approved. The fold candidate adds exactly the four requested FishingTool-backed methods, preserves the emulator's item IDs, Fishing levels, min/max chances, XP, bait, and mixed-output order, keeps cave eel out of the live registry and explicitly deferred, and touches no Combat or Prayer code. The required python -c \"import fishing_data\" command passed, all nine focused Fishing/item-registry checks passed, and the full suite passed 920 tests with 157 skipped. HEAD itself only removes the stale review artifact, but the repository fold driver merges the whole branch, including both parent implementation commits."
+      }
     },
     {
       "id": "craft-pottery",
@@ -97,7 +102,7 @@
       "title": "Fill jewellery tiers, earth/fire battlestaves, basket/net weaving",
       "detail": "Partial jewellery matrix (emerald->onyx bracelets/amulets); BattlestaffData.kt has all four elementals but only water/air present; WeavingData.kt has basket + unfinished net rows we lack.",
       "source": "game-main:skills/crafting/weaponry/BattlestaffData.kt,skills/crafting/weaving/WeavingData.kt",
-      "status": "in_progress",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-jewellery-staves-weaving",
       "branch": "gap/craft-jewellery-staves-weaving",
       "tier": "gpt-5.6-terra",
@@ -105,7 +110,12 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl.exit",
-      "started": "2026-07-09 13:26:15"
+      "started": "2026-07-09 13:26:15",
+      "review_report": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-jewellery-staves-weaving/.gap-review/verdict.json"
     },
     {
       "id": "mine-concentrated",
@@ -116,7 +126,7 @@
       "title": "Add concentrated coal and concentrated gold rocks",
       "detail": "RockType.kt contains both; AnkiScape ships only ordinary coal/gold. Sustained-rock mechanic matters to the Mining loop.",
       "source": "game-main:skills/mining/RockType.kt",
-      "status": "reviewing",
+      "status": "merged",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated",
       "branch": "gap/mine-concentrated",
       "tier": "gpt-5.6-terra",
@@ -130,7 +140,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/mine-concentrated/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/mine-concentrated/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated/.gap-review/verdict.json",
-      "note": "Sol blocking: Correctness: ui.py:2187-2195 now passes QUEST_UNLOCK_RULES as mining_target_rows()'s deferred_notes positional argument after deleting _MINING_DEFERRED_VARIANT_NOTES. QUEST_UNLOCK_RULES is a tuple, so opening the Mining target list raises AttributeError: 'tuple' object has no attribute 'get' at target_metadata.py:352; the quest-unlock rules also never reach their intended parameter.; Completeness/"
+      "note": "Sol blocking: Correctness: ui.py:2187-2195 now passes QUEST_UNLOCK_RULES as mining_target_rows()'s deferred_notes positional argument after deleting _MINING_DEFERRED_VARIANT_NOTES. QUEST_UNLOCK_RULES is a tuple, so opening the Mining target list raises AttributeError: 'tuple' object has no attribute 'get' at target_metadata.py:352; the quest-unlock rules also never reach their intended parameter.; Completeness/",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold this into main. The current branch adds both missing concentrated targets through the established MiningTarget and stable-ID registration path: concentrated coal exactly matches game-main at level 77, 50.0 XP, Coal (item 453), low/high chance 15/100, respawn delay 300, Varrock armour tier 1, and no incidental gems; concentrated gold exactly matches level 80, 65.0 XP, Gold ore (item 444), low/high chance 6/75, respawn delay 300, tier 1, and no incidental gems. Their sustained-rock behavior is correctly represented by AnkiScape's existing deliberately non-depleting per-review Mining loop and documented adaptation rather than invented depletion state. The required python -c \"import mining_data\" command passes, 173 focused tests and the full 920-test suite pass with 157 Qt-dependent skips, the related Mining UI regression is repaired, and the final branch diff is limited to Mining data, audit, tests, and UI metadata with combat and Prayer untouched."
+      }
     },
     {
       "id": "wc-inferno-adze",
@@ -141,7 +156,7 @@
       "title": "Add inferno adze burn-on-chop behaviour",
       "detail": "Woodcutting runtime has inferno-adze behaviour; AnkiScape records it only as deferred.",
       "source": "game-main:skills/woodcutting",
-      "status": "in_progress",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze",
       "branch": "gap/wc-inferno-adze",
       "tier": "gpt-5.6-terra",
