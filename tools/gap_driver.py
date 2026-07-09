@@ -154,10 +154,15 @@ def running_count(data):
 
 
 def pick_next(data):
+    # Auto-fill ONLY transcription ports (game-main is authoritative — zero design
+    # input). Stub items are new activity/mechanic systems that need the owner's
+    # modeling decisions; they are parked as needs_grill and never auto-launched.
     merged = {it["id"] for it in data["items"] if it.get("status") == "merged"}
     cands = []
     for it in data["items"]:
         if it.get("status") != "pending":
+            continue
+        if it.get("root_cause") != "transcription":
             continue
         deps = it.get("depends_on", [])
         if not all(d in merged for d in deps):
