@@ -5906,6 +5906,7 @@ def apply_woodcutting_action_pure(
     r_nest_type=None,
     nest_drop_table=None,
     nest_drop_chance=0.0,
+    r_inferno_adze=None,
 ):
     spec = tree_data.get(target_id)
     if not spec or not axe_spec:
@@ -5916,7 +5917,14 @@ def apply_woodcutting_action_pure(
 
     new_inv = dict(inventory)
     output_item = spec.get("output_item")
-    if output_item:
+    if (
+        output_item
+        and axe_spec.get("incinerates_logs", False)
+        and r_inferno_adze is not None
+        and r_inferno_adze < axe_spec.get("incinerate_chance", 0.0)
+    ):
+        output_item = None
+    elif output_item:
         new_inv[output_item] = new_inv.get(output_item, 0) + 1
 
     nest_item = None

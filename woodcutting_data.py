@@ -52,6 +52,8 @@ class WoodcuttingAxe:
     item_id: int
     level: int
     ratio: float
+    incinerates_logs: bool = False
+    incinerate_chance: float = 0.0
     source: str = AXE_SOURCE_PATH
     status: str = "implemented"
 
@@ -94,11 +96,10 @@ WOODCUTTING_AXES: Tuple[WoodcuttingAxe, ...] = (
     WoodcuttingAxe("adamant_hatchet", "Adamant hatchet", 1357, 31, 3.0),
     WoodcuttingAxe("rune_hatchet", "Rune hatchet", 1359, 41, 3.5),
     WoodcuttingAxe("dragon_hatchet", "Dragon hatchet", 6739, 61, 3.75),
+    WoodcuttingAxe("inferno_adze", "Inferno adze", 13661, 61, 3.75, True, 1 / 2),
 )
 
-DEFERRED_WOODCUTTING_AXES: Tuple[WoodcuttingAxe, ...] = (
-    WoodcuttingAxe("inferno_adze", "Inferno adze", 13661, 61, 3.75, status="deferred_special"),
-)
+DEFERRED_WOODCUTTING_AXES: Tuple[WoodcuttingAxe, ...] = ()
 
 WOODCUTTING_TARGETS_BY_ID: Dict[str, WoodcuttingTarget] = {target.id: target for target in WOODCUTTING_TARGETS}
 WOODCUTTING_AXES_BY_ID: Dict[str, WoodcuttingAxe] = {axe.id: axe for axe in WOODCUTTING_AXES}
@@ -222,6 +223,8 @@ def woodcutting_axes_as_dict() -> Dict[str, Dict[str, object]]:
             "item_id": axe.item_id,
             "level": axe.level,
             "ratio": axe.ratio,
+            "incinerates_logs": axe.incinerates_logs,
+            "incinerate_chance": axe.incinerate_chance,
             "source": axe.source,
             "status": axe.status,
         }

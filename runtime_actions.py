@@ -1656,6 +1656,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
     r_action = ctx.random_random()
     r_nest_drop = ctx.random_random()
     r_nest_type = ctx.random_random()
+    r_inferno_adze = ctx.random_random() if axe_spec.get("incinerates_logs", False) and spec.get("output_item") else None
     expected_success = calculate_woodcutting_success_probability_pure(player_level, spec, axe_spec)
     new_inv, base_exp, ok, output_item, nest_item = apply_woodcutting_action_pure(
         tree,
@@ -1668,6 +1669,7 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         r_nest_type,
         BIRD_NEST_DROP_TABLE,
         BIRD_NEST_DROP_CHANCE,
+        r_inferno_adze,
     )
     if ok:
         if "logs_cut_today" not in player_data:
@@ -1688,6 +1690,9 @@ def handle_woodcutting_answer(ctx: RuntimeActionContext) -> bool:
         )
         exp_gained = ctx.award_skill_exp("woodcutting_exp", base_exp)
         ctx.level_up_check("Woodcutting", player_data)
+        if output_item is None and spec.get("output_item") and axe_spec.get("incinerates_logs", False):
+            ctx.award_skill_exp("firemaking_exp", base_exp)
+            ctx.level_up_check("Firemaking", player_data)
         ctx.check_achievements(player_data)
         ctx.save_player_data()
     else:

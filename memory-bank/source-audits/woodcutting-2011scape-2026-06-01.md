@@ -33,7 +33,15 @@ Redwood is intentionally removed from normal content because it is absent from t
 
 Implemented as source data and mechanics: Bronze, Iron, Steel, Black, Mithril, Adamant, Rune, Dragon.
 
-Inferno adze is recorded as deferred special content only. Its All Fired Up acquisition route and Firemaking/incineration behavior need a broader special-reward/Firemaking design.
+Inferno adze is implemented as an active Woodcutting axe (item 13661, level 61,
+ratio 3.75). On a successful log-producing chop, its source-exact one-in-two
+incineration roll withholds the log and awards Firemaking XP equal to that
+tree's Woodcutting XP; ivy has no log and therefore cannot trigger the effect.
+Its All Fired Up acquisition route remains outside this Woodcutting-only pass.
+
+The local repository has no Inferno adze sprite. The item registers through the
+existing dynamic Woodcutting item path, but stays iconless until a separately
+authorized asset pass; no network fetch was run for this source-data change.
 
 ## AnkiScape Translation
 
