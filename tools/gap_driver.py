@@ -57,8 +57,21 @@ def skill_module(skill):
     return f"{skill.lower()}_data"
 
 
+_LAUNCH_COUNT = 0
+
+
 def launch(cmd_str, cwd, done, exit_file, log):
-    """Fire a detached background stage that records its exit code and a done marker."""
+    """Fire a detached background stage that records its exit code and a done marker.
+
+    Codex boots by removing and reinstalling a shared system-skills dir under
+    ~/.codex; two codex processes starting at the same instant race on it and one
+    dies with "Directory not empty" (exit 1, no output). We stagger launches so
+    each startup window clears before the next begins.
+    """
+    global _LAUNCH_COUNT
+    if _LAUNCH_COUNT > 0:
+        time.sleep(10)
+    _LAUNCH_COUNT += 1
     for p in (done, exit_file):
         try:
             os.remove(p)
@@ -150,7 +163,16 @@ Set approved=true only if you would fold this into main as-is. Any blocking pari
 # ---------------------------------------------------------------- stages
 
 def running_count(data):
-    return sum(1 for it in data["items"] if it.get("status") in ACTIVE)
+    # Only impl runs consume a concurrency slot; Sol reviews run on top so they
+    # never stall the pipeline.
+    return sum(1 for it in data["items"] if it.get("status") == "in_progress")
+
+
+def _active_skills(data):
+    # Any item still holding a worktree (impl or review) locks its skill's data
+    # module, so we never run two same-skill ports in parallel — they would both
+    # edit e.g. crafting_data.py and collide at merge.
+    return {it["skill"] for it in data["items"] if it.get("status") in ACTIVE}
 
 
 def pick_next(data):
@@ -158,11 +180,14 @@ def pick_next(data):
     # input). Stub items are new activity/mechanic systems that need the owner's
     # modeling decisions; they are parked as needs_grill and never auto-launched.
     merged = {it["id"] for it in data["items"] if it.get("status") == "merged"}
+    busy_skills = _active_skills(data)
     cands = []
     for it in data["items"]:
         if it.get("status") != "pending":
             continue
         if it.get("root_cause") != "transcription":
+            continue
+        if it["skill"] in busy_skills:
             continue
         deps = it.get("depends_on", [])
         if not all(d in merged for d in deps):
@@ -218,6 +243,47 @@ def start(data):
     return started
 
 
+def _launch_review(item, d, policy):
+    """Launch (or relaunch) the Sol review for an already-committed branch and set
+    the item to `reviewing`. Shared by collect and the `rereview` recovery path."""
+    wt = item["worktree"]
+    rp = os.path.join(d, "review_prompt.md")
+    with open(rp, "w") as f:
+        f.write(review_prompt(item, wt, item["branch"]))
+    rreport = os.path.join(d, "review_report.md")
+    rlog = os.path.join(d, "review.log")
+    rdone = os.path.join(d, "review.done")
+    rexit = os.path.join(d, "review.exit")
+    cmd = (
+        f"{shlex.quote(CODEX)} exec -s workspace-write -C {shlex.quote(wt)} "
+        f'-c model={shlex.quote(policy["review_tier"])} '
+        f'-c model_reasoning_effort={shlex.quote(policy["review_effort"])} '
+        f"-o {shlex.quote(rreport)} - < {shlex.quote(rp)} 2>&1"
+    )
+    launch(cmd, cwd=wt, done=rdone, exit_file=rexit, log=rlog)
+    item.update({
+        "status": "reviewing", "review_report": rreport, "review_log": rlog,
+        "review_done": rdone, "review_exit": rexit,
+        "verdict_path": os.path.join(wt, ".gap-review/verdict.json"),
+    })
+    item.pop("verdict", None)
+
+
+def rereview(data, iid):
+    """Relaunch a Sol review that failed for infrastructure reasons (codex startup
+    race, killed process) rather than a content rejection. The branch is already
+    committed in its worktree; this just re-runs the reviewer."""
+    item = next((it for it in data["items"] if it["id"] == iid), None)
+    if item is None:
+        return f"no such item: {iid}"
+    wt = item.get("worktree")
+    if not wt or not os.path.isdir(wt):
+        return f"{iid}: worktree missing ({wt}); cannot re-review"
+    _launch_review(item, item_dir(iid), data["policy"])
+    save(data)
+    return f"{iid}: Sol review relaunched"
+
+
 def _finished(path):
     return path and os.path.exists(path)
 
@@ -248,26 +314,7 @@ def collect(data):
                 save(data)
                 continue
             git(["commit", "-m", f"gap-fill: {item['title']} ({iid})"], cwd=wt, check=False)
-            # launch Sol review
-            rp = os.path.join(d, "review_prompt.md")
-            with open(rp, "w") as f:
-                f.write(review_prompt(item, wt, item["branch"]))
-            rreport = os.path.join(d, "review_report.md")
-            rlog = os.path.join(d, "review.log")
-            rdone = os.path.join(d, "review.done")
-            rexit = os.path.join(d, "review.exit")
-            cmd = (
-                f"{shlex.quote(CODEX)} exec -s workspace-write -C {shlex.quote(wt)} "
-                f'-c model={shlex.quote(policy["review_tier"])} '
-                f'-c model_reasoning_effort={shlex.quote(policy["review_effort"])} '
-                f"-o {shlex.quote(rreport)} - < {shlex.quote(rp)} 2>&1"
-            )
-            launch(cmd, cwd=wt, done=rdone, exit_file=rexit, log=rlog)
-            item.update({
-                "status": "reviewing", "review_report": rreport, "review_log": rlog,
-                "review_done": rdone, "review_exit": rexit,
-                "verdict_path": os.path.join(wt, ".gap-review/verdict.json"),
-            })
+            _launch_review(item, d, policy)
             events.append(f"{iid}: impl committed, Sol review launched")
             save(data)
 
@@ -338,6 +385,11 @@ def main():
     elif cmd == "collect":
         ev = collect(data)
         print("\n".join(ev) if ev else "(nothing to collect)")
+    elif cmd == "rereview":
+        if len(sys.argv) < 3:
+            print("usage: gap_driver.py rereview <item-id>")
+            sys.exit(2)
+        print(rereview(data, sys.argv[2]))
     elif cmd == "tick":
         ev = collect(data)
         st = start(data)

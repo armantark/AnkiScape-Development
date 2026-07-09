@@ -18,7 +18,7 @@
       "title": "Port the five deferred emulator fishing methods",
       "detail": "karambwanji net, rainbow fish, lava eel (oily rod), Lumbridge swamp slimy-eel/frog-spawn dual-output, cave eel. See DEFERRED_FISHING_CONTENT in fishing_data.py:282-317. Source rows already in game-main Fish.kt / FishingTool.kt / FishingSpot.kt.",
       "source": "game-main:skills/fishing",
-      "status": "in_progress",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription",
       "branch": "gap/fish-transcription",
       "tier": "gpt-5.6-terra",
@@ -26,7 +26,12 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/fish-transcription/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/fish-transcription/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/fish-transcription/impl.exit",
-      "started": "2026-07-09 12:08:27"
+      "started": "2026-07-09 12:08:27",
+      "review_report": "/private/tmp/ankiscape-gap-ops/fish-transcription/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription/.gap-review/verdict.json"
     },
     {
       "id": "craft-pottery",
@@ -37,7 +42,7 @@
       "title": "Complete the pottery/urn catalogue",
       "detail": "crafting_data.py:90-99 has only selected Mining/Cooking urn rows; PotteryData.kt also has Fishing, Woodcutting, Smelting, Prayer, normal, decorated tiers.",
       "source": "game-main:skills/crafting/pottery/PotteryData.kt",
-      "status": "in_progress",
+      "status": "review_failed",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery",
       "branch": "gap/craft-pottery",
       "tier": "gpt-5.6-terra",
@@ -45,7 +50,20 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/craft-pottery/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/craft-pottery/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/craft-pottery/impl.exit",
-      "started": "2026-07-09 12:08:27"
+      "started": "2026-07-09 12:08:27",
+      "review_report": "/private/tmp/ankiscape-gap-ops/craft-pottery/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery/.gap-review/verdict.json",
+      "verdict": {
+        "approved": false,
+        "blocking": [
+          "verdict.json unreadable: [Errno 2] No such file or directory: '/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery/.gap-review/verdict.json'"
+        ],
+        "notes": ""
+      },
+      "note": "Sol blocking: verdict.json unreadable: [Errno 2] No such file or directory: '/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery/.gap-review/verdict.json'"
     },
     {
       "id": "craft-leather-tanning",
@@ -56,7 +74,15 @@
       "title": "Complete leather/dragonhide tables + tanning service",
       "detail": "Only a few bodies/gloves/boots exist; chaps, vambraces, coifs, lower-tier leather absent despite LeatherData.kt. Tanning family from TanningData.kt not imported at all.",
       "source": "game-main:skills/crafting/leather/LeatherData.kt,skills/crafting/tanning/TanningData.kt",
-      "status": "pending"
+      "status": "in_progress",
+      "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-tanning",
+      "branch": "gap/craft-leather-tanning",
+      "tier": "gpt-5.6-terra",
+      "impl_report": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/impl_report.md",
+      "impl_log": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/impl.log",
+      "impl_done": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/impl.done",
+      "impl_exit": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/impl.exit",
+      "started": "2026-07-09 12:28:17"
     },
     {
       "id": "craft-jewellery-staves-weaving",
@@ -78,7 +104,15 @@
       "title": "Add concentrated coal and concentrated gold rocks",
       "detail": "RockType.kt contains both; AnkiScape ships only ordinary coal/gold. Sustained-rock mechanic matters to the Mining loop.",
       "source": "game-main:skills/mining/RockType.kt",
-      "status": "pending"
+      "status": "in_progress",
+      "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated",
+      "branch": "gap/mine-concentrated",
+      "tier": "gpt-5.6-terra",
+      "impl_report": "/private/tmp/ankiscape-gap-ops/mine-concentrated/impl_report.md",
+      "impl_log": "/private/tmp/ankiscape-gap-ops/mine-concentrated/impl.log",
+      "impl_done": "/private/tmp/ankiscape-gap-ops/mine-concentrated/impl.done",
+      "impl_exit": "/private/tmp/ankiscape-gap-ops/mine-concentrated/impl.exit",
+      "started": "2026-07-09 12:28:17"
     },
     {
       "id": "wc-inferno-adze",
