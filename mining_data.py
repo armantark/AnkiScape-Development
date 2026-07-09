@@ -219,25 +219,13 @@ MINING_TARGETS: Tuple[MiningTarget, ...] = (
     ),
     _target("mithril", "Mithril", 55, 80.0, "Mithril ore", 447, 2, 50, 200, 2),
     _target("adamantite", "Adamantite", 70, 95.0, "Adamantite ore", 449, 1, 25, 400, 3),
+    _target("concentrated_coal", "Concentrated coal", 77, 50.0, "Coal", 453, 15, 100, 300, 1, allows_random_gems=False),
+    _target("concentrated_gold", "Concentrated gold", 80, 65.0, "Gold ore", 444, 6, 75, 300, 1, allows_random_gems=False),
     _target("runite", "Runite", 85, 125.0, "Runite ore", 451, 1, 18, 1200, 4),
 )
 
 
 DEFERRED_MINING_CONTENT: Tuple[DeferredMiningContent, ...] = (
-    DeferredMiningContent(
-        "concentrated_coal",
-        "Concentrated coal",
-        "deferred_dependency",
-        "Source distinction is Living Rock Caverns/depletion behavior; output and XP match coal in the current review loop.",
-        ROCK_SOURCE_PATH,
-    ),
-    DeferredMiningContent(
-        "concentrated_gold",
-        "Concentrated gold",
-        "deferred_dependency",
-        "Source distinction is Living Rock Caverns/depletion behavior; output and XP match gold in the current review loop.",
-        ROCK_SOURCE_PATH,
-    ),
     DeferredMiningContent(
         "ring_of_wealth_gem_bonus",
         "Ring of wealth (gem-rock bonus)",
@@ -516,4 +504,3 @@ def mining_output_items() -> Tuple[str, ...]:
         for output in target.weighted_outputs:
             seen.setdefault(output.item, None)
     return tuple(seen)
-

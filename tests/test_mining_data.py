@@ -32,12 +32,20 @@ class TestMiningData(unittest.TestCase):
                 "granite",
                 "mithril",
                 "adamantite",
+                "concentrated_coal",
+                "concentrated_gold",
                 "runite",
             },
         )
         self.assertEqual(MINING_TARGETS_BY_ID["rune_essence"].alternate_output_item, "Pure essence")
         self.assertEqual(MINING_TARGETS_BY_ID["rune_essence"].alternate_output_level, 30)
         self.assertEqual(MINING_TARGETS_BY_ID["limestone"].base_exp, 26.5)
+        self.assertEqual(MINING_TARGETS_BY_ID["concentrated_coal"].level, 77)
+        self.assertEqual(MINING_TARGETS_BY_ID["concentrated_coal"].respawn_time, 300)
+        self.assertFalse(MINING_TARGETS_BY_ID["concentrated_coal"].allows_random_gems)
+        self.assertEqual(MINING_TARGETS_BY_ID["concentrated_gold"].level, 80)
+        self.assertEqual(MINING_TARGETS_BY_ID["concentrated_gold"].base_exp, 65.0)
+        self.assertFalse(MINING_TARGETS_BY_ID["concentrated_gold"].allows_random_gems)
         self.assertEqual(MINING_TARGETS_BY_ID["runite"].respawn_time, 1200)
 
     def test_weighted_targets_keep_output_xp_and_tradeability(self):
@@ -74,7 +82,8 @@ class TestMiningData(unittest.TestCase):
         self.assertAlmostEqual(INCIDENTAL_GEM_DROP_CHANCE, 1 / 256)
         self.assertAlmostEqual(GLORY_GEM_DROP_CHANCE, 1 / 86)
         deferred = {entry.id: entry.status for entry in DEFERRED_MINING_CONTENT}
-        self.assertEqual(deferred["concentrated_coal"], "deferred_dependency")
+        self.assertNotIn("concentrated_coal", deferred)
+        self.assertNotIn("concentrated_gold", deferred)
         self.assertEqual(deferred["shooting_stars"], "future_content")
         # Ring of wealth's gem-rock double-gem/speed bonus is earmarked for the
         # future Enchanting/Magic system that produces the ring.

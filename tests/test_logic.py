@@ -964,6 +964,32 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Pure essence"], 1)
         self.assertEqual(new_inv["Uncut sapphire"], 0)
 
+    def test_apply_mining_action_concentrated_rocks_suppress_random_gems(self):
+        for target_id, output_item, exp in (
+            ("concentrated_coal", "Coal", 50.0),
+            ("concentrated_gold", "Gold ore", 65.0),
+        ):
+            new_inv, actual_exp, ok, actual_output, gem, _extra = apply_mining_action_pure(
+                target_id,
+                {output_item: 0, "Uncut sapphire": 0},
+                ORE_DATA,
+                80,
+                MINING_PICKAXE_DATA["rune_pickaxe"],
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                INCIDENTAL_GEM_DROP_TABLE,
+                1.0,
+            )
+
+            self.assertTrue(ok)
+            self.assertEqual(actual_exp, exp)
+            self.assertEqual(actual_output, output_item)
+            self.assertIsNone(gem)
+            self.assertEqual(new_inv[output_item], 1)
+            self.assertEqual(new_inv["Uncut sapphire"], 0)
+
     def test_apply_mining_action_weighted_outputs_use_output_xp(self):
         new_inv, exp, ok, output_item, _gem, _extra = apply_mining_action_pure(
             "sandstone",

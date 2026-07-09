@@ -689,7 +689,7 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(_row(unlocked_rows, "cook_slimy_eel").enabled)
         self.assertTrue(_row(unlocked_rows, "cook_yak").enabled)
 
-    def test_mining_rows_preserve_current_icon_and_deferred_note_contract(self):
+    def test_mining_rows_preserve_current_icon_and_include_concentrated_rocks(self):
         rows = mining_target_rows(
             {
                 "mining_level": 33,
@@ -702,10 +702,10 @@ class TargetMetadataTest(unittest.TestCase):
             GEM_IMAGES,
             MINING_PICKAXE_DATA,
             DEFAULT_MINING_TARGET,
-            {"coal": "Concentrated coal deposits are deferred."},
         )
 
         coal = _row(rows, "coal")
+        concentrated_coal = _row(rows, "concentrated_coal")
         runite = _row(rows, "runite")
 
         self.assertIsInstance(coal, TargetRowMetadata)
@@ -714,7 +714,10 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(coal.enabled)
         self.assertEqual(coal.icon_path, ORE_IMAGES["Coal"])
         self.assertIn("Best usable pickaxe: Bronze pickaxe", coal.tooltip)
-        self.assertIn("Concentrated coal deposits are deferred.", coal.tooltip)
+        self.assertEqual(concentrated_coal.label, "Concentrated coal (Lvl 77)")
+        self.assertEqual(concentrated_coal.icon_path, ORE_IMAGES["Coal"])
+        self.assertFalse(concentrated_coal.enabled)
+        self.assertIn("level 77", concentrated_coal.tooltip)
         self.assertFalse(runite.enabled)
         self.assertIn("level 85", runite.tooltip)
 
