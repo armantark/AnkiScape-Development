@@ -806,6 +806,21 @@ class TestLogic(unittest.TestCase):
             calculate_woodcutting_success_probability_pure(50, target, bronze),
         )
 
+    def test_woodcutting_axe_selection_prefers_later_equal_ratio_source_row(self):
+        axe_data = {
+            "dragon_hatchet": {"display_name": "Dragon hatchet", "level": 61, "ratio": 3.75},
+            "inferno_adze": {"display_name": "Inferno adze", "level": 61, "ratio": 3.75},
+        }
+
+        axe = best_woodcutting_axe_pure(
+            61,
+            {"Dragon hatchet": 1, "Inferno adze": 1},
+            {},
+            axe_data,
+        )
+
+        self.assertEqual(axe["display_name"], "Inferno adze")
+
     def test_apply_woodcutting_action_awards_output_and_bird_nest(self):
         tree_data = {"tree": {"exp": 25.0, "output_item": "Logs", "low_chance": 64, "high_chance": 200}}
         axe = {"display_name": "Bronze hatchet", "level": 1, "ratio": 1.0, "status": "implemented"}

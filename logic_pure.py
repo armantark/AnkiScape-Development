@@ -863,7 +863,7 @@ def best_woodcutting_axe_pure(woodcutting_level, inventory, toolbelt, axe_data):
         owned = axe_id in bound_ids or inventory.get(display_name, 0) > 0
         if not owned or woodcutting_level < spec.get("level", 1):
             continue
-        if best is None or spec.get("ratio", 0) > best.get("ratio", 0):
+        if best is None or spec.get("ratio", 0) >= best.get("ratio", 0):
             best = spec
     return best
 

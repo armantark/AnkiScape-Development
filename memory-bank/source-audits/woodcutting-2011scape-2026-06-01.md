@@ -39,9 +39,9 @@ incineration roll withholds the log and awards Firemaking XP equal to that
 tree's Woodcutting XP; ivy has no log and therefore cannot trigger the effect.
 Its All Fired Up acquisition route remains outside this Woodcutting-only pass.
 
-The local repository has no Inferno adze sprite. The item registers through the
-existing dynamic Woodcutting item path, but stays iconless until a separately
-authorized asset pass; no network fetch was run for this source-data change.
+The Inferno adze sprite is fetched from the direct RS3 wiki `File:Inferno adze.png`
+title into `woodcuttingitems/inferno_adze.png`, with provenance recorded in
+`assets_provenance.json`. The existing dynamic Woodcutting item path registers it.
 
 ## AnkiScape Translation
 

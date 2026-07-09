@@ -12,8 +12,10 @@ log-incineration metadata. `logic_pure.apply_woodcutting_action_pure` withholds
 the log on that roll, while `runtime_actions.handle_woodcutting_answer` awards
 matching Firemaking XP. Tree rows were already complete. The 200-test
 Woodcutting/logic/runtime slice and `python -c "import woodcutting_data"` pass.
-No asset fetch was authorized; the absent Inferno adze sprite leaves only the
-existing all-active-hatchets icon assertion failing.
+The source's reverse enum selection is preserved on equal ratios, so jointly
+owned Dragon hatchet and Inferno adze select Inferno adze. The real Inferno adze
+icon was fetched through the existing Woodcutting asset script; `python
+run_tests.py` passes with 922 tests and no failures.
 
 ### Herblore skill — COMPLETE (all 6 phases), verified 2026-07-09
 Three-stage pipeline (clean → unfinished → finished) with strict Darkan/2011Scape
