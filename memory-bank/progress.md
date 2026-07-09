@@ -646,10 +646,11 @@ only normal logs make arrow shafts. Source-backed Fletching data now lives in
 `fletching_data.py` with grouped rows for whittling, stringing, arrows,
 feathering, bolts, darts, and specials; `constants.FLETCHING_DATA` remains an
 imported compatibility export. The table includes short/long bow stringing,
-crossbow stock carving, ogre shaft/flighted ogre rows, broad arrows/bolts,
-dragon arrows/darts, bolt feathering, gem/pearl bolt-tip cutting, tipped bolts,
-and mithril grapple attachment. Crossbow limb attachment/stringing, enchanted
-bolts, and commented comp ogre bow stringing remain excluded. Generic target
+crossbow stock carving, live crossbow limb attachment/stringing, ogre
+shaft/flighted ogre rows, broad arrows/bolts, dragon arrows/darts, bolt
+feathering, gem/pearl bolt-tip cutting, tipped bolts, and mithril grapple
+attachment. Enchanted bolts and commented comp ogre bow stringing remain
+excluded. Generic target
 unlock rules now support `quest_completed` and `ability_unlocked`, backed by
 flat `unlocked_abilities`; broad Fletching and Barbarian Fishing use that path.
 Fishing side XP moved to normalized `xp_rewards`, and runtime awards all reward

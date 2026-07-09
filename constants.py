@@ -811,6 +811,57 @@ for _item_name in SHOP_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         SHOP_ITEM_IMAGES[_item_name] = _path
 
+_path = os.path.join(SHOP_ITEMS_FOLDER, "iron_limbs.png")
+if os.path.exists(_path):
+    SMITHING_EXTRA_ITEM_IMAGES["Iron limbs"] = _path
+
+# Crossbow assembly consumes Crafting and Smithing outputs, while its unstrung
+# intermediates share the finished crossbow art already checked into shopitems/.
+# No assets are fetched for this parity pass.
+for _item_name in (
+    "Crossbow string",
+    "Bronze limbs",
+    "Blurite limbs",
+    "Iron limbs",
+    "Steel limbs",
+    "Mithril limbs",
+    "Adamantite limbs",
+    "Runite limbs",
+):
+    _path = (
+        CRAFTED_ITEM_IMAGES.get(_item_name)
+        or SMITHING_EXTRA_ITEM_IMAGES.get(_item_name)
+        or os.path.join(SHOP_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    )
+    if not os.path.exists(_path):
+        continue
+    if _path:
+        FLETCHED_ITEM_IMAGES[_item_name] = _path
+for _item_name, _finished_item in {
+    "Bronze crossbow": "Bronze crossbow",
+    "Bronze c'bow (u)": "Bronze crossbow",
+    "Iron crossbow": "Iron crossbow",
+    "Blurite c'bow (u)": "Bronze crossbow",
+    "Iron c'bow (u)": "Iron crossbow",
+    "Steel crossbow": "Steel crossbow",
+    "Steel c'bow (u)": "Steel crossbow",
+    "Mith crossbow": "Mith crossbow",
+    "Mithril c'bow (u)": "Mith crossbow",
+    "Adamant crossbow": "Adamant crossbow",
+    "Adamant c'bow (u)": "Adamant crossbow",
+    "Rune crossbow": "Rune crossbow",
+    "Runite c'bow (u)": "Rune crossbow",
+    "Blurite crossbow": "Bronze crossbow",
+}.items():
+    _path = SHOP_ITEM_IMAGES.get(_finished_item) or os.path.join(
+        SHOP_ITEMS_FOLDER,
+        f"{_asset_slug(_finished_item)}.png",
+    )
+    if not os.path.exists(_path):
+        continue
+    if _path:
+        FLETCHED_ITEM_IMAGES[_item_name] = _path
+
 # Pestle-and-mortar grinding routes its inputs/outputs through the utility-material
 # registration, so (like the Hunter supply items above) surface any icon we already
 # resolved elsewhere — shop stock, combat drops, herblore art — into

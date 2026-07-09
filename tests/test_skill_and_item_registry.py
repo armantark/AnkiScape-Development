@@ -490,6 +490,27 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(HERBLORE_DATA["finished_super_prayer"]["requirements"], {"Prayer potion (3)": 1, "Bonemeal": 1})
         self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Bonemeal"]["item_id"], 6810)
 
+    def test_crossbow_combination_items_register_as_fletching_items(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in (
+            "Bronze c'bow (u)",
+            "Blurite c'bow (u)",
+            "Iron c'bow (u)",
+            "Steel c'bow (u)",
+            "Mithril c'bow (u)",
+            "Adamant c'bow (u)",
+            "Runite c'bow (u)",
+            "Bronze crossbow",
+            "Blurite crossbow",
+            "Iron crossbow",
+            "Steel crossbow",
+            "Mith crossbow",
+            "Adamant crossbow",
+            "Rune crossbow",
+        ):
+            self.assertEqual(by_storage_key[item_name].category, "fletched")
+            self.assertIsNotNone(by_storage_key[item_name].asset_path)
+
     def test_utility_activities_have_purpose_built_icon_contract(self):
         expected_files = {
             "make_soft_clay": "make_soft_clay.png",

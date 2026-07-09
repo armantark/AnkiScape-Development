@@ -69,8 +69,10 @@ Gem/pearl bolt-tip cutting and bolt tipping are included from the 2011 bolts
 page. Enchanted bolts remain Magic-owned and are not Fletching rows.
 
 Mithril grapple attachment is included from the same pinned bolt table. Crossbow
-limb attachment and crossbow stringing remain deferred because the local
-Fletching plugin does not expose a live action binding for those steps.
+limb attachment and crossbow stringing are now live as 14 Fletching
+`CombinationData.kt` targets: bronze, blurite, iron, steel, mithril, adamant,
+and rune each attach the source stock/limbs pair and then attach a Crossbow
+string. Every source row retains its level and 0.0 XP.
 
 The darts page states that Tourist Trap is required to smith dart tips, while
 adding feathers to premade dart tips can be done without the quest. Fletching
