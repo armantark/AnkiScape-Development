@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inferno adze parity results</title>
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 10% 0,#173829 0,transparent 33%),var(--bg);color:var(--text);font:16px/1.48 Outfit,ui-sans-serif,system-ui,sans-serif}.wrap{max-width:1120px;margin:auto;padding:46px 24px 70px}.badge{display:inline-block;padding:7px 10px;border:1px solid #2e8a59;border-radius:999px;background:#11291c;color:var(--green);font:600 12px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em}h1{font-size:clamp(30px,5vw,52px);line-height:1.04;margin:16px 0 9px}p{color:var(--text-dim);margin:0}.lead{font-size:18px;max-width:780px}.metrics,.grid{display:grid;gap:15px;margin-top:28px}.metrics{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:repeat(2,1fr)}.metric,.card{border:1px solid var(--border);background:linear-gradient(145deg,var(--surface),#13171d);border-radius:var(--radius);padding:19px}.metric b{display:block;color:var(--green);font:700 32px/1 "JetBrains Mono",ui-monospace,monospace}.metric span,.label{color:var(--text-dim);font:600 11px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em}.card h2{margin:8px 0;font-size:18px}.label{color:var(--accent)}.code{margin-top:13px;padding:12px;border-radius:8px;background:#090b0e;color:#cbd6e8;font:13px/1.5 "JetBrains Mono",ui-monospace,monospace;white-space:pre-wrap}.warn{border-left:3px solid var(--amber);background:#282112}.warn .label{color:var(--amber)}ul{color:var(--text-dim);padding-left:20px;margin:10px 0 0}li+li{margin-top:7px}.source{color:#aebad0;font:12px "JetBrains Mono",ui-monospace,monospace}@media(max-width:760px){.metrics,.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="wrap">
+<span class="badge">COMPLETE · SOURCE PARITY</span>
+<h1>Inferno adze now burns on chop</h1>
+<p class="lead">The deferred Woodcutting entry is active, uses the original axe tier, and reproduces the source runtime’s 1-in-2 log incineration for matching Firemaking XP.</p>
+<section class="metrics"><article class="metric"><b>1</b><span>ACTIVE ROW ADDED</span></article><article class="metric"><b>200</b><span>RELATED TESTS PASSED</span></article><article class="metric"><b>0</b><span>NETWORK ASSETS FETCHED</span></article></section>
+<section class="grid">
+<article class="card"><span class="label">ROW TRANSCRIBED</span><h2>Inferno adze</h2><div class="code">id: inferno_adze
+item id: 13661
+Woodcutting level: 61
+ratio: 3.75
+incineration: 1 / 2</div><p>Registered through the existing dynamic Woodcutting constants and item-manifest flow; no direct registry change was needed.</p></article>
+<article class="card"><span class="label">RUNTIME PARITY</span><h2>Successful log chop</h2><div class="code">normal axe      → Woodcutting XP + log
+Inferno adze    → Woodcutting XP + log   (1/2)
+Inferno adze    → Woodcutting XP + equal Firemaking XP, no log   (1/2)</div><p>Ivy has no log output, so it awards only its existing Woodcutting XP.</p></article>
+<article class="card"><span class="label">SOURCE LINES</span><h2>Local 2011Scape authority</h2><ul><li><span class="source">AxeType.kt:56-60</span> — item, level 61, ratio 3.75.</li><li><span class="source">Items.kt:12039</span> — item id 13661.</li><li><span class="source">Woodcutting.kt:62, 85, 93-110</span> — adze flag, log-only 1-in-2 roll, log suppression, equal Firemaking XP.</li><li><span class="source">TreeType.kt:19-238</span> — all 11 source tree rows were already present.</li></ul></article>
+<article class="card warn"><span class="label">DELIBERATE OMISSIONS</span><h2>Outside this narrow pass</h2><ul><li>All Fired Up acquisition remains deferred; it is not part of the Woodcutting runtime source slice.</li><li>Mining’s separate deferred Inferno adze row is untouched.</li><li>No sprite was fetched or fabricated. The absent local Inferno adze icon makes the existing all-active-hatchets icon test fail; functional/import checks remain green.</li></ul></article>
+</section>
+<section class="card" style="margin-top:15px"><span class="label">VERIFICATION</span><h2>Clean module import and focused coverage</h2><div class="code">python -c "import woodcutting_data"                         PASS
+python -m unittest tests.test_woodcutting_data tests.test_logic tests.test_runtime_actions
+200 tests, 0 failures                                              PASS</div></section>
+</main></body></html>

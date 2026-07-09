@@ -7,6 +7,12 @@
 - Review answers can award XP for the active skill.
 - Command-Z/Anki undo now rolls back review-awarded XP/items by restoring the changed game-state keys paired with that answer.
 - Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, and Herblore exist.
+- Woodcutting now includes the Inferno adze as an active level-61, ratio-3.75
+  source row. On a successful log-producing chop, its source-exact one-in-two
+  effect incinerates the log and awards equal Firemaking XP; ivy stays XP-only.
+  When Dragon hatchet and Inferno adze are both owned, source-order parity picks
+  Inferno adze. Its real sprite is registered at
+  `woodcuttingitems/inferno_adze.png` with wiki provenance.
 - Herblore (shipped 2026-07-09) is a strict-parity three-stage skill: clean the grimy herb (herb XP) → mix an unfinished vial (zero XP) → finish the potion (recipe XP). 166 recipe targets, 103 finished potions, sourced from HerbData.kt / PotionData.kt / Herbs.kt via cite-and-pin. Grimy inputs drop from combat (`COMBAT_MINOR_HERB_DROP_TABLE`, 11 herbs on 22 enemies); vials + reachable secondaries come from Darkan shops. Seven Herblore achievements bring the catalog to 120. Input-starved secondaries stay starved by design.
 - Rune Mysteries exists as a review-driven Quest action that unlocks Runecrafting.
 - The Quest catalog now contains 194 pre-EOC quest rows: all RuneScape quests available before the 2012-11-20 EOC cutoff, with Recipe for Disaster split into its 10 subquests. It is generated from source-backed RuneScape Wiki old revisions plus local 2011Scape journal text where available.

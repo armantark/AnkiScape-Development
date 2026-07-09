@@ -62,6 +62,7 @@ def _wc_item(name: str) -> str:
 HATCHETS = [
     "Bronze hatchet", "Iron hatchet", "Steel hatchet", "Black hatchet",
     "Mithril hatchet", "Adamant hatchet", "Rune hatchet", "Dragon hatchet",
+    "Inferno adze",
 ]
 SEEDS = [
     "Acorn", "Apple tree seed", "Willow seed", "Banana tree seed",

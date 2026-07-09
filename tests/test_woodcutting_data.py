@@ -31,12 +31,15 @@ class TestWoodcuttingData(unittest.TestCase):
         self.assertIsNone(WOODCUTTING_TARGETS_BY_ID["ivy"].output_item)
         self.assertEqual(WOODCUTTING_TARGETS_BY_ID["magic"].base_exp, 250.0)
 
-    def test_hatchet_table_keeps_inferno_adze_deferred(self):
+    def test_hatchet_table_includes_inferno_adze_incineration(self):
         self.assertEqual(WOODCUTTING_AXES_BY_ID["bronze_hatchet"].ratio, 1.0)
         self.assertEqual(WOODCUTTING_AXES_BY_ID["rune_hatchet"].level, 41)
         self.assertEqual(WOODCUTTING_AXES_BY_ID["dragon_hatchet"].ratio, 3.75)
-        self.assertEqual(DEFERRED_WOODCUTTING_AXES[0].id, "inferno_adze")
-        self.assertEqual(DEFERRED_WOODCUTTING_AXES[0].status, "deferred_special")
+        self.assertEqual(WOODCUTTING_AXES_BY_ID["inferno_adze"].level, 61)
+        self.assertEqual(WOODCUTTING_AXES_BY_ID["inferno_adze"].ratio, 3.75)
+        self.assertTrue(WOODCUTTING_AXES_BY_ID["inferno_adze"].incinerates_logs)
+        self.assertEqual(WOODCUTTING_AXES_BY_ID["inferno_adze"].incinerate_chance, 1 / 2)
+        self.assertEqual(DEFERRED_WOODCUTTING_AXES, ())
 
     def test_bird_nest_source_tables_are_weighted(self):
         self.assertAlmostEqual(BIRD_NEST_DROP_CHANCE, 1 / 257)

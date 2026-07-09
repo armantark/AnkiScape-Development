@@ -13,6 +13,7 @@ from runtime_actions import (
     handle_hunter_answer,
     handle_quest_answer,
     handle_smithing_answer,
+    handle_woodcutting_answer,
     run_answer_with_carried_overlay,
 )
 
@@ -60,6 +61,25 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_woodcutting_inferno_adze_incinerates_logs_for_firemaking_xp(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Inferno adze": 1},
+            "woodcutting_level": 99,
+            "woodcutting_exp": 0.0,
+            "firemaking_exp": 0.0,
+            "current_tree": "tree",
+            "completed_achievements": [],
+        }
+
+        ok = handle_woodcutting_answer(_context(player_data, calls, random_values=(0.0, 1.0, 0.0, 0.0)))
+
+        self.assertTrue(ok)
+        self.assertNotIn("Logs", player_data["inventory"])
+        self.assertEqual(player_data["woodcutting_exp"], 25.0)
+        self.assertEqual(player_data["firemaking_exp"], 25.0)
+        self.assertEqual(calls["level_checks"], ["Woodcutting", "Firemaking"])
+
     def test_fletching_handler_mutates_player_data_through_context(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

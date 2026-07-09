@@ -18455,6 +18455,18 @@
     "source_wiki": "rs3",
     "timestamp": "2023-02-02T05:37:02Z"
   },
+  "woodcuttingitems/inferno_adze.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Inferno_adze.png",
+    "file_title": "Inferno adze.png",
+    "image_url": "https://runescape.wiki/images/Inferno_adze.png?6705d",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "ed42fc254fe75a3ebc7d73d68fce8f23843a6cbe",
+    "size": 588,
+    "source_wiki": "rs3",
+    "timestamp": "2020-10-24T16:37:04Z"
+  },
   "woodcuttingitems/iron_hatchet.png": {
     "file_page_url": "https://runescape.wiki/wiki/File:Iron_hatchet.png",
     "file_title": "Iron hatchet.png",

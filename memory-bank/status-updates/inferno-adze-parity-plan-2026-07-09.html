@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inferno adze parity plan</title>
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#172941 0,transparent 31%),var(--bg);color:var(--text);font:16px/1.5 Outfit,ui-sans-serif,system-ui,sans-serif}.wrap{max-width:1040px;margin:auto;padding:46px 24px 64px}.eyebrow,.tag{font:600 12px/1.2 "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em}.eyebrow{color:var(--accent);border:1px solid #315998;background:var(--accent-glow);display:inline-block;padding:7px 10px;border-radius:999px}h1{font-size:clamp(30px,5vw,52px);line-height:1.05;margin:17px 0 12px}p{color:var(--text-dim);margin:0}.lead{max-width:720px;font-size:18px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:30px}.card{background:linear-gradient(145deg,var(--surface),#13171d);border:1px solid var(--border);border-radius:var(--radius);padding:20px;min-height:180px}.card h2{font-size:18px;margin:8px 0}.tag{color:var(--amber)}.file{display:inline-block;margin:14px 4px 0 0;padding:4px 7px;border-radius:5px;background:var(--surface-2);color:#bfc9da;font:12px "JetBrains Mono",ui-monospace,monospace}.flow{display:flex;align-items:stretch;gap:8px;margin-top:24px}.step{flex:1;background:var(--surface-2);border:1px solid var(--border);padding:14px;border-radius:9px}.n{color:var(--accent);font:700 22px "JetBrains Mono",ui-monospace,monospace}.arrow{align-self:center;color:var(--accent);font-size:22px}.check{margin-top:24px;padding:18px;border-left:3px solid var(--green);background:#112019;border-radius:0 9px 9px 0}.check strong{color:var(--green)}@media(max-width:700px){.grid{grid-template-columns:1fr}.flow{display:block}.arrow{display:block;text-align:center;transform:rotate(90deg)}}
+</style>
+</head>
+<body><main class="wrap">
+<span class="eyebrow">PRE-IMPLEMENTATION PLAN · SOURCE PARITY</span>
+<h1>Inferno adze: move it from deferred to data-backed</h1>
+<p class="lead">A narrowly scoped Woodcutting parity pass. The local 2011Scape runtime is the authority; existing rows stay intact and no balance adaptation is introduced.</p>
+<section class="grid">
+<article class="card"><span class="tag">AUTHORITATIVE INPUT</span><h2>Trace the runtime and tables</h2><p>Compare AnkiScape’s target and axe row shapes with the local pre-EOC Woodcutting Kotlin source, recording exact level and XP values for every missing source row.</p><span class="file">woodcutting_data.py</span><span class="file">game-main:skills/woodcutting</span></article>
+<article class="card"><span class="tag">SMALLEST DIFF</span><h2>Register only real dependencies</h2><p>Add any missing item identifier through the same constants and registry path used by adjacent hatchet rows. No unrelated skill, combat, or Prayer work.</p><span class="file">constants.py</span><span class="file">item_registry.py</span></article>
+</section>
+<section class="flow" aria-label="Implementation flow"><div class="step"><span class="n">01</span><br>Read conventions</div><div class="arrow">→</div><div class="step"><span class="n">02</span><br>Transcribe source rows</div><div class="arrow">→</div><div class="step"><span class="n">03</span><br>Import verification</div></section>
+<section class="check"><strong>Proof gate</strong><br>Finish only when <code>python -c "import woodcutting_data"</code> succeeds and the final report cites each source line plus every deliberate omission.</section>
+</main></body></html>

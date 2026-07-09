@@ -5,6 +5,18 @@ No active build thread. The combat overhaul, the weapon-aware attack-type pass,
 the Stronghold of Security landmark, and the full Herblore skill are all shipped
 and committed (Herblore as of 2026-07-09).
 
+### Inferno adze Woodcutting parity — COMPLETE, verified 2026-07-09
+`woodcutting_data.py` now promotes the source row (item 13661, Woodcutting 61,
+ratio 3.75) from deferred to active and carries its source-exact one-in-two
+log-incineration metadata. `logic_pure.apply_woodcutting_action_pure` withholds
+the log on that roll, while `runtime_actions.handle_woodcutting_answer` awards
+matching Firemaking XP. Tree rows were already complete. The 200-test
+Woodcutting/logic/runtime slice and `python -c "import woodcutting_data"` pass.
+The source's reverse enum selection is preserved on equal ratios, so jointly
+owned Dragon hatchet and Inferno adze select Inferno adze. The real Inferno adze
+icon was fetched through the existing Woodcutting asset script; `python
+run_tests.py` passes with 922 tests and no failures.
+
 ### Herblore skill — COMPLETE (all 6 phases), verified 2026-07-09
 Three-stage pipeline (clean → unfinished → finished) with strict Darkan/2011Scape
 parity pulled from HerbData.kt / PotionData.kt / Herbs.kt via cite-and-pin, no
