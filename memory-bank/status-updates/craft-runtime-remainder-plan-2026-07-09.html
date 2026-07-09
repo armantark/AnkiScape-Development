@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crafting runtime remainder — plan</title>
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 78% 0,#1a2946 0,transparent 34%),var(--bg);color:var(--text);font:16px Outfit,Inter,system-ui,sans-serif}.wrap{max-width:1080px;margin:auto;padding:48px 24px}.badge,.tag{font:700 12px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.07em}.badge{display:inline-block;padding:7px 10px;border:1px solid var(--accent);border-radius:99px;color:#a9c8ff;background:var(--accent-glow)}h1{font-size:clamp(2rem,5vw,3.7rem);line-height:1.02;margin:17px 0 12px}.lede{max-width:740px;color:var(--text-dim);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:30px 0}.card{background:linear-gradient(145deg,var(--surface),#13171d);border:1px solid var(--border);border-radius:var(--radius);padding:20px}.card h2{margin:8px 0 10px;font-size:1.15rem}.tag{color:var(--amber)}.card p,.steps li{color:var(--text-dim);line-height:1.5}.count{font-size:2.3rem;font-weight:800;color:var(--green)}.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.node{padding:10px 13px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border)}.arrow{color:var(--accent);font-size:1.35rem}.steps{padding:0;margin:0;list-style:none;counter-reset:step}.steps li{counter-increment:step;display:flex;gap:12px;margin:15px 0}.steps li:before{content:counter(step);display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:7px;background:var(--accent);color:#fff;font-weight:800}.note{border-left:3px solid var(--purple);padding:12px 15px;background:rgba(167,139,250,.08);color:var(--text-dim);border-radius:0 8px 8px 0}.files{margin-top:9px}.files span{display:inline-block;margin:3px;padding:4px 7px;background:var(--surface-2);border-radius:5px;color:#b8c4d8;font:12px ui-monospace,SFMono-Regular,Menlo,monospace}@media(max-width:720px){.grid{grid-template-columns:1fr}.wrap{padding:30px 16px}}
+</style>
+</head>
+<body><main class="wrap">
+<span class="badge">PRE-IMPLEMENTATION PLAN</span>
+<h1>Crafting’s final runtime-bound rows</h1>
+<p class="lede">A narrow transcription pass: port emulator-backed Crafting recipes, preserve the two source constraints as documentation, and leave all unrelated game systems untouched.</p>
+<section class="grid">
+<article class="card"><div class="tag">SCOPE</div><div class="count">23 rows</div><p>Five glass, one Slayer ring, two silver, six alternative-root crossbow strings, and nine milestone capes.</p></article>
+<article class="card"><div class="tag">SOURCE OF TRUTH</div><h2>Runtime action code wins</h2><p>Data enums establish items, levels, and base XP; actions establish live binding, alternative input selection, cape quantities/XP, and gates.</p></article>
+<article class="card"><div class="tag">BOUNDARY</div><h2>Model constraints stay explicit</h2><p>Ring-of-slaying retains its source <code>CRAFT_ROS</code> unlock only as a recipe note. Cape all-skills gates are likewise documented, not invented.</p></article>
+<article class="card"><div class="tag">PROOF</div><h2>Data, registry, icons</h2><p>Targeted recipe and manifest tests, item-icon coverage, and the required clean <code>import crafting_data</code> check.</p></article>
+</section>
+<div class="flow" aria-label="implementation flow"><div class="node">Read emulator rows</div><div class="arrow">→</div><div class="node">Transcribe data</div><div class="arrow">→</div><div class="node">Assert registry/icons</div><div class="arrow">→</div><div class="node">Import + focused tests</div></div>
+<section class="card" style="margin-top:16px"><div class="tag">IMPLEMENTATION</div><ol class="steps"><li>Add source-exact rows in the existing tuple and rely on its existing output/extra-item registration pathway.</li><li>Add focused parity tests for values, IDs, root alternatives, and documented source-only gates.</li><li>Run local checks only; network icon fetching is excluded by the task’s hard constraint.</li></ol><div class="files"><span>crafting_data.py</span><span>tests/test_crafting_data.py</span><span>constants.py / item_registry.py if required</span></div></section>
+<p class="note">Deliberate omissions: PotteryData.NOT_URNS is a grouping wrapper; FishingTool.BARB_HARPOON has no FishingSpot binding; neither is a live Crafting row.</p>
+</main></body></html>

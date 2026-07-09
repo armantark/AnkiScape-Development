@@ -48,6 +48,44 @@ class TestCraftingData(unittest.TestCase):
         self.assertEqual(spec["family"], "glass")
         self.assertTrue(spec["source"].endswith("furnaces/furnaces.plugin.kts"))
 
+    def test_runtime_bound_crafting_remainder_matches_2011scape(self):
+        data = crafting_recipes_as_dict()
+        expected = {
+            "glass_empty_candle_lantern": (4, 19.0, {"Molten glass": 1}, "Candle lantern", 4527),
+            "glass_empty_oil_lamp": (12, 25.0, {"Molten glass": 1}, "Oil lamp", 4525),
+            "glass_fishbowl": (42, 42.5, {"Molten glass": 1}, "Fishbowl", 6667),
+            "glass_lantern_lens": (49, 55.0, {"Molten glass": 1}, "Lantern lens", 4542),
+            "glass_empty_light_orb": (87, 70.0, {"Molten glass": 1}, "Empty light orb", 10980),
+            "jewellery_ring_of_slaying_8": (75, 15.0, {"Gold bar": 1, "Enchanted gem": 1}, "Ring of slaying (8)", 13281),
+            "silver_silvthrill_rod": (25, 55.0, {"Silver bar": 1, "Mithril bar": 1, "Sapphire": 1}, "Silvthrill rod", 7637),
+            "silver_silvthrill_chain": (47, 100.0, {"Silver bar": 1, "Mithril bar": 1}, "Silvthril chain", 13154),
+        }
+        for recipe_id, (level, exp, requirements, output_item, source_item_id) in expected.items():
+            self.assertEqual(data[recipe_id]["level"], level)
+            self.assertEqual(data[recipe_id]["exp"], exp)
+            self.assertEqual(data[recipe_id]["requirements"], requirements)
+            self.assertEqual(data[recipe_id]["output_item"], output_item)
+            self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
+        self.assertIn("CRAFT_ROS", data["jewellery_ring_of_slaying_8"]["notes"])
+
+    def test_root_crossbow_strings_and_milestone_capes_match_runtime_actions(self):
+        data = crafting_recipes_as_dict()
+        for root in ("Oak", "Willow", "Maple", "Yew", "Magic", "Spirit"):
+            recipe = data[f"spin_{root.lower()}_roots_to_crossbow_string"]
+            self.assertEqual(recipe["level"], 10)
+            self.assertEqual(recipe["exp"], 15.0)
+            self.assertEqual(recipe["requirements"], {f"{root} roots": 1})
+            self.assertEqual(recipe["output_item"], "Crossbow string")
+            self.assertEqual(recipe["source_enum"], "CBOW_STRING1")
+        for tier in range(10, 100, 10):
+            recipe = data[f"weave_milestone_cape_{tier}"]
+            self.assertEqual(recipe["level"], tier)
+            self.assertEqual(recipe["exp"], float(tier))
+            self.assertEqual(recipe["requirements"], {"Ball of wool": tier // 10})
+            self.assertEqual(recipe["output_item"], f"Milestone cape ({tier})")
+            self.assertEqual(recipe["source_item_id"], 20734 + tier // 10)
+            self.assertIn("every skill", recipe["notes"])
+
     def test_leather_rows_match_2011scape(self):
         data = crafting_recipes_as_dict()
         expected = {

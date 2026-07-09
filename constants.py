@@ -605,7 +605,6 @@ _path = os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png")
 if os.path.exists(_path):
     CRAFTED_ITEM_IMAGES["Unfinished net"] = _path
 
-
 _FLETCHING_ITEM_NAMES = set(fletching_item_names())
 _FLETCHING_ITEM_NAMES.difference_update(TREE_DATA)
 
