@@ -18,7 +18,7 @@
       "title": "Port the five deferred emulator fishing methods",
       "detail": "karambwanji net, rainbow fish, lava eel (oily rod), Lumbridge swamp slimy-eel/frog-spawn dual-output, cave eel. See DEFERRED_FISHING_CONTENT in fishing_data.py:282-317. Source rows already in game-main Fish.kt / FishingTool.kt / FishingSpot.kt.",
       "source": "game-main:skills/fishing",
-      "status": "review_failed",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription",
       "branch": "gap/fish-transcription",
       "tier": "gpt-5.6-terra",
@@ -32,15 +32,6 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription/.gap-review/verdict.json",
-      "verdict": {
-        "approved": false,
-        "blocking": [
-          "fishing_data.py registers cave_eel with source_tool CAVE_EEL and no bait, but game-main FishingTool.kt defines no CAVE_EEL tool and FishingSpot.kt has no corresponding binding; only Fish.CAVE_EEL exists, so this invents a baitless emulator method.",
-          "The newly live outputs are not registered with Fishing assets: test_every_fishing_output_resolves_an_icon fails for Frog spawn, Raw cave eel, Raw karambwanji, Raw lava eel, and Raw rainbow fish, and the new Fishing definitions also make the existing Cooking and quest-stage icon tests fail by shadowing their valid assets.",
-          "Raw karambwanji, Raw lava eel, and Frog spawn are exported with tradeable=true through the FishingFish default, contrary to game-main items.yml for item IDs 3150, 2148, and 5004, all of which are non-tradeable."
-        ],
-        "notes": "Rejected. All five requested IDs are present, their existing Fish.kt item/level/chance/XP rows are exact, and both python -c \"import fishing_data\" and tests.test_fishing_data pass. The commit is nevertheless not foldable as-is because cave eel is not a faithful source-backed method, the newly activated item metadata is wrong for three outputs, and the activation leaves live targets without assets while regressing existing registry invariants. No unrelated refactor or combat/Prayer edit was found."
-      },
       "note": "Sol blocking: fishing_data.py registers cave_eel with source_tool CAVE_EEL and no bait, but game-main FishingTool.kt defines no CAVE_EEL tool and FishingSpot.kt has no corresponding binding; only Fish.CAVE_EEL exists, so this invents a baitless emulator method.; The newly live outputs are not registered with Fishing assets: test_every_fishing_output_resolves_an_icon fails for Frog spawn, Raw cave eel, Raw karam"
     },
     {
@@ -52,7 +43,7 @@
       "title": "Complete the pottery/urn catalogue",
       "detail": "crafting_data.py:90-99 has only selected Mining/Cooking urn rows; PotteryData.kt also has Fishing, Woodcutting, Smelting, Prayer, normal, decorated tiers.",
       "source": "game-main:skills/crafting/pottery/PotteryData.kt",
-      "status": "review_failed",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery",
       "branch": "gap/craft-pottery",
       "tier": "gpt-5.6-terra",
@@ -66,14 +57,7 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery/.gap-review/verdict.json",
-      "note": "Sol blocking: Completeness/parity: PotteryData.kt:280-309 defines PRAYER_URNS, but crafting_data.py ends the urn catalogue at strong smelting urn and omits all nine form/fire/add-rune recipes for Impious, Accursed, and Infernal urns (levels 2/26/62; forming XP 12.0/25.0/40.0; firing XP 18.0/37.5/60.0; Air rune; 1.0 rune-attachment XP). These are required Crafting catalogue rows and do not require changing Praye",
-      "verdict": {
-        "approved": false,
-        "blocking": [
-          "Completeness/parity: PotteryData.kt:280-309 defines PRAYER_URNS, but crafting_data.py ends the urn catalogue at strong smelting urn and omits all nine form/fire/add-rune recipes for Impious, Accursed, and Infernal urns (levels 2/26/62; forming XP 12.0/25.0/40.0; firing XP 18.0/37.5/60.0; Air rune; 1.0 rune-attachment XP). These are required Crafting catalogue rows and do not require changing Prayer training or combat code."
-        ],
-        "notes": "Do not fold this commit into main as-is. The mandated import passes, the commit changes only crafting_data.py, the focused Crafting data tests pass, and the 60 added Mining, Cooking, Fishing, Woodcutting, and Smelting recipe rows match the emulator's levels, forming/firing XP, rune types, and the module's established three-stage naming and automatic registration conventions. However, the emulator catalogue contains 26 urn products and therefore 78 form/fire/add-rune recipes, while this branch exposes only 23 products and 69 recipes; omitting the complete PRAYER_URNS family directly leaves the stated catalogue task incomplete."
-      }
+      "note": "Sol blocking: Completeness/parity: PotteryData.kt:280-309 defines PRAYER_URNS, but crafting_data.py ends the urn catalogue at strong smelting urn and omits all nine form/fire/add-rune recipes for Impious, Accursed, and Infernal urns (levels 2/26/62; forming XP 12.0/25.0/40.0; firing XP 18.0/37.5/60.0; Air rune; 1.0 rune-attachment XP). These are required Crafting catalogue rows and do not require changing Praye"
     },
     {
       "id": "craft-leather-tanning",
@@ -84,7 +68,7 @@
       "title": "Complete leather/dragonhide tables + tanning service",
       "detail": "Only a few bodies/gloves/boots exist; chaps, vambraces, coifs, lower-tier leather absent despite LeatherData.kt. Tanning family from TanningData.kt not imported at all.",
       "source": "game-main:skills/crafting/leather/LeatherData.kt,skills/crafting/tanning/TanningData.kt",
-      "status": "reviewing",
+      "status": "merged",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-tanning",
       "branch": "gap/craft-leather-tanning",
       "tier": "gpt-5.6-terra",
@@ -97,7 +81,12 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-leather-tanning/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-tanning/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-tanning/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold this into main as-is. The required import succeeds; the branch adds all 20 previously missing LeatherData products for 27/27 total and all 8 TanningData conversions, with exact source levels, XP, material counts, outputs, and prices. The source-backed dataclass/dict export follows the module's registration conventions, focused Crafting, item-registry, Utility, and undo checks pass, and the diff contains no combat or Prayer changes. The duplicate-name yak-armour outputs preserve their source item IDs in recipe metadata, while the two snake-hide variants remain distinct stable activities and source enums under the project's established flat name-keyed inventory adaptation."
+      }
     },
     {
       "id": "craft-jewellery-staves-weaving",
@@ -119,7 +108,7 @@
       "title": "Add concentrated coal and concentrated gold rocks",
       "detail": "RockType.kt contains both; AnkiScape ships only ordinary coal/gold. Sustained-rock mechanic matters to the Mining loop.",
       "source": "game-main:skills/mining/RockType.kt",
-      "status": "reviewing",
+      "status": "in_progress",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated",
       "branch": "gap/mine-concentrated",
       "tier": "gpt-5.6-terra",
@@ -132,7 +121,8 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/mine-concentrated/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/mine-concentrated/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/mine-concentrated/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated/.gap-review/verdict.json",
+      "note": "Sol blocking: Correctness: ui.py:2187-2195 now passes QUEST_UNLOCK_RULES as mining_target_rows()'s deferred_notes positional argument after deleting _MINING_DEFERRED_VARIANT_NOTES. QUEST_UNLOCK_RULES is a tuple, so opening the Mining target list raises AttributeError: 'tuple' object has no attribute 'get' at target_metadata.py:352; the quest-unlock rules also never reach their intended parameter.; Completeness/"
     },
     {
       "id": "wc-inferno-adze",
@@ -143,7 +133,7 @@
       "title": "Add inferno adze burn-on-chop behaviour",
       "detail": "Woodcutting runtime has inferno-adze behaviour; AnkiScape records it only as deferred.",
       "source": "game-main:skills/woodcutting",
-      "status": "in_progress",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze",
       "branch": "gap/wc-inferno-adze",
       "tier": "gpt-5.6-terra",
@@ -151,7 +141,12 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/impl.exit",
-      "started": "2026-07-09 12:48:31"
+      "started": "2026-07-09 12:48:31",
+      "review_report": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze/.gap-review/verdict.json"
     },
     {
       "id": "hunter-tracking-pitfall-snare",
