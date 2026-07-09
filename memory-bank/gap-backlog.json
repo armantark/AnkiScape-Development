@@ -48,7 +48,7 @@
       "title": "Complete the pottery/urn catalogue",
       "detail": "crafting_data.py:90-99 has only selected Mining/Cooking urn rows; PotteryData.kt also has Fishing, Woodcutting, Smelting, Prayer, normal, decorated tiers.",
       "source": "game-main:skills/crafting/pottery/PotteryData.kt",
-      "status": "reviewing",
+      "status": "merged",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery",
       "branch": "gap/craft-pottery",
       "tier": "gpt-5.6-terra",
@@ -62,7 +62,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery/.gap-review/verdict.json",
-      "note": "refix: fetch icons for new urn outputs"
+      "note": "refix: fetch icons for new urn outputs",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold this branch into main as-is. All 26 emulator urn products are represented by 78 unique form, fire, and add-rune recipes; every level, forming/firing XP value, rune input, output name and quantity, and the 1.0 rune-attachment XP matches PotteryData.kt and AddRuneAction.kt exactly. The supported Python 3.12 import succeeds, all 34 focused Crafting data and item-registry tests pass, every added output resolves a valid icon with provenance, and the branch changes no combat or Prayer mechanics."
+      }
     },
     {
       "id": "craft-leather-tanning",
@@ -362,6 +367,31 @@
       "title": "Cave eel fishing method (no game-main binding)",
       "detail": "game-main defines Fish.CAVE_EEL but provides no FishingTool or FishingSpot binding, so a faithful port is impossible from the emulator. Authentic pre-EOC method is fishing rod + fishing bait at Lumbridge Swamp caves (same route as slimy/lava eels). Sourcing the rod+bait binding + level/XP from the wiki is a design/sourcing decision for the owner. Currently kept in DEFERRED_FISHING_CONTENT.",
       "note": "split out of fish-transcription 2026-07-09; needs owner grill"
+    },
+    {
+      "id": "craft-runtime-remainder",
+      "rank": 22,
+      "skill": "Crafting",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port remaining runtime-bound Crafting rows",
+      "detail": "Faithfully transcribe only these game-main rows that have live runtime bindings but are absent from crafting_data.py: GlassData EMPTY_CANDLE_LANTERN (level 4, 19 XP), EMPTY_OIL_LAMP (12, 25), FISHBOWL (42, 42.5), LANTERN_LENS (49, 55), and EMPTY_LIGHT_ORB (87, 70); JewelleryData SLAYER_RING (gold bar + enchanted gem -> ring of slaying (8), level 75, 15 XP), retaining the source CRAFT_ROS unlock as a documented note without inventing a Slayer system; SilverData SILVTHRILL_ROD (silver bar + mithril bar + sapphire, level 25, 55 XP) and SILVTHRILL_CHAIN (silver bar + mithril bar, level 47, 100 XP); SpinningData CBOW_STRING1 (each of oak, willow, maple, yew, magic, and spirit roots is a source-accepted alternative input for one crossbow string at level 10 and 15 XP); and WeavingData MILESTONE_CAPES (tiers 10 through 90, balls of wool equal to tier/10, XP equal to tier). The milestone source gates on all skills at the tier; preserve that as a documented source constraint if the existing Crafting model cannot enforce it, and do not touch Combat or Prayer implementation. Input-starved rows are acceptable, but do not invent acquisition, bindings, values, or clamps. Use exact output names/IDs from game-main item definitions. Add focused tests and run tools/fetch_crafting_assets.py plus only necessary WIKI_TITLE_OVERRIDES until item-icon tests pass. PotteryData.NOT_URNS is a grouping wrapper, not an output row, and FishingTool.BARB_HARPOON has no FishingSpot binding; neither belongs in this task.",
+      "source": "game-main:skills/crafting runtime-bound data and action plugins",
+      "note": "fresh shipped-skill completeness audit 2026-07-09"
+    },
+    {
+      "id": "mine-inferno-adze-tool",
+      "rank": 23,
+      "skill": "Mining",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Enable Inferno adze as a Mining pickaxe",
+      "detail": "game-main PickaxeType.INFERNO_ADZE is a live Mining tool (item 13661, Mining level 41, 3 ticks between rolls), while AnkiScape still keeps the same row in DEFERRED_MINING_PICKAXES. Promote it through the existing Mining pickaxe registration/selection paths using those exact source values. Reuse the Inferno adze item/icon already landed by wc-inferno-adze. Do not implement All Fired Up acquisition, Firemaking behavior, Combat, or Prayer, and do not invent any special Mining proc. Add focused parity/selection tests.",
+      "source": "game-main:skills/mining/PickaxeType.kt",
+      "depends_on": [
+        "wc-inferno-adze"
+      ],
+      "note": "fresh shipped-skill completeness audit 2026-07-09"
     }
   ]
 }
