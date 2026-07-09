@@ -692,17 +692,6 @@ _COMBAT_SKILL_BARS = (
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 
-# Backend (mining_data.DEFERRED_MINING_CONTENT) deliberately defers the
-# "concentrated" coal/gold deposits: their 2011Scape distinction is Living Rock
-# Caverns depletion behavior, which AnkiScape's review loop doesn't model. We
-# surface that as honest tooltip copy on the ordinary rows rather than letting a
-# player wonder why concentrated variants are missing. Keyed by stable target ID.
-_MINING_DEFERRED_VARIANT_NOTES = {
-    "coal": "Concentrated coal deposits are deferred (Living Rock Caverns depletion isn't modeled); this row mines ordinary coal.",
-    "gold": "Concentrated gold deposits are deferred (Living Rock Caverns depletion isn't modeled); this row mines ordinary gold.",
-}
-
-
 # Item sprites are pre-trimmed at build time (see tools/trim_icons.py and the
 # fetch_assets.py alpha-trim step), so the UI just uses plain QIcon(path) — no
 # runtime cropping. Re-run tools/trim_icons.py if a freshly added sprite ever
@@ -2202,8 +2191,7 @@ def show_main_menu(
                 GEM_IMAGES,
                 MINING_PICKAXE_DATA,
                 DEFAULT_MINING_TARGET,
-                _MINING_DEFERRED_VARIANT_NOTES,
-                QUEST_UNLOCK_RULES,
+                quest_unlock_rules=QUEST_UNLOCK_RULES,
             ),
             on_set_ore,
         )
