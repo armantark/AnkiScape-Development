@@ -32,6 +32,15 @@
 - Fletching exists as the first expanded playable skill: registry metadata, save defaults/migration keys, target panel, item manifest outputs/materials, pure processing logic, runtime review dispatch, and scraped output/material icons are in place.
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, action-multiplier-compatible reward handling, migration coverage, and undo-safe review handling.
+- Crafting item-combination parity is complete as of 2026-07-09: all 26 source
+  Crafting-default `CombinationData.kt` rows are represented, including the
+  24 newly transcribed skull/sceptre, lantern, studded, spiky-vambrace, crab,
+  seaweed-net, Armadyl battlestaff, amulet-stringing, and symbol-stringing
+  rows. `polish_buttons` also ports the separate Buttons → Polished buttons
+  item-option action (level 3, 5 XP). Zero-XP rows and non-consumed chisel
+  semantics are preserved; source item IDs are stored on the output recipes.
+  Existing local sibling sprites are reused for output-manifest coverage; no
+  assets were fetched and no acquisition, Combat, or Prayer behavior was added.
 - Crafting/Utility frontend is in place: Utility/Activities is a no-XP Skills-hub category with batch tooltips and `on_set_utility` persistence; Crafting tooltips show output/batch; the HUD speaks the Utility no-XP state; Settings group into Gameplay/Notifications/Floating Widget/Developer with a clamped Actions-per-review control. Covered by offscreen Qt tests.
 - Utility/Activities has a dedicated icon set: each existing activity exposes an `icon_path` backed by `activityicons/` assets, and the Qt list falls back to output-item art if an activity icon is missing.
 - Feathers now have one legitimate non-dev source: `Scavenge chicken feathers` is a no-XP Utility/Activities bridge that grants `28 Feather` per successful action tick without opening Combat, shops, coins, or GE.

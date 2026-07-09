@@ -424,6 +424,24 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertIn("input-starved", CRAFTING_DATA["cut_dragonstone"].get("notes", ""))
         self.assertEqual(UTILITY_ACTIVITY_DATA["make_soft_clay"]["batch_size"], 28)
 
+    def test_combination_and_polishing_outputs_register_as_crafted_items(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name in (
+            "Strange skull",
+            "Skull sceptre",
+            "Emerald lantern",
+            "Studded chaps",
+            "Spiky vambraces",
+            "Crab helmet",
+            "Empty seaweed net",
+            "Armadyl battlestaff",
+            "Unblessed symbol",
+            "Unpowered symbol",
+            "Polished buttons",
+        ):
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].category, "crafted")
+
     def test_utility_activities_have_purpose_built_icon_contract(self):
         expected_files = {
             "make_soft_clay": "make_soft_clay.png",

@@ -5,6 +5,19 @@ No active build thread. The combat overhaul, the weapon-aware attack-type pass,
 the Stronghold of Security landmark, and the full Herblore skill are all shipped
 and committed (Herblore as of 2026-07-09).
 
+### Crafting combinations and polished buttons — COMPLETE, verified 2026-07-09
+`crafting_data.py` now carries all 26 Crafting-default `CombinationData.kt`
+rows: the original Studded body and Dragonstone ammy plus 24 formerly missing
+source rows. `polish_buttons` faithfully adds Buttons (688) → Polished buttons
+(10496) at Crafting 3 for 5 XP. The source's zero-XP skull and lantern rows,
+non-consumed chisel crab rows, source item IDs, and ordinary input-starved /
+quest-item targets are preserved; no acquisition, Combat, or Prayer behavior
+was added. `constants.py` reuses only checked-in sibling sprites for the newly
+registered outputs and the cross-skill Kebbit claws manifest collision. Focused
+parity/runtime/registry tests and `python -c "import crafting_data"` (via the
+available Python 3.12 interpreter; no bare `python` executable is installed)
+pass; full suite: 935 tests, 0 failures, 157 skipped.
+
 ### Inferno adze Woodcutting parity — COMPLETE, verified 2026-07-09
 `woodcutting_data.py` now promotes the source row (item 13661, Woodcutting 61,
 ratio 3.75) from deferred to active and carries its source-exact one-in-two

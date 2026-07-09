@@ -605,6 +605,30 @@ _path = os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png")
 if os.path.exists(_path):
     CRAFTED_ITEM_IMAGES["Unfinished net"] = _path
 
+# Combination outputs reuse nearby checked-in art until a later local asset pass.
+for _item_name, _path in {
+    "Strange skull": os.path.join(SHOP_ITEMS_FOLDER, "lizard_skull.png"),
+    "Runed sceptre": os.path.join(COMBAT_ITEMS_FOLDER, "staff.png"),
+    "Skull sceptre": os.path.join(COMBAT_ITEMS_FOLDER, "staff.png"),
+    "Bullseye lantern": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
+    "Emerald lantern": os.path.join(SMITHING_ITEMS_FOLDER, "bullseye_lantern.png"),
+    "Spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "leather_vambraces.png"),
+    "Green spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "green_d_hide_vambraces.png"),
+    "Blue spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "blue_d_hide_vambraces.png"),
+    "Red spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "red_d_hide_vambraces.png"),
+    "Black spiky vambraces": os.path.join(CRAFTED_ITEMS_FOLDER, "black_d_hide_vambraces.png"),
+    "Crab helmet": os.path.join(SHOP_ITEMS_FOLDER, "lizard_skull.png"),
+    "Crab claw": os.path.join(SHOP_ITEMS_FOLDER, "lizard_skull.png"),
+    "Empty seaweed net": os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png"),
+    "Armadyl battlestaff": os.path.join(QUEST_ITEMS_FOLDER, "staff_of_armadyl.png"),
+    "Unblessed symbol": os.path.join(SHOP_ITEMS_FOLDER, "holy_symbol.png"),
+    "Unpowered symbol": os.path.join(SHOP_ITEMS_FOLDER, "holy_symbol.png"),
+    "Polished buttons": os.path.join(COMBAT_ITEMS_FOLDER, "buttons.png"),
+    "Kebbit claws": os.path.join(HUNTER_ITEMS_FOLDER, "kebbit_claws.png"),
+}.items():
+    if os.path.exists(_path):
+        CRAFTED_ITEM_IMAGES[_item_name] = _path
+
 _FLETCHING_ITEM_NAMES = set(fletching_item_names())
 _FLETCHING_ITEM_NAMES.difference_update(TREE_DATA)
 

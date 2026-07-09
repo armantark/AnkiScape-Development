@@ -68,6 +68,44 @@ class TestCraftingData(unittest.TestCase):
             self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
         self.assertIn("CRAFT_ROS", data["jewellery_ring_of_slaying_8"]["notes"])
 
+    def test_item_combination_and_button_polishing_rows_match_2011scape(self):
+        data = crafting_recipes_as_dict()
+        expected = {
+            "combine_strange_skull": (1, 0.0, {"Left skull half": 1, "Right skull half": 1}, "Strange skull", 9009),
+            "combine_runed_sceptre": (1, 0.0, {"Bottom of sceptre": 1, "Top of sceptre": 1}, "Runed sceptre", 9012),
+            "combine_skull_sceptre": (1, 0.0, {"Strange skull": 1, "Runed sceptre": 1}, "Skull sceptre", 9013),
+            "combine_bullseye_lantern": (49, 0.0, {"Bullseye lantern": 1, "Lantern lens": 1}, "Bullseye lantern", 4546),
+            "combine_bullseye_emerald_lantern": (49, 0.0, {"Bullseye lantern": 1, "Emerald lens": 1}, "Emerald lantern", 9064),
+            "combine_oil_lantern": (50, 50.0, {"Oil lamp": 1, "Oil lantern frame": 1}, "Oil lantern", 4537),
+            "combine_studded_chaps": (44, 42.0, {"Leather chaps": 1, "Steel studs": 1}, "Studded chaps", 1097),
+            "combine_spiky_vambraces": (32, 6.0, {"Leather vambraces": 1, "Kebbit claws": 1}, "Spiky vambraces", 10077),
+            "combine_green_spiky_vambraces": (32, 6.0, {"Green d'hide vambraces": 1, "Kebbit claws": 1}, "Green spiky vambraces", 10079),
+            "combine_blue_spiky_vambraces": (32, 6.0, {"Blue d'hide vambraces": 1, "Kebbit claws": 1}, "Blue spiky vambraces", 10081),
+            "combine_red_spiky_vambraces": (32, 6.0, {"Red d'hide vambraces": 1, "Kebbit claws": 1}, "Red spiky vambraces", 10083),
+            "combine_black_spiky_vambraces": (32, 6.0, {"Black d'hide vambraces": 1, "Kebbit claws": 1}, "Black spiky vambraces", 10085),
+            "chisel_crab_helmet": (15, 32.5, {"Fresh crab shell": 1}, "Crab helmet", 7539),
+            "chisel_crab_claw": (15, 32.5, {"Fresh crab claw": 1}, "Crab claw", 7537),
+            "combine_seaweed_net": (52, 83.0, {"Unfinished net": 1, "Bronze wire": 1}, "Empty seaweed net", 14859),
+            "combine_armadyl_battlestaff": (77, 150.0, {"Battlestaff": 1, "Orb of armadyl": 1}, "Armadyl battlestaff", 21777),
+            "string_gold_amulet": (1, 4.0, {"Gold amulet": 1, "Ball of wool": 1}, "Gold amulet", 1692),
+            "string_sapphire_amulet": (1, 4.0, {"Sapphire amulet": 1, "Ball of wool": 1}, "Sapphire amulet", 1694),
+            "string_emerald_amulet": (1, 4.0, {"Emerald amulet": 1, "Ball of wool": 1}, "Emerald amulet", 1696),
+            "string_ruby_amulet": (1, 4.0, {"Ruby amulet": 1, "Ball of wool": 1}, "Ruby amulet", 1698),
+            "string_diamond_amulet": (1, 4.0, {"Diamond amulet": 1, "Ball of wool": 1}, "Diamond amulet", 1700),
+            "string_onyx_amulet": (1, 4.0, {"Onyx amulet": 1, "Ball of wool": 1}, "Onyx amulet", 6581),
+            "string_unblessed_symbol": (1, 4.0, {"Unstrung symbol": 1, "Ball of wool": 1}, "Unblessed symbol", 1716),
+            "string_unpowered_symbol": (1, 4.0, {"Unstrung emblem": 1, "Ball of wool": 1}, "Unpowered symbol", 1722),
+            "polish_buttons": (3, 5.0, {"Buttons": 1}, "Polished buttons", 10496),
+        }
+        for recipe_id, (level, exp, requirements, output_item, source_item_id) in expected.items():
+            self.assertEqual(data[recipe_id]["level"], level)
+            self.assertEqual(data[recipe_id]["exp"], exp)
+            self.assertEqual(data[recipe_id]["requirements"], requirements)
+            self.assertEqual(data[recipe_id]["output_item"], output_item)
+            self.assertEqual(data[recipe_id]["source_item_id"], source_item_id)
+        self.assertEqual(data["chisel_crab_helmet"]["station"], "chisel")
+        self.assertTrue(data["polish_buttons"]["source"].endswith("other/polished_button.plugin.kts"))
+
     def test_root_crossbow_strings_and_milestone_capes_match_runtime_actions(self):
         data = crafting_recipes_as_dict()
         for root in ("Oak", "Willow", "Maple", "Yew", "Magic", "Spirit"):
