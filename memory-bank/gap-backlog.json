@@ -48,7 +48,7 @@
       "title": "Complete the pottery/urn catalogue",
       "detail": "crafting_data.py:90-99 has only selected Mining/Cooking urn rows; PotteryData.kt also has Fishing, Woodcutting, Smelting, Prayer, normal, decorated tiers.",
       "source": "game-main:skills/crafting/pottery/PotteryData.kt",
-      "status": "in_progress",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery",
       "branch": "gap/craft-pottery",
       "tier": "gpt-5.6-terra",
@@ -102,7 +102,7 @@
       "title": "Fill jewellery tiers, earth/fire battlestaves, basket/net weaving",
       "detail": "Partial jewellery matrix (emerald->onyx bracelets/amulets); BattlestaffData.kt has all four elementals but only water/air present; WeavingData.kt has basket + unfinished net rows we lack.",
       "source": "game-main:skills/crafting/weaponry/BattlestaffData.kt,skills/crafting/weaving/WeavingData.kt",
-      "status": "reviewing",
+      "status": "merged",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-jewellery-staves-weaving",
       "branch": "gap/craft-jewellery-staves-weaving",
       "tier": "gpt-5.6-terra",
@@ -115,7 +115,12 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-jewellery-staves-weaving/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-jewellery-staves-weaving/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold this into main as-is. The HEAD patch adds the eight missing emerald-through-onyx bracelet/amulet recipes, both missing elemental battlestaves, and both requested weaving rows with exact emulator levels, XP, material quantities, outputs, and canonical names. The required crafting_data import exits cleanly; the 29 registry, 26 target-metadata, and 141 logic tests pass; all twelve outputs register with existing icons, Fire battlestaff retains its equipment identity, and the changes follow the existing dataclass and stable-ID registration patterns without modifying combat or Prayer."
+      }
     },
     {
       "id": "mine-concentrated",
@@ -156,7 +161,7 @@
       "title": "Add inferno adze burn-on-chop behaviour",
       "detail": "Woodcutting runtime has inferno-adze behaviour; AnkiScape records it only as deferred.",
       "source": "game-main:skills/woodcutting",
-      "status": "reviewing",
+      "status": "merged",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze",
       "branch": "gap/wc-inferno-adze",
       "tier": "gpt-5.6-terra",
@@ -170,7 +175,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze/.gap-review/verdict.json",
-      "note": "refix: tie-break parity + inferno-adze icon"
+      "note": "refix: tie-break parity + inferno-adze icon",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approved for fold. The branch promotes Inferno adze through the existing WoodcuttingAxe and registration paths with source-exact item 13661, level 61, ratio 3.75, and a one-in-two successful log incineration that suppresses the output and grants equal Firemaking XP; it also preserves game-main's reverse-order tie selection over Dragon hatchet. The required import succeeds, the full suite passes 922 tests with 157 skipped, the icon regression is resolved, and combat and Prayer remain untouched."
+      }
     },
     {
       "id": "hunter-tracking-pitfall-snare",
