@@ -204,7 +204,12 @@ def _active_skills(data):
     # Any item still holding a worktree (impl or review) locks its skill's data
     # module, so we never run two same-skill ports in parallel — they would both
     # edit e.g. crafting_data.py and collide at merge.
-    return {it["skill"] for it in data["items"] if it.get("status") in ACTIVE}
+    unlocked = {"pending", "merged", "needs_grill"}
+    return {
+        it["skill"]
+        for it in data["items"]
+        if it.get("worktree") and it.get("status") not in unlocked
+    }
 
 
 def pick_next(data):

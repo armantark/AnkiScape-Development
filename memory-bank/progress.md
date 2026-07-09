@@ -1365,6 +1365,12 @@ Verification: `python3 -m py_compile combat_data.py tests/test_combat_enemy_rost
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
+- The automated gap-fill scheduler now polls every 3 minutes and preserves
+  dependency-aware concurrency: independent skills may overlap, while any
+  unresolved worktree locks its skill until merge or owner resolution. Focused
+  scheduler tests cover failure-state locks, independent overlap, merged-state
+  release, and explicit dependency gates.
+
 - The current P0 architecture board is complete. Do not continue P0 by default;
   reopen architecture only if the owner names a new concrete acceptance boundary.
 - Next default work can move back to content/polish/"fun stuff" using the

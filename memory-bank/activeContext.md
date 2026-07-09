@@ -1213,3 +1213,14 @@ Telemetry/normalization baseline completed on 2026-06-20. Backend owns durable `
 - Backend work means Python game logic, storage, migrations, and tests.
 - Frontend work means Qt dialogs/HUD/menu/stats/bank UX and any injected web UI.
 - Split backend and frontend planning explicitly when implementation starts, because model choice may differ by side.
+
+## Automated Gap-Fill Scheduler
+
+As of 2026-07-09, the transcription loop uses a 3-minute heartbeat. Measured
+normal implementations took roughly 6-9 minutes and reviews 4-12 minutes, while
+the driver tick itself took seconds; the former 15-minute cadence left completed
+stages waiting 4:45-17:46 before collection. Independent skills may overlap in
+separate worktrees. Same-skill and explicit dependency chains must remain serial
+and start from the merged predecessor. `tools/gap_driver.py` therefore treats
+every unresolved source-editing worktree, including failure and conflict states,
+as a skill lock; merged worktree paths do not lock future work.
