@@ -246,6 +246,7 @@ def cooking_target_rows(
     for target_id, spec in cooking_data.items():
         display_name = str(spec.get("display_name", target_id))
         lvl_req = int(spec.get("level", 1) or 1)
+        has_level_requirement = not bool(spec.get("source_no_level_requirement"))
         output_item = str(spec.get("output_item", display_name))
         burnt_item = str(spec.get("burnt_item", "Burnt food"))
         reqs = spec.get("requirements", {}) or {}
@@ -258,13 +259,15 @@ def cooking_target_rows(
             cooking_data,
             quest_unlock_rules,
         )
+        level_line = f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n" if has_level_requirement else "No Cooking level requirement.\n"
+        failure_line = f"Burn output: {burnt_item} x1, no XP\n" if burnt_item else "Failure consumes the input, no XP\n"
         tooltip = (
-            f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n"
-            f"Success output: {output_item} x1\n"
-            f"Burn output: {burnt_item} x1, no XP\n"
-            f"Base XP: {spec.get('exp', 0)} on success\n"
-            f"Success chance: {chance:.0f}% per action\n"
-            f"Materials:\n{_indented_material_lines(requirements, inventory)}"
+            level_line
+            + f"Success output: {output_item} x1\n"
+            + failure_line
+            + f"Base XP: {spec.get('exp', 0)} on success\n"
+            + f"Success chance: {chance:.0f}% per action\n"
+            + f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
         if locked_reasons:
             tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
@@ -272,7 +275,7 @@ def cooking_target_rows(
         rows.append(
             TargetRowMetadata(
                 target_id=target_id,
-                label=f"{display_name} (Lvl {lvl_req})",
+                label=f"{display_name} (Lvl {lvl_req})" if has_level_requirement else display_name,
                 tooltip=tooltip,
                 enabled=not locked_reasons,
                 current=target_id == current_target,
