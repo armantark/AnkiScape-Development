@@ -201,7 +201,9 @@ def build_item_definitions(
         add_definition(_definition(name, "bar", "Smithing", bar_data, bar_images))
     for target_name, spec in crafting_data.items():
         output_name = spec.get("output_item", target_name)
-        if isinstance(output_name, str):
+        if isinstance(output_name, str) and (
+            extra_item_data is None or extra_item_data.get(output_name, {}).get("category") != "equipment"
+        ):
             add_definition(_definition(output_name, "crafted", "Crafting", {output_name: spec}, crafted_item_images))
     for spec in crafting_data.values():
         for requirement_name in spec.get("requirements", {}):

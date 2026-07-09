@@ -593,10 +593,17 @@ for _item_name, _fallback_item in {
     "Red d'hide body": "Black d'hide body",
     "Black d'hide vambraces": "Black d'hide body",
     "Black d'hide chaps": "Black d'hide body",
+    "Dragon bracelet": "Dragon necklace",
+    "Onyx bracelet": "Onyx necklace",
+    "Earth battlestaff": "Air battlestaff",
 }.items():
     _path = CRAFTED_ITEM_IMAGES.get(_fallback_item)
     if _path:
         CRAFTED_ITEM_IMAGES[_item_name] = _path
+
+_path = os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png")
+if os.path.exists(_path):
+    CRAFTED_ITEM_IMAGES["Unfinished net"] = _path
 
 
 _FLETCHING_ITEM_NAMES = set(fletching_item_names())
