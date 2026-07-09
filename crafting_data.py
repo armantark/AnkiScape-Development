@@ -156,6 +156,15 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("form_strong_smelting_urn_unf", "Strong smelting urn (unf)", "pottery", "potters_wheel", 49, 33.8, _req(("Soft clay", 2)), "Strong smelting urn (unf)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
     CraftingRecipe("fire_strong_smelting_urn_nr", "Strong smelting urn (nr)", "pottery", "pottery_oven", 49, 50.8, _req(("Strong smelting urn (unf)", 1)), "Strong smelting urn (nr)", source=POTTERY_SOURCE, source_enum="SMELTING_URNS"),
     CraftingRecipe("add_rune_strong_smelting_urn", "Strong smelting urn", "pottery", "add_rune", 49, 1.0, _req(("Strong smelting urn (nr)", 1), ("Fire rune", 1)), "Strong smelting urn", source=POTTERY_RUNE_SOURCE, source_enum="SMELTING_URNS"),
+    CraftingRecipe("form_impious_urn_unf", "Impious urn (unf)", "pottery", "potters_wheel", 2, 12.0, _req(("Soft clay", 2)), "Impious urn (unf)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("fire_impious_urn_nr", "Impious urn (nr)", "pottery", "pottery_oven", 2, 18.0, _req(("Impious urn (unf)", 1)), "Impious urn (nr)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("add_rune_impious_urn", "Impious urn", "pottery", "add_rune", 2, 1.0, _req(("Impious urn (nr)", 1), ("Air rune", 1)), "Impious urn", source=POTTERY_RUNE_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("form_accursed_urn_unf", "Accursed urn (unf)", "pottery", "potters_wheel", 26, 25.0, _req(("Soft clay", 2)), "Accursed urn (unf)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("fire_accursed_urn_nr", "Accursed urn (nr)", "pottery", "pottery_oven", 26, 37.5, _req(("Accursed urn (unf)", 1)), "Accursed urn (nr)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("add_rune_accursed_urn", "Accursed urn", "pottery", "add_rune", 26, 1.0, _req(("Accursed urn (nr)", 1), ("Air rune", 1)), "Accursed urn", source=POTTERY_RUNE_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("form_infernal_urn_unf", "Infernal urn (unf)", "pottery", "potters_wheel", 62, 40.0, _req(("Soft clay", 2)), "Infernal urn (unf)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("fire_infernal_urn_nr", "Infernal urn (nr)", "pottery", "pottery_oven", 62, 60.0, _req(("Infernal urn (unf)", 1)), "Infernal urn (nr)", source=POTTERY_SOURCE, source_enum="PRAYER_URNS"),
+    CraftingRecipe("add_rune_infernal_urn", "Infernal urn", "pottery", "add_rune", 62, 1.0, _req(("Infernal urn (nr)", 1), ("Air rune", 1)), "Infernal urn", source=POTTERY_RUNE_SOURCE, source_enum="PRAYER_URNS"),
 
     # Spinning. No XP-bearing batching.
     CraftingRecipe("spin_wool_to_ball_of_wool", "Ball of wool", "spinning", "spinning_wheel", 1, 2.5, _req(("Wool", 1)), "Ball of wool", source=SPINNING_SOURCE, source_enum="WOOL"),
