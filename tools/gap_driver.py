@@ -57,21 +57,30 @@ def skill_module(skill):
     return f"{skill.lower()}_data"
 
 
-_LAUNCH_COUNT = 0
+_LAST_LAUNCH_FILE = os.path.join(OPS, ".last_codex_launch")
+_STAGGER_SECS = 12
+
+
+def _stagger():
+    """Codex boots by removing and reinstalling a shared system-skills dir under
+    ~/.codex; two codex processes starting within ~a second of each other race on
+    it and one dies with "Directory not empty" (exit 1, no output). Serialize the
+    startup window across ALL invocations via a persisted timestamp, so separate
+    `tick`/`refix`/`rereview` runs stagger too."""
+    try:
+        last = os.path.getmtime(_LAST_LAUNCH_FILE)
+        wait = _STAGGER_SECS - (time.time() - last)
+        if wait > 0:
+            time.sleep(wait)
+    except FileNotFoundError:
+        pass
+    with open(_LAST_LAUNCH_FILE, "w") as f:
+        f.write(str(time.time()))
 
 
 def launch(cmd_str, cwd, done, exit_file, log):
-    """Fire a detached background stage that records its exit code and a done marker.
-
-    Codex boots by removing and reinstalling a shared system-skills dir under
-    ~/.codex; two codex processes starting at the same instant race on it and one
-    dies with "Directory not empty" (exit 1, no output). We stagger launches so
-    each startup window clears before the next begins.
-    """
-    global _LAUNCH_COUNT
-    if _LAUNCH_COUNT > 0:
-        time.sleep(10)
-    _LAUNCH_COUNT += 1
+    """Fire a detached background stage that records its exit code and a done marker."""
+    _stagger()
     for p in (done, exit_file):
         try:
             os.remove(p)
@@ -134,6 +143,29 @@ Method:
 4. If the content needs engine wiring beyond the data module, add the data rows plus a minimal clearly-marked stub hook and describe the remaining wiring in the report.
 
 Report (to the -o file): every authentic value added WITH its wiki oldid citation, what engine wiring remains, and the `import {module}` result.
+"""
+
+
+def refix_prompt(item, wt):
+    module = skill_module(item["skill"])
+    blocking = item.get("verdict", {}).get("blocking", [])
+    issues = "\n".join(f"  {i}. {b}" for i, b in enumerate(blocking, 1))
+    src = ("game-main (exact values; game-main is authoritative and never invent a "
+           "method/binding it does not define)" if item["root_cause"] == "transcription"
+           else "the cited wiki oldid (pre-2012-11-20)")
+    return f"""You previously attempted this AnkiScape gap-fill for Claude in this worktree. Your change is committed as HEAD on branch {item['branch']}. A senior reviewer (GPT-5.6 Sol) BLOCKED it from merging for these specific reasons:
+
+{issues}
+
+Repository (this git worktree, edit here): {wt}
+Reference 2011Scape emulator source (READ-ONLY, never edit): {GAMEMAIN}
+Skill data module: {module}.py
+Original task: {item['title']} — {item['detail']}
+Source of truth: {src}
+
+Fix EXACTLY the blocking issues above, building on the existing committed work — keep everything the reviewer did not object to. If a blocking issue means content you added is NOT faithfully backed by the source (e.g. an invented method with no emulator tool binding), REMOVE it / restore it to its prior deferred state rather than inventing support for it. Do not add balance clamps or post-EOC content. Do not touch unrelated skills, combat, or Prayer. Smallest correct diff. Do NOT commit or push.
+
+After editing, from {wt} run: python -c "import {module}" and any tests the reviewer named, and fix until clean. Report (to the -o file) how you addressed each numbered blocking point.
 """
 
 
@@ -269,6 +301,41 @@ def _launch_review(item, d, policy):
     item.pop("verdict", None)
 
 
+def refix(data, iid):
+    """Relaunch the impl on a review_failed worktree with the reviewer's blocking
+    points layered on the committed attempt. collect() then commits the follow-up
+    and re-reviews it. Use for content rejections (invented values, omissions);
+    use rereview for pure infra flakes."""
+    item = next((it for it in data["items"] if it["id"] == iid), None)
+    if item is None:
+        return f"no such item: {iid}"
+    wt = item.get("worktree")
+    if not wt or not os.path.isdir(wt):
+        return f"{iid}: worktree missing ({wt}); cannot refix"
+    if not item.get("verdict", {}).get("blocking"):
+        return f"{iid}: no blocking feedback recorded; nothing to refix"
+    d = item_dir(iid)
+    tier = data["policy"]["transcription_tier"] if item["root_cause"] == "transcription" else data["policy"]["stub_tier"]
+    prompt_path = os.path.join(d, "refix_prompt.md")
+    with open(prompt_path, "w") as f:
+        f.write(refix_prompt(item, wt))
+    report = os.path.join(d, "impl_report.md")
+    log = os.path.join(d, "impl.log")
+    done = os.path.join(d, "impl.done")
+    exit_file = os.path.join(d, "impl.exit")
+    cmd = (
+        f"{shlex.quote(CODEX)} exec --yolo -C {shlex.quote(wt)} "
+        f'-c model={shlex.quote(tier)} -c model_reasoning_effort=high '
+        f"-o {shlex.quote(report)} - < {shlex.quote(prompt_path)} 2>&1"
+    )
+    launch(cmd, cwd=wt, done=done, exit_file=exit_file, log=log)
+    item.update({"status": "in_progress", "tier": tier,
+                 "impl_report": report, "impl_log": log, "impl_done": done, "impl_exit": exit_file})
+    item.pop("verdict", None)
+    save(data)
+    return f"{iid}: refix impl relaunched ({tier}) with reviewer feedback"
+
+
 def rereview(data, iid):
     """Relaunch a Sol review that failed for infrastructure reasons (codex startup
     race, killed process) rather than a content rejection. The branch is already
@@ -390,6 +457,11 @@ def main():
             print("usage: gap_driver.py rereview <item-id>")
             sys.exit(2)
         print(rereview(data, sys.argv[2]))
+    elif cmd == "refix":
+        if len(sys.argv) < 3:
+            print("usage: gap_driver.py refix <item-id>")
+            sys.exit(2)
+        print(refix(data, sys.argv[2]))
     elif cmd == "tick":
         ev = collect(data)
         st = start(data)
