@@ -1,0 +1,193 @@
+<meta charset="utf-8">
+<title>Herblore — Locked Design (post-grill)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root{
+  --bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;
+  --text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px;
+  --herb:#5fd08a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.5;padding:40px 24px 80px;max-width:1180px;margin:0 auto}
+h1{font-weight:700;font-size:2rem;letter-spacing:-.02em;margin:.35em 0 .15em}
+h2{font-weight:700;font-size:1.15rem;margin:2.2em 0 .8em;display:flex;align-items:center;gap:.5em}
+h2 .n{font-family:'JetBrains Mono',monospace;font-size:.7rem;background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent);border-radius:6px;padding:2px 8px}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.08em;color:var(--herb);background:rgba(95,208,138,.1);border:1px solid var(--herb);border-radius:999px;padding:4px 12px;text-transform:uppercase}
+.sub{color:var(--text-dim);font-size:.95rem;max-width:70ch;margin-top:.6em}
+.mono{font-family:'JetBrains Mono',monospace}
+.tag{font-family:'JetBrains Mono',monospace;font-size:.65rem;background:var(--surface-2);border:1px solid var(--border);border-radius:5px;padding:2px 7px;color:var(--text-dim);white-space:nowrap;display:inline-block}
+.tag.new{color:var(--green);border-color:rgba(74,222,128,.4)}
+.tag.edit{color:var(--amber);border-color:rgba(251,191,36,.4)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:900px){.g2,.g4{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px}
+.card h3{font-weight:700;font-size:.95rem;margin-bottom:.5em}
+.card p{color:var(--text-dim);font-size:.85rem}
+/* pipeline */
+.pipe{display:flex;gap:0;align-items:stretch;flex-wrap:wrap}
+.stage{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative}
+.stage+.stage{margin-left:26px}
+.stage+.stage::before{content:"→";position:absolute;left:-22px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:1.3rem}
+.stage .where{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;padding:2px 7px;border-radius:5px;display:inline-block;margin-bottom:8px}
+.where.skill{background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent)}
+.where.util{background:rgba(167,139,250,.12);color:var(--purple);border:1px solid var(--purple)}
+.stage h4{font-size:.95rem;font-weight:700;margin-bottom:4px}
+.stage .xp{font-family:'JetBrains Mono',monospace;font-size:.72rem;margin:6px 0}
+.stage .xp.earn{color:var(--green)}
+.stage .xp.zero{color:var(--text-dim)}
+.stage .pin{font-family:'JetBrains Mono',monospace;font-size:.6rem;color:var(--text-dim);margin-top:8px;line-height:1.5;word-break:break-word}
+.stage small{color:var(--text-dim);font-size:.78rem;display:block;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.4em}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+th{font-family:'JetBrains Mono',monospace;font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);font-weight:600}
+td .mono{font-size:.78rem}
+.pill{font-family:'JetBrains Mono',monospace;font-size:.62rem;padding:1px 7px;border-radius:999px;display:inline-block}
+.ok{background:rgba(74,222,128,.12);color:var(--green)}
+.starve{background:rgba(139,149,168,.12);color:var(--text-dim)}
+.port{background:rgba(251,191,36,.12);color:var(--amber)}
+ul{margin:.3em 0 .3em 1.1em}li{margin:.25em 0;font-size:.86rem;color:var(--text-dim)}
+li b{color:var(--text);font-weight:500}
+.step{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+.step:last-child{border-bottom:none}
+.step .num{flex:none;width:26px;height:26px;border-radius:7px;background:var(--accent);color:#001;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.8rem;display:flex;align-items:center;justify-content:center}
+.step .body{flex:1}
+.step .body .t{font-weight:500;font-size:.9rem;margin-bottom:4px}
+.step .files{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chipline{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.75rem;color:var(--text-dim);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.dot{width:9px;height:9px;border-radius:50%}
+.note{background:var(--surface-2);border-left:3px solid var(--herb);border-radius:0 8px 8px 0;padding:10px 14px;font-size:.82rem;color:var(--text-dim);margin-top:10px}
+.note b{color:var(--text)}
+.count{font-family:'JetBrains Mono',monospace;color:var(--herb);font-weight:600}
+</style>
+
+<span class="badge">✔ Locked design · post-grill · pre-implementation</span>
+<h1>Herblore skill — build spec</h1>
+<p class="sub">The <span class="mono">/grill-me</span> interview is complete; every design branch below is resolved. This supersedes the exploratory knobs in <span class="mono">herblore-plan-2026-07-08.html</span> (kept untouched for comparison). Parity is transcribed from <span class="mono">HerbData.kt</span> / <span class="mono">PotionData.kt</span> / <span class="mono">PestleAndMortarData.kt</span> with line pins — no invented clamps, rates, or zeros.</p>
+
+<h2><span class="n">01</span> The four-stage parity pipeline</h2>
+<div class="pipe">
+  <div class="stage">
+    <span class="where util">Utility hub</span>
+    <h4>Grind</h4>
+    <div class="xp zero">0 XP · no level gate</div>
+    <small>Pestle &amp; mortar crushes a source item 1:1 (horn→dust, scale→dust, nest→crushed nest, mud rune→ground). Toolless, following <span class="mono">make_soft_clay</span>.</small>
+    <div class="pin">GrindAction.kt · PestleAndMortarData.kt</div>
+  </div>
+  <div class="stage">
+    <span class="where skill">Herblore · group 1</span>
+    <h4>Clean</h4>
+    <div class="xp earn">+ herb XP · always succeeds</div>
+    <small>Grimy herb → clean herb, gated on <span class="mono">HerbData.levelRequirement</span>.</small>
+    <div class="pin">clean_herb.plugin.kts:28 addXp(HERBLORE, def.experience)</div>
+  </div>
+  <div class="stage">
+    <span class="where skill">Herblore · group 2</span>
+    <h4>Unfinished</h4>
+    <div class="xp zero">0 XP · herb-level gate</div>
+    <small>Clean herb + Vial of water → unf potion. Kept in the skill menu (herblore-exclusive; GE-tradeable later).</small>
+    <div class="pin">CreateUnfinishedPotionAction.kt (no addXp)</div>
+  </div>
+  <div class="stage">
+    <span class="where skill">Herblore · group 3</span>
+    <h4>Finished</h4>
+    <div class="xp earn">+ recipe XP</div>
+    <small>Unf + secondary → potion, gated on <span class="mono">PotionData.levelRequirement</span>.</small>
+    <div class="pin">CreateFinishedPotionAction.kt:39 addXp(HERBLORE, potion.experience)</div>
+  </div>
+</div>
+<div class="note"><b>Why grind is the odd one out:</b> it earns no XP <em>and</em> isn't herblore-exclusive, so it belongs in the Utility hub. Unf earns no XP but <em>is</em> exclusive, so — per your call — it stays in the skill menu rather than being demoted to utility.</div>
+
+<h2><span class="n">02</span> Coverage — register everything, lock nothing</h2>
+<div class="grid g4">
+  <div class="card"><h3><span class="count">31</span> herbs</h3><p>17 standard · 5 juju · 9 dungeoneering. Each yields a clean + unf action.</p></div>
+  <div class="card"><h3><span class="count">~90</span> recipes</h3><p>Standard, barbarian mixes, juju, dungeoneering T1–T3. Reuse the 9 existing combat-potion product names; register the rest.</p></div>
+  <div class="card"><h3><span class="count">6</span> grinds</h3><p>Unicorn horn, desert goat horn, blue dragon scale, chocolate bar, bird's nest, mud rune → dust/crushed.</p></div>
+  <div class="card"><h3><span class="count">0</span> backend locks</h3><p>No explicit gates. Anything behind an unbuilt skill (Farming, Fishing, Daemonheim, juju) stays naturally <em>input-starved</em> — live but inert, exactly like the potions are today.</p></div>
+</div>
+
+<h2><span class="n">03</span> Input sourcing — parity-source each</h2>
+<div class="legend">
+  <span><span class="dot" style="background:var(--green)"></span> already drops/shops</span>
+  <span><span class="dot" style="background:var(--amber)"></span> port a parity drop/grind</span>
+  <span><span class="dot" style="background:var(--text-dim)"></span> starved (unbuilt skill)</span>
+</div>
+<table>
+  <thead><tr><th>Input class</th><th>Status</th><th>How it arrives</th></tr></thead>
+  <tbody>
+    <tr><td>Grimy herbs — guam…dwarf weed (11)</td><td><span class="pill ok">have</span></td><td><span class="mono">minorHerbTable</span>, already wired to ~40 monsters</td></tr>
+    <tr><td>Grimy snapdragon &amp; torstol</td><td><span class="pill port">port</span></td><td>port <span class="mono">usefulHerbTable</span> → wire to parity monsters</td></tr>
+    <tr><td>Grimy toadflax / spirit weed / wergali / fellstalk</td><td><span class="pill starve">starve</span></td><td>Farming — no global drop table</td></tr>
+    <tr><td>Grimy juju &amp; dungeoneering herbs (14)</td><td><span class="pill starve">starve</span></td><td>juju farming / Daemonheim</td></tr>
+    <tr><td>Eye of newt · limpwurt root · red spiders' eggs · white berries · snape grass · unicorn horn dust</td><td><span class="pill ok">have</span></td><td>existing combat drops</td></tr>
+    <tr><td>Chocolate dust · vial of water</td><td><span class="pill ok">have</span></td><td>existing shops (vial in 7, choc dust in 2)</td></tr>
+    <tr><td>Goat horn dust · dragon scale dust · crushed nest · ground mud runes</td><td><span class="pill port">port</span></td><td>new grind utility + port base-item drops (desert goat horn, blue dragon scale, bird's nest)</td></tr>
+    <tr><td>Wine of zamorak</td><td><span class="pill port">port</span></td><td>port parity drop</td></tr>
+    <tr><td>Potato cactus · caviar/roe · frog spawn · vines · dung mats</td><td><span class="pill starve">starve</span></td><td>Farming / Fishing / juju / Daemonheim</td></tr>
+  </tbody>
+</table>
+
+<h2><span class="n">04</span> Craftable at launch <span class="count" style="font-size:.9rem">≈ 20 potions</span></h2>
+<div class="grid g2">
+  <div class="card"><h3>Ready with today's economy</h3>
+    <ul>
+      <li><b>Attack / Super attack</b> — eye of newt</li>
+      <li><b>Strength / Super strength</b> — limpwurt root</li>
+      <li><b>Defence / Super defence</b> — white berries</li>
+      <li><b>Antipoison / Super antipoison</b> — unicorn horn dust</li>
+      <li><b>Restore / Super restore</b> — red spiders' eggs (+ snapdragon after herb port)</li>
+      <li><b>Energy</b> — chocolate dust</li>
+      <li><b>Prayer / Fishing</b> — snape grass</li>
+      <li><b>Extreme attack / strength / defence</b> — clean avantoe / dwarf weed / lantadyme</li>
+    </ul>
+  </div>
+  <div class="card"><h3>Unlocked by the ports in §03</h3>
+    <ul>
+      <li><b>Combat</b> — goat horn dust (grind desert goat horn)</li>
+      <li><b>Antifire / Weapon poison</b> — dragon scale dust (grind blue dragon scale)</li>
+      <li><b>Ranging</b> — wine of zamorak (ported drop)</li>
+      <li><b>Extreme magic</b> — ground mud runes (grind mud rune)</li>
+    </ul>
+    <div class="note" style="margin-top:14px">Still starved after launch: magic (potato cactus), all barbarian mixes (caviar/roe), all juju, all dungeoneering — each waits on a skill that doesn't exist yet. No code stops them; they simply have no inputs.</div>
+  </div>
+</div>
+
+<h2><span class="n">05</span> Touch-point map</h2>
+<div class="grid g2">
+  <div class="card">
+    <h3>New</h3>
+    <div class="chipline">
+      <span class="tag new">herblore_data.py</span>
+    </div>
+    <p style="margin-top:8px">Frozen dataclasses for the 31 herbs (grimy/clean/unf, level, clean-XP) + ~90 recipes (primary/secondary/product, level, XP) + 6 grinds. <span class="mono">*_as_dict()</span> emitters grouped clean / unf / finished, mirroring <span class="mono">runecrafting_data.py</span>.</p>
+  </div>
+  <div class="card">
+    <h3>Edit</h3>
+    <div class="chipline">
+      <span class="tag edit">skill_registry.py</span>
+      <span class="tag edit">logic_pure.py</span>
+      <span class="tag edit">runtime_actions.py</span>
+      <span class="tag edit">constants.py</span>
+      <span class="tag edit">ui.py</span>
+      <span class="tag edit">combat_data.py</span>
+      <span class="tag edit">achievement_metadata</span>
+    </div>
+    <p style="margin-top:8px">Flip herblore PLANNED→CURRENT; add <span class="mono">apply_herblore_action_pure</span>; add <span class="mono">handle_herblore_answer</span> / <span class="mono">_can_start_herblore_action</span>; wire HERBLORE_DATA + extra items + grind utilities + icons; three-group menu; port herb/base drops; milestone achievements.</p>
+  </div>
+</div>
+
+<h2><span class="n">06</span> Build phases</h2>
+<div class="card">
+  <div class="step"><div class="num">1</div><div class="body"><div class="t">Data module — transcribe HerbData + PotionData + grinds with line pins</div><div class="files"><span class="tag new">herblore_data.py</span></div></div></div>
+  <div class="step"><div class="num">2</div><div class="body"><div class="t">Registry flip + constants wiring (HERBLORE_DATA, extra items, grind utilities, images)</div><div class="files"><span class="tag edit">skill_registry.py</span><span class="tag edit">constants.py</span></div></div></div>
+  <div class="step"><div class="num">3</div><div class="body"><div class="t">Pure engine <span class="mono">apply_herblore_action_pure</span> (clean=herbXP, unf=0, finished=recipeXP) + unit tests</div><div class="files"><span class="tag edit">logic_pure.py</span><span class="tag new">tests</span></div></div></div>
+  <div class="step"><div class="num">4</div><div class="body"><div class="t">Runtime handler + <span class="mono">_can_start_herblore_action</span> + three-group menu + icon</div><div class="files"><span class="tag edit">runtime_actions.py</span><span class="tag edit">ui.py</span></div></div></div>
+  <div class="step"><div class="num">5</div><div class="body"><div class="t">Economy — port usefulHerbTable (snapdragon/torstol) + base-item drops (goat horn, dragon scale, bird's nest, wine of zamorak) + 6 grind utilities</div><div class="files"><span class="tag edit">combat_data.py</span><span class="tag edit">constants.py</span></div></div></div>
+  <div class="step"><div class="num">6</div><div class="body"><div class="t">Achievement milestones — first potion mixed, Herblore 50, Herblore 99</div><div class="files"><span class="tag edit">achievement_metadata</span></div></div></div>
+  <div class="step"><div class="num">7</div><div class="body"><div class="t">Verify — offscreen unittest suite + Pinchtab manual — then write results artifact + update memory bank</div><div class="files"><span class="tag">tests</span><span class="tag">Pinchtab</span></div></div></div>
+</div>
+<div class="note" style="margin-top:16px">Each phase is a checkpoint commit to <b>main</b> (solo project) — no push unless you ask.</div>

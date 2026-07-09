@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herblore — Plan / Design Grill</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2128; --muted:#5b6572;
+    --line:#e3e7ec; --accent:#2f9e44; --accent2:#2ea3ff;
+    --gold:#e0a800; --enemy:#e5534b; --ok:#2f9e44; --warn:#e5883b; --todo:#7b8494;
+    --chip:#eef0f4; --shadow:rgba(20,24,33,.08);
+    --clean:#3faf5a; --unf:#6c8ebf; --fin:#c9448f;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0f1216; --panel:#171b21; --ink:#e6e9ee; --muted:#9aa4b2;
+      --line:#262c34; --accent:#5fce7d; --accent2:#54b6ff; --chip:#20262e;
+      --shadow:rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1040px;margin:0 auto;padding:40px 24px 90px}
+  header.hero{margin-bottom:28px}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  h1{font-size:30px;margin:.25em 0 .1em;letter-spacing:-.01em}
+  .sub{color:var(--muted);font-size:15px;max-width:76ch}
+  .meta{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;font-size:13px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:600}
+  h2{font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);
+    margin:40px 0 14px;font-weight:700}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+    box-shadow:0 1px 3px var(--shadow)}
+  .pad{padding:18px 20px}
+  code{background:var(--chip);padding:1px 6px;border-radius:5px;font-size:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  .src{font-size:11px;color:var(--todo);font-family:ui-monospace,Menlo,monospace}
+  /* pipeline */
+  .pipe{display:flex;gap:10px;align-items:stretch;flex-wrap:wrap;padding:18px 20px}
+  .stage{flex:1;min-width:210px;border:1px solid var(--line);border-radius:12px;padding:14px 15px;background:var(--bg)}
+  .stage .lbl{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px}
+  .stage.clean .lbl{color:var(--clean)} .stage.unf .lbl{color:var(--unf)} .stage.fin .lbl{color:var(--fin)}
+  .stage .flow{font-size:13px;font-weight:600;margin-bottom:4px}
+  .stage .xp{font-size:12px;color:var(--muted)}
+  .arrow{display:flex;align-items:center;font-size:22px;color:var(--muted)}
+  @media(max-width:700px){.arrow{transform:rotate(90deg)}}
+  /* tables */
+  .cmp{width:100%;border-collapse:collapse;font-size:13px}
+  .cmp th,.cmp td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+  .cmp th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:700}
+  .cmp td.n{font-weight:650} .cmp td.r{text-align:right;font-variant-numeric:tabular-nums}
+  .cmp tr:last-child td{border-bottom:none}
+  .cmpwrap{overflow-x:auto}
+  .fam{font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:20px;color:#fff;white-space:nowrap}
+  .fam.r{background:#4a86c5} .fam.s{background:#8b5cf6}
+  /* decisions */
+  .dec{padding:18px 20px;border-bottom:1px solid var(--line)}
+  .dec:last-of-type{border-bottom:none}
+  .dec .q{font-weight:700;margin-bottom:2px;font-size:15px}
+  .dec .why{font-size:12.5px;color:var(--muted);margin-bottom:12px;max-width:74ch}
+  .cards{display:grid;gap:10px}
+  @media(min-width:760px){.cards.three{grid-template-columns:1fr 1fr 1fr}.cards.two{grid-template-columns:1fr 1fr}}
+  .card{border:1px solid var(--line);background:var(--bg);border-radius:11px;padding:13px 14px;cursor:pointer;transition:.12s;user-select:none}
+  .card:hover{border-color:var(--accent)}
+  .card.sel{border-color:var(--accent);background:rgba(47,158,68,.09);box-shadow:0 0 0 1px var(--accent) inset}
+  .card .ct{font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px}
+  .card .rec{font-size:9.5px;color:#fff;background:var(--ok);font-weight:800;padding:1px 6px;border-radius:20px;letter-spacing:.03em}
+  .card .cd{font-size:12.5px;color:var(--muted);margin-top:6px}
+  .card .cn{font-size:11.5px;color:var(--ink);margin-top:8px;opacity:.85}
+  /* touch map */
+  .files{display:grid;gap:0}
+  .frow{display:flex;gap:13px;align-items:flex-start;padding:11px 16px;border-bottom:1px solid var(--line)}
+  .frow:last-child{border-bottom:none}
+  .frow .fn{flex:0 0 200px;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;font-weight:650}
+  .frow .fd{font-size:13px;color:var(--muted)}
+  .tag{font-size:9.5px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;padding:2px 7px;border-radius:20px;white-space:nowrap;margin-left:6px}
+  .tag.new{background:rgba(47,158,68,.16);color:var(--ok)}
+  .tag.edit{background:rgba(229,136,59,.16);color:var(--warn)}
+  /* phases */
+  ol.phases{list-style:none;counter-reset:p;padding:0;margin:0}
+  ol.phases li{counter-increment:p;padding:13px 16px 13px 54px;position:relative;border-bottom:1px solid var(--line)}
+  ol.phases li:last-child{border-bottom:none}
+  ol.phases li::before{content:counter(p);position:absolute;left:15px;top:13px;width:24px;height:24px;
+    border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700}
+  ol.phases b{font-weight:650}
+  ol.phases .t{font-size:12.5px;color:var(--muted)}
+  .note{background:rgba(46,163,255,.08);border:1px solid rgba(46,163,255,.25);border-radius:11px;padding:14px 16px;font-size:13px;margin-top:14px}
+  .note b{color:var(--accent2)}
+  .warnnote{background:rgba(229,136,59,.10);border:1px solid rgba(229,136,59,.3)}
+  .warnnote b{color:var(--warn)}
+  .copybar{display:flex;gap:12px;align-items:center;padding:18px 20px;flex-wrap:wrap}
+  button.copy{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:11px 20px;font-weight:700;font-size:14px;cursor:pointer}
+  button.copy:hover{filter:brightness(1.08)}
+  .copyout{flex:1;min-width:240px;font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  ul.tests{margin:0;padding-left:20px} ul.tests li{margin:6px 0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <div class="eyebrow">AnkiScape · Plan / Proposal · Design Grill</div>
+  <h1>Herblore — turning the &ldquo;live-but-inert&rdquo; potions into a real skill</h1>
+  <p class="sub">The combat stat potions already exist as items and already drink correctly
+  (<code>potion_data.py</code>, shipped 2026-07-07), but <b>nothing sources them</b> — its own docstring
+  calls Herblore &ldquo;a separate future skill&rdquo;. This plan wires that skill: a review-paced,
+  parity-transcribed three-stage pipeline (clean&nbsp;&rarr;&nbsp;unfinished&nbsp;&rarr;&nbsp;finished),
+  built the same way Runecrafting and Cooking were. <b>Nothing here is built yet — this is for sign-off.</b>
+  The knobs below are the decisions I need from you before I touch code.</p>
+  <div class="meta">
+    <span><b>Parity source</b> HerbData.kt · mixing/PotionData.kt · 3 action files</span>
+    <span><b>Template</b> Runecrafting (grouped conversion skill)</span>
+    <span><b>Risk</b> <span class="tag edit" style="margin:0">Medium — new skill, many touch-points, no combat math</span></span>
+  </div>
+</header>
+
+<h2>The pipeline (decoded from source)</h2>
+<div class="panel">
+  <div class="pipe">
+    <div class="stage clean">
+      <div class="lbl">① Clean</div>
+      <div class="flow">Grimy herb → Clean herb</div>
+      <div class="xp">Per-herb level gate · grants the herb&rsquo;s cleaning XP · always succeeds</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage unf">
+      <div class="lbl">② Unfinished</div>
+      <div class="flow">Clean herb + Vial of water → …&nbsp;potion (unf)</div>
+      <div class="xp"><b>Zero XP</b> (parity) · gated on the herb&rsquo;s level requirement</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage fin">
+      <div class="lbl">③ Finished</div>
+      <div class="flow">Unf potion + secondary → Potion (3)</div>
+      <div class="xp">Grants the recipe&rsquo;s XP · gated on the recipe&rsquo;s level requirement</div>
+    </div>
+  </div>
+  <div class="pad" style="border-top:1px solid var(--line)">
+    <div class="src">HerbData.kt (clean XP + unf level gate) · clean_herb.plugin.kts:32 (addXp on clean)
+    · CreateUnfinishedPotionAction.kt:32-46 (no addXp) · CreateFinishedPotionAction.kt:38-46 (addXp = recipe XP)
+    · mixing/PotionData.kt (recipe table)</div>
+  </div>
+</div>
+
+<h2>Parity spine — the 9 combat families AnkiScape already drinks</h2>
+<p class="sub" style="margin-bottom:12px">These are the recipes that already have a live consumable effect. Everything else in
+the standard tree is a valid parity item but currently drinks as nothing (exactly like the combat potions were until 2026-07-07).</p>
+<div class="panel cmpwrap">
+  <table class="cmp">
+    <thead><tr><th>Potion (3)</th><th>Herb (clean XP)</th><th>Secondary</th><th>Type</th><th class="r">Lvl</th><th class="r">Finish XP</th></tr></thead>
+    <tbody>
+      <tr><td class="n">Attack potion</td><td>Guam (2.5)</td><td>Eye of newt</td><td><span class="fam r">reg</span></td><td class="r">3</td><td class="r">25.0</td></tr>
+      <tr><td class="n">Strength potion</td><td>Tarromin (5.0)</td><td>Limpwurt root</td><td><span class="fam r">reg</span></td><td class="r">12</td><td class="r">50.0</td></tr>
+      <tr><td class="n">Defence potion</td><td>Ranarr (7.5)</td><td>White berries</td><td><span class="fam r">reg</span></td><td class="r">30</td><td class="r">75.0</td></tr>
+      <tr><td class="n">Combat potion</td><td>Harralander (6.3)</td><td>Goat horn dust</td><td><span class="fam r">reg</span></td><td class="r">36</td><td class="r">84.0</td></tr>
+      <tr><td class="n">Super attack</td><td>Irit (8.8)</td><td>Eye of newt</td><td><span class="fam s">super</span></td><td class="r">45</td><td class="r">100.0</td></tr>
+      <tr><td class="n">Super strength</td><td>Kwuarm (11.3)</td><td>Limpwurt root</td><td><span class="fam s">super</span></td><td class="r">55</td><td class="r">125.0</td></tr>
+      <tr><td class="n">Super defence</td><td>Cadantine (12.5)</td><td>White berries</td><td><span class="fam s">super</span></td><td class="r">66</td><td class="r">150.0</td></tr>
+      <tr><td class="n">Ranging potion</td><td>Dwarf weed (13.8)</td><td>Wine of zamorak</td><td><span class="fam r">reg</span></td><td class="r">72</td><td class="r">162.5</td></tr>
+      <tr><td class="n">Magic potion</td><td>Lantadyme (13.1)</td><td>Potato cactus</td><td><span class="fam r">reg</span></td><td class="r">76</td><td class="r">172.5</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<h2>Decisions I need from you</h2>
+<div class="panel">
+
+  <div class="dec" data-dec="scope">
+    <div class="q">A · How much of the potion tree do we build?</div>
+    <div class="why">Runecrafting and Cooking were each transcribed to <i>full</i> parity from their source table. But Herblore&rsquo;s
+    table (mixing/PotionData.kt) has ~90 recipes, and most of them need herbs/secondaries with <b>no source in AnkiScape</b>
+    (Juju vines want a Farming habitat; Dungeoneering herbs want Daemonheim). Pick the coverage:</div>
+    <div class="cards three">
+      <div class="card" data-val="combat">
+        <div class="ct">Combat spine only</div>
+        <div class="cd">Just the 9 families above + their herbs/secondaries.</div>
+        <div class="cn">Smallest. Directly satisfies &ldquo;source potions.&rdquo; Herblore caps out low (~lvl 76). Feels like a stub.</div>
+      </div>
+      <div class="card sel" data-val="standard">
+        <div class="ct">Full standard tree <span class="rec">REC</span></div>
+        <div class="cd">All ~30 mainline recipes (Attack&rarr;Prayer renewal, lvl 3&ndash;94) + 17 standard herbs.</div>
+        <div class="cn">A real 1&ndash;99 skill, matching how every other skill shipped. Inert products (energy, restore, prayer&hellip;) are valid parity items — same &ldquo;live-but-inert&rdquo; stance as the combat potions before this.</div>
+      </div>
+      <div class="card" data-val="everything">
+        <div class="ct">Everything</div>
+        <div class="cd">Standard + Barbarian mixes + Juju + Dungeoneering (~90).</div>
+        <div class="cn">Maximum parity, but most rows are permanently locked (no ingredient source), so the menu fills with dead entries. Not recommended until Farming/Dung exist.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dec" data-dec="source">
+    <div class="q">B · Where do the raw inputs come from?</div>
+    <div class="why">Grimy herbs, Vials of water, and secondary ingredients need an entry point into the economy. The bundle I recommend
+    keeps it authentic where cheap and shop-simple everywhere else:</div>
+    <div class="cards two">
+      <div class="card sel" data-val="bundle">
+        <div class="ct">Drops + shop bundle <span class="rec">REC</span></div>
+        <div class="cd">Grimy herbs drop from combat monsters (authentic); Vials of water &amp; secondaries sold in a Herblore/general shop.</div>
+        <div class="cn">Uses the existing shop + combat-loot systems. Herbs feel earned; consumables don&rsquo;t need a dead &ldquo;fill vial&rdquo; micro-step.</div>
+      </div>
+      <div class="card" data-val="shoponly">
+        <div class="ct">Shop-only</div>
+        <div class="cd">Everything (grimy herbs included) bought from a shop.</div>
+        <div class="cn">Simplest to build; least authentic. No combat drop-table edits.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dec" data-dec="menu">
+    <div class="q">C · Menu shape</div>
+    <div class="why">Runecrafting groups its targets (Standard / Combination / Tiara / Hood). Herblore has three natural stages.</div>
+    <div class="cards two">
+      <div class="card sel" data-val="grouped">
+        <div class="ct">Three groups <span class="rec">REC</span></div>
+        <div class="cd">Clean herbs · Mix unfinished · Mix potions — each a pickable target list, mirroring Runecrafting.</div>
+      </div>
+      <div class="card" data-val="flat">
+        <div class="ct">Flat list</div>
+        <div class="cd">One long list of every action. Simpler code, busier menu.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="note"><b>Parity is fixed, not a knob.</b> Cleaning XP, the zero-XP unfinished step, finished-recipe XP, and every
+level gate are transcribed verbatim from the cited source with line pins — no invented clamps, no rebalancing. The knobs above
+only choose <i>coverage</i> and <i>economy plumbing</i>, never the numbers.</div>
+
+<h2>Touch-point map</h2>
+<div class="panel files">
+  <div class="frow"><div class="fn">herblore_data.py <span class="tag new">new</span></div><div class="fd">Parity-transcribed tables (herbs, unf recipes, finished recipes) + <code>*_as_dict()</code> / <code>*_extra_items_as_dict()</code> emitters, mirroring <code>runecrafting_data.py</code>.</div></div>
+  <div class="frow"><div class="fn">logic_pure.py <span class="tag edit">edit</span></div><div class="fd"><code>apply_herblore_action_pure</code> (level gate → consume inputs → produce output → award XP) + <code>herblore_locked_reasons_pure</code>, modeled on the runecrafting pair.</div></div>
+  <div class="frow"><div class="fn">target_metadata.py <span class="tag edit">edit</span></div><div class="fd"><code>herblore_target_rows(...)</code> — grouped menu rows with lock reasons.</div></div>
+  <div class="frow"><div class="fn">runtime_actions.py <span class="tag edit">edit</span></div><div class="fd"><code>handle_herblore_answer</code> + <code>_can_start_herblore_action</code>; register in the handler/can-start/process dicts.</div></div>
+  <div class="frow"><div class="fn">constants.py <span class="tag edit">edit</span></div><div class="fd"><code>HERBLORE_DATA</code>, <code>HERBLORE_EXTRA_ITEM_DATA</code>, images; merge into <code>EXTRA_ITEM_DATA</code> / <code>ITEM_DATA</code> / <code>EXTRA_ITEM_IMAGES</code>.</div></div>
+  <div class="frow"><div class="fn">skill_registry.py <span class="tag edit">edit</span></div><div class="fd">Move <code>herblore</code> from <code>PLANNED_SKILLS</code> to <code>CURRENT_SKILLS</code> (implemented, review, <code>current_herblore</code>, default target, <code>review_handler_key="herblore"</code>). This auto-seeds storage.</div></div>
+  <div class="frow"><div class="fn">ui.py / skill_hub.py <span class="tag edit">edit</span></div><div class="fd">Menu group wiring + icon so the skill appears and dispatches, matching the runecrafting rows.</div></div>
+  <div class="frow"><div class="fn">shop_data.py / combat drop tables <span class="tag edit">edit</span></div><div class="fd"><i>(depends on knob B)</i> Vials + secondaries into a shop; grimy herbs onto monster drop tables.</div></div>
+  <div class="frow"><div class="fn">achievement_metadata.py <span class="tag edit">edit</span></div><div class="fd">Herblore level/milestone achievements, matching the other skills&rsquo; pattern.</div></div>
+</div>
+
+<h2>Build phases</h2>
+<div class="panel">
+  <ol class="phases">
+    <li><b>Data module + registry flip.</b> <span class="t">Transcribe <code>herblore_data.py</code> from the pinned source; move the skill to <code>CURRENT_SKILLS</code>; wire <code>constants.py</code>. Prove items register &amp; storage seeds.</span></li>
+    <li><b>Pure conversion engine.</b> <span class="t"><code>apply_herblore_action_pure</code> + lock reasons, with unit tests covering all three stages incl. the zero-XP unf step and level gates.</span></li>
+    <li><b>Runtime + menu.</b> <span class="t"><code>handle_herblore_answer</code>, can-start gate, target rows, UI group + icon. Herblore becomes a selectable review skill.</span></li>
+    <li><b>Economy plumbing.</b> <span class="t">Per knob B: shop stock + (optional) grimy-herb drops. Confirms the pipeline is reachable end-to-end from a fresh save.</span></li>
+    <li><b>Verify + artifacts.</b> <span class="t">Full offscreen suite green; live Anki smoke via Pinchtab; results artifact + memory update.</span></li>
+  </ol>
+  <div class="pad" style="border-top:1px solid var(--line)">
+    <div class="note" style="margin:0">Each phase is a checkpoint commit to <code>main</code> (solo project). No push unless you ask.</div>
+  </div>
+</div>
+
+<h2>Tests I&rsquo;ll add</h2>
+<div class="panel pad">
+  <ul class="tests">
+    <li><b>Pure:</b> clean grants exact herb XP; unf grants <i>zero</i> XP and consumes clean+vial; finished grants exact recipe XP and consumes unf+secondary; each stage&rsquo;s level gate blocks below-requirement.</li>
+    <li><b>Storage:</b> fresh save seeds <code>herblore_level=1 / herblore_exp=0 / current_herblore</code>; migration backfills an old save with no regressions.</li>
+    <li><b>Integration:</b> a review answer on a selected Herblore target advances the pipeline, awards XP, and respects the multiplier — same harness as the runecrafting review test.</li>
+    <li><b>Registry contract:</b> every herb / unf / secondary / product name resolves in the item registry with an icon (the row-icon contract that bit the Stronghold work).</li>
+    <li><b>Manual:</b> Pinchtab pass in live Anki — pick a Herblore target, answer cards, watch clean&rarr;unf&rarr;finished flow and a drinkable combat potion come out the end.</li>
+  </ul>
+</div>
+
+<h2>Confirm the scope, then I build</h2>
+<div class="panel">
+  <div class="copybar">
+    <button class="copy" onclick="copyPrompt()">Copy chosen scope as prompt</button>
+    <div class="copyout" id="out">standard · drops+shop bundle · three groups</div>
+  </div>
+</div>
+
+<script>
+  const sel = {scope:'standard', source:'bundle', menu:'grouped'};
+  const labels = {
+    scope:{combat:'combat spine only', standard:'full standard tree', everything:'everything (std+barb+juju+dung)'},
+    source:{bundle:'grimy herbs drop from combat + vials/secondaries in shop', shoponly:'all inputs shop-only'},
+    menu:{grouped:'three groups (clean/unf/finished)', flat:'flat list'}
+  };
+  const keymap = {scope:'scope', source:'source', menu:'menu'};
+  document.querySelectorAll('.dec').forEach(dec=>{
+    const k = dec.dataset.dec;
+    dec.querySelectorAll('.card').forEach(card=>{
+      card.addEventListener('click',()=>{
+        dec.querySelectorAll('.card').forEach(c=>c.classList.remove('sel'));
+        card.classList.add('sel');
+        sel[k]=card.dataset.val;
+        render();
+      });
+    });
+  });
+  function render(){
+    document.getElementById('out').textContent =
+      labels.scope[sel.scope]+' · '+labels.source[sel.source]+' · '+labels.menu[sel.menu];
+  }
+  function copyPrompt(){
+    const p = 'Build the AnkiScape Herblore skill per memory-bank/status-updates/herblore-plan-2026-07-08.html. '
+      + 'Coverage: '+labels.scope[sel.scope]+'. Input sourcing: '+labels.source[sel.source]+'. '
+      + 'Menu: '+labels.menu[sel.menu]+'. Parity is fixed from HerbData.kt/PotionData.kt with line pins; '
+      + 'no invented clamps. Three-stage pipeline: clean (herb XP) -> unfinished (zero XP) -> finished (recipe XP). '
+      + 'Follow the touch-point map and build phases in the artifact.';
+    navigator.clipboard.writeText(p).then(()=>{
+      const b=document.querySelector('button.copy'); const t=b.textContent;
+      b.textContent='Copied ✓'; setTimeout(()=>b.textContent=t,1400);
+    });
+  }
+  render();
+</script>
+
+</div>
+</body>
+</html>
