@@ -2191,7 +2191,7 @@ def show_main_menu(
                 GEM_IMAGES,
                 MINING_PICKAXE_DATA,
                 DEFAULT_MINING_TARGET,
-                QUEST_UNLOCK_RULES,
+                quest_unlock_rules=QUEST_UNLOCK_RULES,
             ),
             on_set_ore,
         )

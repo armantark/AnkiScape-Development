@@ -43,9 +43,11 @@ class TestMiningData(unittest.TestCase):
         self.assertEqual(MINING_TARGETS_BY_ID["concentrated_coal"].level, 77)
         self.assertEqual(MINING_TARGETS_BY_ID["concentrated_coal"].respawn_time, 300)
         self.assertFalse(MINING_TARGETS_BY_ID["concentrated_coal"].allows_random_gems)
+        self.assertIn("stays available", MINING_TARGETS_BY_ID["concentrated_coal"].notes)
         self.assertEqual(MINING_TARGETS_BY_ID["concentrated_gold"].level, 80)
         self.assertEqual(MINING_TARGETS_BY_ID["concentrated_gold"].base_exp, 65.0)
         self.assertFalse(MINING_TARGETS_BY_ID["concentrated_gold"].allows_random_gems)
+        self.assertIn("does not model rock depletion", MINING_TARGETS_BY_ID["concentrated_gold"].notes)
         self.assertEqual(MINING_TARGETS_BY_ID["runite"].respawn_time, 1200)
 
     def test_weighted_targets_keep_output_xp_and_tradeability(self):

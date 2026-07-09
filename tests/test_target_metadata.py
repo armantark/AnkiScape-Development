@@ -718,6 +718,8 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertEqual(concentrated_coal.icon_path, ORE_IMAGES["Coal"])
         self.assertFalse(concentrated_coal.enabled)
         self.assertIn("level 77", concentrated_coal.tooltip)
+        self.assertIn("Living Rock Caverns deposit", concentrated_coal.tooltip)
+        self.assertIn("does not model rock depletion", concentrated_coal.tooltip)
         self.assertFalse(runite.enabled)
         self.assertIn("level 85", runite.tooltip)
 
