@@ -1243,6 +1243,22 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp2, 0)
         self.assertEqual(new_inv2, {})
 
+    def test_crossbow_combinations_consume_each_source_pair_without_xp(self):
+        inventory, exp, ok = apply_fletching_pure(
+            "combine_bronze_cbow_u",
+            {"Bronze limbs": 1, "Wooden stock": 1},
+            FLETCHING_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0.0)
+        self.assertEqual(inventory, {"Bronze limbs": 0, "Wooden stock": 0, "Bronze c'bow (u)": 1})
+
+        inventory["Crossbow string"] = 1
+        inventory, exp, ok = apply_fletching_pure("combine_bronze_crossbow", inventory, FLETCHING_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0.0)
+        self.assertEqual(inventory, {"Bronze limbs": 0, "Wooden stock": 0, "Bronze c'bow (u)": 0, "Crossbow string": 0, "Bronze crossbow": 1})
+
     def test_apply_herblore_action_pure_three_stage_pipeline(self):
         from constants import HERBLORE_DATA
 

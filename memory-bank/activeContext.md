@@ -5,6 +5,16 @@ No active build thread. The combat overhaul, the weapon-aware attack-type pass,
 the Stronghold of Security landmark, and the full Herblore skill are all shipped
 and committed (Herblore as of 2026-07-09).
 
+### Fletching crossbow assembly — COMPLETE, verified 2026-07-09
+`fletching_data.py` now represents all 14 Fletching rows from the live
+`CombinationData.kt` binding: bronze through rune stock-plus-limbs assembly and
+unstrung-crossbow-plus-string finishing. The source levels (9/24/39/46/54/61/69),
+inputs, canonical output IDs, and 0.0 XP are pinned by focused data tests.
+The existing Fletching processing path consumes each pair without added plumbing;
+the registry derives the new material/output keys and reuses checked-in sibling
+sprites only. Javelins remain the separate stub. Focused Fletching, registry,
+and logic tests: 182 passed.
+
 ### Crafting combinations and polished buttons — COMPLETE, verified 2026-07-09
 `crafting_data.py` now carries all 26 Crafting-default `CombinationData.kt`
 rows: the original Studded body and Dragonstone ammy plus 24 formerly missing

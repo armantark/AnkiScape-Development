@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fletching crossbow assembly — results</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 92% 4%,#173e36 0,transparent 31%),var(--bg);color:var(--text);font:16px Outfit,Inter,system-ui,sans-serif}.wrap{max-width:1120px;margin:auto;padding:46px 24px}.badge,.tag{font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.badge{display:inline-block;padding:7px 10px;border:1px solid var(--green);border-radius:999px;color:#b8ffd4;background:#153224}h1{font-size:clamp(2.1rem,5vw,3.8rem);line-height:1.02;margin:17px 0 10px}.lede{max-width:800px;color:var(--text-dim);line-height:1.55}.metrics,.grid{display:grid;gap:16px;margin-top:25px}.metrics{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card{padding:20px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,var(--surface),#11151b)}.metric{font-size:2.3rem;font-weight:800;color:var(--green)}.tag{color:var(--amber)}h2{font-size:1.12rem;margin:8px 0}.card p,.list{color:var(--text-dim);line-height:1.55}.list{padding-left:20px;margin:0}.flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:15px 0 0}.node{padding:9px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font:12px ui-monospace,SFMono-Regular,monospace}.arrow{color:var(--accent);font-size:21px}.table-wrap{overflow:auto;margin-top:13px}table{width:100%;border-collapse:collapse;font-size:13px}th,td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}th{color:#bdd3ff;background:var(--surface-2);font:700 11px ui-monospace,SFMono-Regular,monospace;letter-spacing:.06em}td{color:var(--text-dim)}td:first-child{color:var(--text)}code{font:12px ui-monospace,SFMono-Regular,monospace;color:#d6e0f5}.proof{display:grid;grid-template-columns:220px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}.proof:last-child{border:0}.callout{margin-top:16px;padding:14px;border-left:3px solid var(--purple);background:#211b35;color:var(--text-dim);border-radius:0 8px 8px 0}@media(max-width:780px){.metrics,.grid{grid-template-columns:repeat(2,1fr)}.proof{grid-template-columns:1fr}.wrap{padding:30px 16px}}@media(max-width:480px){.metrics,.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="badge">PARITY PORT COMPLETE</span>
+    <h1>All live crossbow assembly<br>now runs through Fletching</h1>
+    <p class="lede">The fourteen emulator-bound Fletching combinations are present as ordinary data targets. They preserve source order, level, exact pair, output ID, and the intentionally zero-XP reward without adding a parallel runtime.</p>
+    <section class="metrics" aria-label="Result counts">
+      <article class="card"><div class="metric">14</div><div class="tag">source rows ported</div></article>
+      <article class="card"><div class="metric">7</div><div class="tag">material tiers</div></article>
+      <article class="card"><div class="metric">0.0</div><div class="tag">XP per action</div></article>
+      <article class="card"><div class="metric">938</div><div class="tag">tests passing</div></article>
+    </section>
+    <section class="grid">
+      <article class="card">
+        <span class="tag">ONE RUNTIME PATH</span>
+        <h2>Pair in, one item out</h2>
+        <div class="flow"><span class="node">stock + limbs</span><span class="arrow">→</span><span class="node">unstrung c'bow</span><span class="arrow">→</span><span class="node">+ Crossbow string</span><span class="arrow">→</span><span class="node">finished crossbow</span></div>
+        <p>The existing Fletching pure/runtime handler consumes both requirements and grants the data row’s XP. Focused runtime coverage proves the bronze chain is two separate 0.0-XP actions.</p>
+      </article>
+      <article class="card">
+        <span class="tag">REGISTRY + ART</span>
+        <h2>Every new key resolves</h2>
+        <p>Output and material names enter the existing Fletching manifest. Existing checked-in Crafting, Smithing, and shop sprites are reused for the cross-skill inputs and unstrung variants; no network asset fetch ran.</p>
+        <p>Finished crossbows stay on the established Fletching registration path, while equipment behavior remains governed by the unchanged equipment catalog.</p>
+      </article>
+    </section>
+    <section class="card" style="margin-top:16px">
+      <span class="tag">SOURCE TRACE — CombinationData.kt</span>
+      <h2>Every transcribed action</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Assembly source</th><th>Finish source</th><th>Level</th><th>XP</th></tr></thead><tbody>
+        <tr><td>Bronze</td><td>19–26</td><td>27–34</td><td>9</td><td>0.0</td></tr>
+        <tr><td>Blurite</td><td>35–42</td><td>43–50</td><td>24</td><td>0.0</td></tr>
+        <tr><td>Iron</td><td>51–58</td><td>59–66</td><td>39</td><td>0.0</td></tr>
+        <tr><td>Steel</td><td>67–74</td><td>75–82</td><td>46</td><td>0.0</td></tr>
+        <tr><td>Mithril</td><td>83–90</td><td>91–98</td><td>54</td><td>0.0</td></tr>
+        <tr><td>Adamant</td><td>99–106</td><td>107–114</td><td>61</td><td>0.0</td></tr>
+        <tr><td>Rune</td><td>115–122</td><td>123–130</td><td>69</td><td>0.0</td></tr>
+      </tbody></table></div>
+      <p>Generic source binding: <code>item_combination.plugin.kts:3–20</code>; consumption, output, XP, and Fletching level check: <code>CombinationAction.kt:20–29, 82–98</code>.</p>
+    </section>
+    <section class="grid">
+      <article class="card"><span class="tag">DELIBERATE OMISSION</span><h2>Javelins remain untouched</h2><p>No javelin row was added. Their existing separate construction stub is outside this live crossbow combination port.</p></article>
+      <article class="card"><span class="tag">VERIFICATION</span><h2>Result</h2><div class="proof"><code>python -c "import fletching_data"</code><span>Could not run because this worktree has no <code>python</code> executable (exit 127).</span></div><div class="proof"><code>python3.12 -c "import fletching_data"</code><span>Passed using the installed CPython 3.12 interpreter.</span></div><div class="proof"><code>python3.12 run_tests.py</code><span>938 passed, 157 skipped.</span></div></article>
+    </section>
+    <p class="callout">No javelins, Combat, Prayer, balance values, model changes, new runtime plumbing, or network asset operations were added. The pre-implementation plan remains unmodified for direct comparison.</p>
+  </main>
+</body>
+</html>

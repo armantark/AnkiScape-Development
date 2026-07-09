@@ -21,6 +21,10 @@ WHITTLE_ACTION_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/whittling/WhittleAction.k
 BOW_ITEM_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/stringing/BowItem.kt"
 STRING_DATA_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/stringing/StringData.kt"
 BOW_STRING_ACTION_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/stringing/BowStringAction.kt"
+COMBINATION_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/items/combine/CombinationData.kt"
+)
 FEATHERING_DATA_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/feathering/FeatheringData.kt"
 FEATHER_ACTION_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/feathering/FeatherAction.kt"
 ARROW_DATA_SOURCE_PATH = f"{FLETCHING_SOURCE_ROOT}/arrows/ArrowData.kt"
@@ -39,6 +43,7 @@ DEFAULT_FLETCHING_TARGET = "arrow_shafts"
 FLETCHING_GROUP_LABELS = {
     "whittling": "Whittling",
     "stringing": "Stringing",
+    "combination": "Combinations",
     "arrows": "Arrows",
     "feathering": "Feathering",
     "bolts": "Bolts",
@@ -142,6 +147,20 @@ FLETCHING_TARGETS: Tuple[FletchingTarget, ...] = (
     _target("string_yew_longbow", "String yew longbow", "stringing", "string", 70, 75.0, _req(("Yew longbow (u)", 1), ("Bow string", 1)), "Yew longbow", 1, STRING_DATA_SOURCE_PATH, "YEW_LONGBOW", 855, sort_order=100),
     _target("string_magic_shortbow", "String magic shortbow", "stringing", "string", 80, 83.3, _req(("Magic shortbow (u)", 1), ("Bow string", 1)), "Magic shortbow", 1, STRING_DATA_SOURCE_PATH, "MAGIC_SHORTBOW", 861, sort_order=110),
     _target("string_magic_longbow", "String magic longbow", "stringing", "string", 85, 91.5, _req(("Magic longbow (u)", 1), ("Bow string", 1)), "Magic longbow", 1, STRING_DATA_SOURCE_PATH, "MAGIC_LONGBOW", 859, sort_order=120),
+    _target("combine_bronze_cbow_u", "Bronze c'bow (u)", "combination", "combine", 9, 0.0, _req(("Bronze limbs", 1), ("Wooden stock", 1)), "Bronze c'bow (u)", 1, COMBINATION_SOURCE_PATH, "BRONZE_CBOW_U", 9454, sort_order=10),
+    _target("combine_bronze_crossbow", "Bronze crossbow", "combination", "combine", 9, 0.0, _req(("Bronze c'bow (u)", 1), ("Crossbow string", 1)), "Bronze crossbow", 1, COMBINATION_SOURCE_PATH, "BRONZE_CROSSBOW", 9174, sort_order=20),
+    _target("combine_blurite_cbow_u", "Blurite c'bow (u)", "combination", "combine", 24, 0.0, _req(("Blurite limbs", 1), ("Oak stock", 1)), "Blurite c'bow (u)", 1, COMBINATION_SOURCE_PATH, "BLURITE_CBOW_U", 9456, sort_order=30),
+    _target("combine_blurite_crossbow", "Blurite crossbow", "combination", "combine", 24, 0.0, _req(("Blurite c'bow (u)", 1), ("Crossbow string", 1)), "Blurite crossbow", 1, COMBINATION_SOURCE_PATH, "BLURITE_CROSSBOW", 9176, sort_order=40),
+    _target("combine_iron_cbow_u", "Iron c'bow (u)", "combination", "combine", 39, 0.0, _req(("Iron limbs", 1), ("Willow stock", 1)), "Iron c'bow (u)", 1, COMBINATION_SOURCE_PATH, "IRON_CBOW_U", 9457, sort_order=50),
+    _target("combine_iron_crossbow", "Iron crossbow", "combination", "combine", 39, 0.0, _req(("Iron c'bow (u)", 1), ("Crossbow string", 1)), "Iron crossbow", 1, COMBINATION_SOURCE_PATH, "IRON_CROSSBOW", 9177, sort_order=60),
+    _target("combine_steel_cbow_u", "Steel c'bow (u)", "combination", "combine", 46, 0.0, _req(("Steel limbs", 1), ("Teak stock", 1)), "Steel c'bow (u)", 1, COMBINATION_SOURCE_PATH, "STEEL_CBOW_U", 9459, sort_order=70),
+    _target("combine_steel_crossbow", "Steel crossbow", "combination", "combine", 46, 0.0, _req(("Steel c'bow (u)", 1), ("Crossbow string", 1)), "Steel crossbow", 1, COMBINATION_SOURCE_PATH, "STEEL_CROSSBOW", 9179, sort_order=80),
+    _target("combine_mithril_cbow_u", "Mithril c'bow (u)", "combination", "combine", 54, 0.0, _req(("Mithril limbs", 1), ("Maple stock", 1)), "Mithril c'bow (u)", 1, COMBINATION_SOURCE_PATH, "MITHRIL_CBOW_U", 9461, sort_order=90),
+    _target("combine_mithril_crossbow", "Mith crossbow", "combination", "combine", 54, 0.0, _req(("Mithril c'bow (u)", 1), ("Crossbow string", 1)), "Mith crossbow", 1, COMBINATION_SOURCE_PATH, "MITHRIL_CROSSBOW", 9181, sort_order=100),
+    _target("combine_adamant_cbow_u", "Adamant c'bow (u)", "combination", "combine", 61, 0.0, _req(("Adamantite limbs", 1), ("Mahogany stock", 1)), "Adamant c'bow (u)", 1, COMBINATION_SOURCE_PATH, "ADAMANT_CBOW_U", 9463, sort_order=110),
+    _target("combine_adamant_crossbow", "Adamant crossbow", "combination", "combine", 61, 0.0, _req(("Adamant c'bow (u)", 1), ("Crossbow string", 1)), "Adamant crossbow", 1, COMBINATION_SOURCE_PATH, "ADAMANT_CROSSBOW", 9183, sort_order=120),
+    _target("combine_rune_cbow_u", "Runite c'bow (u)", "combination", "combine", 69, 0.0, _req(("Runite limbs", 1), ("Yew stock", 1)), "Runite c'bow (u)", 1, COMBINATION_SOURCE_PATH, "RUNE_CBOW_U", 9465, sort_order=130),
+    _target("combine_rune_crossbow", "Rune crossbow", "combination", "combine", 69, 0.0, _req(("Runite c'bow (u)", 1), ("Crossbow string", 1)), "Rune crossbow", 1, COMBINATION_SOURCE_PATH, "RUNE_CROSSBOW", 9185, sort_order=140),
     _target("headless_arrows", "Headless arrows", "feathering", "feather", 1, 15.0, _req(("Arrow shafts", 15), ("Feather", 15)), "Headless arrows", 15, FEATHERING_DATA_SOURCE_PATH, "HEADLESS_ARROW", 53, sort_order=10),
     _target("bronze_arrows", "Bronze arrows", "arrows", "arrow", 1, 19.5, _req(("Headless arrows", 15), ("Bronze arrowtips", 15)), "Bronze arrows", 15, ARROW_DATA_SOURCE_PATH, "BRONZE", 882, sort_order=10),
     _target("iron_arrows", "Iron arrows", "arrows", "arrow", 15, 37.5, _req(("Headless arrows", 15), ("Iron arrowtips", 15)), "Iron arrows", 15, ARROW_DATA_SOURCE_PATH, "IRON", 884, sort_order=20),

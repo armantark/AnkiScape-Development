@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fletching crossbow assembly — plan</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 88% 0,#1f273f 0,transparent 32%),var(--bg);color:var(--text);font:16px Outfit,Inter,system-ui,sans-serif}.wrap{max-width:1080px;margin:auto;padding:46px 24px}.badge,.tag{display:inline-block;font:700 11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em}.badge{padding:7px 10px;border:1px solid var(--accent);border-radius:999px;color:#bdd3ff;background:var(--accent-glow)}h1{font-size:clamp(2.1rem,5vw,3.8rem);line-height:1.02;margin:17px 0 10px}.lede{max-width:780px;color:var(--text-dim);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:26px}.card{padding:20px;border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,var(--surface),#11151b)}.tag{color:var(--amber)}h2{font-size:1.1rem;margin:9px 0}.card p,.list{color:var(--text-dim);line-height:1.55}.list{padding-left:20px;margin:0}.flow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:16px}.node{padding:9px 11px;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);font:12px ui-monospace,SFMono-Regular,monospace}.arrow{color:var(--accent);font-size:21px}.tier-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:15px}.tier{padding:9px 4px;text-align:center;border:1px solid var(--border);border-radius:8px;background:var(--surface-2);font:11px ui-monospace,SFMono-Regular,monospace;color:#c9d4e9}.tier span{display:block;color:var(--green);font-weight:700;margin-top:3px}.steps{counter-reset:step;margin:0;padding:0;list-style:none}.steps li{position:relative;padding:0 0 18px 42px;color:var(--text-dim);line-height:1.45}.steps li:before{counter-increment:step;content:counter(step);position:absolute;left:0;top:0;width:26px;height:26px;display:grid;place-items:center;border-radius:7px;background:var(--accent-glow);color:#bdd3ff;border:1px solid var(--accent);font:700 12px ui-monospace,SFMono-Regular,monospace}code{color:#d2dcf0;font:12px ui-monospace,SFMono-Regular,monospace}.guard{margin-top:16px;padding:14px;border-left:3px solid var(--purple);background:#211b35;color:var(--text-dim);border-radius:0 8px 8px 0}@media(max-width:720px){.grid{grid-template-columns:1fr}.tier-grid{grid-template-columns:repeat(4,1fr)}.wrap{padding:30px 16px}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+    <h1>Live crossbow assembly,<br>on the existing combination rail</h1>
+    <p class="lede">Port the fourteen emulator-bound Fletching combinations exactly: seven stock-plus-limbs assemblies and seven crossbow-string finishes. The data should enter the existing generic combination runtime without new plumbing.</p>
+    <section class="grid">
+      <article class="card">
+        <span class="tag">SOURCE CONTRACT</span>
+        <h2>One tier pair, twice</h2>
+        <div class="flow"><span class="node">stock + limbs</span><span class="arrow">→</span><span class="node">unstrung crossbow</span><span class="arrow">→</span><span class="node">+ crossbow string</span><span class="arrow">→</span><span class="node">crossbow</span></div>
+        <div class="tier-grid"><div class="tier">Bronze<span>9</span></div><div class="tier">Blurite<span>24</span></div><div class="tier">Iron<span>39</span></div><div class="tier">Steel<span>46</span></div><div class="tier">Mithril<span>54</span></div><div class="tier">Adamant<span>61</span></div><div class="tier">Rune<span>69</span></div></div>
+      </article>
+      <article class="card">
+        <span class="tag">NON-GOALS</span>
+        <h2>Keep the boundary sharp</h2>
+        <ul class="list"><li>No javelins: their separate construction stub remains untouched.</li><li>No generic-runtime duplication, refactor, balance clamp, asset fetch, or unrelated-skill edit.</li><li>Every combination keeps the source’s 0.0 XP, exact inputs, exact output, and canonical item ID.</li></ul>
+      </article>
+    </section>
+    <section class="card" style="margin-top:16px">
+      <span class="tag">EXECUTION PATH</span>
+      <h2>Smallest parity diff</h2>
+      <ol class="steps"><li>Read the module’s target shape and the recently landed generic-combination conventions.</li><li>Pin each source row in <code>CombinationData.kt</code> and verify dispatch in the item-combination plugin and action handler.</li><li>Add only missing Fletching rows and registry/constants entries needed for their exact item names and IDs.</li><li>Add focused data, item, and generic-runtime parity tests; then prove the requested <code>import fletching_data</code>.</li></ol>
+    </section>
+    <p class="guard">Acceptance proof: all 14 actions resolve bidirectionally through the generic combination lookup, preserve 0.0 Fletching XP, consume the two exact source inputs, and produce one source-exact output.</p>
+  </main>
+</body>
+</html>
