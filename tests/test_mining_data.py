@@ -104,12 +104,23 @@ class TestMiningData(unittest.TestCase):
         self.assertEqual(MINING_BONUS_ITEMS_BY_ID["amulet_of_glory_t"].display_name, "Amulet of glory (t)")
         self.assertEqual(MINING_BONUS_ITEMS_BY_ID["amulet_of_glory_t_10719"].display_name, "Amulet of glory (t)")
         self.assertIn("duplicate-name", MINING_BONUS_ITEMS_BY_ID["amulet_of_glory_t_10719"].notes.lower())
+        for bonus_id in (
+            "amulet_of_glory_t",
+            "amulet_of_glory_t1",
+            "amulet_of_glory_t2",
+            "amulet_of_glory_t3",
+            "amulet_of_glory_t4",
+            "amulet_of_glory_t_10719",
+        ):
+            self.assertTrue(MINING_BONUS_ITEMS_BY_ID[bonus_id].tradeable)
 
         items = mining_extra_items_as_dict()
         self.assertEqual(items["Amulet of glory"]["item_id"], 8283)
         self.assertEqual(items["Amulet of glory (t)"]["item_id"], 10362)
         for suffix, item_id in (("t1", 10360), ("t2", 10358), ("t3", 10356), ("t4", 10354)):
             self.assertEqual(items[f"Amulet of glory ({suffix})"]["item_id"], item_id)
+        for suffix in ("t", "t1", "t2", "t3", "t4"):
+            self.assertTrue(items[f"Amulet of glory ({suffix})"]["tradeable"])
 
     def test_gem_drop_chances_and_deferred_content_are_recorded(self):
         self.assertAlmostEqual(INCIDENTAL_GEM_DROP_CHANCE, 1 / 256)

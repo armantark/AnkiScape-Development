@@ -380,8 +380,16 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertEqual(by_storage_key[item_name].category, "equipment")
             self.assertEqual(by_storage_key[item_name].equipment_slot, "neck")
+        for item_name in (
+            "Amulet of glory (t)",
+            "Amulet of glory (t1)",
+            "Amulet of glory (t2)",
+            "Amulet of glory (t3)",
+            "Amulet of glory (t4)",
+        ):
             asset_path = by_storage_key[item_name].asset_path
-            self.assertTrue(asset_path is None or os.path.exists(asset_path))
+            self.assertIsNotNone(asset_path, f"{item_name} should have a Mining icon")
+            self.assertTrue(os.path.exists(asset_path), f"{item_name} Mining icon is missing")
         self.assertEqual(by_storage_key["Rune platebody"].equipment_slot, "body")
         self.assertEqual(by_storage_key["Rune platebody"].equipment_tier, 40)
         self.assertEqual(by_storage_key["Rune knife"].equipment_slot, "weapon")
