@@ -1,21 +1,36 @@
 # Active Context
 
 ## Current Focus
-Building the 28-slot carried inventory in staged, tested commits (owner goal:
-"finish all slices"). Design + roadmap: `inventory-carry-model-design-2026-07-07.md`
-and `status-updates/carried-inventory-build-plan-2026-07-07.html`.
+No active build thread. The combat overhaul, the weapon-aware attack-type pass,
+and the Stronghold of Security landmark are all shipped and committed as of
+2026-07-08.
 
-- **Slice 1 (done):** `inventory_pure.py` — 28-slot accounting, high-alch loot
-  filter, and `pack_carried_inventory_pure` (casual preset packer). Overlay state
-  keys seeded via `storage_pure`.
+### 28-slot carried inventory — COMPLETE (all three slices), verified 2026-07-08
+The design doc header and the code agree: this is feature-complete, not a
+work-in-progress. Do not "resume Slice 2" — it is already wired and tested.
+Proof points in the live code (verified 2026-07-08):
+- **Slice 1:** `inventory_pure.py` (42 tests) — 28-slot accounting, loot filter,
+  `pack_carried_inventory_pure`. Overlay state seeded via `storage_pure`.
+- **Slice 2:** the overlay is invoked from the skilling review loop at
+  `__init__.py::on_good_answer` (~line 1198) via
+  `runtime_actions.run_answer_with_carried_overlay`; the 1-review skilling
+  bank-run is `carried_bank_run_gate_pure` (inventory_pure); death-drop is
+  `logic_pure._carried_inventory_grave_counts` (~line 1431); combat loot goes
+  through `filter_loot_pure` + `logic_pure._combat_deposit_loot`; the ambush
+  constant is unified as `inventory_pure.CARRIED_CAPACITY`.
+- **Slice 3:** advanced 4×7 grid, Keep/Drop toggle, and per-target layout wiring
+  live in `__init__.py` (`_set_carried_advanced`, `_add_to_carried_layout`, …).
 - **Coins model (settled):** the money pouch is a read-only view of bank coins
-  (`money_pouch_balance`), not a separate store — coins stay canonical in
-  `inventory["Coins"]` and are excluded from the carried subset / death drop. No
-  economy repoint, no config-version bump.
-- **Slice 2 (next):** wire the overlay + a 1-review skilling bank-run into the
-  `on_good_answer` handler loop, then death-drop / loot / ambush-unify. Seam and
-  sub-slices are recorded in the design doc's "Slice 2 — wiring plan" section.
-- **Slice 3 (after):** Coal bag + collapsible bank-side carried panel UI.
+  (`money_pouch_balance`); coins stay canonical in `inventory["Coins"]` and are
+  excluded from the carried subset / death drop. No economy repoint, no
+  config-version bump.
+
+Only two non-shipped items remain, both intentionally deferred (do not treat as
+next work unless the owner asks):
+1. A live render/feel pass inside a real Anki+Qt install — the offscreen tests
+   run, but visual polish is unverified against Anki's bundled Qt.
+2. Held-item-vs-mode wiring (moulds / glassblowing pipe) — no gated recipe
+   exists yet to hang the requirement on.
 
 ## Prior focus
 Protect the local fork before any large expansion. The agreed direction is to augment the existing add-on, not rebuild it first.
