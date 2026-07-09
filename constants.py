@@ -93,6 +93,7 @@ try:
         herblore_item_names,
         herblore_output_items,
         herblore_targets_as_dict,
+        pestle_and_mortar_activities_as_dict,
     )
     from .shop_data import shop_extra_items_as_dict
     from .potion_data import potion_items_as_dict, potion_item_names
@@ -209,6 +210,7 @@ except ImportError:
         herblore_item_names,
         herblore_output_items,
         herblore_targets_as_dict,
+        pestle_and_mortar_activities_as_dict,
     )
     from shop_data import shop_extra_items_as_dict
     from potion_data import potion_items_as_dict, potion_item_names
@@ -408,6 +410,7 @@ UTILITY_ACTIVITY_DATA = {
 }
 UTILITY_ACTIVITY_DATA.update(tanning_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 
@@ -975,6 +978,7 @@ EXTRA_ITEM_IMAGES = {
     **COOKING_ITEM_IMAGES,
     **RUNECRAFTING_ITEM_IMAGES,
     **HERBLORE_ITEM_IMAGES,
+    **UTILITY_ITEM_IMAGES,
     **QUEST_ITEM_IMAGES,
     **COMBAT_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,

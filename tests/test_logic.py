@@ -435,6 +435,18 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Clay"], 12)
         self.assertEqual(new_inv["Soft clay"], 28)
 
+    def test_pestle_and_mortar_grinding_batches_without_xp(self):
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "grind_anchovies",
+            {"Anchovies": 30},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 28)
+        self.assertEqual(new_inv["Anchovies"], 2)
+        self.assertEqual(new_inv["Anchovy paste"], 28)
+
     def test_apply_utility_activity_can_generate_batch_without_inputs(self):
         utility_data = {
             "gather_wool": {

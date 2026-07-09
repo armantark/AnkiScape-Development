@@ -1374,6 +1374,16 @@ Verification: `python3 -m py_compile combat_data.py tests/test_combat_enemy_rost
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
+- Pestle-and-mortar material preparation remainder completed on 2026-07-09 in
+  its isolated worktree: all 31 live `PestleAndMortarData` conversions are now
+  represented as 1:1, zero-XP Utility rows, with the 24 previously missing rows
+  sourced from `PestleAndMortarData.kt:9-22,26,31-39`. The pre-existing seven
+  rows stayed intact. `finished_super_prayer` now uses canonical item 6810
+  `Bonemeal`; source/acquisition and Prayer behavior remain deliberately absent.
+  The parity/item/icon/runtime/undo tests and four affected modules pass (261
+  tests); the shell has no `python` executable, but `/opt/homebrew/bin/python3
+  -c "import herblore_data"` succeeds.
+
 - The automated gap-fill scheduler now polls every 3 minutes and preserves
   dependency-aware concurrency: independent skills may overlap, while any
   unresolved worktree locks its skill until merge or owner resolution. Focused

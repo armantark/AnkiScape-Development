@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pestle & Mortar parity plan</title>
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0,#17233b 0,transparent 35%),var(--bg);color:var(--text);font:16px Outfit,Inter,system-ui,sans-serif}.wrap{max-width:1040px;margin:auto;padding:42px 22px}.badge,.tag{font:12px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em}.badge{display:inline-block;padding:7px 10px;border:1px solid #315b9d;border-radius:999px;color:#9cc0ff;background:var(--accent-glow)}h1{font-size:clamp(2rem,5vw,3.5rem);margin:16px 0 10px;line-height:1}.sub{max-width:760px;color:var(--text-dim);line-height:1.6}.meter{height:10px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin:30px 0}.meter span{display:block;width:0%;height:100%;background:linear-gradient(90deg,var(--accent),var(--purple))}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{background:linear-gradient(135deg,var(--surface),#12161d);border:1px solid var(--border);border-radius:var(--radius);padding:20px}.card h2{font-size:1.05rem;margin:8px 0}.card p,.card li{color:var(--text-dim);line-height:1.5}.tag{display:inline-block;background:var(--surface-2);border:1px solid var(--border);border-radius:6px;padding:4px 6px;margin:2px;color:#c3d4f7}.flow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:15px}.node{padding:11px 13px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;font-size:.9rem}.arrow{color:var(--accent);font-size:1.4rem}.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0}.dot{width:18px;height:18px;border:1px solid var(--accent);border-radius:50%;flex:0 0 auto;margin-top:3px}.wide{grid-column:1/-1}.count{font-size:2.1rem;font-weight:700;color:var(--amber)}@media(max-width:700px){.grid{grid-template-columns:1fr}.wide{grid-column:auto}.wrap{padding:28px 16px}}
+</style>
+</head>
+<body><main class="wrap">
+<span class="badge">PRE-IMPLEMENTATION PARITY PLAN</span>
+<h1>Complete live pestle-and-mortar conversions</h1>
+<p class="sub">Faithfully port the 24 source-defined 1:1, zero-XP conversions missing from AnkiScape; correct Super Prayer’s item-6810 storage key; leave acquisition, XP, Combat, and Prayer behavior untouched.</p>
+<div class="meter" aria-label="Implementation progress"><span></span></div>
+<section class="grid">
+<article class="card"><div class="count">24</div><h2>Missing live rows</h2><p>Anchor source is the complete <code>PestleAndMortarData.values</code> enumeration. Existing seven rows remain exactly as-is.</p><span class="tag">herblore_data.py</span></article>
+<article class="card"><div class="count">0 XP</div><h2>Utility contract</h2><p>Every row follows the current batching and undo-safe Utility path: one input becomes one output, with no level, XP, acquisition, or skill side effects.</p><span class="tag">logic_pure.py</span><span class="tag">runtime_actions.py</span></article>
+<article class="card wide"><h2>Faithful data flow</h2><div class="flow"><div class="node">game-main<br>source/result item IDs</div><div class="arrow">→</div><div class="node">constants + item registry<br>canonical names / icon fallback</div><div class="arrow">→</div><div class="node">Herblore Utility targets<br>stable IDs / batch size</div><div class="arrow">→</div><div class="node">parity, runtime, undo tests</div></div></article>
+<article class="card"><h2>Scope guardrails</h2><div class="check"><span class="dot"></span><span>Do not fetch network assets; use sibling icon registration/fallback only.</span></div><div class="check"><span class="dot"></span><span>Do not alter existing rows or add item sourcing, combat, or Prayer mechanics.</span></div></article>
+<article class="card"><h2>Proof to collect</h2><div class="check"><span class="dot"></span><span>Exact source/result parity plus all item IDs and registered icons.</span></div><div class="check"><span class="dot"></span><span>Batch conversion, runtime dispatch, and undo restore; then <code>python -c "import herblore_data"</code>.</span></div></article>
+</section></main></body></html>

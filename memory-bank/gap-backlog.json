@@ -434,7 +434,7 @@
       "rank": 24,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Port remaining live Crafting combinations and button polishing",
       "detail": "CombinationData.kt has 26 Crafting-default rows, all registered by item_combination.plugin.kts and executed by CombinationAction.kt; crafting_data.py currently represents only STUDDED_BODY and DRAGONSTONE_AMULET. Port the other 24 exact rows: STRANGE_SKULL, RUNED_SCEPTRE, SKULL_SCEPTRE, BULLSEYE_LANTERN, BULLSEYE_EMERALD_LANTERN, OIL_LANTERN, STUDDED_CHAPS, all five *_SPIKY_VAMBRACES, CRAB_HELMET, CRAB_CLAW, SEAWEED_NET, ARMADYL_BATTLESTAFF, GOLD/SAPPHIRE/EMERALD/RUBY/DIAMOND/ONYX_AMULET, UNBLESSED_SYMBOL, and UNPOWERED_SYMBOL. Preserve the source's exact inputs, outputs, levels, and XP, including legitimate zero-XP combinations. Also port polished_button.plugin.kts exactly: Buttons (688) -> Polished buttons (10496), Crafting level 3, 5 XP. Input-starved and quest-item rows remain normal source-backed targets; do not invent acquisition, quest, Combat, or Prayer behavior. Add focused parity/runtime/item tests.",
       "source": "game-main:content/items/combine/CombinationData.kt,item_combination.plugin.kts,CombinationAction.kt; skills/crafting/other/polished_button.plugin.kts",
@@ -451,32 +451,45 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/craft-combinations-polished-buttons/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-combinations-polished-buttons/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-combinations-polished-buttons/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-combinations-polished-buttons/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-combinations-polished-buttons/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approve for main: all 24 missing CombinationData Crafting rows and the polished-buttons action are complete and source-exact for inputs, outputs, levels, XP, and output IDs; the implementation follows the existing Crafting recipe/registry path without adding acquisition, Combat, or Prayer behavior. Independent comparison against CombinationData.kt, Items.kt, CombinationAction.kt, and polished_button.plugin.kts found no parity mismatch; the three focused parity/runtime/item tests and the full 935-test suite pass, and crafting_data imports cleanly with both available interpreters. The literal python command is absent from this host PATH, but /opt/homebrew/bin/python3.12 and python3 import successfully, so that is an environment-only note rather than a change blocker."
+      }
     },
     {
       "id": "fletch-crossbow-assembly",
       "rank": 25,
       "skill": "Fletching",
       "root_cause": "transcription",
-      "status": "pending",
+      "status": "in_progress",
       "title": "Port live crossbow assembly",
       "detail": "CombinationData.kt and the generic item-combination runtime bind 14 Fletching actions: stock + limbs -> unstrung crossbow, then unstrung crossbow + crossbow string -> crossbow, for bronze, blurite, iron, steel, mithril, adamant, and rune. Port exact source levels 9/24/39/46/54/61/69 and exact 0.0 XP for both steps at each tier, with exact inputs, outputs, and item IDs. Build on the generic combination conventions landed by craft-combinations-polished-buttons rather than duplicating plumbing. Do not add javelins; they remain the separate fletch-javelin-construction stub. Add focused parity/runtime/item tests.",
       "source": "game-main:content/items/combine/CombinationData.kt,item_combination.plugin.kts,CombinationAction.kt",
       "depends_on": [
         "craft-combinations-polished-buttons"
       ],
-      "note": "split from fletch-javelin-construction by fresh runtime audit 2026-07-09"
+      "note": "split from fletch-javelin-construction by fresh runtime audit 2026-07-09",
+      "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fletch-crossbow-assembly",
+      "branch": "gap/fletch-crossbow-assembly",
+      "tier": "gpt-5.6-terra",
+      "impl_report": "/private/tmp/ankiscape-gap-ops/fletch-crossbow-assembly/impl_report.md",
+      "impl_log": "/private/tmp/ankiscape-gap-ops/fletch-crossbow-assembly/impl.log",
+      "impl_done": "/private/tmp/ankiscape-gap-ops/fletch-crossbow-assembly/impl.done",
+      "impl_exit": "/private/tmp/ankiscape-gap-ops/fletch-crossbow-assembly/impl.exit",
+      "started": "2026-07-09 16:05:35"
     },
     {
       "id": "cook-runtime-extras",
       "rank": 26,
       "skill": "Cooking",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "in_progress",
       "title": "Port live fish-gutting and seaweed-cooking actions",
       "detail": "Port the three knife-on-leaping-fish actions from gut_fish.plugin.kts with the source's exact Cooking-level success formulas. Leaping trout and salmon produce Roe and 10 Cooking XP on success; leaping sturgeon produces Caviar and 15 XP. Preserve Fish offcuts chances of 1/2, 3/4, and 5/6 respectively, and source failure consumption. Also port range-cooked Seaweed -> Soda ash for exactly 1 Cooking XP from seawead_cooking.plugin.kts. Fishing already supplies the leaping fish. Do not fold in the wiki-sourced karambwan/gnome Cooking stub, invent levels, or touch Combat/Prayer. Add focused deterministic formula, runtime, inventory, and undo tests.",
       "source": "game-main:content/items/gut_fish.plugin.kts; content/objs/cookingrange/seawead_cooking.plugin.kts",
-      "note": "fresh shipped-skill completeness audit pass 2, 2026-07-09",
+      "note": "Sol blocking: The no-level contract is not honored by the actual Cooking handler: runtime_actions.py:1337 still applies the placeholder level 1 unconditionally, so a level-0 player is rejected with 'You need level 1 Cooking' even though readiness and target metadata say there is no requirement. This is an invented runtime gate absent from gut_fish.plugin.kts.; runtime_actions.py:1170 and runtime_actions.py:1266",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/cook-runtime-extras",
       "branch": "gap/cook-runtime-extras",
       "tier": "gpt-5.6-terra",
@@ -496,11 +509,11 @@
       "rank": 27,
       "skill": "Herblore",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Complete live pestle-and-mortar material preparation",
       "detail": "PestleAndMortarData.values registers 31 live 1:1, zero-XP grinding rows through pestle_and_mortar.plugin.kts and GrindAction.kt; constants.py currently transcribes only seven. Port the remaining 24 exact Utility conversions: Anchovies, Tchiki monkey nuts, Dramen branch, Garlic, Astral rune shards, Bat bones, Charcoal, Clean guam, Crab meat, Raw cod, Suqah tooth, Kelp, Rune shards, Dried thistle, Gorak claws, Ashes, raw/cooked/poison karambwan, Diamond root, Black mushroom, Shards of Armadyl, Fishing bait, and Seaweed to their exact source outputs/IDs. Also correct finished_super_prayer's secondary storage key from invented `Wyvern bonemeal` to game-main item 6810's canonical name `Bonemeal`; do not add acquisition, XP, Combat, or Prayer behavior. Preserve existing Utility batching conventions and add parity/item/icon/runtime/undo tests.",
       "source": "game-main:content/items/pestle_and_mortar/PestleAndMortarData.kt,pestle_and_mortar.plugin.kts,GrindAction.kt; skills/herblore/mixing/PotionData.kt",
-      "note": "fresh shipped-skill completeness audit pass 2, 2026-07-09",
+      "note": "manual additive merge resolved after Sol approval; 263 focused tests passed",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/herb-pestle-remainder",
       "branch": "gap/herb-pestle-remainder",
       "tier": "gpt-5.6-terra",
@@ -513,14 +526,19 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/herb-pestle-remainder/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/herb-pestle-remainder/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/herb-pestle-remainder/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/herb-pestle-remainder/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/herb-pestle-remainder/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold into main as-is. All 24 requested Utility conversions match the live PestleAndMortarData enum in source order with exact input and output names and IDs, bringing represented grinding rows to 31; each conversion is 1:1, zero-XP, and retains the established 28-item batch convention. Super Prayer now uses canonical item 6810 name Bonemeal, and the diff adds no acquisition, Combat, Prayer, XP, level, balance, or unrelated source behavior. The targeted parity/item/icon/runtime/undo set passes 261 tests and the full suite passes 934 tests with 157 skips. The literal python command is unavailable because this shell has no python executable, but /opt/homebrew/bin/python3 -c \"import herblore_data\" imports cleanly."
+      }
     },
     {
       "id": "mine-runtime-glory-variants",
       "rank": 28,
       "skill": "Mining",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Complete live Amulet of glory Mining bonus bindings",
       "detail": "Mining.kt applies the exact 1/86 incidental-gem chance to charged glory IDs 1706/1708/1710/1712, trimmed IDs 10362/10360/10358/10356/10354, duplicate trimmed ID 10719, and duplicate plain-name ID 8283. AnkiScape has the four charged variants but omits every trimmed display variant and cites non-bound ID 1704 for the plain-name bonus row. Add the distinct trimmed variants through Mining bonus/equipment/item/asset tables; use source-bound 8283 as the plain-name bonus provenance and document the unavoidable duplicate-name aliases 10719/10362 under the existing name-keyed model. Retain the exact existing 1/86 behavior, rock exclusions, and standard equipment selection; do not invent a new proc, acquisition route, Combat, or Prayer behavior. Add focused parity/equipment/item/icon tests.",
       "source": "game-main:skills/mining/Mining.kt:100-125; api/cfg/Items.kt glory constants",
@@ -532,7 +550,12 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/impl.exit",
-      "started": "2026-07-09 15:50:29"
+      "started": "2026-07-09 15:50:29",
+      "review_report": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-runtime-glory-variants/.gap-review/verdict.json"
     }
   ]
 }

@@ -32,6 +32,8 @@ from constants import (
     HUNTER_EXTRA_ITEM_DATA,
     HUNTER_ITEM_IMAGES,
     HUNTER_OUTPUT_ITEMS,
+    HERBLORE_DATA,
+    HERBLORE_EXTRA_ITEM_DATA,
     ITEM_DEFINITIONS,
     MINING_BONUS_ITEM_DATA,
     MINING_OUTPUT_ITEMS,
@@ -441,6 +443,52 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         ):
             self.assertIn(item_name, by_storage_key)
             self.assertEqual(by_storage_key[item_name].category, "crafted")
+
+    def test_pestle_and_mortar_remainder_matches_2011scape_item_pairs(self):
+        expected = {
+            "grind_anchovies": ("Anchovies", 319, "Anchovy paste", 11266),
+            "grind_tchiki_monkey_nuts": ("Tchiki monkey nuts", 7573, "Tchiki nut paste", 7575),
+            "grind_dramen_branch": ("Dramen branch", 771, "Cinnamon", 7472),
+            "grind_garlic": ("Garlic", 1550, "Garlic powder", 4668),
+            "grind_astral_rune_shards": ("Astral rune shards", 11156, "Ground astral rune", 11155),
+            "grind_bat_bones": ("Bat bones", 530, "Ground bat bones", 2391),
+            "grind_charcoal": ("Charcoal", 973, "Ground charcoal", 704),
+            "grind_clean_guam": ("Clean guam", 249, "Ground guam", 6681),
+            "grind_crab_meat": ("Crab meat", 7518, "Ground crab meat", 7527),
+            "grind_raw_cod": ("Raw cod", 341, "Ground cod", 7528),
+            "grind_suqah_tooth": ("Suqah tooth", 9079, "Ground tooth", 9082),
+            "grind_kelp": ("Kelp", 7516, "Ground kelp", 7517),
+            "grind_rune_shards": ("Rune shards", 6466, "Rune dust", 6467),
+            "grind_dried_thistle": ("Dried thistle", 3263, "Ground thistle", 3264),
+            "grind_gorak_claws": ("Gorak claws", 9016, "Gorak claw powder", 9018),
+            "grind_ashes": ("Ashes", 592, "Ground ashes", 8865),
+            "grind_raw_karambwan": ("Raw karambwan", 3142, "Karambwan paste", 3152),
+            "grind_cooked_karambwan": ("Cooked karambwan", 3144, "Karambwan paste", 3154),
+            "grind_poison_karambwan": ("Poison karambwan", 3146, "Karambwan paste", 3153),
+            "grind_diamond_root": ("Diamond root", 14703, "Diamond root dust", 14704),
+            "grind_black_mushroom": ("Black mushroom", 4620, "Black mushroom ink", 4622),
+            "grind_shards_of_armadyl": ("Shards of armadyl", 21776, "Dust of armadyl", 21774),
+            "grind_fishing_bait": ("Fishing bait", 313, "Ground fishing bait", 12129),
+            "grind_seaweed": ("Seaweed", 401, "Ground seaweed", 6683),
+        }
+        self.assertEqual(set(expected), {key for key, spec in UTILITY_ACTIVITY_DATA.items() if spec.get("group") == "grinding"} - {
+            "grind_unicorn_horn", "grind_chocolate_bar", "grind_kebbit_teeth", "grind_birds_nest",
+            "grind_desert_goat_horn", "grind_blue_dragon_scale", "grind_mud_rune",
+        })
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for activity_id, (source_item, source_item_id, output_item, output_item_id) in expected.items():
+            activity = UTILITY_ACTIVITY_DATA[activity_id]
+            self.assertEqual(activity["requirements"], {source_item: 1})
+            self.assertEqual(activity["source_item_id"], source_item_id)
+            self.assertEqual(activity["output_item"], output_item)
+            self.assertEqual(activity["output_item_id"], output_item_id)
+            self.assertEqual(activity["output_qty"], 1)
+            self.assertEqual(activity["batch_size"], 28)
+            self.assertEqual(activity["group"], "grinding")
+            self.assertIn(source_item, by_storage_key)
+            self.assertIsNotNone(by_storage_key[output_item].asset_path)
+        self.assertEqual(HERBLORE_DATA["finished_super_prayer"]["requirements"], {"Prayer potion (3)": 1, "Bonemeal": 1})
+        self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Bonemeal"]["item_id"], 6810)
 
     def test_utility_activities_have_purpose_built_icon_contract(self):
         expected_files = {

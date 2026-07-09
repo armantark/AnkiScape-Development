@@ -1107,6 +1107,20 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(funded_tanning.current)
         self.assertTrue(funded_tanning.enabled)
 
+        pestle_rows = utility_activity_rows(
+            {"inventory": {"Anchovies": 1}, "current_utility": "grind_anchovies"},
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        anchovies = _row(pestle_rows, "grind_anchovies")
+        self.assertTrue(anchovies.current)
+        self.assertTrue(anchovies.enabled)
+        self.assertIsNotNone(anchovies.icon_path)
+        self.assertIn("Anchovy paste x1 per item", anchovies.tooltip)
+        self.assertIn("No skill XP", anchovies.tooltip)
+
     def test_utility_rows_flag_one_shot_activities(self):
         # No live activity uses deactivate_after_run since buy_hunter_supplies
         # was retired, but the tooltip branch stays supported for future rows.
