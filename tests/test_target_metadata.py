@@ -689,6 +689,24 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(_row(unlocked_rows, "cook_slimy_eel").enabled)
         self.assertTrue(_row(unlocked_rows, "cook_yak").enabled)
 
+    def test_cooking_runtime_extra_rows_reuse_existing_icons(self):
+        rows = cooking_target_rows(
+            {"cooking_level": 0, "inventory": {}, "current_cooking": "gut_leaping_trout"},
+            COOKING_DATA,
+            COOKING_ITEM_IMAGES,
+            DEFAULT_COOKING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+
+        for item_name in ("Leaping trout", "Leaping salmon", "Leaping sturgeon", "Roe", "Caviar", "Seaweed", "Soda ash"):
+            self.assertIn(item_name, COOKING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
+        for target_id in ("gut_leaping_trout", "gut_leaping_salmon", "gut_leaping_sturgeon", "burn_seaweed"):
+            row = _row(rows, target_id)
+            self.assertIsNotNone(row.icon_path)
+            self.assertTrue(os.path.exists(row.icon_path or ""))
+            self.assertNotIn("(Lvl", row.label)
+
     def test_mining_rows_preserve_current_icon_and_include_concentrated_rocks(self):
         rows = mining_target_rows(
             {

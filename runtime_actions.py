@@ -1167,7 +1167,7 @@ def handle_fishing_answer(ctx: RuntimeActionContext) -> bool:
     agility_level = player_data.get("agility_level", 1)
     inventory = player_data.get("inventory", {})
 
-    if not spec.get("source_no_level_requirement") and player_level < spec.get("level", 1):
+    if player_level < spec.get("level", 1):
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Fishing to {str(display_name).lower()}.")
         return False
 
@@ -1263,7 +1263,7 @@ def handle_hunter_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    if not spec.get("source_no_level_requirement") and player_level < spec.get("level", 1):
+    if player_level < spec.get("level", 1):
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Hunter to {str(display_name).lower()}.")
         return False
 
@@ -1334,7 +1334,7 @@ def handle_cooking_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    if player_level < spec.get("level", 1):
+    if not spec.get("source_no_level_requirement") and player_level < spec.get("level", 1):
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Cooking to {str(display_name).lower()}.")
         return False
 
