@@ -265,6 +265,41 @@ FISHING_METHODS: Tuple[FishingMethod, ...] = (
         bait_items=("Feather", "Fishing bait", "Fish offcuts", "Roe", "Caviar"),
         source_spots=("BARBARIAN_ROD",),
     ),
+    FishingMethod(
+        "karambwanji_net",
+        "Catch karambwanji",
+        "KBWANJI_NET",
+        ("karambwanji",),
+    ),
+    FishingMethod(
+        "rainbow_fish",
+        "Catch rainbow fish",
+        "FLY_FISHING_ROD_RAINBOW_FISH",
+        ("rainbow_fish",),
+        bait_items=("Stripy feather",),
+    ),
+    FishingMethod(
+        "lava_eel",
+        "Catch lava eel",
+        "OILY_FISHING_ROD",
+        ("lava_eel",),
+        bait_items=("Fishing bait",),
+    ),
+    FishingMethod(
+        "lumbridge_swamp_eel_spawn",
+        "Catch slimy eel/frog spawn",
+        "LUMBDSWAMP_ROD",
+        ("slimy_eel", "frog_spawn"),
+        bait_items=("Fishing bait",),
+    ),
+    FishingMethod(
+        "cave_eel",
+        "Catch cave eel",
+        "CAVE_EEL",
+        ("cave_eel",),
+        source=FISH_SOURCE_PATH,
+        notes="Fish.CAVE_EEL has no FishingTool/FishingSpot binding in the rev-667 plugin.",
+    ),
 )
 
 FISHING_METHODS_BY_ID: Dict[str, FishingMethod] = {method.id: method for method in FISHING_METHODS}
@@ -279,43 +314,7 @@ FISHING_MATERIAL_ITEM_IDS: Mapping[str, int] = {
     "Living minerals": 15263,
 }
 
-DEFERRED_FISHING_CONTENT: Tuple[DeferredFishingContent, ...] = (
-    DeferredFishingContent(
-        "karambwanji_net",
-        "Catch karambwanji",
-        "source_unbound",
-        "FishingTool.KBWANJI_NET has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "rainbow_fish",
-        "Catch rainbow fish",
-        "source_unbound",
-        "FishingTool.FLY_FISHING_ROD_RAINBOW_FISH has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "lava_eel",
-        "Catch lava eel",
-        "source_unbound",
-        "FishingTool.OILY_FISHING_ROD has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "lumbridge_swamp_eel_spawn",
-        "Catch slimy eel/frog spawn",
-        "source_unbound",
-        "FishingTool.LUMBDSWAMP_ROD has source data, but no FishingSpot.kt binding in the rev-667 plugin.",
-        FISHING_TOOL_SOURCE_PATH,
-    ),
-    DeferredFishingContent(
-        "cave_eel",
-        "Catch cave eel",
-        "source_unbound",
-        "Fish.CAVE_EEL has source data, but no bound FishingTool/FishingSpot pair in the rev-667 plugin.",
-        FISH_SOURCE_PATH,
-    ),
-)
+DEFERRED_FISHING_CONTENT: Tuple[DeferredFishingContent, ...] = ()
 
 
 def _fish_as_dict(fish: FishingFish) -> Dict[str, object]:

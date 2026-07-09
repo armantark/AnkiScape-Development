@@ -69,7 +69,7 @@ class TestFishingData(unittest.TestCase):
         )
         self.assertEqual(set(FISH_BY_ID), {row[0] for row in rows})
 
-    def test_methods_are_unique_bound_fishing_spot_behaviors(self):
+    def test_methods_are_unique_fishing_behaviors(self):
         rows = [
             (method.id, method.display_name, method.source_tool, method.fish_ids, method.bait_items, method.source_spots)
             for method in FISHING_METHODS
@@ -93,6 +93,11 @@ class TestFishingData(unittest.TestCase):
                 ("catch_karambwan", "Catch karambwan", "KARAMBWAN_VESSEL", ("raw_karambwan",), (), ("KARAMBWAN",)),
                 ("catch_slimy_eel", "Catch slimy eel", "MORTMYRE_ROD", ("slimy_eel",), ("Fishing bait",), ("MORTMYRE_ROD",)),
                 ("catch_leaping_fish", "Catch leaping fish", "BARBARIAN_ROD", ("leaping_trout", "leaping_salmon", "leaping_sturgeon"), ("Feather", "Fishing bait", "Fish offcuts", "Roe", "Caviar"), ("BARBARIAN_ROD",)),
+                ("karambwanji_net", "Catch karambwanji", "KBWANJI_NET", ("karambwanji",), (), ()),
+                ("rainbow_fish", "Catch rainbow fish", "FLY_FISHING_ROD_RAINBOW_FISH", ("rainbow_fish",), ("Stripy feather",), ()),
+                ("lava_eel", "Catch lava eel", "OILY_FISHING_ROD", ("lava_eel",), ("Fishing bait",), ()),
+                ("lumbridge_swamp_eel_spawn", "Catch slimy eel/frog spawn", "LUMBDSWAMP_ROD", ("slimy_eel", "frog_spawn"), ("Fishing bait",), ()),
+                ("cave_eel", "Catch cave eel", "CAVE_EEL", ("cave_eel",), (), ()),
             ],
         )
         self.assertEqual(set(FISHING_METHODS_BY_ID), {row[0] for row in rows})
@@ -120,20 +125,24 @@ class TestFishingData(unittest.TestCase):
         self.assertIn("Raw crayfish", fishing_output_items())
         self.assertIn("Raw shark", fishing_output_items())
         self.assertIn("Leaping sturgeon", fishing_output_items())
-        self.assertNotIn("Raw rainbow fish", fishing_output_items())
+        self.assertIn("Raw rainbow fish", fishing_output_items())
+        self.assertIn("Raw karambwanji", fishing_output_items())
+        self.assertIn("Raw lava eel", fishing_output_items())
+        self.assertIn("Raw cave eel", fishing_output_items())
+        self.assertIn("Frog spawn", fishing_output_items())
 
         extra = fishing_extra_items_as_dict()
         self.assertEqual(extra["Fishing bait"]["item_id"], 313)
         self.assertEqual(extra["Living minerals"]["item_id"], 15263)
         self.assertIn("lumbridge_fishing_supplies.plugin.kts", extra["Fishing bait"]["source"])
 
-    def test_source_paths_and_unbound_rows_are_explicit(self):
+    def test_source_paths_and_deferred_rows_are_explicit(self):
         self.assertIn("Fish.kt", FISHING_FISH[0].source)
         self.assertIn("FishingTool.kt", FISHING_TOOL_SOURCE_PATH)
         self.assertIn("FishingSpot.kt", FISHING_SPOT_SOURCE_PATH)
         self.assertIn("lumbridge_fishing_supplies.plugin.kts", FISHING_BAIT_SHOP_SOURCE_PATH)
-        self.assertIn("rainbow_fish", deferred_fishing_content_as_dict())
-        self.assertGreaterEqual(len(DEFERRED_FISHING_CONTENT), 4)
+        self.assertEqual(deferred_fishing_content_as_dict(), {})
+        self.assertEqual(DEFERRED_FISHING_CONTENT, ())
         self.assertIn("cave_eel", fishing_fish_as_dict())
 
 
