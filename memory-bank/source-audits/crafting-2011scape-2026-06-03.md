@@ -42,3 +42,20 @@ Important corrected values from 2011Scape:
 ## Tests
 
 Coverage added/updated for stable IDs, corrected 2011Scape values, live input-starved dragonstone targets, legacy migration, no XP-bearing Crafting batching, item manifest registration, review dispatch, and undo-safe Utility regression coverage.
+
+## Leather and Tanning Completion (2026-07-09)
+
+`LeatherData.kt` is now complete in `crafting_data.py`: the lower-tier cowl,
+vambraces, chaps, and coif; all snakeskin pieces; both yak-hide armour rows;
+and the missing green, blue, red, and black dragonhide pieces use the source
+level, XP, and leather-count values. The two Yak-hide armour source items share
+one canonical display name, so their separate stable recipe IDs retain source
+item IDs 10824 and 10822 while the name-keyed inventory exposes one item name.
+
+`TanningData.kt` now drives all eight review-paced Utility tanning activities,
+including both snake-hide source variants and all four dragonhide colours. The
+two snake-hide item IDs share the same canonical display name in the source
+cache; AnkiScape's name-keyed inventory therefore intentionally uses `Snake
+hide` for both service rows while preserving their distinct 15- and 20-coin
+source prices. Existing local leather art is reused for newly registered
+outputs; no network asset fetch was performed.
