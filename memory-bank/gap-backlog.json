@@ -397,7 +397,7 @@
       "rank": 23,
       "skill": "Mining",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Enable Inferno adze as a Mining pickaxe",
       "detail": "game-main PickaxeType.INFERNO_ADZE is a live Mining tool (item 13661, Mining level 41, 3 ticks between rolls), while AnkiScape still keeps the same row in DEFERRED_MINING_PICKAXES. Promote it through the existing Mining pickaxe registration/selection paths using those exact source values. Reuse the Inferno adze item/icon already landed by wc-inferno-adze. Do not implement All Fired Up acquisition, Firemaking behavior, Combat, or Prayer, and do not invent any special Mining proc. Add focused parity/selection tests.",
       "source": "game-main:skills/mining/PickaxeType.kt",
@@ -417,7 +417,12 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/mine-inferno-adze-tool/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/mine-inferno-adze-tool/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/mine-inferno-adze-tool/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-inferno-adze-tool/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-inferno-adze-tool/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approved: the patch promotes Inferno adze into MINING_PICKAXES with source-exact item 13661, Mining level 41, and 3 ticks between rolls; removes only its deferred row; and changes equal-power selection to the emulator's later-enum precedence, so Inferno adze wins the Rune tie without adding a Mining proc. The existing Woodcutting asset is reused, Combat and Prayer are untouched, the required import passed under Python 3.13, the seven focused parity/selection/icon tests passed, and the 930-test non-Qt suite passed with 157 expected skips."
+      }
     }
   ]
 }
