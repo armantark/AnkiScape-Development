@@ -1623,7 +1623,9 @@ class TestLogic(unittest.TestCase):
         self.assertIn("Rune Mysteries", lunar_reasons)
         self.assertIn("Shilo Village", lunar_reasons)
         self.assertIn("Defence 40 (not implemented)", lunar_reasons)
-        self.assertIn("Herblore 5 (not implemented)", lunar_reasons)
+        # Herblore is now implemented, so its requirement drops the suffix.
+        self.assertIn("Herblore 5", lunar_reasons)
+        self.assertNotIn("Herblore 5 (not implemented)", lunar_reasons)
         self.assertIn("Magic 65 (not implemented)", lunar_reasons)
         self.assertFalse(can_start_quest_pure(player_data, "lunar_diplomacy", QUEST_DATA))
 
@@ -2515,7 +2517,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["fishing_exp"], 2725.0)
         self.assertEqual(player_data["cooking_exp"], 2825.0)
         self.assertEqual(player_data["pending_skill_exp_rewards"]["defense_exp"], 3075.0)
-        self.assertEqual(player_data["pending_skill_exp_rewards"]["herblore_exp"], 1325.0)
+        # Herblore is now an implemented skill, so its quest reward is awarded
+        # directly rather than held in pending_skill_exp_rewards.
+        self.assertEqual(player_data["herblore_exp"], 1325.0)
+        self.assertNotIn("herblore_exp", player_data["pending_skill_exp_rewards"])
 
     def test_quest_route_choices_cover_hazeel_and_heroes_inherited_shield_route(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -3866,7 +3871,10 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(druidic["inventory"]["Enchanted beef"], 0)
         self.assertEqual(druidic["inventory"]["Enchanted chicken"], 0)
         self.assertEqual(druidic["quest_points"], 4)
-        self.assertEqual(druidic["pending_skill_exp_rewards"], {"herblore_exp": 250.0})
+        # Herblore is now implemented, so the Druidic Ritual reward lands on
+        # herblore_exp directly and nothing is left pending.
+        self.assertEqual(druidic["herblore_exp"], 250.0)
+        self.assertEqual(druidic["pending_skill_exp_rewards"], {})
 
         pirate = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         pirate["quests"]["pirates_treasure"] = {"started": True, "progress": 1, "completed": False}

@@ -840,6 +840,7 @@ def _on_main_menu():
         on_set_hunter=lambda target: _set_value("current_hunter", target),
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
+        on_set_herblore=lambda target: _set_value("current_herblore", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),

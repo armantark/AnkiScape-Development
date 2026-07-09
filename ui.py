@@ -75,6 +75,8 @@ try:
         FLETCHING_DATA,
         FLETCHING_GROUP_LABELS,
         FLETCHING_GROUP_ORDER,
+        HERBLORE_DATA,
+        HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
         HUNTER_DATA,
@@ -104,6 +106,7 @@ try:
         DEFAULT_HUNTER_TARGET,
         DEFAULT_COOKING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
+        DEFAULT_HERBLORE_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -116,6 +119,8 @@ try:
         HUNTER_ITEM_IMAGES,
         COOKING_ITEM_IMAGES,
         RUNECRAFTING_ITEM_IMAGES,
+        HERBLORE_ITEM_IMAGES,
+        HERBLORE_OUTPUT_ITEMS,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -145,6 +150,8 @@ except Exception:
         FLETCHING_DATA,
         FLETCHING_GROUP_LABELS,
         FLETCHING_GROUP_ORDER,
+        HERBLORE_DATA,
+        HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
         HUNTER_DATA,
@@ -174,6 +181,7 @@ except Exception:
         DEFAULT_HUNTER_TARGET,
         DEFAULT_COOKING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
+        DEFAULT_HERBLORE_TARGET,
         DEFAULT_UTILITY_ACTIVITY,
         ORE_IMAGES,
         TREE_IMAGES,
@@ -186,6 +194,8 @@ except Exception:
         HUNTER_ITEM_IMAGES,
         COOKING_ITEM_IMAGES,
         RUNECRAFTING_ITEM_IMAGES,
+        HERBLORE_ITEM_IMAGES,
+        HERBLORE_OUTPUT_ITEMS,
         UTILITY_ITEM_IMAGES,
         ACHIEVEMENTS,
         EQUIPMENT_SLOTS,
@@ -193,10 +203,10 @@ except Exception:
         current_dir,
     )
 try:
-    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
+    from .logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure
     from .skill_registry import get_skill
 except Exception:
-    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
+    from logic_pure import can_cut_tree_pure, can_mine_ore_pure, can_craft_item_pure, can_smelt_any_bar_pure, can_smith_item_pure, fletching_target_locked_reasons_pure, herblore_target_locked_reasons_pure, firemaking_target_locked_reasons_pure, calculate_firemaking_success_probability_pure, can_fish_method_pure, eligible_fishing_fish_pure, has_fishing_bait_pure, calculate_fishing_success_probability_pure, hunter_target_locked_reasons_pure, cooking_target_locked_reasons_pure, calculate_cooking_success_probability_pure, can_chop_woodcutting_target_pure, best_woodcutting_axe_pure, best_mining_pickaxe_pure, can_open_bird_nests_pure, sanitize_review_action_multiplier, bank_gear_rows_pure, can_equip_item_pure, equipment_stat_totals_pure, binding_necklace_charges_pure, can_runecraft_any_pure, claim_rows_pure, quest_journal_rows_pure, quest_locked_reasons_pure, quest_current_stage_blocker_reasons_pure, quest_current_stage_choices_pure, apply_quest_route_choice_pure, quest_availability_state_pure, quest_state_pure, can_attempt_quest_review_pure, combat_supply_loadout_summary_pure, combat_death_office_summary_pure, combat_target_locked_reasons_pure, combat_attack_style_for_equipment_pure, player_combat_level_pure  # type: ignore
     from skill_registry import get_skill  # type: ignore
 try:
     from .logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure
@@ -247,6 +257,7 @@ try:
         firemaking_target_rows,
         fishing_target_rows,
         fletching_target_rows,
+        herblore_target_rows,
         hunter_target_rows,
         mining_target_rows,
         runecrafting_target_rows,
@@ -263,6 +274,7 @@ except Exception:
         firemaking_target_rows,
         fishing_target_rows,
         fletching_target_rows,
+        herblore_target_rows,
         hunter_target_rows,
         mining_target_rows,
         runecrafting_target_rows,
@@ -1765,6 +1777,7 @@ def show_main_menu(
     on_set_hunter=None,
     on_set_cooking=None,
     on_set_runecrafting=None,
+    on_set_herblore=None,
     on_set_utility=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
@@ -1957,6 +1970,15 @@ def show_main_menu(
         except Exception:
             return False
 
+    def _herblore_available() -> bool:
+        try:
+            return any(
+                not herblore_target_locked_reasons_pure(player_data, target, HERBLORE_DATA, QUEST_UNLOCK_RULES)
+                for target in HERBLORE_DATA
+            )
+        except Exception:
+            return False
+
     def _combat_available() -> bool:
         try:
             return any(
@@ -1988,6 +2010,8 @@ def show_main_menu(
             return _cooking_available()
         if display_name == "Runecrafting":
             return _runecrafting_available()
+        if display_name == "Herblore":
+            return _herblore_available()
         # Utility / Activities is always trainable: gather_* activities need no
         # inputs, so there is always at least one runnable activity.
         return True
@@ -2021,6 +2045,9 @@ def show_main_menu(
             return
         if display_name == "Runecrafting" and not _runecrafting_available():
             warn.setText("You can't runecraft anything yet. Complete Rune Mysteries and gather access items first!")
+            return
+        if display_name == "Herblore" and not _herblore_available():
+            warn.setText("You can't do any Herblore yet. Gather grimy herbs, vials, and secondaries, or level up first!")
             return
         if display_name == _COMBAT_HUB_NAME and not _combat_available():
             warn.setText("You can't fight any source-backed combat target yet.")
@@ -2241,6 +2268,15 @@ def show_main_menu(
             "__fletching_group__:",
             on_set_fletch,
             group_order=list(FLETCHING_GROUP_ORDER),
+        )
+
+    def _build_herblore_list() -> QTreeWidget:
+        return _build_grouped_target_tree(
+            herblore_target_rows(player_data, HERBLORE_DATA, HERBLORE_ITEM_IMAGES, QUEST_UNLOCK_RULES),
+            HERBLORE_GROUP_LABELS,
+            "__herblore_group__:",
+            on_set_herblore,
+            group_order=list(HERBLORE_GROUP_LABELS),
         )
 
     def _build_firemaking_list() -> QListWidget:
@@ -2837,6 +2873,7 @@ def show_main_menu(
         "Hunter": _build_hunter_list,
         "Cooking": _build_cooking_list,
         "Runecrafting": _build_runecrafting_list,
+        "Herblore": _build_herblore_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
@@ -2851,6 +2888,7 @@ def show_main_menu(
         "Hunter": "Select Creature to Hunt",
         "Cooking": "Select Food to Cook",
         "Runecrafting": "Select Runecrafting Action",
+        "Herblore": "Select what to clean, mix, or brew",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
@@ -6707,6 +6745,7 @@ def show_stats(player_data: dict, current_skill: str):
                     or (skill_name == "Fletching" and (_item_def_for(item) is not None and _item_def_for(item).category == "fletched"))
                     or (skill_name == "Firemaking" and (item in FIREMAKING_LOG_ITEMS or item in FIREMAKING_ITEM_IMAGES))
                     or (skill_name == "Fishing" and item in FISHING_OUTPUT_ITEMS)
+                    or (skill_name == "Herblore" and item in HERBLORE_OUTPUT_ITEMS)
                 ):
                     item_image = QLabel()
                     _item_def = _item_def_for(item)
@@ -6718,6 +6757,7 @@ def show_stats(player_data: dict, current_skill: str):
                         or FLETCHED_ITEM_IMAGES.get(item)
                         or FIREMAKING_ITEM_IMAGES.get(item)
                         or FISHING_ITEM_IMAGES.get(item)
+                        or HERBLORE_ITEM_IMAGES.get(item)
                         or (_item_def.asset_path if _item_def and _item_def.asset_path else "")
                     )
                     item_image.setPixmap(pixmap.scaled(32, 32, Qt.AspectRatioMode.KeepAspectRatio))

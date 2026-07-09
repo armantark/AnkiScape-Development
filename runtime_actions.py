@@ -26,6 +26,7 @@ try:
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FLETCHING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_HERBLORE_TARGET,
         DEFAULT_HUNTER_TARGET,
         DEFAULT_MINING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
@@ -37,6 +38,7 @@ try:
         FISHING_DATA,
         HUNTER_DATA,
         FLETCHING_DATA,
+        HERBLORE_DATA,
         GLORY_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_TABLE,
@@ -59,6 +61,7 @@ try:
         apply_firemaking_action_pure,
         apply_fishing_action_pure,
         apply_fletching_pure,
+        apply_herblore_action_pure,
         apply_hunter_action_pure,
         apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
@@ -92,6 +95,7 @@ try:
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
         fletching_target_locked_reasons_pure,
+        herblore_target_locked_reasons_pure,
         has_cooking_materials_pure,
         has_crafting_materials_pure,
         has_firemaking_materials_pure,
@@ -127,6 +131,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         DEFAULT_FIREMAKING_TARGET,
         DEFAULT_FLETCHING_TARGET,
         DEFAULT_FISHING_TARGET,
+        DEFAULT_HERBLORE_TARGET,
         DEFAULT_HUNTER_TARGET,
         DEFAULT_MINING_TARGET,
         DEFAULT_RUNECRAFTING_TARGET,
@@ -138,6 +143,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         FISHING_DATA,
         HUNTER_DATA,
         FLETCHING_DATA,
+        HERBLORE_DATA,
         GLORY_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_TABLE,
@@ -160,6 +166,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_firemaking_action_pure,
         apply_fishing_action_pure,
         apply_fletching_pure,
+        apply_herblore_action_pure,
         apply_hunter_action_pure,
         apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
@@ -193,6 +200,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
         fletching_target_locked_reasons_pure,
+        herblore_target_locked_reasons_pure,
         has_cooking_materials_pure,
         has_crafting_materials_pure,
         has_firemaking_materials_pure,
@@ -261,6 +269,7 @@ _OVERLAY_TARGET_KEYS = {
     "firemaking": "current_firemaking",
     "smithing": "current_smith",
     "runecrafting": "current_runecrafting",
+    "herblore": "current_herblore",
 }
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
 # use the real cache stackable set so a stack is not miscounted as N slots.
@@ -270,7 +279,7 @@ _OVERLAY_STACKABLE_NAMES: frozenset[str] = STACKABLE_ITEM_NAMES
 # gathering skills fill the pack with their product instead. Combat has its own
 # supply_loadout system and is not routed through this wrapper at all.
 _PROCESSING_HANDLER_KEYS = frozenset(
-    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting"}
+    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting", "herblore"}
 )
 _PROCESSING_DATA_TABLES = {
     "cooking": (COOKING_DATA, "current_cooking", DEFAULT_COOKING_TARGET),
@@ -279,6 +288,7 @@ _PROCESSING_DATA_TABLES = {
     "firemaking": (FIREMAKING_DATA, "current_firemaking", DEFAULT_FIREMAKING_TARGET),
     "smithing": (SMITHING_DATA, "current_smith", DEFAULT_SMITHING_TARGET),
     "runecrafting": (RUNECRAFTING_DATA, "current_runecrafting", DEFAULT_RUNECRAFTING_TARGET),
+    "herblore": (HERBLORE_DATA, "current_herblore", DEFAULT_HERBLORE_TARGET),
 }
 
 
@@ -1028,6 +1038,55 @@ def handle_fletching_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = player_data.get("current_herblore", DEFAULT_HERBLORE_TARGET)
+    if target not in HERBLORE_DATA:
+        target = DEFAULT_HERBLORE_TARGET
+        player_data["current_herblore"] = target
+    spec = HERBLORE_DATA[target]
+    display_name = spec.get("display_name", target)
+    player_level = player_data.get("herblore_level", 1)
+    locked_reasons = herblore_target_locked_reasons_pure(player_data, target, HERBLORE_DATA, QUEST_UNLOCK_RULES)
+    unlock_locked = tuple(
+        reason
+        for reason in locked_reasons
+        if reason not in {"materials"} and not str(reason).startswith("Herblore level")
+    )
+    if unlock_locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Herblore target locked",
+            f"{display_name} requires {', '.join(unlock_locked)}, so Herblore has been switched off.",
+        )
+        return False
+
+    if player_level < spec["level"]:
+        ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Herblore to make {display_name}.")
+        return False
+
+    new_inv, base_exp, ok = apply_herblore_action_pure(target, player_data["inventory"], HERBLORE_DATA)
+    if not ok:
+        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Out of materials",
+            f"You need {missing} to make {display_name}, so Herblore has been switched off. "
+            "Open the AnkiScape menu to pick another target.",
+        )
+        return False
+
+    player_data["inventory"] = new_inv
+    _record_action(ctx, "herblore", target, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
+    xp_rewards = normalize_xp_rewards_pure(spec, "herblore", base_exp)
+    exp_gained = _award_action_xp_rewards(ctx, xp_rewards, "herblore")
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(exp_gained)
+    return True
+
+
 def handle_firemaking_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     target = player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
@@ -1736,6 +1795,16 @@ def _can_start_fletching_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_herblore_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_herblore", DEFAULT_HERBLORE_TARGET)
+    return not herblore_target_locked_reasons_pure(
+        ctx.player_data,
+        target,
+        HERBLORE_DATA,
+        QUEST_UNLOCK_RULES,
+    )
+
+
 def _can_start_firemaking_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
     return not firemaking_target_locked_reasons_pure(
@@ -1865,6 +1934,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "hunter": _can_start_hunter_action,
     "cooking": _can_start_cooking_action,
     "runecrafting": _can_start_runecrafting_action,
+    "herblore": _can_start_herblore_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -1882,6 +1952,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "hunter": handle_hunter_answer,
     "cooking": handle_cooking_answer,
     "runecrafting": handle_runecrafting_answer,
+    "herblore": handle_herblore_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

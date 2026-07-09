@@ -25,6 +25,7 @@ try:
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         fletching_target_locked_reasons_pure,
+        herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
@@ -50,6 +51,7 @@ except Exception:
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
         fletching_target_locked_reasons_pure,
+        herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
@@ -474,6 +476,58 @@ def fletching_target_rows(
                 enabled=enabled,
                 current=target_key == current_target,
                 icon_path=fletched_item_images.get(output_item),
+                group=str(spec.get("group", "")),
+                locked_reasons=locked_reasons,
+                sort_key=tuple(spec.get("sort_key", ())),
+            )
+        )
+    return tuple(rows)
+
+
+def herblore_target_rows(
+    player_data: Mapping[str, object],
+    herblore_data: Mapping[str, Mapping[str, object]],
+    herblore_item_images: Mapping[str, str],
+    quest_unlock_rules: Sequence[Mapping[str, object]] = (),
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    lvl_have = int(player_data.get("herblore_level", 1) or 1)
+    inv = player_data.get("inventory", {})
+    inventory = inv if isinstance(inv, Mapping) else {}
+    current_target = player_data.get("current_herblore")
+
+    for target_key, spec in herblore_data.items():
+        display_name = str(spec.get("display_name", target_key))
+        output_item = str(spec.get("output_item", display_name))
+        output_qty = spec.get("output_qty", 1)
+        lvl_req = int(spec.get("level", 1) or 1)
+        base_xp = spec.get("exp", 0)
+        requirements = spec.get("requirements", {})
+        reqs = requirements if isinstance(requirements, Mapping) else {}
+        _materials_ok, mat_text = _material_lines(reqs, inventory)
+        tooltip = (
+            f"Requires Herblore level {lvl_req}. You have {lvl_have}.\n"
+            f"Base XP: {base_xp} per action\n"
+            f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
+        )
+        locked_reasons = herblore_target_locked_reasons_pure(
+            player_data,
+            target_key,
+            herblore_data,
+            quest_unlock_rules,
+        )
+        enabled = not locked_reasons
+        if locked_reasons:
+            tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
+
+        rows.append(
+            TargetRowMetadata(
+                target_id=target_key,
+                label=f"{display_name} (Lvl {lvl_req})",
+                tooltip=tooltip,
+                enabled=enabled,
+                current=target_key == current_target,
+                icon_path=herblore_item_images.get(output_item),
                 group=str(spec.get("group", "")),
                 locked_reasons=locked_reasons,
                 sort_key=tuple(spec.get("sort_key", ())),
