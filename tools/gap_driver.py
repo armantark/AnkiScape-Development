@@ -373,6 +373,9 @@ def collect(data):
                 save(data)
                 continue
             git(["add", "-A"], cwd=wt, check=False)
+            # The reviewer writes its verdict into <wt>/.gap-review; never let that
+            # artifact contaminate the branch (and thus the eventual merge to main).
+            git(["rm", "-r", "--cached", "--ignore-unmatch", "-q", ".gap-review"], cwd=wt, check=False)
             diff = git(["diff", "--cached", "--stat"], cwd=wt, check=False)
             if not diff.stdout.strip():
                 item["status"] = "empty"

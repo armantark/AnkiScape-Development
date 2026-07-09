@@ -16,7 +16,7 @@
       "root_cause": "transcription",
       "severity": "major",
       "title": "Port the five deferred emulator fishing methods",
-      "detail": "karambwanji net, rainbow fish, lava eel (oily rod), Lumbridge swamp slimy-eel/frog-spawn dual-output, cave eel. See DEFERRED_FISHING_CONTENT in fishing_data.py:282-317. Source rows already in game-main Fish.kt / FishingTool.kt / FishingSpot.kt.",
+      "detail": "karambwanji net, rainbow fish, lava eel (oily rod), Lumbridge swamp slimy-eel/frog-spawn dual-output. FOUR methods only. cave eel is OUT of scope: game-main defines Fish.CAVE_EEL but no FishingTool/FishingSpot binding exists, so it cannot be faithfully ported from the authoritative source; it stays in DEFERRED_FISHING_CONTENT (fishing_data.py:282-317). Source rows for the four live methods are in game-main Fish.kt / FishingTool.kt / FishingSpot.kt.",
       "source": "game-main:skills/fishing",
       "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription",
@@ -32,7 +32,7 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/fish-transcription/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fish-transcription/.gap-review/verdict.json",
-      "note": "Sol blocking: fishing_data.py registers cave_eel with source_tool CAVE_EEL and no bait, but game-main FishingTool.kt defines no CAVE_EEL tool and FishingSpot.kt has no corresponding binding; only Fish.CAVE_EEL exists, so this invents a baitless emulator method.; The newly live outputs are not registered with Fishing assets: test_every_fishing_output_resolves_an_icon fails for Frog spawn, Raw cave eel, Raw karam"
+      "note": "re-scoped to 4 methods; cave_eel split out to needs_grill stub"
     },
     {
       "id": "craft-pottery",
@@ -43,7 +43,7 @@
       "title": "Complete the pottery/urn catalogue",
       "detail": "crafting_data.py:90-99 has only selected Mining/Cooking urn rows; PotteryData.kt also has Fishing, Woodcutting, Smelting, Prayer, normal, decorated tiers.",
       "source": "game-main:skills/crafting/pottery/PotteryData.kt",
-      "status": "reviewing",
+      "status": "in_progress",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery",
       "branch": "gap/craft-pottery",
       "tier": "gpt-5.6-terra",
@@ -57,7 +57,7 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-pottery/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-pottery/.gap-review/verdict.json",
-      "note": "Sol blocking: Completeness/parity: PotteryData.kt:280-309 defines PRAYER_URNS, but crafting_data.py ends the urn catalogue at strong smelting urn and omits all nine form/fire/add-rune recipes for Impious, Accursed, and Infernal urns (levels 2/26/62; forming XP 12.0/25.0/40.0; firing XP 18.0/37.5/60.0; Air rune; 1.0 rune-attachment XP). These are required Crafting catalogue rows and do not require changing Praye"
+      "note": "refix: fetch icons for new urn outputs"
     },
     {
       "id": "craft-leather-tanning",
@@ -97,7 +97,15 @@
       "title": "Fill jewellery tiers, earth/fire battlestaves, basket/net weaving",
       "detail": "Partial jewellery matrix (emerald->onyx bracelets/amulets); BattlestaffData.kt has all four elementals but only water/air present; WeavingData.kt has basket + unfinished net rows we lack.",
       "source": "game-main:skills/crafting/weaponry/BattlestaffData.kt,skills/crafting/weaving/WeavingData.kt",
-      "status": "pending"
+      "status": "in_progress",
+      "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-jewellery-staves-weaving",
+      "branch": "gap/craft-jewellery-staves-weaving",
+      "tier": "gpt-5.6-terra",
+      "impl_report": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl_report.md",
+      "impl_log": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl.log",
+      "impl_done": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl.done",
+      "impl_exit": "/private/tmp/ankiscape-gap-ops/craft-jewellery-staves-weaving/impl.exit",
+      "started": "2026-07-09 13:26:15"
     },
     {
       "id": "mine-concentrated",
@@ -108,7 +116,7 @@
       "title": "Add concentrated coal and concentrated gold rocks",
       "detail": "RockType.kt contains both; AnkiScape ships only ordinary coal/gold. Sustained-rock mechanic matters to the Mining loop.",
       "source": "game-main:skills/mining/RockType.kt",
-      "status": "in_progress",
+      "status": "reviewing",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/mine-concentrated",
       "branch": "gap/mine-concentrated",
       "tier": "gpt-5.6-terra",
@@ -133,7 +141,7 @@
       "title": "Add inferno adze burn-on-chop behaviour",
       "detail": "Woodcutting runtime has inferno-adze behaviour; AnkiScape records it only as deferred.",
       "source": "game-main:skills/woodcutting",
-      "status": "reviewing",
+      "status": "in_progress",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze",
       "branch": "gap/wc-inferno-adze",
       "tier": "gpt-5.6-terra",
@@ -146,7 +154,8 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/wc-inferno-adze/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/wc-inferno-adze/.gap-review/verdict.json",
+      "note": "refix: tie-break parity + inferno-adze icon"
     },
     {
       "id": "hunter-tracking-pitfall-snare",
@@ -318,6 +327,16 @@
       "source": "wiki:Pyre ship",
       "status": "needs_grill",
       "note": "design input required \u2014 grill owner before building (not auto-filled)"
+    },
+    {
+      "id": "fish-cave-eel-stub",
+      "rank": 21,
+      "skill": "Fishing",
+      "root_cause": "stub",
+      "status": "needs_grill",
+      "title": "Cave eel fishing method (no game-main binding)",
+      "detail": "game-main defines Fish.CAVE_EEL but provides no FishingTool or FishingSpot binding, so a faithful port is impossible from the emulator. Authentic pre-EOC method is fishing rod + fishing bait at Lumbridge Swamp caves (same route as slimy/lava eels). Sourcing the rod+bait binding + level/XP from the wiki is a design/sourcing decision for the owner. Currently kept in DEFERRED_FISHING_CONTENT.",
+      "note": "split out of fish-transcription 2026-07-09; needs owner grill"
     }
   ]
 }
