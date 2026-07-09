@@ -85,6 +85,14 @@ try:
         runecrafting_pouches_as_dict,
         runecrafting_targets_as_dict,
     )
+    from .herblore_data import (
+        DEFAULT_HERBLORE_TARGET,
+        HERBLORE_GROUP_LABELS,
+        herblore_extra_items_as_dict,
+        herblore_item_names,
+        herblore_output_items,
+        herblore_targets_as_dict,
+    )
     from .shop_data import shop_extra_items_as_dict
     from .potion_data import potion_items_as_dict, potion_item_names
     from .mining_data import (
@@ -192,6 +200,14 @@ except ImportError:
         runecrafting_pouches_as_dict,
         runecrafting_targets_as_dict,
     )
+    from herblore_data import (
+        DEFAULT_HERBLORE_TARGET,
+        HERBLORE_GROUP_LABELS,
+        herblore_extra_items_as_dict,
+        herblore_item_names,
+        herblore_output_items,
+        herblore_targets_as_dict,
+    )
     from shop_data import shop_extra_items_as_dict
     from potion_data import potion_items_as_dict, potion_item_names
     from mining_data import (
@@ -252,6 +268,7 @@ FISHING_ITEMS_FOLDER = os.path.join(current_dir, "fishingitems")
 HUNTER_ITEMS_FOLDER = os.path.join(current_dir, "hunteritems")
 COOKING_ITEMS_FOLDER = os.path.join(current_dir, "cookingitems")
 RUNECRAFTING_ITEMS_FOLDER = os.path.join(current_dir, "runecraftingitems")
+HERBLORE_ITEMS_FOLDER = os.path.join(current_dir, "herbloreitems")
 QUEST_ITEMS_FOLDER = os.path.join(current_dir, "questitems")
 COMBAT_ITEMS_FOLDER = os.path.join(current_dir, "combatitems")
 COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
@@ -342,6 +359,72 @@ UTILITY_ACTIVITY_DATA = {
         "icon_path": os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "open_bird_nest.png"),
         "group": "containers_opening",
         "source": "2011Scape bird_nest.plugin.kts",
+    },
+    # Pestle-and-mortar grinding. Zero XP and toolless, following the make_soft_clay
+    # convention; these produce the crushed/dust secondaries the Herblore finished
+    # recipes consume. Parity: PestleAndMortarData.kt (1:1 source -> product).
+    "grind_unicorn_horn": {
+        "display_name": "Grind unicorn horn",
+        "requirements": {"Unicorn horn": 1},
+        "output_item": "Unicorn horn dust",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.UNICORN_HORN",
+    },
+    "grind_chocolate_bar": {
+        "display_name": "Grind chocolate bar",
+        "requirements": {"Chocolate bar": 1},
+        "output_item": "Chocolate dust",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.CHOCOLATE_BAR",
+    },
+    "grind_kebbit_teeth": {
+        "display_name": "Grind kebbit teeth",
+        "requirements": {"Kebbit teeth": 1},
+        "output_item": "Kebbit teeth dust",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.KEBBIT_TEETH",
+    },
+    "grind_birds_nest": {
+        "display_name": "Grind bird's nest",
+        "requirements": {"Bird's nest": 1},
+        "output_item": "Crushed nest",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.BIRDS_NEST",
+    },
+    "grind_desert_goat_horn": {
+        "display_name": "Grind desert goat horn",
+        "requirements": {"Desert goat horn": 1},
+        "output_item": "Goat horn dust",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.DESERT_GOAT_HORN",
+    },
+    "grind_blue_dragon_scale": {
+        "display_name": "Grind blue dragon scale",
+        "requirements": {"Blue dragon scale": 1},
+        "output_item": "Dragon scale dust",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.BLUE_DRAGON_SCALE",
+    },
+    "grind_mud_rune": {
+        "display_name": "Grind mud rune",
+        "requirements": {"Mud rune": 1},
+        "output_item": "Ground mud runes",
+        "output_qty": 1,
+        "batch_size": 28,
+        "group": "grinding",
+        "source": "2011Scape PestleAndMortarData.MUD_RUNE",
     },
 }
 UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
@@ -486,6 +569,8 @@ RUNECRAFTING_DATA = runecrafting_targets_as_dict()
 RUNECRAFTING_POUCH_DATA = runecrafting_pouches_as_dict()
 RUNECRAFTING_OUTPUT_ITEMS = runecrafting_output_items()
 RUNECRAFTING_ACCESS_ITEMS = runecrafting_access_items()
+HERBLORE_DATA = herblore_targets_as_dict()
+HERBLORE_OUTPUT_ITEMS = herblore_output_items()
 QUEST_DATA = quests_as_dict()
 QUEST_REFERENCE_DATA = quest_references_as_dict()
 QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
@@ -585,6 +670,21 @@ for _item_name in set(RUNECRAFTING_OUTPUT_ITEMS) | set(RUNECRAFTING_ACCESS_ITEMS
     if _path and os.path.exists(_path):
         RUNECRAFTING_ITEM_IMAGES[_item_name] = _path
 
+# Herblore: every grimy/clean/unf herb, secondary, and finished product. Icons
+# reuse cross-skill art where an item is shared (crafting/combat/cooking maps)
+# and otherwise come from herbloreitems/ keyed by _asset_slug. Existence-guarded
+# so an unfetched icon leaves the row text-only instead of a dead path.
+HERBLORE_EXTRA_ITEM_DATA = herblore_extra_items_as_dict()
+HERBLORE_ITEM_IMAGES = {}
+for _item_name in set(HERBLORE_OUTPUT_ITEMS) | set(HERBLORE_EXTRA_ITEM_DATA):
+    _path = (
+        ORE_IMAGES.get(_item_name)
+        or CRAFTED_ITEM_IMAGES.get(_item_name)
+        or os.path.join(HERBLORE_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    )
+    if _path and os.path.exists(_path):
+        HERBLORE_ITEM_IMAGES[_item_name] = _path
+
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
 # up; only files that actually exist are wired (rare egg nests/eggs stay
@@ -656,6 +756,33 @@ for _item_name in SHOP_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         SHOP_ITEM_IMAGES[_item_name] = _path
 
+# Pestle-and-mortar grinding routes its inputs/outputs through the utility-material
+# registration, so (like the Hunter supply items above) surface any icon we already
+# resolved elsewhere — shop stock, combat drops, herblore art — into
+# UTILITY_ITEM_IMAGES rather than leave those rows iconless.
+_grind_image_sources = (
+    HERBLORE_ITEM_IMAGES,
+    SHOP_ITEM_IMAGES,
+    COMBAT_ITEM_IMAGES,
+    HUNTER_ITEM_IMAGES,
+    WOODCUTTING_EXTRA_ITEM_IMAGES,
+    RUNECRAFTING_ITEM_IMAGES,
+)
+for _spec in UTILITY_ACTIVITY_DATA.values():
+    if _spec.get("group") != "grinding":
+        continue
+    _grind_items = set(_spec.get("requirements", {}))
+    if isinstance(_spec.get("output_item"), str):
+        _grind_items.add(_spec["output_item"])
+    for _item_name in _grind_items:
+        if _item_name in UTILITY_ITEM_IMAGES:
+            continue
+        for _source_map in _grind_image_sources:
+            _path = _source_map.get(_item_name)
+            if _path:
+                UTILITY_ITEM_IMAGES[_item_name] = _path
+                break
+
 
 def _known_non_shop_item_names():
     names = set()
@@ -669,6 +796,7 @@ def _known_non_shop_item_names():
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
+        HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
@@ -682,6 +810,7 @@ def _known_non_shop_item_names():
     names.update(COOKING_OUTPUT_ITEMS)
     names.update(RUNECRAFTING_OUTPUT_ITEMS)
     names.update(RUNECRAFTING_ACCESS_ITEMS)
+    names.update(HERBLORE_OUTPUT_ITEMS)
     names.update(HUNTER_OUTPUT_ITEMS)
     for spec in CRAFTING_DATA.values():
         if isinstance(spec.get("output_item"), str):
@@ -737,6 +866,7 @@ def _known_non_shop_item_ids(names):
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
+        HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
     ):
         for item_name, spec in mapping.items():
@@ -780,6 +910,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **HUNTER_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
+    **HERBLORE_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
@@ -793,6 +924,7 @@ EXTRA_ITEM_IMAGES = {
     **HUNTER_ITEM_IMAGES,
     **COOKING_ITEM_IMAGES,
     **RUNECRAFTING_ITEM_IMAGES,
+    **HERBLORE_ITEM_IMAGES,
     **QUEST_ITEM_IMAGES,
     **COMBAT_ITEM_IMAGES,
     **SHOP_ITEM_IMAGES,

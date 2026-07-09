@@ -395,6 +395,7 @@ _UTILITY_GROUP_LABELS = {
     "gathering": "Gathering",
     "material_processing": "Material processing",
     "containers_opening": "Containers / opening",
+    "grinding": "Grinding",
 }
 
 

@@ -168,6 +168,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="hunter",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="herblore",
+        display_name="Herblore",
+        category="artisan",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="process",
+        level_key="herblore_level",
+        exp_key="herblore_exp",
+        current_target_key="current_herblore",
+        default_target="clean_guam",
+        review_handler_key="herblore",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -181,7 +195,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False),
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp"),
     SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
-    SkillDefinition("herblore", "Herblore", "artisan", False, False, "process", "herblore_level", "herblore_exp"),
     SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp"),
     SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp"),
