@@ -31,7 +31,7 @@ try:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from .crafting_data import crafting_output_items, crafting_recipes_as_dict
+    from .crafting_data import crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -147,7 +147,7 @@ except ImportError:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from crafting_data import crafting_output_items, crafting_recipes_as_dict
+    from crafting_data import crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -292,29 +292,6 @@ UTILITY_ACTIVITY_DATA = {
         "group": "material_processing",
         "source": "OSRS Soft clay > Creation > Container",
     },
-    # Coin-paid NPC conversions. These were briefly shop "services", but 2011
-    # tanning/plank runs were inventory-bounded (28 unstackable items per bank
-    # run) and the review loop is AnkiScape's stand-in for that friction, so
-    # they run as review-paced no-XP batches instead of instant Use-x1000
-    # buttons. Coins are consumed per unit like any other requirement.
-    "tan_soft_leather": {
-        "display_name": "Tan soft leather",
-        "requirements": {"Cowhide": 1, "Coins": 1},
-        "output_item": "Leather",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "material_processing",
-        "source": "Darkan Tanning.Leather.SOFT via Al Kharid Ellis/Lunar tan-leather references",
-    },
-    "tan_hard_leather": {
-        "display_name": "Tan hard leather",
-        "requirements": {"Cowhide": 1, "Coins": 3},
-        "output_item": "Hard leather",
-        "output_qty": 1,
-        "batch_size": 28,
-        "group": "material_processing",
-        "source": "Darkan Tanning.Leather.HARD via Al Kharid Ellis/Lunar tan-leather references",
-    },
     "convert_logs_to_planks": {
         "display_name": "Convert logs to planks",
         "requirements": {"Logs": 1, "Coins": 100},
@@ -429,6 +406,7 @@ UTILITY_ACTIVITY_DATA = {
         "source": "2011Scape PestleAndMortarData.MUD_RUNE",
     },
 }
+UTILITY_ACTIVITY_DATA.update(tanning_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
@@ -597,6 +575,27 @@ for _spec in CRAFTING_DATA.values():
 for _item_name in _crafting_item_names:
     _path = os.path.join(CRAFTED_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
+        CRAFTED_ITEM_IMAGES[_item_name] = _path
+
+# The complete leather table reuses its closest existing family art until a
+# later local asset pass can add item-specific sprites without a network fetch.
+for _item_name, _fallback_item in {
+    "Snakeskin boots": "Leather body",
+    "Snakeskin vambraces": "Leather body",
+    "Snakeskin bandana": "Leather body",
+    "Snakeskin chaps": "Leather body",
+    "Snakeskin body": "Leather body",
+    "Yak-hide armour": "Leather",
+    "Blue d'hide vambraces": "Blue d'hide body",
+    "Blue d'hide chaps": "Blue d'hide body",
+    "Red d'hide vambraces": "Black d'hide body",
+    "Red d'hide chaps": "Black d'hide body",
+    "Red d'hide body": "Black d'hide body",
+    "Black d'hide vambraces": "Black d'hide body",
+    "Black d'hide chaps": "Black d'hide body",
+}.items():
+    _path = CRAFTED_ITEM_IMAGES.get(_fallback_item)
+    if _path:
         CRAFTED_ITEM_IMAGES[_item_name] = _path
 
 

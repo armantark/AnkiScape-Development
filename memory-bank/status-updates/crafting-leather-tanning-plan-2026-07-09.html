@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crafting leather + tanning parity plan</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 5%,#1a2846 0,transparent 29rem),var(--bg);color:var(--text);font:16px Outfit,ui-sans-serif,system-ui,sans-serif}.wrap{max-width:1050px;margin:auto;padding:42px 24px 64px}.badge,.tag{font:600 12px "JetBrains Mono",ui-monospace,monospace;letter-spacing:.08em}.badge{display:inline-block;padding:7px 10px;border:1px solid #365d9e;border-radius:999px;color:#9fc0ff;background:var(--accent-glow)}h1{font-size:clamp(2rem,5vw,3.7rem);line-height:1.02;margin:18px 0 10px}.sub{max-width:720px;color:var(--text-dim);line-height:1.55}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:28px}.card{background:linear-gradient(145deg,var(--surface),#12161d);border:1px solid var(--border);border-radius:var(--radius);padding:20px}.card:hover{transform:translateY(-2px);border-color:#496da8;transition:.18s}.tag{color:var(--amber)}h2{margin:8px 0;font-size:1.2rem}.card p,.item{color:var(--text-dim);line-height:1.5}.flow{display:grid;grid-template-columns:1fr 28px 1fr 28px 1fr;align-items:center;margin:28px 0 12px}.node{padding:15px;border-radius:10px;background:var(--surface-2);border:1px solid var(--border);text-align:center}.arrow{text-align:center;color:var(--accent);font-size:24px}.file{display:inline-block;padding:4px 7px;background:var(--surface-2);border-radius:5px;color:#b9c9e9;font:12px "JetBrains Mono",ui-monospace,monospace;margin:3px 3px 0 0}.check{display:flex;gap:10px;align-items:flex-start;margin:12px 0;padding:12px;background:rgba(74,222,128,.06);border-left:3px solid var(--green);border-radius:6px}.check input{accent-color:var(--green);margin-top:3px}@media(max-width:700px){.grid{grid-template-columns:1fr}.flow{grid-template-columns:1fr;gap:8px}.arrow{transform:rotate(90deg)}}
+  </style>
+</head>
+<body><main class="wrap">
+  <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+  <h1>Leather table completion<br><span style="color:#8fb6ff">and tanning parity</span></h1>
+  <p class="sub">A narrow, source-first Crafting data pass. The 2011Scape leather and tanning Kotlin tables are the authority for every level and XP value; existing AnkiScape rows remain untouched.</p>
+  <div class="flow" aria-label="Source to verification flow"><div class="node">2011Scape<br><strong>LeatherData + TanningData</strong></div><div class="arrow">→</div><div class="node">AnkiScape<br><strong>Crafting rows + item IDs</strong></div><div class="arrow">→</div><div class="node">Proof<br><strong>import crafting_data</strong></div></div>
+  <section class="grid">
+    <article class="card"><div class="tag">SOURCE DISCOVERY</div><h2>Transcribe every missing authentic row</h2><p>Compare current leather-family recipes against both authoritative Kotlin enums, preserving source ordering and exact numeric data.</p><span class="file">crafting_data.py</span></article>
+    <article class="card"><div class="tag">REGISTRY INTEGRITY</div><h2>Add only referenced missing item IDs</h2><p>Follow the repository’s sibling registration conventions. No asset fetches, balance tuning, new mechanics, or unrelated skills.</p><span class="file">item_registry.py</span><span class="file">constants.py</span></article>
+    <article class="card"><div class="tag">BOUNDARY</div><h2>Keep the patch data-only</h2><p>No abstractions or refactors. Existing rows are retained exactly; source content outside leather manufacturing and tanning is out of scope.</p></article>
+    <article class="card"><div class="tag">VERIFICATION</div><h2>One required runtime gate</h2><p>Import the data module from this isolated worktree and resolve every import-time registry or syntax failure before handoff.</p><span class="file">python -c &quot;import crafting_data&quot;</span></article>
+  </section>
+  <section class="card" style="margin-top:16px"><div class="tag">IMPLEMENTATION CHECKLIST</div><label class="check"><input type="checkbox" disabled><span>Read module conventions and source enums line-by-line.</span></label><label class="check"><input type="checkbox" disabled><span>Patch missing rows and required IDs with the smallest faithful diff.</span></label><label class="check"><input type="checkbox" disabled><span>Run the import gate and report source lines, omissions, and result.</span></label></section>
+</main></body></html>
