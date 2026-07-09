@@ -6,9 +6,10 @@
 """Batch-fetch the Mining parity icons through a single rate-limited client.
 
 This drives ``tools/fetch_assets.py`` for the whole Mining manifest (ore-row
-outputs, the variable Sandstone/Granite/Gem-rock outputs, Pure essence, and the
-standard pickaxe tiers) in one process so the wiki rate limiter is shared and
-provenance is recorded for each file. Developer-only; never runs inside Anki.
+outputs, the variable Sandstone/Granite/Gem-rock outputs, Pure essence, the
+standard pickaxe tiers, and live Mining bonus equipment) in one process so the
+wiki rate limiter is shared and provenance is recorded for each file.
+Developer-only; never runs inside Anki.
 
 Why an explicit (wiki name -> output path) manifest instead of slug inference:
 the bundled base ores use CamelCase filenames (``ores/Copper.png``) while the
@@ -87,7 +88,17 @@ PICKAXES: List[Tuple[str, str]] = [
     ("Dragon pickaxe", "miningitems/dragon_pickaxe.png"),
 ]
 
-MANIFEST: List[Tuple[str, str]] = ORES + GEMS + PICKAXES
+# Trimmed glory variants are live Mining.kt bonus bindings and equipment rows.
+# The duplicate 10719 runtime alias shares the canonical (t) display row/icon.
+GLORY_AMULETS: List[Tuple[str, str]] = [
+    ("Amulet of glory (t)", "miningitems/amulet_of_glory_t.png"),
+    ("Amulet of glory (t1)", "miningitems/amulet_of_glory_t1.png"),
+    ("Amulet of glory (t2)", "miningitems/amulet_of_glory_t2.png"),
+    ("Amulet of glory (t3)", "miningitems/amulet_of_glory_t3.png"),
+    ("Amulet of glory (t4)", "miningitems/amulet_of_glory_t4.png"),
+]
+
+MANIFEST: List[Tuple[str, str]] = ORES + GEMS + PICKAXES + GLORY_AMULETS
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

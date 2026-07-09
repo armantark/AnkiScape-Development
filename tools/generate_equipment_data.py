@@ -118,6 +118,9 @@ NORMALIZED_MINING_BONUS_SLOTS: Mapping[str, SlotId] = {
     "amulet": "neck",
     "chest": "body",
 }
+MINING_BONUS_EQUIPMENT_FALLBACKS: Mapping[int, int] = {
+    8283: 1704,
+}
 RANGED_BOW_EQUIPMENT: Mapping[str, Tuple[int, str]] = {
     "Shortbow": (1, "shortbow"),
     "Longbow": (1, "longbow"),
@@ -648,6 +651,12 @@ def _mining_bonus_equipment_items(items: Mapping[int, SourceItem]) -> Tuple[Gene
         source_item = items.get(bonus.item_id)
         block = source_item.equipment if source_item is not None else None
         source_status = "items.yml equipment block" if block is not None else "missing equipment block; bonuses zeroed"
+        fallback_item_id = MINING_BONUS_EQUIPMENT_FALLBACKS.get(bonus.item_id)
+        if block is None and fallback_item_id is not None:
+            fallback_item = items.get(fallback_item_id)
+            if fallback_item is not None and fallback_item.equipment is not None:
+                block = fallback_item.equipment
+                source_status = f"items.yml item {fallback_item_id} equipment block; same-name cache alias for Mining.kt runtime binding {bonus.item_id}"
         generated.append(
             GeneratedEquipmentItem(
                 item_name=bonus.display_name,

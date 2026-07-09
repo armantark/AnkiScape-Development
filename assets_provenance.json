@@ -8879,6 +8879,66 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:51:48Z"
   },
+  "miningitems/amulet_of_glory_t.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Amulet_of_glory_%28t%29.png",
+    "file_title": "Amulet of glory (t).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Amulet_of_glory_%28t%29.png?ba571",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "fec0c678601810fd324fc6bcc3bdd8cbe9e11038",
+    "size": 887,
+    "source_wiki": "osrs",
+    "timestamp": "2016-02-21T06:39:41Z"
+  },
+  "miningitems/amulet_of_glory_t1.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Amulet_of_glory_%28t1%29.png",
+    "file_title": "Amulet of glory (t1).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Amulet_of_glory_%28t1%29.png?4470c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "af76ed44197c463346ccf5e546fc8111ff412202",
+    "size": 700,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:19Z"
+  },
+  "miningitems/amulet_of_glory_t2.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Amulet_of_glory_%28t2%29.png",
+    "file_title": "Amulet of glory (t2).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Amulet_of_glory_%28t2%29.png?4470c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "af76ed44197c463346ccf5e546fc8111ff412202",
+    "size": 700,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:19Z"
+  },
+  "miningitems/amulet_of_glory_t3.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Amulet_of_glory_%28t3%29.png",
+    "file_title": "Amulet of glory (t3).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Amulet_of_glory_%28t3%29.png?4470c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "af76ed44197c463346ccf5e546fc8111ff412202",
+    "size": 700,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:19Z"
+  },
+  "miningitems/amulet_of_glory_t4.png": {
+    "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Amulet_of_glory_%28t4%29.png",
+    "file_title": "Amulet of glory (t4).png",
+    "image_url": "https://oldschool.runescape.wiki/images/Amulet_of_glory_%28t4%29.png?4470c",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "af76ed44197c463346ccf5e546fc8111ff412202",
+    "size": 700,
+    "source_wiki": "osrs",
+    "timestamp": "2021-08-23T20:43:19Z"
+  },
   "miningitems/bronze_pickaxe.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Bronze_pickaxe.png",
     "file_title": "Bronze pickaxe.png",
