@@ -199,7 +199,7 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("silver_tiara", "Tiara", "silver", "furnace", 23, 52.5, _req(("Silver bar", 1)), "Tiara", source=SILVER_SOURCE, source_enum="TIARA"),
     CraftingRecipe("silver_silvthrill_rod", "Silvthrill rod", "silver", "furnace", 25, 55.0, _req(("Silver bar", 1), ("Mithril bar", 1), ("Sapphire", 1)), "Silvthrill rod", source=SILVER_SOURCE, source_enum="SILVTHRILL_ROD", tradeable=False, source_item_id=7637),
     CraftingRecipe("silver_demonic_sigil", "Demonic sigil", "silver", "furnace", 30, 50.0, _req(("Silver bar", 1)), "Demonic sigil", source=SILVER_SOURCE, source_enum="DEMONIC_SIGIL", tradeable=False, notes="Quest item; live but use-starved."),
-    CraftingRecipe("silver_silvthrill_chain", "Silvthrill chain", "silver", "furnace", 47, 100.0, _req(("Silver bar", 1), ("Mithril bar", 1)), "Silvthrill chain", source=SILVER_SOURCE, source_enum="SILVTHRILL_CHAIN", tradeable=False, source_item_id=13154),
+    CraftingRecipe("silver_silvthrill_chain", "Silvthril chain", "silver", "furnace", 47, 100.0, _req(("Silver bar", 1), ("Mithril bar", 1)), "Silvthril chain", source=SILVER_SOURCE, source_enum="SILVTHRILL_CHAIN", tradeable=False, source_item_id=13154),
 
     # Jewellery.
     CraftingRecipe("jewellery_gold_ring", "Gold ring", "jewellery", "furnace", 5, 15.0, _req(("Gold bar", 1)), "Gold ring", source=JEWELLERY_SOURCE, source_enum="GOLD"),

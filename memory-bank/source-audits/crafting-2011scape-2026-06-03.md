@@ -64,14 +64,18 @@ outputs; no network asset fetch was performed.
 
 `crafting_data.py` now also carries every remaining source row with a live
 Crafting binding from the re-audit: five `GlassData` outputs, the
-`JewelleryData.SLAYER_RING`, both Silvthrill `SilverData` rows, six separate
-root-input `SpinningData.CBOW_STRING1` recipe IDs for the model's
-single-requirement shape, and milestone capes 10 through 90. Output names and
-source item IDs are pinned in focused tests. The source's `CRAFT_ROS` unlock
-for Ring of slaying (8) and its all-skills milestone-cape gates are retained
-as recipe notes because Crafting has no Slayer or cross-skill gate model.
+`JewelleryData.SLAYER_RING`, both `SilverData` rows, six separate root-input
+`SpinningData.CBOW_STRING1` recipe IDs for the model's single-requirement
+shape, and milestone capes 10 through 90. Output names and source item IDs are
+pinned in focused tests. In particular, the source keeps ID 7637 as
+`Silvthrill rod` but calls ID 13154 `Silvthril chain`. The source's `CRAFT_ROS`
+unlock for Ring of slaying (8) and its all-skills milestone-cape gates are
+retained as recipe notes because Crafting has no Slayer or cross-skill gate
+model.
 
 `PotteryData.NOT_URNS` remains omitted because it is a source grouping wrapper,
-not an output row. No network fetch occurred: the required existing icon
-coverage test passes through local fallback art for the newly registered
-outputs.
+not an output row. The Crafting asset fetch now supplies item-specific pre-EOC
+sprites and provenance for all new outputs; the sole title exception is the
+canonical `Candle lantern`, whose published inventory file is `Candle lantern
+(empty)`. No Beer glass, Unpowered orb, Gold ring, Silver sickle, or Cape of
+legends substitute art is used for this runtime-bound remainder.

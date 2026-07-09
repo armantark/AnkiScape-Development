@@ -58,7 +58,7 @@ class TestCraftingData(unittest.TestCase):
             "glass_empty_light_orb": (87, 70.0, {"Molten glass": 1}, "Empty light orb", 10980),
             "jewellery_ring_of_slaying_8": (75, 15.0, {"Gold bar": 1, "Enchanted gem": 1}, "Ring of slaying (8)", 13281),
             "silver_silvthrill_rod": (25, 55.0, {"Silver bar": 1, "Mithril bar": 1, "Sapphire": 1}, "Silvthrill rod", 7637),
-            "silver_silvthrill_chain": (47, 100.0, {"Silver bar": 1, "Mithril bar": 1}, "Silvthrill chain", 13154),
+            "silver_silvthrill_chain": (47, 100.0, {"Silver bar": 1, "Mithril bar": 1}, "Silvthril chain", 13154),
         }
         for recipe_id, (level, exp, requirements, output_item, source_item_id) in expected.items():
             self.assertEqual(data[recipe_id]["level"], level)

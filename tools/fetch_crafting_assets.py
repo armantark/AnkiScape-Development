@@ -81,6 +81,9 @@ _UTILITY_CRAFTED = {
 # is not simply "<name>.png" (abbreviations, unstrung/unfired states, etc.).
 # Fill in from --dry-run / run failures so a re-run resolves the stragglers.
 WIKI_TITLE_OVERRIDES: Dict[str, str] = {
+    # The canonical 2011Scape item name omits the empty-state qualifier, while
+    # the only published inventory sprite is the corresponding empty lantern.
+    "Candle lantern": "Candle lantern (empty)",
     # Crafted amulets are the *unstrung* item in our economy (stringing is a
     # separate combination step); point at the unstrung inventory icon.
     "Dragonstone ammy": "Dragonstone amulet (unstrung)",
