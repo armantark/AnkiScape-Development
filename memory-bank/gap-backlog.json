@@ -553,7 +553,7 @@
       "rank": 28,
       "skill": "Mining",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Complete live Amulet of glory Mining bonus bindings",
       "detail": "Mining.kt applies the exact 1/86 incidental-gem chance to charged glory IDs 1706/1708/1710/1712, trimmed IDs 10362/10360/10358/10356/10354, duplicate trimmed ID 10719, and duplicate plain-name ID 8283. AnkiScape has the four charged variants but omits every trimmed display variant and cites non-bound ID 1704 for the plain-name bonus row. Add the distinct trimmed variants through Mining bonus/equipment/item/asset tables; use source-bound 8283 as the plain-name bonus provenance and document the unavoidable duplicate-name aliases 10719/10362 under the existing name-keyed model. Retain the exact existing 1/86 behavior, rock exclusions, and standard equipment selection; do not invent a new proc, acquisition route, Combat, or Prayer behavior. Add focused parity/equipment/item/icon tests.",
       "source": "game-main:skills/mining/Mining.kt:100-125; api/cfg/Items.kt glory constants",
@@ -570,7 +570,73 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/mine-runtime-glory-variants/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-runtime-glory-variants/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-runtime-glory-variants/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold as-is. The cumulative branch patch matches Mining.kt's exact 11 runtime IDs, keeps the existing 1/86 path, excluded rocks, and neck-slot selection unchanged, registers the five distinct trimmed display names across Mining bonus, equipment, item, and icon data, binds the plain-name row to 8283 with documented 1704/8283 and 10362/10719 alias handling, and does not touch Combat, Prayer, acquisition, or proc logic. The focused 194-test set and full 935-test suite pass under Python 3.11, all five PNGs and provenance validate, and the generated glory subset reproduces exactly; the literal requested `python` executable is absent in this environment, but `python3 -c \"import mining_data\"` and the Python 3.11 import both succeed."
+      }
+    },
+    {
+      "id": "fletch-colored-feather-options",
+      "rank": 29,
+      "skill": "Fletching",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Accept all live coloured feather alternatives",
+      "detail": "FeatheringData.kt defines the exact live alternatives Feather (314), Red feather (10088), Orange feather (10091), Yellow feather (10090), Blue feather (10089), and Stripy feather (10087); feathering.plugin.kts registers every alternative for every live feathering row and consumes the selected colour. AnkiScape hard-requires only Feather even though Hunter already produces and registers all five coloured inputs. Preserve every existing level, XP value, output, and quantity; accept any one exact alternative and consume the chosen/available type at the row's existing quantity. Integrate deterministic alternative selection through materials, readiness, carried-overlay, apply, and undo paths. Do not add javelins or touch Combat or Prayer. Add focused parity, runtime, inventory, undo, and icon tests.",
+      "source": "game-main:skills/fletching/feathering/FeatheringData.kt; feathering.plugin.kts",
+      "note": "fresh shipped-skill completeness audit pass 3, 2026-07-09"
+    },
+    {
+      "id": "craft-leather-thread-semantics",
+      "rank": 30,
+      "skill": "Crafting",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port live leather Thread requirements and consumption",
+      "detail": "LeatherAction.kt requires Thread before every LeatherData-backed craft and consumes exactly one Thread when world.random(1..5) == 1 after removing the recipe's leather; output and XP are unchanged. Add the non-material presence requirement and exact deterministic 1-in-5 consumption semantics to every live leather recipe, retaining Thread otherwise. Thread already has live acquisition. Keep Needle implicit under the settled 2011 toolbelt decision. Build on the alternative-requirement plumbing landed by fletch-colored-feather-options; wire deterministic RNG, carried-overlay reconciliation, undo, and focused parity tests. Do not touch Combat or Prayer.",
+      "source": "game-main:skills/crafting/leather/LeatherAction.kt; LeatherData.kt",
+      "depends_on": [
+        "fletch-colored-feather-options"
+      ],
+      "note": "fresh shipped-skill completeness audit pass 3, 2026-07-09"
+    },
+    {
+      "id": "craft-held-mould-pipe-gates",
+      "rank": 31,
+      "skill": "Crafting",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Require live held moulds and glassblowing pipe",
+      "detail": "JewelleryAction.kt, SilverAction.kt, and GlassblowingAction.kt require each row's matching MouldItems.kt mould or Glassblowing pipe and never consume it. Add exact non-consuming presence metadata for every jewellery, silver, and glassblowing row. Follow the settled repository convention: in advanced mode the exact item occupies a carried slot; otherwise it must be owned in the bank. Preserve source IDs, including input-starved special moulds; do not gate belt tools Needle, Chisel, or Tinderbox. Build on craft-leather-thread-semantics and add focused default/advanced readiness, apply, reconciliation, undo, item, and icon tests. Do not touch Combat or Prayer.",
+      "source": "game-main:skills/crafting/jewellery/JewelleryAction.kt; silver/SilverAction.kt; glassblowing/GlassblowingAction.kt; MouldItems.kt",
+      "depends_on": [
+        "craft-leather-thread-semantics"
+      ],
+      "note": "settled held-item convention in memory-bank/inventory-carry-model-design-2026-07-07.md; fresh audit pass 3"
+    },
+    {
+      "id": "fm-light-source-actions",
+      "rank": 32,
+      "skill": "Firemaking",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port live light-source lighting and extinguishing actions",
+      "detail": "Port the 11 exact Firemaking-gated, zero-XP raw-to-lit transformations from LightSource.kt and every inverse extinguish binding from light_source.plugin.kts: 596->594 level 1, 36->33 level 1, 38->32 level 1, 4527->4531 level 4, 4532->4534 level 4, 4522->4524 level 12, 4535->4539 level 26, 4548->4550 level 49, 4701->4702 level 49, 9064->9065 level 49, and 5014->5013 level 65. Preserve exact item IDs because several states share display names. Model only Utility/Activities transformations; exclude darkness, location, drop, acquisition, Combat, and Prayer behavior. Add focused level, runtime, item, icon, and undo tests.",
+      "source": "game-main:content/mechanics/lightsource/LightSource.kt; light_source.plugin.kts",
+      "note": "fresh shipped-skill completeness audit pass 3, 2026-07-09"
+    },
+    {
+      "id": "herb-runtime-input-prep",
+      "rank": 33,
+      "skill": "Herblore",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port vial filling and swamp-toad leg preparation",
+      "detail": "Add two zero-XP Utility input-preparation rows from live game-main handlers: Vial (229) -> Vial of water (227), using WaterContainerData.VIAL_OF_WATER and fill_water.plugin.kts; and Swamp toad (2150) -> Toad's legs (2152), using swamp_toad.plugin.kts Remove-legs. Keep exact 1:1 source identities, existing Utility batching conventions, item/icon registration, runtime, and undo behavior green. Do not port unrelated quest, Farming, Juju, or Dungeoneering water-container rows, and do not touch Combat or Prayer.",
+      "source": "game-main:content/objs/watersource/WaterContainerData.kt; fill_water.plugin.kts; content/items/swamp_toad.plugin.kts",
+      "note": "fresh shipped-skill completeness audit pass 3, 2026-07-09"
     }
   ]
 }
