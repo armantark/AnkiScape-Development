@@ -68,6 +68,7 @@ FURNACE_GLASS_SOURCE = (
 )
 BATTLESTAFF_SOURCE = f"{CRAFTING_SOURCE_ROOT}/weaponry/BattlestaffData.kt"
 WEAVING_SOURCE = f"{CRAFTING_SOURCE_ROOT}/weaving/WeavingData.kt"
+POLISHED_BUTTON_SOURCE = f"{CRAFTING_SOURCE_ROOT}/other/polished_button.plugin.kts"
 
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
@@ -288,8 +289,34 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("weave_milestone_cape_70", "Milestone cape (70)", "weaving", "loom", 70, 70.0, _req(("Ball of wool", 7)), "Milestone cape (70)", source=WEAVING_SOURCE, source_enum="MILESTONE_CAPES", source_item_id=20741, notes="Source requires every skill to be at least level 70; AnkiScape's Crafting model cannot enforce the all-skills gate."),
     CraftingRecipe("weave_milestone_cape_80", "Milestone cape (80)", "weaving", "loom", 80, 80.0, _req(("Ball of wool", 8)), "Milestone cape (80)", source=WEAVING_SOURCE, source_enum="MILESTONE_CAPES", source_item_id=20742, notes="Source requires every skill to be at least level 80; AnkiScape's Crafting model cannot enforce the all-skills gate."),
     CraftingRecipe("weave_milestone_cape_90", "Milestone cape (90)", "weaving", "loom", 90, 90.0, _req(("Ball of wool", 9)), "Milestone cape (90)", source=WEAVING_SOURCE, source_enum="MILESTONE_CAPES", source_item_id=20743, notes="Source requires every skill to be at least level 90; AnkiScape's Crafting model cannot enforce the all-skills gate."),
+    # Item combinations and polishing.
+    CraftingRecipe("combine_strange_skull", "Strange skull", "combination", "combine", 1, 0.0, _req(("Left skull half", 1), ("Right skull half", 1)), "Strange skull", source=COMBINATION_SOURCE_PATH, source_enum="STRANGE_SKULL", tradeable=False, source_item_id=9009),
+    CraftingRecipe("combine_runed_sceptre", "Runed sceptre", "combination", "combine", 1, 0.0, _req(("Bottom of sceptre", 1), ("Top of sceptre", 1)), "Runed sceptre", source=COMBINATION_SOURCE_PATH, source_enum="RUNED_SCEPTRE", tradeable=False, source_item_id=9012),
+    CraftingRecipe("combine_skull_sceptre", "Skull sceptre", "combination", "combine", 1, 0.0, _req(("Strange skull", 1), ("Runed sceptre", 1)), "Skull sceptre", source=COMBINATION_SOURCE_PATH, source_enum="SKULL_SCEPTRE", tradeable=False, source_item_id=9013),
+    CraftingRecipe("combine_bullseye_lantern", "Bullseye lantern", "combination", "combine", 49, 0.0, _req(("Bullseye lantern", 1), ("Lantern lens", 1)), "Bullseye lantern", source=COMBINATION_SOURCE_PATH, source_enum="BULLYEYE_LANTERN", tradeable=False, source_item_id=4546),
+    CraftingRecipe("combine_bullseye_emerald_lantern", "Emerald lantern", "combination", "combine", 49, 0.0, _req(("Bullseye lantern", 1), ("Emerald lens", 1)), "Emerald lantern", source=COMBINATION_SOURCE_PATH, source_enum="BULLYEYE_EMERALD_LANTERN", tradeable=False, source_item_id=9064),
+    CraftingRecipe("combine_oil_lantern", "Oil lantern", "combination", "combine", 50, 50.0, _req(("Oil lamp", 1), ("Oil lantern frame", 1)), "Oil lantern", source=COMBINATION_SOURCE_PATH, source_enum="OIL_LANTERN", source_item_id=4537),
     CraftingRecipe("combine_studded_body", "Studded body", "combination", "combine", 41, 40.0, _req(("Leather body", 1), ("Steel studs", 1)), "Studded body", source=COMBINATION_SOURCE_PATH, source_enum="STUDDED_BODY"),
+    CraftingRecipe("combine_studded_chaps", "Studded chaps", "combination", "combine", 44, 42.0, _req(("Leather chaps", 1), ("Steel studs", 1)), "Studded chaps", source=COMBINATION_SOURCE_PATH, source_enum="STUDDED_CHAPS", source_item_id=1097),
+    CraftingRecipe("combine_spiky_vambraces", "Spiky vambraces", "combination", "combine", 32, 6.0, _req(("Leather vambraces", 1), ("Kebbit claws", 1)), "Spiky vambraces", source=COMBINATION_SOURCE_PATH, source_enum="LEATHER_SPIKY_VAMBRACES", source_item_id=10077),
+    CraftingRecipe("combine_green_spiky_vambraces", "Green spiky vambraces", "combination", "combine", 32, 6.0, _req(("Green d'hide vambraces", 1), ("Kebbit claws", 1)), "Green spiky vambraces", source=COMBINATION_SOURCE_PATH, source_enum="GREEN_SPIKY_VAMBRACES", source_item_id=10079),
+    CraftingRecipe("combine_blue_spiky_vambraces", "Blue spiky vambraces", "combination", "combine", 32, 6.0, _req(("Blue d'hide vambraces", 1), ("Kebbit claws", 1)), "Blue spiky vambraces", source=COMBINATION_SOURCE_PATH, source_enum="BLUE_SPIKY_VAMBRACES", source_item_id=10081),
+    CraftingRecipe("combine_red_spiky_vambraces", "Red spiky vambraces", "combination", "combine", 32, 6.0, _req(("Red d'hide vambraces", 1), ("Kebbit claws", 1)), "Red spiky vambraces", source=COMBINATION_SOURCE_PATH, source_enum="RED_SPIKY_VAMBRACES", source_item_id=10083),
+    CraftingRecipe("combine_black_spiky_vambraces", "Black spiky vambraces", "combination", "combine", 32, 6.0, _req(("Black d'hide vambraces", 1), ("Kebbit claws", 1)), "Black spiky vambraces", source=COMBINATION_SOURCE_PATH, source_enum="BLACK_SPIKY_VAMBRACES", source_item_id=10085),
+    CraftingRecipe("chisel_crab_helmet", "Crab helmet", "combination", "chisel", 15, 32.5, _req(("Fresh crab shell", 1)), "Crab helmet", source=COMBINATION_SOURCE_PATH, source_enum="CRAB_HELMET", tradeable=False, source_item_id=7539),
+    CraftingRecipe("chisel_crab_claw", "Crab claw", "combination", "chisel", 15, 32.5, _req(("Fresh crab claw", 1)), "Crab claw", source=COMBINATION_SOURCE_PATH, source_enum="CRAB_CLAW", tradeable=False, source_item_id=7537),
+    CraftingRecipe("combine_seaweed_net", "Empty seaweed net", "combination", "combine", 52, 83.0, _req(("Unfinished net", 1), ("Bronze wire", 1)), "Empty seaweed net", source=COMBINATION_SOURCE_PATH, source_enum="SEAWEED_NET", source_item_id=14859),
+    CraftingRecipe("combine_armadyl_battlestaff", "Armadyl battlestaff", "combination", "combine", 77, 150.0, _req(("Battlestaff", 1), ("Orb of armadyl", 1)), "Armadyl battlestaff", source=COMBINATION_SOURCE_PATH, source_enum="ARMADYL_BATTLESTAFF", source_item_id=21777),
+    CraftingRecipe("string_gold_amulet", "Gold amulet", "combination", "stringing", 1, 4.0, _req(("Gold amulet", 1), ("Ball of wool", 1)), "Gold amulet", source=COMBINATION_SOURCE_PATH, source_enum="GOLD_AMULET", source_item_id=1692),
+    CraftingRecipe("string_sapphire_amulet", "Sapphire amulet", "combination", "stringing", 1, 4.0, _req(("Sapphire amulet", 1), ("Ball of wool", 1)), "Sapphire amulet", source=COMBINATION_SOURCE_PATH, source_enum="SAPPHIRE_AMULET", source_item_id=1694),
+    CraftingRecipe("string_emerald_amulet", "Emerald amulet", "combination", "stringing", 1, 4.0, _req(("Emerald amulet", 1), ("Ball of wool", 1)), "Emerald amulet", source=COMBINATION_SOURCE_PATH, source_enum="EMERALD_AMULET", source_item_id=1696),
+    CraftingRecipe("string_ruby_amulet", "Ruby amulet", "combination", "stringing", 1, 4.0, _req(("Ruby amulet", 1), ("Ball of wool", 1)), "Ruby amulet", source=COMBINATION_SOURCE_PATH, source_enum="RUBY_AMULET", source_item_id=1698),
+    CraftingRecipe("string_diamond_amulet", "Diamond amulet", "combination", "stringing", 1, 4.0, _req(("Diamond amulet", 1), ("Ball of wool", 1)), "Diamond amulet", source=COMBINATION_SOURCE_PATH, source_enum="DIAMOND_AMULET", source_item_id=1700),
     CraftingRecipe("string_dragonstone_amulet", "Dragonstone ammy", "combination", "stringing", 1, 4.0, _req(("Dragonstone ammy", 1), ("Ball of wool", 1)), "Dragonstone ammy", source=COMBINATION_SOURCE_PATH, source_enum="DRAGONSTONE_AMULET", notes="Downstream enchant action belongs to future Magic."),
+    CraftingRecipe("string_onyx_amulet", "Onyx amulet", "combination", "stringing", 1, 4.0, _req(("Onyx amulet", 1), ("Ball of wool", 1)), "Onyx amulet", source=COMBINATION_SOURCE_PATH, source_enum="ONYX_AMULET", source_item_id=6581),
+    CraftingRecipe("string_unblessed_symbol", "Unblessed symbol", "combination", "stringing", 1, 4.0, _req(("Unstrung symbol", 1), ("Ball of wool", 1)), "Unblessed symbol", source=COMBINATION_SOURCE_PATH, source_enum="UNBLESSED_SYMBOL", source_item_id=1716),
+    CraftingRecipe("string_unpowered_symbol", "Unpowered symbol", "combination", "stringing", 1, 4.0, _req(("Unstrung emblem", 1), ("Ball of wool", 1)), "Unpowered symbol", source=COMBINATION_SOURCE_PATH, source_enum="UNPOWERED_SYMBOL", source_item_id=1722),
+    CraftingRecipe("polish_buttons", "Polished buttons", "combination", "polish", 3, 5.0, _req(("Buttons", 1)), "Polished buttons", source=POLISHED_BUTTON_SOURCE, source_enum="POLISHED_BUTTONS", tradeable=False, source_item_id=10496),
 )
 
 CRAFTING_RECIPES_BY_ID: Dict[str, CraftingRecipe] = {recipe.id: recipe for recipe in CRAFTING_RECIPES}

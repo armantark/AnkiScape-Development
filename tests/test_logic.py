@@ -610,6 +610,30 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Soda ash"], 0)
         self.assertEqual(new_inv["Bucket of sand"], 0)
 
+    def test_item_combinations_and_button_polishing_execute_once(self):
+        new_inv, exp, ok = apply_crafting_pure(
+            "combine_bullseye_lantern",
+            {"Bullseye lantern": 1, "Lantern lens": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0.0)
+        self.assertEqual(new_inv, {"Bullseye lantern": 1, "Lantern lens": 0})
+
+        new_inv, exp, ok = apply_crafting_pure(
+            "chisel_crab_helmet",
+            {"Fresh crab shell": 1, "Chisel": 1},
+            CRAFTING_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 32.5)
+        self.assertEqual(new_inv, {"Fresh crab shell": 0, "Chisel": 1, "Crab helmet": 1})
+
+        new_inv, exp, ok = apply_crafting_pure("polish_buttons", {"Buttons": 1}, CRAFTING_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(exp, 5.0)
+        self.assertEqual(new_inv, {"Buttons": 0, "Polished buttons": 1})
+
     def test_coin_paid_conversions_batch_with_per_unit_coins(self):
         # Tanning/sawmill conversions are review-paced no-XP batches with
         # coins consumed per unit, mirroring 2011's inventory-bounded runs
