@@ -1385,9 +1385,12 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   tests); the shell has no `python` executable, but `/opt/homebrew/bin/python3
   -c "import herblore_data"` succeeds.
 
-- The automated gap-fill scheduler now polls every 3 minutes and preserves
-  dependency-aware concurrency: independent skills may overlap, while any
-  unresolved worktree locks its skill until merge or owner resolution. Focused
+- The automated gap-fill scheduler now polls every 15 minutes and permits up to
+  six simultaneous implementers. That ceiling fits the current 8-performance-core,
+  32-GB host while leaving headroom for overlapping Sol reviews and concurrent
+  full-suite runs. Dependency-aware concurrency remains: independent skills may
+  overlap, while any unresolved worktree locks its skill until merge or owner
+  resolution. Focused
   scheduler tests cover failure-state locks, independent overlap, merged-state
   release, and explicit dependency gates. Its terminal blocked state now pauses
   the heartbeat and uses the exact owner-intervention banner recorded in
