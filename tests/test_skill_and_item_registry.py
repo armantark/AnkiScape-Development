@@ -750,7 +750,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have an ore icon")
         for name in ("Uncut opal", "Uncut jade", "Uncut red topaz"):
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a gem icon")
-        for name in ("Bronze pickaxe", "Rune pickaxe", "Dragon pickaxe"):
+        for name in ("Bronze pickaxe", "Rune pickaxe", "Inferno adze", "Dragon pickaxe"):
             self.assertIsNotNone(by_storage_key[name].asset_path, f"{name} should have a pickaxe icon")
 
     def test_every_smithing_output_resolves_an_icon(self):

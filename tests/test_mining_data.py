@@ -60,14 +60,17 @@ class TestMiningData(unittest.TestCase):
         self.assertEqual(sum(output.weight for output in gem_rocks.weighted_outputs), 128)
         self.assertTrue(all(output.tradeable for output in sandstone.weighted_outputs))
 
-    def test_pickaxe_table_normalizes_source_anomalies(self):
+    def test_pickaxe_table_normalizes_source_anomalies_and_includes_inferno_adze(self):
         self.assertEqual(MINING_PICKAXES_BY_ID["bronze_pickaxe"].ticks_between_rolls, 8)
         self.assertEqual(MINING_PICKAXES_BY_ID["rune_pickaxe"].level, 41)
+        self.assertEqual(MINING_PICKAXES_BY_ID["inferno_adze"].item_id, 13661)
+        self.assertEqual(MINING_PICKAXES_BY_ID["inferno_adze"].level, 41)
+        self.assertEqual(MINING_PICKAXES_BY_ID["inferno_adze"].ticks_between_rolls, 3)
+        self.assertFalse(MINING_PICKAXES_BY_ID["inferno_adze"].tradeable)
         self.assertEqual(MINING_PICKAXES_BY_ID["dragon_pickaxe"].item_id, 15261)
         self.assertEqual(MINING_PICKAXES_BY_ID["gilded_rune_pickaxe"].level, 41)
         self.assertEqual(MINING_PICKAXES_BY_ID["gilded_rune_pickaxe"].source_level, 1)
-        self.assertEqual(DEFERRED_MINING_PICKAXES[0].id, "inferno_adze")
-        self.assertFalse(DEFERRED_MINING_PICKAXES[0].tradeable)
+        self.assertEqual(DEFERRED_MINING_PICKAXES, ())
 
     def test_bonus_items_and_tradability_are_explicit(self):
         items = mining_extra_items_as_dict()

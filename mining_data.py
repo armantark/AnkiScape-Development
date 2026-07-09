@@ -287,6 +287,7 @@ MINING_PICKAXES: Tuple[MiningPickaxe, ...] = (
     MiningPickaxe("mithril_pickaxe", "Mithril pickaxe", 1273, 21, 5),
     MiningPickaxe("adamant_pickaxe", "Adamant pickaxe", 1271, 31, 4),
     MiningPickaxe("rune_pickaxe", "Rune pickaxe", 1275, 41, 3),
+    MiningPickaxe("inferno_adze", "Inferno adze", 13661, 41, 3, tradeable=False),
     MiningPickaxe(
         "dragon_pickaxe",
         "Dragon pickaxe",
@@ -305,18 +306,7 @@ MINING_PICKAXES: Tuple[MiningPickaxe, ...] = (
 )
 
 
-DEFERRED_MINING_PICKAXES: Tuple[MiningPickaxe, ...] = (
-    MiningPickaxe(
-        "inferno_adze",
-        "Inferno adze",
-        13661,
-        41,
-        3,
-        status="deferred_special",
-        notes="Requires broader All Fired Up / Firemaking reward handling.",
-        tradeable=False,
-    ),
-)
+DEFERRED_MINING_PICKAXES: Tuple[MiningPickaxe, ...] = ()
 
 
 MINING_BONUS_ITEMS: Tuple[MiningBonusItem, ...] = (
