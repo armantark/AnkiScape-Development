@@ -1369,7 +1369,9 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   dependency-aware concurrency: independent skills may overlap, while any
   unresolved worktree locks its skill until merge or owner resolution. Focused
   scheduler tests cover failure-state locks, independent overlap, merged-state
-  release, and explicit dependency gates.
+  release, and explicit dependency gates. Its terminal blocked state now pauses
+  the heartbeat and uses the exact owner-intervention banner recorded in
+  `tools/gap_loop_prompt.md`, but only after every safe work path is exhausted.
 
 - The current P0 architecture board is complete. Do not continue P0 by default;
   reopen architecture only if the owner names a new concrete acceptance boundary.

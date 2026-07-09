@@ -47,6 +47,13 @@ Capture stdout and weigh it; you remain the decider. Use it for hard calls, not 
 ## When the transcription backlog drains
 When nothing is `pending`/`in_progress`/`reviewing` among transcription items, run a fresh completeness audit: compare game-main's content for each shipped skill against AnkiScape's data modules, and append any newly found gaps to the ledger, each classified `transcription` or `stub`. Only the transcription ones enter the auto-fill lane; stubs are appended as `needs_grill` and left for the owner. If only `needs_grill` items remain, there is nothing more to auto-build — report that the loop is idle against the grill wall and stop churning.
 
+## Owner-intervention stop signal
+Do not declare the loop blocked while any safe transcription, review recovery, merge recovery, completeness audit, or independent skill work can still advance. Once every safe avenue is exhausted and progress genuinely requires the owner, pause the heartbeat and make the notification impossible to confuse with a routine tick. The first line must be exactly:
+
+`🚨 OWNER INTERVENTION REQUIRED — AUTOMATION BLOCKED`
+
+Then state the concrete blocker, what was already tried or ruled out, the exact owner decision/action required, and the safe repository/ledger state being left behind. Do not bury this alert beneath a normal status summary.
+
 ## Cadence
 Use a 3-minute heartbeat while work is in flight. Measured normal implementations take roughly 6-9 minutes and reviews 4-12 minutes, while the driver tick itself takes seconds; a 15-minute poll left completed stages idle for as long as 17:46. Parallelize independent skills, but keep every same-skill or explicit dependency chain serial so later work starts from the merged predecessor. Any unresolved source-editing worktree — including `review_failed`, `impl_failed`, `empty`, or `merge_conflict` — keeps its skill locked. When idle at the grill wall, disable the heartbeat instead of polling.
 

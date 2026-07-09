@@ -1224,3 +1224,11 @@ separate worktrees. Same-skill and explicit dependency chains must remain serial
 and start from the merged predecessor. `tools/gap_driver.py` therefore treats
 every unresolved source-editing worktree, including failure and conflict states,
 as a skill lock; merged worktree paths do not lock future work.
+
+When the loop has exhausted every safe implementation, recovery, audit, and
+independent-work path and cannot move without the owner, it must pause its
+heartbeat and lead the user-facing notification with the exact banner
+`🚨 OWNER INTERVENTION REQUIRED — AUTOMATION BLOCKED`. The alert must identify
+the blocker, attempted/rule-out work, the exact owner decision or action needed,
+and the safe state left on disk. Routine per-item failures do not qualify while
+other work can still advance.
