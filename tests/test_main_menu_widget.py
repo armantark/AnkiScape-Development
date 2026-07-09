@@ -1124,12 +1124,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/37 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/40 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/113 (1.8%)", labels)
+        self.assertIn("Completed: 2/120 (1.7%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)

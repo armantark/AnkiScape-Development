@@ -102,6 +102,7 @@ def build_achievement_definitions(
     bar_items: Iterable[str],
     fishing_output_items: Iterable[str],
     hunter_output_items: Iterable[str],
+    herblore_finished_items: Iterable[str],
 ) -> tuple[AchievementDefinition, ...]:
     mining_output_items = tuple(mining_output_items)
     woodcutting_log_items = tuple(woodcutting_log_items)
@@ -110,6 +111,7 @@ def build_achievement_definitions(
     bar_items = tuple(bar_items)
     fishing_output_items = tuple(fishing_output_items)
     hunter_output_items = tuple(hunter_output_items)
+    herblore_finished_items = tuple(herblore_finished_items)
 
     definitions: list[AchievementDefinition] = []
     final_count = {"value": 0}
@@ -258,6 +260,14 @@ def build_achievement_definitions(
     add("Expert Cook", "Reach Cooking level 60", "Difficult", lambda player: _level(player, "cooking_level") >= 60)
     add("Kitchen Stockpile", "Successfully cook 10,000 items", "Difficult", lambda player: _level(player, "cooking_success_count", 0) >= 10000)
     add("Master Cook", "Reach Cooking level 99", "Very Challenging", lambda player: _level(player, "cooking_level") >= 99)
+
+    add("First Potion", "Mix your first potion", "Easy", lambda player: _inventory_total(player, herblore_finished_items) > 0)
+    add("Novice Herbalist", "Reach Herblore level 10", "Easy", lambda player: _level(player, "herblore_level") >= 10)
+    add("Potion Collector", "Hold 100 finished potions at once", "Easy", lambda player: _inventory_total(player, herblore_finished_items) >= 100)
+    add("Intermediate Herbalist", "Reach Herblore level 30", "Moderate", lambda player: _level(player, "herblore_level") >= 30)
+    add("Potion Hoarder", "Hold 1,000 finished potions at once", "Moderate", lambda player: _inventory_total(player, herblore_finished_items) >= 1000)
+    add("Expert Herbalist", "Reach Herblore level 60", "Difficult", lambda player: _level(player, "herblore_level") >= 60)
+    add("Master Herbalist", "Reach Herblore level 99", "Very Challenging", lambda player: _level(player, "herblore_level") >= 99)
 
     final_count["value"] = len(definitions)
     return tuple(definitions)

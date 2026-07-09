@@ -89,6 +89,7 @@ try:
         DEFAULT_HERBLORE_TARGET,
         HERBLORE_GROUP_LABELS,
         herblore_extra_items_as_dict,
+        herblore_finished_output_items,
         herblore_item_names,
         herblore_output_items,
         herblore_targets_as_dict,
@@ -204,6 +205,7 @@ except ImportError:
         DEFAULT_HERBLORE_TARGET,
         HERBLORE_GROUP_LABELS,
         herblore_extra_items_as_dict,
+        herblore_finished_output_items,
         herblore_item_names,
         herblore_output_items,
         herblore_targets_as_dict,
@@ -571,6 +573,7 @@ RUNECRAFTING_OUTPUT_ITEMS = runecrafting_output_items()
 RUNECRAFTING_ACCESS_ITEMS = runecrafting_access_items()
 HERBLORE_DATA = herblore_targets_as_dict()
 HERBLORE_OUTPUT_ITEMS = herblore_output_items()
+HERBLORE_FINISHED_OUTPUT_ITEMS = herblore_finished_output_items()
 QUEST_DATA = quests_as_dict()
 QUEST_REFERENCE_DATA = quest_references_as_dict()
 QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
@@ -768,20 +771,31 @@ _grind_image_sources = (
     WOODCUTTING_EXTRA_ITEM_IMAGES,
     RUNECRAFTING_ITEM_IMAGES,
 )
+# Grind rows key their icon off the output dust, but the dust items ship no art
+# of their own; surface any icon already resolved elsewhere for the inputs/outputs,
+# then fall back the output to an input's icon (what you drop into the mortar) and
+# finally to the generic material-processing icon, so no grinding row is iconless.
+_GRIND_FALLBACK_ICON = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "make_soft_clay.png")
 for _spec in UTILITY_ACTIVITY_DATA.values():
     if _spec.get("group") != "grinding":
         continue
-    _grind_items = set(_spec.get("requirements", {}))
-    if isinstance(_spec.get("output_item"), str):
-        _grind_items.add(_spec["output_item"])
+    _requirements = list(_spec.get("requirements", {}))
+    _output = _spec.get("output_item")
+    _grind_items = _requirements + ([_output] if isinstance(_output, str) else [])
     for _item_name in _grind_items:
         if _item_name in UTILITY_ITEM_IMAGES:
             continue
         for _source_map in _grind_image_sources:
             _path = _source_map.get(_item_name)
-            if _path:
+            if _path and os.path.exists(_path):
                 UTILITY_ITEM_IMAGES[_item_name] = _path
                 break
+    if isinstance(_output, str) and _output not in UTILITY_ITEM_IMAGES:
+        _fallback = next(
+            (UTILITY_ITEM_IMAGES[_item] for _item in _requirements if UTILITY_ITEM_IMAGES.get(_item)),
+            None,
+        )
+        UTILITY_ITEM_IMAGES[_output] = _fallback or _GRIND_FALLBACK_ICON
 
 
 def _known_non_shop_item_names():
@@ -979,5 +993,6 @@ ACHIEVEMENT_DEFINITIONS = build_achievement_definitions(
     BAR_DATA,
     FISHING_OUTPUT_ITEMS,
     HUNTER_OUTPUT_ITEMS,
+    HERBLORE_FINISHED_OUTPUT_ITEMS,
 )
 ACHIEVEMENTS = achievements_as_dict(ACHIEVEMENT_DEFINITIONS)

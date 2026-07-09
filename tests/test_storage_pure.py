@@ -371,7 +371,7 @@ class TestStoragePure(unittest.TestCase):
                 "runecrafting_exp": 100,
                 "pending_skill_exp_rewards": {
                     "runecrafting_exp": 5000,
-                    "herblore_exp": 250,
+                    "farming_exp": 250,
                 },
             },
             ORE_DATA,
@@ -379,7 +379,7 @@ class TestStoragePure(unittest.TestCase):
         )
 
         self.assertEqual(migrated["runecrafting_exp"], 5100.0)
-        self.assertEqual(migrated["pending_skill_exp_rewards"], {"herblore_exp": 250.0})
+        self.assertEqual(migrated["pending_skill_exp_rewards"], {"farming_exp": 250.0})
 
     def test_migrate_equipment_state_and_removes_owned_equipment(self):
         migrated = migrate_loaded_data(

@@ -255,6 +255,15 @@ def herblore_output_items() -> Tuple[str, ...]:
     return tuple(dict.fromkeys(t.output_item for t in HERBLORE_TARGETS))
 
 
+def herblore_finished_output_items() -> Tuple[str, ...]:
+    """Only the finished-potion products (group == "finished"), excluding the
+    clean-herb and unfinished-potion intermediates, for the "mix a potion"
+    achievements."""
+    return tuple(
+        dict.fromkeys(t.output_item for t in HERBLORE_TARGETS if t.group == "finished")
+    )
+
+
 def herblore_item_names() -> Tuple[str, ...]:
     """Every item the skill references: grimy/clean/unf herbs, secondaries,
     products, and Vial of water."""
