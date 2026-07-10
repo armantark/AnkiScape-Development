@@ -582,7 +582,7 @@
       "rank": 29,
       "skill": "Fletching",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Accept all live coloured feather alternatives",
       "detail": "FeatheringData.kt defines the exact live alternatives Feather (314), Red feather (10088), Orange feather (10091), Yellow feather (10090), Blue feather (10089), and Stripy feather (10087); feathering.plugin.kts registers every alternative for every live feathering row and consumes the selected colour. AnkiScape hard-requires only Feather even though Hunter already produces and registers all five coloured inputs. Preserve every existing level, XP value, output, and quantity; accept any one exact alternative and consume the chosen/available type at the row's existing quantity. Integrate deterministic alternative selection through materials, readiness, carried-overlay, apply, and undo paths. Do not add javelins or touch Combat or Prayer. Add focused parity, runtime, inventory, undo, and icon tests.",
       "source": "game-main:skills/fletching/feathering/FeatheringData.kt; feathering.plugin.kts",
