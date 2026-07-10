@@ -156,6 +156,10 @@ revamp and a source-backed training-rate audit.
 
 ### Global Training-Rate Rule
 
+- This is a design and evidence-collection seed only. Do not run the global
+  time-to-99 balancing or choose its compression scale until every skill and
+  major training family is implemented; the system is too incomplete and in
+  flux for a meaningful comparison now.
 - Preserve exact source mechanics and raw XP awards. Use archived 2012 training
   guides and reconstructed XP-per-hour ranges to calibrate simulated travel,
   banking, depletion, and activity time slices rather than rewriting XP or
@@ -177,3 +181,66 @@ disabled or stubbed, creature XP is commented out, and its inventory/exit
 economy does not yet provide a trustworthy November 2012 contract. Implement
 only after the fidelity revamp can be reconciled with pinned historical guides,
 including the complete pre-EOC reward shop and equipment effects.
+
+## Firemaking: Bonfires, Fire Spirits, and Cooking Heat Sources
+
+Backlog id: `fm-bonfires`
+
+Decision status: design settled; exact rates and batch timing wait for a pinned
+2012 wiki snapshot and the Darkan fidelity revamp.
+
+### Firemaking Training
+
+- Preserve the interaction-density distinction provisionally: line fires remain
+  one manually initiated log per review, while a dedicated bonfire-training
+  review advances an automatic feeding batch. Do not finalize comparative
+  XP-per-review or time-to-99 balance until all skills are implemented.
+- Dedicated bonfire training joins an abstracted busy public bonfire and always
+  receives the authentic five-or-more-participant bonus. Do not add crowd
+  configuration or a multiplayer/world-map system.
+- Training logs use the normal unified 28-slot carried inventory and simulated
+  bank-run cycle. The feeding batch consumes carried logs, rolls source XP and
+  failures per log, and remains fully undoable.
+- Fire-spirit rewards are claimed automatically, deposited directly into the
+  bank, and announced with a small non-blocking floaty popup. A spirit never
+  consumes a review, interrupts the feeding batch, or occupies a carried slot.
+
+### Warmth and Simulated Time
+
+- After the source-authentic contribution requirement, bonfire warmth increases
+  the shared maximum player lifepoints and remains useful in Combat and
+  dangerous Hunter. Use the pinned 2012 percentage, log-dependent duration,
+  stacking, refresh, death, and expiry rules.
+- Timed effects advance by the simulated duration of the activity being
+  performed, not by wall-clock time and not by a universal review duration.
+  Combat currently advances 50 game ticks, approximately 30 seconds, per base
+  review; Cooking, Firemaking, and every other skill use their own source-backed
+  action duration. Multipliers advance the corresponding simulated duration.
+
+### Cooking Heat Sources
+
+Every Cooking target explicitly saves one compatible heat source; there is no
+automatic optimizer or silent fallback:
+
+- `Range`: Cooking only, using the source-authentic lower burn chance and any
+  range-only recipe requirements.
+- `Own fire / solo bonfire`: the ordinary-fire choice is dual Firemaking and
+  Cooking. Its background solo bonfire normally cooks, but when its
+  log-dependent timer expires the next review performs one automatic
+  maintenance-feeding batch, consumes the selected log type from the bank, and
+  awards solo-bonfire Firemaking XP before Cooking resumes. Fuel is
+  intentionally excluded from the Cooking target's 28-slot layout, but it is
+  not free; the target stops and reports the missing selected log when bank
+  stock runs out. The exact batch size and duration remain source-gated.
+- `Busy public bonfire`: grants the full authentic public-bonfire Cooking bonus
+  without consuming player logs or awarding Firemaking XP. Because the player
+  contributes nothing, it grants no warmth and rolls no fire spirits.
+
+### Evidence Gate
+
+Use a RuneScape Wiki revision or Wayback capture from the November 2012 cutoff,
+not the current live page, for log lifetimes, feeding cadence, XP formulas,
+participant bonuses, burn-hand failures, warmth, fire-spirit chance and reward
+table, Cooking compatibility, and range-versus-fire burn behavior. Reconcile
+that snapshot with the revamped Darkan implementation and record any remaining
+conflicts rather than choosing the modern value by default.

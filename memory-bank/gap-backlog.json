@@ -269,8 +269,18 @@
       "title": "Add bonfires and fire spirits",
       "detail": "Released 2012 pre-EOC. AnkiScape's own audit defers them. Source XP-per-log-on-bonfire + fire spirit rewards from wiki.",
       "source": "wiki:Bonfire",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement from a pinned November 2012 wiki snapshot reconciled with the Darkan fidelity revamp, while leaving comparative time-to-99 balancing parked.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#firemaking-bonfires-fire-spirits-and-cooking-heat-sources",
+      "decision_summary": {
+        "training": "Line fires remain discrete; busy-public-bonfire training uses source-backed automatic feeding batches, full participant bonus, the unified carried inventory, and bank-run cycles.",
+        "spirits": "Automatically claim fire spirits into the bank with a non-blocking floaty popup; they consume no review or carried slot.",
+        "warmth": "Apply source-authentic warmth to shared maximum lifepoints. Timers advance by each activity's own simulated duration rather than wall time or a universal seconds-per-review rule.",
+        "cooking": "Cooking explicitly saves Range, Own fire / solo bonfire, or Busy public bonfire per target; there is no Auto choice or silent fallback.",
+        "own_bonfire": "Own bonfire interleaves Cooking with source-gated maintenance batches. Its selected bank-funded fuel is excluded from the carried Cooking layout, and the target stops when that log runs out.",
+        "public_bonfire": "Busy public bonfire gives the public Cooking bonus but no player Firemaking XP, warmth, or fire spirits because the player contributes no logs.",
+        "source_gate": "Use a pinned November 2012 wiki revision or Wayback capture, not the live modern page, and reconcile it with revamped Darkan."
+      }
     },
     {
       "id": "smith-artisan-burial",
