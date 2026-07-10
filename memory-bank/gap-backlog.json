@@ -861,11 +861,19 @@
       "rank": 40,
       "skill": "Runecrafting",
       "root_cause": "transcription",
-      "status": "pending",
+      "status": "in_progress",
       "title": "Use one essence family per standard Runecrafting trip",
       "detail": "RunecraftAction.kt selects the first valid essence item present, counts and removes only that one item ID, and calculates output and XP from that single stack. For Air through Body runes, select exactly one essence family per action using the existing deterministic priority: Rune essence when any is available, otherwise Pure essence. Cap the trip at that selected stack plus normal capacity and never spill into the second essence family. Higher runes remain Pure-only. Preserve altar access, talismans/tiaras, pouches and degradation, multipliers, XP, outputs, and every other Runecrafting behavior. Add a mixed-stock regression where Rune essence is below capacity and Pure essence remains untouched. Do not touch Combat or Prayer.",
       "source": "game-main:skills/runecrafting/RunecraftAction.kt:120-128",
-      "note": "fresh shipped-skill completeness audit pass 5, 2026-07-09"
+      "note": "fresh shipped-skill completeness audit pass 5, 2026-07-09",
+      "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/rc-single-essence-trip-selection",
+      "branch": "gap/rc-single-essence-trip-selection",
+      "tier": "gpt-5.6-terra",
+      "impl_report": "/private/tmp/ankiscape-gap-ops/rc-single-essence-trip-selection/impl_report.md",
+      "impl_log": "/private/tmp/ankiscape-gap-ops/rc-single-essence-trip-selection/impl.log",
+      "impl_done": "/private/tmp/ankiscape-gap-ops/rc-single-essence-trip-selection/impl.done",
+      "impl_exit": "/private/tmp/ankiscape-gap-ops/rc-single-essence-trip-selection/impl.exit",
+      "started": "2026-07-09 23:08:16"
     },
     {
       "id": "fm-barbarian-bow-lighting",
