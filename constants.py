@@ -94,6 +94,7 @@ try:
         herblore_item_names,
         herblore_output_items,
         herblore_targets_as_dict,
+        input_preparation_activities_as_dict,
         pestle_and_mortar_activities_as_dict,
     )
     from .shop_data import shop_extra_items_as_dict
@@ -212,6 +213,7 @@ except ImportError:
         herblore_item_names,
         herblore_output_items,
         herblore_targets_as_dict,
+        input_preparation_activities_as_dict,
         pestle_and_mortar_activities_as_dict,
     )
     from shop_data import shop_extra_items_as_dict
@@ -414,6 +416,7 @@ UTILITY_ACTIVITY_DATA.update(tanning_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 
@@ -890,9 +893,9 @@ for _item_name, _finished_item in {
     if _path:
         FLETCHED_ITEM_IMAGES[_item_name] = _path
 
-# Pestle-and-mortar grinding routes its inputs/outputs through the utility-material
-# registration, so (like the Hunter supply items above) surface any icon we already
-# resolved elsewhere — shop stock, combat drops, herblore art — into
+# Pestle-and-mortar grinding and Herblore input preparation route their
+# inputs/outputs through the utility-material registration, so surface any icon
+# we already resolved elsewhere — shop stock, combat drops, herblore art — into
 # UTILITY_ITEM_IMAGES rather than leave those rows iconless.
 _grind_image_sources = (
     HERBLORE_ITEM_IMAGES,
@@ -902,13 +905,12 @@ _grind_image_sources = (
     WOODCUTTING_EXTRA_ITEM_IMAGES,
     RUNECRAFTING_ITEM_IMAGES,
 )
-# Grind rows key their icon off the output dust, but the dust items ship no art
-# of their own; surface any icon already resolved elsewhere for the inputs/outputs,
-# then fall back the output to an input's icon (what you drop into the mortar) and
-# finally to the generic material-processing icon, so no grinding row is iconless.
+# These Utility rows key their icon off the output item. Surface any icon already
+# resolved elsewhere for their inputs/outputs, then fall back the output to an
+# input icon and finally to the generic material-processing icon.
 _GRIND_FALLBACK_ICON = os.path.join(UTILITY_ACTIVITY_ICONS_FOLDER, "make_soft_clay.png")
 for _spec in UTILITY_ACTIVITY_DATA.values():
-    if _spec.get("group") != "grinding":
+    if _spec.get("group") not in {"grinding", "input_preparation"}:
         continue
     _requirements = list(_spec.get("requirements", {}))
     _output = _spec.get("output_item")

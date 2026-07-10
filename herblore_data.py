@@ -28,6 +28,18 @@ PESTLE_AND_MORTAR_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/pestle_and_mortar/PestleAndMortarData.kt"
 )
+WATER_CONTAINER_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/objs/watersource/WaterContainerData.kt"
+)
+FILL_WATER_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/objs/watersource/fill_water.plugin.kts"
+)
+SWAMP_TOAD_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/items/swamp_toad.plugin.kts"
+)
 
 DEFAULT_HERBLORE_TARGET = "clean_guam"
 VIAL_OF_WATER_ITEM = "Vial of water"
@@ -57,6 +69,17 @@ class PestleAndMortarActivity:
     output_item_id: int
     source_enum: str
     source: str = PESTLE_AND_MORTAR_SOURCE_PATH
+
+
+@dataclass(frozen=True)
+class InputPreparationActivity:
+    id: str
+    display_name: str
+    source_item: str
+    source_item_id: int
+    output_item: str
+    output_item_id: int
+    source: str
 
 
 CLEAN_TARGETS: Tuple[HerbloreTarget, ...] = (
@@ -261,6 +284,27 @@ PESTLE_AND_MORTAR_ACTIVITIES: Tuple[PestleAndMortarActivity, ...] = (
     PestleAndMortarActivity('grind_seaweed', 'Grind seaweed', 'Seaweed', 401, 'Ground seaweed', 6683, 'SeaWeed'),
 )
 
+INPUT_PREPARATION_ACTIVITIES: Tuple[InputPreparationActivity, ...] = (
+    InputPreparationActivity(
+        'fill_vial_of_water',
+        'Fill vial with water',
+        'Vial',
+        229,
+        'Vial of water',
+        227,
+        f'{WATER_CONTAINER_SOURCE_PATH}: WaterContainerData.VIAL_OF_WATER; {FILL_WATER_SOURCE_PATH}',
+    ),
+    InputPreparationActivity(
+        'remove_swamp_toad_legs',
+        "Remove swamp toad's legs",
+        'Swamp toad',
+        2150,
+        "Toad's legs",
+        2152,
+        f'{SWAMP_TOAD_SOURCE_PATH}: Remove-legs',
+    ),
+)
+
 HERBLORE_TARGETS: Tuple[HerbloreTarget, ...] = CLEAN_TARGETS + UNF_TARGETS + FINISHED_TARGETS
 HERBLORE_TARGETS_BY_ID: Dict[str, HerbloreTarget] = {t.id: t for t in HERBLORE_TARGETS}
 
@@ -316,6 +360,8 @@ def herblore_item_names() -> Tuple[str, ...]:
         names.extend(name for name, _qty in t.requirements)
     for activity in PESTLE_AND_MORTAR_ACTIVITIES:
         names.extend((activity.source_item, activity.output_item))
+    for activity in INPUT_PREPARATION_ACTIVITIES:
+        names.extend((activity.source_item, activity.output_item))
     names.extend(_HERBLORE_UNCACHED_ITEMS)
     return tuple(dict.fromkeys(names))
 
@@ -337,6 +383,23 @@ def pestle_and_mortar_activities_as_dict() -> Dict[str, Dict[str, object]]:
     }
 
 
+def input_preparation_activities_as_dict() -> Dict[str, Dict[str, object]]:
+    return {
+        activity.id: {
+            "display_name": activity.display_name,
+            "requirements": {activity.source_item: 1},
+            "output_item": activity.output_item,
+            "output_qty": 1,
+            "batch_size": 28,
+            "group": "input_preparation",
+            "source_item_id": activity.source_item_id,
+            "output_item_id": activity.output_item_id,
+            "source": activity.source,
+        }
+        for activity in INPUT_PREPARATION_ACTIVITIES
+    }
+
+
 def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     """Register every herblore item name (category material). Items already
     registered by another system dedupe by storage key at build time, so this
@@ -350,6 +413,14 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             (activity.output_item, activity.output_item_id),
         )
     }
+    input_preparation_item_data = {
+        item_name: (item_id, activity.source)
+        for activity in INPUT_PREPARATION_ACTIVITIES
+        for item_name, item_id in (
+            (activity.source_item, activity.source_item_id),
+            (activity.output_item, activity.output_item_id),
+        )
+    }
     result = {}
     for name in herblore_item_names():
         item = {
@@ -357,12 +428,18 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "output_item": name,
             "level": 1,
             "exp": 0.0,
-            "source": PESTLE_AND_MORTAR_SOURCE_PATH if name in pestle_item_ids else HERB_DATA_SOURCE_PATH,
+            "source": (
+                PESTLE_AND_MORTAR_SOURCE_PATH
+                if name in pestle_item_ids
+                else input_preparation_item_data.get(name, (0, HERB_DATA_SOURCE_PATH))[1]
+            ),
             "category": "material",
             "tradeable": True,
         }
         if name in pestle_item_ids:
             item["item_id"] = pestle_item_ids[name]
+        elif name in input_preparation_item_data:
+            item["item_id"] = input_preparation_item_data[name][0]
         elif name == "Bonemeal":
             item["item_id"] = 6810
         result[name] = item
