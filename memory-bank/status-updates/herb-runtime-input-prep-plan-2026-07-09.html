@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Herblore runtime input prep plan</title>
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; } body { margin:0; background:radial-gradient(circle at 85% 0,#182847 0,transparent 34%),var(--bg); color:var(--text); font:16px/1.5 Outfit,ui-sans-serif,system-ui,sans-serif; }
+    main { max-width:1050px; margin:auto; padding:42px 24px 58px; } .badge { display:inline-block; color:var(--accent); border:1px solid var(--accent); border-radius:99px; padding:4px 9px; font:700 11px/1 ui-monospace,SFMono-Regular,monospace; letter-spacing:.08em; } h1 { margin:14px 0 6px; font-size:clamp(2rem,5vw,3.4rem); line-height:1.06; } .lead { color:var(--text-dim); max-width:760px; } .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin-top:26px; } .card { background:linear-gradient(145deg,var(--surface),var(--surface-2)); border:1px solid var(--border); border-radius:var(--radius); padding:20px; } .card h2 { margin:0 0 10px; font-size:1.05rem; } .tag { display:inline-block; margin:4px 4px 0 0; padding:3px 6px; border-radius:5px; background:#10141b; color:#b9c6dc; font:11px/1.2 ui-monospace,SFMono-Regular,monospace; } .flow { display:grid; grid-template-columns:1fr 34px 1fr; align-items:center; gap:8px; margin:14px 0; } .node { background:#0d1118; border:1px solid var(--border); border-radius:8px; padding:12px; text-align:center; } .arrow { text-align:center; color:var(--green); font-size:24px; } .ok { color:var(--green); } .warn { color:var(--amber); } ol { margin:0; padding-left:22px; } li+li { margin-top:8px; } footer { margin-top:24px; color:var(--text-dim); font-size:.88rem; } @media (max-width:720px) { .grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">PRE-IMPLEMENTATION PLAN</span>
+    <h1>Herblore input preparation</h1>
+    <p class="lead">A narrow live-handler transcription: make the two missing, zero-XP item transformations available through the existing 28-item Utility runtime without broadening water-container, Farming, Juju, Dungeoneering, Combat, or Prayer scope.</p>
+    <section class="grid">
+      <article class="card">
+        <h2>Source-locked rows <span class="ok">2</span></h2>
+        <div class="flow"><div class="node">Vial<br><small>229</small></div><div class="arrow">→</div><div class="node">Vial of water<br><small>227</small></div></div>
+        <div class="flow"><div class="node">Swamp toad<br><small>2150</small></div><div class="arrow">→</div><div class="node">Toad's legs<br><small>2152</small></div></div>
+        <span class="tag">WaterContainerData.VIAL_OF_WATER</span><span class="tag">Remove-legs</span>
+      </article>
+      <article class="card">
+        <h2>Runtime contract</h2>
+        <p>Both rows use the existing Utility single-input shape, zero XP, and a <strong>28-item batch cap</strong>. The established Utility handler already records outputs for undo and updates the Bank/UI.</p>
+        <span class="tag">herblore_data.py</span><span class="tag">constants.py</span><span class="tag">item_registry.py</span>
+      </article>
+      <article class="card">
+        <h2>Deliberate boundary <span class="warn">narrow</span></h2>
+        <p>Only the Vial enum member is included. Buckets, jugs, bowls, cups, Juju/Dungeoneering containers, watering cans, quest vessels, and all non-Herblore water actions remain untouched.</p>
+      </article>
+      <article class="card">
+        <h2>Verification</h2>
+        <ol>
+          <li>Import <code>herblore_data</code>.</li>
+          <li>Inspect row identities, IDs, and registry presence.</li>
+          <li>Exercise the existing Utility mutation path for batching and inverse undo.</li>
+        </ol>
+      </article>
+    </section>
+    <footer>Prepared from the read-only game-main handlers before implementation.</footer>
+  </main>
+</body>
+</html>

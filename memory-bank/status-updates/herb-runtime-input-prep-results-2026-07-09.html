@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Herblore runtime input prep results</title>
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    * { box-sizing:border-box; } body { margin:0; background:radial-gradient(circle at 10% 0,#16372d 0,transparent 34%),var(--bg); color:var(--text); font:16px/1.5 Outfit,ui-sans-serif,system-ui,sans-serif; } main { max-width:1100px; margin:auto; padding:42px 24px 58px; } .badge { display:inline-block; color:var(--green); border:1px solid var(--green); border-radius:99px; padding:4px 9px; font:700 11px/1 ui-monospace,SFMono-Regular,monospace; letter-spacing:.08em; } h1 { margin:14px 0 6px; font-size:clamp(2rem,5vw,3.4rem); line-height:1.06; } .lead { color:var(--text-dim); max-width:800px; } .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:25px 0; } .stat,.card { background:linear-gradient(145deg,var(--surface),var(--surface-2)); border:1px solid var(--border); border-radius:var(--radius); padding:18px; } .num { color:var(--green); font-size:1.9rem; font-weight:800; } .label { color:var(--text-dim); font-size:.8rem; } .grid { display:grid; grid-template-columns:1.15fr .85fr; gap:16px; } h2 { margin:0 0 10px; font-size:1.05rem; } table { width:100%; border-collapse:collapse; font-size:.91rem; } th,td { padding:10px 8px; border-bottom:1px solid var(--border); text-align:left; vertical-align:top; } th { color:var(--text-dim); font:700 .68rem/1.2 ui-monospace,SFMono-Regular,monospace; letter-spacing:.06em; } code,.tag { font:12px/1.3 ui-monospace,SFMono-Regular,monospace; } .tag { display:inline-block; margin:4px 4px 0 0; padding:3px 6px; border-radius:5px; background:#0d1118; color:#b9c6dc; } .pass { color:var(--green); } .warn { color:var(--amber); } ul { margin:0; padding-left:20px; } li+li { margin-top:8px; } .source { overflow-wrap:anywhere; color:#c7d5ee; font:12px/1.45 ui-monospace,SFMono-Regular,monospace; } @media (max-width:780px) { .stats,.grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETED · VERIFIED</span>
+    <h1>Two live Herblore input preparations</h1>
+    <p class="lead">The add-on now exposes exactly the two source-backed zero-XP transformations needed by its shipped potion chains, with canonical item IDs, existing Utility batching, item registration, review runtime handling, and undo restoration.</p>
+    <section class="stats" aria-label="Result metrics">
+      <div class="stat"><div class="num">2</div><div class="label">rows added</div></div>
+      <div class="stat"><div class="num">28</div><div class="label">max items / review</div></div>
+      <div class="stat"><div class="num">0 XP</div><div class="label">per transformation</div></div>
+      <div class="stat"><div class="num">210</div><div class="label">focused tests passed</div></div>
+    </section>
+    <section class="grid">
+      <article class="card">
+        <h2>Rows transcribed</h2>
+        <table>
+          <thead><tr><th>Utility ID</th><th>1:1 transform</th><th>Authoritative binding</th></tr></thead>
+          <tbody>
+            <tr><td><code>fill_vial_of_water</code></td><td>Vial (229) → Vial of water (227)</td><td><code>WaterContainerData.VIAL_OF_WATER</code></td></tr>
+            <tr><td><code>remove_swamp_toad_legs</code></td><td>Swamp toad (2150) → Toad's legs (2152)</td><td><code>Remove-legs</code></td></tr>
+          </tbody>
+        </table>
+        <p><span class="tag">herblore_data.py</span><span class="tag">constants.py</span><span class="tag">item registry through existing Utility registration</span></p>
+      </article>
+      <article class="card">
+        <h2>Verification <span class="pass">passed</span></h2>
+        <ul>
+          <li>Python 3.12 import of <code>herblore_data</code>.</li>
+          <li>Both rows: item IDs, source identity, 0 XP, 28-item batch cap, and registry presence.</li>
+          <li>149 logic tests and 61 integration-smoke tests.</li>
+          <li>Direct review-runtime check: each row converts 30 inputs to 2 input + 28 output, then Anki undo restores all 30 inputs.</li>
+        </ul>
+        <p class="warn">The requested bare <code>python</code> command could not run because this worktree has no <code>python</code> executable; the installed Python 3.12 interpreter completed the equivalent import cleanly.</p>
+      </article>
+    </section>
+    <section class="card" style="margin-top:16px">
+      <h2>Source evidence and deliberate omissions</h2>
+      <p><strong>Vial:</strong> <span class="source">game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/objs/watersource/WaterContainerData.kt:9</span> defines VIAL → VIAL_OF_WATER; <span class="source">.../fill_water.plugin.kts:103-128</span> binds every enum row to water sources and performs the removal/addition. <strong>Toad:</strong> <span class="source">.../items/swamp_toad.plugin.kts:10-20</span> handles the Remove-legs option and replaces the source slot with TOADS_LEGS.</p>
+      <p>Omitted: every other water-container member in <span class="source">WaterContainerData.kt:10-29</span>, including Bucket/Jug/Bowl/Cup, Juju/Dungeoneering containers, quest vessels, fish bowls, golden bowls, and watering cans. They do not belong to this narrow shipped-Herblore input path. No Farming, Combat, or Prayer behavior changed, and no assets were fetched.</p>
+    </section>
+  </main>
+</body>
+</html>
