@@ -307,6 +307,7 @@ def _launch_review(item, d, policy):
         "status": "reviewing", "review_report": rreport, "review_log": rlog,
         "review_done": rdone, "review_exit": rexit,
         "verdict_path": os.path.join(wt, ".gap-review/verdict.json"),
+        "review_started": time.strftime("%Y-%m-%d %H:%M:%S"),
     })
     item.pop("verdict", None)
 
@@ -340,7 +341,8 @@ def refix(data, iid):
     )
     launch(cmd, cwd=wt, done=done, exit_file=exit_file, log=log)
     item.update({"status": "in_progress", "tier": tier,
-                 "impl_report": report, "impl_log": log, "impl_done": done, "impl_exit": exit_file})
+                 "impl_report": report, "impl_log": log, "impl_done": done, "impl_exit": exit_file,
+                 "started": time.strftime("%Y-%m-%d %H:%M:%S")})
     item.pop("verdict", None)
     save(data)
     return f"{iid}: refix impl relaunched ({tier}) with reviewer feedback"

@@ -58,7 +58,9 @@ Do not declare the loop blocked while any safe transcription, review recovery, m
 Then state the concrete blocker, what was already tried or ruled out, the exact owner decision/action required, and the safe repository/ledger state being left behind. Do not bury this alert beneath a normal status summary.
 
 ## Cadence
-Use a 3-minute heartbeat while work is in flight. Implementations and reviews run detached between ticks, so the short cadence minimizes completed-stage idle time without duplicating work; the driver should still fill the policy-defined worker ceiling with independent skills. Same-skill or explicit dependency chains remain serial so later work starts from the merged predecessor. Any unresolved source-editing worktree — including `review_failed`, `impl_failed`, `empty`, or `merge_conflict` — keeps its skill locked. When idle at the grill wall, disable the heartbeat instead of polling.
+Use an adaptive heartbeat while work is in flight; do not leave the loop on a perpetual short poll. After launching or relaunching an implementation, schedule the next tick for 7 minutes later. After launching or relaunching a review, schedule it for 6 minutes later. If that expected-window tick finds the same stage still running, tighten the next check to 3 minutes until the stage changes. After a transition, reset the interval from the newly launched stage. These timings minimize empty orchestration turns while keeping completed-stage idle time bounded; a true done-marker-triggered wake is not exposed by the current Codex heartbeat runtime.
+
+The driver should still fill the policy-defined worker ceiling with independent skills. Same-skill or explicit dependency chains remain serial so later work starts from the merged predecessor. Any unresolved source-editing worktree — including `review_failed`, `impl_failed`, `empty`, or `merge_conflict` — keeps its skill locked. A dependency wait is not permission to invent filler work or start a redundant same-skill branch. No-change in-flight ticks stay quiet. When idle at the grill wall, disable the heartbeat instead of polling.
 
 ## Each tick, do this
 1. `python3 tools/gap_driver.py tick`.
