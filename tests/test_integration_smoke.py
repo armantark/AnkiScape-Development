@@ -2538,6 +2538,44 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_glassblowing_pipe_requirement_rolls_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_glassblowing_pipe_undo_integration")
+
+        calls = {"save": 0}
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Molten glass": 1, "Glassblowing pipe": 1},
+            "crafting_level": 1,
+            "crafting_exp": 0,
+            "current_craft": "glass_beer_glass",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Crafting"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"], {"Molten glass": 0, "Glassblowing pipe": 1, "Beer glass": 1})
+        self.assertAlmostEqual(addon.player_data["crafting_exp"], 17.5)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Molten glass": 1, "Glassblowing pipe": 1})
+        self.assertEqual(addon.player_data["crafting_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_light_source_review_action_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_light_source_undo_integration")
 

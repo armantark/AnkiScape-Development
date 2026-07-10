@@ -91,3 +91,29 @@ non-material presence item and reconciles Thread only when the action actually
 consumes it, so a retained Thread does not disappear and Anki undo restores a
 consuming roll. Thread had already been registered through its live acquisition
 paths, so no new item ID or asset fetch was needed.
+
+## Held Mould and Glassblowing Pipe Gates (2026-07-09)
+
+All 29 live `JewelleryData` products, all nine `SilverData` rows, and all
+eight `GlassData` glassblowing rows now carry exact non-consuming
+`required_items` metadata. `JewelleryAction.kt:77-87` and
+`SilverAction.kt:67-81` reject a craft without its row's mould, while their
+action loops consume only bars/gems/extra inputs at `JewelleryAction.kt:50-59`
+and `SilverAction.kt:36-47`. `GlassblowingAction.kt:61-69` similarly requires
+the pipe and its loop consumes only Molten glass at `GlassblowingAction.kt:24-36`.
+
+`MouldItems.kt:8-20` supplies the complete mould mapping. Jewellery mappings
+are transcribed from `JewelleryData.kt:10-288`; silver mappings are transcribed
+from `SilverData.kt:15-78`; and the pipe applies to every row in
+`GlassData.kt:10-17`. The 14 source item IDs are registered as Crafting tools,
+including input-starved Unholy, Demonic sigil, Chain link, Conductor, and Rod
+clay moulds. Existing local mould/pipe assets are reused as fallbacks; no
+network asset fetch occurred.
+
+No new recipe rows were needed: this is metadata on the 46 already-live rows.
+Needle, Chisel, and Tinderbox remain implicit toolbelt tools. Default mode
+checks bank ownership; advanced carried mode puts the exact required mould or
+pipe in the carried view and reconciliation leaves it there after a craft.
+Focused data, pure readiness/apply, advanced-overlay reconciliation, item/icon,
+and undo coverage passed (327 tests). The shell lacks a bare `python` command;
+`/opt/homebrew/bin/python3 -c "import crafting_data"` passed.

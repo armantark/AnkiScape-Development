@@ -1392,6 +1392,15 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   changed. Focused verification passed: 285 tests and `import crafting_data`
   under Python 3.10.
 
+- Held mould and Glassblowing pipe gates completed on 2026-07-09: all 46
+  already-live Jewellery, Silver, and glassblowing rows now require their
+  exact non-consuming source tool. The 14 tool source IDs and existing local
+  fallback icons are registered; default bank ownership and advanced carried
+  reconciliation are covered alongside pure apply/readiness and undo. Needle,
+  Chisel, and Tinderbox remain implicit; Combat and Prayer were untouched.
+  Focused verification passed: 327 tests, plus `import crafting_data` through
+  `/opt/homebrew/bin/python3` (the shell has no bare `python`).
+
 - Pestle-and-mortar material preparation remainder completed on 2026-07-09 in
   its isolated worktree: all 31 live `PestleAndMortarData` conversions are now
   represented as 1:1, zero-XP Utility rows, with the 24 previously missing rows

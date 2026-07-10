@@ -1,10 +1,13 @@
 import unittest
 
 from crafting_data import (
+    CRAFTING_REQUIRED_ITEM_SOURCE_IDS,
     CRAFTING_RECIPES,
     CRAFTING_RECIPES_BY_ID,
     DEFAULT_CRAFTING_TARGET,
     TANNING_ACTIVITIES,
+    crafting_extra_items_as_dict,
+    crafting_required_items_as_dict,
     crafting_recipes_as_dict,
     tanning_activities_as_dict,
 )
@@ -161,6 +164,91 @@ class TestCraftingData(unittest.TestCase):
         for recipe in leather_recipes:
             self.assertEqual(data[recipe.id]["required_items"], {"Thread": 1})
             self.assertTrue(data[recipe.id]["consume_thread_on_roll"])
+
+    def test_jewellery_silver_and_glassblowing_rows_require_live_tools(self):
+        data = crafting_recipes_as_dict()
+        expected = {
+            "silver_unstrung_symbol": "Holy mould",
+            "silver_unstrung_emblem": "Unholy mould",
+            "silver_silver_sickle": "Sickle mould",
+            "silver_conductor": "Conductor mould",
+            "silver_silver_bolts_unf": "Bolt mould",
+            "silver_tiara": "Tiara mould",
+            "silver_silvthrill_rod": "Rod clay mould",
+            "silver_demonic_sigil": "Demonic sigil mould",
+            "silver_silvthrill_chain": "Chain link mould",
+            "jewellery_gold_ring": "Ring mould",
+            "jewellery_gold_necklace": "Necklace mould",
+            "jewellery_gold_bracelet": "Bracelet mould",
+            "jewellery_gold_amulet": "Amulet mould",
+            "jewellery_sapphire_ring": "Ring mould",
+            "jewellery_sapphire_necklace": "Necklace mould",
+            "jewellery_sapphire_bracelet": "Bracelet mould",
+            "jewellery_sapphire_amulet": "Amulet mould",
+            "jewellery_emerald_ring": "Ring mould",
+            "jewellery_emerald_necklace": "Necklace mould",
+            "jewellery_emerald_bracelet": "Bracelet mould",
+            "jewellery_emerald_amulet": "Amulet mould",
+            "jewellery_ruby_ring": "Ring mould",
+            "jewellery_ruby_necklace": "Necklace mould",
+            "jewellery_ruby_bracelet": "Bracelet mould",
+            "jewellery_ruby_amulet": "Amulet mould",
+            "jewellery_diamond_ring": "Ring mould",
+            "jewellery_diamond_necklace": "Necklace mould",
+            "jewellery_diamond_bracelet": "Bracelet mould",
+            "jewellery_diamond_amulet": "Amulet mould",
+            "jewellery_dragonstone_ring": "Ring mould",
+            "jewellery_dragon_necklace": "Necklace mould",
+            "jewellery_dragon_bracelet": "Bracelet mould",
+            "jewellery_dragonstone_ammy": "Amulet mould",
+            "jewellery_onyx_ring": "Ring mould",
+            "jewellery_onyx_necklace": "Necklace mould",
+            "jewellery_onyx_bracelet": "Bracelet mould",
+            "jewellery_onyx_amulet": "Amulet mould",
+            "jewellery_ring_of_slaying_8": "Ring mould",
+            "glass_beer_glass": "Glassblowing pipe",
+            "glass_empty_candle_lantern": "Glassblowing pipe",
+            "glass_empty_oil_lamp": "Glassblowing pipe",
+            "glass_vial": "Glassblowing pipe",
+            "glass_fishbowl": "Glassblowing pipe",
+            "glass_unpowered_orb": "Glassblowing pipe",
+            "glass_lantern_lens": "Glassblowing pipe",
+            "glass_empty_light_orb": "Glassblowing pipe",
+        }
+        self.assertEqual(len(expected), 46)
+        for recipe_id, item_name in expected.items():
+            self.assertEqual(data[recipe_id]["required_items"], {item_name: 1})
+
+    def test_crafting_required_tool_ids_are_registered_as_tools(self):
+        extras = crafting_required_items_as_dict()
+        self.assertEqual(len(CRAFTING_REQUIRED_ITEM_SOURCE_IDS), 14)
+        for item_name, source_item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items():
+            self.assertEqual(extras[item_name]["item_id"], source_item_id)
+            self.assertEqual(extras[item_name]["category"], "tool")
+        self.assertEqual(
+            {
+                item_name: (extras[item_name]["item_id"], extras[item_name]["tradeable"])
+                for item_name in (
+                    "Unholy mould",
+                    "Conductor mould",
+                    "Demonic sigil mould",
+                    "Rod clay mould",
+                    "Chain link mould",
+                )
+            },
+            {
+                "Unholy mould": (1594, False),
+                "Conductor mould": (4200, False),
+                "Demonic sigil mould": (6747, False),
+                "Rod clay mould": (7649, False),
+                "Chain link mould": (13153, False),
+            },
+        )
+
+    def test_crafting_extra_items_retains_held_tool_metadata(self):
+        extras = crafting_extra_items_as_dict()
+        self.assertEqual(extras["Unholy mould"]["item_id"], 1594)
+        self.assertFalse(extras["Unholy mould"]["tradeable"])
 
     def test_tanning_rows_match_2011scape(self):
         self.assertEqual(
