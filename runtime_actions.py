@@ -303,8 +303,8 @@ def _processing_requirements_for(
 
     Read from each skill's own data table so this stays a thin lookup, not a
     handler rewrite. Runecrafting has no fixed ``requirements`` dict (any of its
-    ``essence_items`` works); resolve it to whichever essence the player actually
-    holds, preferring Pure essence, so the pack has something concrete to carry.
+    ``essence_items`` works); resolve it to the first stocked essence in the
+    target's source order, so the pack has something concrete to carry.
     """
     table_info = _PROCESSING_DATA_TABLES.get(handler_key)
     if table_info is None:
@@ -328,7 +328,7 @@ def _processing_requirements_for(
     essence_items = spec.get("essence_items")
     if isinstance(essence_items, (list, tuple)) and essence_items:
         inventory = player_data.get("inventory", {}) or {}
-        essence = "Pure essence" if "Pure essence" in essence_items and inventory.get("Pure essence", 0) else essence_items[0]
+        essence = next((item for item in essence_items if inventory.get(item, 0)), essence_items[0])
         return {essence: 1}
     return {}
 

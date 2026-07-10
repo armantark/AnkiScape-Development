@@ -5724,8 +5724,10 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         base_capacity = runecrafting_standard_base_capacity_pure(data, target, runecrafting_data)
         capacity = base_capacity + runecrafting_pouch_capacity_pure(data, pouch_data)
         essence_items = tuple(target.get("essence_items", ()))
-        essence_to_use = min(capacity, _available_essence_count(inventory, essence_items))
-        used, _consumed = _consume_essence_ordered(inventory, essence_items, essence_to_use)
+        essence_item = next((item for item in essence_items if _positive_int(inventory.get(item, 0), 0) > 0), "")
+        essence_to_use = min(capacity, _positive_int(inventory.get(essence_item, 0), 0))
+        inventory[essence_item] = inventory.get(essence_item, 0) - essence_to_use
+        used = essence_to_use
         if used <= 0:
             return player_data, 0, False, "No essence available"
         output_count = _standard_output_count(target, level, used, roll_iter)
