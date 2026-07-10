@@ -798,7 +798,7 @@
       "rank": 36,
       "skill": "Smithing",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Port live Dragon square shield assembly",
       "detail": "dragon_sq_shield.plugin.kts live-binds level 60 Smithing at an anvil: consume Shield left half (2366) and Shield right half (2368), produce Dragon sq shield (1187), and award exactly 70 XP. Keep Hammer implicit under the existing toolbelt convention. The Doric's Quest check applies only to one of four supported anvils and is not a universal recipe gate. Preserve both existing half registrations, add the output item/equipment/icon wiring, and cover data, runtime, registry, and undo behavior. Do not alter Combat or Prayer implementation.",
       "source": "game-main:content/items/armor/dragon_sq_shield.plugin.kts:6-59",
@@ -816,7 +816,7 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/smith-dragon-square-shield/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/smith-dragon-square-shield/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/smith-dragon-square-shield/.gap-review/verdict.json",
-      "review_started": "2026-07-09 22:34:32"
+      "review_started": "2026-07-09 22:49:31"
     },
     {
       "id": "wc-canoe-shaping",
