@@ -14,6 +14,9 @@ DEFAULT_GAME_ROOT = Path("/Users/ArmanTarkhanian1/Downloads/game-main")
 SMITHING_RELATIVE = Path("game/plugins/src/main/kotlin/gg/rsmod/plugins/content/skills/smithing/data")
 ITEMS_KT_RELATIVE = Path("game/plugins/src/main/kotlin/gg/rsmod/plugins/api/cfg/Items.kt")
 ITEMS_YML_RELATIVE = Path("data/cfg/items.yml")
+DRAGON_SQ_SHIELD_PLUGIN_RELATIVE = Path(
+    "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/armor/dragon_sq_shield.plugin.kts"
+)
 
 
 @dataclass(frozen=True)
@@ -265,6 +268,35 @@ def _parse_products(
     return tuple(recipes)
 
 
+def _dragon_sq_shield_repair_recipe(
+    source_path: Path,
+    item_constants: Mapping[str, int],
+    items: Mapping[int, ItemMeta],
+) -> SourceRecipe:
+    """Return the explicit anvil assembly bound by the live shield plugin."""
+    left_half_id = item_constants["SHIELD_LEFT_HALF"]
+    right_half_id = item_constants["SHIELD_RIGHT_HALF"]
+    shield_id = item_constants["DRAGON_SQ_SHIELD"]
+    return SourceRecipe(
+        recipe_id="repair_dragon_sq_shield",
+        display_name=_item_name(shield_id, items),
+        station="anvil",
+        level=60,
+        exp=70.0,
+        requirements=(
+            (_item_name(left_half_id, items), 1),
+            (_item_name(right_half_id, items), 1),
+        ),
+        output_item=_item_name(shield_id, items),
+        output_qty=1,
+        source_item_id=shield_id,
+        source=str(source_path),
+        source_enum="DRAGON_SQ_SHIELD",
+        tradeable=_item_tradeable(shield_id, items),
+        category="smithed",
+    )
+
+
 def _format_tuple(values: Sequence[str], indent: str = "    ") -> str:
     if not values:
         return "()"
@@ -462,7 +494,15 @@ def generate(game_root: Path, output_path: Path) -> None:
     smithing_types = _parse_smithing_types(smithing_path / "SmithingType.kt")
     smelting = _parse_smelting(smithing_path / "SmeltingData.kt", item_constants, items)
     products = _parse_products(smithing_path / "BarProducts.kt", bar_types, smithing_types, item_constants, items)
-    output_path.write_text(_render_module(tuple(smelting) + tuple(products)), encoding="utf-8")
+    dragon_sq_shield_repair = _dragon_sq_shield_repair_recipe(
+        game_root / DRAGON_SQ_SHIELD_PLUGIN_RELATIVE,
+        item_constants,
+        items,
+    )
+    output_path.write_text(
+        _render_module(tuple(smelting) + tuple(products) + (dragon_sq_shield_repair,)),
+        encoding="utf-8",
+    )
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

@@ -346,6 +346,33 @@ class TestLogic(unittest.TestCase):
         self.assertAlmostEqual(bronze_exp, 6.2)
         self.assertEqual(bronze_inv["Bronze bar"], 1)
 
+    def test_apply_smithing_action_pure_assembles_dragon_sq_shield(self):
+        smithing_data = {
+            "repair_dragon_sq_shield": {
+                "level": 60,
+                "exp": 70.0,
+                "requirements": {"Shield left half": 1, "Shield right half": 1},
+                "output_item": "Dragon sq shield",
+                "output_qty": 1,
+                "station": "anvil",
+            },
+        }
+
+        self.assertFalse(can_smith_item_pure(59, {"Shield left half": 1, "Shield right half": 1}, "repair_dragon_sq_shield", smithing_data))
+        self.assertTrue(can_smith_item_pure(60, {"Shield left half": 1, "Shield right half": 1}, "repair_dragon_sq_shield", smithing_data))
+        inventory, exp, processed, output_item, failed = apply_smithing_action_pure(
+            "repair_dragon_sq_shield",
+            {"Shield left half": 1, "Shield right half": 1},
+            smithing_data,
+            60,
+        )
+
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertAlmostEqual(exp, 70.0)
+        self.assertEqual(output_item, "Dragon sq shield")
+        self.assertEqual(inventory, {"Shield left half": 0, "Shield right half": 0, "Dragon sq shield": 1})
+
     def test_ring_of_forging_guarantees_iron_and_consumes_charges(self):
         smithing_data = {
             "smelt_iron_bar": {

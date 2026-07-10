@@ -2131,6 +2131,48 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [5.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_undo_after_dragon_sq_shield_assembly_restores_both_halves(self):
+        addon = _load_addon_as_package("ankiscape_dragon_sq_shield_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Shield left half": 1, "Shield right half": 1},
+            "smithing_level": 60,
+            "smithing_exp": 0,
+            "current_smith": "repair_dragon_sq_shield",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Smithing"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"], {"Shield left half": 0, "Shield right half": 0, "Dragon sq shield": 1})
+        self.assertAlmostEqual(addon.player_data["smithing_exp"], 70.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data["inventory"], {"Shield left half": 1, "Shield right half": 1})
+        self.assertAlmostEqual(addon.player_data["smithing_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [70.0])
+        self.assertGreaterEqual(calls["save"], 2)
+
     def test_undo_after_coloured_feather_fletching_restores_the_same_colour(self):
         addon = _load_addon_as_package("ankiscape_coloured_feather_undo_integration")
 

@@ -3542,6 +3542,28 @@ SmithingRecipe(
         smithing_type='TYPE_CROSSBOW_LIMBS',
         bars_required=1,
         produced_amount=1,
+    ),
+SmithingRecipe(
+        id='repair_dragon_sq_shield',
+        display_name='Dragon sq shield',
+        station='anvil',
+        level=60,
+        base_exp=70.0,
+        requirements=(
+            ('Shield left half', 1),
+            ('Shield right half', 1),
+),
+        output_item='Dragon sq shield',
+        output_qty=1,
+        source_item_id=1187,
+        source='/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/armor/dragon_sq_shield.plugin.kts',
+        source_enum='DRAGON_SQ_SHIELD',
+        tradeable=True,
+        category='smithed',
+        bar_tier=None,
+        smithing_type=None,
+        bars_required=0,
+        produced_amount=1,
     )
 )
 

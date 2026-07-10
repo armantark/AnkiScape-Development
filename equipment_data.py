@@ -8470,6 +8470,21 @@ EQUIPMENT_DATA: Dict[str, EquipmentItem] = {
         source_status='items.yml equipment block',
         skill_requirements=(),
         weapon_type=2,
+    ),
+    'Dragon sq shield': EquipmentItem(
+        item_name='Dragon sq shield',
+        slot='shield',
+        combat_skill='defense',
+        required_level=60,
+        two_handed=False,
+        equipment_type='shield',
+        bonuses=EquipmentBonuses(attack_stab=0, attack_slash=0, attack_crush=0, attack_magic=-6, attack_ranged=-2, defence_stab=50, defence_slash=52, defence_crush=48, defence_magic=0, defence_ranged=50, melee_strength=0, ranged_strength=0, magic_damage=0, prayer=0),
+        attack_speed=4,
+        source_item_id=1187,
+        source='data/cfg/items.yml item 1187; DRAGON_SQ_SHIELD',
+        source_status='items.yml equipment block',
+        skill_requirements=(('defense', 60),),
+        weapon_type=-1,
     )
 }
 

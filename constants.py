@@ -825,6 +825,7 @@ for _item_name in SMITHING_EXTRA_ITEM_DATA:
     _path = os.path.join(SMITHING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
         SMITHING_EXTRA_ITEM_IMAGES[_item_name] = _path
+SMITHING_EXTRA_ITEM_IMAGES["Dragon sq shield"] = SMITHING_EXTRA_ITEM_IMAGES["Rune sq shield"]
 QUEST_ITEM_IMAGES = {}
 QUEST_ITEM_IMAGE_FILE_OVERRIDES = {
     "Lever": "temple_lever.png",
