@@ -603,7 +603,9 @@ next implementation pass:
     cleaned; it does not decay with attacks or review ticks. Applying a carried
     poison vial is an instantaneous right-click inventory action that converts
     one eligible melee weapon or up to five eligible projectiles and awards no
-    XP. Do not represent persistent item poison as a temporary combat buff.
+    XP. When multiple compatible strengths are carried, an explicit submenu
+    selects the tier; never auto-consume the strongest. Do not represent
+    persistent item poison as a temporary combat buff.
 96. Special attack energy is a persistent, source-rate resource, not a per-burst
     pool. Energy persists globally between bursts and fights and regenerates at the
     source rate of 10% per 50 ticks. Because burst length scales linearly from

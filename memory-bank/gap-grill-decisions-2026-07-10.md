@@ -486,7 +486,8 @@ Decision status: rejected as out-of-period source contamination.
 
 Backlog id: `herb-overload-sanfew`
 
-Decision status: owner grill in progress.
+Decision status: owner design settled; implementation waits for the remaining
+source audit and reconciled server-behavior evidence.
 
 ### Overload Mixing
 
@@ -556,6 +557,10 @@ Decision status: owner grill in progress.
   a Herblore or Utility review target. Right-click an eligible unpoisoned weapon
   or projectile stack and expose `Poison` only when a compatible vial is also
   present in the carried inventory.
+- `Poison` opens a submenu containing only the compatible poison strengths
+  currently carried, with the resulting `(p)`, `(p+)`, or `(p++)` tier explicit.
+  Never choose or consume the strongest available poison automatically. If only
+  one tier is carried, the submenu may contain that single explicit choice.
 - One vial permanently converts one eligible melee weapon or up to five eligible
   projectiles into the matching `(p)`, `(p+)`, or `(p++)` item variant. A larger
   projectile stack converts five and leaves the remainder unpoisoned.

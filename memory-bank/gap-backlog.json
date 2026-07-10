@@ -378,8 +378,8 @@
       "title": "Add Overload, Sanfew serum, weapon poison+/++",
       "detail": "Overload = 96 Herblore capstone built from extreme potions; absent from PotionData.kt. Verify exact XP via wiki.",
       "source": "wiki:Overload",
-      "status": "needs_grill",
-      "note": "owner grill in progress; Overload, combat potion policy, Sanfew serum staging, and persistent right-click weapon poisoning are settled",
+      "status": "design_settled_waiting_source",
+      "note": "owner design settled; implementation waits for the remaining pre-EOC source audit and reconciled server-behavior evidence",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#herblore-overload-sanfew-serum-and-weapon-poison",
       "decision_summary": {
         "mixing": "One review consumes the five three-dose extreme potions plus clean torstol and produces Overload (3), four empty vials, and 1,000 Herblore XP.",
@@ -389,7 +389,8 @@
         "sanfew_stages": "Use three separate dose-aware targets: Super restore plus unicorn horn dust to Mixture step 1, plus clean snake weed to Mixture step 2, then plus nail beast nails to Sanfew serum; each review performs one addition and awards the exact dose-dependent partial XP.",
         "sanfew_tradeability": "Both pre-EOC mixture stages are tradeable Grand Exchange items and remain real inventory/economy outputs.",
         "weapon_poison_application": "Right-click a compatible carried weapon or projectile stack when a poison vial is carried; applying is instantaneous, awards no XP, consumes one vial, and permanently converts one melee weapon or up to five projectiles to the matching poisoned item variant.",
-        "weapon_poison_expiry": "The weapon-side poisoned variant does not wear off; victim poison decays separately, and a cleaning cloth manually removes poison from the item."
+        "weapon_poison_expiry": "The weapon-side poisoned variant does not wear off; victim poison decays separately, and a cleaning cloth manually removes poison from the item.",
+        "weapon_poison_choice": "The Poison context action opens an explicit submenu containing only carried compatible tiers and never auto-consumes the strongest poison."
       }
     },
     {

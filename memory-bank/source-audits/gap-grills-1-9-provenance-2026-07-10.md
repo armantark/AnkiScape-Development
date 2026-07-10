@@ -164,7 +164,9 @@ weapon/ammunition item's persistent `(p)`, `(p+)`, or `(p++)` identity.
 
 Owner design maps application to an instantaneous right-click action on a
 compatible carried weapon or projectile stack when the matching poison vial is
-carried. It is not a review target and awards no XP.
+carried. It is not a review target and awards no XP. When multiple strengths
+are carried, an explicit submenu lists the available compatible tiers; the UI
+never silently consumes the strongest poison.
 
 ## Operational Rule
 
