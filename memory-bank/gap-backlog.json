@@ -248,8 +248,17 @@
       "title": "Add Runespan",
       "detail": "Released 2012 pre-EOC; defining late-pre-EOC RC method. Source nodes/points/level bands from wiki.",
       "source": "wiki:Runespan",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement after the Darkan fidelity revamp and historical method-rate audit establish source-grade session mechanics and effective XP rates.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-runespan-and-training-time-calibration",
+      "decision_summary": {
+        "session": "Use a geographically abstracted, fully simulated Runespan session with visible current-activity state; each review advances a source-backed activity time slice.",
+        "selection": "Casual automatically chooses accessible targets and special opportunities. Advanced uses grouped allow-list checkboxes plus XP, points, or rune priorities and never silently overrides the checked pool.",
+        "lifetime": "Switching away wipes temporary Runespan state and restarts from essence collection on return; closing Anki while Runespan stays selected resumes the session.",
+        "inventory": "Runespan takes over the unified 28-slot pack with session-only essence and runes; ordinary carried items are banked on entry and temporary materials never enter the bank.",
+        "altar_tradeoff": "Altar crafting uses an abstracted multi-review bank, travel, craft, and return cycle so Runespan remains lower-effort and slower without becoming pointless.",
+        "balance": "Preserve exact mechanics and build historical XP-per-hour ranges for every method. Use an efficient ordinary 2012 guide route to preserve relative time-to-99 ratios under a later global compression scale."
+      }
     },
     {
       "id": "fm-bonfires",

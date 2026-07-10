@@ -100,3 +100,80 @@ grenwall herb parity split into an implementation-ready Hunter item.
 - Preserve both independent herb rolls, including the possibility that one
   catch awards herbs from both groups. The existing fixed 18-spike reward is
   not full parity.
+
+## Runecrafting: Runespan and Training-Time Calibration
+
+Backlog id: `rc-runespan`
+
+Decision status: design settled; implementation waits for the Darkan fidelity
+revamp and a source-backed training-rate audit.
+
+### Runespan Session Model
+
+- Model Runespan as a persistent, geographically abstracted session rather
+  than a flat list of unrelated creature and node targets. Do not introduce a
+  world map.
+- A fresh session simulates the complete progression: collect essence, siphon
+  creatures, reach useful nodes, siphon nodes, spend runes on traversal, and
+  replenish essence as needed. The review HUD always labels the current
+  activity and specific target or transition.
+- One review advances a short source-backed time slice of the current activity,
+  which may contain several siphon attempts. It is not necessarily one game
+  click. Exact slice lengths, rolls, depletion, XP, and point rates remain
+  tunable until the fidelity and balance audits are complete.
+- Casual mode automatically chooses a sensible accessible floor and target and
+  handles beneficial yellow-wizard, runesphere, and equivalent special
+  opportunities when their authentic requirements are met.
+- Advanced mode groups checkboxes by floor and target type. Checked entries are
+  the allowed target and detour pool; the simulator chooses among them using
+  the selected XP, points, or rune priorities. Never silently fall back to an
+  unchecked target when the configured pool cannot currently proceed.
+
+### Session Lifetime and Inventory
+
+- Runespan temporarily takes over the unified 28-slot carried pack. Ordinary
+  carried items are banked on entry, allowed equipment remains active, and
+  temporary essence and runes occupy real pack slots and drive traversal and
+  siphoning decisions.
+- Switching to any other skill or Runecrafting target deliberately exits
+  Runespan and discards all temporary session essence, runes, position, and
+  progress. Returning starts from essence collection again; session materials
+  can never leak into the bank.
+- Closing and reopening Anki while Runespan remains selected resumes the saved
+  session. Application lifecycle events are not deliberate activity switches.
+
+### Altar-Run Counterpart
+
+- Restore the intended high-effort/faster-altars versus low-effort/slower-
+  Runespan tradeoff. Runespan needs no banked essence or repeated loadout and
+  yields lower effective XP than an optimized altar route while also granting
+  its source-authentic points and rewards.
+- Repeatable altar crafting becomes an abstracted multi-review route cycle such
+  as bank/load, outbound travel, craft, and return. Casual advances the route
+  automatically; Advanced uses the altar target's saved unified-inventory
+  layout and route configuration. This adds simulated banking and travel
+  friction without a world map.
+
+### Global Training-Rate Rule
+
+- Preserve exact source mechanics and raw XP awards. Use archived 2012 training
+  guides and reconstructed XP-per-hour ranges to calibrate simulated travel,
+  banking, depletion, and activity time slices rather than rewriting XP or
+  success rolls to force a desired result.
+- Build a method-rate catalog by level band, equipment, and material assumption
+  wherever historical evidence permits. Players retain complete freedom to use
+  any available method, including inefficient ones.
+- Use an efficient but ordinary player following a good 2012 guide as the
+  canonical level-to-99 comparison. Preserve the real game's approximate
+  relative training-time ratios between skills and methods, then apply a later
+  global AnkiScape compression scale. Do not claim false precision or benchmark
+  against tick-perfect play or intentionally slow AFK methods.
+
+### Source Gate
+
+The current Darkan Runespan implementation is incomplete and internally
+inconsistent for parity work: node interaction and rune production paths are
+disabled or stubbed, creature XP is commented out, and its inventory/exit
+economy does not yet provide a trustworthy November 2012 contract. Implement
+only after the fidelity revamp can be reconciled with pinned historical guides,
+including the complete pre-EOC reward shop and equipment effects.
