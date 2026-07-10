@@ -19,6 +19,7 @@ from logic_pure import (
     apply_crafting_pure,
     apply_utility_activity_pure,
     apply_fletching_pure,
+    fletching_material_requirements_pure,
     apply_herblore_action_pure,
     can_herblore_target_pure,
     has_herblore_materials_pure,
@@ -1324,6 +1325,25 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertEqual(exp, 0.0)
         self.assertEqual(inventory, {"Bronze limbs": 0, "Wooden stock": 0, "Bronze c'bow (u)": 0, "Crossbow string": 0, "Bronze crossbow": 1})
+
+    def test_fletching_coloured_feathers_select_and_consume_one_exact_available_type(self):
+        blue_inventory = {"Arrow shafts": 15, "Blue feather": 15}
+        self.assertTrue(can_fletch_item_pure(1, blue_inventory, "headless_arrows", FLETCHING_DATA))
+        self.assertEqual(
+            fletching_material_requirements_pure("headless_arrows", blue_inventory, FLETCHING_DATA),
+            {"Arrow shafts": 15, "Blue feather": 15},
+        )
+        new_inventory, exp, ok = apply_fletching_pure("headless_arrows", blue_inventory, FLETCHING_DATA)
+        self.assertTrue(ok)
+        self.assertEqual(new_inventory["Blue feather"], 0)
+        self.assertEqual(new_inventory["Headless arrows"], 15)
+        self.assertAlmostEqual(exp, 15.0)
+
+        mixed_inventory = {"Arrow shafts": 15, "Feather": 15, "Red feather": 15}
+        self.assertEqual(
+            fletching_material_requirements_pure("headless_arrows", mixed_inventory, FLETCHING_DATA),
+            {"Arrow shafts": 15, "Feather": 15},
+        )
 
     def test_apply_herblore_action_pure_three_stage_pipeline(self):
         from constants import HERBLORE_DATA

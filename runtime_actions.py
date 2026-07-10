@@ -94,6 +94,7 @@ try:
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
+        fletching_material_requirements_pure,
         fletching_target_locked_reasons_pure,
         herblore_target_locked_reasons_pure,
         has_cooking_materials_pure,
@@ -199,6 +200,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
+        fletching_material_requirements_pure,
         fletching_target_locked_reasons_pure,
         herblore_target_locked_reasons_pure,
         has_cooking_materials_pure,
@@ -292,7 +294,11 @@ _PROCESSING_DATA_TABLES = {
 }
 
 
-def _processing_requirements_for(handler_key: str, player_data: dict[str, Any]) -> dict[str, int]:
+def _processing_requirements_for(
+    handler_key: str,
+    player_data: dict[str, Any],
+    carried_inventory: dict[str, Any] | None = None,
+) -> dict[str, int]:
     """The recipe inputs a processing target needs per action, ``{item: count}``.
 
     Read from each skill's own data table so this stays a thin lookup, not a
@@ -310,6 +316,14 @@ def _processing_requirements_for(handler_key: str, player_data: dict[str, Any]) 
         return {}
     requirements = spec.get("requirements")
     if isinstance(requirements, dict) and requirements:
+        if handler_key == "fletching":
+            if carried_inventory:
+                resolved = fletching_material_requirements_pure(target, carried_inventory, table)
+                if resolved is not None:
+                    return resolved
+            resolved = fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
+            if resolved is not None:
+                return resolved
         return {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
     essence_items = spec.get("essence_items")
     if isinstance(essence_items, (list, tuple)) and essence_items:
@@ -422,7 +436,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
     }
     capacity = inventory_pure.effective_carried_capacity(view, owned_bags)
 
-    requirements = _processing_requirements_for(handler_key, player_data) if is_processing else {}
+    carried_materials = view if view else layout if advanced else {}
+    requirements = (
+        _processing_requirements_for(handler_key, player_data, carried_materials)
+        if is_processing else {}
+    )
 
     # First-ever engagement with a processing target seeds the pack for free —
     # you already "have inventory" the moment you arrive, same as gathering
@@ -462,6 +480,17 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         scoped_inventory = dict(bank)
         for item_name, need in requirements.items():
             scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+        scoped_alternatives = set()
+        if handler_key == "fletching":
+            spec = FLETCHING_DATA.get(target_id, {})
+            for alternatives in spec.get("material_options", {}).values():
+                if not isinstance(alternatives, (list, tuple)):
+                    continue
+                for option in alternatives:
+                    if isinstance(option, str):
+                        scoped_alternatives.add(option)
+                        if option not in requirements:
+                            scoped_inventory.pop(option, None)
 
         # While the inventory is scoped it does NOT reflect the real bank, so the
         # handler must not persist it or evaluate anything against it. Suppress the
@@ -487,6 +516,11 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         result = handler(scoped_ctx)
         after_scoped = player_data.get("inventory", {}) or {}
         reconciled = dict(after_scoped)
+        for option in scoped_alternatives - requirements.keys():
+            if option in bank:
+                reconciled[option] = bank[option]
+            else:
+                reconciled.pop(option, None)
         for item_name, _need in requirements.items():
             true_before = int(bank.get(item_name, 0) or 0)
             capped_before = int(scoped_inventory.get(item_name, 0) or 0)

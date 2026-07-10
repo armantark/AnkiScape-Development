@@ -24,6 +24,7 @@ try:
         crafting_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
+        fletching_material_requirements_pure,
         fletching_target_locked_reasons_pure,
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
@@ -50,6 +51,7 @@ except Exception:
         crafting_target_locked_reasons_pure,
         eligible_fishing_fish_pure,
         fishing_method_locked_reasons_pure,
+        fletching_material_requirements_pure,
         fletching_target_locked_reasons_pure,
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
@@ -455,7 +457,9 @@ def fletching_target_rows(
         output_qty = spec.get("output_qty", 1)
         lvl_req = int(spec.get("level", 1) or 1)
         requirements = spec.get("requirements", {})
-        reqs = requirements if isinstance(requirements, Mapping) else {}
+        reqs = fletching_material_requirements_pure(target_key, inventory, fletching_data)
+        if reqs is None:
+            reqs = requirements if isinstance(requirements, Mapping) else {}
         _materials_ok, mat_text = _material_lines(reqs, inventory)
         tooltip = (
             f"Requires Fletching level {lvl_req}. You have {lvl_have}.\n"

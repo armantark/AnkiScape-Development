@@ -39,6 +39,14 @@ PRE_EOC_DARTS_SOURCE = "https://www.2011.rs/kb/fletching_making_darts"
 
 BROAD_FLETCHING_ABILITY = "broad_fletching"
 DEFAULT_FLETCHING_TARGET = "arrow_shafts"
+FEATHER_ALTERNATIVES = (
+    "Feather",
+    "Red feather",
+    "Orange feather",
+    "Yellow feather",
+    "Blue feather",
+    "Stripy feather",
+)
 
 FLETCHING_GROUP_LABELS = {
     "whittling": "Whittling",
@@ -238,7 +246,7 @@ def _xp_rewards(target: FletchingTarget) -> Tuple[Dict[str, object], ...]:
 
 
 def _target_as_dict(target: FletchingTarget) -> Dict[str, object]:
-    return {
+    row = {
         "id": target.id,
         "display_name": target.display_name,
         "group": target.group,
@@ -258,6 +266,9 @@ def _target_as_dict(target: FletchingTarget) -> Dict[str, object]:
         "tradeable": target.tradeable,
         "sort_key": (_GROUP_SORT.get(target.group, 999), target.sort_order, target.level, target.display_name),
     }
+    if target.action == "feather":
+        row["material_options"] = {"Feather": FEATHER_ALTERNATIVES}
+    return row
 
 
 def fletching_targets_as_dict() -> Dict[str, Dict[str, object]]:

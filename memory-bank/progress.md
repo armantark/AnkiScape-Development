@@ -30,6 +30,15 @@
 - Review eligibility and level-up key lookup are registry-backed for current review skills.
 - `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
 - Fletching exists as the first expanded playable skill: registry metadata, save defaults/migration keys, target panel, item manifest outputs/materials, pure processing logic, runtime review dispatch, and scraped output/material icons are in place.
+- Every live Fletching feathering row accepts ordinary Feather plus Red, Orange,
+  Yellow, Blue, and Stripy feather. The resolver first consumes an exact type
+  that satisfies the carried custom layout, then falls back to source order in
+  the bank; it is used by readiness, target-row
+  materials, the carried overlay, application, and review undo. Existing levels,
+  XP, outputs, quantities, and visible requirements remain unchanged; Hunter had
+  already registered the five coloured IDs and checked-in icons. Source:
+  `FeatheringData.kt:13-78` and `feathering.plugin.kts:13-23,29-31,67-70`.
+  Verification: 954 tests passed, 157 Qt-dependent tests skipped.
 - A project-local Cursor skill, `.cursor/skills/ankiscape-skill-expansion/`, captures the repeatable workflow for future skill/action expansion.
 - Crafting/Utility backend rework is in place: no-XP Utility/Activities, corrected Crafting pottery/spinning/silver-bolt pilot data, a source audit, action-multiplier-compatible reward handling, migration coverage, and undo-safe review handling.
 - Crafting item-combination parity is complete as of 2026-07-09: all 26 source

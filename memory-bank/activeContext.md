@@ -5,6 +5,22 @@ No active build thread. The combat overhaul, the weapon-aware attack-type pass,
 the Stronghold of Security landmark, and the full Herblore skill are all shipped
 and committed (Herblore as of 2026-07-09).
 
+### Fletching coloured-feather alternatives — COMPLETE, verified 2026-07-09
+Every live Fletching feathering row now accepts Feather plus Red, Orange,
+Yellow, Blue, and Stripy feather in source order. The original row level, XP,
+output, quantity, and visible `requirements` map are unchanged. A narrow
+Fletching resolver picks one available exact colour; a carried custom layout
+gets first choice when it can satisfy the recipe, then the bank falls back to
+deterministic source order. Readiness, target metadata, carried processing
+packs, application, and the existing full-state review undo all use that
+selection. The coloured inputs and their checked-in Hunter sprites
+were already registered with cache IDs, so no item or asset additions were
+needed. Source: `FeatheringData.kt:13-78` and
+`feathering.plugin.kts:13-23,29-31,67-70`. Verification: focused parity/runtime/
+inventory/undo/icon tests and `python -c "import fletching_data"` (via the
+available Python 3.14 interpreter) pass; full suite: 954 tests, 0 failures,
+157 skipped.
+
 ### Firemaking light-source actions — COMPLETE, verified 2026-07-09
 `firemaking_data.py` now carries the 11 live `LightSource.kt` raw-to-lit pairs
 and the `light_source.plugin.kts` inverse bindings as zero-XP, single-item

@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from constants import FLETCHED_ITEM_IMAGES, FLETCHING_DATA
-from fletching_data import BROAD_FLETCHING_ABILITY, fletching_item_names
+from constants import FLETCHED_ITEM_IMAGES, FLETCHING_DATA, HUNTER_ITEM_IMAGES
+from fletching_data import BROAD_FLETCHING_ABILITY, FEATHER_ALTERNATIVES, fletching_item_names
 
 
 class TestFletchingData(unittest.TestCase):
@@ -54,6 +54,20 @@ class TestFletchingData(unittest.TestCase):
         self.assertEqual(FLETCHING_DATA["attach_mithril_grapple"]["requirements"], {"Mithril bolts": 1, "Mith grapple tip": 1})
         self.assertEqual(FLETCHING_DATA["fletch_dragon_darts"]["level"], 95)
         self.assertEqual(FLETCHING_DATA["fletch_dragon_darts"]["requirements"], {"Dragon dart tip": 10, "Feather": 10})
+
+    def test_live_feathering_rows_accept_every_source_feather_without_changing_their_values(self):
+        feathering_rows = [
+            row for row in FLETCHING_DATA.values()
+            if row["action"] == "feather"
+        ]
+        self.assertEqual(len(feathering_rows), 18)
+        for row in feathering_rows:
+            self.assertEqual(row["material_options"], {"Feather": FEATHER_ALTERNATIVES})
+            self.assertIn("Feather", row["requirements"])
+
+        for feather in FEATHER_ALTERNATIVES[1:]:
+            self.assertIn(feather, HUNTER_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(HUNTER_ITEM_IMAGES[feather]), f"{feather} icon is missing")
 
     def test_crossbow_assembly_rows_match_2011scape_combinations(self):
         expected = {
