@@ -68,7 +68,6 @@ class MiningPickaxe:
     item_id: int
     level: int
     ticks_between_rolls: int
-    source_level: Optional[int] = None
     source: str = PICKAXE_SOURCE_PATH
     status: str = "implemented"
     notes: str = ""
@@ -298,10 +297,10 @@ MINING_PICKAXES: Tuple[MiningPickaxe, ...] = (
     ),
     MiningPickaxe("gilded_bronze_pickaxe", "Gilded bronze pickaxe", 20780, 1, 8),
     MiningPickaxe("gilded_iron_pickaxe", "Gilded iron pickaxe", 20781, 1, 7),
-    MiningPickaxe("gilded_steel_pickaxe", "Gilded steel pickaxe", 20782, 6, 6, source_level=1, notes="Local source lists level 1; normalized to steel pickaxe requirement."),
+    MiningPickaxe("gilded_steel_pickaxe", "Gilded steel pickaxe", 20782, 1, 6),
     MiningPickaxe("gilded_mithril_pickaxe", "Gilded mithril pickaxe", 20784, 21, 5),
-    MiningPickaxe("gilded_adamant_pickaxe", "Gilded adamant pickaxe", 20783, 31, 4, source_level=1, notes="Local source lists level 1; normalized to adamant pickaxe requirement."),
-    MiningPickaxe("gilded_rune_pickaxe", "Gilded rune pickaxe", 20785, 41, 3, source_level=1, notes="Local source lists level 1; normalized to rune pickaxe requirement."),
+    MiningPickaxe("gilded_adamant_pickaxe", "Gilded adamant pickaxe", 20783, 1, 4),
+    MiningPickaxe("gilded_rune_pickaxe", "Gilded rune pickaxe", 20785, 1, 3),
     MiningPickaxe("gilded_dragon_pickaxe", "Gilded dragon pickaxe", 20786, 61, 3, notes="Shares Dragon-tier Anki behavior."),
 )
 
@@ -439,7 +438,6 @@ def mining_pickaxes_as_dict() -> Dict[str, Dict[str, object]]:
             "display_name": pickaxe.display_name,
             "item_id": pickaxe.item_id,
             "level": pickaxe.level,
-            "source_level": pickaxe.source_level,
             "ticks_between_rolls": pickaxe.ticks_between_rolls,
             "ratio": 8 / pickaxe.ticks_between_rolls,
             "source": pickaxe.source,
