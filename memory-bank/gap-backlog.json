@@ -644,7 +644,7 @@
       "rank": 31,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Require live held moulds and glassblowing pipe",
       "detail": "JewelleryAction.kt, SilverAction.kt, and GlassblowingAction.kt require each row's matching MouldItems.kt mould or Glassblowing pipe and never consume it. Add exact non-consuming presence metadata for every jewellery, silver, and glassblowing row. Follow the settled repository convention: in advanced mode the exact item occupies a carried slot; otherwise it must be owned in the bank. Preserve source IDs, including input-starved special moulds; do not gate belt tools Needle, Chisel, or Tinderbox. Build on craft-leather-thread-semantics and add focused default/advanced readiness, apply, reconciliation, undo, item, and icon tests. Do not touch Combat or Prayer.",
       "source": "game-main:skills/crafting/jewellery/JewelleryAction.kt; silver/SilverAction.kt; glassblowing/GlassblowingAction.kt; MouldItems.kt",
@@ -665,7 +665,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-held-mould-pipe-gates/.gap-review/verdict.json",
-      "review_started": "2026-07-09 19:28:39"
+      "review_started": "2026-07-09 19:28:39",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold into main as-is. The aggregate change adds the exact non-consuming mould or Glassblowing pipe requirement to all 29 jewellery, nine silver, and eight glassblowing rows without changing their source-backed levels, XP, inputs, outputs, or quantities; default bank ownership, advanced carried-slot retention, apply, reconciliation, undo, item, and icon behavior are covered. All 14 source IDs and tradeability flags match game-main, the previously regressed Bronze wire, Steel studs, Oil lantern frame, and Sinew identities remain intact, Combat and Prayer are untouched, 329 focused tests and the full 973-test suite pass, and crafting_data imports cleanly under the available Python 3 runtime (the shell has no bare python executable)."
+      }
     },
     {
       "id": "fm-light-source-actions",
@@ -724,6 +729,75 @@
         "blocking": [],
         "notes": "Approved to fold into main as-is. The two zero-XP Utility rows preserve the exact game-main identities Vial (229) to Vial of water (227) and Swamp toad (2150) to Toad's legs (2152), use the existing 28-item batching and item/icon registration paths, and add no unrelated water-container, Combat, or Prayer content. The literal python launcher is absent from this shell, but /opt/homebrew/bin/python3.12 imports herblore_data cleanly; the full 949-test suite passes, and direct checks confirm each row converts 30 inputs into 2 remaining inputs plus 28 outputs and that Anki undo restores all 30 inputs."
       }
+    },
+    {
+      "id": "mine-gilded-pickaxe-source-levels",
+      "rank": 34,
+      "skill": "Mining",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Restore live gilded pickaxe source levels",
+      "detail": "PickaxeType.kt defines GILDED_STEEL, GILDED_ADAMANT, and GILDED_RUNE at Mining level 1, and Mining.kt selects usable pickaxes directly from that enum level. AnkiScape deliberately normalizes those three requirements to 6, 31, and 41. Restore all three live requirements to 1 and remove normalization-only metadata/assertions. Preserve exact item IDs, ticks-between-rolls, every other pickaxe row, existing assets, and runtime selection behavior. Do not touch Combat or Prayer.",
+      "source": "game-main:skills/mining/PickaxeType.kt:75-97; Mining.kt:35-44,178-183",
+      "note": "fresh shipped-skill completeness audit pass 4, 2026-07-09"
+    },
+    {
+      "id": "craft-clay-ring-mould-gate",
+      "rank": 35,
+      "skill": "Crafting",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Require the live Ring mould for unfired clay rings",
+      "detail": "clay_ring.plugin.kts live-binds Soft clay plus a non-consumed Ring mould to Clay ring (unfired). Add one non-consuming Ring mould presence requirement to form_clay_ring_unfired while retaining level 4, 11.3 XP, one Soft clay consumed, and one unfired clay ring produced. Use the settled default-bank and advanced-carried presence semantics from craft-held-mould-pipe-gates. Ring mould ID 1592 and its icon already exist. Add focused readiness, apply, carried reconciliation, and undo tests. Do not touch Combat or Prayer.",
+      "source": "game-main:content/objs/pottery/clay_ring.plugin.kts:5-36",
+      "depends_on": [
+        "craft-held-mould-pipe-gates"
+      ],
+      "note": "fresh shipped-skill completeness audit pass 4, 2026-07-09"
+    },
+    {
+      "id": "smith-dragon-square-shield",
+      "rank": 36,
+      "skill": "Smithing",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Port live Dragon square shield assembly",
+      "detail": "dragon_sq_shield.plugin.kts live-binds level 60 Smithing at an anvil: consume Shield left half (2366) and Shield right half (2368), produce Dragon sq shield (1187), and award exactly 70 XP. Keep Hammer implicit under the existing toolbelt convention. The Doric's Quest check applies only to one of four supported anvils and is not a universal recipe gate. Preserve both existing half registrations, add the output item/equipment/icon wiring, and cover data, runtime, registry, and undo behavior. Do not alter Combat or Prayer implementation.",
+      "source": "game-main:content/items/armor/dragon_sq_shield.plugin.kts:6-59",
+      "note": "fresh shipped-skill completeness audit pass 4, 2026-07-09"
+    },
+    {
+      "id": "wc-canoe-shaping",
+      "rank": 37,
+      "skill": "Woodcutting",
+      "root_cause": "stub",
+      "status": "needs_grill",
+      "title": "Model live canoe shaping and travel",
+      "detail": "game-main live-binds Log, Dugout, Stable dugout, and Waka shaping at Woodcutting levels 12/27/42/57 for 30/60/90/150 XP with axe checks, then stores a world-spatial canoe state used by river travel. AnkiScape has no outputless XP Utility contract and no canoe/travel state. Owner must decide whether the review action represents shaping only or the full shaping-plus-travel loop, where it lives in the UI, and what persistent/spatial state is faithful. Do not auto-build or invent an abstraction.",
+      "source": "game-main:content/mechanics/canoes/Canoe.kt:3-20; canoes_interfaces.plugin.kts:26-62",
+      "note": "game-main is live, but faithful Anki representation requires owner design; parked by the design-question rule"
+    },
+    {
+      "id": "artisan-skill-potion-runtime",
+      "rank": 38,
+      "skill": "Cross-skill",
+      "root_cause": "stub",
+      "status": "needs_grill",
+      "title": "Define noncombat Crafting and Fletching potion boosts",
+      "detail": "game-main live-binds Crafting and Fletching potions as exact +3 current-level boosts across all four dose variants. AnkiScape has no noncombat temporary-level/decay state and its Crafting/Fletching gates read base levels; the only existing decay state is combat-scoped. Owner must define current-level persistence, decay cadence, UI, save/undo behavior, and whether boosted levels unlock review targets without touching Combat implementation. Keep both skills together because they share the same missing runtime contract.",
+      "source": "game-main:content/items/potions/PotionType.kt:90-98,282-317; Potion.kt:158-178; Potions.kt:24-68; potionDrinking.plugin.kts:3-8",
+      "note": "live source data exists, but the noncombat temporary-level contract is an owner design decision; do not auto-build"
+    },
+    {
+      "id": "skilling-brawling-gloves-runtime",
+      "rank": 39,
+      "skill": "Cross-skill",
+      "root_cause": "stub",
+      "status": "needs_grill",
+      "title": "Define skilling brawling-gloves charges and location bonuses",
+      "detail": "game-main live-binds charged, location-sensitive XP multipliers for Mining, Smithing, Woodcutting, Fishing, Cooking, and Firemaking, with per-skill charge caps and glove disintegration. AnkiScape has no faithful Wilderness/location semantics or skilling equipment-charge lifecycle. Owner must define location mapping, acquisition/equipment behavior, charge persistence, multiplier application, UI, and undo without expanding Combat or Prayer. Treat this as one shared runtime design to avoid redundant per-skill implementations.",
+      "source": "game-main:content/items/armor/BrawlingGloves.kt:6-21; plugins/api/ext/PlayerExt.kt:1877-1913; live skill call sites",
+      "note": "combined fresh-audit finding across six shipped skills; game-main is live but faithful review-action mapping requires owner design"
     }
   ]
 }
