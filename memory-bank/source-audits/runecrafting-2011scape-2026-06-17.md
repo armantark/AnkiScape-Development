@@ -16,6 +16,7 @@
 - Standard runes use local source levels and XP from Air through Blood, including Astral as a target with no modeled talisman/tiara access.
 - Air through Body accept Rune essence or Pure essence. Higher runes use Pure essence only.
 - Standard rune output uses the source multiplier table and interpolated chance for the next multiplier.
+- Each standard crafting trip selects the first stocked valid essence family in source order and consumes only that stack, matching `RunecraftAction.kt:120-128`; Rune essence therefore takes priority over Pure essence for Air through Body without spilling into the second stack.
 - Combination rune rows match all twelve local `CombinationRune.kt` variants, with source XP, required talisman, component rune, and altar.
 - Combination trips use Pure essence, consume component runes, consume one opposite talisman, and use a base 26 essence cap before pouches.
 - Tiara binding uses local active rows plus the local commented Body/Cosmic/Chaos/Nature/Law/Death rows and `Altar.kt` Blood access data. Blood tiara XP follows the 2.5 XP step pattern after Death.

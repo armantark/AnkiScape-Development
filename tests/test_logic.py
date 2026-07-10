@@ -5687,11 +5687,11 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(claimed_data["pending_skill_exp_rewards"]["agility_exp"], 250.0)
         self.assertTrue(claimed_data["claims"]["stolen_hearts_xp_lamp_2"]["claimed"])
 
-    def test_standard_runecrafting_uses_talisman_capacity_and_prefers_rune_essence(self):
+    def test_standard_runecrafting_uses_talisman_capacity_and_does_not_spill_into_pure_essence(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["rune_mysteries"] = {"started": True, "progress": 6, "completed": True}
         player_data["inventory"]["Air talisman"] = 1
-        player_data["inventory"]["Rune essence"] = 30
+        player_data["inventory"]["Rune essence"] = 20
         player_data["inventory"]["Pure essence"] = 30
 
         self.assertTrue(can_runecraft_target_pure(
@@ -5708,11 +5708,11 @@ class TestLogic(unittest.TestCase):
         )
 
         self.assertTrue(ok)
-        self.assertEqual(message, "+27 Air rune")
-        self.assertAlmostEqual(exp, 135.0)
-        self.assertEqual(new_data["inventory"]["Rune essence"], 3)
+        self.assertEqual(message, "+20 Air rune")
+        self.assertAlmostEqual(exp, 100.0)
+        self.assertEqual(new_data["inventory"]["Rune essence"], 0)
         self.assertEqual(new_data["inventory"]["Pure essence"], 30)
-        self.assertEqual(new_data["inventory"]["Air rune"], 27)
+        self.assertEqual(new_data["inventory"]["Air rune"], 20)
 
     def test_runecrafting_tiara_and_small_pouch_raise_trip_capacity(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
