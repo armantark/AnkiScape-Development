@@ -36,6 +36,8 @@ class CraftingRecipe:
     # Extra items returned alongside the output (e.g. the emptied bucket from
     # molten glass smelting). Granted per action like the output, never gated.
     byproducts: Tuple[Tuple[str, int], ...] = ()
+    required_items: Tuple[Tuple[str, int], ...] = ()
+    consume_thread_on_roll: bool = False
 
 
 @dataclass(frozen=True)
@@ -234,33 +236,33 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("jewellery_ring_of_slaying_8", "Ring of slaying (8)", "jewellery", "furnace", 75, 15.0, _req(("Gold bar", 1), ("Enchanted gem", 1)), "Ring of slaying (8)", source=JEWELLERY_SOURCE, source_enum="SLAYER_RING", tradeable=False, source_item_id=13281, notes="Source additionally requires the Slayer CRAFT_ROS unlock; AnkiScape has no Slayer system to enforce it."),
 
     # Leather.
-    CraftingRecipe("leather_leather_gloves", "Leather gloves", "leather", "needle", 1, 13.8, _req(("Leather", 1)), "Leather gloves", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_leather_boots", "Leather boots", "leather", "needle", 7, 16.2, _req(("Leather", 1)), "Leather boots", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_leather_cowl", "Leather cowl", "leather", "needle", 9, 18.5, _req(("Leather", 1)), "Leather cowl", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_leather_vambraces", "Leather vambraces", "leather", "needle", 11, 22.0, _req(("Leather", 1)), "Leather vambraces", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_leather_body", "Leather body", "leather", "needle", 14, 25.0, _req(("Leather", 1)), "Leather body", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_leather_chaps", "Leather chaps", "leather", "needle", 18, 27.0, _req(("Leather", 1)), "Leather chaps", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_coif", "Coif", "leather", "needle", 38, 37.0, _req(("Leather", 1)), "Coif", source=LEATHER_SOURCE, source_enum="LEATHER"),
-    CraftingRecipe("leather_hardleather_body", "Hardleather body", "leather", "needle", 28, 35.0, _req(("Hard leather", 1)), "Hardleather body", source=LEATHER_SOURCE, source_enum="HARD_LEATHER"),
-    CraftingRecipe("leather_snakeskin_boots", "Snakeskin boots", "leather", "needle", 45, 30.0, _req(("Snakeskin", 6)), "Snakeskin boots", source=LEATHER_SOURCE, source_enum="SNAKESKIN"),
-    CraftingRecipe("leather_snakeskin_vambraces", "Snakeskin vambraces", "leather", "needle", 47, 35.0, _req(("Snakeskin", 8)), "Snakeskin vambraces", source=LEATHER_SOURCE, source_enum="SNAKESKIN"),
-    CraftingRecipe("leather_snakeskin_bandana", "Snakeskin bandana", "leather", "needle", 48, 45.0, _req(("Snakeskin", 5)), "Snakeskin bandana", source=LEATHER_SOURCE, source_enum="SNAKESKIN"),
-    CraftingRecipe("leather_snakeskin_chaps", "Snakeskin chaps", "leather", "needle", 51, 50.0, _req(("Snakeskin", 12)), "Snakeskin chaps", source=LEATHER_SOURCE, source_enum="SNAKESKIN"),
-    CraftingRecipe("leather_snakeskin_body", "Snakeskin body", "leather", "needle", 53, 55.0, _req(("Snakeskin", 15)), "Snakeskin body", source=LEATHER_SOURCE, source_enum="SNAKESKIN"),
-    CraftingRecipe("leather_yakhide_armour_10824", "Yak-hide armour", "leather", "needle", 43, 32.0, _req(("Cured yak-hide", 1)), "Yak-hide armour", source=LEATHER_SOURCE, source_enum="YAK_HIDE", tradeable=False, source_item_id=10824),
-    CraftingRecipe("leather_yakhide_armour", "Yak-hide armour", "leather", "needle", 46, 32.0, _req(("Cured yak-hide", 2)), "Yak-hide armour", source=LEATHER_SOURCE, source_enum="YAK_HIDE", tradeable=False, source_item_id=10822),
-    CraftingRecipe("leather_green_dhide_vambraces", "Green d'hide vambraces", "leather", "needle", 57, 62.0, _req(("Green dragon leather", 1)), "Green d'hide vambraces", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_green_dhide_chaps", "Green d'hide chaps", "leather", "needle", 60, 124.0, _req(("Green dragon leather", 2)), "Green d'hide chaps", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_green_dhide_body", "Green d'hide body", "leather", "needle", 63, 186.0, _req(("Green dragon leather", 3)), "Green d'hide body", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_blue_dhide_vambraces", "Blue d'hide vambraces", "leather", "needle", 66, 70.0, _req(("Blue dragon leather", 1)), "Blue d'hide vambraces", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_blue_dhide_chaps", "Blue d'hide chaps", "leather", "needle", 68, 140.0, _req(("Blue dragon leather", 2)), "Blue d'hide chaps", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_blue_dhide_body", "Blue d'hide body", "leather", "needle", 71, 210.0, _req(("Blue dragon leather", 3)), "Blue d'hide body", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_red_dhide_vambraces", "Red d'hide vambraces", "leather", "needle", 73, 78.0, _req(("Red dragon leather", 1)), "Red d'hide vambraces", source=LEATHER_SOURCE, source_enum="RED_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_red_dhide_chaps", "Red d'hide chaps", "leather", "needle", 75, 156.0, _req(("Red dragon leather", 2)), "Red d'hide chaps", source=LEATHER_SOURCE, source_enum="RED_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_red_dhide_body", "Red d'hide body", "leather", "needle", 77, 234.0, _req(("Red dragon leather", 3)), "Red d'hide body", source=LEATHER_SOURCE, source_enum="RED_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_black_dhide_vambraces", "Black d'hide vambraces", "leather", "needle", 79, 86.0, _req(("Black dragon leather", 1)), "Black d'hide vambraces", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_black_dhide_chaps", "Black d'hide chaps", "leather", "needle", 82, 172.0, _req(("Black dragon leather", 2)), "Black d'hide chaps", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
-    CraftingRecipe("leather_black_dhide_body", "Black d'hide body", "leather", "needle", 84, 258.0, _req(("Black dragon leather", 3)), "Black d'hide body", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists."),
+    CraftingRecipe("leather_leather_gloves", "Leather gloves", "leather", "needle", 1, 13.8, _req(("Leather", 1)), "Leather gloves", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_leather_boots", "Leather boots", "leather", "needle", 7, 16.2, _req(("Leather", 1)), "Leather boots", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_leather_cowl", "Leather cowl", "leather", "needle", 9, 18.5, _req(("Leather", 1)), "Leather cowl", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_leather_vambraces", "Leather vambraces", "leather", "needle", 11, 22.0, _req(("Leather", 1)), "Leather vambraces", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_leather_body", "Leather body", "leather", "needle", 14, 25.0, _req(("Leather", 1)), "Leather body", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_leather_chaps", "Leather chaps", "leather", "needle", 18, 27.0, _req(("Leather", 1)), "Leather chaps", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_coif", "Coif", "leather", "needle", 38, 37.0, _req(("Leather", 1)), "Coif", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_hardleather_body", "Hardleather body", "leather", "needle", 28, 35.0, _req(("Hard leather", 1)), "Hardleather body", source=LEATHER_SOURCE, source_enum="HARD_LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_snakeskin_boots", "Snakeskin boots", "leather", "needle", 45, 30.0, _req(("Snakeskin", 6)), "Snakeskin boots", source=LEATHER_SOURCE, source_enum="SNAKESKIN", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_snakeskin_vambraces", "Snakeskin vambraces", "leather", "needle", 47, 35.0, _req(("Snakeskin", 8)), "Snakeskin vambraces", source=LEATHER_SOURCE, source_enum="SNAKESKIN", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_snakeskin_bandana", "Snakeskin bandana", "leather", "needle", 48, 45.0, _req(("Snakeskin", 5)), "Snakeskin bandana", source=LEATHER_SOURCE, source_enum="SNAKESKIN", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_snakeskin_chaps", "Snakeskin chaps", "leather", "needle", 51, 50.0, _req(("Snakeskin", 12)), "Snakeskin chaps", source=LEATHER_SOURCE, source_enum="SNAKESKIN", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_snakeskin_body", "Snakeskin body", "leather", "needle", 53, 55.0, _req(("Snakeskin", 15)), "Snakeskin body", source=LEATHER_SOURCE, source_enum="SNAKESKIN", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_yakhide_armour_10824", "Yak-hide armour", "leather", "needle", 43, 32.0, _req(("Cured yak-hide", 1)), "Yak-hide armour", source=LEATHER_SOURCE, source_enum="YAK_HIDE", tradeable=False, source_item_id=10824, required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_yakhide_armour", "Yak-hide armour", "leather", "needle", 46, 32.0, _req(("Cured yak-hide", 2)), "Yak-hide armour", source=LEATHER_SOURCE, source_enum="YAK_HIDE", tradeable=False, source_item_id=10822, required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_green_dhide_vambraces", "Green d'hide vambraces", "leather", "needle", 57, 62.0, _req(("Green dragon leather", 1)), "Green d'hide vambraces", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_green_dhide_chaps", "Green d'hide chaps", "leather", "needle", 60, 124.0, _req(("Green dragon leather", 2)), "Green d'hide chaps", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_green_dhide_body", "Green d'hide body", "leather", "needle", 63, 186.0, _req(("Green dragon leather", 3)), "Green d'hide body", source=LEATHER_SOURCE, source_enum="GREEN_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_blue_dhide_vambraces", "Blue d'hide vambraces", "leather", "needle", 66, 70.0, _req(("Blue dragon leather", 1)), "Blue d'hide vambraces", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_blue_dhide_chaps", "Blue d'hide chaps", "leather", "needle", 68, 140.0, _req(("Blue dragon leather", 2)), "Blue d'hide chaps", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_blue_dhide_body", "Blue d'hide body", "leather", "needle", 71, 210.0, _req(("Blue dragon leather", 3)), "Blue d'hide body", source=LEATHER_SOURCE, source_enum="BLUE_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_red_dhide_vambraces", "Red d'hide vambraces", "leather", "needle", 73, 78.0, _req(("Red dragon leather", 1)), "Red d'hide vambraces", source=LEATHER_SOURCE, source_enum="RED_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_red_dhide_chaps", "Red d'hide chaps", "leather", "needle", 75, 156.0, _req(("Red dragon leather", 2)), "Red d'hide chaps", source=LEATHER_SOURCE, source_enum="RED_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_red_dhide_body", "Red d'hide body", "leather", "needle", 77, 234.0, _req(("Red dragon leather", 3)), "Red d'hide body", source=LEATHER_SOURCE, source_enum="RED_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_black_dhide_vambraces", "Black d'hide vambraces", "leather", "needle", 79, 86.0, _req(("Black dragon leather", 1)), "Black d'hide vambraces", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_black_dhide_chaps", "Black d'hide chaps", "leather", "needle", 82, 172.0, _req(("Black dragon leather", 2)), "Black d'hide chaps", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
+    CraftingRecipe("leather_black_dhide_body", "Black d'hide body", "leather", "needle", 84, 258.0, _req(("Black dragon leather", 3)), "Black d'hide body", source=LEATHER_SOURCE, source_enum="BLACK_DRAGONHIDE", notes="Live target; input-starved until hide/tanning acquisition loop exists.", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
 
     # Glass, battlestaves, weaving, and selected source Crafting combinations.
     CraftingRecipe("glass_molten_glass", "Molten glass", "glass", "furnace", 1, 20.0, _req(("Soda ash", 1), ("Bucket of sand", 1)), "Molten glass", byproducts=(("Bucket", 1),), source=FURNACE_GLASS_SOURCE, source_enum="", notes="Furnace smelt (handleMoltenGlass); returns the emptied bucket. Inputs are live NPC shop stock."),
@@ -387,6 +389,8 @@ def crafting_recipes_as_dict() -> Dict[str, Dict[str, object]]:
             "notes": recipe.notes,
             "source_item_id": recipe.source_item_id,
             "byproducts": dict(recipe.byproducts),
+            "required_items": dict(recipe.required_items),
+            "consume_thread_on_roll": recipe.consume_thread_on_roll,
         }
         for recipe in CRAFTING_RECIPES
     }
@@ -425,6 +429,18 @@ def crafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
                         "exp": 0.0,
                         "category": "material",
                         "source": f"Crafting input for {recipe.display_name}",
+                        "tradeable": True,
+                    },
+                )
+        for item, _amount in recipe.required_items:
+            if item not in outputs:
+                extras.setdefault(
+                    item,
+                    {
+                        "level": 1,
+                        "exp": 0.0,
+                        "category": "material",
+                        "source": f"Crafting requirement for {recipe.display_name}",
                         "tradeable": True,
                     },
                 )

@@ -333,6 +333,19 @@ def _processing_requirements_for(
     return {}
 
 
+def _processing_presence_requirements_for(handler_key: str, player_data: dict[str, Any]) -> dict[str, int]:
+    """Non-material recipe gates that must be present but are not per-action inputs."""
+    table_info = _PROCESSING_DATA_TABLES.get(handler_key)
+    if table_info is None:
+        return {}
+    table, target_key, default_target = table_info
+    spec = table.get(player_data.get(target_key, default_target))
+    required_items = spec.get("required_items", {}) if isinstance(spec, dict) else {}
+    if not isinstance(required_items, dict):
+        return {}
+    return {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
+
+
 def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:
     container = player_data.get(map_key)
     if not isinstance(container, dict):
@@ -441,6 +454,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         _processing_requirements_for(handler_key, player_data, carried_materials)
         if is_processing else {}
     )
+    presence_requirements = (
+        _processing_presence_requirements_for(handler_key, player_data)
+        if is_processing else {}
+    )
 
     # First-ever engagement with a processing target seeds the pack for free —
     # you already "have inventory" the moment you arrive, same as gathering
@@ -451,10 +468,18 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
         _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
 
+    # Presence-only gates stay out of per-action packing: in default mode they
+    # remain available from the bank. An advanced layout explicitly carries
+    # them, however, so an emptied presence slot must trigger the normal refill
+    # when the bank can restore the saved layout.
+    refill_requirements = dict(requirements)
+    if advanced:
+        for item_name, need in presence_requirements.items():
+            refill_requirements[item_name] = max(refill_requirements.get(item_name, 0), need)
     force = bool(
-        is_processing and requirements
-        and not _pack_can_supply(view, requirements)
-        and _bank_can_supply(bank, requirements)
+        is_processing and refill_requirements
+        and not _pack_can_supply(view, refill_requirements)
+        and _bank_can_supply(bank, refill_requirements)
     )
 
     new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
@@ -479,6 +504,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         # byproducts) passes through untouched, since it was never capped.
         scoped_inventory = dict(bank)
         for item_name, need in requirements.items():
+            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+        carried_presence_requirements = presence_requirements if advanced else {}
+        for item_name, need in carried_presence_requirements.items():
             scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
         scoped_alternatives = set()
         if handler_key == "fletching":
@@ -522,6 +550,14 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             else:
                 reconciled.pop(option, None)
         for item_name, _need in requirements.items():
+            true_before = int(bank.get(item_name, 0) or 0)
+            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
+            after_amount = int(after_scoped.get(item_name, 0) or 0)
+            consumed = max(0, capped_before - after_amount)
+            reconciled[item_name] = max(0, true_before - consumed)
+            if consumed > 0:
+                new_view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
+        for item_name, _need in carried_presence_requirements.items():
             true_before = int(bank.get(item_name, 0) or 0)
             capped_before = int(scoped_inventory.get(item_name, 0) or 0)
             after_amount = int(after_scoped.get(item_name, 0) or 0)
@@ -848,8 +884,10 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
         return False
 
+    required_items = dict(spec.get("requirements", {}))
+    required_items.update(spec.get("required_items", {}))
     if not has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA):
-        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        missing = missing_materials_text(required_items, player_data["inventory"])
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Out of materials",
@@ -858,9 +896,10 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
+    thread_roll = min(int(ctx.random_random() * 5), 4) + 1 if spec.get("consume_thread_on_roll") else None
+    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA, thread_roll)
     if not ok:
-        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        missing = missing_materials_text(required_items, player_data["inventory"])
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Out of materials",

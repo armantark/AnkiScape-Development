@@ -1384,6 +1384,14 @@ Verification: `python3 -m py_compile combat_data.py tests/test_combat_enemy_rost
 ## Next Milestone
 Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up plan:
 
+- Leather Thread semantics completed on 2026-07-09: all 27 live Crafting
+  `LeatherData` rows require Thread without treating it as a leather material;
+  each successful craft removes one Thread only on the source-exact
+  `random(1..5) == 1` result. The carrying overlay and undo path are covered,
+  Needle remains an implicit toolbelt item, and no Combat or Prayer files were
+  changed. Focused verification passed: 285 tests and `import crafting_data`
+  under Python 3.10.
+
 - Pestle-and-mortar material preparation remainder completed on 2026-07-09 in
   its isolated worktree: all 31 live `PestleAndMortarData` conversions are now
   represented as 1:1, zero-XP Utility rows, with the 24 previously missing rows

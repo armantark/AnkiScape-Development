@@ -516,13 +516,14 @@ def has_crafting_materials_pure(item, inventory, crafting_data):
     spec = crafting_data.get(item)
     if not spec:
         return False
-    requirements = spec.get("requirements", {})
+    requirements = dict(spec.get("requirements", {}))
+    requirements.update(spec.get("required_items", {}))
     for material, amount in requirements.items():
         if inventory.get(material, 0) < amount:
             return False
     return True
 
-def apply_crafting_pure(item, inventory, crafting_data):
+def apply_crafting_pure(item, inventory, crafting_data, random_roll=None):
     """If inventory meets requirements, deduct inputs and return (new_inventory, exp, success).
     Does not mutate input inventory. Unknown items return (inventory, 0, False).
     """
@@ -537,6 +538,8 @@ def apply_crafting_pure(item, inventory, crafting_data):
     new_inv = dict(inventory)
     for material, amount in requirements.items():
         new_inv[material] = new_inv.get(material, 0) - (_positive_int(amount) * batch_count)
+    if spec.get("consume_thread_on_roll") and random_roll == 1:
+        new_inv["Thread"] = new_inv.get("Thread", 0) - 1
     output_item = spec.get("output_item", item)
     output_qty = _positive_int(spec.get("output_qty", 1))
     new_inv[output_item] = new_inv.get(output_item, 0) + (output_qty * batch_count)

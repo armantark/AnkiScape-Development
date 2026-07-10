@@ -79,3 +79,15 @@ sprites and provenance for all new outputs; the sole title exception is the
 canonical `Candle lantern`, whose published inventory file is `Candle lantern
 (empty)`. No Beer glass, Unpowered orb, Gold ring, Silver sickle, or Cape of
 legends substitute art is used for this runtime-bound remainder.
+
+## Leather Thread Semantics (2026-07-09)
+
+All 27 already-live `LeatherData` rows now require one `Thread` to be present;
+`Needle` remains implicit under the settled toolbelt decision. `LeatherAction.kt`
+removes the recipe leather first, then consumes exactly one Thread only when
+`world.random(1..5) == 1`; the Crafting data/runtime path mirrors that ordering
+with an injected deterministic roll. The carried processing overlay packs the
+non-material presence item and reconciles Thread only when the action actually
+consumes it, so a retained Thread does not disappear and Anki undo restores a
+consuming roll. Thread had already been registered through its live acquisition
+paths, so no new item ID or asset fetch was needed.

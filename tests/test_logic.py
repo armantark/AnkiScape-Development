@@ -786,6 +786,21 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv2.get("Gold ring"), 1)
         self.assertEqual(new_inv2.get("Gold bar"), 0)
 
+    def test_leather_crafting_requires_thread_and_consumes_only_on_source_roll(self):
+        inventory = {"Leather": 1, "Thread": 1}
+
+        self.assertFalse(has_crafting_materials_pure("leather_leather_gloves", {"Leather": 1}, CRAFTING_DATA))
+
+        retained, exp, ok = apply_crafting_pure("leather_leather_gloves", inventory, CRAFTING_DATA, random_roll=2)
+        self.assertTrue(ok)
+        self.assertEqual(exp, 13.8)
+        self.assertEqual(retained, {"Leather": 0, "Thread": 1, "Leather gloves": 1})
+
+        consumed, exp, ok = apply_crafting_pure("leather_leather_gloves", inventory, CRAFTING_DATA, random_roll=1)
+        self.assertTrue(ok)
+        self.assertEqual(exp, 13.8)
+        self.assertEqual(consumed, {"Leather": 0, "Thread": 0, "Leather gloves": 1})
+
     def test_apply_crafting_pure_ignores_batch_size_for_xp_actions(self):
         crafting_data = {
             "Bow string": {
