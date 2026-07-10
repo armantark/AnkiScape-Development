@@ -644,7 +644,7 @@
       "rank": 31,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Require live held moulds and glassblowing pipe",
       "detail": "JewelleryAction.kt, SilverAction.kt, and GlassblowingAction.kt require each row's matching MouldItems.kt mould or Glassblowing pipe and never consume it. Add exact non-consuming presence metadata for every jewellery, silver, and glassblowing row. Follow the settled repository convention: in advanced mode the exact item occupies a carried slot; otherwise it must be owned in the bank. Preserve source IDs, including input-starved special moulds; do not gate belt tools Needle, Chisel, or Tinderbox. Build on craft-leather-thread-semantics and add focused default/advanced readiness, apply, reconciliation, undo, item, and icon tests. Do not touch Combat or Prayer.",
       "source": "game-main:skills/crafting/jewellery/JewelleryAction.kt; silver/SilverAction.kt; glassblowing/GlassblowingAction.kt; MouldItems.kt",
@@ -659,7 +659,13 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl.exit",
-      "started": "2026-07-09 18:57:10"
+      "started": "2026-07-09 18:57:10",
+      "review_report": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-held-mould-pipe-gates/.gap-review/verdict.json",
+      "review_started": "2026-07-09 19:11:10"
     },
     {
       "id": "fm-light-source-actions",
