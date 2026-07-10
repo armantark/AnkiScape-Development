@@ -1292,3 +1292,12 @@ heartbeat and lead the user-facing notification with the exact banner
 the blocker, attempted/rule-out work, the exact owner decision or action needed,
 and the safe state left on disk. Routine per-item failures do not qualify while
 other work can still advance.
+
+## Crafting Leather Thread Semantics (2026-07-09)
+
+The 27 existing `LeatherData` recipes now have a separate Thread-presence gate
+and source-exact one-in-five conditional Thread consumption. The Crafting
+runtime maps its injectable random float to the source's inclusive 1..5 roll,
+and the carried processing overlay packs/reconciles Thread by actual delta.
+Needle stays implicit. Focused data, pure, runtime-overlay, and undo coverage
+passes with the Python 3.10 runtime.

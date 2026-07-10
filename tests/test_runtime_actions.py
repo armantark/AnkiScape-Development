@@ -7,6 +7,7 @@ from runtime_actions import (
     can_start_action,
     handle_cooking_answer,
     handle_combat_answer,
+    handle_crafting_answer,
     handle_firemaking_answer,
     handle_fishing_answer,
     handle_fletching_answer,
@@ -132,6 +133,30 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertAlmostEqual(player_data["fletching_exp"], 15.0)
         self.assertNotIn("activity", calls)
         self.assertEqual(player_data["skilling_bank_run"], {})
+
+    def test_crafting_handler_and_carried_overlay_reconcile_thread_consumption(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Leather": 1, "Thread": 1},
+            "crafting_level": 1,
+            "crafting_exp": 0,
+            "current_craft": "leather_leather_gloves",
+            "completed_achievements": [],
+            "carried_advanced_targets": {"leather_leather_gloves": True},
+            "carried_layout": {"leather_leather_gloves": {"Leather": 1, "Thread": 1}},
+        }
+
+        ok = run_answer_with_carried_overlay(
+            _context(player_data, calls, random_values=(0.0,)),
+            "crafting",
+            handle_crafting_answer,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"], {"Leather": 0, "Thread": 0, "Leather gloves": 1})
+        self.assertNotIn("leather_leather_gloves", player_data["carried_inventory"])
+        self.assertAlmostEqual(player_data["crafting_exp"], 13.8)
+        self.assertEqual(calls["errors"], [])
 
     def test_combat_full_loot_pack_forces_a_bank_run_that_deposits_it(self):
         # A full carried loot pack (28 slots) forces a bank run: the answer banks

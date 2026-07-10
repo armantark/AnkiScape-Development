@@ -126,6 +126,10 @@ class TestCraftingData(unittest.TestCase):
 
     def test_leather_rows_match_2011scape(self):
         data = crafting_recipes_as_dict()
+        leather_recipes = tuple(recipe for recipe in CRAFTING_RECIPES if recipe.family == "leather")
+        self.assertEqual(len(leather_recipes), 27)
+        self.assertTrue(all(recipe.required_items == (("Thread", 1),) for recipe in leather_recipes))
+        self.assertTrue(all(recipe.consume_thread_on_roll for recipe in leather_recipes))
         expected = {
             "leather_leather_cowl": (9, 18.5, {"Leather": 1}, "Leather cowl"),
             "leather_leather_vambraces": (11, 22.0, {"Leather": 1}, "Leather vambraces"),
@@ -154,6 +158,9 @@ class TestCraftingData(unittest.TestCase):
             self.assertEqual(data[recipe_id]["exp"], exp)
             self.assertEqual(data[recipe_id]["requirements"], requirements)
             self.assertEqual(data[recipe_id]["output_item"], output_item)
+        for recipe in leather_recipes:
+            self.assertEqual(data[recipe.id]["required_items"], {"Thread": 1})
+            self.assertTrue(data[recipe.id]["consume_thread_on_roll"])
 
     def test_tanning_rows_match_2011scape(self):
         self.assertEqual(

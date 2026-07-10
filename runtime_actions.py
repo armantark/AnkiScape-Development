@@ -324,7 +324,13 @@ def _processing_requirements_for(
             resolved = fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
             if resolved is not None:
                 return resolved
-        return {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+        resolved_requirements = {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
+        required_items = spec.get("required_items", {})
+        if isinstance(required_items, dict):
+            resolved_requirements.update(
+                {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
+            )
+        return resolved_requirements
     essence_items = spec.get("essence_items")
     if isinstance(essence_items, (list, tuple)) and essence_items:
         inventory = player_data.get("inventory", {}) or {}
@@ -848,8 +854,10 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Crafting to make {display_name}.")
         return False
 
+    required_items = dict(spec.get("requirements", {}))
+    required_items.update(spec.get("required_items", {}))
     if not has_crafting_materials_pure(item, player_data["inventory"], CRAFTING_DATA):
-        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        missing = missing_materials_text(required_items, player_data["inventory"])
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Out of materials",
@@ -858,9 +866,10 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
         )
         return False
 
-    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA)
+    thread_roll = min(int(ctx.random_random() * 5), 4) + 1 if spec.get("consume_thread_on_roll") else None
+    new_inv, base_exp, ok = apply_crafting_pure(item, player_data["inventory"], CRAFTING_DATA, thread_roll)
     if not ok:
-        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        missing = missing_materials_text(required_items, player_data["inventory"])
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Out of materials",
