@@ -389,7 +389,9 @@ gameplay or the Goldsmith-gauntlet XP modifier.
 
 Backlog id: `cook-karambwan-family`
 
-Decision status: owner grill in progress.
+Decision status: design settled; exact recipe tables, gates, rolls, and item
+effects wait for the fish-transcription dependency, a pinned November 2012
+source snapshot, and the Darkan fidelity revamp.
 
 ### Recipe Action Model
 
@@ -420,6 +422,17 @@ Decision status: owner grill in progress.
   exact November 2012 quest-state requirement rather than trusting Darkan's
   internally inconsistent karambwan enum alone.
 
+### Wine
+
+- `Make wine` is one Cooking target and one player action per review. Consume
+  one bunch of grapes and one jug of water, immediately resolve jug of wine
+  versus bad wine, and award the source XP only on a successful result.
+- Fermentation is automatic waiting rather than another player action. Do not
+  create a fermentation review, persistent non-combat minute timer, or separate
+  player-selected fermentation target. The unfermented state may exist inside
+  the atomic action transaction for source/item fidelity but is not persisted
+  between reviews.
+
 ### Scope Boundary
 
 - This grill covers the cookable fish, drinks, wine, and complete gnome recipe
@@ -428,3 +441,13 @@ Decision status: owner grill in progress.
 - Preserve the recipe-chain engine and finished items as reusable inputs for
   that later activity. Its initial design seed is recorded in
   `memory-bank/activity-minigame-design-seeds-2026-07-10.md`.
+
+### Evidence Gate
+
+Transcribe the complete November 2012 inputs, outputs, levels, XP, success and
+burn behavior, heat-source restrictions, quest teaching flags, healing and
+combat effects, utensils, intermediate items, and recipe stages. Reconcile the
+pinned historical source with revamped Darkan rather than copying its current
+partial implementation: its karambwan enum is internally inconsistent, its
+cocktail code mishandles multi-quantity ingredients, most gnome food assembly is
+absent, and its wine action skips the historical intermediate behavior.

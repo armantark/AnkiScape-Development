@@ -337,8 +337,17 @@
       "depends_on": [
         "fish-transcription"
       ],
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement after fish-transcription and a pinned November 2012 recipe audit are reconciled with revamped Darkan.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#cooking-karambwan-family-lava-eel-and-gnome-recipes",
+      "decision_summary": {
+        "fish": "Karambwanji, karambwan, and lava eel use one input-item cooking action per review with authentic outcomes, XP, gates, and compatible heat sources.",
+        "karambwan": "Poison and thoroughly cooked karambwan are separate deliberate targets; unlocking the edible method never replaces or hides poison cooking.",
+        "gnome_recipes": "Expose every authentic preparation step as a grouped target. Each review processes one item, and real intermediate items flow through the unified per-target inventory and bank rules.",
+        "wine": "One review consumes one grapes and jug-of-water pair and immediately resolves wine versus bad wine; fermentation creates no review or persisted non-combat timer.",
+        "scope": "Gnome Restaurant is parked as a separate minigame/Activity design seed that will reuse these recipes and abstract its deliveries without a world map.",
+        "source_gate": "Wait for fish-transcription and transcribe complete November 2012 recipes, gates, rolls, item effects, and stages; current Darkan is partial and internally inconsistent."
+      }
     },
     {
       "id": "fletch-javelin-construction",
