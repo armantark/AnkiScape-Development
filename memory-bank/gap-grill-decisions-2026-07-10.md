@@ -409,6 +409,17 @@ Decision status: owner grill in progress.
   switches stages. Every stage inherits the unified per-target Casual policy,
   Advanced layout, preset, bank-run, persistence, and undo rules.
 
+### Karambwan Methods
+
+- Expose `Cook poison karambwan` and `Cook karambwan thoroughly` as separate,
+  deliberate targets. Never automatically prefer the edible result after it is
+  unlocked, because poison karambwan is an authentic item and recipe choice,
+  not merely a failed roll.
+- Preserve the source-authentic level, Tai Bwo Wannai Trio progress and teaching
+  gates, 80-versus-190 XP awards, burn behavior, and outputs. Source-audit the
+  exact November 2012 quest-state requirement rather than trusting Darkan's
+  internally inconsistent karambwan enum alone.
+
 ### Scope Boundary
 
 - This grill covers the cookable fish, drinks, wine, and complete gnome recipe
