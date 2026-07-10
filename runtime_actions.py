@@ -94,6 +94,7 @@ try:
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
+        fletching_material_requirements_pure,
         fletching_target_locked_reasons_pure,
         herblore_target_locked_reasons_pure,
         has_cooking_materials_pure,
@@ -199,6 +200,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         equipment_bonus_state_pure,
         firemaking_target_locked_reasons_pure,
         fishing_method_locked_reasons_pure,
+        fletching_material_requirements_pure,
         fletching_target_locked_reasons_pure,
         herblore_target_locked_reasons_pure,
         has_cooking_materials_pure,
@@ -310,6 +312,10 @@ def _processing_requirements_for(handler_key: str, player_data: dict[str, Any]) 
         return {}
     requirements = spec.get("requirements")
     if isinstance(requirements, dict) and requirements:
+        if handler_key == "fletching":
+            resolved = fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
+            if resolved is not None:
+                return resolved
         return {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
     essence_items = spec.get("essence_items")
     if isinstance(essence_items, (list, tuple)) and essence_items:

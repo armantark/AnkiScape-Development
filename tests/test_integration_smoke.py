@@ -2131,6 +2131,45 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [5.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_undo_after_coloured_feather_fletching_restores_the_same_colour(self):
+        addon = _load_addon_as_package("ankiscape_coloured_feather_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Arrow shafts": 15, "Yellow feather": 15},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "headless_arrows",
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Fletching"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"]["Yellow feather"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Headless arrows"], 15)
+
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data["inventory"], {"Arrow shafts": 15, "Yellow feather": 15})
+        self.assertAlmostEqual(addon.player_data["fletching_exp"], 0)
+        self.assertEqual(calls["xp"], [15.0])
+
     def test_successful_noncombat_review_applies_one_safe_combat_recovery_and_undo_restores_it(self):
         addon = _load_addon_as_package("ankiscape_safe_recovery_integration")
 

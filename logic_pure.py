@@ -6394,15 +6394,33 @@ def crafting_target_locked_reasons_pure(player_data, target, crafting_data, ques
     return tuple(dict.fromkeys(reasons))
 
 
-def has_fletching_materials_pure(target, inventory, fletching_data):
-    """Return True when inventory satisfies a Fletching target's material needs."""
+def fletching_material_requirements_pure(target, inventory, fletching_data):
+    """Resolve a Fletching target's exact material consumption from inventory."""
     spec = fletching_data.get(target)
     if not spec:
-        return False
-    for material, amount in spec.get("requirements", {}).items():
+        return None
+    requirements = dict(spec.get("requirements", {}))
+    for material, alternatives in spec.get("material_options", {}).items():
+        amount = requirements.get(material)
+        if amount is None:
+            continue
+        selected = next(
+            (option for option in alternatives if inventory.get(option, 0) >= amount),
+            None,
+        )
+        if selected is None:
+            return None
+        del requirements[material]
+        requirements[selected] = amount
+    for material, amount in requirements.items():
         if inventory.get(material, 0) < amount:
-            return False
-    return True
+            return None
+    return requirements
+
+
+def has_fletching_materials_pure(target, inventory, fletching_data):
+    """Return True when inventory satisfies a Fletching target's material needs."""
+    return fletching_material_requirements_pure(target, inventory, fletching_data) is not None
 
 
 def can_fletch_item_pure(fletching_level, inventory, target, fletching_data):
@@ -6448,8 +6466,12 @@ def apply_fletching_pure(target, inventory, fletching_data):
     if not spec or not has_fletching_materials_pure(target, inventory, fletching_data):
         return inventory, 0, False
 
+    requirements = fletching_material_requirements_pure(target, inventory, fletching_data)
+    if requirements is None:
+        return inventory, 0, False
+
     new_inv = dict(inventory)
-    for material, amount in spec.get("requirements", {}).items():
+    for material, amount in requirements.items():
         new_inv[material] = new_inv.get(material, 0) - amount
 
     output_item = spec.get("output_item", target)

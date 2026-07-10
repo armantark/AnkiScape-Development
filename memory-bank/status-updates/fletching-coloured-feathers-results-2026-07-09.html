@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fletching coloured feathers — results</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px Outfit,system-ui,sans-serif}main{max-width:1080px;margin:auto;padding:42px 24px}.badge{display:inline-block;color:var(--green);background:rgba(74,222,128,.12);padding:7px 10px;border-radius:999px;font:700 12px "JetBrains Mono",monospace;letter-spacing:.08em}h1{font-size:clamp(2rem,5vw,3.5rem);margin:16px 0 10px}p{color:var(--text-dim);line-height:1.55}.metrics,.grid{display:grid;gap:16px;margin-top:24px}.metrics{grid-template-columns:repeat(3,minmax(0,1fr))}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.card{border:1px solid var(--border);border-radius:var(--radius);padding:20px;background:var(--surface)}.metric{font-size:2.3rem;font-weight:800;color:var(--green)}.caption{font:12px "JetBrains Mono",monospace;color:var(--text-dim);text-transform:uppercase;letter-spacing:.06em}.card h2{font-size:1.05rem;margin:0 0 12px}.tag{display:inline-block;padding:4px 7px;margin:4px 4px 0 0;border-radius:6px;background:var(--surface-2);color:var(--text-dim);font:12px "JetBrains Mono",monospace}.rail{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin:12px 0}.before,.after{padding:12px;border-radius:8px;background:var(--surface-2);font:13px "JetBrains Mono",monospace}.before{color:#ffb4b4}.after{color:#9af3bb}.arrow{color:var(--accent);font-size:1.4rem}@media(max-width:720px){.metrics,.grid{grid-template-columns:1fr}main{padding:28px 16px}}
+  </style>
+</head>
+<body>
+  <main>
+    <span class="badge">COMPLETED · SOURCE-BACKED</span>
+    <h1>All six live feather choices now fletch identically</h1>
+    <p>Existing recipes retain their values. The selected available feather type is carried through readiness, pack loading, consumption, and undo.</p>
+    <section class="metrics" aria-label="completion metrics">
+      <article class="card"><div class="metric">18</div><div class="caption">live feathering rows covered</div></article>
+      <article class="card"><div class="metric">6</div><div class="caption">accepted feather types</div></article>
+      <article class="card"><div class="metric">954</div><div class="caption">tests passed · 157 skipped</div></article>
+    </section>
+    <section class="grid">
+      <article class="card"><h2>Deterministic exact consumption</h2><div class="rail"><div class="before">Only Feather accepted</div><div class="arrow">→</div><div class="after">First sufficient source-order feather is consumed</div></div><p>Ordinary Feather is preferred when sufficient; otherwise Red, Orange, Yellow, Blue, then Stripy is selected. The chosen stack alone is decremented.</p><span class="tag">fletching_data.py</span><span class="tag">logic_pure.py</span></article>
+      <article class="card"><h2>Every runtime seam agrees</h2><p>Target readiness resolves coloured inventory, and carried-pack provisioning resolves the same exact material before its scoped handler applies the recipe. The existing review snapshot restores that colour on undo.</p><span class="tag">target_metadata.py</span><span class="tag">runtime_actions.py</span><span class="tag">__init__.py undo</span></article>
+      <article class="card"><h2>Source evidence</h2><p><code>FeatheringData.kt:13–65</code> defines the 18 live rows; lines <code>70–78</code> define the six options. <code>feathering.plugin.kts:13–23</code> binds every option to every row; lines <code>29–31</code> and <code>67–70</code> select and consume the interacting type.</p></article>
+      <article class="card"><h2>Deliberate boundaries</h2><p>No recipe rows were created because every source row already existed. No new IDs or assets were needed: Hunter already owns IDs 10087–10091 and their checked-in icons. Javelins, Combat, and Prayer were untouched.</p></article>
+    </section>
+  </main>
+</body>
+</html>

@@ -105,6 +105,32 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
 
+    def test_fletching_handler_and_carried_overlay_consume_selected_coloured_feathers(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Arrow shafts": 30, "Blue feather": 30},
+            "fletching_level": 1,
+            "fletching_exp": 0,
+            "current_fletch": "headless_arrows",
+            "completed_achievements": [],
+        }
+
+        ok = run_answer_with_carried_overlay(
+            _context(player_data, calls),
+            "fletching",
+            handle_fletching_answer,
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"]["Arrow shafts"], 15)
+        self.assertEqual(player_data["inventory"]["Blue feather"], 15)
+        self.assertEqual(player_data["inventory"]["Headless arrows"], 15)
+        self.assertEqual(
+            player_data["carried_inventory"]["headless_arrows"],
+            {"Arrow shafts": 15, "Blue feather": 15},
+        )
+        self.assertAlmostEqual(player_data["fletching_exp"], 15.0)
+
     def test_combat_full_loot_pack_forces_a_bank_run_that_deposits_it(self):
         # A full carried loot pack (28 slots) forces a bank run: the answer banks
         # instead of fighting, the loot is deposited (view cleared, but the items

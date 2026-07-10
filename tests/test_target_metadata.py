@@ -834,6 +834,22 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertTrue(_row(unlocked_rows, "broad_arrows").enabled)
         self.assertTrue(_row(unlocked_rows, "feather_broad_bolts").enabled)
 
+    def test_fletching_rows_accept_coloured_feathers_as_materials(self):
+        rows = fletching_target_rows(
+            {
+                "fletching_level": 1,
+                "inventory": {"Arrow shafts": 15, "Orange feather": 15},
+                "current_fletch": "headless_arrows",
+            },
+            FLETCHING_DATA,
+            FLETCHED_ITEM_IMAGES,
+            QUEST_UNLOCK_RULES,
+        )
+
+        headless_arrows = _row(rows, "headless_arrows")
+        self.assertTrue(headless_arrows.enabled)
+        self.assertIn("Orange feather x15 (you have 15)", headless_arrows.tooltip)
+
     def test_firemaking_rows_preserve_success_tooltip_and_default_current_target(self):
         rows = firemaking_target_rows(
             {

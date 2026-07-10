@@ -43,6 +43,11 @@ Stringing:
 
 Feathering:
 
+- Every live row accepts `Feather`, `Red feather`, `Orange feather`, `Yellow
+  feather`, `Blue feather`, or `Stripy feather`. The exact source alternative
+  set is `FeatheringData.kt:70-78`; the plugin registers each alternative for
+  each live row at `feathering.plugin.kts:13-23` and identifies the interacting
+  feather before the action consumes it at lines 29-31 and 67-70.
 - Headless arrows use 15 shafts and 15 feathers for 15.0 XP.
 - Flighted ogre arrows use 6 ogre arrow shafts and 24 feathers for 5.4 XP.
 - Bronze through runite bolts and broad bolts use 10 unfinished bolts and 10
