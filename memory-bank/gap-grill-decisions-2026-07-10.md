@@ -580,3 +580,44 @@ source audit and reconciled server-behavior evidence.
   poison++` oldid 6392216 (2012-10-12), read as literal archived wikitext. Each
   page defines the poisoned suffix, one-melee/five-projectile application, and
   manual cleaning instead of a weapon-side expiry.
+
+## Woodcutting: Arctic Pine, Eucalyptus, and Cursed Magic
+
+Backlog id: `wc-arctic-euc-cursed`
+
+Decision status: owner is unfamiliar with the cursed-magic activity; a
+source-shaped low-friction recommendation is pending confirmation.
+
+### Period Facts
+
+- Arctic pine is a level-54 target awarding 140.2 Woodcutting XP and Arctic
+  pine logs. Splitting one log at the Neitiznot stump awards another 42.5 XP.
+- Eucalyptus is a level-58 target awarding 165 Woodcutting XP and Eucalyptus
+  logs. The period page identifies a usable route by Mobilising Armies that does
+  not depend on the Oo'glog quest-bank shortcut.
+- Cursed magic is a level-82, Spirit of Summer-gated target awarding 275
+  Woodcutting XP and Cursed magic logs. Those logs can be burned only while in
+  the Spirit Realm at level 75 Firemaking, for the same XP as Magic logs, and
+  automatically become ordinary Magic logs on leaving.
+- The cursed tree and its ordinary Magic-tree counterpart alternate across the
+  two realms when felled. Preserve that source relationship as an abstracted
+  target loop rather than adding a world map.
+- Historical evidence: RuneScape Wiki `Arctic Pine` oldid 6069429
+  (2012-08-09), `Eucalyptus tree` oldid 6491980 (2012-10-28), `Cursed magic
+  tree` oldid 6368505 (2012-10-08), `Cursed magic logs` oldid 5742321
+  (2012-06-10), and `Spirit Realm` oldid 6394729 (2012-10-13), read as literal
+  archived wikitext.
+
+### Recommended Cursed-Magic Abstraction
+
+- Selecting Cursed magic begins a target-local Spirit Realm session; it does
+  not create a global location or world-map system.
+- Cursed logs remain cursed while chopping or when switching specifically to
+  the existing `Burn cursed magic logs` Firemaking target, preserving the
+  authentic in-realm Firemaking use.
+- A bank run, explicit exit, or switch to any unrelated target ends the session
+  and converts every carried Cursed magic log into an ordinary Magic log. The
+  conversion is automatic and non-interrupting.
+- Abstract the paired cursed/ordinary-tree traversal inside the target loop,
+  with a compact current-action label if the reconciled server implementation
+  requires visible phases. Do not make the player navigate between realms.
