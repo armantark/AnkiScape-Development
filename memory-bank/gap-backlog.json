@@ -611,7 +611,7 @@
       "rank": 30,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Port live leather Thread requirements and consumption",
       "detail": "LeatherAction.kt requires Thread before every LeatherData-backed craft and consumes exactly one Thread when world.random(1..5) == 1 after removing the recipe's leather; output and XP are unchanged. Add the non-material presence requirement and exact deterministic 1-in-5 consumption semantics to every live leather recipe, retaining Thread otherwise. Thread already has live acquisition. Keep Needle implicit under the settled 2011 toolbelt decision. Build on the alternative-requirement plumbing landed by fletch-colored-feather-options; wire deterministic RNG, carried-overlay reconciliation, undo, and focused parity tests. Do not touch Combat or Prayer.",
       "source": "game-main:skills/crafting/leather/LeatherAction.kt; LeatherData.kt",
@@ -631,7 +631,8 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/craft-leather-thread-semantics/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-leather-thread-semantics/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-leather-thread-semantics/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-thread-semantics/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-thread-semantics/.gap-review/verdict.json",
+      "review_started": "2026-07-09 18:30:39"
     },
     {
       "id": "craft-held-mould-pipe-gates",
