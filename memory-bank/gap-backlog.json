@@ -379,7 +379,7 @@
       "detail": "Overload = 96 Herblore capstone built from extreme potions; absent from PotionData.kt. Verify exact XP via wiki.",
       "source": "wiki:Overload",
       "status": "needs_grill",
-      "note": "owner grill in progress; Overload, combat potion policy, and Sanfew serum staging are settled, while weapon poison remains",
+      "note": "owner grill in progress; Overload, combat potion policy, Sanfew serum staging, and persistent right-click weapon poisoning are settled",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#herblore-overload-sanfew-serum-and-weapon-poison",
       "decision_summary": {
         "mixing": "One review consumes the five three-dose extreme potions plus clean torstol and produces Overload (3), four empty vials, and 1,000 Herblore XP.",
@@ -387,7 +387,9 @@
         "casual_overload": "Only Casual Max output automatically selects, packs, drinks, and re-doses damaging Overloads.",
         "advanced_overload": "Advanced uses Overload only when explicitly checked and present in that target's saved carried layout.",
         "sanfew_stages": "Use three separate dose-aware targets: Super restore plus unicorn horn dust to Mixture step 1, plus clean snake weed to Mixture step 2, then plus nail beast nails to Sanfew serum; each review performs one addition and awards the exact dose-dependent partial XP.",
-        "sanfew_tradeability": "Both pre-EOC mixture stages are tradeable Grand Exchange items and remain real inventory/economy outputs."
+        "sanfew_tradeability": "Both pre-EOC mixture stages are tradeable Grand Exchange items and remain real inventory/economy outputs.",
+        "weapon_poison_application": "Right-click a compatible carried weapon or projectile stack when a poison vial is carried; applying is instantaneous, awards no XP, consumes one vial, and permanently converts one melee weapon or up to five projectiles to the matching poisoned item variant.",
+        "weapon_poison_expiry": "The weapon-side poisoned variant does not wear off; victim poison decays separately, and a cleaning cloth manually removes poison from the item."
       }
     },
     {

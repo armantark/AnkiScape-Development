@@ -549,3 +549,29 @@ Decision status: owner grill in progress.
 - Historical evidence: RuneScape Wiki `Sanfew serum` oldid 6333478
   (2012-10-02), `Mixture - step 1` oldid 5500383 (2012-04-16), and `Mixture -
   step 2` oldid 5500399 (2012-04-16), read as literal archived wikitext.
+
+### Weapon-Poison Application
+
+- Applying weapon poison is an instantaneous carried-inventory interaction, not
+  a Herblore or Utility review target. Right-click an eligible unpoisoned weapon
+  or projectile stack and expose `Poison` only when a compatible vial is also
+  present in the carried inventory.
+- One vial permanently converts one eligible melee weapon or up to five eligible
+  projectiles into the matching `(p)`, `(p+)`, or `(p++)` item variant. A larger
+  projectile stack converts five and leaves the remainder unpoisoned.
+- The poisoned item state does not expire with time, attacks, or reviews. Only
+  the poison status inflicted on a victim decays and expires. A cleaning cloth
+  remains the source-backed manual way to return a poisoned weapon to its clean
+  variant.
+- Applying poison awards no XP and requires no Herblore level. Mixing Weapon
+  poison, Weapon poison+, and Weapon poison++ remains ordinary Herblore training
+  at the period levels, ingredients, and XP.
+- Eligible item families and poison strength use the pinned period definitions;
+  do not generalize poison to every weapon. Preserve the resulting poisoned item
+  as a real stable inventory/equipment identity rather than a temporary combat
+  flag.
+- Historical evidence: RuneScape Wiki `Weapon poison` oldid 6282857
+  (2012-09-22), `Weapon poison+` oldid 6565085 (2012-11-17), and `Weapon
+  poison++` oldid 6392216 (2012-10-12), read as literal archived wikitext. Each
+  page defines the poisoned suffix, one-melee/five-projectile application, and
+  manual cleaning instead of a weapon-side expiry.

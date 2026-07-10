@@ -152,6 +152,20 @@ Grand Exchange potion template. They are durable item/economy outputs, not
 invented internal states. Owner design maps the three additions to three
 separate dose-aware review targets.
 
+### 9b. Weapon poison persistence and application — confirmed pre-EOC
+
+`Weapon poison` oldid 6282857 (2012-09-22), `Weapon poison+` oldid 6565085
+(2012-11-17), and `Weapon poison++` oldid 6392216 (2012-10-12) each define a
+durable poisoned item suffix, one vial per melee weapon or up to five
+projectiles, and manual removal with a Karamjan-rum cleaning cloth. None defines
+a weapon-side duration, charge count, or attack-based expiry. The poison status
+on the victim decays to 10 lifepoints and ends; that is separate from the
+weapon/ammunition item's persistent `(p)`, `(p+)`, or `(p++)` identity.
+
+Owner design maps application to an instantaneous right-click action on a
+compatible carried weapon or projectile stack when the matching poison vial is
+carried. It is not a review target and awards no XP.
+
 ## Operational Rule
 
 For every remaining grill, attach each concrete value to one of:

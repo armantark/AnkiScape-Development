@@ -599,6 +599,11 @@ next implementation pass:
     (decision 81), and roll the status back with the atomic review transaction.
     Antipoison cure supplies auto-consume from the combat loadout for the player;
     enemy poison runs to its source expiry.
+    The poisoned weapon/ammunition identity itself is permanent until manually
+    cleaned; it does not decay with attacks or review ticks. Applying a carried
+    poison vial is an instantaneous right-click inventory action that converts
+    one eligible melee weapon or up to five eligible projectiles and awards no
+    XP. Do not represent persistent item poison as a temporary combat buff.
 96. Special attack energy is a persistent, source-rate resource, not a per-burst
     pool. Energy persists globally between bursts and fights and regenerates at the
     source rate of 10% per 50 ticks. Because burst length scales linearly from
