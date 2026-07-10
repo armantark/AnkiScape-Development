@@ -404,3 +404,12 @@ Decision status: owner grill in progress.
 - Show the current recipe step in the review HUD and resume it automatically on
   the next review. Do not require a manual stage selector, and do not collapse
   a multi-step recipe into one review.
+
+### Scope Boundary
+
+- This grill covers the cookable fish, drinks, wine, and complete gnome recipe
+  chains only. Gnome Restaurant is a separate minigame/Activity design problem
+  and must receive its own owner grill before implementation.
+- Preserve the recipe-chain engine and finished items as reusable inputs for
+  that later activity. Its initial design seed is recorded in
+  `memory-bank/activity-minigame-design-seeds-2026-07-10.md`.
