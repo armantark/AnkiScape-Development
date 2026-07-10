@@ -798,7 +798,7 @@
       "rank": 36,
       "skill": "Smithing",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Port live Dragon square shield assembly",
       "detail": "dragon_sq_shield.plugin.kts live-binds level 60 Smithing at an anvil: consume Shield left half (2366) and Shield right half (2368), produce Dragon sq shield (1187), and award exactly 70 XP. Keep Hammer implicit under the existing toolbelt convention. The Doric's Quest check applies only to one of four supported anvils and is not a universal recipe gate. Preserve both existing half registrations, add the output item/equipment/icon wiring, and cover data, runtime, registry, and undo behavior. Do not alter Combat or Prayer implementation.",
       "source": "game-main:content/items/armor/dragon_sq_shield.plugin.kts:6-59",
@@ -816,7 +816,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/smith-dragon-square-shield/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/smith-dragon-square-shield/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/smith-dragon-square-shield/.gap-review/verdict.json",
-      "review_started": "2026-07-09 22:49:31"
+      "review_started": "2026-07-09 22:49:31",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "The branch is source-faithful and focused after the HEAD repair: it adds the level-60 anvil recipe that consumes both existing half items and produces item 1187 for exactly 70 XP, leaves Hammer implicit and Doric's Quest non-universal, preserves both half registrations, and wires the output through the item registry, documented icon fallback, and exact items.yml equipment data. Generator reproduction, focused data/runtime/registry/undo tests, and the full 979-test suite pass with /opt/homebrew/bin/python3, and smithing_data imports cleanly there; the requested literal python command is unavailable because this shell has no python executable on PATH, not because of an import error. Combat and Prayer are untouched."
+      }
     },
     {
       "id": "wc-canoe-shaping",
@@ -850,6 +855,39 @@
       "detail": "game-main live-binds charged, location-sensitive XP multipliers for Mining, Smithing, Woodcutting, Fishing, Cooking, and Firemaking, with per-skill charge caps and glove disintegration. AnkiScape has no faithful Wilderness/location semantics or skilling equipment-charge lifecycle. Owner must define location mapping, acquisition/equipment behavior, charge persistence, multiplier application, UI, and undo without expanding Combat or Prayer. Treat this as one shared runtime design to avoid redundant per-skill implementations.",
       "source": "game-main:content/items/armor/BrawlingGloves.kt:6-21; plugins/api/ext/PlayerExt.kt:1877-1913; live skill call sites",
       "note": "combined fresh-audit finding across six shipped skills; game-main is live but faithful review-action mapping requires owner design"
+    },
+    {
+      "id": "rc-single-essence-trip-selection",
+      "rank": 40,
+      "skill": "Runecrafting",
+      "root_cause": "transcription",
+      "status": "pending",
+      "title": "Use one essence family per standard Runecrafting trip",
+      "detail": "RunecraftAction.kt selects the first valid essence item present, counts and removes only that one item ID, and calculates output and XP from that single stack. For Air through Body runes, select exactly one essence family per action using the existing deterministic priority: Rune essence when any is available, otherwise Pure essence. Cap the trip at that selected stack plus normal capacity and never spill into the second essence family. Higher runes remain Pure-only. Preserve altar access, talismans/tiaras, pouches and degradation, multipliers, XP, outputs, and every other Runecrafting behavior. Add a mixed-stock regression where Rune essence is below capacity and Pure essence remains untouched. Do not touch Combat or Prayer.",
+      "source": "game-main:skills/runecrafting/RunecraftAction.kt:120-128",
+      "note": "fresh shipped-skill completeness audit pass 5, 2026-07-09"
+    },
+    {
+      "id": "fm-barbarian-bow-lighting",
+      "rank": 41,
+      "skill": "Firemaking",
+      "root_cause": "stub",
+      "status": "needs_grill",
+      "title": "Design Barbarian bow fire-lighting",
+      "detail": "game-main supplies Otto dialogue, a persistent learnedBarbarianFiremaking flag, and static book instructions to use a strung bow on an oak log, but has no bound bow-on-log action consuming that unlock and no exact bow eligibility, XP distinction, or runtime mechanics. Owner must choose the training/unlock representation and approve historical source data before implementation. Do not infer values or auto-build.",
+      "source": "game-main:areas/barbarianoutpost/otto.plugin.kts:277-299; items/books/book_barbarian_skills.plugin.kts:23-42",
+      "note": "static metadata only; classified as a stub by the mandatory fresh audit"
+    },
+    {
+      "id": "cook-cooking-gauntlets-runtime",
+      "rank": 42,
+      "skill": "Cooking",
+      "root_cause": "stub",
+      "status": "needs_grill",
+      "title": "Design Cooking gauntlet conversion and burn-rate effects",
+      "detail": "game-main defines Cooking gauntlets item 775 and its fish-cooking examine metadata but no Cooking/action plugin references it, so the exact affected foods and burn-rate mechanics are absent. Owner must approve historical source data for affected fish and thresholds and decide Family-gauntlet conversion/acquisition, equipment state, UI, persistence, undo, and review-loop behavior. Do not invent the missing values or auto-build.",
+      "source": "game-main:plugins/api/cfg/Items.kt:776; data/cfg/items.yml:6714-6722",
+      "note": "item metadata only; classified as a stub by the mandatory fresh audit"
     }
   ]
 }
