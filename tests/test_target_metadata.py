@@ -1139,6 +1139,19 @@ class TargetMetadataTest(unittest.TestCase):
         self.assertIn("Anchovy paste x1 per item", anchovies.tooltip)
         self.assertIn("No skill XP", anchovies.tooltip)
 
+        lantern_rows = utility_activity_rows(
+            {"inventory": {"Sapphire lantern (unlit)": 1}, "firemaking_level": 48},
+            UTILITY_ACTIVITY_DATA,
+            UTILITY_ITEM_IMAGES,
+            BIRD_NEST_OPEN_TABLES,
+            DEFAULT_UTILITY_ACTIVITY,
+        )
+        sapphire_lantern = _row(lantern_rows, "light_sapphire_lantern")
+        self.assertFalse(sapphire_lantern.enabled)
+        self.assertEqual(sapphire_lantern.locked_reasons, ("Firemaking 49",))
+        self.assertIsNotNone(sapphire_lantern.icon_path)
+        self.assertIn("Sapphire lantern (lit) x1 per item", sapphire_lantern.tooltip)
+
     def test_utility_rows_flag_one_shot_activities(self):
         # No live activity uses deactivate_after_run since buy_hunter_supplies
         # was retired, but the tooltip branch stays supported for future rows.

@@ -447,6 +447,43 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Anchovies"], 2)
         self.assertEqual(new_inv["Anchovy paste"], 28)
 
+    def test_light_source_actions_are_single_zero_xp_item_swaps_with_level_locks(self):
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "light_candle_lantern_4527",
+            {"Candle lantern (unlit, 4527)": 2},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 1)
+        self.assertEqual(new_inv, {"Candle lantern (unlit, 4527)": 1, "Candle lantern (lit, 4531)": 1})
+
+        extinguished, exp, ok, processed = apply_utility_activity_pure(
+            "extinguish_candle_lantern_4527",
+            new_inv,
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 1)
+        self.assertEqual(extinguished, {"Candle lantern (unlit, 4527)": 2, "Candle lantern (lit, 4531)": 0})
+        self.assertEqual(
+            utility_activity_locked_reasons_pure(
+                {"inventory": {"Candle lantern (unlit, 4527)": 1}, "firemaking_level": 3},
+                "light_candle_lantern_4527",
+                UTILITY_ACTIVITY_DATA,
+            ),
+            ("Firemaking 4",),
+        )
+        self.assertEqual(
+            utility_activity_locked_reasons_pure(
+                {"inventory": {"Candle lantern (lit, 4531)": 1}, "firemaking_level": 1},
+                "extinguish_candle_lantern_4527",
+                UTILITY_ACTIVITY_DATA,
+            ),
+            (),
+        )
+
     def test_apply_utility_activity_can_generate_batch_without_inputs(self):
         utility_data = {
             "gather_wool": {

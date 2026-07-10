@@ -7,9 +7,13 @@ from firemaking_data import (
     FIREMAKING_SOURCE_PATH,
     FIREMAKING_TARGETS,
     FIREMAKING_TARGETS_BY_ID,
+    LIGHT_SOURCE_ACTIVITIES,
+    LIGHT_SOURCE_PATH,
+    LIGHT_SOURCE_PLUGIN_PATH,
     firemaking_deferred_content_as_dict,
     firemaking_extra_items_as_dict,
     firemaking_targets_as_dict,
+    light_source_activities_as_dict,
 )
 
 
@@ -69,6 +73,49 @@ class TestFiremakingData(unittest.TestCase):
         self.assertIn("bonfires", deferred)
         self.assertEqual(deferred["bonfires"]["status"], "deferred_2012_extension")
         self.assertIn("2012", deferred["bonfires"]["reason"])
+
+    def test_light_source_rows_and_inverse_bindings_are_exact(self):
+        rows = [
+            (activity.id, activity.raw_item_id, activity.lit_item_id, activity.level)
+            for activity in LIGHT_SOURCE_ACTIVITIES
+        ]
+        self.assertEqual(
+            rows,
+            [
+                ("light_unlit_torch", 596, 594, 1),
+                ("light_candle", 36, 33, 1),
+                ("light_black_candle", 38, 32, 1),
+                ("light_candle_lantern_4527", 4527, 4531, 4),
+                ("light_candle_lantern_4532", 4532, 4534, 4),
+                ("light_oil_lamp", 4522, 4524, 12),
+                ("light_oil_lantern", 4535, 4539, 26),
+                ("light_bullseye_lantern", 4548, 4550, 49),
+                ("light_sapphire_lantern", 4701, 4702, 49),
+                ("light_emerald_lantern", 9064, 9065, 49),
+                ("light_mining_helmet", 5014, 5013, 65),
+            ],
+        )
+        activities = light_source_activities_as_dict()
+        self.assertEqual(len(activities), 22)
+        for activity in LIGHT_SOURCE_ACTIVITIES:
+            light = activities[activity.id]
+            extinguish = activities[f"extinguish_{activity.id[6:]}"]
+            self.assertEqual(light["requirements"], {activity.raw_item: 1})
+            self.assertEqual(light["output_item"], activity.lit_item)
+            self.assertEqual(light["firemaking_level"], activity.level)
+            self.assertEqual(light["source_item_id"], activity.raw_item_id)
+            self.assertEqual(light["output_item_id"], activity.lit_item_id)
+            self.assertEqual(extinguish["requirements"], {activity.lit_item: 1})
+            self.assertEqual(extinguish["output_item"], activity.raw_item)
+            self.assertNotIn("firemaking_level", extinguish)
+        self.assertIn("LightSource.kt", LIGHT_SOURCE_PATH)
+        self.assertIn("light_source.plugin.kts", LIGHT_SOURCE_PLUGIN_PATH)
+
+    def test_light_source_items_keep_canonical_ids(self):
+        extra = firemaking_extra_items_as_dict()
+        for activity in LIGHT_SOURCE_ACTIVITIES:
+            self.assertEqual(extra[activity.raw_item]["item_id"], activity.raw_item_id)
+            self.assertEqual(extra[activity.lit_item]["item_id"], activity.lit_item_id)
 
 
 if __name__ == "__main__":
