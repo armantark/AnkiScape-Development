@@ -582,7 +582,7 @@
       "rank": 29,
       "skill": "Fletching",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Accept all live coloured feather alternatives",
       "detail": "FeatheringData.kt defines the exact live alternatives Feather (314), Red feather (10088), Orange feather (10091), Yellow feather (10090), Blue feather (10089), and Stripy feather (10087); feathering.plugin.kts registers every alternative for every live feathering row and consumes the selected colour. AnkiScape hard-requires only Feather even though Hunter already produces and registers all five coloured inputs. Preserve every existing level, XP value, output, and quantity; accept any one exact alternative and consume the chosen/available type at the row's existing quantity. Integrate deterministic alternative selection through materials, readiness, carried-overlay, apply, and undo paths. Do not add javelins or touch Combat or Prayer. Add focused parity, runtime, inventory, undo, and icon tests.",
       "source": "game-main:skills/fletching/feathering/FeatheringData.kt; feathering.plugin.kts",
@@ -594,7 +594,12 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/impl.exit",
-      "started": "2026-07-09 16:58:55"
+      "started": "2026-07-09 16:58:55",
+      "review_report": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fletch-colored-feather-options/.gap-review/verdict.json"
     },
     {
       "id": "craft-leather-thread-semantics",
@@ -629,7 +634,7 @@
       "rank": 32,
       "skill": "Firemaking",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Port live light-source lighting and extinguishing actions",
       "detail": "Port the 11 exact Firemaking-gated, zero-XP raw-to-lit transformations from LightSource.kt and every inverse extinguish binding from light_source.plugin.kts: 596->594 level 1, 36->33 level 1, 38->32 level 1, 4527->4531 level 4, 4532->4534 level 4, 4522->4524 level 12, 4535->4539 level 26, 4548->4550 level 49, 4701->4702 level 49, 9064->9065 level 49, and 5014->5013 level 65. Preserve exact item IDs because several states share display names. Model only Utility/Activities transformations; exclude darkness, location, drop, acquisition, Combat, and Prayer behavior. Add focused level, runtime, item, icon, and undo tests.",
       "source": "game-main:content/mechanics/lightsource/LightSource.kt; light_source.plugin.kts",
@@ -641,14 +646,19 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/impl.exit",
-      "started": "2026-07-09 16:59:07"
+      "started": "2026-07-09 16:59:07",
+      "review_report": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fm-light-source-actions/.gap-review/verdict.json"
     },
     {
       "id": "herb-runtime-input-prep",
       "rank": 33,
       "skill": "Herblore",
       "root_cause": "transcription",
-      "status": "in_progress",
+      "status": "reviewing",
       "title": "Port vial filling and swamp-toad leg preparation",
       "detail": "Add two zero-XP Utility input-preparation rows from live game-main handlers: Vial (229) -> Vial of water (227), using WaterContainerData.VIAL_OF_WATER and fill_water.plugin.kts; and Swamp toad (2150) -> Toad's legs (2152), using swamp_toad.plugin.kts Remove-legs. Keep exact 1:1 source identities, existing Utility batching conventions, item/icon registration, runtime, and undo behavior green. Do not port unrelated quest, Farming, Juju, or Dungeoneering water-container rows, and do not touch Combat or Prayer.",
       "source": "game-main:content/objs/watersource/WaterContainerData.kt; fill_water.plugin.kts; content/items/swamp_toad.plugin.kts",
@@ -660,7 +670,12 @@
       "impl_log": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/impl.log",
       "impl_done": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/impl.done",
       "impl_exit": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/impl.exit",
-      "started": "2026-07-09 16:59:19"
+      "started": "2026-07-09 16:59:19",
+      "review_report": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review_report.md",
+      "review_log": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review.log",
+      "review_done": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review.done",
+      "review_exit": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review.exit",
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/herb-runtime-input-prep/.gap-review/verdict.json"
     }
   ]
 }
