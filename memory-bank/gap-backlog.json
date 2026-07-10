@@ -196,8 +196,17 @@
       "title": "Add tracking, pitfall trapping, rabbit snaring",
       "detail": "game-main has ZERO hunter files. Source kebbit tracking trails, pitfall (larupia/graahk/kyatt), rabbit snaring from wiki pinned pre-EOC. Explicitly deferred in AnkiScape's own hunter audit.",
       "source": "wiki:Hunter",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement after the November 2012 Darkan fidelity revamp provides source-grade mechanics and rates.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#hunter-tracking-pitfall-and-rabbit-snaring",
+      "decision_summary": {
+        "scope": "Full non-Jadinko pre-EOC parity: six tracking targets, three pitfall targets, rabbit snaring, the quest-gated penguin and Jim hand-in, direct reward transformations, and source-authentic equipment effects.",
+        "review_model": "One review is one complete rolled attempt; intermediate trail, trap, tease, jump, ferret, snare, and capture stages are simulated internally.",
+        "danger": "Pitfall failures use the shared player lifepoints, food, death, grave, bank-run, and undo contracts; dangerous Hunter targets expose player HP alongside Hunter XP.",
+        "inventory": "All inventory-managed skill and combat targets share one 28-slot carried model. Casual adaptive policy and advanced literal layout are persisted per target. Named advanced presets are saved/applied from a dropdown as copy-on-apply target layouts.",
+        "travel": "Selecting a target abstracts travel to its canonical area. Enforce authentic quest gates but do not add persistent location or world-map state.",
+        "source_gate": "Do not invent success curves, sub-rolls, damage, resource loss, perfect/tatty distribution, or bonus values before the revamped Darkan implementation is available for citation."
+      }
     },
     {
       "id": "hunter-habitat-jadinko",
