@@ -291,8 +291,18 @@
       "title": "Add Artisan's Workshop + burial armour + ceremonial swords",
       "detail": "Major 2010 Smithing progression surface absent from emulator plugin.",
       "source": "wiki:Artisan's Workshop",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement after a pinned November 2012 source audit and the Darkan fidelity revamp establish missing ceremonial-sword and burst-pipe mechanics.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#smithing-artisans-workshop-burial-armour-and-ceremonial-swords",
+      "decision_summary": {
+        "surface": "Use a compact Smithing sub-UI showing metal/ingot grade, current assignment or plan, Respect, and a deep link to Activity Rewards.",
+        "burial": "Automatically follow source-assigned armour pieces while the player chooses metal and ingot grade; abstract bank, Workshop storage, and ingot movement without erasing authentic costs or caps.",
+        "ceremonial": "Plans occasionally interrupt burial work, run a source-authentic simulated hammering sequence with visible progress and result, then resume the prior assignment.",
+        "pipes": "Fold quick pipe repairs into an ordinary action slice unless historical evidence shows a repair consumed roughly a full slice; apply Quick Repairs and Repair Expert from recovered source timing and XP.",
+        "rewards": "Respect purchases are manual in a distinct Activity Rewards shop. Hide incomplete individual rewards, including cannon unlocks, until they function end to end.",
+        "visibility": "Reserve disabled rows for authentic player-state locks on working content. Confirmed future activity shops may use curated shop-level Coming later cards, but never inert individual reward rows.",
+        "source_gate": "Reconstruct ceremonial-sword rolls and burst-pipe timing from a pinned November 2012 snapshot, then reconcile them with revamped Darkan."
+      }
     },
     {
       "id": "smith-blastfurnace-goldsmith",

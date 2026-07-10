@@ -904,6 +904,34 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
       HTML mockup review path.
     - Status: decided 2026-07-06.
 
+## 2026-07-10 Activity Rewards Addendum
+
+This addendum supersedes decision 75 only where it previously hid all future
+Activity/reward shops. Its rules for authentic gameplay locks, invalid data,
+and developer-only rows remain in force.
+
+77. The top-level Shop area should contain two visually distinct sub-tabs.
+    - `NPC Shops` preserves the existing source-backed stock, buy/sell, search,
+      comparison, and history design.
+    - `Activity Rewards` groups manual permanent or activity-specific purchases
+      by their owning activity and shows the relevant activity currency balance.
+    - Activity UIs such as Artisan's Workshop may deep-link directly to their
+      reward-shop detail inside `Activity Rewards`.
+    - Activity Rewards must not inherit NPC stock, restock, sell-to-shop, or
+      general-store semantics.
+    - Status: decided 2026-07-10.
+78. Incomplete gameplay should generally stay hidden rather than appearing as
+    disabled rows with explanations.
+    - Individual rewards appear only when earning and spending the currency,
+      applying the reward, persisting it, and testing it work end to end.
+    - Disabled rows are reserved for authentic player-state locks on otherwise
+      functional content, such as level, quest, item, or currency requirements.
+    - As a narrow preview exception, the Activity Rewards landing page may show
+      curated shop-level stub cards for confirmed future activities. Each stub
+      contains only an icon, reward-shop name, currency name, and `Coming later`.
+      It exposes no reward list and never implies that the currency is earnable.
+    - Status: decided 2026-07-10.
+
 ## Source Checkpoints From Grill
 
 - Local 2011Scape has generic shop state with normal/infinite stock,

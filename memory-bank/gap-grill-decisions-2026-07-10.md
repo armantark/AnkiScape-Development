@@ -244,3 +244,70 @@ participant bonuses, burn-hand failures, warmth, fire-spirit chance and reward
 table, Cooking compatibility, and range-versus-fire burn behavior. Reconcile
 that snapshot with the revamped Darkan implementation and record any remaining
 conflicts rather than choosing the modern value by default.
+
+## Smithing: Artisan's Workshop, Burial Armour, and Ceremonial Swords
+
+Backlog id: `smith-artisan-burial`
+
+Decision status: design settled; exact action timing, reward effects, and
+ceremonial-sword rolls wait for a pinned November 2012 source snapshot and the
+Darkan fidelity revamp.
+
+### Compact Workshop Activity
+
+- Place Artisan's Workshop inside Smithing as a compact sub-UI rather than a
+  separate sprawling interface. Show the selected metal and ingot grade,
+  current burial assignment or active plan, Respect, and a Rewards link.
+- Abstract the Workshop's internal movement. The simulator transfers ore
+  between the bank, Workshop storage, and ingots while preserving authentic
+  costs, storage caps, losses, requirements, and undo behavior; do not require
+  a manual furnace interface.
+- Burial armour automatically follows the source-assigned armour piece. The
+  player selects the metal and ingot grade, then assignments advance without a
+  separate piece selector.
+- Ceremonial sword plans appear at their source-authentic frequency during
+  burial smithing. A plan automatically pauses burial work, simulates the
+  hammering puzzle across reviews while displaying its plan, progress, and
+  result, then resumes the prior assignment.
+- Simulate source-authentic strike placement, mistakes, breakage, XP, Respect,
+  and keep-plan rewards internally. Do not reproduce the detailed hammer grid
+  as a player-operated minigame.
+
+### Burst Pipes and Rewards
+
+- Source-gate the absolute burst-pipe repair duration. If a repair fits inside
+  the normal Workshop action slice, fold it into that review and show a small
+  non-blocking result; only consume a full review if the November 2012 evidence
+  shows that repair took roughly a full action slice. Quick Repairs halves the
+  recovered source duration, and Repair Expert grants its source XP bonus.
+- Respect rewards are deliberate manual purchases. The Workshop Rewards link
+  deep-links to the Shop area's Activity Rewards surface rather than embedding
+  another full shop in Smithing.
+- Do not expose inert individual rewards. Golden cannon, Royale cannon, and any
+  other reward remain hidden until their gameplay behavior, currency spending,
+  persistence, and tests work end to end.
+
+### Global Visibility and Shop Rule
+
+- Minimize player-facing `visible but disabled with explanation` states.
+  Implementation-incomplete features stay in the backlog and out of ordinary
+  UI. Disabled rows are reserved for authentic player-state locks on otherwise
+  functional content, such as level, quest, item, or currency requirements.
+- The top-level Shop area has two visually distinct sub-tabs: `NPC Shops` keeps
+  the existing stock, buy/sell, search, and history model; `Activity Rewards`
+  contains manually purchased permanent or activity-specific unlocks grouped
+  by their owning activity and currency.
+- As a narrow exception, Activity Rewards may show curated shop-level preview
+  cards for confirmed future activities. A stub card contains only its icon,
+  reward-shop name, currency name, and `Coming later`; it exposes no individual
+  reward rows and never implies that its currency can already be earned.
+
+### Evidence Gate
+
+The current Darkan implementation establishes Workshop storage, ingot tiers,
+burial-assignment scaffolding, the one-percent-Respect-per-10,000-Smithing-XP
+rule, and the intended reward catalog, but its ceremonial sword is only an
+interface opener and burst-pipe action handling is absent. Reconstruct those
+missing mechanics and timings from a pinned November 2012 Wiki revision or
+Wayback capture, then reconcile them with the fidelity-revamped source before
+implementation.
