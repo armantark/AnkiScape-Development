@@ -137,6 +137,21 @@ for five minutes, and a 500-lifepoint restoration on expiry. The 500 restoration
 therefore predates EOC. It is a direct expiry effect; the source gives no deeper
 ingredient or regeneration explanation.
 
+### 9a. Sanfew serum stages — confirmed pre-EOC
+
+`Sanfew serum` oldid 6333478 (2012-10-02) literally defines three ordered
+ingredient additions, two named intermediate mixtures, and a separate partial
+XP award for every addition at each one-to-four-dose input size. Total XP is
+96/128/160/192 for one/two/three/four doses, split as
+28.5/38/47.5/57 for unicorn horn dust, 31.5/42/52.5/63 for clean snake weed,
+and 36/48/60/72 for nail beast nails.
+
+`Mixture - step 1` oldid 5500383 and `Mixture - step 2` oldid 5500399 (both
+2012-04-16) explicitly mark the intermediates tradeable and use the period
+Grand Exchange potion template. They are durable item/economy outputs, not
+invented internal states. Owner design maps the three additions to three
+separate dose-aware review targets.
+
 ## Operational Rule
 
 For every remaining grill, attach each concrete value to one of:

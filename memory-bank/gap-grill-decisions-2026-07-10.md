@@ -524,3 +524,28 @@ Decision status: owner grill in progress.
 - All automatic use remains source-shaped and review-safe: it obeys the
   historical drinking gate and effect timing, occurs inside the combat burst,
   and never interrupts a review with a prompt.
+
+### Sanfew Serum Mixing
+
+- Model Sanfew serum as three separate, player-selected Herblore targets. One
+  review performs exactly one ingredient addition; do not collapse the chain
+  into one complete-serum action.
+- Target 1 adds unicorn horn dust to a one-, two-, three-, or four-dose Super
+  restore and produces the same-dose `Mixture - step 1`, awarding respectively
+  28.5, 38, 47.5, or 57 Herblore XP.
+- Target 2 adds clean snake weed to the same-dose `Mixture - step 1`, produces
+  `Mixture - step 2`, and awards respectively 31.5, 42, 52.5, or 63 XP.
+- Target 3 adds nail beast nails to the same-dose `Mixture - step 2`, produces
+  the completed same-dose Sanfew serum, and awards respectively 36, 48, 60, or
+  72 XP. The complete chain therefore awards 96, 128, 160, or 192 XP according
+  to dose count.
+- Preserve dose count through every stage. The implementation may present each
+  stage as one dose-aware target rather than four duplicate rows, but the
+  selected input dose, output dose, and exact source XP must remain explicit
+  and deterministic.
+- Both intermediate mixtures are ordinary tradeable items and were backed by
+  the Grand Exchange potion template before EOC. They remain real inventory and
+  economy items, not hidden transient state.
+- Historical evidence: RuneScape Wiki `Sanfew serum` oldid 6333478
+  (2012-10-02), `Mixture - step 1` oldid 5500383 (2012-04-16), and `Mixture -
+  step 2` oldid 5500399 (2012-04-16), read as literal archived wikitext.
