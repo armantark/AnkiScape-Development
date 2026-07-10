@@ -328,3 +328,12 @@ Decision status: owner grill in progress.
   banking, access requirements, fees, coal savings, inventory constraints, XP,
   and simulated elapsed time. Busy operation removes maintenance busywork, not
   the economic or route identity of the activity.
+- One review completes one source-sized inventory run: withdraw the configured
+  ore load, place it on the belt, let the public machinery process it, collect
+  the resulting bars, and bank them. Belt and dispenser states are simulated
+  within that review rather than split into alternating load and collect
+  reviews.
+- Roll and account for every bar in the batch independently where the source
+  mechanics require it. The complete-run abstraction must not turn a full
+  inventory into one all-or-nothing smelting roll or erase the run's authentic
+  elapsed time.
