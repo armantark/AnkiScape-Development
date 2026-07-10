@@ -324,19 +324,26 @@ def _processing_requirements_for(
             resolved = fletching_material_requirements_pure(target, player_data.get("inventory", {}) or {}, table)
             if resolved is not None:
                 return resolved
-        resolved_requirements = {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
-        required_items = spec.get("required_items", {})
-        if isinstance(required_items, dict):
-            resolved_requirements.update(
-                {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
-            )
-        return resolved_requirements
+        return {str(item): int(amount) for item, amount in requirements.items() if isinstance(item, str)}
     essence_items = spec.get("essence_items")
     if isinstance(essence_items, (list, tuple)) and essence_items:
         inventory = player_data.get("inventory", {}) or {}
         essence = "Pure essence" if "Pure essence" in essence_items and inventory.get("Pure essence", 0) else essence_items[0]
         return {essence: 1}
     return {}
+
+
+def _processing_presence_requirements_for(handler_key: str, player_data: dict[str, Any]) -> dict[str, int]:
+    """Non-material recipe gates that must be present but are not per-action inputs."""
+    table_info = _PROCESSING_DATA_TABLES.get(handler_key)
+    if table_info is None:
+        return {}
+    table, target_key, default_target = table_info
+    spec = table.get(player_data.get(target_key, default_target))
+    required_items = spec.get("required_items", {}) if isinstance(spec, dict) else {}
+    if not isinstance(required_items, dict):
+        return {}
+    return {str(item): int(amount) for item, amount in required_items.items() if isinstance(item, str)}
 
 
 def _set_carried_target_map(player_data: dict[str, Any], map_key: str, target_id: str, value) -> None:
@@ -447,6 +454,10 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         _processing_requirements_for(handler_key, player_data, carried_materials)
         if is_processing else {}
     )
+    presence_requirements = (
+        _processing_presence_requirements_for(handler_key, player_data)
+        if is_processing else {}
+    )
 
     # First-ever engagement with a processing target seeds the pack for free —
     # you already "have inventory" the moment you arrive, same as gathering
@@ -485,6 +496,9 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         # byproducts) passes through untouched, since it was never capped.
         scoped_inventory = dict(bank)
         for item_name, need in requirements.items():
+            scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
+        carried_presence_requirements = presence_requirements if advanced else {}
+        for item_name, need in carried_presence_requirements.items():
             scoped_inventory[item_name] = min(int(bank.get(item_name, 0) or 0), int(view.get(item_name, 0) or 0))
         scoped_alternatives = set()
         if handler_key == "fletching":
@@ -528,6 +542,14 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
             else:
                 reconciled.pop(option, None)
         for item_name, _need in requirements.items():
+            true_before = int(bank.get(item_name, 0) or 0)
+            capped_before = int(scoped_inventory.get(item_name, 0) or 0)
+            after_amount = int(after_scoped.get(item_name, 0) or 0)
+            consumed = max(0, capped_before - after_amount)
+            reconciled[item_name] = max(0, true_before - consumed)
+            if consumed > 0:
+                new_view[item_name] = max(0, int(view.get(item_name, 0) or 0) - consumed)
+        for item_name, _need in carried_presence_requirements.items():
             true_before = int(bank.get(item_name, 0) or 0)
             capped_before = int(scoped_inventory.get(item_name, 0) or 0)
             after_amount = int(after_scoped.get(item_name, 0) or 0)
