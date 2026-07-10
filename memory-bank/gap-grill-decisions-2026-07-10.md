@@ -471,3 +471,22 @@ Decision status: rejected as out-of-period source contamination.
   never proof of November 2012 scope. Include a mechanic only when a pinned
   pre-cutoff RuneScape source or independently valid local 2011/2012 source
   proves that the same mechanic existed by the cutoff.
+
+## Herblore: Overload, Sanfew Serum, and Weapon Poison
+
+Backlog id: `herb-overload-sanfew`
+
+Decision status: owner grill in progress.
+
+### Overload Mixing
+
+- One review performs one complete overload-mixing action at level 96 Herblore:
+  consume one three-dose extreme attack, strength, defence, magic, and ranging
+  potion plus one clean torstol; produce one overload (3), return four empty
+  vials, and award 1,000 Herblore XP.
+- Do not automatically craft missing extreme potions, clean the torstol, or
+  source any component. Those remain separate player-selected Herblore actions
+  and real inventory/bank requirements under the unified target rules.
+- Primary historical checkpoint: RuneScape Wiki `Overload` revision 6552017,
+  timestamped 2012-11-13T08:39:34Z. Read its archived literal wikitext through
+  the MediaWiki API rather than trusting current template or calculator output.
