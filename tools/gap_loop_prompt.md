@@ -55,7 +55,7 @@ Do not declare the loop blocked while any safe transcription, review recovery, m
 Then state the concrete blocker, what was already tried or ruled out, the exact owner decision/action required, and the safe repository/ledger state being left behind. Do not bury this alert beneath a normal status summary.
 
 ## Cadence
-Use a 15-minute heartbeat while work is in flight. The driver should fill the policy-defined worker ceiling with independent skills so a tick represents a useful implementation/review wave rather than frequent polling; same-skill or explicit dependency chains remain serial so later work starts from the merged predecessor. Any unresolved source-editing worktree — including `review_failed`, `impl_failed`, `empty`, or `merge_conflict` — keeps its skill locked. When idle at the grill wall, disable the heartbeat instead of polling.
+Use a 3-minute heartbeat while work is in flight. Implementations and reviews run detached between ticks, so the short cadence minimizes completed-stage idle time without duplicating work; the driver should still fill the policy-defined worker ceiling with independent skills. Same-skill or explicit dependency chains remain serial so later work starts from the merged predecessor. Any unresolved source-editing worktree — including `review_failed`, `impl_failed`, `empty`, or `merge_conflict` — keeps its skill locked. When idle at the grill wall, disable the heartbeat instead of polling.
 
 ## Each tick, do this
 1. `python3 tools/gap_driver.py tick`.
