@@ -311,3 +311,20 @@ interface opener and burst-pipe action handling is absent. Reconstruct those
 missing mechanics and timings from a pinned November 2012 Wiki revision or
 Wayback capture, then reconcile them with the fidelity-revamped source before
 implementation.
+
+## Smithing: Blast Furnace, Goldsmith Gauntlets, and Cannonballs
+
+Backlog id: `smith-blastfurnace-goldsmith`
+
+Decision status: owner grill in progress.
+
+### Blast Furnace Operating Model
+
+- Treat the Blast Furnace as a busy public activity. Other participants or the
+  furnace crew keep its conveyor, pedals, temperature, pump, and repairs
+  operating in the background; the player is not periodically diverted into
+  machinery-maintenance reviews.
+- Preserve the player's own source-authentic ore loading, bar collection,
+  banking, access requirements, fees, coal savings, inventory constraints, XP,
+  and simulated elapsed time. Busy operation removes maintenance busywork, not
+  the economic or route identity of the activity.
