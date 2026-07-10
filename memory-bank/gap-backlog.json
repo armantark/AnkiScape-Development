@@ -735,7 +735,7 @@
       "rank": 34,
       "skill": "Mining",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Restore live gilded pickaxe source levels",
       "detail": "PickaxeType.kt defines GILDED_STEEL, GILDED_ADAMANT, and GILDED_RUNE at Mining level 1, and Mining.kt selects usable pickaxes directly from that enum level. AnkiScape deliberately normalizes those three requirements to 6, 31, and 41. Restore all three live requirements to 1 and remove normalization-only metadata/assertions. Preserve exact item IDs, ticks-between-rolls, every other pickaxe row, existing assets, and runtime selection behavior. Do not touch Combat or Prayer.",
       "source": "game-main:skills/mining/PickaxeType.kt:75-97; Mining.kt:35-44,178-183",
@@ -753,14 +753,19 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/mine-gilded-pickaxe-source-levels/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/mine-gilded-pickaxe-source-levels/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/mine-gilded-pickaxe-source-levels/.gap-review/verdict.json",
-      "review_started": "2026-07-09 22:11:08"
+      "review_started": "2026-07-09 22:11:08",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approve as-is. HEAD restores the live Gilded steel, adamant, and rune pickaxe requirements to level 1 exactly as PickaxeType.kt defines and Mining.kt consumes them, removes only the normalization-specific source_level field, serialization, and assertion, and leaves item IDs, ticks-between-rolls, table order, every other pickaxe row, assets, runtime selection code, Combat, and Prayer unchanged. The worktree has no bare python executable, but mining_data imports cleanly with both installed Python 3 interpreters; the six Mining data tests and focused best-pickaxe runtime-selection test pass under Python 3.14.4."
+      }
     },
     {
       "id": "craft-clay-ring-mould-gate",
       "rank": 35,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Require the live Ring mould for unfired clay rings",
       "detail": "clay_ring.plugin.kts live-binds Soft clay plus a non-consumed Ring mould to Clay ring (unfired). Add one non-consuming Ring mould presence requirement to form_clay_ring_unfired while retaining level 4, 11.3 XP, one Soft clay consumed, and one unfired clay ring produced. Use the settled default-bank and advanced-carried presence semantics from craft-held-mould-pipe-gates. Ring mould ID 1592 and its icon already exist. Add focused readiness, apply, carried reconciliation, and undo tests. Do not touch Combat or Prayer.",
       "source": "game-main:content/objs/pottery/clay_ring.plugin.kts:5-36",
@@ -781,7 +786,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-clay-ring-mould-gate/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-clay-ring-mould-gate/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-clay-ring-mould-gate/.gap-review/verdict.json",
-      "review_started": "2026-07-09 22:11:20"
+      "review_started": "2026-07-09 22:11:20",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approved as-is: the patch adds Ring mould as a non-consuming required item on form_clay_ring_unfired while preserving level 4, 11.3 XP, one Soft clay consumed, and one Clay ring (unfired) produced. The local 2011Scape emulator confirms the Soft clay plus Ring mould binding and item ID 1592; the change follows the existing required_items convention, leaves Combat and Prayer untouched, imports cleanly with the project Python 3.10 command path, and passes the focused readiness, apply, carried reconciliation, and undo checks plus the full 977-test suite (157 Qt tests skipped because aqt/PyQt6 is unavailable)."
+      }
     },
     {
       "id": "smith-dragon-square-shield",
