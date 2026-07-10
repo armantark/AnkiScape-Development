@@ -819,6 +819,21 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(glass_exp, 17.5)
         self.assertEqual(glass_inventory, {"Molten glass": 0, "Glassblowing pipe": 1, "Beer glass": 1})
 
+    def test_unfired_clay_ring_requires_ring_mould_for_readiness(self):
+        self.assertFalse(can_craft_item_pure(4, {"Soft clay": 1}, "form_clay_ring_unfired", CRAFTING_DATA))
+        self.assertTrue(can_craft_item_pure(
+            4, {"Soft clay": 1, "Ring mould": 1}, "form_clay_ring_unfired", CRAFTING_DATA
+        ))
+
+    def test_unfired_clay_ring_consumes_clay_and_retains_ring_mould(self):
+        inventory, exp, ok = apply_crafting_pure(
+            "form_clay_ring_unfired", {"Soft clay": 1, "Ring mould": 1}, CRAFTING_DATA
+        )
+
+        self.assertTrue(ok)
+        self.assertEqual(exp, 11.3)
+        self.assertEqual(inventory, {"Soft clay": 0, "Ring mould": 1, "Clay ring (unfired)": 1})
+
     def test_apply_crafting_pure_ignores_batch_size_for_xp_actions(self):
         crafting_data = {
             "Bow string": {

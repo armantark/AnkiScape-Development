@@ -178,6 +178,28 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertAlmostEqual(player_data["crafting_exp"], 15.0)
         self.assertEqual(calls["errors"], [])
 
+    def test_unfired_clay_ring_carried_overlay_reconciles_and_retains_mould(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Soft clay": 1, "Ring mould": 1},
+            "crafting_level": 4,
+            "crafting_exp": 0,
+            "current_craft": "form_clay_ring_unfired",
+            "completed_achievements": [],
+            "carried_advanced_targets": {"form_clay_ring_unfired": True},
+            "carried_layout": {"form_clay_ring_unfired": {"Soft clay": 1, "Ring mould": 1}},
+        }
+
+        self.assertTrue(run_answer_with_carried_overlay(
+            _context(player_data, calls), "crafting", handle_crafting_answer
+        ))
+        self.assertEqual(
+            player_data["inventory"], {"Soft clay": 0, "Ring mould": 1, "Clay ring (unfired)": 1}
+        )
+        self.assertEqual(player_data["carried_inventory"]["form_clay_ring_unfired"], {"Ring mould": 1})
+        self.assertAlmostEqual(player_data["crafting_exp"], 11.3)
+        self.assertEqual(calls["errors"], [])
+
     def test_crafting_carried_overlay_retains_one_thread_across_leather_actions(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

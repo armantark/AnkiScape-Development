@@ -117,7 +117,7 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     # Pottery non-urns.
     CraftingRecipe("form_pot_unfired", "Pot (unfired)", "pottery", "potters_wheel", 1, 6.3, _req(("Soft clay", 1)), "Pot (unfired)", source=POTTERY_SOURCE, source_enum="POT"),
     CraftingRecipe("fire_empty_pot", "Empty pot", "pottery", "pottery_oven", 1, 6.3, _req(("Pot (unfired)", 1)), "Empty pot", source=POTTERY_SOURCE, source_enum="POT"),
-    CraftingRecipe("form_clay_ring_unfired", "Clay ring (unfired)", "pottery", "potters_wheel", 4, 11.3, _req(("Soft clay", 1)), "Clay ring (unfired)", source=POTTERY_SOURCE, source_enum="CLAY_RING"),
+    CraftingRecipe("form_clay_ring_unfired", "Clay ring (unfired)", "pottery", "potters_wheel", 4, 11.3, _req(("Soft clay", 1)), "Clay ring (unfired)", source=POTTERY_SOURCE, source_enum="CLAY_RING", required_items=_req(("Ring mould", 1))),
     CraftingRecipe("fire_clay_ring", "Clay ring", "pottery", "pottery_oven", 4, 11.0, _req(("Clay ring (unfired)", 1)), "Clay ring", source=POTTERY_SOURCE, source_enum="CLAY_RING"),
     CraftingRecipe("form_pie_dish_unfired", "Pie dish (unfired)", "pottery", "potters_wheel", 7, 15.0, _req(("Soft clay", 1)), "Pie dish (unfired)", source=POTTERY_SOURCE, source_enum="PIE_DISH"),
     CraftingRecipe("fire_pie_dish", "Pie dish", "pottery", "pottery_oven", 7, 10.0, _req(("Pie dish (unfired)", 1)), "Pie dish", source=POTTERY_SOURCE, source_enum="PIE_DISH"),
