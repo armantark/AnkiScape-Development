@@ -337,3 +337,11 @@ Decision status: owner grill in progress.
   mechanics require it. The complete-run abstraction must not turn a full
   inventory into one all-or-nothing smelting roll or erase the run's authentic
   elapsed time.
+- Below level 60 Smithing, automatically renew the source-authentic foreman
+  access period from banked coins as simulated Blast Furnace time crosses each
+  boundary. Apply the equipped Ring of charos (a) reduction, show a small
+  non-interrupting payment popup, and consume no separate review. Stop the
+  target when renewal cannot be paid; level 60 and above remains free.
+- Do not import Old School RuneScape's later automated-worker coffer charge into
+  the November 2012 ruleset. Busy public operation is the activity abstraction,
+  not permission to add a modern recurring fee.
