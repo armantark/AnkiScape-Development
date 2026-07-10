@@ -31,8 +31,9 @@
 - `tools/fetch_assets.py` can fetch one item icon on demand from OSRS first and RS3 second, with retries, polite User-Agent handling, dry-run/force safety, optional square PNG normalization, and provenance output.
 - Fletching exists as the first expanded playable skill: registry metadata, save defaults/migration keys, target panel, item manifest outputs/materials, pure processing logic, runtime review dispatch, and scraped output/material icons are in place.
 - Every live Fletching feathering row accepts ordinary Feather plus Red, Orange,
-  Yellow, Blue, and Stripy feather. The resolver deterministically consumes one
-  sufficient exact type in source order and is used by readiness, target-row
+  Yellow, Blue, and Stripy feather. The resolver first consumes an exact type
+  that satisfies the carried custom layout, then falls back to source order in
+  the bank; it is used by readiness, target-row
   materials, the carried overlay, application, and review undo. Existing levels,
   XP, outputs, quantities, and visible requirements remain unchanged; Hunter had
   already registered the five coloured IDs and checked-in icons. Source:
