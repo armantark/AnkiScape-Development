@@ -582,11 +582,11 @@
       "rank": 29,
       "skill": "Fletching",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Accept all live coloured feather alternatives",
       "detail": "FeatheringData.kt defines the exact live alternatives Feather (314), Red feather (10088), Orange feather (10091), Yellow feather (10090), Blue feather (10089), and Stripy feather (10087); feathering.plugin.kts registers every alternative for every live feathering row and consumes the selected colour. AnkiScape hard-requires only Feather even though Hunter already produces and registers all five coloured inputs. Preserve every existing level, XP value, output, and quantity; accept any one exact alternative and consume the chosen/available type at the row's existing quantity. Integrate deterministic alternative selection through materials, readiness, carried-overlay, apply, and undo paths. Do not add javelins or touch Combat or Prayer. Add focused parity, runtime, inventory, undo, and icon tests.",
       "source": "game-main:skills/fletching/feathering/FeatheringData.kt; feathering.plugin.kts",
-      "note": "refix: prefer an already-carried valid feather alternative before bank source order and cover the former infinite bank-run loop",
+      "note": "manual additive Memory Bank merge after Sol approval; full combined suite passed 959 tests with 157 skips",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fletch-colored-feather-options",
       "branch": "gap/fletch-colored-feather-options",
       "tier": "gpt-5.6-terra",
@@ -599,7 +599,12 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/fletch-colored-feather-options/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fletch-colored-feather-options/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fletch-colored-feather-options/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "The 18 existing live feathering rows retain their exact levels, XP, outputs, and quantities while all six source alternatives are attached in FeatheringData.kt order; Hunter's five coloured IDs and checked-in icons are already registered, and no javelin, Combat, or Prayer code changed. Deterministic selection now prefers a satisfiable carried/custom layout before bank source order, hides non-selected alternatives during scoped processing, consumes and reconciles only the chosen exact stack, and remains consistent across readiness, target materials, apply, and full-state undo. Five focused tests, an independent 108-path row/alternative apply audit, a pre-primed mixed-bank carried reproduction, and the full suite all pass (954 passed, 157 skipped). The literal bare python command cannot execute because this host has no python binary; both python3 and /opt/homebrew/bin/python3.14 import fletching_data cleanly, so this is not a source blocker."
+      }
     },
     {
       "id": "craft-leather-thread-semantics",
