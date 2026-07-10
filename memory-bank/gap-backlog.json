@@ -379,7 +379,14 @@
       "detail": "Overload = 96 Herblore capstone built from extreme potions; absent from PotionData.kt. Verify exact XP via wiki.",
       "source": "wiki:Overload",
       "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "note": "owner grill in progress; Overload mixing and combat potion policy are settled, while Sanfew serum and weapon poison remain",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#herblore-overload-sanfew-serum-and-weapon-poison",
+      "decision_summary": {
+        "mixing": "One review consumes the five three-dose extreme potions plus clean torstol and produces Overload (3), four empty vials, and 1,000 Herblore XP.",
+        "general_potions": "Each combat target has a Use potions master switch plus individual allowed-potion checkboxes; enabled potions consume real carried doses.",
+        "casual_overload": "Only Casual Max output automatically selects, packs, drinks, and re-doses damaging Overloads.",
+        "advanced_overload": "Advanced uses Overload only when explicitly checked and present in that target's saved carried layout."
+      }
     },
     {
       "id": "wc-arctic-euc-cursed",

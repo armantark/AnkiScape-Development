@@ -505,3 +505,22 @@ Decision status: owner grill in progress.
   The restoration is a direct potion-expiry effect, not an EOC addition or a
   separate ingredient-derived heal; the article gives no deeper mechanical
   source for it.
+
+### Combat Potion Policy
+
+- Every combat target stores its own potion policy beside its carried-inventory
+  policy. `Use potions` is the master switch; individual potion checkboxes under
+  it define which potion families combat may automatically drink and re-dose.
+- The controls authorize consumption; they do not create supplies or grant
+  whole-bank access during a fight. The selected potion and remaining doses
+  must be present in the target's actual 28-slot carried pack, with refills only
+  at the normal safe bank-run boundaries.
+- Casual mode may automatically select, pack, drink, and re-dose Overload only
+  for the `Max output` policy. Other Casual policies never introduce a damaging
+  Overload automatically.
+- Advanced mode never infers Overload. It may drink and re-dose one only when
+  both `Use potions` and the individual `Overload` checkbox are enabled and the
+  saved per-target layout actually contains it.
+- All automatic use remains source-shaped and review-safe: it obeys the
+  historical drinking gate and effect timing, occurs inside the combat burst,
+  and never interrupts a review with a prompt.

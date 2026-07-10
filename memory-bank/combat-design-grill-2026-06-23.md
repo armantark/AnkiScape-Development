@@ -268,6 +268,10 @@ next implementation pass:
     automatic specials, and any future retreat rule. Source-required one-off
     actions belong before the fight as stage/action blockers or after a burst as
     phase boundaries, not inside the answer flow.
+    Potion configuration is per target: `Use potions` is the master switch and
+    individual potion checkboxes define allowed automatic use. Casual `Max
+    output` alone may automatically introduce Overload; Advanced requires an
+    explicit Overload checkbox and an actual carried dose.
 48. Combat may include an optional auto-retreat/fail-safe rule, but it should only
     trigger at review-burst boundaries. If the configured threshold is met after
     a burst, combat stops before the next review and the enemy resets according
