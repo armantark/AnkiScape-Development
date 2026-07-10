@@ -19,6 +19,7 @@ from constants import (
     CRAFTING_DATA,
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
+    FIREMAKING_EXTRA_ITEM_DATA,
     FIREMAKING_ITEM_IMAGES,
     FIREMAKING_LOG_ITEMS,
     FIREMAKING_OUTPUT_ITEMS,
@@ -410,6 +411,23 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
             self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
         self.assertEqual(FIREMAKING_DATA["cursed_magic_logs"]["requirements"], {"Cursed magic logs": 1})
+
+    def test_light_source_items_and_icons_are_registered(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        expected = {
+            "Unlit torch": 596,
+            "Lit torch": 594,
+            "Candle lantern (unlit, 4527)": 4527,
+            "Candle lantern (lit, 4531)": 4531,
+            "Mining helmet (unlit)": 5014,
+            "Mining helmet (lit)": 5013,
+        }
+        for item_name, item_id in expected.items():
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(FIREMAKING_EXTRA_ITEM_DATA[item_name]["item_id"], item_id)
+            self.assertIn(item_name, FIREMAKING_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(FIREMAKING_ITEM_IMAGES[item_name]))
+            self.assertEqual(by_storage_key[item_name].asset_path, FIREMAKING_ITEM_IMAGES[item_name])
 
     def test_fishing_items_and_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

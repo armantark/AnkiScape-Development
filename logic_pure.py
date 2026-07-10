@@ -568,6 +568,9 @@ def utility_activity_locked_reasons_pure(player_data, activity_key, utility_acti
     inventory = player_data.get("inventory", {}) or {}
     if not can_perform_utility_activity_pure(inventory, activity_key, utility_activity_data):
         reasons.append("materials")
+    firemaking_level = spec.get("firemaking_level")
+    if isinstance(firemaking_level, int) and player_data.get("firemaking_level", 1) < firemaking_level:
+        reasons.append(f"Firemaking {firemaking_level}")
     reasons.extend(
         quest_unlock_locked_reasons_pure(
             player_data,

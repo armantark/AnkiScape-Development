@@ -5,6 +5,17 @@ No active build thread. The combat overhaul, the weapon-aware attack-type pass,
 the Stronghold of Security landmark, and the full Herblore skill are all shipped
 and committed (Herblore as of 2026-07-09).
 
+### Firemaking light-source actions — COMPLETE, verified 2026-07-09
+`firemaking_data.py` now carries the 11 live `LightSource.kt` raw-to-lit pairs
+and the `light_source.plugin.kts` inverse bindings as zero-XP, single-item
+Utility / Activities actions. Lighting preserves every canonical cache ID and
+Firemaking gate (1/1/1/4/4/12/26/49/49/49/65); extinguishing is deliberately
+ungated, matching the plugin. State-and-ID labels prevent same-name cache items
+from collapsing in the shared inventory. Existing checked-in sibling art is
+reused, including the Firemaking icon for oil lamps; no asset fetch, darkness,
+location, acquisition, Combat, or Prayer behavior was added. Focused data,
+logic, registry, target-metadata, and undo integration coverage: 278 passed.
+
 ### Fletching crossbow assembly — COMPLETE, verified 2026-07-09
 `fletching_data.py` now represents all 14 Fletching rows from the live
 `CombinationData.kt` binding: bronze through rune stock-plus-limbs assembly and

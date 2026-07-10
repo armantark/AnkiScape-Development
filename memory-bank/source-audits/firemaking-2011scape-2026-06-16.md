@@ -86,6 +86,23 @@ Fetched through `tools/fetch_firemaking_assets.py`, which uses the shared
 Normal logs, Achey logs, Oak logs, Willow logs, Teak logs, Maple logs, Mahogany
 logs, Yew logs, and Magic logs reuse the existing Woodcutting log art.
 
+## Light-source extension — implemented 2026-07-09
+
+`content/mechanics/lightsource/LightSource.kt` defines 11 raw-to-lit item pairs
+with Firemaking requirements: 596→594 (1), 36→33 (1), 38→32 (1), 4527→4531
+(4), 4532→4534 (4), 4522→4524 (12), 4535→4539 (26), 4548→4550 (49),
+4701→4702 (49), 9064→9065 (49), and 5014→5013 (65). The rows are represented
+as one-item, zero-XP Utility / Activities transformations with the tinderbox
+implicit. Inventory labels include raw/lit state and, for the two same-name
+Candle lantern variants, their cache ID, so no source states collide.
+
+`light_source.plugin.kts` registers every lit product's `extinguish` option and
+reverses that exact item pair. AnkiScape models all 11 inverse transforms with
+no Firemaking gate, as in the source. It deliberately omits the Lumbridge Swamp
+Caves region guard, dark-zone interface opening, and drop protection because
+the add-on has no world-location, darkness, or ground-item model. Existing
+checked-in sibling sprites are reused; no assets were fetched.
+
 ## Deferred Follow-Up
 
 Bonfires/fire spirits should be treated as a future Firemaking extension. A good

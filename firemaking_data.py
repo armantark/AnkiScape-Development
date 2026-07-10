@@ -24,6 +24,14 @@ FIREMAKING_PLUGIN_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/skills/firemaking/firemaking.plugin.kts"
 )
+LIGHT_SOURCE_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/mechanics/lightsource/LightSource.kt"
+)
+LIGHT_SOURCE_PLUGIN_PATH = (
+    "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
+    "gg/rsmod/plugins/content/mechanics/lightsource/light_source.plugin.kts"
+)
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 BONFIRE_SOURCE = "https://runescape.fandom.com/wiki/Update:Bonfires"
 
@@ -56,6 +64,21 @@ class DeferredFiremakingContent:
     source: str
 
 
+@dataclass(frozen=True)
+class LightSourceActivity:
+    id: str
+    display_name: str
+    raw_item: str
+    raw_item_id: int
+    lit_item: str
+    lit_item_id: int
+    level: int
+    source_enum: str
+    raw_tradeable: bool
+    lit_tradeable: bool
+    source: str = LIGHT_SOURCE_PATH
+
+
 FIREMAKING_TARGETS: Tuple[FiremakingTarget, ...] = (
     FiremakingTarget("logs", "Logs", "Logs", 1511, 1, 40.0),
     FiremakingTarget("achey_logs", "Achey tree logs", "Achey tree logs", 2862, 1, 40.0),
@@ -78,6 +101,20 @@ FIREMAKING_TARGETS: Tuple[FiremakingTarget, ...] = (
         303.8,
         tradeable=False,
     ),
+)
+
+LIGHT_SOURCE_ACTIVITIES: Tuple[LightSourceActivity, ...] = (
+    LightSourceActivity("light_unlit_torch", "Light unlit torch", "Unlit torch", 596, "Lit torch", 594, 1, "UNLIT_TORCH", True, False),
+    LightSourceActivity("light_candle", "Light candle", "Candle", 36, "Lit candle", 33, 1, "CANDLE", True, True),
+    LightSourceActivity("light_black_candle", "Light black candle", "Black candle", 38, "Lit black candle", 32, 1, "BLACK_CANDLE", False, False),
+    LightSourceActivity("light_candle_lantern_4527", "Light candle lantern (4527)", "Candle lantern (unlit, 4527)", 4527, "Candle lantern (lit, 4531)", 4531, 4, "CANDLE_LANTERN", True, True),
+    LightSourceActivity("light_candle_lantern_4532", "Light candle lantern (4532)", "Candle lantern (unlit, 4532)", 4532, "Candle lantern (lit, 4534)", 4534, 4, "CANDLE_LANTERN_4532", True, True),
+    LightSourceActivity("light_oil_lamp", "Light oil lamp", "Oil lamp (unlit)", 4522, "Oil lamp (lit)", 4524, 12, "OIL_LAMP", True, True),
+    LightSourceActivity("light_oil_lantern", "Light oil lantern", "Oil lantern (unlit)", 4535, "Oil lantern (lit)", 4539, 26, "OIL_LANTERN", True, True),
+    LightSourceActivity("light_bullseye_lantern", "Light bullseye lantern", "Bullseye lantern (unlit)", 4548, "Bullseye lantern (lit)", 4550, 49, "BULLSEYE_LANTERN", False, False),
+    LightSourceActivity("light_sapphire_lantern", "Light sapphire lantern", "Sapphire lantern (unlit)", 4701, "Sapphire lantern (lit)", 4702, 49, "SAPPHIRE_LANTERN", False, False),
+    LightSourceActivity("light_emerald_lantern", "Light emerald lantern", "Emerald lantern (unlit)", 9064, "Emerald lantern (lit)", 9065, 49, "EMERALD_LANTERN", False, False),
+    LightSourceActivity("light_mining_helmet", "Light mining helmet", "Mining helmet (unlit)", 5014, "Mining helmet (lit)", 5013, 65, "MINING_HELMET", True, True),
 )
 
 DEFERRED_FIREMAKING_CONTENT: Tuple[DeferredFiremakingContent, ...] = (
@@ -131,6 +168,37 @@ def firemaking_output_items() -> Tuple[str, ...]:
     return ("Ashes",)
 
 
+def light_source_activities_as_dict() -> Dict[str, Dict[str, object]]:
+    activities: Dict[str, Dict[str, object]] = {}
+    for activity in LIGHT_SOURCE_ACTIVITIES:
+        activities[activity.id] = {
+            "display_name": activity.display_name,
+            "requirements": {activity.raw_item: 1},
+            "output_item": activity.lit_item,
+            "output_qty": 1,
+            "batch_size": 1,
+            "group": "light_sources",
+            "firemaking_level": activity.level,
+            "source_item_id": activity.raw_item_id,
+            "output_item_id": activity.lit_item_id,
+            "source": activity.source,
+            "source_enum": activity.source_enum,
+        }
+        activities[f"extinguish_{activity.id[6:]}"] = {
+            "display_name": f"Extinguish {activity.lit_item.lower()}",
+            "requirements": {activity.lit_item: 1},
+            "output_item": activity.raw_item,
+            "output_qty": 1,
+            "batch_size": 1,
+            "group": "light_sources",
+            "source_item_id": activity.lit_item_id,
+            "output_item_id": activity.raw_item_id,
+            "source": LIGHT_SOURCE_PLUGIN_PATH,
+            "source_enum": activity.source_enum,
+        }
+    return activities
+
+
 def firemaking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     items: Dict[str, Dict[str, object]] = {
         "Ashes": {
@@ -150,6 +218,23 @@ def firemaking_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             "source": target.source,
             "item_id": target.source_item_id,
             "tradeable": target.tradeable,
+        }
+    for activity in LIGHT_SOURCE_ACTIVITIES:
+        items[activity.raw_item] = {
+            "category": "material",
+            "level": activity.level,
+            "exp": 0.0,
+            "source": activity.source,
+            "item_id": activity.raw_item_id,
+            "tradeable": activity.raw_tradeable,
+        }
+        items[activity.lit_item] = {
+            "category": "material",
+            "level": activity.level,
+            "exp": 0.0,
+            "source": activity.source,
+            "item_id": activity.lit_item_id,
+            "tradeable": activity.lit_tradeable,
         }
     return items
 
