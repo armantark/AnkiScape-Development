@@ -117,10 +117,10 @@ revamp and a source-backed training-rate audit.
   creatures, reach useful nodes, siphon nodes, spend runes on traversal, and
   replenish essence as needed. The review HUD always labels the current
   activity and specific target or transition.
-- One review advances a short source-backed time slice of the current activity,
-  which may contain several siphon attempts. It is not necessarily one game
-  click. Exact slice lengths, rolls, depletion, XP, and point rates remain
-  tunable until the fidelity and balance audits are complete.
+- One review resolves one source-defined action in the current loop, such as an
+  essence collection, siphon attempt, traversal, or replenishment action. Exact
+  rolls, depletion, XP, and point rates remain source-gated; do not translate
+  the action into simulated minutes during the current implementation pass.
 - Casual mode automatically chooses a sensible accessible floor and target and
   handles beneficial yellow-wizard, runesphere, and equivalent special
   opportunities when their authentic requirements are met.
@@ -161,9 +161,9 @@ revamp and a source-backed training-rate audit.
   major training family is implemented; the system is too incomplete and in
   flux for a meaningful comparison now.
 - Preserve exact source mechanics and raw XP awards. Use archived 2012 training
-  guides and reconstructed XP-per-hour ranges to calibrate simulated travel,
-  banking, depletion, and activity time slices rather than rewriting XP or
-  success rolls to force a desired result.
+  guides and reconstructed XP-per-hour ranges in the later balancing pass to
+  calibrate action grouping, travel, banking, and depletion rather than
+  rewriting XP or success rolls to force a desired result.
 - Build a method-rate catalog by level band, equipment, and material assumption
   wherever historical evidence permits. Players retain complete freedom to use
   any available method, including inefficient ones.
@@ -211,11 +211,11 @@ Decision status: design settled; exact rates and batch timing wait for a pinned
   the shared maximum player lifepoints and remains useful in Combat and
   dangerous Hunter. Use the pinned 2012 percentage, log-dependent duration,
   stacking, refresh, death, and expiry rules.
-- Timed effects advance by the simulated duration of the activity being
-  performed, not by wall-clock time and not by a universal review duration.
-  Combat currently advances 50 game ticks, approximately 30 seconds, per base
-  review; Cooking, Firemaking, and every other skill use their own source-backed
-  action duration. Multipliers advance the corresponding simulated duration.
+- Combat currently advances 50 game ticks, approximately 30 seconds, per base
+  review. Non-combat skills currently resolve actions only and do not advance a
+  simulated minute clock. Represent skilling lifetimes and expiry through
+  source-gated action counters, and leave their eventual XP-per-hour calibration
+  to the parked global balancing pass rather than assuming seconds per review.
 
 ### Cooking Heat Sources
 
@@ -316,7 +316,9 @@ implementation.
 
 Backlog id: `smith-blastfurnace-goldsmith`
 
-Decision status: owner grill in progress.
+Decision status: design settled; exact Blast Furnace rolls, action cadence, and
+historical access details wait for a pinned November 2012 source snapshot and
+the Darkan fidelity revamp.
 
 ### Blast Furnace Operating Model
 
@@ -326,8 +328,8 @@ Decision status: owner grill in progress.
   machinery-maintenance reviews.
 - Preserve the player's own source-authentic ore loading, bar collection,
   banking, access requirements, fees, coal savings, inventory constraints, XP,
-  and simulated elapsed time. Busy operation removes maintenance busywork, not
-  the economic or route identity of the activity.
+  and action results. Busy operation removes maintenance busywork, not the
+  economic or route identity of the activity.
 - One review completes one source-sized inventory run: withdraw the configured
   ore load, place it on the belt, let the public machinery process it, collect
   the resulting bars, and bank them. Belt and dispenser states are simulated
@@ -335,13 +337,13 @@ Decision status: owner grill in progress.
   reviews.
 - Roll and account for every bar in the batch independently where the source
   mechanics require it. The complete-run abstraction must not turn a full
-  inventory into one all-or-nothing smelting roll or erase the run's authentic
-  elapsed time.
+  inventory into one all-or-nothing smelting roll.
 - Below level 60 Smithing, automatically renew the source-authentic foreman
-  access period from banked coins as simulated Blast Furnace time crosses each
-  boundary. Apply the equipped Ring of charos (a) reduction, show a small
-  non-interrupting payment popup, and consume no separate review. Stop the
-  target when renewal cannot be paid; level 60 and above remains free.
+  access period from banked coins after the later source-and-balance pass maps
+  its historical ten-minute window to Blast Furnace actions. Apply the equipped
+  Ring of charos (a) reduction, show a small non-interrupting payment popup, and
+  consume no separate review. Stop the target when renewal cannot be paid;
+  level 60 and above remains free.
 - Do not import Old School RuneScape's later automated-worker coffer charge into
   the November 2012 ruleset. Busy public operation is the activity abstraction,
   not permission to add a modern recurring fee.
@@ -359,3 +361,26 @@ Decision status: owner grill in progress.
   from the target. Enforce each item's authentic quest, ownership, equipment,
   loss, and effect requirements. This is the reusable rule for later
   target-specific skilling equipment, not a Smithing-only exception.
+
+### Cannonballs
+
+- Cannonball smithing is its own Smithing target gated by the authentic Dwarf
+  Cannon progress, Smithing level, steel bar, and ammo-mould requirements.
+- One review resolves one cannonball-smithing action: consume one steel bar,
+  produce four cannonballs, and award the source per-bar XP. The original
+  client's automatic Make-X queue does not collapse the whole carried load into
+  one AnkiScape action.
+- When carried steel bars run out, use the already-settled target-specific
+  inventory and bank-run rules. In Advanced the non-toolbelt ammo mould occupies
+  a real carried slot; in Casual it is an ownership gate satisfied from the
+  bank.
+
+### Evidence Gate
+
+Use a pinned November 2012 RuneScape Wiki revision or Wayback capture for Blast
+Furnace access, ore and coal ratios, iron success, belt/dispenser batching,
+fees, Ring of charos (a), equipment interactions, bar XP, and action behavior.
+Reconcile it with fidelity-revamped Darkan. Darkan currently provides a usable
+cannonball baseline of level 35, one steel bar to four cannonballs, 25.6 XP,
+the ammo mould, and the Dwarf Cannon gate, but does not implement Blast Furnace
+gameplay or the Goldsmith-gauntlet XP modifier.

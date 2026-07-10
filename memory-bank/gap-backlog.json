@@ -252,7 +252,7 @@
       "note": "Owner grill closed 2026-07-10; implement after the Darkan fidelity revamp and historical method-rate audit establish source-grade session mechanics and effective XP rates.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-runespan-and-training-time-calibration",
       "decision_summary": {
-        "session": "Use a geographically abstracted, fully simulated Runespan session with visible current-activity state; each review advances a source-backed activity time slice.",
+        "session": "Use a geographically abstracted, fully simulated Runespan session with visible current-activity state; each review resolves one source-defined action in the current loop.",
         "selection": "Casual automatically chooses accessible targets and special opportunities. Advanced uses grouped allow-list checkboxes plus XP, points, or rune priorities and never silently overrides the checked pool.",
         "lifetime": "Switching away wipes temporary Runespan state and restarts from essence collection on return; closing Anki while Runespan stays selected resumes the session.",
         "inventory": "Runespan takes over the unified 28-slot pack with session-only essence and runes; ordinary carried items are banked on entry and temporary materials never enter the bank.",
@@ -275,7 +275,7 @@
       "decision_summary": {
         "training": "Line fires remain discrete; busy-public-bonfire training uses source-backed automatic feeding batches, full participant bonus, the unified carried inventory, and bank-run cycles.",
         "spirits": "Automatically claim fire spirits into the bank with a non-blocking floaty popup; they consume no review or carried slot.",
-        "warmth": "Apply source-authentic warmth to shared maximum lifepoints. Timers advance by each activity's own simulated duration rather than wall time or a universal seconds-per-review rule.",
+        "warmth": "Apply source-authentic warmth to shared maximum lifepoints. Combat advances its existing timed turns; non-combat lifetimes use source-gated action counters rather than simulated minutes.",
         "cooking": "Cooking explicitly saves Range, Own fire / solo bonfire, or Busy public bonfire per target; there is no Auto choice or silent fallback.",
         "own_bonfire": "Own bonfire interleaves Cooking with source-gated maintenance batches. Its selected bank-funded fuel is excluded from the carried Cooking layout, and the target stops when that log runs out.",
         "public_bonfire": "Busy public bonfire gives the public Cooking bonus but no player Firemaking XP, warmth, or fire spirits because the player contributes no logs.",
@@ -313,8 +313,17 @@
       "title": "Add Blast Furnace + Goldsmith-gauntlet smelting + cannonballs",
       "detail": "Blast Furnace high-throughput smelting; goldsmith gauntlet gold-smelting multiplier (verify exact via wiki); cannonballs from steel bars.",
       "source": "wiki:Blast Furnace",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "design_settled_waiting_source",
+      "note": "Owner grill closed 2026-07-10; implement after a pinned November 2012 audit and Darkan fidelity revamp establish the missing Blast Furnace and Goldsmith-gauntlet mechanics.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#smithing-blast-furnace-goldsmith-gauntlets-and-cannonballs",
+      "decision_summary": {
+        "blast_furnace": "Assume a busy public furnace with background machinery while preserving the player's ore loading, bar collection, bank route, access, fees, coal savings, inventory, and per-bar results.",
+        "review_model": "One Blast Furnace review completes one inventory run and rolls its bars independently; non-combat reviews resolve actions rather than simulated minutes.",
+        "fees": "Below level 60, automatically renew the historical foreman fee from banked coins after a later source-backed action-cadence mapping; apply Ring of charos (a), do not consume a review, and stop if payment fails.",
+        "equipment": "Casual auto-equips applicable owned skilling gear; Advanced saves explicit per-target equipment. Goldsmith gauntlets modify the existing gold target at ordinary and Blast Furnaces.",
+        "cannonballs": "One review consumes one steel bar and produces four cannonballs with per-bar XP. Advanced carries the ammo mould in a real slot; Casual treats it as a banked ownership gate.",
+        "source_gate": "Use a pinned November 2012 source and revamped Darkan for Blast Furnace mechanics and Goldsmith XP; Darkan's level-35, one-bar-to-four, 25.6-XP cannonball recipe is the current baseline."
+      }
     },
     {
       "id": "cook-karambwan-family",
