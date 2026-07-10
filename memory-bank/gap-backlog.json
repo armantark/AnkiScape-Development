@@ -861,7 +861,7 @@
       "rank": 40,
       "skill": "Runecrafting",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Use one essence family per standard Runecrafting trip",
       "detail": "RunecraftAction.kt selects the first valid essence item present, counts and removes only that one item ID, and calculates output and XP from that single stack. For Air through Body runes, select exactly one essence family per action using the existing deterministic priority: Rune essence when any is available, otherwise Pure essence. Cap the trip at that selected stack plus normal capacity and never spill into the second essence family. Higher runes remain Pure-only. Preserve altar access, talismans/tiaras, pouches and degradation, multipliers, XP, outputs, and every other Runecrafting behavior. Add a mixed-stock regression where Rune essence is below capacity and Pure essence remains untouched. Do not touch Combat or Prayer.",
       "source": "game-main:skills/runecrafting/RunecraftAction.kt:120-128",
@@ -879,7 +879,12 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/rc-single-essence-trip-selection/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/rc-single-essence-trip-selection/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/rc-single-essence-trip-selection/.gap-review/verdict.json",
-      "review_started": "2026-07-09 23:15:35"
+      "review_started": "2026-07-09 23:15:35",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Fold into main as-is. The implementation selects one stocked essence family in the established Rune-before-Pure order, caps consumption at that selected stack and normal trip capacity, and derives output and XP solely from the amount removed; Air through Body retain Rune-first behavior, while all higher standard runes remain Pure-only. The mixed-stock regression proves that a below-capacity Rune essence stack is exhausted without touching Pure essence, and the runtime carried-pack selector now uses the same priority. No Runecrafting values, altar access, talisman or tiara behavior, pouch capacity or degradation, multipliers, Combat, or Prayer behavior changed. The focused probes, 64 runtime tests, and full 983-test suite pass with 157 expected skips, git diff --check is clean, and runecrafting_data imports cleanly under /opt/homebrew/bin/python3.12; the literal requested python command exits 127 only because this host has no bare python executable."
+      }
     },
     {
       "id": "fm-barbarian-bow-lighting",
