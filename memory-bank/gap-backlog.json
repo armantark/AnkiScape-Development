@@ -582,11 +582,11 @@
       "rank": 29,
       "skill": "Fletching",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "in_progress",
       "title": "Accept all live coloured feather alternatives",
       "detail": "FeatheringData.kt defines the exact live alternatives Feather (314), Red feather (10088), Orange feather (10091), Yellow feather (10090), Blue feather (10089), and Stripy feather (10087); feathering.plugin.kts registers every alternative for every live feathering row and consumes the selected colour. AnkiScape hard-requires only Feather even though Hunter already produces and registers all five coloured inputs. Preserve every existing level, XP value, output, and quantity; accept any one exact alternative and consume the chosen/available type at the row's existing quantity. Integrate deterministic alternative selection through materials, readiness, carried-overlay, apply, and undo paths. Do not add javelins or touch Combat or Prayer. Add focused parity, runtime, inventory, undo, and icon tests.",
       "source": "game-main:skills/fletching/feathering/FeatheringData.kt; feathering.plugin.kts",
-      "note": "fresh shipped-skill completeness audit pass 3, 2026-07-09",
+      "note": "refix: prefer an already-carried valid feather alternative before bank source order and cover the former infinite bank-run loop",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/fletch-colored-feather-options",
       "branch": "gap/fletch-colored-feather-options",
       "tier": "gpt-5.6-terra",
@@ -634,7 +634,7 @@
       "rank": 32,
       "skill": "Firemaking",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Port live light-source lighting and extinguishing actions",
       "detail": "Port the 11 exact Firemaking-gated, zero-XP raw-to-lit transformations from LightSource.kt and every inverse extinguish binding from light_source.plugin.kts: 596->594 level 1, 36->33 level 1, 38->32 level 1, 4527->4531 level 4, 4532->4534 level 4, 4522->4524 level 12, 4535->4539 level 26, 4548->4550 level 49, 4701->4702 level 49, 9064->9065 level 49, and 5014->5013 level 65. Preserve exact item IDs because several states share display names. Model only Utility/Activities transformations; exclude darkness, location, drop, acquisition, Combat, and Prayer behavior. Add focused level, runtime, item, icon, and undo tests.",
       "source": "game-main:content/mechanics/lightsource/LightSource.kt; light_source.plugin.kts",
@@ -651,18 +651,23 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/fm-light-source-actions/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fm-light-source-actions/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/fm-light-source-actions/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "All 11 raw-to-lit rows and all 11 inverse extinguish rows match game-main's exact item IDs, Firemaking levels, one-item outputs, and zero-XP behavior; lighting is runtime-gated and extinguishing is ungated, with darkness, location, drop, acquisition, Combat, and Prayer behavior left out as required. The additions fit the existing dataclass, Utility registration, item manifest, icon fallback, target metadata, and undo conventions, and no unrelated runtime code was changed. The focused 278-test set and full 954-test suite pass (157 environment skips), and git diff --check is clean. The literal python command cannot run because this host has no bare python executable, but the installed Python 3.12 imports firemaking_data cleanly."
+      }
     },
     {
       "id": "herb-runtime-input-prep",
       "rank": 33,
       "skill": "Herblore",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Port vial filling and swamp-toad leg preparation",
       "detail": "Add two zero-XP Utility input-preparation rows from live game-main handlers: Vial (229) -> Vial of water (227), using WaterContainerData.VIAL_OF_WATER and fill_water.plugin.kts; and Swamp toad (2150) -> Toad's legs (2152), using swamp_toad.plugin.kts Remove-legs. Keep exact 1:1 source identities, existing Utility batching conventions, item/icon registration, runtime, and undo behavior green. Do not port unrelated quest, Farming, Juju, or Dungeoneering water-container rows, and do not touch Combat or Prayer.",
       "source": "game-main:content/objs/watersource/WaterContainerData.kt; fill_water.plugin.kts; content/items/swamp_toad.plugin.kts",
-      "note": "fresh shipped-skill completeness audit pass 3, 2026-07-09",
+      "note": "manual additive constants.py merge preserved Firemaking and Herblore Utility registrations; full 954-test suite passed",
       "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/herb-runtime-input-prep",
       "branch": "gap/herb-runtime-input-prep",
       "tier": "gpt-5.6-terra",
@@ -675,7 +680,12 @@
       "review_log": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review.log",
       "review_done": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/herb-runtime-input-prep/review.exit",
-      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/herb-runtime-input-prep/.gap-review/verdict.json"
+      "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/herb-runtime-input-prep/.gap-review/verdict.json",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approved to fold into main as-is. The two zero-XP Utility rows preserve the exact game-main identities Vial (229) to Vial of water (227) and Swamp toad (2150) to Toad's legs (2152), use the existing 28-item batching and item/icon registration paths, and add no unrelated water-container, Combat, or Prayer content. The literal python launcher is absent from this shell, but /opt/homebrew/bin/python3.12 imports herblore_data cleanly; the full 949-test suite passes, and direct checks confirm each row converts 30 inputs into 2 remaining inputs plus 28 outputs and that Anki undo restores all 30 inputs."
+      }
     }
   ]
 }
