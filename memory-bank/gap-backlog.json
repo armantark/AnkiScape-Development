@@ -611,7 +611,7 @@
       "rank": 30,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "reviewing",
+      "status": "merged",
       "title": "Port live leather Thread requirements and consumption",
       "detail": "LeatherAction.kt requires Thread before every LeatherData-backed craft and consumes exactly one Thread when world.random(1..5) == 1 after removing the recipe's leather; output and XP are unchanged. Add the non-material presence requirement and exact deterministic 1-in-5 consumption semantics to every live leather recipe, retaining Thread otherwise. Thread already has live acquisition. Keep Needle implicit under the settled 2011 toolbelt decision. Build on the alternative-requirement plumbing landed by fletch-colored-feather-options; wire deterministic RNG, carried-overlay reconciliation, undo, and focused parity tests. Do not touch Combat or Prayer.",
       "source": "game-main:skills/crafting/leather/LeatherAction.kt; LeatherData.kt",
@@ -632,21 +632,34 @@
       "review_done": "/private/tmp/ankiscape-gap-ops/craft-leather-thread-semantics/review.done",
       "review_exit": "/private/tmp/ankiscape-gap-ops/craft-leather-thread-semantics/review.exit",
       "verdict_path": "/private/tmp/ankiscape-gap-ops/worktrees/craft-leather-thread-semantics/.gap-review/verdict.json",
-      "review_started": "2026-07-09 18:47:39"
+      "review_started": "2026-07-09 18:47:39",
+      "verdict": {
+        "approved": true,
+        "blocking": [],
+        "notes": "Approve and fold as-is. Against game-main LeatherData.kt and LeatherAction.kt, all 27 live rows retain the exact source levels, XP, leather quantities, and outputs; every row now gates on one Thread, maps the injected random float to the source-exact inclusive 1..5 roll after leather removal, consumes exactly one Thread only on roll 1, retains it otherwise, keeps Needle implicit, and covers carried-overlay consumption, retention, refill, reconciliation, and review undo without touching Combat or Prayer. The installed Python 3.10 interpreter imports crafting_data cleanly, the 287 focused tests pass, and the full suite passes 964 tests with 157 skipped; the shell has no bare python executable, so the literal requested command itself reports command not found for an environment reason."
+      }
     },
     {
       "id": "craft-held-mould-pipe-gates",
       "rank": 31,
       "skill": "Crafting",
       "root_cause": "transcription",
-      "status": "pending",
+      "status": "in_progress",
       "title": "Require live held moulds and glassblowing pipe",
       "detail": "JewelleryAction.kt, SilverAction.kt, and GlassblowingAction.kt require each row's matching MouldItems.kt mould or Glassblowing pipe and never consume it. Add exact non-consuming presence metadata for every jewellery, silver, and glassblowing row. Follow the settled repository convention: in advanced mode the exact item occupies a carried slot; otherwise it must be owned in the bank. Preserve source IDs, including input-starved special moulds; do not gate belt tools Needle, Chisel, or Tinderbox. Build on craft-leather-thread-semantics and add focused default/advanced readiness, apply, reconciliation, undo, item, and icon tests. Do not touch Combat or Prayer.",
       "source": "game-main:skills/crafting/jewellery/JewelleryAction.kt; silver/SilverAction.kt; glassblowing/GlassblowingAction.kt; MouldItems.kt",
       "depends_on": [
         "craft-leather-thread-semantics"
       ],
-      "note": "settled held-item convention in memory-bank/inventory-carry-model-design-2026-07-07.md; fresh audit pass 3"
+      "note": "settled held-item convention in memory-bank/inventory-carry-model-design-2026-07-07.md; fresh audit pass 3",
+      "worktree": "/private/tmp/ankiscape-gap-ops/worktrees/craft-held-mould-pipe-gates",
+      "branch": "gap/craft-held-mould-pipe-gates",
+      "tier": "gpt-5.6-terra",
+      "impl_report": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl_report.md",
+      "impl_log": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl.log",
+      "impl_done": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl.done",
+      "impl_exit": "/private/tmp/ankiscape-gap-ops/craft-held-mould-pipe-gates/impl.exit",
+      "started": "2026-07-09 18:57:10"
     },
     {
       "id": "fm-light-source-actions",
