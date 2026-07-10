@@ -468,10 +468,18 @@ def run_answer_with_carried_overlay(ctx: RuntimeActionContext, handler_key: str,
         view = _repack_view_for_target(is_processing, advanced, layout, bank, requirements, capacity)
         _set_carried_target_map(player_data, "carried_primed_targets", target_id, True)
 
+    # Presence-only gates stay out of per-action packing: in default mode they
+    # remain available from the bank. An advanced layout explicitly carries
+    # them, however, so an emptied presence slot must trigger the normal refill
+    # when the bank can restore the saved layout.
+    refill_requirements = dict(requirements)
+    if advanced:
+        for item_name, need in presence_requirements.items():
+            refill_requirements[item_name] = max(refill_requirements.get(item_name, 0), need)
     force = bool(
-        is_processing and requirements
-        and not _pack_can_supply(view, requirements)
-        and _bank_can_supply(bank, requirements)
+        is_processing and refill_requirements
+        and not _pack_can_supply(view, refill_requirements)
+        and _bank_can_supply(bank, refill_requirements)
     )
 
     new_state, new_view, new_churn, event, act = inventory_pure.carried_bank_run_gate_pure(
