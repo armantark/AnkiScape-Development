@@ -16,13 +16,16 @@ Target cutoff: 2012-11-20, immediately before EOC.
   automatic conversion to Magic logs when leaving the Spirit Realm.
 - `Spirit Realm` oldid 6394729, 2012-10-13: Jennica's ring access and the
   cursed/ordinary Magic-tree alternation between realms.
+- `Split log` oldid 5505475, 2012-04-18: one Arctic pine log becomes one
+  tradeable, Grand Exchange-backed Split log at level 54 for 42.5 Woodcutting
+  XP through the Neitiznot Woodcutting stump.
 
 All facts above were read from literal archived wikitext through the MediaWiki
 API. Exact success curves, tree-depletion rolls, respawn timing, and the
 server-side paired-tree transition remain source-blocked pending reconciled
 high-fidelity implementation evidence.
 
-## Product recommendation pending owner confirmation
+## Owner-approved product abstraction
 
 Use a target-local Spirit Realm session rather than a world map. Preserve
 Cursed magic logs while chopping or switching specifically to their Firemaking

@@ -585,8 +585,8 @@ source audit and reconciled server-behavior evidence.
 
 Backlog id: `wc-arctic-euc-cursed`
 
-Decision status: owner is unfamiliar with the cursed-magic activity; a
-source-shaped low-friction recommendation is pending confirmation.
+Decision status: owner approved the source-shaped cursed-magic abstraction;
+remaining family decisions are still being grilled.
 
 ### Period Facts
 
@@ -608,7 +608,7 @@ source-shaped low-friction recommendation is pending confirmation.
   (2012-06-10), and `Spirit Realm` oldid 6394729 (2012-10-13), read as literal
   archived wikitext.
 
-### Recommended Cursed-Magic Abstraction
+### Approved Cursed-Magic Abstraction
 
 - Selecting Cursed magic begins a target-local Spirit Realm session; it does
   not create a global location or world-map system.
@@ -621,3 +621,10 @@ source-shaped low-friction recommendation is pending confirmation.
 - Abstract the paired cursed/ordinary-tree traversal inside the target loop,
   with a compact current-action label if the reconciled server implementation
   requires visible phases. Do not make the player navigate between realms.
+
+### Arctic-Pine Splitting Fact
+
+- `Split log` oldid 5505475 (2012-04-18) confirms that using one Arctic pine
+  log on the Woodcutting stump produces one tradeable, Grand Exchange-backed
+  Split log at level 54 and awards 42.5 Woodcutting XP. This is a distinct
+  XP-bearing action rather than part of the chop roll.

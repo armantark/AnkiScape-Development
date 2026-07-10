@@ -403,11 +403,11 @@
       "detail": "Their logs are already burnable in firemaking_data.py but no chop targets exist.",
       "source": "wiki-oldids:Arctic Pine 6069429; Eucalyptus tree 6491980; Cursed magic tree 6368505; Cursed magic logs 5742321; Spirit Realm 6394729",
       "status": "needs_grill",
-      "note": "owner is unfamiliar with cursed-magic content; source-shaped target-local Spirit Realm abstraction proposed and awaiting confirmation",
+      "note": "owner approved the target-local Spirit Realm abstraction; Arctic-pine splitting and remaining family details are still being grilled",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#woodcutting-arctic-pine-eucalyptus-and-cursed-magic",
       "decision_summary": {
         "period_targets": "Arctic pine is level 54 for 140.2 XP; eucalyptus is level 58 for 165 XP; cursed magic is Spirit of Summer-gated at level 82 for 275 XP.",
-        "recommended_session": "Keep Cursed magic logs cursed in a target-local Spirit Realm session while chopping or switching specifically to burn them; bank runs, explicit exit, and unrelated target switches convert leftovers to Magic logs.",
+        "approved_session": "Keep Cursed magic logs cursed in a target-local Spirit Realm session while chopping or switching specifically to burn them; bank runs, explicit exit, and unrelated target switches convert leftovers to Magic logs.",
         "world_model": "Abstract the paired cursed and ordinary magic tree traversal inside the target loop; do not add a world map."
       }
     },
