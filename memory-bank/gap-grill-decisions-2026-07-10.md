@@ -397,13 +397,17 @@ Decision status: owner grill in progress.
   Cooking targets. Each review resolves one cooking action for one input item,
   including the authentic success, burn or poison outcome, XP, and heat-source
   restrictions.
-- Treat gnome foods and cocktails as persistent multi-step recipe chains. The
-  player selects the intended finished recipe; each review automatically
-  performs exactly one authentic next preparation step, consumes its inputs,
-  and creates the appropriate intermediate or final item.
-- Show the current recipe step in the review HUD and resume it automatically on
-  the next review. Do not require a manual stage selector, and do not collapse
-  a multi-step recipe into one review.
+- Expose every authentic gnome preparation step as its own Cooking target,
+  grouped beneath its recipe family. A chain such as preparing dough, baking a
+  shell, adding filling, and garnishing therefore remains a sequence of real
+  player-selected targets rather than a hidden automatic workflow.
+- Each review processes one item through the selected stage and creates the
+  authentic intermediate or final item. Intermediate items remain ordinary
+  carried and banked items, and the player switches targets when ready to batch
+  the next stage.
+- Do not add a duplicate finished-recipe meta-target that silently performs or
+  switches stages. Every stage inherits the unified per-target Casual policy,
+  Advanced layout, preset, bank-run, persistence, and undo rules.
 
 ### Scope Boundary
 
