@@ -214,11 +214,30 @@
       "skill": "Hunter",
       "root_cause": "stub",
       "severity": "major",
-      "title": "Add Herblore Habitat / jadinkos + grenwall herb table",
-      "detail": "2010 Hunter-Herblore integration; Juju recipes present but habitat loop is not. Grenwall gives guaranteed basic outputs only; authentic herb-drop table missing.",
+      "title": "Add Herblore Habitat / jadinkos with Farming",
+      "detail": "2010 Hunter-Herblore-Farming integration; Juju recipes are present but AnkiScape has no Farming runtime or persistent habitat configuration loop.",
       "source": "wiki:Herblore Habitat",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "parked_farming_seed",
+      "note": "Owner grill closed 2026-07-10; preserve this as a seed for the eventual full Farming expansion rather than building a one-off Farming subset or instant-seed shortcut.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#hunter-herblore-habitat-jadinkos-and-grenwall-herbs",
+      "decision_summary": {
+        "dependency": "Implement Habitat and jadinkos with the eventual full Farming expansion, not as a standalone Hunter shortcut.",
+        "state": "Persist the habitat feature, flower, bush, fruit tree, and juju-effect configuration that attracts jadinkos.",
+        "assistance": "Offer target-first assisted configuration that respects authentic seeds, growth, potion, and costs instead of requiring the player to memorize combinations."
+      }
+    },
+    {
+      "id": "hunter-grenwall-herb-table",
+      "rank": 8.5,
+      "skill": "Hunter",
+      "root_cause": "transcription",
+      "severity": "minor",
+      "title": "Port the independent grenwall herb rolls",
+      "detail": "The existing grenwall action always awards 18 spikes and bones. Port the source's 18-21 spike range plus its independent 15% high-herb and 18% mid-herb one-of rolls.",
+      "source": "game-main:data/npcs/drops/hunter/hunter_grenwall.json",
+      "status": "pending",
+      "note": "Split from the Habitat/Jadinko grill on 2026-07-10; this ordinary Hunter reward correction has no Farming or Habitat dependency.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#independent-grenwall-slice"
     },
     {
       "id": "rc-runespan",

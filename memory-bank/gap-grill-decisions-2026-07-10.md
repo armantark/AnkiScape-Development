@@ -64,3 +64,39 @@ revamp wherever the current engine is a stub or missing: success curves,
 intermediate roll order, damage, tool/resource loss, reward distributions, and
 bonus values must be cited from the revamped implementation and reconciled with
 the pinned pre-EOC guide evidence before shipping.
+
+## Hunter: Herblore Habitat, Jadinkos, and Grenwall Herbs
+
+Backlog id: `hunter-habitat-jadinko`
+
+Decision status: Habitat and jadinkos parked as a Farming-expansion seed;
+grenwall herb parity split into an implementation-ready Hunter item.
+
+### Habitat Boundary
+
+- Do not build a one-off Farming subset or an instant-seed shortcut merely to
+  make Herblore Habitat available now. Introduce Habitat and jadinkos as part of
+  the eventual full Farming skill expansion.
+- Preserve Habitat as persistent configuration state: the active habitat
+  feature, planted flower, bush, fruit tree, and juju effect together determine
+  which jadinkos are attracted. Do not flatten this into an ordinary bank-input
+  action.
+- The player selects a jadinko first and may use `Configure habitat for this
+  jadinko`. That assisted path chooses the correct setup but still consumes or
+  respects the authentic seeds, plants, growth state, potion, and other costs;
+  it is not a free bypass.
+- Keep this section as a design seed rather than an implementation task until
+  Farming expansion work begins and the ongoing Darkan Habitat implementation
+  is ready to audit.
+
+### Independent Grenwall Slice
+
+- Grenwall herb drops do not depend on Farming or Habitat, so they remain an
+  independent Hunter parity item instead of being parked.
+- Port the source distribution exactly: every successful catch gives 18-21
+  grenwall spikes and bones, followed by an independent 15% one-of roll for
+  grimy kwuarm, cadantine, dwarf weed, lantadyme, or toadflax and an independent
+  18% one-of roll for grimy ranarr, irit, or avantoe.
+- Preserve both independent herb rolls, including the possibility that one
+  catch awards herbs from both groups. The existing fixed 18-spike reward is
+  not full parity.
