@@ -451,3 +451,23 @@ pinned historical source with revamped Darkan rather than copying its current
 partial implementation: its karambwan enum is internally inconsistent, its
 cocktail code mishandles multi-quantity ingredients, most gnome food assembly is
 absent, and its wine action skips the historical intermediate behavior.
+
+## Fletching: Javelin Construction — Rejected
+
+Backlog id: `fletch-javelin-construction`
+
+Decision status: rejected as out-of-period source contamination.
+
+- Do not add bronze-through-dragon javelin shafts, heads, Smithing recipes, or
+  Fletching construction targets. November 2012 RuneScape javelins could not be
+  smithed or fletched; the proposed construction chain comes from Old School
+  RuneScape's 2016 Monkey Madness II and ballista content.
+- Retain only independently verified period-authentic javelin acquisition and
+  behavior, such as shops, monster drops, poisoning, equipment, and combat use.
+  This rejection does not affect the separately source-backed crossbow assembly
+  transcription.
+- Global source rule: ignore every OSRS-specific mechanic, item, quest, rate,
+  interface, and convenience. An OSRS page may help locate a question, but it is
+  never proof of November 2012 scope. Include a mechanic only when a pinned
+  pre-cutoff RuneScape source or independently valid local 2011/2012 source
+  proves that the same mechanic existed by the cutoff.

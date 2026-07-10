@@ -2,6 +2,7 @@
   "_comment": "Gap backlog for the autonomous /loop gap-fill run. Populated 2026-07-09 from the GPT-5.6-terra shipped-skills audit (memory-bank/status-updates/shipped-skills-gap-audit-2026-07-09.html). Each tick, tools/gap_driver.py pulls the highest-priority pending item, works it in its own worktree via the routed GPT-5.6 tier, has Sol review, and folds it in. Status: pending -> in_progress -> review -> merged | review_failed | blocked.",
   "policy": {
     "cutoff": "2012-11-20T00:00:00Z",
+    "source_scope": "RuneScape content available by the cutoff only. Ignore Old School RuneScape-specific mechanics unless independent pre-cutoff RuneScape evidence proves the same mechanic existed.",
     "transcription_tier": "gpt-5.6-terra",
     "stub_tier": "gpt-5.6-sol",
     "review_tier": "gpt-5.6-sol",
@@ -356,10 +357,17 @@
       "root_cause": "stub",
       "severity": "major",
       "title": "Add javelin construction",
-      "detail": "Add bronze-through-dragon javelin shaft/head construction. game-main has no Fletching construction binding for this family, so exact inputs, levels, XP, and action modeling require pre-EOC wiki sourcing and owner design. Crossbow assembly was split into the source-backed fletch-crossbow-assembly transcription item after the fresh runtime audit found live CombinationData bindings.",
+      "detail": "Rejected provenance false positive: bronze-through-dragon javelin shaft/head construction is Old School RuneScape content added with the 2016 Monkey Madness II/ballista family. November 2012 RuneScape javelins were shop/drop ammunition and could not be smithed or fletched. Crossbow assembly remains separately source-backed.",
       "source": "wiki:Javelin",
-      "status": "needs_grill",
-      "note": "crossbow assembly split out 2026-07-09; javelins still need owner grill"
+      "status": "rejected_out_of_period",
+      "note": "Owner grill closed 2026-07-10: ignore OSRS-specific construction and retain only source-authentic November 2012 javelin acquisition/use.",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fletching-javelin-construction-rejected",
+      "decision_summary": {
+        "ruling": "Do not add javelin shafts, heads, Smithing recipes, or Fletching construction targets.",
+        "reason": "The construction chain is OSRS-specific 2016 content, not November 2012 RuneScape parity.",
+        "retained_scope": "Existing period-authentic javelins may enter the economy through verified shops and drops and remain usable as ammunition.",
+        "global_rule": "Ignore OSRS-specific mechanics unless independent pre-cutoff RuneScape evidence proves the same mechanic existed."
+      }
     },
     {
       "id": "herb-overload-sanfew",
