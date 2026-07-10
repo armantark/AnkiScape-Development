@@ -814,6 +814,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(EQUIPMENT_DATA["Staff"].bonuses.attack_magic, 4)
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].slot, "weapon")
         self.assertEqual(EQUIPMENT_DATA["Staff of air"].bonuses.attack_magic, 10)
+        self.assertEqual(by_storage_key["Dragon sq shield"].category, "smithed")
+        self.assertIsNotNone(by_storage_key["Dragon sq shield"].asset_path)
+        self.assertEqual(EQUIPMENT_DATA["Dragon sq shield"].slot, "shield")
+        self.assertEqual(EQUIPMENT_DATA["Dragon sq shield"].required_level, 60)
+        self.assertEqual(EQUIPMENT_DATA["Dragon sq shield"].bonuses.defence_slash, 52)
         for item_name in (
             "Shortbow",
             "Longbow",

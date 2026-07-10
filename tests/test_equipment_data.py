@@ -19,7 +19,7 @@ class TestEquipmentData(unittest.TestCase):
             "feet",
             "ring",
         ])
-        self.assertEqual(len(EQUIPMENT_DATA), 560)
+        self.assertEqual(len(EQUIPMENT_DATA), 561)
         self.assertEqual(set(equipment_items_as_dict()), set(EQUIPMENT_DATA))
         self.assertEqual(EQUIPMENT_DATA["Cape"].slot, "cape")
         self.assertEqual(EQUIPMENT_DATA["Cape"].bonuses.defence_ranged, 2)
@@ -33,6 +33,7 @@ class TestEquipmentData(unittest.TestCase):
         # Smithable-but-undropped wieldable tools reach the roster via the
         # smithing-recipe source, not the type-based armour/weapon selector.
         self.assertEqual(EQUIPMENT_DATA["Rune hatchet"].slot, "weapon")
+        self.assertEqual(EQUIPMENT_DATA["Dragon sq shield"].slot, "shield")
 
     def test_weapon_type_is_captured_for_the_attack_type_selector(self):
         # The generator records the RS WeaponType id per weapon so the attack-type

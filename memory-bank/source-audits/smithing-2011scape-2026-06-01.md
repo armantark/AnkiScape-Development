@@ -99,6 +99,20 @@ platebody is level 18, Rune dagger 85, Rune platebody 99). Transcribe levels fro
 
 ## Edge Cases / Notes
 
+### Dragon square shield assembly (implemented 2026-07-09)
+
+- `items/armor/dragon_sq_shield.plugin.kts:6-59` binds all four supported anvils.
+  Only `Objs.ANVIL` has the Doric's Quest check (lines 14-17); it is not a
+  universal assembly gate. The AnkiScape recipe therefore keeps the established
+  generic anvil material-and-level gate.
+- At Smithing 60 (lines 33-35), consume Shield left half (2366) and Shield right
+  half (2368), add Dragon sq shield (1187), and award exactly 70.0 XP
+  (lines 49-52). The hammer check is intentionally implicit under the existing
+  Smithing toolbelt convention (lines 26-31; see Architecture Decision 3).
+- `data/cfg/items.yml:13902-13935` supplies the output's shield equipment block
+  and Defence 60 requirement. Existing `smithingitems/rune_sq_shield.png` is the
+  checked-in square-shield icon fallback; no network asset fetch was performed.
+
 - **Blurite** forge products are only crossbow bolts (lvl 8) + limbs (lvl 13) — members/Slayer-flavored
   but mechanically plain; include as normal rows (no gating this pass, matching Mining/WC policy).
 - **Studs (2370)** in-game also need leather; emulator `BarProducts` models it as a plain bar product.
@@ -168,7 +182,7 @@ under one skill); the rest follows the Mining/WC/Crafting precedent.
   `current_smith` target key (for example `Runite bar` → `smelt_rune_bar`). Legacy inventory keys
   `Adamantite bar`/`Runite bar` migrate to source item names `Adamant bar`/`Rune bar`. Unknown inventory
   entries are preserved.
-- Tests cover source-data integrity (166 recipes, smelt table, forge XP = bars×barXP, level/output
-  spot checks), pure smelt/forge mechanics including iron smelt failure, multi-bar forge deduction,
-  runtime forge dispatch, storage migration, item manifest coverage, and offscreen Qt import/UI smoke
-  coverage.
+- Tests cover source-data integrity (167 recipes, smelt table, forge XP = bars×barXP, level/output
+  spot checks, and Dragon sq shield's two-half assembly), pure smelt/forge mechanics including iron
+  smelt failure, runtime forge dispatch, registry/equipment wiring, review undo, storage migration,
+  item manifest coverage, and offscreen Qt import/UI smoke coverage.

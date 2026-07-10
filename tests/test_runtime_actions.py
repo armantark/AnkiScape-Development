@@ -1597,6 +1597,30 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["failure_kinds"], {"smelt_fail": 1})
         self.assertAlmostEqual(telemetry["expected_successes"], 0.51)
 
+    def test_smithing_dragon_sq_shield_assembly_consumes_both_halves(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Shield left half": 1, "Shield right half": 1},
+            "smithing_level": 60,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "repair_dragon_sq_shield",
+            "quests": {"dorics_quest": {"completed": False}},
+            "completed_achievements": [],
+        }
+
+        ok = handle_smithing_answer(_context(player_data, calls))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"], {"Shield left half": 0, "Shield right half": 0, "Dragon sq shield": 1})
+        self.assertAlmostEqual(player_data["smithing_exp"], 70.0)
+        self.assertEqual(calls["xp"], [70.0])
+        self.assertEqual(calls["saves"], 1)
+        self.assertEqual(calls["errors"], [])
+        telemetry = player_data["action_telemetry"]["actions"]["smithing:repair_dragon_sq_shield"]
+        self.assertEqual(telemetry["attempts"], 1)
+        self.assertEqual(telemetry["successes"], 1)
+
 
 class TestCarriedOverlayWrapper(unittest.TestCase):
     """The overlay wrapper that runs a skilling tick through the 28-slot pack."""

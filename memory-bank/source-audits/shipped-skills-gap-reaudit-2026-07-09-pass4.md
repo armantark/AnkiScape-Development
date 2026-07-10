@@ -27,7 +27,7 @@ Dwarven stout was not added: its single faithful action necessarily mixes Mining
 - Mining: core rock/tool/runtime rows are complete after the newly queued gilded-level correction.
 - Woodcutting: all 11 trees, nine axes, Inferno-adze behavior, and nest mechanics are represented; canoe shaping is parked.
 - Fishing: all 28 fish rows and live spot/tool bindings are represented; cave eel remains the existing stub.
-- Smithing: nine smelting and 157 generated forging rows remain exact; Dragon square shield assembly is the newly queued generic handler.
+- Smithing: nine smelting and 157 generated forging rows remain exact; Dragon square shield assembly is live through the generic handler.
 - Crafting: skill-directory families are complete after ledger items 22, 24, 30, and 31; the generic clay-ring handler supplies the one new gate.
 - Fletching: all live action families are represented; only the shared potion-state decision remains.
 - Firemaking: 13 log rows, Inferno-adze behavior, and 11 light-source pairs are represented; existing activity stubs and shared brawling-gloves design remain.

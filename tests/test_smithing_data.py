@@ -12,9 +12,9 @@ from smithing_data import (
 
 class TestSmithingData(unittest.TestCase):
     def test_source_generated_recipe_counts_and_defaults(self):
-        self.assertEqual(len(SMITHING_RECIPES), 166)
+        self.assertEqual(len(SMITHING_RECIPES), 167)
         self.assertEqual(len(smithing_bars_as_dict()), 9)
-        self.assertEqual(len(smithing_forge_recipe_ids()), 157)
+        self.assertEqual(len(smithing_forge_recipe_ids()), 158)
         self.assertEqual(DEFAULT_SMITHING_TARGET, "smelt_bronze_bar")
         self.assertEqual(len(SMITHING_RECIPES_BY_ID), len(SMITHING_RECIPES))
 
@@ -50,6 +50,8 @@ class TestSmithingData(unittest.TestCase):
         }
         for recipe_id in smithing_forge_recipe_ids():
             recipe = recipes[recipe_id]
+            if recipe_id == "repair_dragon_sq_shield":
+                continue
             requirements = recipe["requirements"]
             self.assertEqual(len(requirements), 1, recipe_id)
             bar_name, bars_required = next(iter(requirements.items()))
@@ -66,6 +68,17 @@ class TestSmithingData(unittest.TestCase):
         self.assertEqual(recipes["forge_iron_pickaxe"]["requirements"], {"Iron bar": 2})
         self.assertEqual(recipes["forge_iron_pickaxe"]["category"], "tool")
         self.assertEqual(recipes["forge_steel_studs"]["requirements"], {"Steel bar": 1})
+
+    def test_dragon_sq_shield_assembly_matches_live_plugin(self):
+        recipe = smithing_recipes_as_dict()["repair_dragon_sq_shield"]
+        self.assertEqual(recipe["station"], "anvil")
+        self.assertEqual(recipe["level"], 60)
+        self.assertAlmostEqual(recipe["exp"], 70.0)
+        self.assertEqual(recipe["requirements"], {"Shield left half": 1, "Shield right half": 1})
+        self.assertEqual(recipe["output_item"], "Dragon sq shield")
+        self.assertEqual(recipe["output_qty"], 1)
+        self.assertEqual(recipe["source_item_id"], 1187)
+        self.assertEqual(recipe["source_enum"], "DRAGON_SQ_SHIELD")
 
 
 if __name__ == "__main__":
