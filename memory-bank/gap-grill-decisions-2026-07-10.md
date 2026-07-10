@@ -384,3 +384,23 @@ Reconcile it with fidelity-revamped Darkan. Darkan currently provides a usable
 cannonball baseline of level 35, one steel bar to four cannonballs, 25.6 XP,
 the ammo mould, and the Dwarf Cannon gate, but does not implement Blast Furnace
 gameplay or the Goldsmith-gauntlet XP modifier.
+
+## Cooking: Karambwan Family, Lava Eel, and Gnome Recipes
+
+Backlog id: `cook-karambwan-family`
+
+Decision status: owner grill in progress.
+
+### Recipe Action Model
+
+- Add raw karambwanji, raw karambwan, and raw lava eel as ordinary source-gated
+  Cooking targets. Each review resolves one cooking action for one input item,
+  including the authentic success, burn or poison outcome, XP, and heat-source
+  restrictions.
+- Treat gnome foods and cocktails as persistent multi-step recipe chains. The
+  player selects the intended finished recipe; each review automatically
+  performs exactly one authentic next preparation step, consumes its inputs,
+  and creates the appropriate intermediate or final item.
+- Show the current recipe step in the review HUD and resume it automatically on
+  the next review. Do not require a manual stage selector, and do not collapse
+  a multi-step recipe into one review.
