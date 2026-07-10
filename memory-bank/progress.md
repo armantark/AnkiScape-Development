@@ -1406,6 +1406,10 @@ Use `memory-bank/future-work-kanban.md` for the current prioritized follow-up pl
   release, and explicit dependency gates. Its terminal blocked state now pauses
   the heartbeat and uses the exact owner-intervention banner recorded in
   `tools/gap_loop_prompt.md`, but only after every safe work path is exhausted.
+  Automated workers now keep per-item evidence in private reports, logs, tests,
+  verdicts, and audit Markdown instead of creating or surfacing HTML updates.
+  The orchestrator creates and opens one consolidated status artifact only after
+  the terminal completeness audit.
 
 - The current P0 architecture board is complete. Do not continue P0 by default;
   reopen architecture only if the owner names a new concrete acceptance boundary.

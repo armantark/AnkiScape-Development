@@ -116,6 +116,7 @@ Hard constraints:
 - Wire any new item ids into item_registry.py / constants.py the same way sibling rows are wired. Do NOT run network asset fetches.
 - Do not invent numeric values. Do not add balance clamps. Do not touch unrelated skills, combat, or Prayer. Preserve every existing row.
 - No new abstractions or refactors of existing code. Smallest correct diff.
+- This is an automated gap-fill worker. Do NOT create, open, upload, or surface HTML status artifacts, and do not run Postplan. Keep intermediate communication entirely in the requested -o report, logs, tests, and source-audit/Memory Bank text when materially needed. The orchestrator owns one consolidated human-facing artifact at the terminal audited state.
 - Do NOT commit, push, or edit git config. Just edit files.
 - After editing, from {wt} run: python -c "import {module}" and fix any error until it imports cleanly.
 """
@@ -165,6 +166,8 @@ Source of truth: {src}
 
 Fix EXACTLY the blocking issues above, building on the existing committed work — keep everything the reviewer did not object to. If a blocking issue means content you added is NOT faithfully backed by the source (e.g. an invented method with no emulator tool binding), REMOVE it / restore it to its prior deferred state rather than inventing support for it. Do not add balance clamps or post-EOC content. Do not touch unrelated skills, combat, or Prayer. Smallest correct diff. Do NOT commit or push.
 
+This is an automated gap-fill refix. Do NOT create, open, upload, or surface HTML status artifacts, and do not run Postplan. Keep the intermediate result in the requested -o report, tests, and source files only; the orchestrator owns the single terminal artifact.
+
 After editing, from {wt} run: python -c "import {module}" and any tests the reviewer named, and fix until clean. Report (to the -o file) how you addressed each numbered blocking point.
 """
 
@@ -179,6 +182,8 @@ The change is committed as the HEAD commit on branch {branch}. Inspect it with: 
 Reference emulator (read-only): {GAMEMAIN}
 
 Task the change was meant to accomplish: {item['title']} — {item['detail']}
+
+This is an automated verifier pass. Do NOT create, open, upload, or surface HTML status artifacts, and do not run Postplan. Write only the requested verdict JSON and short -o review report.
 
 Judge on:
 - Parity: XP/level/output values faithful to {src}? No invented numbers, no post-EOC content, no invented balance clamps.

@@ -47,6 +47,9 @@ Capture stdout and weigh it; you remain the decider. Use it for hard calls, not 
 ## When the transcription backlog drains
 When nothing is `pending`/`in_progress`/`reviewing` among transcription items, run a fresh completeness audit: compare game-main's content for each shipped skill against AnkiScape's data modules, and append any newly found gaps to the ledger, each classified `transcription` or `stub`. Only the transcription ones enter the auto-fill lane; stubs are appended as `needs_grill` and left for the owner. If only `needs_grill` items remain, there is nothing more to auto-build — report that the loop is idle against the grill wall and stop churning.
 
+## Human-facing artifact policy
+Do not create, open, upload, link, or surface per-item or per-tick HTML status artifacts during the automated lane. Intermediate evidence stays in the ops reports/logs, verdict JSON, tests, commits, ledger, and source-audit Markdown. After the mandatory completeness audit reaches a terminal state with no safe transcription/review/merge work remaining, create exactly one comprehensive final HTML artifact in `memory-bank/status-updates/`. It must cover the full loop: every merged transcription batch, review rejection and recovery, merge recovery, verification evidence, remaining `needs_grill` decisions, and the exact owner actions required. Open that one artifact in Arc and upload that one artifact to Postplan; include its path and URL in the terminal notification.
+
 ## Owner-intervention stop signal
 Do not declare the loop blocked while any safe transcription, review recovery, merge recovery, completeness audit, or independent skill work can still advance. Once every safe avenue is exhausted and progress genuinely requires the owner, pause the heartbeat and make the notification impossible to confuse with a routine tick. The first line must be exactly:
 
