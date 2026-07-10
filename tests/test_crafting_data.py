@@ -7,6 +7,7 @@ from crafting_data import (
     DEFAULT_CRAFTING_TARGET,
     TANNING_ACTIVITIES,
     crafting_extra_items_as_dict,
+    crafting_required_items_as_dict,
     crafting_recipes_as_dict,
     tanning_activities_as_dict,
 )
@@ -219,11 +220,35 @@ class TestCraftingData(unittest.TestCase):
             self.assertEqual(data[recipe_id]["required_items"], {item_name: 1})
 
     def test_crafting_required_tool_ids_are_registered_as_tools(self):
-        extras = crafting_extra_items_as_dict()
+        extras = crafting_required_items_as_dict()
         self.assertEqual(len(CRAFTING_REQUIRED_ITEM_SOURCE_IDS), 14)
         for item_name, source_item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items():
-            self.assertEqual(extras[item_name]["source_item_id"], source_item_id)
+            self.assertEqual(extras[item_name]["item_id"], source_item_id)
             self.assertEqual(extras[item_name]["category"], "tool")
+        self.assertEqual(
+            {
+                item_name: (extras[item_name]["item_id"], extras[item_name]["tradeable"])
+                for item_name in (
+                    "Unholy mould",
+                    "Conductor mould",
+                    "Demonic sigil mould",
+                    "Rod clay mould",
+                    "Chain link mould",
+                )
+            },
+            {
+                "Unholy mould": (1594, False),
+                "Conductor mould": (4200, False),
+                "Demonic sigil mould": (6747, False),
+                "Rod clay mould": (7649, False),
+                "Chain link mould": (13153, False),
+            },
+        )
+
+    def test_crafting_extra_items_retains_held_tool_metadata(self):
+        extras = crafting_extra_items_as_dict()
+        self.assertEqual(extras["Unholy mould"]["item_id"], 1594)
+        self.assertFalse(extras["Unholy mould"]["tradeable"])
 
     def test_tanning_rows_match_2011scape(self):
         self.assertEqual(

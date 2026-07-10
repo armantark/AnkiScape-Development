@@ -17,7 +17,7 @@ from constants import (
     COOKING_ITEM_IMAGES,
     COOKING_OUTPUT_ITEMS,
     CRAFTING_DATA,
-    CRAFTING_EXTRA_ITEM_DATA,
+    CRAFTING_REQUIRED_ITEM_DATA,
     CRAFTED_ITEM_IMAGES,
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
@@ -934,11 +934,32 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_crafting_tool_gates_are_registered_with_icons(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         for item_name, source_item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items():
-            self.assertEqual(CRAFTING_EXTRA_ITEM_DATA[item_name]["source_item_id"], source_item_id)
+            self.assertEqual(CRAFTING_REQUIRED_ITEM_DATA[item_name]["item_id"], source_item_id)
             self.assertEqual(by_storage_key[item_name].category, "tool")
             self.assertIn(item_name, CRAFTED_ITEM_IMAGES)
             self.assertTrue(os.path.exists(CRAFTED_ITEM_IMAGES[item_name]), f"{item_name} Crafting icon is missing")
             self.assertEqual(by_storage_key[item_name].asset_path, CRAFTED_ITEM_IMAGES[item_name])
+        for item_name, source_item_id in {
+            "Unholy mould": 1594,
+            "Conductor mould": 4200,
+            "Demonic sigil mould": 6747,
+            "Rod clay mould": 7649,
+            "Chain link mould": 13153,
+        }.items():
+            self.assertEqual(CRAFTING_REQUIRED_ITEM_DATA[item_name]["item_id"], source_item_id)
+            self.assertFalse(CRAFTING_REQUIRED_ITEM_DATA[item_name]["tradeable"])
+            self.assertFalse(by_storage_key[item_name].tradeable)
+
+    def test_crafting_tool_registration_preserves_existing_item_identities(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, item_id, category in (
+            ("Bronze wire", "smithed_bronze_wire", "smithed"),
+            ("Steel studs", "smithed_steel_studs", "smithed"),
+            ("Oil lantern frame", "smithed_oil_lantern_frame", "smithed"),
+            ("Sinew", "food_sinew", "food"),
+        ):
+            self.assertEqual(by_storage_key[item_name].id, item_id)
+            self.assertEqual(by_storage_key[item_name].category, category)
 
     def test_every_fishing_output_resolves_an_icon(self):
         # tools/fetch_fishing_assets.py derives its manifest from FISHING_DATA,

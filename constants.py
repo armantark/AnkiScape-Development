@@ -31,7 +31,7 @@ try:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from .crafting_data import crafting_extra_items_as_dict, crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
+    from .crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -150,7 +150,7 @@ except ImportError:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from crafting_data import crafting_extra_items_as_dict, crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
+    from crafting_data import crafting_output_items, crafting_recipes_as_dict, crafting_required_items_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -419,7 +419,7 @@ UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
-CRAFTING_EXTRA_ITEM_DATA = crafting_extra_items_as_dict()
+CRAFTING_REQUIRED_ITEM_DATA = crafting_required_items_as_dict()
 
 CRAFTED_ITEM_IMAGES = {}
 UTILITY_ITEM_IMAGES = {
@@ -582,7 +582,7 @@ def _asset_slug(name: str) -> str:
 _crafting_item_names = set(crafting_output_items())
 for _spec in CRAFTING_DATA.values():
     _crafting_item_names.update(str(_material) for _material in _spec.get("requirements", {}))
-_crafting_item_names.update(CRAFTING_EXTRA_ITEM_DATA)
+_crafting_item_names.update(CRAFTING_REQUIRED_ITEM_DATA)
 for _item_name in _crafting_item_names:
     _path = os.path.join(CRAFTED_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
@@ -963,7 +963,7 @@ def _known_non_shop_item_names():
         FISHING_EXTRA_ITEM_DATA,
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
-        CRAFTING_EXTRA_ITEM_DATA,
+        CRAFTING_REQUIRED_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
@@ -1034,7 +1034,7 @@ def _known_non_shop_item_ids(names):
         FISHING_EXTRA_ITEM_DATA,
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
-        CRAFTING_EXTRA_ITEM_DATA,
+        CRAFTING_REQUIRED_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
@@ -1079,7 +1079,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FISHING_EXTRA_ITEM_DATA,
     **HUNTER_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
-    **CRAFTING_EXTRA_ITEM_DATA,
+    **CRAFTING_REQUIRED_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
     **HERBLORE_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,

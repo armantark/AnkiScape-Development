@@ -90,6 +90,15 @@ CRAFTING_REQUIRED_ITEM_SOURCE_IDS = {
     "Bolt mould": 9434,
     "Glassblowing pipe": 1785,
 }
+CRAFTING_REQUIRED_ITEM_NONTRADEABLE = frozenset(
+    {
+        "Unholy mould",
+        "Conductor mould",
+        "Demonic sigil mould",
+        "Rod clay mould",
+        "Chain link mould",
+    }
+)
 
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
@@ -435,9 +444,24 @@ def tanning_activities_as_dict() -> Dict[str, Dict[str, object]]:
     }
 
 
+def crafting_required_items_as_dict() -> Dict[str, Dict[str, object]]:
+    return {
+        item: {
+            "level": 1,
+            "exp": 0.0,
+            "category": "tool",
+            "source": GLASSBLOWING_ACTION_SOURCE if item == "Glassblowing pipe" else MOULD_ITEMS_SOURCE,
+            "item_id": item_id,
+            "tradeable": item not in CRAFTING_REQUIRED_ITEM_NONTRADEABLE,
+        }
+        for item, item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items()
+    }
+
+
 def crafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
     outputs = set(crafting_output_items())
     extras: Dict[str, Dict[str, object]] = {}
+    required_items = crafting_required_items_as_dict()
     for recipe in CRAFTING_RECIPES:
         for material, _amount in recipe.requirements:
             if material not in outputs:
@@ -454,17 +478,7 @@ def crafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
         for item, _amount in recipe.required_items:
             if item not in outputs:
                 if item in CRAFTING_REQUIRED_ITEM_SOURCE_IDS:
-                    extras.setdefault(
-                        item,
-                        {
-                            "level": 1,
-                            "exp": 0.0,
-                            "category": "tool",
-                            "source": GLASSBLOWING_ACTION_SOURCE if item == "Glassblowing pipe" else MOULD_ITEMS_SOURCE,
-                            "source_item_id": CRAFTING_REQUIRED_ITEM_SOURCE_IDS[item],
-                            "tradeable": True,
-                        },
-                    )
+                    extras.setdefault(item, required_items[item])
                 else:
                     extras.setdefault(
                         item,
