@@ -93,13 +93,15 @@ grenwall herb parity split into an implementation-ready Hunter item.
 
 - Grenwall herb drops do not depend on Farming or Habitat, so they remain an
   independent Hunter parity item instead of being parked.
-- Port the source distribution exactly: every successful catch gives 18-21
-  grenwall spikes and bones, followed by an independent 15% one-of roll for
-  grimy kwuarm, cadantine, dwarf weed, lantadyme, or toadflax and an independent
-  18% one-of roll for grimy ranarr, irit, or avantoe.
-- Preserve both independent herb rolls, including the possibility that one
-  catch awards herbs from both groups. The existing fixed 18-spike reward is
-  not full parity.
+- The pre-cutoff `Grenwall` revision 6196272 confirms 18-21 grenwall spikes,
+  bones, and random grimy herbs broadly spanning irit through dwarf weed. The
+  existing fixed 18-spike reward is therefore not full parity.
+- Do **not** yet lock the local Darkan table's independent 15% high-herb and
+  18% mid-herb rolls. That file entered Darkan in a 2022 commit and the same
+  probabilities appear on the modern RS3 page, while the pinned September 2012
+  article does not state them. Treat the table as a reconstruction lead until
+  a literal pre-cutoff source, period cache/script, or Wayback capture
+  corroborates the probabilities and exact herb membership.
 
 ## Runecrafting: Runespan and Training-Time Calibration
 
@@ -490,3 +492,8 @@ Decision status: owner grill in progress.
 - Primary historical checkpoint: RuneScape Wiki `Overload` revision 6552017,
   timestamped 2012-11-13T08:39:34Z. Read its archived literal wikitext through
   the MediaWiki API rather than trusting current template or calculator output.
+- That same pre-EOC revision explicitly says drinking a dose deals five hits of
+  100 lifepoints and that expiry after five minutes restores 500 lifepoints.
+  The restoration is a direct potion-expiry effect, not an EOC addition or a
+  separate ingredient-derived heal; the article gives no deeper mechanical
+  source for it.

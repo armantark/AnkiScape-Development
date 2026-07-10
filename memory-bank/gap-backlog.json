@@ -233,11 +233,11 @@
       "skill": "Hunter",
       "root_cause": "transcription",
       "severity": "minor",
-      "title": "Port the independent grenwall herb rolls",
-      "detail": "The existing grenwall action always awards 18 spikes and bones. Port the source's 18-21 spike range plus its independent 15% high-herb and 18% mid-herb one-of rolls.",
-      "source": "game-main:data/npcs/drops/hunter/hunter_grenwall.json",
-      "status": "pending",
-      "note": "Split from the Habitat/Jadinko grill on 2026-07-10; this ordinary Hunter reward correction has no Farming or Habitat dependency.",
+      "title": "Verify and port the grenwall reward table",
+      "detail": "The existing grenwall action always awards 18 spikes and bones. Pre-cutoff wiki revision 6196272 confirms 18-21 spikes, bones, and random grimy herbs, but does not prove Darkan's precise independent 15% high-herb and 18% mid-herb rolls.",
+      "source": "wiki-oldid:6196272; reconstruction-lead:game-main:data/npcs/drops/hunter/hunter_grenwall.json",
+      "status": "pending_source_verification",
+      "note": "Split from the Habitat/Jadinko grill on 2026-07-10. The exact herb probabilities came from a Darkan file introduced in 2022 and match the modern RS3 table, so they require literal pre-cutoff or period-cache corroboration before implementation.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#independent-grenwall-slice"
     },
     {
