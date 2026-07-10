@@ -345,3 +345,17 @@ Decision status: owner grill in progress.
 - Do not import Old School RuneScape's later automated-worker coffer charge into
   the November 2012 ruleset. Busy public operation is the activity abstraction,
   not permission to add a modern recurring fee.
+
+### Target-Specific Skilling Equipment
+
+- Treat Goldsmith gauntlets as an equipment effect on the existing gold-bar
+  target at both ordinary and Blast Furnaces; do not create a duplicate
+  `goldsmith-gauntlet smelting` target.
+- Casual mode automatically equips applicable, owned, and available beneficial
+  skilling equipment such as Goldsmith gauntlets or the Ring of charos (a).
+  Advanced mode applies an item only when it is selected in that target's saved
+  equipment configuration.
+- Bank displaced equipment safely and restore it when the player switches away
+  from the target. Enforce each item's authentic quest, ownership, equipment,
+  loss, and effect requirements. This is the reusable rule for later
+  target-specific skilling equipment, not a Smithing-only exception.
