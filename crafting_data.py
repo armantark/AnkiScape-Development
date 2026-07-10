@@ -63,6 +63,8 @@ JEWELLERY_SOURCE = f"{CRAFTING_SOURCE_ROOT}/jewellery/JewelleryData.kt"
 LEATHER_SOURCE = f"{CRAFTING_SOURCE_ROOT}/leather/LeatherData.kt"
 TANNING_SOURCE = f"{CRAFTING_SOURCE_ROOT}/tanning/TanningData.kt"
 GLASS_SOURCE = f"{CRAFTING_SOURCE_ROOT}/glassblowing/GlassData.kt"
+MOULD_ITEMS_SOURCE = f"{CRAFTING_SOURCE_ROOT}/MouldItems.kt"
+GLASSBLOWING_ACTION_SOURCE = f"{CRAFTING_SOURCE_ROOT}/glassblowing/GlassblowingAction.kt"
 # Molten glass smelting lives with the furnace objects, not the crafting skill tree.
 FURNACE_GLASS_SOURCE = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
@@ -71,6 +73,23 @@ FURNACE_GLASS_SOURCE = (
 BATTLESTAFF_SOURCE = f"{CRAFTING_SOURCE_ROOT}/weaponry/BattlestaffData.kt"
 WEAVING_SOURCE = f"{CRAFTING_SOURCE_ROOT}/weaving/WeavingData.kt"
 POLISHED_BUTTON_SOURCE = f"{CRAFTING_SOURCE_ROOT}/other/polished_button.plugin.kts"
+
+CRAFTING_REQUIRED_ITEM_SOURCE_IDS = {
+    "Ring mould": 1592,
+    "Necklace mould": 1597,
+    "Bracelet mould": 11065,
+    "Amulet mould": 1595,
+    "Tiara mould": 5523,
+    "Unholy mould": 1594,
+    "Holy mould": 1599,
+    "Sickle mould": 2976,
+    "Demonic sigil mould": 6747,
+    "Chain link mould": 13153,
+    "Conductor mould": 4200,
+    "Rod clay mould": 7649,
+    "Bolt mould": 9434,
+    "Glassblowing pipe": 1785,
+}
 
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
@@ -194,46 +213,46 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
     CraftingRecipe("spin_hair_to_rope", "Rope", "spinning", "spinning_wheel", 30, 25.0, _req(("Hair", 1)), "Rope", source=SPINNING_SOURCE, source_enum="ROPE", notes="Live target; input-starved until yak hair acquisition exists."),
 
     # Silver.
-    CraftingRecipe("silver_unstrung_symbol", "Unstrung symbol", "silver", "furnace", 16, 50.0, _req(("Silver bar", 1)), "Unstrung symbol", source=SILVER_SOURCE, source_enum="HOLY_SYMBOL"),
-    CraftingRecipe("silver_unstrung_emblem", "Unstrung emblem", "silver", "furnace", 17, 50.0, _req(("Silver bar", 1)), "Unstrung emblem", source=SILVER_SOURCE, source_enum="UNHOLY_SYMBOL"),
-    CraftingRecipe("silver_silver_sickle", "Silver sickle", "silver", "furnace", 18, 50.0, _req(("Silver bar", 1)), "Silver sickle", source=SILVER_SOURCE, source_enum="SILVER_SICKLE"),
-    CraftingRecipe("silver_conductor", "Conductor", "silver", "furnace", 20, 50.0, _req(("Silver bar", 1)), "Conductor", source=SILVER_SOURCE, source_enum="CONDUCTOR_ROD", tradeable=False, notes="Quest item; live but use-starved."),
-    CraftingRecipe("silver_silver_bolts_unf", "Silver bolts (unf)", "silver", "furnace", 21, 50.0, _req(("Silver bar", 1)), "Silver bolts (unf)", 10, source=SILVER_SOURCE, source_enum="SILVER_BOLTS"),
-    CraftingRecipe("silver_tiara", "Tiara", "silver", "furnace", 23, 52.5, _req(("Silver bar", 1)), "Tiara", source=SILVER_SOURCE, source_enum="TIARA"),
-    CraftingRecipe("silver_silvthrill_rod", "Silvthrill rod", "silver", "furnace", 25, 55.0, _req(("Silver bar", 1), ("Mithril bar", 1), ("Sapphire", 1)), "Silvthrill rod", source=SILVER_SOURCE, source_enum="SILVTHRILL_ROD", tradeable=False, source_item_id=7637),
-    CraftingRecipe("silver_demonic_sigil", "Demonic sigil", "silver", "furnace", 30, 50.0, _req(("Silver bar", 1)), "Demonic sigil", source=SILVER_SOURCE, source_enum="DEMONIC_SIGIL", tradeable=False, notes="Quest item; live but use-starved."),
-    CraftingRecipe("silver_silvthrill_chain", "Silvthril chain", "silver", "furnace", 47, 100.0, _req(("Silver bar", 1), ("Mithril bar", 1)), "Silvthril chain", source=SILVER_SOURCE, source_enum="SILVTHRILL_CHAIN", tradeable=False, source_item_id=13154),
+    CraftingRecipe("silver_unstrung_symbol", "Unstrung symbol", "silver", "furnace", 16, 50.0, _req(("Silver bar", 1)), "Unstrung symbol", source=SILVER_SOURCE, source_enum="HOLY_SYMBOL", required_items=_req(("Holy mould", 1))),
+    CraftingRecipe("silver_unstrung_emblem", "Unstrung emblem", "silver", "furnace", 17, 50.0, _req(("Silver bar", 1)), "Unstrung emblem", source=SILVER_SOURCE, source_enum="UNHOLY_SYMBOL", required_items=_req(("Unholy mould", 1))),
+    CraftingRecipe("silver_silver_sickle", "Silver sickle", "silver", "furnace", 18, 50.0, _req(("Silver bar", 1)), "Silver sickle", source=SILVER_SOURCE, source_enum="SILVER_SICKLE", required_items=_req(("Sickle mould", 1))),
+    CraftingRecipe("silver_conductor", "Conductor", "silver", "furnace", 20, 50.0, _req(("Silver bar", 1)), "Conductor", source=SILVER_SOURCE, source_enum="CONDUCTOR_ROD", tradeable=False, notes="Quest item; live but use-starved.", required_items=_req(("Conductor mould", 1))),
+    CraftingRecipe("silver_silver_bolts_unf", "Silver bolts (unf)", "silver", "furnace", 21, 50.0, _req(("Silver bar", 1)), "Silver bolts (unf)", 10, source=SILVER_SOURCE, source_enum="SILVER_BOLTS", required_items=_req(("Bolt mould", 1))),
+    CraftingRecipe("silver_tiara", "Tiara", "silver", "furnace", 23, 52.5, _req(("Silver bar", 1)), "Tiara", source=SILVER_SOURCE, source_enum="TIARA", required_items=_req(("Tiara mould", 1))),
+    CraftingRecipe("silver_silvthrill_rod", "Silvthrill rod", "silver", "furnace", 25, 55.0, _req(("Silver bar", 1), ("Mithril bar", 1), ("Sapphire", 1)), "Silvthrill rod", source=SILVER_SOURCE, source_enum="SILVTHRILL_ROD", tradeable=False, source_item_id=7637, required_items=_req(("Rod clay mould", 1))),
+    CraftingRecipe("silver_demonic_sigil", "Demonic sigil", "silver", "furnace", 30, 50.0, _req(("Silver bar", 1)), "Demonic sigil", source=SILVER_SOURCE, source_enum="DEMONIC_SIGIL", tradeable=False, notes="Quest item; live but use-starved.", required_items=_req(("Demonic sigil mould", 1))),
+    CraftingRecipe("silver_silvthrill_chain", "Silvthril chain", "silver", "furnace", 47, 100.0, _req(("Silver bar", 1), ("Mithril bar", 1)), "Silvthril chain", source=SILVER_SOURCE, source_enum="SILVTHRILL_CHAIN", tradeable=False, source_item_id=13154, required_items=_req(("Chain link mould", 1))),
 
     # Jewellery.
-    CraftingRecipe("jewellery_gold_ring", "Gold ring", "jewellery", "furnace", 5, 15.0, _req(("Gold bar", 1)), "Gold ring", source=JEWELLERY_SOURCE, source_enum="GOLD"),
-    CraftingRecipe("jewellery_gold_necklace", "Gold necklace", "jewellery", "furnace", 6, 20.0, _req(("Gold bar", 1)), "Gold necklace", source=JEWELLERY_SOURCE, source_enum="GOLD"),
-    CraftingRecipe("jewellery_gold_bracelet", "Gold bracelet", "jewellery", "furnace", 7, 25.0, _req(("Gold bar", 1)), "Gold bracelet", source=JEWELLERY_SOURCE, source_enum="GOLD"),
-    CraftingRecipe("jewellery_gold_amulet", "Gold amulet", "jewellery", "furnace", 8, 30.0, _req(("Gold bar", 1)), "Gold amulet", source=JEWELLERY_SOURCE, source_enum="GOLD"),
-    CraftingRecipe("jewellery_sapphire_ring", "Sapphire ring", "jewellery", "furnace", 20, 40.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire ring", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE"),
-    CraftingRecipe("jewellery_sapphire_necklace", "Sapphire necklace", "jewellery", "furnace", 22, 55.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire necklace", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE"),
-    CraftingRecipe("jewellery_sapphire_bracelet", "Sapphire bracelet", "jewellery", "furnace", 23, 60.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire bracelet", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE"),
-    CraftingRecipe("jewellery_sapphire_amulet", "Sapphire amulet", "jewellery", "furnace", 24, 65.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire amulet", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE"),
-    CraftingRecipe("jewellery_emerald_ring", "Emerald ring", "jewellery", "furnace", 27, 55.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald ring", source=JEWELLERY_SOURCE, source_enum="EMERALD"),
-    CraftingRecipe("jewellery_emerald_necklace", "Emerald necklace", "jewellery", "furnace", 29, 60.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald necklace", source=JEWELLERY_SOURCE, source_enum="EMERALD"),
-    CraftingRecipe("jewellery_emerald_bracelet", "Emerald bracelet", "jewellery", "furnace", 30, 65.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald bracelet", source=JEWELLERY_SOURCE, source_enum="EMERALD"),
-    CraftingRecipe("jewellery_emerald_amulet", "Emerald amulet", "jewellery", "furnace", 31, 70.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald amulet", source=JEWELLERY_SOURCE, source_enum="EMERALD"),
-    CraftingRecipe("jewellery_ruby_ring", "Ruby ring", "jewellery", "furnace", 34, 70.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby ring", source=JEWELLERY_SOURCE, source_enum="RUBY"),
-    CraftingRecipe("jewellery_ruby_necklace", "Ruby necklace", "jewellery", "furnace", 40, 75.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby necklace", source=JEWELLERY_SOURCE, source_enum="RUBY"),
-    CraftingRecipe("jewellery_ruby_bracelet", "Ruby bracelet", "jewellery", "furnace", 42, 80.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby bracelet", source=JEWELLERY_SOURCE, source_enum="RUBY"),
-    CraftingRecipe("jewellery_ruby_amulet", "Ruby amulet", "jewellery", "furnace", 50, 85.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby amulet", source=JEWELLERY_SOURCE, source_enum="RUBY"),
-    CraftingRecipe("jewellery_diamond_ring", "Diamond ring", "jewellery", "furnace", 43, 85.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond ring", source=JEWELLERY_SOURCE, source_enum="DIAMOND"),
-    CraftingRecipe("jewellery_diamond_necklace", "Diamond necklace", "jewellery", "furnace", 56, 90.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond necklace", source=JEWELLERY_SOURCE, source_enum="DIAMOND"),
-    CraftingRecipe("jewellery_diamond_bracelet", "Diamond bracelet", "jewellery", "furnace", 58, 95.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond bracelet", source=JEWELLERY_SOURCE, source_enum="DIAMOND"),
-    CraftingRecipe("jewellery_diamond_amulet", "Diamond amulet", "jewellery", "furnace", 70, 100.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond amulet", source=JEWELLERY_SOURCE, source_enum="DIAMOND"),
-    CraftingRecipe("jewellery_dragonstone_ring", "Dragonstone ring", "jewellery", "furnace", 55, 100.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragonstone ring", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists."),
-    CraftingRecipe("jewellery_dragon_necklace", "Dragon necklace", "jewellery", "furnace", 72, 105.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragon necklace", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists."),
-    CraftingRecipe("jewellery_dragon_bracelet", "Dragon bracelet", "jewellery", "furnace", 74, 110.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragon bracelet", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists."),
-    CraftingRecipe("jewellery_dragonstone_ammy", "Dragonstone ammy", "jewellery", "furnace", 80, 150.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragonstone ammy", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists."),
-    CraftingRecipe("jewellery_onyx_ring", "Onyx ring", "jewellery", "furnace", 67, 115.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx ring", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists."),
-    CraftingRecipe("jewellery_onyx_necklace", "Onyx necklace", "jewellery", "furnace", 82, 120.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx necklace", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists."),
-    CraftingRecipe("jewellery_onyx_bracelet", "Onyx bracelet", "jewellery", "furnace", 84, 125.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx bracelet", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists."),
-    CraftingRecipe("jewellery_onyx_amulet", "Onyx amulet", "jewellery", "furnace", 90, 165.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx amulet", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists."),
-    CraftingRecipe("jewellery_ring_of_slaying_8", "Ring of slaying (8)", "jewellery", "furnace", 75, 15.0, _req(("Gold bar", 1), ("Enchanted gem", 1)), "Ring of slaying (8)", source=JEWELLERY_SOURCE, source_enum="SLAYER_RING", tradeable=False, source_item_id=13281, notes="Source additionally requires the Slayer CRAFT_ROS unlock; AnkiScape has no Slayer system to enforce it."),
+    CraftingRecipe("jewellery_gold_ring", "Gold ring", "jewellery", "furnace", 5, 15.0, _req(("Gold bar", 1)), "Gold ring", source=JEWELLERY_SOURCE, source_enum="GOLD", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_gold_necklace", "Gold necklace", "jewellery", "furnace", 6, 20.0, _req(("Gold bar", 1)), "Gold necklace", source=JEWELLERY_SOURCE, source_enum="GOLD", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_gold_bracelet", "Gold bracelet", "jewellery", "furnace", 7, 25.0, _req(("Gold bar", 1)), "Gold bracelet", source=JEWELLERY_SOURCE, source_enum="GOLD", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_gold_amulet", "Gold amulet", "jewellery", "furnace", 8, 30.0, _req(("Gold bar", 1)), "Gold amulet", source=JEWELLERY_SOURCE, source_enum="GOLD", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_sapphire_ring", "Sapphire ring", "jewellery", "furnace", 20, 40.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire ring", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_sapphire_necklace", "Sapphire necklace", "jewellery", "furnace", 22, 55.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire necklace", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_sapphire_bracelet", "Sapphire bracelet", "jewellery", "furnace", 23, 60.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire bracelet", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_sapphire_amulet", "Sapphire amulet", "jewellery", "furnace", 24, 65.0, _req(("Gold bar", 1), ("Sapphire", 1)), "Sapphire amulet", source=JEWELLERY_SOURCE, source_enum="SAPPHIRE", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_emerald_ring", "Emerald ring", "jewellery", "furnace", 27, 55.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald ring", source=JEWELLERY_SOURCE, source_enum="EMERALD", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_emerald_necklace", "Emerald necklace", "jewellery", "furnace", 29, 60.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald necklace", source=JEWELLERY_SOURCE, source_enum="EMERALD", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_emerald_bracelet", "Emerald bracelet", "jewellery", "furnace", 30, 65.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald bracelet", source=JEWELLERY_SOURCE, source_enum="EMERALD", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_emerald_amulet", "Emerald amulet", "jewellery", "furnace", 31, 70.0, _req(("Gold bar", 1), ("Emerald", 1)), "Emerald amulet", source=JEWELLERY_SOURCE, source_enum="EMERALD", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_ruby_ring", "Ruby ring", "jewellery", "furnace", 34, 70.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby ring", source=JEWELLERY_SOURCE, source_enum="RUBY", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_ruby_necklace", "Ruby necklace", "jewellery", "furnace", 40, 75.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby necklace", source=JEWELLERY_SOURCE, source_enum="RUBY", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_ruby_bracelet", "Ruby bracelet", "jewellery", "furnace", 42, 80.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby bracelet", source=JEWELLERY_SOURCE, source_enum="RUBY", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_ruby_amulet", "Ruby amulet", "jewellery", "furnace", 50, 85.0, _req(("Gold bar", 1), ("Ruby", 1)), "Ruby amulet", source=JEWELLERY_SOURCE, source_enum="RUBY", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_diamond_ring", "Diamond ring", "jewellery", "furnace", 43, 85.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond ring", source=JEWELLERY_SOURCE, source_enum="DIAMOND", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_diamond_necklace", "Diamond necklace", "jewellery", "furnace", 56, 90.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond necklace", source=JEWELLERY_SOURCE, source_enum="DIAMOND", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_diamond_bracelet", "Diamond bracelet", "jewellery", "furnace", 58, 95.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond bracelet", source=JEWELLERY_SOURCE, source_enum="DIAMOND", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_diamond_amulet", "Diamond amulet", "jewellery", "furnace", 70, 100.0, _req(("Gold bar", 1), ("Diamond", 1)), "Diamond amulet", source=JEWELLERY_SOURCE, source_enum="DIAMOND", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_dragonstone_ring", "Dragonstone ring", "jewellery", "furnace", 55, 100.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragonstone ring", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists.", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_dragon_necklace", "Dragon necklace", "jewellery", "furnace", 72, 105.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragon necklace", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists.", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_dragon_bracelet", "Dragon bracelet", "jewellery", "furnace", 74, 110.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragon bracelet", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists.", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_dragonstone_ammy", "Dragonstone ammy", "jewellery", "furnace", 80, 150.0, _req(("Gold bar", 1), ("Dragonstone", 1)), "Dragonstone ammy", source=JEWELLERY_SOURCE, source_enum="DRAGONSTONE", notes="Live target; input-starved until dragonstone acquisition exists.", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_onyx_ring", "Onyx ring", "jewellery", "furnace", 67, 115.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx ring", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists.", required_items=_req(("Ring mould", 1))),
+    CraftingRecipe("jewellery_onyx_necklace", "Onyx necklace", "jewellery", "furnace", 82, 120.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx necklace", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists.", required_items=_req(("Necklace mould", 1))),
+    CraftingRecipe("jewellery_onyx_bracelet", "Onyx bracelet", "jewellery", "furnace", 84, 125.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx bracelet", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists.", required_items=_req(("Bracelet mould", 1))),
+    CraftingRecipe("jewellery_onyx_amulet", "Onyx amulet", "jewellery", "furnace", 90, 165.0, _req(("Gold bar", 1), ("Onyx", 1)), "Onyx amulet", source=JEWELLERY_SOURCE, source_enum="ONYX", notes="Live target; input-starved until onyx acquisition exists.", required_items=_req(("Amulet mould", 1))),
+    CraftingRecipe("jewellery_ring_of_slaying_8", "Ring of slaying (8)", "jewellery", "furnace", 75, 15.0, _req(("Gold bar", 1), ("Enchanted gem", 1)), "Ring of slaying (8)", source=JEWELLERY_SOURCE, source_enum="SLAYER_RING", tradeable=False, source_item_id=13281, notes="Source additionally requires the Slayer CRAFT_ROS unlock; AnkiScape has no Slayer system to enforce it.", required_items=_req(("Ring mould", 1))),
 
     # Leather.
     CraftingRecipe("leather_leather_gloves", "Leather gloves", "leather", "needle", 1, 13.8, _req(("Leather", 1)), "Leather gloves", source=LEATHER_SOURCE, source_enum="LEATHER", required_items=_req(("Thread", 1)), consume_thread_on_roll=True),
@@ -266,14 +285,14 @@ CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
 
     # Glass, battlestaves, weaving, and selected source Crafting combinations.
     CraftingRecipe("glass_molten_glass", "Molten glass", "glass", "furnace", 1, 20.0, _req(("Soda ash", 1), ("Bucket of sand", 1)), "Molten glass", byproducts=(("Bucket", 1),), source=FURNACE_GLASS_SOURCE, source_enum="", notes="Furnace smelt (handleMoltenGlass); returns the emptied bucket. Inputs are live NPC shop stock."),
-    CraftingRecipe("glass_beer_glass", "Beer glass", "glass", "glassblowing", 1, 17.5, _req(("Molten glass", 1)), "Beer glass", source=GLASS_SOURCE, source_enum="BEER_GLASS"),
-    CraftingRecipe("glass_empty_candle_lantern", "Candle lantern", "glass", "glassblowing", 4, 19.0, _req(("Molten glass", 1)), "Candle lantern", source=GLASS_SOURCE, source_enum="EMPTY_CANDLE_LANTERN", source_item_id=4527),
-    CraftingRecipe("glass_empty_oil_lamp", "Oil lamp", "glass", "glassblowing", 12, 25.0, _req(("Molten glass", 1)), "Oil lamp", source=GLASS_SOURCE, source_enum="EMPTY_OIL_LAMP", source_item_id=4525),
-    CraftingRecipe("glass_vial", "Vial", "glass", "glassblowing", 33, 35.0, _req(("Molten glass", 1)), "Vial", source=GLASS_SOURCE, source_enum="EMPTY_VIAL"),
-    CraftingRecipe("glass_fishbowl", "Fishbowl", "glass", "glassblowing", 42, 42.5, _req(("Molten glass", 1)), "Fishbowl", source=GLASS_SOURCE, source_enum="FISHBOWL", source_item_id=6667),
-    CraftingRecipe("glass_unpowered_orb", "Unpowered orb", "glass", "glassblowing", 46, 52.5, _req(("Molten glass", 1)), "Unpowered orb", source=GLASS_SOURCE, source_enum="UNPOWERED_ORB"),
-    CraftingRecipe("glass_lantern_lens", "Lantern lens", "glass", "glassblowing", 49, 55.0, _req(("Molten glass", 1)), "Lantern lens", source=GLASS_SOURCE, source_enum="LANTERN_LENS", source_item_id=4542),
-    CraftingRecipe("glass_empty_light_orb", "Empty light orb", "glass", "glassblowing", 87, 70.0, _req(("Molten glass", 1)), "Empty light orb", source=GLASS_SOURCE, source_enum="EMPTY_LIGHT_ORB", tradeable=False, source_item_id=10980),
+    CraftingRecipe("glass_beer_glass", "Beer glass", "glass", "glassblowing", 1, 17.5, _req(("Molten glass", 1)), "Beer glass", source=GLASS_SOURCE, source_enum="BEER_GLASS", required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_empty_candle_lantern", "Candle lantern", "glass", "glassblowing", 4, 19.0, _req(("Molten glass", 1)), "Candle lantern", source=GLASS_SOURCE, source_enum="EMPTY_CANDLE_LANTERN", source_item_id=4527, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_empty_oil_lamp", "Oil lamp", "glass", "glassblowing", 12, 25.0, _req(("Molten glass", 1)), "Oil lamp", source=GLASS_SOURCE, source_enum="EMPTY_OIL_LAMP", source_item_id=4525, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_vial", "Vial", "glass", "glassblowing", 33, 35.0, _req(("Molten glass", 1)), "Vial", source=GLASS_SOURCE, source_enum="EMPTY_VIAL", required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_fishbowl", "Fishbowl", "glass", "glassblowing", 42, 42.5, _req(("Molten glass", 1)), "Fishbowl", source=GLASS_SOURCE, source_enum="FISHBOWL", source_item_id=6667, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_unpowered_orb", "Unpowered orb", "glass", "glassblowing", 46, 52.5, _req(("Molten glass", 1)), "Unpowered orb", source=GLASS_SOURCE, source_enum="UNPOWERED_ORB", required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_lantern_lens", "Lantern lens", "glass", "glassblowing", 49, 55.0, _req(("Molten glass", 1)), "Lantern lens", source=GLASS_SOURCE, source_enum="LANTERN_LENS", source_item_id=4542, required_items=_req(("Glassblowing pipe", 1))),
+    CraftingRecipe("glass_empty_light_orb", "Empty light orb", "glass", "glassblowing", 87, 70.0, _req(("Molten glass", 1)), "Empty light orb", source=GLASS_SOURCE, source_enum="EMPTY_LIGHT_ORB", tradeable=False, source_item_id=10980, required_items=_req(("Glassblowing pipe", 1))),
     CraftingRecipe("battlestaff_water_battlestaff", "Water battlestaff", "battlestaff", "attach_orb", 54, 100.0, _req(("Battlestaff", 1), ("Water orb", 1)), "Water battlestaff", source=BATTLESTAFF_SOURCE, source_enum="WATER_BATTLESTAFF", notes="Orb acquisition/enchanting belongs to future Magic or Utility design."),
     CraftingRecipe("battlestaff_earth_battlestaff", "Earth battlestaff", "battlestaff", "attach_orb", 58, 112.5, _req(("Battlestaff", 1), ("Earth orb", 1)), "Earth battlestaff", source=BATTLESTAFF_SOURCE, source_enum="EARTH_BATTLESTAFF", notes="Orb acquisition/enchanting belongs to future Magic or Utility design."),
     CraftingRecipe("battlestaff_fire_battlestaff", "Fire battlestaff", "battlestaff", "attach_orb", 62, 125.0, _req(("Battlestaff", 1), ("Fire orb", 1)), "Fire battlestaff", source=BATTLESTAFF_SOURCE, source_enum="FIRE_BATTLESTAFF", notes="Orb acquisition/enchanting belongs to future Magic or Utility design."),
@@ -434,14 +453,27 @@ def crafting_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
                 )
         for item, _amount in recipe.required_items:
             if item not in outputs:
-                extras.setdefault(
-                    item,
-                    {
-                        "level": 1,
-                        "exp": 0.0,
-                        "category": "material",
-                        "source": f"Crafting requirement for {recipe.display_name}",
-                        "tradeable": True,
-                    },
-                )
+                if item in CRAFTING_REQUIRED_ITEM_SOURCE_IDS:
+                    extras.setdefault(
+                        item,
+                        {
+                            "level": 1,
+                            "exp": 0.0,
+                            "category": "tool",
+                            "source": GLASSBLOWING_ACTION_SOURCE if item == "Glassblowing pipe" else MOULD_ITEMS_SOURCE,
+                            "source_item_id": CRAFTING_REQUIRED_ITEM_SOURCE_IDS[item],
+                            "tradeable": True,
+                        },
+                    )
+                else:
+                    extras.setdefault(
+                        item,
+                        {
+                            "level": 1,
+                            "exp": 0.0,
+                            "category": "material",
+                            "source": f"Crafting requirement for {recipe.display_name}",
+                            "tradeable": True,
+                        },
+                    )
     return extras

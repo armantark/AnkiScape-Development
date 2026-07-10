@@ -31,7 +31,7 @@ try:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from .crafting_data import crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
+    from .crafting_data import crafting_extra_items_as_dict, crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
     from .equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from .firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -150,7 +150,7 @@ except ImportError:
         DEFAULT_COMBAT_SPELL,
         DEFAULT_COMBAT_TARGET,
     )
-    from crafting_data import crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
+    from crafting_data import crafting_extra_items_as_dict, crafting_output_items, crafting_recipes_as_dict, tanning_activities_as_dict
     from equipment_data import EQUIPMENT_DATA, EQUIPMENT_SLOTS, equipment_items_as_dict
     from firemaking_data import (
         DEFAULT_FIREMAKING_TARGET,
@@ -419,6 +419,7 @@ UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
+CRAFTING_EXTRA_ITEM_DATA = crafting_extra_items_as_dict()
 
 CRAFTED_ITEM_IMAGES = {}
 UTILITY_ITEM_IMAGES = {
@@ -581,6 +582,7 @@ def _asset_slug(name: str) -> str:
 _crafting_item_names = set(crafting_output_items())
 for _spec in CRAFTING_DATA.values():
     _crafting_item_names.update(str(_material) for _material in _spec.get("requirements", {}))
+_crafting_item_names.update(CRAFTING_EXTRA_ITEM_DATA)
 for _item_name in _crafting_item_names:
     _path = os.path.join(CRAFTED_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
     if os.path.exists(_path):
@@ -609,6 +611,25 @@ for _item_name, _fallback_item in {
     _path = CRAFTED_ITEM_IMAGES.get(_fallback_item)
     if _path:
         CRAFTED_ITEM_IMAGES[_item_name] = _path
+
+for _item_name, _fallback_path in {
+    "Ring mould": os.path.join(QUEST_ITEMS_FOLDER, "ring_mould.png"),
+    "Necklace mould": os.path.join(QUEST_ITEMS_FOLDER, "necklace_mould.png"),
+    "Bracelet mould": os.path.join(SHOP_ITEMS_FOLDER, "bracelet_mould.png"),
+    "Amulet mould": os.path.join(SHOP_ITEMS_FOLDER, "amulet_mould.png"),
+    "Tiara mould": os.path.join(SHOP_ITEMS_FOLDER, "tiara_mould.png"),
+    "Unholy mould": os.path.join(SHOP_ITEMS_FOLDER, "holy_mould.png"),
+    "Holy mould": os.path.join(SHOP_ITEMS_FOLDER, "holy_mould.png"),
+    "Sickle mould": os.path.join(SHOP_ITEMS_FOLDER, "sickle_mould.png"),
+    "Demonic sigil mould": os.path.join(SHOP_ITEMS_FOLDER, "holy_mould.png"),
+    "Chain link mould": os.path.join(QUEST_ITEMS_FOLDER, "necklace_mould.png"),
+    "Conductor mould": os.path.join(SHOP_ITEMS_FOLDER, "amulet_mould.png"),
+    "Rod clay mould": os.path.join(SHOP_ITEMS_FOLDER, "amulet_mould.png"),
+    "Bolt mould": os.path.join(SHOP_ITEMS_FOLDER, "bolt_mould.png"),
+    "Glassblowing pipe": os.path.join(SHOP_ITEMS_FOLDER, "glassblowing_pipe.png"),
+}.items():
+    if os.path.exists(_fallback_path):
+        CRAFTED_ITEM_IMAGES[_item_name] = _fallback_path
 
 _path = os.path.join(HUNTER_ITEMS_FOLDER, "small_fishing_net.png")
 if os.path.exists(_path):
@@ -942,6 +963,7 @@ def _known_non_shop_item_names():
         FISHING_EXTRA_ITEM_DATA,
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
+        CRAFTING_EXTRA_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
@@ -1012,6 +1034,7 @@ def _known_non_shop_item_ids(names):
         FISHING_EXTRA_ITEM_DATA,
         HUNTER_EXTRA_ITEM_DATA,
         COOKING_EXTRA_ITEM_DATA,
+        CRAFTING_EXTRA_ITEM_DATA,
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
@@ -1056,6 +1079,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **FISHING_EXTRA_ITEM_DATA,
     **HUNTER_EXTRA_ITEM_DATA,
     **COOKING_EXTRA_ITEM_DATA,
+    **CRAFTING_EXTRA_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
     **HERBLORE_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
@@ -1070,6 +1094,7 @@ EXTRA_ITEM_IMAGES = {
     **FISHING_ITEM_IMAGES,
     **HUNTER_ITEM_IMAGES,
     **COOKING_ITEM_IMAGES,
+    **CRAFTED_ITEM_IMAGES,
     **RUNECRAFTING_ITEM_IMAGES,
     **HERBLORE_ITEM_IMAGES,
     **UTILITY_ITEM_IMAGES,

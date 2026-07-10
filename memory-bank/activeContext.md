@@ -1301,3 +1301,15 @@ runtime maps its injectable random float to the source's inclusive 1..5 roll,
 and the carried processing overlay packs/reconciles Thread by actual delta.
 Needle stays implicit. Focused data, pure, runtime-overlay, and undo coverage
 passes with the Python 3.10 runtime.
+
+## Crafting Held Mould and Glassblowing Pipe Gates (2026-07-09)
+
+Every existing Jewellery (29), Silver (9), and glassblowing (8) recipe now
+requires its exact source mould or Glassblowing pipe as a non-consuming Crafting
+presence item. Default mode checks the bank; advanced carried mode requires the
+tool in the carried layout and retains it through reconciliation. The 14 source
+tool IDs are registered with existing local fallback icons, including the
+input-starved special moulds. Needle, Chisel, and Tinderbox remain implicit.
+No recipes, Combat, or Prayer changed. Focused verification: 327 tests passed;
+the shell has no bare `python`, while `/opt/homebrew/bin/python3 -c "import
+crafting_data"` passes.

@@ -17,6 +17,8 @@ from constants import (
     COOKING_ITEM_IMAGES,
     COOKING_OUTPUT_ITEMS,
     CRAFTING_DATA,
+    CRAFTING_EXTRA_ITEM_DATA,
+    CRAFTED_ITEM_IMAGES,
     EQUIPMENT_DATA,
     FIREMAKING_DATA,
     FIREMAKING_EXTRA_ITEM_DATA,
@@ -53,6 +55,7 @@ from constants import (
     WOODCUTTING_AXE_DATA,
     WOODCUTTING_LOG_ITEMS,
 )
+from crafting_data import CRAFTING_REQUIRED_ITEM_SOURCE_IDS
 from item_registry import (
     item_definitions_by_id,
     item_definitions_by_storage_key,
@@ -927,6 +930,15 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 by_storage_key[material].asset_path, f"{material} should have a crafting icon"
             )
         self.assertEqual(missing_required_asset_paths(ITEM_DEFINITIONS), ())
+
+    def test_crafting_tool_gates_are_registered_with_icons(self):
+        by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
+        for item_name, source_item_id in CRAFTING_REQUIRED_ITEM_SOURCE_IDS.items():
+            self.assertEqual(CRAFTING_EXTRA_ITEM_DATA[item_name]["source_item_id"], source_item_id)
+            self.assertEqual(by_storage_key[item_name].category, "tool")
+            self.assertIn(item_name, CRAFTED_ITEM_IMAGES)
+            self.assertTrue(os.path.exists(CRAFTED_ITEM_IMAGES[item_name]), f"{item_name} Crafting icon is missing")
+            self.assertEqual(by_storage_key[item_name].asset_path, CRAFTED_ITEM_IMAGES[item_name])
 
     def test_every_fishing_output_resolves_an_icon(self):
         # tools/fetch_fishing_assets.py derives its manifest from FISHING_DATA,

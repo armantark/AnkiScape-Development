@@ -158,6 +158,26 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertAlmostEqual(player_data["crafting_exp"], 13.8)
         self.assertEqual(calls["errors"], [])
 
+    def test_crafting_carried_overlay_requires_and_retains_mould(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Gold bar": 1, "Ring mould": 1},
+            "crafting_level": 5,
+            "crafting_exp": 0,
+            "current_craft": "jewellery_gold_ring",
+            "completed_achievements": [],
+            "carried_advanced_targets": {"jewellery_gold_ring": True},
+            "carried_layout": {"jewellery_gold_ring": {"Gold bar": 1, "Ring mould": 1}},
+        }
+
+        self.assertTrue(run_answer_with_carried_overlay(
+            _context(player_data, calls), "crafting", handle_crafting_answer
+        ))
+        self.assertEqual(player_data["inventory"], {"Gold bar": 0, "Ring mould": 1, "Gold ring": 1})
+        self.assertEqual(player_data["carried_inventory"]["jewellery_gold_ring"], {"Ring mould": 1})
+        self.assertAlmostEqual(player_data["crafting_exp"], 15.0)
+        self.assertEqual(calls["errors"], [])
+
     def test_crafting_carried_overlay_retains_one_thread_across_leather_actions(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

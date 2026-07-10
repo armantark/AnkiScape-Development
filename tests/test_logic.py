@@ -801,6 +801,24 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(exp, 13.8)
         self.assertEqual(consumed, {"Leather": 0, "Thread": 0, "Leather gloves": 1})
 
+    def test_mould_and_pipe_are_required_but_not_consumed(self):
+        self.assertFalse(has_crafting_materials_pure("jewellery_gold_ring", {"Gold bar": 1}, CRAFTING_DATA))
+        self.assertFalse(has_crafting_materials_pure("glass_beer_glass", {"Molten glass": 1}, CRAFTING_DATA))
+
+        ring_inventory, ring_exp, ring_ok = apply_crafting_pure(
+            "jewellery_gold_ring", {"Gold bar": 1, "Ring mould": 1}, CRAFTING_DATA
+        )
+        self.assertTrue(ring_ok)
+        self.assertEqual(ring_exp, 15.0)
+        self.assertEqual(ring_inventory, {"Gold bar": 0, "Ring mould": 1, "Gold ring": 1})
+
+        glass_inventory, glass_exp, glass_ok = apply_crafting_pure(
+            "glass_beer_glass", {"Molten glass": 1, "Glassblowing pipe": 1}, CRAFTING_DATA
+        )
+        self.assertTrue(glass_ok)
+        self.assertEqual(glass_exp, 17.5)
+        self.assertEqual(glass_inventory, {"Molten glass": 0, "Glassblowing pipe": 1, "Beer glass": 1})
+
     def test_apply_crafting_pure_ignores_batch_size_for_xp_actions(self):
         crafting_data = {
             "Bow string": {
@@ -1291,6 +1309,10 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(can_craft_item_pure(5, inv, "Gold ring", crafting_data))
         self.assertTrue(can_craft_item_pure(1, inv, "Soft clay", crafting_data))
         self.assertFalse(can_craft_item_pure(1, {}, "Soft clay", crafting_data))  # missing material
+
+    def test_can_craft_item_pure_requires_a_live_crafting_tool(self):
+        self.assertFalse(can_craft_item_pure(5, {"Gold bar": 1}, "jewellery_gold_ring", CRAFTING_DATA))
+        self.assertTrue(can_craft_item_pure(5, {"Gold bar": 1, "Ring mould": 1}, "jewellery_gold_ring", CRAFTING_DATA))
 
     def test_apply_fletching_pure(self):
         fletching_data = {
