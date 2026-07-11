@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Construction Implementation — Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:1050px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; letter-spacing:.12em; color:var(--green); background:rgba(74,222,128,.1); border:1px solid var(--green); border-radius:999px; padding:.35rem .9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:2rem; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:60rem; margin-bottom:1.8rem; }
+.mono { font-family:'JetBrains Mono',monospace; }
+h2 { font-weight:700; font-size:1.1rem; margin:2.2rem 0 .9rem; }
+.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; }
+.metric { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem; }
+.metric .n { font-family:'JetBrains Mono',monospace; font-size:1.35rem; font-weight:600; color:var(--amber); }
+.metric .n.g { color:var(--green); }
+.metric .l { font-size:.72rem; color:var(--text-dim); margin-top:.15rem; }
+.catbar { display:flex; height:34px; border-radius:8px; overflow:hidden; border:1px solid var(--border); margin:.6rem 0 .3rem; }
+.catbar div { display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:600; color:#0c0e12; }
+.cb1 { background:var(--amber); flex:447; }
+.cb2 { background:var(--accent); flex:82; }
+.cb3 { background:var(--purple); flex:120; min-width:110px; }
+.catkey { font-size:.75rem; color:var(--text-dim); margin-bottom:1rem; }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .cols { grid-template-columns:1fr; } }
+.panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.15rem; }
+.panel h3 { font-size:.92rem; font-weight:700; margin-bottom:.5rem; }
+.panel ul { list-style:none; }
+.panel li { font-size:.83rem; color:var(--text-dim); padding:.3rem 0; border-bottom:1px solid var(--surface-2); }
+.panel li:last-child { border-bottom:none; }
+.panel li strong { color:var(--text); font-weight:500; }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+th { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--border); }
+td { padding:.5rem .7rem; border-bottom:1px solid var(--surface-2); vertical-align:top; }
+td strong { font-weight:500; }
+.pill { font-family:'JetBrains Mono',monospace; font-size:.6rem; font-weight:600; padding:.12rem .5rem; border-radius:4px; white-space:nowrap; }
+.p-cons { color:var(--amber); background:rgba(251,191,36,.1); }
+.p-fix { color:var(--red); background:rgba(255,92,92,.1); }
+.p-ok { color:var(--green); background:rgba(74,222,128,.1); }
+.smoke { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.15rem; }
+.smoke ol { margin-left:1.2rem; font-size:.83rem; color:var(--text-dim); }
+.smoke li { padding:.2rem 0; }
+.smoke li strong { color:var(--text); font-weight:500; }
+.copybtn { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:600; color:var(--accent); background:var(--accent-glow); border:1px solid var(--accent); border-radius:6px; padding:.35rem .8rem; cursor:pointer; margin-top:.8rem; }
+.copybtn:hover { background:rgba(79,140,255,.25); }
+.note { background:var(--surface); border-left:3px solid var(--green); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; font-size:.85rem; color:var(--text-dim); margin-top:1.4rem; }
+.note strong { color:var(--text); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">COMPLETED — VERIFIED &amp; COMMITTED c628f0d</div>
+  <h1>Construction: the POH ships, 544 targets strong</h1>
+  <p class="sub">Third delegated build (Codex Sol) from <span class="mono">memory-bank/construction-skill-contract-2026-07-11.md</span> — the first Darkan-primary skill, since game-main has no Construction at all. The run survived a mid-flight interruption: the first session was killed with the parent process, and a <span class="mono">codex exec resume</span> finished it with context intact. Compare against the frozen plan artifact <span class="mono">construction-grill-complete-plan-2026-07-11.html</span>.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="n g">1,050 × 2</div><div class="l">pure + offscreen Qt suites, both OK (from 1,031)</div></div>
+    <div class="metric"><div class="n">544</div><div class="l">stable target IDs</div></div>
+    <div class="metric"><div class="n">+8,128</div><div class="l">lines across 583 files</div></div>
+    <div class="metric"><div class="n">535</div><div class="l">assets, zero missing paths or provenance</div></div>
+    <div class="metric"><div class="n">v31</div><div class="l">storage: the house sheet is born</div></div>
+  </div>
+
+  <div class="catbar">
+    <div class="cb1">447 builds</div>
+    <div class="cb2">82</div>
+    <div class="cb3">15 tablets</div>
+  </div>
+  <div class="catkey">Every Darkan <span class="mono">HouseObjects.kt</span> row · 82 wiki-pinned flatpacks (oldid 6579365) · 15 lectern tablets that award <em>Magic</em> XP. <span class="mono">construction_data.py</span> is generated byte-reproducibly from the pinned Darkan checkout by <span class="mono">tools/generate_construction_data.py</span> — its low line count is compression, not incompleteness.</div>
+
+  <h2>What landed</h2>
+  <div class="cols">
+    <div class="panel">
+      <h3>The house</h3>
+      <ul>
+        <li><strong>Rung-zero purchase</strong> — 1,000 coins, one-time, grants Garden + Parlour (POH pin oldid 6560168).</li>
+        <li><strong>House sheet</strong> inside the Construction tab: summary strip, expandable room-by-room purchase view, servant and style controls above the target tree.</li>
+        <li><strong>Servants</strong> — Rick through Demon butler, Darkan wages, batches 6/10/16/20/26, one wage per stint; tablets don't batch.</li>
+        <li><strong>Seven house styles</strong> as cosmetic coin sinks, including the corrected 25,000-coin Fremennik price.</li>
+        <li><strong>Stateful builds</strong> (altar, burners, workbench, lecterns) flip a permanent flag on first success, then stay repeatable as training.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Cross-skill payoffs</h3>
+      <ul>
+        <li><strong>Prayer's deferral closes</strong> — the owned-house altar: no finding roll, one clean marrentill per lit burner per stint, 300%/350% with one/two burners.</li>
+        <li><strong>Lectern tablets</strong> — soft clay + exact runes, Magic-level gated, Magic XP, tradeable tablets.</li>
+        <li><strong>Crystal saw</strong> — held-item +3 on non-water build checks behind The Eyes of Glouphrie, on the existing boost substrate.</li>
+        <li><strong>Materials economy</strong> — teak/mahogany sawmill tiers, the limestone-brick Crafting row, tiered nail bending, and Plank Make's output-orphan note finally closes.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Conservative calls &amp; source corrections</h2>
+  <table>
+    <tr><th>Item</th><th>Call</th><th>Rationale</th></tr>
+    <tr><td><strong>Nail bend rates</strong></td><td><span class="pill p-cons">2009SCAPE GAP-FILL</span></td><td>The pre-EOC Nails/Construction pins give only the qualitative ordering and Darkan never implemented bending, so the numeric 5/7/10/13/15/20 rate ladder comes from era-compatible 2009scape — the one source outside the Darkan/wiki pair, cited per row.</td></tr>
+    <tr><td><strong>TEAKTOYBOX level 968</strong></td><td><span class="pill p-fix">DARKAN TYPO → 68</span></td><td>Normalized against the flatpack pin and the surrounding ladder; 968 would make an audited row unusable.</td></tr>
+    <tr><td><strong>Fremennik style 20,000</strong></td><td><span class="pill p-fix">DARKAN TYPO → 25,000</span></td><td>Darkan's own label and the Estate agent pin (oldid 6404820) both say 25,000; the code argument is wrong.</td></tr>
+    <tr><td><strong>Room cap</strong></td><td><span class="pill p-ok">NON-BINDING</span></td><td>Darkan's cap starts at 40 physical rooms; the abstract sheet has 23 purchasable room types, so no cap UI exists to hit.</td></tr>
+    <tr><td><strong>Legacy asset names</strong></td><td><span class="pill p-cons">PROVENANCE-RECORDED REUSE</span></td><td>Where no standalone object sprite survives on the current wiki, an authentic material sprite is reused with <span class="mono">reused_from</span> recorded — nothing blank, nothing synthetic.</td></tr>
+  </table>
+
+  <h2>Manual smoke test</h2>
+  <div class="smoke">
+    <ol id="smoketest">
+      <li>Back up the profile, launch Anki, and confirm Construction appears as a normal skill tab, not a new top-level tab.</li>
+      <li>On a pre-v31 save, confirm the sheet shows no house, a 1,000-coin purchase button, and intact unrelated save data.</li>
+      <li>Buy the house once; confirm Garden + Parlour owned, coins deducted once, and the purchase cannot repeat.</li>
+      <li>Buy Workshop, Study, and Chapel; verify exact costs, the summary count, persistence across reopen, and a 25,000-coin Fremennik style purchase.</li>
+      <li>With no planks, click the disabled Crude wooden chair row — it must not become selected. Add planks + nails and confirm it unlocks.</li>
+      <li>Complete one chair review: two planks/nails consumed (plus possible bends), 66 XP, nothing reclaimed; then Anki Undo restores everything.</li>
+      <li>Build a workbench (permanent flag appears), repeat it for XP, then craft a flatpack and confirm normal XP plus a tradeable item.</li>
+      <li>Hire Rick with one wage funded and six chair batches supplied; confirm six builds process and 375 coins are paid once. Repeat at a higher tier.</li>
+      <li>Confirm a build three levels above base is locked without the Crystal saw + quest; with them, a non-water build unlocks and a water build doesn't.</li>
+      <li>Build a lectern, make a Varrock teleport tablet: soft clay + runes consumed, 35 Magic XP (not Construction), tradeable tablet out.</li>
+      <li>Build a gilded altar + one burner; in Prayer, Owned house skips the search, consumes one marrentill at stint start, gives 300% — then 350% with two burners.</li>
+      <li>Restart Anki; confirm all v31 house state persists, then one more review + Undo to reconfirm rollback after reload.</li>
+    </ol>
+    <button class="copybtn" id="copybtn">COPY AS CHECKLIST</button>
+  </div>
+
+  <div class="note"><strong>Verification:</strong> both suites re-run independently after the delegated build — 1,050 pure (167 expected non-Qt skips) and 1,050 offscreen Qt, all OK — before committing <span class="mono">c628f0d</span>. The generator reproduces <span class="mono">construction_data.py</span> byte-identically across runs. Eleven wiki pins and per-row Darkan citations at commit <span class="mono">7e7d67b</span>; Sol's full report is preserved in the session scratchpad. With Construction live, the missing-skill list drops to Farming, Summoning, Agility, Dungeoneering, Slayer, and Thieving.</div>
+</div>
+<script>
+document.getElementById('copybtn').addEventListener('click', function () {
+  var btn = this;
+  var lines = [...document.querySelectorAll('#smoketest li')].map(function (li, i) { return (i + 1) + '. ' + li.textContent; }).join('\n');
+  navigator.clipboard.writeText(lines).then(function () {
+    btn.textContent = 'COPIED ✓';
+    setTimeout(function () { btn.textContent = 'COPY AS CHECKLIST'; }, 1500);
+  });
+});
+</script>
+</body>
+</html>
