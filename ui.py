@@ -76,6 +76,10 @@ try:
         FLETCHING_GROUP_LABELS,
         FLETCHING_GROUP_ORDER,
         HERBLORE_DATA,
+        PRAYER_DATA,
+        DEFAULT_PRAYER_TARGET,
+        PRAYER_GROUP_ORDER,
+        PRAYER_ITEM_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -151,6 +155,10 @@ except Exception:
         FLETCHING_GROUP_LABELS,
         FLETCHING_GROUP_ORDER,
         HERBLORE_DATA,
+        PRAYER_DATA,
+        DEFAULT_PRAYER_TARGET,
+        PRAYER_GROUP_ORDER,
+        PRAYER_ITEM_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -214,9 +222,14 @@ except Exception:
     from logic_pure import combat_status_summary_pure, combat_hud_state_pure, combat_weapon_style_options_pure  # type: ignore
 
 try:
-    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS
+    from .prayer_data import COMBAT_PRAYERS
 except Exception:
-    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS  # type: ignore
+    from prayer_data import COMBAT_PRAYERS  # type: ignore
+
+try:
+    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure
+except Exception:
+    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -260,6 +273,7 @@ try:
         herblore_target_rows,
         hunter_target_rows,
         mining_target_rows,
+        prayer_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
         utility_activity_rows,
@@ -277,6 +291,7 @@ except Exception:
         herblore_target_rows,
         hunter_target_rows,
         mining_target_rows,
+        prayer_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
         utility_activity_rows,
@@ -677,6 +692,7 @@ _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
 # injected into the hub as its own "Landmarks" group. This key doubles as the
 # current_utility target id and the player_data state key.
 _STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
+_KNIGHT_WAVES_UTILITY_KEY = "knight_waves"
 _COMBAT_HUB_NAME = "Combat"
 # The individual skills a combat burst can train, with their player_data level
 # and exp keys. Constitution defaults to level 10 (RS classic); everything else
@@ -1768,6 +1784,7 @@ def show_main_menu(
     on_set_cooking=None,
     on_set_runecrafting=None,
     on_set_herblore=None,
+    on_set_prayer=None,
     on_set_utility=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
@@ -1786,6 +1803,7 @@ def show_main_menu(
     on_set_combat_auto_eat_threshold=None,
     on_set_combat_auto_eat_food=None,
     on_set_combat_pack_mode=None,
+    on_set_combat_prayer_config=None,
     on_refill_combat_loadout=None,
     on_unload_combat_loadout=None,
     on_reclaim_death_office=None,
@@ -2272,6 +2290,15 @@ def show_main_menu(
             group_order=list(HERBLORE_GROUP_LABELS),
         )
 
+    def _build_prayer_list() -> QTreeWidget:
+        return _build_grouped_target_tree(
+            prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
+            {group: group for group in PRAYER_GROUP_ORDER},
+            "__prayer_group__:",
+            on_set_prayer,
+            group_order=list(PRAYER_GROUP_ORDER),
+        )
+
     def _build_firemaking_list() -> QListWidget:
         return _build_flat_target_list(
             firemaking_target_rows(
@@ -2472,6 +2499,129 @@ def show_main_menu(
         auto_eat_layout.addWidget(threshold_label)
         auto_eat_layout.addWidget(threshold_spin, 1)
         layout.addWidget(auto_eat_row)
+
+        prayer_header = QLabel("Prayer")
+        prayer_header.setStyleSheet("color: palette(text); font-weight: 600;")
+        layout.addWidget(prayer_header)
+
+        prayer_controls = QWidget()
+        prayer_controls_layout = QHBoxLayout(prayer_controls)
+        prayer_controls_layout.setContentsMargins(0, 0, 0, 0)
+        prayer_controls_layout.setSpacing(8)
+        preset_combo = QComboBox()
+        preset_combo.setObjectName("combatPresetCombo")
+        presets = player_data.get("combat_presets", {}) or {}
+        active_preset = str(player_data.get("combat_active_preset", "Default"))
+        for name in presets if isinstance(presets, dict) else ("Default",):
+            preset_combo.addItem(str(name), str(name))
+        preset_combo.setCurrentText(active_preset)
+        if on_set_combat_prayer_config is not None:
+            preset_combo.currentTextChanged.connect(lambda name: on_set_combat_prayer_config("apply_preset", name))
+        prayer_controls_layout.addWidget(QLabel("Preset"))
+        prayer_controls_layout.addWidget(preset_combo, 1)
+        save_preset = QPushButton("Save current…")
+        save_preset.setObjectName("combatSavePresetButton")
+        if on_set_combat_prayer_config is not None:
+            def _save_current_preset() -> None:
+                name, accepted = QInputDialog.getText(save_preset, "Save combat preset", "Preset name")
+                if accepted and name.strip():
+                    on_set_combat_prayer_config("save_preset", name.strip())
+            save_preset.clicked.connect(_save_current_preset)
+        prayer_controls_layout.addWidget(save_preset)
+
+        book_combo = QComboBox()
+        book_combo.setObjectName("combatPrayerBookCombo")
+        book_combo.addItem("Standard prayers", "standard")
+        temple_done = bool(((player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {}).get("completed"))
+        book_combo.addItem("Ancient Curses", "curses")
+        curses_index = book_combo.findData("curses")
+        if curses_index >= 0:
+            book_combo.model().item(curses_index).setEnabled(temple_done)
+        book_combo.setCurrentIndex(max(0, book_combo.findData(player_data.get("combat_prayer_book", "standard"))))
+        if on_set_combat_prayer_config is not None:
+            book_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_book", book_combo.currentData()))
+        prayer_controls_layout.addWidget(book_combo)
+
+        uptime_combo = QComboBox()
+        uptime_combo.setObjectName("combatPrayerUptimeCombo")
+        for label, value in (("Off", "off"), ("Conservative 40%", "40"), ("Aggressive 70%", "70"), ("Always 100%", "100")):
+            uptime_combo.addItem(label, value)
+        uptime_combo.setCurrentIndex(max(0, uptime_combo.findData(player_data.get("combat_prayer_uptime", "off"))))
+        if on_set_combat_prayer_config is not None:
+            uptime_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_uptime", uptime_combo.currentData()))
+        prayer_controls_layout.addWidget(uptime_combo)
+        layout.addWidget(prayer_controls)
+
+        target_id = str(player_data.get("current_combat_target", ""))
+        target_pins = player_data.get("combat_target_presets", {}) or {}
+        target_overrides = (player_data.get("combat_target_overrides", {}) or {}).get(target_id, {}) or {}
+        preset_scope = QWidget()
+        preset_scope_layout = QHBoxLayout(preset_scope)
+        preset_scope_layout.setContentsMargins(0, 0, 0, 0)
+        pin_preset = QCheckBox("Pin preset to this target")
+        pin_preset.setObjectName("combatPinPresetCheck")
+        pin_preset.setChecked(target_pins.get(target_id) == active_preset)
+        override_prayers = QCheckBox("Override prayers")
+        override_prayers.setObjectName("combatOverridePrayersCheck")
+        override_prayers.setChecked("combat_selected_prayers" in target_overrides)
+        override_uptime = QCheckBox("Override uptime")
+        override_uptime.setObjectName("combatOverridePrayerUptimeCheck")
+        override_uptime.setChecked("combat_prayer_uptime" in target_overrides)
+        if on_set_combat_prayer_config is not None:
+            pin_preset.toggled.connect(lambda enabled: on_set_combat_prayer_config("pin_target_preset", enabled))
+            override_prayers.toggled.connect(lambda enabled: on_set_combat_prayer_config("target_override", ("combat_selected_prayers", enabled)))
+            override_uptime.toggled.connect(lambda enabled: on_set_combat_prayer_config("target_override", ("combat_prayer_uptime", enabled)))
+        preset_scope_layout.addWidget(pin_preset)
+        preset_scope_layout.addWidget(override_prayers)
+        preset_scope_layout.addWidget(override_uptime)
+        layout.addWidget(preset_scope)
+
+        hide_lower = QCheckBox("Hide lower-tier prayers")
+        hide_lower.setObjectName("combatPrayerHideLowerCheck")
+        layout.addWidget(hide_lower)
+        prayer_grid = QWidget()
+        prayer_grid.setObjectName("combatPrayerCheckboxGrid")
+        prayer_grid_layout = QGridLayout(prayer_grid)
+        prayer_grid_layout.setContentsMargins(0, 0, 0, 0)
+        selected_prayers = set(player_data.get("combat_selected_prayers", ()) or ())
+        prayer_level = int(player_data.get("prayer_level", 1) or 1)
+        current_book = str(player_data.get("combat_prayer_book", "standard"))
+        prayer_checks = []
+
+        def _on_prayer_toggled(prayer_id: str, checked: bool) -> None:
+            selected = [str(pid) for pid in (player_data.get("combat_selected_prayers", ()) or ()) if str(pid) != prayer_id]
+            if checked:
+                selected.insert(0, prayer_id)
+            if on_set_combat_prayer_config is not None:
+                on_set_combat_prayer_config("combat_selected_prayers", selected)
+                active = set(player_data.get("combat_selected_prayers", ()) or ())
+                for prayer_check in prayer_checks:
+                    prayer_check.blockSignals(True)
+                    prayer_check.setChecked(str(prayer_check.property("prayerId")) in active)
+                    prayer_check.blockSignals(False)
+
+        visible_prayers = [prayer for prayer in COMBAT_PRAYERS if prayer.book == current_book]
+        for index, prayer in enumerate(visible_prayers):
+            check = QCheckBox(f"{prayer.display_name} (Lv {prayer.level})")
+            check.setObjectName(f"combatPrayerCheck::{prayer.id}")
+            check.setChecked(prayer.id in selected_prayers)
+            check.setEnabled(prayer.level <= prayer_level and (prayer.book != "curses" or temple_done))
+            check.setProperty("prayerLevel", prayer.level)
+            check.setProperty("prayerId", prayer.id)
+            check.toggled.connect(lambda checked, pid=prayer.id: _on_prayer_toggled(pid, checked))
+            prayer_grid_layout.addWidget(check, index // 3, index % 3)
+            prayer_checks.append(check)
+        hide_lower.toggled.connect(
+            lambda hidden: [check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= max(1, prayer_level - 15)) for check in prayer_checks]
+        )
+        layout.addWidget(prayer_grid)
+
+        auto_prayer = QCheckBox("Auto-bury/scatter combat drops (costs simulated ticks)")
+        auto_prayer.setObjectName("combatAutoPrayerTrainingCheck")
+        auto_prayer.setChecked(bool(player_data.get("combat_auto_prayer_training", False)))
+        if on_set_combat_prayer_config is not None:
+            auto_prayer.toggled.connect(lambda checked: on_set_combat_prayer_config("combat_auto_prayer_training", bool(checked)))
+        layout.addWidget(auto_prayer)
 
         # ---- Loot from this enemy ----
         # Deciding what to pick up belongs with the live combat controls, not the
@@ -2808,7 +2958,7 @@ def show_main_menu(
                 "A one-time landmark. Set it as your activity and each review clears "
                 "one level. No XP along the way, but coins and boots at the end."
             )
-        landmark_parent = QTreeWidgetItem(["Landmarks  (1)"])
+        landmark_parent = QTreeWidgetItem(["Landmarks  (2)"])
         landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
         landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
         lm_font = landmark_parent.font(0)
@@ -2824,6 +2974,28 @@ def show_main_menu(
         if sh_completed and sh_claimed:
             sh_child.setDisabled(True)
         landmark_parent.addChild(sh_child)
+
+        kw_state = player_data.get("knight_waves") or {}
+        kw_step = max(0, min(int(kw_state.get("step", 0) or 0), KNIGHT_WAVES_TOTAL_STEPS))
+        kw_completed = bool(kw_state.get("completed"))
+        kw_locked = knight_waves_locked_reasons_pure(player_data)
+        kw_label = "Knight Waves Training Ground ✓" if kw_completed else f"Knight Waves Training Ground — {kw_step}/{KNIGHT_WAVES_TOTAL_STEPS}"
+        kw_child = QTreeWidgetItem([kw_label])
+        kw_child.setData(0, Qt.ItemDataRole.UserRole, _KNIGHT_WAVES_UTILITY_KEY)
+        kw_child.setToolTip(
+            0,
+            "Defeat eight knights, one per review. Completion grants 20,000 XP in Attack, Strength, Defence, and Constitution and unlocks Chivalry/Piety."
+            + (f"\nLocked due to: {', '.join(kw_locked)}" if kw_locked and not kw_completed else ""),
+        )
+        kw_icon = os.path.join(current_dir, "icon", "prayer_icon.png")
+        if os.path.exists(kw_icon):
+            kw_child.setIcon(0, QIcon(kw_icon))
+        if kw_completed or kw_locked:
+            kw_child.setDisabled(True)
+        landmark_parent.addChild(kw_child)
+        if current == _KNIGHT_WAVES_UTILITY_KEY and not kw_completed:
+            selected_child = kw_child
+            landmark_parent.setExpanded(True)
         if current == _STRONGHOLD_UTILITY_KEY and not sh_completed:
             selected_child = sh_child
             landmark_parent.setExpanded(True)
@@ -2848,6 +3020,10 @@ def show_main_menu(
                 if on_set_utility is not None:
                     on_set_utility(activity_id)
                 return
+            if activity_id == _KNIGHT_WAVES_UTILITY_KEY:
+                if on_set_utility is not None:
+                    on_set_utility(activity_id)
+                return
             if on_set_utility is not None:
                 on_set_utility(activity_id)
 
@@ -2867,6 +3043,7 @@ def show_main_menu(
         "Cooking": _build_cooking_list,
         "Runecrafting": _build_runecrafting_list,
         "Herblore": _build_herblore_list,
+        "Prayer": _build_prayer_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }

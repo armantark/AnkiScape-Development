@@ -1043,7 +1043,8 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Rune essence"], 2)
         self.assertEqual(player_data["inventory"]["Wolfbane dagger"], 1)
         self.assertEqual(player_data["quest_points"], 1)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
+        self.assertEqual(player_data["prayer_exp"], 1406.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"][0][0], "Quest complete")
 

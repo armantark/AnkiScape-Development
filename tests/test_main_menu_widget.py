@@ -36,7 +36,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting"):
+    for skill in ("mining", "woodcutting", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -53,6 +53,13 @@ def _make_player_data() -> dict:
     data["wicked_hood"] = {"fed_altars": []}
     data["runecrafting_pouches"] = {}
     data["item_charges"] = {}
+    data["combat_presets"] = {"Default": {}}
+    data["combat_active_preset"] = "Default"
+    data["combat_prayer_book"] = "standard"
+    data["combat_selected_prayers"] = []
+    data["combat_prayer_uptime"] = "off"
+    data["combat_target_presets"] = {}
+    data["combat_target_overrides"] = {}
     return data
 
 
@@ -503,6 +510,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._combat_food_calls: list = []
         self._combat_refill_calls: list = []
         self._combat_unload_calls: list = []
+        self._prayer_calls: list = []
+        self._prayer_config_calls: list = []
         self._death_office_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
         self._quest_calls: list = []
@@ -529,6 +538,17 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.dialog = self._open(_make_player_data(), current_skill="Mining")
 
     def _open(self, player_data: dict, current_skill: str = "Mining", **extra) -> "QDialog":
+        from logic_pure import sanitize_prayer_selection_pure
+
+        def _set_prayer_config(key, value):
+            self._prayer_config_calls.append((key, value))
+            if key not in {"apply_preset", "save_preset", "pin_target_preset", "target_override"}:
+                player_data[key] = value
+                player_data["combat_selected_prayers"] = list(
+                    sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()))
+                )
+            return True
+
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -546,12 +566,14 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_hunter=lambda target: self._hunter_calls.append(target),
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
+            on_set_prayer=lambda target: self._prayer_calls.append(target),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
             on_set_combat_spell=lambda spell: self._combat_spell_calls.append(spell),
             on_set_combat_auto_eat_threshold=lambda threshold: self._combat_threshold_calls.append(threshold),
             on_set_combat_auto_eat_food=lambda food: self._combat_food_calls.append(food),
+            on_set_combat_prayer_config=_set_prayer_config,
             on_refill_combat_loadout=lambda: self._combat_refill_calls.append(True) or True,
             on_unload_combat_loadout=lambda: self._combat_unload_calls.append(True) or True,
             on_reclaim_death_office=lambda: self._death_office_calls.append(True) or True,
@@ -1124,12 +1146,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/40 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/43 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/120 (1.7%)", labels)
+        self.assertIn("Completed: 2/127 (1.6%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)
@@ -1201,7 +1223,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             if any(lw.item(i).text() == "Combat" for i in range(lw.count()))
         )
         texts = [skill_list.item(i).text() for i in range(skill_list.count())]
-        self.assertEqual(texts, ["Combat", "Magic", "Prayer", "Summoning"])
+        self.assertEqual(texts, ["Combat", "Magic", "Summoning"])
         for hidden in ("Attack", "Constitution", "Defense", "Ranged", "Strength"):
             self.assertNotIn(hidden, texts)
 
@@ -4062,6 +4084,67 @@ class MainMenuWidgetTest(unittest.TestCase):
         nest = _utility_row(utility_tree, "open_bird_nest")
         self.assertIn("No XP", nest.toolTip(0))
         self.assertIn("bird nest", nest.toolTip(0).lower())
+
+    def test_prayer_tree_groups_methods_and_locked_rows_ignore_clicks(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {}
+        dialog = self._open(pd, current_skill="Prayer")
+        tree = next(
+            tree for tree in dialog.findChildren(QTreeWidget)
+            if any(
+                str(tree.topLevelItem(i).data(0, Qt.ItemDataRole.UserRole)).startswith("__prayer_group__:")
+                for i in range(tree.topLevelItemCount())
+            )
+        )
+        groups = [tree.topLevelItem(i).text(0).split("  (")[0] for i in range(tree.topLevelItemCount())]
+        self.assertEqual(groups, ["Bury", "Scatter", "Ectofuntus", "Gilded altar"])
+        bury = tree.topLevelItem(0)
+        bones = next(bury.child(i) for i in range(bury.childCount()) if bury.child(i).data(0, Qt.ItemDataRole.UserRole) == "bury_bones")
+        self.assertTrue(bones.isDisabled())
+        before = list(self._prayer_calls)
+        tree.itemClicked.emit(bones, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._prayer_calls, before)
+
+    def test_prayer_unlocked_row_selects_by_stable_target_id(self) -> None:
+        pd = _make_player_data()
+        pd["inventory"] = {"Bones": 1}
+        dialog = self._open(pd, current_skill="Prayer")
+        tree = next(
+            tree for tree in dialog.findChildren(QTreeWidget)
+            if tree.findItems("Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)
+        )
+        row = tree.findItems("Bones — 4.5 XP", Qt.MatchFlag.MatchExactly | Qt.MatchFlag.MatchRecursive, 0)[0]
+        self.assertFalse(row.isDisabled())
+        tree.itemClicked.emit(row, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._prayer_calls[-1], "bury_bones")
+
+    def test_combat_prayer_controls_show_preset_picker_and_gate_curses(self) -> None:
+        dialog = self._open(_make_player_data())
+        preset = dialog.findChild(QComboBox, "combatPresetCombo")
+        book = dialog.findChild(QComboBox, "combatPrayerBookCombo")
+        self.assertIsNotNone(preset)
+        self.assertEqual([preset.itemText(i) for i in range(preset.count())], ["Default"])
+        curses_index = book.findData("curses")
+        self.assertFalse(book.model().item(curses_index).isEnabled())
+        self.assertIsNotNone(dialog.findChild(QPushButton, "combatSavePresetButton"))
+        self.assertIsNotNone(dialog.findChild(QCheckBox, "combatPinPresetCheck"))
+
+    def test_combat_prayer_checkbox_conflicts_are_reflected_in_widgets(self) -> None:
+        pd = _make_player_data()
+        pd["prayer_level"] = 99
+        pd["knight_waves"] = {"completed": True}
+        dialog = self._open(pd)
+        clarity = dialog.findChild(QCheckBox, "combatPrayerCheck::clarity_of_thought")
+        strength = dialog.findChild(QCheckBox, "combatPrayerCheck::burst_of_strength")
+        eagle = dialog.findChild(QCheckBox, "combatPrayerCheck::eagle_eye")
+        clarity.click()
+        strength.click()
+        eagle.click()
+        QApplication.processEvents()
+        checked = {check.objectName() for check in (clarity, strength, eagle) if check.isChecked()}
+        self.assertEqual(checked, {"combatPrayerCheck::eagle_eye"})
 
 
 if __name__ == "__main__":

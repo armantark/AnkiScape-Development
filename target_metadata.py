@@ -29,6 +29,7 @@ try:
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        prayer_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
@@ -56,6 +57,7 @@ except Exception:
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        prayer_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
@@ -172,6 +174,42 @@ def smithing_target_rows(
                 sort_key=(lvl_req, 0 if spec.get("station") == "furnace" else 1, display_name),
             )
         )
+    return tuple(rows)
+
+
+def prayer_target_rows(
+    player_data: Mapping[str, object],
+    prayer_data: Mapping[str, Mapping[str, object]],
+    prayer_item_images: Mapping[str, str],
+    default_target: str,
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    inventory = player_data.get("inventory", {}) or {}
+    current = player_data.get("current_prayer", default_target)
+    group_order = {name: index for index, name in enumerate(("Bury", "Scatter", "Ectofuntus", "Gilded altar"))}
+    for target_id, spec in prayer_data.items():
+        material = str(spec.get("display_name", target_id))
+        group = str(spec.get("group", "Prayer"))
+        requirements = spec.get("requirements", {}) or {}
+        reasons = prayer_target_locked_reasons_pure(player_data, target_id, prayer_data)
+        tooltip = (
+            f"{group} · Prayer level {spec.get('level', 1)}\n"
+            f"Prayer XP: {spec.get('exp', 0)} per review\n"
+            f"Materials:\n{_indented_material_lines(requirements if isinstance(requirements, Mapping) else {}, inventory if isinstance(inventory, Mapping) else {})}"
+        )
+        if reasons:
+            tooltip += "\nLocked due to: " + ", ".join(reasons)
+        rows.append(TargetRowMetadata(
+            target_id=target_id,
+            label=f"{material} — {spec.get('exp', 0):g} XP",
+            tooltip=tooltip,
+            enabled=not reasons,
+            current=target_id == current,
+            icon_path=prayer_item_images.get(material),
+            group=group,
+            locked_reasons=reasons,
+            sort_key=(group_order.get(group, 99), float(spec.get("exp", 0) or 0), material),
+        ))
     return tuple(rows)
 
 

@@ -3279,7 +3279,8 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(player_data["quests"]["holy_grail"]["completed"])
         self.assertEqual(player_data["inventory"]["Holy grail"], 0)
         self.assertEqual(player_data["defense_exp"], 15300.0)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"prayer_exp": 11000.0})
+        self.assertEqual(player_data["prayer_exp"], 11000.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["quest_points"], 2)
 
     def test_tree_gnome_village_requires_two_commanders_and_warlord_before_completion(self):
@@ -4202,7 +4203,8 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(completed["inventory"]["Pure essence"], 0)
         self.assertEqual(completed["inventory"]["Rune essence"], 3)
         self.assertEqual(completed["inventory"]["Wolfbane dagger"], 1)
-        self.assertEqual(completed["pending_skill_exp_rewards"], {"prayer_exp": 1406.0})
+        self.assertEqual(completed["prayer_exp"], 1406.0)
+        self.assertEqual(completed["pending_skill_exp_rewards"], {})
 
     def test_source_backed_starter_quests_progress_through_stage_gates(self):
         cook = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

@@ -33,6 +33,18 @@ except ImportError:
     from potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
 
 try:
+    from .prayer_data import (
+        COMBAT_PRAYERS_BY_ID,
+        AUTO_PRAYER_TICKS_PER_ITEM,
+        PRAYER_MATERIALS,
+        PRAYER_UPTIME_POLICIES,
+        SAP_SOURCE,
+        LEECH_SOURCE,
+    )
+except ImportError:
+    from prayer_data import AUTO_PRAYER_TICKS_PER_ITEM, COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_UPTIME_POLICIES, SAP_SOURCE, LEECH_SOURCE
+
+try:
     from .combat_data import (
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ANTIPOISON_POTION_DATA,
@@ -698,6 +710,57 @@ def grant_stronghold_reward_pure(player_data, boots_choice):
     return True
 
 
+# King's Ransom oldid=6548731: 65 Defence and 45 Magic to start.
+# Knight Waves oldid=6575464: eight knights and 20,000 XP in each listed stat.
+KNIGHT_WAVES_TOTAL_STEPS = 8
+KNIGHT_WAVES_XP_REWARD = 20000
+
+
+def default_knight_waves_state_pure():
+    return {"step": 0, "completed": False}
+
+
+def sanitize_knight_waves_state_pure(raw):
+    state = default_knight_waves_state_pure()
+    if isinstance(raw, Mapping):
+        state["step"] = min(KNIGHT_WAVES_TOTAL_STEPS, _non_negative_int(raw.get("step", 0), 0))
+        state["completed"] = bool(raw.get("completed")) or state["step"] >= KNIGHT_WAVES_TOTAL_STEPS
+    return state
+
+
+def knight_waves_locked_reasons_pure(player_data):
+    reasons = []
+    quests = player_data.get("quests", {}) or {}
+    if not bool((quests.get("kings_ransom") or {}).get("completed")):
+        reasons.append("King's Ransom")
+    if _positive_int(player_data.get("defense_level", 1), 1) < 65:
+        reasons.append("Defence level 65")
+    if _positive_int(player_data.get("magic_level", 1), 1) < 45:
+        reasons.append("Magic level 45")
+    if sanitize_knight_waves_state_pure(player_data.get("knight_waves"))["completed"]:
+        reasons.append("already completed")
+    return tuple(reasons)
+
+
+def apply_knight_waves_step_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    reasons = knight_waves_locked_reasons_pure(data)
+    if reasons:
+        return data, False, {"reason": "knight_waves_locked", "locked_reasons": reasons}
+    state = sanitize_knight_waves_state_pure(data.get("knight_waves"))
+    state["step"] += 1
+    just_completed = state["step"] >= KNIGHT_WAVES_TOTAL_STEPS
+    state["completed"] = just_completed
+    rewards = {}
+    if just_completed:
+        for skill in ("attack", "strength", "defense", "constitution"):
+            key = f"{skill}_exp"
+            data[key] = float(data.get(key, 0.0) or 0.0) + KNIGHT_WAVES_XP_REWARD
+            rewards[key] = KNIGHT_WAVES_XP_REWARD
+    data["knight_waves"] = state
+    return data, True, {"reason": "knight_waves", "step": state["step"], "completed": just_completed, "xp_rewards": rewards}
+
+
 def apply_smelt_pure(bar_name, inventory, bar_data):
     """
     Attempt to smelt a specific bar. Returns (new_inventory, exp, success).
@@ -740,6 +803,68 @@ def apply_smithing_pure(target, inventory, smithing_data):
     output_qty = _positive_int(spec.get("output_qty", 1))
     new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
     return new_inv, spec.get("exp", 0), True
+
+
+def prayer_target_locked_reasons_pure(player_data, target_id, prayer_data):
+    spec = prayer_data.get(target_id)
+    if not isinstance(spec, Mapping):
+        return ("Unknown Prayer target",)
+    reasons = []
+    level = _positive_int(player_data.get("prayer_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if level < required_level:
+        reasons.append(f"Prayer level {required_level}")
+    inventory = player_data.get("inventory", {}) or {}
+    for item_name, amount in _requirements_from_spec(spec).items():
+        if _non_negative_int(inventory.get(item_name, 0), 0) < amount:
+            reasons.append(f"{item_name} x{amount}")
+    return tuple(reasons)
+
+
+def apply_prayer_action_pure(target_id, inventory, prayer_data):
+    """Apply one normal Prayer training action; pacing/friction stays runtime-side."""
+    spec = prayer_data.get(target_id)
+    if not isinstance(spec, Mapping):
+        return inventory, 0.0, False, {}
+    requirements = _requirements_from_spec(spec)
+    if not all(_non_negative_int(inventory.get(name, 0), 0) >= amount for name, amount in requirements.items()):
+        return inventory, 0.0, False, {}
+    new_inventory = dict(inventory)
+    for name, amount in requirements.items():
+        new_inventory[name] = _non_negative_int(new_inventory.get(name, 0), 0) - amount
+    outputs = {}
+    for mapping_name in ("byproducts", "outputs"):
+        raw_outputs = spec.get(mapping_name, {}) or {}
+        if isinstance(raw_outputs, Mapping):
+            for name, amount in raw_outputs.items():
+                quantity = _non_negative_int(amount, 0)
+                if isinstance(name, str) and quantity > 0:
+                    new_inventory[name] = _non_negative_int(new_inventory.get(name, 0), 0) + quantity
+                    outputs[name] = outputs.get(name, 0) + quantity
+    return new_inventory, float(spec.get("exp", 0.0) or 0.0), True, outputs
+
+
+def prayer_gilded_search_step_pure(player_data, target_id, rng):
+    """Pay the once-per-stint 1..10 review house-search cost for hosted altars."""
+    data = _copy_player_data_with_nested(player_data)
+    state = data.get("prayer_gilded_house_search", {}) or {}
+    if not isinstance(state, Mapping) or state.get("target_id") != target_id:
+        try:
+            roll = float(rng())
+        except (TypeError, ValueError):
+            roll = 0.0
+        state = {"target_id": target_id, "reviews_remaining": min(10, max(1, int(roll * 10) + 1))}
+    remaining = _positive_int(state.get("reviews_remaining", 1), 1) - 1
+    data["prayer_gilded_house_search"] = (
+        {"target_id": target_id, "reviews_remaining": remaining} if remaining > 0 else {"target_id": target_id, "reviews_remaining": 0}
+    )
+    return data, remaining <= 0, max(0, remaining)
+
+
+def clear_prayer_gilded_stint_pure(player_data):
+    data = _copy_player_data_with_nested(player_data)
+    data["prayer_gilded_house_search"] = {}
+    return data
 
 
 RING_OF_FORGING_ITEM = "Ring of forging"
@@ -1198,8 +1323,177 @@ def default_combat_supply_loadout_pure():
     return {"food": {}, "potions": {}, "stat_potions": {}, "ammo": {}, "runes": {}, "cannonballs": 0}
 
 
+COMBAT_PRESET_FIELDS = (
+    "combat_supply_loadout", "combat_pack_mode", "combat_auto_eat_threshold_percent",
+    "combat_auto_eat_food", "combat_auto_flee", "combat_selected_prayers",
+    "combat_prayer_uptime", "combat_auto_prayer_training",
+)
+
+
+def _combat_preset_snapshot(data):
+    snapshot = {}
+    for key in COMBAT_PRESET_FIELDS:
+        value = data.get(key)
+        if isinstance(value, Mapping):
+            snapshot[key] = dict(value)
+        elif isinstance(value, list):
+            snapshot[key] = list(value)
+        else:
+            snapshot[key] = value
+    return snapshot
+
+
+def sanitize_prayer_selection_pure(player_data, selected, book=None):
+    """Enforce level, book, quest, and authentic overlap groups in pure logic."""
+    active_book = book if book in ("standard", "curses") else str(player_data.get("combat_prayer_book", "standard"))
+    level = _positive_int(player_data.get("prayer_level", 1), 1)
+    quests = player_data.get("quests", {}) or {}
+    knight_waves = bool((player_data.get("knight_waves") or {}).get("completed"))
+    clean = []
+    occupied = set()
+    curse_offence_family = None
+    for prayer_id in selected if isinstance(selected, Iterable) and not isinstance(selected, (str, bytes)) else ():
+        prayer = COMBAT_PRAYERS_BY_ID.get(str(prayer_id))
+        if prayer is None or prayer.book != active_book or prayer.level > level:
+            continue
+        if prayer.quest_gate == "the_temple_at_senntisten" and not bool((quests.get("the_temple_at_senntisten") or {}).get("completed")):
+            continue
+        if prayer.quest_gate == "knight_waves" and not knight_waves:
+            continue
+        groups = set(prayer.groups)
+        if prayer.book == "standard":
+            selected_groups = {
+                group
+                for pid in clean
+                for group in COMBAT_PRAYERS_BY_ID[pid].groups
+            }
+            broad_offence = {"ranged_combat", "magic_combat", "melee_combat"}
+            if groups.intersection(broad_offence) and selected_groups.intersection({"attack", "strength", *broad_offence}):
+                continue
+            if groups.intersection({"attack", "strength"}) and selected_groups.intersection(broad_offence):
+                continue
+            if "defence" in groups and selected_groups.intersection(broad_offence):
+                continue
+            if groups.intersection(broad_offence) and "defence" in selected_groups:
+                continue
+        elif prayer.id.startswith("sap_"):
+            if curse_offence_family not in (None, "sap"):
+                continue
+            curse_offence_family = "sap"
+        elif prayer.id.startswith("leech_"):
+            if curse_offence_family not in (None, "leech"):
+                continue
+            curse_offence_family = "leech"
+        elif prayer.id == "turmoil":
+            if curse_offence_family is not None:
+                continue
+            curse_offence_family = "turmoil"
+        if groups.intersection(occupied):
+            continue
+        clean.append(prayer.id)
+        occupied.update(groups)
+    return tuple(clean)
+
+
+def prayer_uptime_fraction_pure(data):
+    policy = str(data.get("combat_prayer_uptime", "off"))
+    if _non_negative_int(data.get("combat_prayer_points", 0), 0) <= 0:
+        return 0.0
+    return float(PRAYER_UPTIME_POLICIES.get(policy, 0.0))
+
+
+def prayer_effect_state_pure(data, uptime_override=None):
+    selected = sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ()))
+    uptime = prayer_uptime_fraction_pure(data) if uptime_override is None else max(0.0, min(1.0, float(uptime_override)))
+    effects = {}
+    for prayer_id in selected:
+        for effect, value in COMBAT_PRAYERS_BY_ID[prayer_id].effects:
+            if effect in ("attack", "strength", "defence", "ranged", "ranged_attack", "ranged_strength", "magic"):
+                effects[effect] = max(float(effects.get(effect, 1.0)), 1.0 + (float(value) - 1.0) * uptime)
+            else:
+                effects[effect] = max(float(effects.get(effect, 0.0)), float(value) * uptime)
+    effects["uptime"] = uptime
+    effects["selected"] = selected
+    return effects
+
+
+def prayer_drain_for_ticks_pure(points, counter, selected, prayer_bonus, ticks, uptime):
+    """2011Scape Prayers.kt counter: sum drainEffect against 60+2*bonus."""
+    current = max(0, int(points))
+    progress = max(0.0, float(counter))
+    resistance = max(1, 60 + 2 * int(prayer_bonus))
+    # The emulator drain timer runs every two 0.6-second game ticks.
+    rate = sum(float(COMBAT_PRAYERS_BY_ID[pid].drain) for pid in selected if pid in COMBAT_PRAYERS_BY_ID) / 2.0
+    for _ in range(max(0, int(ticks))):
+        progress += rate * max(0.0, min(1.0, float(uptime)))
+        while current > 0 and progress >= resistance:
+            current -= 1
+            progress -= resistance
+        if current <= 0:
+            return 0, 0.0
+    return current, progress
+
+
+def prayer_drain_and_effective_uptime_pure(points, counter, selected, prayer_bonus, ticks, uptime):
+    """Drain tick-by-tick and report the burst fraction for which Prayer remained active."""
+    current = max(0, int(points))
+    progress = max(0.0, float(counter))
+    total_ticks = max(0, int(ticks))
+    active_weight = 0.0
+    requested = max(0.0, min(1.0, float(uptime)))
+    for _ in range(total_ticks):
+        if current <= 0 or requested <= 0:
+            break
+        active_weight += requested
+        current, progress = prayer_drain_for_ticks_pure(
+            current, progress, selected, prayer_bonus, 1, requested
+        )
+    return current, progress, (active_weight / total_ticks if total_ticks else 0.0)
+
+
+def curse_expected_ramp_pure(attacks, kind):
+    """Expected per-fight Sap/Leech ramp; each new enemy resets attack count."""
+    chance = .25 if kind == "sap" else .20
+    expected_stacks = min(5.0, max(0, int(attacks)) * chance)
+    if kind == "sap":
+        return {"enemy_drain": .10 + .02 * expected_stacks, "self_boost": 0.0, "source": SAP_SOURCE}
+    return {"enemy_drain": .10 + .03 * expected_stacks, "self_boost": .05 + .01 * expected_stacks, "source": LEECH_SOURCE}
+
+
+def save_combat_preset_pure(player_data, name):
+    data = _copy_player_data_with_nested(player_data)
+    clean_name = str(name).strip()
+    if not clean_name:
+        return data, False
+    presets = dict(data.get("combat_presets", {}) or {})
+    presets[clean_name] = _combat_preset_snapshot(data)
+    data["combat_presets"] = presets
+    data["combat_active_preset"] = clean_name
+    return data, True
+
+
+def apply_combat_preset_pure(player_data, name, target_id=None):
+    data = _copy_player_data_with_nested(player_data)
+    presets = data.get("combat_presets", {}) or {}
+    preset = presets.get(name) if isinstance(presets, Mapping) else None
+    if not isinstance(preset, Mapping):
+        return data, False
+    for key in COMBAT_PRESET_FIELDS:
+        if key in preset:
+            value = preset[key]
+            data[key] = dict(value) if isinstance(value, Mapping) else list(value) if isinstance(value, list) else value
+    overrides = (data.get("combat_target_overrides", {}) or {}).get(target_id, {}) if target_id else {}
+    if isinstance(overrides, Mapping):
+        for key, value in overrides.items():
+            if key in COMBAT_PRESET_FIELDS:
+                data[key] = dict(value) if isinstance(value, Mapping) else list(value) if isinstance(value, list) else value
+    data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())))
+    data["combat_active_preset"] = str(name)
+    return data, True
+
+
 def default_combat_state_pure():
-    return {
+    state = {
         "current_combat_target": DEFAULT_COMBAT_TARGET,
         "combat_attack_style": DEFAULT_COMBAT_ATTACK_STYLE,
         "combat_attack_style_type": "auto",
@@ -1221,7 +1515,19 @@ def default_combat_state_pure():
         "combat_last_result": {},
         "combat_grave": {},
         "death_office": {},
+        "combat_prayer_book": "standard",
+        "combat_selected_prayers": [],
+        "combat_prayer_uptime": "off",
+        "combat_prayer_points": 10,
+        "combat_prayer_drain_counter": 0.0,
+        "combat_auto_prayer_training": False,
+        "combat_active_preset": "Default",
+        "combat_target_presets": {},
+        "combat_target_overrides": {},
+        "knight_waves": {"step": 0, "completed": False},
     }
+    state["combat_presets"] = {"Default": _combat_preset_snapshot(state)}
+    return state
 
 
 def _sanitize_combat_supply_loadout(raw_loadout):
@@ -1462,6 +1768,10 @@ def _carried_inventory_grave_counts(data):
 
 def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_death"):
     equipment = dict(data.get("equipment", {}) or {})
+    protected_equipment = {}
+    if prayer_effect_state_pure(data).get("protect_item") and equipment:
+        protected_slot = sorted(equipment)[0]
+        protected_equipment[protected_slot] = equipment.pop(protected_slot)
     grave_items = [item_name for item_name in equipment.values() if isinstance(item_name, str)]
     # Carried items are a view over the flat store: remove them from the bank and
     # drop them into the grave, expanded one grave entry per unit. Only the view of
@@ -1499,7 +1809,7 @@ def _combat_apply_pvm_death(data, max_player_lifepoints, grave_source="combat_de
             "combat_stacked_grave",
             stacked_loadout,
         )
-    data["equipment"] = {}
+    data["equipment"] = protected_equipment
     data["combat_grave"] = {
         "items": grave_items,
         "reviews_remaining": COMBAT_GRAVE_RECOVERY_REVIEWS,
@@ -1551,6 +1861,24 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         player_data.get("combat_special_attack_energy", defaults["combat_special_attack_energy"]),
         defaults["combat_special_attack_energy"],
     )
+    prayer_book = player_data.get("combat_prayer_book", "standard")
+    if prayer_book not in ("standard", "curses"):
+        prayer_book = "standard"
+    selected_prayers = list(sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()), prayer_book))
+    uptime_policy = str(player_data.get("combat_prayer_uptime", "off"))
+    if uptime_policy not in PRAYER_UPTIME_POLICIES:
+        uptime_policy = "off"
+    prayer_max = _positive_int(player_data.get("prayer_level", 1), 1) * 10
+    presets = player_data.get("combat_presets")
+    if not isinstance(presets, Mapping) or not presets:
+        presets = {"Default": _combat_preset_snapshot({**defaults, **player_data})}
+    else:
+        presets = {str(name): dict(value) for name, value in presets.items() if isinstance(name, str) and isinstance(value, Mapping)}
+    if not presets:
+        presets = {"Default": _combat_preset_snapshot({**defaults, **player_data})}
+    active_preset = str(player_data.get("combat_active_preset", "Default"))
+    if active_preset not in presets:
+        active_preset = next(iter(presets))
     return {
         "current_combat_target": target,
         "combat_attack_style": style,
@@ -1580,6 +1908,21 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_last_result": dict(player_data.get("combat_last_result", {}) or {}),
         "combat_grave": _sanitize_combat_grave_state(player_data.get("combat_grave", {}) or {}),
         "death_office": _sanitize_death_office_state(player_data.get("death_office", {}) or {}),
+        "combat_prayer_book": prayer_book,
+        "combat_selected_prayers": selected_prayers,
+        "combat_prayer_uptime": uptime_policy,
+        "combat_prayer_points": min(prayer_max, _non_negative_int(player_data.get("combat_prayer_points", prayer_max), prayer_max)),
+        "combat_prayer_drain_counter": max(0.0, float(player_data.get("combat_prayer_drain_counter", 0.0) or 0.0)),
+        "combat_auto_prayer_training": bool(player_data.get("combat_auto_prayer_training", False)),
+        "combat_presets": presets,
+        "combat_active_preset": active_preset,
+        "combat_target_presets": dict(player_data.get("combat_target_presets", {}) or {}),
+        "combat_target_overrides": {
+            str(target_id): dict(values)
+            for target_id, values in (player_data.get("combat_target_overrides", {}) or {}).items()
+            if isinstance(target_id, str) and isinstance(values, Mapping)
+        },
+        "knight_waves": sanitize_knight_waves_state_pure(player_data.get("knight_waves")),
     }
 
 
@@ -2303,6 +2646,10 @@ def _combat_deposit_loot(data, target_id):
 
 
 def _combat_refill_context_supplies(data, target_id, combat_class, ranged_weapon_spec, spell_spec, equipment_data=None, enemy_data=None):
+    # Owner-settled AnkiScape rule: every completed bank run includes a free
+    # altar stop, restoring the internal level*10 Prayer point pool.
+    data["combat_prayer_points"] = _positive_int(data.get("prayer_level", 1), 1) * 10
+    data["combat_prayer_drain_counter"] = 0.0
     _combat_refill_food_loadout(data)
     _combat_refill_stat_potions(data, combat_class)
     enemy_lookup = enemy_data or COMBAT_ENEMY_DATA
@@ -2541,13 +2888,20 @@ def _combat_recover_current_levels(data, ticks):
     steps = stat_drain_ticks // COMBAT_STAT_DRAIN_RECOVERY_TICKS
     stat_drain_ticks = stat_drain_ticks % COMBAT_STAT_DRAIN_RECOVERY_TICKS
     if steps > 0:
+        effects = prayer_effect_state_pure(data)
+        rapid_restore_uptime = float(effects.get("rapid_restore", 0.0)) / 2.0
+        berserker_uptime = float(effects.get("berserker", 0.0)) / 1.15
         restored = {}
         for skill_id, current in currents.items():
             base = _combat_base_skill_level(data, skill_id, current)
             if current < base:
-                current = min(base, current + steps)
+                recovery_steps = steps
+                if skill_id not in ("constitution", "prayer", "summoning"):
+                    recovery_steps = max(steps, int(steps * (1.0 + rapid_restore_uptime)))
+                current = min(base, current + recovery_steps)
             elif current > base:
-                current = max(base, current - steps)
+                decay_steps = max(1, int(steps / (1.0 + .15 * berserker_uptime)))
+                current = max(base, current - decay_steps)
             if current != base:
                 restored[skill_id] = current
         currents = restored
@@ -2853,10 +3207,10 @@ def _combat_relevant_potion_skills(combat_class):
     that actually raise output (max hit / accuracy). Defence is not an output
     stat, so it is not auto-potioned."""
     if combat_class == "ranged":
-        return ("ranged",)
+        return ("ranged", "prayer")
     if combat_class == "magic":
-        return ("magic",)
-    return ("strength", "attack")
+        return ("magic", "prayer")
+    return ("strength", "attack", "prayer")
 
 
 def _combat_pick_potion_for_skill(stat_potions, skill_id):
@@ -2890,7 +3244,11 @@ def _combat_auto_drink_potions(data, combat_class):
     events = []
     for skill_id in _combat_relevant_potion_skills(combat_class):
         base = _combat_base_skill_level(data, skill_id, 1)
-        if _combat_effective_skill_level(data, skill_id, base) > base:
+        if skill_id == "prayer":
+            prayer_max = base * 10
+            if not data.get("combat_selected_prayers") or _non_negative_int(data.get("combat_prayer_points", prayer_max), prayer_max) >= prayer_max:
+                continue
+        elif _combat_effective_skill_level(data, skill_id, base) > base:
             continue  # a boost is already active on this stat
         item_name = _combat_pick_potion_for_skill(stat_potions, skill_id)
         if item_name is None:
@@ -2905,8 +3263,13 @@ def _combat_auto_drink_potions(data, combat_class):
             stat_potions[lower] = _non_negative_int(stat_potions.get(lower, 0), 0) + 1
         # Apply the boost to every stat the family covers (Combat potion = both).
         for boosted_skill in skills:
-            boost = _potion_boost_amount(_combat_base_skill_level(data, boosted_skill, 1), strategy)
-            apply_combat_stat_boost_to_pure(data, boosted_skill, boost)
+            if boosted_skill == "prayer":
+                prayer_level = _combat_base_skill_level(data, "prayer", 1)
+                restored = (prayer_level * 35 // 100 + 7) if strategy == "s_prayer" else (prayer_level // 4 + 7)
+                data["combat_prayer_points"] = min(prayer_level * 10, _non_negative_int(data.get("combat_prayer_points", 0), 0) + restored * 10)
+            else:
+                boost = _potion_boost_amount(_combat_base_skill_level(data, boosted_skill, 1), strategy)
+                apply_combat_stat_boost_to_pure(data, boosted_skill, boost)
         events.append({"item": item_name, "skills": tuple(skills)})
     loadout["stat_potions"] = {name: amount for name, amount in stat_potions.items() if amount > 0}
     data["combat_supply_loadout"] = loadout
@@ -3193,7 +3556,9 @@ def apply_safe_combat_recovery_pure(player_data, equipment_data=None):
             heal = -(-missing // turns_left)  # ceil so the final rest review reaches full
         else:
             heal = NATURAL_COMBAT_RECOVERY_LIFEPOINTS
-        heal = max(heal, NATURAL_COMBAT_RECOVERY_LIFEPOINTS)
+        effects = prayer_effect_state_pure(data)
+        rapid_heal_multiplier = max(1.0, float(effects.get("rapid_heal", 0.0)))
+        heal = max(heal, int(NATURAL_COMBAT_RECOVERY_LIFEPOINTS * rapid_heal_multiplier))
         data["combat_lifepoints"] = min(max_lp, current_lp + heal)
     data["combat_rest_reviews"] = rest_reviews + 1
     _combat_regenerate_special_attack_energy(data, SAFE_COMBAT_RECOVERY_TICKS)
@@ -3297,6 +3662,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data, enemy_data))
     target_id = data.get("current_combat_target", DEFAULT_COMBAT_TARGET)
+    pinned_preset = (data.get("combat_target_presets", {}) or {}).get(target_id)
+    if isinstance(pinned_preset, str):
+        data, _applied = apply_combat_preset_pure(data, pinned_preset, target_id)
     if target_id not in enemy_data:
         locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
@@ -3361,37 +3729,91 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     elif combat_class == "magic":
         player_attack_speed = max(1, _positive_int(spell_spec.get("attack_speed", 5), 5))
     enemy_attack_speed = max(1, _positive_int(enemy.get("attack_speed", 4), 4))
+    selected_prayers = tuple(sanitize_prayer_selection_pure(data, data.get("combat_selected_prayers", ())))
+    requested_prayer_uptime = prayer_uptime_fraction_pure(data)
+    total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
+    prayer_points_before = _non_negative_int(data.get("combat_prayer_points", 0), 0)
+    prayer_points_after, prayer_counter, prayer_uptime = prayer_drain_and_effective_uptime_pure(
+        prayer_points_before,
+        data.get("combat_prayer_drain_counter", 0.0),
+        selected_prayers,
+        _equipment_bonus_value(player_totals, "prayer"),
+        total_ticks,
+        requested_prayer_uptime,
+    )
+    data["combat_prayer_points"] = prayer_points_after
+    data["combat_prayer_drain_counter"] = prayer_counter
+    prayer_effects = prayer_effect_state_pure(data, prayer_uptime)
+    if prayer_points_after <= 0:
+        data["combat_selected_prayers"] = []
+
+    # Curse ramps are reset for each fight. The burst EV uses the attacks a
+    # single full-health enemy is expected to survive, bounded by this review.
+    expected_attacks = max(1, int(max(1, _positive_int(ticks, COMBAT_BURST_TICKS)) / player_attack_speed))
+    sap_ramp = curse_expected_ramp_pure(expected_attacks, "sap")
+    leech_ramp = curse_expected_ramp_pure(expected_attacks, "leech")
+    enemy_attack_factor = 1.0
+    enemy_defence_factor = 1.0
+    for prayer_id in selected_prayers:
+        if prayer_id.startswith("sap_"):
+            enemy_attack_factor *= 1.0 - sap_ramp["enemy_drain"] * prayer_uptime
+            if prayer_id != "sap_spirit":
+                enemy_defence_factor *= 1.0 - sap_ramp["enemy_drain"] * prayer_uptime
+        elif prayer_id.startswith("leech_"):
+            if prayer_id in ("leech_attack", "leech_ranged", "leech_magic", "leech_strength"):
+                enemy_attack_factor *= 1.0 - leech_ramp["enemy_drain"] * prayer_uptime
+            if prayer_id == "leech_defence":
+                enemy_defence_factor *= 1.0 - leech_ramp["enemy_drain"] * prayer_uptime
+            self_effect = 1.0 + leech_ramp["self_boost"] * prayer_uptime
+            leech_effect_key = {
+                "leech_attack": "attack", "leech_strength": "strength",
+                "leech_defence": "defence", "leech_ranged": "ranged",
+                "leech_magic": "magic",
+            }.get(prayer_id)
+            if leech_effect_key:
+                prayer_effects[leech_effect_key] = max(float(prayer_effects.get(leech_effect_key, 1.0)), self_effect)
+    if "turmoil" in selected_prayers:
+        enemy_stats = enemy.get("stats", {}) or {}
+        for key, enemy_key, base_bonus, enemy_bonus in (
+            ("attack", "attack", .15, .15),
+            ("defence", "defence", .15, .15),
+            ("strength", "strength", .23, .10),
+        ):
+            player_base = max(1, _combat_base_skill_level(data, "defense" if key == "defence" else key, 1))
+            enemy_level = _positive_int(enemy_stats.get(enemy_key, 1), 1)
+            turmoil_level = player_base * (1.0 + base_bonus * prayer_uptime) + enemy_bonus * enemy_level * prayer_uptime
+            prayer_effects[key] = max(float(prayer_effects.get(key, 1.0)), turmoil_level / player_base)
 
     selected_ammo = None
     if combat_class == "ranged":
         selected_ammo = _combat_selected_ranged_ammo(data, ranged_weapon_spec, target_id)
-        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * (
+        player_attack_roll = _combat_effective_player_ranged_level(data, style_id) * float(prayer_effects.get("ranged_attack", prayer_effects.get("ranged", 1.0))) * (
             _combat_attack_bonus_from_totals(player_totals, "ranged") + 64
         )
-        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, "ranged") + 64
         )
         player_max_hit = _combat_ranged_max_hit_old_hp(
-            _combat_effective_player_ranged_level(data, style_id),
+            _combat_effective_player_ranged_level(data, style_id) * float(prayer_effects.get("ranged_strength", prayer_effects.get("ranged", 1.0))),
             _combat_ranged_strength_bonus(player_totals, selected_ammo),
         )
     elif combat_class == "magic":
-        player_attack_roll = _combat_effective_player_magic_level(data) * (
+        player_attack_roll = _combat_effective_player_magic_level(data) * float(prayer_effects.get("magic", 1.0)) * (
             _combat_attack_bonus_from_totals(player_totals, "magic") + 64
         )
-        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, "magic") + 64
         )
         player_max_hit = _combat_magic_max_hit_old_hp(spell_spec, player_totals)
     else:
-        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * (
+        player_attack_roll = _combat_effective_player_attack_level(data, style_id) * float(prayer_effects.get("attack", 1.0)) * (
             _combat_attack_bonus_from_totals(player_totals, style_type=melee_style_type) + 64
         )
-        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * (
+        enemy_defence_roll = (_positive_int(enemy.get("stats", {}).get("defence", 1), 1) + 8) * enemy_defence_factor * (
             _combat_defence_bonus_from_totals(enemy_totals, style_type=melee_style_type) + 64
         )
         player_max_hit = _combat_melee_max_hit_old_hp(
-            _combat_effective_player_strength_level(data, style_id),
+            _combat_effective_player_strength_level(data, style_id) * float(prayer_effects.get("strength", 1.0)),
             _equipment_bonus_value(player_totals, "melee_strength"),
         )
     player_accuracy = _combat_accuracy(player_attack_roll, enemy_defence_roll)
@@ -3400,10 +3822,10 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     # level + magic attack bonus, and the player resists with magic defence.
     enemy_class = _combat_enemy_attack_class(enemy)
     enemy_attack_stat = {"magic": "magic", "ranged": "ranged"}.get(enemy_class, "attack")
-    enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8) * (
+    enemy_attack_roll = (_positive_int(enemy.get("stats", {}).get(enemy_attack_stat, 1), 1) + 8) * enemy_attack_factor * (
         _combat_attack_bonus_from_totals(enemy_totals, enemy_class) + 64
     )
-    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * (
+    player_defence_roll = _combat_effective_player_defence_level(data, style_id) * float(prayer_effects.get("defence", 1.0)) * (
         _combat_defence_bonus_from_totals(player_totals, enemy_class) + 64
     )
     enemy_accuracy = _combat_accuracy(enemy_attack_roll, player_defence_roll)
@@ -3414,7 +3836,6 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         enemy_totals,
     )
 
-    total_ticks = max(1, _positive_int(ticks, COMBAT_BURST_TICKS))
     next_player_attack = 0
     next_enemy_attack = enemy_attack_speed
     player_damage = 0
@@ -3488,6 +3909,9 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if damage > 0:
                 enemy_lp -= damage
                 player_damage += damage
+                soul_split_heal = int(damage * float(prayer_effects.get("soul_split", 0.0)))
+                if soul_split_heal > 0:
+                    player_lp = min(max_player_lp, player_lp + soul_split_heal)
             if combat_class == "magic":
                 _combat_apply_magic_xp(xp_rewards, spell_spec, damage, npc_xp_multiplier)
             elif damage > 0:
@@ -3496,6 +3920,13 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
                 kills += 1
                 killed = True
                 kill_drops = _combat_roll_drops(enemy, rng)
+                if data.get("combat_auto_prayer_training"):
+                    for material in PRAYER_MATERIALS:
+                        amount = _non_negative_int(kill_drops.pop(material.item_name, 0), 0)
+                        if amount:
+                            data["prayer_exp"] = float(data.get("prayer_exp", 0.0) or 0.0) + material.xp * amount
+                            data["prayer_actions_completed"] = _non_negative_int(data.get("prayer_actions_completed", 0), 0) + amount
+                            next_player_attack += amount * AUTO_PRAYER_TICKS_PER_ITEM
                 for drop_name, drop_amount in kill_drops.items():
                     drops[drop_name] = _non_negative_int(drops.get(drop_name, 0), 0) + _non_negative_int(drop_amount, 0)
                 # Chain into the next spawn of the same target for the remaining
@@ -3515,10 +3946,24 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             except (TypeError, ValueError):
                 landed = False
             damage = _combat_roll_damage_lifepoints(enemy_max_hit, rng) if landed else 0
+            raw_enemy_damage = damage
+            protection_key = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
+            damage = int(damage * (1.0 - float(prayer_effects.get(protection_key, 0.0))))
             damage = min(player_lp, damage)
             if damage > 0:
                 player_lp -= damage
                 enemy_damage += damage
+                reflected = min(enemy_lp, int(raw_enemy_damage * float(prayer_effects.get("deflect", 0.0))))
+                if reflected > 0:
+                    enemy_lp -= reflected
+                    player_damage += reflected
+            if 0 < player_lp < max_player_lp * .10 and float(prayer_effects.get("redemption", 0.0)) > 0:
+                # RuneScape Wiki Redemption oldid=6292830: heal 250% of Prayer
+                # level below 10% LP, then consume every remaining prayer point.
+                player_lp = min(max_player_lp, player_lp + int(_positive_int(data.get("prayer_level", 1), 1) * 2.5 * prayer_uptime))
+                data["combat_prayer_points"] = 0
+                data["combat_prayer_drain_counter"] = 0.0
+                data["combat_selected_prayers"] = []
             if player_lp <= 0:
                 died = True
                 break
@@ -3558,6 +4003,16 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         data["combat_kill_counts"] = kill_counts
 
     if died:
+        death_burst = 0
+        if "wrath" in selected_prayers or "retribution" in selected_prayers:
+            cap_multiplier = 2.5 if "wrath" in selected_prayers else .25
+            try:
+                death_roll = max(0.0, min(1.0, float(rng())))
+            except (TypeError, ValueError):
+                death_roll = 0.0
+            death_burst = min(enemy_lp, int(_positive_int(data.get("prayer_level", 1), 1) * cap_multiplier * death_roll))
+            enemy_lp -= death_burst
+            player_damage += death_burst
         player_lp = _combat_apply_pvm_death(data, max_player_lp)
     elif fled or enemy_lp <= 0 or enemy_lp >= enemy_max_lp:
         # No partial progress to carry: the player fled, nothing was fought, or the
@@ -3597,6 +4052,11 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
         "status_expired": tuple(dict.fromkeys(status_expired)),
         "drops": drops,
         "xp_rewards": xp_rewards,
+        "prayer_points_before": prayer_points_before,
+        "prayer_points_after": prayer_points_after,
+        "prayers": selected_prayers,
+        "prayer_uptime": prayer_uptime,
+        "death_prayer_damage": death_burst if died else 0,
         "player_accuracy": player_accuracy,
         "enemy_accuracy": enemy_accuracy,
         "combat_class": combat_class,

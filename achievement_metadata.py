@@ -269,6 +269,14 @@ def build_achievement_definitions(
     add("Expert Herbalist", "Reach Herblore level 60", "Difficult", lambda player: _level(player, "herblore_level") >= 60)
     add("Master Herbalist", "Reach Herblore level 99", "Very Challenging", lambda player: _level(player, "herblore_level") >= 99)
 
+    add("Rest in Pieces", "Bury your first bone", "Easy", lambda player: _level(player, "prayer_bury_count", 0) >= 1)
+    add("Novice Devotee", "Reach Prayer level 10", "Easy", lambda player: _level(player, "prayer_level") >= 10)
+    add("Faithful", "Complete 100 Prayer training actions", "Easy", lambda player: _level(player, "prayer_actions_completed", 0) >= 100)
+    add("Intermediate Devotee", "Reach Prayer level 30", "Moderate", lambda player: _level(player, "prayer_level") >= 30)
+    add("Ghostly Disciple", "Collect 500 ecto-tokens", "Moderate", lambda player: _item_count(player, "Ecto-token") >= 500)
+    add("Expert Devotee", "Reach Prayer level 60", "Difficult", lambda player: _level(player, "prayer_level") >= 60)
+    add("Master Devotee", "Reach Prayer level 99", "Very Challenging", lambda player: _level(player, "prayer_level") >= 99)
+
     final_count["value"] = len(definitions)
     return tuple(definitions)
 

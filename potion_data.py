@@ -20,6 +20,10 @@ POTION_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/potion/PotionType.kt"
 )
+DARKAN_ITEM_CONFIG_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "data/items/config.json"
+)
 
 VIAL_ITEM = ("Vial", 229)
 # Potion flasks (1)-(6) are a documented post-baseline exception (released Feb
@@ -50,6 +54,13 @@ POTION_FAMILIES: Dict[str, Dict[str, object]] = {
                        "flask_doses": {1: 23313, 2: 23311, 3: 23309, 4: 23307, 5: 23305, 6: 23303}},
     "Magic potion": {"skills": ("magic",), "strategy": "r", "doses": {1: 3046, 2: 3044, 3: 3042, 4: 3040},
                      "flask_doses": {1: 23433, 2: 23431, 3: 23429, 4: 23427, 5: 23425, 6: 23423}},
+    # PotionType.kt: floor(base/4)+7 prayer points. Prayer flask ids are the
+    # pre-EOC cache family used by the same six-dose flask convention above.
+    "Prayer potion": {"skills": ("prayer",), "strategy": "prayer", "doses": {1: 143, 2: 141, 3: 139, 4: 2434},
+                      "flask_doses": {1: 23253, 2: 23251, 3: 23249, 4: 23247, 5: 23245, 6: 23243}},
+    # PotionType.kt: floor(base*0.35)+7 prayer points.
+    "Super prayer": {"skills": ("prayer",), "strategy": "s_prayer", "doses": {1: 15331, 2: 15330, 3: 15329, 4: 15328},
+                     "flask_doses": {1: 23481, 2: 23479, 3: 23477, 4: 23475, 5: 23473, 6: 23471}},
 }
 
 
@@ -77,7 +88,8 @@ def potion_items_as_dict() -> Dict[str, Dict[str, object]]:
             }
         for dose, item_id in spec.get("flask_doses", {}).items():  # type: ignore[union-attr]
             rows[potion_flask_name(base, dose)] = {
-                "category": "material", "tradeable": True, "item_id": item_id, "source": POTION_SOURCE_PATH,
+                "category": "material", "tradeable": True, "item_id": item_id,
+                "source": f"{POTION_SOURCE_PATH}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
             }
     return rows
 
@@ -103,7 +115,7 @@ def potion_consumables_as_dict() -> Dict[str, Dict[str, object]]:
                 "strategy": spec["strategy"],
                 "leaves": potion_flask_name(base, dose - 1) if dose > 1 else EMPTY_FLASK_ITEM[0],
                 "message": f"You drink some of your {base.lower()}.",
-                "source": POTION_SOURCE_PATH,
+                "source": f"{POTION_SOURCE_PATH}; {DARKAN_ITEM_CONFIG_SOURCE}: {base} flask",
             }
     return rows
 

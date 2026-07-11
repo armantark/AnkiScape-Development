@@ -90,7 +90,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 28
+CURRENT_CONFIG_VERSION = 29
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -572,6 +572,10 @@ def migrate_loaded_data(
     # Add config_version if missing
     if "config_version" not in data:
         data["config_version"] = 1
+    try:
+        loaded_config_version = int(data.get("config_version", 1))
+    except (TypeError, ValueError):
+        loaded_config_version = 1
 
     # Migration: old schema used total_exp (treated as mining_exp), and no per-skill exp
     if "total_exp" in data and "mining_exp" not in data:
@@ -644,6 +648,11 @@ def migrate_loaded_data(
     # into signed combat_current_levels; the dead key is dropped (it was
     # never populated) and sanitize seeds the new one.
     data.pop("combat_stat_drains", None)
+    # v29: combat globals are preserved as the initial named preset; Prayer's
+    # pending-XP migration is handled by the standard planned-skill path above.
+    if loaded_config_version < 29:
+        data["combat_presets"] = {}
+        data["combat_active_preset"] = "Default"
     data.update(sanitize_combat_state_pure(data))
 
     # Progress key retained (not critical)

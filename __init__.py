@@ -64,6 +64,9 @@ from .logic_pure import (
     equip_item_pure,
     unequip_item_pure,
     calculate_new_level,
+    sanitize_prayer_selection_pure,
+    apply_combat_preset_pure,
+    save_combat_preset_pure,
 )
 from .logic import level_up_check, check_achievements
 from .ui import (
@@ -844,6 +847,7 @@ def _on_main_menu():
         on_set_cooking=lambda target: _set_value("current_cooking", target),
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
+        on_set_prayer=lambda target: _set_value("current_prayer", target),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),
@@ -863,6 +867,7 @@ def _on_main_menu():
         on_set_combat_spell=lambda spell: _set_value("current_combat_spell", spell),
         on_set_combat_auto_eat_threshold=on_set_combat_auto_eat_threshold,
         on_set_combat_pack_mode=on_set_combat_pack_mode,
+        on_set_combat_prayer_config=_set_combat_prayer_config,
         on_set_combat_auto_eat_food=on_set_combat_auto_eat_food,
         on_refill_combat_loadout=on_refill_combat_loadout,
         on_unload_combat_loadout=on_unload_combat_loadout,
@@ -913,6 +918,60 @@ def _set_value(key: str, value):
         update_review_hud(player_data, current_skill)
     except Exception:
         pass
+
+
+def _set_combat_prayer_config(key: str, value):
+    if key == "apply_preset":
+        new_data, ok = apply_combat_preset_pure(player_data, str(value), player_data.get("current_combat_target"))
+        if ok:
+            _save_combat_state_update(new_data)
+        return ok
+    if key == "save_preset":
+        new_data, ok = save_combat_preset_pure(player_data, str(value))
+        if ok:
+            _save_combat_state_update(new_data)
+        return ok
+    if key == "pin_target_preset":
+        target_id = str(player_data.get("current_combat_target", ""))
+        pins = dict(player_data.get("combat_target_presets", {}) or {})
+        if bool(value):
+            pins[target_id] = str(player_data.get("combat_active_preset", "Default"))
+        else:
+            pins.pop(target_id, None)
+        player_data["combat_target_presets"] = pins
+        save_player_data()
+        return True
+    if key == "target_override":
+        field, enabled = value
+        target_id = str(player_data.get("current_combat_target", ""))
+        overrides = dict(player_data.get("combat_target_overrides", {}) or {})
+        target_overrides = dict(overrides.get(target_id, {}) or {})
+        if enabled:
+            current = player_data.get(str(field))
+            target_overrides[str(field)] = list(current) if isinstance(current, list) else current
+        else:
+            target_overrides.pop(str(field), None)
+        if target_overrides:
+            overrides[target_id] = target_overrides
+        else:
+            overrides.pop(target_id, None)
+        player_data["combat_target_overrides"] = overrides
+        save_player_data()
+        return True
+    player_data[key] = value
+    if key == "combat_prayer_book" and value == "curses":
+        temple = ((player_data.get("quests", {}) or {}).get("the_temple_at_senntisten") or {})
+        if not temple.get("completed"):
+            player_data[key] = "standard"
+    player_data["combat_selected_prayers"] = list(
+        sanitize_prayer_selection_pure(player_data, player_data.get("combat_selected_prayers", ()))
+    )
+    target_id = str(player_data.get("current_combat_target", ""))
+    overrides = player_data.get("combat_target_overrides", {}) or {}
+    if isinstance(overrides.get(target_id), dict) and key in overrides[target_id]:
+        overrides[target_id][key] = list(player_data[key]) if isinstance(player_data[key], list) else player_data[key]
+    save_player_data()
+    return True
 
 
 def _save_combat_state_update(new_data):

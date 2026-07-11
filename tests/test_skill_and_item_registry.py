@@ -93,6 +93,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Runecrafting",
                 "Hunter",
                 "Herblore",
+                "Prayer",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -104,6 +105,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Runecrafting"))
         self.assertTrue(is_review_skill("Hunter"))
         self.assertTrue(is_review_skill("Herblore"))
+        self.assertTrue(is_review_skill("Prayer"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
@@ -111,6 +113,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Runecrafting"), "runecrafting")
         self.assertEqual(review_handler_key("Hunter"), "hunter")
         self.assertEqual(review_handler_key("Herblore"), "herblore")
+        self.assertEqual(review_handler_key("Prayer"), "prayer")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
 
     def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
@@ -147,6 +150,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Runecrafting",
                 "Hunter",
                 "Herblore",
+                "Prayer",
                 "Combat",
                 "Quests",
                 "Utility / Activities",
@@ -182,7 +186,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(all(not skill.participates_in_review for skill in partial.values()))
         trainable = {skill.id for skill in trainable_skill_definitions()}
         self.assertTrue(set(partial).issubset(trainable))
-        self.assertNotIn("prayer", trainable)
+        self.assertIn("prayer", trainable)
 
     def test_fletching_is_fully_playable_after_frontend_handoff(self):
         fletching = get_skill("Fletching")
@@ -263,6 +267,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "hunter_exp": 0,
                 "herblore_level": 1,
                 "herblore_exp": 0,
+                "prayer_level": 1,
+                "prayer_exp": 0,
             },
         )
         self.assertEqual(
@@ -279,6 +285,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_runecrafting": "craft_air_runes",
                 "current_hunter": "catch_crimson_swift",
                 "current_herblore": "clean_guam",
+                "current_prayer": "bury_bones",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")

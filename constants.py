@@ -99,6 +99,13 @@ try:
     )
     from .shop_data import shop_extra_items_as_dict
     from .potion_data import potion_items_as_dict, potion_item_names
+    from .prayer_data import (
+        DEFAULT_PRAYER_TARGET,
+        PRAYER_GROUP_ORDER,
+        prayer_extra_items_as_dict,
+        prayer_targets_as_dict,
+        prayer_utility_activities_as_dict,
+    )
     from .mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -218,6 +225,13 @@ except ImportError:
     )
     from shop_data import shop_extra_items_as_dict
     from potion_data import potion_items_as_dict, potion_item_names
+    from prayer_data import (
+        DEFAULT_PRAYER_TARGET,
+        PRAYER_GROUP_ORDER,
+        prayer_extra_items_as_dict,
+        prayer_targets_as_dict,
+        prayer_utility_activities_as_dict,
+    )
     from mining_data import (
         DEFAULT_MINING_TARGET,
         GLORY_GEM_DROP_CHANCE,
@@ -281,6 +295,7 @@ QUEST_ITEMS_FOLDER = os.path.join(current_dir, "questitems")
 COMBAT_ITEMS_FOLDER = os.path.join(current_dir, "combatitems")
 COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
 SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
+PRAYER_ITEMS_FOLDER = os.path.join(current_dir, "prayeritems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -417,6 +432,7 @@ UTILITY_ACTIVITY_DATA.update(cooking_prep_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(pestle_and_mortar_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(light_source_activities_as_dict())
 UTILITY_ACTIVITY_DATA.update(input_preparation_activities_as_dict())
+UTILITY_ACTIVITY_DATA.update(prayer_utility_activities_as_dict())
 
 CRAFTING_DATA = crafting_recipes_as_dict()
 CRAFTING_REQUIRED_ITEM_DATA = crafting_required_items_as_dict()
@@ -567,6 +583,7 @@ RUNECRAFTING_ACCESS_ITEMS = runecrafting_access_items()
 HERBLORE_DATA = herblore_targets_as_dict()
 HERBLORE_OUTPUT_ITEMS = herblore_output_items()
 HERBLORE_FINISHED_OUTPUT_ITEMS = herblore_finished_output_items()
+PRAYER_DATA = prayer_targets_as_dict()
 QUEST_DATA = quests_as_dict()
 QUEST_REFERENCE_DATA = quest_references_as_dict()
 QUEST_UNLOCK_RULES = quest_unlock_rules_as_dict()
@@ -800,6 +817,14 @@ for _item_name in set(HERBLORE_OUTPUT_ITEMS) | set(HERBLORE_EXTRA_ITEM_DATA):
     )
     if _path and os.path.exists(_path):
         HERBLORE_ITEM_IMAGES[_item_name] = _path
+
+PRAYER_EXTRA_ITEM_DATA = prayer_extra_items_as_dict()
+PRAYER_ITEM_IMAGES = {}
+for _item_name in PRAYER_EXTRA_ITEM_DATA:
+    _path = os.path.join(PRAYER_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        PRAYER_ITEM_IMAGES[_item_name] = _path
+UTILITY_ITEM_IMAGES.update(PRAYER_ITEM_IMAGES)
 
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
@@ -1092,6 +1117,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **CRAFTING_REQUIRED_ITEM_DATA,
     **RUNECRAFTING_EXTRA_ITEM_DATA,
     **HERBLORE_EXTRA_ITEM_DATA,
+    **PRAYER_EXTRA_ITEM_DATA,
     **COMBAT_EXTRA_ITEM_DATA,
     **potion_items_as_dict(),
     **SHOP_ONLY_EXTRA_ITEM_DATA,
@@ -1107,6 +1133,7 @@ EXTRA_ITEM_IMAGES = {
     **CRAFTED_ITEM_IMAGES,
     **RUNECRAFTING_ITEM_IMAGES,
     **HERBLORE_ITEM_IMAGES,
+    **PRAYER_ITEM_IMAGES,
     **UTILITY_ITEM_IMAGES,
     **QUEST_ITEM_IMAGES,
     **COMBAT_ITEM_IMAGES,

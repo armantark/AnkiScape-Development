@@ -45,6 +45,8 @@ try:
         MINING_BONUS_ITEM_DATA,
         MINING_PICKAXE_DATA,
         ORE_DATA,
+        PRAYER_DATA,
+        DEFAULT_PRAYER_TARGET,
         QUEST_DATA,
         QUEST_UNLOCK_RULES,
         RUNECRAFTING_DATA,
@@ -66,10 +68,16 @@ try:
         apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
         apply_open_bird_nests_pure,
+        apply_prayer_action_pure,
+        prayer_gilded_search_step_pure,
+        clear_prayer_gilded_stint_pure,
+        prayer_target_locked_reasons_pure,
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
         apply_smithing_action_pure,
         apply_stronghold_step_pure,
+        apply_knight_waves_step_pure,
+        knight_waves_locked_reasons_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -152,6 +160,8 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         MINING_BONUS_ITEM_DATA,
         MINING_PICKAXE_DATA,
         ORE_DATA,
+        PRAYER_DATA,
+        DEFAULT_PRAYER_TARGET,
         QUEST_DATA,
         QUEST_UNLOCK_RULES,
         RUNECRAFTING_DATA,
@@ -173,10 +183,16 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
         apply_open_bird_nests_pure,
+        apply_prayer_action_pure,
+        prayer_gilded_search_step_pure,
+        clear_prayer_gilded_stint_pure,
+        prayer_target_locked_reasons_pure,
         apply_quest_progress_pure,
         apply_runecrafting_action_pure,
         apply_smithing_action_pure,
         apply_stronghold_step_pure,
+        apply_knight_waves_step_pure,
+        knight_waves_locked_reasons_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -274,6 +290,7 @@ _OVERLAY_TARGET_KEYS = {
     "smithing": "current_smith",
     "runecrafting": "current_runecrafting",
     "herblore": "current_herblore",
+    "prayer": "current_prayer",
 }
 # A stackable occupies one slot for any quantity (then holds up to the int cap);
 # use the real cache stackable set so a stack is not miscounted as N slots.
@@ -283,7 +300,7 @@ _OVERLAY_STACKABLE_NAMES: frozenset[str] = STACKABLE_ITEM_NAMES
 # gathering skills fill the pack with their product instead. Combat has its own
 # supply_loadout system and is not routed through this wrapper at all.
 _PROCESSING_HANDLER_KEYS = frozenset(
-    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting", "herblore"}
+    {"cooking", "crafting", "fletching", "firemaking", "smithing", "runecrafting", "herblore", "prayer"}
 )
 _PROCESSING_DATA_TABLES = {
     "cooking": (COOKING_DATA, "current_cooking", DEFAULT_COOKING_TARGET),
@@ -293,6 +310,7 @@ _PROCESSING_DATA_TABLES = {
     "smithing": (SMITHING_DATA, "current_smith", DEFAULT_SMITHING_TARGET),
     "runecrafting": (RUNECRAFTING_DATA, "current_runecrafting", DEFAULT_RUNECRAFTING_TARGET),
     "herblore": (HERBLORE_DATA, "current_herblore", DEFAULT_HERBLORE_TARGET),
+    "prayer": (PRAYER_DATA, "current_prayer", DEFAULT_PRAYER_TARGET),
 }
 
 
@@ -938,6 +956,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
 
 
 STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
+KNIGHT_WAVES_UTILITY_KEY = "knight_waves"
 
 
 def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
@@ -967,11 +986,34 @@ def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_knight_waves_answer(ctx: RuntimeActionContext) -> bool:
+    new_data, ok, info = apply_knight_waves_step_pure(ctx.player_data)
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message("Knight Waves locked", ", ".join(info.get("locked_reasons", ())))
+        return False
+    ctx.player_data.update(new_data)
+    _record_action(ctx, "utility", KNIGHT_WAVES_UTILITY_KEY, True, expected_success_chance=1.0)
+    for skill in ("Attack", "Strength", "Defence", "Constitution") if info.get("completed") else ():
+        ctx.level_up_check(skill, ctx.player_data)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if info.get("completed"):
+        ctx.deactivate_current_skill()
+        ctx.show_activity_gain("Knight Waves complete — Chivalry and Piety unlocked")
+    else:
+        ctx.show_activity_gain(f"Knight Waves: {info.get('step', 0)}/8 knights defeated")
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
     if activity_key == STRONGHOLD_UTILITY_KEY:
         return _handle_stronghold_answer(ctx)
+    if activity_key == KNIGHT_WAVES_UTILITY_KEY:
+        return _handle_knight_waves_answer(ctx)
     if activity_key not in UTILITY_ACTIVITY_DATA:
         activity_key = DEFAULT_UTILITY_ACTIVITY
         player_data["current_utility"] = activity_key
@@ -1161,6 +1203,53 @@ def handle_herblore_answer(ctx: RuntimeActionContext) -> bool:
     _record_action(ctx, "herblore", target, True, expected_success_chance=1.0, output_items=_spec_output_items(spec))
     xp_rewards = normalize_xp_rewards_pure(spec, "herblore", base_exp)
     exp_gained = _award_action_xp_rewards(ctx, xp_rewards, "herblore")
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(exp_gained)
+    return True
+
+
+def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = player_data.get("current_prayer", DEFAULT_PRAYER_TARGET)
+    if target not in PRAYER_DATA:
+        target = DEFAULT_PRAYER_TARGET
+        player_data["current_prayer"] = target
+    spec = PRAYER_DATA[target]
+    display_name = spec.get("display_name", target)
+    locked = prayer_target_locked_reasons_pure(player_data, target, PRAYER_DATA)
+    if locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Prayer target unavailable",
+            f"{display_name} requires {', '.join(locked)}, so Prayer has been switched off.",
+        )
+        return False
+
+    if spec.get("method") == "gilded_altar":
+        searched, ready, remaining = prayer_gilded_search_step_pure(player_data, target, ctx.random_random)
+        player_data.update(searched)
+        if not ready:
+            _record_action(ctx, "prayer", target, True, expected_success_chance=1.0)
+            ctx.save_player_data()
+            ctx.show_activity_gain(f"Finding a hosted gilded altar — {remaining} review{'s' if remaining != 1 else ''} left")
+            return True
+    else:
+        player_data.update(clear_prayer_gilded_stint_pure(player_data))
+
+    new_inventory, base_exp, ok, outputs = apply_prayer_action_pure(target, player_data.get("inventory", {}), PRAYER_DATA)
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message("Out of materials", f"You no longer have the materials for {display_name}.")
+        return False
+    player_data["inventory"] = new_inventory
+    player_data["prayer_actions_completed"] = int(player_data.get("prayer_actions_completed", 0) or 0) + 1
+    if spec.get("method") == "bury":
+        player_data["prayer_bury_count"] = int(player_data.get("prayer_bury_count", 0) or 0) + 1
+    _record_action(ctx, "prayer", target, True, expected_success_chance=1.0, output_items=outputs)
+    exp_gained = ctx.award_skill_exp("prayer_exp", base_exp)
+    ctx.level_up_check("Prayer", player_data)
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
@@ -1910,6 +1999,11 @@ def _can_start_herblore_action(ctx: RuntimeActionContext) -> bool:
     )
 
 
+def _can_start_prayer_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_prayer", DEFAULT_PRAYER_TARGET)
+    return not prayer_target_locked_reasons_pure(ctx.player_data, target, PRAYER_DATA)
+
+
 def _can_start_firemaking_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
     return not firemaking_target_locked_reasons_pure(
@@ -1999,6 +2093,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
     if activity_key == STRONGHOLD_UTILITY_KEY:
         state = ctx.player_data.get("stronghold_of_security") or {}
         return not state.get("completed")
+    if activity_key == KNIGHT_WAVES_UTILITY_KEY:
+        return not knight_waves_locked_reasons_pure(ctx.player_data)
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,
@@ -2040,6 +2136,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "cooking": _can_start_cooking_action,
     "runecrafting": _can_start_runecrafting_action,
     "herblore": _can_start_herblore_action,
+    "prayer": _can_start_prayer_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -2058,6 +2155,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "cooking": handle_cooking_answer,
     "runecrafting": handle_runecrafting_answer,
     "herblore": handle_herblore_answer,
+    "prayer": handle_prayer_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

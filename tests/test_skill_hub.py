@@ -14,12 +14,13 @@ class TestSkillHubViewModel(unittest.TestCase):
         by_id = {cat.category_id: cat for cat in hub}
 
         # Only the categories that currently have implemented skills should show.
-        self.assertEqual(set(by_id), {"gathering", "artisan"})
+        self.assertEqual(set(by_id), {"gathering", "artisan", "support"})
 
         self.assertEqual(
             [card.display_name for card in by_id["gathering"].skills],
             ["Mining", "Woodcutting", "Fishing", "Hunter"],
         )
+        self.assertEqual([card.display_name for card in by_id["support"].skills], ["Prayer"])
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
             ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore"],
@@ -64,13 +65,15 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertIn("slayer", cards)
         self.assertFalse(cards["slayer"].implemented)
         self.assertFalse(cards["slayer"].selectable_for_review)
-        for skill_id in ("magic", "prayer", "summoning"):
+        self.assertTrue(cards["prayer"].implemented)
+        self.assertTrue(cards["prayer"].selectable_for_review)
+        for skill_id in ("magic", "summoning"):
             self.assertIn(skill_id, cards)
             self.assertFalse(cards[skill_id].implemented)
             self.assertFalse(cards[skill_id].selectable_for_review)
         self.assertEqual(cards["magic"].surface_state, "partial")
         self.assertEqual(cards["magic"].training_source, "Combat")
-        self.assertEqual(cards["prayer"].surface_state, "planned")
+        self.assertEqual(cards["prayer"].surface_state, "complete")
         for skill_id in ("attack", "constitution", "defense", "ranged", "strength"):
             self.assertNotIn(skill_id, cards)
 
