@@ -1797,6 +1797,22 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertIn("Byproduct: Vial x4", overload.toolTip(0))
         self.assertIn("Extreme ranging (3) x1", overload.toolTip(0))
 
+    def test_cannonball_row_shows_quest_gate_mould_and_icon(self) -> None:
+        pd = _make_player_data()
+        pd["smithing_level"] = 35
+        pd["current_smith"] = "forge_cannonballs"
+        pd["inventory"] = {"Steel bar": 1, "Ammo mould": 1}
+        pd["quests"]["dwarf_cannon"] = {"completed": True}
+        dialog = self._open(pd)
+        _goto_smithing(dialog)
+        row = _smith_row(_find_smith_tree(dialog), "forge_cannonballs")
+
+        self.assertFalse(row.isDisabled())
+        self.assertFalse(row.icon(0).isNull())
+        self.assertIn("Output: Cannonball x4", row.toolTip(0))
+        self.assertIn("Required tools:", row.toolTip(0))
+        self.assertIn("Ammo mould x1", row.toolTip(0))
+
     def test_cooking_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()
         pd["cooking_level"] = 99

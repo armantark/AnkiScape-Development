@@ -28,6 +28,7 @@ BAR_PRODUCTS_SOURCE_PATH = (
     "gg/rsmod/plugins/content/skills/smithing/data/BarProducts.kt"
 )
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
+CANNONBALL_WIKI_SOURCE = "https://runescape.wiki/w/Cannonball?oldid=6541276"
 
 
 @dataclass(frozen=True)
@@ -49,6 +50,7 @@ class SmithingRecipe:
     smithing_type: Optional[str] = None
     bars_required: int = 0
     produced_amount: int = 1
+    required_items: Tuple[Tuple[str, int], ...] = ()
 
 
 SMITHING_RECIPES: Tuple[SmithingRecipe, ...] = (
@@ -3564,6 +3566,25 @@ SmithingRecipe(
         smithing_type=None,
         bars_required=0,
         produced_amount=1,
+    ),
+SmithingRecipe(
+        id='forge_cannonballs',
+        display_name='Cannonballs',
+        station='furnace_process',
+        level=35,
+        base_exp=25.6,
+        requirements=(('Steel bar', 1),),
+        output_item='Cannonball',
+        output_qty=4,
+        source_item_id=2,
+        source=CANNONBALL_WIKI_SOURCE,
+        source_enum='CANNONBALL',
+        tradeable=True,
+        category='ammunition',
+        bar_tier='steel',
+        bars_required=1,
+        produced_amount=4,
+        required_items=(('Ammo mould', 1),),
     )
 )
 
@@ -3592,6 +3613,7 @@ def smithing_recipes_as_dict() -> Dict[str, Dict[str, object]]:
             "smithing_type": recipe.smithing_type,
             "bars_required": recipe.bars_required,
             "produced_amount": recipe.produced_amount,
+            "required_items": dict(recipe.required_items),
         }
         for recipe in SMITHING_RECIPES
     }

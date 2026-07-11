@@ -134,7 +134,7 @@ def smithing_target_rows(
         output_qty = int(spec.get("output_qty", 1) or 1)
         reqs = spec.get("requirements", {}) or {}
         requirements = reqs if isinstance(reqs, Mapping) else {}
-        station_word = "Smelt" if spec.get("station") == "furnace" else "Forge"
+        station_word = "Smelt" if spec.get("station") == "furnace" else "Cast" if spec.get("station") == "furnace_process" else "Forge"
         group = _smithing_tier_of(spec)
 
         label = f"{display_name} (Lvl {lvl_req})"
@@ -153,6 +153,9 @@ def smithing_target_rows(
             f"Base XP: {spec.get('exp', 0)} per action\n"
             f"Materials:\n{_indented_material_lines(requirements, inventory)}"
         )
+        required_items = spec.get("required_items", {}) or {}
+        if isinstance(required_items, Mapping) and required_items:
+            tooltip += f"\nRequired tools:\n{_indented_material_lines(required_items, inventory)}"
         if locked_reasons:
             tooltip += "\nLocked due to: " + ", ".join(locked_reasons)
 

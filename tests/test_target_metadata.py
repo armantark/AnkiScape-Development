@@ -71,6 +71,40 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_cannonball_row_shows_quest_tool_output_and_rs_wiki_icon(self):
+        from constants import SMITHING_EXTRA_ITEM_IMAGES
+
+        inventory = {"Steel bar": 1, "Ammo mould": 1}
+        smithing_images = dict(BAR_IMAGES)
+        smithing_images.update(SMITHING_EXTRA_ITEM_IMAGES)
+        locked_rows = smithing_target_rows(
+            {"smithing_level": 35, "inventory": inventory, "quests": {}},
+            SMITHING_DATA,
+            smithing_images,
+            DEFAULT_SMITHING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        self.assertFalse(_row(locked_rows, "forge_cannonballs").enabled)
+
+        rows = smithing_target_rows(
+            {
+                "smithing_level": 35,
+                "inventory": inventory,
+                "quests": {"dwarf_cannon": {"completed": True}},
+                "current_smith": "forge_cannonballs",
+            },
+            SMITHING_DATA,
+            smithing_images,
+            DEFAULT_SMITHING_TARGET,
+            QUEST_UNLOCK_RULES,
+        )
+        cannonballs = _row(rows, "forge_cannonballs")
+        self.assertTrue(cannonballs.enabled)
+        self.assertTrue(cannonballs.current)
+        self.assertIsNotNone(cannonballs.icon_path)
+        self.assertIn("Output: Cannonball x4", cannonballs.tooltip)
+        self.assertIn("Required tools:", cannonballs.tooltip)
+        self.assertIn("Ammo mould x1", cannonballs.tooltip)
     def test_overload_row_exposes_exact_inputs_byproduct_and_icon(self):
         inputs = dict(HERBLORE_DATA["finished_overload"]["requirements"])
         rows = herblore_target_rows(

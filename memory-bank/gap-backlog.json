@@ -315,7 +315,7 @@
       "detail": "Blast Furnace high-throughput smelting; goldsmith gauntlet gold-smelting multiplier (verify exact via wiki); cannonballs from steel bars.",
       "source": "wiki:Blast Furnace",
       "status": "design_settled_waiting_source",
-      "note": "Owner grill closed 2026-07-10; implement after a pinned November 2012 audit and Darkan fidelity revamp establish the missing Blast Furnace and Goldsmith-gauntlet mechanics.",
+      "note": "Cannonball sub-slice implemented 2026-07-10 from pinned pre-EOC evidence. Blast Furnace and Goldsmith-gauntlet mechanics remain source-gated pending the Darkan fidelity revamp.",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#smithing-blast-furnace-goldsmith-gauntlets-and-cannonballs",
       "decision_summary": {
         "blast_furnace": "Assume a busy public furnace with background machinery while preserving the player's ore loading, bar collection, bank route, access, fees, coal savings, inventory, and per-bar results.",
@@ -323,6 +323,7 @@
         "fees": "Below level 60, automatically renew the historical foreman fee from banked coins after a later source-backed action-cadence mapping; apply Ring of charos (a), do not consume a review, and stop if payment fails.",
         "equipment": "Casual auto-equips applicable owned skilling gear; Advanced saves explicit per-target equipment. Goldsmith gauntlets modify the existing gold target at ordinary and Blast Furnaces.",
         "cannonballs": "One review consumes one steel bar and produces four cannonballs with per-bar XP. Advanced carries the ammo mould in a real slot; Casual treats it as a banked ownership gate.",
+        "implemented_slice": "forge_cannonballs now enforces Dwarf Cannon completion and level 35, consumes one Steel bar, retains the Ammo mould, produces four Cannonballs, and awards 25.6 Smithing XP. See memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md.",
         "source_gate": "Use a pinned November 2012 source and revamped Darkan for Blast Furnace mechanics and Goldsmith XP; Darkan's level-35, one-bar-to-four, 25.6-XP cannonball recipe is the current baseline."
       }
     },

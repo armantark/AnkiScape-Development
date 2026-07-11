@@ -204,6 +204,27 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["inventory"], {"Gold bar": 0, "Ring mould": 1, "Gold ring": 1})
         self.assertEqual(player_data["carried_inventory"]["jewellery_gold_ring"], {"Ring mould": 1})
         self.assertAlmostEqual(player_data["crafting_exp"], 15.0)
+
+    def test_cannonball_advanced_pack_carries_and_retains_ammo_mould(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Steel bar": 1, "Ammo mould": 1},
+            "smithing_level": 35,
+            "smithing_exp": 0.0,
+            "crafting_level": 1,
+            "current_smith": "forge_cannonballs",
+            "quests": {"dwarf_cannon": {"completed": True}},
+            "completed_achievements": [],
+            "carried_advanced_targets": {"forge_cannonballs": True},
+            "carried_layout": {"forge_cannonballs": {"Steel bar": 1, "Ammo mould": 1}},
+        }
+        ctx = _context(player_data, calls)
+
+        self.assertTrue(run_answer_with_carried_overlay(ctx, "smithing", handle_smithing_answer))
+
+        self.assertEqual(player_data["inventory"], {"Steel bar": 0, "Ammo mould": 1, "Cannonball": 4})
+        self.assertEqual(player_data["carried_inventory"]["forge_cannonballs"], {"Ammo mould": 1})
+        self.assertAlmostEqual(player_data["smithing_exp"], 25.6)
         self.assertEqual(calls["errors"], [])
 
     def test_unfired_clay_ring_carried_overlay_reconciles_and_retains_mould(self):
@@ -1692,6 +1713,30 @@ class TestRuntimeActions(unittest.TestCase):
         telemetry = player_data["action_telemetry"]["actions"]["smithing:repair_dragon_sq_shield"]
         self.assertEqual(telemetry["attempts"], 1)
         self.assertEqual(telemetry["successes"], 1)
+
+    def test_smithing_cannonballs_requires_quest_and_preserves_ammo_mould(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Steel bar": 1, "Ammo mould": 1},
+            "smithing_level": 35,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "forge_cannonballs",
+            "quests": {"dwarf_cannon": {"completed": False}},
+            "completed_achievements": [],
+        }
+
+        self.assertFalse(handle_smithing_answer(_context(player_data, calls)))
+        self.assertTrue(calls.get("deactivated"))
+        self.assertIn("Dwarf Cannon", calls["errors"][0][1])
+
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data["quests"]["dwarf_cannon"]["completed"] = True
+        self.assertTrue(handle_smithing_answer(_context(player_data, calls)))
+        self.assertEqual(player_data["inventory"], {"Steel bar": 0, "Ammo mould": 1, "Cannonball": 4})
+        self.assertEqual(player_data["smithing_exp"], 25.6)
+        telemetry = player_data["action_telemetry"]["actions"]["smithing:forge_cannonballs"]
+        self.assertEqual(telemetry["outputs"], {"Cannonball": 4})
 
 
 class TestCarriedOverlayWrapper(unittest.TestCase):

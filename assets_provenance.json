@@ -18791,6 +18791,18 @@
     "source_wiki": "osrs",
     "timestamp": "2021-08-20T14:54:05Z"
   },
+  "smithingitems/cannonball.png": {
+    "file_page_url": "https://runescape.wiki/wiki/File:Cannonball.png",
+    "file_title": "Cannonball.png",
+    "image_url": "https://runescape.wiki/images/Cannonball.png?71c1b",
+    "license_string": "unknown",
+    "mediatype": "BITMAP",
+    "mime": "image/png",
+    "sha1": "559e2c48d6cd43e7beca29ae76ce9aa5d651e9e8",
+    "size": 323,
+    "source_wiki": "rs3",
+    "timestamp": "2024-10-15T08:29:42Z"
+  },
   "smithingitems/iron_2h_sword.png": {
     "file_page_url": "https://oldschool.runescape.wiki/wiki/File:Iron_2h_sword.png",
     "file_title": "Iron 2h sword.png",

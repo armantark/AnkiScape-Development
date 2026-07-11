@@ -7638,6 +7638,7 @@ QUEST_UNLOCK_RULES: Tuple[QuestUnlockRule, ...] = (
     ),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "firemaking", ("arctic_pine_logs",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
     QuestUnlockRule(THE_FREMENNIK_ISLES_ID, "target", "cooking", ("cook_yak",), "The Fremennik Isles", THE_FREMENNIK_ISLES_SOURCE),
+    QuestUnlockRule(DWARF_CANNON_ID, "target", "smithing", ("forge_cannonballs",), "Dwarf Cannon", "https://runescape.wiki/w/Cannonball?oldid=6541276"),
     # scavenge_raw_yak_meat retired 2026-07-07 (Raw yak meat is live shop
     # stock); the cook_yak Cooking rule below keeps the Fremennik Isles gate.
     QuestUnlockRule(EAGLES_PEAK_ID, "target", "hunter", ("catch_ferret",), "Eagles' Peak", HUNTER_EAGLES_PEAK_SOURCE),

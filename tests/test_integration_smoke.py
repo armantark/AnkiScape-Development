@@ -2595,6 +2595,50 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(calls["xp"], [1000.0])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_cannonball_review_reward_and_mould_roll_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_cannonball_smithing_undo_integration")
+
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon._refresh_smithing_and_crafting_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+
+        addon.player_data = {
+            "inventory": {"Steel bar": 1, "Ammo mould": 1},
+            "smithing_level": 35,
+            "smithing_exp": 0,
+            "crafting_level": 1,
+            "current_smith": "forge_cannonballs",
+            "quests": {"dwarf_cannon": {"completed": True}},
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Smithing"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertEqual(addon.player_data["inventory"], {"Steel bar": 0, "Ammo mould": 1, "Cannonball": 4})
+        self.assertEqual(addon.player_data["smithing_exp"], 25.6)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        changes = types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        )
+        addon._on_state_did_undo(changes)
+
+        self.assertEqual(addon.player_data["inventory"], {"Steel bar": 1, "Ammo mould": 1})
+        self.assertEqual(addon.player_data["smithing_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+        self.assertEqual(calls["xp"], [25.6])
+
     def test_utility_review_reward_rolls_back_on_undo(self):
         addon = _load_addon_as_package("ankiscape_utility_undo_integration")
 

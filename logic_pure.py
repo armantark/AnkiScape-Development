@@ -222,7 +222,9 @@ def has_smithing_materials_pure(target, inventory, smithing_data):
     spec = smithing_data.get(target)
     if not spec:
         return False
-    for material, amount in _requirements_from_spec(spec).items():
+    requirements = dict(_requirements_from_spec(spec))
+    requirements.update(spec.get("required_items", {}))
+    for material, amount in requirements.items():
         if inventory.get(material, 0) < amount:
             return False
     return True

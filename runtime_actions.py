@@ -112,6 +112,7 @@ try:
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
+        smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
         STRONGHOLD_STEP_NAMES,
         STRONGHOLD_TOTAL_STEPS,
@@ -218,6 +219,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         record_action_telemetry_pure,
         consume_ring_of_forging_charge_pure,
         smithing_success_probability_pure,
+        smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
         STRONGHOLD_STEP_NAMES,
         STRONGHOLD_TOTAL_STEPS,
@@ -1642,6 +1644,18 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
     display_name = spec.get("display_name", spec.get("output_item", target))
     player_level = player_data["smithing_level"]
 
+    locked_reasons = smithing_target_locked_reasons_pure(player_data, target, SMITHING_DATA, QUEST_UNLOCK_RULES)
+    quest_locked = tuple(
+        reason for reason in locked_reasons if reason != "materials" and not str(reason).startswith("level ")
+    )
+    if quest_locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Smithing target locked",
+            f"{display_name} requires {', '.join(quest_locked)}, so Smithing has been switched off.",
+        )
+        return False
+
     if player_level < spec["level"]:
         ctx.show_error_message("Insufficient level", f"You need level {spec['level']} Smithing to make {display_name}.")
         return False
@@ -1663,7 +1677,9 @@ def handle_smithing_answer(ctx: RuntimeActionContext) -> bool:
         has_ring_of_forging=has_forging_ring,
     )
     if not processed:
-        missing = missing_materials_text(spec.get("requirements", {}), player_data["inventory"])
+        missing_requirements = dict(spec.get("requirements", {}))
+        missing_requirements.update(spec.get("required_items", {}))
+        missing = missing_materials_text(missing_requirements, player_data["inventory"])
         ctx.deactivate_current_skill()
         ctx.show_error_message(
             "Out of materials",
@@ -1970,11 +1986,11 @@ def _can_start_crafting_action(ctx: RuntimeActionContext) -> bool:
 
 def _can_start_smithing_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_smith", DEFAULT_SMITHING_TARGET)
-    return can_smith_item_pure(
-        ctx.player_data.get("smithing_level", 1),
-        ctx.player_data.get("inventory", {}),
+    return not smithing_target_locked_reasons_pure(
+        ctx.player_data,
         target,
         SMITHING_DATA,
+        QUEST_UNLOCK_RULES,
     )
 
 

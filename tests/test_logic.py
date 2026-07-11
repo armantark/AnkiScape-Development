@@ -373,6 +373,22 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(output_item, "Dragon sq shield")
         self.assertEqual(inventory, {"Shield left half": 0, "Shield right half": 0, "Dragon sq shield": 1})
 
+    def test_apply_smithing_action_pure_casts_four_cannonballs_and_keeps_mould(self):
+        from constants import SMITHING_DATA
+
+        self.assertFalse(can_smith_item_pure(35, {"Steel bar": 1}, "forge_cannonballs", SMITHING_DATA))
+        inputs = {"Steel bar": 1, "Ammo mould": 1}
+        self.assertTrue(can_smith_item_pure(35, inputs, "forge_cannonballs", SMITHING_DATA))
+        inventory, exp, processed, output_item, failed = apply_smithing_action_pure(
+            "forge_cannonballs", inputs, SMITHING_DATA, 35
+        )
+
+        self.assertTrue(processed)
+        self.assertFalse(failed)
+        self.assertEqual(exp, 25.6)
+        self.assertEqual(output_item, "Cannonball")
+        self.assertEqual(inventory, {"Steel bar": 0, "Ammo mould": 1, "Cannonball": 4})
+
     def test_ring_of_forging_guarantees_iron_and_consumes_charges(self):
         smithing_data = {
             "smelt_iron_bar": {

@@ -12,7 +12,7 @@ from smithing_data import (
 
 class TestSmithingData(unittest.TestCase):
     def test_source_generated_recipe_counts_and_defaults(self):
-        self.assertEqual(len(SMITHING_RECIPES), 167)
+        self.assertEqual(len(SMITHING_RECIPES), 168)
         self.assertEqual(len(smithing_bars_as_dict()), 9)
         self.assertEqual(len(smithing_forge_recipe_ids()), 158)
         self.assertEqual(DEFAULT_SMITHING_TARGET, "smelt_bronze_bar")
@@ -79,6 +79,18 @@ class TestSmithingData(unittest.TestCase):
         self.assertEqual(recipe["output_qty"], 1)
         self.assertEqual(recipe["source_item_id"], 1187)
         self.assertEqual(recipe["source_enum"], "DRAGON_SQ_SHIELD")
+
+    def test_cannonballs_match_pinned_pre_eoc_recipe(self):
+        recipe = smithing_recipes_as_dict()["forge_cannonballs"]
+        self.assertEqual(recipe["station"], "furnace_process")
+        self.assertEqual(recipe["level"], 35)
+        self.assertEqual(recipe["exp"], 25.6)
+        self.assertEqual(recipe["requirements"], {"Steel bar": 1})
+        self.assertEqual(recipe["required_items"], {"Ammo mould": 1})
+        self.assertEqual(recipe["output_item"], "Cannonball")
+        self.assertEqual(recipe["output_qty"], 4)
+        self.assertEqual(recipe["source_item_id"], 2)
+        self.assertIn("oldid=6541276", recipe["source"])
 
 
 if __name__ == "__main__":
