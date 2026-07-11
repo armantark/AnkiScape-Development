@@ -402,15 +402,16 @@
       "title": "Add arctic pine, eucalyptus, cursed magic tree",
       "detail": "Their logs are already burnable in firemaking_data.py but no chop targets exist.",
       "source": "wiki-oldids:Arctic Pine 6069429; Eucalyptus tree 6491980; Cursed magic tree 6368505; Cursed magic logs 5742321; Spirit Realm 6394729",
-      "status": "needs_grill",
-      "note": "owner approved the Spirit Realm abstraction, separate Arctic-pine splitting, and safe-spot Eucalyptus handling; quest gates remain under review",
+      "status": "design_settled_waiting_source",
+      "note": "owner grill closed 2026-07-10; implementation waits for reconciled success, depletion, respawn, and paired-tree server behavior",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#woodcutting-arctic-pine-eucalyptus-and-cursed-magic",
       "decision_summary": {
         "period_targets": "Arctic pine is level 54 for 140.2 XP; eucalyptus is level 58 for 165 XP; cursed magic is Spirit of Summer-gated at level 82 for 275 XP.",
         "approved_session": "Keep Cursed magic logs cursed in a target-local Spirit Realm session while chopping or switching specifically to burn them; bank runs, explicit exit, and unrelated target switches convert leftovers to Magic logs.",
         "world_model": "Abstract the paired cursed and ordinary magic tree traversal inside the target loop; do not add a world map.",
         "arctic_split": "Add a separate level-54 Woodcutting processing target that consumes one carried Arctic pine log per review, produces one Split log, and awards 42.5 XP.",
-        "eucalyptus_safety": "Assume competent use of a documented safe spot; Eucalyptus chopping does not create ambient combat encounters or HP damage."
+        "eucalyptus_safety": "Assume competent use of a documented safe spot; Eucalyptus chopping does not create ambient combat encounters or HP damage.",
+        "quest_gates": "Arctic pine and splitting unlock when The Fremennik Isles starts; Eucalyptus has no quest gate; Cursed magic requires Spirit of Summer completion."
       }
     },
     {

@@ -41,3 +41,9 @@ review consumes one carried Arctic pine log, produces one Split log, and awards
 Eucalyptus chopping assumes competent use of one of the period page's documented
 safe spots. Nearby wolves and ogresses do not add an ambient combat/HP roll to
 the abstract Woodcutting target.
+
+Quest gates follow the period access evidence without another owner decision:
+Arctic pine chopping and splitting unlock when The Fremennik Isles starts and
+remain available afterward; Eucalyptus has no quest gate because the Mobilising
+Armies route is independent of the Oo'glog bank unlock; Cursed magic requires
+Spirit of Summer completion.

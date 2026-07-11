@@ -585,8 +585,8 @@ source audit and reconciled server-behavior evidence.
 
 Backlog id: `wc-arctic-euc-cursed`
 
-Decision status: owner approved the source-shaped cursed-magic abstraction;
-remaining family decisions are still being grilled.
+Decision status: owner design settled; implementation waits for exact success,
+depletion, respawn, and paired-tree behavior from reconciled period evidence.
 
 ### Period Facts
 
@@ -646,3 +646,22 @@ remaining family decisions are still being grilled.
 - This is a location-friction abstraction, not a claim that the original grove
   lacked danger. Directly dangerous action mechanics still use the shared HP,
   food, death, and undo systems where the source requires them.
+
+### Source-Shaped Quest Gates
+
+- Arctic pine chopping and Split-log processing unlock once `The Fremennik
+  Isles` has started and remain available through and after completion. The
+  period walkthrough says every island can be visited during the quest, and the
+  Arctic-pine page explicitly describes use during and after it; do not impose
+  an unnecessary completion-only gate.
+- Eucalyptus has no quest gate. The Mobilising Armies route is available without
+  the partial `As a First Resort...` progress used only for the Oo'glog bank.
+- Cursed magic chopping and its Spirit Realm session require completed `Spirit
+  of Summer`, matching the period tree/log access requirement.
+
+### Grill Cadence Rule
+
+- Do not ask the owner to approve source transcription or conclusions already
+  forced by settled AnkiScape architecture. Resolve and batch those details in
+  the audit. Reserve owner questions for genuine product choices where multiple
+  reasonable options would materially change play.

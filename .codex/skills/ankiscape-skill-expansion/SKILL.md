@@ -25,6 +25,11 @@ Use this skill before planning or implementing a skill expansion. The goal is to
   They never prove pre-EOC parity without independent pre-cutoff evidence.
 - Keep source data honest: preserve audited pre-EOC base XP in data, then apply
   AnkiScape pacing knobs separately.
+- Do not grill the owner on facts or behavior already determined by pinned
+  period evidence and settled AnkiScape rules. Resolve and document those
+  autonomously, batching routine source-shaped decisions. Ask only when two or
+  more reasonable implementations would create a materially different player
+  experience and the existing product contract does not choose between them.
 - Use stable IDs for skills, recipes, targets, and items. Do not use display names as durable target identifiers when outputs can collide.
 - Build source-backed content **fully and live by default**, wiring each target/action into the UI as a normal, functional entry that is **indistinguishable from every other entry** — even when its inputs cannot be obtained yet. Such content is not special: it is simply, *emergently* un-runnable right now because the player holds zero of a material whose acquisition route (a drop, market, another skill, or Utility/Activity) does not exist yet. That is the **exact same state** as any normal recipe whose materials you happen to lack (e.g. a sapphire ring when you hold zero sapphires).
   - **Do NOT** delete it, hide it, "coming soon" it, add a `locked until later` gate, or give it any distinct tag, label, badge, tooltip note, colour, or visual/semantic state. The internal term "input-starved" is for design notes only and must **never** surface in the player UI.
