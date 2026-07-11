@@ -2175,6 +2175,41 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertEqual(calls["xp"], [72.0])
 
+    def test_construction_review_reward_and_consumed_materials_roll_back_on_undo(self):
+        addon = _load_addon_as_package("ankiscape_construction_undo_integration")
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._show_exp = lambda exp: calls["xp"].append(exp)
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon.player_data = {
+            "inventory": {"Plank": 2, "Rune nails": 2},
+            "construction_level": 1, "construction_exp": 0,
+            "current_construction": "crude_wooden_chair",
+            "house_owned": True, "house_rooms_bought": {"parlour": True, "garden": True},
+            "house_servant": "", "house_built_flags": {}, "quests": {},
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Construction"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        self.assertEqual(addon.player_data["inventory"]["Plank"], 0)
+        self.assertEqual(addon.player_data["construction_exp"], 66.0)
+        self.assertEqual(len(addon._REVIEW_UNDO_STACK), 1)
+
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card", changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data["inventory"], {"Plank": 2, "Rune nails": 2})
+        self.assertEqual(addon.player_data["construction_exp"], 0)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
     def test_undo_after_dragon_sq_shield_assembly_restores_both_halves(self):
         addon = _load_addon_as_package("ankiscape_dragon_sq_shield_undo_integration")
 

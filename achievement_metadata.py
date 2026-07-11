@@ -276,6 +276,12 @@ def build_achievement_definitions(
     add("Ghostly Disciple", "Collect 500 ecto-tokens", "Moderate", lambda player: _item_count(player, "Ecto-token") >= 500)
     add("Expert Devotee", "Reach Prayer level 60", "Difficult", lambda player: _level(player, "prayer_level") >= 60)
     add("Master Devotee", "Reach Prayer level 99", "Very Challenging", lambda player: _level(player, "prayer_level") >= 99)
+    add("First Foundations", "Complete your first Construction build", "Easy", lambda player: _level(player, "construction_actions_completed", 0) >= 1)
+    add("Novice Builder", "Reach Construction level 10", "Easy", lambda player: _level(player, "construction_level") >= 10)
+    add("Established Builder", "Reach Construction level 30", "Moderate", lambda player: _level(player, "construction_level") >= 30)
+    add("Master Builder", "Reach Construction level 60", "Difficult", lambda player: _level(player, "construction_level") >= 60)
+    add("Construction Cape", "Reach Construction level 99", "Very Challenging", lambda player: _level(player, "construction_level") >= 99)
+    add("Packed Flat", "Create 100 Construction outputs", "Difficult", lambda player: _level(player, "construction_outputs_created", 0) >= 100)
 
     add("First Cast", "Complete your first standalone Magic cast", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 1)
     add("Novice Mage", "Reach Magic level 10", "Easy", lambda player: _level(player, "magic_level") >= 10)

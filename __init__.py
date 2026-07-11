@@ -67,7 +67,10 @@ from .logic_pure import (
     sanitize_prayer_selection_pure,
     apply_combat_preset_pure,
     save_combat_preset_pure,
+    purchase_house_pure,
+    purchase_house_option_pure,
 )
+from .construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
 from .logic import level_up_check, check_achievements
 from .ui import (
     ExpPopup,
@@ -830,6 +833,30 @@ def _on_main_menu():
             player_data["carried_layout"] = layout
         save_player_data()
 
+    def _apply_house_result(result):
+        updated, ok = result
+        if ok:
+            player_data.update(updated)
+            save_player_data()
+
+    def _purchase_house():
+        _apply_house_result(purchase_house_pure(player_data))
+
+    def _purchase_room(room_id):
+        _apply_house_result(purchase_house_option_pure(player_data, room_id, ROOM_DATA, kind="room"))
+
+    def _hire_servant(servant_id):
+        if not servant_id:
+            player_data["house_servant"] = ""
+            save_player_data()
+            return
+        _apply_house_result(purchase_house_option_pure(player_data, servant_id, SERVANT_DATA, kind="servant"))
+
+    def _set_house_style(style_id):
+        if style_id == player_data.get("house_style"):
+            return
+        _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -848,7 +875,13 @@ def _on_main_menu():
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
         on_set_prayer=lambda target: _set_value("current_prayer", target),
+        on_set_prayer_gilded_mode=lambda mode: _set_value("prayer_gilded_mode", mode),
         on_set_magic=lambda target: _set_value("current_magic", target),
+        on_set_construction=lambda target: _set_value("current_construction", target),
+        on_purchase_house=_purchase_house,
+        on_purchase_room=_purchase_room,
+        on_hire_servant=_hire_servant,
+        on_set_house_style=_set_house_style,
         on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_keep_drop=_set_carried_keep_drop,

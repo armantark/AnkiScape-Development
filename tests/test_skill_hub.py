@@ -24,7 +24,7 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertEqual([card.display_name for card in by_id["combat"].skills], ["Magic"])
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
-            ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore"],
+            ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore", "Construction"],
         )
         for cat in hub:
             for card in cat.skills:

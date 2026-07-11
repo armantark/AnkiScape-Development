@@ -31,6 +31,7 @@ try:
         mining_target_locked_reasons_pure,
         magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
+        construction_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
@@ -60,6 +61,7 @@ except Exception:
         mining_target_locked_reasons_pure,
         magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
+        construction_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
         utility_activity_locked_reasons_pure,
@@ -211,6 +213,43 @@ def prayer_target_rows(
             group=group,
             locked_reasons=reasons,
             sort_key=(group_order.get(group, 99), float(spec.get("exp", 0) or 0), material),
+        ))
+    return tuple(rows)
+
+
+def construction_target_rows(
+    player_data, construction_data, room_data, servant_data, nail_data,
+    workbench_tiers, construction_item_images, default_target,
+):
+    rows = []
+    inventory = player_data.get("inventory", {}) or {}
+    current = player_data.get("current_construction", default_target)
+    group_order = {"Build": 0, "Flatpacks": 1, "Lectern tablets": 2}
+    for target_id, spec in construction_data.items():
+        group = "Lectern tablets" if target_id.startswith("tablet_") else "Flatpacks" if target_id.startswith("flatpack_") else str(spec.get("room", "Build")).replace("_", " ").title()
+        order_group = "Build" if not target_id.startswith(("flatpack_", "tablet_")) else group
+        reasons = construction_target_locked_reasons_pure(
+            player_data, target_id, construction_data, room_data, servant_data,
+            nail_data, workbench_tiers,
+        )
+        requirements = spec.get("requirements", {}) or {}
+        skill = "Magic" if target_id.startswith("tablet_") else "Construction"
+        level = spec.get("magic_level", spec.get("level", 1))
+        tooltip = (
+            f"{group} · {skill} level {level}\n"
+            f"{skill} XP: {spec.get('xp', 0):g} per build\n"
+            f"Materials:\n{_indented_material_lines(requirements, inventory)}"
+        )
+        if reasons:
+            tooltip += "\nLocked due to: " + ", ".join(reasons)
+        icon_name = str(spec.get("asset_name", spec.get("output_item", spec.get("display_name", ""))))
+        rows.append(TargetRowMetadata(
+            target_id=target_id,
+            label=f"{spec.get('display_name', target_id)} — {spec.get('xp', 0):g} XP",
+            tooltip=tooltip, enabled=not reasons, current=target_id == current,
+            icon_path=construction_item_images.get(icon_name), group=group,
+            locked_reasons=reasons,
+            sort_key=(group_order.get(order_group, 0), group, int(level or 1), str(spec.get("display_name", target_id))),
         ))
     return tuple(rows)
 

@@ -1094,6 +1094,192 @@ def clear_prayer_gilded_stint_pure(player_data):
     return data
 
 
+_LECTERN_SLOTS = {
+    "oak_lecturn": {11, 15},
+    "eagle_lecturn": {11, 12, 13, 15},
+    "demon_lecturn": {3, 8, 11, 15},
+    "teak_eagle_lecturn": {2, 5, 11, 12, 13, 15},
+    "teak_demon_lecturn": {3, 6, 7, 8, 10, 11, 15},
+    "mahogany_eagle_lecturn": {2, 5, 12, 13, 14, 15, 16},
+    "mahogany_demon_lecturn": {3, 4, 6, 7, 8, 9, 10, 11, 15},
+}
+
+
+def _construction_nail_stock(inventory, nail_data):
+    return sum(_non_negative_int(inventory.get(name, 0), 0) for name in nail_data)
+
+
+def _construction_has_workbench(flags, required_level, workbench_tiers):
+    return any(level >= required_level and bool(flags.get(target_id)) for level, target_id in workbench_tiers)
+
+
+def construction_target_locked_reasons_pure(player_data, target_id, construction_data, room_data, servant_data, nail_data, workbench_tiers):
+    spec = construction_data.get(target_id)
+    if not isinstance(spec, Mapping):
+        return ("Unknown Construction target",)
+    reasons = []
+    if not bool(player_data.get("house_owned", False)):
+        reasons.append("Purchase a house")
+    rooms = player_data.get("house_rooms_bought", {}) or {}
+    room = str(spec.get("room", ""))
+    if room and not bool(rooms.get(room)):
+        reasons.append(f"Buy {room_data.get(room, {}).get('display_name', room)}")
+    inventory = player_data.get("inventory", {}) or {}
+    flags = player_data.get("house_built_flags", {}) or {}
+    if target_id.startswith("tablet_"):
+        required_level = _positive_int(spec.get("magic_level", 1), 1)
+        if _positive_int(player_data.get("magic_level", 1), 1) < required_level:
+            reasons.append(f"Magic level {required_level}")
+        slot = _positive_int(spec.get("lectern_component", 0), 0)
+        if not any(bool(flags.get(lectern)) and slot in slots for lectern, slots in _LECTERN_SLOTS.items()):
+            reasons.append("Build a compatible lectern")
+    else:
+        required_level = _positive_int(spec.get("level", 1), 1)
+        effective_level = _positive_int(player_data.get("construction_level", 1), 1)
+        if (not bool(spec.get("water")) and _non_negative_int(inventory.get("Crystal saw", 0), 0) > 0
+                and quest_completed_pure(player_data, "the_eyes_of_glouphrie")):
+            effective_level += 3
+        if effective_level < required_level:
+            reasons.append(f"Construction level {required_level}")
+        if target_id.startswith("flatpack_") and not _construction_has_workbench(
+            flags, _positive_int(spec.get("workbench_level", 17), 17), workbench_tiers
+        ):
+            reasons.append("Build the required workbench tier")
+    for item, amount in (spec.get("requirements", {}) or {}).items():
+        have = _construction_nail_stock(inventory, nail_data) if item == "Nails" else _non_negative_int(inventory.get(item, 0), 0)
+        if have < _positive_int(amount, 1):
+            reasons.append(f"{item} x{amount}")
+    servant = str(player_data.get("house_servant", ""))
+    if servant and bool(spec.get("requirements")) and not target_id.startswith("tablet_"):
+        # Wages are paid once per servant-assisted review stint.
+        wage = _positive_int(servant_data.get(servant, {}).get("wage", 0), 0)
+        if _non_negative_int(inventory.get("Coins", 0), 0) < wage:
+            reasons.append(f"Coins x{wage} servant wage")
+    return tuple(reasons)
+
+
+def _consume_construction_nails(inventory, amount, nail_data, rng):
+    remaining = amount
+    while remaining > 0:
+        choice = next((name for name in reversed(tuple(nail_data)) if _non_negative_int(inventory.get(name, 0), 0) > 0), None)
+        if choice is None:
+            return False
+        inventory[choice] = _non_negative_int(inventory.get(choice, 0), 0) - 1
+        bend_rate = _positive_int(nail_data[choice].get("bend_rate", 1), 1)
+        try:
+            bent = float(rng()) < (1.0 / float(bend_rate + 1))
+        except (TypeError, ValueError):
+            bent = False
+        if not bent:
+            remaining -= 1
+    return True
+
+
+def apply_construction_action_pure(player_data, target_id, construction_data, servant_data, nail_data, rng):
+    spec = construction_data.get(target_id)
+    if not isinstance(spec, Mapping):
+        return player_data, {}, False
+    data = _copy_player_data_with_nested(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    servant = str(data.get("house_servant", ""))
+    requirements = spec.get("requirements", {}) or {}
+    servant_assisted = bool(servant and requirements) and not target_id.startswith("tablet_")
+    batch_size = _positive_int(servant_data.get(servant, {}).get("batch_size", 1), 1) if servant_assisted else 1
+    if servant_assisted:
+        wage = _positive_int(servant_data.get(servant, {}).get("wage", 0), 0)
+        if _non_negative_int(inventory.get("Coins", 0), 0) < wage:
+            return player_data, {}, False
+        inventory["Coins"] = _non_negative_int(inventory.get("Coins", 0), 0) - wage
+    completed = 0
+    for _ in range(batch_size):
+        enough = all(
+            (_construction_nail_stock(inventory, nail_data) if item == "Nails" else _non_negative_int(inventory.get(item, 0), 0)) >= _positive_int(amount, 1)
+            for item, amount in requirements.items()
+        )
+        if not enough:
+            break
+        before = dict(inventory)
+        ok = True
+        for item, amount in requirements.items():
+            amount = _positive_int(amount, 1)
+            if item == "Nails":
+                ok = _consume_construction_nails(inventory, amount, nail_data, rng)
+                if not ok: break
+            else:
+                inventory[item] = _non_negative_int(inventory.get(item, 0), 0) - amount
+        if not ok:
+            inventory = before
+            break
+        completed += 1
+    if completed <= 0:
+        return player_data, {}, False
+    output_item = spec.get("output_item")
+    outputs = {}
+    if isinstance(output_item, str):
+        inventory[output_item] = _non_negative_int(inventory.get(output_item, 0), 0) + completed
+        outputs[output_item] = completed
+        data["construction_outputs_created"] = _non_negative_int(data.get("construction_outputs_created", 0), 0) + completed
+    data["inventory"] = inventory
+    data["construction_actions_completed"] = _non_negative_int(data.get("construction_actions_completed", 0), 0) + completed
+    if bool(spec.get("stateful")) and not target_id.startswith("flatpack_"):
+        flags = dict(data.get("house_built_flags", {}) or {})
+        flags[target_id] = True
+        data["house_built_flags"] = flags
+    skill = "magic" if target_id.startswith("tablet_") else "construction"
+    return data, {skill: float(spec.get("xp", 0.0) or 0.0) * completed, "count": completed, "outputs": outputs}, True
+
+
+def purchase_house_pure(player_data, price=1000):
+    if bool(player_data.get("house_owned")):
+        return player_data, False
+    data = _copy_player_data_with_nested(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    if _non_negative_int(inventory.get("Coins", 0), 0) < price:
+        return player_data, False
+    inventory["Coins"] -= price
+    data["inventory"] = inventory
+    data["house_owned"] = True
+    data["house_rooms_bought"] = {**dict(data.get("house_rooms_bought", {}) or {}), "garden": True, "parlour": True}
+    return data, True
+
+
+def purchase_house_option_pure(player_data, option_id, options, *, kind):
+    spec = options.get(option_id)
+    if not isinstance(spec, Mapping) or not bool(player_data.get("house_owned")):
+        return player_data, False
+    level = _positive_int(player_data.get("construction_level", 1), 1)
+    if level < _positive_int(spec.get("level", 1), 1):
+        return player_data, False
+    quest_gate = spec.get("quest_gate")
+    if quest_gate and not quest_completed_pure(player_data, str(quest_gate)):
+        return player_data, False
+    data = _copy_player_data_with_nested(player_data)
+    inventory = dict(data.get("inventory", {}) or {})
+    price = _positive_int(spec.get("price", 0), 0)
+    if _non_negative_int(inventory.get("Coins", 0), 0) < price:
+        return player_data, False
+    inventory["Coins"] -= price
+    data["inventory"] = inventory
+    if kind == "room":
+        rooms = dict(data.get("house_rooms_bought", {}) or {})
+        if rooms.get(option_id): return player_data, False
+        rooms[option_id] = True
+        data["house_rooms_bought"] = rooms
+    elif kind == "servant":
+        data["house_servant"] = option_id
+    elif kind == "style":
+        data["house_style"] = option_id
+    return data, True
+
+
+def owned_gilded_altar_burner_count_pure(player_data):
+    rooms = player_data.get("house_rooms_bought", {}) or {}
+    flags = player_data.get("house_built_flags", {}) or {}
+    if not bool(rooms.get("chapel")) or not bool(flags.get("guilded_altar")):
+        return 0
+    return min(2, sum(bool(flags.get(name)) for name in ("inscence_burner", "mahogany_burner", "marble_burner")))
+
+
 RING_OF_FORGING_ITEM = "Ring of forging"
 RING_OF_FORGING_MAX_CHARGES = 140
 

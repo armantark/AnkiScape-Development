@@ -4,6 +4,21 @@ import os
 import re
 
 try:
+    from .construction_data import (
+        CONSTRUCTION_DATA,
+        DEFAULT_CONSTRUCTION_TARGET,
+        construction_asset_items_as_dict,
+        construction_extra_items_as_dict,
+    )
+except ImportError:
+    from construction_data import (  # type: ignore
+        CONSTRUCTION_DATA,
+        DEFAULT_CONSTRUCTION_TARGET,
+        construction_asset_items_as_dict,
+        construction_extra_items_as_dict,
+    )
+
+try:
     from .achievement_metadata import achievements_as_dict, build_achievement_definitions
 except ImportError:
     from achievement_metadata import achievements_as_dict, build_achievement_definitions
@@ -309,6 +324,7 @@ COMBAT_ENEMIES_FOLDER = os.path.join(current_dir, "combatenemies")
 SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
 PRAYER_ITEMS_FOLDER = os.path.join(current_dir, "prayeritems")
 MAGIC_ITEMS_FOLDER = os.path.join(current_dir, "magicitems")
+CONSTRUCTION_ITEMS_FOLDER = os.path.join(current_dir, "constructionitems")
 
 # Image dictionaries
 # New constants for Crafting
@@ -343,6 +359,22 @@ UTILITY_ACTIVITY_DATA = {
         "batch_size": 28,
         "group": "material_processing",
         "source": "Darkan SawmillOperator planks and LunarSpellbook plank-make cost path",
+    },
+    "convert_teak_logs_to_teak_planks": {
+        "display_name": "Convert teak logs to teak planks",
+        "requirements": {"Teak logs": 1, "Coins": 500},
+        "output_item": "Teak plank", "output_qty": 1, "batch_size": 28,
+        "group": "material_processing",
+        "icon_path": os.path.join(CONSTRUCTION_ITEMS_FOLDER, "teak_plank.png"),
+        "source": "Darkan SawmillOperator.java @ 7e7d67b481f1b94599de38a98c470419ab7c96b3",
+    },
+    "convert_mahogany_logs_to_mahogany_planks": {
+        "display_name": "Convert mahogany logs to mahogany planks",
+        "requirements": {"Mahogany logs": 1, "Coins": 1500},
+        "output_item": "Mahogany plank", "output_qty": 1, "batch_size": 28,
+        "group": "material_processing",
+        "icon_path": os.path.join(CONSTRUCTION_ITEMS_FOLDER, "mahogany_plank.png"),
+        "source": "Darkan SawmillOperator.java @ 7e7d67b481f1b94599de38a98c470419ab7c96b3",
     },
     "gather_wool": {
         "display_name": "Gather wool",
@@ -853,6 +885,14 @@ for _item_name in MAGIC_EXTRA_ITEM_DATA:
     if _path and os.path.exists(_path):
         MAGIC_ITEM_IMAGES[_item_name] = _path
 
+CONSTRUCTION_EXTRA_ITEM_DATA = construction_extra_items_as_dict()
+CONSTRUCTION_ASSET_ITEM_DATA = construction_asset_items_as_dict()
+CONSTRUCTION_ITEM_IMAGES = {}
+for _item_name in CONSTRUCTION_ASSET_ITEM_DATA:
+    _path = os.path.join(CONSTRUCTION_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png")
+    if os.path.exists(_path):
+        CONSTRUCTION_ITEM_IMAGES[_item_name] = _path
+
 # Hatchets + bird nests + seed contents fetched into woodcuttingitems/ by
 # tools/fetch_woodcutting_assets.py. Slug matches _asset_slug so the keys line
 # up; only files that actually exist are wired (rare egg nests/eggs stay
@@ -1029,6 +1069,7 @@ def _known_non_shop_item_names():
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
+        CONSTRUCTION_EXTRA_ITEM_DATA,
     ):
         names.update(mapping)
     names.update(MINING_OUTPUT_ITEMS)
@@ -1100,6 +1141,7 @@ def _known_non_shop_item_ids(names):
         RUNECRAFTING_EXTRA_ITEM_DATA,
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
+        CONSTRUCTION_EXTRA_ITEM_DATA,
     ):
         for item_name, spec in mapping.items():
             ids.add(slugify_item_id(_extra_item_category(spec), item_name))
@@ -1135,6 +1177,7 @@ def _apply_equipment_metadata(extra_item_data):
 EXTRA_ITEM_DATA = _apply_equipment_metadata({
     # Magic references many existing cross-skill items. Put its generic
     # fallback rows first so the owning skill's category/stackability wins.
+    **CONSTRUCTION_EXTRA_ITEM_DATA,
     **MAGIC_EXTRA_ITEM_DATA,
     **QUEST_REWARD_ITEM_DATA,
     **WOODCUTTING_EXTRA_ITEM_DATA,
@@ -1153,6 +1196,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **SHOP_ONLY_EXTRA_ITEM_DATA,
 })
 EXTRA_ITEM_IMAGES = {
+    **CONSTRUCTION_ITEM_IMAGES,
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
     **MINING_EXTRA_ITEM_IMAGES,
     **SMITHING_EXTRA_ITEM_IMAGES,

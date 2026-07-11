@@ -95,6 +95,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Herblore",
                 "Prayer",
                 "Magic",
+                "Construction",
             ),
         )
         self.assertTrue(is_review_skill("Mining"))
@@ -108,6 +109,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertTrue(is_review_skill("Herblore"))
         self.assertTrue(is_review_skill("Prayer"))
         self.assertTrue(is_review_skill("Magic"))
+        self.assertTrue(is_review_skill("Construction"))
         self.assertEqual(review_handler_key("Fishing"), "fishing")
         self.assertEqual(review_handler_key("Fletching"), "fletching")
         self.assertEqual(review_handler_key("Firemaking"), "firemaking")
@@ -117,6 +119,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Herblore"), "herblore")
         self.assertEqual(review_handler_key("Prayer"), "prayer")
         self.assertEqual(review_handler_key("Magic"), "magic")
+        self.assertEqual(review_handler_key("Construction"), "construction")
         self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
 
     def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
@@ -155,6 +158,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "Herblore",
                 "Prayer",
                 "Magic",
+                "Construction",
                 "Combat",
                 "Quests",
                 "Utility / Activities",
@@ -275,6 +279,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "prayer_exp": 0,
                 "magic_level": 1,
                 "magic_exp": 0,
+                "construction_level": 1,
+                "construction_exp": 0,
             },
         )
         self.assertEqual(
@@ -293,6 +299,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "current_herblore": "clean_guam",
                 "current_prayer": "bury_bones",
                 "current_magic": "low_alchemy",
+                "current_construction": "crude_wooden_chair",
             },
         )
         self.assertEqual(get_skill("Crafting").exp_key, "crafting_exp")

@@ -36,7 +36,10 @@ class TestCraftingData(unittest.TestCase):
     def test_every_recipe_has_output_and_source(self):
         for recipe in CRAFTING_RECIPES:
             self.assertTrue(recipe.output_item, recipe.id)
-            self.assertTrue(recipe.source.endswith((".kt", ".kts")), recipe.id)
+            self.assertTrue(
+                recipe.source.endswith((".kt", ".kts")) or "oldid=" in recipe.source,
+                recipe.id,
+            )
 
     def test_molten_glass_matches_furnace_source(self):
         # furnaces.plugin.kts handleMoltenGlass: 1 Soda ash + 1 Bucket of sand

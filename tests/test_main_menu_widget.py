@@ -512,6 +512,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._combat_unload_calls: list = []
         self._prayer_calls: list = []
         self._magic_calls: list = []
+        self._construction_calls: list = []
         self._magic_alch_calls: list = []
         self._prayer_config_calls: list = []
         self._death_office_calls: list = []
@@ -570,6 +571,7 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_prayer=lambda target: self._prayer_calls.append(target),
             on_set_magic=lambda target: self._magic_calls.append(target),
+            on_set_construction=lambda target: self._construction_calls.append(target),
             on_set_magic_alchemy_item=lambda item: self._magic_alch_calls.append(item),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
@@ -1150,12 +1152,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/46 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/48 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/134 (1.5%)", labels)
+        self.assertIn("Completed: 2/140 (1.4%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)
@@ -4143,6 +4145,26 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(locked, 0)
         QApplication.processEvents()
         self.assertEqual(self._magic_calls, before)
+
+    def test_construction_house_sheet_and_locked_click_guard(self) -> None:
+        pd = _make_player_data()
+        pd.update({
+            "construction_level": 99, "construction_exp": 0,
+            "house_owned": True, "house_rooms_bought": {"garden": True, "parlour": True},
+            "house_servant": "", "house_built_flags": {}, "house_style": "basic_wood",
+            "current_construction": "crude_wooden_chair", "inventory": {},
+        })
+        dialog = self._open(pd, current_skill="Construction")
+        self.assertIsNotNone(dialog.findChild(QLabel, "constructionHouseSummary"))
+        self.assertIsNotNone(dialog.findChild(QWidget, "constructionHouseRoomView"))
+        tree = dialog.findChild(QTreeWidget, "constructionTargetTree")
+        self.assertIsNotNone(tree)
+        locked = next(item for item in _tree_items(tree) if item.data(0, Qt.ItemDataRole.UserRole) == "crude_wooden_chair")
+        self.assertTrue(locked.isDisabled())
+        before = list(self._construction_calls)
+        tree.itemClicked.emit(locked, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._construction_calls, before)
 
     def test_combat_magic_casual_controls_and_advanced_disclosure_fit_short_dialog(self) -> None:
         pd = _make_player_data()

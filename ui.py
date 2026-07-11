@@ -84,6 +84,9 @@ try:
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
         MAGIC_ITEM_IMAGES,
+        CONSTRUCTION_DATA,
+        DEFAULT_CONSTRUCTION_TARGET,
+        CONSTRUCTION_ITEM_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -167,6 +170,9 @@ except Exception:
         DEFAULT_MAGIC_TARGET,
         MAGIC_GROUP_ORDER,
         MAGIC_ITEM_IMAGES,
+        CONSTRUCTION_DATA,
+        DEFAULT_CONSTRUCTION_TARGET,
+        CONSTRUCTION_ITEM_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -283,6 +289,7 @@ try:
         mining_target_rows,
         magic_target_rows,
         prayer_target_rows,
+        construction_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
         utility_activity_rows,
@@ -302,11 +309,17 @@ except Exception:
         mining_target_rows,
         magic_target_rows,
         prayer_target_rows,
+        construction_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
         utility_activity_rows,
         woodcutting_target_rows,
     )
+
+try:
+    from .construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS
+except Exception:
+    from construction_data import NAIL_DATA, ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA, WORKBENCH_TIERS  # type: ignore
 
 try:
     from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
@@ -1796,7 +1809,13 @@ def show_main_menu(
     on_set_runecrafting=None,
     on_set_herblore=None,
     on_set_prayer=None,
+    on_set_prayer_gilded_mode=None,
     on_set_magic=None,
+    on_set_construction=None,
+    on_purchase_house=None,
+    on_purchase_room=None,
+    on_hire_servant=None,
+    on_set_house_style=None,
     on_set_magic_alchemy_item=None,
     on_set_utility=None,
     on_set_carried_keep_drop=None,
@@ -2303,14 +2322,110 @@ def show_main_menu(
             group_order=list(HERBLORE_GROUP_LABELS),
         )
 
-    def _build_prayer_list() -> QTreeWidget:
-        return _build_grouped_target_tree(
+    def _build_prayer_list() -> QWidget:
+        panel = QWidget()
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(0, 0, 0, 0)
+        flags = player_data.get("house_built_flags", {}) or {}
+        rooms = player_data.get("house_rooms_bought", {}) or {}
+        burners = min(2, sum(bool(flags.get(name)) for name in ("inscence_burner", "mahogany_burner", "marble_burner")))
+        owned_ready = bool(rooms.get("chapel") and flags.get("guilded_altar") and burners)
+        mode_row = QHBoxLayout()
+        mode_row.addWidget(QLabel("Gilded altar"))
+        mode = QComboBox()
+        mode.setObjectName("prayerGildedModeCombo")
+        mode.addItem("Hosted house", "hosted")
+        if owned_ready:
+            mode.addItem(f"Owned house ({burners} burner{'s' if burners != 1 else ''})", "owned")
+        selected = mode.findData(player_data.get("prayer_gilded_mode", "hosted"))
+        mode.setCurrentIndex(max(0, selected))
+        if on_set_prayer_gilded_mode is not None:
+            mode.currentIndexChanged.connect(lambda _i: on_set_prayer_gilded_mode(mode.currentData()))
+        mode_row.addWidget(mode, 1)
+        panel_layout.addLayout(mode_row)
+        tree = _build_grouped_target_tree(
             prayer_target_rows(player_data, PRAYER_DATA, PRAYER_ITEM_IMAGES, DEFAULT_PRAYER_TARGET),
             {group: group for group in PRAYER_GROUP_ORDER},
             "__prayer_group__:",
             on_set_prayer,
             group_order=list(PRAYER_GROUP_ORDER),
         )
+        panel_layout.addWidget(tree, 1)
+        return panel
+
+    def _build_construction_list() -> QWidget:
+        panel = QWidget()
+        panel.setObjectName("constructionSkillPanel")
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(0, 0, 0, 0)
+        rooms = player_data.get("house_rooms_bought", {}) or {}
+        flags = player_data.get("house_built_flags", {}) or {}
+        servant_id = str(player_data.get("house_servant", ""))
+        style_id = str(player_data.get("house_style", "basic_wood"))
+        burners = min(2, sum(bool(flags.get(name)) for name in ("inscence_burner", "mahogany_burner", "marble_burner")))
+        summary = QLabel()
+        summary.setObjectName("constructionHouseSummary")
+        summary.setWordWrap(True)
+        if player_data.get("house_owned"):
+            summary.setText(
+                f"House · {sum(bool(value) for value in rooms.values())} rooms · "
+                f"{SERVANT_DATA.get(servant_id, {}).get('display_name', 'No servant')} · "
+                f"altar {'gilded' if flags.get('guilded_altar') else 'not gilded'}, {burners}/2 burners · "
+                f"{HOUSE_STYLE_DATA.get(style_id, {}).get('display_name', style_id)}"
+            )
+        else:
+            summary.setText("No house owned · Purchase the 1,000 coin starter house (Garden + Parlour).")
+        panel_layout.addWidget(summary)
+        if not player_data.get("house_owned"):
+            buy = QPushButton("Purchase house — 1,000 coins")
+            buy.setObjectName("constructionPurchaseHouseButton")
+            buy.setEnabled(on_purchase_house is not None and int((player_data.get("inventory", {}) or {}).get("Coins", 0) or 0) >= 1000)
+            if on_purchase_house is not None:
+                buy.clicked.connect(lambda: on_purchase_house())
+            panel_layout.addWidget(buy)
+        details_toggle = QToolButton()
+        details_toggle.setObjectName("constructionHouseDetailsToggle")
+        details_toggle.setText("House sheet details")
+        details_toggle.setCheckable(True)
+        details_toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        details_toggle.setArrowType(Qt.ArrowType.RightArrow)
+        panel_layout.addWidget(details_toggle)
+        details = QWidget()
+        details.setObjectName("constructionHouseRoomView")
+        details_layout = QVBoxLayout(details)
+        details_layout.setContentsMargins(12, 0, 0, 0)
+        for room_id, spec in ROOM_DATA.items():
+            row = QWidget(); row_layout = QHBoxLayout(row); row_layout.setContentsMargins(0, 1, 0, 1)
+            owned = bool(rooms.get(room_id))
+            row_layout.addWidget(QLabel(f"{spec['display_name']} · Lvl {spec['level']} · {spec['price']:,} coins"), 1)
+            button = QPushButton("Owned" if owned else "Buy")
+            button.setObjectName(f"constructionRoomButton::{room_id}")
+            button.setEnabled(bool(player_data.get("house_owned")) and not owned and on_purchase_room is not None)
+            if on_purchase_room is not None:
+                button.clicked.connect(lambda _c=False, rid=room_id: on_purchase_room(rid))
+            row_layout.addWidget(button); details_layout.addWidget(row)
+        servant = QComboBox(); servant.setObjectName("constructionServantCombo"); servant.addItem("No servant", "")
+        for sid, spec in SERVANT_DATA.items(): servant.addItem(f"{spec['display_name']} — {spec['wage']:,}/stint", sid)
+        servant.setCurrentIndex(max(0, servant.findData(servant_id)))
+        if on_hire_servant is not None: servant.currentIndexChanged.connect(lambda _i: on_hire_servant(servant.currentData()))
+        details_layout.addWidget(servant)
+        style = QComboBox(); style.setObjectName("constructionHouseStyleCombo")
+        for sid, spec in HOUSE_STYLE_DATA.items(): style.addItem(f"{spec['display_name']} — {spec['price']:,}", sid)
+        style.setCurrentIndex(max(0, style.findData(style_id)))
+        if on_set_house_style is not None: style.currentIndexChanged.connect(lambda _i: on_set_house_style(style.currentData()))
+        details_layout.addWidget(style)
+        details.setVisible(False)
+        details_toggle.toggled.connect(lambda checked: (details.setVisible(checked), details_toggle.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)))
+        panel_layout.addWidget(details)
+        tree = _build_grouped_target_tree(
+            construction_target_rows(
+                player_data, CONSTRUCTION_DATA, ROOM_DATA, SERVANT_DATA, NAIL_DATA,
+                WORKBENCH_TIERS, CONSTRUCTION_ITEM_IMAGES, DEFAULT_CONSTRUCTION_TARGET,
+            ), {}, "__construction_group__:", on_set_construction,
+        )
+        tree.setObjectName("constructionTargetTree")
+        panel_layout.addWidget(tree, 1)
+        return panel
 
     def _build_magic_list() -> QWidget:
         panel = QWidget()
@@ -3202,6 +3317,7 @@ def show_main_menu(
         "Herblore": _build_herblore_list,
         "Prayer": _build_prayer_list,
         "Magic": _build_magic_list,
+        "Construction": _build_construction_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }

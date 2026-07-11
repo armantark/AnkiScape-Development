@@ -219,6 +219,13 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="magic",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="construction", display_name="Construction", category="artisan",
+        implemented=True, participates_in_review=True, action_kind="process",
+        level_key="construction_level", exp_key="construction_exp",
+        current_target_key="current_construction", default_target="crude_wooden_chair",
+        review_handler_key="construction", visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -229,7 +236,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp", surface_state="planned"),
-    SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp", surface_state="planned"),
     SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp", surface_state="planned"),
     SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp", surface_state="planned"),
     SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp", surface_state="planned"),

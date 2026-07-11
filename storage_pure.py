@@ -90,7 +90,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 30
+CURRENT_CONFIG_VERSION = 31
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -170,6 +170,15 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(default_target_state())
     data["current_utility"] = DEFAULT_UTILITY_ACTIVITY
     data["current_quest"] = DEFAULT_QUEST_TARGET
+    data["construction_actions_completed"] = 0
+    data["construction_outputs_created"] = 0
+    data["house_owned"] = False
+    data["house_rooms_bought"] = {}
+    data["house_servant"] = ""
+    data["house_built_flags"] = {}
+    data["house_style"] = "basic_wood"
+    data["prayer_gilded_mode"] = "hosted"
+    data["prayer_owned_altar_stint"] = {}
     data["cooking_success_count"] = 0
     data["cooking_burn_count"] = 0
     data["hunter_success_count"] = 0
@@ -672,6 +681,19 @@ def migrate_loaded_data(
                     preset.setdefault("combat_vengeance", False)
                     preset.setdefault("combat_dream_thrift", False)
                     preset.setdefault("combat_spellbook_swap", "")
+    # v31: Construction's house sheet and owned gilded-altar state. Every
+    # setdefault is deliberately additive so unknown/future save keys survive.
+    if loaded_config_version < 31:
+        data.setdefault("current_construction", "crude_wooden_chair")
+        data.setdefault("construction_actions_completed", 0)
+        data.setdefault("construction_outputs_created", 0)
+        data.setdefault("house_owned", False)
+        data.setdefault("house_rooms_bought", {})
+        data.setdefault("house_servant", "")
+        data.setdefault("house_built_flags", {})
+        data.setdefault("house_style", "basic_wood")
+        data.setdefault("prayer_gilded_mode", "hosted")
+        data.setdefault("prayer_owned_altar_stint", {})
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -681,6 +703,16 @@ def migrate_loaded_data(
     data.setdefault("magic_charge_active", False)
     data.setdefault("mage_arena", {"step": 0, "completed": False})
     data.setdefault("mage_training_arena", {"completed": False})
+    data.setdefault("current_construction", "crude_wooden_chair")
+    data.setdefault("construction_actions_completed", 0)
+    data.setdefault("construction_outputs_created", 0)
+    data.setdefault("house_owned", False)
+    data.setdefault("house_rooms_bought", {})
+    data.setdefault("house_servant", "")
+    data.setdefault("house_built_flags", {})
+    data.setdefault("house_style", "basic_wood")
+    data.setdefault("prayer_gilded_mode", "hosted")
+    data.setdefault("prayer_owned_altar_stint", {})
     data.update(sanitize_combat_state_pure(data))
 
     # Progress key retained (not critical)

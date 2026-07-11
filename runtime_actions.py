@@ -73,6 +73,9 @@ try:
         apply_magic_action_pure,
         apply_open_bird_nests_pure,
         apply_prayer_action_pure,
+        apply_construction_action_pure,
+        construction_target_locked_reasons_pure,
+        owned_gilded_altar_burner_count_pure,
         prayer_gilded_search_step_pure,
         clear_prayer_gilded_stint_pure,
         prayer_target_locked_reasons_pure,
@@ -133,6 +136,10 @@ try:
         STRONGHOLD_TOTAL_STEPS,
     )
     from .skill_registry import get_skill
+    from .construction_data import (
+        CONSTRUCTION_DATA, DEFAULT_CONSTRUCTION_TARGET, NAIL_DATA, ROOM_DATA,
+        SERVANT_DATA, WORKBENCH_TIERS,
+    )
     from .shop_data import SHOP_PLAYER_BUY_PRICES
     from .smithing_data import DEFAULT_SMITHING_TARGET
 except ImportError:  # pragma: no cover - flat import path used by tests
@@ -196,6 +203,9 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_magic_action_pure,
         apply_open_bird_nests_pure,
         apply_prayer_action_pure,
+        apply_construction_action_pure,
+        construction_target_locked_reasons_pure,
+        owned_gilded_altar_burner_count_pure,
         prayer_gilded_search_step_pure,
         clear_prayer_gilded_stint_pure,
         prayer_target_locked_reasons_pure,
@@ -256,6 +266,10 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         STRONGHOLD_TOTAL_STEPS,
     )
     from skill_registry import get_skill  # type: ignore
+    from construction_data import (  # type: ignore
+        CONSTRUCTION_DATA, DEFAULT_CONSTRUCTION_TARGET, NAIL_DATA, ROOM_DATA,
+        SERVANT_DATA, WORKBENCH_TIERS,
+    )
     from shop_data import SHOP_PLAYER_BUY_PRICES  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
 
@@ -1266,15 +1280,33 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
         return False
 
     if spec.get("method") == "gilded_altar":
-        searched, ready, remaining = prayer_gilded_search_step_pure(player_data, target, ctx.random_random)
-        player_data.update(searched)
-        if not ready:
-            _record_action(ctx, "prayer", target, True, expected_success_chance=1.0)
-            ctx.save_player_data()
-            ctx.show_activity_gain(f"Finding a hosted gilded altar — {remaining} review{'s' if remaining != 1 else ''} left")
-            return True
+        burner_count = owned_gilded_altar_burner_count_pure(player_data)
+        owned = player_data.get("prayer_gilded_mode", "hosted") == "owned" and burner_count > 0
+        if owned:
+            stint = player_data.get("prayer_owned_altar_stint", {}) or {}
+            if stint.get("target_id") != target:
+                inventory = player_data.get("inventory", {}) or {}
+                if int(inventory.get("Clean marrentill", 0) or 0) < burner_count:
+                    ctx.deactivate_current_skill()
+                    ctx.show_error_message("Out of marrentill", f"Your {burner_count} burner(s) need one clean marrentill each for this stint.")
+                    return False
+                inventory = dict(inventory)
+                inventory["Clean marrentill"] -= burner_count
+                player_data["inventory"] = inventory
+                player_data["prayer_owned_altar_stint"] = {"target_id": target, "burners_lit": burner_count}
+            player_data.update(clear_prayer_gilded_stint_pure(player_data))
+        else:
+            player_data["prayer_owned_altar_stint"] = {}
+            searched, ready, remaining = prayer_gilded_search_step_pure(player_data, target, ctx.random_random)
+            player_data.update(searched)
+            if not ready:
+                _record_action(ctx, "prayer", target, True, expected_success_chance=1.0)
+                ctx.save_player_data()
+                ctx.show_activity_gain(f"Finding a hosted gilded altar — {remaining} review{'s' if remaining != 1 else ''} left")
+                return True
     else:
         player_data.update(clear_prayer_gilded_stint_pure(player_data))
+        player_data["prayer_owned_altar_stint"] = {}
 
     new_inventory, base_exp, ok, outputs = apply_prayer_action_pure(target, player_data.get("inventory", {}), PRAYER_DATA)
     if not ok:
@@ -1286,8 +1318,49 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
     if spec.get("method") == "bury":
         player_data["prayer_bury_count"] = int(player_data.get("prayer_bury_count", 0) or 0) + 1
     _record_action(ctx, "prayer", target, True, expected_success_chance=1.0, output_items=outputs)
+    if spec.get("method") == "gilded_altar" and player_data.get("prayer_gilded_mode") == "owned":
+        burners = int((player_data.get("prayer_owned_altar_stint", {}) or {}).get("burners_lit", 0) or 0)
+        base_exp = (base_exp / 3.5) * (2.5 + 0.5 * burners)
     exp_gained = ctx.award_skill_exp("prayer_exp", base_exp)
     ctx.level_up_check("Prayer", player_data)
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(exp_gained)
+    return True
+
+
+def handle_construction_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = player_data.get("current_construction", DEFAULT_CONSTRUCTION_TARGET)
+    if target not in CONSTRUCTION_DATA:
+        target = DEFAULT_CONSTRUCTION_TARGET
+        player_data["current_construction"] = target
+    spec = CONSTRUCTION_DATA[target]
+    locked = construction_target_locked_reasons_pure(
+        player_data, target, CONSTRUCTION_DATA, ROOM_DATA, SERVANT_DATA,
+        NAIL_DATA, WORKBENCH_TIERS,
+    )
+    if locked:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message(
+            "Construction target unavailable",
+            f"{spec.get('display_name', target)} requires {', '.join(locked)}, so Construction has been switched off.",
+        )
+        return False
+    updated, rewards, ok = apply_construction_action_pure(
+        player_data, target, CONSTRUCTION_DATA, SERVANT_DATA, NAIL_DATA,
+        ctx.random_random,
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message("Out of materials", f"You no longer have the materials for {spec.get('display_name', target)}.")
+        return False
+    player_data.update(updated)
+    skill = "magic" if target.startswith("tablet_") else "construction"
+    exp_gained = ctx.award_skill_exp(f"{skill}_exp", float(rewards.get(skill, 0.0) or 0.0))
+    ctx.level_up_check("Magic" if skill == "magic" else "Construction", player_data)
+    _record_action(ctx, "construction", target, True, expected_success_chance=1.0, output_items=rewards.get("outputs", {}))
     ctx.check_achievements(player_data)
     ctx.save_player_data()
     ctx.refresh_skill_availability()
@@ -2094,6 +2167,14 @@ def _can_start_magic_action(ctx: RuntimeActionContext) -> bool:
     return not magic_target_locked_reasons_pure(ctx.player_data, target, MAGIC_DATA, _magic_alch_values())
 
 
+def _can_start_construction_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_construction", DEFAULT_CONSTRUCTION_TARGET)
+    return not construction_target_locked_reasons_pure(
+        ctx.player_data, target, CONSTRUCTION_DATA, ROOM_DATA, SERVANT_DATA,
+        NAIL_DATA, WORKBENCH_TIERS,
+    )
+
+
 def _can_start_firemaking_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
     return not firemaking_target_locked_reasons_pure(
@@ -2230,6 +2311,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "herblore": _can_start_herblore_action,
     "prayer": _can_start_prayer_action,
     "magic": _can_start_magic_action,
+    "construction": _can_start_construction_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -2250,6 +2332,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "herblore": handle_herblore_answer,
     "prayer": handle_prayer_answer,
     "magic": handle_magic_answer,
+    "construction": handle_construction_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

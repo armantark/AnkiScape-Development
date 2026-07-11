@@ -14,6 +14,7 @@ CRAFTING_SOURCE_ROOT = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins
 COMBINATION_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/combine/CombinationData.kt"
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
 DEFAULT_CRAFTING_TARGET = "form_pot_unfired"
+LIMESTONE_BRICK_SOURCE = "RuneScape Wiki Limestone brick oldid=6308408 (2012-09-27)"
 
 
 @dataclass(frozen=True)
@@ -102,6 +103,7 @@ CRAFTING_REQUIRED_ITEM_NONTRADEABLE = frozenset(
 
 
 CRAFTING_RECIPES: Tuple[CraftingRecipe, ...] = (
+    CraftingRecipe("chisel_limestone_brick", "Limestone brick", "stone", "chisel", 12, 6.0, _req(("Limestone", 1)), "Limestone brick", source=LIMESTONE_BRICK_SOURCE, source_item_id=3420),
     # Gem cutting. Semiprecious source crush chances are documented but not modeled;
     # one successful review is one completed Crafting action.
     CraftingRecipe("cut_opal", "Opal", "gems", "chisel", 1, 15.0, _req(("Uncut opal", 1)), "Opal", source=GEM_SOURCE, source_enum="OPAL", notes="Source has crush chance; AnkiScape treats the review action as a successful cut."),
