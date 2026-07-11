@@ -6,6 +6,7 @@ from cooking_data import (
     COOKING_TARGETS,
     COOKING_TARGETS_BY_ID,
     GUT_FISH_SOURCE_PATH,
+    LAVA_EEL_WIKI_SOURCE,
     SEAWEED_COOKING_SOURCE_PATH,
     cooking_extra_items_as_dict,
     cooking_prep_activities_as_dict,
@@ -17,7 +18,7 @@ class TestCookingData(unittest.TestCase):
     def test_source_backed_targets_preserve_2011scape_rows(self):
         data = cooking_targets_as_dict()
 
-        self.assertEqual(len(COOKING_TARGETS), 58)
+        self.assertEqual(len(COOKING_TARGETS), 59)
         self.assertEqual(set(data), set(COOKING_TARGETS_BY_ID))
         self.assertEqual(data["cook_shrimps"]["level"], 1)
         self.assertEqual(data["cook_shrimps"]["exp"], 30.0)
@@ -32,6 +33,12 @@ class TestCookingData(unittest.TestCase):
         self.assertEqual(data["cook_summer_pie"]["exp"], 260.0)
         self.assertEqual(data["cook_rocktail"]["level"], 93)
         self.assertEqual(data["cook_rocktail"]["exp"], 225.0)
+        self.assertEqual(data["cook_lava_eel"]["level"], 53)
+        self.assertEqual(data["cook_lava_eel"]["requirements"], {"Raw lava eel": 1})
+        self.assertEqual(data["cook_lava_eel"]["output_item"], "Lava eel")
+        self.assertEqual(data["cook_lava_eel"]["exp"], 30.0)
+        self.assertEqual(data["cook_lava_eel"]["source"], LAVA_EEL_WIKI_SOURCE)
+        self.assertTrue(data["cook_lava_eel"]["source_always_succeeds"])
 
     def test_runtime_extra_targets_preserve_live_source_rows(self):
         data = cooking_targets_as_dict()
@@ -98,6 +105,8 @@ class TestCookingData(unittest.TestCase):
         self.assertFalse(extra["Burnt fish"]["tradeable"])
         self.assertFalse(extra["Burnt shrimp"]["tradeable"])
         self.assertFalse(extra["Crayfish"]["tradeable"])
+        self.assertFalse(extra["Raw lava eel"]["tradeable"])
+        self.assertFalse(extra["Lava eel"]["tradeable"])
         self.assertEqual(extra["Empty pot"]["category"], "crafted")
         self.assertEqual(extra["Bowl of water"]["category"], "material")
         self.assertEqual(extra["Clay"]["category"], "ore")

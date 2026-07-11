@@ -993,7 +993,7 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             )
         )
         self.assertEqual(iconless, [], f"Cooking items missing icons: {iconless}")
-        for item_name in ("Cooking apple", "Burnt fish", "Cooked meat", "Raw wild pie", "Redberry pie"):
+        for item_name in ("Cooking apple", "Burnt fish", "Cooked meat", "Raw wild pie", "Redberry pie", "Raw lava eel", "Lava eel"):
             self.assertIn(item_name, COOKING_ITEM_IMAGES)
             self.assertTrue(os.path.exists(COOKING_ITEM_IMAGES[item_name]))
         for item_name in ("Redberry pie", "Blurite ore", "Iron bar"):

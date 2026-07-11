@@ -1844,6 +1844,20 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(burnt_inv["Raw shrimps"], 0)
         self.assertEqual(burnt_inv["Burnt shrimp"], 1)
 
+        lava_inv, lava_exp, lava_ok, lava_output, lava_burned = apply_cooking_action_pure(
+            "cook_lava_eel",
+            {"Raw lava eel": 1},
+            COOKING_DATA,
+            cooking_level=53,
+            roll=1.0,
+        )
+        self.assertTrue(lava_ok)
+        self.assertFalse(lava_burned)
+        self.assertEqual(lava_output, "Lava eel")
+        self.assertEqual(lava_exp, 30.0)
+        self.assertEqual(lava_inv, {"Raw lava eel": 0, "Lava eel": 1})
+        self.assertEqual(calculate_cooking_success_probability_pure(53, COOKING_DATA["cook_lava_eel"]), 1.0)
+
     def test_cooking_runtime_extra_formulas_and_inventory(self):
         trout = COOKING_DATA["gut_leaping_trout"]
         salmon = COOKING_DATA["gut_leaping_salmon"]

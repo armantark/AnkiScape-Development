@@ -742,12 +742,16 @@ for _item_name in hunter_supply_item_names():
 
 COOKING_EXTRA_ITEM_DATA = cooking_extra_items_as_dict()
 COOKING_ITEM_IMAGES = {}
+COOKING_SHARED_ITEM_IMAGES = {
+    "Lava eel": os.path.join(QUEST_ITEMS_FOLDER, "lava_eel.png"),
+}
 _COOKING_ITEM_NAMES = set(COOKING_EXTRA_ITEM_DATA)
 _COOKING_ITEM_NAMES.update(COOKING_RAW_ITEMS)
 _COOKING_ITEM_NAMES.update(COOKING_OUTPUT_ITEMS)
 for _item_name in _COOKING_ITEM_NAMES:
     _path = (
-        FISHING_ITEM_IMAGES.get(_item_name)
+        COOKING_SHARED_ITEM_IMAGES.get(_item_name)
+        or FISHING_ITEM_IMAGES.get(_item_name)
         or CRAFTED_ITEM_IMAGES.get(_item_name)
         or ORE_IMAGES.get(_item_name)
         or BAR_IMAGES.get(_item_name)

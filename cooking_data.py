@@ -31,6 +31,11 @@ SEAWEED_COOKING_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/objs/cookingrange/seawead_cooking.plugin.kts"
 )
+LAVA_EEL_WIKI_SOURCE = "https://runescape.wiki/w/Lava_eel?oldid=5850408"
+LAVA_EEL_DARKAN_SOURCE = (
+    "/Users/ArmanTarkhanian1/Documents/2012scape with bots/darkan-world-server/"
+    "src/main/java/com/rs/game/content/skills/cooking/Cooking.java"
+)
 ITEMS_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/api/cfg/Items.kt"
@@ -120,6 +125,7 @@ COOKING_TARGETS: Tuple[CookingTarget, ...] = (
     CookingTarget('cook_rocktail', 'ROCKTAIL', 'Cook raw rocktail', 'fish', 'RAW_ROCKTAIL', 15270, 'Raw rocktail', 'ROCKTAIL', 15272, 'Rocktail', 'BURNT_ROCKTAIL', 15274, 'Burnt rocktail', 93, 225.0, 1, 222, output_variant='primary'),
     CookingTarget('cook_cave_eel', 'CAVE_EEL', 'Cook raw cave eel', 'eels', 'RAW_CAVE_EEL', 5001, 'Raw cave eel', 'CAVE_EEL', 5003, 'Cave eel', 'BURNT_CAVE_EEL', 5002, 'Burnt cave eel', 38, 115.0, 38, 332, output_variant='primary'),
     CookingTarget('cook_slimy_eel', 'SLIMY_EEL', 'Cook slimy eel', 'eels', 'SLIMY_EEL', 3379, 'Slimy eel', 'COOKED_SLIMY_EEL', 3381, 'Cooked slimy eel', 'BURNT_EEL', 3383, 'Burnt eel', 28, 95.0, 63, 382, output_variant='primary'),
+    CookingTarget('cook_lava_eel', 'RAW_LAVA_EEL', 'Cook raw lava eel', 'eels', 'RAW_LAVA_EEL', 2148, 'Raw lava eel', 'LAVA_EEL', 2149, 'Lava eel', '', 0, '', 53, 30.0, 0, 0, output_variant='primary', source=LAVA_EEL_WIKI_SOURCE, runtime_source=LAVA_EEL_DARKAN_SOURCE, source_always_succeeds=True),
     CookingTarget('cook_rainbow_fish', 'RAINBOW_FISH', 'Cook raw rainbow fish', 'fish', 'RAW_RAINBOW_FISH', 10138, 'Raw rainbow fish', 'RAINBOW_FISH', 10136, 'Rainbow fish', 'BURNT_RAINBOW_FISH', 10140, 'Burnt rainbow fish', 35, 110.0, 56, 370, output_variant='primary'),
     CookingTarget('cook_thin_snail', 'THIN_SNAIL', 'Cook thin snail', 'snails', 'THIN_SNAIL', 3363, 'Thin snail', 'THIN_SNAIL_MEAT', 3369, 'Thin snail meat', 'BURNT_SNAIL', 3375, 'Burnt snail', 12, 70.0, 93, 444, output_variant='primary'),
     CookingTarget('cook_lean_snail', 'LEAN_SNAIL', 'Cook lean snail', 'snails', 'LEAN_SNAIL', 3365, 'Lean snail', 'LEAN_SNAIL_MEAT', 3371, 'Lean snail meat', 'BURNT_SNAIL', 3375, 'Burnt snail', 17, 80.0, 93, 444, output_variant='primary'),
@@ -281,6 +287,8 @@ SOURCE_ITEM_DATA: Dict[str, Tuple[int, bool]] = {
     "Raw crayfish": (13435, False),
     "Crayfish": (13433, False),
     "Burnt crayfish": (13437, False),
+    "Raw lava eel": (2148, False),
+    "Lava eel": (2149, False),
 }
 
 for _target in COOKING_TARGETS:

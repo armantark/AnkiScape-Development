@@ -1527,6 +1527,28 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(telemetry["failure_kinds"], {"burn": 1})
         self.assertEqual(telemetry["outputs"], {"Burnt shrimp": 1})
 
+    def test_lava_eel_cooking_always_succeeds_with_source_xp(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        player_data = {
+            "inventory": {"Raw lava eel": 1},
+            "cooking_level": 53,
+            "cooking_exp": 0,
+            "current_cooking": "cook_lava_eel",
+            "cooking_success_count": 0,
+            "cooking_burn_count": 0,
+            "completed_achievements": [],
+        }
+
+        ok = handle_cooking_answer(_context(player_data, calls, random_values=[1.0]))
+
+        self.assertTrue(ok)
+        self.assertEqual(player_data["inventory"], {"Raw lava eel": 0, "Lava eel": 1})
+        self.assertEqual(player_data["cooking_exp"], 30.0)
+        self.assertEqual(player_data["cooking_success_count"], 1)
+        self.assertEqual(player_data["cooking_burn_count"], 0)
+        self.assertEqual(calls["xp"], [30.0])
+        self.assertEqual(calls["saves"], 1)
+
     def test_cooking_runtime_extra_gutting_uses_source_rolls(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

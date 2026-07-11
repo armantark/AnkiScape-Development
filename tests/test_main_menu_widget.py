@@ -1753,6 +1753,19 @@ class MainMenuWidgetTest(unittest.TestCase):
         QApplication.processEvents()
         self.assertEqual(self._cooking_calls, before, "locked cooking target must not be selectable")
 
+    def test_lava_eel_row_uses_existing_quest_asset_and_never_burns(self) -> None:
+        pd = _make_player_data()
+        pd["cooking_level"] = 53
+        pd["inventory"] = {"Raw lava eel": 1}
+        dialog = self._open(pd)
+        tree = _goto_cooking(dialog)
+
+        lava_eel = _cooking_row(tree, "cook_lava_eel")
+        self.assertFalse(lava_eel.isDisabled())
+        self.assertFalse(lava_eel.icon(0).isNull())
+        self.assertIn("Cannot burn or fail.", lava_eel.toolTip(0))
+        self.assertIn("Success chance: 100%", lava_eel.toolTip(0))
+
     def test_cooking_region_quest_locks_are_inert(self) -> None:
         pd = _make_player_data()
         pd["cooking_level"] = 99

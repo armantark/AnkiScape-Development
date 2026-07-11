@@ -262,7 +262,10 @@ def cooking_target_rows(
             quest_unlock_rules,
         )
         level_line = f"Requires Cooking level {lvl_req}. You have {lvl_have}.\n" if has_level_requirement else "No Cooking level requirement.\n"
-        failure_line = f"Burn output: {burnt_item} x1, no XP\n" if burnt_item else "Failure consumes the input, no XP\n"
+        if spec.get("source_always_succeeds"):
+            failure_line = "Cannot burn or fail.\n"
+        else:
+            failure_line = f"Burn output: {burnt_item} x1, no XP\n" if burnt_item else "Failure consumes the input, no XP\n"
         tooltip = (
             level_line
             + f"Success output: {output_item} x1\n"
