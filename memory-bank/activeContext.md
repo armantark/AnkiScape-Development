@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-The Prayer deep grill closed on 2026-07-11; `memory-bank/ankiscape-skill-expansion.md` is now Prayer's implementation-ready contract, and its implementation is in flight (delegated build from that contract, uncommitted working-tree output pending review). The Magic deep grill also closed on 2026-07-11; `memory-bank/magic-skill-contract-2026-07-11.md` is Magic's implementation-ready contract and queues as the next build after Prayer lands.
+Prayer and Magic both shipped on 2026-07-11 (commits `ed1327b` and `24fbafd`), each implemented in full from its closed contract by a delegated build and independently verified before commit. The active design work is the Construction deep grill, mid-flight with four decisions settled (hybrid house model: flat XP build targets plus a persistent house sheet; servants as a batch boost; owned gilded altar with marrentill-consuming burners and no finding roll; flatpacks as wiki gap-fill with workbench-tier gating). The next grill question is the UI surface shape for the house sheet.
 
 Use these as the current handoff sources:
 
@@ -14,16 +14,22 @@ Use these as the current handoff sources:
 
 ## Current Truth
 
-- `skill_registry.py` has 11 complete review skills, six partial Combat-trained skills, and eight planned skill definitions.
-- Attack, Strength, Defence, Constitution, Ranged, and Magic use the explicit partial-surface contract; quest gates/rewards recognize them as trainable without pretending that they own full standalone skill surfaces.
-- Prayer, Summoning, Construction, Farming, Agility, Dungeoneering, Slayer, and Thieving are wholly missing skill loops.
-- Magic needs a full skill continuation beyond its live standard combat spell ladder.
+- `skill_registry.py` has 13 complete review skills (Prayer and Magic joined on 2026-07-11), five partial Combat-trained skills, and seven planned skill definitions.
+- Attack, Strength, Defence, Constitution, and Ranged use the explicit partial-surface contract; quest gates/rewards recognize them as trainable without pretending that they own full standalone skill surfaces.
+- Summoning, Construction, Farming, Agility, Dungeoneering, Slayer, and Thieving are wholly missing skill loops.
 - The 194-row quest catalog and stage-gate engine are scaffolding. Presence is not full quest parity.
 - NPC Shops are live. The fake GE design is locked and parked until broader skill/item coverage.
 - The detailed shipped-skill gap ledger currently has 22 merged cards; Grenwall is explicitly source-blocked after its pinned revision failed to prove exact reward probabilities.
 - The live item graph currently finds 267 orphan action inputs. The canonical breakdown and command live in `memory-bank/source-audits/item-reachability-audit-2026-07-11.md`.
 
 ## Most Recent Completed Work
+
+The 2026-07-11 implementation pass landed both closed contracts as delegated builds, each independently re-verified before its commit:
+
+- Prayer (`ed1327b`): prayer_data.py with per-row citations; bury/scatter/Ectofuntus (~9 bones per review)/hosted gilded altar with the 1-10-review house-finding roll; two-tick drain, curse ramps, Soul Split/Deflect EV translation; named combat presets with per-target pins (storage v29); Knight Waves as an 8-review landmark; 42 assets with provenance.
+- Magic (`24fbafd`): magic_data.py with 94 noncombat targets across Standard/Ancient/Lunar; uncapped 40%/60% alchemy against cached values with elemental-staff substitution; combat roster gap-fill (god spells behind a five-review Mage Arena landmark, 16 Ancients, four Miasmics from Darkan); preset schema extended with spellbook/autocast/Vengeance/Dream/Swap (storage v30); the curated three casual controls; 122 assets with provenance.
+
+Notable conservative resolutions recorded in the delegated reports: Rapid Renewal restores at the pinned 65/230 rather than the emulator's 60/240; no Ancient bonemeal was invented; the Prayer renewal gradual-restore formula was omitted as unproven; Miasmic spells ship with authentic data but no invented NPC attack-speed effect; Bones to Peaches stays visible but gated behind a future Mage Training Arena activity.
 
 The 2026-07-10 overnight pass implemented and committed three fully evidenced sub-slices:
 
@@ -39,7 +45,7 @@ The 2026-07-11 Prayer grill session finished the design: all methods (bury, scat
 
 The 2026-07-11 Magic grill session (same day, after Prayer) settled the full Magic continuation: uncapped full-parity alchemy with elemental-staff substitution on noncombat casts, teleports as pure training casts (no invented travel hooks), all three spellbooks (Ancients/Lunar wiki-pinned, quest-gated) with implicit book state and a strict per-preset/per-stint no-mixing rule, Spellbook Swap preserved as the single sanctioned no-mixing exception, Dream as a review-cost between-fight heal policy, and a casual-mode answer to checkbox creep: the pack-mode dial derives prayer/uptime/Vengeance/swap choices and casual mode surfaces exactly three toggles (prayers on/off, contextual autocast picker, Dream thrift). Every edge-case spell got an explicit disposition: a salvage ledger (Bake Pie, Humidify, Magic Imbue, Superglass/Tan Leather/String Jewellery/Plank Make, Hunter Kit, Crumble Undead, Monster Examine readout, telegrab→Wine of Zamorak), a pure-cast bucket, a strictly-other-player not_applicable bucket, and a Livid Farm deferral.
 
-Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt tests passing, with 160 expected non-Qt skips in the pure interpreter.
+Current verification baseline: 1,031 pure tests and 1,031 full offscreen Qt tests passing, with 166 expected non-Qt skips in the pure interpreter.
 
 ## Decision Boundaries
 
@@ -63,7 +69,7 @@ Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt test
 
 ## Next Recommended Work
 
-1. Land the in-flight Prayer implementation (review the delegated working-tree output, verify both suites, commit), then implement Magic from `memory-bank/magic-skill-contract-2026-07-11.md`, or begin another missing-skill grill (Construction next) when the owner is available.
+1. Finish the Construction deep grill (mid-flight; next question is the house-sheet UI surface) and produce the Prayer and Magic results artifacts, then queue the Construction implementation from its contract once closed.
 2. Close reachability roots only through their authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable restoration milestone, rerun Grenwall, quest, missing-skill, and special-activity audits against the changed source surface.
 

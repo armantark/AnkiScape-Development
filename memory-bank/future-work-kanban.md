@@ -35,24 +35,21 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN` for hidden enemy/equipment b
 - Quest gates and XP rewards now recognize trainable partial stats, and legacy pending Combat-stat XP migrates directly. See `memory-bank/source-audits/partial-combat-skill-registry-2026-07-11.md`.
 - Continue weapon/ammo/spell/equipment/enemy breadth under `memory-bank/combat-design-grill-2026-06-23.md` rather than reopening the Combat loop design.
 
-### Prayer — grill complete, ready to build
+### Prayer — SHIPPED 2026-07-11 (commit ed1327b)
 
-Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
+Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 
-- The full implementation-ready contract is `memory-bank/ankiscape-skill-expansion.md` (grill closed 2026-07-11). All product decisions are settled: bury/scatter/Ectofuntus/hosted-gilded methods, EV prayer/curse combat translation with the uptime policy toggle, prayer points and drain resistance, Rapid Restore analog, and skill-surface UI placement. Prayer selection and uptime fold into a new named combat preset system (bundling the existing supply loadout/pack mode) with per-target override.
-- The Chaos Temple Wilderness bone altar was struck as an OSRS-2018 false positive (pre-EOC `oldid=5934985` shows only bone spawns and a recharge altar), which also mooted the Wilderness-risk decision.
-- Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract: standard-book tables from game-main `prayer.kt`, the curse drain column from `oldid=6535713`, Darkan `Sap.java`/`Leech.java` step sizes, impious/accursed ash pins and demon drop wiring, bonemeal/ecto-token/slime items, Piety/Chivalry gate pins, and renewal restore rates.
-- Shades of Mort'ton cremation and GE bones trail as `DEPENDENCY` on their own families; owned-POH altars trail on Construction.
+- Implemented in full from `memory-bank/ankiscape-skill-expansion.md`: bury/scatter/Ectofuntus/hosted-gilded methods, the EV prayer/curse combat translation with the uptime policy, prayer points/drain, the named combat preset system with per-target pins (storage v29), and the Knight Waves landmark. Verified at 1,016 pure + 1,016 offscreen Qt tests.
+- Trailing `DEPENDENCY` items: Shades of Mort'ton cremation and GE bones on their own families; owned-POH altars and burners on Construction (the Construction grill has since settled the burner rule: clean marrentill consumed per burner, no finding roll for an owned house).
+- The implementation report's conservative calls (pinned Rapid Renewal 65/230 over the emulator, no Ancient bonemeal, renewal gradual formula omitted as unproven) are recorded in the results artifact.
 
-### Magic — grill complete, ready to build
+### Magic — SHIPPED 2026-07-11 (commit 24fbafd)
 
-Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
+Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 
-- The full implementation-ready contract is `memory-bank/magic-skill-contract-2026-07-11.md` (grill closed 2026-07-11). All product decisions are settled: uncapped full-parity alchemy with staff substitution, teleports as pure training casts, all three spellbooks with implicit book state and a strict per-preset/per-stint no-mixing rule, Spellbook Swap as the single sanctioned exception, the Dream review-cost heal policy, the casual pack-mode dial deriving prayers/uptime/Vengeance with exactly three surfaced toggles, and the per-spell salvage / pure-cast / not_applicable ledger.
-- Combat ladder gap-fill rides along: surges, Wind Rush, god spells behind a Mage Arena landmark, Iban Blast, Magic Dart, Crumble Undead, Storm of Armadyl, and the bind/curse families as EV effects.
-- Charge orbs close the reachability audit's elemental-orb orphan category; telegrab ships as the authentic Wine of Zamorak route.
-- Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract (SpellbookData roster, Darkan cache alch values, enchantment/bolt tables, Ancients/Lunar wiki pins, curse/bind pins, orb/Mage Arena/telegrab pins).
-- Deferred: Livid Farm spell set (its own activity card), Cure Plant / Fertile Soil real function (Farming), Plank Make consumers (Construction), Hunter Kit consumers (Hunter), Slayer staff acquisition (Slayer).
+- Implemented in full from `memory-bank/magic-skill-contract-2026-07-11.md`: 94 noncombat targets across all three spellbooks, uncapped 40%/60% alchemy with staff substitution, the combat roster gap-fill (god spells behind the five-review Mage Arena landmark, all 16 ordinary Ancients, four Miasmics), preset-schema extension for spellbook/autocast/Vengeance/Dream/Swap (storage v30), and the curated three casual controls. Verified at 1,031 pure + 1,031 offscreen Qt tests.
+- Charge orbs closed the reachability audit's elemental-orb orphan category; telegrab ships as the authentic Wine of Zamorak route.
+- Trailing `DEPENDENCY` items: Livid Farm spell set (its own activity card), Cure Plant / Fertile Soil real function (Farming), Plank Make consumers (Construction), Hunter Kit consumers (Hunter), Slayer staff acquisition (Slayer), Bones to Peaches behind a future Mage Training Arena activity.
 
 ## Deep-grill queue — missing or incomplete skill surfaces
 
