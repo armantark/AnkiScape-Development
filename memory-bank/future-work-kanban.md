@@ -39,7 +39,7 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN` for hidden enemy/equipment b
 
 Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
 
-- The full implementation-ready contract is `memory-bank/ankiscape-skill-expansion.md` (grill closed 2026-07-11). All product decisions are settled: bury/scatter/Ectofuntus/hosted-gilded methods, EV prayer/curse combat translation with the uptime policy toggle, prayer points and drain resistance, Rapid Restore analog, and skill-surface UI placement.
+- The full implementation-ready contract is `memory-bank/ankiscape-skill-expansion.md` (grill closed 2026-07-11). All product decisions are settled: bury/scatter/Ectofuntus/hosted-gilded methods, EV prayer/curse combat translation with the uptime policy toggle, prayer points and drain resistance, Rapid Restore analog, and skill-surface UI placement. Prayer selection and uptime fold into a new named combat preset system (bundling the existing supply loadout/pack mode) with per-target override.
 - The Chaos Temple Wilderness bone altar was struck as an OSRS-2018 false positive (pre-EOC `oldid=5934985` shows only bone spawns and a recharge altar), which also mooted the Wilderness-risk decision.
 - Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract: standard-book tables from game-main `prayer.kt`, the curse drain column from `oldid=6535713`, Darkan `Sap.java`/`Leech.java` step sizes, impious/accursed ash pins and demon drop wiring, bonemeal/ecto-token/slime items, Piety/Chivalry gate pins, and renewal restore rates.
 - Shades of Mort'ton cremation and GE bones trail as `DEPENDENCY` on their own families; owned-POH altars trail on Construction.

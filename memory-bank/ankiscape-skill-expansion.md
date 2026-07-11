@@ -82,13 +82,16 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
   boost` pre-EOC snapshot):** stats decay/recover toward base ~1 level/min
   (= the engine's existing 100-tick cadence); Rapid Restore doubles it for all
   skills except Constitution, Prayer, Summoning.
-- **STRUCK — Chaos Temple Wilderness bone altar.** Pre-EOC page
-  (`Chaos Temple (Wilderness)`?oldid=5934985, 2012-07-14) shows only free bone
-  spawns and a prayer-recharge altar; game-main has only static constants. The
-  bone-offering altar with ~50% bone save is OSRS-2018 content — a false
-  positive of the `fletch-javelin-construction` class. The "chaos altar risk
-  model" open decision is moot. (Bone-spawn gathering was deliberately not
-  added as a route: combat bone drops are already at their authentic ceiling.)
+- **STRUCK — Chaos Temple Wilderness bone altar.** Both pre-EOC pages —
+  `Chaos Temple (Wilderness)`?oldid=5934985 (level-11 temple, 2012-07-14) and
+  `Chaos Temple (hut)` (level-38 hut, pre-EOC snapshot 2012-11-09) — describe
+  prayer-recharge altars only; game-main has only static constants. The
+  bone-offering altar with the 50% bone save arrived in **OSRS on 7 December
+  2017** ("The Corsair Curse and Wilderness Chaos Altar" update, at the
+  level-38 hut), and RS3 never added it at all — a false positive of the
+  `fletch-javelin-construction` class. The "chaos altar risk model" open
+  decision is moot. (Bone-spawn gathering was deliberately not added as a
+  route: combat bone drops are already at their authentic ceiling.)
 
 ### Training methods (final roster)
 1. **Bury bones** — 1×, zero friction, one bone per review (game-main BoneData).
@@ -119,13 +122,22 @@ already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
   scaled by uptime, applied pre-loop. Drain accrues per simulated tick at the
   authentic rate × uptime. Combat hooks: enemy damage `logic_pure.py:3502-3516`;
   pre-loop accuracy/max-hit `3457-3486`; per-tick loop `3435`.
-- **Uptime policy, not assumed 100%.** Per-combat-target toggle
-  Off / Conservative 40% / Aggressive 70% / Always 100%. The fractions are the
-  one invented knob, tuned from telemetry later.
-- **Checkbox prayer selection**, per combat target (house target-local-settings
-  pattern), gated by unlock level, sharing the one uptime, enforcing the
+- **Uptime policy, not assumed 100%.** Toggle Off / Conservative 40% /
+  Aggressive 70% / Always 100%, scoped through the combat preset system below.
+  The fractions are the one invented knob, tuned from telemetry later.
+- **Checkbox prayer selection via combat presets** (owner decision 2026-07-11,
+  second pass). Prayer checkboxes + uptime do not attach directly to targets;
+  they fold into a **named combat preset system with per-target override** —
+  saved presets bundle the whole combat configuration (the existing global
+  `combat_supply_loadout`, `combat_pack_mode`, auto-eat settings, plus the new
+  prayer selection and uptime), and any combat target can pin a preset or
+  override individual fields. This mirrors skilling's casual-preset /
+  advanced-saved-layout split (`runtime_actions.py:428`) and generalizes the
+  current global-only combat state (`default_combat_state_pure`,
+  `logic_pure.py:1201`); migration keeps the existing global loadout as the
+  initial default preset. Checkboxes are gated by unlock level, enforce the
   authentic conflict groups (protect/deflect one-of; sap ⊥ leech ⊥ turmoil;
-  overheads ⊥ Wrath/Soul Split), plus a "hide lower-tier prayers" toggle.
+  overheads ⊥ Wrath/Soul Split), and get a "hide lower-tier prayers" toggle.
 - **All 30 standard prayers + full Ancient Curses book.** Book toggle is
   **global** (as in-game), gated on The Temple at Senntisten completion, and
   applies from the next combat burst. The Altar of Zaros +15% switch boost is
