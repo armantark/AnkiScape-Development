@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer Implementation — Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:1050px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; letter-spacing:.12em; color:var(--green); background:rgba(74,222,128,.1); border:1px solid var(--green); border-radius:999px; padding:.35rem .9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:2rem; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:60rem; margin-bottom:1.8rem; }
+.sub strong { color:var(--text); font-weight:500; }
+.mono { font-family:'JetBrains Mono',monospace; }
+h2 { font-weight:700; font-size:1.1rem; margin:2.2rem 0 .9rem; }
+.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; }
+.metric { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem; }
+.metric .n { font-family:'JetBrains Mono',monospace; font-size:1.35rem; font-weight:600; color:var(--accent); }
+.metric .n.g { color:var(--green); }
+.metric .l { font-size:.72rem; color:var(--text-dim); margin-top:.15rem; }
+.cols { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .cols { grid-template-columns:1fr; } }
+.panel { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.15rem; }
+.panel h3 { font-size:.92rem; font-weight:700; margin-bottom:.5rem; }
+.panel ul { list-style:none; }
+.panel li { font-size:.83rem; color:var(--text-dim); padding:.3rem 0; border-bottom:1px solid var(--surface-2); }
+.panel li:last-child { border-bottom:none; }
+.panel li strong { color:var(--text); font-weight:500; }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+th { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--border); }
+td { padding:.5rem .7rem; border-bottom:1px solid var(--surface-2); vertical-align:top; }
+td strong { font-weight:500; }
+.pill { font-family:'JetBrains Mono',monospace; font-size:.6rem; font-weight:600; padding:.12rem .5rem; border-radius:4px; white-space:nowrap; }
+.p-cons { color:var(--amber); background:rgba(251,191,36,.1); }
+.p-x { color:var(--text-dim); background:var(--surface-2); }
+.p-new { color:var(--purple); background:rgba(167,139,250,.12); }
+.smoke { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.15rem; }
+.smoke ol { margin-left:1.2rem; font-size:.83rem; color:var(--text-dim); }
+.smoke li { padding:.2rem 0; }
+.smoke li strong { color:var(--text); font-weight:500; }
+.copybtn { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:600; color:var(--accent); background:var(--accent-glow); border:1px solid var(--accent); border-radius:6px; padding:.35rem .8rem; cursor:pointer; margin-top:.8rem; }
+.copybtn:hover { background:rgba(79,140,255,.25); }
+.note { background:var(--surface); border-left:3px solid var(--green); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; font-size:.85rem; color:var(--text-dim); margin-top:1.4rem; }
+.note strong { color:var(--text); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">COMPLETED — VERIFIED &amp; COMMITTED ed1327b</div>
+  <h1>Prayer: shipped in full from its closed contract</h1>
+  <p class="sub">Delegated build (Codex Sol) from <span class="mono">memory-bank/ankiscape-skill-expansion.md</span>, independently re-verified before commit. Compare against the frozen plan artifact <span class="mono">prayer-grill-complete-plan-2026-07-11.html</span> — every planned slice landed; the deviations are the conservative calls below.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="n g">1,016 × 2</div><div class="l">pure + offscreen Qt suites, both OK (from 1,001)</div></div>
+    <div class="metric"><div class="n">+2,108</div><div class="l">lines across 64 files</div></div>
+    <div class="metric"><div class="n">42</div><div class="l">assets fetched, provenance recorded</div></div>
+    <div class="metric"><div class="n">15</div><div class="l">pre-EOC wiki oldids pinned</div></div>
+    <div class="metric"><div class="n">v29</div><div class="l">storage: named combat presets born</div></div>
+  </div>
+
+  <h2>What landed</h2>
+  <div class="cols">
+    <div class="panel">
+      <h3>Skill surface</h3>
+      <ul>
+        <li><strong>Bury / scatter</strong> — full bone and demonic-ash tables in <span class="mono">prayer_data.py</span>, per-row citations (game-main rev 667, Darkan <span class="mono">7e7d67b</span>, wiki pins).</li>
+        <li><strong>Ectofuntus</strong> — the owner's "slow grinder": ~9 bones per review through the bonemeal/slime loop, ecto-tokens out.</li>
+        <li><strong>Hosted gilded altar</strong> — 1–10-review house-finding roll paid once per stint; search reviews consume no bones; free burners per the grill decision.</li>
+        <li><strong>Knight Waves</strong> — 8-review landmark, four 20,000 XP rewards.</li>
+      </ul>
+    </div>
+    <div class="panel">
+      <h3>Combat translation</h3>
+      <ul>
+        <li><strong>Prayer points &amp; two-tick drain</strong>, restore potions via <span class="mono">potion_data.py</span>.</li>
+        <li><strong>Curses</strong> — Sap/Leech ramp steps from Darkan's CurseManager; Soul Split and Deflect as EV effects.</li>
+        <li><strong>Named combat presets</strong> — prayer selection, uptime policy, and supply loadout bundle into presets with per-target pins; globals migrated into the initial Default preset.</li>
+        <li><strong>UI</strong> — grouped Bury/Scatter/Ectofuntus/Gilded trees plus the preset editor; 4 new offscreen-only Qt tests.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Conservative calls &amp; exclusions</h2>
+  <table>
+    <tr><th>Item</th><th>Call</th><th>Rationale</th></tr>
+    <tr><td><strong>Rapid Renewal rates</strong></td><td><span class="pill p-cons">PINNED 65/230</span></td><td>Wiki pin beats the emulator's 60/240 — the pin is period-dated, the emulator value is uncited.</td></tr>
+    <tr><td><strong>Ancient bonemeal</strong></td><td><span class="pill p-cons">NOT INVENTED</span></td><td>No pre-EOC proof that demonic ashes grind at the Ectofuntus.</td></tr>
+    <tr><td><strong>Renewal gradual-restore formula</strong></td><td><span class="pill p-cons">OMITTED</span></td><td>Exact per-tick curve unproven; flat pinned restore ships instead.</td></tr>
+    <tr><td><strong>Shades cremation · GE bones</strong></td><td><span class="pill p-x">EXCLUDED</span></td><td>Per contract: trail on their own families.</td></tr>
+    <tr><td><strong>Chaos Temple altar · Zaros +15%</strong></td><td><span class="pill p-x">EXCLUDED</span></td><td>OSRS-2018 contamination / post-cutoff, struck during the grill.</td></tr>
+    <tr><td><strong>Owned-POH altar tiers</strong></td><td><span class="pill p-new">NOW UNBLOCKED</span></td><td>Deferred to Construction at build time — and the Construction grill has since settled it: owned altar with marrentill-consuming burners, no finding roll. Ships with Construction.</td></tr>
+  </table>
+
+  <h2>Manual smoke test</h2>
+  <div class="smoke">
+    <ol id="smoketest">
+      <li>Restart Anki; confirm Prayer appears in the Skills hub at the migrated level.</li>
+      <li>Select <strong>Bury bones</strong>, answer a card correctly, verify one bone consumed and audited XP awarded.</li>
+      <li>Undo the review; verify bone, XP, and counters roll back.</li>
+      <li>Switch to <strong>Ectofuntus</strong>; verify ~9 bones consumed per review with bonemeal/slime/ecto-token flow.</li>
+      <li>Select the <strong>gilded altar</strong>; verify the house-finding roll fires once, search reviews consume no bones, then offerings burn at the altar bonus.</li>
+      <li>Open the <strong>preset editor</strong>; confirm the Default preset holds your old global prayer/loadout settings.</li>
+      <li>Create a second preset with curses; verify Sap/Leech ramp in combat and Soul Split heals as EV.</li>
+      <li>Pin a preset to a specific combat target; verify it overrides the active preset for that target only.</li>
+      <li>Drink a prayer restore mid-fight; verify points restore per the pinned table.</li>
+      <li>Run the <strong>Knight Waves</strong> landmark to completion (8 reviews); claim the four 20,000 XP rewards.</li>
+      <li>Verify a locked (level-gated) prayer row cannot be selected.</li>
+      <li>Resize the dialog to ~560 pt tall; verify the Prayer tab stays scrollable with no overlap.</li>
+    </ol>
+    <button class="copybtn" id="copybtn">COPY AS CHECKLIST</button>
+  </div>
+
+  <div class="note"><strong>Verification:</strong> both suites re-run independently after the delegated build — 1,016 pure (164 expected non-Qt skips) and 1,016 offscreen Qt, all OK — before committing <span class="mono">ed1327b</span>. Sol's full report (per-slice citations, all 15 oldids) is preserved in the session scratchpad.</div>
+</div>
+<script>
+document.getElementById('copybtn').addEventListener('click', function () {
+  var btn = this;
+  var lines = [...document.querySelectorAll('#smoketest li')].map(function (li, i) { return (i + 1) + '. ' + li.textContent; }).join('\n');
+  navigator.clipboard.writeText(lines).then(function () {
+    btn.textContent = 'COPIED ✓';
+    setTimeout(function () { btn.textContent = 'COPY AS CHECKLIST'; }, 1500);
+  });
+});
+</script>
+</body>
+</html>

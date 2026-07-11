@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Implementation — Results</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:1050px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; letter-spacing:.12em; color:var(--green); background:rgba(74,222,128,.1); border:1px solid var(--green); border-radius:999px; padding:.35rem .9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:2rem; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:60rem; margin-bottom:1.8rem; }
+.mono { font-family:'JetBrains Mono',monospace; }
+h2 { font-weight:700; font-size:1.1rem; margin:2.2rem 0 .9rem; }
+.metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.8rem; }
+.metric { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:.9rem 1rem; }
+.metric .n { font-family:'JetBrains Mono',monospace; font-size:1.35rem; font-weight:600; color:var(--purple); }
+.metric .n.g { color:var(--green); }
+.metric .l { font-size:.72rem; color:var(--text-dim); margin-top:.15rem; }
+.books { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; }
+@media (max-width:900px){ .books { grid-template-columns:1fr; } }
+.book { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.1rem; border-top:3px solid var(--accent); }
+.book.anc { border-top-color:var(--red); }
+.book.lun { border-top-color:var(--green); }
+.book h3 { font-size:.95rem; font-weight:700; }
+.book .pin { font-family:'JetBrains Mono',monospace; font-size:.62rem; color:var(--text-dim); margin-bottom:.5rem; }
+.book ul { list-style:none; margin-top:.4rem; }
+.book li { font-size:.8rem; color:var(--text-dim); padding:.25rem 0; border-bottom:1px solid var(--surface-2); }
+.book li:last-child { border-bottom:none; }
+.book li strong { color:var(--text); font-weight:500; }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+th { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--border); }
+td { padding:.5rem .7rem; border-bottom:1px solid var(--surface-2); vertical-align:top; }
+td strong { font-weight:500; }
+.pill { font-family:'JetBrains Mono',monospace; font-size:.6rem; font-weight:600; padding:.12rem .5rem; border-radius:4px; white-space:nowrap; }
+.p-cons { color:var(--amber); background:rgba(251,191,36,.1); }
+.p-fix { color:var(--red); background:rgba(255,92,92,.1); }
+.p-def { color:var(--text-dim); background:var(--surface-2); }
+.smoke { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1rem 1.15rem; }
+.smoke ol { margin-left:1.2rem; font-size:.83rem; color:var(--text-dim); }
+.smoke li { padding:.2rem 0; }
+.smoke li strong { color:var(--text); font-weight:500; }
+.copybtn { font-family:'JetBrains Mono',monospace; font-size:.68rem; font-weight:600; color:var(--accent); background:var(--accent-glow); border:1px solid var(--accent); border-radius:6px; padding:.35rem .8rem; cursor:pointer; margin-top:.8rem; }
+.copybtn:hover { background:rgba(79,140,255,.25); }
+.note { background:var(--surface); border-left:3px solid var(--green); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; font-size:.85rem; color:var(--text-dim); margin-top:1.4rem; }
+.note strong { color:var(--text); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">COMPLETED — VERIFIED &amp; COMMITTED 24fbafd</div>
+  <h1>Magic: the full continuation, three spellbooks deep</h1>
+  <p class="sub">Second delegated build of the day (Codex Sol), from <span class="mono">memory-bank/magic-skill-contract-2026-07-11.md</span>. Compare against the frozen plan; the casual surface stayed at exactly three toggles as designed, with everything else derived from the pack-mode dial.</p>
+
+  <div class="metrics">
+    <div class="metric"><div class="n g">1,031 × 2</div><div class="l">pure + offscreen Qt suites, both OK (from 1,016)</div></div>
+    <div class="metric"><div class="n">94</div><div class="l">noncombat training targets</div></div>
+    <div class="metric"><div class="n">+2,987</div><div class="l">lines across 141 files</div></div>
+    <div class="metric"><div class="n">122</div><div class="l">assets + the Magic skill icon</div></div>
+    <div class="metric"><div class="n">v30</div><div class="l">storage: spellbook/Vengeance/Dream/Swap join the presets</div></div>
+  </div>
+
+  <h2>The three spellbooks</h2>
+  <div class="books">
+    <div class="book">
+      <h3>Standard</h3>
+      <div class="pin">oldid 6545726</div>
+      <ul>
+        <li><strong>Uncapped alchemy</strong> — 40%/60% of cached values, elemental-staff substitution on every noncombat cast.</li>
+        <li><strong>Teleports as pure training casts</strong> — no invented travel hooks.</li>
+        <li><strong>God spells</strong> behind a five-review Mage Arena landmark.</li>
+        <li>Salvage ledger live: Superglass, Tan Leather, String Jewellery, Plank Make, Bake Pie, Humidify, Magic Imbue, Hunter Kit, Crumble Undead, telegrab → Wine of Zamorak.</li>
+      </ul>
+    </div>
+    <div class="book anc">
+      <h3>Ancients</h3>
+      <div class="pin">oldid 6468193 · quest-gated</div>
+      <ul>
+        <li><strong>16 combat spells</strong> — Rush/Burst/Blitz/Barrage across all four elements, filling the combat roster gap.</li>
+        <li><strong>Four Miasmics</strong> from Darkan data.</li>
+        <li>Strict per-preset, per-stint no-mixing rule enforced.</li>
+      </ul>
+    </div>
+    <div class="book lun">
+      <h3>Lunar</h3>
+      <div class="pin">oldid 6288542 · quest-gated</div>
+      <ul>
+        <li><strong>Vengeance</strong> as an EV combat effect in presets.</li>
+        <li><strong>Dream</strong> as a review-cost between-fight heal policy (the "Dream thrift" casual toggle).</li>
+        <li><strong>Spellbook Swap</strong> — the single sanctioned no-mixing exception.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Conservative calls, deferrals, and one caught bug</h2>
+  <table>
+    <tr><th>Item</th><th>Call</th><th>Rationale</th></tr>
+    <tr><td><strong>Superglass bucket-return bug</strong></td><td><span class="pill p-fix">FOUND &amp; FIXED</span></td><td>Sol caught buckets not returning on the 30% second-glass roll before the suites ever ran; the shipped roll matches the pinned source.</td></tr>
+    <tr><td><strong>Miasmic spells</strong></td><td><span class="pill p-cons">NO INVENTED EFFECT</span></td><td>Ship with authentic Darkan damage data but no fabricated NPC attack-speed slow — AnkiScape combat has no NPC attack-speed stat to slow.</td></tr>
+    <tr><td><strong>Bones to Peaches</strong></td><td><span class="pill p-cons">VISIBLE, GATED</span></td><td>Behind the future Mage Training Arena activity (<span class="mono">mage_training_arena</span> flag); no invented unlock route.</td></tr>
+    <tr><td><strong>String Jewellery</strong></td><td><span class="pill p-cons">XP ONLY</span></td><td>Unstrung and strung amulets share a storage key, so the cast grants XP without an inventory change; splitting the key is a future migration if it ever matters.</td></tr>
+    <tr><td><strong>Livid Farm spells</strong></td><td><span class="pill p-def">DEFERRED</span></td><td>Per contract: waits for a Livid Farm activity grill.</td></tr>
+  </table>
+
+  <h2>Manual smoke test</h2>
+  <div class="smoke">
+    <ol id="smoketest">
+      <li>Restart Anki; confirm Magic appears in the Skills hub with its icon and migrated level.</li>
+      <li>Select <strong>High Alchemy</strong> on a held item; verify coins at 60% of the cached value and audited XP per cast.</li>
+      <li>Undo the review; verify the item returns and coins/XP roll back.</li>
+      <li>Cast with an elemental staff equipped; verify the staff's runes are not consumed.</li>
+      <li>Cast <strong>Superglass Make</strong>; verify molten glass output, bucket return, and the occasional extra glass.</li>
+      <li>Cast <strong>Plank Make</strong>; verify all four plank tiers work at their coin costs.</li>
+      <li>Run the <strong>Mage Arena</strong> landmark (5 reviews); verify god spells unlock afterward.</li>
+      <li>Switch a preset to <strong>Ancients</strong>; verify Standard spells are unavailable in that preset (no mixing).</li>
+      <li>Enable <strong>Vengeance</strong> on a Lunar preset; verify the EV effect appears in combat.</li>
+      <li>Toggle <strong>Dream thrift</strong> in casual mode; verify between-fight healing costs reviews accordingly.</li>
+      <li>Confirm casual mode shows exactly three Magic controls: prayers on/off, the contextual autocast picker, and Dream thrift.</li>
+      <li>Verify <strong>Bones to Peaches</strong> is visible but not selectable.</li>
+    </ol>
+    <button class="copybtn" id="copybtn">COPY AS CHECKLIST</button>
+  </div>
+
+  <div class="note"><strong>Verification:</strong> both suites re-run independently after the delegated build — 1,031 pure (166 expected non-Qt skips) and 1,031 offscreen Qt, all OK — before committing <span class="mono">24fbafd</span>. Wiki oldids are recorded per-row in <span class="mono">magic_data.py</span>; asset provenance covers all 122 icons. Shipping Construction next will close Plank Make's output-orphan note.</div>
+</div>
+<script>
+document.getElementById('copybtn').addEventListener('click', function () {
+  var btn = this;
+  var lines = [...document.querySelectorAll('#smoketest li')].map(function (li, i) { return (i + 1) + '. ' + li.textContent; }).join('\n');
+  navigator.clipboard.writeText(lines).then(function () {
+    btn.textContent = 'COPIED ✓';
+    setTimeout(function () { btn.textContent = 'COPY AS CHECKLIST'; }, 1500);
+  });
+});
+</script>
+</body>
+</html>
