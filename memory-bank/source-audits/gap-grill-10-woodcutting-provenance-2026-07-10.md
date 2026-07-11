@@ -33,3 +33,7 @@ target; convert remaining carried logs automatically on a bank run, explicit
 exit, or unrelated target switch. Abstract paired-tree travel inside the target
 loop and expose only a compact current-action label if multiple phases survive
 the source reconciliation.
+
+Arctic-pine splitting is a separate level-54 Woodcutting processing target. One
+review consumes one carried Arctic pine log, produces one Split log, and awards
+42.5 XP; chopping never auto-splits its output.

@@ -628,3 +628,12 @@ remaining family decisions are still being grilled.
   log on the Woodcutting stump produces one tradeable, Grand Exchange-backed
   Split log at level 54 and awards 42.5 Woodcutting XP. This is a distinct
   XP-bearing action rather than part of the chop roll.
+
+### Arctic-Pine Splitting Decision
+
+- Add `Split Arctic pine logs` as a separate level-54 Woodcutting processing
+  target. One successful review consumes one carried Arctic pine log, produces
+  one carried Split log, and awards 42.5 Woodcutting XP.
+- Do not automatically split newly chopped logs. Chopping Arctic pine and
+  splitting its logs remain independently selected targets with their own
+  per-target carried-inventory layouts and bank-run cadence.
