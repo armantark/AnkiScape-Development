@@ -108,6 +108,41 @@ restoration has declared a newer milestone by implementation time.
    implementation). House styles ship as an optional cosmetic coin-sink row
    on the house sheet per the estate-agent ladder.
 
+## Post-closure clarifications (owner Q&A, 2026-07-11)
+
+Four points the owner probed after closure; all resolved, none reopen the
+nine decisions above.
+
+- **Build-and-remove is implicit in repetition.** The authentic primary
+  training method (build a piece, demolish it, build it again) is exactly
+  what a repeatable flat XP target models: each successful review is one
+  build+remove cycle, materials consumed, nothing reclaimed (authentic —
+  removing furniture returns no materials). No visible demolish mechanic.
+  Stateful rows (altar, burners, workbench) set their house-sheet flag
+  permanently on first successful build and remain repeatable as pure
+  training afterward.
+- **Initial house purchase: rung zero of the room ladder.** A one-time
+  instant coin purchase on the house sheet, exactly like buying a room.
+  Price and starting-room set come from a pre-EOC wiki pin at
+  implementation (expected 1,000 coins from an estate agent),
+  cross-checked against Darkan.
+- **Crystal saw ships (uses the existing boost substrate).** Darkan
+  implements it: `House.kt:468` adds +3 to the effective Construction
+  level for non-water builds when item 9625 is held. AnkiScape's
+  current-vs-base level substrate (the potion boost model in
+  `logic_pure.py`) already accepts any skill id, so this is a held-item
+  +3 on build level checks, gated behind The Eyes of Glouphrie (already
+  in the quest catalog). Spicy stew is authentic too but lives on the
+  RFD/Evil Dave side and trails there.
+- **Whetstone/armour stand confirmed as function trails.** Owner wants an
+  equipment degradation/repair system eventually; the builds ship now and
+  their repair function lights up when that system exists (already a
+  kanban dependency item).
+
+Darkan discovery for the handoff file: `EstateAgentDialogue.java:64`
+labels Fremennik-style wood "25,000 coins" but the code passes 20000 —
+the pre-EOC wiki says 25,000, so the code value looks wrong.
+
 ## Implementation-time extraction list (mechanical, no product decisions)
 
 - Full `HouseObjects.kt` build table → data module rows (itemId, level, XP,
