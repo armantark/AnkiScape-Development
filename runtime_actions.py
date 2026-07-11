@@ -42,8 +42,11 @@ try:
         GLORY_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_TABLE,
+        ITEM_DEFINITIONS,
         MINING_BONUS_ITEM_DATA,
         MINING_PICKAXE_DATA,
+        MAGIC_DATA,
+        DEFAULT_MAGIC_TARGET,
         ORE_DATA,
         PRAYER_DATA,
         DEFAULT_PRAYER_TARGET,
@@ -67,6 +70,7 @@ try:
         apply_hunter_action_pure,
         apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
+        apply_magic_action_pure,
         apply_open_bird_nests_pure,
         apply_prayer_action_pure,
         prayer_gilded_search_step_pure,
@@ -77,7 +81,9 @@ try:
         apply_smithing_action_pure,
         apply_stronghold_step_pure,
         apply_knight_waves_step_pure,
+        apply_mage_arena_step_pure,
         knight_waves_locked_reasons_pure,
+        mage_arena_locked_reasons_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -113,6 +119,7 @@ try:
         has_ring_of_forging_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        magic_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
         quest_current_stage_blockers_pure,
@@ -126,6 +133,7 @@ try:
         STRONGHOLD_TOTAL_STEPS,
     )
     from .skill_registry import get_skill
+    from .shop_data import SHOP_PLAYER_BUY_PRICES
     from .smithing_data import DEFAULT_SMITHING_TARGET
 except ImportError:  # pragma: no cover - flat import path used by tests
     from constants import (  # type: ignore
@@ -157,8 +165,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         GLORY_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_CHANCE,
         INCIDENTAL_GEM_DROP_TABLE,
+        ITEM_DEFINITIONS,
         MINING_BONUS_ITEM_DATA,
         MINING_PICKAXE_DATA,
+        MAGIC_DATA,
+        DEFAULT_MAGIC_TARGET,
         ORE_DATA,
         PRAYER_DATA,
         DEFAULT_PRAYER_TARGET,
@@ -182,6 +193,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_hunter_action_pure,
         apply_quest_combat_encounter_pure,
         apply_mining_action_pure,
+        apply_magic_action_pure,
         apply_open_bird_nests_pure,
         apply_prayer_action_pure,
         prayer_gilded_search_step_pure,
@@ -192,7 +204,9 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         apply_smithing_action_pure,
         apply_stronghold_step_pure,
         apply_knight_waves_step_pure,
+        apply_mage_arena_step_pure,
         knight_waves_locked_reasons_pure,
+        mage_arena_locked_reasons_pure,
         apply_utility_activity_pure,
         apply_woodcutting_action_pure,
         best_mining_pickaxe_pure,
@@ -228,6 +242,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         has_ring_of_forging_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        magic_target_locked_reasons_pure,
         normalize_xp_rewards_pure,
         quest_current_stage_blocker_reasons_pure,
         quest_current_stage_blockers_pure,
@@ -241,6 +256,7 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         STRONGHOLD_TOTAL_STEPS,
     )
     from skill_registry import get_skill  # type: ignore
+    from shop_data import SHOP_PLAYER_BUY_PRICES  # type: ignore
     from smithing_data import DEFAULT_SMITHING_TARGET  # type: ignore
 
 try:
@@ -957,6 +973,7 @@ def handle_crafting_answer(ctx: RuntimeActionContext) -> bool:
 
 STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
 KNIGHT_WAVES_UTILITY_KEY = "knight_waves"
+MAGE_ARENA_UTILITY_KEY = "mage_arena"
 
 
 def _handle_stronghold_answer(ctx: RuntimeActionContext) -> bool:
@@ -1007,6 +1024,25 @@ def _handle_knight_waves_answer(ctx: RuntimeActionContext) -> bool:
     return True
 
 
+def _handle_mage_arena_answer(ctx: RuntimeActionContext) -> bool:
+    new_data, ok, info = apply_mage_arena_step_pure(ctx.player_data)
+    if not ok:
+        ctx.deactivate_current_skill()
+        ctx.show_error_message("Mage Arena locked", ", ".join(info.get("locked_reasons", ())))
+        return False
+    ctx.player_data.update(new_data)
+    _record_action(ctx, "utility", MAGE_ARENA_UTILITY_KEY, True, expected_success_chance=1.0)
+    ctx.check_achievements(ctx.player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    if info.get("completed"):
+        ctx.deactivate_current_skill()
+        ctx.show_activity_gain("Mage Arena complete — god spells and Charge unlocked")
+    else:
+        ctx.show_activity_gain(f"Mage Arena: {info.get('step', 0)}/5 Kolodion forms defeated")
+    return True
+
+
 def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
     player_data = ctx.player_data
     activity_key = player_data.get("current_utility", DEFAULT_UTILITY_ACTIVITY)
@@ -1014,6 +1050,8 @@ def handle_utility_answer(ctx: RuntimeActionContext) -> bool:
         return _handle_stronghold_answer(ctx)
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
         return _handle_knight_waves_answer(ctx)
+    if activity_key == MAGE_ARENA_UTILITY_KEY:
+        return _handle_mage_arena_answer(ctx)
     if activity_key not in UTILITY_ACTIVITY_DATA:
         activity_key = DEFAULT_UTILITY_ACTIVITY
         player_data["current_utility"] = activity_key
@@ -1254,6 +1292,53 @@ def handle_prayer_answer(ctx: RuntimeActionContext) -> bool:
     ctx.save_player_data()
     ctx.refresh_skill_availability()
     ctx.show_exp(exp_gained)
+    return True
+
+
+def _magic_alch_values() -> dict[str, int]:
+    return {
+        item.storage_key: int(SHOP_PLAYER_BUY_PRICES[item.storage_key])
+        for item in ITEM_DEFINITIONS
+        if bool(item.tradeable) and item.storage_key in SHOP_PLAYER_BUY_PRICES
+    }
+
+
+def handle_magic_answer(ctx: RuntimeActionContext) -> bool:
+    player_data = ctx.player_data
+    target = player_data.get("current_magic", DEFAULT_MAGIC_TARGET)
+    if target not in MAGIC_DATA:
+        target = DEFAULT_MAGIC_TARGET
+        player_data["current_magic"] = target
+    spec = MAGIC_DATA[target]
+    display_name = str(spec.get("display_name", target))
+    new_data, magic_xp, secondary, outputs, ok, message = apply_magic_action_pure(
+        player_data, target, MAGIC_DATA, _magic_alch_values(), ctx.random_random
+    )
+    if not ok:
+        ctx.deactivate_current_skill()
+        reasons = magic_target_locked_reasons_pure(player_data, target, MAGIC_DATA, _magic_alch_values())
+        ctx.show_error_message("Magic target unavailable", f"{display_name} requires {', '.join(reasons) or message}, so Magic has been switched off.")
+        return False
+
+    player_data.clear()
+    player_data.update(new_data)
+    player_data["magic_actions_completed"] = int(player_data.get("magic_actions_completed", 0) or 0) + 1
+    _record_action(ctx, "magic", target, True, expected_success_chance=1.0, output_items=outputs)
+    exp_gained = ctx.award_skill_exp("magic_exp", magic_xp)
+    ctx.level_up_check("Magic", player_data)
+    for skill_id, amount in secondary.items():
+        if float(amount or 0) <= 0:
+            continue
+        ctx.award_hidden_skill_exp(f"{skill_id}_exp", f"{skill_id}_level", float(amount))
+        ctx.level_up_check(skill_id.title(), player_data)
+    ctx.check_achievements(player_data)
+    ctx.save_player_data()
+    ctx.refresh_skill_availability()
+    ctx.show_exp(exp_gained)
+    if target == "monster_examine":
+        examined = player_data.get("magic_last_examine", {}) or {}
+        stats = examined.get("stats", {}) or {}
+        ctx.show_activity_gain(f"{examined.get('display_name', 'Target')}: {stats}")
     return True
 
 
@@ -2004,6 +2089,11 @@ def _can_start_prayer_action(ctx: RuntimeActionContext) -> bool:
     return not prayer_target_locked_reasons_pure(ctx.player_data, target, PRAYER_DATA)
 
 
+def _can_start_magic_action(ctx: RuntimeActionContext) -> bool:
+    target = ctx.player_data.get("current_magic", DEFAULT_MAGIC_TARGET)
+    return not magic_target_locked_reasons_pure(ctx.player_data, target, MAGIC_DATA, _magic_alch_values())
+
+
 def _can_start_firemaking_action(ctx: RuntimeActionContext) -> bool:
     target = ctx.player_data.get("current_firemaking", DEFAULT_FIREMAKING_TARGET)
     return not firemaking_target_locked_reasons_pure(
@@ -2095,6 +2185,8 @@ def _can_start_utility_action(ctx: RuntimeActionContext) -> bool:
         return not state.get("completed")
     if activity_key == KNIGHT_WAVES_UTILITY_KEY:
         return not knight_waves_locked_reasons_pure(ctx.player_data)
+    if activity_key == MAGE_ARENA_UTILITY_KEY:
+        return not mage_arena_locked_reasons_pure(ctx.player_data)
     return not utility_activity_locked_reasons_pure(
         ctx.player_data,
         activity_key,
@@ -2137,6 +2229,7 @@ CAN_START_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "runecrafting": _can_start_runecrafting_action,
     "herblore": _can_start_herblore_action,
     "prayer": _can_start_prayer_action,
+    "magic": _can_start_magic_action,
     "combat": _can_start_combat_action,
     "utility": _can_start_utility_action,
     "quest": _can_start_quest_action,
@@ -2156,6 +2249,7 @@ ANSWER_HANDLERS: dict[str, Callable[[RuntimeActionContext], bool]] = {
     "runecrafting": handle_runecrafting_answer,
     "herblore": handle_herblore_answer,
     "prayer": handle_prayer_answer,
+    "magic": handle_magic_answer,
     "combat": handle_combat_answer,
     "utility": handle_utility_answer,
     "quest": handle_quest_answer,

@@ -80,6 +80,10 @@ try:
         DEFAULT_PRAYER_TARGET,
         PRAYER_GROUP_ORDER,
         PRAYER_ITEM_IMAGES,
+        MAGIC_DATA,
+        DEFAULT_MAGIC_TARGET,
+        MAGIC_GROUP_ORDER,
+        MAGIC_ITEM_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -159,6 +163,10 @@ except Exception:
         DEFAULT_PRAYER_TARGET,
         PRAYER_GROUP_ORDER,
         PRAYER_ITEM_IMAGES,
+        MAGIC_DATA,
+        DEFAULT_MAGIC_TARGET,
+        MAGIC_GROUP_ORDER,
+        MAGIC_ITEM_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -227,9 +235,9 @@ except Exception:
     from prayer_data import COMBAT_PRAYERS  # type: ignore
 
 try:
-    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure
+    from .logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure
 except Exception:
-    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure  # type: ignore
+    from logic_pure import STRONGHOLD_STEP_NAMES, STRONGHOLD_TOTAL_STEPS, STRONGHOLD_BOOT_CHOICES, STRONGHOLD_REWARD_COINS, KNIGHT_WAVES_TOTAL_STEPS, knight_waves_locked_reasons_pure, MAGE_ARENA_TOTAL_STEPS, mage_arena_locked_reasons_pure  # type: ignore
 
 try:
     from .equipment_data import EQUIPMENT_BONUS_FIELDS
@@ -273,6 +281,7 @@ try:
         herblore_target_rows,
         hunter_target_rows,
         mining_target_rows,
+        magic_target_rows,
         prayer_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
@@ -291,6 +300,7 @@ except Exception:
         herblore_target_rows,
         hunter_target_rows,
         mining_target_rows,
+        magic_target_rows,
         prayer_target_rows,
         runecrafting_target_rows,
         smithing_target_rows,
@@ -299,7 +309,7 @@ except Exception:
     )
 
 try:
-    from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS
+    from .shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES
     from .shop_logic import (
         apply_shop_buy_pure,
         apply_shop_sell_pure,
@@ -314,7 +324,7 @@ try:
         shop_view_model_pure,
     )
 except Exception:
-    from shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS  # type: ignore
+    from shop_data import SHOP_DATA, SHOP_SERVICES, SHOP_VENDOR_ACTIONS, SHOP_PLAYER_BUY_PRICES  # type: ignore
     from shop_logic import (  # type: ignore
         apply_shop_buy_pure,
         apply_shop_sell_pure,
@@ -693,6 +703,7 @@ _UTILITY_SKILL_NAMES = {"Utility", _UTILITY_HUB_NAME}
 # current_utility target id and the player_data state key.
 _STRONGHOLD_UTILITY_KEY = "stronghold_of_security"
 _KNIGHT_WAVES_UTILITY_KEY = "knight_waves"
+_MAGE_ARENA_UTILITY_KEY = "mage_arena"
 _COMBAT_HUB_NAME = "Combat"
 # The individual skills a combat burst can train, with their player_data level
 # and exp keys. Constitution defaults to level 10 (RS classic); everything else
@@ -1785,6 +1796,8 @@ def show_main_menu(
     on_set_runecrafting=None,
     on_set_herblore=None,
     on_set_prayer=None,
+    on_set_magic=None,
+    on_set_magic_alchemy_item=None,
     on_set_utility=None,
     on_set_carried_keep_drop=None,
     carried_keep_drop_state=None,
@@ -2299,6 +2312,57 @@ def show_main_menu(
             group_order=list(PRAYER_GROUP_ORDER),
         )
 
+    def _build_magic_list() -> QWidget:
+        panel = QWidget()
+        panel_layout = QVBoxLayout(panel)
+        panel_layout.setContentsMargins(0, 0, 0, 0)
+        panel_layout.setSpacing(8)
+
+        alch_row = QWidget()
+        alch_layout = QHBoxLayout(alch_row)
+        alch_layout.setContentsMargins(0, 0, 0, 0)
+        alch_layout.addWidget(QLabel("Alchemy bank item"))
+        alch_picker = QComboBox()
+        alch_picker.setObjectName("magicAlchemyItemCombo")
+        alch_picker.setEditable(True)
+        alch_picker.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
+        current_alch = str(player_data.get("magic_alchemy_item", "") or "")
+        inventory = player_data.get("inventory", {}) or {}
+        alch_names = sorted(
+            name for name, amount in inventory.items()
+            if int(amount or 0) > 0 and name != "Coins"
+            and name in _ITEM_DEFS_BY_KEY and _ITEM_DEFS_BY_KEY[name].tradeable
+            and name in SHOP_PLAYER_BUY_PRICES
+        )
+        alch_picker.addItem("Choose an item…", "")
+        for name in alch_names:
+            value = int(SHOP_PLAYER_BUY_PRICES[name])
+            alch_picker.addItem(f"{name} ({int(inventory.get(name, 0) or 0)}; H {int(value * .6)} / L {int(value * .4)})", name)
+        selected_index = alch_picker.findData(current_alch)
+        alch_picker.setCurrentIndex(max(0, selected_index))
+        if on_set_magic_alchemy_item is not None:
+            alch_picker.currentIndexChanged.connect(
+                lambda _index: on_set_magic_alchemy_item(str(alch_picker.currentData() or ""))
+            )
+        alch_layout.addWidget(alch_picker, 1)
+        panel_layout.addWidget(alch_row)
+
+        alch_values = {
+            item.storage_key: int(SHOP_PLAYER_BUY_PRICES[item.storage_key])
+            for item in ITEM_DEFINITIONS
+            if item.tradeable and item.storage_key in SHOP_PLAYER_BUY_PRICES
+        }
+        tree = _build_grouped_target_tree(
+            magic_target_rows(player_data, MAGIC_DATA, MAGIC_ITEM_IMAGES, DEFAULT_MAGIC_TARGET, alch_values),
+            {group: group for group in MAGIC_GROUP_ORDER},
+            "__magic_group__:",
+            on_set_magic,
+            group_order=list(MAGIC_GROUP_ORDER),
+        )
+        tree.setObjectName("magicTargetTree")
+        panel_layout.addWidget(tree, 1)
+        return panel
+
     def _build_firemaking_list() -> QListWidget:
         return _build_flat_target_list(
             firemaking_target_rows(
@@ -2460,16 +2524,32 @@ def show_main_menu(
         spell_layout = QHBoxLayout(spell_row)
         spell_layout.setContentsMargins(0, 0, 0, 0)
         spell_layout.setSpacing(8)
-        spell_label = QLabel("Spell")
+        spell_label = QLabel("Autocast")
         spell_label.setStyleSheet("color: palette(text);")
         spell_combo = QComboBox()
         spell_combo.setObjectName("combatSpellCombo")
         current_spell = player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL)
         selected_spell_index = 0
+        magic_level = int(player_data.get("magic_level", 1) or 1)
+        equipped_weapon = str((player_data.get("equipment", {}) or {}).get("weapon", "") or "")
         for spell_id, spec in COMBAT_MAGIC_SPELL_DATA.items():
             spell_combo.addItem(str(spec.get("display_name", spell_id)), spell_id)
+            spell_index = spell_combo.count() - 1
+            gate = str(spec.get("quest_gate", "") or "")
+            gate_done = True
+            if gate == "mage_arena":
+                gate_done = bool((player_data.get("mage_arena", {}) or {}).get("completed"))
+            elif gate:
+                gate_done = bool(((player_data.get("quests", {}) or {}).get(gate) or {}).get("completed"))
+            required_weapon = str(spec.get("required_weapon", "") or "")
+            unlocked = (
+                magic_level >= int(spec.get("required_magic_level", 1) or 1)
+                and gate_done
+                and (not required_weapon or equipped_weapon == required_weapon)
+            )
+            spell_combo.model().item(spell_index).setEnabled(unlocked)
             if spell_id == current_spell:
-                selected_spell_index = spell_combo.count() - 1
+                selected_spell_index = spell_index
         spell_combo.setCurrentIndex(selected_spell_index)
         if on_set_combat_spell is not None:
             spell_combo.currentIndexChanged.connect(
@@ -2478,6 +2558,25 @@ def show_main_menu(
         spell_layout.addWidget(spell_label)
         spell_layout.addWidget(spell_combo, 1)
         layout.addWidget(spell_row)
+        spell_row.setVisible(_combat_mode_text().lower().startswith("magic"))
+
+        casual_toggles = QWidget()
+        casual_toggles.setObjectName("combatMagicCasualControls")
+        casual_layout = QHBoxLayout(casual_toggles)
+        casual_layout.setContentsMargins(0, 0, 0, 0)
+        prayer_master = QCheckBox("Prayers/Curses")
+        prayer_master.setObjectName("combatPrayerMasterCheck")
+        prayer_master.setChecked(bool(player_data.get("combat_prayers_enabled", True)))
+        dream_thrift = QCheckBox("Dream thrift")
+        dream_thrift.setObjectName("combatDreamThriftCheck")
+        dream_thrift.setChecked(bool(player_data.get("combat_dream_thrift", False)))
+        if on_set_combat_prayer_config is not None:
+            prayer_master.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_prayers_enabled", bool(enabled)))
+            dream_thrift.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_dream_thrift", bool(enabled)))
+        casual_layout.addWidget(prayer_master)
+        casual_layout.addWidget(dream_thrift)
+        casual_layout.addStretch(1)
+        layout.addWidget(casual_toggles)
 
         auto_eat_row = QWidget()
         auto_eat_layout = QHBoxLayout(auto_eat_row)
@@ -2500,9 +2599,24 @@ def show_main_menu(
         auto_eat_layout.addWidget(threshold_spin, 1)
         layout.addWidget(auto_eat_row)
 
+        advanced_toggle = QToolButton()
+        advanced_toggle.setObjectName("combatAdvancedPresetToggle")
+        advanced_toggle.setText("Advanced preset editor")
+        advanced_toggle.setCheckable(True)
+        advanced_toggle.setChecked(False)
+        layout.addWidget(advanced_toggle)
+        advanced_panel = QWidget()
+        advanced_panel.setObjectName("combatAdvancedPresetPanel")
+        advanced_layout = QVBoxLayout(advanced_panel)
+        advanced_layout.setContentsMargins(0, 0, 0, 0)
+        advanced_layout.setSpacing(8)
+        advanced_panel.setVisible(False)
+        advanced_toggle.toggled.connect(advanced_panel.setVisible)
+        layout.addWidget(advanced_panel)
+
         prayer_header = QLabel("Prayer")
         prayer_header.setStyleSheet("color: palette(text); font-weight: 600;")
-        layout.addWidget(prayer_header)
+        advanced_layout.addWidget(prayer_header)
 
         prayer_controls = QWidget()
         prayer_controls_layout = QHBoxLayout(prayer_controls)
@@ -2550,7 +2664,28 @@ def show_main_menu(
         if on_set_combat_prayer_config is not None:
             uptime_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_prayer_uptime", uptime_combo.currentData()))
         prayer_controls_layout.addWidget(uptime_combo)
-        layout.addWidget(prayer_controls)
+        advanced_layout.addWidget(prayer_controls)
+
+        magic_advanced = QWidget()
+        magic_advanced_layout = QHBoxLayout(magic_advanced)
+        magic_advanced_layout.setContentsMargins(0, 0, 0, 0)
+        vengeance_check = QCheckBox("Vengeance")
+        vengeance_check.setObjectName("combatVengeanceCheck")
+        vengeance_check.setChecked(bool(player_data.get("combat_vengeance", False)))
+        swap_combo = QComboBox()
+        swap_combo.setObjectName("combatSpellbookSwapCombo")
+        swap_combo.addItem("No Spellbook Swap", "")
+        swap_combo.addItem("Swap autocast", str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL)))
+        swap_combo.addItem("Swap Vengeance", "vengeance")
+        swap_combo.addItem("Swap Dream", "dream")
+        swap_combo.setCurrentIndex(max(0, swap_combo.findData(str(player_data.get("combat_spellbook_swap", "") or ""))))
+        if on_set_combat_prayer_config is not None:
+            vengeance_check.toggled.connect(lambda enabled: on_set_combat_prayer_config("combat_vengeance", bool(enabled)))
+            swap_combo.currentIndexChanged.connect(lambda _i: on_set_combat_prayer_config("combat_spellbook_swap", str(swap_combo.currentData() or "")))
+        magic_advanced_layout.addWidget(vengeance_check)
+        magic_advanced_layout.addWidget(QLabel("One off-book effect"))
+        magic_advanced_layout.addWidget(swap_combo, 1)
+        advanced_layout.addWidget(magic_advanced)
 
         target_id = str(player_data.get("current_combat_target", ""))
         target_pins = player_data.get("combat_target_presets", {}) or {}
@@ -2574,11 +2709,11 @@ def show_main_menu(
         preset_scope_layout.addWidget(pin_preset)
         preset_scope_layout.addWidget(override_prayers)
         preset_scope_layout.addWidget(override_uptime)
-        layout.addWidget(preset_scope)
+        advanced_layout.addWidget(preset_scope)
 
         hide_lower = QCheckBox("Hide lower-tier prayers")
         hide_lower.setObjectName("combatPrayerHideLowerCheck")
-        layout.addWidget(hide_lower)
+        advanced_layout.addWidget(hide_lower)
         prayer_grid = QWidget()
         prayer_grid.setObjectName("combatPrayerCheckboxGrid")
         prayer_grid_layout = QGridLayout(prayer_grid)
@@ -2614,14 +2749,14 @@ def show_main_menu(
         hide_lower.toggled.connect(
             lambda hidden: [check.setVisible(not hidden or int(check.property("prayerLevel") or 1) >= max(1, prayer_level - 15)) for check in prayer_checks]
         )
-        layout.addWidget(prayer_grid)
+        advanced_layout.addWidget(prayer_grid)
 
         auto_prayer = QCheckBox("Auto-bury/scatter combat drops (costs simulated ticks)")
         auto_prayer.setObjectName("combatAutoPrayerTrainingCheck")
         auto_prayer.setChecked(bool(player_data.get("combat_auto_prayer_training", False)))
         if on_set_combat_prayer_config is not None:
             auto_prayer.toggled.connect(lambda checked: on_set_combat_prayer_config("combat_auto_prayer_training", bool(checked)))
-        layout.addWidget(auto_prayer)
+        advanced_layout.addWidget(auto_prayer)
 
         # ---- Loot from this enemy ----
         # Deciding what to pick up belongs with the live combat controls, not the
@@ -2958,7 +3093,7 @@ def show_main_menu(
                 "A one-time landmark. Set it as your activity and each review clears "
                 "one level. No XP along the way, but coins and boots at the end."
             )
-        landmark_parent = QTreeWidgetItem(["Landmarks  (2)"])
+        landmark_parent = QTreeWidgetItem(["Landmarks  (3)"])
         landmark_parent.setData(0, Qt.ItemDataRole.UserRole, "__utility_group__:landmarks")
         landmark_parent.setFlags(Qt.ItemFlag.ItemIsEnabled)
         lm_font = landmark_parent.font(0)
@@ -2993,14 +3128,32 @@ def show_main_menu(
         if kw_completed or kw_locked:
             kw_child.setDisabled(True)
         landmark_parent.addChild(kw_child)
+        ma_state = player_data.get("mage_arena") or {}
+        ma_step = max(0, min(int(ma_state.get("step", 0) or 0), MAGE_ARENA_TOTAL_STEPS))
+        ma_completed = bool(ma_state.get("completed"))
+        ma_locked = mage_arena_locked_reasons_pure(player_data)
+        ma_label = "Mage Arena ✓" if ma_completed else f"Mage Arena — {ma_step}/{MAGE_ARENA_TOTAL_STEPS} Kolodion forms"
+        ma_child = QTreeWidgetItem([ma_label])
+        ma_child.setData(0, Qt.ItemDataRole.UserRole, _MAGE_ARENA_UTILITY_KEY)
+        ma_child.setToolTip(0, "Defeat Kolodion's five forms, one per review. Completion unlocks the three god spells and Charge."
+                            + (f"\nLocked due to: {', '.join(ma_locked)}" if ma_locked and not ma_completed else ""))
+        ma_icon = os.path.join(current_dir, "icon", "magic_icon.png")
+        if os.path.exists(ma_icon):
+            ma_child.setIcon(0, QIcon(ma_icon))
+        if ma_completed or ma_locked:
+            ma_child.setDisabled(True)
+        landmark_parent.addChild(ma_child)
+        landmark_active = False
         if current == _KNIGHT_WAVES_UTILITY_KEY and not kw_completed:
             selected_child = kw_child
-            landmark_parent.setExpanded(True)
+            landmark_active = True
+        if current == _MAGE_ARENA_UTILITY_KEY and not ma_completed:
+            selected_child = ma_child
+            landmark_active = True
         if current == _STRONGHOLD_UTILITY_KEY and not sh_completed:
             selected_child = sh_child
-            landmark_parent.setExpanded(True)
-        else:
-            landmark_parent.setExpanded(sh_completed and not sh_claimed)
+            landmark_active = True
+        landmark_parent.setExpanded(landmark_active or (sh_completed and not sh_claimed))
 
         if selected_child is not None:
             tree.setCurrentItem(selected_child)
@@ -3024,6 +3177,10 @@ def show_main_menu(
                 if on_set_utility is not None:
                     on_set_utility(activity_id)
                 return
+            if activity_id == _MAGE_ARENA_UTILITY_KEY:
+                if on_set_utility is not None:
+                    on_set_utility(activity_id)
+                return
             if on_set_utility is not None:
                 on_set_utility(activity_id)
 
@@ -3044,6 +3201,7 @@ def show_main_menu(
         "Runecrafting": _build_runecrafting_list,
         "Herblore": _build_herblore_list,
         "Prayer": _build_prayer_list,
+        "Magic": _build_magic_list,
         _COMBAT_HUB_NAME: _build_combat_list,
         _UTILITY_HUB_NAME: _build_utility_list,
     }
@@ -3059,6 +3217,7 @@ def show_main_menu(
         "Cooking": "Select Food to Cook",
         "Runecrafting": "Select Runecrafting Action",
         "Herblore": "Select what to clean, mix, or brew",
+        "Magic": "Select a Spell to Cast",
         _COMBAT_HUB_NAME: "Select Enemy",
         _UTILITY_HUB_NAME: "Select an Activity (no XP)",
     }
@@ -3331,8 +3490,11 @@ def show_main_menu(
         _update_cat_btn_styles()
         cards = _cards_for(category_id)
         first = next(
+            (c.display_name for c in cards if c.display_name == state["active"] and c.implemented),
+            next(
             (c.display_name for c in cards if c.implemented),
             cards[0].display_name if cards else "",
+            ),
         )
         state["skill"] = first
         _render_skill_list()

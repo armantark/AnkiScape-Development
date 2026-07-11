@@ -90,7 +90,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 29
+CURRENT_CONFIG_VERSION = 30
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -653,6 +653,34 @@ def migrate_loaded_data(
     if loaded_config_version < 29:
         data["combat_presets"] = {}
         data["combat_active_preset"] = "Default"
+    # v30: Magic becomes a complete standalone skill without replacing the
+    # magic_level/magic_exp values already trained through Combat. New combat
+    # spell options extend each v29 named preset in place.
+    if loaded_config_version < 30:
+        data.setdefault("current_magic", "low_alchemy")
+        data.setdefault("magic_alchemy_item", "")
+        data.setdefault("magic_actions_completed", 0)
+        data.setdefault("magic_imbue_active", False)
+        data.setdefault("magic_charge_active", False)
+        data.setdefault("mage_arena", {"step": 0, "completed": False})
+        data.setdefault("mage_training_arena", {"completed": False})
+        presets = data.get("combat_presets", {}) or {}
+        if isinstance(presets, dict):
+            for preset in presets.values():
+                if isinstance(preset, dict):
+                    preset.setdefault("current_combat_spell", data.get("current_combat_spell", "wind_strike"))
+                    preset.setdefault("combat_vengeance", False)
+                    preset.setdefault("combat_dream_thrift", False)
+                    preset.setdefault("combat_spellbook_swap", "")
+    # These defaults are also required for a new v30-shaped payload assembled
+    # outside load_player_data (tests, imports, or a future alternate frontend).
+    data.setdefault("current_magic", "low_alchemy")
+    data.setdefault("magic_alchemy_item", "")
+    data.setdefault("magic_actions_completed", 0)
+    data.setdefault("magic_imbue_active", False)
+    data.setdefault("magic_charge_active", False)
+    data.setdefault("mage_arena", {"step": 0, "completed": False})
+    data.setdefault("mage_training_arena", {"completed": False})
     data.update(sanitize_combat_state_pure(data))
 
     # Progress key retained (not critical)

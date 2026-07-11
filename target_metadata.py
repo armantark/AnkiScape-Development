@@ -29,6 +29,7 @@ try:
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -57,6 +58,7 @@ except Exception:
         herblore_target_locked_reasons_pure,
         hunter_target_locked_reasons_pure,
         mining_target_locked_reasons_pure,
+        magic_target_locked_reasons_pure,
         prayer_target_locked_reasons_pure,
         runecrafting_locked_reasons_pure,
         smithing_target_locked_reasons_pure,
@@ -209,6 +211,47 @@ def prayer_target_rows(
             group=group,
             locked_reasons=reasons,
             sort_key=(group_order.get(group, 99), float(spec.get("exp", 0) or 0), material),
+        ))
+    return tuple(rows)
+
+
+def magic_target_rows(
+    player_data: Mapping[str, object],
+    magic_data: Mapping[str, Mapping[str, object]],
+    magic_item_images: Mapping[str, str],
+    default_target: str,
+    alch_values: Mapping[str, int],
+) -> tuple[TargetRowMetadata, ...]:
+    rows = []
+    current = player_data.get("current_magic", default_target)
+    group_order = {name: index for index, name in enumerate((
+        "Alchemy", "Teleports — Standard", "Teleports — Ancient", "Teleports — Lunar",
+        "Enchant jewellery", "Enchant bolts", "Charge orbs", "Conversions",
+        "Lunar skilling", "Pure casts",
+    ))}
+    for target_id, spec in magic_data.items():
+        name = str(spec.get("display_name", target_id))
+        group = str(spec.get("group", "Magic"))
+        reasons = magic_target_locked_reasons_pure(player_data, target_id, magic_data, alch_values)
+        runes = spec.get("rune_cost", {}) or {}
+        rune_text = ", ".join(f"{rune} x{amount}" for rune, amount in runes.items()) or "None"
+        tooltip = (
+            f"{spec.get('spellbook', 'standard').title()} · Magic level {spec.get('level', 1)}\n"
+            f"Magic XP: {spec.get('exp', 0):g} per cast\nRunes: {rune_text}"
+        )
+        if reasons:
+            tooltip += "\nLocked due to: " + ", ".join(reasons)
+        icon_name = next(iter((spec.get("outputs", {}) or {})), name)
+        rows.append(TargetRowMetadata(
+            target_id=target_id,
+            label=f"{name} — {spec.get('exp', 0):g} XP",
+            tooltip=tooltip,
+            enabled=not reasons,
+            current=target_id == current,
+            icon_path=magic_item_images.get(str(icon_name)),
+            group=group,
+            locked_reasons=reasons,
+            sort_key=(group_order.get(group, 99), int(spec.get("level", 1) or 1), name),
         ))
     return tuple(rows)
 

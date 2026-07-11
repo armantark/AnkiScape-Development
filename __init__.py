@@ -848,6 +848,8 @@ def _on_main_menu():
         on_set_runecrafting=lambda target: _set_value("current_runecrafting", target),
         on_set_herblore=lambda target: _set_value("current_herblore", target),
         on_set_prayer=lambda target: _set_value("current_prayer", target),
+        on_set_magic=lambda target: _set_value("current_magic", target),
+        on_set_magic_alchemy_item=lambda item: _set_value("magic_alchemy_item", item),
         on_set_utility=lambda activity: _set_value("current_utility", activity),
         on_set_carried_keep_drop=_set_carried_keep_drop,
         carried_keep_drop_state=_current_gathering_keep_drop_state(),

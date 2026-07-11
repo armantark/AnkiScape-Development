@@ -277,6 +277,14 @@ def build_achievement_definitions(
     add("Expert Devotee", "Reach Prayer level 60", "Difficult", lambda player: _level(player, "prayer_level") >= 60)
     add("Master Devotee", "Reach Prayer level 99", "Very Challenging", lambda player: _level(player, "prayer_level") >= 99)
 
+    add("First Cast", "Complete your first standalone Magic cast", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 1)
+    add("Novice Mage", "Reach Magic level 10", "Easy", lambda player: _level(player, "magic_level") >= 10)
+    add("Spell Slinger", "Complete 100 standalone Magic casts", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 100)
+    add("Intermediate Mage", "Reach Magic level 30", "Moderate", lambda player: _level(player, "magic_level") >= 30)
+    add("Kolodion's Challenger", "Complete the Mage Arena landmark", "Moderate", lambda player: bool((player.get("mage_arena", {}) or {}).get("completed")))
+    add("Expert Mage", "Reach Magic level 60", "Difficult", lambda player: _level(player, "magic_level") >= 60)
+    add("Master Mage", "Reach Magic level 99", "Very Challenging", lambda player: _level(player, "magic_level") >= 99)
+
     final_count["value"] = len(definitions)
     return tuple(definitions)
 

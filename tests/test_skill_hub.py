@@ -14,13 +14,14 @@ class TestSkillHubViewModel(unittest.TestCase):
         by_id = {cat.category_id: cat for cat in hub}
 
         # Only the categories that currently have implemented skills should show.
-        self.assertEqual(set(by_id), {"gathering", "artisan", "support"})
+        self.assertEqual(set(by_id), {"combat", "gathering", "artisan", "support"})
 
         self.assertEqual(
             [card.display_name for card in by_id["gathering"].skills],
             ["Mining", "Woodcutting", "Fishing", "Hunter"],
         )
         self.assertEqual([card.display_name for card in by_id["support"].skills], ["Prayer"])
+        self.assertEqual([card.display_name for card in by_id["combat"].skills], ["Magic"])
         self.assertEqual(
             [card.display_name for card in by_id["artisan"].skills],
             ["Smithing", "Crafting", "Fletching", "Firemaking", "Cooking", "Runecrafting", "Herblore"],
@@ -67,12 +68,13 @@ class TestSkillHubViewModel(unittest.TestCase):
         self.assertFalse(cards["slayer"].selectable_for_review)
         self.assertTrue(cards["prayer"].implemented)
         self.assertTrue(cards["prayer"].selectable_for_review)
-        for skill_id in ("magic", "summoning"):
+        self.assertTrue(cards["magic"].implemented)
+        self.assertTrue(cards["magic"].selectable_for_review)
+        for skill_id in ("summoning",):
             self.assertIn(skill_id, cards)
             self.assertFalse(cards[skill_id].implemented)
             self.assertFalse(cards[skill_id].selectable_for_review)
-        self.assertEqual(cards["magic"].surface_state, "partial")
-        self.assertEqual(cards["magic"].training_source, "Combat")
+        self.assertEqual(cards["magic"].surface_state, "complete")
         self.assertEqual(cards["prayer"].surface_state, "complete")
         for skill_id in ("attack", "constitution", "defense", "ranged", "strength"):
             self.assertNotIn(skill_id, cards)
@@ -91,7 +93,7 @@ class TestSkillHubViewModel(unittest.TestCase):
 
     def test_first_category_id_handles_empty_and_populated_hubs(self):
         self.assertEqual(first_category_id(()), "")
-        self.assertEqual(first_category_id(build_skill_hub(include_planned=False)), "gathering")
+        self.assertEqual(first_category_id(build_skill_hub(include_planned=False)), "combat")
 
 
 if __name__ == "__main__":

@@ -45,6 +45,11 @@ except ImportError:
     from prayer_data import AUTO_PRAYER_TICKS_PER_ITEM, COMBAT_PRAYERS_BY_ID, PRAYER_MATERIALS, PRAYER_UPTIME_POLICIES, SAP_SOURCE, LEECH_SOURCE
 
 try:
+    from .magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
+except ImportError:
+    from magic_data import CASUAL_MAGIC_DIAL, DREAM_COST, SPELLBOOK_SWAP_COST, VENGEANCE_COST
+
+try:
     from .combat_data import (
         COMBAT_ATTACK_STYLE_DATA,
         COMBAT_ANTIPOISON_POTION_DATA,
@@ -714,6 +719,8 @@ def grant_stronghold_reward_pure(player_data, boots_choice):
 # Knight Waves oldid=6575464: eight knights and 20,000 XP in each listed stat.
 KNIGHT_WAVES_TOTAL_STEPS = 8
 KNIGHT_WAVES_XP_REWARD = 20000
+MAGE_ARENA_STEP_NAMES = ("Human", "Ogre", "Giant spider", "Ghost", "Black demon")
+MAGE_ARENA_TOTAL_STEPS = len(MAGE_ARENA_STEP_NAMES)
 
 
 def default_knight_waves_state_pure():
@@ -761,6 +768,29 @@ def apply_knight_waves_step_pure(player_data):
     return data, True, {"reason": "knight_waves", "step": state["step"], "completed": just_completed, "xp_rewards": rewards}
 
 
+def mage_arena_locked_reasons_pure(player_data):
+    reasons = []
+    if _positive_int(player_data.get("magic_level", 1), 1) < 60:
+        reasons.append("Magic level 60")
+    state = player_data.get("mage_arena", {}) or {}
+    if bool(state.get("completed")):
+        reasons.append("already completed")
+    return tuple(reasons)
+
+
+def apply_mage_arena_step_pure(player_data):
+    """One review defeats one pinned Kolodion form; the fifth unlocks god spells."""
+    data = _copy_player_data_with_nested(player_data)
+    reasons = mage_arena_locked_reasons_pure(data)
+    if reasons:
+        return data, False, {"reason": "mage_arena_locked", "locked_reasons": reasons}
+    raw = data.get("mage_arena", {}) or {}
+    step = min(MAGE_ARENA_TOTAL_STEPS, _non_negative_int(raw.get("step", 0), 0) + 1)
+    completed = step >= MAGE_ARENA_TOTAL_STEPS
+    data["mage_arena"] = {"step": step, "completed": completed}
+    return data, True, {"reason": "mage_arena", "step": step, "completed": completed}
+
+
 def apply_smelt_pure(bar_name, inventory, bar_data):
     """
     Attempt to smelt a specific bar. Returns (new_inventory, exp, success).
@@ -803,6 +833,203 @@ def apply_smithing_pure(target, inventory, smithing_data):
     output_qty = _positive_int(spec.get("output_qty", 1))
     new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
     return new_inv, spec.get("exp", 0), True
+
+
+def _magic_quest_gate_complete_pure(player_data, gate):
+    if not gate:
+        return True
+    if gate in {"mage_arena", "mage_training_arena"}:
+        return bool((player_data.get(gate, {}) or {}).get("completed"))
+    return quest_completed_pure(player_data, str(gate))
+
+
+def effective_magic_rune_cost_pure(player_data, rune_cost):
+    """Waive elemental runes covered by the best owned/equipped staff."""
+    cost = {str(name): _non_negative_int(amount, 0) for name, amount in (rune_cost or {}).items()}
+    inventory = player_data.get("inventory", {}) or {}
+    equipment = player_data.get("equipment", {}) or {}
+    owned = set(equipment.values())
+    owned.update(name for name, amount in inventory.items() if _non_negative_int(amount, 0) > 0)
+    for staff_name, staff in COMBAT_MAGIC_STAFF_DATA.items():
+        if staff_name not in owned:
+            continue
+        for rune_name in staff.get("covered_runes", ()):
+            cost.pop(str(rune_name), None)
+    return cost
+
+
+def _magic_dynamic_requirements_pure(player_data, spec, alch_values):
+    action = str(spec.get("action", "pure"))
+    inventory = player_data.get("inventory", {}) or {}
+    requirements = dict(_requirements_from_spec(spec))
+    if action == "alchemy":
+        item = str(player_data.get("magic_alchemy_item", ""))
+        if not item or item == "Coins" or item not in alch_values:
+            return requirements, ("Choose a tradeable bank item",)
+        requirements[item] = requirements.get(item, 0) + 1
+    elif action == "bones_conversion":
+        eligible = ("Bones",) if spec.get("id") == "bones_to_bananas" else ("Bones", "Big bones")
+        if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in eligible):
+            return requirements, ("Bones",)
+    elif action == "bake_pie":
+        if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in ("Uncooked meat pie", "Uncooked berry pie", "Uncooked apple pie", "Raw garden pie", "Raw fish pie", "Raw admiral pie", "Raw wild pie", "Raw summer pie")):
+            return requirements, ("Uncooked pie",)
+    elif action == "humidify":
+        if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in ("Bucket", "Jug", "Vial", "Clay")):
+            return requirements, ("Empty water vessel or clay",)
+    elif action == "superglass":
+        if _non_negative_int(inventory.get("Bucket of sand", 0), 0) <= 0 or not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in ("Soda ash", "Seaweed", "Swamp weed")):
+            return requirements, ("Bucket of sand + soda ash/seaweed",)
+    elif action == "tan_leather":
+        if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in ("Cowhide", "Green dragonhide", "Blue dragonhide", "Red dragonhide", "Black dragonhide")):
+            return requirements, ("Hide",)
+    elif action == "string_jewellery":
+        if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in _STRINGABLE_AMULETS):
+            return requirements, ("Unstrung amulet",)
+    return requirements, ()
+
+
+def magic_target_locked_reasons_pure(player_data, target_id, magic_data, alch_values=None):
+    spec = magic_data.get(target_id)
+    if not isinstance(spec, Mapping):
+        return ("Unknown Magic target",)
+    reasons = []
+    level = _positive_int(player_data.get("magic_level", 1), 1)
+    required_level = _positive_int(spec.get("level", 1), 1)
+    if level < required_level:
+        reasons.append(f"Magic level {required_level}")
+    secondary_skill = str(spec.get("secondary_skill", "") or "")
+    secondary_level = _positive_int(spec.get("secondary_level", 1), 1)
+    if secondary_skill and _positive_int(player_data.get(f"{secondary_skill}_level", 1), 1) < secondary_level:
+        reasons.append(f"{secondary_skill.title()} level {secondary_level}")
+    gate = spec.get("quest_gate")
+    if gate and not _magic_quest_gate_complete_pure(player_data, gate):
+        reasons.append(str(gate).replace("_", " ").title())
+    inventory = player_data.get("inventory", {}) or {}
+    requirements, dynamic_reasons = _magic_dynamic_requirements_pure(player_data, spec, alch_values or {})
+    reasons.extend(dynamic_reasons)
+    for item_name, amount in requirements.items():
+        if _non_negative_int(inventory.get(item_name, 0), 0) < amount:
+            reasons.append(f"{item_name} x{amount}")
+    for rune_name, amount in effective_magic_rune_cost_pure(player_data, spec.get("rune_cost", {})).items():
+        if _non_negative_int(inventory.get(rune_name, 0), 0) < amount:
+            reasons.append(f"{rune_name} x{amount}")
+    return tuple(dict.fromkeys(reasons))
+
+
+_PIE_OUTPUTS = {
+    "Uncooked meat pie": ("Meat pie", 110.0), "Uncooked berry pie": ("Redberry pie", 78.0),
+    "Uncooked apple pie": ("Apple pie", 130.0), "Raw garden pie": ("Garden pie", 138.0),
+    "Raw fish pie": ("Fish pie", 164.0), "Raw admiral pie": ("Admiral pie", 210.0),
+    "Raw wild pie": ("Wild pie", 240.0), "Raw summer pie": ("Summer pie", 260.0),
+}
+_HUMIDIFY_OUTPUTS = {"Bucket": "Bucket of water", "Jug": "Jug of water", "Vial": "Vial of water", "Clay": "Soft clay"}
+_LEATHER_OUTPUTS = {"Cowhide": "Leather", "Green dragonhide": "Green dragon leather", "Blue dragonhide": "Blue dragon leather", "Red dragonhide": "Red dragon leather", "Black dragonhide": "Black dragon leather"}
+_STRINGABLE_AMULETS = (
+    "Gold amulet", "Sapphire amulet", "Emerald amulet", "Ruby amulet",
+    "Diamond amulet", "Dragonstone ammy", "Onyx amulet",
+)
+
+
+def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None, random_random=None):
+    """Apply one closed-contract noncombat cast as a single undoable mutation."""
+    spec = magic_data.get(target_id)
+    alch_values = alch_values or {}
+    random_random = random_random or (lambda: 1.0)
+    if not isinstance(spec, Mapping) or magic_target_locked_reasons_pure(player_data, target_id, magic_data, alch_values):
+        return player_data, 0.0, {}, {}, False, "Magic target is locked"
+    data = _copy_player_data_with_nested(player_data)
+    inventory = data.setdefault("inventory", {})
+    for rune_name, amount in effective_magic_rune_cost_pure(data, spec.get("rune_cost", {})).items():
+        inventory[rune_name] = _non_negative_int(inventory.get(rune_name, 0), 0) - amount
+    requirements, _ = _magic_dynamic_requirements_pure(data, spec, alch_values)
+    for item_name, amount in requirements.items():
+        inventory[item_name] = _non_negative_int(inventory.get(item_name, 0), 0) - amount
+
+    action = str(spec.get("action", "pure"))
+    outputs = {}
+    secondary = {}
+
+    def add(item, amount):
+        quantity = max(0, int(amount))
+        if quantity:
+            inventory[item] = _non_negative_int(inventory.get(item, 0), 0) + quantity
+            outputs[item] = outputs.get(item, 0) + quantity
+
+    if action == "alchemy":
+        item = str(data.get("magic_alchemy_item", ""))
+        value = _non_negative_int(alch_values.get(item, 0), 0)
+        add("Coins", int(value * (.6 if target_id == "high_alchemy" else .4)))
+    elif action in {"transform", "produce"}:
+        for item, amount in (spec.get("outputs", {}) or {}).items():
+            add(str(item), amount)
+        if spec.get("secondary_skill") and float(spec.get("secondary_exp", 0) or 0) > 0:
+            secondary[str(spec["secondary_skill"])] = float(spec["secondary_exp"])
+    elif action == "bones_conversion":
+        eligible = ("Bones",) if target_id == "bones_to_bananas" else ("Bones", "Big bones")
+        output = next(iter((spec.get("outputs", {}) or {"Banana": 1})))
+        total = 0
+        for item in eligible:
+            count = _non_negative_int(inventory.get(item, 0), 0)
+            inventory[item] = 0
+            total += count
+        add(output, total)
+    elif action == "bake_pie":
+        for raw, (cooked, xp) in _PIE_OUTPUTS.items():
+            count = _non_negative_int(inventory.get(raw, 0), 0)
+            if count:
+                inventory[raw] -= 1
+                add(cooked, 1)
+                secondary["cooking"] = xp
+                break
+    elif action == "humidify":
+        for empty, filled in _HUMIDIFY_OUTPUTS.items():
+            count = _non_negative_int(inventory.get(empty, 0), 0)
+            if count:
+                inventory[empty] = 0
+                add(filled, count)
+    elif action == "superglass":
+        sand = _non_negative_int(inventory.get("Bucket of sand", 0), 0)
+        reagent = next((item for item in ("Soda ash", "Seaweed", "Swamp weed") if _non_negative_int(inventory.get(item, 0), 0) > 0), "")
+        count = min(sand, _non_negative_int(inventory.get(reagent, 0), 0))
+        inventory["Bucket of sand"] -= count
+        inventory[reagent] -= count
+        # oldid=6587788: buckets are consumed and each pair independently
+        # produces one glass plus a 30% chance of a second (1.30 long-run mean).
+        add("Molten glass", count + sum(1 for _ in range(count) if random_random() < 0.30))
+        secondary["crafting"] = 10.0 * count
+    elif action == "tan_leather":
+        hide = next(item for item in _LEATHER_OUTPUTS if _non_negative_int(inventory.get(item, 0), 0) > 0)
+        count = min(5, _non_negative_int(inventory.get(hide, 0), 0))
+        inventory[hide] -= count
+        add(_LEATHER_OUTPUTS[hide], count)
+    elif action == "string_jewellery":
+        total = 0
+        for item in _STRINGABLE_AMULETS:
+            count = _non_negative_int(inventory.get(item, 0), 0)
+            if count:
+                # Crafting V1 uses the same registry key for unstrung and strung
+                # amulets, so this batch is inventory-neutral while still paying
+                # runes and awarding the authentic Crafting XP.
+                inventory[item] = 0
+                add(item, count)
+                total += count
+        secondary["crafting"] = 4.0 * total
+    elif action == "magic_imbue":
+        data["magic_imbue_active"] = True
+    elif action == "charge":
+        data["magic_charge_active"] = True
+    elif action == "cure_me":
+        statuses = dict(data.get("combat_status_effects", {}) or {})
+        statuses.pop("poison", None)
+        data["combat_status_effects"] = statuses
+    elif action == "monster_examine":
+        target = str(data.get("current_combat_target", ""))
+        enemy = COMBAT_ENEMY_DATA.get(target, {})
+        stats = enemy.get("stats", {}) if isinstance(enemy, Mapping) else {}
+        data["magic_last_examine"] = {"target_id": target, "display_name": enemy.get("display_name", target), "stats": dict(stats or {})}
+
+    return data, float(spec.get("exp", 0.0) or 0.0), secondary, outputs, True, str(spec.get("display_name", target_id))
 
 
 def prayer_target_locked_reasons_pure(player_data, target_id, prayer_data):
@@ -1326,8 +1553,99 @@ def default_combat_supply_loadout_pure():
 COMBAT_PRESET_FIELDS = (
     "combat_supply_loadout", "combat_pack_mode", "combat_auto_eat_threshold_percent",
     "combat_auto_eat_food", "combat_auto_flee", "combat_selected_prayers",
-    "combat_prayer_uptime", "combat_auto_prayer_training",
+    "combat_prayer_uptime", "combat_auto_prayer_training", "current_combat_spell",
+    "combat_prayers_enabled", "combat_vengeance", "combat_dream_thrift",
+    "combat_spellbook_swap",
 )
+
+
+def combat_magic_preset_locked_reasons_pure(player_data):
+    """Enforce implicit spellbooks and the one explicit Lunar swap exception."""
+    spell_id = str(player_data.get("current_combat_spell", DEFAULT_COMBAT_SPELL))
+    spell = COMBAT_MAGIC_SPELL_DATA.get(spell_id, {})
+    equipment = player_data.get("equipment", {}) or {}
+    wielded = str(equipment.get("weapon", "") or "")
+    effects = []
+    if wielded in COMBAT_MAGIC_STAFF_DATA:
+        effects.append((spell_id, str(spell.get("spellbook", "standard"))))
+    if bool(player_data.get("combat_vengeance", False)):
+        if _positive_int(player_data.get("magic_level", 1), 1) < 94 or not quest_completed_pure(player_data, "lunar_diplomacy"):
+            return ("Vengeance requires 94 Magic and Lunar Diplomacy",)
+        effects.append(("vengeance", "lunar"))
+    if bool(player_data.get("combat_dream_thrift", False)):
+        if _positive_int(player_data.get("magic_level", 1), 1) < 79 or not quest_completed_pure(player_data, "dream_mentor"):
+            return ("Dream requires 79 Magic and Dream Mentor",)
+        effects.append(("dream", "lunar"))
+    books = {book for _effect, book in effects}
+    swap_spell = str(player_data.get("combat_spellbook_swap", "") or "")
+    if swap_spell and swap_spell not in {effect for effect, _book in effects}:
+        return ("Spellbook Swap must name one selected magic effect",)
+    if len(books) <= 1:
+        return ()
+    if not swap_spell or swap_spell not in {effect for effect, _book in effects}:
+        return ("Preset mixes spellbooks",)
+    remaining_books = {book for effect, book in effects if effect != swap_spell}
+    swapped_books = {book for effect, book in effects if effect == swap_spell}
+    if len(remaining_books) != 1 or len(swapped_books) != 1 or remaining_books == swapped_books:
+        return ("Spellbook Swap allows exactly one off-book spell",)
+    if _positive_int(player_data.get("magic_level", 1), 1) < 96 or not quest_completed_pure(player_data, "lunar_diplomacy"):
+        return ("Spellbook Swap requires 96 Magic and Lunar Diplomacy",)
+    inventory = player_data.get("inventory", {}) or {}
+    for rune, amount in effective_magic_rune_cost_pure(player_data, SPELLBOOK_SWAP_COST).items():
+        if _non_negative_int(inventory.get(rune, 0), 0) < amount:
+            return (f"Spellbook Swap needs {rune} x{amount}",)
+    return ()
+
+
+def derive_casual_combat_magic_pure(player_data):
+    """Data-driven three-position dial layer atop the advanced preset fields."""
+    data = _copy_player_data_with_nested(player_data)
+    mode = _combat_coerce_pack_mode(data.get("combat_pack_mode", "balanced"))
+    rule = CASUAL_MAGIC_DIAL.get(mode, CASUAL_MAGIC_DIAL["balanced"])
+    if bool(data.get("combat_prayers_enabled", True)):
+        data["combat_prayer_uptime"] = rule["prayer_uptime"]
+        prayer_level = _positive_int(data.get("prayer_level", 1), 1)
+        book = str(data.get("combat_prayer_book", "standard"))
+        target = COMBAT_ENEMY_DATA.get(str(data.get("current_combat_target", "")), {})
+        if mode == "max_safety":
+            enemy_class = _combat_enemy_attack_class(target) if target else "melee"
+            protection_effect = {"magic": "protect_magic", "ranged": "protect_ranged"}.get(enemy_class, "protect_melee")
+            candidates = [
+                prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
+                if prayer.book == book and prayer.level <= prayer_level
+                and any(effect == protection_effect for effect, _value in prayer.effects)
+            ]
+            selected = [max(candidates, key=lambda prayer: prayer.level).id] if candidates else []
+        else:
+            equipment = data.get("equipment", {}) or {}
+            weapon = str(equipment.get("weapon", "") or "")
+            if weapon in COMBAT_MAGIC_STAFF_DATA:
+                wanted = ("magic_combat", "leech_magic", "sap_mage")
+            elif weapon in COMBAT_RANGED_WEAPON_DATA:
+                wanted = ("ranged_combat", "leech_ranged", "sap_ranger")
+            else:
+                wanted = ("melee_combat", "turmoil")
+            candidates = [
+                prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
+                if prayer.book == book and prayer.level <= prayer_level
+                and set(prayer.groups).intersection(wanted)
+            ]
+            selected = [max(candidates, key=lambda prayer: prayer.level).id] if candidates else []
+            if not selected and book == "standard":
+                for group in ("attack", "strength", "defence"):
+                    group_rows = [
+                        prayer for prayer in COMBAT_PRAYERS_BY_ID.values()
+                        if prayer.book == book and prayer.level <= prayer_level and group in prayer.groups
+                    ]
+                    if group_rows:
+                        selected.append(max(group_rows, key=lambda prayer: prayer.level).id)
+        data["combat_selected_prayers"] = list(sanitize_prayer_selection_pure(data, selected, book))
+    else:
+        data["combat_prayer_uptime"] = "off"
+        data["combat_selected_prayers"] = []
+    data["combat_vengeance"] = bool(rule["vengeance"] and _positive_int(data.get("magic_level", 1), 1) >= 94 and quest_completed_pure(data, "lunar_diplomacy"))
+    data["combat_dream_thrift"] = bool(data.get("combat_dream_thrift", False) or rule["dream"])
+    return data
 
 
 def _combat_preset_snapshot(data):
@@ -1521,6 +1839,10 @@ def default_combat_state_pure():
         "combat_prayer_points": 10,
         "combat_prayer_drain_counter": 0.0,
         "combat_auto_prayer_training": False,
+        "combat_prayers_enabled": True,
+        "combat_vengeance": False,
+        "combat_dream_thrift": False,
+        "combat_spellbook_swap": "",
         "combat_active_preset": "Default",
         "combat_target_presets": {},
         "combat_target_overrides": {},
@@ -1914,6 +2236,10 @@ def sanitize_combat_state_pure(player_data, enemy_data=None, style_data=None):
         "combat_prayer_points": min(prayer_max, _non_negative_int(player_data.get("combat_prayer_points", prayer_max), prayer_max)),
         "combat_prayer_drain_counter": max(0.0, float(player_data.get("combat_prayer_drain_counter", 0.0) or 0.0)),
         "combat_auto_prayer_training": bool(player_data.get("combat_auto_prayer_training", False)),
+        "combat_prayers_enabled": bool(player_data.get("combat_prayers_enabled", True)),
+        "combat_vengeance": bool(player_data.get("combat_vengeance", False)),
+        "combat_dream_thrift": bool(player_data.get("combat_dream_thrift", False)),
+        "combat_spellbook_swap": str(player_data.get("combat_spellbook_swap", "") or ""),
         "combat_presets": presets,
         "combat_active_preset": active_preset,
         "combat_target_presets": dict(player_data.get("combat_target_presets", {}) or {}),
@@ -2315,12 +2641,25 @@ def _combat_magic_missing_runes(player_data, spell_spec, target_id, equipment_da
 
 
 def _combat_magic_locked_reasons(player_data, target_id, equipment_data=None):
-    _spell_id, spell_spec = _combat_selected_magic_spell(player_data)
+    spell_id, spell_spec = _combat_selected_magic_spell(player_data)
     if not isinstance(spell_spec, Mapping) or not spell_spec:
         return ("source-backed combat spell",)
     required_level = _positive_int(spell_spec.get("required_magic_level", 1), 1)
     if _combat_effective_skill_level(player_data, "magic", 1) < required_level:
         return (f"Magic level {required_level}",)
+    gate = spell_spec.get("quest_gate")
+    if gate and not _magic_quest_gate_complete_pure(player_data, gate):
+        return (str(gate).replace("_", " ").title(),)
+    required_weapon = spell_spec.get("required_weapon")
+    if required_weapon and (player_data.get("equipment", {}) or {}).get("weapon") != required_weapon:
+        return (str(required_weapon),)
+    if spell_spec.get("effect") == "undead_only":
+        enemy_name = str(COMBAT_ENEMY_DATA.get(target_id, {}).get("display_name", target_id)).lower()
+        if not any(token in enemy_name for token in ("skeleton", "zombie", "ghost", "shade", "undead")):
+            return ("Undead target",)
+    preset_reasons = combat_magic_preset_locked_reasons_pure(player_data)
+    if preset_reasons:
+        return preset_reasons
     missing = _combat_magic_missing_runes(player_data, spell_spec, target_id, equipment_data)
     if missing:
         return ("runes: " + ", ".join(missing),)
@@ -3665,6 +4004,26 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     pinned_preset = (data.get("combat_target_presets", {}) or {}).get(target_id)
     if isinstance(pinned_preset, str):
         data, _applied = apply_combat_preset_pure(data, pinned_preset, target_id)
+    preset_reasons = combat_magic_preset_locked_reasons_pure(data)
+    if preset_reasons:
+        return player_data, False, {"reason": "combat_locked", "locked_reasons": preset_reasons}
+    # Dream trades one review and one cast for its pinned 50 LP/minute healing
+    # rate. It happens between fights before supplies or attack rolls.
+    max_lp_for_dream = combat_max_lifepoints_pure(data)
+    if bool(data.get("combat_dream_thrift", False)) and _non_negative_int(data.get("combat_lifepoints", max_lp_for_dream), max_lp_for_dream) < max_lp_for_dream:
+        dream_cost = effective_magic_rune_cost_pure(data, DREAM_COST)
+        inventory = data.get("inventory", {}) or {}
+        if all(_non_negative_int(inventory.get(rune, 0), 0) >= amount for rune, amount in dream_cost.items()):
+            inventory = dict(inventory)
+            for rune, amount in dream_cost.items():
+                inventory[rune] -= amount
+            data["inventory"] = inventory
+            healed = min(50, max_lp_for_dream - _non_negative_int(data.get("combat_lifepoints", 0), 0))
+            data["combat_lifepoints"] = _non_negative_int(data.get("combat_lifepoints", 0), 0) + healed
+            data["magic_exp"] = float(data.get("magic_exp", 0.0) or 0.0) + 82.0
+            result = {"reason": "dream", "healed": healed, "xp_rewards": {"magic_exp": 82.0}, "runes_used": dict(dream_cost), "ticks": 0, "ticks_elapsed": 0}
+            data["combat_last_result"] = result
+            return data, True, result
     if target_id not in enemy_data:
         locked_reasons = combat_target_locked_reasons_pure(data, target_id, enemy_data, equipment_data=equipment_data)
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
@@ -3701,6 +4060,24 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     if locked_reasons:
         return player_data, False, {"reason": "combat_locked", "locked_reasons": locked_reasons}
     enemy = enemy_data[target_id]
+
+    supplemental_costs = []
+    if data.get("combat_spellbook_swap"):
+        supplemental_costs.append(("spellbook_swap", SPELLBOOK_SWAP_COST, 130.0))
+    if bool(data.get("combat_vengeance", False)):
+        supplemental_costs.append(("vengeance", VENGEANCE_COST, 112.0))
+    supplemental_used = {}
+    vengeance_pending = bool(data.get("combat_vengeance", False))
+    inventory = dict(data.get("inventory", {}) or {})
+    for label, raw_cost, xp in supplemental_costs:
+        cost = effective_magic_rune_cost_pure(data, raw_cost)
+        if not all(_non_negative_int(inventory.get(rune, 0), 0) >= amount for rune, amount in cost.items()):
+            return player_data, False, {"reason": "combat_locked", "locked_reasons": (f"{label.replace('_', ' ').title()} runes",)}
+        for rune, amount in cost.items():
+            inventory[rune] -= amount
+            supplemental_used[rune] = supplemental_used.get(rune, 0) + amount
+        data["magic_exp"] = float(data.get("magic_exp", 0.0) or 0.0) + xp
+    data["inventory"] = inventory
 
     # Auto-drink carried stat potions before the rolls are computed, so the boost
     # flows through the effective-level reads into this burst's max-hit/accuracy.
@@ -3754,6 +4131,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     leech_ramp = curse_expected_ramp_pure(expected_attacks, "leech")
     enemy_attack_factor = 1.0
     enemy_defence_factor = 1.0
+    spell_effect = str(spell_spec.get("effect", "")) if combat_class == "magic" else ""
+    spell_effect_value = float(spell_spec.get("effect_value", 0.0) or 0.0) if combat_class == "magic" else 0.0
+    if spell_effect in {"attack_drain", "strength_drain", "magic_drain"}:
+        enemy_attack_factor *= max(0.0, 1.0 - spell_effect_value)
+    if spell_effect in {"defence_drain"}:
+        enemy_defence_factor *= max(0.0, 1.0 - spell_effect_value)
     for prayer_id in selected_prayers:
         if prayer_id.startswith("sap_"):
             enemy_attack_factor *= 1.0 - sap_ramp["enemy_drain"] * prayer_uptime
@@ -3844,6 +4227,8 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     potions_used = list(stat_potion_events)
     ammo_used = {}
     runes_used = {}
+    for rune_name, amount in supplemental_used.items():
+        runes_used[rune_name] = runes_used.get(rune_name, 0) + amount
     status_damage = {}
     status_applied = {}
     status_expired = []
@@ -3855,6 +4240,7 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
     fled = False
     out_of_ammo = False
     out_of_runes = False
+    magic_effect_applied = False
     npc_xp_multiplier = _combat_npc_xp_multiplier(enemy)
     ticks_elapsed = 0
     # This is a live combat review, so the out-of-combat rest window restarts from
@@ -3909,6 +4295,19 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if damage > 0:
                 enemy_lp -= damage
                 player_damage += damage
+                if combat_class == "magic" and landed:
+                    if spell_effect == "blood_heal":
+                        player_lp = min(max_player_lp, player_lp + int(damage * spell_effect_value))
+                    elif spell_effect == "freeze":
+                        next_enemy_attack += max(0, int(spell_effect_value / .6))
+                    elif spell_effect == "poison" and not magic_effect_applied:
+                        poison_ev = min(enemy_lp, max(0, int(spell_effect_value)))
+                        enemy_lp -= poison_ev
+                        player_damage += poison_ev
+                        magic_effect_applied = True
+                    elif spell_effect == "defence_flat" and not magic_effect_applied:
+                        enemy_defence_factor = max(.01, enemy_defence_factor - spell_effect_value / 100.0)
+                        magic_effect_applied = True
                 soul_split_heal = int(damage * float(prayer_effects.get("soul_split", 0.0)))
                 if soul_split_heal > 0:
                     player_lp = min(max_player_lp, player_lp + soul_split_heal)
@@ -3953,6 +4352,12 @@ def apply_combat_burst_pure(player_data, enemy_data=None, equipment_data=None, t
             if damage > 0:
                 player_lp -= damage
                 enemy_damage += damage
+                if vengeance_pending:
+                    reflected_vengeance = min(enemy_lp, int(raw_enemy_damage * .75))
+                    if reflected_vengeance > 0:
+                        enemy_lp -= reflected_vengeance
+                        player_damage += reflected_vengeance
+                    vengeance_pending = False
                 reflected = min(enemy_lp, int(raw_enemy_damage * float(prayer_effects.get("deflect", 0.0))))
                 if reflected > 0:
                     enemy_lp -= reflected
@@ -4198,7 +4603,7 @@ def set_combat_pack_mode_pure(player_data, mode):
     data = _copy_player_data_with_nested(player_data)
     data.update(sanitize_combat_state_pure(data))
     data["combat_pack_mode"] = _combat_coerce_pack_mode(mode)
-    return data
+    return derive_casual_combat_magic_pure(data)
 
 
 def set_combat_auto_eat_threshold_pure(player_data, threshold_percent):
@@ -6118,7 +6523,10 @@ def runecrafting_locked_reasons_pure(player_data, target_id, runecrafting_data, 
     elif kind == "combination":
         if runecrafting_altar_access_source_pure(player_data, target.get("altar_id"), runecrafting_data) == "":
             reasons.append("altar access")
-        for item_name in ("Pure essence", target.get("component_rune"), target.get("consumed_talisman")):
+        required_items = ["Pure essence", target.get("component_rune")]
+        if not bool(player_data.get("magic_imbue_active", False)):
+            required_items.append(target.get("consumed_talisman"))
+        for item_name in required_items:
             if item_name and inventory.get(item_name, 0) <= 0:
                 reasons.append(str(item_name))
     elif kind == "tiara":
@@ -6206,11 +6614,15 @@ def apply_runecrafting_action_pure(player_data, target_id, runecrafting_data, po
         component_rune = str(target.get("component_rune"))
         consumed_talisman = str(target.get("consumed_talisman"))
         craft_count = min(capacity, pure_count, _positive_int(inventory.get(component_rune, 0), 0))
-        if craft_count <= 0 or inventory.get(consumed_talisman, 0) <= 0:
+        imbued = bool(data.get("magic_imbue_active", False))
+        if craft_count <= 0 or (not imbued and inventory.get(consumed_talisman, 0) <= 0):
             return player_data, 0, False, "Missing combination materials"
         inventory["Pure essence"] = inventory.get("Pure essence", 0) - craft_count
         inventory[component_rune] = inventory.get(component_rune, 0) - craft_count
-        inventory[consumed_talisman] = inventory.get(consumed_talisman, 0) - 1
+        if imbued:
+            data["magic_imbue_active"] = False
+        else:
+            inventory[consumed_talisman] = inventory.get(consumed_talisman, 0) - 1
         output_item = str(target.get("output_item"))
         charges = binding_necklace_charges_pure(data)
         if charges > 0:

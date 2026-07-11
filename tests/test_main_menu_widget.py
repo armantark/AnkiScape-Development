@@ -36,7 +36,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer"):
+    for skill in ("mining", "woodcutting", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -511,6 +511,8 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._combat_refill_calls: list = []
         self._combat_unload_calls: list = []
         self._prayer_calls: list = []
+        self._magic_calls: list = []
+        self._magic_alch_calls: list = []
         self._prayer_config_calls: list = []
         self._death_office_calls: list = []
         # Quests and Bank Claims are review-adjacent but not levelled skills.
@@ -567,6 +569,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_cooking=lambda target: self._cooking_calls.append(target),
             on_set_runecrafting=lambda target: self._runecrafting_calls.append(target),
             on_set_prayer=lambda target: self._prayer_calls.append(target),
+            on_set_magic=lambda target: self._magic_calls.append(target),
+            on_set_magic_alchemy_item=lambda item: self._magic_alch_calls.append(item),
             on_set_utility=lambda activity: self._utility_calls.append(activity),
             on_set_combat=lambda target: self._combat_calls.append(target),
             on_set_combat_style=lambda style: self._combat_style_calls.append(style),
@@ -1146,12 +1150,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/43 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/46 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/127 (1.6%)", labels)
+        self.assertIn("Completed: 2/134 (1.5%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)
@@ -4119,6 +4123,48 @@ class MainMenuWidgetTest(unittest.TestCase):
         tree.itemClicked.emit(row, 0)
         QApplication.processEvents()
         self.assertEqual(self._prayer_calls[-1], "bury_bones")
+
+    def test_magic_surface_has_bank_alchemy_picker_and_locked_click_guard(self) -> None:
+        pd = _make_player_data()
+        pd["magic_level"] = 99
+        pd["inventory"] = {"Rune platebody": 1, "Air rune": 3, "Fire rune": 1, "Law rune": 1}
+        dialog = self._open(pd, current_skill="Magic")
+        picker = dialog.findChild(QComboBox, "magicAlchemyItemCombo")
+        tree = dialog.findChild(QTreeWidget, "magicTargetTree")
+        self.assertIsNotNone(picker)
+        self.assertIsNotNone(tree)
+        self.assertGreaterEqual(picker.findData("Rune platebody"), 0)
+        locked = next(
+            item for item in _tree_items(tree)
+            if item.data(0, Qt.ItemDataRole.UserRole) == "kharyrll_teleport"
+        )
+        self.assertTrue(locked.isDisabled())
+        before = list(self._magic_calls)
+        tree.itemClicked.emit(locked, 0)
+        QApplication.processEvents()
+        self.assertEqual(self._magic_calls, before)
+
+    def test_combat_magic_casual_controls_and_advanced_disclosure_fit_short_dialog(self) -> None:
+        pd = _make_player_data()
+        pd["equipment"] = {"weapon": "Staff of air"}
+        dialog = self._open(pd)
+        _open_equipment_tab(dialog)
+        dialog.resize(900, 560)
+        dialog.show()
+        QApplication.processEvents()
+        casual = dialog.findChild(QWidget, "combatMagicCasualControls")
+        autocast = dialog.findChild(QComboBox, "combatSpellCombo")
+        advanced_toggle = dialog.findChild(QToolButton, "combatAdvancedPresetToggle")
+        advanced = dialog.findChild(QWidget, "combatAdvancedPresetPanel")
+        self.assertTrue(casual.isVisible())
+        self.assertTrue(autocast.isVisible())
+        self.assertFalse(advanced.isVisible())
+        advanced_toggle.click()
+        QApplication.processEvents()
+        self.assertTrue(advanced.isVisible())
+        self.assertLessEqual(advanced_toggle.geometry().bottom(), dialog.height())
+        self.assertIsNotNone(dialog.findChild(QCheckBox, "combatVengeanceCheck"))
+        self.assertIsNotNone(dialog.findChild(QComboBox, "combatSpellbookSwapCombo"))
 
     def test_combat_prayer_controls_show_preset_picker_and_gate_curses(self) -> None:
         dialog = self._open(_make_player_data())

@@ -205,6 +205,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
         review_handler_key="prayer",
         visible_in_skill_hub=True,
     ),
+    SkillDefinition(
+        id="magic",
+        display_name="Magic",
+        category="combat",
+        implemented=True,
+        participates_in_review=True,
+        action_kind="process",
+        level_key="magic_level",
+        exp_key="magic_exp",
+        current_target_key="current_magic",
+        default_target="low_alchemy",
+        review_handler_key="magic",
+        visible_in_skill_hub=True,
+    ),
 )
 
 
@@ -212,7 +226,6 @@ PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
     SkillDefinition("attack", "Attack", "combat", False, False, "combat", "attack_level", "attack_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("constitution", "Constitution", "combat", False, False, "combat", "constitution_level", "constitution_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("defense", "Defence", "combat", False, False, "combat", "defense_level", "defense_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
-    SkillDefinition("magic", "Magic", "combat", False, False, "combat", "magic_level", "magic_exp", surface_state="partial", training_source="Combat"),
     SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
     SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp", surface_state="planned"),

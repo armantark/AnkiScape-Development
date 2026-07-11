@@ -699,6 +699,16 @@ COMBAT_MAGIC_SPELL_DATA: Dict[str, dict] = {
     },
 }
 
+# The standalone Magic continuation owns pre-EOC gap spells while Combat keeps
+# the original rev-667 ladder.  Import late to avoid making magic_data depend on
+# Combat internals and preserve the existing stable spell IDs.
+try:
+    from .magic_data import combat_magic_additions_as_dict
+except ImportError:
+    from magic_data import combat_magic_additions_as_dict
+
+COMBAT_MAGIC_SPELL_DATA.update(combat_magic_additions_as_dict())
+
 
 COMBAT_MAGIC_STAFF_DATA: Dict[str, dict] = {
     "Staff of air": {
