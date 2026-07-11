@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prayer — Implementation-Ready Contract</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Outfit', sans-serif; font-weight: 300;
+    padding: 2.5rem 1.25rem 4rem; line-height: 1.55;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+.badge {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    font-weight: 600; letter-spacing: 0.12em; color: var(--accent);
+    background: var(--accent-glow); border: 1px solid var(--accent);
+    padding: 0.3rem 0.8rem; border-radius: 999px; margin-bottom: 1rem;
+}
+h1 { font-weight: 700; font-size: 2rem; margin-bottom: 0.5rem; }
+.sub { color: var(--text-dim); font-size: 0.95rem; max-width: 62ch; margin-bottom: 2.2rem; }
+h2 {
+    font-weight: 700; font-size: 1.15rem; margin: 2.4rem 0 1rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.1rem 1.2rem; transition: transform 0.15s, box-shadow 0.15s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.card h3 { font-weight: 700; font-size: 1rem; margin-bottom: 0.5rem; }
+.card p, .card li { font-size: 0.87rem; color: var(--text-dim); }
+.card strong { color: var(--text); font-weight: 500; }
+.card ul { padding-left: 1.1rem; margin-top: 0.4rem; }
+.card li { margin-bottom: 0.25rem; }
+.plabel {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; font-weight: 600;
+    letter-spacing: 0.1em; text-transform: uppercase; display: inline-block; margin-bottom: 0.45rem;
+}
+.pl-green { color: var(--green); } .pl-amber { color: var(--amber); }
+.pl-red { color: var(--red); } .pl-purple { color: var(--purple); } .pl-blue { color: var(--accent); }
+.tag {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.65rem;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim);
+    padding: 0.12rem 0.5rem; border-radius: 6px; margin: 0.15rem 0.15rem 0 0;
+}
+/* method bar chart */
+.bars { display: flex; flex-direction: column; gap: 0.55rem; margin-top: 0.6rem; }
+.brow { display: grid; grid-template-columns: 150px 1fr 118px; gap: 0.6rem; align-items: center; font-size: 0.8rem; }
+.brow .bl { color: var(--text); font-weight: 500; }
+.btrack { background: var(--surface-2); border-radius: 6px; height: 18px; overflow: hidden; }
+.bfill { height: 100%; border-radius: 6px; }
+.bnote { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--text-dim); text-align: right; }
+/* uptime playground */
+.play { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.2rem 1.4rem; }
+.play input[type=range] { width: 100%; accent-color: var(--accent); margin: 0.6rem 0 0.9rem; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.7rem; }
+.stat { background: var(--surface-2); border-radius: 8px; padding: 0.6rem 0.8rem; }
+.stat .k { font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; letter-spacing: 0.08em; color: var(--text-dim); text-transform: uppercase; }
+.stat .v { font-size: 1.15rem; font-weight: 700; color: var(--accent); }
+.presets { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-top: 0.8rem; }
+.presets button {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; cursor: pointer;
+    background: var(--surface-2); color: var(--text-dim); border: 1px solid var(--border);
+    padding: 0.3rem 0.7rem; border-radius: 999px;
+}
+.presets button:hover { color: var(--text); border-color: var(--accent); }
+/* struck banner */
+.struck {
+    border: 1px solid var(--red); border-radius: var(--radius);
+    background: rgba(255, 92, 92, 0.06); padding: 1rem 1.2rem; margin-top: 1rem;
+    font-size: 0.87rem; color: var(--text-dim);
+}
+.struck strong { color: var(--red); font-weight: 700; }
+/* steps */
+.step { display: flex; gap: 0.85rem; margin-bottom: 0.9rem; align-items: flex-start; }
+.snum {
+    flex: 0 0 auto; width: 26px; height: 26px; border-radius: 7px; background: var(--accent);
+    color: #0c0e12; font-family: 'JetBrains Mono', monospace; font-weight: 600; font-size: 0.8rem;
+    display: flex; align-items: center; justify-content: center; margin-top: 2px;
+}
+.step p { font-size: 0.88rem; color: var(--text-dim); }
+.step strong { color: var(--text); font-weight: 500; }
+/* checklist */
+.check { list-style: none; }
+.check li { font-size: 0.85rem; color: var(--text-dim); padding: 0.28rem 0; display: flex; gap: 0.55rem; align-items: baseline; }
+.check li::before { content: "▹"; color: var(--purple); font-weight: 700; }
+details { margin-top: 0.5rem; }
+summary { cursor: pointer; font-size: 0.82rem; color: var(--accent); font-weight: 500; }
+table { border-collapse: collapse; width: 100%; margin-top: 0.6rem; font-size: 0.78rem; }
+td, th { border: 1px solid var(--border); padding: 0.3rem 0.55rem; text-align: left; color: var(--text-dim); }
+th { font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <span class="badge">PRE-IMPLEMENTATION PLAN · GRILL CLOSED 2026-07-11</span>
+    <h1>Prayer — Implementation-Ready Contract</h1>
+    <p class="sub">The Prayer deep grill is finished. Every product decision is settled, every source fact is pinned pre-EOC (game-main rev 667 → wiki oldid → Darkan, in that order). This artifact is the build plan; the canonical contract lives in <span class="tag">memory-bank/ankiscape-skill-expansion.md</span></p>
+
+    <h2>Training methods &amp; effective speed</h2>
+    <div class="bars">
+        <div class="brow"><span class="bl">Bury bones</span><div class="btrack"><div class="bfill" style="width:28.6%;background:var(--text-dim)"></div></div><span class="bnote">1.0× · zero friction</span></div>
+        <div class="brow"><span class="bl">Scatter demon ashes</span><div class="btrack"><div class="bfill" style="width:28.6%;background:var(--text-dim)"></div></div><span class="bnote">1.0× of ash base</span></div>
+        <div class="brow"><span class="bl">Ectofuntus</span><div class="btrack"><div class="bfill" style="width:97%;background:var(--green)"></div></div><span class="bnote">4× ÷ prep ≈ 3.4×</span></div>
+        <div class="brow"><span class="bl">Gilded altar (hosted)</span><div class="btrack"><div class="bfill" style="width:100%;background:var(--accent)"></div></div><span class="bnote">3.5× flat</span></div>
+    </div>
+    <p style="font-size:0.82rem;color:var(--text-dim);margin-top:0.7rem">Owner-chosen pacing: bone grinding batches at <strong style="color:var(--text);font-weight:500">~9 bones/review</strong> (the "slow grinder" knob), slime at 28/review, worship 1/review — so Ectofuntus lands just under gilded, preserving the authentic 2012 "gilded is fastest" ordering. Gilded is hosted-house until Construction: a one-per-stint <strong style="color:var(--text);font-weight:500">1–10 review house-finding roll</strong>, then free burners (the host's runners light them).</p>
+
+    <div class="struck"><strong>STRUCK — Chaos Temple Wilderness altar.</strong> The pre-EOC page (oldid 5934985, 2012-07-14) shows only free bone spawns and a prayer-recharge altar. The 50%-bone-save offering altar is OSRS-2018 content — same false-positive class as fletch-javelin-construction. The Wilderness-risk decision is moot; recorded in the kanban exclusion list.</div>
+
+    <h2>Uptime policy — the one invented knob</h2>
+    <div class="play">
+        <p style="font-size:0.85rem;color:var(--text-dim)">All prayer/curse combat effects are expected-value: multipliers and drains scale with a per-combat-target uptime setting. Drag to see how one policy value flows through every hook.</p>
+        <input type="range" id="up" min="0" max="100" value="70" aria-label="Prayer uptime percent">
+        <div class="stats">
+            <div class="stat"><div class="k">Uptime</div><div class="v" id="s-up">70%</div></div>
+            <div class="stat"><div class="k">Protect/Deflect dmg taken</div><div class="v" id="s-prot">×0.30</div></div>
+            <div class="stat"><div class="k">Piety Att/Def (+20%)</div><div class="v" id="s-piety">×1.14</div></div>
+            <div class="stat"><div class="k">Deflect reflect EV</div><div class="v" id="s-refl">4.2%</div></div>
+            <div class="stat"><div class="k">Soul Split heal</div><div class="v" id="s-ss">14%</div></div>
+            <div class="stat"><div class="k">Drain accrual</div><div class="v" id="s-drain">×0.70</div></div>
+        </div>
+        <div class="presets">
+            <button data-v="0">Off — 0%</button>
+            <button data-v="40">Conservative — 40%</button>
+            <button data-v="70">Aggressive — 70%</button>
+            <button data-v="100">Always — 100%</button>
+        </div>
+    </div>
+
+    <h2>Settled design</h2>
+    <div class="grid">
+        <div class="card">
+            <span class="plabel pl-blue">Combat overlay</span>
+            <h3>EV prayers, no flicking</h3>
+            <p>Protection/deflect multiply each enemy hit by <strong>(1 − uptime)</strong> at <span class="tag">logic_pure.py:3502</span>; offensive prayers are pre-loop effective-level multipliers at <span class="tag">:3457</span>; drain accrues per simulated tick at authentic rate × uptime in the loop at <span class="tag">:3435</span>. Checkbox loadout per combat target, authentic conflict groups enforced.</p>
+        </div>
+        <div class="card">
+            <span class="plabel pl-blue">Prayer points</span>
+            <h3>Points, drain resistance, restores</h3>
+            <p>Max = prayer level (internally level×10). Resistance = <strong>60 + 2 × prayer equipment bonus</strong> (game-main prayer.kt; the <span class="tag">equipment_data.py</span> prayer field already exists). Bank-run refill is free; prayer potions auto-drink mid-burst; prayers switch off at 0 points.</p>
+        </div>
+        <div class="card">
+            <span class="plabel pl-purple">Ancient curses</span>
+            <h3>Full curse book, sourced EV ramp</h3>
+            <p>Unlock: The Temple at Senntisten; global book toggle at burst boundaries. Sap procs 25%/attack, leech 20%/attack (Darkan CurseManager) ramping to the pinned caps (oldid 6535713). Deflect reflects <strong>10% × 60% = 6% EV</strong> of raw hits. Turmoil scales off enemy base levels; Soul Split heals 20% of damage dealt. NPC-meaningless curses ship included-but-inert.</p>
+        </div>
+        <div class="card">
+            <span class="plabel pl-green">Non-combat analogs</span>
+            <h3>Rapid Restore family</h3>
+            <p>Baseline recovery is the existing 100-tick cadence (<span class="tag">logic_pure.py:2529</span>); Rapid Restore multiplies the step by <strong>(1 + uptime)</strong>, excluding Constitution/Prayer/Summoning (oldid 6268755). Rapid Heal scales the LP trickle; Berserker stretches boost decay ×(1 + 0.15·uptime).</p>
+        </div>
+        <div class="card">
+            <span class="plabel pl-amber">UI placement</span>
+            <h3>Normal skill surface</h3>
+            <p>Prayer is XP-bearing → full skill surface with grouped <span class="tag">TargetRowMetadata</span> rows (bone × method, grouped Bury / Scatter / Ectofuntus / Gilded, like Smithing tiers). Grinding and slime collection are no-XP Utility prep. Ecto-tokens are a normal currency item with no sink yet — deliberately unremarkable.</p>
+        </div>
+        <div class="card">
+            <span class="plabel pl-amber">Gates &amp; landmarks</span>
+            <h3>Authentic unlocks</h3>
+            <p>Piety/Chivalry require King's Ransom + Knight Waves — modeled with the existing one-time landmark pattern. Restless Ghost grants 5 Ancient bones (200 XP each, game-main). Shades cremation, GE bones, and owned-POH altars trail as dependency-blocked, not phase-deferred.</p>
+            <details><summary>Bone XP ladder (game-main BoneData.kt)</summary>
+                <table><tr><th>Bone</th><th>XP</th><th>Bone</th><th>XP</th></tr>
+                <tr><td>Bones / Wolf / Burnt</td><td>4.5</td><td>Dragon</td><td>72</td></tr>
+                <tr><td>Monkey / Bat</td><td>5 / 5.3</td><td>Fayrg / Raurg</td><td>84 / 96</td></tr>
+                <tr><td>Big / Jogre / Zogre</td><td>15 / 15 / 12.5</td><td>Dagannoth / Ourg</td><td>125 / 140</td></tr>
+                <tr><td>Baby dragon / Wyvern</td><td>30 / 50</td><td>Frost drag. / Ancient</td><td>180 / 200</td></tr></table>
+            </details>
+        </div>
+    </div>
+
+    <h2>Implementation slices</h2>
+    <div class="step"><div class="snum">1</div><p><strong>Source extraction pass</strong> — standard 30-prayer table from game-main prayer.kt; curse drain column from oldid 6535713; Sap/Leech step sizes from Darkan; impious/accursed ash pins. <span class="tag">tools/wiki_parity.py</span></p></div>
+    <div class="step"><div class="snum">2</div><p><strong>Data + items</strong> — prayer_data module, bonemeal set, bucket of slime, ecto-tokens, ash 100%-drops for demon families. <span class="tag">item_registry.py</span> <span class="tag">combat_data.py</span> <span class="tag">skill_registry.py</span></p></div>
+    <div class="step"><div class="snum">3</div><p><strong>Pure mechanics</strong> — training actions, points/drain/restore, EV combat overlay, uptime policy, pending-XP migration. <span class="tag">logic_pure.py</span> <span class="tag">storage_pure.py</span></p></div>
+    <div class="step"><div class="snum">4</div><p><strong>UI + assets + achievements</strong> — grouped target rows, prayer checkbox panel, Utility prep activities, icon fetch with provenance. <span class="tag">target_metadata.py</span> <span class="tag">tools/fetch_assets.py</span></p></div>
+    <div class="step"><div class="snum">5</div><p><strong>Verification</strong> — pure + integration + offscreen Qt suites (baseline 1,001/1,001), undo compatibility, manual Anki instructions, results artifact.</p></div>
+
+    <h2>Owner decisions this session</h2>
+    <ul class="check">
+        <li>Ectofuntus pacing: "slow grinder" — grind ~9 bones/review so gilded stays the premium method.</li>
+        <li>Hosted gilded altars have free burners (runners light them); self-supplied marrentill arrives with owned POHs in the Construction grill.</li>
+    </ul>
+</div>
+<script>
+const up = document.getElementById('up');
+function fmt(n, d) { return n.toFixed(d); }
+function render() {
+    const u = up.value / 100;
+    document.getElementById('s-up').textContent = up.value + '%';
+    document.getElementById('s-prot').textContent = '×' + fmt(1 - u, 2);
+    document.getElementById('s-piety').textContent = '×' + fmt(1 + 0.20 * u, 2);
+    document.getElementById('s-refl').textContent = fmt(6 * u, 1) + '%';
+    document.getElementById('s-ss').textContent = fmt(20 * u, 0) + '%';
+    document.getElementById('s-drain').textContent = '×' + fmt(u, 2);
+}
+up.addEventListener('input', render);
+document.querySelectorAll('.presets button').forEach(b =>
+    b.addEventListener('click', () => { up.value = b.dataset.v; render(); }));
+render();
+</script>
+</body>
+</html>

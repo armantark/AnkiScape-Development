@@ -35,17 +35,18 @@ Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN` for hidden enemy/equipment b
 - Quest gates and XP rewards now recognize trainable partial stats, and legacy pending Combat-stat XP migrates directly. See `memory-bank/source-audits/partial-combat-skill-registry-2026-07-11.md`.
 - Continue weapon/ammo/spell/equipment/enemy breadth under `memory-bank/combat-design-grill-2026-06-23.md` rather than reopening the Combat loop design.
 
+### Prayer — grill complete, ready to build
+
+Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
+
+- The full implementation-ready contract is `memory-bank/ankiscape-skill-expansion.md` (grill closed 2026-07-11). All product decisions are settled: bury/scatter/Ectofuntus/hosted-gilded methods, EV prayer/curse combat translation with the uptime policy toggle, prayer points and drain resistance, Rapid Restore analog, and skill-surface UI placement.
+- The Chaos Temple Wilderness bone altar was struck as an OSRS-2018 false positive (pre-EOC `oldid=5934985` shows only bone spawns and a recharge altar), which also mooted the Wilderness-risk decision.
+- Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract: standard-book tables from game-main `prayer.kt`, the curse drain column from `oldid=6535713`, Darkan `Sap.java`/`Leech.java` step sizes, impious/accursed ash pins and demon drop wiring, bonemeal/ecto-token/slime items, Piety/Chivalry gate pins, and renewal restore rates.
+- Shades of Mort'ton cremation and GE bones trail as `DEPENDENCY` on their own families; owned-POH altars trail on Construction.
+
 ## Deep-grill queue — missing or incomplete skill surfaces
 
 Each skill receives its own grill before implementation. Source-shaped facts should be resolved autonomously; grill only materially different AnkiScape choices.
-
-### Prayer — resume, do not restart
-
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
-
-- Continue `memory-bank/ankiscape-skill-expansion.md` from its existing decisions.
-- Resolve remaining uptime policy, Ancient Curses translation, altar/Ectofuntus friction, Wilderness risk, Rapid Restore cadence, Shades integration, and UI placement.
-- Darkan is preferred for altar/curse/server-state behavior absent from the 2011 baseline.
 
 ### Magic — full skill continuation
 
@@ -185,7 +186,7 @@ Labels: `PARKED` until feature closure, then `IMPLEMENT`.
 ## Explicitly excluded
 
 - `EXCLUDED`: standalone transportation systems, persistent world map/player location, canoes, hot-air balloons, lodestones, and comparable transport-only content.
-- `EXCLUDED`: post-cutoff and OSRS-only mechanics without independent pre-EOC proof; `fletch-javelin-construction` is the canonical rejected false positive.
+- `EXCLUDED`: post-cutoff and OSRS-only mechanics without independent pre-EOC proof; `fletch-javelin-construction` is the canonical rejected false positive, and the Chaos Temple Wilderness bone-offering altar (OSRS-2018) joined it during the Prayer grill.
 - `EXCLUDED`: visible inert target/reward rows that cannot function end to end.
 - `EXCLUDED`: wall-clock minutes for ordinary skilling actions; the card clock governs background/world/economy cadence only.
 

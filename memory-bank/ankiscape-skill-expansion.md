@@ -1,153 +1,201 @@
 # AnkiScape Skill Expansion
 
-Focused continuation document for the partially completed **Prayer** deep grill.
+Focused continuation document for the **Prayer** deep grill.
 It is not the global post-Herblore roadmap; that role now belongs to
 `completion-audit-2026-07-10.md` and `future-work-kanban.md`.
 
-Status: parked mid-grill on 2026-07-09 and refreshed 2026-07-11. Resume from the
-settled decisions and open questions below; do not restart the Prayer design or
-treat the tentative open values as implementation-ready.
+Status: **grill completed 2026-07-11 — implementation-ready.** The design below
+is settled; do not re-grill it. What remains before/while coding is the short
+"implementation-time source extractions" list at the bottom (mechanical pins,
+not decisions).
 
-Global status now lives in the completion kanban. The registry distinguishes
+Global status lives in the completion kanban. The registry distinguishes
 11 complete skill surfaces, six partial Combat-trained skills, and eight planned
-skills; Prayer remains planned and must not be promoted merely because its save
-keys and some Herblore/Combat dependencies exist. All source work below follows
-`pre-eoc-source-verification-standard.md`: pinned pre-EOC wiki revisions and
-period caches establish history, while 2011Scape/current Darkan code is
-reconstruction evidence that must be reconciled. Never fill a gap from modern
-RS3 or OSRS behavior.
+skills; Prayer stays `planned` in the registry until its surface actually ships.
+All source work below follows `pre-eoc-source-verification-standard.md`: pinned
+pre-EOC wiki revisions and period caches establish history, while
+2011Scape/current Darkan code is reconstruction evidence that must be
+reconciled. Never fill a gap from modern RS3 or OSRS behavior.
 
 ---
 
-## Parked continuation: Prayer
+## Completed grill: Prayer (implementation-ready)
 
 ### Framing
-Prayer is really two separable features wearing one name:
+Prayer is two separable features wearing one name:
 
-1. **Prayer training (the skill)** — consume a bone → gain Prayer XP. A one-action
-   recipe-transform, the same engine shape as Herblore/Cooking. Low risk.
-2. **Prayer points + protection prayers (the combat overlay)** — the drain-based
-   combat layer (Protect from Melee, Piety, etc.). This is the hard part and the
-   one with real balance questions.
+1. **Prayer training (the skill)** — consume a bone/ash → gain Prayer XP. A
+   one-action recipe-transform, the same engine shape as Herblore/Cooking.
+2. **Prayer points + the prayer/curse combat overlay** — the drain-based combat
+   layer, translated to the EV model below.
 
 The owner does **not** want v1/v2 phasing — build everything whose dependencies
-already exist in one pass and tweak as we go. The only things that sit out are
-*dependency-blocked*, not phase-deferred (see Parked).
+already exist in one pass. Only *dependency-blocked* items sit out (see Parked).
 
 ### What already exists (no work needed)
 - **Bone inputs flow from combat**: `"Bones"` on ~47 drop-table entries in
-  `combat_data.py`, `"Big bones"` on 4, `"Wolf bones"` on 3. Like Herblore's
-  economy phase, the inputs are already near their authentic ceiling.
+  `combat_data.py`, `"Big bones"` on 4, `"Wolf bones"` on 3.
 - **Prayer-point restore economy already built via Herblore**: Prayer potion (3),
   Super prayer, Prayer renewal, Prayer mix are all live
   (`herblore_data.py:123,148,149,162`).
 - **`prayer_level` already feeds the combat-level formula**
-  (`logic_pure.py:4208`: `base = 0.25 * (defence + constitution + int(prayer*0.5)
-  + int(summoning*0.5))`), and `prayer` is already in `_COMBAT_AFFECTABLE_SKILLS`
-  (`logic_pure.py:1166`). So training a stat that already matters in combat.
+  (`logic_pure.py:4208`) and `prayer` is in `_COMBAT_AFFECTABLE_SKILLS`
+  (`logic_pure.py:1166`).
+- **Equipment already models a prayer bonus**: `prayer` is in
+  `EQUIPMENT_BONUS_FIELDS` (`equipment_data.py:15`), so the drain-resistance
+  formula consumes it with no schema change.
+- **Buckets, empty pots, and tinderboxes are live in NPC shops** (verified in
+  `shop_data.py` stock); clean marrentill is live via Herblore.
 
-### Sourcing (revised 2026-07-09 — game-main is incomplete, wiki fills gaps)
-A GPT-5.6 audit confirmed game-main **stubs** three authentic pre-EOC Prayer
-systems entirely: **ancient curses**, the **chaos-temple bone altar**, and the
-**gilded altar** (only static object/item/sound metadata, no behaviour). Per the
-revised gap-fill policy (see the `ankiscape-skill-expansion` skill's SKILL.md and
-`wiki-parity-scrape.md`), these are now sourced from `runescape.wiki` pinned to
-the eve of EOC (2012-11-20) via `tools/wiki_parity.py`, cited by `oldid`.
-
-- **Bury XP per bone (game-main):** `content/skills/prayer/burying/BoneData.kt` +
-  `bone_burying.plugin.kts`.
+### Sourcing (all pins closed 2026-07-11)
+- **Bury XP per bone (game-main, primary):**
+  `content/skills/prayer/burying/BoneData.kt` + `bone_burying.plugin.kts`.
+  Ladder: Bones/Wolf/Burnt 4.5, Monkey 5.0, Bat 5.3, Zogre 12.5, Big/Jogre 15,
+  Shaikahan 25, Baby dragon 30, Wyvern 50, Dragon 72, Fayrg 84, Raurg 96,
+  Dagannoth 125, Ourg 140, Frost dragon 180, Ancient 200.
 - **Protection-prayer drain rates + effects (game-main):**
   `content/mechanics/prayer/prayer.kt`, `Prayers.kt`. Drain resistance
-  `60 + prayerBonus*2`; points stored internally as `level*10`. The wiki's
-  bonus formula `interval * (1 + prayerBonus/30)` is the same model.
-- **Ancient curses (wiki, `Ancient Curses`?oldid=6535713):** full ladder L50–95,
-  effects, drain rates. game-main has none.
-- **Gilded/POH altars (wiki, `Prayer`?oldid=6539264):** altar tier ladder
-  Oak→Marble→Gilded, 100%–250%, +50%/+100% for 1/2 lit burners (clean marrentill
-  + tinderbox), max 3.5×. game-main stubs it.
-- **Ectofuntus (wiki, `Ectofuntus`):** flat **4×** bury XP via ground bonemeal +
-  ectoplasm. game-main coverage TBD; treat as wiki-sourced.
-- **Chaos Temple Wilderness altar (wiki, `Chaos Temple (Wilderness)`):** bonus
-  offering XP + ~50% bone-save, wilderness risk. game-main stubs it.
+  `60 + prayerBonus*2`; points stored internally as `level*10`.
+- **Ancient curses (wiki, `Ancient Curses`?oldid=6535713):** full L50–95 ladder,
+  effects, and drain-rate column. Sap −10%→−20% enemy; Leech +5%→+10% self /
+  −10%→−25% enemy; Deflects stop 100% of NPC damage like protects; Wrath up to
+  250% of Prayer level on death; Soul Split heals 20% of damage dealt; Turmoil
+  +15% Att/Def +15% of enemy level, +23% Str +10% of enemy level. Unlock:
+  completing The Temple at Senntisten.
+- **Curse hidden-server cadence (Darkan, sanctioned reconstruction):**
+  `CurseManager.java:15-16` — leech procs 20%/attack, sap 25%/attack, stepping
+  toward the wiki caps; deflect returns 10% of the raw hit at a 60% roll
+  (`Player.java:2140-2146`); conflict groups in `PrayerManager.kt` closePrayers.
+- **Gilded/POH altars (wiki, `Prayer`?oldid=6539264):** tier ladder Oak→Gilded
+  100%–250%, +50% of base per lit burner, max 3.5×.
+- **Ectofuntus (wiki, `Ectofuntus`?oldid=6544994):** 4× bury XP; 1 pot of
+  bonemeal + 1 bucket of slime per worship; demonic ashes skip grinding;
+  5 ecto-tokens per worship (265 per 53).
+- **Demonic ashes (wiki, `Infernal ashes`?oldid=6529055):** released 15 Feb 2011
+  (pre-EOC). Infernal: 62.5 XP scattered, 250 at Ectofuntus, 218.7 at 2-burner
+  gilded — i.e. scatter XP is the ash "base" and methods multiply exactly like
+  bones. 100% drops from black/abyssal/tormented demons, nechryael, demon bosses.
+- **Restless Ghost ancient bones (game-main, primary):**
+  `TheRestlessGhost.kt:122` and `father_aereck.plugin.kts:250-251` grant 5
+  Ancient bones (200 XP each) one time. Confirmed; no wiki page needed.
+- **Rapid Restore (wiki, `Rapid Restore`?oldid=6268755 + `Temporary skill
+  boost` pre-EOC snapshot):** stats decay/recover toward base ~1 level/min
+  (= the engine's existing 100-tick cadence); Rapid Restore doubles it for all
+  skills except Constitution, Prayer, Summoning.
+- **STRUCK — Chaos Temple Wilderness bone altar.** Pre-EOC page
+  (`Chaos Temple (Wilderness)`?oldid=5934985, 2012-07-14) shows only free bone
+  spawns and a prayer-recharge altar; game-main has only static constants. The
+  bone-offering altar with ~50% bone save is OSRS-2018 content — a false
+  positive of the `fletch-javelin-construction` class. The "chaos altar risk
+  model" open decision is moot. (Bone-spawn gathering was deliberately not
+  added as a route: combat bone drops are already at their authentic ceiling.)
 
-### Training methods this pass (maximalist — owner: "everything to the utmost detail")
-Roster surfaced by the wiki sweep; build all whose modeling is self-contained,
-model dependency-gated ones with the owner's friction abstractions:
-1. **Bury bones** — 1×, zero friction (game-main BoneData).
-2. **Scatter demon ashes** — parallel to burying; demons drop ashes (newly listed).
-3. **Ectofuntus** — 4×, two-step (grind bones→bonemeal + collect ectoplasm→worship).
-4. **Gilded altar (POH)** — tiered up to 3.5× with burners; un-parked via the
-   house-finding friction model (random 1–10 turns to "find a suitable house").
-5. **Chaos Temple Wilderness altar** — bonus XP + ~50% bone-save + wilderness risk.
-6. **Shades of Mort'ton cremation** — quest/activity-gated pyre-log + shade-remains
-   method (heaviest dependency; may trail the others).
-7. **Restless Ghost** — 5 one-time Ancient bones (minor landmark).
+### Training methods (final roster)
+1. **Bury bones** — 1×, zero friction, one bone per review (game-main BoneData).
+2. **Scatter demon ashes** — 1× of the ash's scatter XP, one per review
+   (impious/accursed/infernal only; regular Ashes are not a Prayer item).
+3. **Ectofuntus** — 4×, authentic two-step. Utility prep: **grind bones at
+   ~9 per review** (explicit owner-chosen pacing knob: grinding was famously
+   slow, and this keeps the gilded altar the premium-speed method as in 2012);
+   **collect slime at 28 per review**. Worship = 1/review, consumes one pot of
+   bonemeal (per bone type) + one bucket of slime, grants 4× bury XP + 5
+   ecto-tokens. Ashes worship directly without grinding. Effective ≈3.4×/review.
+4. **Gilded altar (hosted)** — flat **3.5×**, one bone/ash per review.
+   Friction: a random **1–10 review "find a suitable house" roll paid once per
+   stint** (when switching to a gilded target). **Burners are free while
+   hosted** — the host's runners supply marrentill (owner decision 2026-07-11).
+   When Construction lands, an owned POH altar replaces the roll and the owner
+   supplies burner herbs; the full Oak→Gilded tier ladder ships with
+   Construction, not now.
+5. **Restless Ghost** — 5 one-time Ancient bones (minor landmark, game-main).
+6. ~~Chaos Temple Wilderness altar~~ — struck (see Sourcing).
+7. **Shades of Mort'ton cremation** — trails as dependency-blocked on the
+   Shades activity-family grill (not phase-deferred).
 
-### Design decisions (agreed in grill)
-- **No flicking.** It was not a 2012 core mechanic and there is no per-tick player
-  input in a review-paced burst to represent it. Any flicking model would be an
-  invented heuristic — excluded on parity grounds.
-- **EV (expected-value) damage mitigation.** Protection prayers multiply each
-  enemy hit by `(1 - uptime_fraction)` rather than binary per-hit blocking.
-  Offensive prayers become effective-level multipliers scaled by uptime, applied
-  pre-loop. Drain accrues per simulated tick at the authentic rate × uptime.
-  Combat hooks: enemy damage `logic_pure.py:3502-3516`; pre-loop player
-  accuracy/max-hit `3457-3486`; per-tick loop `3435`.
-- **Efficiency via a player policy, not an assumed 100% uptime.** A per-combat
-  toggle (Off / Conservative ≈40% / Aggressive ≈70% / Always 100%) maps to an
-  uptime fraction applied to both the authentic per-tick drain and the authentic
-  effect. Drain and effect are sourced; the uptime fractions are the *one*
-  genuinely invented knob, tuned from telemetry.
-- **Checkbox prayer selection.** A check-mark UI selects which prayers are enabled
-  (each gated by unlock level), sharing the one uptime. Includes a "hide
-  lower-tier prayers" toggle mirroring the in-game option.
-- **All 30 standard prayers in** (full ladder Thick Skin 1 → Augury 77), plus the
-  **full Ancient Curses book** (L50–95) as a second, toggleable book. Smite,
-  Retribution, and Protect from Summoning included for completeness even if
-  rarely used (Summoning hooks in when that skill lands).
-- **Prayer points:** max = `prayer_level` (RS convention; internally `level*10`).
-  Bank-run refill = restore to full, FREE, "as if stopping by an altar."
-  Mid-burst restore = Prayer potions auto-drunk (like existing stat-potion
-  auto-drink, `logic_pure.py:3331`). At 0 points with no potion, prayers switch
-  off until the next bank-run refill.
-- **Rapid Restore analog** via a new per-tick current-level decay model, mirroring
-  how RuneScape drained stats recover — gives Rapid Restore/Renewal a real effect
-  (`_combat_recover_current_levels`, `logic_pure.py:3192`).
-- **Protect Item** is meaningful because death has real costs (graves equipment +
-  carried inventory, `_combat_apply_pvm_death`, `logic_pure.py:1455`).
-- **Automatic bank runs during combat refill Prayer points automatically**, as if
-  stopping by an altar on the way back. Ties Prayer restore into the existing
-  carried-inventory bank-run mechanic so combat with prayers on is self-sustaining.
-- **Auto-bury-during-combat** folded in this pass as a combat toggle that spends
-  extra simulated ticks per bone (off by default).
-
-### Un-parked by the maximalist decision
-- **Gilded altar** — no longer waits for full Construction. Built now with the
-  owner's friction abstraction: a random 1–10 turns to "find a suitable player's
-  house" when you lack your own gilded altar (mirrors house-party loaning). Real
-  Construction, when it lands, replaces the friction with an owned altar.
+### Design decisions (settled)
+- **No flicking.** Not a 2012 core mechanic; any model would be invented.
+- **EV damage mitigation.** Protection/deflect prayers multiply each enemy hit
+  by `(1 − uptime)`; offensive prayers become effective-level multipliers
+  scaled by uptime, applied pre-loop. Drain accrues per simulated tick at the
+  authentic rate × uptime. Combat hooks: enemy damage `logic_pure.py:3502-3516`;
+  pre-loop accuracy/max-hit `3457-3486`; per-tick loop `3435`.
+- **Uptime policy, not assumed 100%.** Per-combat-target toggle
+  Off / Conservative 40% / Aggressive 70% / Always 100%. The fractions are the
+  one invented knob, tuned from telemetry later.
+- **Checkbox prayer selection**, per combat target (house target-local-settings
+  pattern), gated by unlock level, sharing the one uptime, enforcing the
+  authentic conflict groups (protect/deflect one-of; sap ⊥ leech ⊥ turmoil;
+  overheads ⊥ Wrath/Soul Split), plus a "hide lower-tier prayers" toggle.
+- **All 30 standard prayers + full Ancient Curses book.** Book toggle is
+  **global** (as in-game), gated on The Temple at Senntisten completion, and
+  applies from the next combat burst. The Altar of Zaros +15% switch boost is
+  omitted — there is no altar-visit action to hang it on; the free bank-run
+  refill already abstracts altars. Vs-NPC-inert prayers/curses (Smite, Protect
+  from Summoning, Sap Spirit, Leech Special/Energy) ship included-but-inert.
+- **Curse EV translation (sourced, mechanics-glue):**
+  - Sap/Leech: per-player-attack EV ramp (proc chance × step from Darkan
+    `Sap.java`/`Leech.java`, capped at the wiki percentages), applied to enemy
+    effective levels (and self levels for leeches), all × uptime.
+  - Deflect: protection EV + reflected damage EV = `0.1 × 0.6 × raw hit ×
+    uptime` credited against the enemy.
+  - Soul Split: heal `20% × damage dealt × uptime`; enemy prayer drain inert.
+  - Turmoil: Att/Def `×(1 + 0.15·uptime) + 0.15·enemy_level·uptime`; Str
+    `×(1 + 0.23·uptime) + 0.10·enemy_level·uptime` (enemy base levels from
+    `combat_data.py`).
+  - Wrath/Retribution: on player death, roll up to 250% / 25% of Prayer level
+    as damage to the enemy.
+  - Berserker: boost-decay interval `×(1 + 0.15·uptime)`.
+- **Rapid Restore analog:** recovery-step multiplier `(1 + uptime)` on the
+  existing `COMBAT_STAT_DRAIN_RECOVERY_TICKS` 100-tick cadence
+  (`_combat_recover_current_levels`, `logic_pure.py:2529`), excluding
+  Constitution/Prayer/Summoning. Rapid Heal analog: natural LP trickle
+  `×(1 + uptime)`. Rapid Renewal / Prayer renewal potion restore points
+  gradually per tick (pin exact rate at implementation).
+- **Prayer points:** max = `prayer_level` (internally `level*10`). Bank-run
+  refill = free full restore "as if stopping by an altar." Mid-burst restore =
+  Prayer potions auto-drunk (existing stat-potion auto-drink,
+  `logic_pure.py:3331`). At 0 points with no potion, prayers switch off until
+  the next bank-run refill. Drain resistance `60 + 2×prayer equipment bonus`.
+- **Protect Item** is meaningful because PvM death has real costs
+  (`_combat_apply_pvm_death`, `logic_pure.py:1455`).
+- **Auto-bury/scatter during combat**: per-combat toggle spending extra
+  simulated ticks per bone/ash, off by default.
+- **Piety/Chivalry gates:** pre-EOC these required King's Ransom + the Knight
+  Waves training ground. Model Knight Waves with the established one-time
+  landmark pattern (see `stronghold-landmark-pattern` memory); pin exact
+  requirements at implementation.
+- **UI:** Prayer is a normal XP-bearing skill surface: grouped
+  `TargetRowMetadata` rows by method (Bury / Scatter / Ectofuntus / Gilded
+  altar), same grouping pattern as Smithing tiers. Grinding and slime
+  collection are no-XP Utility prep activities. Ecto-tokens are a stackable
+  currency item with no sink yet (authentic sinks arrive with later Morytania
+  content) — normal input-starved-in-reverse, no special UI state.
 
 ### Still parked (dependency-blocked)
-- **GE-bought bones** — needs the Grand Exchange (parked in
-  `fake-grand-exchange-design.md`). When GE lands, add a coin-paid bone-buying
-  training path. Note as a known future hook.
+- **Shades of Mort'ton cremation** — needs the Shades activity-family grill.
+- **GE-bought bones** — needs the Grand Exchange
+  (`fake-grand-exchange-design.md`). Known future hook.
+- **Owned-POH altar tiers + self-supplied burner marrentill** — Construction.
 
-### Open decisions (to resolve in grill)
-- Uptime fractions for the policy toggle (starting guess: Conservative ≈ 40%,
-  Aggressive ≈ 70%).
-- Chaos altar risk model (per-action chance to lose the bone stack / forfeit
-  bonus, sourced parallel to wilderness rune-buying risk).
-- Ectofuntus modeling: keep the two-step grind→worship friction, or collapse to a
-  single higher-friction 4× action?
-- Ancient curses PvE translation: how leech/sap (enemy stat drain + self boost)
-  and deflect (protect + reflect a fraction) map onto the EV combat model.
-- Rapid Restore per-tick current-level decay/recovery rate (the new analog).
-- Shades of Mort'ton: build cremation this pass or trail it (heaviest dependency)?
-- Where training lives in the UI (dedicated Prayer skill action vs Utility hub),
-  and how the many methods are presented without clutter.
+### Implementation-time source extractions (mechanical, not decisions)
+1. Full 30-prayer standard book table (levels, effects, drain rates) from
+   game-main `prayer.kt` / `Prayers.kt`.
+2. Full curse drain-rate column from `Ancient Curses`?oldid=6535713 (e.g.
+   Turmoil / Soul Split 1 point per 0.2 s).
+3. Sap/Leech per-proc step sizes and caps from Darkan `Sap.java` / `Leech.java`
+   to drive the EV ramp.
+4. Impious/accursed ashes pins (scatter XP, dropping monsters) and 100%-drop
+   ash wiring for the demon families in `combat_data.py`.
+5. Bonemeal item set (one per bone type) + ecto-token + bucket-of-slime item
+   definitions, assets, and provenance.
+6. Piety/Chivalry/King's Ransom/Knight Waves requirement pins.
+7. Prayer renewal / Rapid Renewal per-tick restore rate pin.
+8. Migrate any pending Prayer XP holdings the moment the surface flips
+   `planned → complete` (same path the partial Combat skills used).
 
 ### Cross-cutting status
 
-The eleven-skill completeness audit is no longer running. Its settled results
-live in `gap-backlog.json`, `gap-grill-decisions-2026-07-10.md`, and the new
-project-wide `completion-audit.json`. Prayer remains a separate deep-grill card.
+The eleven-skill completeness audit is settled in `gap-backlog.json`,
+`gap-grill-decisions-2026-07-10.md`, and `completion-audit.json`. Prayer's
+kanban card moves to `IMPLEMENT` (with the extraction list above as its
+`SOURCE AUDIT` residue) as of 2026-07-11.

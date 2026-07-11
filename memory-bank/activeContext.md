@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-Autonomous completion closure, continuing the repo-wide audit with truthful partial-skill status and machine-readable item acquisition reachability.
+The Prayer deep grill closed on 2026-07-11; `memory-bank/ankiscape-skill-expansion.md` is now Prayer's implementation-ready contract. The next major slice is building the Prayer surface, alongside the ongoing completion-closure audit work.
 
 Use these as the current handoff sources:
 
@@ -35,6 +35,8 @@ It also made Smithing regeneration preserve cannonballs and repaired stale offsc
 
 The 2026-07-11 closure pass added the partial/complete/planned skill contract, direct partial-skill quest/action XP and pending-XP migration, the acquisition reachability audit, and a repair for the Woodcutting nest → empty nest → crushed nest chain.
 
+The 2026-07-11 Prayer grill session finished the design: all methods (bury, scatter, Ectofuntus at ~9-bones-per-review grinding, hosted gilded altar with free burners behind a 1–10-review house-finding roll), the EV prayer/curse combat translation with the four-step uptime policy, prayer points/drain/restore, the Rapid Restore analog, and UI placement. The Chaos Temple Wilderness bone altar was struck as OSRS-2018 contamination. Owner decisions this session: Ectofuntus "slow grinder" pacing, and free hosted burners with self-supplied herbs deferred to Construction.
+
 Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt tests passing, with 160 expected non-Qt skips in the pure interpreter.
 
 ## Decision Boundaries
@@ -43,7 +45,7 @@ Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt test
 - Pinned wiki/Wayback establish period behavior; period caches establish client identity/config; 2011Scape and Darkan require reconciliation.
 - Darkan may be an explicit wait dependency for hidden server behavior. The local restoration checkout is moving and should not be treated as a stable final baseline until a milestone is declared.
 - Do not re-grill decisions already closed in `memory-bank/gap-grill-decisions-2026-07-10.md`.
-- Resume the partial Prayer grill in `memory-bank/ankiscape-skill-expansion.md`; do not restart it.
+- The Prayer grill is closed; `memory-bank/ankiscape-skill-expansion.md` is its implementation contract. Do not re-grill it — the remaining items there are mechanical source extractions.
 - Each wholly missing skill needs its own deep grill before implementation.
 - Activities/minigames use Utility/Activities at the platform level, but each family needs a dedicated grill and complete reward/state/source contract.
 - Global level-1-to-99 time balancing waits until all skills and major methods are present.
@@ -58,7 +60,7 @@ Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt test
 
 ## Next Recommended Work
 
-1. Resume and finish the Prayer deep grill, or begin another missing-skill grill when the owner is available.
+1. Implement the Prayer surface from its closed contract (starting with the mechanical source extractions listed there), or begin another missing-skill grill when the owner is available.
 2. Close reachability roots only through their authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable restoration milestone, rerun Grenwall, quest, missing-skill, and special-activity audits against the changed source surface.
 
