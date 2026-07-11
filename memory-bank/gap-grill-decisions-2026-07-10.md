@@ -637,3 +637,12 @@ remaining family decisions are still being grilled.
 - Do not automatically split newly chopped logs. Chopping Arctic pine and
   splitting its logs remain independently selected targets with their own
   per-target carried-inventory layouts and bank-run cadence.
+
+### Eucalyptus Safety Decision
+
+- Treat Eucalyptus as an ordinary safe Woodcutting target. The abstract target
+  assumes the player uses one of the period grove's documented safe spots, so
+  chopping does not roll ambient wolf/ogress encounters or damage player HP.
+- This is a location-friction abstraction, not a claim that the original grove
+  lacked danger. Directly dangerous action mechanics still use the shared HP,
+  food, death, and undo systems where the source requires them.

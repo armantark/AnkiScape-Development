@@ -37,3 +37,7 @@ the source reconciliation.
 Arctic-pine splitting is a separate level-54 Woodcutting processing target. One
 review consumes one carried Arctic pine log, produces one Split log, and awards
 42.5 XP; chopping never auto-splits its output.
+
+Eucalyptus chopping assumes competent use of one of the period page's documented
+safe spots. Nearby wolves and ogresses do not add an ambient combat/HP roll to
+the abstract Woodcutting target.
