@@ -96,6 +96,25 @@ class TestFetchAssets(unittest.TestCase):
                 [("osrs", "Divination shard.png"), ("rs3", "Divination shard.png")],
             )
 
+    def test_source_restriction_skips_the_other_wiki(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            request = fetch_assets.AssetRequest(
+                item_name="Overload (3)",
+                wiki_title="Overload (3).png",
+                output_path=Path(tmp_dir) / "overload.png",
+                provenance_path=Path(tmp_dir) / "provenance.json",
+            )
+            client = FakeWikiClient({("osrs", "Overload (3).png"), ("rs3", "Overload (3).png")})
+            outcome = fetch_assets.fetch_asset(
+                request,
+                client,
+                dry_run=True,
+                sources=(fetch_assets.RS3_WIKI,),
+            )
+
+            self.assertEqual(outcome.source_wiki, "rs3")
+            self.assertEqual(client.queries, [("rs3", "Overload (3).png")])
+
     def test_existing_output_is_skipped_without_force(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
             out_path = Path(tmp_dir) / "existing.png"

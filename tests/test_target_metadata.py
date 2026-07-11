@@ -28,6 +28,8 @@ from constants import (
     GEM_IMAGES,
     HUNTER_DATA,
     HUNTER_ITEM_IMAGES,
+    HERBLORE_DATA,
+    HERBLORE_ITEM_IMAGES,
     EQUIPMENT_ITEM_DATA,
     MINING_PICKAXE_DATA,
     ORE_DATA,
@@ -52,6 +54,7 @@ from target_metadata import (
     fishing_target_rows,
     fletching_target_rows,
     hunter_target_rows,
+    herblore_target_rows,
     mining_target_rows,
     runecrafting_target_rows,
     smithing_target_rows,
@@ -68,6 +71,25 @@ def _row(rows, target_id):
 
 
 class TargetMetadataTest(unittest.TestCase):
+    def test_overload_row_exposes_exact_inputs_byproduct_and_icon(self):
+        inputs = dict(HERBLORE_DATA["finished_overload"]["requirements"])
+        rows = herblore_target_rows(
+            {
+                "current_herblore": "finished_overload",
+                "herblore_level": 96,
+                "inventory": inputs,
+            },
+            HERBLORE_DATA,
+            HERBLORE_ITEM_IMAGES,
+        )
+        overload = _row(rows, "finished_overload")
+        self.assertTrue(overload.enabled)
+        self.assertTrue(overload.current)
+        self.assertIsNotNone(overload.icon_path)
+        self.assertIn("Base XP: 1000.0", overload.tooltip)
+        self.assertIn("Byproduct: Vial x4", overload.tooltip)
+        self.assertIn("Extreme ranging (3) x1", overload.tooltip)
+
     def test_combat_rows_expose_enabled_source_backed_enemy_targets(self):
         rows = combat_target_rows(
             {

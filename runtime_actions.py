@@ -853,7 +853,13 @@ def _spec_output_items(spec: dict[str, Any], fallback_item: Optional[str] = None
         output_qty = int(spec.get("output_qty", 1))
     except (TypeError, ValueError):
         output_qty = 1
-    return {str(output_item): max(output_qty, 1)}
+    result = {str(output_item): max(output_qty, 1)}
+    byproducts = spec.get("byproducts")
+    if isinstance(byproducts, dict):
+        for item, amount in byproducts.items():
+            if item and isinstance(amount, int) and amount > 0:
+                result[str(item)] = result.get(str(item), 0) + amount
+    return result
 
 
 def _refresh_smithing_and_crafting_availability(ctx: RuntimeActionContext) -> None:

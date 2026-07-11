@@ -514,11 +514,16 @@ def herblore_target_rows(
         base_xp = spec.get("exp", 0)
         requirements = spec.get("requirements", {})
         reqs = requirements if isinstance(requirements, Mapping) else {}
+        byproducts = spec.get("byproducts", {})
+        byproduct_map = byproducts if isinstance(byproducts, Mapping) else {}
+        output_lines = [f"Output: {output_item} x{output_qty}"]
+        output_lines.extend(f"Byproduct: {item} x{amount}" for item, amount in byproduct_map.items())
+        output_text = "\n".join(output_lines)
         _materials_ok, mat_text = _material_lines(reqs, inventory)
         tooltip = (
             f"Requires Herblore level {lvl_req}. You have {lvl_have}.\n"
             f"Base XP: {base_xp} per action\n"
-            f"Output: {output_item} x{output_qty}\nMaterials:\n{mat_text}"
+            f"{output_text}\nMaterials:\n{mat_text}"
         )
         locked_reasons = herblore_target_locked_reasons_pure(
             player_data,

@@ -151,6 +151,9 @@ Think through these steps before making code changes:
 
 4. Fetch assets:
    - Use `tools/fetch_assets.py` for item icons where possible.
+   - For RuneScape-period content, pass `--source rs3` so a same-named modern
+     OSRS file cannot silently win the legacy fallback order. Only use an OSRS
+     asset after independently proving that exact art belongs to the target era.
    - Item *art* changed across eras; prefer a period cache sprite or pinned
      pre-EOC wiki asset. Use modern art only after verifying it is unchanged.
    - Normalize PNGs, avoid overwriting unless intentional, and update `assets_provenance.json`.

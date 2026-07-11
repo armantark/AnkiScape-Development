@@ -530,6 +530,20 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertIsNotNone(by_storage_key[output_item].asset_path)
         self.assertEqual(HERBLORE_DATA["finished_super_prayer"]["requirements"], {"Prayer potion (3)": 1, "Bonemeal": 1})
         self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Bonemeal"]["item_id"], 6810)
+        overload = HERBLORE_DATA["finished_overload"]
+        self.assertEqual(overload["level"], 96)
+        self.assertEqual(overload["exp"], 1000.0)
+        self.assertEqual(overload["byproducts"], {"Vial": 4})
+        self.assertEqual(HERBLORE_EXTRA_ITEM_DATA["Overload (3)"]["item_id"], 15333)
+        self.assertFalse(HERBLORE_EXTRA_ITEM_DATA["Overload (3)"]["tradeable"])
+        for item in (
+            "Extreme attack (3)",
+            "Extreme strength (3)",
+            "Extreme defence (3)",
+            "Extreme magic (3)",
+            "Extreme ranging (3)",
+        ):
+            self.assertFalse(HERBLORE_EXTRA_ITEM_DATA[item]["tradeable"])
 
     def test_crossbow_combination_items_register_as_fletching_items(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)

@@ -1459,6 +1459,24 @@ class TestLogic(unittest.TestCase):
         self.assertAlmostEqual(fin_exp, 25.0)
         self.assertEqual(new_fin["Attack potion (3)"], 1)
 
+        overload_inputs = {
+            "Extreme attack (3)": 1,
+            "Extreme strength (3)": 1,
+            "Extreme defence (3)": 1,
+            "Extreme magic (3)": 1,
+            "Extreme ranging (3)": 1,
+            "Clean torstol": 1,
+        }
+        self.assertTrue(can_herblore_target_pure(96, overload_inputs, "finished_overload", HERBLORE_DATA))
+        overload_inv, overload_exp, overload_ok = apply_herblore_action_pure(
+            "finished_overload", overload_inputs, HERBLORE_DATA
+        )
+        self.assertTrue(overload_ok)
+        self.assertEqual(overload_exp, 1000.0)
+        self.assertEqual(overload_inv["Overload (3)"], 1)
+        self.assertEqual(overload_inv["Vial"], 4)
+        self.assertTrue(all(overload_inv[item] == 0 for item in overload_inputs))
+
         # Missing materials and level gate both refuse and award nothing.
         self.assertEqual(
             herblore_target_locked_reasons_pure(

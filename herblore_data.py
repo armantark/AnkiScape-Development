@@ -24,6 +24,12 @@ HERBLORE_SOURCE_ROOT = (
 )
 HERB_DATA_SOURCE_PATH = f"{HERBLORE_SOURCE_ROOT}/HerbData.kt"
 POTION_DATA_SOURCE_PATH = f"{HERBLORE_SOURCE_ROOT}/mixing/PotionData.kt"
+OVERLOAD_WIKI_SOURCE = "https://runescape.wiki/w/Overload?oldid=6552017"
+EXTREME_ATTACK_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_attack?oldid=6462605"
+EXTREME_STRENGTH_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_strength?oldid=6474549"
+EXTREME_DEFENCE_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_defence?oldid=6462607"
+EXTREME_MAGIC_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_magic?oldid=6462609"
+EXTREME_RANGING_WIKI_SOURCE = "https://runescape.wiki/w/Extreme_ranging?oldid=6462610"
 PESTLE_AND_MORTAR_SOURCE_PATH = (
     "/Users/ArmanTarkhanian1/Downloads/game-main/game/plugins/src/main/kotlin/"
     "gg/rsmod/plugins/content/items/pestle_and_mortar/PestleAndMortarData.kt"
@@ -56,6 +62,7 @@ class HerbloreTarget:
     requirements: Tuple[Tuple[str, int], ...]
     output_item: str
     output_qty: int = 1
+    byproducts: Tuple[Tuple[str, int], ...] = ()
     source: str = HERB_DATA_SOURCE_PATH
 
 
@@ -179,11 +186,30 @@ FINISHED_TARGETS: Tuple[HerbloreTarget, ...] = (
     HerbloreTarget('finished_saradomin_brew', 'Saradomin brew (3)', "finished", 'standard', 81, 180.0, (('Toadflax potion (unf)', 1), ('Crushed nest', 1)), 'Saradomin brew (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_recover_special', 'Recover special (3)', "finished", 'standard', 84, 200.0, (('Super energy (3)', 1), ('Papaya fruit', 1)), 'Recover special (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_super_antifire', 'Super antifire (3)', "finished", 'standard', 85, 210.0, (('Antifire (3)', 1), ('Phoenix feather', 1)), 'Super antifire (3)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_extreme_attack', 'Extreme attack (3)', "finished", 'standard', 88, 220.0, (('Super attack (3)', 1), ('Clean avantoe', 1)), 'Extreme attack (3)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_extreme_strength', 'Extreme strength (3)', "finished", 'standard', 89, 230.0, (('Super strength (3)', 1), ('Clean dwarf weed', 1)), 'Extreme strength (3)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_extreme_defence', 'Extreme defence (3)', "finished", 'standard', 90, 240.0, (('Super defence (3)', 1), ('Clean lantadyme', 1)), 'Extreme defence (3)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_extreme_magic', 'Extreme magic (3)', "finished", 'standard', 91, 250.0, (('Magic potion (3)', 1), ('Ground mud runes', 1)), 'Extreme magic (3)', source=POTION_DATA_SOURCE_PATH),
-    HerbloreTarget('finished_extreme_ranging', 'Extreme ranging (3)', "finished", 'standard', 92, 260.0, (('Ranging potion (3)', 1), ('Grenwall spikes', 1)), 'Extreme ranging (3)', source=POTION_DATA_SOURCE_PATH),
+    HerbloreTarget('finished_extreme_attack', 'Extreme attack (3)', "finished", 'standard', 88, 220.0, (('Super attack (3)', 1), ('Clean avantoe', 1)), 'Extreme attack (3)', source=EXTREME_ATTACK_WIKI_SOURCE),
+    HerbloreTarget('finished_extreme_strength', 'Extreme strength (3)', "finished", 'standard', 89, 230.0, (('Super strength (3)', 1), ('Clean dwarf weed', 1)), 'Extreme strength (3)', source=EXTREME_STRENGTH_WIKI_SOURCE),
+    HerbloreTarget('finished_extreme_defence', 'Extreme defence (3)', "finished", 'standard', 90, 240.0, (('Super defence (3)', 1), ('Clean lantadyme', 1)), 'Extreme defence (3)', source=EXTREME_DEFENCE_WIKI_SOURCE),
+    HerbloreTarget('finished_extreme_magic', 'Extreme magic (3)', "finished", 'standard', 91, 250.0, (('Magic potion (3)', 1), ('Ground mud runes', 1)), 'Extreme magic (3)', source=EXTREME_MAGIC_WIKI_SOURCE),
+    HerbloreTarget('finished_extreme_ranging', 'Extreme ranging (3)', "finished", 'standard', 92, 260.0, (('Ranging potion (3)', 1), ('Grenwall spikes', 5)), 'Extreme ranging (3)', source=EXTREME_RANGING_WIKI_SOURCE),
+    HerbloreTarget(
+        'finished_overload',
+        'Overload (3)',
+        "finished",
+        'standard',
+        96,
+        1000.0,
+        (
+            ('Extreme attack (3)', 1),
+            ('Extreme strength (3)', 1),
+            ('Extreme defence (3)', 1),
+            ('Extreme magic (3)', 1),
+            ('Extreme ranging (3)', 1),
+            ('Clean torstol', 1),
+        ),
+        'Overload (3)',
+        byproducts=(('Vial', 4),),
+        source=OVERLOAD_WIKI_SOURCE,
+    ),
     HerbloreTarget('finished_super_prayer', 'Super prayer (3)', "finished", 'standard', 94, 270.0, (('Prayer potion (3)', 1), ('Bonemeal', 1)), 'Super prayer (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_prayer_renewal', 'Prayer renewal (3)', "finished", 'standard', 94, 190.0, (('Fellstalk potion (unf)', 1), ('Morchella mushroom', 1)), 'Prayer renewal (3)', source=POTION_DATA_SOURCE_PATH),
     HerbloreTarget('finished_agility_mix', 'Agility mix (2)', "finished", 'barbarian', 37, 27.0, (('Agility potion (2)', 1), ('Caviar', 1)), 'Agility mix (2)', source=POTION_DATA_SOURCE_PATH),
@@ -330,6 +356,7 @@ def _target_as_dict(target: HerbloreTarget) -> Dict[str, object]:
         "requirements": {name: qty for name, qty in target.requirements},
         "output_item": target.output_item,
         "output_qty": target.output_qty,
+        "byproducts": {name: qty for name, qty in target.byproducts},
         "source": target.source,
     }
 
@@ -358,6 +385,7 @@ def herblore_item_names() -> Tuple[str, ...]:
     for t in HERBLORE_TARGETS:
         names.append(t.output_item)
         names.extend(name for name, _qty in t.requirements)
+        names.extend(name for name, _qty in t.byproducts)
     for activity in PESTLE_AND_MORTAR_ACTIVITIES:
         names.extend((activity.source_item, activity.output_item))
     for activity in INPUT_PREPARATION_ACTIVITIES:
@@ -442,5 +470,16 @@ def herblore_extra_items_as_dict() -> Dict[str, Dict[str, object]]:
             item["item_id"] = input_preparation_item_data[name][0]
         elif name == "Bonemeal":
             item["item_id"] = 6810
+        elif name == "Overload (3)":
+            item["item_id"] = 15333
+            item["tradeable"] = False
+        elif name in {
+            "Extreme attack (3)",
+            "Extreme strength (3)",
+            "Extreme defence (3)",
+            "Extreme magic (3)",
+            "Extreme ranging (3)",
+        }:
+            item["tradeable"] = False
         result[name] = item
     return result

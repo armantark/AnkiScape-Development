@@ -12,6 +12,7 @@ from runtime_actions import (
     handle_fishing_answer,
     handle_fletching_answer,
     handle_hunter_answer,
+    handle_herblore_answer,
     handle_quest_answer,
     handle_smithing_answer,
     handle_woodcutting_answer,
@@ -62,6 +63,33 @@ def _quest_combat_mid_rolls(repeats=1000):
 
 
 class TestRuntimeActions(unittest.TestCase):
+    def test_overload_handler_records_primary_output_and_four_vials(self):
+        calls = {"xp": [], "saves": 0, "errors": []}
+        inputs = {
+            "Extreme attack (3)": 1,
+            "Extreme strength (3)": 1,
+            "Extreme defence (3)": 1,
+            "Extreme magic (3)": 1,
+            "Extreme ranging (3)": 1,
+            "Clean torstol": 1,
+        }
+        player_data = {
+            "inventory": inputs,
+            "herblore_level": 96,
+            "herblore_exp": 0.0,
+            "current_herblore": "finished_overload",
+            "completed_achievements": [],
+        }
+
+        self.assertTrue(handle_herblore_answer(_context(player_data, calls)))
+
+        self.assertEqual(player_data["inventory"]["Overload (3)"], 1)
+        self.assertEqual(player_data["inventory"]["Vial"], 4)
+        self.assertEqual(player_data["herblore_exp"], 1000.0)
+        telemetry = player_data["action_telemetry"]["actions"]["herblore:finished_overload"]
+        self.assertEqual(telemetry["outputs"], {"Overload (3)": 1, "Vial": 4})
+        self.assertEqual(calls["xp"], [1000.0])
+
     def test_woodcutting_inferno_adze_incinerates_logs_for_firemaking_xp(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {

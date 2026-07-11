@@ -69,6 +69,7 @@ RS3_WIKI = WikiSource(
     page_base_url="https://runescape.wiki",
 )
 DEFAULT_WIKI_SOURCES: Tuple[WikiSource, ...] = (OSRS_WIKI, RS3_WIKI)
+WIKI_SOURCES_BY_NAME = {source.name: source for source in DEFAULT_WIKI_SOURCES}
 
 
 @dataclass(frozen=True)
@@ -305,8 +306,9 @@ def fetch_asset(
     size: Optional[int] = None,
     force: bool = False,
     dry_run: bool = False,
+    sources: Sequence[WikiSource] = DEFAULT_WIKI_SOURCES,
 ) -> FetchOutcome:
-    image_info = resolve_image_info(request.wiki_title, client)
+    image_info = resolve_image_info(request.wiki_title, client, sources)
     output_path = request.output_path if request.output_path.is_absolute() else REPO_ROOT / request.output_path
     skipped_existing = output_path.exists() and not force
     if not dry_run and not skipped_existing:
@@ -407,6 +409,11 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--key", help="Resolve item name/path from item_registry/constants.")
     parser.add_argument("--wiki-title", help="Override the wiki File title. 'File:' prefix and .png are optional.")
     parser.add_argument(
+        "--source",
+        choices=tuple(WIKI_SOURCES_BY_NAME),
+        help="Restrict lookup to one wiki instead of using the legacy OSRS-then-RS3 fallback order.",
+    )
+    parser.add_argument(
         "--size",
         type=int,
         help=(
@@ -433,6 +440,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             size=args.size,
             force=args.force,
             dry_run=args.dry_run,
+            sources=(WIKI_SOURCES_BY_NAME[args.source],) if args.source else DEFAULT_WIKI_SOURCES,
         )
     except AssetFetchError as exc:
         parser.exit(2, f"error: {exc}\n")

@@ -6550,6 +6550,8 @@ def apply_herblore_action_pure(target, inventory, herblore_data):
     output_item = spec.get("output_item", target)
     output_qty = spec.get("output_qty", 1)
     new_inv[output_item] = new_inv.get(output_item, 0) + output_qty
+    for byproduct, amount in (spec.get("byproducts") or {}).items():
+        new_inv[byproduct] = new_inv.get(byproduct, 0) + _positive_int(amount)
     return new_inv, spec.get("exp", 0), True
 
 
