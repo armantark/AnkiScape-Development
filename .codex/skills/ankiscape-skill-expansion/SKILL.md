@@ -35,6 +35,12 @@ Use this skill before planning or implementing a skill expansion. The goal is to
   it does not turn every skilling review into six minutes of action. Skilling
   remains one sourced action tick per successful review unless that activity has
   an independently approved action grouping.
+- Do not build standalone transportation systems or persistent player-location
+  state. Canoes, hot-air balloons, lodestones, and comparable transport-only
+  content are out of scope even when operating them incidentally awards skill
+  XP. Abstract necessary travel inside the target or activity that needs it;
+  travel friction may remain an internal action phase without becoming a map or
+  a selectable transport network.
 - Do not grill the owner on facts or behavior already determined by pinned
   period evidence and settled AnkiScape rules. Resolve and document those
   autonomously, batching routine source-shaped decisions. Ask only when two or

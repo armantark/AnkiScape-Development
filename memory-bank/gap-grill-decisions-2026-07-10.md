@@ -945,3 +945,21 @@ catch probability remains source-blocked pending Darkan/high-fidelity evidence.
 - The archived wiki row does not establish the exact catch roll. Preserve the
   source-backed level, inputs, output, and XP now, but do not fabricate a catch
   chance while the Darkan/high-fidelity parity source is pending.
+
+## Woodcutting: Canoes and Transportation Scope
+
+Backlog id: `wc-canoe-shaping`
+
+Decision status: rejected from product scope.
+
+- Do not add Log canoe, Dugout, Stable dugout, or Waka shaping targets, even
+  though the live source awards Woodcutting XP for shaping them. Canoes are
+  fundamentally a transportation method, and their incidental XP does not make
+  them a useful AnkiScape training family.
+- Do not add canoe state, river destinations, a travel interface, or persistent
+  player-location state. The same boundary excludes standalone hot-air-balloon,
+  lodestone, and comparable transportation systems from future parity passes.
+- This does not remove activity-specific travel friction already approved for
+  altar runs, beacon routes, and similar loops. Those systems may represent
+  travel as an internal abstract action phase because it changes the activity's
+  pacing; they must not grow into a general map or transport network.

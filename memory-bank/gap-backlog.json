@@ -972,11 +972,17 @@
       "rank": 37,
       "skill": "Woodcutting",
       "root_cause": "stub",
-      "status": "needs_grill",
+      "status": "rejected_product_scope",
       "title": "Model live canoe shaping and travel",
       "detail": "game-main live-binds Log, Dugout, Stable dugout, and Waka shaping at Woodcutting levels 12/27/42/57 for 30/60/90/150 XP with axe checks, then stores a world-spatial canoe state used by river travel. AnkiScape has no outputless XP Utility contract and no canoe/travel state. Owner must decide whether the review action represents shaping only or the full shaping-plus-travel loop, where it lives in the UI, and what persistent/spatial state is faithful. Do not auto-build or invent an abstraction.",
       "source": "game-main:content/mechanics/canoes/Canoe.kt:3-20; canoes_interfaces.plugin.kts:26-62",
-      "note": "game-main is live, but faithful Anki representation requires owner design; parked by the design-question rule"
+      "note": "rejected by owner 2026-07-10 because canoes are fundamentally transportation; AnkiScape will not implement standalone travel methods such as canoes, hot-air balloons, or lodestones",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#woodcutting-canoes-and-transportation-scope",
+      "decision_summary": {
+        "canoes": "Do not add canoe shaping targets, canoe state, destinations, or travel actions, despite the incidental Woodcutting XP in the source.",
+        "transport_boundary": "Do not build standalone canoe, hot-air-balloon, lodestone, or comparable transportation systems or persistent player-location state.",
+        "abstract_travel": "Activities and targets may still include necessary travel as an internal abstract route phase, but never expose a world map or general transport network."
+      }
     },
     {
       "id": "artisan-skill-potion-runtime",
