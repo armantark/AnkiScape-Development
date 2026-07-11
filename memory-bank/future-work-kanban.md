@@ -63,11 +63,14 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 - Absorb `hunter-habitat-jadinko` only after the core Farming contract exists.
 - Magic-grill handoff (owner-mandated): Cure Plant and Fertile Soil ship now as pure casts; when Farming lands they must gain real function (e.g. a farming-run option/checkbox), not stay ceremonial. See `memory-bank/magic-skill-contract-2026-07-11.md` decision 9.
 
-### Construction
+### Construction — grill complete, ready to build
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
 
-- Design a no-world-map POH surface for rooms, hotspots, furniture, build/remove actions, servants, storage, house services, materials, and Prayer/Farming dependencies.
+- The full implementation-ready contract is `memory-bank/construction-skill-contract-2026-07-11.md` (grill closed 2026-07-11). All product decisions are settled: the hybrid house model (flat XP build targets from the full Darkan HouseObjects table plus a persistent house sheet for rooms/servant/altar state), servants as a wage-paid batch boost, the owned gilded altar closing Prayer's deferral (marrentill-consuming burners, no finding roll), flatpacks as wiki gap-fill with workbench-tier gating, and the house sheet as a section inside the Construction skill tab.
+- The `WAIT: DARKAN` label is resolved: Darkan is Construction's primary source (game-main has none), and its two behavior gaps (burner lighting, flatpack crafting) are wiki-pinned and documented for the restoration loop in its handoffs directory.
+- Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract (HouseObjects/HouseRooms/HouseServants tables, sawmill teak/mahogany tiers, flatpack and nail-bend pins, limestone-brick Crafting row, specialty-material shop prices, tablet ladder, house styles).
+- Trailing `DEPENDENCY` items: Menagerie pet function (pet system), armour-stand repairs (equipment degradation), and consumable-producing builds whose outputs stay orphaned until their systems exist.
 
 ### Agility
 

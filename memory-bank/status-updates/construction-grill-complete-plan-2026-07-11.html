@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Construction Grill Closed — Pre-Implementation Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040;
+  --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15);
+  --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.5rem 4rem; }
+.wrap { max-width:1100px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; letter-spacing:.12em; color:var(--accent); background:var(--accent-glow); border:1px solid var(--accent); border-radius:999px; padding:.35rem .9rem; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:2rem; margin-bottom:.5rem; }
+.sub { color:var(--text-dim); font-size:.95rem; max-width:62rem; margin-bottom:2.2rem; }
+.sub strong { color:var(--text); font-weight:500; }
+h2 { font-weight:700; font-size:1.15rem; margin:2.4rem 0 1rem; }
+.mono { font-family:'JetBrains Mono',monospace; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; transition:transform .15s, box-shadow .15s; }
+.card:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(0,0,0,.35); }
+.card h3 { font-size:.95rem; font-weight:700; margin-bottom:.45rem; }
+.card p { font-size:.85rem; color:var(--text-dim); }
+.card p strong { color:var(--text); font-weight:500; }
+.tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.62rem; background:var(--surface-2); border:1px solid var(--border); border-radius:5px; padding:.12rem .45rem; margin:.35rem .25rem 0 0; color:var(--text-dim); }
+.who { font-family:'JetBrains Mono',monospace; font-size:.6rem; font-weight:600; letter-spacing:.1em; padding:.15rem .5rem; border-radius:4px; margin-left:.5rem; vertical-align:middle; }
+.owner { color:var(--amber); background:rgba(251,191,36,.12); border:1px solid rgba(251,191,36,.4); }
+.auto { color:var(--green); background:rgba(74,222,128,.10); border:1px solid rgba(74,222,128,.35); }
+table { width:100%; border-collapse:collapse; font-size:.82rem; }
+th { font-family:'JetBrains Mono',monospace; font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:.5rem .7rem; border-bottom:1px solid var(--border); }
+td { padding:.5rem .7rem; border-bottom:1px solid var(--surface-2); vertical-align:top; }
+td.c { font-family:'JetBrains Mono',monospace; font-size:.72rem; white-space:nowrap; }
+.pill { font-family:'JetBrains Mono',monospace; font-size:.6rem; font-weight:600; padding:.12rem .5rem; border-radius:4px; white-space:nowrap; }
+.p-ship { color:var(--green); background:rgba(74,222,128,.1); }
+.p-trail { color:var(--amber); background:rgba(251,191,36,.1); }
+.p-moot { color:var(--text-dim); background:var(--surface-2); }
+.p-gap { color:var(--purple); background:rgba(167,139,250,.12); }
+.mock { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:.8rem; margin-top:.7rem; }
+.mock .lbl { font-family:'JetBrains Mono',monospace; font-size:.58rem; letter-spacing:.12em; color:var(--text-dim); margin-bottom:.5rem; }
+.strip { display:flex; gap:.5rem; flex-wrap:wrap; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:.5rem .6rem; margin-bottom:.5rem; }
+.strip .cell { font-size:.7rem; color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:.25rem .55rem; }
+.strip .cell span { color:var(--text-dim); }
+.row { display:flex; justify-content:space-between; font-size:.72rem; padding:.28rem .55rem; border-radius:4px; }
+.row:nth-child(odd){ background:var(--surface-2); }
+.row .dim { color:var(--text-dim); }
+.row.locked { color:var(--text-dim); opacity:.6; }
+.steps { counter-reset:s; margin-top:.6rem; }
+.step { display:flex; gap:.85rem; padding:.55rem 0; border-bottom:1px solid var(--surface-2); font-size:.86rem; align-items:baseline; }
+.step:last-child { border-bottom:none; }
+.step::before { counter-increment:s; content:counter(s); font-family:'JetBrains Mono',monospace; font-size:.7rem; font-weight:600; color:var(--bg); background:var(--accent); min-width:1.4rem; height:1.4rem; border-radius:5px; display:flex; align-items:center; justify-content:center; }
+.step .dim { color:var(--text-dim); }
+.note { background:var(--surface); border-left:3px solid var(--purple); border-radius:0 var(--radius) var(--radius) 0; padding:.9rem 1.1rem; font-size:.85rem; color:var(--text-dim); margin-top:1rem; }
+.note strong { color:var(--text); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="badge">DESIGN GRILL CLOSED — PRE-IMPLEMENTATION PLAN</div>
+  <h1>Construction: the POH without a world map</h1>
+  <p class="sub">The Construction deep grill closed 2026-07-11. This is the <strong>first Darkan-primary skill</strong>: game-main (2011Scape) contains no Construction at all, so the Darkan Nov-2012 tables (HouseObjects, HouseRooms, HouseServants, SawmillOperator, TabletMaking) are the source of truth, with pre-EOC wiki pins covering the two behaviors Darkan defines as data but never implemented. Contract: <span class="mono">memory-bank/construction-skill-contract-2026-07-11.md</span></p>
+
+  <h2>Settled decisions</h2>
+  <div class="grid">
+    <div class="card">
+      <h3>Hybrid house model <span class="who owner">OWNER</span></h3>
+      <p>Training is <strong>flat XP build targets</strong> from the full HouseObjects table (one build per review, materials consumed). A persistent <strong>house sheet</strong> tracks the durable state: rooms bought (coins + level per the HouseRooms ladder), servant hired, altar/burner status. Build targets gate on their room; rooms are the coin sink, builds are the XP.</p>
+      <span class="tag">HouseObjects.kt</span><span class="tag">HouseRooms.kt</span>
+    </div>
+    <div class="card">
+      <h3>Servants = batch boost <span class="who owner">OWNER</span></h3>
+      <p>Hiring a servant raises the per-review build batch for material-consuming builds, tiered by the Darkan ladder — Rick 375c/20, Maid 750c/25, Cook 2,250c/30, Butler 3,750c/40, Demon butler 7,500c/50 — using the sanctioned batching-per-review device. Wages per stint; <strong>no trip simulation invented</strong>.</p>
+      <span class="tag">HouseServants.kt</span>
+    </div>
+    <div class="card">
+      <h3>Owned gilded altar <span class="who owner">OWNER</span></h3>
+      <p>Closes the Prayer grill's deferral: with Chapel + gilded altar + burners built, Prayer's hosted-altar flow gains an owned variant with <strong>no 1–10 finding roll</strong>. Burners consume <strong>one clean marrentill each</strong> per stint (+50% Prayer XP per lit burner; 350% total). Any-herb lighting is post-EOC RS3 — excluded.</p>
+      <span class="tag">Chapel pin 2012-10-14</span><span class="tag">Mahogany burners pin 2011-12-06</span>
+    </div>
+    <div class="card">
+      <h3>Flatpacks as wiki gap-fill <span class="who owner">OWNER</span></h3>
+      <p>Darkan never implemented flatpack crafting, so the pack list comes from a pre-EOC pin at build time. Workbench-tier gating per the HouseBuilds ladder; same XP as the normal build; <strong>tradeable, sellable output items</strong>.</p>
+      <span class="tag">HouseBuilds.kt:368+</span><span class="tag">pin needed</span>
+    </div>
+  </div>
+
+  <h2>House sheet: a section, not a tab <span class="who owner">OWNER</span></h2>
+  <div class="card" style="max-width:640px">
+    <p>The sheet lives <strong>inside the Construction skill tab</strong> — a summary strip above the normal target list, expandable to the room view. No new top-level tab, and no function panel: it is a <strong>room inventory</strong>. Functions with no AnkiScape analog never surface on it.</p>
+    <div class="mock">
+      <div class="lbl">CONSTRUCTION TAB — MOCK</div>
+      <div class="strip">
+        <div class="cell">🏠 <span>Rooms</span> 4/∞</div>
+        <div class="cell">🧹 <span>Servant</span> Butler</div>
+        <div class="cell">⛪ <span>Chapel</span> Gilded altar · 2 burners</div>
+        <div class="cell"><span>Style</span> Fancy stone</div>
+      </div>
+      <div class="row"><span>Crude wooden chair <span class="dim">· Parlour · lvl 1</span></span><span class="dim">66 xp</span></div>
+      <div class="row"><span>Oak dining table <span class="dim">· Dining room · lvl 22</span></span><span class="dim">240 xp</span></div>
+      <div class="row locked"><span>Marble fireplace <span class="dim">· lvl 63 · needs Marble block</span></span><span class="dim">500 xp</span></div>
+    </div>
+  </div>
+
+  <h2>Function-trails ledger <span class="who auto">AUTONOMOUS</span></h2>
+  <table>
+    <tr><th>Build family</th><th>Darkan source</th><th>Disposition</th><th>Why</th></tr>
+    <tr><td>Full furniture table</td><td class="c">HouseObjects.kt</td><td><span class="pill p-ship">SHIPS · XP</span></td><td>Every row live under standard gates; decorative is training-only; input-starved rows ship un-flagged.</td></tr>
+    <tr><td>Portal Chamber</td><td class="c">HouseObjects.kt:283-297</td><td><span class="pill p-ship">SHIPS · RUNE SINK</span></td><td>Pre-EOC authentic (2006 launch), <strong>not OSRS-only</strong>. Directed portals at 80 burn 100s of runes; travel moot, parity with Magic's pure-cast teleports.</td></tr>
+    <tr><td>Whetstone / armour stand</td><td class="c">HouseObjects.kt:393-394</td><td><span class="pill p-trail">FUNCTION TRAILS</span></td><td>Builds ship; repair function waits on an equipment-degradation system.</td></tr>
+    <tr><td>Menagerie</td><td class="c">HouseObjects.kt</td><td><span class="pill p-trail">FUNCTION TRAILS</span></td><td>Builds ship; pet function waits on a pet system.</td></tr>
+    <tr><td>Costume-room storage</td><td class="c">HouseObjects.kt:172-201, 589-593</td><td><span class="pill p-moot">FUNCTION MOOT</span></td><td>The Bank already stores everything; cases/boxes/chests build for XP only.</td></tr>
+    <tr><td>Lectern tablets</td><td class="c">TabletMaking.java</td><td><span class="pill p-ship">SHIPS · MAGIC XP</span></td><td>Magic-gated, consume soft clay + runes, tradeable travel-abstracted tablets. A Construction-enabled Magic method.</td></tr>
+    <tr><td>Burner lighting</td><td class="c">wiki pins</td><td><span class="pill p-gap">WIKI GAP-FILL</span></td><td>Darkan builds burners but never lights them — one of two behavior gaps handed to the restoration loop.</td></tr>
+    <tr><td>Flatpack crafting</td><td class="c">wiki pin needed</td><td><span class="pill p-gap">WIKI GAP-FILL</span></td><td>The other Darkan gap; workbench builds exist, the crafting handler never did.</td></tr>
+  </table>
+
+  <h2>Materials economy <span class="who auto">AUTONOMOUS</span></h2>
+  <table>
+    <tr><th>Material</th><th>Route</th><th>Status</th></tr>
+    <tr><td>Plank / Oak plank</td><td>Existing sawmill utilities (100c / 250c); Plank Make also live</td><td><span class="pill p-ship">LIVE</span></td></tr>
+    <tr><td>Teak / Mahogany plank</td><td>New sawmill tiers 500c / 1,500c per SawmillOperator; logs already cut at WC 35/50</td><td><span class="pill p-gap">ADD UTILITY</span></td></tr>
+    <tr><td>Soft clay</td><td>Existing <span class="mono" style="font-size:.72rem">make_soft_clay</span> utility</td><td><span class="pill p-ship">LIVE</span></td></tr>
+    <tr><td>Limestone brick</td><td>Limestone mined at 10; add the authentic chisel-to-brick Crafting row (pin needed)</td><td><span class="pill p-gap">ADD CRAFTING ROW</span></td></tr>
+    <tr><td>Nails</td><td>Smithing TYPE_NAILS family is live; add tier bend-chance from a pre-EOC pin</td><td><span class="pill p-gap">ADD BEND CHANCE</span></td></tr>
+    <tr><td>Bolt of cloth · Gold leaf · Marble block · Magic stone</td><td>Shop rows per Darkan construction_supplies / stonemason pricing, cross-checked with a pin</td><td><span class="pill p-gap">ADD SHOP ROWS</span></td></tr>
+  </table>
+
+  <h2>Implementation steps</h2>
+  <div class="steps">
+    <div class="step"><span>Extract the full HouseObjects build table and HouseRooms ladder into <span class="mono">construction_data.py</span> with per-row Darkan citations; servant and style ladders alongside. <span class="dim">construction_data.py</span></span></div>
+    <div class="step"><span>Pin the flatpack list, nail bend chances, limestone-brick row, and specialty-material prices via <span class="mono">tools/wiki_parity.py</span>; record every oldid in the data module. <span class="dim">wiki pins</span></span></div>
+    <div class="step"><span>Pure mechanics: build-per-review with room gating, servant batch tiers, flatpack outputs, house-sheet state, and the owned-altar flag Prayer's hosted flow reads. <span class="dim">logic_pure.py · storage v31</span></span></div>
+    <div class="step"><span>UI: summary strip + expandable room view inside the Construction tab; sawmill tiers and shop rows wired. <span class="dim">ui.py · constants.py</span></span></div>
+    <div class="step"><span>Assets via <span class="mono">tools/fetch_construction_assets.py</span>, achievements, both test suites, and the results artifact. <span class="dim">Prayer/Magic pattern</span></span></div>
+  </div>
+
+  <div class="note"><strong>Cross-project handoff already filed:</strong> the two Darkan behavior gaps (burner lighting, flatpack crafting) are documented with their pins in the restoration repo at <span class="mono">memory-bank/handoffs/ankiscape-construction-gap-discoveries-2026-07-11.md</span>, so the restoration loop will not rediscover them.</div>
+</div>
+</body>
+</html>

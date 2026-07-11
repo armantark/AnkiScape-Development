@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-Prayer and Magic both shipped on 2026-07-11 (commits `ed1327b` and `24fbafd`), each implemented in full from its closed contract by a delegated build and independently verified before commit. The active design work is the Construction deep grill, mid-flight with four decisions settled (hybrid house model: flat XP build targets plus a persistent house sheet; servants as a batch boost; owned gilded altar with marrentill-consuming burners and no finding roll; flatpacks as wiki gap-fill with workbench-tier gating). The next grill question is the UI surface shape for the house sheet.
+Prayer and Magic both shipped on 2026-07-11 (commits `ed1327b` and `24fbafd`), each implemented in full from its closed contract by a delegated build and independently verified before commit. The Construction deep grill closed the same day; `memory-bank/construction-skill-contract-2026-07-11.md` is Construction's implementation-ready contract and queues as the next build. Construction is the first skill sourced primarily from Darkan (game-main has no Construction), with its two behavior gaps (burner lighting, flatpack crafting) wiki-pinned and handed off to the restoration loop.
 
 Use these as the current handoff sources:
 
@@ -55,6 +55,7 @@ Current verification baseline: 1,031 pure tests and 1,031 full offscreen Qt test
 - Do not re-grill decisions already closed in `memory-bank/gap-grill-decisions-2026-07-10.md`.
 - The Prayer grill is closed; `memory-bank/ankiscape-skill-expansion.md` is its implementation contract. Do not re-grill it — the remaining items there are mechanical source extractions.
 - The Magic grill is closed; `memory-bank/magic-skill-contract-2026-07-11.md` is its implementation contract. Do not re-grill it — the remaining items there are mechanical source extractions.
+- The Construction grill is closed; `memory-bank/construction-skill-contract-2026-07-11.md` is its implementation contract. Do not re-grill it — the remaining items there are mechanical source extractions.
 - Each wholly missing skill needs its own deep grill before implementation.
 - Activities/minigames use Utility/Activities at the platform level, but each family needs a dedicated grill and complete reward/state/source contract.
 - Global level-1-to-99 time balancing waits until all skills and major methods are present.
@@ -69,7 +70,7 @@ Current verification baseline: 1,031 pure tests and 1,031 full offscreen Qt test
 
 ## Next Recommended Work
 
-1. Finish the Construction deep grill (mid-flight; next question is the house-sheet UI surface) and produce the Prayer and Magic results artifacts, then queue the Construction implementation from its contract once closed.
+1. Implement Construction from `memory-bank/construction-skill-contract-2026-07-11.md`, or begin the next missing-skill grill (Farming or Summoning) when the owner is available.
 2. Close reachability roots only through their authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable restoration milestone, rerun Grenwall, quest, missing-skill, and special-activity audits against the changed source surface.
 
