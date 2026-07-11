@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape overnight source implementation</title>
+  <style>
+    :root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 85% 0,#16213a 0,transparent 34%),var(--bg);color:var(--text);font:15px/1.55 Outfit,Inter,system-ui,sans-serif} main{width:min(1120px,calc(100% - 32px));margin:0 auto;padding:56px 0 72px}.badge,.mono{font-family:"JetBrains Mono",ui-monospace,monospace}.badge{display:inline-flex;padding:6px 10px;border:1px solid #33578d;border-radius:99px;background:var(--accent-glow);color:#83b3ff;font-size:11px;letter-spacing:.11em}.hero{display:grid;grid-template-columns:1.45fr .55fr;gap:26px;align-items:end;margin-bottom:28px}h1{font-size:clamp(34px,6vw,67px);line-height:.96;letter-spacing:-.045em;margin:16px 0 14px}.lede{max-width:740px;color:var(--text-dim);font-size:17px}.score{border:1px solid #28543b;background:linear-gradient(145deg,#14261c,#161a21);border-radius:18px;padding:22px}.score strong{display:block;color:var(--green);font-size:48px;line-height:1}.score span{color:var(--text-dim)}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card,.panel{border:1px solid var(--border);border-radius:var(--radius);background:rgba(22,26,33,.94);padding:20px}.card{position:relative;overflow:hidden;min-height:230px}.card:before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--tone,var(--accent))}.eyebrow{font:11px "JetBrains Mono",ui-monospace,monospace;color:var(--tone,var(--accent));letter-spacing:.12em;text-transform:uppercase}.card h2{font-size:23px;margin:9px 0}.recipe{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:18px 0}.pill{border:1px solid var(--border);border-radius:8px;background:var(--surface-2);padding:5px 8px;font:12px "JetBrains Mono",ui-monospace,monospace}.arrow{color:var(--text-dim)}.facts{padding:0;margin:0;list-style:none;color:var(--text-dim);font-size:13px}.facts li+li{margin-top:6px}.facts b{color:var(--text);font-weight:600}.wide{margin-top:14px;display:grid;grid-template-columns:1.1fr .9fr;gap:14px}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:15px}.metric{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px}.metric strong{display:block;font-size:27px}.metric span{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.08em}.timeline{display:grid;gap:10px;margin-top:15px}.commit{display:grid;grid-template-columns:88px 1fr;gap:12px;align-items:start;padding:10px 0;border-top:1px solid var(--border)}.commit code{color:#96bcff}.boundary{border-left:3px solid var(--amber)}.boundary ul{margin:13px 0 0;padding-left:18px;color:var(--text-dim)}.boundary li+li{margin-top:8px}.footer{margin-top:18px;color:var(--text-dim);font-size:12px;text-align:center}@media(max-width:850px){.hero,.wide{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.card{min-height:auto}}@media(max-width:480px){main{width:min(100% - 20px,1120px);padding-top:30px}.metrics{grid-template-columns:1fr}.commit{grid-template-columns:1fr}.score strong{font-size:40px}}
+  </style>
+</head>
+<body><main>
+  <section class="hero">
+    <div>
+      <span class="badge">OVERNIGHT PASS · COMPLETE</span>
+      <h1>Three real slices.<br>No invented history.</h1>
+      <p class="lede">The settled grill became source-backed gameplay in Cooking, Herblore, and Smithing. Every slice includes runtime behavior, target UI, inventory semantics, assets, rollback coverage, and pinned pre-EOC evidence.</p>
+    </div>
+    <div class="score"><strong>1,996</strong><span>tests passing across pure + offscreen Qt suites</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card" style="--tone:var(--red)">
+      <div class="eyebrow">Cooking · shipped</div><h2>Lava eel</h2>
+      <div class="recipe"><span class="pill">Raw lava eel</span><span class="arrow">→</span><span class="pill">Lava eel</span><span class="pill">30 XP</span></div>
+      <ul class="facts"><li><b>Level 53</b>, exact archived value.</li><li><b>Never burns</b>, matching the pinned pre-EOC behavior.</li><li>Quest item IDs and existing art are reused rather than duplicated.</li></ul>
+    </article>
+    <article class="card" style="--tone:var(--purple)">
+      <div class="eyebrow">Herblore · shipped</div><h2>Overload mixing</h2>
+      <div class="recipe"><span class="pill">5 extremes (3)</span><span class="pill">Torstol</span><span class="arrow">→</span><span class="pill">Overload (3)</span></div>
+      <ul class="facts"><li><b>Level 96 · 1,000 XP</b>.</li><li>Returns <b>four Vials</b> and marks all six potions nontradeable.</li><li>Corrects Extreme ranging to five Grenwall spikes.</li></ul>
+    </article>
+    <article class="card" style="--tone:var(--amber)">
+      <div class="eyebrow">Smithing · shipped</div><h2>Cannonballs</h2>
+      <div class="recipe"><span class="pill">Steel bar</span><span class="pill">Ammo mould</span><span class="arrow">→</span><span class="pill">4 Cannonballs</span></div>
+      <ul class="facts"><li><b>Level 35 · 25.6 XP</b>, gated by Dwarf Cannon.</li><li>Casual checks mould ownership; Advanced carries and retains it.</li><li>The generator now preserves this row through future refreshes.</li></ul>
+    </article>
+  </section>
+
+  <section class="wide">
+    <article class="panel">
+      <div class="eyebrow">Verification</div><h2>Green from data to dialog</h2>
+      <div class="metrics">
+        <div class="metric"><strong>998</strong><span>pure suite</span></div>
+        <div class="metric"><strong>998</strong><span>Qt suite</span></div>
+        <div class="metric"><strong>43</strong><span>tracked gaps</span></div>
+        <div class="metric"><strong>22</strong><span>merged families</span></div>
+      </div>
+      <p class="lede" style="font-size:14px;margin-top:16px">The audit also repaired stale Crafting UI fixtures and connected existing snakeskin/dragon-leather artwork to all tanning Utility rows.</p>
+    </article>
+    <article class="panel boundary">
+      <div class="eyebrow" style="color:var(--amber)">Evidence boundary held</div><h2>Still intentionally blocked</h2>
+      <ul><li><b>Funeral pyres:</b> archived 2012 tables disagree on Firemaking XP, including eucalyptus.</li><li><b>Blast Furnace / Goldsmith:</b> cannonballs were split out; fee cadence, coal savings, and gauntlet XP remain gated.</li><li><b>Sanfew, Runespan, bonfires, and larger activities:</b> settled designs remain live in the backlog, awaiting complete historical mechanics.</li></ul>
+    </article>
+  </section>
+
+  <section class="panel" style="margin-top:14px">
+    <div class="eyebrow">Commit trail</div>
+    <div class="timeline">
+      <div class="commit"><code>a3cb89e</code><span>Lava eel Cooking action and source audit</span></div>
+      <div class="commit"><code>28359a7</code><span>Overload mixing, five extreme inputs, vials, RS3-specific asset sourcing</span></div>
+      <div class="commit"><code>fefca70</code><span>Cannonball runtime, quest/mould gates, UI, undo, and source audit</span></div>
+      <div class="commit"><code>e64269c</code><span>Generator parity so cannonballs survive source regeneration</span></div>
+      <div class="commit"><code>5b13ff2</code><span>Offscreen UI contract repair for mould-aware fixtures and tanning icons</span></div>
+    </div>
+  </section>
+  <p class="footer mono">ANKISCAPE · PRE-EOC PARITY PASS · 2026-07-10</p>
+</main></body></html>
