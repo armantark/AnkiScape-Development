@@ -432,6 +432,11 @@ UTILITY_ITEM_IMAGES = {
     # fetched it; keeps these registered even if no shop stocks them).
     "Leather": os.path.join(CRAFTED_ITEMS_FOLDER, "leather.png"),
     "Hard leather": os.path.join(CRAFTED_ITEMS_FOLDER, "hard_leather.png"),
+    "Snakeskin": os.path.join(CRAFTED_ITEMS_FOLDER, "snakeskin.png"),
+    "Green dragon leather": os.path.join(CRAFTED_ITEMS_FOLDER, "green_dragon_leather.png"),
+    "Blue dragon leather": os.path.join(CRAFTED_ITEMS_FOLDER, "blue_dragon_leather.png"),
+    "Red dragon leather": os.path.join(CRAFTED_ITEMS_FOLDER, "red_dragon_leather.png"),
+    "Black dragon leather": os.path.join(CRAFTED_ITEMS_FOLDER, "black_dragon_leather.png"),
     "Plank": os.path.join(QUEST_ITEMS_FOLDER, "plank.png"),
     "Oak plank": os.path.join(SHOP_ITEMS_FOLDER, "oak_plank.png"),
 }

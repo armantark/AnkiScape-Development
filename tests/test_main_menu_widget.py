@@ -3745,7 +3745,7 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_crafting_unlocks_with_materials_and_persists_recipe_id(self) -> None:
         pd = _make_player_data()
-        pd["inventory"] = {"Gold bar": 5}
+        pd["inventory"] = {"Gold bar": 5, "Ring mould": 1}
         pd["crafting_level"] = 99
         dialog = self._open(pd)
         tree = _goto_crafting(dialog)
@@ -3764,7 +3764,8 @@ class MainMenuWidgetTest(unittest.TestCase):
 
     def test_crafting_highlights_current_target_and_expands_its_family(self) -> None:
         pd = _make_player_data()
-        pd["inventory"] = {"Gold bar": 5}
+        pd["inventory"] = {"Gold bar": 5, "Ring mould": 1}
+        pd["crafting_level"] = 99
         pd["current_craft"] = "jewellery_gold_ring"
         dialog = self._open(pd)
         tree = _goto_crafting(dialog)
