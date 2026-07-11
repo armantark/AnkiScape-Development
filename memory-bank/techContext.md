@@ -72,15 +72,14 @@ Current Mining backend parity data lives in `mining_data.py`, with a detailed au
 
 Current Crafting backend parity data lives in `crafting_data.py`, with a detailed audit at `memory-bank/source-audits/crafting-2011scape-2026-06-03.md`. It stores stable recipe IDs, source family/station metadata, real requirements/outputs, corrected 2011Scape XP values, and notes for input-starved content whose acquisition loop is not built yet. Storage config version 11 migrates legacy display-name `current_craft` values to stable IDs.
 
-Current Smithing backend parity data lives in `smithing_data.py`, with a detailed audit at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md`. `tools/generate_smithing_data.py` parses the local 2011Scape Smithing plugin and item metadata into a checked-in Python module with 9 smelt recipes and 157 forge recipes. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
+Current Smithing backend parity data lives in `smithing_data.py`, with detailed audits at `memory-bank/source-audits/smithing-2011scape-2026-06-01.md` and `memory-bank/source-audits/cannonball-smithing-implementation-2026-07-10.md`. `tools/generate_smithing_data.py` emits 9 ordinary smelt recipes, 158 anvil recipes, and the separate source-backed cannonball furnace process. Storage config version 9 migrates old `current_bar` saves to stable `current_smith` recipe IDs and normalizes legacy `Adamantite bar`/`Runite bar` inventory keys to source item names.
 
 Current equipment backend data lives in generated `equipment_data.py`. `tools/generate_equipment_data.py` combines checked-in `smithing_data.py`, local 2011Scape `data/cfg/items.yml` equipment blocks, and `mining_data.py` Mining bonus items. Storage config version 10 adds flat `equipment` state, removes `owned_equipment`, and scaffolds planned combat level/exp defaults so equipment gates are real `*_level` checks before combat training exists.
 
-Current feather source data lives in `constants.UTILITY_ACTIVITY_DATA` as the
-no-XP `scavenge_chicken_feathers` activity, with the audit at
-`memory-bank/source-audits/feather-utility-2026-06-15.md`. It is deliberately a
-temporary Utility bridge from local 2011Scape chicken feather drops, not the
-final Combat drop or GE route.
+Feathers now enter through live NPC shop stock and Combat drops. The temporary
+`scavenge_chicken_feathers` Utility bridge documented in the dated
+`memory-bank/source-audits/feather-utility-2026-06-15.md` was retired during the
+shop-economy integration pass and must not be re-added.
 
 Current Firemaking data lives in `firemaking_data.py`, with the audit at
 `memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`. It stores 13
@@ -101,7 +100,7 @@ lives in `logic_pure.py`; storage config version 15 adds
 `runecrafting_pouches`, and `item_charges`.
 
 ## Asset Scraping (icons)
-`tools/fetch_assets.py` pulls one wiki icon at a time (OSRS first, RS3 fallback) and records provenance. Two gotchas learned while adding Fletching, worth remembering before the next scrape:
+`tools/fetch_assets.py` pulls one wiki icon at a time and records provenance. For pre-EOC RuneScape content, pass `--source rs3` so a same-named modern OSRS file cannot silently win. Use OSRS art only after independently proving that exact art belongs to the target era. Two practical asset gotchas remain:
 
 - **Skill icons: prefer the `(detail)` variant.** The OSRS wiki ships both a small interface icon (e.g. `File:Fletching_icon.png`) and a higher-resolution `File:Fletching_icon_(detail).png`. The four original AnkiScape skill icons use the detail resolution, so fetch the `(detail)` file for new skills to match — the plain icon looks blurry/undersized next to them.
 - **Item sprites render small unless they fill the frame — fix it in the asset, not at runtime.** Wiki item sprites are tightly cropped (e.g. an arrow is a thin diagonal, and Flax's real art is only ~30x23 inside a 64x64 file). Historically `--size N` normalized by `thumbnail((N,N))` then centering on a transparent NxN canvas, which *preserved* those transparent margins — so at the fixed 28px list icon box the visible sprite was much smaller than the legacy bundled icons (full-frame photos that fill the box edge-to-edge). The fix is to bake a trim into the PNG so the UI just does `QIcon(path)` like everything else (a brief experiment with per-paint runtime cropping was reverted: it scanned the 1000–1500px crafted photos pixel-by-pixel and beachballed when opening Crafting). Two pieces keep assets display-ready:
@@ -111,7 +110,7 @@ lives in `logic_pure.py`; storage config version 15 adds
 ### Woodcutting asset wiring (the log/hatchet/nest fetch)
 - **Batch driver:** `tools/fetch_woodcutting_assets.py` (`uv run …`) fetches the whole Woodcutting manifest through one rate-limited `HttpWikiClient` so provenance is recorded per file and a single failure doesn't abort the rest. Re-run with `--force` to refresh.
 - **Logs reuse `trees/`.** The `trees/<Name>.png` files *are* the log item sprites (see `WIKI_TITLE_OVERRIDES`: `Oak` → `Oak logs.png`). So `constants.LOG_IMAGES` just re-keys those files by log item name (`Oak logs` → `trees/Oak.png`) for the Bank/Stats registry — no second fetch. New tree rows only needed `Achey` (Achey tree logs) and `Hollow` (Bark).
-- **Hatchets resolve on RS3, not OSRS.** OSRS calls them "axe"; the 2011 naming is "hatchet", which only exists on `runescape.wiki`. The OSRS-first/RS3-fallback order in `fetch_assets.py` handles this automatically.
+- **Hatchets resolve on RuneScape Wiki, not OSRS.** OSRS calls them "axe"; the 2011 naming is "hatchet". Fetch them explicitly with `--source rs3`.
 - **Hatchets / nests / seeds live in `woodcuttingitems/`**, keyed by `constants._asset_slug(name)` and wired via `WOODCUTTING_EXTRA_ITEM_IMAGES`. Both `LOG_IMAGES` and that map are existence-guarded so `missing_required_asset_paths()` (asserted empty by tests) never trips on an unfetched item.
 - **Ivy uses the Choking ivy interface icon.** Ivy has no inventory/log item, and `File:Ivy.png` (OSRS) is a full castle-wall *screenshot*, not an icon. The usable art is `File:Choking ivy icon.png` (RS3) — fetched into `trees/Ivy.png` so the (XP-only, no-output) row still shows a vine icon. Egg bird-nests and bird's eggs stay iconless (wiki titles don't resolve; vanishingly rare drops). Nest *ring* contents reuse the existing crafted ring sprites.
 

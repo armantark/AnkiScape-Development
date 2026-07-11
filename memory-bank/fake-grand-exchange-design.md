@@ -1,6 +1,6 @@
 # Fake Grand Exchange Design Checkpoint
 
-> **Status: PARKED (design locked, implementation deferred).** The design below is fully grilled and considered final for v1; do not re-grill the decision tree. The GE is intentionally blocked on item-economy breadth — it is only worth building once many more tradable items exist. Current priority is broadening the skill roster (all gathering skills + most basic artisan skills). Resume here when the item universe is wide enough.
+> **Status: PARKED (design locked, implementation deferred).** The design below is fully grilled and considered final for v1; do not re-grill the decision tree. NPC Shops are already live. The GE remains blocked on representative skill/item/economy breadth; use `memory-bank/future-work-kanban.md` for the current sequencing gate and resume here when that gate is cleared.
 
 ## Purpose
 

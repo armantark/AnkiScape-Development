@@ -1,6 +1,6 @@
 # NPC Shop Design Grill
 
-Status: active design grill, not implemented.
+Status: completed design grill; NPC Shops implemented end to end on 2026-07-06.
 Opened: 2026-06-24.
 Seed: `memory-bank/npc-shop-design-seed.md`.
 
@@ -14,9 +14,8 @@ Seed: `memory-bank/npc-shop-design-seed.md`.
   inventories, and access locks where source evidence supports them.
 - State that belongs to a shared shop inventory should be persisted by shared
   stock group, not by the individual NPC or visible shop row.
-- The temporary `Buy Hunter supplies` Utility/Activities bridge is not the final
-  shop system; it must be migrated, removed, or rebalanced deliberately once
-  NPC shops exist.
+- The temporary `Buy Hunter supplies` Utility/Activities bridge was retired
+  after NPC Shops shipped; do not re-add it.
 
 ## Decision Log
 

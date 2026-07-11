@@ -1,24 +1,39 @@
 # Project Brief
 
 ## Project
-AnkiScape is a Python Anki add-on that adds a lightweight idle-RPG layer to card review. Each eligible answer can award skill XP, items, achievements, and level progress while staying inside Anki's normal review flow.
+
+AnkiScape is a Python Anki add-on that turns eligible card reviews into a lightweight, persistent pre-EOC RuneScape progression layer. Reviews can advance skills, combat, quests, items, achievements, shops, and world/economy clocks without replacing Anki's study flow.
 
 ## Current Goal
-Preserve the existing add-on and augment it rather than rebuilding from scratch. The near-term architectural goal is to make the four existing skills more data-driven before adding many more skills or combat.
 
-## Scope
-- Keep the current Anki review hook, floating XP, HUD, menu, bank, stats, achievements, and settings behavior working.
-- Refactor hardcoded skill handling into a skill/action registry before expanding content.
-- Add noncombat skills before combat so the shared model proves itself on simpler loops.
-- Treat Melvor Idle as conceptual overlap only: inspiration for idle-RPG progression, not a product or mechanics blueprint to copy.
+Reach a coherent “complete AnkiScape” rather than accumulating disconnected v1 slices. The canonical scope and work routing are:
 
-## Non-Goals
-- Do not replace Anki with a standalone game shell.
-- Do not build real-time combat as the first expansion milestone.
-- Do not copy Melvor Idle content, structure, names, balancing, or UI wholesale.
+- `memory-bank/completion-audit-2026-07-10.md`
+- `memory-bank/completion-audit.json`
+- `memory-bank/future-work-kanban.md`
+- `memory-bank/gap-backlog.json` for detailed gaps inside the eleven registered review skills
+
+## Product Boundary
+
+- Target RuneScape immediately before EOC, cutoff `2012-11-20`.
+- Keep Anki review primary: one successful review is one sourced action by default.
+- Preserve source base XP and tune Anki pacing separately.
+- Use the 240-reviews-per-day global clock only for background/world/economy cadence.
+- Use target-local inventory, equipment, risk, and options rather than global player location.
+- Do not build a world map or standalone transportation network.
+- Do not expose inert “coming soon” targets or rewards; content is visible only when it works end to end, except authentic player-state locks on working content.
+
+## Current Foundation
+
+- Eleven registered review skills.
+- Unified Combat with XP routing for Attack, Strength, Defence, Constitution, Ranged, and Magic.
+- A 194-row pre-EOC quest catalog and stage-gate engine, treated as coverage scaffolding rather than full quest parity.
+- Utility/Activities, Bank Claims, NPC shops/economy, equipment, carried inventory, achievements, undo, source tooling, assets/provenance, and full pure/Qt test suites.
 
 ## Success Criteria
-- Card review remains fast and unobtrusive.
-- Existing saves migrate safely.
-- Tests cover pure game logic, storage migrations, hooks, UI gating, and integration smoke paths.
-- New skills can be added mostly by data/config plus small action handlers, not by scattering new branches across the codebase.
+
+- All 25 pre-EOC skills have complete loops or an explicit product exclusion.
+- Quests, activities, bosses, economy, acquisition, collections, and rewards reach the same end-to-end standard.
+- Every concrete value or gate follows `memory-bank/pre-eoc-source-verification-standard.md`.
+- Saves migrate safely; review undo restores every mutation.
+- Full pure and offscreen Qt suites stay green, with manual Anki QA for release candidates.

@@ -1,1145 +1,196 @@
-# Future Work Kanban
-
-Status: 2026-07-06
-
-Use this board as the handoff source for near-term AnkiScape follow-up threads. It captures the current owner priorities after the Crafting/Fletching/Smithing parity pass.
-
-## Current Decisions
-
-- Arrowtips are not an unresolved source gap. They are smithable through Smithing.
-- Feathers are no longer an unresolved Fletching input gap. P2 added a
-  no-XP Utility/Activities bridge, `Scavenge chicken feathers`, on 2026-06-15.
-- NPC shops are complete end to end as of 2026-07-06 (backend, Qt frontend,
-  price policy, and the shop-economy integration pass). Standing decisions from
-  that pass: the `scavenge_chicken_feathers` / `gather_fishing_bait` /
-  `buy_hunter_supplies` bridges are retired (outputs are live shop stock — do
-  not re-add them); processing conversions (tanning, sawmill) are review-paced
-  coin-paid Utility/Activities, never instant shop services (2011 runs were
-  inventory-bounded; the review loop is the friction stand-in — do not
-  re-litigate); `SHOP_PLAYER_SELL_PRICES` closes the general-store income loop; a
-  same-day owner decision then made sell mechanics absolute Darkan parity
-  (canonical-id getSellPrice/getBuyPrice, currency guard, 40-slot general
-  stock pool, decay-to-default) and removed the interim clamp — see
-  `memory-bank/source-audits/coin-economy-audit-2026-07-06.md`.
-  The Cooking gather/scavenge bridges are a follow-up candidate (see the
-  completed NPC shop card). The Grand Exchange remains parked in
-  `memory-bank/fake-grand-exchange-design.md`, and shops absorbed much of its
-  original rationale.
-- Dependency-heavy Crafting acquisition loops are intentionally deferred for now.
-- Minigames/activities (Fist of Guthix, Pest Control, etc.) are parked as a
-  seed in `memory-bank/minigames-activities-design-seed.md` (captured
-  2026-07-07). Owner intent: model them as extra activities in the existing
-  Utility/Activities hub, with random events for variety, and use their reward
-  shops to unblock minigame-only gear. This is the acquisition path for the
-  parked metal gauntlets (FoG) and complements the drop-only metal boots. Do not
-  build from the seed until it is grilled.
-- Special Mining and Woodcutting content should stay parked for now.
-- Firemaking v1 is complete as a separate skill-expansion thread; bonfires and fire spirits are deferred 2012 pre-EOC extension content.
-- Fishing v1 is complete as a separate Gathering skill-expansion thread; Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, and real shop/GE material sourcing are deferred system slices.
-- Review-action telemetry and shared review-odds normalization are complete as of 2026-06-20. Future balancing work should use `player_data["action_telemetry"]` / `summarize_action_telemetry_pure` and tune the shared adapter first, not per-skill one-off Fishing odds.
-- Fletching source integration is complete as of 2026-06-19. Do not re-add the
-  old tiered arrow-shaft pilot rows; local 2011Scape only whittles normal logs
-  into arrow shafts. Broad arrows/bolts are implemented behind the
-  `broad_fletching` ability lock, and Barbarian Fishing uses the same
-  `unlocked_abilities` substrate via `barbarian_fishing`. Crossbow limb
-  attachment/stringing, enchanted bolts, and comp ogre bow stringing remain
-  excluded unless a future audit finds live source evidence for the specific
-  action and owner skill.
-- Runecrafting v1 is complete as a separate Artisan skill-expansion thread; Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, and broader rune economy routes are deferred system slices.
-- Hunter v1 is complete as a separate Gathering skill-expansion thread. The
-  local 2011Scape cache/snapshot supplied item names/ids, but not a local Hunter
-  mechanics plugin, so v1 uses 2011.rs guide rows plus local 2012scape/Darkan
-  mechanics/id parity. Tracking trails, pitfall trapping, rabbit snaring,
-  barehand catches, Herblore Habitat/Jadinkos, grenwall herb drops, and
-  Regicide-start partial-route modeling are deferred system slices.
-- Quest-lock registry and full pre-EOC quest catalog completed on 2026-06-17, with route-precedent locks added on 2026-06-18, Quests-tab availability filters added on 2026-06-19, and stage-aware quest blockers completed across all 194 catalog quests on 2026-06-22. The Knight's Sword is the start-vs-finish proof case, Dwarf Cannon proves source-backed false-positive combat removal with a noncombat stage chain, the local Darkan batch for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion Catcher proves focused item/action/route replacements for quests whose generated detail rows are too broad, Sheep Herder proves stage-local noncombat disposal gates for poisoned sheep feed, clothing/tools, and four sheep-bone incinerations, Plague City/Waterfall Quest prove mid-quest reward correction plus future-skill pending XP through detailed stage chains, Biohazard proves a longer West Ardougne route/item/combat/smuggling chain with the Mourner hard-blocked unless combat resolving is enabled, Heroes' Quest proves a long branch-and-proof chain with strict start locks, stage-local lava eel/Fire feather/armband proof items, Black Arm/Phoenix route variants, and no forced Jailer route, and the final all-catalog pass proves every quest now has machine-readable current-stage blockers rather than a start-only completion path. Do not redo the priority gates, the 194-row catalog, the completed filter surface, or the completed focused quest replacements; use `memory-bank/quest-unlock-audit-2026-06-17.md`, `memory-bank/source-audits/quest-all-catalog-stage-gate-final-2026-06-22.md`, and the focused quest source audits for future route/location, stage-aware, or combat-aware quest work.
-- Quest-local false-gate cleanup completed on 2026-06-24. `tools/audit_quest_local_item_gates.py` should stay green for high-confidence same-quest product/start-inventory gates, and the remaining source-review candidates live in `memory-bank/source-audits/quest-local-false-gate-audit-2026-06-24.md`. Do not remove those remaining gates just because the audit reports them; confirm each against quest source first.
-- Quest-local auto-action progression exists as of 2026-06-24. Use `QuestStageRequirement.auto_actions` for deterministic same-quest steps that should advance during review, and reserve `required_actions` for real manual blockers. Vampyre Slayer's Dr Harlow talk/beer steps are the proof case.
-- Quest-stage status artifacts were paused during the owner-requested all-quest
-  update. Source-audit markdown and Memory Bank maintenance still continue as
-  normal project guidance; create new visual status artifacts only when the
-  owner explicitly asks for one or the next scoped feature requires it.
-- Combat V1 implementation is complete as of 2026-06-23 for the first
-  source-backed ordinary-combat slices: Chicken, Rat, Spider, Spider level 24,
-  Giant rat, Giant spider level 2, Giant spider level 50, Goblin level 2
-  armed/unarmed, Goblin levels 5/11/13/16/25, Cow, Cow calf, Ram, Highwayman,
-  Mugger, Thug, Thief, Market guard, Guard level 21
-  Varrock/sword/battleaxe variants, Jail guard, Black knight, Chaos druid,
-  Al-Kharid warrior, Farmer, Barbarian level 8/9, Barbarian level 10,
-  Barbarian level 17, Seagull,
-  Scorpion, Poison scorpion, King scorpion, Pit scorpion, Scorpion level 59,
-  Deadly red spider, Poison spider levels 31/64, Hill giant, Moss giant, Ice
-  giant, and TzHaar-Ket are selectable Combat
-  targets; review bursts simulate 50 source ticks per
-  `Actions per review` step; melee attack styles route damage XP into Attack,
-  Strength, Defence, shared controlled XP, and Constitution; auto-eat consumes
-  real food; drops follow the imported guaranteed/multi-table/quantity-range semantics; the
-  Combat hub and HUD surface target/style/lifepoint state; and storage defaults
-  persist combat state. The recovery/loadout foundation now adds finite carried
-  food, safe-boundary food/potion/rune/ammo loadout refills, review-tick special-energy regeneration,
-  stat-drain recovery scaffolding, status-effect save hooks, and Combat tooltip
-  food readiness. Player-facing loadout controls now expose auto-eat threshold,
-  preferred food priority, loaded food/potion/ammo/rune summaries, and safe-boundary
-  Refill/Unload actions while preserving the no-mid-fight-refill rule. Death's
-  Office recovery now handles stacked Combat deaths: a second death moves the
-  old active grave into flat `death_office.items`, the Bank tab exposes reclaim,
-  and reclaim consumes `100 Coins` per held item before returning gear to
-  inventory. Persistent poison status now advances on source-shaped review ticks
-  during Combat bursts and safe noncombat reviews, deals source-formula damage,
-  clears on death, and appears in the review HUD while active; Poison scorpion
-  and Poison spider now apply that status from source `poisonDamage = 3` attacks
-  with the local 4-in-10 NPC poison chance. Loaded Antipoison and Super
-  antipoison doses now auto-cure active poison, preserve source dose
-  replacement, grant poison-immunity timers, and block new poison while immunity
-  is active. Combat Magic now covers the standard elemental spell ladder through
-  Fire Wave, with source level/rune/max-hit/base-XP rows and existing elemental
-  staff rune substitution. Combat Ranged now covers standard bows from Shortbow
-  through Magic longbow with Bronze through Rune arrow compatibility; Broad
-  arrows remain deferred until per-ammo gates exist. Ordinary Combat target selection now asks for
-  non-persistent confirmation before activating rows rated `Death possible`. The
-  2026-06-25 automated QA hardening pass is the current regression baseline:
-  safe noncombat recovery now receives Equipment metadata, bank runs reset rather
-  than completing against a different target, lock-only targets cannot be
-  converted into supply bank runs, custom/quest enemy tables drive antipoison
-  bank-run decisions, malformed `combat_grave` saves sanitize safely, quest
-  combat kills no longer write ordinary `combat_kill_counts`, quest-combat death
-  clears stale ordinary encounters, and Equipment-tab combat mode text refreshes
-  after equip/unequip. Verification passed with `python3 run_tests.py` and
-  `QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`. Use
-  `memory-bank/combat-design-grill-2026-06-23.md` plus
-  `memory-bank/source-audits/combat-v1-implementation-2026-06-23.md` and
-  `memory-bank/source-audits/combat-barbarian-2026-06-23.md` before
-  touching level 8/9 Barbarian rows; use
-  `memory-bank/source-audits/combat-barbarian-level-10-2026-06-23.md` before
-  touching level 10 Barbarian rows; use
-  `memory-bank/source-audits/combat-barbarian-level-17-2026-06-23.md` before
-  touching level 17 Barbarian rows; use
-  `memory-bank/source-audits/combat-goblin-level-2-2026-06-23.md` before
-  touching Goblin rows or shared Goblin tables; use
-  `memory-bank/source-audits/combat-standard-spells-2026-06-23.md` before
-  touching standard Combat spell data; use
-  `memory-bank/source-audits/combat-danger-confirmation-2026-06-23.md` before
-  touching ordinary Combat dangerous-target confirmation; use
-  `memory-bank/source-audits/combat-safe-recovery-ammo-2026-06-23.md` before
-  touching safe-boundary ammo recovery; use
-  `memory-bank/source-audits/combat-poison-status-recovery-2026-06-23.md` before
-  touching poison status recovery; use
-  `memory-bank/source-audits/combat-poison-enemies-2026-06-23.md` before
-  touching source NPC poison application or Poison scorpion/Poison spider rows;
-  use `memory-bank/source-audits/combat-antipoison-loadout-2026-06-23.md`
-  before touching antipoison loadout cure or poison immunity; use
-  `memory-bank/source-audits/combat-scorpion-spider-variants-2026-06-23.md`
-  before touching Scorpion, King scorpion, Pit scorpion, Spider level 24,
-  Poison spider level 64, Deadly red spider, or Giant spider level 50 rows; use
-  `memory-bank/source-audits/combat-giants-2026-06-23.md` before touching Hill
-  giant, Moss giant, Ice giant, `Seeds.uncommonSeedTable`, or the Ice giant
-  source-overflow main table; use
-  `memory-bank/source-audits/combat-mugger-2026-06-23.md` before touching
-  Mugger or its nested minor-herb drop table; use
-  `memory-bank/source-audits/combat-thug-2026-06-23.md` before touching
-  Thug, Thug charms, or its nested minor-herb drop table; use
-  `memory-bank/source-audits/combat-thief-2026-06-23.md` before touching
-  Thief or its nested minor-herb drop table; use
-  `memory-bank/source-audits/combat-market-jail-guards-2026-06-23.md` before
-  touching Market guard, Jail guard, Jailer, or Jail key route semantics; use
-  `memory-bank/source-audits/combat-guard-2026-06-23.md` before touching
-  Guard rows, Guard drop-table overflow handling, or medium clue Combat drops; use
-  `memory-bank/source-audits/combat-black-knight-2026-06-23.md` before touching
-  Black knight, Black knight drops, or the 116-slot Black knight table mismatch; use
-  `memory-bank/source-audits/combat-chaos-druid-2026-06-23.md` before touching
-  Chaos druid, Vial of water Combat item registration, or Chaos druid nested
-  minor-herb/gem table drops; use
-  `memory-bank/source-audits/combat-outlaw-2026-06-23.md` before touching
-  Outlaw, source `xpMultiplier`, Outlaw charms, or the 127-slot Outlaw table
-  mismatch; use
-  `memory-bank/source-audits/combat-chaos-dwarf-2026-06-23.md` before touching
-  Chaos dwarf, Muddy key Combat item registration, or Chaos dwarf charms; use
-  `memory-bank/source-audits/combat-white-knights-2026-06-23.md` before touching
-  White knight variants, Half an apple pie Combat item registration, or White
-  knight source table-total mismatches; use
-  `memory-bank/source-audits/combat-haakon-the-champion-2026-06-23.md` before
-  touching Haakon the Champion or his no-charms Barbarian-style drop table; use
-  `memory-bank/source-audits/combat-ham-guards-2026-06-23.md` before touching
-  H.A.M. guard rows, H.A.M. clothing Combat item registration, or the active
-  648-slot H.A.M. guard table mismatch; use
-  `memory-bank/source-audits/combat-imp-2026-06-23.md` before touching Imp,
-  Imp Catcher bead drops, Imp teleport-source notes, or Impious ashes Combat
-  item registration; use
-  `memory-bank/source-audits/combat-hobgoblins-2026-06-23.md` before touching
-  Hobgoblins, Hobgoblin source drop denominators, Iron javelin inventory-only
-  treatment, or Iron/Steel spear equipment metadata; use
-  `memory-bank/source-audits/combat-tzhaar-ket-2026-06-23.md` before touching
-  TzHaar-Ket, TzHaar drop tables, Tokkul/obsidian drops, or TzHaar equipment
-  requirements; use
-  `memory-bank/source-audits/combat-al-kharid-warrior-2026-06-23.md` before
-  touching Al-Kharid warrior or nested minor-herb table support; use
-  `memory-bank/source-audits/combat-higher-goblins-2026-06-23.md` before
-  touching Goblin levels 5/11/13/16/25 or shared higher-Goblin drops; use
-  `memory-bank/source-audits/combat-farmer-2026-06-23.md` before touching
-  Farmer, allotment seed drops, or Farmer-specific farming tool drops; use
-  `memory-bank/source-audits/combat-ranged-progression-2026-06-23.md` before
-  touching standard bow/arrow Combat data; use
-  `memory-bank/source-audits/combat-death-office-reclaim-2026-06-23.md` before
-  touching death/reclaim again; use
-  `memory-bank/source-audits/combat-source-plugin-exhaustion-2026-06-23.md`
-  before reopening broad local NPC plugin import. The local 2011Scape
-  `NpcCombatStats` plugin surface is exhausted for direct ordinary row import as
-  of the TzHaar-Ket pass. Next Combat work should widen source-backed enemies from
-  new source surfaces,
-  broaden Ranged equipment/ammo beyond the standard bow ladder, add god/Ancient/Lunar spell gates/effects,
-  add source-exact grave expiry/death-fee variants, add broader
-  potion/cannon/per-ammo preference controls, and add richer risk previews and
-  Wilderness/equipment-risk opt-ins instead of reopening the completed design
-  grill. Quest combat gates now use the shared Combat engine as of 2026-06-24;
-  see `memory-bank/source-audits/combat-quest-shared-engine-2026-06-24.md`.
-- The 2026-06-24 Combat UI/balance follow-up is complete. Combat is the playable
-  Skills-hub row without separate Attack/Constitution/Defence/Magic/Ranged/
-  Strength hub rows; equipment derives the active Combat mode; Combat setup now
-  lives on the Equipment tab; banked supplies refill automatically after a
-  two-review bank-run delay with no 28-food cap; and all ordinary Combat target
-  rows use local wiki enemy sprites from `combatenemies/` instead of Bones/drop
-  icons. See
-  `memory-bank/source-audits/combat-ui-bank-run-enemy-images-2026-06-24.md`.
-- The Tutorial Island starter kit bridge is complete as of 2026-06-23. It uses a
-  one-time `tutorial_island_starter_kit` Bank Claim with generic `item_bundle`
-  support and grants only the source-backed tutorial handout items. See
-  `memory-bank/source-audits/combat-tutorial-starter-kit-2026-06-23.md`.
-- Cow calf, Ram, Highwayman, Mugger, Thug, Thief, Guard level 21 Varrock/sword/battleaxe variants, Barbarian level 8/9, Goblin level 2 armed/unarmed, and Seagull are now implemented ordinary Combat targets as of
-  2026-06-23. They were chosen first because their local 2011Scape rows have
-  complete stats, simple guaranteed drops, death handlers, attack speed, and no
-  quantity-range or nested-table runtime requirements. Spider and level-2 Giant
-  spider are now implemented too after adding charm assets and Combat
-  `quantity_range` support. Highwayman now uses that range support for Iron
-  bolts x2-12 and registers Cape as a source-backed equipment drop. Mugger now
-  adds another low-level Humanoids target with the full source 1024-slot main
-  table, nested `minorHerbTable`, and easy clue tertiary table. Thug now adds a
-  level-10 Humanoids target with a source 128-slot main table, nested
-  `minorHerbTable`, charm table, and easy clue tertiary table. Thief now adds a
-  level-16 Humanoids target with source Bronze bolts x2-12, nested
-  `minorHerbTable`, and easy clue tertiary table while leaving Thieving
-  gameplay deferred. Citizen now adds the shared source level-2 Man/Woman row
-  with a 1024-slot main table, Bronze bolts x2-12, nested `minorHerbTable`, and
-  easy clue tertiary while reusing existing item assets. Monk now adds the
-  Bones-only source level-5 row, and Cuffs plus Narf/Jeff/Rusty now reuse the
-  same low-level human 1024-slot source table as Citizen; Johnny the Beard stays
-  deferred pending source default-stat semantics. Giant rat now has level-6 and
-  level-26 variants, and Unicorn plus Black unicorn now add source guaranteed
-  Unicorn horn and charm drops with Combat icon coverage. Black bear now adds
-  source guaranteed Bear fur/Raw bear meat plus the source charm table and
-  Slayer Bear XP without new assets. Wolf, White wolf level 25/38, and Big wolf
-  now add source Wolf Slayer XP, Wolf bones drops, and charm tables with a new
-  Wolf bones icon. Giant bat now adds guaranteed Bat bones, source defence
-  bonuses, and Bat Slayer XP while reusing the existing quest Bat bones icon.
-  Ghost now adds source Undead stats and no drops because its source file has no
-  death drop callback. Zombies now add seven source Undead variants with the
-  shared Bones/main/charm tables and the level-25 Iron hatchet 5/128 table
-  exception. Skeletons now add seven source melee Undead variants with the
-  low/high shared drop tables; Skeleton warlock remains deferred for a magic
-  enemy pass. Hill giant, Moss giant, and Ice giant now add source Giant rows,
-  Big bones, full main/charm/tertiary tables, `Seeds.uncommonSeedTable`, and
-  Combat item icons for new giant-only drops; Ice giant preserves its source
-  `total(1024)` main table even though the slots sum to 1026. Duck now splits
-  the source level-1 land/water variants so land
-  ducks drop Bones while water ducks expose no drops instead of inheriting the
-  land callback. Pirate now adds the source level-23 Humanoids row with the full
-  1024-slot main table, Iron bolts x2-12, Eye patch icon coverage, and nested
-  no-Ring-of-Wealth gem table support. Monk of Zamorak level 45 now adds fixed
-  robe and charm drops with disambiguated Zamorak robe top/bottom storage keys;
-  the Golden-key level-30 variant remains deferred until Combat can model
-  conditional drop branches.
-  Market guard and Jail guard now add two complete source Humanoids rows with
-  Bones-only death drops; Jailer remains deferred because its Jail key drop is
-  route- and quest-sensitive rather than an ordinary loot-only row. Guard now
-  adds three
-  level-21 Humanoids variants from the
-  complete melee source rows, shares the source Guard drops, keeps the
-  source-runtime 146-slot active main table despite the file's declared
-  `total(128)`, and leaves the source-commented crossbow Guard disabled until
-  a complete ranged NPC definition exists.
-  Black knight now adds the source level-33 Humanoids row, nested minor-herb,
-  allotment-seed, and no-Ring-of-Wealth gem tables, charms, and the source
-  runtime 116-slot active main table despite the file's declared `total(128)`.
-  Chaos druid now adds the source level-13 aggressive Humanoids row, exact
-  128-slot main table, Mithril bolts x2-12 quantity range, nested minor-herb and
-  no-Ring-of-Wealth gem tables, Vial of water Combat item registration, and
-  source item icon provenance.
-  Outlaw now adds the source level-35 Humanoids row, preserves source
-  `xpMultiplier = 0.025`, imports the active 127-slot main table despite the
-  file's declared `total(128)`, and adds the source Charms table.
-  Chaos dwarf now adds the source level-48 Humanoids row, exact 128-slot main
-  table, source Dwarf Slayer XP metadata, Charms table, Muddy key Combat item
-  registration, and source item icon provenance.
-  White knights now add the level-36/38/39/42 Humanoids variants, exact source
-  stats/bonuses, Bones plus main and tertiary clue tables, nested minor-herb,
-  allotment-seed, and no-Ring-of-Wealth gem tables, Half an apple pie Combat
-  food registration/icon provenance, and source-runtime main-table denominators
-  128/130/127/127 where the latter three source files declare `total(128)` but
-  build mismatched active entry indices.
-  Haakon the Champion now adds the source level-29 Humanoids row, exact melee
-  stats/bonuses, 1024-slot main table, 128-slot easy clue table, and the explicit
-  no-Charms-table source note.
-  H.A.M. guards now add the source level-12/18/22 Humanoids rows, shared Bones
-  plus main and tertiary clue tables, nested allotment seed table, active
-  648-slot main-table denominator despite the source file declaring `total(660)`,
-  and Combat item/icon registration for H.A.M. clothing plus Buttons, Damaged
-  armour, Rusty sword, Needle, and Thread.
-  Imp now adds the source level-2 Demons row, Impious ashes, full 1024-slot main
-  table including Imp Catcher beads, Combat item/icon registration for Impious
-  ashes, beads, Wizard hat, Shears, Jug, and Cadava berries, and a source note
-  that the teleport timer is spatial movement only.
-  Hobgoblins now add source level-28 unarmed and armed rows, active runtime
-  denominators for the unarmed row's mismatched main/Charms tables, nested
-  minor-herb, allotment-seed, uncommon-seed, and gem table drops, Iron javelin
-  inventory item/icon registration, and source-backed Iron/Steel spear equipment
-  metadata.
-  TzHaar-Ket now adds the source level-149 TzHaar row, exact main/Obsidian/Charms
-  drop tables, Tokkul/obsidian item registration, Chilli potato food metadata,
-  and source-backed Fire battlestaff, Toktz-ket-xil, Tzhaar-ket-om, and Obsidian
-  cape equipment metadata. TzHaar-Xil, TzHaar-Hur, and TzHaar-Mej remain
-  deferred behind source-backed enemy Ranged/Magic strategy support.
-  Dwarf now adds the local level-10
-  and level-11 Humanoids variants, shared source drops, nested no-Ring-of-Wealth
-  `Gems.gemTable`, nested `MegaRare.megaRareTable`, and rare-table item icons;
-  Ring of Wealth boosted slots remain deferred until Combat supports
-  equipment-conditioned drop modifiers. The
-  ordinary level 8/9 Barbarian twin row now imports the full 1024-slot main
-  table, 1000-slot charm table, 128-slot easy clue tertiary table, generic Staff
-  equipment metadata, and missing Staff/Bear fur/Beer/Coins/easy clue icons.
-  Barbarian level 17 now groups the complete greataxe, spear, and two-handed
-  sword source variants with the shared Barbarian main/charm/tertiary drop
-  tables and existing item icon coverage.
-  Goblin level 2 is split into unarmed and armed targets because source stats
-  differ, while sharing the same local 1024-slot main table, 1024-slot charm
-  table, and 1024-slot easy clue tertiary table. Scorpion, King scorpion, Pit
-  scorpion, Scorpion level 59, Spider level 24, Deadly red spider, Poison
-  spider level 64, and Giant spider level 50 are now implemented using the
-  existing Combat drop-table and poison surfaces; Cave slime remains deferred behind Slayer
-  gates and shared gem-table/drop support. Al-Kharid warrior is now implemented
-  and proves recursive shared-table slots for the minor herb table. Higher
-  Goblins are now implemented for levels 5, 11, 13, 16, and 25 using the same
-  `minorHerbTable` primitive. Farmer level 7 is now implemented with
-  `minorHerbTable` plus `Seeds.allotmentSeedTable`; broader Farming gameplay and
-  other seed tables remain deferred.
-- Shortbow through Magic longbow plus Bronze through Rune arrows are now
-  implemented as the standard source-backed Ranged/ammo path as of 2026-06-23.
-  Ranged accurate/rapid/longrange styles run through the shared Combat burst
-  engine and consume one arrow per attack attempt from the carried ammo loadout.
-  Future Ranged work should add Broad arrow gates, composite/ogre/dark/crystal
-  bow families, thrown weapons, crossbows/bolts/darts/knives, stack-aware
-  ammunition equipment, arrow recovery, and player-facing ammo preference
-  controls.
-- The basic combat Magic Strike ladder is now implemented as of 2026-06-23.
-  Magic standard style runs through the shared Combat burst engine for
-  Wind/Water/Earth/Fire Strike, gates on source Magic levels and runes, consumes
-  one Air rune and one Mind rune per Wind Strike cast attempt, awards base
-  Magic XP even on splashes, and routes damage XP to Magic/Constitution.
-  Staff of air/water/earth/fire now provide source-backed elemental rune
-  substitution, and the standard elemental ladder now extends through Bolt,
-  Blast, and Wave spells. Future Magic work should add god/Ancient/Lunar
-  combat spells, battlestaves/mystic staves, source special effects, noncombat
-  Magic actions, and a real Magic skill panel rather than reopening the first
-  combat spell path.
-- Persistent poison status recovery is now implemented as of 2026-06-23. It
-  supports existing player poison state in `combat_status_effects`, advances
-  damage every 30 source ticks during Combat or safe noncombat reviews, and uses
-  the existing grave path if poison kills the player. Poison scorpion and
-  Poison spider now apply player poison from source NPC `poisonDamage = 3` with
-  the local 4-in-10 chance; Cave slime remains deferred behind Slayer gates and
-  shared gem-table drop support. Antipoison and Super antipoison dose handling
-  now auto-cures active poison from the potion loadout and grants source poison
-  immunity. Future status work should add broader enemy poison coverage, player
-  weapon/ammo poison, non-antipoison immunity sources, broader potion effects,
-  and non-poison statuses.
-- P0 review-action dispatch cleanup is complete as of 2026-06-15: `action_registry.py` resolves skill and Utility/Activities handler keys, and runtime can-start checks are handler-keyed. Do not repeat this dispatch slice.
-- P0 flat target-list metadata cleanup is complete as of 2026-06-16, grouped target-tree metadata cleanup is complete as of 2026-06-19, runtime handler extraction is complete as of 2026-06-19, and achievement metadata/final handler-plumbing cleanup is complete as of 2026-06-19: `target_metadata.py` drives Mining, Woodcutting, Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and Utility/Activities row labels, tooltips, icon paths, groups, sort order, enabled/current state, and lock reasons before Qt renders them; `runtime_actions.py` owns review-action mutation bodies and handler-keyed can-start checks; `achievement_metadata.py` owns achievement definitions, grouping, and progress helpers while preserving the legacy save/name contract. The current P0 architecture board is closed; do not continue P0 by default unless the owner names a new concrete architecture boundary.
-- Utility and Activities have their own icon set for current rows, including the Fishing bait bridge.
-
-- Owner grill 2026-07-07 resolved three open shop-economy questions.
-  (1) Vendor actions become one-per-click (dialogue parity; the quantity
-  spinner was an invention); Kebab and Beer become edible with source
-  effects in a future slice, but stat-affecting food is auto-eat eligible
-  only when the player explicitly ranks it in their food priority.
-  (2) Shop access gets hybrid gating: a full 267-shop access ledger, with
-  gates implemented via a new `shop` QuestUnlockRule kind for quest/route
-  walls (stage-based where the route-precedent catalog uses stages), guild
-  skill walls included, uncertainty defaulting open. Wilderness shops add a
-  declared ambush mechanic: every completed 28 purchase-slots (stackables
-  one slot per type) rolls 1% for a PKer-style hit (real damage roll,
-  declared ~250 LP max, can kill through the normal grave path, dangerous
-  confirmation UX, rollback-safe).
-  (3) The GE is explicitly anti-ironman: a bulk shortcut for the GE-able
-  subset (cache `exchangeable` flag, a subset of tradeable), keeping the
-  grilled stochastic-fill engine unchanged; it gates nothing on the buy
-  side (authentic — quests/levels gate equipping/using, which AnkiScape
-  already models). Not scheduled until the owner calls it; sequence is
-  vendor parity -> shop gating pass -> GE.
-
-### Done - Edible Kebab and Beer (2026-07-07)
-
-Implemented. The drain-only scaffolding became a signed
-`combat_current_levels` substrate (shared by future potions via
-`apply_combat_stat_delta_pure`); `apply_consumable_pure` ports the exact
-source effects, consumed via a Bank right-click Eat/Drink action; storage
-config 28. Combat auto-eat ignores both (not in COMBAT_FOOD_DATA) — the one
-remaining follow-up is the in-combat food-priority opt-in for drinking them
-mid-fight, which needs auto-eat to model stat side effects.
-
-### Next - 28-Slot Carried Inventory (owner-grilled 2026-07-07)
-
-Full design: `memory-bank/inventory-carry-model-design-2026-07-07.md`.
-**Design complete (2026-07-07) — ready to build on go.** Locked decisions: teeth for everyone (A), as an *overlay* over the flat bank
-(not a replacement — protects the parity price tables); bank runs always
-auto-execute (no per-empty menu) with a swappable packing policy (dumb +
-transparent default auto-manager, or set-once advanced layout, mirroring how
-combat auto-eat already works); advanced yields a *small* XP/review edge;
-input+output teeth unified (B), so gathering fills the grid and bags — coal,
-gem, rune — finally matter; source-authentic stackable rule (stackables one
-slot, unstackables one each, bags pack unstackables); gathering banks free,
-processing/combat cost 1 review (combat keeps 2); per-target Keep/Drop toggle
-for power-gathering. This subsumes `combat_supply_loadout` and the recurring
-28-constants. Held-item requirements resolve against the toggle (carried if
-ON, owned-in-bank if OFF) — the cannonball-mould rule. Grill finished: casual = 3 preset pack modes (Balanced/Max-output/Max-safety) via a pure `pack_carried_inventory_pure`; advanced = click-from-bank into a collapsible side panel, saved per target; bags auto-apply when owned (Coal bag confident v1 @ 27 coal, Gem bag pending a wiki 2011 date check, Bolt pouch with Ranged); death drops carried inventory into the grave; undo rolls back; Wilderness ambush counter unifies; coins take one slot (no money pouch until ~2013); bank stays infinite; per-target loadout persistence (switch banks free, mid-session refill costs 1 review). Bag *sourcing* (no Dungeoneering) is the one open sub-item.
-
-Small correction already agreed: the combat eat-queue is an *ordered* consume
-list (fix the framing + let stat-food be queued in, solving the kebab/beer
-in-combat opt-in) — this is the cheap, safe part and can ship independently
-of the full inventory model.
-
-### Done (potions) / Next (held items) - 2026-07-07
-
-`memory-bank/source-audits/held-item-interactions-audit-2026-07-07.md` maps
-the whole territory of items that act by *being present*, in three categories:
-required tool-present gates (hammer/tinderbox/mould/needle — currently not
-gated), held passive effects (ring of forging is the one modeled proof; holy
-wrench, Enhanced Excalibur heal follow the same predicate shape), and
-consumables. **Potions are done** (2026-07-07: nine standard combat families, all doses,
-source-exact boost-to-floor via `potion_data.py` + `apply_combat_stat_boost_to_pure`).
-Remaining, in order: fold tool-present gates (moulds/pipe only, the rest are
-toolbelt) + bags into the inventory model where they mean something; Herblore
-to *source* potions; then holy wrench / Excalibur after Prayer + special-heal. Each row is its own source-audited slice.
-
-## Priority Board
-
-### P0 - Existing Skill Architecture And Old Debt (Complete)
-
-User story: As a future skill implementer, I want existing skill and activity behavior to be driven by registry metadata and shared action plumbing, so adding the next skill does not require editing scattered UI, runtime, and review-dispatch branches.
-
-Why now: The repo has enough real skills to reveal recurring pressure in skill selection UI, target-list metadata, stats rendering, action dispatch, icon registration, storage shape, and achievements. Cleaning this up before the next broad skill makes every future expansion cheaper.
-
-Backend scope:
-
-- Audit current Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Quests, and Utility/Activities paths.
-- Continue moving action behavior and target-list metadata behind registries instead of per-skill hardcoding.
-- Keep the current flat save format unless a specific refactor proves it must change.
-- Preserve current XP, item, undo, and review behavior.
-
-Frontend scope:
-
-- Remove hardcoded skill assumptions only where the backend contract can already describe the screen.
-- Keep existing visual behavior stable unless the refactor explicitly supports a cleaner display contract.
-- Leave clear handoff notes if backend metadata is ready but the UI migration should happen separately.
-
-Acceptance criteria:
-
-- Existing Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Quest, and Utility flows behave the same after the refactor.
-- The review answer path still resolves actions through the intended handler key.
-- Existing tests pass, and targeted tests cover any changed registry/action dispatch behavior.
-- Future skill or Firemaking-extension threads have fewer places to edit than the previous broad skill-expansion threads.
-
-Status 2026-06-19: Complete for the current P0 architecture board. Initial
-backend dispatch, flat target-list metadata, grouped target-tree metadata,
-runtime handler extraction, achievement metadata, and final duplicated
-handler-plumbing cleanup are all done. No storage shape, XP, item, undo, action
-multiplier, recipe data, target data, asset, frontend UI, achievement name,
-completion-semantics, or quest rule behavior changed. Mining, Woodcutting,
-Fletching, Firemaking, Fishing, Smithing, Crafting, Cooking, Runecrafting, and
-Utility/Activities now share pure row-metadata contracts. Mining, Woodcutting,
-Fletching, Firemaking, and Fishing use one Qt `QListWidget` renderer; Smithing,
-Crafting, Cooking, and Runecrafting use one grouped `QTreeWidget` renderer.
-`runtime_actions.py` owns review-action mutation bodies and handler-keyed
-can-start checks; `achievement_metadata.py` owns achievement definitions,
-difficulty grouping, and progress helpers; `__init__.py` keeps hooks, global
-state, undo snapshots, UI/save callbacks, and thin compatibility wrappers.
-Verification passed with `python3 run_tests.py` at 352 tests (84 skipped) and
-`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests` at
-352 tests. Hunter was added later and now also participates in the same
-runtime, target-row, achievement, item, and skill-registry patterns.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Do not continue P0 by default: the current architecture board is complete as of 2026-06-19 across review-action dispatch, flat target-list metadata, grouped target-tree metadata, runtime handler extraction, achievement metadata, and final duplicated handler-plumbing cleanup. Only reopen P0 if the owner explicitly names a new concrete architecture boundary and acceptance criteria. Keep backend and frontend work explicitly split, preserve the flat save model unless unavoidable, add targeted tests, update the Memory Bank, and commit the result.
-```
-
-### P1 - Quest Lock Registry And Copy-Forward Skill
-
-Status 2026-06-17: Complete for the priority unlocks identified by
-`memory-bank/quest-unlock-audit-2026-06-17.md`. Rune Mysteries, Lost City, Tai
-Bwo Wannai Trio, Mourning's End Part II, Swan Song, Lunar Diplomacy, and Legacy
-of Seergaze are now playable Quest rows. `QUEST_UNLOCK_RULES` owns the strong
-completion gates for Mining rune essence, Runecrafting cosmic/astral/death/blood
-targets, Fishing monkfish/karambwan, Shilo Village `gem_rocks`, and the narrow
-route-precedent locks for Priest in Peril Morytania rows and The Fremennik Isles
-Neitiznot/yak/arctic pine rows. Quest starts are strict: unimplemented
-prerequisite quests or skills block starting rather than being approximated. XP
-rewards for unimplemented skills are stored in
-`pending_skill_exp_rewards` and auto-applied by migration once those skills are
-implemented.
-
-Status 2026-06-22: Stage-aware quest requirements now exist as a real backend
-and frontend foundation, not just a future note. The Knight's Sword is the first
-source-backed proof case: it preserves the Mining 10 start lock, shows
-Redberry pie, Blurite ore, and two Iron bars as quest-used requirements before
-start, blocks the current stage when those items are missing, consumes the pie
-at Thurgo's stage, consumes the later materials at Thurgo's replica-sword stage,
-and grants 12,725 Smithing XP only on legitimate completion. A follow-up
-catalog-wide generator pass now extracts quest-wide pre-EOC item/tool/option
-requirements and combat encounters into machine-readable stage blockers for
-179/194 quest rows, with 112 quests carrying combat blockers. A no-stage
-closure follow-up then added focused source-backed replacement/addition rows so
-the audit reports 194/194 quests with at least one stage requirement and 119
-quests carrying combat blockers. Combat is hard locked by the global flat save
-config `player_data["quest_combat_config"]["resolver_enabled"] == False` until
-combat support is explicitly enabled. A first resolver contract now writes one
-current-stage stat-backed encounter id per Quest review via
-`apply_quest_combat_encounter_pure()`, but only when local NPC stats exist and
-the player's 2011Scape-formula combat level is high enough; no-stats combat
-rows remain blocked. A focused follow-up enriched The Restless Ghost Skeleton
-Warlock from local 2011Scape quest/object/NPC definitions, proving focused
-`quest_data.py` additions can become resolver-ready without hand-editing the
-generated catalog. A generator follow-up then added Darkan/2012scape combat-def
-fallback parsing after local 2011Scape precedence, using exact unambiguous
-name+level matches only and raising stat-backed combat coverage to 141/286
-rows; Delrith and Elvarg are the proof cases. A combat-quantity follow-up now
-parses written combat quantities in the generator and stores partial encounter
-progress in `quest_combat_encounter_counts`, so multi-enemy rows require one
-Quest review per sourced enemy before their compatibility id is written to
-`quest_combat_encounters`. TokTz-Ket-Dill's sourced "Two Lava monsters" row is
-the proof case. A second combat-stat follow-up
-accepted exact duplicate Darkan rows only when all captured battle stats/configs
-match and added focused override stats for Jogre and the Sea Troll Queen,
-raising coverage to 147/286. This slice then fixed generated item-option
-grouping across the catalog and resolved the conflicting Priest in Peril Monk
-of Zamorak plus Troll Stronghold Dad rows with focused area-specific Darkan
-quest/combat evidence, raising resolver-ready coverage to 149/286. The
-Witch's House follow-up then replaced an ambiguous generated experiment row
-with four source-backed Darkan form encounters, raising resolver-ready coverage
-to 153/285. A style-aware resolver follow-up then taught the generator,
-runtime, and audits to accept source-backed magic/ranged encounters with zero
-melee Strength when `attack_style` is magic/range, while retaining a complete
-melee fallback for inconsistent source style metadata. This added resolver-ready
-H.A.M. mage, The Void Stares Back Torcher/Defiler, and The Elder Kiln
-TokHaar-Xil rows, raising resolver-ready coverage to 157/285. The Darkan
-beast-stat fallback follow-up then merged exact/unambiguous `beasts.txt`
-attack/defence/magic/ranged evidence into generated Darkan combatdefs only when
-those values fill missing or zero stats and the existing attack-style resolver
-contract is satisfied. It makes TokTz-Ket-Dill's ranged Lava monster and
-Nomad's Requiem's ranged Nomad rows resolver-ready while leaving melee rows
-without sourced Strength blocked, raising resolver-ready coverage to 159/285.
-The no-`combatLevels` beast-stat follow-up then allowed generated Darkan
-hitpoints/config rows to merge exact name/level `beasts.txt` signatures, and
-merged multi-id Darkan files per matched name/level only. It makes the Chaos
-dwarf hand cannoneer, Caitlin, Pit scabarite, Forgotten mage, and Forgotten
-ranger rows resolver-ready while leaving mismatched/ambiguous Fire monster,
-Elder Kiln Lava monster, and Pit iron dragon rows blocked, raising
-resolver-ready coverage to 164/285. The remaining 121 statless combat rows are
-classified by `tools/audit_quest_combat_stat_gaps.py` as 51 Darkan hitpoints-only metadata
-rows, 18 Darkan rows missing
-style-critical resolver stats, 9 same-name/wrong-level rows, 16 no-local-source
-rows, and 27 parser/variant-level rows. A focused replacement follow-up then
-made generated name-shape rows source-backed without touching
-`quest_catalog_generated.py`: Heroes' Quest's Entrana Fire Bird now uses local
-Darkan `entrana_firebird.json`, Spirits of the Elid's generic `Golem x3` row
-splits into Black, White, and Grey golems using Darkan enum/combatdef evidence,
-and Another Slice of H.A.M.'s historical H.A.M. ranger row maps to Darkan's
-level 30 H.A.M. Archer ranged combat payload. That raises resolver-ready
-coverage to 169/287, with 118 statless combat rows remaining: 51 Darkan
-hitpoints-only metadata rows, 18 Darkan rows missing style-critical resolver
-stats, 9 same-name/wrong-level rows, 13 no-local-source rows, and 27
-parser/variant-level rows. A focused full-stage A Soul's Bane replacement then
-removed bad generated anger-room combat rows, kept the rage room as a
-required-action gate, split the later Fear reaper/Confusion beast/Hopeless
-creature/Tolna head fights into sourced Darkan multi-count combat gates, and
-made Death to the Dorgeshuun's Senior H.A.M. guard x3 row resolver-ready from
-local Darkan H.A.M. Guard stats. That slice's resolver-ready coverage was 174/283,
-with 109 statless combat rows remaining: 51 Darkan hitpoints-only metadata rows,
-18 Darkan rows missing style-critical resolver stats, 9 same-name/wrong-level
-rows, 12 no-local-source rows, and 19 parser/variant-level rows. A Priest in
-Peril focused full-stage replacement then removed its generated stage-61/prose
-rows, corrected it to nine playable stages, added consumed alternative support
-for the Salve essence step, moved the Temple guardian dog and Monk of Zamorak
-combat gates to their real stages, and kept Wolfbane/1,406 Prayer XP behind
-valid completion. A 2011Scape starter-quest batch then added
-`produced_inventory` stage transitions and replaced bad generated rows for
-Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre
-Slayer: Cook's Assistant produces its quest-only cake ingredients in quest
-stages and only blocks on Bucket/Empty pot before the final hand-in consumes
-them, Imp Catcher consumes only the four beads and no longer grants generated
-coins, Druidic Ritual transforms raw meats into enchanted meats before Sanfew/Kaqemeex,
-Pirate's Treasure produces Chest key and Pirate message, and Vampyre Slayer
-models Dr Harlow's Blue Moon Inn talk/beer path as auto-action quest-local
-progression, produces stake/stake hammer, keeps garlic optional, resolves Count Draynor at
-stage 3, consumes the stake after the battle gate, and requires the Morgan
-report before Attack XP. A 2011Scape intermediate batch then added
-`start_inventory` and replaced The Restless Ghost, Rune Mysteries, and Lost City
-with local source-backed stage chains: Ghostspeak amulet and Muddy skull are
-produced/consumed at the Restless Ghost stages, Rune Mysteries now grants Air
-talisman at start and transforms it through Research package and Research notes
-without false XP, and Lost City now routes through Shamus, Entrana, Tree spirit,
-Dramen branch, and Dramen staff without duplicating the staff reward. A
-Demon Slayer focused replacement then moved the quest out of the old broad
-Delrith row: stage 1 consumes the coin, stage 3 consumes bucket water and
-produces the drained key plus bucket, stage 4 consumes 25 bones and produces
-Traiborn's key, stage 5 produces Rovin's key, stage 6 converts the three keys
-into Silverlight, stage 7 requires Silverlight and Delrith, and stage 8
-requires the incantation before the stage 9 completion marker. Post-slice audit
-reports 401 stage rows, 80 focused rows, 321 generated rows, 283 combat
-encounters, and 175 resolver-ready combat encounters, with 14
-produced-inventory rows. The Temple guardian dog remains blocked as
-`combat_missing_stats` after the global combat lock because Darkan supplies
-hitpoints/max-hit/magic immunity but no nonzero attack/strength/defence payload.
-A follow-up early Darkan stage batch then replaced Goblin Diplomacy, Ernest the
-Chicken, and Black Knights' Fortress with focused source-backed stage chains:
-Goblin mail hand-ins are consumed at their real stages, Ernest's fish food/poison
-and machine parts are produced and consumed through Oddenstein's flow, and Black
-Knights' Fortress uses the sourced 12 quest point start requirement plus
-worn-equipment disguise support before the cabbage sabotage and Sir Amik report.
-A Dragon Slayer focused replacement then moved Oziach/Guildmaster actions,
-anti-dragon shield, Melzar's Maze combat, Wormbrain's paid map piece, Oracle
-items, Crandor map assembly, Lady Lumbridge purchase/repair, Ned route, Elvarg,
-and the final Oziach report into source-backed current-stage gates. Shield of
-Arrav then added route-variant branch rows so Phoenix Gang and Black Arm Gang
-requirements do not leak into each other: Jonny the beard and Weaponsmaster are
-source-backed combat gates, route-specific shield/certificate halves are
-produced and consumed at their real stages, and the partner half-certificate
-exchange remains a finish-stage gate instead of a start lock. A Fight Arena
-focused replacement then replaced generated all-in-one requirements with a
-12-stage Darkan-backed chain: Khazard disguise production/equipment,
-Jeremy/lazy guard actions, Khali brew purchase/consumption, cell-key
-production/use, Khazard ogre, Khazard scorpion, Bouncer, and Lady Servil
-reward. Ogre/scorpion remain missing resolver stats; Bouncer is resolver-ready;
-General Khazard is optional. Post-slice audit reports 449 stage rows, 285
-combat encounters, 177 resolver-ready combat encounters, 174 quests with
-item/tool blockers, and 120 quests with combat blockers.
-Witch's House then superseded the earlier two-row combat proof with a full
-12-stage Darkan-backed replacement: potted-plant Door key, door entry, cupboard
-Magnet, Cheese/Magnet mouse-hole mechanism, witch patrol route, Leather gloves
-electric gate, fountain Backroom key, shed door, four experiment forms, Ball
-pickup, and Harvey hand-in. The experiment forms were already resolver-ready, so
-combat coverage stays 177/285; post-slice audit reports 458 stage rows, 42
-produced-inventory rows, 285 combat encounters, 174 quests with item/tool
-blockers, and 120 quests with combat blockers.
-Merlin's Crystal then replaced generated front-loaded item/combat prose with an
-8-stage Darkan/local-2011Scape chain: round-table investigation, Catherby crate
-route, Sir Mordred combat, Morgan questioning plus beehive wax collection, black
-candle exchange, Lady of the Lake/Port Sarim beggar bread test, and a final
-stage-7 ritual/crystal/Arthur gate before the stage-8 completion marker. Bucket,
-Bucket of wax, Black candle, Bread, Bat bones, and the ritual candle are consumed
-or produced at their source-backed stages; Excalibur is produced during the quest
-and retained. Thrantax remains a ritual dialogue/action gate because local Darkan
-binds him through dialogue rather than combat. Post-slice audit reports 463 stage
-rows, 46 produced-inventory rows, 285 combat encounters, 177 resolver-ready
-combat encounters, 174 quests with item/tool blockers, and 120 quests with combat
-blockers.
-The generated combat parser/source-matching follow-up then made NPC name
-matching token-safe, added the safe `Poisonous Spider` -> `Poison Spider` alias,
-singularized plural source names only as whole tokens, and parsed level-prefixed
-rows such as `Lvl 2 Goblins`. Temple of Ikov's Guardians of Armadyl and
-Observatory Quest's Poisonous Spider are now resolver-ready from local source
-data. At that point, Dwarf Cannon's level-2 Goblins row carried the right
-display name and partial local 2011Scape source metadata, but remained blocked
-because the source uses ID-dependent attack/defence expressions.
-Post-slice audit reports 463 stage rows, 46 produced-inventory rows, 285 combat
-encounters, 179 resolver-ready combat encounters, 174 quests with item/tool
-blockers, 120 quests with combat blockers, and 106 statless combat rows.
-Dwarf Cannon then added thirteen source-backed noncombat gate rows plus a 14th
-completion state: Lawgof's railing grant, rail repairs, Lawgof report, Gilob's
-remains pickup and hand-in, goblin hideout route, Lollk rescue, toolkit
-production, cannon repair, Nulodion item grant and hand-in, and Lawgof's final
-recommendation. This removes the false live Goblins combat row, sets Dwarf
-Cannon's combat summary to `None.`, and registers the relevant quest item icons.
-A local Darkan quest-stage batch then replaced generated/broad rows
-for Fishing Contest, Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem,
-and Scorpion Catcher. It models fishing pass/fee/garlic/giant-carp/trophy
-transforms, Gertrude's milk/doogle/kittens flow, Clock Tower rat poison and
-cogs as quest-produced items before consumption, Monk's Friend blanket/Cedric
-supplies, Tribal Totem RPDT label/totem flow, and Scorpion Catcher scorpion cage
-plus the level 39 jailer combat gate.
-Sheep Herder then replaced the generated quick-guide row with Darkan-backed
-poisoned feed, Doctor Orbon clothing, cattleprod production, coloured sheep-bone
-production/incineration, and Councillor Halgrive report gates.
-Plague City and Waterfall Quest then replaced generated/broad rows with
-Darkan-backed stage chains for gas-mask production, Edmond sewer entry,
-Rehnison/Bravek prison access, hangover cure, warrant/key rescue, Baxtorian
-book, Golrie, Glarial's tomb items, rune/amulet waterfall completion, and
-pending Attack/Strength XP.
-Post-slice audit reports 519 stage rows, 68 produced-inventory rows, 285 combat
-encounters, 180 resolver-ready combat encounters, 174 quests with item/tool
-blockers, 120 quests with combat blockers, and 105 statless combat rows.
-Biohazard then added a 13-stage Darkan-backed chain for Jerico/Omart wall
-routing, Bird feed and Pigeon cage production/use, rotten-apple stew poisoning,
-Doctors' gown production, the level 13 Mourner, Distillator recovery, Elena's
-reagent vials, chemist Touch paper, errand-boy smuggling, Priest gown x2 for
-Guidor, and Elena/King Lathas reports. Heroes' Quest then replaced generated
-front-loaded proof rows with a 13-stage source-backed chain for Blamish oil,
-oily fishing rod, raw/cooked lava eel, Ice Queen/Ice gloves, Entrana Fire
-feather, Black Arm/Phoenix candlestick variants, Thieves' armband, and the
-final Achietties hand-in. The Ice Queen lair stays a route blocker rather than
-a forced Jailer combat row because the source allows alternate access.
-Family Crest then replaced generated front-loaded item/combat prose with a
-16-stage source-backed chain for Caleb's cooked fish, Avan's perfect-gold ruby
-jewellery, Boot/Witchaven perfect gold routing, Johnathon's antipoison,
-Chronozon's all-four-blast-spell combat, crest-piece combination, and the final
-Dimintheis hand-in. Temple of Ikov then replaced generated start-flattened item
-and combat prose with an 11-stage, 12-row source-backed chain for Lucien's
-pendant, light-source entry, web/Boots of lightness, lever and ice-arrow route,
-Fire Warrior bow/ammo combat, Winelda's 20 limpwurt-root teleport,
-Guardian/Lucien branch rows, Staff of Armadyl hand-in, Lucien combat, and Shiny
-key reward. Holy Grail and Tree Gnome Village then replaced generated broad rows
-with focused local Darkan stage chains: Holy Grail removes the false Brimhaven
-item, keeps Excalibur as the Black Knight Titan stage tool, produces and
-consumes Magic whistles/Holy grail at the correct stages, and stores Defence/
-Prayer XP as pending rewards; Tree Gnome Village consumes six normal logs,
-requires three tracker-coordinate actions, models two Khazard commander
-encounters plus the Khazard warlord, consumes the orb/orbs hand-ins, and keeps
-Spirit Tree access as an unlock rather than a bank reward. Post-Holy/Tree audit
-reports 577 stage rows, 104 produced-inventory rows, 286 combat encounters, 181
-resolver-ready combat encounters, 174 quests with
-item/tool blockers, 120 quests with combat blockers, and 105 statless combat
-rows.
-The final all-catalog pass then updated generated stage rows so every catalog
-quest has at least one source-backed current-stage gate, parser heading false
-positives are skipped, prefix combat quantities are preserved, Shilo Village's
-Nazastarool forms are split, Legends' Quest's Nezikchened quantity is sourced,
-The Feud has a Tough guy combat row, and Recipe for Disaster: Freeing Sir Amik
-Varze has a resolver-ready Black Dragon row. A quest-only item cleanup then
-ensured same-quest products are produced before later stage consumption for
-Cook's Assistant, Clock Tower, Monk's Friend, Sheep Herder, Biohazard, and Dwarf
-Cannon, with a regression invariant for the stage graph. A 2026-06-23 follow-up
-then fixed Shield of Arrav's Black Arm partner key handoff, removed
-parser-shaped pseudo-inventory/tool blockers from generated rows, made Rat
-Catchers produce rat poison from Hooknosed Jack's ingredients during the stage,
-represented Dwarf Cannon completion as an Ammo mould source for later gates,
-and removed the follow-up route/spell/quest-name/broad-checklist parser artifacts
-from inventory/tool fields.
-A later 2026-06-23 branch-choice pass added machine-readable `QuestDefinition`
-choices plus UI buttons for Shield of Arrav, Heroes' Quest, Temple of Ikov,
-Hazeel Cult, and The Void Stares Back. It keeps the single-player model
-contextual: Shield/Heroes no longer require manual partner key/co-op actions,
-Shield certificate merging consumes only the player's own route half, Heroes can
-inherit the Shield route, Hazeel no longer grants both side artifacts
-unconditionally, and started quests with unresolved choices block as
-`quest_choice` instead of silently progressing.
-Current audit output is 194/194 quests with stage requirements, 1,120 stage rows,
-121 produced-inventory rows, 288 combat encounters, 185 resolver-ready combat
-encounters, 174 quests with item/tool blockers, 190 quests with action blockers,
-32 quests with route blockers, 120 quests with combat blockers, and 103 statless
-combat rows.
-The source-backed start-only completion bug class is closed across the catalog:
-unfocused quests now stop on generated current-stage blockers instead of
-silently completing. Full minute-detail historical simulation, exact generated
-per-dialogue extraction, broader quest-item transformations, route flags,
-partner/branch state, puzzle state, broad combat stat enrichment, and full
-combat simulation remain future work; those gaps fail closed through blockers
-and are tracked in
-`memory-bank/source-audits/quest-all-catalog-stage-gate-final-2026-06-22.md`.
-The low-reasoning subagent audit's impossible-item and parser-pseudo-item cases
-are no longer live inventory blockers after the 2026-06-23 cleanup. Live sweeps
-now report zero same-quest products required before production, zero route/skill
-phrase blockers in inventory/tool fields, and zero literal quest-name blockers.
-Remaining minute-detail backlog is source replacement for generated broad rows
-and external/prerequisite item reclaim routes whose current-stage action
-blockers are intentionally coarse. Do not silently remove real source-backed
-item requirements just because acquisition is not implemented; convert only
-audited parser text, partner handoffs, or same-quest products into action,
-route, consumed, and produced stage data.
-
-User story: As a future quest implementer, I want quest unlock rules recorded in
-one auditable pattern, so adding Lost City, Swan Song, Tai Bwo Wannai Trio, and
-similar gates does not require scattered per-skill guesswork.
-
-Why now: Rune Mysteries proved a small Quest/Claim state model and revealed that
-some existing targets already need quest gates, while others are only
-location-route checks. Copying the wrong pattern would over-lock Cooking,
-Smithing, and future acquisition routes.
-
-Backend scope:
-
-- Start from `memory-bank/quest-unlock-audit-2026-06-17.md`.
-- Add quest definitions before adding gates.
-- Prefer a small quest-lock registry for completion gates.
-- Use `quest_completed_pure` for completion unlocks only.
-- Keep route/location gates and quest-stage recipes out of global target locks
-  until their state model exists, except when the current generic target
-  effectively represents the locked route.
-- First candidates: Rune Mysteries -> Mining `rune_essence`, per-altar
-  Runecrafting gates, Swan Song -> `catch_monkfish`, and Tai Bwo Wannai Trio ->
-  `catch_karambwan`.
-
-Frontend scope:
-
-- Surface quest lock reasons from backend target-row metadata after pure logic is
-  in place.
-- Preserve grouped Runecrafting row behavior while showing independent quest
-  locks for standard rune, tiara, and hood-feed rows.
-- Do not add bespoke route-gate UI; promoted route precedents should surface as
-  normal disabled rows with concise quest-name tooltips.
-
-Acceptance criteria:
-
-- Quest completion locks block and unblock the intended targets without changing
-  unrelated level/material/undo behavior.
-- Cooking range checks and Doric's anvil checks are not copied into global
-  Cooking or Smithing target locks.
-- Target rows show quest names clearly when locked.
-- Unit, integration, Qt, and manual smoke coverage prove at least one locked and
-  one unlocked path per migrated skill family.
-
-Legacy replacement prompt before the Witch's House full-stage replacement
-(superseded by the current prompt below):
-
-```text
-In the AnkiScape repo, do not redo the 2026-06-17 priority quest-lock registry pass, the full pre-EOC quest catalog, the 2026-06-19 Quests-tab availability filters, the 2026-06-22 The Knight's Sword stage-gate proof slice, the catalog-wide generated blocker pass, the no-stage closure pass, the first quest-combat resolver contract, the combat-quantity count slice, the historical-wiki remaining combat stat audit, the Priest in Peril full-stage replacement, the 2011Scape starter batch for Cook's Assistant, Imp Catcher, Druidic Ritual, Pirate's Treasure, and Vampyre Slayer, the 2011Scape intermediate batch for The Restless Ghost, Rune Mysteries, and Lost City, the Demon Slayer focused stage replacement, the early Darkan stage batch for Goblin Diplomacy, Ernest the Chicken, and Black Knights' Fortress, the Dragon Slayer focused stage replacement, the Shield of Arrav route-variant focused replacement, the Fight Arena focused stage replacement, Merlin's Crystal, Dwarf Cannon, the local noncombat Darkan batch, or the Sheep Herder focused stage replacement. `quest_catalog_generated.py` already contains 194 pre-EOC quest rows available before the 2012-11-20 EOC cutoff, with Recipe for Disaster split into separate subquests, generated by `tools/build_pre_eoc_quest_catalog.py`; Rune Mysteries, Lost City, Tai Bwo Wannai Trio, Mourning's End Part II, Swan Song, Lunar Diplomacy, Legacy of Seergaze, Shilo Village, Priest in Peril route-precedent rows, and The Fremennik Isles route-precedent rows are current gates. Runtime quest data now reports 194/194 quests with at least one machine-readable stage requirement, 501 stage rows, produced-inventory stage transitions, quest-start inventory grants, required-action blockers, route blockers, route-variant branch rows, grouped item-option blockers, globally locked combat blockers, and a resolver-enabled path that resolves one sourced enemy per Quest review via `quest_combat_encounter_counts` before writing legacy completed encounter ids. Current combat stat coverage is 180/285 rows after local 2011Scape-first, Darkan/2012scape exact name+level generator enrichment, identical duplicate-source acceptance, focused Jogre/Sea Troll Queen stats, area-specific Monk of Zamorak/Dad conflict resolution, the focused Witch's House four-form replacement, the style-aware magic/ranged resolver/generated rows for H.A.M. mage, The Void Stares Back Torcher/Defiler, The Elder Kiln TokHaar-Xil, the conservative Darkan `beasts.txt` fallback for TokTz-Ket-Dill's Lava monster plus Nomad's Requiem's Nomad, the no-`combatLevels`/level-aware Darkan beast-stat fallback for Chaos dwarf hand cannoneer, Caitlin, Pit scabarite, Forgotten mage, and Forgotten ranger, focused name-shape replacements for Heroes' Quest Entrana Fire Bird, Spirits of the Elid Black/White/Grey golems, Another Slice of H.A.M.'s H.A.M. ranger, A Soul's Bane's Fear/Confusion/Hopelessness/Tolna split, Death to the Dorgeshuun's Senior H.A.M. guard quantity row, Lost City's local Tree spirit stats, Demon Slayer's Delrith focused stage row, Dragon Slayer's focused Elvarg plus Melzar's Maze rows, Shield of Arrav's Jonny the beard plus Weaponsmaster route fights, Fight Arena's Bouncer stage row, and Scorpion Catcher's jailer stage row; 105 statless rows remain blocked and classified by `tools/audit_quest_combat_stat_gaps.py`, including Fight Arena's Khazard ogre and Khazard scorpion. `tools/audit_quest_historical_wiki_combat_stats.py` checked those remaining rows against pinned historical RuneScape Wiki monster pages and found metadata-only pages or no monster metadata, so LP/max-hit/style prose must not be merged as combat-ready stats. `tools/audit_quest_stage_gate_coverage.py` reports the current exact coverage/gap set. The Quests tab filters completed quests, unable-to-start quests, Access, Difficulty, Length, and Timeline via `quest_availability_state_pure()`, and started quests can now surface `blocked_at_stage` for machine-readable stage blockers. Only reopen this area for remaining minute-detail per-stage extraction, source reconciliation, route/location gates, quest-item transformations, unresolved branch/partner state beyond the current Shield variant model, new quest-unlocked skill targets, remaining combat stat enrichment from a new source class, full combat simulation, reward/journal generator corrections, or source corrections. Preserve strict quest starts, keep stage requirements separate from start locks, keep combat globally locked by default, keep no-stats combat rows blocked even when the resolver is enabled, keep unimplemented-skill XP in pending_skill_exp_rewards, split backend/frontend work explicitly, add targeted tests plus Qt/manual smoke coverage, update the Memory Bank, and commit.
-```
-
-Current replacement prompt:
-
-```text
-In the AnkiScape repo, do not redo the 2026-06-17 priority quest-lock registry
-pass, the full pre-EOC quest catalog, the 2026-06-19 Quests-tab availability
-filters, the 2026-06-22 The Knight's Sword stage-gate proof slice, the
-catalog-wide generated blocker pass, the no-stage closure pass, the first
-quest-combat resolver contract, the combat-quantity count slice, the
-historical-wiki remaining combat stat audit, the Priest in Peril full-stage
-replacement, the 2011Scape starter batch, the 2011Scape intermediate batch, the
-Demon Slayer focused stage replacement, the early Darkan stage batch, Dragon
-Slayer, Shield of Arrav, Fight Arena, Witch's House, Merlin's Crystal, the
-generated combat name-matching parser pass, or the Dwarf Cannon focused
-noncombat replacement, or the local Darkan batch for Fishing Contest,
-Gertrude's Cat, Clock Tower, Monk's Friend, Tribal Totem, and Scorpion
-Catcher, the Sheep Herder focused stage replacement, the Plague City and
-Waterfall Quest focused stage replacements, or the Biohazard focused stage
-replacement, the Heroes' Quest focused stage replacement, or the Family Crest
-focused stage replacement, the Temple of Ikov focused stage replacement, the
-Holy Grail/Tree Gnome Village focused stage replacement, the final all-catalog
-stage-gate pass, the quest-only item cleanup pass, or the branch/co-op choice
-pass for Shield of Arrav, Heroes' Quest, Temple of Ikov, Hazeel Cult, and The
-Void Stares Back. `quest_catalog_generated.py` already contains 194 pre-EOC
-quest rows available before the 2012-11-20 EOC cutoff, with Recipe for Disaster
-split into separate subquests, generated by `tools/build_pre_eoc_quest_catalog.py`.
-Runtime quest data now reports 194/194
-quests with at least one machine-readable stage requirement, 1,120 stage rows, 121
-produced-inventory transitions, quest-start inventory grants, required-action
-blockers, route blockers, route-variant branch rows, grouped item-option
-blockers, globally locked combat blockers, structured `quest_choice` route
-decisions, and a resolver-enabled path that resolves one sourced enemy per Quest
-review via `quest_combat_encounter_counts` before writing legacy completed
-encounter ids. Current combat stat coverage is
-185/288 resolver-ready rows; 103 statless rows remain blocked and classified by
-`tools/audit_quest_combat_stat_gaps.py`. `tools/audit_quest_historical_wiki_combat_stats.py` checked
-remaining rows against pinned historical RuneScape Wiki monster pages and found
-metadata-only pages or no monster metadata, so LP/max-hit/style prose must not
-be merged as combat-ready stats. `tools/audit_quest_stage_gate_coverage.py`
-reports the current exact coverage/gap set. The Quests tab filters completed
-quests, unable-to-start quests, Access, Difficulty, Length, and Timeline via
-`quest_availability_state_pure()`, and started quests can surface
-`blocked_at_stage` for machine-readable stage blockers and compact route-choice
-buttons. Only reopen this area
-for remaining minute-detail per-stage extraction, source reconciliation,
-route/location gates, quest-item transformations, finer per-side Hazeel/Void
-stage detail, new quest-unlocked skill targets,
-remaining combat stat enrichment from a new source class, full combat
-simulation, reward/journal generator corrections, or source corrections.
-Preserve strict quest starts, keep stage requirements separate from start locks,
-keep combat globally locked by default, keep no-stats combat rows blocked even
-when the resolver is enabled, keep unimplemented-skill XP in
-pending_skill_exp_rewards, split backend/frontend work explicitly, add targeted
-tests plus Qt/manual smoke coverage, update the Memory Bank, and commit.
-```
-
-### P1 - Utility And Activities Icon Set
-
-User story: As a player, I want Utility and Activities rows to have purpose-built icons, so non-XP support actions feel intentional instead of like second-class placeholders.
-
-Why now: Utility and Activities are already part of the active loop, but their presentation lags behind skill content. A small icon pass improves polish without reopening deferred acquisition systems.
-
-Backend scope:
-
-- Ensure Utility/Activities actions expose stable icon keys or item/category artwork paths.
-- Avoid turning this into new gameplay logic unless the icon contract requires a small metadata addition.
-- Record asset provenance in the Memory Bank or source audit notes.
-
-Frontend scope:
-
-- Add or wire icons for current Utility/Activities actions such as soft clay preparation, flax/wool gathering, nest opening, and related support rows.
-- Keep icons visually distinct from skill icons while matching existing asset style and size.
-- Add graceful fallbacks for missing icon paths.
-
-Acceptance criteria:
-
-- Utility/Activities rows resolve to their own icons in the UI.
-- Existing skill and item art remains unchanged.
-- Tests or lightweight verification cover the metadata path used by the UI.
-- Provenance is recorded for new art or source-derived assets.
-
-Status 2026-06-15: Complete. Existing Utility/Activities rows now carry a
-purpose-built `icon_path` contract backed by dedicated `activityicons/` PNGs
-for soft clay, wool, flax, and bird-nest opening. The Skills-hub target list
-prefers those activity icons and falls back to existing output-item art when an
-icon path is missing. No reward logic, storage shape, XP behavior, or new
-gameplay system changed. Asset provenance is recorded in
-`assets_provenance.json`; verification passed with `python3 run_tests.py` and
-`QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests`.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md as the source of truth. Work on P1: Utility and Activities icon set. Add a small, purpose-built icon contract and assets for existing Utility/Activities rows without adding new gameplay systems. Keep backend metadata and frontend display work explicitly split, verify the UI, update the Memory Bank, and commit the result.
-```
-
-### P2 - Feather Source For Fletching
-
-Status 2026-06-15: Complete. `Scavenge chicken feathers` is a no-input,
-no-XP Utility/Activities action that grants `28 Feather` per successful action.
-It is source-backed by the local 2011Scape Ranged instructor and chicken drop
-table, but deliberately omits Combat, shops, GE, bones, and raw chicken. See
-`memory-bank/source-audits/feather-utility-2026-06-15.md`.
-
-User story: As a Fletching player, I want a legitimate source for feathers, so arrow recipes can progress without seeded materials or a full economy feature.
-
-Why now: Fletching is functional, and Smithing already supplies arrowtips. Feathers are the remaining obvious arrow-making input gap.
-
-Backend scope:
-
-- Pick one intentionally narrow feather source. A Utility/Activities action is the smallest likely path.
-- Do not duplicate arrowtip acquisition, because Smithing already owns that loop.
-- Keep this separate from broader Crafting acquisition loops unless the user reprioritizes them.
-
-Frontend scope:
-
-- Surface the chosen feather source in Utility/Activities or wherever the backend action contract places it.
-- Reuse the Utility icon work if it already exists; otherwise add a simple specific icon path or fallback.
-
-Acceptance criteria:
-
-- Feathers can be acquired through one non-dev route.
-- Arrowtip production remains owned by Smithing.
-- Fletching recipe definitions do not need source hacks or free-material assumptions.
-- Undo/action multiplier behavior is tested if the source is an activity action.
-
-Future replacement prompt:
-
-```text
-In the AnkiScape repo, do not redo P2 feather sourcing. Feathers already have the temporary Utility/Activities bridge `Scavenge chicken feathers`. Only revisit feathers when Combat chicken drops or the Grand Exchange is explicitly in scope; then decide whether to keep, remove, or rebalance the bridge route.
-```
-
-### Completed - NPC Shops (Backend + Frontend + Economy Integration)
-
-User story: As a player, I want source-backed NPC shops, so tools, bait,
-materials, and shop-only rewards can enter play through authentic RuneScape
-interfaces instead of temporary Utility bridges.
-
-Status: Complete on 2026-07-06 through four passes: backend catalog, Qt Shop
-tab (browse-first navigation, uniform nearest-neighbor icons, 547-sprite
-backfill), price policy from Darkan cache inputs, and the shop-economy
-integration pass (bridges retired, coin loop closed with the
-`SHOP_PLAYER_SELL_PRICES` fallback + arbitrage clamp, tanning/sawmill as
-review-paced coin-paid Utility conversions, Molten glass recipe). See
-`memory-bank/npc-shop-frontend-handoff-2026-07-06.md`,
-`memory-bank/source-audits/coin-economy-audit-2026-07-06.md`, and
-`memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
-
-Follow-up executed 2026-07-07: the 17 shop-covered Cooking gather/scavenge
-bridges plus `buy_bucket` are retired (storage config 27 migrates stale
-`current_utility` saves). Bridges with no shop route stay: Wool, Flax, Grain,
-Mushrooms, Raw ugthanki meat, Lean/Fat snails, all cooking-prep processing,
-and the four coin conversions. Free food routes remain combat drops and
-Fishing. One recorded nuance: `scavenge_raw_yak_meat` carried a Fremennik
-Isles quest lock that the shop route does not (shops have no quest gates by
-design); the `cook_yak` Cooking rule keeps the gate on the XP action.
-
-Backend detail (historical): the source-backed catalog, pure transaction
-APIs, shared-stock state, market clock, undo-aware review snapshots, vendor
-actions, fixtures, audit ledger, storage migration, and tests are implemented.
-See `memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md`.
-
-Completed backend scope:
-
-- `tools/generate_npc_shop_data.py` emits `shop_data.py`, a machine-readable JSON
-  ledger, and the markdown audit from local Darkan shop JSON plus local
-  2011Scape item metadata.
-- `shop_logic.py` owns pure view/search/preview/apply/rollback APIs plus lazy
-  shared stock and the ten-answered-cards market clock.
-- `shop_fixtures.py` provides deterministic examples for normal stock, locked
-  rows, non-coin shops, hidden reward shops, shared stock, temporary player-sold
-  stock, services, vendor actions, history, and search.
-- Storage config version 25 seeds and migrates shop state.
-
-Frontend follow-up scope:
-
-- Add the Shop menu surface from the backend fixtures and pure APIs.
-- Show source-backed shop lists, stock rows, prices, owned Coins, buy and sell
-  flows, and lock reasons.
-- Keep temporary Utility bridges visible until the corresponding shop route is
-  implemented and intentionally replaced.
-
-Acceptance criteria:
-
-- Frontend work consumes `shop_fixtures.build_shop_frontend_fixtures()` and the
-  `shop_logic.py` view/preview/apply APIs.
-- Qt tests prove browse/search, locked/read-only rendering, live buy, general
-  store sell/player-sold stock, services/vendor actions, history, and hidden
-  reward-shop exclusion.
-- Manual frontend QA uses Pinchtab after the Shop surface exists.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, implement the frontend for NPC Shops using memory-bank/npc-shop-design-grill-2026-06-24.md, memory-bank/source-audits/npc-shop-backend-audit-2026-07-06.md, and memory-bank/npc-shop-frontend-handoff-2026-07-06.md. Do not redo the backend catalog or invent prices/lock reasons in Qt. Build the Shop surface from shop_logic.py and shop_fixtures.py, add targeted Qt tests, run python3 run_tests.py and QT_QPA_PLATFORM=offscreen .venv-qt/bin/python -m unittest discover tests, then use Pinchtab for manual frontend QA.
-```
-
-### P3 - Grand Exchange V1 Candidate
-
-User story: As a normal-mode player, I want optional market access for tradable items, so missing acquisition loops can be softened without forcing every source chain to be implemented first.
-
-Why later: The design is useful, but the current priority is architecture debt and small polish. GE should not crowd out existing-skill cleanup unless the owner explicitly moves it up.
-
-Backend-first scope:
-
-- Use `memory-bank/fake-grand-exchange-design.md`; do not re-grill the core design unless requirements change.
-- Keep v1 local-only and deterministic.
-- Implement tradability metadata, coins, offer storage, matching/tick behavior, and tests before frontend work.
-- Avoid recipe-aware bulk buying and other economy conveniences in v1.
-
-Frontend follow-up scope:
-
-- Add a top-level GE section only after backend contracts are real.
-- Include search, buy/sell offer creation, offer status, collect, and cancel flows.
-- Keep Bankstanding as a Utility activity only if the backend needs it.
-
-Acceptance criteria:
-
-- GE behavior follows the parked design file.
-- Backend tests prove offer creation, matching, cancellation, collection, persistence, and tick behavior.
-- Frontend work starts from a backend contract note, not guesswork.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, use memory-bank/future-work-kanban.md and memory-bank/fake-grand-exchange-design.md. Work on P3 only if the owner has explicitly reprioritized the Grand Exchange. Implement backend first: tradability metadata, coins, local offer matching, storage, ticks, and tests. Do not build recipe-aware buying. Leave a frontend handoff note before any UI thread starts.
-```
-
-### Parked - Crafting Dependency-Heavy Acquisition Loops
-
-User story: As a player, I eventually want Crafting inputs to come from real source chains, but those chains should wait until their supporting systems are worth implementing.
-
-Status 2026-07-06: Largely unlocked by the shop-economy integration pass —
-see `memory-bank/source-audits/shop-supplied-crafting-unlock-audit-2026-07-06.md`.
-Uncut gems, silver bars, battlestaves, wool/jute/hair, and elemental runes are
-live shop stock; Leather/Hard leather come from the `tan_soft_leather` /
-`tan_hard_leather` coin-paid Utility conversions; Molten glass is a
-source-backed furnace recipe (`glass_molten_glass`) fed by shop-bought Soda
-ash and Buckets of sand.
-
-Still parked:
-
-- Dragonstone and onyx supply.
-- Dragonhide drops and dragon-leather tanning (dhide bodies stay inert).
-- Battlestaff orbs (obelisk charging belongs to future Magic design).
-- Any broader acquisition loop that mainly exists to support Crafting completeness.
-
-Move out of parked only when:
-
-- The owner explicitly reprioritizes the loop.
-- A new skill makes the loop naturally useful.
-- The GE implementation needs a specific tradable input classification.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, do not work on Crafting dependency-heavy acquisition loops unless the owner explicitly reprioritizes them. If reprioritized, start from memory-bank/source-audits/crafting-2011scape-2026-06-03.md, keep the scope to one source chain, and avoid broad economy or drop-table work.
-```
-
-### Parked - Mining And Woodcutting Special Content
-
-User story: As a player, I eventually want special skilling content, but it should land after the supporting systems exist.
-
-Parked examples:
-
-- Mining concentrated coal/gold.
-- Mining gem-rock Ring of wealth bonus.
-- Shooting Stars.
-- Woodcutting Inferno adze.
-- Bird nest downstream uses that require Farming, Herblore, or broader loot systems.
-
-Move out of parked only when:
-
-- The owner explicitly reprioritizes special content.
-- A supporting system such as Magic, Firemaking, Farming, Herblore, or a special reward framework is already in place.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, keep Mining and Woodcutting special content parked unless the owner explicitly reprioritizes it. If reprioritized, start from the relevant source audit in memory-bank/source-audits/ and implement one narrow special-content slice with tests and provenance notes.
-```
-
-## Completed - Firemaking V1
-
-Status 2026-06-16: Complete. Firemaking is a current Artisan review skill with
-13 local-2011Scape burnable targets, stable `current_firemaking` IDs, source XP,
-success-only log consumption, `Ashes x1`, storage config version 12, achievements,
-assets, and Skills hub/Stats/Bank/HUD support. See
-`memory-bank/source-audits/firemaking-2011scape-2026-06-16.md`.
-
-Bonfires and fire spirits are technically pre-EOC, but intentionally deferred
-because they are a separate 2012 training method and reward system rather than
-ordinary line-lighting behavior.
-
-Future thread prompt:
-
-```text
-In the AnkiScape repo, do not redo Firemaking v1. It is already implemented as a current Artisan skill. Only revisit Firemaking if the owner explicitly asks for a follow-up such as bonfires/fire spirits; if so, treat that as a separate 2012 pre-EOC extension with its own batch-log, XP-bonus, fire-spirit reward, Cooking boost, warmth/temporary-health, multiplier, undo, UI, tests, and Memory Bank plan.
-```
-
-## Completed - Fishing V1
-
-Status 2026-06-16: Complete. Fishing is a current Gathering review skill with
-15 local-2011Scape `FishingSpot.kt` behaviors, stable `current_fishing` IDs,
-source XP/chance rows, ordered mixed-output rolls, material use only on catch,
-hidden Strength/Agility side XP for Barbarian fish, generic Fishing
-achievements, fish/material assets, and Skills hub/Stats/Bank/HUD support. See
-`memory-bank/source-audits/fishing-2011scape-2026-06-16.md`.
-
-The 2011 snapshot-to-pre-EOC wiki check found no missing ordinary catch method
-for this v1. Stone fish is quest-only, Fish Flingers is a D&D/reward surface,
-Depth Charge Fishing is cosmetic, and Dungeoneering fish/Fishing Trawler are
-older nonstandard systems. Treat all of those as separate future slices rather
-than Fishing v1 gaps.
-
-Future replacement prompt:
-
-```text
-In the AnkiScape repo, do not redo Fishing v1. It already implements local 2011Scape ordinary FishingSpot methods with source-backed data, assets, Utility fishing bait, undo-safe review handling, and Qt coverage. Only revisit Fishing if explicitly working on Dungeoneering fish, Fishing Trawler, quest-only fish, Fish Flingers, or real shop/GE material sourcing.
-```
-
-## Completed - Runecrafting V1
-
-Status 2026-06-17: Complete. Runecrafting is a current Artisan review skill
-with 61 local-2011Scape-backed targets, stable `current_runecrafting` IDs,
-standard runes, combination runes, tiara binding, Wicked hood feeding, pouch
-capacity/degradation, Binding necklace charge counters, generic achievements,
-runecrafting assets, and Skills hub/Stats/Bank/HUD support. Rune Mysteries is a
-review-driven Quest action, not a fake XP skill, and the Wicked hood is a
-one-time Bank Claim after Rune Mysteries plus Runecrafting level 5. See
-`memory-bank/source-audits/runecrafting-2011scape-2026-06-17.md`.
-
-Magic Imbue, Wicked hood daily essence/runes/teleports/reclaim, Abyss routing
-and abyssal creatures, talisman sourcing, and broader rune economy routes are
-deferred system slices. Treat those as follow-ups rather than Runecrafting v1
-gaps.
-
-Future replacement prompt:
-
-```text
-In the AnkiScape repo, do not redo Runecrafting v1. It already implements local 2011Scape standard/combo/tiara Runecrafting, Rune Mysteries quest unlock, Wicked hood claim/feed access, Binding necklace charges, pouches, assets, undo-safe review handling, and Qt coverage. Only revisit Runecrafting if explicitly working on Magic Imbue, Wicked hood daily resources/teleports/reclaim, Abyss routing/abyssal creatures, talisman sourcing, or broader rune economy routes.
-```
+# AnkiScape Completion Kanban
+
+Status: audited 2026-07-10. This is the canonical forward-work board. Detailed skill and program evidence lives in `memory-bank/completion-audit-2026-07-10.md` and `memory-bank/completion-audit.json`; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
+
+## Label contract
+
+- `DEEP GRILL`: owner-facing loop/UI/abstraction decisions remain.
+- `SOURCE AUDIT`: design is settled, but pre-cutoff mechanics or values are incomplete/conflicting.
+- `WAIT: DARKAN`: a stable high-fidelity restoration would materially reduce hidden-server guesswork; historical reconciliation still applies.
+- `IMPLEMENT`: design and evidence are sufficient for a bounded backend/frontend/assets/tests slice.
+- `DEPENDENCY`: another skill, activity, acquisition route, or economy surface must land first.
+- `PARKED`: deliberately sequenced later, not forgotten.
+- `EXCLUDED`: outside the product/cutoff boundary.
+
+## Now — audit-backed implementation and source work
+
+### Existing-skill parity ledger
+
+Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
+
+- Continue from `memory-bank/gap-backlog.json`; do not reconstruct merged cards or re-grill settled branches.
+- Current detailed state: 22 merged, 12 design-settled/source-waiting, four split-scope, one Farming seed, one pending verification, one partially reopened/source-waiting, and two exclusions.
+- The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
+- Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
+- Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.
+- Assets acceptance: period-appropriate art, explicit `--source rs3` where applicable, provenance, and path tests.
+
+### Reconcile partial Combat skills with the skill ledger
+
+Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN` for hidden enemy/equipment behavior.
+
+- Attack, Strength, Defence, Constitution, Ranged, and Magic already gain real XP in Combat but remain `implemented=False` in `skill_registry.py` because their independent skill surfaces are incomplete.
+- Keep unified Combat selection; do not add six competing hub rows merely to make the registry count look complete.
+- Add a truthful status/registry contract once the distinction between “trainable through Combat” and “complete skill surface” is represented.
+- Continue weapon/ammo/spell/equipment/enemy breadth under `memory-bank/combat-design-grill-2026-06-23.md` rather than reopening the Combat loop design.
+
+## Deep-grill queue — missing or incomplete skill surfaces
+
+Each skill receives its own grill before implementation. Source-shaped facts should be resolved autonomously; grill only materially different AnkiScape choices.
+
+### Prayer — resume, do not restart
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Continue `memory-bank/ankiscape-skill-expansion.md` from its existing decisions.
+- Resolve remaining uptime policy, Ancient Curses translation, altar/Ectofuntus friction, Wilderness risk, Rapid Restore cadence, Shades integration, and UI placement.
+- Darkan is preferred for altar/curse/server-state behavior absent from the 2011 baseline.
+
+### Magic — full skill continuation
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Preserve the live standard combat spell ladder.
+- Grill noncombat spells, spellbook switching, enchantment, alchemy, charge/orb actions, abstracted travel-dependent spells, skilling interactions, target organization, runes/loadouts, and undo.
+
+### Farming
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Decide patch abstraction, review-clock growth, disease/death/protection, compost, payments, yields, tools/seeds, patch grouping, banking, and UI.
+- Absorb `hunter-habitat-jadinko` only after the core Farming contract exists.
+
+### Construction
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Design a no-world-map POH surface for rooms, hotspots, furniture, build/remove actions, servants, storage, house services, materials, and Prayer/Farming dependencies.
+
+### Agility
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Abstract courses as checkpoint/lap state without player location; decide failures/damage, tickets/rewards, run-energy benefits, shortcuts as dependency gates, equipment, and UI.
+
+### Thieving
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Cover pickpockets, stalls, chests, doors, success/stun/damage, loot tables, blackjacking/gloves, inventory/banking, quest gates, and target families.
+
+### Slayer
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT`.
+
+- Reuse existing enemy Slayer metadata; add masters, assignment pools, XP, task progress, points/streaks, skips/blocks, reward shop, task-only targets, protection items, and Combat UI.
+
+### Summoning
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: COMBAT/ACQUISITION`.
+
+- Cover charms/secondaries, pouch creation, points, familiars, timers, specials, beasts of burden, combat roles, death, inventory, banking, UI, and undo.
+
+### Dungeoneering
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: ALL SKILLS/COMBAT`.
+
+- Define floor/session generation, solo/party abstraction, rooms, doors, keys, skill checks, combat, deaths, binds, complexity/prestige, tokens/rewards, dungeon-only items, persistence, and resumability.
+
+## Wait for a stable Darkan restoration milestone
+
+The local checkout was observed on `dev` at `55a7afa29`, 256 commits ahead of `origin/dev`, during an active restoration series. Treat it as moving research input until a stable milestone exists.
+
+### 194-quest fidelity program
+
+Labels: `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- The catalog and stage-gate engine are scaffolding, not completion.
+- Re-audit authentic stages, branches, items/transformations, combat, rewards, journals, unlocks, and missing-skill gates for every quest.
+- Wait for Darkan where historical sources cannot prove hidden transitions or combat definitions; never fill gaps from modern RS3/OSRS.
+
+### Large special methods and activities
+
+Labels: `WAIT: DARKAN`, `SOURCE AUDIT`; add `DEEP GRILL` when activity flow is not already settled.
+
+- Highest-value waits: Runespan; Bonfires/fire spirits; Artisan's Workshop; Blast Furnace/Goldsmith; Shooting Stars/LRC; Fish Flingers/Trawler; Great Orb Project; complex pyres/beacons; Gnome Restaurant; Hunter tracking/pitfall/snaring; Habitat/Jadinkos.
+- Darkan should supply hidden state machines, rolls, currencies, and reward logic; period wiki/cache evidence still establishes cutoff and client identity.
+
+### Missing skill server behavior
+
+Labels: `WAIT: DARKAN`, after each `DEEP GRILL`.
+
+- Prefer stable restored mechanics for Farming growth/yields/disease, Construction hotspots/furniture/services, Agility failures/courses, Thieving success/stun/loot, Slayer assignment/reward pools, Summoning familiar behavior, Dungeoneering floors/rooms, and Prayer/Magic hidden state.
+
+## Cross-system program queue
+
+### Activities, minigames, D&Ds, and reward shops
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Platform seed: `memory-bank/minigames-activities-design-seed.md`.
+- Grill each family separately for entry/run state, review cost, event variance, currency, rewards, reward shop, persistence, expiry, and undo.
+- Include the split activity cards from `gap-backlog.json`, bosses/instances, and wider pre-EOC reward activities. Never expose individual reward stubs before they work end to end.
+
+### Bosses and instanced Combat
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
+
+- Fight Caves/Kiln, Barrows, God Wars, Corporeal Beast, Nex, quest bosses, and minigame enemies need authentic context and cannot become ordinary farm-target rows.
+
+### Acquisition and item/equipment completeness
+
+Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
+
+- Audit every live-but-unobtainable material against authentic drops, ground spawns, shops, claims, quests, skills, activities, and transformations.
+- Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
+
+### Achievement diaries, clues, collections, and one-time content
+
+Labels: `DEEP GRILL`, `SOURCE AUDIT`, `WAIT: DARKAN` where server state is hidden.
+
+- Build from generic achievements and Bank Claims; add diary regions/tasks/rewards, clue step/casket state, collection tracking, one-time rewards, and their UI/undo contracts.
+
+### Random events and timed world content
+
+Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+
+- Use the global 240-reviews-per-day clock for world/economy cadence only.
+- Decide visibility, opt-in/interrupt behavior, expiry, missed events, rewards, persistence, and undo without adding a world map.
+
+## Parked sequencing gates
+
+### Grand Exchange
+
+Labels: `PARKED`, `DEPENDENCY: SKILL/ITEM BREADTH`.
+
+- Core design is locked in `memory-bank/fake-grand-exchange-design.md`; do not re-grill it.
+- NPC shops are already live. Implement the GE after the skill/item universe is representative enough that prices, limits, and acquisition softness are meaningful.
+
+### Level 1-99 time and economy balance
+
+Labels: `PARKED`, `DEPENDENCY: ALL SKILLS/MAJOR METHODS`.
+
+- Preserve source base XP now.
+- After content breadth stabilizes, derive ordinary-efficient 2012 training-guide XP/hour envelopes and tune Anki pacing separately.
+
+### Release readiness
+
+Labels: `PARKED` until feature closure, then `IMPLEMENT`.
+
+- Migration fixtures, manual Anki review QA, performance/accessibility, packaging/license audit, export/recovery, documentation, and personal-fork versus public-release scope.
+
+## Explicitly excluded
+
+- `EXCLUDED`: standalone transportation systems, persistent world map/player location, canoes, hot-air balloons, lodestones, and comparable transport-only content.
+- `EXCLUDED`: post-cutoff and OSRS-only mechanics without independent pre-EOC proof; `fletch-javelin-construction` is the canonical rejected false positive.
+- `EXCLUDED`: visible inert target/reward rows that cannot function end to end.
+- `EXCLUDED`: wall-clock minutes for ordinary skilling actions; the card clock governs background/world/economy cadence only.
+
+## Definition of done for any card
+
+- Backend: pinned source audit, data, pure mechanics, storage/migration, runtime dispatch, inventory/acquisition, telemetry, undo, and focused tests.
+- Frontend: shared target metadata, target UI, authentic locks, settings/equipment/inventory state, Bank/Stats/HUD/achievement effects, and Qt tests.
+- Assets: item/target/material art, provenance, registry coverage, and existence tests.
+- Balance: source base values preserved; Anki pacing isolated and documented.
+- Verification: focused unit/integration/end-to-end coverage, full `python3 run_tests.py`, full offscreen Qt suite when UI exists, and manual Anki instructions.
+- Memory: update this board and the detailed audit; preserve historical source audits instead of rewriting them as current status.

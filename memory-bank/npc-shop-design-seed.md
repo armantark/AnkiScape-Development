@@ -1,6 +1,8 @@
 # NPC Shop Design Seed
 
-Status: captured 2026-06-20, not implemented.
+Status: historical seed captured 2026-06-20. NPC Shops were implemented end to
+end on 2026-07-06; this file preserves the original intent, while current
+behavior is documented in the source audits and canonical completion Kanban.
 
 This is a separate economy surface from the parked fake Grand Exchange. The GE
 is a local market simulation for tradable items; NPC shops are source-backed
@@ -76,10 +78,8 @@ These are not settled yet and should be grilled before implementation:
   supply shops, or should it begin with a broad shop registry import even if many
   rows are initially inaccessible/unneeded?
 
-## Current Relationship To Hunter
+## Resolved Relationship To Hunter
 
-`Buy Hunter supplies` is a temporary one-shot Utility/Activities bridge. It uses
-source-backed shop stock for a starter/restock bundle, but it is not the final
-shop system. When NPC shops exist, Hunter tools and jars should come from real
-shops where possible, and the temporary bridge should be kept, removed, or
-rebalanced deliberately.
+Hunter tools and jars now come from live NPC shops. The temporary one-shot
+`Buy Hunter supplies` Utility/Activities bridge was retired and must not be
+re-added.

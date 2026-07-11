@@ -2,7 +2,11 @@
 
 Date: 2026-07-06
 
-Backend status: complete for the first source-backed NPC shop contract. The frontend should build the Shop surface from the backend modules below rather than inventing prices, stock behavior, or lock states.
+Status update: historical handoff, now completed. The Shop frontend, economy
+integration, and follow-up bridge retirement shipped on 2026-07-06/07. Keep the
+contracts below as implementation history; do not treat them as pending work.
+
+Backend status at handoff: complete for the first source-backed NPC shop contract. The frontend was subsequently built from the modules below without inventing prices, stock behavior, or lock states.
 
 ## Backend Modules
 

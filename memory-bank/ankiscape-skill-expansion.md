@@ -1,15 +1,16 @@
 # AnkiScape Skill Expansion
 
-Umbrella design doc for post-Herblore skill work. Current active thread: **Prayer**.
-Older completed skill-expansion threads (Firemaking, Fishing, Runecrafting, Hunter,
-Herblore) are recorded in `progress.md` and the `future-work-kanban.md`; this file
-is the working design surface for the skill currently being grilled and built.
+Focused continuation document for the partially completed **Prayer** deep grill.
+It is not the global post-Herblore roadmap; that role now belongs to
+`completion-audit-2026-07-10.md` and `future-work-kanban.md`.
 
-Status: seeded 2026-07-09, mid-grill (design not yet locked).
+Status: parked mid-grill on 2026-07-09 and audited 2026-07-10. Resume from the
+settled decisions and open questions below; do not restart the Prayer design or
+treat the tentative open values as implementation-ready.
 
 ---
 
-## Active thread: Prayer
+## Parked continuation: Prayer
 
 ### Framing
 Prayer is really two separable features wearing one name:
@@ -136,7 +137,8 @@ model dependency-gated ones with the owner's friction abstractions:
 - Where training lives in the UI (dedicated Prayer skill action vs Utility hub),
   and how the many methods are presented without clutter.
 
-### Cross-cutting (from the same decision)
-- A completeness audit of the 11 shipped skilling skills is running (GPT-5.6-terra)
-  to find authentic pre-EOC content game-main stubbed or AnkiScape failed to
-  transcribe. Fold its master gap list in when it lands.
+### Cross-cutting status
+
+The eleven-skill completeness audit is no longer running. Its settled results
+live in `gap-backlog.json`, `gap-grill-decisions-2026-07-10.md`, and the new
+project-wide `completion-audit.json`. Prayer remains a separate deep-grill card.

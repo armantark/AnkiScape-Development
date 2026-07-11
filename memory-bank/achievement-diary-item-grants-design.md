@@ -2,7 +2,9 @@
 
 ## Status
 
-Stub only. This is a future design thread, not part of the Mining parity backend pass.
+Stub only. This remains a future deep-grill program tracked in
+`memory-bank/future-work-kanban.md`; it is not an implementation-ready Mining
+or achievement specification.
 
 ## Seed Idea
 
