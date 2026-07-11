@@ -41,6 +41,11 @@ Use this skill before planning or implementing a skill expansion. The goal is to
   XP. Abstract necessary travel inside the target or activity that needs it;
   travel friction may remain an internal action phase without becoming a map or
   a selectable transport network.
+- Location-dependent target variants may use a target-local checkbox when the
+  location changes gameplay rather than merely providing transport. The first
+  contract is `Train in Wilderness`: it abstracts Wilderness presence for that
+  target's sourced risk, reward, and equipment effects without creating global
+  player-location state or a map.
 - Do not grill the owner on facts or behavior already determined by pinned
   period evidence and settled AnkiScape rules. Resolve and document those
   autonomously, batching routine source-shaped decisions. Ask only when two or

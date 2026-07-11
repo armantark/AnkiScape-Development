@@ -963,3 +963,55 @@ Decision status: rejected from product scope.
   altar runs, beacon routes, and similar loops. Those systems may represent
   travel as an internal abstract action phase because it changes the activity's
   pacing; they must not grow into a general map or transport network.
+
+## Cross-skill: Crafting and Fletching Potions
+
+Backlog id: `artisan-skill-potion-runtime`
+
+Decision status: design settled from the existing potion and inventory rules;
+review-scale stat-restoration cadence remains source/balance-blocked.
+
+- Give each Crafting and Fletching target its saved `Use potions` checkbox. A
+  checked target may drink the matching potion from its actual carried layout;
+  it cannot synthesize a dose or reach into the bank during an action.
+- The emulator's Crafting and Fletching potions raise current level by exactly
+  three. Boosted current level counts for row selectability and action gates;
+  base level and XP remain unchanged.
+- Auto-drink only when the selected recipe is above base level but reachable at
+  the current potion cap. Re-dose only when natural decay would otherwise block
+  the next action. There is no output or XP benefit to wasting doses while the
+  target is already available at base level.
+- Persist temporary current levels and remaining doses. Drinking, dose-item
+  replacement, decay, target selection, produced items, XP, and any re-dose all
+  participate in the triggering review's undo snapshot.
+- The reconstruction restores temporary stats one point every 100 game ticks.
+  Do not translate that through the ten-cards-per-game-hour economy clock, which
+  would expire a short boost before AnkiScape could perform the enabled action.
+  The later pacing pass must calibrate a review-action cadence separately.
+
+## Cross-skill: Brawling Gloves and Wilderness Variants
+
+Backlog id: `skilling-brawling-gloves-runtime`
+
+Decision status: owner design settled; exact period values, acquisition, and
+Wilderness-risk cadence await reconciled evidence.
+
+- Add a saved `Train in Wilderness` checkbox to every source-supported Mining,
+  Smithing, Woodcutting, Fishing, Cooking, and Firemaking target. Checking it
+  selects that target's abstract Wilderness variant; it does not move the
+  player, create a map, or persist a global location.
+- Brawling gloves remain real equipped items in the glove slot. The checkbox
+  neither creates nor equips them. A matching charged pair applies the sourced
+  Wilderness multiplier when checked and the sourced non-Wilderness multiplier
+  otherwise; each XP-awarding action consumes one charge and the item
+  disintegrates at zero.
+- The reconstruction currently specifies skill-specific maximum charges,
+  level-scaled initial charges, 4x or 5x Wilderness multipliers by skill, and a
+  1.5x non-Wilderness multiplier. Preserve those as leads, not final historical
+  truth, until pinned pre-EOC evidence or high-fidelity Darkan corroborates them.
+- A checked target uses the shared carried-layout, HP, food, bank-run, death,
+  and undo systems. Wilderness XP must not become a risk-free checkbox bonus;
+  the exact encounter/risk cadence is part of the later Combat/location source
+  reconciliation.
+- Implement this as one shared equipment-charge and XP-multiplier contract, not
+  six unrelated skill-specific systems.

@@ -989,22 +989,38 @@
       "rank": 38,
       "skill": "Cross-skill",
       "root_cause": "stub",
-      "status": "needs_grill",
+      "status": "design_settled_waiting_source",
       "title": "Define noncombat Crafting and Fletching potion boosts",
       "detail": "game-main live-binds Crafting and Fletching potions as exact +3 current-level boosts across all four dose variants. AnkiScape has no noncombat temporary-level/decay state and its Crafting/Fletching gates read base levels; the only existing decay state is combat-scoped. Owner must define current-level persistence, decay cadence, UI, save/undo behavior, and whether boosted levels unlock review targets without touching Combat implementation. Keep both skills together because they share the same missing runtime contract.",
       "source": "game-main:content/items/potions/PotionType.kt:90-98,282-317; Potion.kt:158-178; Potions.kt:24-68; potionDrinking.plugin.kts:3-8",
-      "note": "live source data exists, but the noncombat temporary-level contract is an owner design decision; do not auto-build"
+      "note": "design settled 2026-07-10 from the existing target-local Use potions contract; exact review-scale stat-restoration cadence waits for period/source reconciliation",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#cross-skill-crafting-and-fletching-potions",
+      "decision_summary": {
+        "controls": "Give each Crafting and Fletching target its saved Use potions checkbox; the control authorizes consumption but never creates supplies or bypasses the target's carried layout.",
+        "auto_use": "Consume a dose only when the selected recipe is unavailable at base level but available under the sourced +3 boost, then re-dose only when decay would block the next action.",
+        "boosted_gates": "Current boosted level counts for target selectability and action gates while base level remains unchanged.",
+        "state": "Persist current temporary levels and remaining potion doses and include drinking, decay, inventory replacement, selection state, and XP in review undo.",
+        "source_boundary": "Do not map the source 100-tick stat-restoration timer directly to the market clock; calibrate its review-action cadence later without making a dose expire before it can enable an action."
+      }
     },
     {
       "id": "skilling-brawling-gloves-runtime",
       "rank": 39,
       "skill": "Cross-skill",
       "root_cause": "stub",
-      "status": "needs_grill",
+      "status": "design_settled_waiting_source",
       "title": "Define skilling brawling-gloves charges and location bonuses",
       "detail": "game-main live-binds charged, location-sensitive XP multipliers for Mining, Smithing, Woodcutting, Fishing, Cooking, and Firemaking, with per-skill charge caps and glove disintegration. AnkiScape has no faithful Wilderness/location semantics or skilling equipment-charge lifecycle. Owner must define location mapping, acquisition/equipment behavior, charge persistence, multiplier application, UI, and undo without expanding Combat or Prayer. Treat this as one shared runtime design to avoid redundant per-skill implementations.",
       "source": "game-main:content/items/armor/BrawlingGloves.kt:6-21; plugins/api/ext/PlayerExt.kt:1877-1913; live skill call sites",
-      "note": "combined fresh-audit finding across six shipped skills; game-main is live but faithful review-action mapping requires owner design"
+      "note": "target-local Wilderness checkbox design settled by owner 2026-07-10; exact period multipliers, initial-charge formula, acquisition, and risk cadence still require reconciled evidence",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#cross-skill-brawling-gloves-and-wilderness-variants",
+      "decision_summary": {
+        "wilderness_control": "Every source-supported skilling target gets a saved Train in Wilderness checkbox; checked means the action uses the Wilderness variant without creating a map or persistent location.",
+        "glove_use": "Matching brawling gloves must be equipped and charged. Each XP-awarding action consumes one charge, applies the sourced Wilderness or non-Wilderness multiplier, and disintegrates the gloves at zero.",
+        "risk": "The checked Wilderness variant uses the shared target-local carried inventory, HP, food, death, banking, and undo contracts; it never grants risk-free bonus XP.",
+        "scope": "Use one shared cross-skill runtime for Mining, Smithing, Woodcutting, Fishing, Cooking, and Firemaking rather than six bespoke implementations.",
+        "source_boundary": "Treat game-main values as reconstruction evidence until pinned pre-EOC evidence or high-fidelity Darkan corroborates multipliers, charges, acquisition, and Wilderness danger cadence."
+      }
     },
     {
       "id": "rc-single-essence-trip-selection",
