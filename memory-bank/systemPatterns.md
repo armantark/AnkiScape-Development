@@ -70,6 +70,16 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   selected target's sourced danger, reward multiplier, equipment charges, and
   death/undo behavior; it does not move the player or establish global location
   state.
+- Source-equivalent alternate tools do not create duplicate training rows. One
+  target owns a saved tool option when the alternate has a meaningful unlock or
+  requirement; Casual uses the ordinary tool when the alternate provides no
+  benefit. Target-specific skilling equipment likewise modifies the existing
+  target: Casual may auto-equip owned beneficial gear, while Advanced obeys the
+  target's saved equipment choice.
+- Manual NPC/item transformations that award no skill XP and consume no game
+  action do not spend a review. They use an inventory/equipment context action,
+  enforce their quest/item/coin requirements, persist the transformation, and
+  enter the same undo-safe save contract as other non-review inventory changes.
 - Utility/Activities are backend actions, not skills. They use stable activity IDs in `UTILITY_ACTIVITY_DATA`, mutate inventory through pure helpers, award zero skill XP, and can batch up to an inventory-sized cap when they represent fast material preparation.
 - Utility/Activities can also represent one-shot acquisition bridges while the full shop/GE interface is deferred. These activities declare an `outputs` mapping instead of a single `output_item`, can set `deactivate_after_run = True`, and the runtime switches AnkiScape off after the successful review so the action multiplier cannot repeat the purchase inside the same card.
 - Utility/Activities should stay outside `skill_registry.py` unless they gain real level/XP semantics. Runtime dispatch handles them through `action_registry.py` and the handler key `utility`, while the UI may still surface them as a synthetic Skills-hub category.

@@ -1015,3 +1015,83 @@ Wilderness-risk cadence await reconciled evidence.
   reconciliation.
 - Implement this as one shared equipment-charge and XP-multiplier contract, not
   six unrelated skill-specific systems.
+
+## Firemaking: Barbarian Bow-lighting
+
+Backlog id: `fm-barbarian-bow-lighting`
+
+Decision status: bow-lighting behavior settled; its permanent unlock moves to
+the future Barbarian Training miniquest/activity pass.
+
+### Period Facts
+
+- `Barbarian Training` oldid 6476330 (2012-10-26) requires level 35
+  Firemaking to learn the method from Otto and describes using a strung wooden
+  bow on an oak log. The emulator dialogue sets a persistent
+  `learnedBarbarianFiremaking` flag when Otto gives the instruction.
+- The period page states that bow-lighting has no inherent advantage over a
+  tinderbox and starts fires at the same speed. It supplies the complete
+  per-log bow-lighting level/XP table: normal and achey 21/40, oak 35/60,
+  willow 50/90, teak 55/105, arctic pine 62/125, maple 65/135, mahogany
+  70/157.5, eucalyptus 78/193.5, yew 80/202.5, and magic 95/303.8.
+- Dark, Crystal, Sacred clay, Boogie, Quickbow, and Ogre-family bows do not
+  work. The method requires a strung bow made from wood.
+
+### AnkiScape Representation
+
+- Do not create a second set of Firemaking targets. After the unlock, existing
+  eligible log targets expose a saved `Light with bow` option. The option uses
+  the source's bow-specific level requirement, requires an eligible strung bow,
+  consumes one log, and awards the ordinary log's XP and result.
+- Casual always uses the ambient/toolbelt tinderbox because the alternative is
+  source-confirmed to offer no speed, XP, output, or success advantage.
+  Advanced may opt into bow-lighting for a target as a preference or carried-
+  equipment constraint.
+- The future Barbarian Training miniquest/activity dialogue owns the permanent
+  learned flag. Do not fake the unlock through bow ownership or add a separate
+  XP-bearing `learn bow-lighting` target; the first actual bow-lit log remains
+  an ordinary Firemaking action.
+
+## Cooking: Cooking Gauntlets
+
+Backlog id: `cook-cooking-gauntlets-runtime`
+
+Decision status: product design settled; exact affected-fish membership and
+intermediate burn-rate curves remain source-blocked.
+
+### Period Facts and Conflict
+
+- `Cooking gauntlets` oldid 6556123 (2012-11-15) describes a non-tradeable,
+  equippable Family Crest reward conversion that reduces fish-burning risk. It
+  says first conversion through Caleb is available from Family gauntlets, that
+  changing an already enchanted pair costs 25,000 coins, and that a lost pair
+  is recovered free from Dimintheis with the same enchantment.
+- Its table lists no-burn thresholds with gauntlets for tuna 63, lobster 68,
+  swordfish 81, monkfish 90, and shark/cavefish/rocktail 94.
+- `Cooking` oldid 6548144 (2012-11-11) instead describes the effect as applying
+  to lobster, monkfish, swordfish, shark, cavefish, and rocktail, while its own
+  fish-table note narrows that list further and omits monkfish. The page also
+  says the exact anti-burning bonus came from player statistics rather than an
+  official formula. These literal period pages therefore do not establish one
+  authoritative affected-fish set or intermediate probability curve.
+- `Family Crest` oldid 6548361 (2012-11-11) confirms the Family gauntlets reward,
+  the three brother enchantments, and the 25,000-coin fee to change effects.
+
+### AnkiScape Representation
+
+- Conversion is a manual inventory/equipment context action after Family Crest:
+  Family gauntlets become Cooking gauntlets free; changing from Goldsmith or
+  Chaos gauntlets consumes 25,000 Coins. The NPC dialogue awards no XP and does
+  not consume a review.
+- Cooking gauntlets modify the existing fish targets rather than creating
+  duplicate recipes. Casual auto-equips an owned available pair when it helps;
+  Advanced uses the target's saved equipment selection. When worn, the effect
+  is automatic, has no charges, and never changes Cooking XP.
+- Persist the chosen Family-gauntlet enchantment separately from the physical
+  item. A manual `Recover gauntlets` claim restores a lost pair free with the
+  same enchantment, matching Dimintheis; conversion, payment, equipment state,
+  recovery, cooking result, and burn/XP outcome remain undo-safe.
+- Do not infer a burn formula from the published zero-burn thresholds. Reconcile
+  the page conflict against high-fidelity Darkan or stronger dated evidence,
+  then apply the verified fish membership and odds to the existing Cooking
+  success calculation.

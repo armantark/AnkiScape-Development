@@ -46,6 +46,16 @@ Use this skill before planning or implementing a skill expansion. The goal is to
   contract is `Train in Wilderness`: it abstracts Wilderness presence for that
   target's sourced risk, reward, and equipment effects without creating global
   player-location state or a map.
+- Do not duplicate a skill target merely because the source permits an
+  alternate tool with identical output, XP, speed, and success behavior. Keep
+  one target and expose the alternate tool as a saved target-local option only
+  when it has a real requirement or unlock worth representing; Casual uses the
+  ordinary/default tool when the alternative has no benefit.
+- Target-specific skilling equipment modifies the existing target rather than
+  creating an equipment-named duplicate. Casual may auto-equip an owned,
+  available, strictly beneficial item; Advanced follows that target's saved
+  equipment selection. NPC enchantment/conversion dialogue that performs no
+  skill action is a manual item action and does not consume a review.
 - Do not grill the owner on facts or behavior already determined by pinned
   period evidence and settled AnkiScape rules. Resolve and document those
   autonomously, batching routine source-shaped decisions. Ask only when two or

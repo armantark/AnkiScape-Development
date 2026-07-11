@@ -1057,22 +1057,37 @@
       "rank": 41,
       "skill": "Firemaking",
       "root_cause": "stub",
-      "status": "needs_grill",
+      "status": "split_scope",
       "title": "Design Barbarian bow fire-lighting",
       "detail": "game-main supplies Otto dialogue, a persistent learnedBarbarianFiremaking flag, and static book instructions to use a strung bow on an oak log, but has no bound bow-on-log action consuming that unlock and no exact bow eligibility, XP distinction, or runtime mechanics. Owner must choose the training/unlock representation and approve historical source data before implementation. Do not infer values or auto-build.",
       "source": "game-main:areas/barbarianoutpost/otto.plugin.kts:277-299; items/books/book_barbarian_skills.plugin.kts:23-42",
-      "note": "static metadata only; classified as a stub by the mandatory fresh audit"
+      "note": "bow-lighting target behavior settled from pinned oldid 6476330 on 2026-07-10; the permanent learned flag belongs to the future Barbarian Training miniquest/activity pass",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#firemaking-barbarian-bow-lighting",
+      "decision_summary": {
+        "target_shape": "Do not add duplicate bow-lit log rows. Add a saved Light with bow option to existing eligible Firemaking log targets after the Barbarian Firemaking unlock.",
+        "casual_advanced": "Casual uses the ambient/toolbelt tinderbox because bow-lighting has no source advantage; Advanced may opt into bow-lighting per target.",
+        "requirements": "Bow-lighting requires the permanent Otto unlock, an eligible strung wooden bow, and the source's higher per-log Firemaking level; it consumes one log and awards the same XP at the same speed as ordinary lighting.",
+        "unlock_scope": "Set learned_barbarian_firemaking through the future Barbarian Training miniquest/activity dialogue, not through a duplicate Firemaking target or an invented item unlock."
+      }
     },
     {
       "id": "cook-cooking-gauntlets-runtime",
       "rank": 42,
       "skill": "Cooking",
       "root_cause": "stub",
-      "status": "needs_grill",
+      "status": "design_settled_waiting_source",
       "title": "Design Cooking gauntlet conversion and burn-rate effects",
       "detail": "game-main defines Cooking gauntlets item 775 and its fish-cooking examine metadata but no Cooking/action plugin references it, so the exact affected foods and burn-rate mechanics are absent. Owner must approve historical source data for affected fish and thresholds and decide Family-gauntlet conversion/acquisition, equipment state, UI, persistence, undo, and review-loop behavior. Do not invent the missing values or auto-build.",
       "source": "game-main:plugins/api/cfg/Items.kt:776; data/cfg/items.yml:6714-6722",
-      "note": "item metadata only; classified as a stub by the mandatory fresh audit"
+      "note": "conversion, equipment, Casual/Advanced, recovery, persistence, and undo design settled 2026-07-10; exact affected-fish set and intermediate burn curves wait for reconciliation of conflicting pinned period pages and high-fidelity Darkan",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#cooking-cooking-gauntlets",
+      "decision_summary": {
+        "conversion": "After Family Crest, manually convert Family gauntlets to Cooking gauntlets for free; changing from another enchantment costs 25,000 Coins. This NPC/item interaction consumes no review.",
+        "equipment": "Cooking gauntlets modify existing fish-cooking targets. Casual auto-equips an owned available pair when beneficial; Advanced follows the target's saved equipment selection.",
+        "effect": "When equipped, apply the reconciled period burn-rate reduction and zero-burn thresholds automatically; the gauntlets have no charges and never change Cooking XP.",
+        "recovery": "Persist the selected Family-gauntlet enchantment separately so a lost pair can be reclaimed manually from Dimintheis for free with the same enchantment.",
+        "source_boundary": "Pinned oldids disagree on whether tuna/all fish or only a narrower high-value fish set is affected, and provide thresholds rather than authoritative intermediate odds. Wait for reconciled evidence instead of inventing a formula."
+      }
     }
   ]
 }
