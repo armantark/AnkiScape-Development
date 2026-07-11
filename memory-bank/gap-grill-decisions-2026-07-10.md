@@ -665,3 +665,133 @@ depletion, respawn, and paired-tree behavior from reconciled period evidence.
   forced by settled AnkiScape architecture. Resolve and batch those details in
   the audit. Reserve owner questions for genuine product choices where multiple
   reasonable options would materially change play.
+
+## Runecrafting: Ourania, Wicked Hood, and Great Orb Project
+
+Backlog id: `rc-zmi-gop-wickedhood`
+
+Decision status: composite backlog row split by system. Ourania and Wicked hood
+design are settled; exact Ourania output rolls wait for reconciled period/server
+evidence. Great Orb Project moves to the separate minigame/activity design pass.
+
+### Period Facts
+
+- `Ourania Runecrafting Altar` oldid 6448353 (2012-10-21) confirms that the
+  altar accepts only Pure essence, needs no talisman or specific rune level,
+  makes one randomly selected rune per essence, biases toward higher runes as
+  Runecrafting rises, and awards twice that rune's normal XP. It documents a
+  short dangerous route, a long safe route, and Eniola's 20-rune bank fee.
+- `Wicked hood` oldid 6564747 (2012-11-17) confirms manual daily Essence,
+  Runes, and altar Teleport functions; fed altar access; a 100-essence baseline;
+  one baseline rune withdrawal, doubled by an Elemental talisman; two altar
+  teleports; permanent Runespan-outfit upgrades up to 175 essence, five rune
+  withdrawals, and three altar teleports; unlimited Guild/Runespan entry
+  teleporting; and reclaim with fed-talisman progress preserved.
+- `Talk:Wicked hood` oldid 6341451 (2012-10-03) contemporaneously records the
+  daily timer resetting at 00:00 GMT rather than 24 hours after use.
+- `The Great Orb Project` oldid 6564759 (2012-11-17) confirms a level-50,
+  multiplayer, team-versus-team activity with altar rounds, active orb/barrier
+  participation, double-XP essence crafting, per-round essence, match-result
+  token awards, and a distinct manual reward shop.
+
+### Ourania Target
+
+- Add Ourania as one Runecrafting target using the altar-route cycle already
+  settled for ordinary altar training: bank/load, outbound route, craft, return.
+- Casual mode uses the long safe route and Eniola banking. Advanced mode saves
+  the target's unified carried layout and may select the long safe or short
+  dangerous route plus its banking configuration. The short route uses the
+  shared HP, food, death, and undo systems once its damage behavior is sourced.
+- Each craft phase consumes the carried Pure essence and produces one random
+  eligible rune per essence at twice that rune's base XP. Do not apply ordinary
+  multi-rune multipliers. Keep the exact level-weighted output distribution
+  source-blocked until period evidence or reconciled high-fidelity server code
+  establishes it.
+
+### Wicked Hood Daily Interface
+
+- Keep the period interaction manual. Operating a carried or equipped hood
+  opens compact Essence, Runes, and Teleport actions with remaining daily
+  allowances; AnkiScape never auto-claims hood resources.
+- Essence and runes enter the unified carried pack and respect free slots. A
+  partial essence withdrawal reduces the remaining daily quantity rather than
+  discarding overflow. Available rune/altar choices come only from fed access.
+- A charged altar teleport skips the outbound-travel phase of the corresponding
+  altar route; it does not create or move the player on a world map. The
+  unlimited Guild/Runespan teleport is represented only as frictionless entry
+  to those activities and never consumes an altar charge.
+- Preserve one hood per player. Reclaim restores the item without resetting fed
+  altars or daily allowances. Runespan outfit purchases permanently raise the
+  hood allowances when that reward shop is implemented.
+- Reset allowances at the authentic daily boundary, stored as an absolute UTC
+  day key so closing Anki, changing targets, or changing the computer clock's
+  display timezone cannot generate extra claims.
+
+### Great Orb Project Scope Split
+
+- Do not flatten Great Orb Project into an altar target or a one-click token
+  payout. Its teams, sequential altar rounds, active participation, essence
+  decisions, match result, tokens, and shop form one separate activity system.
+- Park its detailed simulation as a seed for the dedicated minigame/activity
+  design pass. Its reward shop will use the visually distinct minigame-shop tab
+  and manual purchases already chosen for minigame currencies.
+
+## Mining: Living Rock Caverns and Shooting Stars
+
+Backlog id: `mine-lrc-stars`
+
+Decision status: period mechanics and the ordinary communal-star loop are
+settled. One product choice remains for earning the no-map first-finder tag.
+
+### Period Facts and Existing Coverage
+
+- Concentrated coal and concentrated gold already ship as ordinary Mining
+  targets; do not add duplicate LRC variants.
+- `Living Rock Caverns` oldid 6547876 (2012-11-11) and `Living rock remains`
+  oldid 6556376 (2012-11-15) establish level 73, 25 Mining XP, and a bundle of
+  Living minerals per mined corpse. The focused remains page says 5–24 while
+  the cavern overview says 5–20, so the exact range remains source-conflicted.
+  Another player's corpse becomes mineable after one minute.
+- `Shooting Star` oldid 6556329 (2012-11-15) establishes nine layers with
+  level requirements of ten times the layer, fixed layer-wide stardust pools,
+  XP per dust, communal depletion, a 200-dust ownership cap, a first-finder
+  bonus of 75 times Mining level, and one sprite reward per UTC day.
+
+### Living Rock Remains
+
+- Add `Mine living rock remains` as one level-73 Mining target once the exact
+  5–20 versus 5–24 mineral conflict is reconciled. One corpse-processing action
+  awards 25 XP and its sourced mineral bundle.
+- A self-killed Living Rock creature exposes its remains immediately. A busy
+  public-cavern abstraction also supplies other players' remains after the
+  source delay, so Combat is useful but not an artificial hard prerequisite.
+- Keep the current concentrated ore rows. Any later cavern-session danger model
+  must cover travel to the deposit lift consistently across Mining and Fishing,
+  using the shared HP, food, death, carried-layout, and undo systems.
+
+### Shooting Star Session
+
+- Do not add a world map or make the player wait two real hours. Starting the
+  ordinary activity joins a reported communal star through an abstract star-
+  hunting network; the source's many worlds and player clans make star access
+  routine while the daily sprite reward remains the meaningful hard limit.
+- Preserve the current layer, remaining communal dust, player dust, accessible
+  level, and sprite state. Each successful review performs one Mining attempt;
+  other simulated miners also advance communal depletion between attempts.
+- Casual mode joins a sensibly populated star and automatically waits through
+  inaccessible upper layers while showing the current layer/action. Advanced
+  mode may save preferred starting sizes and a quiet/normal/busy population,
+  trading personal dust opportunity against faster access to lower layers.
+- Exchanging stardust with the released sprite is manual. Rewards scale to the
+  carried dust up to 200 and reset at 00:00 UTC; the source's temporary extra-
+  ore duration stays source/balance-blocked until skilling-action timing is
+  calibrated without pretending each review represents combat's 30 seconds.
+
+### Remaining Product Choice: First-Finder Tag
+
+- Option A (recommended): Advanced may opt into a multi-review `Scout for a
+  shooting star` prelude. Successfully locating it grants the authentic first-
+  finder tag and a quieter initial star; Casual skips scouting and joins a
+  reported communal star without the tag.
+- Option B: every new communal-star session rolls a small chance to be first,
+  granting the tag randomly with no separate action cost or player agency.

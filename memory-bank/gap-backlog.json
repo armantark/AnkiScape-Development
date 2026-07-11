@@ -423,8 +423,16 @@
       "title": "Add Ourania/ZMI altar, Great Orb Project, full Wicked hood daily",
       "detail": "ZMI random-output altar; GOP minigame; Wicked hood daily essence/runes/teleports/reclaim beyond one-time claim.",
       "source": "wiki:Ourania Altar",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "split_scope",
+      "note": "Ourania and Wicked hood design settled 2026-07-10; exact Ourania rune rolls wait for reconciled source evidence, while Great Orb Project moves to the separate minigame/activity design pass",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-ourania-wicked-hood-and-great-orb-project",
+      "decision_summary": {
+        "ourania_loop": "Use the established multi-review altar route with Pure essence only, random single-rune output, double base rune XP, and no altar-entry or rune-level gate.",
+        "ourania_routes": "Casual uses the long safe route and Eniola banking; Advanced may save either long safe or short dangerous routing plus its carried inventory and banking configuration for this target.",
+        "hood_actions": "Expose manual Essence, Runes, and altar Teleport actions from the carried or equipped Wicked hood; never auto-claim daily resources.",
+        "hood_teleport": "A charged altar teleport skips the outbound-travel phase of the selected altar run rather than creating a world-map location.",
+        "gop_scope": "Great Orb Project is a separate multiplayer activity/minigame design seed with its own token shop, not part of the Ourania target or Wicked hood interface."
+      }
     },
     {
       "id": "mine-lrc-stars",
@@ -436,7 +444,8 @@
       "detail": "LRC living minerals mining loop; Shooting Stars communal mining activity + rewards.",
       "source": "wiki:Living Rock Caverns",
       "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "note": "period facts and communal-star abstraction resolved 2026-07-10; one owner choice remains: explicit scouting phase versus a random first-finder tag",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#mining-living-rock-caverns-and-shooting-stars"
     },
     {
       "id": "fish-trawler-flingers",
