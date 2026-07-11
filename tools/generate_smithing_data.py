@@ -17,6 +17,7 @@ ITEMS_YML_RELATIVE = Path("data/cfg/items.yml")
 DRAGON_SQ_SHIELD_PLUGIN_RELATIVE = Path(
     "game/plugins/src/main/kotlin/gg/rsmod/plugins/content/items/armor/dragon_sq_shield.plugin.kts"
 )
+CANNONBALL_WIKI_SOURCE = "https://runescape.wiki/w/Cannonball?oldid=6541276"
 
 
 @dataclass(frozen=True)
@@ -45,6 +46,7 @@ class SourceRecipe:
     smithing_type: Optional[str] = None
     bars_required: int = 0
     produced_amount: int = 1
+    required_items: Tuple[Tuple[str, int], ...] = ()
 
 
 def _read(path: Path) -> str:
@@ -297,6 +299,32 @@ def _dragon_sq_shield_repair_recipe(
     )
 
 
+def _cannonball_recipe(
+    item_constants: Mapping[str, int],
+    items: Mapping[int, ItemMeta],
+) -> SourceRecipe:
+    cannonball_id = item_constants["CANNONBALL"]
+    return SourceRecipe(
+        recipe_id="forge_cannonballs",
+        display_name="Cannonballs",
+        station="furnace_process",
+        level=35,
+        exp=25.6,
+        requirements=((_item_name(item_constants["STEEL_BAR"], items), 1),),
+        output_item=_item_name(cannonball_id, items),
+        output_qty=4,
+        source_item_id=cannonball_id,
+        source=CANNONBALL_WIKI_SOURCE,
+        source_enum="CANNONBALL",
+        tradeable=_item_tradeable(cannonball_id, items),
+        category="ammunition",
+        bar_tier="steel",
+        bars_required=1,
+        produced_amount=4,
+        required_items=((_item_name(item_constants["AMMO_MOULD"], items), 1),),
+    )
+
+
 def _format_tuple(values: Sequence[str], indent: str = "    ") -> str:
     if not values:
         return "()"
@@ -308,6 +336,11 @@ def _recipe_repr(recipe: SourceRecipe) -> str:
         [f"({material!r}, {amount})" for material, amount in recipe.requirements],
         "            ",
     )
+    required_items = _format_tuple(
+        [f"({material!r}, {amount})" for material, amount in recipe.required_items],
+        "            ",
+    )
+    required_items_line = f"        required_items={required_items},\n" if recipe.required_items else ""
     return (
         "SmithingRecipe(\n"
         f"        id={recipe.recipe_id!r},\n"
@@ -327,6 +360,7 @@ def _recipe_repr(recipe: SourceRecipe) -> str:
         f"        smithing_type={recipe.smithing_type!r},\n"
         f"        bars_required={recipe.bars_required},\n"
         f"        produced_amount={recipe.produced_amount},\n"
+        f"{required_items_line}"
         "    )"
     )
 
@@ -396,6 +430,7 @@ class SmithingRecipe:
     smithing_type: Optional[str] = None
     bars_required: int = 0
     produced_amount: int = 1
+    required_items: Tuple[Tuple[str, int], ...] = ()
 
 
 SMITHING_RECIPES: Tuple[SmithingRecipe, ...] = (
@@ -427,6 +462,7 @@ def smithing_recipes_as_dict() -> Dict[str, Dict[str, object]]:
             "smithing_type": recipe.smithing_type,
             "bars_required": recipe.bars_required,
             "produced_amount": recipe.produced_amount,
+            "required_items": dict(recipe.required_items),
         }}
         for recipe in SMITHING_RECIPES
     }}
@@ -499,8 +535,9 @@ def generate(game_root: Path, output_path: Path) -> None:
         item_constants,
         items,
     )
+    cannonballs = _cannonball_recipe(item_constants, items)
     output_path.write_text(
-        _render_module(tuple(smelting) + tuple(products) + (dragon_sq_shield_repair,)),
+        _render_module(tuple(smelting) + tuple(products) + (dragon_sq_shield_repair, cannonballs)),
         encoding="utf-8",
     )
 

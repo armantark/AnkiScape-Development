@@ -28,7 +28,6 @@ BAR_PRODUCTS_SOURCE_PATH = (
     "gg/rsmod/plugins/content/skills/smithing/data/BarProducts.kt"
 )
 ITEMS_SOURCE_PATH = "/Users/ArmanTarkhanian1/Downloads/game-main/data/cfg/items.yml"
-CANNONBALL_WIKI_SOURCE = "https://runescape.wiki/w/Cannonball?oldid=6541276"
 
 
 @dataclass(frozen=True)
@@ -3573,18 +3572,23 @@ SmithingRecipe(
         station='furnace_process',
         level=35,
         base_exp=25.6,
-        requirements=(('Steel bar', 1),),
+        requirements=(
+            ('Steel bar', 1),
+),
         output_item='Cannonball',
         output_qty=4,
         source_item_id=2,
-        source=CANNONBALL_WIKI_SOURCE,
+        source='https://runescape.wiki/w/Cannonball?oldid=6541276',
         source_enum='CANNONBALL',
         tradeable=True,
         category='ammunition',
         bar_tier='steel',
+        smithing_type=None,
         bars_required=1,
         produced_amount=4,
-        required_items=(('Ammo mould', 1),),
+        required_items=(
+            ('Ammo mould', 1),
+),
     )
 )
 
