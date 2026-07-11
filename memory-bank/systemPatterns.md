@@ -49,11 +49,12 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
   behavior, decide and document it autonomously and batch routine conclusions.
   Ask only when multiple reasonable implementations would materially change the
   player experience and no existing contract chooses between them.
-- Historical daily and weekly limits remain recorded in source data, but
-  AnkiScape does not use wall-clock Dailyscape by default. Repeatable allowances
-  recharge through relevant successful actions or completed activity loops;
-  exact action budgets wait for the balancing pass unless calendar cadence is
-  itself an explicitly approved mechanic.
+- Historical timers use the global answered-card AnkiScape clock already shared
+  by NPC shops and the parked GE: 10 answered cards equal one simulated game
+  hour and 240 equal one simulated day. All answered cards advance the clock,
+  regardless of skill or reward success; undo rolls time back. Daily/weekly
+  allowances reset at simulated boundaries without stacking, never from the
+  computer's wall-clock date.
 - Utility/Activities are backend actions, not skills. They use stable activity IDs in `UTILITY_ACTIVITY_DATA`, mutate inventory through pure helpers, award zero skill XP, and can batch up to an inventory-sized cap when they represent fast material preparation.
 - Utility/Activities can also represent one-shot acquisition bridges while the full shop/GE interface is deferred. These activities declare an `outputs` mapping instead of a single `output_item`, can set `deactivate_after_run = True`, and the runtime switches AnkiScape off after the successful review so the action multiplier cannot repeat the purchase inside the same card.
 - Utility/Activities should stay outside `skill_registry.py` unless they gain real level/XP semantics. Runtime dispatch handles them through `action_registry.py` and the handler key `utility`, while the UI may still surface them as a synthetic Skills-hub category.

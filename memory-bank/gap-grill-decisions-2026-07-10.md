@@ -723,10 +723,11 @@ evidence. Great Orb Project moves to the separate minigame/activity design pass.
 - Preserve one hood per player. Reclaim restores the item without resetting fed
   altars or current allowances. Runespan outfit purchases permanently raise the
   hood allowances when that reward shop is implemented.
-- Preserve the historical 00:00-GMT reset only as source metadata. In AnkiScape,
-  a depleted allowance pool recharges through successful Runecrafting actions,
-  with at most one full pool stored. The exact action budget waits for the
-  cross-skill balancing pass; it never depends on login time or calendar date.
+- Preserve the historical daily cadence through the shared answered-card market
+  clock: 10 answered cards equal one simulated hour and 240 equal one simulated
+  day. At each 240-card boundary, the hood refills one allowance pool to its
+  current upgrade cap; unused charges do not stack. Any answered card advances
+  the clock, and Anki undo restores the previous clock and allowance state.
 
 ### Great Orb Project Scope Split
 
@@ -772,10 +773,10 @@ Living-mineral yield and exact star/server rolls.
 
 ### Shooting Star Session
 
-- Do not add a world map or make the player wait two real hours. Starting the
-  ordinary activity joins a reported communal star through an abstract star-
-  hunting network; the source's many worlds and player clans make star access
-  routine without inventing navigation or a real-time arrival schedule.
+- Do not add a world map or make the player wait two real hours. Star cycles use
+  the same global answered-card clock as shops and the future GE: the source's
+  roughly two-hour arrival becomes roughly 20 answered cards. Starting the
+  activity joins the current reported communal star without simulating travel.
 - Preserve the current layer, remaining communal dust, player dust, accessible
   level, and sprite state. Each successful review performs one Mining attempt;
   other simulated miners also advance communal depletion between attempts.
@@ -783,10 +784,10 @@ Living-mineral yield and exact star/server rolls.
   inaccessible upper layers while showing the current layer/action. Advanced
   mode may save preferred starting sizes and a quiet/normal/busy population,
   trading personal dust opportunity against faster access to lower layers.
-- Exchanging stardust with the released sprite is manual. Each completed star
-  may expose one exchange, with rewards scaling to carried dust up to 200. Dust
-  and completing the communal activity are the repeat gate; AnkiScape does not
-  enforce the historical UTC daily lock.
+- Exchanging stardust with the released sprite is manual. Completing a star
+  exposes the sprite, rewards scale to carried dust up to 200, and the exchange
+  allowance resets every 240 answered cards. This preserves one reward per
+  simulated game day without tying AnkiScape to the real calendar.
 - Represent the first-finder tag as an occasional session-start bonus produced
   by the simulated communal population. Do not add a scouting phase, telescope
   interface, map search, or player-controlled first-finder farming.

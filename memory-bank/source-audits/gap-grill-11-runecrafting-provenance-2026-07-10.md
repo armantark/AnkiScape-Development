@@ -19,9 +19,11 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
 - `Talk:Wicked hood` oldid 6341451, 2012-10-03: a contemporaneous answer records
   the daily timer reset at 00:00 GMT rather than 24 hours after first use.
 
-The daily reset is retained as a period fact, not an AnkiScape wall-clock gate.
-The product adaptation recharges one allowance pool through successful
-Runecrafting actions; its exact action budget is deferred to balancing.
+The daily reset is implemented against AnkiScape's existing answered-card
+market clock rather than the computer clock: 240 answered cards equal one
+simulated day. The hood refills to its current cap at that boundary without
+stacking unused allowances; any answered card advances time and undo rolls it
+back.
 - `The Great Orb Project` oldid 6564759, 2012-11-17: level 50; multiplayer teams;
   sequential altar rounds; orb attraction/repulsion and barriers; participation
   meter; round essence; double-XP crafting; win/loss/tie and majority token

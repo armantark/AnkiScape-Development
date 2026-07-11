@@ -424,12 +424,12 @@
       "detail": "ZMI random-output altar; GOP minigame; Wicked hood daily essence/runes/teleports/reclaim beyond one-time claim.",
       "source": "wiki:Ourania Altar",
       "status": "split_scope",
-      "note": "Ourania and Wicked hood design settled 2026-07-10; hood allowances recharge through Runecrafting actions rather than UTC, exact Ourania rolls and recharge budget wait for source/balance evidence, and GOP moves to the minigame pass",
+      "note": "Ourania and Wicked hood design settled 2026-07-10; hood allowances reset every 240 answered cards on the shared market clock rather than wall-clock UTC, exact Ourania rolls wait for source evidence, and GOP moves to the minigame pass",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#runecrafting-ourania-wicked-hood-and-great-orb-project",
       "decision_summary": {
         "ourania_loop": "Use the established multi-review altar route with Pure essence only, random single-rune output, double base rune XP, and no altar-entry or rune-level gate.",
         "ourania_routes": "Casual uses the long safe route and Eniola banking; Advanced may save either long safe or short dangerous routing plus its carried inventory and banking configuration for this target.",
-        "hood_actions": "Expose manual Essence, Runes, and altar Teleport actions from the carried or equipped Wicked hood; the allowance pool recharges through successful Runecrafting actions rather than a UTC daily reset.",
+        "hood_actions": "Expose manual Essence, Runes, and altar Teleport actions from the carried or equipped Wicked hood; the allowance pool resets without stacking at each 240-answered-card simulated day boundary.",
         "hood_teleport": "A charged altar teleport skips the outbound-travel phase of the selected altar run rather than creating a world-map location.",
         "gop_scope": "Great Orb Project is a separate multiplayer activity/minigame design seed with its own token shop, not part of the Ourania target or Wicked hood interface."
       }
@@ -444,13 +444,13 @@
       "detail": "LRC living minerals mining loop; Shooting Stars communal mining activity + rewards.",
       "source": "wiki:Living Rock Caverns",
       "status": "design_settled_waiting_source",
-      "note": "owner design settled 2026-07-10; Shooting Stars are a communal Activities session with no map, scouting phase, arrival timer, or UTC reward lock; exact remains yield and star rolls wait for reconciled evidence",
+      "note": "owner design settled 2026-07-10; Shooting Stars use the shared answered-card clock for roughly 20-review arrivals and 240-review reward days, with no map or scouting phase; exact remains yield and star rolls wait for reconciled evidence",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#mining-living-rock-caverns-and-shooting-stars",
       "decision_summary": {
         "living_remains": "Add a level-73 corpse-processing Mining target after reconciling the period 5-20 versus 5-24 Living-mineral conflict; public remains keep Combat useful but not mandatory.",
-        "shooting_star_entry": "Treat Shooting Stars as a standalone communal Activity that joins an active mineable layer; do not simulate maps, telescopes, travel, arrival timers, or a scouting phase.",
+        "shooting_star_entry": "Treat Shooting Stars as a standalone communal Activity that joins the active mineable layer; new star cycles derive from the shared clock at roughly 20 answered cards per two game hours, without maps, travel, or a scouting phase.",
         "shooting_star_loop": "One review performs one Mining attempt while simulated players also deplete the shared layer; preserve layer XP, stardust, the 200-dust cap, and manual sprite exchange.",
-        "dailyscape": "Each completed star may expose one sprite exchange; dust and activity completion are the gate, not the historical UTC daily reset.",
+        "dailyscape": "The sprite exchange allowance resets every 240 answered cards through the shared simulated-day clock, not the real calendar; completing a star is still required to expose the sprite.",
         "first_finder": "Represent the tag as an occasional session-start bonus from the simulated communal population, not a separate player-controlled minigame."
       }
     },
