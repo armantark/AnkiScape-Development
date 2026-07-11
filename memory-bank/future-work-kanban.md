@@ -44,16 +44,19 @@ Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
 - Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract: standard-book tables from game-main `prayer.kt`, the curse drain column from `oldid=6535713`, Darkan `Sap.java`/`Leech.java` step sizes, impious/accursed ash pins and demon drop wiring, bonemeal/ecto-token/slime items, Piety/Chivalry gate pins, and renewal restore rates.
 - Shades of Mort'ton cremation and GE bones trail as `DEPENDENCY` on their own families; owned-POH altars trail on Construction.
 
+### Magic — grill complete, ready to build
+
+Labels: `IMPLEMENT`, `SOURCE AUDIT` (mechanical extractions only).
+
+- The full implementation-ready contract is `memory-bank/magic-skill-contract-2026-07-11.md` (grill closed 2026-07-11). All product decisions are settled: uncapped full-parity alchemy with staff substitution, teleports as pure training casts, all three spellbooks with implicit book state and a strict per-preset/per-stint no-mixing rule, Spellbook Swap as the single sanctioned exception, the Dream review-cost heal policy, the casual pack-mode dial deriving prayers/uptime/Vengeance with exactly three surfaced toggles, and the per-spell salvage / pure-cast / not_applicable ledger.
+- Combat ladder gap-fill rides along: surges, Wind Rush, god spells behind a Mage Arena landmark, Iban Blast, Magic Dart, Crumble Undead, Storm of Armadyl, and the bind/curse families as EV effects.
+- Charge orbs close the reachability audit's elemental-orb orphan category; telegrab ships as the authentic Wine of Zamorak route.
+- Remaining `SOURCE AUDIT` residue is the mechanical extraction list at the bottom of the contract (SpellbookData roster, Darkan cache alch values, enchantment/bolt tables, Ancients/Lunar wiki pins, curse/bind pins, orb/Mage Arena/telegrab pins).
+- Deferred: Livid Farm spell set (its own activity card), Cure Plant / Fertile Soil real function (Farming), Plank Make consumers (Construction), Hunter Kit consumers (Hunter), Slayer staff acquisition (Slayer).
+
 ## Deep-grill queue — missing or incomplete skill surfaces
 
 Each skill receives its own grill before implementation. Source-shaped facts should be resolved autonomously; grill only materially different AnkiScape choices.
-
-### Magic — full skill continuation
-
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
-
-- Preserve the live standard combat spell ladder.
-- Grill noncombat spells, spellbook switching, enchantment, alchemy, charge/orb actions, abstracted travel-dependent spells, skilling interactions, target organization, runes/loadouts, and undo.
 
 ### Farming
 
@@ -61,6 +64,7 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 
 - Decide patch abstraction, review-clock growth, disease/death/protection, compost, payments, yields, tools/seeds, patch grouping, banking, and UI.
 - Absorb `hunter-habitat-jadinko` only after the core Farming contract exists.
+- Magic-grill handoff (owner-mandated): Cure Plant and Fertile Soil ship now as pure casts; when Farming lands they must gain real function (e.g. a farming-run option/checkbox), not stay ceremonial. See `memory-bank/magic-skill-contract-2026-07-11.md` decision 9.
 
 ### Construction
 

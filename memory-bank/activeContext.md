@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-The Prayer deep grill closed on 2026-07-11; `memory-bank/ankiscape-skill-expansion.md` is now Prayer's implementation-ready contract. The next major slice is building the Prayer surface, alongside the ongoing completion-closure audit work.
+The Prayer deep grill closed on 2026-07-11; `memory-bank/ankiscape-skill-expansion.md` is now Prayer's implementation-ready contract, and its implementation is in flight (delegated build from that contract, uncommitted working-tree output pending review). The Magic deep grill also closed on 2026-07-11; `memory-bank/magic-skill-contract-2026-07-11.md` is Magic's implementation-ready contract and queues as the next build after Prayer lands.
 
 Use these as the current handoff sources:
 
@@ -37,6 +37,8 @@ The 2026-07-11 closure pass added the partial/complete/planned skill contract, d
 
 The 2026-07-11 Prayer grill session finished the design: all methods (bury, scatter, Ectofuntus at ~9-bones-per-review grinding, hosted gilded altar with free burners behind a 1–10-review house-finding roll), the EV prayer/curse combat translation with the four-step uptime policy, prayer points/drain/restore, the Rapid Restore analog, and UI placement. The Chaos Temple Wilderness bone altar was struck as OSRS-2018 contamination. Owner decisions this session: Ectofuntus "slow grinder" pacing, free hosted burners with self-supplied herbs deferred to Construction, and — on second pass — prayer selection/uptime folding into a named combat preset system (bundling supply loadout and pack mode) with per-target override, instead of raw per-target checkboxes. The chaos-altar strike was re-verified: both pre-EOC temple pages are recharge-only, and the offering altar is OSRS 7 Dec 2017.
 
+The 2026-07-11 Magic grill session (same day, after Prayer) settled the full Magic continuation: uncapped full-parity alchemy with elemental-staff substitution on noncombat casts, teleports as pure training casts (no invented travel hooks), all three spellbooks (Ancients/Lunar wiki-pinned, quest-gated) with implicit book state and a strict per-preset/per-stint no-mixing rule, Spellbook Swap preserved as the single sanctioned no-mixing exception, Dream as a review-cost between-fight heal policy, and a casual-mode answer to checkbox creep: the pack-mode dial derives prayer/uptime/Vengeance/swap choices and casual mode surfaces exactly three toggles (prayers on/off, contextual autocast picker, Dream thrift). Every edge-case spell got an explicit disposition: a salvage ledger (Bake Pie, Humidify, Magic Imbue, Superglass/Tan Leather/String Jewellery/Plank Make, Hunter Kit, Crumble Undead, Monster Examine readout, telegrab→Wine of Zamorak), a pure-cast bucket, a strictly-other-player not_applicable bucket, and a Livid Farm deferral.
+
 Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt tests passing, with 160 expected non-Qt skips in the pure interpreter.
 
 ## Decision Boundaries
@@ -46,6 +48,7 @@ Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt test
 - Darkan may be an explicit wait dependency for hidden server behavior. The local restoration checkout is moving and should not be treated as a stable final baseline until a milestone is declared.
 - Do not re-grill decisions already closed in `memory-bank/gap-grill-decisions-2026-07-10.md`.
 - The Prayer grill is closed; `memory-bank/ankiscape-skill-expansion.md` is its implementation contract. Do not re-grill it — the remaining items there are mechanical source extractions.
+- The Magic grill is closed; `memory-bank/magic-skill-contract-2026-07-11.md` is its implementation contract. Do not re-grill it — the remaining items there are mechanical source extractions.
 - Each wholly missing skill needs its own deep grill before implementation.
 - Activities/minigames use Utility/Activities at the platform level, but each family needs a dedicated grill and complete reward/state/source contract.
 - Global level-1-to-99 time balancing waits until all skills and major methods are present.
@@ -60,7 +63,7 @@ Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt test
 
 ## Next Recommended Work
 
-1. Implement the Prayer surface from its closed contract (starting with the mechanical source extractions listed there), or begin another missing-skill grill when the owner is available.
+1. Land the in-flight Prayer implementation (review the delegated working-tree output, verify both suites, commit), then implement Magic from `memory-bank/magic-skill-contract-2026-07-11.md`, or begin another missing-skill grill (Construction next) when the owner is available.
 2. Close reachability roots only through their authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
 3. When Darkan reaches a stable restoration milestone, rerun Grenwall, quest, missing-skill, and special-activity audits against the changed source surface.
 

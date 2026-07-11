@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Magic Grill Complete — Implementation Plan</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap');
+:root {
+    --bg: #0c0e12;
+    --surface: #161a21;
+    --surface-2: #1e232c;
+    --border: #2a3040;
+    --text: #e8ecf4;
+    --text-dim: #8b95a8;
+    --accent: #4f8cff;
+    --accent-glow: rgba(79, 140, 255, 0.15);
+    --red: #ff5c5c;
+    --green: #4ade80;
+    --amber: #fbbf24;
+    --purple: #a78bfa;
+    --cyan: #22d3ee;
+    --radius: 12px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Outfit', sans-serif; font-weight: 300;
+    line-height: 1.55; padding: 2.5rem 1.5rem 4rem;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+.badge {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    letter-spacing: 0.12em; color: var(--purple); background: rgba(167,139,250,0.12);
+    border: 1px solid rgba(167,139,250,0.35); padding: 0.3rem 0.8rem; border-radius: 999px;
+    margin-bottom: 1rem;
+}
+h1 { font-weight: 700; font-size: 2rem; margin-bottom: 0.4rem; }
+.sub { color: var(--text-dim); font-size: 0.95rem; max-width: 780px; margin-bottom: 2.2rem; }
+h2 {
+    font-weight: 700; font-size: 1.15rem; margin: 2.4rem 0 1rem;
+    padding-bottom: 0.4rem; border-bottom: 1px solid var(--border);
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.1rem 1.2rem; transition: transform 0.15s, box-shadow 0.15s;
+}
+.card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.35); }
+.card h3 { font-weight: 500; font-size: 1rem; margin-bottom: 0.45rem; }
+.card p { color: var(--text-dim); font-size: 0.86rem; }
+.tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; letter-spacing: 0.06em;
+    padding: 0.15rem 0.5rem; border-radius: 4px; margin-right: 0.4rem; text-transform: uppercase;
+}
+.tag.settled { color: var(--green); background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); }
+.tag.newmech { color: var(--amber); background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.3); }
+.tag.gapfill { color: var(--cyan); background: rgba(34,211,238,0.1); border: 1px solid rgba(34,211,238,0.3); }
+.tag.deferred { color: var(--text-dim); background: var(--surface-2); border: 1px solid var(--border); }
+/* spellbook triage board */
+.books { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .books { grid-template-columns: 1fr; } }
+.book { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.book-head { padding: 0.7rem 1rem; font-weight: 500; font-size: 0.95rem; border-bottom: 1px solid var(--border); }
+.book.std .book-head { color: var(--accent); background: rgba(79,140,255,0.08); }
+.book.anc .book-head { color: var(--red); background: rgba(255,92,92,0.07); }
+.book.lun .book-head { color: var(--purple); background: rgba(167,139,250,0.08); }
+.book ul { list-style: none; padding: 0.6rem 1rem 0.9rem; }
+.book li { font-size: 0.82rem; color: var(--text-dim); padding: 0.22rem 0; }
+.book li b { color: var(--text); font-weight: 500; }
+.gate {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--amber);
+    display: block; padding: 0.35rem 1rem; border-top: 1px dashed var(--border);
+}
+/* salvage table */
+table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+th {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--text-dim); text-align: left;
+    padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--border);
+}
+td { padding: 0.45rem 0.7rem; border-bottom: 1px solid rgba(42,48,64,0.5); vertical-align: top; }
+td:first-child { white-space: nowrap; font-weight: 500; }
+.disp { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; white-space: nowrap; }
+.disp.saved { color: var(--green); }
+.disp.pure { color: var(--cyan); }
+.disp.na { color: var(--red); }
+.disp.defer { color: var(--text-dim); }
+td.why { color: var(--text-dim); }
+.scrollbox { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+/* casual mockup */
+.mockups { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 900px) { .mockups { grid-template-columns: 1fr; } }
+.pane { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+.pane-label { font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; letter-spacing: 0.12em; color: var(--text-dim); margin-bottom: 0.7rem; }
+.mock { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.8rem; font-size: 0.78rem; }
+.mock-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.2rem; color: var(--text-dim); }
+.dial { display: flex; gap: 0.3rem; margin: 0.4rem 0; }
+.dial span { flex: 1; text-align: center; padding: 0.3rem; border: 1px solid var(--border); border-radius: 5px; font-size: 0.68rem; font-family: 'JetBrains Mono', monospace; }
+.dial .on { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
+.chk { width: 12px; height: 12px; border: 1px solid var(--text-dim); border-radius: 3px; display: inline-block; flex-shrink: 0; }
+.chk.on { background: var(--accent); border-color: var(--accent); }
+.mock-note { font-size: 0.68rem; color: var(--text-dim); font-style: italic; margin-top: 0.5rem; }
+.mock-scroll { max-height: 130px; overflow: hidden; position: relative; }
+.mock-scroll::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 50px; background: linear-gradient(transparent, var(--bg)); }
+/* steps */
+.step { display: flex; gap: 0.9rem; margin-bottom: 0.9rem; align-items: flex-start; }
+.step-num {
+    width: 26px; height: 26px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    background: var(--accent-glow); color: var(--accent); border: 1px solid rgba(79,140,255,0.4);
+    border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 600;
+}
+.step p { font-size: 0.88rem; color: var(--text-dim); }
+.step p b { color: var(--text); font-weight: 500; }
+.file {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; background: var(--surface-2);
+    border: 1px solid var(--border); padding: 0.1rem 0.45rem; border-radius: 4px; color: var(--text-dim);
+    white-space: nowrap;
+}
+.callout {
+    border-left: 3px solid var(--amber); background: rgba(251,191,36,0.06);
+    padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; font-size: 0.86rem; color: var(--text-dim);
+    margin: 1rem 0;
+}
+.callout b { color: var(--amber); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <span class="badge">DESIGN GRILL CLOSED — PRE-IMPLEMENTATION PLAN</span>
+    <h1>Magic: the full continuation</h1>
+    <p class="sub">The Magic deep grill closed 2026-07-11. Contract: <span class="file">memory-bank/magic-skill-contract-2026-07-11.md</span>.
+    All three pre-EOC spellbooks ship in one slice, every edge-case spell has an explicit disposition, and the
+    checkbox-hell problem got a structural answer. Implementation queues behind the in-flight Prayer build.</p>
+
+    <h2>The nine owner decisions</h2>
+    <div class="grid">
+        <div class="card"><span class="tag settled">settled</span><h3>Alchemy: full parity, uncapped</h3>
+            <p>Low/High Alch on any tradeable item at authentic Darkan-cache values. No faucet safeguard — the owner explicitly doesn't care. Fire-staff ownership waives fire runes on noncombat casts too (best-owned-tool convention). UI is a bank item picker.</p></div>
+        <div class="card"><span class="tag settled">settled</span><h3>Teleports: pure training casts</h3>
+            <p>Full solo-teleport roster as XP cast targets — Camelot spam was a real era method. No invented travel hooks; travel is already fully abstracted everywhere.</p></div>
+        <div class="card"><span class="tag settled">settled</span><h3>All three spellbooks, one slice</h3>
+            <p>Standard completion + Ancients (Desert Treasure) + Lunar (Lunar Diplomacy). Finally gives astral, cosmic, nature, law, and blood runes their consumers — rune supply was already solved by RC altars + live shops.</p></div>
+        <div class="card"><span class="tag settled">settled</span><h3>Implicit book + strict no-mixing</h3>
+            <p>No spellbook toggle exists; each spell implies its book, quest gates are the only locks. But one go (preset or stint) may not mix books — pure logic derives the book from all selected effects and rejects mixes. Veng + Ancients autocast: illegal.</p></div>
+        <div class="card"><span class="tag newmech">exception</span><h3>Spellbook Swap: the one exception</h3>
+            <p>Lunar 96 authentically allows exactly one off-book cast. It ships functional: a one-book preset/stint may include a single off-book spell, paying the swap runes per fight/stint. The level-96 capstone actually means something.</p></div>
+        <div class="card"><span class="tag newmech">new mechanic</span><h3>Dream: heal with reviews, not food</h3>
+            <p>Between fights, missing HP can heal via Dream casts at a review cost derived from its authentic heal rate. Time-for-supplies is exactly the real spell's trade; reviews are our time.</p></div>
+        <div class="card"><span class="tag newmech">ux</span><h3>Casual mode: dial + 3 toggles</h3>
+            <p>The pack-mode dial derives prayers, uptime, Vengeance, and the swap slot from unlocks. Casual surfaces exactly three toggles (below). Full editor in advanced. Owner: "we'll probably have to tweak it" — keep the toggle set data-driven.</p></div>
+        <div class="card"><span class="tag deferred">deferred</span><h3>Livid Farm spells wait</h3>
+            <p>Vengeance Group, Disruption Shield, etc. unlock through a grindy points minigame — a real activity family needing its own grill. Deferred to its card; the Lunar book is otherwise complete.</p></div>
+        <div class="card"><span class="tag settled">settled</span><h3>Farming handoff note</h3>
+            <p>Cure Plant / Fertile Soil ship as pure casts now, but the Farming card carries an owner-mandated note: they must gain real function (a farming-run option) when Farming lands — not stay ceremonial.</p></div>
+    </div>
+
+    <h2>Three books, one slice</h2>
+    <div class="books">
+        <div class="book std">
+            <div class="book-head">Standard — completion</div>
+            <ul>
+                <li><b>Alchemy</b> low/high, any tradeable item</li>
+                <li><b>Superheat</b> 53 Magic XP + Smithing XP</li>
+                <li><b>Enchanting</b> 6 gem tiers × 4 jewellery + bolt ladder</li>
+                <li><b>Charge orbs</b> — closes the elemental-orb orphans</li>
+                <li><b>Telegrab</b> → Wine of Zamorak route</li>
+                <li><b>Bones to Bananas / Peaches</b></li>
+                <li><b>Ladder gap-fill:</b> surges 81–95, Wind Rush, god spells (Mage Arena landmark), Iban Blast, Magic Dart, Crumble Undead, Storm of Armadyl, bind + curse families as EV</li>
+            </ul>
+            <span class="gate">gate: none (quest gates per spell)</span>
+        </div>
+        <div class="book anc">
+            <div class="book-head">Ancient Magicks</div>
+            <ul>
+                <li><b>Rush / Burst / Blitz / Barrage</b> ×4 elements</li>
+                <li>Smoke → poison EV</li>
+                <li>Shadow → accuracy-drain EV</li>
+                <li>Blood → heal-on-damage EV (Soul Split toolkit)</li>
+                <li>Ice → freeze EV (hits skipped = duration ÷ enemy interval)</li>
+                <li>Multi-target moot in 1v1 — parity-honest</li>
+                <li>Ancients teleports as pure casts</li>
+            </ul>
+            <span class="gate">gate: Desert Treasure · wiki-pinned (game-main lacks it)</span>
+        </div>
+        <div class="book lun">
+            <div class="book-head">Lunar</div>
+            <ul>
+                <li><b>Vengeance</b> — combat EV toggle</li>
+                <li><b>Dream</b> — review-cost heal policy</li>
+                <li><b>Spellbook Swap</b> — the no-mixing exception</li>
+                <li>Skilling utilities: Superglass, Tan Leather, String Jewellery, Plank Make, Bake Pie, Humidify, Magic Imbue, Hunter Kit</li>
+                <li>Monster Examine — cast with honest stat readout</li>
+                <li>Livid Farm set deferred</li>
+            </ul>
+            <span class="gate">gate: Lunar Diplomacy · wiki-pinned (game-main lacks it)</span>
+        </div>
+    </div>
+
+    <h2>The edge-case spell triage (the owner-grilled ledger)</h2>
+    <div class="scrollbox">
+    <table>
+        <tr><th>Spell</th><th>Disposition</th><th>Why</th></tr>
+        <tr><td>Bake Pie (65)</td><td><span class="disp saved">SAVED</span></td><td class="why">No-burn Cooking method — uncooked pies are live items; Magic + Cooking XP</td></tr>
+        <tr><td>Humidify (68)</td><td><span class="disp saved">SAVED</span></td><td class="why">Batch-fills water vessels; vials of water are a real Herblore input</td></tr>
+        <tr><td>Hunter Kit (71)</td><td><span class="disp saved">SAVED</span></td><td class="why">Item-producing cast; kit tools await Hunter (standard output-orphaned state)</td></tr>
+        <tr><td>Superglass / Tan Leather / String Jewellery / Plank Make</td><td><span class="disp saved">SAVED</span></td><td class="why">Direct Crafting/Construction material transforms</td></tr>
+        <tr><td>Magic Imbue (82)</td><td><span class="disp saved">SAVED</span></td><td class="why">Waives opposing talisman on existing combination-rune targets</td></tr>
+        <tr><td>Crumble Undead</td><td><span class="disp saved">SAVED</span></td><td class="why">Combat spell restricted to undead enemies — roster has them</td></tr>
+        <tr><td>Monster Examine (66)</td><td><span class="disp saved">SAVED*</span></td><td class="why">Cast on selected target; readout shows authentic stats (info already free — no gate)</td></tr>
+        <tr><td>Telegrab</td><td><span class="disp saved">SAVED</span></td><td class="why">The authentic Wine of Zamorak acquisition route (Herblore secondary), 43 XP</td></tr>
+        <tr><td>Dream (79)</td><td><span class="disp saved">SAVED</span></td><td class="why">Review-cost between-fight heal policy — time-for-supplies, translated</td></tr>
+        <tr><td>Spellbook Swap (96)</td><td><span class="disp saved">SAVED</span></td><td class="why">The single sanctioned no-mixing exception</td></tr>
+        <tr><td>All solo teleports, NPC Contact, Cure Plant, Fertile Soil</td><td><span class="disp pure">PURE CAST</span></td><td class="why">World/self-targeted; function abstracted or awaiting Farming (handoff note filed)</td></tr>
+        <tr><td>Tele-other ×3, Tele Group, Cure/Heal Other+Group, Stat Spy, potion shares, Energy Transfer, Vengeance Other, Teleport Block</td><td><span class="disp na">NOT APPLICABLE</span></td><td class="why">Strictly require a second player — casting them would be a lie, not an abstraction</td></tr>
+        <tr><td>Vengeance Group, Disruption Shield + Livid Farm set</td><td><span class="disp defer">DEFERRED</span></td><td class="why">Unlock is a grindy points economy → Livid Farm activity card</td></tr>
+    </table>
+    </div>
+
+    <h2>Killing checkbox hell</h2>
+    <div class="mockups">
+        <div class="pane">
+            <div class="pane-label">WITHOUT THE DIAL — WHERE THIS WAS HEADED</div>
+            <div class="mock mock-scroll">
+                <div class="mock-row"><span class="chk on"></span> Piety</div>
+                <div class="mock-row"><span class="chk"></span> Turmoil</div>
+                <div class="mock-row"><span class="chk on"></span> Protect from Melee</div>
+                <div class="mock-row"><span class="chk"></span> Deflect Magic</div>
+                <div class="mock-row"><span class="chk"></span> Soul Split</div>
+                <div class="mock-row"><span class="chk on"></span> Vengeance</div>
+                <div class="mock-row"><span class="chk"></span> Dream healing</div>
+                <div class="mock-row"><span class="chk"></span> Spellbook Swap slot</div>
+                <div class="mock-row"><span class="chk"></span> Uptime: aggressive</div>
+                <div class="mock-row"><span class="chk"></span> …and 30 more prayers</div>
+            </div>
+            <p class="mock-note">Every mechanic a checkbox, forever compounding.</p>
+        </div>
+        <div class="pane">
+            <div class="pane-label">CASUAL MODE — SHIPPED DESIGN</div>
+            <div class="mock">
+                <div class="dial"><span>balanced</span><span class="on">max_output</span><span>max_safety</span></div>
+                <div class="mock-row"><span class="chk on"></span> Prayers/Curses on</div>
+                <div class="mock-row"><span class="chk on"></span> Autocast: Fire Surge <i style="font-size:0.65rem">(magic weapon only)</i></div>
+                <div class="mock-row"><span class="chk"></span> Dream thrift (heal with reviews)</div>
+            </div>
+            <p class="mock-note">The dial derives prayers, uptime, Vengeance, and the swap slot from your unlocks. Full editor lives in advanced mode.</p>
+        </div>
+    </div>
+    <div class="callout"><b>Owner note:</b> "We'll probably have to tweak it." The three-toggle set is expected to iterate — implementation keeps it data-driven, and a fourth casual-level control requires a grill question first.</div>
+
+    <h2>Implementation slices (queued behind the in-flight Prayer build)</h2>
+    <div class="step"><div class="step-num">1</div><p><b>Source extraction.</b> SpellbookData roster (incl. teleport XP, surges, god spells), Darkan cache alch values wholesale, EnchantmentData + bolt ladder, Ancients/Lunar wiki pins, bind/curse/orb/Mage-Arena/telegrab pins. <span class="file">tools/wiki_parity.py</span></p></div>
+    <div class="step"><div class="step-num">2</div><p><b>Data + items.</b> <span class="file">magic_data.py</span> with per-entry citations; orb/battlestaff/enchanted-jewellery/Hunter-kit items; <span class="file">skill_registry.py</span> flips Magic to complete.</p></div>
+    <div class="step"><div class="step-num">3</div><p><b>Pure mechanics.</b> Cast targets (1/review, authentic per-cast batches), alch item-picker flow, book derivation + no-mixing validation + swap exception, Dream review-cost policy, Ancients/bind/curse EV via the Prayer curse toolkit, casual-dial derivation layer, undo safety. <span class="file">logic_pure.py</span> <span class="file">storage_pure.py</span></p></div>
+    <div class="step"><div class="step-num">4</div><p><b>UI + assets + achievements.</b> Grouped target rows (Alchemy / Teleports / Enchanting / Superheat / Conversion / Orbs / Lunar), casual three-toggle panel, asset fetch with provenance, registry-generated milestones. <span class="file">ui.py</span> <span class="file">target_metadata.py</span> <span class="file">tools/fetch_assets.py</span></p></div>
+    <div class="step"><div class="step-num">5</div><p><b>Verification.</b> Full pure + offscreen Qt suites (baseline 1,001 + 1,001, 160 expected skips); focused tests for book validation, alch values, EV math, dial derivation; manual Anki instructions.</p></div>
+</div>
+</body>
+</html>
