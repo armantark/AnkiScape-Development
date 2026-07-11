@@ -794,3 +794,154 @@ Living-mineral yield and exact star/server rolls.
 - The source's temporary extra-ore duration stays source/balance-blocked until
   skilling-action timing is calibrated without pretending each review represents
   combat's 30 seconds.
+
+## Fishing: Trawler, Fish Flingers, and Daemonheim Fishing
+
+Backlog id: `fish-trawler-flingers`
+
+Decision status: composite row split by system. Fishing Trawler design is
+settled; Fish Flingers moves to the minigame/D&D pass and Daemonheim fishing to
+the eventual Dungeoneering expansion.
+
+### Period Facts
+
+- `Fishing Trawler` oldid 6288357 (2012-09-24) establishes level 15 entry, a
+  safe twelve-minute team minigame, consumable swamp paste for leaks, consumable
+  rope for torn nets, reusable bailing buckets, an anti-idling activity bar,
+  failure by sinking, level-shaped saltwater catches, and Fishing XP equal to
+  40% of the catch's ordinary XP. Sea turtles require 79 and manta rays 81.
+- `Fish Flingers` oldid 6529096 (2012-11-03) establishes a no-level, no-item
+  multiplayer D&D with temporary bait/hook/weight controls, tackle-discovery
+  feedback, communal depletion, big-fish cooperation, Fishing-level-scaled XP,
+  two daily tickets with a ten-ticket cap, medals/tokens, and a reward shop.
+- `Dungeoneering/Fishing` oldid 5812989 (2012-06-23) establishes Daemonheim-only
+  fly fishing with temporary rod/feathers, tiered fish, occasional half XP,
+  stackable in-floor resources after the April 2012 toolbelt update, and a
+  maximum of 14 fish per generated spot.
+
+### Fishing Trawler Activity
+
+- Build Trawler as a persistent activity session, not an ordinary Fishing
+  target and not a one-review loot roll. Track boat water, active leaks, net
+  state, player contribution/activity, crew contribution, remaining action
+  phases, supplies, and success or sinking.
+- One successful review performs one useful Trawler duty. The global market
+  clock continues to advance, but the source's twelve minutes do not collapse
+  the trip into two reviews; skilling still uses action ticks rather than
+  converting every review into six minutes.
+- Casual joins a busy public crew and automatically performs the most urgent
+  useful action that its carried supplies permit: repair leaks, bail, or repair
+  the net. Advanced saves duty checkboxes, a solo/small/busy crew preference,
+  and this activity's unified carried layout.
+- Swamp paste and rope are consumed by their duties; the bailing bucket is a
+  reusable carried tool. The source shop supplies all three through the normal
+  Shop surface.
+- A successful trip awards the level-shaped catch and 40% ordinary fish XP.
+  Deposit the haul directly into the bank with a non-blocking summary because
+  the source catch interface sits beside a deposit box; claiming costs no extra
+  review. A sunk trip awards no haul.
+
+### Scope Splits
+
+- Fish Flingers remains a separate multiplayer D&D. Its tackle deduction,
+  temporary control panel, competition state, cooperative big fish, medals,
+  tokens, and visually distinct manual reward shop should be designed together
+  in the future minigame/activity pass. Its ticket grants use the shared
+  simulated-day clock rather than the computer date.
+- Daemonheim fish belong to Dungeoneering, not the ordinary Fishing target list.
+  They use the dungeon's temporary stackable inventory, generated spots, toolbelt,
+  Cooking/Firemaking survival loop, and party state; nothing leaves to the bank.
+
+## Firemaking: Pyres, Shades of Mort'ton, and the Beacon Network
+
+Backlog id: `fm-pyres-beacons`
+
+Decision status: composite row split by system. Pyre processing and Beacon
+Network design are settled; the broader Shades of Mort'ton loop moves to the
+minigame/activity pass. Exact reward rolls and active timers wait for reconciled
+period/server evidence.
+
+### Period Facts
+
+- `Firemaking` oldid 6513361 (2012-10-31) and `Template:Pyre ships` oldid
+  5501212 (2012-04-16) establish Barbarian pyre ships from one log plus chewed
+  or mangled bones, level-matched Crafting and Firemaking XP, and one to five
+  subsequent bones receiving enhanced Prayer XP based on the log. Mangled bones
+  summon a dangerous Barbarian spirit.
+- `Shades of Mort'ton (minigame)` oldid 6449451 (2012-10-21) establishes the
+  quest-gated temple/sanctity loop, olive-oil blessing, two-to-four-dose pyre-log
+  recipes, shade-remains compatibility, Firemaking XP, funeral-pyre cremation,
+  Prayer XP, shade keys/coins, and catacomb chests.
+- `All Fired Up (minigame)` oldid 6564841 (2012-11-17) establishes the quest-
+  gated 14-beacon network, 20 same-type unnoted logs per beacon, optional five-
+  log tending/refuelling, log-dependent burn windows, per-beacon requirements,
+  simultaneous-lighting XP, and rewards at 6, 10, and 14 lit beacons.
+
+### Pyre Actions and Shades Scope
+
+- Add every source-backed pyre-log recipe as an ordinary Firemaking processing
+  target: consume the correct sacred-oil doses and one log, produce its pyre log,
+  and award the period Firemaking XP. These rows remain visually ordinary even
+  while sacred-oil acquisition is not yet implemented.
+- Add funeral-pyre cremation rows keyed by shade-remains family and compatible
+  pyre-log tier. They consume both inputs and award the source Prayer XP plus the
+  sourced key-or-coins result once those rolls are reconciled.
+- Do not pretend the surrounding Shades loop is a list of Firemaking targets.
+  Temple repair, personal sanctity, oil blessing, shade combat, Mort'ton danger,
+  catacomb access, keys, and chests form one separate multi-skill activity.
+- Add Barbarian pyre ships as separate chewed-bone and mangled-bone targets for
+  each supported log tier. One completed ship consumes one log and one bone,
+  awards both Crafting and Firemaking XP, and stores the sourced count of future
+  bone/ash actions receiving enhanced Prayer XP. Mangled-bone variants enter the
+  shared Combat/HP/food/death/undo flow for the summoned spirit.
+
+### Beacon Network Abstraction
+
+- Use a dedicated 14-row Beacon Network activity panel, not a world map. Each
+  row owns unlock/keeper/repair state, loaded log tier/count, burn strength, and
+  extinguished/weak/lit status.
+- Preloading, one-time keeper preparation, repairs, lighting, refuelling, and
+  abstract travel are activity phases. The system may bank-run between preload
+  batches; beacon-stored logs persist and do not occupy the carried pack.
+- Casual selects the highest useful accessible milestone—6, 10, or 14—and plans
+  an achievable route and economical log assignment automatically. Advanced
+  saves beacon checkboxes, route order, per-beacon log choices, and the unified
+  carried layout; inventory presets use the existing save/apply flow.
+- Active beacon burn windows advance in Beacon activity phases, calibrated from
+  the period burn-time and route evidence. Do not subtract six minutes per
+  review merely because the background market clock advances one hour per ten
+  answered cards; both clocks advance, but they model different things.
+- On reaching 6, 10, or 14 simultaneously lit beacons, expose the corresponding
+  Ring of fire, Flame gloves, or Inferno adze as a manual claim. Repeated runs
+  remain available for source XP after the one-time items are owned.
+
+## Fishing: Cave Eel
+
+Backlog id: `fish-cave-eel-stub`
+
+Decision status: source-shaped target settled without an owner question. Exact
+catch probability remains source-blocked pending Darkan/high-fidelity evidence.
+
+### Period Facts
+
+- `Cave eel` oldid 6357178 (2012-10-06) establishes level 38 Fishing, an
+  ordinary Fishing rod plus Fishing bait, 80 Fishing XP, and Raw cave eel as a
+  tradeable output. It lists Lumbridge Swamp Caves and the Meiyerditch dungeon
+  as fishing locations.
+- The same period page establishes the linked Cooking row at level 38, 115
+  Cooking XP, and variable healing from 70 to 110 life points. That downstream
+  row belongs to the Cooking/HP pass rather than changing the Fishing action.
+
+### AnkiScape Representation
+
+- Add `Catch cave eel` as an ordinary Fishing target. One successful review
+  performs one catch action, consumes one Fishing bait, awards one Raw cave eel
+  and 80 Fishing XP, and keeps the Fishing rod as a reusable carried tool.
+- Use the abstract Lumbridge Swamp Caves route with no quest gate and no world
+  map. Meiyerditch is an optional source location, not a universal access gate.
+- The target uses the unified inventory contract: its own editable carried
+  layout plus the shared save-preset/apply-preset dropdown. Do not create a
+  Cave-eel-specific inventory system.
+- The archived wiki row does not establish the exact catch roll. Preserve the
+  source-backed level, inputs, output, and XP now, but do not fabricate a catch
+  chance while the Darkan/high-fidelity parity source is pending.

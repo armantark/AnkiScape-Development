@@ -31,6 +31,10 @@ Use this skill before planning or implementing a skill expansion. The goal is to
   reset on simulated-day boundaries without stacking, and shorter world events
   derive from the same clock. All answered cards advance time; undo must roll it
   back with the triggering review.
+- The global clock governs background/world/economy timers and reset cadence;
+  it does not turn every skilling review into six minutes of action. Skilling
+  remains one sourced action tick per successful review unless that activity has
+  an independently approved action grouping.
 - Do not grill the owner on facts or behavior already determined by pinned
   period evidence and settled AnkiScape rules. Resolve and document those
   autonomously, batching routine source-shaped decisions. Ask only when two or

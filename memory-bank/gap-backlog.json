@@ -463,8 +463,16 @@
       "title": "Add Fishing Trawler + Fish Flingers/Dungeoneering fishing",
       "detail": "Trawler rewards (turtles/manta rays) + trawler catches; Fish Flingers and Dungeoneering fishing as separate activity systems.",
       "source": "wiki:Fishing Trawler",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "split_scope",
+      "note": "Fishing Trawler design settled 2026-07-10; Fish Flingers moves to the dedicated minigame/D&D pass and Daemonheim fish move to the Dungeoneering expansion",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fishing-trawler-fish-flingers-and-daemonheim-fishing",
+      "decision_summary": {
+        "trawler": "Use a persistent crew-activity session with boat water, leaks, net state, activity contribution, source supplies, success/failure, and a level-shaped catch at 40 percent normal Fishing XP.",
+        "trawler_modes": "Casual joins a busy public crew and performs the most urgent useful duty; Advanced saves allowed duty checkboxes, crew-size preference, and the activity carried layout.",
+        "trawler_rewards": "On success, award the source catch and XP, then deposit the haul into the bank with a non-blocking summary; claiming does not consume another review.",
+        "fish_flingers": "Keep as a separate multiplayer tackle-discovery D&D with its own temporary interface, simulated-day tickets, medals/tokens, and manual reward shop.",
+        "daemonheim": "Implement Dungeoneering fish only inside the future Dungeoneering session with temporary stackable resources and no ordinary-bank leakage."
+      }
     },
     {
       "id": "fm-pyres-beacons",
@@ -475,18 +483,34 @@
       "title": "Add funeral pyres + Beacon Network/All Fired Up",
       "detail": "Pyre logs (Firemaking/Prayer-adjacent) and the beacon-lighting activity.",
       "source": "wiki:Pyre ship",
-      "status": "needs_grill",
-      "note": "design input required \u2014 grill owner before building (not auto-filled)"
+      "status": "split_scope",
+      "note": "pyre-processing and Beacon Network design settled 2026-07-10; Shades of Mort'ton temple/sanctity/catacombs move to the minigame pass and exact rolls/timers wait for reconciled evidence",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#firemaking-pyres-shades-of-mortton-and-the-beacon-network",
+      "decision_summary": {
+        "pyre_logs": "Add source-backed log plus sacred-oil processing rows and shade-cremation rows as ordinary input-starved Firemaking actions; the broader Shades activity supplies oil, remains, keys, and chests later.",
+        "pyre_ships": "Add separate chewed-bone and mangled-bone Barbarian pyre-ship actions per log tier, with Crafting and Firemaking XP plus a stored enhanced-Prayer counter; mangled bones use the shared combat/HP flow.",
+        "shades_scope": "Temple repair, sanctity, sacred-oil production, shade combat, catacombs, and key chests form one separate Shades of Mort'ton activity system.",
+        "beacon_ui": "Represent all 14 beacons in a dedicated activity state panel with load, keeper, repair, lit, weakening, and extinguished states; never add a world map.",
+        "beacon_modes": "Casual chooses the highest useful accessible milestone and plans the route/logs automatically; Advanced saves beacon checkboxes, route order, per-beacon log choices, and the activity carried layout.",
+        "beacon_timing": "Active burn windows advance by Beacon activity action phases rather than the global six-minute market-hour conversion; the market clock still advances normally in parallel."
+      }
     },
     {
       "id": "fish-cave-eel-stub",
       "rank": 21,
       "skill": "Fishing",
       "root_cause": "stub",
-      "status": "needs_grill",
+      "status": "design_settled_waiting_source",
       "title": "Cave eel fishing method (no game-main binding)",
       "detail": "game-main defines Fish.CAVE_EEL but provides no FishingTool or FishingSpot binding, so a faithful port is impossible from the emulator. Authentic pre-EOC method is fishing rod + fishing bait at Lumbridge Swamp caves (same route as slimy/lava eels). Sourcing the rod+bait binding + level/XP from the wiki is a design/sourcing decision for the owner. Currently kept in DEFERRED_FISHING_CONTENT.",
-      "note": "split out of fish-transcription 2026-07-09; needs owner grill"
+      "note": "ordinary Cave eel target settled from pinned period evidence 2026-07-10; exact catch roll waits for Darkan/high-fidelity source reconciliation",
+      "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#fishing-cave-eel",
+      "decision_summary": {
+        "target": "Add Catch cave eel as an ordinary level-38 Fishing target using a reusable Fishing rod and one Fishing bait per successful catch, producing Raw cave eel for 80 Fishing XP.",
+        "access": "Use the abstract Lumbridge Swamp Caves route with no quest gate and no world map; the Meiyerditch location is an alternative source location, not a universal requirement.",
+        "inventory": "Use the standard target-local carried layout and save/apply preset flow shared by every inventory-managed skilling target.",
+        "source_boundary": "Do not invent a catch chance from the wiki row; keep the exact success roll source-blocked until Darkan or reconciled period evidence supplies it."
+      }
     },
     {
       "id": "craft-runtime-remainder",
