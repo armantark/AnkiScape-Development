@@ -45,6 +45,8 @@ class SkillCardView:
     category: str
     implemented: bool
     selectable_for_review: bool
+    surface_state: str = "complete"
+    training_source: str = ""
 
 
 @dataclass(frozen=True)
@@ -63,6 +65,8 @@ def _card_from_definition(skill: SkillDefinition) -> SkillCardView:
         category=skill.category,
         implemented=bool(skill.implemented and skill.visible_in_skill_hub),
         selectable_for_review=bool(skill.implemented and skill.visible_in_skill_hub and skill.participates_in_review),
+        surface_state=skill.surface_state,
+        training_source=skill.training_source or "",
     )
 
 

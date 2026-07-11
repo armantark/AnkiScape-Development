@@ -1,4 +1,4 @@
-# AnkiScape completion audit — 2026-07-10
+# AnkiScape completion audit — 2026-07-10 (reconciled 2026-07-11)
 
 This is the project-wide completeness baseline. The machine-readable companion is `memory-bank/completion-audit.json`; the action surface is `memory-bank/future-work-kanban.md`.
 
@@ -12,7 +12,7 @@ The target is RuneScape immediately before EOC (`2012-11-20`). Pinned historical
 
 - 25 pre-EOC skills audited.
 - 11 are registered review skills: Mining, Woodcutting, Fishing, Smithing, Crafting, Fletching, Firemaking, Cooking, Runecrafting, Hunter, and Herblore.
-- Six additional stats have real partial runtime through unified Combat: Attack, Strength, Defence, Constitution, Ranged, and Magic. Their `skill_registry.py` rows still say planned because they are not independent complete skill surfaces.
+- Six additional stats have real partial runtime through unified Combat: Attack, Strength, Defence, Constitution, Ranged, and Magic. Their registry rows now say `partial` and identify Combat as their training source; `implemented=False` still records that they do not own complete independent skill surfaces.
 - Eight skills are wholly missing: Prayer, Summoning, Construction, Farming, Agility, Dungeoneering, Slayer, and Thieving.
 - Magic is the ninth missing full skill surface: its standard combat spell ladder is live, while noncombat Magic and broader spellbooks are not.
 - The 194-row quest catalog is coverage scaffolding. It is not a claim that 194 quests are faithful or complete.
@@ -22,9 +22,9 @@ The target is RuneScape immediately before EOC (`2012-11-20`). Pinned historical
 
 | Skill | Current state | Deep grill? | Darkan value | Next gate |
 |---|---|---:|---|---|
-| Attack | Partial Combat runtime | No; existing Combat grill | Helpful | Source/equipment/enemy breadth and registry reconciliation |
+| Attack | Partial Combat runtime | No; existing Combat grill | Helpful | Source/equipment/enemy breadth |
 | Strength | Partial Combat runtime | No | Helpful | Shared Combat parity |
-| Defence | Partial Combat runtime | No | Helpful | Shared Combat/equipment parity; reconcile legacy `defense` stable id/display |
+| Defence | Partial Combat runtime | No | Helpful | Shared Combat/equipment parity; stable save id remains `defense` |
 | Constitution | Partial Combat runtime | No | Helpful | Consumables, recovery, overheal, equipment and status parity |
 | Ranged | Partial Combat runtime | No | Helpful | Crossbows, thrown weapons, ammo effects, specials, equipment breadth |
 | Magic | Partial combat-only skill | **Yes** | **Preferred** | Resume a dedicated grill for noncombat actions, spellbooks, enchantment and gates |
@@ -58,7 +58,7 @@ Keep the 194-row catalog and machine-readable stage-gate infrastructure, but aud
 
 ### Combat, bosses, and equipment
 
-The Combat loop is already deeply grilled. Remaining work is breadth and fidelity: ordinary enemies, equipment and requirements, special attacks, degradables and set effects, full ammo/spell families, Wilderness risk, boss/instance contexts, and converting the six partial combat stats into truthful skill-registry/status surfaces. Fight Caves/Kiln, Barrows, God Wars, Corporeal Beast, Nex, quest bosses, and minigame enemies must stay behind their authentic activity context.
+The Combat loop is already deeply grilled, and the six partial Combat stats now have truthful registry/status semantics. Remaining work is breadth and fidelity: ordinary enemies, equipment and requirements, special attacks, degradables and set effects, full ammo/spell families, Wilderness risk, and boss/instance contexts. Fight Caves/Kiln, Barrows, God Wars, Corporeal Beast, Nex, quest bosses, and minigame enemies must stay behind their authentic activity context.
 
 ### Activities, minigames, D&Ds, and reward shops
 
@@ -66,7 +66,7 @@ The Utility/Activities surface and reward-shop direction are settled only at the
 
 ### Economy and acquisition
 
-NPC shops are live. The fake GE design is locked, but implementation remains parked until the skill/item universe is broader. Reward currencies wait for their activities. A separate acquisition pass must close missing drops, ground spawns, shops, skill outputs, claims, and transformations without disguising missing routes as fake recipe gates.
+NPC shops are live. The fake GE design is locked, but implementation remains parked until the skill/item universe is broader. Reward currencies wait for their activities. The deterministic reachability audit now exposes 267 live action-input orphans at its 2026-07-11 baseline; close them through authentic drops, spawns, shops, claims, quests, skills, activities, and transformations without disguising missing routes as fake recipe gates (`memory-bank/source-audits/item-reachability-audit-2026-07-11.md`).
 
 ### Collections and one-time content
 
@@ -104,4 +104,3 @@ Do not wait for Darkan to prove client-side IDs/options/sprites that the period 
 3. Ingest a stable Darkan restoration milestone and rerun the quest/special-activity/server-behavior audits.
 4. Build missing skills and activities in dependency order, then unpark the GE when its item universe is representative.
 5. Run the global 1-99 balance, acquisition/economy closure, and release-readiness programs last.
-

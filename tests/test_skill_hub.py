@@ -68,6 +68,9 @@ class TestSkillHubViewModel(unittest.TestCase):
             self.assertIn(skill_id, cards)
             self.assertFalse(cards[skill_id].implemented)
             self.assertFalse(cards[skill_id].selectable_for_review)
+        self.assertEqual(cards["magic"].surface_state, "partial")
+        self.assertEqual(cards["magic"].training_source, "Combat")
+        self.assertEqual(cards["prayer"].surface_state, "planned")
         for skill_id in ("attack", "constitution", "defense", "ranged", "strength"):
             self.assertNotIn(skill_id, cards)
 

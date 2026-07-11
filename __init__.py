@@ -88,7 +88,7 @@ from .injectors import register_deck_browser_button as _register_deck_browser_bu
 from .injectors import force_deck_browser_refresh as _force_deck_browser_refresh
 from .storage import load_player_data as storage_load_player_data, save_player_data as storage_save_player_data
 from .action_registry import is_review_action, review_action_handler_key
-from .skill_registry import implemented_skill_definitions
+from .skill_registry import trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
@@ -365,13 +365,13 @@ def _award_hidden_skill_exp(exp_key: str, level_key: str, base_exp: float) -> No
 def _implemented_exp_keys_snapshot() -> dict[str, float]:
     return {
         skill.exp_key: float(player_data.get(skill.exp_key, 0) or 0)
-        for skill in implemented_skill_definitions()
+        for skill in trainable_skill_definitions()
     }
 
 
 def _show_quest_exp_delta(before: dict[str, float]) -> None:
     total = 0.0
-    for skill in implemented_skill_definitions():
+    for skill in trainable_skill_definitions():
         old_exp = before.get(skill.exp_key, 0.0)
         try:
             new_exp = float(player_data.get(skill.exp_key, 0) or 0)
@@ -379,6 +379,9 @@ def _show_quest_exp_delta(before: dict[str, float]) -> None:
             new_exp = old_exp
         if new_exp > old_exp:
             total += new_exp - old_exp
+            # Minimal/legacy saves can receive a Combat-stat quest reward before
+            # the normal storage migration has seeded that stat's level key.
+            player_data.setdefault(skill.level_key, 1)
             level_up_check(skill.display_name, player_data)
     if total > 0:
         _show_exp(total)

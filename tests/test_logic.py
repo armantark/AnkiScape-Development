@@ -491,6 +491,18 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(new_inv["Anchovies"], 2)
         self.assertEqual(new_inv["Anchovy paste"], 28)
 
+    def test_empty_bird_nests_feed_the_source_backed_crushed_nest_action(self):
+        new_inv, exp, ok, processed = apply_utility_activity_pure(
+            "grind_birds_nest",
+            {"Bird's nest (empty)": 3},
+            UTILITY_ACTIVITY_DATA,
+        )
+        self.assertTrue(ok)
+        self.assertEqual(exp, 0)
+        self.assertEqual(processed, 3)
+        self.assertEqual(new_inv["Bird's nest (empty)"], 0)
+        self.assertEqual(new_inv["Crushed nest"], 3)
+
     def test_light_source_actions_are_single_zero_xp_item_swaps_with_level_locks(self):
         new_inv, exp, ok, processed = apply_utility_activity_pure(
             "light_candle_lantern_4527",
@@ -2027,11 +2039,11 @@ class TestLogic(unittest.TestCase):
         self.assertIn("Lost City", lunar_reasons)
         self.assertIn("Rune Mysteries", lunar_reasons)
         self.assertIn("Shilo Village", lunar_reasons)
-        self.assertIn("Defence 40 (not implemented)", lunar_reasons)
+        self.assertIn("Defence 40", lunar_reasons)
         # Herblore is now implemented, so its requirement drops the suffix.
         self.assertIn("Herblore 5", lunar_reasons)
         self.assertNotIn("Herblore 5 (not implemented)", lunar_reasons)
-        self.assertIn("Magic 65 (not implemented)", lunar_reasons)
+        self.assertIn("Magic 65", lunar_reasons)
         self.assertFalse(can_start_quest_pure(player_data, "lunar_diplomacy", QUEST_DATA))
 
     def test_quest_availability_separates_start_locks_from_progress(self):
@@ -2623,10 +2635,9 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Diamond"], 2)
         self.assertEqual(player_data["inventory"]["Gold bar"], 2)
         self.assertEqual(player_data["inventory"]["Mithril seeds"], 40)
-        self.assertEqual(
-            player_data["pending_skill_exp_rewards"],
-            {"attack_exp": 13750.0, "strength_exp": 13750.0},
-        )
+        self.assertEqual(player_data["attack_exp"], 13750.0)
+        self.assertEqual(player_data["strength_exp"], 13750.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
     def test_biohazard_stage_gates_pigeons_mourner_distillator_and_guidor(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -2921,7 +2932,7 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Thieves' armband"], 0)
         self.assertEqual(player_data["fishing_exp"], 2725.0)
         self.assertEqual(player_data["cooking_exp"], 2825.0)
-        self.assertEqual(player_data["pending_skill_exp_rewards"]["defense_exp"], 3075.0)
+        self.assertEqual(player_data["defense_exp"], 3075.0)
         # Herblore is now an implemented skill, so its quest reward is awarded
         # directly rather than held in pending_skill_exp_rewards.
         self.assertEqual(player_data["herblore_exp"], 1325.0)
@@ -3267,10 +3278,8 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["holy_grail"]["completed"])
         self.assertEqual(player_data["inventory"]["Holy grail"], 0)
-        self.assertEqual(
-            player_data["pending_skill_exp_rewards"],
-            {"defense_exp": 15300.0, "prayer_exp": 11000.0},
-        )
+        self.assertEqual(player_data["defense_exp"], 15300.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"prayer_exp": 11000.0})
         self.assertEqual(player_data["quest_points"], 2)
 
     def test_tree_gnome_village_requires_two_commanders_and_warlord_before_completion(self):
@@ -3376,13 +3385,15 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(player_data["inventory"]["Orb of protection"], 0)
         self.assertEqual(player_data["inventory"]["Orbs of protection"], 1)
 
+        attack_before_reward = player_data["attack_exp"]
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "tree_gnome_village", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["tree_gnome_village"]["completed"])
         self.assertEqual(player_data["inventory"]["Orbs of protection"], 0)
         self.assertEqual(player_data["inventory"]["Gnome amulet"], 1)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"attack_exp": 11450.0})
+        self.assertAlmostEqual(player_data["attack_exp"] - attack_before_reward, 11450.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
         self.assertEqual(player_data["quest_points"], 2)
 
     def test_shield_of_arrav_phoenix_route_blocks_combat_and_uses_contextual_certificate_half(self):
@@ -3650,12 +3661,14 @@ class TestLogic(unittest.TestCase):
         )
 
         player_data["quest_stage_actions"]["fight_arena"].append("Return to Lady Servil for the reward")
+        attack_before_reward = player_data["attack_exp"]
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "fight_arena", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["fight_arena"]["completed"])
         self.assertEqual(player_data["quest_points"], 2)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"attack_exp": 12175.0, "thieving_exp": 2175.0})
+        self.assertEqual(player_data["attack_exp"] - attack_before_reward, 12175.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {"thieving_exp": 2175.0})
         self.assertEqual(player_data["inventory"]["Coins"], 1000)
 
     def test_witchs_house_stage_gates_items_route_combat_and_reward(self):
@@ -3807,13 +3820,15 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(blocked["pending_skill_exp_rewards"], {})
 
         player_data["quest_stage_actions"]["witchs_house"].append("Return the ball to Harvey")
+        constitution_before_reward = player_data["constitution_exp"]
         player_data, ok, completed_now = apply_quest_progress_pure(player_data, "witchs_house", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertTrue(player_data["quests"]["witchs_house"]["completed"])
         self.assertEqual(player_data["quest_points"], 4)
         self.assertEqual(player_data["inventory"]["Ball"], 0)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"constitution_exp": 6325.0})
+        self.assertEqual(player_data["constitution_exp"] - constitution_before_reward, 6325.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
     def test_merlins_crystal_stage_gates_items_route_combat_and_reward(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -4245,7 +4260,8 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(imp["inventory"]["Yellow bead"], 0)
         self.assertEqual(imp["inventory"]["Amulet of accuracy"], 1)
         self.assertEqual(imp["inventory"]["Coins"], 0)
-        self.assertEqual(imp["pending_skill_exp_rewards"], {"magic_exp": 875.0})
+        self.assertEqual(imp["magic_exp"], 875.0)
+        self.assertEqual(imp["pending_skill_exp_rewards"], {})
 
         druidic = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         druidic["quests"]["druidic_ritual"] = {"started": True, "progress": 1, "completed": False}
@@ -4349,11 +4365,13 @@ class TestLogic(unittest.TestCase):
         self.assertEqual(vampyre["inventory"]["Stake"], 0)
         self.assertEqual(vampyre["quests"]["vampyre_slayer"]["progress"], 4)
         vampyre["quest_stage_actions"]["vampyre_slayer"].append("Tell Morgan that Count Draynor is dead")
+        attack_before_reward = vampyre["attack_exp"]
         vampyre, ok, completed_now = apply_quest_progress_pure(vampyre, "vampyre_slayer", QUEST_DATA)
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertEqual(vampyre["quest_points"], 3)
-        self.assertEqual(vampyre["pending_skill_exp_rewards"], {"attack_exp": 4825.0})
+        self.assertEqual(vampyre["attack_exp"] - attack_before_reward, 4825.0)
+        self.assertEqual(vampyre["pending_skill_exp_rewards"], {})
 
     def test_early_darkan_quests_progress_through_source_backed_stage_gates(self):
         goblin = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -5408,7 +5426,7 @@ class TestLogic(unittest.TestCase):
             (),
         )
 
-    def test_quest_completion_awards_implemented_xp_and_parks_unimplemented_xp(self):
+    def test_quest_completion_awards_trainable_xp_and_parks_unimplemented_xp(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
         player_data["quests"]["lunar_diplomacy"] = {"started": True, "progress": 7, "completed": False}
         player_data["quest_stage_actions"] = {"lunar_diplomacy": ["Complete Lunar Diplomacy stage 7 objective"]}
@@ -5423,7 +5441,8 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(completed_now)
         self.assertEqual(player_data["inventory"]["Astral rune"], 50)
         self.assertEqual(player_data["runecrafting_exp"], 5000)
-        self.assertEqual(player_data["pending_skill_exp_rewards"], {"magic_exp": 5000.0})
+        self.assertEqual(player_data["magic_exp"], 5000.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
     def test_dragon_slayer_stage_gates_items_combat_and_completion_rewards(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)
@@ -5510,10 +5529,9 @@ class TestLogic(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(completed_now)
         self.assertEqual(player_data["quest_points"], 34)
-        self.assertEqual(
-            player_data["pending_skill_exp_rewards"],
-            {"defense_exp": 18650.0, "strength_exp": 18650.0},
-        )
+        self.assertEqual(player_data["defense_exp"], 18650.0)
+        self.assertEqual(player_data["strength_exp"], 18650.0)
+        self.assertEqual(player_data["pending_skill_exp_rewards"], {})
 
     def test_fishing_unlock_rules_cover_swan_song_and_tai_bwo_wannai_trio(self):
         player_data = default_player_data(ORE_DATA, ITEM_DEFINITIONS)

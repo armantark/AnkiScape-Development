@@ -4,9 +4,18 @@ Focused continuation document for the partially completed **Prayer** deep grill.
 It is not the global post-Herblore roadmap; that role now belongs to
 `completion-audit-2026-07-10.md` and `future-work-kanban.md`.
 
-Status: parked mid-grill on 2026-07-09 and audited 2026-07-10. Resume from the
+Status: parked mid-grill on 2026-07-09 and refreshed 2026-07-11. Resume from the
 settled decisions and open questions below; do not restart the Prayer design or
 treat the tentative open values as implementation-ready.
+
+Global status now lives in the completion kanban. The registry distinguishes
+11 complete skill surfaces, six partial Combat-trained skills, and eight planned
+skills; Prayer remains planned and must not be promoted merely because its save
+keys and some Herblore/Combat dependencies exist. All source work below follows
+`pre-eoc-source-verification-standard.md`: pinned pre-EOC wiki revisions and
+period caches establish history, while 2011Scape/current Darkan code is
+reconstruction evidence that must be reconciled. Never fill a gap from modern
+RS3 or OSRS behavior.
 
 ---
 

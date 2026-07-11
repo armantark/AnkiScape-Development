@@ -11,6 +11,7 @@ try:
         LEGACY_CRAFTING_TARGETS,
     )
     from .item_registry import ItemDefinition
+    from .constants import EXP_TABLE
     from .quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from .runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from .firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
@@ -23,6 +24,7 @@ try:
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         default_stronghold_state_pure,
+        calculate_new_level,
         sanitize_action_telemetry_pure,
         sanitize_combat_state_pure,
         sanitize_quest_combat_active_encounters_pure,
@@ -37,7 +39,7 @@ try:
         LEGACY_SMITHING_TARGETS,
         SMITHING_RECIPES_BY_ID,
     )
-    from .skill_registry import default_skill_state, default_target_state, implemented_skill_definitions, planned_skill_definitions
+    from .skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
     from .woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -53,6 +55,7 @@ except ImportError:
         LEGACY_CRAFTING_TARGETS,
     )
     from item_registry import ItemDefinition
+    from constants import EXP_TABLE
     from quest_data import DEFAULT_QUEST_TARGET, default_claim_states, default_quest_states
     from runecrafting_data import DEFAULT_RUNECRAFTING_TARGET, RUNECRAFTING_TARGETS_BY_ID
     from firemaking_data import DEFAULT_FIREMAKING_TARGET, FIREMAKING_TARGETS_BY_ID
@@ -65,6 +68,7 @@ except ImportError:
         default_quest_combat_active_encounters_pure,
         default_quest_combat_config_pure,
         default_stronghold_state_pure,
+        calculate_new_level,
         sanitize_action_telemetry_pure,
         sanitize_combat_state_pure,
         sanitize_quest_combat_active_encounters_pure,
@@ -79,7 +83,7 @@ except ImportError:
         LEGACY_SMITHING_TARGETS,
         SMITHING_RECIPES_BY_ID,
     )
-    from skill_registry import default_skill_state, default_target_state, implemented_skill_definitions, planned_skill_definitions
+    from skill_registry import default_skill_state, default_target_state, planned_skill_definitions, trainable_skill_definitions
     from woodcutting_data import (
         DEFAULT_WOODCUTTING_TOOLBELT,
         LEGACY_LOG_STORAGE_MIGRATIONS,
@@ -384,7 +388,7 @@ def _migrate_quest_stage_side_state(data: Dict[str, Any]) -> None:
 
 def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
     raw_pending = data.get("pending_skill_exp_rewards")
-    implemented_exp_keys = {skill.exp_key for skill in implemented_skill_definitions()}
+    trainable_by_exp_key = {skill.exp_key: skill for skill in trainable_skill_definitions()}
     clean_pending: Dict[str, float] = {}
     if isinstance(raw_pending, dict):
         for exp_key, raw_amount in raw_pending.items():
@@ -396,12 +400,18 @@ def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
                 continue
             if amount <= 0:
                 continue
-            if exp_key in implemented_exp_keys:
+            if exp_key in trainable_by_exp_key:
                 try:
                     existing = float(data.get(exp_key, 0) or 0)
                 except (TypeError, ValueError):
                     existing = 0.0
                 data[exp_key] = existing + amount
+                skill = trainable_by_exp_key[exp_key]
+                data[skill.level_key] = calculate_new_level(
+                    data[exp_key],
+                    int(data.get(skill.level_key, 1) or 1),
+                    EXP_TABLE,
+                )
             else:
                 clean_pending[exp_key] = clean_pending.get(exp_key, 0.0) + amount
     data["pending_skill_exp_rewards"] = clean_pending

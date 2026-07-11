@@ -2,7 +2,7 @@
 
 ## Current Focus
 
-Repo-wide completion audit and canonical backlog reconciliation, started 2026-07-10 after the shipped-skill gap grill and overnight source-backed implementation pass.
+Autonomous completion closure, continuing the repo-wide audit with truthful partial-skill status and machine-readable item acquisition reachability.
 
 Use these as the current handoff sources:
 
@@ -14,13 +14,14 @@ Use these as the current handoff sources:
 
 ## Current Truth
 
-- `skill_registry.py` has 11 implemented review skills and 14 planned skill definitions.
-- Attack, Strength, Defence, Constitution, Ranged, and Magic already receive real XP through Combat despite their planned registry status; they are partial skill runtimes, not wholly absent stats.
+- `skill_registry.py` has 11 complete review skills, six partial Combat-trained skills, and eight planned skill definitions.
+- Attack, Strength, Defence, Constitution, Ranged, and Magic use the explicit partial-surface contract; quest gates/rewards recognize them as trainable without pretending that they own full standalone skill surfaces.
 - Prayer, Summoning, Construction, Farming, Agility, Dungeoneering, Slayer, and Thieving are wholly missing skill loops.
 - Magic needs a full skill continuation beyond its live standard combat spell ladder.
 - The 194-row quest catalog and stage-gate engine are scaffolding. Presence is not full quest parity.
 - NPC Shops are live. The fake GE design is locked and parked until broader skill/item coverage.
-- The detailed shipped-skill gap ledger currently has 22 merged cards, 19 active/parked/split cards, and two exclusions.
+- The detailed shipped-skill gap ledger currently has 22 merged cards; Grenwall is explicitly source-blocked after its pinned revision failed to prove exact reward probabilities.
+- The live item graph currently finds 267 orphan action inputs. The canonical breakdown and command live in `memory-bank/source-audits/item-reachability-audit-2026-07-11.md`.
 
 ## Most Recent Completed Work
 
@@ -30,7 +31,11 @@ The 2026-07-10 overnight pass implemented and committed three fully evidenced su
 - Overload mixing: level 96, five three-dose extremes plus clean torstol, 1,000 XP, four Vials returned.
 - Cannonball Smithing: level 35, Dwarf Cannon gate, one Steel bar plus retained Ammo mould, four Cannonballs, 25.6 XP.
 
-It also made Smithing regeneration preserve cannonballs and repaired stale offscreen UI contracts for held moulds and tanning icons. Verification baseline: 998 pure tests and 998 offscreen Qt tests passing.
+It also made Smithing regeneration preserve cannonballs and repaired stale offscreen UI contracts for held moulds and tanning icons. That historical pass ended at 998 tests on each surface.
+
+The 2026-07-11 closure pass added the partial/complete/planned skill contract, direct partial-skill quest/action XP and pending-XP migration, the acquisition reachability audit, and a repair for the Woodcutting nest → empty nest → crushed nest chain.
+
+Current verification baseline: 1,001 pure tests and 1,001 full offscreen Qt tests passing, with 160 expected non-Qt skips in the pure interpreter.
 
 ## Decision Boundaries
 
@@ -53,9 +58,9 @@ It also made Smithing regeneration preserve cannonballs and repaired stale offsc
 
 ## Next Recommended Work
 
-1. Resume and finish the Prayer deep grill, or begin Farming/Construction if the owner chooses a new skill first.
-2. Continue source-complete shipped-skill slices from `gap-backlog.json` without guessing conflicting values.
-3. When Darkan reaches a stable restoration milestone, rerun quest, missing-skill, and special-activity audits against the changed source surface.
+1. Resume and finish the Prayer deep grill, or begin another missing-skill grill when the owner is available.
+2. Close reachability roots only through their authentic owning skills, activities, Combat drops, quests, shops, spawns, claims, and item actions.
+3. When Darkan reaches a stable restoration milestone, rerun Grenwall, quest, missing-skill, and special-activity audits against the changed source surface.
 
 ## Verification Contract
 

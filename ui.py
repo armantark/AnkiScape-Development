@@ -1866,6 +1866,8 @@ def show_main_menu(
         category="combat",
         implemented=True,
         selectable_for_review=True,
+        surface_state="complete",
+        training_source="Combat",
     )
     combat_inserted = False
     combat_hub = []
@@ -1895,6 +1897,8 @@ def show_main_menu(
         category="utility",
         implemented=True,
         selectable_for_review=True,
+        surface_state="complete",
+        training_source="Utility / Activities",
     )
     hub = hub + (
         CategoryView(category_id="utility", display_name=_UTILITY_HUB_NAME, skills=(utility_card,)),
@@ -3110,7 +3114,11 @@ def show_main_menu(
             panel_layout.addWidget(note)
 
         if not card.implemented:
-            note = QLabel("This skill is planned but not yet playable.")
+            if card.surface_state == "partial" and card.training_source:
+                note_text = f"Partially trainable through {card.training_source}; its full skill surface is not complete."
+            else:
+                note_text = "This skill is planned but not yet playable."
+            note = QLabel(note_text)
             note.setWordWrap(True)
             note.setStyleSheet("color: palette(text); font-size: 11px;")
             panel_layout.addWidget(note)

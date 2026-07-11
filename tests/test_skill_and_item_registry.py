@@ -71,7 +71,9 @@ from skill_registry import (
     implemented_review_skill_names,
     is_review_skill,
     planned_skill_definitions,
+    partial_skill_definitions,
     review_handler_key,
+    trainable_skill_definitions,
 )
 
 
@@ -167,6 +169,20 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertFalse(planned[skill_id].implemented)
             self.assertFalse(planned[skill_id].participates_in_review)
         self.assertEqual(len({skill.id for skill in ALL_SKILLS}), len(ALL_SKILLS))
+
+    def test_partial_combat_skills_are_truthfully_trainable_without_complete_surfaces(self):
+        partial = {skill.id: skill for skill in partial_skill_definitions()}
+        self.assertEqual(
+            set(partial),
+            {"attack", "constitution", "defense", "magic", "ranged", "strength"},
+        )
+        self.assertTrue(all(skill.trainable for skill in partial.values()))
+        self.assertTrue(all(skill.training_source == "Combat" for skill in partial.values()))
+        self.assertTrue(all(not skill.implemented for skill in partial.values()))
+        self.assertTrue(all(not skill.participates_in_review for skill in partial.values()))
+        trainable = {skill.id for skill in trainable_skill_definitions()}
+        self.assertTrue(set(partial).issubset(trainable))
+        self.assertNotIn("prayer", trainable)
 
     def test_fletching_is_fully_playable_after_frontend_handoff(self):
         fletching = get_skill("Fletching")

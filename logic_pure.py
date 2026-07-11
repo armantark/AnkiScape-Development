@@ -23,9 +23,9 @@ except ImportError:
         STACKABLE_ITEM_NAMES = frozenset()
 
 try:
-    from .skill_registry import get_skill, implemented_skill_definitions
+    from .skill_registry import get_skill, trainable_skill_definitions
 except ImportError:
-    from skill_registry import get_skill, implemented_skill_definitions
+    from skill_registry import get_skill, trainable_skill_definitions
 
 try:
     from .potion_data import POTION_FAMILIES, potion_dose_name, potion_flask_name
@@ -3819,8 +3819,8 @@ def quest_completed_pure(player_data, quest_id):
     return bool(quest_state_pure(player_data, quest_id).get("completed", False))
 
 
-def _implemented_exp_keys():
-    return {skill.exp_key for skill in implemented_skill_definitions() if skill.implemented}
+def _trainable_exp_keys():
+    return {skill.exp_key for skill in trainable_skill_definitions()}
 
 
 def _skill_requirement_reason(player_data, requirement):
@@ -3833,7 +3833,7 @@ def _skill_requirement_reason(player_data, requirement):
     skill = get_skill(skill_id)
     label = str(display_name or (skill.display_name if skill is not None else skill_id.replace("_", " ").title()))
     level_required = _positive_int(requirement.get("level", 1), 1)
-    if skill is None or not skill.implemented:
+    if skill is None or not skill.trainable:
         return f"{label} {level_required} (not implemented)"
     level_key = skill.level_key
     if level_key not in player_data:
@@ -5242,7 +5242,7 @@ def apply_quest_progress_pure(player_data, quest_id, quest_data):
 
 
 def _apply_quest_xp_rewards(data, quest):
-    implemented_exp_keys = _implemented_exp_keys()
+    trainable_exp_keys = _trainable_exp_keys()
     pending = data.get("pending_skill_exp_rewards", {})
     if not isinstance(pending, Mapping):
         pending = {}
@@ -5261,7 +5261,7 @@ def _apply_quest_xp_rewards(data, quest):
             amount = 0.0
         if amount <= 0:
             continue
-        if exp_key in implemented_exp_keys and skill is not None and skill.implemented:
+        if exp_key in trainable_exp_keys and skill is not None and skill.trainable:
             data[exp_key] = data.get(exp_key, 0) + amount
         else:
             clean_pending[exp_key] = float(clean_pending.get(exp_key, 0) or 0) + amount
@@ -5273,8 +5273,8 @@ def _apply_quest_xp_rewards(data, quest):
 def _apply_skill_xp_reward(data, skill_id, amount):
     skill = get_skill(skill_id)
     exp_key = skill.exp_key if skill is not None else f"{skill_id}_exp"
-    implemented_exp_keys = _implemented_exp_keys()
-    if exp_key in implemented_exp_keys and skill is not None and skill.implemented:
+    trainable_exp_keys = _trainable_exp_keys()
+    if exp_key in trainable_exp_keys and skill is not None and skill.trainable:
         data[exp_key] = data.get(exp_key, 0) + amount
         return
     pending = data.get("pending_skill_exp_rewards", {})

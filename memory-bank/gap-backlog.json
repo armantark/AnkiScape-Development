@@ -236,8 +236,9 @@
       "title": "Verify and port the grenwall reward table",
       "detail": "The existing grenwall action always awards 18 spikes and bones. Pre-cutoff wiki revision 6196272 confirms 18-21 spikes, bones, and random grimy herbs, but does not prove Darkan's precise independent 15% high-herb and 18% mid-herb rolls.",
       "source": "wiki-oldid:6196272; reconstruction-lead:game-main:data/npcs/drops/hunter/hunter_grenwall.json",
-      "status": "pending_source_verification",
-      "note": "Split from the Habitat/Jadinko grill on 2026-07-10. The exact herb probabilities came from a Darkan file introduced in 2022 and match the modern RS3 table, so they require literal pre-cutoff or period-cache corroboration before implementation.",
+      "status": "source_blocked_waiting_darkan",
+      "note": "Source audit closed 2026-07-11: pinned wiki revision 6196272 proves level 77, 1,100 XP, 18-21 spikes, bones, and broad grimy-herb rewards, but not the exact spike distribution or herb probabilities. The candidate Darkan table was introduced in 2022 and matches the modern RS3 shape, so implementation waits for literal period/cache evidence or a reconciled stable high-fidelity Darkan milestone.",
+      "source_audit": "memory-bank/source-audits/grenwall-reward-source-closure-2026-07-11.md",
       "decision_doc": "memory-bank/gap-grill-decisions-2026-07-10.md#independent-grenwall-slice"
     },
     {

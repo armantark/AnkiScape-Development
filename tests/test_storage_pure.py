@@ -365,12 +365,14 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["equipment"], {})
         self.assertNotIn("owned_equipment", migrated)
 
-    def test_migrate_pending_skill_exp_rewards_applies_implemented_keys_once(self):
+    def test_migrate_pending_skill_exp_rewards_applies_trainable_keys_once(self):
         migrated = migrate_loaded_data(
             {
                 "runecrafting_exp": 100,
+                "attack_exp": 25,
                 "pending_skill_exp_rewards": {
                     "runecrafting_exp": 5000,
+                    "attack_exp": 1000,
                     "farming_exp": 250,
                 },
             },
@@ -379,6 +381,8 @@ class TestStoragePure(unittest.TestCase):
         )
 
         self.assertEqual(migrated["runecrafting_exp"], 5100.0)
+        self.assertEqual(migrated["attack_exp"], 1025.0)
+        self.assertGreater(migrated["attack_level"], 1)
         self.assertEqual(migrated["pending_skill_exp_rewards"], {"farming_exp": 250.0})
 
     def test_migrate_equipment_state_and_removes_owned_equipment(self):

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>AnkiScape autonomous closure sprint — results</title>
+  <style>
+    :root{--bg:#090d14;--panel:#111824;--line:#273449;--ink:#edf4ff;--muted:#9baabd;--mint:#69e6b8;--amber:#ffc96b;--blue:#70b7ff;--red:#ff7f88}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#132940 0,transparent 34%),var(--bg);color:var(--ink);font:15px/1.55 Inter,ui-sans-serif,system-ui,sans-serif}
+    main{max-width:1120px;margin:auto;padding:54px 24px 72px}header{display:grid;grid-template-columns:1.45fr .55fr;gap:24px;align-items:end;margin-bottom:28px}
+    .eyebrow{color:var(--mint);font:700 12px/1.2 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase}h1{font-size:clamp(34px,6vw,68px);line-height:.96;letter-spacing:-.055em;margin:12px 0 18px;max-width:850px}p{margin:0;color:var(--muted)}
+    .verdict{border:1px solid #285b50;background:#102820;border-radius:18px;padding:20px}.verdict strong{display:block;color:var(--mint);font-size:24px}.verdict span{color:#b9d9ce}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{grid-column:span 4;background:linear-gradient(145deg,#121b29,#0e151f);border:1px solid var(--line);border-radius:18px;padding:22px}.wide{grid-column:span 8}.full{grid-column:1/-1}
+    .number{font-size:38px;font-weight:800;letter-spacing:-.04em}.label{color:var(--muted);font-size:13px}.mint{color:var(--mint)}.amber{color:var(--amber)}.blue{color:var(--blue)}
+    h2{font-size:20px;margin:0 0 12px}ul{padding-left:19px;margin:10px 0 0;color:var(--muted)}li+li{margin-top:8px}code{font:12px/1.4 ui-monospace,monospace;color:#cde6ff;background:#09111b;border:1px solid #22344b;border-radius:6px;padding:2px 6px}
+    .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px}.step{border:1px solid var(--line);border-radius:12px;padding:13px;background:#0b121c}.step b{display:block;color:var(--blue);margin-bottom:4px}.arrow{text-align:center;color:var(--mint);font-size:18px;padding-top:8px}
+    .bar{height:9px;background:#1a2636;border-radius:99px;overflow:hidden;margin-top:12px}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--mint));width:100%}
+    .blocker{border-left:3px solid var(--amber);padding-left:14px}.manual{border-left:3px solid var(--blue);padding-left:14px}
+    footer{margin-top:24px;color:#728197;font:12px ui-monospace,monospace}
+    @media(max-width:800px){header{grid-template-columns:1fr}.card,.wide{grid-column:1/-1}.flow{grid-template-columns:1fr}.arrow{display:none}main{padding:34px 16px}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <div><div class="eyebrow">Autonomous closure sprint · 11 July 2026</div><h1>Truthful state, visible dependencies.</h1><p>The sprint closed every source-safe slice in scope and converted the remaining ambiguity into explicit, reproducible blockers.</p></div>
+    <div class="verdict"><strong>GREEN</strong><span>Both complete test surfaces pass. No invented 2012 mechanics were added.</span></div>
+  </header>
+
+  <section class="grid">
+    <article class="card"><div class="number mint">1,001</div><div class="label">pure/data/integration tests passed</div><div class="bar"><i></i></div></article>
+    <article class="card"><div class="number mint">1,001</div><div class="label">full offscreen Qt tests passed</div><div class="bar"><i></i></div></article>
+    <article class="card"><div class="number blue">1,061</div><div class="label">live transformations traversed</div></article>
+
+    <article class="card wide"><h2>Partial Combat skills are finally honest</h2><p>Attack, Strength, Defence, Constitution, Ranged, and Magic are now <code>partial</code> and trainable through Combat—neither falsely complete nor falsely absent.</p><ul><li>Quest gates and rewards recognize their live levels and XP.</li><li>Legacy pending Combat XP migrates directly and only once.</li><li>Standalone skill selection stays unified under Combat.</li><li>The persistence id remains <code>defense</code>; display text is <code>Defence</code>.</li></ul></article>
+    <article class="card"><h2>Grenwall</h2><div class="blocker"><strong class="amber">Source-blocked</strong><p>The pinned 2012 revision proves level, XP, 18–21 spikes, bones, and the herb family—but not exact probabilities. The modern-shaped Darkan table was not copied.</p></div></article>
+
+    <article class="card full"><h2>A real item chain repaired</h2><p>The graph exposed a false generic nest input. The runtime now follows the literal source-backed chain:</p><div class="flow"><div class="step"><b>Woodcutting roll</b>Nest subtype</div><div class="step"><b>Open nest</b>Contents + empty nest</div><div class="step"><b>Grind item 5075</b>Bird's nest (empty)</div><div class="step"><b>Output</b>Crushed nest</div></div></article>
+
+    <article class="card wide"><h2>Acquisition closure now has a measuring instrument</h2><p><code>python3 tools/audit_item_reachability.py --json</code> follows shops, drops, registered quest rewards, gathering, opening, consumption, and all live action outputs until the graph stops changing.</p><ul><li><span class="amber">267 orphan inputs</span>: 136 root gaps and 131 blocked cascades.</li><li>303 actions are currently blocked by those gaps.</li><li>The remaining work is classified into missing skills/Farming, Magic and activities, deferred methods, Combat/world acquisition, and potion-state plumbing.</li></ul></article>
+    <article class="card"><h2>Human check later</h2><div class="manual"><p>In developer mode, confirm Magic says it is partially trainable through Combat. Then open a nest and grind the resulting empty nest. These are the only UI-level checks not performed while you were away.</p></div></article>
+
+    <article class="card full"><h2>Why the blitz stops here</h2><p>Further implementation now requires at least one of: an owner deep grill for a missing skill/activity, a stable high-fidelity Darkan milestone, or unrecovered literal pre-EOC probabilities. Continuing autonomously past this point would mean choosing player-facing architecture or inventing historical behavior.</p></article>
+  </section>
+  <footer>Plan preserved separately: autonomous-closure-sprint-plan-2026-07-11.html</footer>
+</main></body></html>

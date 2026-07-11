@@ -1,0 +1,256 @@
+#!/usr/bin/env python3
+"""Audit whether live AnkiScape action inputs have an acquisition route.
+
+This is deliberately a reachability audit, not a claim that every route has
+full historical fidelity. It treats live shops, Combat drops, quest rewards,
+gathering outputs, and zero-input actions as source nodes, then closes over the
+current action graph. The JSON output is stable enough for tests and later
+completion-audit tooling.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from collections import defaultdict
+from pathlib import Path
+from typing import Any, Iterable, Mapping
+
+
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+
+def _names(value: Any) -> set[str]:
+    if isinstance(value, str):
+        return {value} if value else set()
+    if isinstance(value, Mapping):
+        return {str(name) for name in value if isinstance(name, str) and name}
+    if isinstance(value, (tuple, list, set)):
+        names: set[str] = set()
+        for entry in value:
+            if isinstance(entry, str):
+                names.add(entry)
+            elif isinstance(entry, Mapping):
+                names.update(_names(entry.get("item") or entry.get("item_name") or entry.get("output_item")))
+            elif isinstance(entry, (tuple, list)) and entry and isinstance(entry[0], str):
+                names.add(entry[0])
+        return names
+    return set()
+
+
+def _outputs(spec: Mapping[str, Any]) -> set[str]:
+    outputs = _names(spec.get("outputs")) | _names(spec.get("byproducts"))
+    outputs |= _names(spec.get("output_item")) | _names(spec.get("alternate_output_item"))
+    for fish in spec.get("fish", ()) or ():
+        if isinstance(fish, Mapping):
+            outputs |= _names(fish.get("output_item"))
+    for weighted in spec.get("weighted_outputs", ()) or ():
+        if isinstance(weighted, Mapping):
+            outputs |= _names(weighted.get("item") or weighted.get("output_item"))
+        elif isinstance(weighted, (tuple, list)) and weighted and isinstance(weighted[0], str):
+            outputs.add(weighted[0])
+    return outputs
+
+
+def _requirements(spec: Mapping[str, Any]) -> tuple[set[str], tuple[set[str], ...]]:
+    required = _names(spec.get("requirements")) | _names(spec.get("required_items")) | _names(spec.get("tools"))
+    alternatives: list[set[str]] = []
+    essence = _names(spec.get("essence_items"))
+    if essence:
+        alternatives.append(essence)
+    bait = _names(spec.get("bait_options"))
+    if bait:
+        alternatives.append(bait)
+    return required, tuple(alternatives)
+
+
+def _drop_names(value: Any) -> set[str]:
+    names: set[str] = set()
+    if isinstance(value, Mapping):
+        for key, child in value.items():
+            if key in {"item", "item_name", "output_item"}:
+                names |= _names(child)
+            else:
+                names |= _drop_names(child)
+    elif isinstance(value, (tuple, list, set)):
+        if value and isinstance(value, (tuple, list)) and isinstance(value[0], str):
+            names.add(value[0])
+        else:
+            for child in value:
+                names |= _drop_names(child)
+    return names
+
+
+def build_reachability_report() -> dict[str, Any]:
+    import combat_data
+    import constants
+    import shop_data
+    import woodcutting_data
+
+    registered_items = {definition.storage_key for definition in constants.ITEM_DEFINITIONS}
+
+    action_tables = {
+        "Mining": constants.ORE_DATA,
+        "Woodcutting": constants.TREE_DATA,
+        "Fishing": constants.FISHING_DATA,
+        "Smithing": constants.SMITHING_DATA,
+        "Crafting": constants.CRAFTING_DATA,
+        "Fletching": constants.FLETCHING_DATA,
+        "Firemaking": constants.FIREMAKING_DATA,
+        "Cooking": constants.COOKING_DATA,
+        "Runecrafting": constants.RUNECRAFTING_DATA,
+        "Hunter": constants.HUNTER_DATA,
+        "Herblore": constants.HERBLORE_DATA,
+        "Utility": constants.UTILITY_ACTIVITY_DATA,
+    }
+
+    actions: list[dict[str, Any]] = []
+    consumers: dict[str, set[str]] = defaultdict(set)
+    producers: dict[str, set[str]] = defaultdict(set)
+    for family, table in action_tables.items():
+        for action_id, raw_spec in table.items():
+            if not isinstance(raw_spec, Mapping) or raw_spec.get("status", "implemented") != "implemented":
+                continue
+            required, alternatives = _requirements(raw_spec)
+            outputs = _outputs(raw_spec)
+            if not outputs:
+                continue
+            key = f"{family}:{action_id}"
+            actions.append({"id": key, "required": required, "alternatives": alternatives, "outputs": outputs})
+            for item in required | set().union(*alternatives) if alternatives else required:
+                consumers[item].add(key)
+            for item in outputs:
+                producers[item].add(key)
+
+    for item_name, spec in constants.CONSUMABLE_DATA.items():
+        if not isinstance(spec, Mapping):
+            continue
+        leaves = _names(spec.get("leaves"))
+        if not leaves:
+            continue
+        key = f"Item action:consume:{item_name}"
+        actions.append({"id": key, "required": {item_name}, "alternatives": (), "outputs": leaves})
+        consumers[item_name].add(key)
+        for item in leaves:
+            producers[item].add(key)
+
+    seed_sources: dict[str, set[str]] = defaultdict(set)
+    for shop_id, shop in shop_data.SHOP_DATA.items():
+        if shop.get("visibility") != "visible" or not shop.get("currency_implemented"):
+            continue
+        for row in shop.get("stock", ()) or ():
+            if row.get("disposition") == "live" and int(row.get("default_quantity", 0) or 0) > 0:
+                name = row.get("item_name")
+                if isinstance(name, str) and name:
+                    seed_sources[name].add(f"shop:{shop_id}")
+
+    for enemy_id, enemy in combat_data.COMBAT_ENEMY_DATA.items():
+        for item in _drop_names(enemy.get("drops", {})):
+            seed_sources[item].add(f"combat:{enemy_id}")
+
+    for row in constants.BIRD_NEST_DROP_TABLE:
+        for item in _names(row.get("item")):
+            seed_sources[item].add("woodcutting:bird_nest_roll")
+
+    for quest_id, quest in constants.QUEST_DATA.items():
+        for item in _names(quest.get("rewards")) & registered_items:
+            seed_sources[item].add(f"quest:{quest_id}")
+
+    for table in woodcutting_data.BIRD_NEST_OPEN_TABLES:
+        table_spec = vars(table)
+        input_item = table_spec["input_item"]
+        outputs = _names(table_spec.get("guaranteed_item"))
+        outputs |= {
+            roll.item
+            for roll in table_spec.get("rolls", ())
+            if isinstance(getattr(roll, "item", None), str)
+        }
+        key = f"Item action:open:{input_item}"
+        actions.append({"id": key, "required": {input_item}, "alternatives": (), "outputs": outputs})
+        consumers[input_item].add(key)
+        for item in outputs:
+            producers[item].add(key)
+
+    reachable = set(seed_sources)
+    route: dict[str, str] = {item: sorted(sources)[0] for item, sources in seed_sources.items()}
+    unresolved = list(actions)
+    changed = True
+    while changed:
+        changed = False
+        remaining: list[dict[str, Any]] = []
+        for action in unresolved:
+            required_ok = action["required"].issubset(reachable)
+            alternatives_ok = all(bool(group & reachable) for group in action["alternatives"])
+            if required_ok and alternatives_ok:
+                for item in action["outputs"]:
+                    if item not in reachable:
+                        reachable.add(item)
+                        route[item] = action["id"]
+                        changed = True
+            else:
+                remaining.append(action)
+        unresolved = remaining
+
+    consumed = set(consumers)
+    orphan_inputs = sorted(consumed - reachable)
+    root_orphans = [item for item in orphan_inputs if not producers.get(item)]
+    cascade_orphans = [item for item in orphan_inputs if producers.get(item)]
+    unresolved_actions = []
+    for action in unresolved:
+        missing = sorted(action["required"] - reachable)
+        missing_alternatives = [sorted(group) for group in action["alternatives"] if not group & reachable]
+        unresolved_actions.append(
+            {
+                "id": action["id"],
+                "missing": missing,
+                "missing_alternatives": missing_alternatives,
+                "outputs": sorted(action["outputs"]),
+            }
+        )
+
+    return {
+        "schema_version": 1,
+        "action_count": len(actions),
+        "seed_item_count": len(seed_sources),
+        "reachable_item_count": len(reachable),
+        "consumed_item_count": len(consumed),
+        "orphan_input_count": len(orphan_inputs),
+        "root_orphan_count": len(root_orphans),
+        "cascade_orphan_count": len(cascade_orphans),
+        "unresolved_action_count": len(unresolved_actions),
+        "orphan_inputs": [
+            {
+                "item": item,
+                "kind": "cascade" if producers.get(item) else "root",
+                "consumers": sorted(consumers[item]),
+                "known_producers": sorted(producers.get(item, ())),
+            }
+            for item in orphan_inputs
+        ],
+        "unresolved_actions": sorted(unresolved_actions, key=lambda row: row["id"]),
+        "routes": {item: route[item] for item in sorted(route)},
+    }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--json", action="store_true", help="Emit the full machine-readable report.")
+    args = parser.parse_args()
+    report = build_reachability_report()
+    if args.json:
+        print(json.dumps(report, indent=2, sort_keys=True))
+    else:
+        print(
+            f"{report['action_count']} actions; {report['reachable_item_count']} reachable items; "
+            f"{report['orphan_input_count']} orphan inputs; {report['unresolved_action_count']} blocked actions"
+        )
+        for row in report["orphan_inputs"]:
+            print(f"- {row['item']}: {', '.join(row['consumers'][:4])}")
+    return 1 if report["orphan_input_count"] else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

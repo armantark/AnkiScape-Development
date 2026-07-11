@@ -1,6 +1,6 @@
 # AnkiScape Completion Kanban
 
-Status: audited 2026-07-10. This is the canonical forward-work board. Detailed skill and program evidence lives in `memory-bank/completion-audit-2026-07-10.md` and `memory-bank/completion-audit.json`; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
+Status: audited 2026-07-11. This is the canonical forward-work board. Detailed skill and program evidence lives in `memory-bank/completion-audit-2026-07-10.md` and `memory-bank/completion-audit.json`; the shipped-skill subledger remains `memory-bank/gap-backlog.json`.
 
 ## Label contract
 
@@ -19,19 +19,20 @@ Status: audited 2026-07-10. This is the canonical forward-work board. Detailed s
 Labels: `SOURCE AUDIT`, then `IMPLEMENT` only when evidence closes.
 
 - Continue from `memory-bank/gap-backlog.json`; do not reconstruct merged cards or re-grill settled branches.
-- Current detailed state: 22 merged, 12 design-settled/source-waiting, four split-scope, one Farming seed, one pending verification, one partially reopened/source-waiting, and two exclusions.
+- Current detailed state: 22 merged, 13 design/source-blocked waits (including Grenwall), four split-scope, one Farming seed, one partially reopened/source-waiting, and two exclusions.
+- Grenwall's pinned period revision proves its broad reward family but not exact spike/herb probabilities; it now explicitly waits on literal period evidence or a stable reconciled Darkan milestone (`memory-bank/source-audits/grenwall-reward-source-closure-2026-07-11.md`).
 - The next implementation slice must have a pinned pre-EOC contract for its level, XP, inputs, outputs, gates, rates, and state transitions. Split proven sub-slices from blocked families as lava eel, Overload, and cannonballs already demonstrate.
 - Backend acceptance: data, pure behavior, storage/migration, dispatch, acquisition semantics, telemetry, and undo.
 - Frontend acceptance: `TargetRowMetadata`, real enablement/locks, target-local settings/equipment/inventory, icons, tooltips, and offscreen Qt coverage.
 - Assets acceptance: period-appropriate art, explicit `--source rs3` where applicable, provenance, and path tests.
 
-### Reconcile partial Combat skills with the skill ledger
+### Reconcile partial Combat skills with the skill ledger — status contract complete
 
 Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN` for hidden enemy/equipment behavior.
 
-- Attack, Strength, Defence, Constitution, Ranged, and Magic already gain real XP in Combat but remain `implemented=False` in `skill_registry.py` because their independent skill surfaces are incomplete.
+- Attack, Strength, Defence, Constitution, Ranged, and Magic now use an explicit `partial` surface state with `training_source = Combat`; `implemented=False` still correctly means they do not own complete independent review surfaces.
 - Keep unified Combat selection; do not add six competing hub rows merely to make the registry count look complete.
-- Add a truthful status/registry contract once the distinction between “trainable through Combat” and “complete skill surface” is represented.
+- Quest gates and XP rewards now recognize trainable partial stats, and legacy pending Combat-stat XP migrates directly. See `memory-bank/source-audits/partial-combat-skill-registry-2026-07-11.md`.
 - Continue weapon/ammo/spell/equipment/enemy breadth under `memory-bank/combat-design-grill-2026-06-23.md` rather than reopening the Combat loop design.
 
 ## Deep-grill queue — missing or incomplete skill surfaces
@@ -141,7 +142,9 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `DEPENDENCY: COMBAT/PRAYER/SUMMONING`.
 
 Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 
-- Audit every live-but-unobtainable material against authentic drops, ground spawns, shops, claims, quests, skills, activities, and transformations.
+- Maintain `tools/audit_item_reachability.py`; its 2026-07-11 baseline found 267 orphan inputs across missing-skill/Farming, Magic/activity transformations, deferred activities, Combat/world acquisition, and potion-state plumbing. See `memory-bank/source-audits/item-reachability-audit-2026-07-11.md`.
+- Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
+- The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
 
 ### Achievement diaries, clues, collections, and one-time content

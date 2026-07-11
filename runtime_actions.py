@@ -646,7 +646,7 @@ def _award_action_xp_rewards(ctx: RuntimeActionContext, xp_rewards: Any, owner_s
         skill = get_skill(skill_id)
         if skill is None:
             continue
-        if skill.implemented:
+        if skill.trainable:
             gained = ctx.award_skill_exp(skill.exp_key, amount)
             ctx.level_up_check(skill.display_name, ctx.player_data)
         else:

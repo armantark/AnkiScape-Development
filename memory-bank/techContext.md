@@ -13,6 +13,7 @@
 - Tests are run with `python3 run_tests.py`.
 - Tests use Python's built-in `unittest`, not pytest.
 - `run_tests.py` adds the repo root to `PYTHONPATH` so pure modules can be imported directly.
+- `python3 tools/audit_item_reachability.py --json` emits the deterministic live action/acquisition graph ledger; its focused regression test is `tests/test_item_reachability_audit.py`.
 
 ### Fast Qt UI loop (no Anki restart)
 - A dedicated `uv` venv at `.venv-qt` (git-ignored) has `aqt` installed, which bundles PyQt6.

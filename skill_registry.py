@@ -14,6 +14,7 @@ from typing import Dict, Iterable, Literal, Optional, Tuple
 
 SkillCategory = Literal["combat", "gathering", "artisan", "support"]
 ActionKind = Literal["gather", "process", "combat", "support"]
+SkillSurfaceState = Literal["complete", "partial", "planned"]
 
 
 @dataclass(frozen=True)
@@ -30,6 +31,14 @@ class SkillDefinition:
     default_target: Optional[str] = None
     review_handler_key: Optional[str] = None
     visible_in_skill_hub: bool = True
+    surface_state: SkillSurfaceState = "complete"
+    training_source: Optional[str] = None
+
+    @property
+    def trainable(self) -> bool:
+        """Whether the skill's XP and level can advance in the live runtime."""
+
+        return self.surface_state in {"complete", "partial"}
 
 
 CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
@@ -186,20 +195,20 @@ CURRENT_SKILLS: Tuple[SkillDefinition, ...] = (
 
 
 PLANNED_SKILLS: Tuple[SkillDefinition, ...] = (
-    SkillDefinition("attack", "Attack", "combat", False, False, "combat", "attack_level", "attack_exp", visible_in_skill_hub=False),
-    SkillDefinition("constitution", "Constitution", "combat", False, False, "combat", "constitution_level", "constitution_exp", visible_in_skill_hub=False),
-    SkillDefinition("defense", "Defense", "combat", False, False, "combat", "defense_level", "defense_exp", visible_in_skill_hub=False),
-    SkillDefinition("magic", "Magic", "combat", False, False, "combat", "magic_level", "magic_exp"),
-    SkillDefinition("prayer", "Prayer", "combat", False, False, "combat", "prayer_level", "prayer_exp"),
-    SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False),
-    SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False),
-    SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp"),
-    SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp"),
-    SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp"),
-    SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp"),
-    SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp"),
-    SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp"),
-    SkillDefinition("thieving", "Thieving", "support", False, False, "support", "thieving_level", "thieving_exp"),
+    SkillDefinition("attack", "Attack", "combat", False, False, "combat", "attack_level", "attack_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
+    SkillDefinition("constitution", "Constitution", "combat", False, False, "combat", "constitution_level", "constitution_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
+    SkillDefinition("defense", "Defence", "combat", False, False, "combat", "defense_level", "defense_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
+    SkillDefinition("magic", "Magic", "combat", False, False, "combat", "magic_level", "magic_exp", surface_state="partial", training_source="Combat"),
+    SkillDefinition("prayer", "Prayer", "combat", False, False, "combat", "prayer_level", "prayer_exp", surface_state="planned"),
+    SkillDefinition("ranged", "Ranged", "combat", False, False, "combat", "ranged_level", "ranged_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
+    SkillDefinition("strength", "Strength", "combat", False, False, "combat", "strength_level", "strength_exp", visible_in_skill_hub=False, surface_state="partial", training_source="Combat"),
+    SkillDefinition("summoning", "Summoning", "combat", False, False, "combat", "summoning_level", "summoning_exp", surface_state="planned"),
+    SkillDefinition("construction", "Construction", "artisan", False, False, "process", "construction_level", "construction_exp", surface_state="planned"),
+    SkillDefinition("farming", "Farming", "gathering", False, False, "gather", "farming_level", "farming_exp", surface_state="planned"),
+    SkillDefinition("agility", "Agility", "support", False, False, "support", "agility_level", "agility_exp", surface_state="planned"),
+    SkillDefinition("dungeoneering", "Dungeoneering", "support", False, False, "support", "dungeoneering_level", "dungeoneering_exp", surface_state="planned"),
+    SkillDefinition("slayer", "Slayer", "support", False, False, "support", "slayer_level", "slayer_exp", surface_state="planned"),
+    SkillDefinition("thieving", "Thieving", "support", False, False, "support", "thieving_level", "thieving_exp", surface_state="planned"),
 )
 
 
@@ -233,6 +242,16 @@ def implemented_skill_definitions() -> Tuple[SkillDefinition, ...]:
 
 def planned_skill_definitions() -> Tuple[SkillDefinition, ...]:
     return tuple(skill for skill in ALL_SKILLS if not skill.implemented)
+
+
+def trainable_skill_definitions() -> Tuple[SkillDefinition, ...]:
+    """Return complete skills plus partial skills trained through another loop."""
+
+    return tuple(skill for skill in ALL_SKILLS if skill.trainable)
+
+
+def partial_skill_definitions() -> Tuple[SkillDefinition, ...]:
+    return tuple(skill for skill in ALL_SKILLS if skill.surface_state == "partial")
 
 
 def is_review_skill(identifier: str) -> bool:

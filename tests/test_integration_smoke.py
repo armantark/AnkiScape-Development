@@ -1657,7 +1657,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         addon._refresh_skill_availability = lambda: None
         addon._show_activity_gain = lambda text: calls["gains"].append(text)
         addon.show_error_message = lambda title, message: calls["dialogs"].append((title, message))
-        addon.mw = _DummyMW(_DummyCol({}))
+        addon.level_up_check = lambda _skill, data: data.__setitem__("defense_level", 33)
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_popups_enabled": False}))
         addon.current_skill = "Quests"
         addon.player_data = {
             "inventory": {"Holy grail": 1},
@@ -1679,9 +1680,11 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertTrue(addon.player_data["quests"]["holy_grail"]["completed"])
         self.assertEqual(addon.player_data["inventory"]["Holy grail"], 0)
         self.assertEqual(addon.player_data["quest_points"], 2)
+        self.assertEqual(addon.player_data["defense_exp"], 15300.0)
+        self.assertGreater(addon.player_data["defense_level"], 1)
         self.assertEqual(
             addon.player_data["pending_skill_exp_rewards"],
-            {"defense_exp": 15300.0, "prayer_exp": 11000.0},
+            {"prayer_exp": 11000.0},
         )
         self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["Holy Grail complete"])

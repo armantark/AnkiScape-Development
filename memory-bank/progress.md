@@ -1,6 +1,6 @@
 # Progress
 
-## Current Baseline — 2026-07-10
+## Current Baseline — 2026-07-11
 
 AnkiScape has moved beyond its original four-skill prototype. The live foundation is broad enough that progress is now tracked by completion programs rather than sequential v1 phases.
 
@@ -32,7 +32,7 @@ Unified Combat already trains:
 
 The engine includes weapon-aware styles/attack types, standard bows/arrows, standard elemental combat spells, runes/staff substitution, supplies/loadouts, HP/food, stat potions, poison/antipoison, special energy scaffolding, drops, kill counts, equipment, death/graves/Death's Office, safe recovery, quest combat, target risk previews, carried inventory, banking, and undo.
 
-These six remain planned in `skill_registry.py` because their independent complete skill surfaces and full parity breadth do not yet exist.
+These six are now explicitly `partial` in `skill_registry.py`, with Combat recorded as their training source. They remain non-implemented as independent review surfaces because full parity breadth does not yet exist.
 
 ## Missing Skills
 
@@ -68,6 +68,8 @@ Every wholly missing skill requires a deep grill; see the canonical Kanban.
 
 ## Latest Parity Additions
 
+- Truthful complete/partial/planned skill registry, including direct quest/action XP for live partial Combat stats.
+- Deterministic item reachability audit and repaired empty-bird-nest → crushed-nest chain.
 - Lava eel Cooking (`a3cb89e`).
 - Overload mixing and explicit RS3 asset sourcing (`28359a7`).
 - Cannonball Smithing with quest/mould/carried-layout/undo behavior (`fefca70`).
@@ -82,7 +84,7 @@ Every wholly missing skill requires a deep grill; see the canonical Kanban.
 - 12 design-settled/source-waiting.
 - Four split-scope.
 - One parked Farming seed.
-- One pending source verification.
+- Grenwall source verification is closed as blocked pending literal period evidence or stable reconciled Darkan data.
 - One partially reopened/source-waiting.
 - One post-cutoff rejection.
 - One product-scope rejection.
@@ -102,9 +104,9 @@ Do not promote a waiting card by guessing values. Split a proven sub-slice from 
 
 ## Test Baseline
 
-After the 2026-07-10 overnight pass:
+After the 2026-07-11 autonomous closure pass:
 
-- `python3 run_tests.py`: 998 passed, 160 skipped.
-- Full offscreen Qt discovery: 998 passed.
+- `python3 run_tests.py`: 1,001 passed, 160 skipped.
+- Full offscreen Qt discovery: 1,001 passed.
 
 Test counts are historical snapshots, not permanent assertions; current runs outrank this note.

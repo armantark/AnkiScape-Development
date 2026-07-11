@@ -377,12 +377,12 @@ UTILITY_ACTIVITY_DATA = {
     },
     "grind_birds_nest": {
         "display_name": "Grind bird's nest",
-        "requirements": {"Bird's nest": 1},
+        "requirements": {"Bird's nest (empty)": 1},
         "output_item": "Crushed nest",
         "output_qty": 1,
         "batch_size": 28,
         "group": "grinding",
-        "source": "2011Scape PestleAndMortarData.BIRDS_NEST",
+        "source": "2011Scape PestleAndMortarData.BirdNest: item 5075 -> Crushed nest",
     },
     "grind_desert_goat_horn": {
         "display_name": "Grind desert goat horn",
