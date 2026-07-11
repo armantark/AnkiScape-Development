@@ -18,6 +18,10 @@ Cutoff: RuneScape immediately before EOC, `2012-11-20`.
   teleport, one-hood ownership, and reclaim preserving hood progress.
 - `Talk:Wicked hood` oldid 6341451, 2012-10-03: a contemporaneous answer records
   the daily timer reset at 00:00 GMT rather than 24 hours after first use.
+
+The daily reset is retained as a period fact, not an AnkiScape wall-clock gate.
+The product adaptation recharges one allowance pool through successful
+Runecrafting actions; its exact action budget is deferred to balancing.
 - `The Great Orb Project` oldid 6564759, 2012-11-17: level 50; multiplayer teams;
   sequential altar rounds; orb attraction/repulsion and barriers; participation
   meter; round essence; double-XP crafting; win/loss/tie and majority token

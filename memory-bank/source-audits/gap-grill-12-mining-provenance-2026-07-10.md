@@ -26,6 +26,7 @@ evidence.
 
 The Living-mineral quantity conflict and exact corpse/deposit timing need
 reconciled period or high-fidelity server evidence. The Shooting Star layer
-tables are literal, but AnkiScape must choose how a no-map player earns the
-first-finder tag; that is the sole remaining owner-facing product choice in
-this grill.
+tables are literal. For the product abstraction, AnkiScape joins an active
+communal star, treats the first-finder tag as an occasional session-start event,
+and permits one manual sprite exchange per completed star. It does not add a
+fabricated scouting minigame or enforce the historical UTC daily reset.

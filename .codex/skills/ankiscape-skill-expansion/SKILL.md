@@ -25,6 +25,11 @@ Use this skill before planning or implementing a skill expansion. The goal is to
   They never prove pre-EOC parity without independent pre-cutoff evidence.
 - Keep source data honest: preserve audited pre-EOC base XP in data, then apply
   AnkiScape pacing knobs separately.
+- Preserve historical daily/weekly limits as source facts, but do not import
+  wall-clock Dailyscape into AnkiScape by default. Translate repeatable calendar
+  allowances into action-earned cooldowns or activity-completion gates tied to
+  the relevant skill. Keep exact recharge budgets balance-blocked until they
+  can be calibrated, unless the owner explicitly chooses real-calendar cadence.
 - Do not grill the owner on facts or behavior already determined by pinned
   period evidence and settled AnkiScape rules. Resolve and document those
   autonomously, batching routine source-shaped decisions. Ask only when two or

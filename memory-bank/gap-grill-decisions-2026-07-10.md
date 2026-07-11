@@ -708,24 +708,25 @@ evidence. Great Orb Project moves to the separate minigame/activity design pass.
   source-blocked until period evidence or reconciled high-fidelity server code
   establishes it.
 
-### Wicked Hood Daily Interface
+### Wicked Hood Charge Interface
 
 - Keep the period interaction manual. Operating a carried or equipped hood
-  opens compact Essence, Runes, and Teleport actions with remaining daily
-  allowances; AnkiScape never auto-claims hood resources.
+  opens compact Essence, Runes, and Teleport actions with remaining allowances;
+  AnkiScape never auto-claims hood resources.
 - Essence and runes enter the unified carried pack and respect free slots. A
-  partial essence withdrawal reduces the remaining daily quantity rather than
+  partial essence withdrawal reduces the remaining quantity rather than
   discarding overflow. Available rune/altar choices come only from fed access.
 - A charged altar teleport skips the outbound-travel phase of the corresponding
   altar route; it does not create or move the player on a world map. The
   unlimited Guild/Runespan teleport is represented only as frictionless entry
   to those activities and never consumes an altar charge.
 - Preserve one hood per player. Reclaim restores the item without resetting fed
-  altars or daily allowances. Runespan outfit purchases permanently raise the
+  altars or current allowances. Runespan outfit purchases permanently raise the
   hood allowances when that reward shop is implemented.
-- Reset allowances at the authentic daily boundary, stored as an absolute UTC
-  day key so closing Anki, changing targets, or changing the computer clock's
-  display timezone cannot generate extra claims.
+- Preserve the historical 00:00-GMT reset only as source metadata. In AnkiScape,
+  a depleted allowance pool recharges through successful Runecrafting actions,
+  with at most one full pool stored. The exact action budget waits for the
+  cross-skill balancing pass; it never depends on login time or calendar date.
 
 ### Great Orb Project Scope Split
 
@@ -740,8 +741,8 @@ evidence. Great Orb Project moves to the separate minigame/activity design pass.
 
 Backlog id: `mine-lrc-stars`
 
-Decision status: period mechanics and the ordinary communal-star loop are
-settled. One product choice remains for earning the no-map first-finder tag.
+Decision status: owner design settled; implementation waits for reconciled
+Living-mineral yield and exact star/server rolls.
 
 ### Period Facts and Existing Coverage
 
@@ -774,7 +775,7 @@ settled. One product choice remains for earning the no-map first-finder tag.
 - Do not add a world map or make the player wait two real hours. Starting the
   ordinary activity joins a reported communal star through an abstract star-
   hunting network; the source's many worlds and player clans make star access
-  routine while the daily sprite reward remains the meaningful hard limit.
+  routine without inventing navigation or a real-time arrival schedule.
 - Preserve the current layer, remaining communal dust, player dust, accessible
   level, and sprite state. Each successful review performs one Mining attempt;
   other simulated miners also advance communal depletion between attempts.
@@ -782,16 +783,13 @@ settled. One product choice remains for earning the no-map first-finder tag.
   inaccessible upper layers while showing the current layer/action. Advanced
   mode may save preferred starting sizes and a quiet/normal/busy population,
   trading personal dust opportunity against faster access to lower layers.
-- Exchanging stardust with the released sprite is manual. Rewards scale to the
-  carried dust up to 200 and reset at 00:00 UTC; the source's temporary extra-
-  ore duration stays source/balance-blocked until skilling-action timing is
-  calibrated without pretending each review represents combat's 30 seconds.
-
-### Remaining Product Choice: First-Finder Tag
-
-- Option A (recommended): Advanced may opt into a multi-review `Scout for a
-  shooting star` prelude. Successfully locating it grants the authentic first-
-  finder tag and a quieter initial star; Casual skips scouting and joins a
-  reported communal star without the tag.
-- Option B: every new communal-star session rolls a small chance to be first,
-  granting the tag randomly with no separate action cost or player agency.
+- Exchanging stardust with the released sprite is manual. Each completed star
+  may expose one exchange, with rewards scaling to carried dust up to 200. Dust
+  and completing the communal activity are the repeat gate; AnkiScape does not
+  enforce the historical UTC daily lock.
+- Represent the first-finder tag as an occasional session-start bonus produced
+  by the simulated communal population. Do not add a scouting phase, telescope
+  interface, map search, or player-controlled first-finder farming.
+- The source's temporary extra-ore duration stays source/balance-blocked until
+  skilling-action timing is calibrated without pretending each review represents
+  combat's 30 seconds.
