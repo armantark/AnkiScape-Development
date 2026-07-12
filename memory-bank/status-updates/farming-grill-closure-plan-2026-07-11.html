@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Farming — Grill Closed, Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c; --border: #2a3040;
+    --text: #e8ecf4; --text-dim: #8b95a8; --accent: #4f8cff; --accent-glow: rgba(79,140,255,0.15);
+    --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24; --purple: #a78bfa; --radius: 12px;
+    --leaf: #6ec96e;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; font-weight:300; line-height:1.55; padding:2.5rem 1.25rem 4rem; }
+.wrap { max-width:1160px; margin:0 auto; }
+.badge { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:0.7rem; letter-spacing:0.12em; color:var(--leaf); background:rgba(110,201,110,0.12); border:1px solid rgba(110,201,110,0.35); padding:0.3rem 0.8rem; border-radius:999px; margin-bottom:1rem; }
+h1 { font-weight:700; font-size:2rem; margin-bottom:0.4rem; }
+.sub { color:var(--text-dim); font-size:0.95rem; max-width:70ch; margin-bottom:2.2rem; }
+h2 { font-weight:700; font-size:1.15rem; margin:2.4rem 0 1rem; display:flex; align-items:center; gap:0.6rem; }
+h2 .num { font-family:'JetBrains Mono',monospace; font-size:0.7rem; background:var(--accent); color:#0c0e12; border-radius:6px; padding:0.15rem 0.5rem; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+@media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+.card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.1rem 1.2rem; }
+.card h3 { font-weight:700; font-size:0.95rem; margin-bottom:0.4rem; }
+.card p { font-size:0.85rem; color:var(--text-dim); }
+.card p b { color:var(--text); font-weight:500; }
+.tag { font-family:'JetBrains Mono',monospace; font-size:0.62rem; background:var(--surface-2); border:1px solid var(--border); border-radius:6px; padding:0.12rem 0.45rem; color:var(--text-dim); }
+.pill { font-family:'JetBrains Mono',monospace; font-size:0.62rem; border-radius:6px; padding:0.14rem 0.5rem; font-weight:600; }
+.pill.owner { background:rgba(74,222,128,0.13); color:var(--green); }
+.pill.policy { background:rgba(167,139,250,0.13); color:var(--purple); }
+.pill.pin { background:rgba(251,191,36,0.13); color:var(--amber); }
+table { width:100%; border-collapse:collapse; font-size:0.82rem; margin-top:0.6rem; }
+th { font-family:'JetBrains Mono',monospace; font-size:0.65rem; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim); text-align:left; padding:0.45rem 0.6rem; border-bottom:1px solid var(--border); }
+td { padding:0.5rem 0.6rem; border-bottom:1px solid rgba(42,48,64,0.5); vertical-align:top; }
+td.free { color:var(--green); }
+code { font-family:'JetBrains Mono',monospace; font-size:0.78em; background:var(--surface-2); padding:0.08em 0.35em; border-radius:4px; }
+.hud { display:flex; gap:1rem; align-items:stretch; flex-wrap:wrap; margin-top:0.8rem; }
+.mock { background:var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:0.8rem; flex:1; min-width:240px; }
+.mock .lbl { font-family:'JetBrains Mono',monospace; font-size:0.6rem; letter-spacing:0.1em; color:var(--text-dim); margin-bottom:0.55rem; }
+.sproutbtn { display:inline-flex; align-items:center; gap:0.4rem; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:0.35rem 0.7rem; font-size:0.8rem; position:relative; }
+.sproutbtn .b { position:absolute; top:-7px; right:-7px; background:var(--green); color:#0c0e12; font-family:'JetBrains Mono',monospace; font-size:0.6rem; font-weight:600; border-radius:999px; padding:0.05rem 0.35rem; }
+.sproutbtn .b.dz { background:var(--red); color:#fff; }
+.row { display:flex; justify-content:space-between; font-size:0.75rem; padding:0.3rem 0.4rem; border-bottom:1px solid rgba(42,48,64,0.5); }
+.row .st { font-family:'JetBrains Mono',monospace; font-size:0.65rem; }
+.st.ready { color:var(--green); } .st.grow { color:var(--text-dim); } .st.dis { color:var(--red); }
+.qbtn { display:inline-block; margin-top:0.55rem; background:var(--accent-glow); border:1px solid var(--accent); color:var(--accent); border-radius:8px; padding:0.3rem 0.8rem; font-size:0.75rem; }
+.calc { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:1.2rem 1.4rem; margin-top:0.6rem; }
+.calc input[type=range]{ width:100%; accent-color:var(--leaf); }
+.calc .big { font-family:'JetBrains Mono',monospace; font-size:1.05rem; color:var(--leaf); font-weight:600; }
+.bars { display:grid; grid-template-columns:110px 1fr 90px; gap:0.45rem 0.8rem; align-items:center; margin-top:1rem; font-size:0.8rem; }
+.bar { height:10px; border-radius:5px; background:var(--surface-2); overflow:hidden; }
+.bar i { display:block; height:100%; background:linear-gradient(90deg,var(--leaf),var(--accent)); border-radius:5px; }
+.bars .v { font-family:'JetBrains Mono',monospace; font-size:0.7rem; color:var(--text-dim); text-align:right; }
+.steps { counter-reset:s; margin-top:0.6rem; }
+.step { display:flex; gap:0.9rem; padding:0.65rem 0; border-bottom:1px solid rgba(42,48,64,0.5); }
+.step::before { counter-increment:s; content:counter(s); font-family:'JetBrains Mono',monospace; font-size:0.7rem; font-weight:600; background:var(--accent); color:#0c0e12; border-radius:6px; min-width:1.5rem; height:1.5rem; display:flex; align-items:center; justify-content:center; }
+.step div { font-size:0.85rem; } .step div span { color:var(--text-dim); font-size:0.8rem; }
+.foot { margin-top:2.5rem; color:var(--text-dim); font-size:0.75rem; font-family:'JetBrains Mono',monospace; }
+ul.tight { margin:0.5rem 0 0 1.1rem; font-size:0.83rem; color:var(--text-dim); }
+ul.tight li { margin-bottom:0.3rem; } ul.tight b { color:var(--text); font-weight:500; }
+</style>
+</head>
+<body><div class="wrap">
+
+<div class="badge">PRE-IMPLEMENTATION PLAN · GRILL CLOSED 2026-07-11</div>
+<h1>Farming — the background skill</h1>
+<p class="sub">Every owner decision is settled and recorded in <code>memory-bank/farming-skill-contract-2026-07-11.md</code>; the 914-line source dossier (game-main + Darkan pin <code>7e7d67b</code>, cited per row) is preserved at <code>memory-bank/source-audits/farming-source-dossier-2026-07-11.md</code>. Farming becomes AnkiScape's first skill with no active-target list: the tab is the farm itself, and XP arrives through queued one-review detours.</p>
+
+<h2><span class="num">01</span>Settled decisions <span class="pill owner">OWNER</span> <span class="pill policy">POLICY</span> <span class="pill pin">PIN-GATED</span></h2>
+<div class="grid">
+  <div class="card"><h3>Review-ticked clock <span class="pill owner">OWNER</span></h3>
+  <p><b>240 answered cards = 24 hours</b> (6 era-minutes per card). Nothing reads wall-clock time. <b>Failures tick the clock too</b> — the first all-answers counter, because it models time, not skill. Era stage minutes stay honest in data; ticks process eagerly per card so Anki undo restores exact prior state, rolls included.</p></div>
+
+  <div class="card"><h3>Queue preempts the active skill <span class="pill owner">OWNER</span></h3>
+  <p>N queued steps → the next N <b>successful</b> reviews execute farm steps instead of the active skill's action, with a visible indicator, then control returns. <b>"Harvest &amp; replant same"</b> is a first-class per-patch shortcut; first use walks through plan setup.</p></div>
+
+  <div class="card"><h3>Full Nov-2012 patch map <span class="pill owner">OWNER</span> <span class="pill pin">PIN</span></h3>
+  <p>Every era patch, location-modeled and gated by level/quest (diary gating checked at pin time). Flower→allotment protection falls out naturally: Falador marigolds protect Falador allotments. Habitat patches ship live but emergently inert until Jadinko hunting supplies seeds. Jade vine &amp; evil turnip ship only if pins prove complete loops.</p></div>
+
+  <div class="card"><h3>Full-parity disease <span class="pill owner">OWNER</span></h3>
+  <p>GM model exactly: <code>floor(slots × compost × 0.9ʷ)/128</code> per stage; compost 0.28, super 0.14; diseased crop <b>dies at its next stage boundary</b>. Crops can die unattended — the HUD badge is the counterweight. Disease is pure era RNG, never coupled to answer correctness.</p></div>
+
+  <div class="card"><h3>No auto-suggestions <span class="pill owner">OWNER</span></h3>
+  <p>"Best at my level" rejected — too automatic, and players farm specific ingredients. <b>"Queue full run"</b> executes only the player's own per-patch plans: harvest ready, cure diseased, clear dead, replant-same where a plan exists; unplanned patches are skipped.</p></div>
+
+  <div class="card"><h3>Modifiers by precedent <span class="pill policy">POLICY</span> <span class="pill pin">PIN</span></h3>
+  <p>Magic secateurs = bank-ownership (crystal-saw pattern) behind Fairytale I, ×1.1 save slots. Juju potion ships wired but marble-vine-starved. Greenfingers aura (loyalty meta) &amp; scroll of life (Dungeoneering) defer; patch bomb struck if post-cutoff. Farming/nature amulets: superseded by the HUD badge, function-trailed. Cure Plant &amp; Fertile Soil gain real function per Magic decision 9.</p></div>
+</div>
+
+<h2><span class="num">02</span>Verb costs — owner-approved</h2>
+<div class="card">
+<table>
+<tr><th>Step</th><th>Cost</th><th>Effect</th></tr>
+<tr><td>Plant</td><td>1 review</td><td>Bundles rake + compost + seed; compost XP (18/26) + plant XP; rake yields 3 weeds</td></tr>
+<tr><td>Harvest</td><td>1 review</td><td>Whole patch; exact GM save-slot loop per item (<code>/256</code>, secateurs ×1.1)</td></tr>
+<tr><td>Check health</td><td>1 review</td><td>One-time tree/bush spike XP, preserved as-is (oak 467.3 → magic 13,768.3)</td></tr>
+<tr><td>Cure / Clear / Chop</td><td>1 review each</td><td>Cure disease; clear dead or stump (roots); chop grown tree (WC XP + log batch → stump)</td></tr>
+<tr><td>Compost bin / Make sapling</td><td>1 review each</td><td>Fill 15 / collect with buckets; seed+pot→sapling batched ×28, matures in one tick</td></tr>
+<tr><td class="free">Rake, water, leprechaun, farmer pay</td><td class="free">FREE</td><td>With tools/goods banked: can ownership auto-applies ×0.9; payments consume real goods → disease-proof</td></tr>
+</table>
+</div>
+
+<h2><span class="num">03</span>The surface</h2>
+<div class="hud">
+  <div class="mock"><div class="lbl">HUD — SPROUT BUTTON + BADGE</div>
+    <span class="sproutbtn">🌱 Farm<span class="b">3</span></span>
+    <span style="display:inline-block;width:0.8rem"></span>
+    <span class="sproutbtn">🌱 Farm<span class="b dz">!</span></span>
+    <p style="font-size:0.75rem;color:var(--text-dim);margin-top:0.7rem">Green count = patches ready. Red = disease/death alert, the amulet-of-nature replacement.</p></div>
+  <div class="mock"><div class="lbl">COMPACT STATUS LIST</div>
+    <div class="row"><span>Falador herb — Ranarr</span><span class="st ready">READY</span></div>
+    <div class="row"><span>Catherby allotment — Watermelon</span><span class="st dis">DISEASED</span></div>
+    <div class="row"><span>Lumbridge tree — Willow</span><span class="st grow">stage 3/6</span></div>
+    <div class="row"><span>Gnome fruit tree — Apple</span><span class="st grow">11h 20m</span></div>
+    <span class="qbtn">Queue full run → 4 steps</span></div>
+  <div class="mock"><div class="lbl">QUEUE — PREEMPTS ACTIVE SKILL</div>
+    <div class="row"><span>1 · Harvest Ranarr (Falador)</span><span class="st ready">next ✓</span></div>
+    <div class="row"><span>2 · Replant same — Ranarr</span><span class="st grow">queued</span></div>
+    <div class="row"><span>3 · Cure Watermelon (Catherby)</span><span class="st grow">queued</span></div>
+    <p style="font-size:0.75rem;color:var(--text-dim);margin-top:0.7rem">Each successful review pops one step, then you're back on Fletching. Failures only tick the clock.</p></div>
+</div>
+
+<h2><span class="num">04</span>Pacing playground</h2>
+<div class="calc">
+  <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:0.5rem">
+    <span style="font-size:0.85rem">Your reviews per day:</span>
+    <span class="big" id="rpd">240 / day</span>
+  </div>
+  <input type="range" id="slider" min="40" max="600" step="20" value="240">
+  <div class="bars" id="bars"></div>
+  <p style="font-size:0.72rem;color:var(--text-dim);margin-top:0.9rem">Conversion is fixed at 240 reviews = 24 h (6 min/card); the slider shows how <i>your</i> real-world cadence stretches or compresses ripen times.</p>
+</div>
+
+<h2><span class="num">05</span>Economy unlocks</h2>
+<div class="card"><ul class="tight">
+<li><b>Herblore root orphans closed:</b> grimy snapdragon, spirit weed, toadflax, torstol (+ wergali, fellstalk, 5 Habitat vine herbs when seeds allow), jangerberries, papaya, morchella.</li>
+<li><b>Cooking:</b> sweetcorn, strawberry, watermelon. <b>Crafting:</b> jute fibre; oak/willow/maple/yew/magic roots.</li>
+<li><b>Still open:</b> potato cactus (cactus gives spines), marble vine &amp; co. (Jadinko rewards), willow branches (own pin).</li>
+<li><b>Seed routes:</b> Draynor seed market + era farming-supplies shop (pinned stock), bird-nest tables, era monster drops. Master Farmer waits for Thieving.</li>
+</ul></div>
+
+<h2><span class="num">06</span>Build order</h2>
+<div class="steps">
+  <div class="step"><div><b>Resolve the 38-pin verification gate</b> <span>— fruit-tree check XP (GM defective), calquat timing, allotment payments, jute seeds, white lily, plant-cure XP, all specials, Farming/Patches inventory. <code>tools/wiki_parity.py</code>, cited per row.</span></div></div>
+  <div class="step"><div><b>Data + pure logic</b> <span>— farming_data.py (per-row citations), clock/stage/disease/yield math at exact slot probabilities, queue semantics, storage v32 + migration, undo.</span></div></div>
+  <div class="step"><div><b>Frontend</b> <span>— HUD sprout button + badge, status list, farm view (plans, protection, full-run button, harvest-and-replant-same), disabled-row guards.</span></div></div>
+  <div class="step"><div><b>Assets, achievements, tests</b> <span>— full asset pass with provenance; registry generics + flavored; pure/Qt suites green from 1,050 baseline; level-1 potato manual script (~7 reviews to ripen).</span></div></div>
+  <div class="step"><div><b>Delegated Sol build from the contract</b> <span>— repo-scoped, no commits, no memory-bank writes; independently verified before commit; results artifact after.</span></div></div>
+</div>
+
+<p class="foot">contract: memory-bank/farming-skill-contract-2026-07-11.md · dossier: memory-bank/source-audits/farming-source-dossier-2026-07-11.md · sources: GM rev-667 / DK 7e7d67b / wiki pins ≤ 2012-11-20 · this artifact stays frozen for post-build comparison</p>
+
+</div>
+<script>
+(function(){
+  var crops=[["Potato",40],["Herb",80],["Willow tree",240],["Fruit tree",960],["Calquat*",1280],["Spirit tree",3840]];
+  var slider=document.getElementById('slider'),rpd=document.getElementById('rpd'),bars=document.getElementById('bars');
+  function fmt(mins,perDay){var reviews=mins/6;var days=reviews/perDay;
+    if(days<1){return Math.ceil(reviews)+" reviews (same day)";}
+    return days.toFixed(1)+" days ("+Math.ceil(reviews)+" rev)";}
+  function render(){var v=+slider.value;rpd.textContent=v+" / day";bars.innerHTML='';
+    var maxDays=crops[crops.length-1][1]/6/v;
+    crops.forEach(function(c){var days=c[1]/6/v;var w=Math.max(3,days/maxDays*100);
+      bars.insertAdjacentHTML('beforeend','<span>'+c[0]+'</span><span class="bar"><i style="width:'+w+'%"></i></span><span class="v">'+fmt(c[1],v)+'</span>');});}
+  slider.addEventListener('input',render);render();
+})();
+</script>
+</body></html>

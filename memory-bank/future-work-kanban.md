@@ -64,12 +64,14 @@ Labels: none remaining on the build itself; trailing `DEPENDENCY` items only.
 
 Each skill receives its own grill before implementation. Source-shaped facts should be resolved autonomously; grill only materially different AnkiScape choices.
 
-### Farming
+### Farming — grill CLOSED 2026-07-11
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+Labels: `SOURCE AUDIT` (the 38-pin wiki gate), then `IMPLEMENT`.
 
-- Decide patch abstraction, review-clock growth, disease/death/protection, compost, payments, yields, tools/seeds, patch grouping, banking, and UI.
-- Absorb `hunter-habitat-jadinko` only after the core Farming contract exists.
+- The contract is `memory-bank/farming-skill-contract-2026-07-11.md`; the source dossier is `memory-bank/source-audits/farming-source-dossier-2026-07-11.md`. Do not re-grill.
+- Settled: review-ticked clock (240 answered cards = 24 h; failures tick), pure background archetype (no target list; queued 1-review detours preempt the active skill; harvest-and-replant-same shortcut), owner-approved verb cost table, full-parity GM disease with unattended death, full Nov-2012 location-gated patch map, all authentic seed routes, no auto crop suggestions.
+- Remaining before build: resolve the dossier's 38 wiki pins (fruit-tree check XP, calquat timing, allotment payments, jute seeds, white lily, plant-cure XP, specials, patch inventory), the seed-source audit, and storage v32.
+- Absorb `hunter-habitat-jadinko` only after the core Farming build lands (Habitat patches ship live but seed-starved until then).
 - Magic-grill handoff (owner-mandated): Cure Plant and Fertile Soil ship now as pure casts; when Farming lands they must gain real function (e.g. a farming-run option/checkbox), not stay ceremonial. See `memory-bank/magic-skill-contract-2026-07-11.md` decision 9.
 
 ### Agility
