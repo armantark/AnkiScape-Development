@@ -61,6 +61,15 @@ Source rule for numeric conflicts (dossier Q27, settled): GM wins unless interna
 20. **Queue full run executes the player's own plans — no auto-suggestions** (owner rejected "best at my level": too automatic, and players farm for specific ingredients). It queues: harvest every ready patch, cure every diseased one, clear every dead one, and replant-same wherever a plan exists; patches without a plan are skipped untouched.
 21. Casual surface stays minimal per the standing minimalism policy: the one bulk button plus per-patch plans. Full control lives in the patch detail view. No global checkbox wall.
 
+### 6a. Instant-transaction amendment (post-closure owner clarification, 2026-07-11)
+
+The farm view behaves like the NPC shop interface: clicks take effect **instantaneously in the UI**, with no confirm/apply flows and no review round-trips, wherever the action is transactional rather than a field verb.
+
+- **Instant, no review cost**: queue add/remove/reorder; plan setup and compost-tier choice; farmer protection payment (goods leave the bank the moment you click, the planting is disease-proof immediately — exactly like a shop purchase deducting coins); **make sapling** (seed + pot convert in the bank instantly; the sapling still matures over one clock tick); **compost bin fill and collect** (fill instantly from banked produce, collect instantly with buckets; bin maturation still rides the review clock). Make-sapling and compost-bin steps thereby move out of the 1-review verb table — an owner-directed amendment to the §3 table, since they are pure bank transactions that award no XP at transaction time (compost XP stays attached to application at plant time, per GM).
+- **Still 1 review each** (the field verbs that earn XP or produce): plant, harvest, check health, cure, clear, chop.
+- Instant actions mutate bank/config state outside review dispatch, so they follow the shop surface's persistence model rather than the review-undo contract; review-executed steps keep full Anki-undo rollback.
+- Insufficient goods/level grey the control with the standard tooltip, per the existing disabled-row rule.
+
 ## 7. Modifiers, tools, and items
 
 22. **Magic secateurs**: bank-ownership pattern (mirrors the crystal saw substrate), gated behind Fairytale I — Growing Pains in the quest catalog; applies the ×1.1 save-slot multiplier (GM `HarvestingHandler.kt:106-120`). Acquisition/effect details ride the Magic secateurs + Fairytale I pins.
