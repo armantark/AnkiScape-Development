@@ -119,6 +119,27 @@ def normalize_review_success_probability_pure(source_chance, ...):
 REVIEW_SUCCESS_MINIMUM = 0.20   REVIEW_SUCCESS_SCALE = 0.72   REVIEW_SUCCESS_CAP = 0.95</div>
   <p style="font-size:.88rem;color:var(--text-dim);margin:14px 0 16px">A 0.20 floor plus a square root massively inflates rare actions. Rare actions are exactly the ones whose real XP/hour is <i>bad</i> — that is <i>why</i> they're rare. So the adapter systematically over-rewards precisely the content the real game made unattractive. Shipped, live, in Mining, Woodcutting, Fishing and Hunter (<code>logic_pure.py:7343, 7409, 7488, 7643</code>).</p>
 
+  <p style="font-size:.88rem;margin:0 0 16px;padding:12px 14px;background:var(--surface-2);border-radius:8px;border-left:3px solid var(--green)"><b>The damage is proportional to how rare the action is</b> — and that <i>predicts</i> which skills broke, before you look. Near <code>p=1</code> the square root is nearly the identity and does no harm. As <code>p→0</code> it inflates without bound. Measured across every adapter skill by <code>tools/xp_rate_audit.py</code>:</p>
+
+  <table style="margin-bottom:16px">
+    <thead><tr><th>Skill</th><th style="text-align:right">Raw p range</th><th>Verdict</th></tr></thead>
+    <tbody>
+      <tr><td>Hunter</td><td class="num">78–100%</td><td style="color:var(--green);font-size:.82rem">consistent — adapter barely bites</td></tr>
+      <tr><td>Cooking</td><td class="num">91–100%</td><td style="color:var(--green);font-size:.82rem">consistent</td></tr>
+      <tr><td>Mining</td><td class="num">7–100%</td><td style="color:var(--amber);font-size:.82rem">consistent on its 2 quotable rows; runite unquotable</td></tr>
+      <tr><td><b>Woodcutting</b></td><td class="num"><b>9–100%</b></td><td style="color:var(--red);font-weight:600;font-size:.82rem">INVERTED</td></tr>
+      <tr><td><b>Fishing</b></td><td class="num"><b>6.3–100%</b></td><td style="color:var(--red);font-weight:600;font-size:.82rem">INVERTED</td></tr>
+    </tbody>
+  </table>
+  <div class="eq" style="font-size:.72rem">Woodcutting  AnkiScape:  ivy > magic > yew > maple > willow > oak
+             reality:    ivy > willow > maple > oak > yew > magic
+
+Fishing      AnkiScape:  rocktail > monkfish > shark > sturgeon > trout
+             reality:    rocktail > trout > monkfish > sturgeon > shark</div>
+  <p style="font-size:.85rem;color:var(--text-dim);margin:12px 0 16px">Sharks are Fishing's 3rd-best here and 2012's <b style="color:var(--text)">worst</b> — the guide's own words are <i>"only 20k experience per hour"</i>. Magic logs and yew are the money <i>trees</i>; sharks are the money <i>fish</i>. The adapter made them the meta.</p>
+
+  <p style="font-size:.88rem;margin:0;padding:12px 14px;background:rgba(74,222,128,.06);border-radius:8px;border-left:3px solid var(--green)"><b>An unplanned corroboration for R = 1000.</b> The skills the adapter <i>doesn't</i> distort independently agree on a reviews-per-hour figure: Mining/iron <b>1,035</b>, Cooking <b>1,359–1,410</b>, Firemaking <b>1,474</b>. A second line of evidence, fitting nothing. Combat's <b>120</b> is the extreme outlier in the other direction.</p>
+
   <table>
     <thead><tr><th>Rock</th><th style="text-align:right">Level</th><th style="text-align:right">Raw p @99</th><th style="text-align:right">Adapted p</th><th style="text-align:right">XP / review</th><th>Reality</th></tr></thead>
     <tbody>
