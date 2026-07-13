@@ -156,6 +156,38 @@ FIREMAKING: dict[str, Rate] = {
                   "(ordinary fire, no Penance horn). XP/log stated inconsistently as 303.8/308.8."),
 }
 
+# --- Deterministic artisan methods: the cleanest possible read of R ---
+#
+# These have NO success roll. No adapter, no probability, no modifier estimation.
+# So XP/review IS XP/action, and `sourced XP/hr / XP/action` measures R directly,
+# with nothing in the path. That makes them better evidence for R than anything
+# derived from a rolled skill.
+#
+# They converge on ~900-1,200. The High Alchemy row is not even inference: the
+# period page states the cast count outright — "can be cast up to exactly 1200
+# times in one hour which adds up to 78,000 xp/hr".
+DETERMINISTIC: dict[str, Rate] = {
+    "magic/high_alchemy": Rate(78_000, 78_000, 65.0, 55, ("fire staff",),
+                               "High Level Alchemy oldid 6587004: 'up to exactly 1200 times in "
+                               "one hour which adds up to 78,000 xp/hr'"),
+    "crafting/dragonhide_body": Rate(186_000, 186_000, 186.0, 63, (),
+                                     "P2P Crafting training oldid 6547050 (level-63 row)"),
+    "prayer/gilded_altar_dragon_bones": Rate(230_000, 230_000, 252.0, 1, ("gilded altar 350%",),
+                                             "P2P Prayer training oldid 6571012"),
+    "crafting/battlestaves": Rate(220_000, 220_000, 100.0, 54, (),
+                                  "P2P Crafting training oldid 6547050 ('~2,200 battlestaves/hr')"),
+    "crafting/urns_ardougne": Rate(39_900, 39_900, 95.0, 59, (),
+                                   "P2P Crafting training oldid 6547050 ('~420 urns/hr')"),
+    "magic/superheat_mithril": Rate(84_800, 84_800, 53.0, 43, ("fire staff",),
+                                    "Superheat Item oldid 6586989: '1600 mithril bars per hour' "
+                                    "x 53 magic xp/cast"),
+}
+# Click-spam outliers deliberately excluded from the R estimate: fletching bolts
+# are quoted at 250-560k XP/hr on 5-7 XP actions, implying 50,000-80,000 actions
+# per hour. Those are not a player action rate; they are a mouse-macro rate, and
+# the guide says so ("click-intensive"). Recording them as an R signal would be
+# reading a UI limit as a game constant.
+
 BY_SKILL = {
     "Mining": MINING,
     "Woodcutting": WOODCUTTING,

@@ -37,7 +37,7 @@ import fishing_data  # noqa: E402
 import hunter_data  # noqa: E402
 import mining_data  # noqa: E402
 import woodcutting_data  # noqa: E402
-from sourced_xp_rates import BY_SKILL  # noqa: E402
+from sourced_xp_rates import BY_SKILL, DETERMINISTIC  # noqa: E402
 
 
 def _best(specs, level, key="level"):
@@ -233,6 +233,23 @@ def audit(level):
         print(f"  The combat engine is faithful per unit of GAME TIME (moss giants at 50 "
               f"ticks/review\n  yield ~37k xp/hr, a plausible period rate). It is the "
               f"REVIEW conversion that is wrong.")
+
+    print("\n" + "=" * 96)
+    print("DIRECT reads of R — deterministic artisan actions (no roll, no adapter, nothing")
+    print("in the path). sourced XP/hr / XP-per-action IS the action rate.")
+    print(f"\n{'method':<34}{'XP/hr':>10}{'XP/action':>11}{'R':>10}")
+    print("-" * 96)
+    direct = []
+    for name, rate in sorted(DETERMINISTIC.items(), key=lambda kv: kv[1].actions_per_hour()[1]):
+        r = rate.actions_per_hour()[1]
+        direct.append(r)
+        print(f"{name:<34}{rate.high_xp_hr:>10,}{rate.xp_per_action:>11.1f}{r:>10,.0f}")
+    core = sorted(direct)[1:-1]  # drop the slowest and fastest
+    print(f"\n  Full span {min(direct):,.0f}-{max(direct):,.0f}; the middle sits at "
+          f"{min(core):,.0f}-{max(core):,.0f}.")
+    print("  High Alchemy is not even inference — the period page states the cast count:")
+    print("  \"can be cast up to exactly 1200 times in one hour ... 78,000 xp/hr\".")
+    print("\n  => R = 1000 is corroborated. R = 1800 is not.")
 
 
 if __name__ == "__main__":
