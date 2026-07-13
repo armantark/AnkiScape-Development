@@ -96,13 +96,65 @@ THIEVING: dict[str, Rate] = {
     "wall_safe": Rate(20_000, 20_000, 70.0, 60, (), "Thieving training oldid 6393196 ('around 20k/h')"),
 }
 
-# Awaiting the Phase 0 harvest. Empty is not "no rates exist" — it is "not yet
-# looked for". A rate that IS looked for and genuinely absent gets recorded in
-# the provenance ledger as source_blocked, never silently omitted.
-FISHING: dict[str, Rate] = {}
-HUNTER: dict[str, Rate] = {}
-COOKING: dict[str, Rate] = {}
-FIREMAKING: dict[str, Rate] = {}
+FISHING: dict[str, Rate] = {
+    # P2P Fishing training oldid 6567695, 2012-11-17. Every rate here is the
+    # guide's own no-urn, no-familiar baseline where it states one.
+    "shark": Rate(20_000, 20_000, 110.0, 76, (),
+                  "P2P Fishing oldid 6567695: 'only 20k experience per hour'"),
+    "monkfish": Rate(25_000, 40_000, 120.0, 85, (),
+                     "P2P Fishing oldid 6567695: '25k-40k per hour without urns'"),
+    # Fly fishing is a mixed trout/salmon catch; the guide gives a combined rate
+    # and the F2P page gives the blended 58 xp/catch. Graded against the blend.
+    "trout": Rate(36_000, 40_000, 58.0, 77, (),
+                  "P2P Fishing oldid 6567695: '36-40k/hr with no familiars or urns'; "
+                  "F2P oldid 6576399 gives the blended 58 xp/catch"),
+    # Barbarian fishing, cutting method, explicit no-urn no-familiar baseline.
+    "leaping_sturgeon": Rate(30_000, 35_000, 90.0, 70, (),
+                             "P2P Fishing oldid 6567695: '30k-35k with neither urns nor familiars'"),
+    # FLAG: the rocktail quote folds urns in and cannot be decomposed. Recorded
+    # with urns declared so the audit strips an estimated share, but this row is
+    # the weakest in the table and must not be used to set a cadence contract.
+    "rocktail": Rate(48_000, 48_000, 380.0, 90, ("urns",),
+                     "P2P Fishing oldid 6567695: 'roughly 48,000 per hour ... if fishing urns "
+                     "are present' — urns NOT decomposable; treat as indicative only"),
+}
+
+HUNTER: dict[str, Rate] = {
+    # Hunter training oldid 6549266, 2012-11-12. Level-matched rates only.
+    "catch_red_chinchompa": Rate(50_000, 100_000, 265.0, 63, (), "Hunter training oldid 6549266"),
+    "catch_chinchompa": Rate(15_000, 82_000, 198.0, 53, (), "Hunter training oldid 6549266"),
+    "catch_red_salamander": Rate(40_000, 110_000, 272.0, 59, (), "Hunter training oldid 6549266"),
+    "catch_black_salamander": Rate(30_000, 200_000, 304.0, 67, (), "Hunter training oldid 6549266"),
+    "catch_orange_salamander": Rate(60_000, 90_000, 224.0, 47, (), "Hunter training oldid 6549266"),
+    "catch_dark_kebbit": Rate(35_000, 55_000, 132.0, 57, (), "Hunter training oldid 6549266 (falconry)"),
+    "catch_spotted_kebbit": Rate(30_000, 40_000, 104.0, 43, (), "Hunter training oldid 6549266 (falconry)"),
+}
+# NOT graded: black warlock. The guide's 140k/hr figure is for BAREHAND catching
+# (650 xp/catch, level 95); AnkiScape's `catch_black_warlock` is the butterfly-NET
+# variant at 54 xp. Grading one against the other produced a phantom inversion on
+# the first run. Barehand butterfly catching is simply not implemented — that is a
+# content gap for the kanban, not a balance defect. Same trap Sol named: a quoted
+# rate carries reference conditions, and matching the wrong action to it lies.
+
+COOKING: dict[str, Rate] = {
+    # P2P Cooking training oldid 6579488, 2012-11-19. The no-urn column.
+    # Cooking's roll is a BURN roll, so these grade the burn rate, not cadence.
+    "cook_lobster": Rate(150_000, 150_000, 120.0, 60, (), "P2P Cooking oldid 6579488 (no urns, range)"),
+    "cook_monkfish": Rate(190_000, 190_000, 150.0, 84, (), "P2P Cooking oldid 6579488 (no urns)"),
+    "cook_shark": Rate(263_000, 263_000, 210.0, 92, ("cooking gauntlets",),
+                  "P2P Cooking oldid 6579488 (no urns; gauntlets needed for the quoted burn-stop)"),
+    "cook_tuna": Rate(125_000, 125_000, 100.0, 30, (), "P2P Cooking oldid 6579488 (no urns, range)"),
+}
+
+FIREMAKING: dict[str, Rate] = {
+    # P2P Firemaking training oldid 6487910, 2012-10-28.
+    # FLAG: the same revision states magic-log XP as both 303.8 (body + bonfire
+    # table) and 308.8 (header table). Not averaged — 303.8 used, discrepancy
+    # recorded in the provenance ledger.
+    "magic_logs": Rate(364_560, 364_560, 303.8, 75, (),
+                  "P2P Firemaking oldid 6487910: '1200 logs per hour ... 364,560 experience' "
+                  "(ordinary fire, no Penance horn). XP/log stated inconsistently as 303.8/308.8."),
+}
 
 BY_SKILL = {
     "Mining": MINING,
