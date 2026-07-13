@@ -29,6 +29,7 @@ from constants import (
     FISHING_ITEM_IMAGES,
     FISHING_OUTPUT_ITEMS,
     FLETCHED_ITEM_IMAGES,
+    FARMING_ITEM_IMAGES,
     FLETCHING_DATA,
     GEM_DATA,
     HUNTER_DATA,
@@ -120,7 +121,11 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         self.assertEqual(review_handler_key("Prayer"), "prayer")
         self.assertEqual(review_handler_key("Magic"), "magic")
         self.assertEqual(review_handler_key("Construction"), "construction")
-        self.assertEqual([skill.display_name for skill in CURRENT_SKILLS], list(implemented_review_skill_names()))
+        self.assertEqual(
+            [skill.display_name for skill in CURRENT_SKILLS if skill.participates_in_review],
+            list(implemented_review_skill_names()),
+        )
+        self.assertIn("Farming", [skill.display_name for skill in CURRENT_SKILLS])
 
     def test_review_action_registry_includes_quests_and_utility_without_making_them_skills(self):
         self.assertFalse(is_review_skill("Utility / Activities"))
@@ -171,7 +176,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             "attack",
             "constitution",
             "summoning",
-            "farming",
             "dungeoneering",
             "slayer",
             "thieving",
@@ -180,6 +184,17 @@ class TestSkillAndItemRegistry(unittest.TestCase):
             self.assertFalse(planned[skill_id].implemented)
             self.assertFalse(planned[skill_id].participates_in_review)
         self.assertEqual(len({skill.id for skill in ALL_SKILLS}), len(ALL_SKILLS))
+
+    def test_farming_is_complete_background_training_without_a_reviewer_target(self):
+        farming = get_skill("Farming")
+        self.assertIsNotNone(farming)
+        self.assertTrue(farming.implemented)
+        self.assertTrue(farming.trainable)
+        self.assertTrue(farming.visible_in_skill_hub)
+        self.assertFalse(farming.participates_in_review)
+        self.assertIsNone(farming.current_target_key)
+        self.assertIsNone(farming.review_handler_key)
+        self.assertIsNone(review_handler_key("Farming"))
 
     def test_partial_combat_skills_are_truthfully_trainable_without_complete_surfaces(self):
         partial = {skill.id: skill for skill in partial_skill_definitions()}
@@ -257,6 +272,8 @@ class TestSkillAndItemRegistry(unittest.TestCase):
                 "mining_exp": 0,
                 "woodcutting_level": 1,
                 "woodcutting_exp": 0,
+                "farming_level": 1,
+                "farming_exp": 0,
                 "fishing_level": 1,
                 "fishing_exp": 0,
                 "smithing_level": 1,
@@ -632,11 +649,6 @@ class TestSkillAndItemRegistry(unittest.TestCase):
     def test_npc_shop_actionable_item_assets_are_registered(self):
         by_storage_key = item_definitions_by_storage_key(ITEM_DEFINITIONS)
         expected = (
-            "Erzille seed",
-            "Ugune seed",
-            "Argway seed",
-            "Shengo seed",
-            "Samaden seed",
             "Newspaper",
             "Kebab",
             "Antlers",
@@ -656,6 +668,10 @@ class TestSkillAndItemRegistry(unittest.TestCase):
         for item_name in expected:
             self.assertIn(item_name, SHOP_ITEM_IMAGES)
             self.assertEqual(by_storage_key[item_name].asset_path, SHOP_ITEM_IMAGES[item_name])
+        for item_name in ("Erzille seed", "Ugune seed", "Argway seed", "Shengo seed", "Samaden seed"):
+            self.assertIn(item_name, by_storage_key)
+            self.assertEqual(by_storage_key[item_name].asset_path, FARMING_ITEM_IMAGES[item_name])
+            self.assertTrue(os.path.exists(FARMING_ITEM_IMAGES[item_name]))
         # Coin-paid conversion outputs register through the Utility path now
         # (the sawmill/tanning shop services became review-paced activities),
         # but must still resolve their existing art.

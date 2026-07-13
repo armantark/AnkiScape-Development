@@ -12,6 +12,7 @@ from logic_pure import (
     save_combat_preset_pure,
     set_combat_pack_mode_pure,
 )
+from farming_logic import default_farming_state_pure, execute_farm_field_step_pure, set_farm_plan_pure
 from magic_data import COMBAT_MAGIC_ADDITIONS, MAGIC_TARGETS
 from runtime_actions import RuntimeActionContext, answer_handler_for_key, handle_magic_answer
 from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
@@ -120,6 +121,61 @@ class MagicDataAndMechanicsTest(unittest.TestCase):
         self.assertEqual(secondary, {"crafting": 30.0})
         self.assertEqual(glass["inventory"]["Bucket of sand"], 0)
         self.assertNotIn("Bucket", outputs)
+
+    def test_farming_spells_validate_before_spending_and_apply_atomically(self):
+        base = {
+            "magic_level": 99,
+            "quests": _quest_state("lunar_diplomacy"),
+            "inventory": {
+                "Astral rune": 4,
+                "Earth rune": 23,
+                "Nature rune": 2,
+                "Rake": 1,
+                "Seed dibber": 1,
+                "Potato seed": 6,
+            },
+        }
+        base.update(default_farming_state_pure())
+        original_runes = {key: base["inventory"][key] for key in ("Astral rune", "Earth rune", "Nature rune")}
+        unchanged, xp, _secondary, _outputs, ok, _ = apply_magic_action_pure(base, "cure_plant", MAGIC_DATA, {})
+        self.assertFalse(ok)
+        self.assertEqual(xp, 0.0)
+        self.assertEqual({key: unchanged["inventory"][key] for key in original_runes}, original_runes)
+
+        planted, planted_ok, _ = execute_farm_field_step_pure(
+            base,
+            {"kind": "plant", "patch_id": "falador_allotment_north", "crop_id": "potato"},
+        )
+        self.assertTrue(planted_ok)
+        planted["farm_patches"]["falador_allotment_north"]["diseased"] = True
+        planted["farming_spell_patch"] = "falador_allotment_north"
+        cured, xp, _secondary, _outputs, ok, _ = apply_magic_action_pure(planted, "cure_plant", MAGIC_DATA, {})
+        self.assertTrue(ok)
+        self.assertEqual(xp, 60.0)
+        self.assertFalse(cured["farm_patches"]["falador_allotment_north"]["diseased"])
+        self.assertEqual(cured["inventory"]["Astral rune"], 3)
+        self.assertEqual(cured["inventory"]["Earth rune"], 15)
+
+        planned, plan_ok, _ = set_farm_plan_pure(cured, "falador_allotment_south", "potato")
+        self.assertTrue(plan_ok)
+        planned["farming_spell_patch"] = "falador_allotment_south"
+        fertile, xp, _secondary, _outputs, ok, _ = apply_magic_action_pure(planned, "fertile_soil", MAGIC_DATA, {})
+        self.assertTrue(ok)
+        self.assertEqual(xp, 87.0)
+        plan = fertile["farm_plans"]["falador_allotment_south"]
+        self.assertEqual(plan["compost_tier"], "supercompost")
+        self.assertTrue(plan["fertile_soil_applied"])
+        self.assertEqual(fertile["inventory"]["Astral rune"], 0)
+        self.assertEqual(fertile["inventory"]["Nature rune"], 0)
+        self.assertEqual(fertile["inventory"]["Earth rune"], 0)
+
+        planted_fertile, planted_ok, _ = execute_farm_field_step_pure(
+            fertile,
+            {"kind": "plant", "patch_id": "falador_allotment_south", "crop_id": "potato"},
+        )
+        self.assertTrue(planted_ok)
+        self.assertEqual(planted_fertile["farm_patches"]["falador_allotment_south"]["compost_tier"], "supercompost")
+        self.assertFalse(planted_fertile["farm_plans"]["falador_allotment_south"]["fertile_soil_applied"])
 
     def test_quest_gate_and_disabled_metadata_row_block_selection(self):
         player = {"magic_level": 99, "inventory": {"Law rune": 2, "Blood rune": 1}}

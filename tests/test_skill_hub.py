@@ -18,7 +18,7 @@ class TestSkillHubViewModel(unittest.TestCase):
 
         self.assertEqual(
             [card.display_name for card in by_id["gathering"].skills],
-            ["Mining", "Woodcutting", "Fishing", "Hunter"],
+            ["Mining", "Woodcutting", "Farming", "Fishing", "Hunter"],
         )
         self.assertEqual([card.display_name for card in by_id["support"].skills], ["Prayer"])
         self.assertEqual([card.display_name for card in by_id["combat"].skills], ["Magic"])
@@ -29,7 +29,11 @@ class TestSkillHubViewModel(unittest.TestCase):
         for cat in hub:
             for card in cat.skills:
                 self.assertTrue(card.implemented)
-                self.assertTrue(card.selectable_for_review)
+                if card.skill_id == "farming":
+                    self.assertFalse(card.selectable_for_review)
+                    self.assertEqual(card.surface_state, "complete")
+                else:
+                    self.assertTrue(card.selectable_for_review)
 
     def test_category_order_is_stable_and_combat_precedes_support(self):
         hub = build_skill_hub(include_planned=True)

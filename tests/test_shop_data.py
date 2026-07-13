@@ -1,4 +1,6 @@
 import json
+import runpy
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -10,6 +12,7 @@ from shop_data import (
     SHOP_VENDOR_ACTIONS,
     shop_extra_items_as_dict,
 )
+from tools.generate_npc_shop_data import build_catalog, rewrite_stock_exclusions_from_generated
 
 
 class TestShopData(unittest.TestCase):
@@ -103,12 +106,99 @@ class TestShopData(unittest.TestCase):
         # own cache sellPrice is 1 — the engine allows no flip profit here.
         self.assertEqual(SHOP_PLAYER_SELL_PRICES["Poison"], 1)
 
+    def test_generator_excludes_contaminated_farming_stock_without_renumbering_rows(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            shops = temp / "shops"
+            shops.mkdir()
+            (shops / "papa_mambos_shop.json").write_text(
+                json.dumps({
+                    "name": "Papa Mambo's Shop",
+                    "items": [
+                        {"item": {"id": 19922, "amount": 10}},
+                        {"item": {"id": 19897, "amount": 10}, "customPrice": 10000},
+                        {"item": {"id": 19967, "amount": 10}},
+                    ],
+                }),
+                encoding="utf-8",
+            )
+            items = temp / "items.yml"
+            items.write_text(
+                "\n".join((
+                    '- id: 19922', '  name: "Red blossom seed"', '  tradeable: true',
+                    '- id: 19897', '  name: "Erzille seed"', '  tradeable: true',
+                    '- id: 19967', '  name: "Juju teleport spiritbag"', '  tradeable: true',
+                )) + "\n",
+                encoding="utf-8",
+            )
+            prices = {
+                item_id: {"value": 10, "sell_price": 3}
+                for item_id in (19922, 19897, 19967)
+            }
+
+            catalog, ledger = build_catalog(shops, items, prices)
+
+        runtime_rows = catalog["shops"][0]["stock"]
+        self.assertEqual(
+            [row["id"] for row in runtime_rows],
+            ["papa_mambos_shop:0:19922", "papa_mambos_shop:2:19967"],
+        )
+        audit_rows = ledger["shops"][0]["stock_rows"]
+        excluded = next(row for row in audit_rows if row["item_id"] == 19897)
+        self.assertEqual(excluded["id"], "papa_mambos_shop:1:19897")
+        self.assertEqual(excluded["disposition"], "excluded")
+        self.assertEqual(excluded["lock_reason"], "period_source_exclusion")
+        self.assertEqual(catalog["summary"]["excluded_stock_row_count"], 1)
+        self.assertEqual(ledger["summary"], catalog["summary"])
+
+    def test_focused_regeneration_keeps_runtime_and_audit_outputs_consistent(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as temp_dir:
+            temp = Path(temp_dir)
+            runtime_out = temp / "shop_data.py"
+            ledger_out = temp / "shop_ledger.json"
+            summary_out = temp / "shop_summary.md"
+            summary = rewrite_stock_exclusions_from_generated(
+                repo_root / "shop_data.py",
+                runtime_out,
+                existing_ledger_path=repo_root / "memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json",
+                ledger_output_path=ledger_out,
+                summary_output_path=summary_out,
+            )
+            generated = runpy.run_path(str(runtime_out))
+            ledger = json.loads(ledger_out.read_text(encoding="utf-8"))
+            summary_text = summary_out.read_text(encoding="utf-8")
+
+        self.assertEqual(generated["SHOP_COVERAGE_SUMMARY"], summary)
+        self.assertEqual(ledger["summary"], summary)
+        self.assertEqual(summary["excluded_stock_row_count"], 5)
+        runtime_ids = {row["id"] for row in generated["SHOP_DATA"]["papa_mambos_shop"]["stock"]}
+        audit_live_ids = {
+            row["id"]
+            for shop in ledger["shops"]
+            if shop["id"] == "papa_mambos_shop"
+            for row in shop["stock_rows"]
+            if row["disposition"] != "excluded"
+        }
+        self.assertEqual(audit_live_ids, runtime_ids)
+        self.assertIn("papa_mambos_shop:8:19967", runtime_ids)
+        self.assertTrue(summary_text.endswith("\n"))
+
     def test_machine_readable_ledger_matches_catalog_summary(self):
         ledger_path = Path("memory-bank/source-audits/npc-shop-coverage-ledger-2026-07-06.json")
         ledger = json.loads(ledger_path.read_text(encoding="utf-8"))
         self.assertEqual(ledger["shop_data_version"], SHOP_DATA_VERSION)
-        self.assertEqual(ledger["summary"]["source_shop_count"], SHOP_COVERAGE_SUMMARY["source_shop_count"])
+        self.assertEqual(ledger["summary"], SHOP_COVERAGE_SUMMARY)
         self.assertTrue(any(shop["id"] == "a_test_shop" and shop["disposition"] == "excluded" for shop in ledger["shops"]))
+
+        papa_mambo = next(shop for shop in ledger["shops"] if shop["id"] == "papa_mambos_shop")
+        excluded_rows = {
+            row["item_id"]: row
+            for row in papa_mambo["stock_rows"]
+            if row["disposition"] == "excluded"
+        }
+        self.assertEqual(set(excluded_rows), {19897, 19902, 19907, 19912, 19917})
+        self.assertTrue(all(row["lock_reason"] == "period_source_exclusion" for row in excluded_rows.values()))
 
 
 if __name__ == "__main__":

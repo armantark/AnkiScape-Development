@@ -31,6 +31,7 @@ from aqt import mw, gui_hooks
 from anki.hooks import addHook, wrap
 from aqt.reviewer import Reviewer
 import copy
+import inspect
 import time
 import random
 import os
@@ -83,6 +84,9 @@ from .ui import (
     ensure_review_hud,
     update_review_hud,
     hide_review_hud,
+    ensure_farming_hud_badge,
+    update_farming_hud_badge,
+    hide_farming_hud_badge,
     migrate_legacy_settings,
 )
 from . import ui
@@ -96,6 +100,7 @@ from .storage import load_player_data as storage_load_player_data, save_player_d
 from .action_registry import is_review_action, review_action_handler_key
 from .skill_registry import trainable_skill_definitions
 from .shop_logic import advance_shop_market_clock_pure
+from .farming_logic import apply_farming_frontend_action_pure, farming_frontend_projection_pure
 from . import runtime_actions
 from .runtime_actions import RuntimeActionContext
 
@@ -417,38 +422,47 @@ def _runtime_action_context() -> RuntimeActionContext:
 
 
 def _capture_player_data_snapshot():
-    return copy.deepcopy(player_data)
+    return {
+        "player_data": copy.deepcopy(player_data),
+        "current_skill": current_skill,
+        "random_state": random.getstate(),
+    }
 
 
 def _remember_review_award_snapshot(before_state) -> None:
-    """Keep only keys changed by a successful review reward for Anki undo."""
+    """Keep one complete deterministic transaction snapshot for answer undo."""
+    before_player_data = before_state.get("player_data", before_state)
     changed_values = {}
     removed_keys = []
-    all_keys = set(before_state) | set(player_data)
+    all_keys = set(before_player_data) | set(player_data)
     for key in all_keys:
-        had_before = key in before_state
+        had_before = key in before_player_data
         has_after = key in player_data
-        if had_before and (not has_after or before_state[key] != player_data[key]):
-            changed_values[key] = copy.deepcopy(before_state[key])
+        if had_before and (not has_after or before_player_data[key] != player_data[key]):
+            changed_values[key] = copy.deepcopy(before_player_data[key])
         elif not had_before and has_after:
             removed_keys.append(key)
 
-    if not changed_values and not removed_keys:
+    skill_changed = before_state.get("current_skill", current_skill) != current_skill
+    random_changed = before_state.get("random_state") != random.getstate()
+    if not changed_values and not removed_keys and not skill_changed and not random_changed:
         return
 
-    _REVIEW_UNDO_STACK.append({"values": changed_values, "remove": removed_keys})
+    _REVIEW_UNDO_STACK.append({
+        "values": changed_values,
+        "remove": removed_keys,
+        "current_skill": before_state.get("current_skill", current_skill),
+        "random_state": before_state.get("random_state"),
+    })
     if len(_REVIEW_UNDO_STACK) > _MAX_REVIEW_UNDO_SNAPSHOTS:
         del _REVIEW_UNDO_STACK[:-_MAX_REVIEW_UNDO_SNAPSHOTS]
 
 
 def _call_on_good_answer_with_snapshot(before_state) -> None:
-    try:
+    if inspect.signature(on_good_answer).parameters:
         on_good_answer(before_state)
-    except TypeError as exc:
-        try:
-            on_good_answer()
-        except TypeError:
-            raise exc
+    else:
+        on_good_answer()
 
 
 def _save_player_data_if_anki_ready() -> None:
@@ -459,34 +473,35 @@ def _save_player_data_if_anki_ready() -> None:
 
 
 def _looks_like_review_undo(changes) -> bool:
-    """Best-effort guard so unrelated undo events do not consume reward history."""
+    """Match only the Anki answer operation that owns the latest snapshot."""
     if changes is None:
-        return True
+        return False
     try:
-        operation = str(getattr(changes, "operation", "") or "").lower()
-        if any(token in operation for token in ("answer", "review", "card")):
-            return True
+        operation = " ".join(str(getattr(changes, "operation", "") or "").lower().split())
     except Exception:
-        pass
-    try:
-        nested_changes = getattr(changes, "changes", None)
-        if nested_changes is not None:
-            return bool(getattr(nested_changes, "study_queues", False) or getattr(nested_changes, "card", False))
-    except Exception:
-        pass
-    return False
+        return False
+    return operation in {"answer", "answer card"}
 
 
 def _restore_review_award_snapshot(snapshot) -> None:
-    global player_data
+    global player_data, current_skill
     for key in snapshot.get("remove", []):
         player_data.pop(key, None)
     for key, value in snapshot.get("values", {}).items():
         player_data[key] = copy.deepcopy(value)
+    current_skill = snapshot.get("current_skill", current_skill)
+    random_state = snapshot.get("random_state")
+    if random_state is not None:
+        random.setstate(random_state)
 
     save_player_data()
     try:
+        ui.update_menu_visibility(current_skill)
+    except Exception:
+        pass
+    try:
         update_review_hud(player_data, current_skill)
+        update_farming_hud_badge(player_data, _open_farming_sheet)
     except Exception:
         pass
     try:
@@ -666,7 +681,19 @@ def show_ore_selection():
 
 
 
-def _on_main_menu():
+def _open_farming_sheet(patch_id=None):
+    try:
+        if ui.focus_main_menu_if_open():
+            navigate = ui._MAIN_MENU_CTX.get("open_farming")
+            if navigate is not None:
+                navigate(patch_id)
+            return
+    except Exception:
+        pass
+    _on_main_menu(initial_skill="Farming", initial_farming_patch_id=patch_id)
+
+
+def _on_main_menu(initial_skill=None, initial_farming_patch_id=None):
     def _set_floating_enabled(val: bool):
         try:
             mw.col.set_config("ankiscape_floating_enabled", bool(val))
@@ -857,6 +884,22 @@ def _on_main_menu():
             return
         _apply_house_result(purchase_house_option_pure(player_data, style_id, HOUSE_STYLE_DATA, kind="style"))
 
+    def _get_farming_projection():
+        return farming_frontend_projection_pure(player_data)
+
+    def _apply_farming_action(action_id, payload):
+        updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
+        if ok:
+            player_data.clear()
+            player_data.update(updated)
+            check_achievements(player_data)
+            save_player_data()
+        try:
+            update_farming_hud_badge(player_data, _open_farming_sheet)
+        except Exception:
+            pass
+        return {"ok": ok, "message": message, "projection": farming_frontend_projection_pure(player_data)}
+
     ui.show_main_menu(
         player_data,
         current_skill,
@@ -917,6 +960,10 @@ def _on_main_menu():
         on_unequip_slot=on_unequip_slot,
         on_discard_item=on_discard_item,
         on_consume_item=on_consume_item,
+        get_farming_projection=_get_farming_projection,
+        on_farming_action=_apply_farming_action,
+        initial_skill=initial_skill,
+        initial_farming_patch_id=initial_farming_patch_id,
     )
 
 
@@ -1259,7 +1306,7 @@ _COMBAT_RECOVERY_STATE_KEYS = (
 )
 
 
-def _apply_safe_combat_recovery_after_review() -> None:
+def _apply_safe_combat_recovery_after_review(save_callback=save_player_data) -> None:
     if not any(key in player_data for key in _COMBAT_RECOVERY_STATE_KEYS):
         return
     before_state = copy.deepcopy(player_data)
@@ -1267,7 +1314,7 @@ def _apply_safe_combat_recovery_after_review() -> None:
     if recovered == before_state:
         return
     player_data.update(recovered)
-    save_player_data()
+    save_callback()
     _refresh_skill_availability()
     try:
         update_review_hud(player_data, current_skill)
@@ -1280,30 +1327,40 @@ def on_good_answer(before_state=None):
     if exp_awarded:
         return
     handler = _registered_answer_handler(current_skill)
-    if handler:
+    has_farm_step = bool(player_data.get("farm_queue"))
+    if handler or has_farm_step:
         if before_state is None:
             before_state = _capture_player_data_snapshot()
         handler_key = review_action_handler_key(current_skill)
         review_progressed = False
+        review_ctx = _runtime_action_context()
+        review_ctx.save_player_data = lambda: None
         _begin_review_feedback_context()
         try:
-            if handler_key == "combat":
-                review_progressed = handler(_runtime_action_context()) is not False
+            if has_farm_step:
+                # A consumed or execution-time-invalid Farming step owns this
+                # successful review and is never multiplied by skill bonuses.
+                review_progressed = runtime_actions.handle_farming_queue_answer(review_ctx)
+            elif handler_key == "combat":
+                review_progressed = handler(review_ctx) is not False
             else:
                 for tick_index in range(_review_action_multiplier()):
                     if tick_index > 0 and not _can_start_current_action():
                         break
                     result = runtime_actions.run_answer_with_carried_overlay(
-                        _runtime_action_context(), handler_key, handler
+                        review_ctx, handler_key, handler
                     )
                     if result is not False:
                         review_progressed = True
                     if result is False or current_skill == "None":
                         break
                 if review_progressed and handler_key not in ("quest",):
-                    _apply_safe_combat_recovery_after_review()
+                    _apply_safe_combat_recovery_after_review(review_ctx.save_player_data)
         finally:
             _finish_review_feedback_context()
+            # The background clock and active action form one persisted review
+            # transaction, including rejected handlers and safe recovery.
+            _save_player_data_if_anki_ready()
             _remember_review_award_snapshot(before_state)
 
     exp_awarded = True
@@ -1315,13 +1372,23 @@ def on_good_answer(before_state=None):
 def on_answer_card(self, ease, _old):
     global card_turned, exp_awarded, answer_shown
     review_answered = card_turned and answer_shown
+    successful_answer = ease > 1
     before_state = _capture_player_data_snapshot() if review_answered else None
+    had_farm_step = bool(player_data.get("farm_queue"))
+    farm_preempted = False
     if review_answered:
         try:
             player_data.update(advance_shop_market_clock_pure(player_data))
         except Exception:
             pass
-    if ease > 1 and is_review_action(current_skill) and review_answered and not exp_awarded:
+        if successful_answer and had_farm_step:
+            farm_preempted = runtime_actions.handle_farming_review_answer(_runtime_action_context())
+        else:
+            runtime_actions.advance_farming_clock_for_review(_runtime_action_context())
+    if successful_answer and review_answered and not exp_awarded and farm_preempted:
+        _remember_review_award_snapshot(before_state)
+        exp_awarded = True
+    elif successful_answer and review_answered and not exp_awarded and is_review_action(current_skill):
         _call_on_good_answer_with_snapshot(before_state)
         exp_awarded = True
     elif review_answered and before_state is not None:
@@ -1329,6 +1396,10 @@ def on_answer_card(self, ease, _old):
         _remember_review_award_snapshot(before_state)
     card_turned = False
     answer_shown = False  # Reset for the next card
+    try:
+        update_farming_hud_badge(player_data, _open_farming_sheet)
+    except Exception:
+        pass
     return _old(self, ease)
 
 
@@ -1341,6 +1412,8 @@ def on_card_did_show(card):
     try:
         ensure_review_hud()
         update_review_hud(player_data, current_skill)
+        ensure_farming_hud_badge()
+        update_farming_hud_badge(player_data, _open_farming_sheet)
     except Exception:
         pass
 
@@ -1505,6 +1578,15 @@ except Exception:
             pass
     except Exception:
         pass
+
+try:
+    try:
+        gui_hooks.profile_will_close.remove(hide_review_hud)  # type: ignore[attr-defined]
+    except Exception:
+        pass
+    gui_hooks.profile_will_close.append(hide_review_hud)  # type: ignore[attr-defined]
+except Exception:
+    pass
 
 # Menu is created on profile load via initialize_menu
 

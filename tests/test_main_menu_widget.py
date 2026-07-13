@@ -26,7 +26,7 @@ if _ADDON_DIR not in sys.path:
 
 try:
     import aqt  # noqa: F401
-    from aqt.qt import QApplication, QCheckBox, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
+    from aqt.qt import QApplication, QCheckBox, QColor, QComboBox, QDialog, QLabel, QLineEdit, QListWidget, QPalette, QPushButton, QIcon, QImage, QTabWidget, QToolButton, QSpinBox, Qt, QTreeWidget, QTreeWidgetItem, QWidget
     HAS_AQT = True
 except Exception:  # pragma: no cover - environment without aqt installed
     HAS_AQT = False
@@ -36,7 +36,7 @@ def _make_player_data() -> dict:
     from quest_data import default_quest_states
 
     data: dict = {"inventory": {}}
-    for skill in ("mining", "woodcutting", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic"):
+    for skill in ("mining", "woodcutting", "farming", "fishing", "hunter", "smithing", "crafting", "fletching", "firemaking", "cooking", "runecrafting", "prayer", "magic"):
         data[f"{skill}_level"] = 33
         data[f"{skill}_exp"] = 1000.0
     # Real saves are seeded with a bound starter tool per gathering skill; without
@@ -513,6 +513,7 @@ class MainMenuWidgetTest(unittest.TestCase):
         self._prayer_calls: list = []
         self._magic_calls: list = []
         self._construction_calls: list = []
+        self._farming_calls: list = []
         self._magic_alch_calls: list = []
         self._prayer_config_calls: list = []
         self._death_office_calls: list = []
@@ -552,6 +553,19 @@ class MainMenuWidgetTest(unittest.TestCase):
                 )
             return True
 
+        def _farming_projection():
+            from farming_logic import farming_frontend_projection_pure
+            return farming_frontend_projection_pure(player_data)
+
+        def _farming_action(action_id, payload):
+            from farming_logic import apply_farming_frontend_action_pure
+            self._farming_calls.append((action_id, dict(payload)))
+            updated, ok, message = apply_farming_frontend_action_pure(player_data, action_id, payload)
+            if ok:
+                player_data.clear()
+                player_data.update(updated)
+            return {"ok": ok, "message": message}
+
         self._ui.show_main_menu(
             **extra,
             player_data=player_data,
@@ -587,6 +601,8 @@ class MainMenuWidgetTest(unittest.TestCase):
             on_set_quest_route_choice=lambda quest_id, route_id: self._quest_choice_calls.append((quest_id, route_id)) or True,
             on_claim_reward=lambda claim_id, selected_skill_id=None: self._claim_calls.append((claim_id, selected_skill_id)) or True,
             on_claim_stronghold_reward=lambda: self._stronghold_claim_calls.append(True) or True,
+            get_farming_projection=_farming_projection,
+            on_farming_action=_farming_action,
         )
         self.assertTrue(self._captured, "show_main_menu did not call dialog.exec()")
         return self._captured[-1]
@@ -599,6 +615,336 @@ class MainMenuWidgetTest(unittest.TestCase):
     def test_initial_panel_shows_a_gathering_skill(self) -> None:
         title = _panel_title(self.dialog)
         self.assertTrue(title.startswith("Mining"), f"unexpected initial panel: {title!r}")
+
+    def test_farming_sheet_is_openable_without_train_button_or_target_prompt(self) -> None:
+        farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
+        farming_dialog.show()
+        farming_dialog.resize(900, 560)
+        for _ in range(6):
+            QApplication.processEvents()
+        panel = farming_dialog.findChild(QWidget, "farmingSkillPanel")
+        self.assertIsNotNone(panel)
+        self.assertIsNotNone(farming_dialog.findChild(QWidget, "farmingFarmSheet"))
+        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QWidget) if widget.objectName().startswith("farmingPatchCard::")]), 51)
+        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QLabel) if widget.objectName().startswith("farmingPatchVisual::")]), 51)
+        self.assertEqual(len([widget for widget in farming_dialog.findChildren(QLabel) if widget.objectName().startswith("farmingCompostBinVisual::")]), 6)
+        self.assertFalse(any(button.text() in {"Train this skill", "Currently training"} and button.isVisible() for button in farming_dialog.findChildren(QPushButton)))
+        self.assertFalse(any(label.text() == "Select a target" and label.isVisible() for label in farming_dialog.findChildren(QLabel)))
+        self.assertLessEqual(farming_dialog.minimumHeight(), 560)
+        scroll = farming_dialog.findChild(QWidget, "farmingFarmScroll")
+        self.assertGreater(scroll.height(), 0)
+
+    def test_farming_plan_change_calls_unified_callback_immediately(self) -> None:
+        farming_dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
+        farming_dialog.show()
+        for _ in range(4):
+            QApplication.processEvents()
+        combo = farming_dialog.findChild(QComboBox, "farmingPatchCropCombo::falador_allotment_north")
+        self.assertIsNotNone(combo)
+        potato = combo.findData("potato")
+        self.assertGreaterEqual(potato, 0)
+        combo.setCurrentIndex(potato)
+        QApplication.processEvents()
+        self.assertTrue(self._farming_calls)
+        action_id, payload = self._farming_calls[-1]
+        self.assertEqual(action_id, "set_plan")
+        self.assertEqual(payload["patch_id"], "falador_allotment_north")
+        self.assertEqual(payload["crop_id"], "potato")
+
+    def test_farming_stats_selector_is_present_but_farming_is_not_review_active(self) -> None:
+        farming_buttons = [button for button in self.dialog.findChildren(QToolButton) if button.text() == "Farming"]
+        self.assertTrue(farming_buttons, "Farming should use the ordinary Stats selector")
+        skill_list = _find_skill_list(self.dialog)
+        farming_item = next(skill_list.item(i) for i in range(skill_list.count()) if skill_list.item(i).text() == "Farming")
+        self.assertTrue(bool(farming_item.flags() & Qt.ItemFlag.ItemIsEnabled))
+
+    def test_farming_sheet_geometry_is_stable_at_default_and_laptop_heights_in_dark_mode(self) -> None:
+        old_palette = QApplication.palette()
+        old_style = QApplication.style().objectName()
+        dark = QPalette()
+        dark.setColor(QPalette.ColorRole.Window, QColor(45, 45, 45))
+        dark.setColor(QPalette.ColorRole.WindowText, QColor(235, 235, 235))
+        dark.setColor(QPalette.ColorRole.Base, QColor(30, 30, 30))
+        dark.setColor(QPalette.ColorRole.AlternateBase, QColor(45, 45, 45))
+        dark.setColor(QPalette.ColorRole.Text, QColor(235, 235, 235))
+        dark.setColor(QPalette.ColorRole.Button, QColor(55, 55, 55))
+        dark.setColor(QPalette.ColorRole.ButtonText, QColor(235, 235, 235))
+        dark.setColor(QPalette.ColorRole.Mid, QColor(95, 95, 95))
+        QApplication.setStyle("Fusion")
+        QApplication.setPalette(dark)
+        dialog = None
+        try:
+            dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
+            dialog.show()
+            for _ in range(6):
+                QApplication.processEvents()
+            scroll = dialog.findChild(QWidget, "farmingFarmScroll")
+            sheet = dialog.findChild(QWidget, "farmingFarmSheet")
+            self.assertGreater(dialog.height(), 0)
+            self.assertGreater(scroll.viewport().height(), 0)
+            self.assertGreater(sheet.height(), scroll.viewport().height())
+            self.assertEqual(scroll.horizontalScrollBar().maximum(), 0)
+
+            dialog.resize(900, 560)
+            for _ in range(6):
+                QApplication.processEvents()
+            self.assertEqual((dialog.width(), dialog.height()), (900, 560))
+            self.assertLessEqual(dialog.minimumHeight(), 560)
+            self.assertGreater(scroll.viewport().height(), 0)
+            self.assertEqual(scroll.horizontalScrollBar().maximum(), 0)
+            text = dialog.palette().color(QPalette.ColorRole.Text)
+            base = dialog.palette().color(QPalette.ColorRole.Base)
+            self.assertGreater(text.lightness(), base.lightness())
+        finally:
+            if dialog is not None:
+                dialog.deleteLater()
+            QApplication.setPalette(old_palette)
+            QApplication.setStyle(old_style)
+
+    def test_farming_location_and_patch_details_use_progressive_disclosure(self) -> None:
+        dialog = self._open(_make_player_data(), current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        location = dialog.findChild(QToolButton, "farmingLocationToggle::falador")
+        card = dialog.findChild(QWidget, "farmingPatchCard::falador_allotment_north")
+        expand = dialog.findChild(QToolButton, "farmingPatchExpandButton::falador_allotment_north")
+        details = dialog.findChild(QWidget, "farmingPatchDetails::falador_allotment_north")
+        self.assertFalse(location.isChecked())
+        self.assertFalse(card.isVisible())
+        self.assertFalse(details.isVisible())
+
+        location.click()
+        for _ in range(3):
+            QApplication.processEvents()
+        self.assertTrue(location.isChecked())
+        self.assertTrue(card.isVisible())
+        self.assertFalse(details.isVisible())
+        expand.click()
+        for _ in range(3):
+            QApplication.processEvents()
+        self.assertTrue(expand.isChecked())
+        self.assertTrue(details.isVisible())
+        dialog.deleteLater()
+
+    def test_disabled_farming_controls_cannot_mutate_state(self) -> None:
+        player_data = _make_player_data()
+        player_data["farming_level"] = 1
+        player_data["inventory"] = {"Rake": 1, "Seed dibber": 1, "Potato seed": 2}
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        location = dialog.findChild(QToolButton, "farmingLocationToggle::falador")
+        location.click()
+        QApplication.processEvents()
+        expand = dialog.findChild(QToolButton, "farmingPatchExpandButton::falador_allotment_north")
+        expand.click()
+        QApplication.processEvents()
+        combo = dialog.findChild(QComboBox, "farmingPatchCropCombo::falador_allotment_north")
+        watermelon_index = combo.findData("watermelon")
+        self.assertGreaterEqual(watermelon_index, 0)
+        self.assertFalse(combo.model().item(watermelon_index).isEnabled())
+        before = dict(player_data.get("farm_plans", {}))
+        combo.setCurrentIndex(watermelon_index)
+        for _ in range(3):
+            QApplication.processEvents()
+        self.assertEqual(player_data.get("farm_plans", {}), before)
+        self.assertIsNone(player_data.get("farm_plans", {}).get("falador_allotment_north"))
+        dialog.deleteLater()
+
+    def test_farming_plan_and_queue_actions_refresh_the_visible_sheet_immediately(self) -> None:
+        player_data = _make_player_data()
+        player_data["farming_level"] = 1
+        player_data["inventory"] = {"Rake": 1, "Seed dibber": 1, "Spade": 1, "Potato seed": 6}
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        dialog.findChild(QToolButton, "farmingLocationToggle::falador").click()
+        QApplication.processEvents()
+        dialog.findChild(QToolButton, "farmingPatchExpandButton::falador_allotment_north").click()
+        QApplication.processEvents()
+        combo = dialog.findChild(QComboBox, "farmingPatchCropCombo::falador_allotment_north")
+        combo.setCurrentIndex(combo.findData("potato"))
+        for _ in range(5):
+            QApplication.processEvents()
+        self.assertEqual(player_data["farm_plans"]["falador_allotment_north"]["crop_id"], "potato")
+        summary = dialog.findChild(QLabel, "farmingPatchSummary::falador_allotment_north")
+        primary = dialog.findChild(QPushButton, "farmingPatchPrimaryAction::falador_allotment_north")
+        self.assertIn("Empty", summary.text())
+        self.assertEqual(primary.text(), "Queue plant")
+        self.assertTrue(primary.isEnabled())
+
+        primary.click()
+        for _ in range(5):
+            QApplication.processEvents()
+        queue = dialog.findChild(QListWidget, "farmingQueueList")
+        summary = dialog.findChild(QLabel, "farmingSummaryLabel")
+        self.assertEqual(queue.count(), 1)
+        self.assertIn("1 queued", summary.text())
+        self.assertEqual(queue.item(0).data(Qt.ItemDataRole.UserRole), "farm_step_00000001")
+        dialog.deleteLater()
+
+    def test_farming_protection_checkbox_pays_immediately(self) -> None:
+        player_data = _make_player_data()
+        player_data["farming_level"] = 1
+        player_data["inventory"] = {
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Spade": 1,
+            "Potato seed": 3,
+            "Compost": 2,
+        }
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        dialog.findChild(QToolButton, "farmingLocationToggle::falador").click()
+        QApplication.processEvents()
+        dialog.findChild(QToolButton, "farmingPatchExpandButton::falador_allotment_north").click()
+        QApplication.processEvents()
+        combo = dialog.findChild(QComboBox, "farmingPatchCropCombo::falador_allotment_north")
+        combo.setCurrentIndex(combo.findData("potato"))
+        for _ in range(4):
+            QApplication.processEvents()
+        protect = dialog.findChild(QCheckBox, "farmingPatchProtectionCheck::falador_allotment_north")
+        protect.setChecked(True)
+        for _ in range(5):
+            QApplication.processEvents()
+        self.assertEqual(self._farming_calls[-2][0], "set_plan")
+        self.assertEqual(self._farming_calls[-1], ("pay_protection", {"patch_id": "falador_allotment_north"}))
+        self.assertEqual(player_data["inventory"]["Compost"], 0)
+        self.assertTrue(player_data["farm_plans"]["falador_allotment_north"]["protection_paid"])
+        protect = dialog.findChild(QCheckBox, "farmingPatchProtectionCheck::falador_allotment_north")
+        self.assertTrue(protect.isChecked())
+        self.assertFalse(protect.isEnabled())
+        dialog.deleteLater()
+
+    def test_farming_compost_bin_selects_an_available_input_and_gates_fill_by_selection(self) -> None:
+        player_data = _make_player_data()
+        player_data["inventory"] = {"Potato": 15}
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        combo = dialog.findChild(QComboBox, "farmingCompostBinInputCombo::falador_bin")
+        fill = dialog.findChild(QPushButton, "farmingCompostBinFillButton::falador_bin")
+        self.assertEqual(combo.currentData(), "Potato")
+        self.assertTrue(fill.isEnabled())
+
+        barley_index = combo.findData("Barley")
+        self.assertGreaterEqual(barley_index, 0)
+        combo.setCurrentIndex(barley_index)
+        QApplication.processEvents()
+        self.assertFalse(fill.isEnabled())
+        combo.setCurrentIndex(combo.findData("Potato"))
+        QApplication.processEvents()
+        self.assertTrue(fill.isEnabled())
+        fill.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(player_data["inventory"]["Potato"], 0)
+        self.assertEqual(player_data["farm_compost_bins"]["falador_bin"]["status"], "filling")
+        dialog.deleteLater()
+
+    def test_farming_patch_actions_keep_readable_widths_at_supported_dialog_sizes(self) -> None:
+        from farming_logic import set_farm_plan_pure
+
+        player_data = _make_player_data()
+        player_data["farming_level"] = 1
+        player_data["inventory"] = {
+            "Rake": 1,
+            "Seed dibber": 1,
+            "Spade": 1,
+            "Potato seed": 3,
+            "Compost": 2,
+        }
+        updated, ok, _ = set_farm_plan_pure(player_data, "falador_allotment_north", "potato")
+        self.assertTrue(ok)
+        player_data.clear()
+        player_data.update(updated)
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        for width, height in ((720, 540), (900, 560)):
+            dialog.resize(width, height)
+            for _ in range(5):
+                QApplication.processEvents()
+            self.assertEqual((dialog.width(), dialog.height()), (width, height))
+            location = dialog.findChild(QToolButton, "farmingLocationToggle::falador")
+            if not location.isChecked():
+                location.click()
+                QApplication.processEvents()
+            expand = dialog.findChild(QToolButton, "farmingPatchExpandButton::falador_allotment_north")
+            if not expand.isChecked():
+                expand.click()
+                QApplication.processEvents()
+            buttons = [
+                dialog.findChild(QPushButton, "farmingPatchPlanButton::falador_allotment_north"),
+                dialog.findChild(QPushButton, "farmingPatchPrimaryAction::falador_allotment_north"),
+                dialog.findChild(QPushButton, "farmingPatchHarvestReplantButton::falador_allotment_north"),
+                dialog.findChild(QPushButton, "farmingPatchProtectionButton::falador_allotment_north"),
+            ]
+            for button in buttons:
+                self.assertIsNotNone(button)
+                self.assertGreaterEqual(button.width(), button.sizeHint().width())
+        dialog.deleteLater()
+
+    def test_farming_queue_selection_reorder_remove_clear_and_full_run(self) -> None:
+        from farming_logic import set_farm_plan_pure
+
+        player_data = _make_player_data()
+        player_data["farming_level"] = 1
+        player_data["inventory"] = {"Rake": 1, "Seed dibber": 1, "Spade": 1, "Potato seed": 6}
+        for patch_id in ("falador_allotment_north", "falador_allotment_south"):
+            updated, ok, _ = set_farm_plan_pure(player_data, patch_id, "potato")
+            self.assertTrue(ok)
+            player_data.clear()
+            player_data.update(updated)
+        dialog = self._open(player_data, current_skill="Mining", initial_skill="Farming")
+        dialog.show()
+        dialog.resize(900, 560)
+        for _ in range(5):
+            QApplication.processEvents()
+        full_run = dialog.findChild(QPushButton, "farmingQueueFullRunButton")
+        self.assertTrue(full_run.isEnabled())
+        full_run.click()
+        for _ in range(5):
+            QApplication.processEvents()
+        queue = dialog.findChild(QListWidget, "farmingQueueList")
+        self.assertEqual(queue.count(), 2)
+        first_id = queue.item(0).data(Qt.ItemDataRole.UserRole)
+        second_id = queue.item(1).data(Qt.ItemDataRole.UserRole)
+        queue.setCurrentRow(1)
+        QApplication.processEvents()
+        up = dialog.findChild(QPushButton, "farmingQueueMoveUpButton")
+        self.assertTrue(up.isEnabled())
+        up.click()
+        for _ in range(4):
+            QApplication.processEvents()
+        queue = dialog.findChild(QListWidget, "farmingQueueList")
+        self.assertEqual(queue.item(0).data(Qt.ItemDataRole.UserRole), second_id)
+        self.assertEqual(queue.item(1).data(Qt.ItemDataRole.UserRole), first_id)
+
+        queue.setCurrentRow(0)
+        QApplication.processEvents()
+        dialog.findChild(QPushButton, "farmingQueueRemoveButton").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        queue = dialog.findChild(QListWidget, "farmingQueueList")
+        self.assertEqual(queue.count(), 1)
+        self.assertEqual(queue.item(0).data(Qt.ItemDataRole.UserRole), first_id)
+        dialog.findChild(QPushButton, "farmingQueueClearButton").click()
+        for _ in range(4):
+            QApplication.processEvents()
+        self.assertEqual(dialog.findChild(QListWidget, "farmingQueueList").count(), 0)
+        self.assertEqual(player_data["farm_queue"], [])
+        dialog.deleteLater()
 
     def test_bank_carried_inventory_panel_is_present_and_collapsible(self) -> None:
         summary = self.dialog.findChild(QLabel, "carriedInventorySummary")
@@ -898,13 +1244,13 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(beer_item.icon().isNull(), "sell rows should use inventory item icons")
 
         search = _find_named_line_edit(dialog, "shopSearchInput")
-        search.setText("Erzille seed")
+        search.setText("Red blossom seed")
         QApplication.processEvents()
         selector = _find_named_list(dialog, "shopSelectionList")
         seed_item = next(
             selector.item(i)
             for i in range(selector.count())
-            if "Erzille seed" in selector.item(i).text()
+            if "Red blossom seed" in selector.item(i).text()
         )
         self.assertFalse(seed_item.icon().isNull(), "item-first search rows should use shop item icons")
 
@@ -1152,12 +1498,12 @@ class MainMenuWidgetTest(unittest.TestCase):
         labels = [label.text() for label in dialog.findChildren(QLabel)]
 
         self.assertTrue(
-            any(text.startswith("Easy") and "2/48 completed" in text for text in labels),
+            any(text.startswith("Easy") and "2/52 completed" in text for text in labels),
             "Easy achievement count did not use metadata grouping",
         )
         self.assertIn("First Steps", labels)
         self.assertIn("Rune Mysteries", labels)
-        self.assertIn("Completed: 2/140 (1.4%)", labels)
+        self.assertIn("Completed: 2/150 (1.3%)", labels)
 
     def test_selecting_woodcutting_updates_panel(self) -> None:
         skill_list = _find_skill_list(self.dialog)

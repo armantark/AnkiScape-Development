@@ -1,3 +1,4 @@
+import copy
 import sys
 import types
 import unittest
@@ -1909,7 +1910,7 @@ class TestIntegrationSmoke(unittest.TestCase):
 
         self.assertEqual(addon.player_data["inventory"]["Wool"], 56)
         self.assertEqual(addon.player_data["crafting_exp"], 0)
-        self.assertEqual(calls["save"], 2)
+        self.assertEqual(calls["save"], 1)
         self.assertEqual(calls["gains"], ["+56 Wool"])
 
     def test_one_shot_utility_purchase_runs_once_and_switches_off(self):
@@ -2986,6 +2987,59 @@ class TestIntegrationSmoke(unittest.TestCase):
         self.assertEqual(addon._REVIEW_UNDO_STACK, [])
         self.assertGreaterEqual(calls["save"], 2)
 
+    def test_cure_plant_runtime_cast_and_answer_undo_are_atomic(self):
+        addon = _load_addon_as_package("ankiscape_cure_plant_undo_integration")
+        farming_logic = sys.modules[f"{addon.__name__}.farming_logic"]
+        calls = {"save": 0, "xp": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: calls.__setitem__("save", calls["save"] + 1)
+        addon.update_review_hud = lambda *_args: None
+        addon._refresh_skill_availability = lambda: None
+        addon._show_exp = lambda xp: calls["xp"].append(xp)
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        state = {
+            "inventory": {
+                "Astral rune": 1,
+                "Earth rune": 8,
+                "Rake": 1,
+                "Seed dibber": 1,
+                "Potato seed": 3,
+            },
+            "magic_level": 99,
+            "magic_exp": 0.0,
+            "current_magic": "cure_plant",
+            "quests": {"lunar_diplomacy": {"completed": True}},
+            "completed_achievements": [],
+        }
+        state.update(farming_logic.default_farming_state_pure())
+        state, ok, _ = farming_logic.execute_farm_field_step_pure(
+            state,
+            {"kind": "plant", "patch_id": "falador_allotment_north", "crop_id": "potato"},
+        )
+        self.assertTrue(ok)
+        state["farm_patches"]["falador_allotment_north"]["diseased"] = True
+        state["farming_spell_patch"] = "falador_allotment_north"
+        before = copy.deepcopy(state)
+        addon.player_data = state
+        addon.current_skill = "Magic"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+
+        self.assertFalse(addon.player_data["farm_patches"]["falador_allotment_north"]["diseased"])
+        self.assertEqual(addon.player_data["inventory"]["Astral rune"], 0)
+        self.assertEqual(addon.player_data["inventory"]["Earth rune"], 0)
+        self.assertEqual(addon.player_data["magic_exp"], 60.0)
+        self.assertEqual(calls["save"], 1)
+        addon._on_state_did_undo(types.SimpleNamespace(
+            operation="Answer Card",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
+        ))
+        self.assertEqual(addon.player_data, before)
+
     def test_unrelated_undo_does_not_consume_review_snapshot(self):
         addon = _load_addon_as_package("ankiscape_unrelated_undo_integration")
 
@@ -3004,8 +3058,8 @@ class TestIntegrationSmoke(unittest.TestCase):
         )
 
         changes = types.SimpleNamespace(
-            operation="Edit Note",
-            changes=types.SimpleNamespace(study_queues=False, card=False),
+            operation="Set Due Date",
+            changes=types.SimpleNamespace(study_queues=True, card=True),
         )
         addon._on_state_did_undo(changes)
 

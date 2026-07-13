@@ -70,6 +70,7 @@ try:
         fishing_methods_as_dict,
         fishing_output_items,
     )
+    from .farming_data import FARMING_COMPOST_VISUAL_ITEMS, FARMING_ITEM_DATA, FARMING_PATCH_VISUAL_ITEMS
     from .hunter_data import (
         DEFAULT_HUNTER_TARGET,
         HUNTER_GROUP_LABELS,
@@ -80,7 +81,7 @@ try:
         hunter_supply_item_names,
         hunter_targets_as_dict,
     )
-    from .item_registry import build_item_definitions, slugify_item_id
+    from .item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
     from .quest_data import (
         CLAIMS_BY_ID,
         QUESTS_BY_ID,
@@ -202,6 +203,7 @@ except ImportError:
         fishing_methods_as_dict,
         fishing_output_items,
     )
+    from farming_data import FARMING_COMPOST_VISUAL_ITEMS, FARMING_ITEM_DATA, FARMING_PATCH_VISUAL_ITEMS
     from hunter_data import (
         DEFAULT_HUNTER_TARGET,
         HUNTER_GROUP_LABELS,
@@ -212,7 +214,7 @@ except ImportError:
         hunter_supply_item_names,
         hunter_targets_as_dict,
     )
-    from item_registry import build_item_definitions, slugify_item_id
+    from item_registry import apply_item_asset_overrides, build_item_definitions, slugify_item_id
     from quest_data import (
         CLAIMS_BY_ID,
         QUESTS_BY_ID,
@@ -325,6 +327,8 @@ SHOP_ITEMS_FOLDER = os.path.join(current_dir, "shopitems")
 PRAYER_ITEMS_FOLDER = os.path.join(current_dir, "prayeritems")
 MAGIC_ITEMS_FOLDER = os.path.join(current_dir, "magicitems")
 CONSTRUCTION_ITEMS_FOLDER = os.path.join(current_dir, "constructionitems")
+FARMING_ITEMS_FOLDER = os.path.join(current_dir, "farmingitems")
+FARMING_HUD_SPROUT_ICON = os.path.join(current_dir, "icon", "farming_icon.png")
 
 # Image dictionaries
 # New constants for Crafting
@@ -965,6 +969,46 @@ for _item_name in SHOP_EXTRA_ITEM_DATA:
     if os.path.exists(_path):
         SHOP_ITEM_IMAGES[_item_name] = _path
 
+# Farming owns a broad cross-skill inventory surface. Reuse already-audited art
+# first, then fill Farming-only rows from the data-derived farmingitems manifest.
+_FARMING_SHARED_IMAGE_MAPS = (
+    ORE_IMAGES,
+    TREE_IMAGES,
+    LOG_IMAGES,
+    GEM_IMAGES,
+    BAR_IMAGES,
+    CRAFTED_ITEM_IMAGES,
+    FLETCHED_ITEM_IMAGES,
+    FIREMAKING_ITEM_IMAGES,
+    FISHING_ITEM_IMAGES,
+    HUNTER_ITEM_IMAGES,
+    COOKING_ITEM_IMAGES,
+    RUNECRAFTING_ITEM_IMAGES,
+    HERBLORE_ITEM_IMAGES,
+    PRAYER_ITEM_IMAGES,
+    MAGIC_ITEM_IMAGES,
+    CONSTRUCTION_ITEM_IMAGES,
+    UTILITY_ITEM_IMAGES,
+    QUEST_ITEM_IMAGES,
+    COMBAT_ITEM_IMAGES,
+    SHOP_ITEM_IMAGES,
+    WOODCUTTING_EXTRA_ITEM_IMAGES,
+    MINING_EXTRA_ITEM_IMAGES,
+    SMITHING_EXTRA_ITEM_IMAGES,
+)
+FARMING_ITEM_IMAGES = {}
+for _item_name in FARMING_ITEM_DATA:
+    _path = next(
+        (
+            _image_map[_item_name]
+            for _image_map in _FARMING_SHARED_IMAGE_MAPS
+            if _image_map.get(_item_name) and os.path.exists(_image_map[_item_name])
+        ),
+        os.path.join(FARMING_ITEMS_FOLDER, f"{_asset_slug(_item_name)}.png"),
+    )
+    if os.path.exists(_path):
+        FARMING_ITEM_IMAGES[_item_name] = _path
+
 _path = os.path.join(SHOP_ITEMS_FOLDER, "iron_limbs.png")
 if os.path.exists(_path):
     SMITHING_EXTRA_ITEM_IMAGES["Iron limbs"] = _path
@@ -1070,6 +1114,7 @@ def _known_non_shop_item_names():
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
         CONSTRUCTION_EXTRA_ITEM_DATA,
+        FARMING_ITEM_DATA,
     ):
         names.update(mapping)
     names.update(MINING_OUTPUT_ITEMS)
@@ -1142,6 +1187,7 @@ def _known_non_shop_item_ids(names):
         HERBLORE_EXTRA_ITEM_DATA,
         COMBAT_EXTRA_ITEM_DATA,
         CONSTRUCTION_EXTRA_ITEM_DATA,
+        FARMING_ITEM_DATA,
     ):
         for item_name, spec in mapping.items():
             ids.add(slugify_item_id(_extra_item_category(spec), item_name))
@@ -1180,6 +1226,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
     **CONSTRUCTION_EXTRA_ITEM_DATA,
     **MAGIC_EXTRA_ITEM_DATA,
     **QUEST_REWARD_ITEM_DATA,
+    **FARMING_ITEM_DATA,
     **WOODCUTTING_EXTRA_ITEM_DATA,
     **MINING_EXTRA_ITEM_DATA,
     **SMITHING_EXTRA_ITEM_DATA,
@@ -1197,6 +1244,7 @@ EXTRA_ITEM_DATA = _apply_equipment_metadata({
 })
 EXTRA_ITEM_IMAGES = {
     **CONSTRUCTION_ITEM_IMAGES,
+    **FARMING_ITEM_IMAGES,
     **WOODCUTTING_EXTRA_ITEM_IMAGES,
     **MINING_EXTRA_ITEM_IMAGES,
     **SMITHING_EXTRA_ITEM_IMAGES,
@@ -1242,6 +1290,30 @@ ITEM_DEFINITIONS = build_item_definitions(
     UTILITY_ITEM_IMAGES,
     EXTRA_ITEM_DATA,
     EXTRA_ITEM_IMAGES,
+)
+ITEM_DEFINITIONS = apply_item_asset_overrides(
+    ITEM_DEFINITIONS,
+    FARMING_ITEM_IMAGES,
+    only_missing=True,
+)
+FARMING_ITEM_IMAGES = {
+    _definition.storage_key: _definition.asset_path
+    for _definition in ITEM_DEFINITIONS
+    if _definition.storage_key in FARMING_ITEM_DATA and _definition.asset_path
+}
+FARMING_PATCH_STATE_IMAGES = {
+    _status: FARMING_ITEM_IMAGES[_item_name]
+    for _status, _item_name in FARMING_PATCH_VISUAL_ITEMS.items()
+    if FARMING_ITEM_IMAGES.get(_item_name)
+}
+FARMING_COMPOST_STATE_IMAGES = {
+    _status: FARMING_ITEM_IMAGES[_item_name]
+    for _status, _item_name in FARMING_COMPOST_VISUAL_ITEMS.items()
+    if FARMING_ITEM_IMAGES.get(_item_name)
+}
+FARMING_HUD_SPROUT_ICON = FARMING_ITEM_IMAGES.get(
+    "Oak seedling",
+    FARMING_HUD_SPROUT_ICON,
 )
 
 # Experience table

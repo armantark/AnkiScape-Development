@@ -94,6 +94,30 @@ def _claim_completed(player: PlayerData, claim_id: str) -> bool:
     return isinstance(claim, Mapping) and bool(claim.get("claimed", False))
 
 
+FARMING_LEVEL_ACHIEVEMENTS = (
+    ("Novice Farmer", 10, "Easy"),
+    ("Intermediate Farmer", 30, "Moderate"),
+    ("Expert Farmer", 60, "Difficult"),
+    ("Master Farmer", 99, "Very Challenging"),
+)
+
+FARMING_PRODUCE_ACHIEVEMENTS = (
+    ("Produce Collector", 100, "Easy"),
+    ("Produce Hoarder", 1_000, "Moderate"),
+    ("Produce Stockpile", 10_000, "Difficult"),
+)
+
+
+def _farming_counter(player: PlayerData, key: str) -> int:
+    counters = player.get("farming_counters", {}) or {}
+    if not isinstance(counters, Mapping):
+        return 0
+    try:
+        return max(0, int(counters.get(key, 0) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
 def build_achievement_definitions(
     mining_output_items: Iterable[str],
     woodcutting_log_items: Iterable[str],
@@ -282,6 +306,24 @@ def build_achievement_definitions(
     add("Master Builder", "Reach Construction level 60", "Difficult", lambda player: _level(player, "construction_level") >= 60)
     add("Construction Cape", "Reach Construction level 99", "Very Challenging", lambda player: _level(player, "construction_level") >= 99)
     add("Packed Flat", "Create 100 Construction outputs", "Difficult", lambda player: _level(player, "construction_outputs_created", 0) >= 100)
+
+    add("First Plant", "Plant your first Farming crop", "Easy", lambda player: _farming_counter(player, "plants") >= 1)
+    for name, required_level, difficulty in FARMING_LEVEL_ACHIEVEMENTS:
+        add(
+            name,
+            f"Reach Farming level {required_level}",
+            difficulty,
+            lambda player, level=required_level: _level(player, "farming_level") >= level,
+        )
+    for name, required_total, difficulty in FARMING_PRODUCE_ACHIEVEMENTS:
+        add(
+            name,
+            f"Harvest {required_total:,} total Farming produce",
+            difficulty,
+            lambda player, total=required_total: _farming_counter(player, "produce_harvested") >= total,
+        )
+    add("Tree Doctor", "Check the health of your first Farming tree", "Easy", lambda player: _farming_counter(player, "tree_health_checks") >= 1)
+    add("Full Farm Run", "Queue your first full farm run", "Moderate", lambda player: _farming_counter(player, "full_runs") >= 1)
 
     add("First Cast", "Complete your first standalone Magic cast", "Easy", lambda player: _level(player, "magic_actions_completed", 0) >= 1)
     add("Novice Mage", "Reach Magic level 10", "Easy", lambda player: _level(player, "magic_level") >= 10)

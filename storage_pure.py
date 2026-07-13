@@ -1,4 +1,5 @@
 # storage_pure.py - Pure helpers for migrating and defaulting player data (no Anki deps)
+import math
 from typing import Dict, Iterable, Optional, Any
 
 try:
@@ -32,6 +33,7 @@ try:
         sanitize_stronghold_state_pure,
     )
     from .shop_logic import default_shop_state_pure, sanitize_shop_state_pure
+    from .farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from .mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from .smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -76,6 +78,7 @@ except ImportError:
         sanitize_stronghold_state_pure,
     )
     from shop_logic import default_shop_state_pure, sanitize_shop_state_pure
+    from farming_logic import default_farming_state_pure, sanitize_farming_state_pure
     from mining_data import DEFAULT_MINING_TARGET, DEFAULT_MINING_TOOLBELT, LEGACY_ORE_TARGETS
     from smithing_data import (
         DEFAULT_SMITHING_TARGET,
@@ -90,7 +93,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 31
+CURRENT_CONFIG_VERSION = 32
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -202,6 +205,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data["unlocked_abilities"] = []
     data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
+    data.update(default_farming_state_pure())
     return data
 
 
@@ -405,20 +409,29 @@ def _migrate_pending_skill_exp_rewards(data: Dict[str, Any]) -> None:
                 continue
             try:
                 amount = float(raw_amount)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError, OverflowError):
                 continue
-            if amount <= 0:
+            if not math.isfinite(amount) or amount <= 0:
                 continue
             if exp_key in trainable_by_exp_key:
                 try:
                     existing = float(data.get(exp_key, 0) or 0)
-                except (TypeError, ValueError):
+                except (TypeError, ValueError, OverflowError):
                     existing = 0.0
-                data[exp_key] = existing + amount
+                if not math.isfinite(existing) or existing < 0:
+                    existing = 0.0
                 skill = trainable_by_exp_key[exp_key]
+                try:
+                    current_level = max(1, int(data.get(skill.level_key, 1) or 1))
+                except (TypeError, ValueError, OverflowError):
+                    current_level = 1
+                total = existing + amount
+                if not math.isfinite(total):
+                    continue
+                data[exp_key] = total
                 data[skill.level_key] = calculate_new_level(
-                    data[exp_key],
-                    int(data.get(skill.level_key, 1) or 1),
+                    total,
+                    current_level,
                     EXP_TABLE,
                 )
             else:
@@ -694,6 +707,11 @@ def migrate_loaded_data(
         data.setdefault("house_style", "basic_wood")
         data.setdefault("prayer_gilded_mode", "hosted")
         data.setdefault("prayer_owned_altar_stint", {})
+    # v32: Farming is a background clock plus persistent patch/bin/queue state.
+    # Sanitization below is additive and retains unknown future keys and rows.
+    if loaded_config_version < 32:
+        for key, value in default_farming_state_pure().items():
+            data.setdefault(key, value)
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -713,11 +731,12 @@ def migrate_loaded_data(
     data.setdefault("house_style", "basic_wood")
     data.setdefault("prayer_gilded_mode", "hosted")
     data.setdefault("prayer_owned_altar_stint", {})
+    data.update(sanitize_farming_state_pure(data))
     data.update(sanitize_combat_state_pure(data))
 
     # Progress key retained (not critical)
     data.setdefault("progress_to_next", 0)
 
-    # Bump version to current
-    data["config_version"] = CURRENT_CONFIG_VERSION
+    # Never relabel a save from a newer schema as the current one.
+    data["config_version"] = max(loaded_config_version, CURRENT_CONFIG_VERSION)
     return data

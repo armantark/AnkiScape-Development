@@ -843,6 +843,22 @@ def _magic_quest_gate_complete_pure(player_data, gate):
     return quest_completed_pure(player_data, str(gate))
 
 
+def _farming_spell_locked_reasons_pure(player_data, target_id):
+    try:
+        from .farming_logic import farming_spell_target_locked_reasons_pure
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from farming_logic import farming_spell_target_locked_reasons_pure  # type: ignore
+    return farming_spell_target_locked_reasons_pure(player_data, target_id)
+
+
+def _apply_farming_spell_pure(player_data, target_id):
+    try:
+        from .farming_logic import apply_farming_spell_pure
+    except ImportError:  # pragma: no cover - flat imports used by tests
+        from farming_logic import apply_farming_spell_pure  # type: ignore
+    return apply_farming_spell_pure(player_data, target_id)
+
+
 def effective_magic_rune_cost_pure(player_data, rune_cost):
     """Waive elemental runes covered by the best owned/equipped staff."""
     cost = {str(name): _non_negative_int(amount, 0) for name, amount in (rune_cost or {}).items()}
@@ -886,6 +902,8 @@ def _magic_dynamic_requirements_pure(player_data, spec, alch_values):
     elif action == "string_jewellery":
         if not any(_non_negative_int(inventory.get(item, 0), 0) > 0 for item in _STRINGABLE_AMULETS):
             return requirements, ("Unstrung amulet",)
+    elif str(spec.get("id", "")) in {"cure_plant", "fertile_soil"}:
+        return requirements, _farming_spell_locked_reasons_pure(player_data, str(spec["id"]))
     return requirements, ()
 
 
@@ -1019,6 +1037,10 @@ def apply_magic_action_pure(player_data, target_id, magic_data, alch_values=None
         data["magic_imbue_active"] = True
     elif action == "charge":
         data["magic_charge_active"] = True
+    elif target_id in {"cure_plant", "fertile_soil"}:
+        data, applied, message = _apply_farming_spell_pure(data, target_id)
+        if not applied:
+            return player_data, 0.0, {}, {}, False, message
     elif action == "cure_me":
         statuses = dict(data.get("combat_status_effects", {}) or {})
         statuses.pop("poison", None)

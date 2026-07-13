@@ -46,6 +46,7 @@ try:
         QEvent,
         QLineEdit,
         QToolButton,
+        QFrame as QtFrame,
     )
     HAS_QT = True
 except Exception:
@@ -87,6 +88,9 @@ try:
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
         CONSTRUCTION_ITEM_IMAGES,
+        FARMING_COMPOST_STATE_IMAGES,
+        FARMING_HUD_SPROUT_ICON,
+        FARMING_PATCH_STATE_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -173,6 +177,9 @@ except Exception:
         CONSTRUCTION_DATA,
         DEFAULT_CONSTRUCTION_TARGET,
         CONSTRUCTION_ITEM_IMAGES,
+        FARMING_COMPOST_STATE_IMAGES,
+        FARMING_HUD_SPROUT_ICON,
+        FARMING_PATCH_STATE_IMAGES,
         HERBLORE_GROUP_LABELS,
         FIREMAKING_DATA,
         FISHING_DATA,
@@ -364,6 +371,11 @@ try:
 except Exception:
     import inventory_pure  # type: ignore
 
+try:
+    from .farming_logic import farming_frontend_projection_pure
+except Exception:
+    from farming_logic import farming_frontend_projection_pure  # type: ignore
+
 # Central debug logger (support both package and flat import in tests)
 try:
     from .debug import debug_log as _debug_log  # type: ignore
@@ -385,6 +397,8 @@ _MAIN_MENU_CTX = {
     "cooking_btn": None,
     "runecrafting_btn": None,
     "warn_label": None,
+    "open_farming": None,
+    "refresh_farming": None,
 }
 
 
@@ -1452,6 +1466,104 @@ if HAS_QT:
                 pass
             return False
 
+    class FarmingHUDBadge(QWidget):
+        """Interactive Farming status sibling; ReviewHUD remains mouse-transparent."""
+
+        def __init__(self, parent=None):
+            super().__init__(parent)
+            self.setObjectName("AnkiScapeFarmingBadge")
+            self.setWindowFlags(Qt.WindowType.Widget)
+            self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, False)
+            self._projection = {}
+            self._open_callback = None
+            root = QHBoxLayout(self)
+            root.setContentsMargins(5, 5, 5, 5)
+            root.setSpacing(3)
+            self.button = QToolButton(self)
+            self.button.setObjectName("farmingStatusButton")
+            self.button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+            self.button.setCursor(Qt.CursorShape.PointingHandCursor)
+            self.button.setMinimumSize(42, 34)
+            self.badge = QLabel(self)
+            self.badge.setObjectName("farmingStatusBadge")
+            self.badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.queue_badge = QLabel(self)
+            self.queue_badge.setObjectName("farmingHudQueueIndicator")
+            self.queue_badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            root.addWidget(self.button)
+            root.addWidget(self.badge)
+            root.addWidget(self.queue_badge)
+            self.setStyleSheet(
+                f"QWidget#AnkiScapeFarmingBadge {{ background: {_HUD_BG}; border: 1px solid {_HUD_BORDER}; border-radius: 10px; }}"
+                " QToolButton { color: white; background: transparent; border: none; padding: 3px; font-weight: 700; }"
+                " QLabel { color: white; background: rgba(76,175,80,0.35); border-radius: 8px; padding: 2px 5px; font-weight: 700; }"
+            )
+            self.button.clicked.connect(self._open_status)
+            if parent is not None:
+                parent.installEventFilter(self)
+            self.hide()
+
+        def set_data(self, projection: dict, open_callback=None) -> None:
+            self._projection = projection or {}
+            self._open_callback = open_callback
+            hud = self._projection.get("hud", self._projection)
+            priority = str(hud.get("priority", "none"))
+            ready = int(hud.get("ready_count", 0) or 0)
+            urgent = int(hud.get("urgent_count", 0) or 0)
+            queued = int(hud.get("queue_count", hud.get("queued_count", 0)) or 0)
+            icon_path = FARMING_HUD_SPROUT_ICON or skill_icon_path_for("Farming")
+            if icon_path:
+                self.button.setIcon(QIcon(icon_path))
+                self.button.setIconSize(QSize(24, 24))
+            self.button.setText("Farming")
+            self.badge.setText(f"!{urgent}" if priority == "alert" else str(ready) if priority == "ready" else str(queued) if priority == "queue" else "")
+            self.badge.setVisible(priority != "none")
+            self.queue_badge.setText(f"Q{queued}" if queued else "")
+            self.queue_badge.setVisible(bool(queued) and priority != "queue")
+            tooltip = str(hud.get("tooltip", "Farming"))
+            if queued and priority != "queue":
+                tooltip += f" · {queued} Farming steps queued"
+            self.setToolTip(tooltip)
+            self.button.setToolTip(tooltip)
+            self.button.setAccessibleName(tooltip)
+            self.adjustSize()
+            self._reposition()
+            self.show()
+            self.raise_()
+
+        def _open_status(self) -> None:
+            show_farming_status_dialog(self._projection, self._open_callback)
+
+        def _reposition(self) -> None:
+            try:
+                parent = self.parent() or mw
+                if parent is None:
+                    return
+                self.adjustSize()
+                hud = _REVIEW_HUD
+                if hud is not None and hud.isVisible():
+                    x = hud.x() - self.width() - 8
+                    y = hud.y() + max(0, (hud.height() - self.height()) // 2)
+                    if x < 8:
+                        x = hud.x()
+                        y = max(8, hud.y() - self.height() - 6)
+                else:
+                    x = max(8, (parent.width() - self.width()) // 2 - 210)
+                    y = max(8, parent.height() - self.height() - 72)
+                self.move(x, y)
+                if _FARM_STATUS_DIALOG is not None and _FARM_STATUS_DIALOG.isVisible():
+                    _position_farming_status_dialog()
+            except Exception:
+                pass
+
+        def eventFilter(self, obj, event):  # type: ignore[override]
+            try:
+                if event.type() in (QEvent.Type.Resize, QEvent.Type.Move, QEvent.Type.Show):
+                    self._reposition()
+            except Exception:
+                pass
+            return False
+
     class ExpPopup(QLabel):
         """Floating XP indicator that fades and floats above the HUD (lower center)."""
         def __init__(self, parent):
@@ -1533,12 +1645,20 @@ else:
         def set_data(self, player_data: dict, skill: str) -> None:
             pass
 
+    class FarmingHUDBadge:
+        def __init__(self, parent=None):
+            pass
+        def set_data(self, projection: dict, open_callback=None) -> None:
+            pass
+
 # UI Functions
 # ...existing code...
 # Move all dialog, popup, and menu functions here from __init__.py
 
 # --- Review HUD management ---
 _REVIEW_HUD = None  # type: ignore
+_FARMING_BADGE = None  # type: ignore
+_FARM_STATUS_DIALOG = None  # type: ignore
 
 def _cleanup_extra_huds() -> None:
     """Hide and delete any stray HUD widgets from prior versions or reloads.
@@ -1555,7 +1675,7 @@ def _cleanup_extra_huds() -> None:
         if QApplication is not None:
             for w in QApplication.topLevelWidgets():
                 try:
-                    if getattr(w, "objectName", lambda: "")() == "AnkiScapeReviewHUD":
+                    if getattr(w, "objectName", lambda: "")() in {"AnkiScapeReviewHUD", "AnkiScapeFarmingBadge", "farmingStatusDialog"}:
                         if _REVIEW_HUD is None or w is not _REVIEW_HUD:
                             try:
                                 w.hide()
@@ -1578,6 +1698,13 @@ def _cleanup_extra_huds() -> None:
                     except Exception:
                         pass
                     try:
+                        child.deleteLater()
+                    except Exception:
+                        pass
+            for child in par.findChildren(_QW, "AnkiScapeFarmingBadge"):
+                if _FARMING_BADGE is None or child is not _FARMING_BADGE:
+                    try:
+                        child.hide()
                         child.deleteLater()
                     except Exception:
                         pass
@@ -1629,13 +1756,147 @@ def update_review_hud(player_data: dict, current_skill: str) -> None:
     except Exception:
         pass
 
+def ensure_farming_hud_badge() -> None:
+    global _FARMING_BADGE
+    if not HAS_QT:
+        return
+    _cleanup_extra_huds()
+    if _FARMING_BADGE is None and mw is not None:
+        _FARMING_BADGE = FarmingHUDBadge(mw)
+        _FARMING_BADGE.setParent(mw)
+    if _FARMING_BADGE is not None:
+        _FARMING_BADGE.raise_()
+
+
+def update_farming_hud_badge(player_data: dict, open_callback=None) -> None:
+    if not HAS_QT or not get_config_bool("ankiscape_review_hud_enabled", True):
+        hide_farming_hud_badge()
+        return
+    ensure_farming_hud_badge()
+    if _FARMING_BADGE is not None:
+        _FARMING_BADGE.set_data(farming_frontend_projection_pure(player_data), open_callback)
+
+
+def _position_farming_status_dialog() -> None:
+    try:
+        if _FARM_STATUS_DIALOG is None or _FARMING_BADGE is None or mw is None:
+            return
+        frame = _FARM_STATUS_DIALOG
+        frame.adjustSize()
+        frame.resize(max(360, frame.width()), min(380, max(180, frame.sizeHint().height())))
+        x = min(max(8, _FARMING_BADGE.x()), max(8, mw.width() - frame.width() - 8))
+        y = _FARMING_BADGE.y() - frame.height() - 8
+        if y < 8:
+            y = min(mw.height() - frame.height() - 8, _FARMING_BADGE.y() + _FARMING_BADGE.height() + 8)
+        frame.move(x, max(8, y))
+    except Exception:
+        pass
+
+
+def close_farming_status_dialog() -> None:
+    global _FARM_STATUS_DIALOG
+    if _FARM_STATUS_DIALOG is not None:
+        try:
+            _FARM_STATUS_DIALOG.hide()
+            _FARM_STATUS_DIALOG.deleteLater()
+        except Exception:
+            pass
+    _FARM_STATUS_DIALOG = None
+
+
+def show_farming_status_dialog(projection: dict, open_callback=None) -> None:
+    global _FARM_STATUS_DIALOG
+    if not HAS_QT or mw is None:
+        return
+    if _FARM_STATUS_DIALOG is not None and _FARM_STATUS_DIALOG.isVisible():
+        close_farming_status_dialog()
+        return
+
+    class _StatusFrame(QFrame):
+        def keyPressEvent(self, event):  # type: ignore[override]
+            if event.key() == Qt.Key.Key_Escape:
+                close_farming_status_dialog()
+                if _FARMING_BADGE is not None:
+                    _FARMING_BADGE.setFocus()
+                return
+            super().keyPressEvent(event)
+
+    frame = _StatusFrame(mw)
+    frame.setObjectName("farmingStatusDialog")
+    frame.setWindowFlags(Qt.WindowType.Widget)
+    frame.setFrameShape(QFrame.Shape.StyledPanel)
+    frame.setStyleSheet(
+        "QFrame#farmingStatusDialog { background: palette(base); color: palette(text); border: 1px solid palette(mid); border-radius: 10px; }"
+    )
+    root = QVBoxLayout(frame)
+    root.setContentsMargins(12, 10, 12, 10)
+    header = QHBoxLayout()
+    title = QLabel("Farming")
+    title.setStyleSheet("font-weight: 700; color: palette(text);")
+    close = QToolButton()
+    close.setText("×")
+    close.setAccessibleName("Close Farming status")
+    close.clicked.connect(close_farming_status_dialog)
+    header.addWidget(title)
+    header.addStretch(1)
+    header.addWidget(close)
+    root.addLayout(header)
+    rows = QListWidget()
+    rows.setObjectName("farmingStatusList")
+    rows.setMaximumHeight(220)
+    compact_rows = tuple(projection.get("compact_rows", ()))
+    if compact_rows:
+        for row in compact_rows:
+            item = QListWidgetItem(f"{row['crop_name']} · {row['status_label']} · {row['patch_name']}")
+            item.setData(Qt.ItemDataRole.UserRole, row["patch_id"])
+            rows.addItem(item)
+    else:
+        item = QListWidgetItem("No crops are growing.")
+        item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEnabled)
+        rows.addItem(item)
+    root.addWidget(rows)
+    queue = QLabel(f"Queue: {int(projection.get('queued_count', 0) or 0)} steps · next successful reviews")
+    queue.setStyleSheet(f"color: {dim_text_css(queue)};")
+    root.addWidget(queue)
+    footer = QHBoxLayout()
+    footer.addStretch(1)
+    open_button = QPushButton("Open full farm")
+    open_button.setObjectName("farmingOpenFarmButton")
+
+    def _open(patch_id=None):
+        close_farming_status_dialog()
+        if open_callback is not None:
+            open_callback(patch_id)
+
+    open_button.clicked.connect(lambda _=False: _open())
+    rows.itemActivated.connect(lambda item: _open(item.data(Qt.ItemDataRole.UserRole)))
+    rows.itemDoubleClicked.connect(lambda item: _open(item.data(Qt.ItemDataRole.UserRole)))
+    footer.addWidget(open_button)
+    root.addLayout(footer)
+    _FARM_STATUS_DIALOG = frame
+    _position_farming_status_dialog()
+    frame.show()
+    frame.raise_()
+    frame.setFocus()
+
+
+def hide_farming_hud_badge() -> None:
+    close_farming_status_dialog()
+    try:
+        if _FARMING_BADGE is not None:
+            _FARMING_BADGE.hide()
+    except Exception:
+        pass
+
+
 def hide_review_hud() -> None:
-    """Hide the HUD if it exists (used outside of review screens)."""
+    """Hide the HUD and Farming sibling outside review screens."""
     try:
         if _REVIEW_HUD is not None and hasattr(_REVIEW_HUD, "hide"):
             _REVIEW_HUD.hide()
     except Exception:
         pass
+    hide_farming_hud_badge()
 
 def show_error_message(title: str, message: str):
     """Centralized error dialog helper."""
@@ -1849,6 +2110,10 @@ def show_main_menu(
     on_unequip_slot=None,
     on_discard_item=None,
     on_consume_item=None,
+    get_farming_projection=None,
+    on_farming_action=None,
+    initial_skill=None,
+    initial_farming_patch_id=None,
 ):
     """Show the consolidated window.
 
@@ -1861,7 +2126,7 @@ def show_main_menu(
     dialog = QDialog(mw)
     dialog.setWindowTitle("AnkiScape Menu")
     dialog.setMinimumWidth(720)
-    dialog.setMinimumHeight(620)
+    dialog.setMinimumHeight(540)
 
     layout = QVBoxLayout()
     layout.setContentsMargins(16, 16, 16, 16)
@@ -2425,6 +2690,440 @@ def show_main_menu(
         )
         tree.setObjectName("constructionTargetTree")
         panel_layout.addWidget(tree, 1)
+        return panel
+
+    farming_ui_state = {
+        "expanded_locations": set(),
+        "expanded_patches": set(),
+        "initialized": False,
+        "focus_patch": initial_farming_patch_id,
+    }
+
+    def _build_farming_sheet() -> QWidget:
+        panel = QWidget()
+        panel.setObjectName("farmingSkillPanel")
+        root = QVBoxLayout(panel)
+        root.setContentsMargins(0, 0, 0, 0)
+        root.setSpacing(7)
+
+        scroll = QScrollArea()
+        scroll.setObjectName("farmingFarmScroll")
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        sheet = QWidget()
+        sheet.setObjectName("farmingFarmSheet")
+        sheet.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        sheet_layout = QVBoxLayout(sheet)
+        sheet_layout.setContentsMargins(4, 4, 4, 4)
+        sheet_layout.setSpacing(7)
+        scroll.setWidget(sheet)
+        root.addWidget(scroll, 1)
+
+        refs = {"projection": {}, "queue_list": None}
+
+        def _projection() -> dict:
+            if get_farming_projection is not None:
+                return dict(get_farming_projection() or {})
+            return farming_frontend_projection_pure(player_data)
+
+        def _clear_sheet() -> None:
+            item = sheet_layout.takeAt(0)
+            while item:
+                widget = item.widget()
+                if widget is not None:
+                    widget.hide()
+                    widget.setParent(None)
+                    widget.deleteLater()
+                item = sheet_layout.takeAt(0)
+
+        def _run_action(action_id: str, payload: dict) -> bool:
+            if on_farming_action is None:
+                return False
+            result = on_farming_action(action_id, payload)
+            if isinstance(result, dict):
+                ok = bool(result.get("ok", result.get("allowed", False)))
+                message = str(result.get("message", ""))
+            elif isinstance(result, tuple) and len(result) >= 2:
+                ok = bool(result[0])
+                message = str(result[1])
+            else:
+                ok = bool(result)
+                message = ""
+            _render(message)
+            try:
+                _refresh_equipment_views()
+            except Exception:
+                pass
+            return ok
+
+        def _save_plan(patch: dict, crop_combo: QComboBox, compost_combo: QComboBox, protect_check: QCheckBox) -> None:
+            crop_id = crop_combo.currentData()
+            if not crop_id:
+                return
+            pay_protection = protect_check.isChecked()
+            saved = _run_action("set_plan", {
+                "patch_id": patch["patch_id"],
+                "crop_id": crop_id,
+                "compost_tier": compost_combo.currentData() or "none",
+                "protection_intent": pay_protection,
+            })
+            if saved and pay_protection:
+                _run_action("pay_protection", {"patch_id": patch["patch_id"]})
+
+        def _set_location_expanded(location_id: str, expanded: bool) -> None:
+            if expanded:
+                farming_ui_state["expanded_locations"].add(location_id)
+            else:
+                farming_ui_state["expanded_locations"].discard(location_id)
+
+        def _set_patch_expanded(patch_id: str, expanded: bool) -> None:
+            if expanded:
+                farming_ui_state["expanded_patches"].add(patch_id)
+            else:
+                farming_ui_state["expanded_patches"].discard(patch_id)
+
+        def _render(message: str = "") -> None:
+            old_scroll = scroll.verticalScrollBar().value()
+            _clear_sheet()
+            projection = _projection()
+            refs["projection"] = projection
+            if not farming_ui_state["initialized"]:
+                farming_ui_state["expanded_locations"].update(
+                    location["location_id"] for location in projection.get("locations", ()) if location.get("open_by_default")
+                )
+                farming_ui_state["initialized"] = True
+            focus_patch = farming_ui_state.get("focus_patch")
+            if focus_patch:
+                for location in projection.get("locations", ()):
+                    if any(patch["patch_id"] == focus_patch for patch in location.get("patches", ())):
+                        farming_ui_state["expanded_locations"].add(location["location_id"])
+                        farming_ui_state["expanded_patches"].add(focus_patch)
+
+            header = QWidget()
+            header.setObjectName("farmingSheetHeader")
+            header_layout = QHBoxLayout(header)
+            header_layout.setContentsMargins(8, 5, 8, 5)
+            summary = QLabel(
+                f"Level {int(projection.get('level', 1))} · {float(projection.get('xp', 0)):,.0f} XP · "
+                f"{int(projection.get('active_count', 0))} active · {int(projection.get('ready_count', 0))} ready · "
+                f"{int(projection.get('urgent_count', 0))} attention · {int(projection.get('queued_count', 0))} queued"
+            )
+            summary.setObjectName("farmingSummaryLabel")
+            summary.setWordWrap(True)
+            header_layout.addWidget(summary, 1)
+            sheet_layout.addWidget(header)
+
+            bulk = QWidget()
+            bulk_layout = QHBoxLayout(bulk)
+            bulk_layout.setContentsMargins(8, 2, 8, 2)
+            full_run = projection.get("full_run", {})
+            full_run_button = QPushButton("Queue full run")
+            full_run_button.setObjectName("farmingQueueFullRunButton")
+            full_run_button.setEnabled(bool(full_run.get("enabled")) and on_farming_action is not None)
+            full_run_button.setToolTip(str(full_run.get("locked_reason", "")))
+            full_run_button.clicked.connect(lambda _=False: _run_action("queue_full_run", {}))
+            preview = QLabel(str(full_run.get("preview", "")))
+            preview.setObjectName("farmingFullRunPreviewLabel")
+            preview.setStyleSheet(f"color: {dim_text_css(preview)};")
+            bulk_layout.addWidget(full_run_button)
+            bulk_layout.addWidget(preview, 1)
+            sheet_layout.addWidget(bulk)
+
+            toast = QLabel(message)
+            toast.setObjectName("farmingToastLabel")
+            toast.setWordWrap(True)
+            toast.setVisible(bool(message))
+            toast.setStyleSheet("color: palette(text); padding: 4px 8px;")
+            sheet_layout.addWidget(toast)
+
+            locations_widget = QWidget()
+            locations_widget.setObjectName("farmingLocationList")
+            locations_layout = QVBoxLayout(locations_widget)
+            locations_layout.setContentsMargins(0, 0, 0, 0)
+            locations_layout.setSpacing(6)
+            focus_widget = None
+
+            for location in projection.get("locations", ()):
+                location_id = location["location_id"]
+                group = QtFrame()
+                group.setObjectName(f"farmingLocationGroup::{location_id}")
+                group.setFrameShape(QtFrame.Shape.StyledPanel)
+                group.setStyleSheet("QFrame { border: 1px solid palette(mid); border-radius: 8px; background: palette(base); }")
+                group_layout = QVBoxLayout(group)
+                group_layout.setContentsMargins(7, 5, 7, 7)
+                group_layout.setSpacing(4)
+                toggle = QToolButton()
+                toggle.setObjectName(f"farmingLocationToggle::{location_id}")
+                toggle.setText(f"{location['display_name']} · {location['summary']}")
+                toggle.setCheckable(True)
+                toggle.setChecked(location_id in farming_ui_state["expanded_locations"])
+                toggle.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+                toggle.setArrowType(Qt.ArrowType.DownArrow if toggle.isChecked() else Qt.ArrowType.RightArrow)
+                group_layout.addWidget(toggle)
+                body = QWidget()
+                body_layout = QVBoxLayout(body)
+                body_layout.setContentsMargins(7, 2, 0, 0)
+                body_layout.setSpacing(4)
+
+                for patch in location.get("patches", ()):
+                    patch_id = patch["patch_id"]
+                    card = QtFrame()
+                    card.setObjectName(f"farmingPatchCard::{patch_id}")
+                    card.setFrameShape(QtFrame.Shape.StyledPanel)
+                    card_layout = QVBoxLayout(card)
+                    card_layout.setContentsMargins(7, 5, 7, 5)
+                    card_layout.setSpacing(4)
+                    top = QHBoxLayout()
+                    patch_icon_path = FARMING_PATCH_STATE_IMAGES.get(patch["status"])
+                    if patch_icon_path:
+                        patch_icon = QLabel()
+                        patch_icon.setObjectName(f"farmingPatchVisual::{patch_id}")
+                        patch_icon.setPixmap(QIcon(patch_icon_path).pixmap(24, 24))
+                        top.addWidget(patch_icon)
+                    status_mark = "!" if patch["status"] in {"diseased", "dead"} else "✓" if patch["status"] == "ready" else ""
+                    summary_text = f"{status_mark} {patch['patch_type']} · {patch['crop_name']} · {patch['status_label']}"
+                    if patch.get("queued_count"):
+                        summary_text += f" · {patch['queued_count']} queued"
+                    patch_summary = QLabel(summary_text.strip())
+                    patch_summary.setObjectName(f"farmingPatchSummary::{patch_id}")
+                    patch_summary.setWordWrap(True)
+                    expand = QToolButton()
+                    expand.setObjectName(f"farmingPatchExpandButton::{patch_id}")
+                    expand.setCheckable(True)
+                    expand.setChecked(patch_id in farming_ui_state["expanded_patches"])
+                    expand.setArrowType(Qt.ArrowType.DownArrow if expand.isChecked() else Qt.ArrowType.RightArrow)
+                    top.addWidget(patch_summary, 1)
+                    top.addWidget(expand)
+                    card_layout.addLayout(top)
+                    plan = patch["plan"]
+                    plan_label = QLabel(
+                        f"Plan: {plan['crop_name']} · {str(plan['compost_tier']).replace('_', ' ').title()} · "
+                        f"{'Pay gardener' if plan['protection_intent'] else 'No gardener payment'}"
+                    )
+                    plan_label.setStyleSheet(f"color: {dim_text_css(plan_label)}; font-size: 11px;")
+                    card_layout.addWidget(plan_label)
+                    details = QWidget()
+                    details.setObjectName(f"farmingPatchDetails::{patch_id}")
+                    detail_layout = QVBoxLayout(details)
+                    detail_layout.setContentsMargins(8, 3, 0, 2)
+                    detail_layout.setSpacing(5)
+                    detail_layout.addWidget(QLabel(
+                        f"Current: {patch['crop_name']} · {patch['stage_label']} · Compost: {patch['current_compost']} · "
+                        f"Protection: {patch['protection']['state']}"
+                    ))
+
+                    plan_grid = QGridLayout()
+                    crop_combo = QComboBox()
+                    crop_combo.setObjectName(f"farmingPatchCropCombo::{patch_id}")
+                    crop_combo.addItem("Choose a crop…", None)
+                    for option in patch["crop_options"]:
+                        crop_combo.addItem(option["label"], option["id"])
+                        model_item = crop_combo.model().item(crop_combo.count() - 1)
+                        model_item.setEnabled(bool(option["enabled"]))
+                        model_item.setToolTip(option["locked_reason"])
+                    crop_combo.setCurrentIndex(max(0, crop_combo.findData(plan["crop_id"])))
+                    compost_combo = QComboBox()
+                    compost_combo.setObjectName(f"farmingPatchCompostCombo::{patch_id}")
+                    for option in patch["compost_options"]:
+                        compost_combo.addItem(option["label"], option["id"])
+                    compost_combo.setCurrentIndex(max(0, compost_combo.findData(plan["compost_tier"])))
+                    protection_action = patch["protection"].get("action")
+                    protect_check = QCheckBox("Pay gardener now")
+                    protect_check.setObjectName(f"farmingPatchProtectionCheck::{patch_id}")
+                    protect_check.setChecked(bool(plan["protection_intent"]))
+                    protect_check.setEnabled(
+                        bool(protection_action and protection_action["enabled"]) and on_farming_action is not None
+                    )
+                    protect_check.setToolTip(
+                        protection_action["locked_reason"] if protection_action else patch["protection"]["state"]
+                    )
+                    plan_grid.addWidget(QLabel("Crop plan"), 0, 0)
+                    plan_grid.addWidget(crop_combo, 0, 1)
+                    plan_grid.addWidget(QLabel("Compost"), 1, 0)
+                    plan_grid.addWidget(compost_combo, 1, 1)
+                    plan_grid.addWidget(protect_check, 2, 1)
+                    detail_layout.addLayout(plan_grid)
+                    crop_combo.currentIndexChanged.connect(lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check: _save_plan(p, c, co, pr))
+                    compost_combo.currentIndexChanged.connect(lambda _i, p=patch, c=crop_combo, co=compost_combo, pr=protect_check: _save_plan(p, c, co, pr))
+                    protect_check.toggled.connect(lambda _v, p=patch, c=crop_combo, co=compost_combo, pr=protect_check: _save_plan(p, c, co, pr))
+
+                    actions = QVBoxLayout()
+                    plan_button = QPushButton("Edit plan")
+                    plan_button.setObjectName(f"farmingPatchPlanButton::{patch_id}")
+                    plan_button.clicked.connect(lambda _=False, combo=crop_combo: combo.setFocus())
+                    actions.addWidget(plan_button)
+                    primary = patch.get("primary_action")
+                    if primary:
+                        primary_button = QPushButton(primary["label"])
+                        primary_button.setObjectName(f"farmingPatchPrimaryAction::{patch_id}")
+                        primary_button.setEnabled(bool(primary["enabled"]) and on_farming_action is not None)
+                        primary_button.setToolTip(primary["locked_reason"])
+                        if primary["id"] == "choose_plan":
+                            primary_button.clicked.connect(lambda _=False, combo=crop_combo: combo.setFocus())
+                        else:
+                            details_payload = {}
+                            if primary["id"] == "plant" and plan["crop_id"]:
+                                details_payload = {"crop_id": plan["crop_id"], "compost_tier": plan["compost_tier"]}
+                            primary_button.clicked.connect(
+                                lambda _=False, pid=patch_id, kind=primary["id"], d=details_payload: _run_action(
+                                    "queue_action", {"patch_id": pid, "kind": kind, "details": d}
+                                )
+                            )
+                        actions.addWidget(primary_button)
+                    shortcut = patch["shortcut_action"]
+                    shortcut_button = QPushButton(shortcut["label"])
+                    shortcut_button.setObjectName(f"farmingPatchHarvestReplantButton::{patch_id}")
+                    shortcut_button.setEnabled(bool(shortcut["enabled"]) and on_farming_action is not None)
+                    shortcut_button.setToolTip(shortcut["locked_reason"])
+                    if shortcut.get("needs_plan"):
+                        shortcut_button.clicked.connect(lambda _=False, combo=crop_combo: combo.setFocus())
+                    else:
+                        shortcut_button.clicked.connect(lambda _=False, pid=patch_id: _run_action("harvest_replant", {"patch_id": pid}))
+                    actions.addWidget(shortcut_button)
+                    if protection_action:
+                        pay = QPushButton(protection_action["label"])
+                        pay.setObjectName(f"farmingPatchProtectionButton::{patch_id}")
+                        pay.setEnabled(bool(protection_action["enabled"]) and on_farming_action is not None)
+                        pay.setToolTip(protection_action["locked_reason"])
+                        pay.clicked.connect(lambda _=False, pid=patch_id: _run_action("pay_protection", {"patch_id": pid}))
+                        actions.addWidget(pay)
+                    actions.addStretch(1)
+                    detail_layout.addLayout(actions)
+                    sapling = patch.get("sapling_action")
+                    if sapling:
+                        sapling_button = QPushButton(sapling["label"])
+                        sapling_button.setObjectName(f"farmingPatchSaplingButton::{patch_id}")
+                        sapling_button.setEnabled(bool(sapling["enabled"]) and on_farming_action is not None)
+                        sapling_button.setToolTip(sapling["locked_reason"])
+                        sapling_button.clicked.connect(lambda _=False, cid=sapling["crop_id"]: _run_action("make_saplings", {"crop_id": cid, "amount": 28}))
+                        detail_layout.addWidget(sapling_button)
+                    details.setVisible(expand.isChecked())
+                    expand.toggled.connect(lambda checked, pid=patch_id, d=details, b=expand: (_set_patch_expanded(pid, checked), d.setVisible(checked), b.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)))
+                    card_layout.addWidget(details)
+                    body_layout.addWidget(card)
+                    if patch_id == focus_patch:
+                        focus_widget = card
+
+                for bin_view in location.get("compost_bins", ()):
+                    bin_id = bin_view["bin_id"]
+                    bin_card = QtFrame()
+                    bin_card.setObjectName(f"farmingCompostBinCard::{bin_id}")
+                    bin_layout = QHBoxLayout(bin_card)
+                    bin_layout.setContentsMargins(7, 4, 7, 4)
+                    bin_icon_path = FARMING_COMPOST_STATE_IMAGES.get(bin_view["status"])
+                    if bin_icon_path:
+                        bin_icon = QLabel()
+                        bin_icon.setObjectName(f"farmingCompostBinVisual::{bin_id}")
+                        bin_icon.setPixmap(QIcon(bin_icon_path).pixmap(24, 24))
+                        bin_layout.addWidget(bin_icon)
+                    bin_layout.addWidget(QLabel(f"Compost bin · {bin_view['status_label']}"), 1)
+                    input_combo = QComboBox()
+                    input_combo.setObjectName(f"farmingCompostBinInputCombo::{bin_id}")
+                    first_enabled_index = -1
+                    for option in bin_view["input_options"]:
+                        input_combo.addItem(option["label"], option["id"])
+                        model_item = input_combo.model().item(input_combo.count() - 1)
+                        model_item.setEnabled(bool(option["enabled"]))
+                        model_item.setToolTip(option["locked_reason"])
+                        if option["enabled"] and first_enabled_index < 0:
+                            first_enabled_index = input_combo.count() - 1
+                    if first_enabled_index >= 0:
+                        input_combo.setCurrentIndex(first_enabled_index)
+                    fill = QPushButton("Fill bin")
+                    fill.setObjectName(f"farmingCompostBinFillButton::{bin_id}")
+
+                    def _update_fill_button(index: int, button=fill, combo=input_combo, view=bin_view) -> None:
+                        model_item = combo.model().item(index)
+                        selected_enabled = bool(model_item and model_item.isEnabled())
+                        button.setEnabled(bool(view["fill_enabled"]) and selected_enabled and on_farming_action is not None)
+                        button.setToolTip(
+                            view["fill_reason"]
+                            if not view["fill_enabled"]
+                            else model_item.toolTip() if model_item and not selected_enabled else ""
+                        )
+
+                    input_combo.currentIndexChanged.connect(_update_fill_button)
+                    _update_fill_button(input_combo.currentIndex())
+                    fill.clicked.connect(lambda _=False, bid=bin_id, combo=input_combo: _run_action("fill_compost_bin", {"bin_id": bid, "input_item": combo.currentData()}))
+                    collect = QPushButton("Collect compost")
+                    collect.setObjectName(f"farmingCompostBinCollectButton::{bin_id}")
+                    collect.setEnabled(bool(bin_view["collect_enabled"]) and on_farming_action is not None)
+                    collect.setToolTip(bin_view["collect_reason"])
+                    collect.clicked.connect(lambda _=False, bid=bin_id: _run_action("collect_compost_bin", {"bin_id": bid}))
+                    bin_layout.addWidget(input_combo)
+                    bin_layout.addWidget(fill)
+                    bin_layout.addWidget(collect)
+                    body_layout.addWidget(bin_card)
+
+                body.setVisible(toggle.isChecked())
+                toggle.toggled.connect(lambda checked, lid=location_id, b=body, t=toggle: (_set_location_expanded(lid, checked), b.setVisible(checked), t.setArrowType(Qt.ArrowType.DownArrow if checked else Qt.ArrowType.RightArrow)))
+                group_layout.addWidget(body)
+                locations_layout.addWidget(group)
+            locations_layout.addStretch(1)
+            sheet_layout.addWidget(locations_widget)
+
+            queue_panel = QtFrame()
+            queue_panel.setObjectName("farmingQueuePanel")
+            queue_layout = QVBoxLayout(queue_panel)
+            queue_layout.setContentsMargins(7, 5, 7, 5)
+            queue_header = QHBoxLayout()
+            queue_header.addWidget(QLabel(f"Queue · {int(projection.get('queued_count', 0))} steps · each successful review completes one"), 1)
+            clear = QPushButton("Clear queue")
+            clear.setObjectName("farmingQueueClearButton")
+            clear.setEnabled(bool(projection.get("queue")) and on_farming_action is not None)
+            clear.clicked.connect(lambda _=False: _run_action("queue_clear", {}))
+            queue_header.addWidget(clear)
+            queue_layout.addLayout(queue_header)
+            queue_list = QListWidget()
+            queue_list.setObjectName("farmingQueueList")
+            queue_list.setMaximumHeight(150)
+            for row in projection.get("queue", ()):
+                item = QListWidgetItem(row["label"])
+                item.setData(Qt.ItemDataRole.UserRole, row["step_id"])
+                queue_list.addItem(item)
+            refs["queue_list"] = queue_list
+            queue_layout.addWidget(queue_list)
+            controls = QHBoxLayout()
+            up = QPushButton("Up")
+            up.setObjectName("farmingQueueMoveUpButton")
+            down = QPushButton("Down")
+            down.setObjectName("farmingQueueMoveDownButton")
+            remove = QPushButton("Remove")
+            remove.setObjectName("farmingQueueRemoveButton")
+
+            def _selected_queue():
+                item = queue_list.currentItem()
+                return (item.data(Qt.ItemDataRole.UserRole), queue_list.currentRow()) if item is not None else (None, -1)
+
+            def _sync_queue_buttons() -> None:
+                _step, index = _selected_queue()
+                count = queue_list.count()
+                up.setEnabled(index > 0)
+                down.setEnabled(index >= 0 and index + 1 < count)
+                remove.setEnabled(index >= 0)
+
+            up.clicked.connect(lambda _=False: (_selected_queue()[0] and _run_action("queue_move", {"step_id": _selected_queue()[0], "new_index": _selected_queue()[1] - 1})))
+            down.clicked.connect(lambda _=False: (_selected_queue()[0] and _run_action("queue_move", {"step_id": _selected_queue()[0], "new_index": _selected_queue()[1] + 1})))
+            remove.clicked.connect(lambda _=False: (_selected_queue()[0] and _run_action("queue_remove", {"step_id": _selected_queue()[0]})))
+            queue_list.currentRowChanged.connect(lambda _row: _sync_queue_buttons())
+            controls.addWidget(up)
+            controls.addWidget(down)
+            controls.addWidget(remove)
+            controls.addStretch(1)
+            queue_layout.addLayout(controls)
+            _sync_queue_buttons()
+            sheet_layout.addWidget(queue_panel)
+            sheet_layout.addStretch(1)
+            scroll.verticalScrollBar().setValue(old_scroll)
+            if focus_widget is not None:
+                QApplication.processEvents()
+                scroll.ensureWidgetVisible(focus_widget, 12, 12)
+                focus_widget.setFocus()
+                farming_ui_state["focus_patch"] = None
+
+        _render()
+        panel._ankiscape_refresh_farming = _render
+        panel._ankiscape_focus_farming_patch = lambda patch_id: (farming_ui_state.__setitem__("focus_patch", patch_id), _render())
         return panel
 
     def _build_magic_list() -> QWidget:
@@ -3306,6 +4005,7 @@ def show_main_menu(
     _TARGET_BUILDERS = {
         "Mining": _build_ore_list,
         "Woodcutting": _build_tree_list,
+        "Farming": _build_farming_sheet,
         "Smithing": _build_smith_list,
         "Crafting": _build_craft_list,
         "Fletching": _build_fletch_list,
@@ -3579,10 +4279,14 @@ def show_main_menu(
 
         builder = _TARGET_BUILDERS.get(name)
         if builder is not None:
-            prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
-            prompt_lbl.setStyleSheet("color: palette(text);")
-            panel_layout.addWidget(prompt_lbl)
-            panel_layout.addWidget(builder(), 1)
+            if name != "Farming":
+                prompt_lbl = QLabel(_TARGET_PROMPTS.get(name, "Select a target"))
+                prompt_lbl.setStyleSheet("color: palette(text);")
+                panel_layout.addWidget(prompt_lbl)
+            built_panel = builder()
+            panel_layout.addWidget(built_panel, 1)
+            if name == "Farming":
+                _MAIN_MENU_CTX["refresh_farming"] = getattr(built_panel, "_ankiscape_refresh_farming", None)
         else:
             panel_layout.addWidget(QLabel("No targets available yet."))
             panel_layout.addStretch(1)
@@ -3617,17 +4321,35 @@ def show_main_menu(
         _render_panel()
 
     def _initial_category() -> str:
-        active = state["active"]
+        preferred = initial_skill or state["active"]
         for cat in hub:
             for card in cat.skills:
-                if card.display_name == active and card.implemented:
+                if card.display_name == preferred and card.implemented:
                     return cat.category_id
         return first_category_id(hub)
+
+    def _open_farming_in_dialog(patch_id=None) -> None:
+        close_farming_status_dialog()
+        farming_ui_state["focus_patch"] = patch_id
+        state["category"] = "gathering"
+        _update_cat_btn_styles()
+        state["skill"] = "Farming"
+        _render_skill_list()
+        for index in range(skill_list_widget.count()):
+            item = skill_list_widget.item(index)
+            if item.data(Qt.ItemDataRole.UserRole) == "Farming":
+                skill_list_widget.setCurrentItem(item)
+                break
+        _render_panel()
+        tabs.setCurrentWidget(skills_tab)
+        dialog.raise_()
+        dialog.activateWindow()
 
     # Store dialog + warn for the live availability refresh hook used during
     # reviews (auto-enables Smithing/Crafting once materials are gathered).
     _MAIN_MENU_CTX["dialog"] = dialog
     _MAIN_MENU_CTX["warn_label"] = warn
+    _MAIN_MENU_CTX["open_farming"] = _open_farming_in_dialog
     try:
         dialog.finished.connect(
             lambda _=None: _MAIN_MENU_CTX.update(
@@ -3641,6 +4363,8 @@ def show_main_menu(
                     "cooking_btn": None,
                     "runecrafting_btn": None,
                     "warn_label": None,
+                    "open_farming": None,
+                    "refresh_farming": None,
                 }
             )
         )
@@ -3651,6 +4375,8 @@ def show_main_menu(
     if hub:
         init_cat = _initial_category()
         _select_category(init_cat)
+        if initial_skill == "Farming":
+            _open_farming_in_dialog(initial_farming_patch_id)
     else:
         panel_layout.addWidget(QLabel("No skills available."))
 
@@ -5081,6 +5807,8 @@ def show_main_menu(
     sel_layout.setSpacing(12)
     sel_layout.setContentsMargins(0, 0, 0, 0)
 
+    _stats_skill_defs = {skill.display_name: skill for skill in implemented_skill_definitions()}
+
     # Helper to create a details panel for a specific skill
     def _mk_skill_details(skill_name: str) -> QWidget:
         block = QWidget()
@@ -5091,8 +5819,11 @@ def show_main_menu(
         b_layout.addWidget(title)
         grid = QGridLayout()
         grid.setColumnStretch(1, 1)
-        level = player_data.get(f"{skill_name.lower()}_level", 1)
-        exp = round(player_data.get(f"{skill_name.lower()}_exp", 0), 1)
+        skill_def = _stats_skill_defs.get(skill_name)
+        level_key = skill_def.level_key if skill_def is not None else f"{skill_name.lower()}_level"
+        exp_key = skill_def.exp_key if skill_def is not None else f"{skill_name.lower()}_exp"
+        level = player_data.get(level_key, 1)
+        exp = round(player_data.get(exp_key, 0), 1)
         grid.addWidget(QLabel(f"{skill_name} Level:"), 0, 0)
         grid.addWidget(QLabel(str(level)), 0, 1)
         grid.addWidget(QLabel("Total Experience:"), 1, 0)
@@ -5122,8 +5853,8 @@ def show_main_menu(
     # convention; the achievement icon is a safe fallback for skills lacking art.
     _ach_fallback = os.path.join(current_dir, "icon", "achievement_icon.png")
     skills_info = [
-        (name, skill_icon_path_for(name) or _ach_fallback)
-        for name in playable_review_skill_names()
+        (skill.display_name, skill_icon_path_for(skill.display_name) or _ach_fallback)
+        for skill in implemented_skill_definitions()
     ]
 
     # Import here to keep headless safety for static analyzers

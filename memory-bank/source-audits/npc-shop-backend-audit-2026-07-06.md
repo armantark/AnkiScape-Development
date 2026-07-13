@@ -16,8 +16,9 @@ Generated: 2026-07-06
 - Visible shops: 267
 - Locked/read-only shops: 5
 - Hidden shops: 1
-- Stock rows: 2776
-- Live stock rows: 2695
+- Stock rows: 2771
+- Period-source-excluded stock rows: 5
+- Live stock rows: 2690
 - Locked stock rows: 60
 - Hidden stock rows: 0
 - Blocked stock rows: 21

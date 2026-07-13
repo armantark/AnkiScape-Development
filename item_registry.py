@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Dict, Iterable, Literal, Mapping, Optional, Tuple, cast
 
 
@@ -281,6 +281,22 @@ def item_definitions_by_storage_key(items: Iterable[ItemDefinition]) -> Dict[str
 
 def item_definitions_by_id(items: Iterable[ItemDefinition]) -> Dict[str, ItemDefinition]:
     return {item.id: item for item in items}
+
+
+def apply_item_asset_overrides(
+    items: Iterable[ItemDefinition],
+    images: Mapping[str, str],
+    *,
+    only_missing: bool = False,
+) -> Tuple[ItemDefinition, ...]:
+    """Attach late-bound cross-skill art without changing canonical item IDs."""
+
+    return tuple(
+        replace(item, asset_path=images[item.storage_key])
+        if item.storage_key in images and (not only_missing or item.asset_path is None)
+        else item
+        for item in items
+    )
 
 
 def item_storage_keys_by_category(items: Iterable[ItemDefinition], category: ItemCategory) -> Tuple[str, ...]:

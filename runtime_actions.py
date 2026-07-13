@@ -136,6 +136,11 @@ try:
         STRONGHOLD_TOTAL_STEPS,
     )
     from .skill_registry import get_skill
+    from .farming_logic import (
+        advance_farm_clock_pure,
+        apply_farming_review_with_queue_pure,
+        consume_next_farm_queue_step_pure,
+    )
     from .construction_data import (
         CONSTRUCTION_DATA, DEFAULT_CONSTRUCTION_TARGET, NAIL_DATA, ROOM_DATA,
         SERVANT_DATA, WORKBENCH_TIERS,
@@ -266,6 +271,11 @@ except ImportError:  # pragma: no cover - flat import path used by tests
         STRONGHOLD_TOTAL_STEPS,
     )
     from skill_registry import get_skill  # type: ignore
+    from farming_logic import (  # type: ignore
+        advance_farm_clock_pure,
+        apply_farming_review_with_queue_pure,
+        consume_next_farm_queue_step_pure,
+    )
     from construction_data import (  # type: ignore
         CONSTRUCTION_DATA, DEFAULT_CONSTRUCTION_TARGET, NAIL_DATA, ROOM_DATA,
         SERVANT_DATA, WORKBENCH_TIERS,
@@ -739,6 +749,77 @@ def _record_action(
         output_items=output_items,
         failure_kind=failure_kind,
     )
+
+
+def advance_farming_clock_for_review(ctx: RuntimeActionContext) -> dict[str, Any]:
+    """Advance the background farm clock once for any answered review card."""
+
+    updated, info = advance_farm_clock_pure(ctx.player_data, 1, ctx.random_random)
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    return info
+
+
+def _apply_farming_queue_result(
+    ctx: RuntimeActionContext,
+    old_levels: dict[str, int],
+    updated: dict[str, Any],
+    consumed: bool,
+    info: dict[str, Any],
+) -> bool:
+    if not consumed:
+        return False
+    ctx.player_data.clear()
+    ctx.player_data.update(updated)
+    if info.get("status") == "executed":
+        for skill, xp_key in (("Farming", "farming_xp"), ("Woodcutting", "woodcutting_xp")):
+            if float(info.get(xp_key, 0.0) or 0.0) <= 0:
+                continue
+            level_key = f"{skill.lower()}_level"
+            awarded_level = int(ctx.player_data.get(level_key, old_levels[skill]) or old_levels[skill])
+            ctx.player_data[level_key] = old_levels[skill]
+            ctx.level_up_check(skill, ctx.player_data)
+            ctx.player_data[level_key] = max(
+                awarded_level,
+                int(ctx.player_data.get(level_key, old_levels[skill]) or old_levels[skill]),
+            )
+        gained = float(info.get("farming_xp", 0.0) or 0.0) + float(info.get("woodcutting_xp", 0.0) or 0.0)
+        if gained > 0:
+            ctx.show_exp(gained)
+    else:
+        ctx.show_activity_gain(f"Farm detour skipped: {info.get('message', 'step is no longer valid')}")
+    ctx.check_achievements(ctx.player_data)
+    ctx.refresh_skill_availability()
+    return True
+
+
+def _farming_levels_before_answer(ctx: RuntimeActionContext) -> dict[str, int]:
+    return {
+        "Farming": int(ctx.player_data.get("farming_level", 1) or 1),
+        "Woodcutting": int(ctx.player_data.get("woodcutting_level", 1) or 1),
+    }
+
+
+def handle_farming_queue_answer(ctx: RuntimeActionContext) -> bool:
+    """Consume and persist one queued field step, including an invalid skip."""
+
+    old_levels = _farming_levels_before_answer(ctx)
+    updated, consumed, info = consume_next_farm_queue_step_pure(ctx.player_data, ctx.random_random)
+    consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
+    if consumed:
+        ctx.save_player_data()
+    return consumed
+
+
+def handle_farming_review_answer(ctx: RuntimeActionContext) -> bool:
+    """Apply one successful review's queued detour and eager clock tick once."""
+
+    old_levels = _farming_levels_before_answer(ctx)
+    updated, consumed, info = apply_farming_review_with_queue_pure(ctx.player_data, ctx.random_random)
+    consumed = _apply_farming_queue_result(ctx, old_levels, updated, consumed, info)
+    if consumed:
+        ctx.save_player_data()
+    return consumed
 
 
 _COMBAT_EXP_SKILLS = {

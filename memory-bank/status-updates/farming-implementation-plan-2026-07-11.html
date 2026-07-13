@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Farming Implementation — Frozen Pre-Implementation Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0c0e12;
+  --surface: #161a21;
+  --surface-2: #1e232c;
+  --surface-3: #242b36;
+  --border: #2a3040;
+  --border-strong: #3a4355;
+  --text: #e8ecf4;
+  --text-dim: #9aa4b7;
+  --text-faint: #8692a6;
+  --accent: #4f8cff;
+  --accent-glow: rgba(79, 140, 255, 0.15);
+  --leaf: #78d478;
+  --leaf-soft: rgba(120, 212, 120, 0.13);
+  --red: #d03b3b;
+  --red-soft: rgba(208, 59, 59, 0.14);
+  --green: #0ca30c;
+  --green-soft: rgba(12, 163, 12, 0.14);
+  --amber: #fab219;
+  --amber-soft: rgba(250, 178, 25, 0.13);
+  --orange: #ec835a;
+  --orange-soft: rgba(236, 131, 90, 0.14);
+  --purple: #a78bfa;
+  --purple-soft: rgba(167, 139, 250, 0.13);
+  --cyan: #55b8d8;
+  --cyan-soft: rgba(85, 184, 216, 0.13);
+  --radius: 12px;
+  --shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 14% -8%, rgba(120, 212, 120, 0.12), transparent 30rem),
+    radial-gradient(circle at 90% 8%, rgba(79, 140, 255, 0.10), transparent 26rem),
+    var(--bg);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300;
+  line-height: 1.5;
+  min-width: 320px;
+}
+a { color: var(--text); }
+button, input { font: inherit; }
+button { color: inherit; }
+code, .mono { font-family: 'JetBrains Mono', monospace; }
+code {
+  background: var(--surface-2);
+  border: 1px solid rgba(58, 67, 85, 0.7);
+  border-radius: 5px;
+  color: #cbd5e8;
+  font-size: 0.78em;
+  padding: 0.08em 0.35em;
+}
+.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  transform: translateY(-160%);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 8px;
+  padding: 0.55rem 0.8rem;
+  font-weight: 700;
+}
+.skip-link:focus { transform: translateY(0); }
+.wrap { width: min(1240px, calc(100% - 2rem)); margin: 0 auto; }
+header { padding: 3rem 0 1.7rem; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; margin-bottom: 1.1rem; }
+.badge, .status-chip, .tag, .lane-kicker, .filter-button, .pin-num, .micro-label {
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.085em;
+  font-weight: 600;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border-radius: 999px;
+  padding: 0.28rem 0.78rem;
+  font-size: 0.66rem;
+  border: 1px solid rgba(120, 212, 120, 0.45);
+  background: var(--leaf-soft);
+  color: var(--leaf);
+}
+.badge.frozen {
+  border-color: rgba(250, 178, 25, 0.52);
+  background: var(--amber-soft);
+  color: #ffd36d;
+}
+h1, h2, h3, h4, p { margin-top: 0; }
+h1 {
+  max-width: 950px;
+  margin-bottom: 0.65rem;
+  font-size: clamp(2.15rem, 5.2vw, 4.65rem);
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+  font-weight: 700;
+}
+h1 .leaf-word { color: var(--leaf); }
+.subtitle {
+  max-width: 920px;
+  color: var(--text-dim);
+  font-size: clamp(0.97rem, 1.4vw, 1.08rem);
+  margin-bottom: 1.45rem;
+}
+.subtitle strong { color: var(--text); font-weight: 500; }
+.freeze-strip {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem;
+  align-items: start;
+  border: 1px solid rgba(250, 178, 25, 0.32);
+  background: linear-gradient(90deg, rgba(250, 178, 25, 0.10), rgba(250, 178, 25, 0.025));
+  border-radius: var(--radius);
+  padding: 0.8rem 0.95rem;
+  color: var(--text-dim);
+  font-size: 0.87rem;
+}
+.freeze-strip strong { color: #ffd36d; font-weight: 600; }
+.freeze-mark {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: 7px;
+  background: var(--amber);
+  color: #1b1505;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.hero-facts {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.7rem;
+  margin-top: 1.1rem;
+}
+.fact {
+  min-height: 112px;
+  padding: 0.85rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: rgba(22, 26, 33, 0.82);
+}
+.fact .value {
+  display: block;
+  font-size: clamp(1.55rem, 3vw, 2.45rem);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  margin-bottom: 0.45rem;
+}
+.fact .label { color: var(--text-dim); font-size: 0.78rem; line-height: 1.35; }
+.fact .label strong { color: var(--text); font-weight: 500; }
+main { padding-bottom: 2rem; }
+section { scroll-margin-top: 1rem; margin-top: 2.4rem; }
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 1rem;
+  margin-bottom: 0.95rem;
+}
+.section-head h2 {
+  font-size: clamp(1.35rem, 2.7vw, 1.85rem);
+  line-height: 1.1;
+  margin-bottom: 0.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.section-head p { margin: 0; color: var(--text-dim); font-size: 0.86rem; max-width: 760px; }
+.section-index {
+  flex: 0 0 auto;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--leaf);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+}
+.card {
+  background: linear-gradient(180deg, rgba(30, 35, 44, 0.48), rgba(22, 26, 33, 0.94));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+}
+.card h3 { margin-bottom: 0.45rem; font-size: 1rem; font-weight: 700; }
+.card p { color: var(--text-dim); font-size: 0.85rem; }
+.card p:last-child { margin-bottom: 0; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.three-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.objective {
+  display: grid;
+  grid-template-columns: 0.9fr 1.4fr;
+  gap: 1rem;
+}
+.objective-copy {
+  border-color: rgba(120, 212, 120, 0.34);
+  background: linear-gradient(145deg, rgba(120, 212, 120, 0.09), rgba(22, 26, 33, 0.96) 62%);
+}
+.objective-copy .micro-label { color: var(--leaf); font-size: 0.62rem; margin-bottom: 0.6rem; }
+.objective-copy .statement { color: var(--text); font-size: 1.08rem; line-height: 1.5; margin-bottom: 0.7rem; }
+.success-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+.success-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.58rem;
+  align-items: start;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 0.68rem;
+}
+.success-item .target {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--leaf);
+  border: 1px solid rgba(120, 212, 120, 0.45);
+  background: var(--leaf-soft);
+  border-radius: 5px;
+  font-size: 0.56rem;
+  font-weight: 600;
+  padding: 0.12rem 0.32rem;
+  letter-spacing: 0.07em;
+}
+.success-item strong { display: block; font-size: 0.79rem; margin-bottom: 0.16rem; }
+.success-item span:last-child { color: var(--text-dim); font-size: 0.73rem; line-height: 1.35; }
+.gate-shell {
+  border: 1px solid rgba(120, 212, 120, 0.28);
+  background:
+    linear-gradient(180deg, rgba(120, 212, 120, 0.055), transparent 16rem),
+    var(--surface);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.gate-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(250px, 0.7fr);
+  gap: 1rem;
+  padding: 1.15rem;
+  border-bottom: 1px solid var(--border);
+}
+.gate-title-row { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-bottom: 0.45rem; }
+.gate-title-row h3 { font-size: 1.08rem; margin: 0; }
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  padding: 0.18rem 0.48rem;
+  font-size: 0.57rem;
+  color: var(--text-dim);
+}
+.status-chip::before {
+  content: '';
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 2px;
+  background: var(--text-faint);
+}
+.status-chip.resolved::before { background: var(--green); }
+.status-chip.partial::before { background: var(--amber); }
+.status-chip.blocked::before { background: var(--red); }
+.status-chip.pending::before { background: var(--orange); }
+.status-chip.covered::before { background: var(--cyan); }
+.status-chip.struck::before { background: var(--purple); }
+.status-chip.resolved { color: #b7efb7; border-color: rgba(12, 163, 12, 0.42); }
+.status-chip.partial { color: #ffd36d; border-color: rgba(250, 178, 25, 0.42); }
+.status-chip.blocked { color: #ff9a9a; border-color: rgba(208, 59, 59, 0.48); }
+.status-chip.pending { color: #ffc1a8; border-color: rgba(236, 131, 90, 0.48); }
+.status-chip.covered { color: #9fdcf0; border-color: rgba(85, 184, 216, 0.45); }
+.status-chip.struck { color: #cbbdfb; border-color: rgba(167, 139, 250, 0.45); }
+.gate-copy { color: var(--text-dim); font-size: 0.86rem; max-width: 760px; margin-bottom: 0; }
+.gate-copy strong { color: var(--text); font-weight: 500; }
+.gate-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.gate-stat {
+  background: rgba(12, 14, 18, 0.58);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 0.65rem 0.7rem;
+}
+.gate-stat .n { display: block; font-size: 1.45rem; font-weight: 700; line-height: 1; margin-bottom: 0.3rem; }
+.gate-stat .d { display: block; color: var(--text-dim); font-size: 0.69rem; line-height: 1.3; }
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  padding: 0.75rem 1.15rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(12, 14, 18, 0.34);
+}
+.legend .status-chip { border: 0; background: transparent; padding-left: 0; }
+.legend-note { color: var(--text-faint); font-size: 0.72rem; align-self: center; }
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0.75rem 1.15rem;
+  border-bottom: 1px solid var(--border);
+}
+.filter-button {
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 7px;
+  padding: 0.4rem 0.62rem;
+  color: var(--text-dim);
+  font-size: 0.58rem;
+}
+.filter-button:hover { border-color: var(--border-strong); color: var(--text); }
+.filter-button[aria-pressed="true"] {
+  border-color: rgba(120, 212, 120, 0.62);
+  color: var(--leaf);
+  background: var(--leaf-soft);
+}
+.pin-groups { padding: 1rem 1.15rem 0.4rem; }
+.pin-group { margin-bottom: 1rem; }
+.pin-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.45rem;
+}
+.pin-group-head h4 { margin: 0; font-size: 0.83rem; }
+.pin-group-head span { color: var(--text-faint); font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; }
+.pin-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.42rem;
+}
+.pin-card {
+  position: relative;
+  min-height: 82px;
+  cursor: pointer;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 0.52rem 0.55rem 0.5rem;
+  overflow: hidden;
+}
+.pin-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--text-faint);
+}
+.pin-card[data-verdict="settled"]::after { background: var(--green); }
+.pin-card[data-verdict="partial"]::after { background: var(--amber); }
+.pin-card[data-verdict="blocked"]::after { background: var(--red); }
+.pin-card[data-verdict="covered"]::after { background: var(--cyan); }
+.pin-card[data-verdict="struck"]::after { background: var(--purple); }
+.pin-card[data-verdict="blocked"] {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 9px, rgba(208, 59, 59, 0.05) 9px 11px),
+    var(--surface-2);
+}
+.pin-card:hover { transform: translateY(-1px); border-color: var(--border-strong); }
+.pin-card[aria-current="true"] { outline: 2px solid var(--leaf); outline-offset: 2px; }
+.pin-card[hidden] { display: none; }
+.pin-num { display: block; color: var(--text-faint); font-size: 0.53rem; margin-bottom: 0.23rem; }
+.pin-title { display: block; font-weight: 700; font-size: 0.77rem; line-height: 1.2; margin-bottom: 0.3rem; }
+.pin-meta { display: block; color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.53rem; line-height: 1.3; }
+.pin-detail {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.35fr) minmax(0, 1fr);
+  gap: 0.9rem;
+  margin: 0 1.15rem 1rem;
+  background: #11141a;
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 0.8rem 0.9rem;
+}
+.pin-detail .micro-label { color: var(--leaf); font-size: 0.56rem; margin-bottom: 0.27rem; }
+.pin-detail h4 { font-size: 0.94rem; margin: 0; }
+.pin-detail .detail-meta { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; margin-top: 0.25rem; }
+.pin-detail p { color: var(--text-dim); font-size: 0.78rem; margin: 0; }
+.gate-bottom {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1rem;
+  padding: 1rem 1.15rem 1.15rem;
+  border-top: 1px solid var(--border);
+  background: rgba(12, 14, 18, 0.28);
+}
+.block-list { display: grid; grid-template-columns: 1fr 1fr; gap: 0.42rem; margin-top: 0.55rem; }
+.block-item {
+  border-left: 3px solid var(--red);
+  background: var(--red-soft);
+  border-radius: 0 7px 7px 0;
+  padding: 0.5rem 0.6rem;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+.block-item strong { display: block; color: var(--text); font-size: 0.75rem; margin-bottom: 0.08rem; }
+.simulator {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+.simulator fieldset { border: 0; padding: 0; margin: 0; }
+.simulator legend { font-weight: 700; font-size: 0.86rem; margin-bottom: 0.35rem; }
+.simulator .sim-note { color: var(--text-dim); font-size: 0.72rem; margin-bottom: 0.55rem; }
+.check-row {
+  display: grid;
+  grid-template-columns: 1.05rem 1fr;
+  gap: 0.5rem;
+  align-items: start;
+  padding: 0.34rem 0;
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+.check-row input { width: 1rem; height: 1rem; margin: 0.05rem 0 0; accent-color: var(--leaf); }
+.sim-output {
+  margin-top: 0.55rem;
+  min-height: 52px;
+  border-radius: 8px;
+  border: 1px solid rgba(236, 131, 90, 0.35);
+  background: var(--orange-soft);
+  padding: 0.55rem 0.65rem;
+  color: #ffd6c5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  line-height: 1.45;
+}
+.lanes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.7rem;
+}
+.lane {
+  position: relative;
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 0.9rem;
+}
+.lane::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0.85rem;
+  right: 0.85rem;
+  height: 3px;
+  border-radius: 0 0 4px 4px;
+  background: var(--accent);
+}
+.lane.balance::before { background: var(--purple); }
+.lane.backend::before { background: var(--leaf); }
+.lane.assets::before { background: var(--cyan); }
+.lane.frontend::before { background: var(--amber); }
+.lane-kicker { color: var(--text-faint); font-size: 0.57rem; margin: 0.35rem 0 0.38rem; }
+.lane h3 { font-size: 1rem; margin-bottom: 0.45rem; }
+.lane ul { margin: 0; padding-left: 1rem; color: var(--text-dim); font-size: 0.76rem; }
+.lane li { margin-bottom: 0.38rem; }
+.handoff {
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 0.55rem;
+  color: var(--text-faint);
+  font-size: 0.68rem;
+}
+.handoff strong { display: block; color: var(--text); font-size: 0.72rem; margin-bottom: 0.12rem; }
+.handoff-map {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+.handoff-node {
+  position: relative;
+  text-align: center;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 0.55rem 0.45rem;
+  color: var(--text-dim);
+  font-size: 0.68rem;
+}
+.handoff-node:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -0.48rem;
+  top: 50%;
+  transform: translate(50%, -50%);
+  z-index: 2;
+  color: var(--leaf);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600;
+}
+.dispatch-card { padding: 1rem; }
+.dispatch-flow {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.flow-node {
+  position: relative;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 9px;
+  min-height: 112px;
+  padding: 0.68rem;
+}
+.flow-node:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -0.46rem;
+  top: 50%;
+  transform: translate(50%, -50%);
+  z-index: 2;
+  width: 1.35rem;
+  height: 1.35rem;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--leaf);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+}
+.flow-node .micro-label { color: var(--text-faint); font-size: 0.54rem; margin-bottom: 0.28rem; }
+.flow-node strong { display: block; font-size: 0.8rem; margin-bottom: 0.3rem; }
+.flow-node p { margin: 0; color: var(--text-dim); font-size: 0.68rem; line-height: 1.4; }
+.flow-node.always { border-color: rgba(120, 212, 120, 0.34); }
+.flow-node.failure { border-color: rgba(236, 131, 90, 0.34); }
+.flow-node.success { border-color: rgba(79, 140, 255, 0.34); }
+.cost-layout { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1rem; margin-top: 1rem; }
+.cost-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+.cost-box {
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 9px;
+  padding: 0.75rem;
+}
+.cost-box h3 { font-size: 0.87rem; margin-bottom: 0.5rem; }
+.verb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.38rem; }
+.verb {
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: rgba(12, 14, 18, 0.38);
+  padding: 0.48rem;
+}
+.verb strong { display: block; font-size: 0.72rem; margin-bottom: 0.08rem; }
+.verb span { display: block; color: var(--text-dim); font-size: 0.63rem; line-height: 1.35; }
+.verb.review { border-left: 3px solid var(--accent); }
+.verb.instant { border-left: 3px solid var(--amber); }
+.verb.auto { border-left: 3px solid var(--leaf); }
+.review-sim {
+  border: 1px solid var(--border);
+  background: #11141a;
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+.review-sim h3 { font-size: 0.9rem; margin-bottom: 0.28rem; }
+.review-sim > p { color: var(--text-dim); font-size: 0.7rem; margin-bottom: 0.65rem; }
+.sim-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+.sim-stat { background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 0.55rem; }
+.sim-stat span { display: block; color: var(--text-dim); font-size: 0.58rem; }
+.sim-stat strong { display: block; font-size: 1.1rem; margin-top: 0.1rem; }
+.sim-buttons { display: grid; grid-template-columns: 1fr 1fr auto; gap: 0.38rem; margin-top: 0.55rem; }
+.action-button {
+  cursor: pointer;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 0.48rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+.action-button.success { border-color: rgba(120, 212, 120, 0.45); }
+.action-button.failure { border-color: rgba(236, 131, 90, 0.45); }
+.action-button:hover { background: var(--surface-3); }
+.review-output {
+  margin-top: 0.55rem;
+  min-height: 58px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.55rem;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+.state-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1rem; }
+.formula {
+  border: 1px solid rgba(120, 212, 120, 0.34);
+  background: #10151a;
+  border-radius: 10px;
+  padding: 0.85rem;
+  margin: 0.55rem 0;
+  overflow-x: auto;
+  color: #d5f3d5;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.67rem, 1.4vw, 0.82rem);
+  white-space: nowrap;
+}
+.boundary-list { counter-reset: boundary; margin-top: 0.55rem; }
+.boundary-step {
+  counter-increment: boundary;
+  display: grid;
+  grid-template-columns: 1.45rem 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  padding: 0.47rem 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+.boundary-step::before {
+  content: counter(boundary);
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  background: var(--leaf-soft);
+  border: 1px solid rgba(120, 212, 120, 0.35);
+  color: var(--leaf);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+.boundary-step:last-child { border-bottom: 0; }
+.state-pills { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.55rem; }
+.tag {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  border-radius: 6px;
+  padding: 0.22rem 0.43rem;
+  color: var(--text-dim);
+  font-size: 0.54rem;
+}
+.roster-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-top: 0.65rem;
+}
+.roster-stat { border: 1px solid var(--border); background: var(--surface-2); border-radius: 8px; padding: 0.55rem; }
+.roster-stat strong { display: block; font-size: 1.2rem; }
+.roster-stat span { display: block; color: var(--text-dim); font-size: 0.64rem; }
+.undo-list { margin: 0.55rem 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0.38rem; }
+.undo-list li {
+  display: grid;
+  grid-template-columns: 0.55rem 1fr;
+  gap: 0.4rem;
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.45rem;
+  font-size: 0.68rem;
+}
+.undo-list li::before { content: ''; width: 0.45rem; height: 0.45rem; border-radius: 2px; background: var(--leaf); margin-top: 0.22rem; }
+.source-classes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.45rem; margin-top: 0.65rem; }
+.source-class { border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2); padding: 0.55rem; }
+.source-class strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+.source-class span { color: var(--text-dim); font-size: 0.64rem; line-height: 1.35; }
+.timeline { display: grid; gap: 0.5rem; }
+.phase-band {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 0.65rem;
+  align-items: stretch;
+}
+.phase-label {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface-2);
+  padding: 0.65rem;
+}
+.phase-label span { color: var(--leaf); font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 600; letter-spacing: 0.08em; }
+.phase-label strong { font-size: 0.77rem; margin-top: 0.17rem; }
+.phase-steps { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.45rem; }
+.phase-step {
+  display: grid;
+  grid-template-columns: 1.55rem 1fr;
+  gap: 0.55rem;
+  align-items: start;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  padding: 0.62rem;
+}
+.phase-step .step-no {
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #07101f;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.59rem;
+  font-weight: 700;
+}
+.phase-step strong { display: block; font-size: 0.73rem; margin-bottom: 0.15rem; }
+.phase-step p { margin: 0; color: var(--text-dim); font-size: 0.65rem; line-height: 1.38; }
+.constraint-note {
+  margin-top: 0.7rem;
+  border-left: 3px solid var(--purple);
+  background: var(--purple-soft);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 0.72rem 0.85rem;
+  color: var(--text-dim);
+  font-size: 0.76rem;
+}
+.constraint-note strong { color: var(--text); }
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+table { width: 100%; border-collapse: collapse; min-width: 880px; font-size: 0.76rem; }
+caption { text-align: left; padding: 0.85rem 0.9rem 0.3rem; color: var(--text-dim); font-size: 0.72rem; }
+th {
+  text-align: left;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.57rem;
+  padding: 0.62rem 0.72rem;
+  border-bottom: 1px solid var(--border-strong);
+  background: rgba(12, 14, 18, 0.32);
+}
+td { padding: 0.65rem 0.72rem; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--text-dim); }
+tbody tr:last-child td { border-bottom: 0; }
+td strong { color: var(--text); font-weight: 500; }
+.risk-critical { color: #ff9a9a; }
+.risk-high { color: #ffd36d; }
+.risk-medium { color: #9fdcf0; }
+.manual-flow {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.42rem;
+  margin-top: 0.8rem;
+}
+.manual-step {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+  padding: 0.55rem;
+  min-height: 108px;
+}
+.manual-step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -0.39rem;
+  top: 50%;
+  transform: translate(50%, -50%);
+  color: var(--leaf);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  font-size: 0.58rem;
+}
+.manual-step .n { color: var(--leaf); font-family: 'JetBrains Mono', monospace; font-size: 0.55rem; margin-bottom: 0.25rem; }
+.manual-step strong { display: block; font-size: 0.7rem; margin-bottom: 0.18rem; }
+.manual-step span { display: block; color: var(--text-dim); font-size: 0.61rem; line-height: 1.35; }
+footer { border-top: 1px solid var(--border); padding: 1.4rem 0 2.5rem; color: var(--text-dim); }
+.footer-grid { display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: start; }
+.footer-grid p { margin-bottom: 0.35rem; font-size: 0.72rem; }
+.footer-grid code { overflow-wrap: anywhere; }
+.frozen-stamp {
+  border: 1px solid rgba(250, 178, 25, 0.42);
+  background: var(--amber-soft);
+  color: #ffd36d;
+  border-radius: 8px;
+  padding: 0.55rem 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+button:focus-visible, input:focus-visible, a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (max-width: 1100px) {
+  .hero-facts { grid-template-columns: repeat(3, 1fr); }
+  .pin-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .lanes { grid-template-columns: 1fr 1fr; }
+  .lane { min-height: 280px; }
+  .manual-flow { grid-template-columns: repeat(4, 1fr); }
+  .manual-step:nth-child(4)::after { display: none; }
+}
+@media (max-width: 900px) {
+  header { padding-top: 2.2rem; }
+  .objective, .gate-top, .gate-bottom, .cost-layout, .state-grid { grid-template-columns: 1fr; }
+  .two-col, .three-col { grid-template-columns: 1fr; }
+  .pin-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .dispatch-flow { grid-template-columns: 1fr 1fr; }
+  .flow-node::after { display: none !important; }
+  .dispatch-flow .flow-node:last-child { grid-column: 1 / -1; }
+  .source-classes { grid-template-columns: repeat(3, 1fr); }
+  .phase-band { grid-template-columns: 1fr; }
+  .phase-label { flex-direction: row; justify-content: flex-start; gap: 0.5rem; align-items: baseline; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .frozen-stamp { width: fit-content; white-space: normal; }
+}
+@media (max-width: 680px) {
+  .wrap { width: min(100% - 1rem, 1240px); }
+  .hero-facts { grid-template-columns: 1fr 1fr; }
+  .fact { min-height: 98px; }
+  .section-head { align-items: start; }
+  .pin-grid { grid-template-columns: 1fr 1fr; }
+  .pin-detail { grid-template-columns: 1fr; }
+  .block-list, .success-grid, .cost-columns, .undo-list { grid-template-columns: 1fr; }
+  .lanes { grid-template-columns: 1fr; }
+  .lane { min-height: auto; }
+  .handoff-map { grid-template-columns: 1fr; }
+  .handoff-node::after { display: none; }
+  .dispatch-flow { grid-template-columns: 1fr; }
+  .dispatch-flow .flow-node:last-child { grid-column: auto; }
+  .verb-grid { grid-template-columns: 1fr; }
+  .sim-buttons { grid-template-columns: 1fr 1fr; }
+  .sim-buttons .reset-button { grid-column: 1 / -1; }
+  .source-classes { grid-template-columns: 1fr 1fr; }
+  .phase-steps { grid-template-columns: 1fr; }
+  .manual-flow { grid-template-columns: 1fr 1fr; }
+  .manual-step::after { display: none !important; }
+}
+@media (max-width: 430px) {
+  .hero-facts { grid-template-columns: 1fr; }
+  .fact { min-height: auto; }
+  .gate-summary, .pin-grid, .roster-strip, .source-classes, .manual-flow { grid-template-columns: 1fr; }
+  .pin-card { min-height: 74px; }
+  .sim-buttons { grid-template-columns: 1fr; }
+  .sim-buttons .reset-button { grid-column: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition-duration: 0.001ms !important; animation-duration: 0.001ms !important; }
+  .pin-card:hover { transform: none; }
+}
+@media (forced-colors: active) {
+  .pin-card[data-verdict="blocked"] { background: Canvas; }
+  .pin-card::after, .status-chip::before { forced-color-adjust: none; }
+}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to plan</a>
+<header>
+  <div class="wrap">
+    <div class="badge-row">
+      <span class="badge">Pre-implementation plan</span>
+      <span class="badge frozen">Frozen baseline · 2026-07-11</span>
+    </div>
+    <h1><span class="leaf-word">Farming</span>: evidence before growth</h1>
+    <p class="subtitle">A build map for the complete closed-contract Farming skill: a review-ticked farm clock, 51 location-modelled crop patches, a preemptive field-step queue, exact review undo, instant shop-style transactions, and a farm-sheet UI. <strong>No owner-facing design question is open.</strong> Historical claims remain bound to the pre-EOC cutoff and their recorded evidence class.</p>
+    <div class="freeze-strip" role="note" aria-label="Frozen artifact status">
+      <span class="freeze-mark" aria-hidden="true">F</span>
+      <div><strong>This file is the frozen pre-build comparison baseline.</strong> It records the intended implementation and the evidence gate; it does not claim that implementation, verification, or all field-level evidence is complete. The later results artifact must be separate, and this file must remain unchanged.</div>
+    </div>
+    <div class="hero-facts" aria-label="Contract baseline facts">
+      <div class="fact"><span class="value">38</span><span class="label"><strong>Dossier pin requests</strong><br>Minimum historical evidence register</span></div>
+      <div class="fact"><span class="value">35</span><span class="label"><strong>Pre-cutoff oldids found</strong><br>Three exact titles have no period revision</span></div>
+      <div class="fact"><span class="value">51 + 6</span><span class="label"><strong>Repeatable locations</strong><br>Crop patches plus compost bins</span></div>
+      <div class="fact"><span class="value">6 min</span><span class="label"><strong>Per answered card</strong><br>Success and failure both advance time</span></div>
+      <div class="fact"><span class="value">v32</span><span class="label"><strong>Storage target</strong><br>Migrated from v31 with unknown keys intact</span></div>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" class="wrap">
+  <section aria-labelledby="objective-title">
+    <div class="section-head">
+      <div>
+        <h2 id="objective-title">Objective and definition of done</h2>
+        <p>Ship the settled November-2012 Farming contract without invented constants, hidden balance clamps, wall-clock drift, or transaction ambiguity.</p>
+      </div>
+      <span class="section-index">00 · TARGET</span>
+    </div>
+    <div class="objective">
+      <article class="card objective-copy">
+        <div class="micro-label">Objective</div>
+        <p class="statement">Make Farming AnkiScape’s first pure background skill: every answer moves the world clock, successful answers may detour into one queued field verb, and the farm surface remains compact enough to operate without becoming a global checkbox wall.</p>
+        <p>The implementation must preserve exact historical spikes, slot-roll probabilities, patch access gates, farmer goods, and source gaps. Authentic unavailability is allowed; invented substitutions are not.</p>
+      </article>
+      <article class="card" aria-labelledby="success-title">
+        <h3 id="success-title">Success criteria</h3>
+        <div class="success-grid">
+          <div class="success-item"><span class="target">TARGET</span><span><strong>Evidence-safe data</strong><span>Every shipped numeric row names GM or a dated oldid; unresolved fields stay <code>source_blocked</code>.</span></span></div>
+          <div class="success-item"><span class="target">TARGET</span><span><strong>Complete repeatable map</strong><span>Exactly 51 crop patches and 6 compost bins; 2 one-off quest patches excluded; no diary access gate invented.</span></span></div>
+          <div class="success-item"><span class="target">TARGET</span><span><strong>Clock and queue exactness</strong><span>Every answer adds six minutes; with a non-empty queue, a successful answer consumes one entry—executing it if valid or logging a visible skip—and suppresses the active-skill action.</span></span></div>
+          <div class="success-item"><span class="target">TARGET</span><span><strong>Atomic review undo</strong><span>Clock, RNG outcomes, patch state, queue, XP, and review-executed inventory mutations restore together.</span></span></div>
+          <div class="success-item"><span class="target">TARGET</span><span><strong>Authentic economy</strong><span>Seed routes are audited, Papa Mambo contamination is removed, and 20 route-starved inputs remain honestly unavailable.</span></span></div>
+          <div class="success-item"><span class="target">TARGET</span><span><strong>Complete player surface</strong><span>HUD, compact alerts, farm sheet, plans, queue controls, assets, provenance, tests, and low-level manual verification all pass.</span></span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="gate-title">
+    <div class="section-head">
+      <div>
+        <h2 id="gate-title">Gate 0: the 38-pin evidence register</h2>
+        <p>Constants are promoted only after each historical claim has an approved evidence disposition. A page oldid can still be partial; “resolved title” is not the same as “every field proved.”</p>
+      </div>
+      <span class="section-index">01 · BLOCKING</span>
+    </div>
+
+    <div class="gate-shell">
+      <div class="gate-top">
+        <div>
+          <div class="gate-title-row">
+            <h3>Historical title gate: not an all-clear</h3>
+            <span class="status-chip pending">Build pending</span>
+          </div>
+          <p class="gate-copy"><strong>35 of 38 requested titles resolve to a revision dated before 2012-11-20.</strong> The three exact-title gaps are explicit: <code>Fruit tree patch</code> is covered by adjacent pinned tables, <code>Farming Patch Bomb</code> is struck as 2014 contamination, and <code>Vine bush patch</code> remains only partially covered by Herblore Habitat. Field-level conflicts continue to block constants even where a page oldid exists.</p>
+        </div>
+        <div class="gate-summary" aria-label="Evidence gate summary">
+          <div class="gate-stat"><span class="n">35</span><span class="d">requested titles with a dated period oldid</span></div>
+          <div class="gate-stat"><span class="n">3</span><span class="d">exact titles without a pre-cutoff revision</span></div>
+          <div class="gate-stat"><span class="n">6</span><span class="d">named source-blocked field families in the closed contract</span></div>
+          <div class="gate-stat"><span class="n">0</span><span class="d">implementation phases represented as complete here</span></div>
+        </div>
+      </div>
+
+      <div class="legend" aria-label="Evidence status legend">
+        <span class="status-chip resolved">Resolved claim</span>
+        <span class="status-chip partial">Partial pin</span>
+        <span class="status-chip blocked">Source-blocked value</span>
+        <span class="status-chip pending">Pending build work</span>
+        <span class="status-chip covered">Covered by adjacent pin</span>
+        <span class="status-chip struck">Struck from scope</span>
+        <span class="legend-note">Labels and patterns carry meaning; color is secondary.</span>
+      </div>
+
+      <div class="filter-bar" role="group" aria-label="Filter evidence register">
+        <button class="filter-button" type="button" data-filter="all" aria-pressed="true">All 38</button>
+        <button class="filter-button" type="button" data-filter="oldid" aria-pressed="false">Has period oldid</button>
+        <button class="filter-button" type="button" data-filter="blocked" aria-pressed="false">Contains field block</button>
+        <button class="filter-button" type="button" data-filter="no-oldid" aria-pressed="false">No exact-title oldid</button>
+        <button class="filter-button" type="button" data-filter="struck" aria-pressed="false">Struck</button>
+        <span id="filter-count" class="legend-note" aria-live="polite">Showing all 38 requested titles.</span>
+      </div>
+
+      <div class="pin-groups">
+        <section class="pin-group" aria-labelledby="highest-pins">
+          <div class="pin-group-head"><h4 id="highest-pins">Highest-value tables</h4><span>5 requested</span></div>
+          <div class="pin-grid">
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Farming" data-oldid="6565110 · 2012-11-17" data-note="Broad loop and crop tables are pinned, but dedicated pages still control several conflicts. This page is evidence, not blanket permission to encode every nearby number." aria-label="Pin 1 Farming, oldid 6565110, partial"><span class="pin-num">01 · partial</span><span class="pin-title">Farming</span><span class="pin-meta">oldid 6565110</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Farming/Patches" data-oldid="6552430 · 2012-11-13" data-note="Resolved through the historical title Farming/Patch locations. Combined with Herblore Habitat, it supports the 51 crop patch plus 6 compost-bin repeatable inventory." aria-label="Pin 2 Farming Patches, oldid 6552430, settled"><span class="pin-num">02 · settled</span><span class="pin-title">Farming/Patches</span><span class="pin-meta">oldid 6552430</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Compost" data-oldid="6337625 · 2012-10-02" data-note="Capacity, application XP, collection, and the 35–50 minute maturation range are pinned. Exact engine factors ship only under the closed GM-primary rule and must be labelled GM-sourced." aria-label="Pin 3 Compost, oldid 6337625, partial"><span class="pin-num">03 · partial</span><span class="pin-title">Compost</span><span class="pin-meta">oldid 6337625</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Supercompost" data-oldid="6337626 · 2012-10-02" data-note="Application XP 26, capacity 15, and 90-minute maturation are pinned. Darkan’s collapsed compost branch is not authority." aria-label="Pin 4 Supercompost, oldid 6337626, partial"><span class="pin-num">04 · partial</span><span class="pin-title">Supercompost</span><span class="pin-meta">oldid 6337626</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Seeds" data-oldid="6565109 · 2012-11-17" data-note="The near-cutoff table settles most crop rows and many disputes, but white-lily, wergali, spirit-tree, and Habitat conflicts remain field-level blocks." aria-label="Pin 5 Seeds, oldid 6565109, partial"><span class="pin-num">05 · partial</span><span class="pin-title">Seeds</span><span class="pin-meta">oldid 6565109</span></button>
+          </div>
+        </section>
+
+        <section class="pin-group" aria-labelledby="crop-pins">
+          <div class="pin-group-head"><h4 id="crop-pins">Crop tables</h4><span>16 requested</span></div>
+          <div class="pin-grid">
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Allotment patch" data-oldid="924755 · 2009-02-09" data-note="The redirect plus Farming and Seeds settles the crop table, including sweetcorn 10 jute fibres, strawberry 5 apples, and watermelon 10 curry leaves." aria-label="Pin 6 Allotment patch, oldid 924755, settled"><span class="pin-num">06 · settled</span><span class="pin-title">Allotment patch</span><span class="pin-meta">oldid 924755</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Flower patch" data-oldid="245960 · 2007-10-17" data-note="Protection relationships and scarecrow level 23 are recoverable through adjacent pins. White-lily planting XP remains source-blocked." aria-label="Pin 7 Flower patch, oldid 245960, partial"><span class="pin-num">07 · partial</span><span class="pin-title">Flower patch</span><span class="pin-meta">oldid 245960</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-filter-blocked="true" data-title="Herb patch" data-oldid="6567051 · 2012-11-17" data-note="Standard herbs settle. Wergali harvest XP conflicts between 51.5 and 52.8, so that field remains source-blocked." aria-label="Pin 8 Herb patch, oldid 6567051, contains source-blocked value"><span class="pin-num">08 · field block</span><span class="pin-title">Herb patch</span><span class="pin-meta">oldid 6567051</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Hops patch" data-oldid="3917667 · 2011-02-21" data-note="The historical tables confirm jute as a genuine three-seed exception rather than the GM family-wide four-seed rule." aria-label="Pin 9 Hops patch, oldid 3917667, settled"><span class="pin-num">09 · settled</span><span class="pin-title">Hops patch</span><span class="pin-meta">oldid 3917667</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Bush patch" data-oldid="3649739 · 2010-12-28" data-note="Conventional bush levels, XP, fixed produce, protection, and regrowth are covered by this redirect plus Farming and Seeds." aria-label="Pin 10 Bush patch, oldid 3649739, settled"><span class="pin-num">10 · settled</span><span class="pin-title">Bush patch</span><span class="pin-meta">oldid 3649739</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Tree patch" data-oldid="6531843 · 2012-11-04" data-note="Willow check-health XP settles at 1,456.3 and the sapling workflow is supported. Growth-duration conflicts must retain provenance." aria-label="Pin 11 Tree patch, oldid 6531843, partial"><span class="pin-num">11 · partial</span><span class="pin-title">Tree patch</span><span class="pin-meta">oldid 6531843</span></button>
+            <button class="pin-card" type="button" data-has-oldid="false" data-verdict="covered" data-title="Fruit tree patch" data-oldid="No exact-title oldid" data-note="No pre-cutoff revision exists under the exact requested title. Seeds oldid 6565109 and Herblore Habitat oldid 6513740 carry the distinct fruit-tree check-health XP table, so the claims are covered without fabricating an oldid." aria-label="Pin 12 Fruit tree patch, no exact-title oldid, covered by adjacent pins"><span class="pin-num">12 · no title oldid</span><span class="pin-title">Fruit tree patch</span><span class="pin-meta">covered by adjacent pins</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Calquat tree" data-oldid="5539026 · 2012-04-27" data-note="The nearest comprehensive Seeds table supports 1,280 minutes, 21 hours 20 minutes, matching GM over Darkan’s 10 hours 40 minutes. The older 1,200-minute article discrepancy stays in provenance." aria-label="Pin 13 Calquat tree, oldid 5539026, settled"><span class="pin-num">13 · settled</span><span class="pin-title">Calquat tree</span><span class="pin-meta">oldid 5539026</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Cactus" data-oldid="6125072 · 2012-08-21" data-note="Level, seven stages, 560-minute total, three regenerating cactus spines, XP, and six-cadava-berry protection settle. Output is cactus spines, never potato cactus." aria-label="Pin 14 Cactus, oldid 6125072, settled"><span class="pin-num">14 · settled</span><span class="pin-title">Cactus</span><span class="pin-meta">oldid 6125072</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Mushroom patch" data-oldid="5432839 · 2012-03-28" data-note="Bittercap and morchella levels, XP, timing, fixed yields, and optional Morytania Task immunity are recoverable without making Task completion an access gate." aria-label="Pin 15 Mushroom patch, oldid 5432839, settled"><span class="pin-num">15 · settled</span><span class="pin-title">Mushroom patch</span><span class="pin-meta">oldid 5432839</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Belladonna" data-oldid="3617211 · 2010-12-20" data-note="The period Seeds row settles 5 hours 20 minutes, rejecting Darkan’s 2 hours 40 minutes, with one cave-nightshade harvest." aria-label="Pin 16 Belladonna, oldid 3617211, settled"><span class="pin-num">16 · settled</span><span class="pin-title">Belladonna</span><span class="pin-meta">oldid 3617211</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="blocked" data-filter-blocked="true" data-title="Spirit tree" data-oldid="6549224 · 2012-11-12" data-note="Level, XP, payments, and locations settle, but exact stages and total growth disagree across period sources and Darkan. The timing constant stays source-blocked." aria-label="Pin 17 Spirit tree, oldid 6549224, source-blocked timing"><span class="pin-num">17 · source-blocked</span><span class="pin-title">Spirit tree</span><span class="pin-meta">oldid 6549224</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Jade vine" data-oldid="6579442 · 2012-11-18" data-note="The complete era grow, check, prune, regrow, wild-vine, and seed-return loop is explicit. The pin supersedes Darkan’s zero-lives defect, so jade vine ships." aria-label="Pin 18 Jade vine, oldid 6579442, settled"><span class="pin-num">18 · settled</span><span class="pin-title">Jade vine</span><span class="pin-meta">oldid 6579442</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Evil turnip" data-oldid="6538769 · 2012-11-06" data-note="A complete pre-cutoff seed-to-grow-to-harvest loop is proven. Disease immunity is implementation evidence rather than a wiki-stated numeric claim." aria-label="Pin 19 Evil turnip, oldid 6538769, settled"><span class="pin-num">19 · settled</span><span class="pin-title">Evil turnip</span><span class="pin-meta">oldid 6538769</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="blocked" data-filter-blocked="true" data-title="Goutweed" data-oldid="5668713 · 2012-05-28" data-note="The crop row is period-valid, but exact yield and whether planting itself requires Eadgar’s Ruse remain unproved. Those fields cannot become production constants." aria-label="Pin 20 Goutweed, oldid 5668713, source-blocked yield and gate"><span class="pin-num">20 · source-blocked</span><span class="pin-title">Goutweed</span><span class="pin-meta">oldid 5668713</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="blocked" data-filter-blocked="true" data-title="White lily" data-oldid="6579222 · 2012-11-18" data-note="Level 52 and 250 harvest XP settle. Planting XP conflicts at 50, 70, and GM’s disabled 42; no value may be guessed or averaged." aria-label="Pin 21 White lily, oldid 6579222, source-blocked planting XP"><span class="pin-num">21 · source-blocked</span><span class="pin-title">White lily</span><span class="pin-meta">oldid 6579222</span></button>
+          </div>
+        </section>
+
+        <section class="pin-group" aria-labelledby="cross-pins">
+          <div class="pin-group-head"><h4 id="cross-pins">Cross-cutting mechanics</h4><span>12 requested</span></div>
+          <div class="pin-grid">
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Magic secateurs" data-oldid="6549114 · 2012-11-12" data-note="The dedicated page’s 15% conflicts with Farming and Fairytale I. GM, Darkan, and two period pins corroborate the closed ×1.1 save-slot multiplier." aria-label="Pin 22 Magic secateurs, oldid 6549114, settled by corroboration"><span class="pin-num">22 · reconciled</span><span class="pin-title">Magic secateurs</span><span class="pin-meta">oldid 6549114</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Fairytale I – Growing Pains" data-oldid="6565661 · 2012-11-17" data-note="Quest route, magic-secateurs availability, and rewards are explicit. The implementation uses bank ownership and the existing quest catalog gate." aria-label="Pin 23 Fairytale I Growing Pains, oldid 6565661, settled"><span class="pin-num">23 · settled</span><span class="pin-title">Fairytale I</span><span class="pin-meta">oldid 6565661</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Plant cure" data-oldid="6530314 · 2012-11-04" data-note="Use and acquisition settle. The exhaustive period XP list omits cure, confirming 0 Farming XP and rejecting Darkan’s invented 90 XP." aria-label="Pin 24 Plant cure, oldid 6530314, settled at zero Farming XP"><span class="pin-num">24 · settled</span><span class="pin-title">Plant cure</span><span class="pin-meta">oldid 6530314</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="blocked" data-filter-blocked="true" data-title="Watering can" data-oldid="5529251 · 2012-04-25" data-note="Eight charges and one-cycle disease reduction settle. The exact multiplier and claimed yield effect are not jointly pinned; the closed contract may ship GM’s ×0.9 disease behavior only with GM provenance, never as a wiki-proven claim." aria-label="Pin 25 Watering can, oldid 5529251, source-blocked exact multiplier and yield claim"><span class="pin-num">25 · field block</span><span class="pin-title">Watering can</span><span class="pin-meta">oldid 5529251</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Farmer" data-oldid="5906402 · 2012-07-08" data-note="The generic NPC page is not the gardener contract; Farming oldid 6565110 supplies payment semantics. Shipping GM protection is documented as immunity even though period prose describes watched survival through curing." aria-label="Pin 26 Farmer, oldid 5906402, partial"><span class="pin-num">26 · partial</span><span class="pin-title">Farmer</span><span class="pin-meta">oldid 5906402</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Tool leprechaun" data-oldid="6226101 · 2012-09-09" data-note="Storage, shared access, noting, and exclusions are explicit. AnkiScape intentionally abstracts the storage and noting friction." aria-label="Pin 27 Tool leprechaun, oldid 6226101, settled"><span class="pin-num">27 · settled</span><span class="pin-title">Tool leprechaun</span><span class="pin-meta">oldid 6226101</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Amulet of farming" data-oldid="6391494 · 2012-10-12" data-note="Binding, charges, categories, and alerts are era-valid. Mechanics remain intentionally function-trailed because the HUD supersedes remote monitoring." aria-label="Pin 28 Amulet of farming, oldid 6391494, settled but deferred"><span class="pin-num">28 · deferred</span><span class="pin-title">Amulet of farming</span><span class="pin-meta">oldid 6391494</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-title="Amulet of nature" data-oldid="6447594 · 2012-10-20" data-note="Monitoring, teleport, and remote gardener functions settle; an exact yield bonus is unstated. The item remains function-trailed, so the missing bonus does not enter launch constants." aria-label="Pin 29 Amulet of nature, oldid 6447594, partial and deferred"><span class="pin-num">29 · deferred</span><span class="pin-title">Amulet of nature</span><span class="pin-meta">oldid 6447594</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Scroll of life" data-oldid="6151122 · 2012-08-26" data-note="Percentages and exceptions are explicit, but the mechanic defers to Dungeoneering and does not ship in the Farming launch." aria-label="Pin 30 Scroll of life, oldid 6151122, settled but deferred"><span class="pin-num">30 · deferred</span><span class="pin-title">Scroll of life</span><span class="pin-meta">oldid 6151122</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Greenfingers aura" data-oldid="6016051 · 2012-07-30" data-note="The era ladder survives verification, but the loyalty-programme acquisition model has no current AnkiScape analogue. No aura mechanics or launch assets ship." aria-label="Pin 31 Greenfingers aura, oldid 6016051, settled but deferred"><span class="pin-num">31 · deferred</span><span class="pin-title">Greenfingers aura</span><span class="pin-meta">oldid 6016051</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Juju farming potion" data-oldid="6566235 · 2012-11-17" data-note="Five-minute duration, ordinary and Habitat herb eligibility, independent one-in-three extra-herb roll, no extra XP, ingredients, and stacking scope are pinned." aria-label="Pin 32 Juju farming potion, oldid 6566235, settled"><span class="pin-num">32 · settled</span><span class="pin-title">Juju farming potion</span><span class="pin-meta">oldid 6566235</span></button>
+            <button class="pin-card" type="button" data-has-oldid="false" data-verdict="struck" data-title="Farming Patch Bomb" data-oldid="No pre-cutoff oldid" data-note="No period revision exists. A dated later lead places Patch bomb on 14 April 2014 with Cabbage Facepunch Bonanza, after the cutoff. It is contamination and must not ship or receive launch assets." aria-label="Pin 33 Farming Patch Bomb, no pre-cutoff oldid, struck as 2014 content"><span class="pin-num">33 · struck</span><span class="pin-title">Farming Patch Bomb</span><span class="pin-meta">post-cutoff · excluded</span></button>
+          </div>
+        </section>
+
+        <section class="pin-group" aria-labelledby="habitat-pins">
+          <div class="pin-group-head"><h4 id="habitat-pins">Herblore Habitat</h4><span>5 requested</span></div>
+          <div class="pin-grid">
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="partial" data-filter-blocked="true" data-title="Herblore Habitat" data-oldid="6513740 · 2012-10-31" data-note="The activity, patch inventory, broad crop table, Papa Mambo stock, and Jadinko routes settle. Several crop timings, yields, and decimals remain source-blocked." aria-label="Pin 34 Herblore Habitat, oldid 6513740, partial with field blocks"><span class="pin-num">34 · partial</span><span class="pin-title">Herblore Habitat</span><span class="pin-meta">oldid 6513740</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Vine flower patch" data-oldid="4804401 · 2011-10-01" data-note="Redirected to Herblore Habitat. Red, blue, and green blossom rows settle; only those three colours belong in Papa Mambo’s era stock." aria-label="Pin 35 Vine flower patch, oldid 4804401, settled"><span class="pin-num">35 · settled</span><span class="pin-title">Vine flower patch</span><span class="pin-meta">oldid 4804401</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="blocked" data-filter-blocked="true" data-title="Vine herb patch" data-oldid="4613386 · 2011-08-10" data-note="The redirect and Habitat pin settle XP and payments, but exact times and yields remain absent or conflicting for multiple vine herbs." aria-label="Pin 36 Vine herb patch, oldid 4613386, source-blocked timing and yield fields"><span class="pin-num">36 · source-blocked</span><span class="pin-title">Vine herb patch</span><span class="pin-meta">oldid 4613386</span></button>
+            <button class="pin-card" type="button" data-has-oldid="false" data-verdict="blocked" data-filter-blocked="true" data-title="Vine bush patch" data-oldid="No exact-title oldid" data-note="No period revision exists under the exact title. Herblore Habitat settles several XP and payment fields, but stages, timing, regenerating count, and some decimals remain source-blocked." aria-label="Pin 37 Vine bush patch, no exact-title oldid, source-blocked fields"><span class="pin-num">37 · no title oldid</span><span class="pin-title">Vine bush patch</span><span class="pin-meta">adjacent pin · partial</span></button>
+            <button class="pin-card" type="button" data-has-oldid="true" data-verdict="settled" data-title="Jadinko" data-oldid="5917881 · 2012-07-10" data-note="The historical page resolves as Jadinkos and proves the Habitat vine-herb and vine-bush seed families come from Jadinko hunting, not Papa Mambo’s shop." aria-label="Pin 38 Jadinko, oldid 5917881, settled"><span class="pin-num">38 · settled</span><span class="pin-title">Jadinko</span><span class="pin-meta">oldid 5917881</span></button>
+          </div>
+        </section>
+      </div>
+
+      <div id="pin-detail" class="pin-detail" aria-live="polite">
+        <div>
+          <div class="micro-label">Selected evidence slot</div>
+          <h4 id="pin-detail-title">Farming</h4>
+          <div id="pin-detail-meta" class="detail-meta">6565110 · 2012-11-17</div>
+        </div>
+        <p id="pin-detail-note">Broad loop and crop tables are pinned, but dedicated pages still control several conflicts. This page is evidence, not blanket permission to encode every nearby number.</p>
+      </div>
+
+      <div class="gate-bottom">
+        <article>
+          <h3>Field families that remain <code>source_blocked</code></h3>
+          <p class="gate-copy">These are prohibited production constants until evidence closes them. The data module must represent the absence explicitly rather than infer, average, or silently inherit a current-game value.</p>
+          <div class="block-list">
+            <div class="block-item"><strong>White-lily planting XP</strong>50 vs 70 vs GM’s disabled 42.</div>
+            <div class="block-item"><strong>Watering exact proof</strong>Exact multiplier and any yield effect remain unpinned; GM ×0.9 may ship only as GM-sourced contract behavior.</div>
+            <div class="block-item"><strong>Spirit-tree timing</strong>Period sources and Darkan disagree on exact stages and total growth.</div>
+            <div class="block-item"><strong>Wergali harvest XP</strong>51.5 and 52.8 conflict across period tables.</div>
+            <div class="block-item"><strong>Goutweed yield and gate</strong>Exact variable yield and planting quest gate are not established.</div>
+            <div class="block-item"><strong>Habitat precision</strong>Several stages, times, yields, regrowth counts, and kalferberry decimals remain unresolved.</div>
+          </div>
+        </article>
+        <div class="simulator" id="gate-simulator">
+          <fieldset>
+            <legend>Promotion-gate simulator</legend>
+            <p class="sim-note">Simulation only: checking these boxes does not record progress or alter this frozen baseline. It demonstrates the four conditions that must all be true before the finalized data module can hand off to runtime work.</p>
+            <label class="check-row"><input type="checkbox" name="gate"><span>Every dossier claim has a dated pin, an approved GM-source classification, an adjacent-pin disposition, or an explicit struck outcome.</span></label>
+            <label class="check-row"><input type="checkbox" name="gate"><span>All unresolved fields are absent from production constants and visibly marked <code>source_blocked</code>.</span></label>
+            <label class="check-row"><input type="checkbox" name="gate"><span>The seed-source audit is complete and Papa Mambo’s five contaminated vine-herb rows are removed.</span></label>
+            <label class="check-row"><input type="checkbox" name="gate"><span>The finalized data inventory proves 51 crop patches, 6 compost bins, 2 excluded quest patches, and per-row citations.</span></label>
+            <div id="gate-output" class="sim-output" aria-live="polite">SIMULATION · Gate remains closed. Four conditions are unchecked.</div>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="lanes-title">
+    <div class="section-head">
+      <div>
+        <h2 id="lanes-title">Four implementation lanes and their handoffs</h2>
+        <p>The lanes are explicit so UI work cannot outrun the data contract, and assets cannot drift into an independently maintained roster.</p>
+      </div>
+      <span class="section-index">02 · OWNERSHIP</span>
+    </div>
+    <div class="lanes">
+      <article class="lane balance">
+        <div class="lane-kicker">Lane A · balance and evidence</div>
+        <h3>Resolve what may exist</h3>
+        <ul>
+          <li>Load the 35 period oldids and the three no-title dispositions.</li>
+          <li>Apply the hierarchy: sound GM, pinned historical correction, Darkan corroboration.</li>
+          <li>Run the dedicated seed-source audit and preserve the input-starved state of 20 inputs.</li>
+          <li>Keep conflicts, abstractions, and source blocks visible per field.</li>
+          <li>Preserve check-health spikes and exact <code>/256</code> probabilities without clamps.</li>
+        </ul>
+        <div class="handoff"><strong>Hands off</strong>A citation-bearing crop, patch, payment, timing, shop, and gate module with no guessed numeric fields.</div>
+      </article>
+      <article class="lane backend">
+        <div class="lane-kicker">Lane B · backend</div>
+        <h3>Make time and actions atomic</h3>
+        <ul>
+          <li>Add storage v32 and the v31 migration before runtime mutations.</li>
+          <li>Implement the eager all-answer farm clock and every crossed stage boundary.</li>
+          <li>Implement disease, death, regrowth, harvest lives, protection, and modifiers.</li>
+          <li>Preempt active skills with one successful-review field step.</li>
+          <li>Separate instant shop-style transactions from review-dispatch undo.</li>
+        </ul>
+        <div class="handoff"><strong>Hands off</strong>Stable selectors, patch state, queue operations, alert counts, and transaction results for the frontend.</div>
+      </article>
+      <article class="lane assets">
+        <div class="lane-kicker">Lane C · assets</div>
+        <h3>Derive the visible inventory</h3>
+        <ul>
+          <li>Wait for the finalized data roster; do not maintain a parallel item list.</li>
+          <li>Generate a manifest for seeds, saplings, spores, produce, tools, compost goods, bins, and HUD sprout.</li>
+          <li>Include jade vine and evil turnip because their loops survive the pin phase.</li>
+          <li>Record provenance for every file and verify every path exists.</li>
+          <li>Create no launch asset suggesting Greenfingers, Scroll of life, or Patch bomb availability.</li>
+        </ul>
+        <div class="handoff"><strong>Hands off</strong>A generated manifest and provenance map consumed by UI and data-integrity tests.</div>
+      </article>
+      <article class="lane frontend">
+        <div class="lane-kicker">Lane D · frontend</div>
+        <h3>Expose the farm, not a target list</h3>
+        <ul>
+          <li>Add the sprout HUD states, compact active-patch list, and queue-preemption indicator.</li>
+          <li>Make the Farming tab the location-grouped farm sheet.</li>
+          <li>Expose saved plan, compost, protection, and harvest-and-replant-same per patch.</li>
+          <li>Add ordered queue reorder/remove controls and one Queue full run action.</li>
+          <li>Reflect transactions immediately; grey unavailable rows with standard tooltips and prevent selection.</li>
+        </ul>
+        <div class="handoff"><strong>Hands off</strong>A complete keyboard-operable surface ready for Qt geometry, transaction, and disabled-state verification.</div>
+      </article>
+    </div>
+    <div class="handoff-map" aria-label="Lane handoff order">
+      <div class="handoff-node">Evidence-safe data</div>
+      <div class="handoff-node">Runtime state and manifest</div>
+      <div class="handoff-node">Farm surface and integrations</div>
+      <div class="handoff-node">Verification and independent review</div>
+    </div>
+  </section>
+
+  <section aria-labelledby="dispatch-title">
+    <div class="section-head">
+      <div>
+        <h2 id="dispatch-title">Review clock and action-cost contract</h2>
+        <p>Time advances on every answer. Skill actions remain correctness-gated. This split is the core behavioral invariant.</p>
+      </div>
+      <span class="section-index">03 · RUNTIME</span>
+    </div>
+    <article class="card dispatch-card">
+      <div class="dispatch-flow" aria-label="Review dispatch flow">
+        <div class="flow-node always"><div class="micro-label">Input</div><strong>Review answered</strong><p>Correctness is recorded, but it does not decide whether farm time passes.</p></div>
+        <div class="flow-node always"><div class="micro-label">Always</div><strong>Add 6 era-minutes</strong><p><code>240 answers = 24 hours</code>. No wall clock and no offline replay.</p></div>
+        <div class="flow-node always"><div class="micro-label">Always</div><strong>Process boundaries</strong><p>Run every crossed stage, disease, death, ready, and regrowth transition in order.</p></div>
+        <div class="flow-node failure"><div class="micro-label">If failed</div><strong>Queue untouched</strong><p>Execute no farm step, consume no queue entry, and perform no active-skill action.</p></div>
+        <div class="flow-node success"><div class="micro-label">If successful</div><strong>Resolve one queue entry</strong><p>If the queue is non-empty, its next entry preempts the active skill: execute it if valid, otherwise consume it with a visible skip log. With an empty queue, the active skill proceeds.</p></div>
+      </div>
+
+      <div class="cost-layout">
+        <div class="cost-columns">
+          <article class="cost-box">
+            <h3>Exactly one successful review</h3>
+            <div class="verb-grid">
+              <div class="verb review"><strong>Plant</strong><span>Rake + compost/Fertile Soil + seed; return 3 weeds; award plant and 18/26 application XP.</span></div>
+              <div class="verb review"><strong>Harvest</strong><span>Whole patch; full independent save-slot life loop per item; per-item XP.</span></div>
+              <div class="verb review"><strong>Check health</strong><span>One-time pinned spike for trees, fruit trees, bushes, calquat, cactus, and spirit tree.</span></div>
+              <div class="verb review"><strong>Cure</strong><span>Plant cure gives 0 Farming XP, or Cure Plant uses Lunar preset, runes, and Magic XP.</span></div>
+              <div class="verb review"><strong>Clear</strong><span>Remove a dead crop or stump; clearing a tree stump returns its roots.</span></div>
+              <div class="verb review"><strong>Chop</strong><span>Existing Woodcutting log batch and XP; leave a stump; add no persistent unlock.</span></div>
+            </div>
+          </article>
+          <article class="cost-box">
+            <h3>Instant or automatic</h3>
+            <div class="verb-grid">
+              <div class="verb instant"><strong>Queue and plan edits</strong><span>Add, remove, reorder, choose crop, compost tier, and protection intent immediately.</span></div>
+              <div class="verb instant"><strong>Farmer payment</strong><span>Consume authentic goods immediately using shop persistence; no review round-trip.</span></div>
+              <div class="verb instant"><strong>Make sapling</strong><span>Seed + plant pot, trowel owned, batch up to 28; the sapling matures when its 5-minute interval is crossed, which occurs on the next 6-minute answered-card tick.</span></div>
+              <div class="verb instant"><strong>Compost bin</strong><span>Fill exactly 15 eligible items or collect with enough buckets immediately; maturation uses farm time.</span></div>
+              <div class="verb auto"><strong>Implicit rake</strong><span>Plant handles weeds and adds 3 weeds; leprechaun storage friction is abstracted.</span></div>
+              <div class="verb auto"><strong>Banked watering can</strong><span>Automatically applies the closed watering behavior to eligible allotments, flowers, and hops; charges are not tracked.</span></div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="review-sim" aria-labelledby="review-sim-title">
+          <h3 id="review-sim-title">Dispatch simulator</h3>
+          <p>Offline contract demonstration only. The example begins with three already-valid queued field steps; it does not persist or report implementation progress.</p>
+          <div class="sim-stats">
+            <div class="sim-stat"><span>Farm clock</span><strong id="sim-clock">0 min</strong></div>
+            <div class="sim-stat"><span>Queue remaining</span><strong id="sim-queue">3 steps</strong></div>
+          </div>
+          <div class="sim-buttons">
+            <button class="action-button success" id="sim-success" type="button">Successful answer</button>
+            <button class="action-button failure" id="sim-failure" type="button">Failed answer</button>
+            <button class="action-button reset-button" id="sim-reset" type="button">Reset</button>
+          </div>
+          <div id="review-output" class="review-output" aria-live="polite">Ready. Every simulated answer will add six minutes; only success can consume one queued field step.</div>
+        </aside>
+      </div>
+    </article>
+  </section>
+
+  <section aria-labelledby="state-title">
+    <div class="section-head">
+      <div>
+        <h2 id="state-title">Stage boundaries, storage v32, and exact undo</h2>
+        <p>Farm state is derived from one global review clock and per-patch timestamps, but every post-answer result is persisted so rollback never rerolls history.</p>
+      </div>
+      <span class="section-index">04 · STATE</span>
+    </div>
+    <div class="state-grid">
+      <article class="card">
+        <h3>Disease and growth boundary model</h3>
+        <p>The closed contract ships the internally sound GM stage formula and labels its exact factors as GM-sourced where the historical pages are only qualitative:</p>
+        <div class="formula">floor(diseaseSlots × compostFactor × (0.9 if watered)) / 128</div>
+        <p><strong>Factors:</strong> none 1.00, compost 0.28, supercompost 0.14. Compost adds +1 harvest life; supercompost +2. First stage, paid/protected, same-complex flower or scarecrow protection, and immune crops skip the ordinary roll. A crop still diseased at its next boundary dies.</p>
+        <div class="boundary-list">
+          <div class="boundary-step">Compute all boundaries crossed by the new global clock, ordered by time.</div>
+          <div class="boundary-step">At each boundary, resolve an existing disease into death before considering new growth risk.</div>
+          <div class="boundary-step">Apply immunity, farmer, flower, scarecrow, watering, and compost state; disease RNG never reads answer correctness.</div>
+          <div class="boundary-step">Advance stage, ready state, produce regrowth, compost maturation, and alert counts.</div>
+          <div class="boundary-step">Persist the complete result, including RNG outcomes, before review dispatch returns.</div>
+        </div>
+        <div class="roster-strip" aria-label="Patch roster facts">
+          <div class="roster-stat"><strong>51</strong><span>repeatable crop patches</span></div>
+          <div class="roster-stat"><strong>6</strong><span>repeatable compost bins</span></div>
+          <div class="roster-stat"><strong>2 excluded</strong><span>one-off quest patches</span></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3>Storage v32 and rollback envelope</h3>
+        <p>Migration from v31 must preserve unknown keys. The farm sheet remains flat-key storage, matching existing persistence conventions.</p>
+        <div class="state-pills" aria-label="Storage v32 fields">
+          <span class="tag">farm clock minutes</span><span class="tag">patch id</span><span class="tag">crop</span><span class="tag">planted_at</span><span class="tag">stage</span><span class="tag">compost tier</span><span class="tag">lives</span><span class="tag">diseased</span><span class="tag">dead</span><span class="tag">protection</span><span class="tag">saved plan</span><span class="tag">regrowth count</span><span class="tag">compost bins</span><span class="tag">ordered queue</span>
+        </div>
+        <h3 class="undo-heading">One Anki undo restores all review-owned mutations</h3>
+        <ul class="undo-list">
+          <li>Global farm clock and per-patch timestamps</li>
+          <li>Stage, ready, disease, death, and regrowth state</li>
+          <li>Disease and harvest RNG outcomes without reroll</li>
+          <li>Queue state and the executed or skipped step</li>
+          <li>Farming, Magic, and Woodcutting XP</li>
+          <li>Seeds, compost, cures, runes, roots, weeds, logs, and yields</li>
+          <li>Active-skill suppression caused by queue preemption</li>
+          <li>Execution-time validation and visible skip result</li>
+        </ul>
+        <p class="undo-foot"><strong>Outside review undo:</strong> queue edits, plan changes, protection payment, sapling conversion, and compost-bin fill/collect follow the existing immediate NPC-shop persistence model.</p>
+      </article>
+    </div>
+
+    <div class="source-classes" aria-label="Required evidence classifications">
+      <div class="source-class"><strong>PROVEN</strong><span>Literal dated oldid establishes the implemented claim.</span></div>
+      <div class="source-class"><strong>GM-SOURCED</strong><span>Internally sound conventional engine behavior ships with exact path citation.</span></div>
+      <div class="source-class"><strong>ABSTRACTION</strong><span>AnkiScape intentionally removes friction, such as wall time or watering-can charges.</span></div>
+      <div class="source-class"><strong>CONFLICT</strong><span>Sources disagree; the winning rule and losing evidence remain documented.</span></div>
+      <div class="source-class"><strong>SOURCE_BLOCKED</strong><span>No production constant exists until the evidence gap closes.</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="sequence-title">
+    <div class="section-head">
+      <div>
+        <h2 id="sequence-title">Non-negotiable build sequence</h2>
+        <p>The order prevents retroactive sourcing, asset drift, storage mutation before migration, and UI behavior that has no stable backend contract.</p>
+      </div>
+      <span class="section-index">05 · 18 STEPS</span>
+    </div>
+    <div class="timeline">
+      <div class="phase-band">
+        <div class="phase-label"><span>Phase 0</span><strong>Freeze</strong></div>
+        <div class="phase-steps">
+          <article class="phase-step"><span class="step-no">01</span><div><strong>Freeze this plan</strong><p>Write once, open, publish, and never revise it; comparison belongs in the post-build results artifact.</p></div></article>
+          <article class="phase-step"><span class="step-no">02</span><div><strong>Honor the closed contract</strong><p>Treat owner decisions and the 2026-07-11 pin reconciliation as settled; reopen no product questions.</p></div></article>
+        </div>
+      </div>
+      <div class="phase-band">
+        <div class="phase-label"><span>Phase 1</span><strong>Evidence and data</strong></div>
+        <div class="phase-steps">
+          <article class="phase-step"><span class="step-no">03</span><div><strong>Load pin dispositions</strong><p>Import all 35 oldids, the three no-title outcomes, and every unresolved field as <code>source_blocked</code>.</p></div></article>
+          <article class="phase-step"><span class="step-no">04</span><div><strong>Audit acquisition first</strong><p>Complete seed sources and remove Papa Mambo’s five unauthentic 10,000-coin vine-herb seeds.</p></div></article>
+          <article class="phase-step"><span class="step-no">05</span><div><strong>Build the authoritative data module</strong><p>Encode crop, patch, payment, shop, timing, XP, gate, modifier, and citation rows before runtime logic.</p></div></article>
+          <article class="phase-step"><span class="step-no">06</span><div><strong>Reconcile the physical roster</strong><p>Prove exactly 51 crop patches plus 6 bins, exclude 2 one-off quest patches, and carry every access gate.</p></div></article>
+          <article class="phase-step"><span class="step-no">07</span><div><strong>Derive the asset manifest</strong><p>Generate it from the finalized data module, then add provenance and path coverage.</p></div></article>
+        </div>
+      </div>
+      <div class="phase-band">
+        <div class="phase-label"><span>Phase 2</span><strong>Persistence and engine</strong></div>
+        <div class="phase-steps">
+          <article class="phase-step"><span class="step-no">08</span><div><strong>Land storage v32 first</strong><p>Add v31 → v32 migration and unknown-key preservation before any farm state mutates.</p></div></article>
+          <article class="phase-step"><span class="step-no">09</span><div><strong>Implement farm time</strong><p>Add all-answer ticks, multi-boundary processing, disease, death, regrowth, compost timing, and rollback state.</p></div></article>
+          <article class="phase-step"><span class="step-no">10</span><div><strong>Implement field dispatch</strong><p>Add execution-time validation, queue preemption, visible skips, and the exact one-review verb set.</p></div></article>
+          <article class="phase-step"><span class="step-no">11</span><div><strong>Separate instant transactions</strong><p>Keep plans, queue edits, protection, saplings, and bin operations outside review dispatch and review undo.</p></div></article>
+          <article class="phase-step"><span class="step-no">12</span><div><strong>Wire the economy and cross-skill effects</strong><p>Add XP, inventory, Magic alternatives, Woodcutting chop, protection, modifiers, shops, and authentic routes.</p></div></article>
+        </div>
+      </div>
+      <div class="phase-band">
+        <div class="phase-label"><span>Phase 3</span><strong>Surface and rewards</strong></div>
+        <div class="phase-steps">
+          <article class="phase-step"><span class="step-no">13</span><div><strong>Build the completed-backend UI</strong><p>HUD, compact list, farm sheet, location groups, patch detail, plans, queue, and full-run action.</p></div></article>
+          <article class="phase-step"><span class="step-no">14</span><div><strong>Add achievements</strong><p>Registry first plant, levels 10/30/60/99, produce counts, first tree health check, and first full farm run.</p></div></article>
+        </div>
+      </div>
+      <div class="phase-band">
+        <div class="phase-label"><span>Phase 4</span><strong>Proof and closeout</strong></div>
+        <div class="phase-steps">
+          <article class="phase-step"><span class="step-no">15</span><div><strong>Run every automated layer</strong><p>Pure/unit, integration/data, end-to-end dispatch, Qt/offscreen, assets, migration, and undo.</p></div></article>
+          <article class="phase-step"><span class="step-no">16</span><div><strong>Perform the low-level potato flow</strong><p>Plant, include a failure, cross the 40-era-minute growth boundary, harvest, and undo in Anki.</p></div></article>
+          <article class="phase-step"><span class="step-no">17</span><div><strong>Independently review the build</strong><p>Review completed behavior and evidence mapping before any commit is considered.</p></div></article>
+          <article class="phase-step"><span class="step-no">18</span><div><strong>Create a separate results artifact</strong><p>Compare intended versus shipped behavior while leaving this baseline unchanged.</p></div></article>
+        </div>
+      </div>
+    </div>
+    <div class="constraint-note"><strong>Builder constraints remain in force:</strong> delegated Sol implementation, repository-scoped, no Darkan or game-main modification, no memory-bank writes by the delegated builder, and no commit unless separately authorized.</div>
+  </section>
+
+  <section aria-labelledby="verification-title">
+    <div class="section-head">
+      <div>
+        <h2 id="verification-title">Verification matrix</h2>
+        <p>Each layer has a distinct proof obligation. A green unit suite cannot substitute for reviewer dispatch, UI geometry, source integrity, or manual Anki undo.</p>
+      </div>
+      <span class="section-index">06 · PROOF</span>
+    </div>
+    <div class="table-wrap" role="region" aria-label="Verification matrix" tabindex="0">
+      <table>
+        <caption>Planned proof layers and their release gates.</caption>
+        <thead><tr><th scope="col">Layer</th><th scope="col">Primary proof</th><th scope="col">Must cover</th><th scope="col">Exit condition</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Pure / unit</strong></td><td>Deterministic mechanics without Qt or Anki orchestration.</td><td>240 answers = 24 hours; six minutes per answer; multi-boundary advancement; exact <code>/256</code> slot rolls; disease/death; protection; whole-patch harvest; regrowth; queue validation; replant ordering; full-run construction; instant sapling/bin logic.</td><td>Every contract invariant has a focused assertion, including failures ticking time without consuming queue entries.</td></tr>
+          <tr><td><strong>Integration / data integrity</strong></td><td>Final data, economy, storage, and source surfaces agree.</td><td>Per-row citations; 51 + 6 inventory; 2 exclusions; no diary gate; Papa Mambo cleanup; exactly 20 route-starved inputs; source-blocked values absent; shop stock, payments, gates, and cross-skill XP wired.</td><td>No uncited shipped numeric row and no invented acquisition route, substitute, timing, yield, or XP.</td></tr>
+          <tr><td><strong>End-to-end reviewer dispatch</strong></td><td>Observed answer → farm clock → queue/active-skill behavior through the real review path.</td><td>Failure advances time and leaves queue intact; success with a non-empty queue consumes one entry, executing it or visibly skipping it after validation, and suppresses active skill; an empty queue returns control; alert counts update immediately after stage rolls.</td><td>Real dispatcher behavior matches the pure model for success, failure, queue, and persistence boundaries.</td></tr>
+          <tr><td><strong>Qt / offscreen</strong></td><td>Rendered and probed HUD, compact list, farm sheet, plans, queue, and transaction states.</td><td>All badge states; location grouping; plan setup; reorder/remove; immediate bank/config updates; disabled rows are not selectable and show standard tooltips. Call <code>show()</code>, resize to default and roughly 560 logical points, process events repeatedly, trust geometry probes, and apply a Fusion dark palette.</td><td>No horizontal overflow, stale-layout false reading, clipped control, inaccessible state, or disabled-row activation at either tested size.</td></tr>
+          <tr><td><strong>Assets / provenance</strong></td><td>Manifest generated from final data and checked against disk.</td><td>Seeds, saplings, spores, produce, tools, compost goods, bin-related goods, sprout icon, jade vine, and evil turnip; no deferred/future implication assets.</td><td>Every manifest path exists and every asset records provenance.</td></tr>
+          <tr><td><strong>Migration</strong></td><td>v31 fixture upgraded to v32 through the production migration path.</td><td>Farm defaults, flat keys, queue and bin state initialization, idempotence where required, and preservation of unknown keys.</td><td>Existing profiles load with all prior state intact and valid empty farm state.</td></tr>
+          <tr><td><strong>Undo</strong></td><td>Review, mutate, undo, and compare the complete pre-review snapshot.</td><td>Clock, timestamps, stages, disease/death, RNG results, queue, skip/execution, Farming/Magic/Woodcutting XP, supplies, weeds, roots, logs, and yields. Instant transactions are deliberately excluded.</td><td>Byte-equivalent or field-equivalent restoration with no reroll and no orphaned cross-skill mutation.</td></tr>
+          <tr><td><strong>Manual Anki</strong></td><td>Level-1-reachable potato flow in the actual add-on.</td><td>One-review plant, 3 weeds, about 7 answers including a failure, readiness at 40 era-minutes, one-review whole-patch harvest, then Anki undo.</td><td>The owner-reachable path behaves correctly, while high-level mechanics remain independently proven by automation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="manual-flow" aria-label="Manual potato verification sequence">
+      <div class="manual-step"><div class="n">01</div><strong>Set a potato plan</strong><span>Use level-1 reachable seed and patch state.</span></div>
+      <div class="manual-step"><div class="n">02</div><strong>Plant on success</strong><span>One queued review; confirm 3 weeds and correct supplies/XP.</span></div>
+      <div class="manual-step"><div class="n">03</div><strong>Include a failure</strong><span>Clock gains 6 minutes; queue does not consume a step.</span></div>
+      <div class="manual-step"><div class="n">04</div><strong>Cross the 40-minute boundary</strong><span>About 7 answers total; the 6-minute ticks cross the authentic growth boundary.</span></div>
+      <div class="manual-step"><div class="n">05</div><strong>Harvest once</strong><span>One success harvests the complete patch life loop.</span></div>
+      <div class="manual-step"><div class="n">06</div><strong>Inspect state</strong><span>Clock, queue, XP, inventory, crop, and RNG result all agree.</span></div>
+      <div class="manual-step"><div class="n">07</div><strong>Undo in Anki</strong><span>Restore the exact pre-review snapshot without rerolling.</span></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="risk-title">
+    <div class="section-head">
+      <div>
+        <h2 id="risk-title">Risk ledger</h2>
+        <p>The highest risks are evidence leakage and atomicity, not raw line count. Each risk has a concrete containment and release proof.</p>
+      </div>
+      <span class="section-index">07 · CONTROL</span>
+    </div>
+    <div class="table-wrap" role="region" aria-label="Farming implementation risk ledger" tabindex="0">
+      <table>
+        <caption>Known failure modes that must be closed before the results artifact.</caption>
+        <thead><tr><th scope="col">Severity</th><th scope="col">Risk</th><th scope="col">Failure mode</th><th scope="col">Containment</th><th scope="col">Exit proof</th></tr></thead>
+        <tbody>
+          <tr><td><strong class="risk-critical">Critical</strong></td><td><strong>Queue / undo atomicity</strong></td><td>A review advances time, consumes a step, grants cross-skill XP, or rolls yield without the matching rollback record.</td><td>One review-owned mutation envelope; persist RNG outcomes; snapshot queue, farm, XP, and inventory together.</td><td>End-to-end undo restores every field and never rerolls.</td></tr>
+          <tr><td><strong class="risk-high">High</strong></td><td><strong>Unproved constants leak into data</strong></td><td>White lily, spirit timing, wergali, goutweed, watering claims, or Habitat decimals silently inherit an emulator or modern value.</td><td>Typed evidence classification per field; source-blocked sentinel; integrity test rejects uncited numeric production rows.</td><td>Blocked-value audit is empty of concrete constants.</td></tr>
+          <tr><td><strong class="risk-high">High</strong></td><td><strong>Historical transclusion drift</strong></td><td>A rendered old page appears period-correct while its table, template, calculator, or module resolves to later data.</td><td>Record title, oldid, UTC timestamp, literal wikitext, and historical dependency revisions; retain conflicts.</td><td>Source audit maps each implemented claim to literal period evidence or an explicit GM path.</td></tr>
+          <tr><td><strong class="risk-high">High</strong></td><td><strong>Acquisition contamination</strong></td><td>Existing Papa Mambo rows or invented shop/drop routes make starved inputs falsely obtainable.</td><td>Run the separate roster-by-route audit before availability logic; remove the five vine-herb shop rows; preserve exactly 20 starved inputs.</td><td>Reachability and shop tests prove authentic routes only.</td></tr>
+          <tr><td><strong class="risk-high">High</strong></td><td><strong>Asset provenance drift</strong></td><td>A parallel hand-written manifest omits a shipped crop or implies a deferred mechanic is available.</td><td>Generate from the final data module; provenance and existence are required fields; exclude future-only families.</td><td>Manifest path/provenance suite passes for every generated entry.</td></tr>
+          <tr><td><strong class="risk-medium">Medium</strong></td><td><strong>UI density</strong></td><td>Fifty-one patches become a checkbox wall, disabled rows remain clickable, or queue controls overflow at laptop height.</td><td>Location grouping, one bulk action, per-patch detail, immediate transactions, standard disabled tooltips, responsive and geometry-first Qt checks.</td><td>Default and roughly 560-point renders pass keyboard, overflow, and non-selection checks.</td></tr>
+          <tr><td><strong class="risk-medium">Medium</strong></td><td><strong>Protection semantics divergence</strong></td><td>The UI or documentation claims the period gardener never allowed disease when the period prose describes guaranteed survival through curing.</td><td>Ship GM immunity as the closed implementation behavior but record the divergence in data provenance and user-facing technical notes.</td><td>Tests prove the shipping behavior; audit text preserves the historical distinction.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footer-grid">
+    <div>
+      <p><strong>Authoritative contract:</strong> <code>memory-bank/farming-skill-contract-2026-07-11.md</code></p>
+      <p><strong>Source dossier:</strong> <code>memory-bank/source-audits/farming-source-dossier-2026-07-11.md</code></p>
+      <p><strong>Verification standard:</strong> <code>memory-bank/pre-eoc-source-verification-standard.md</code></p>
+      <p><strong>Evidence ledger consumed through the contract reconciliation:</strong> <code>memory-bank/source-audits/farming-wiki-pin-ledger-2026-07-11.md</code></p>
+      <p>Cutoff: strictly before <code>2012-11-20T00:00:00Z</code>. Darkan corroboration pin: <code>7e7d67b</code>. No current RS3, OSRS, calculator, or emulator guess may fill a source gap.</p>
+    </div>
+    <div class="frozen-stamp">Frozen for post-build comparison</div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  var pinCards = Array.prototype.slice.call(document.querySelectorAll('.pin-card'));
+  var filterButtons = Array.prototype.slice.call(document.querySelectorAll('.filter-button'));
+  var filterCount = document.getElementById('filter-count');
+  var detailTitle = document.getElementById('pin-detail-title');
+  var detailMeta = document.getElementById('pin-detail-meta');
+  var detailNote = document.getElementById('pin-detail-note');
+
+  function selectPin(card) {
+    pinCards.forEach(function (item) { item.setAttribute('aria-current', 'false'); });
+    card.setAttribute('aria-current', 'true');
+    detailTitle.textContent = card.dataset.title;
+    detailMeta.textContent = card.dataset.oldid;
+    detailNote.textContent = card.dataset.note;
+  }
+
+  pinCards.forEach(function (card) {
+    card.addEventListener('click', function () { selectPin(card); });
+    card.addEventListener('focus', function () { selectPin(card); });
+  });
+  if (pinCards.length) { selectPin(pinCards[0]); }
+
+  function cardMatches(card, filter) {
+    if (filter === 'all') { return true; }
+    if (filter === 'oldid') { return card.dataset.hasOldid === 'true'; }
+    if (filter === 'blocked') { return card.dataset.filterBlocked === 'true' || card.dataset.verdict === 'blocked'; }
+    if (filter === 'no-oldid') { return card.dataset.hasOldid === 'false'; }
+    if (filter === 'struck') { return card.dataset.verdict === 'struck'; }
+    return true;
+  }
+
+  filterButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+      var filter = button.dataset.filter;
+      var visible = 0;
+      filterButtons.forEach(function (item) { item.setAttribute('aria-pressed', item === button ? 'true' : 'false'); });
+      pinCards.forEach(function (card) {
+        var show = cardMatches(card, filter);
+        card.hidden = !show;
+        if (show) { visible += 1; }
+      });
+      filterCount.textContent = filter === 'all' ? 'Showing all 38 requested titles.' : 'Showing ' + visible + ' matching evidence slots.';
+      var firstVisible = pinCards.find(function (card) { return !card.hidden; });
+      if (firstVisible) { selectPin(firstVisible); }
+    });
+  });
+
+  var gateChecks = Array.prototype.slice.call(document.querySelectorAll('#gate-simulator input[name="gate"]'));
+  var gateOutput = document.getElementById('gate-output');
+  function updateGate() {
+    var checked = gateChecks.filter(function (item) { return item.checked; }).length;
+    var remaining = gateChecks.length - checked;
+    if (remaining === 0) {
+      gateOutput.textContent = 'SIMULATION · The data-module handoff gate would open. This is hypothetical and does not record completion.';
+    } else {
+      gateOutput.textContent = 'SIMULATION · Gate remains closed. ' + remaining + (remaining === 1 ? ' condition is' : ' conditions are') + ' unchecked.';
+    }
+  }
+  gateChecks.forEach(function (item) { item.addEventListener('change', updateGate); });
+
+  var simClock = 0;
+  var simQueue = 3;
+  var clockNode = document.getElementById('sim-clock');
+  var queueNode = document.getElementById('sim-queue');
+  var reviewOutput = document.getElementById('review-output');
+  function renderReview() {
+    clockNode.textContent = simClock + ' min';
+    queueNode.textContent = simQueue + (simQueue === 1 ? ' step' : ' steps');
+  }
+  document.getElementById('sim-success').addEventListener('click', function () {
+    simClock += 6;
+    if (simQueue > 0) {
+      simQueue -= 1;
+      reviewOutput.textContent = 'SUCCESS · +6 farm minutes. One queued field step executes; the active-skill action is suppressed. ' + simQueue + ' queued step' + (simQueue === 1 ? '' : 's') + ' remain.';
+    } else {
+      reviewOutput.textContent = 'SUCCESS · +6 farm minutes. The queue is empty, so the active skill would execute normally.';
+    }
+    renderReview();
+  });
+  document.getElementById('sim-failure').addEventListener('click', function () {
+    simClock += 6;
+    reviewOutput.textContent = 'FAILURE · +6 farm minutes. No queued step executes or is consumed, and no active-skill action runs. ' + simQueue + ' queued step' + (simQueue === 1 ? '' : 's') + ' remain.';
+    renderReview();
+  });
+  document.getElementById('sim-reset').addEventListener('click', function () {
+    simClock = 0;
+    simQueue = 3;
+    reviewOutput.textContent = 'Ready. Every simulated answer will add six minutes; only success can consume one queued field step.';
+    renderReview();
+  });
+})();
+</script>
+</body>
+</html>

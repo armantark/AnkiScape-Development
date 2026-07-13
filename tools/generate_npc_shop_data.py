@@ -12,6 +12,7 @@ import argparse
 import json
 import os
 import re
+import runpy
 import subprocess
 import tempfile
 from collections import Counter
@@ -53,6 +54,16 @@ HIDDEN_SHOP_HINTS = (
     "dungeoneering",
     "token",
 )
+
+# Papa Mambo's period shop stocked only the three blossom colours. Darkan's
+# five vine-herb seed rows are later/source-contaminated and remain naturally
+# material-locked until Jadinko hunting exists (Papa Mambo's Shop oldid 6393083).
+SHOP_STOCK_EXCLUDED_ITEM_IDS: dict[str, frozenset[int]] = {
+    "papa_mambos_shop": frozenset({19897, 19902, 19907, 19912, 19917}),
+}
+SHOP_STOCK_EXCLUSION_SOURCES: dict[str, str] = {
+    "papa_mambos_shop": "Papa Mambo's Shop oldid 6393083",
+}
 
 # These prices are direct shop/action literals from Darkan content files. Shop
 # rows without a Darkan customPrice remain read-only until a cache price extractor
@@ -513,7 +524,7 @@ def _price_for_row(
 def _stock_rows(
     shop_id: str,
     shop_path: Path,
-    raw_items: Iterable[dict[str, Any]],
+    indexed_raw_items: Iterable[tuple[int, dict[str, Any]]],
     currency_id: int,
     shop_visibility: str,
     shop_lock_reason: str,
@@ -521,7 +532,7 @@ def _stock_rows(
     price_inputs: dict[int, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
-    for index, raw_item in enumerate(raw_items):
+    for source_index, raw_item in indexed_raw_items:
         raw_item_ref = raw_item.get("item", -1)
         if isinstance(raw_item_ref, dict):
             item_id = int(raw_item_ref.get("id", -1) or -1)
@@ -554,7 +565,7 @@ def _stock_rows(
             disposition = "locked"
         rows.append(
             {
-                "id": f"{shop_id}:{index}:{item_id}",
+                "id": f"{shop_id}:{source_index}:{item_id}",
                 "item_id": item_id,
                 "item_name": _item_name(items, item_id, fallback_name),
                 "default_quantity": amount,
@@ -609,16 +620,23 @@ def build_catalog(
             continue
         currency_id = int(raw.get("currency", 995) or 995)
         visibility, lock_reason = _visibility_for_shop(shop_id, currency_id)
-        rows = _stock_rows(
+        excluded_item_ids = SHOP_STOCK_EXCLUDED_ITEM_IDS.get(shop_id, frozenset())
+        indexed_raw_items = [
+            (source_index, row)
+            for source_index, row in enumerate(raw.get("items", []))
+            if isinstance(row, dict)
+        ]
+        all_rows = _stock_rows(
             shop_id,
             path,
-            raw.get("items", []),
+            indexed_raw_items,
             currency_id,
             visibility,
             lock_reason,
             items,
             resolved_price_inputs,
         )
+        rows = [row for row in all_rows if row["item_id"] not in excluded_item_ids]
         shop_disposition = "hidden" if visibility == "hidden" else ("locked" if visibility == "visible_locked" else "visible")
         if rows and all(row["disposition"] == "blocked" for row in rows) and visibility != "hidden":
             shop_disposition = "blocked"
@@ -655,13 +673,18 @@ def build_catalog(
                         "id": row["id"],
                         "item_id": row["item_id"],
                         "item_name": row["item_name"],
-                        "disposition": row["disposition"],
-                        "visibility": row["visibility"],
-                        "lock_reason": row["lock_reason"],
+                        "disposition": "excluded" if row["item_id"] in excluded_item_ids else row["disposition"],
+                        "visibility": "hidden" if row["item_id"] in excluded_item_ids else row["visibility"],
+                        "lock_reason": "period_source_exclusion" if row["item_id"] in excluded_item_ids else row["lock_reason"],
                         "price_policy": row["price_policy"],
                         "price_source": row["price_source"],
+                        **(
+                            {"exclusion_source": SHOP_STOCK_EXCLUSION_SOURCES.get(shop_id, "")}
+                            if row["item_id"] in excluded_item_ids
+                            else {}
+                        ),
                     }
-                    for row in rows
+                    for row in all_rows
                 ],
             }
         )
@@ -733,6 +756,11 @@ def _coverage_summary(
     vendor_actions: list[dict[str, Any]],
 ) -> dict[str, Any]:
     row_counter = Counter(row["disposition"] for shop in shops for row in shop["stock"])
+    ledger_row_counter = Counter(
+        row["disposition"]
+        for shop in ledger_shops
+        for row in shop.get("stock_rows", [])
+    )
     shop_counter = Counter(entry["disposition"] for entry in ledger_shops)
     currency_counter = Counter(str(shop["currency_id"]) for shop in shops)
     return {
@@ -743,6 +771,7 @@ def _coverage_summary(
         "locked_shop_count": sum(1 for shop in shops if shop["visibility"] == "visible_locked"),
         "hidden_shop_count": sum(1 for shop in shops if shop["visibility"] == "hidden"),
         "stock_row_count": sum(len(shop["stock"]) for shop in shops),
+        "excluded_stock_row_count": ledger_row_counter.get("excluded", 0),
         "live_stock_row_count": row_counter.get("live", 0),
         "locked_stock_row_count": row_counter.get("locked", 0),
         "hidden_stock_row_count": row_counter.get("hidden", 0),
@@ -897,6 +926,73 @@ def shop_coverage_summary_as_dict() -> Dict[str, Any]:
     output_path.write_text(body, encoding="utf-8")
 
 
+def rewrite_stock_exclusions_from_generated(
+    existing_path: Path,
+    output_path: Path,
+    *,
+    existing_ledger_path: Path | None = None,
+    ledger_output_path: Path | None = None,
+    summary_output_path: Path | None = None,
+) -> dict[str, Any]:
+    """Apply pinned exclusions to runtime and audit outputs without cache access."""
+
+    generated = runpy.run_path(str(existing_path))
+    shops = [dict(shop) for shop in generated["SHOP_DATA"].values()]
+    for shop in shops:
+        excluded = SHOP_STOCK_EXCLUDED_ITEM_IDS.get(shop["id"], frozenset())
+        shop["stock"] = [dict(row) for row in shop.get("stock", []) if row.get("item_id") not in excluded]
+
+    ledger: dict[str, Any] | None = None
+    excluded_stock_rows = 0
+    if existing_ledger_path is not None:
+        ledger = json.loads(existing_ledger_path.read_text(encoding="utf-8"))
+        for shop in ledger.get("shops", []):
+            excluded = SHOP_STOCK_EXCLUDED_ITEM_IDS.get(shop.get("id"), frozenset())
+            for row in shop.get("stock_rows", []):
+                if row.get("item_id") not in excluded:
+                    continue
+                row["disposition"] = "excluded"
+                row["visibility"] = "hidden"
+                row["lock_reason"] = "period_source_exclusion"
+                row["exclusion_source"] = SHOP_STOCK_EXCLUSION_SOURCES.get(str(shop.get("id")), "")
+                excluded_stock_rows += 1
+
+    summary = dict(generated["SHOP_COVERAGE_SUMMARY"])
+    row_counter = Counter(row["disposition"] for shop in shops for row in shop["stock"])
+    summary.update({
+        "stock_row_count": sum(len(shop["stock"]) for shop in shops),
+        "excluded_stock_row_count": excluded_stock_rows,
+        "live_stock_row_count": row_counter.get("live", 0),
+        "locked_stock_row_count": row_counter.get("locked", 0),
+        "hidden_stock_row_count": row_counter.get("hidden", 0),
+        "blocked_stock_row_count": row_counter.get("blocked", 0),
+    })
+    catalog = {
+        "version": int(generated["SHOP_DATA_VERSION"]),
+        "shops": shops,
+        "currencies": [dict(row) for row in generated["SHOP_CURRENCIES"].values()],
+        "services": [dict(row) for row in generated["SHOP_SERVICES"].values()],
+        "vendor_actions": [dict(row) for row in generated["SHOP_VENDOR_ACTIONS"].values()],
+        "summary": summary,
+        "player_sell_prices": dict(generated["SHOP_PLAYER_SELL_PRICES"]),
+        "player_buy_prices": dict(generated["SHOP_PLAYER_BUY_PRICES"]),
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    write_shop_data(catalog, output_path)
+
+    if ledger_output_path is not None or summary_output_path is not None:
+        if ledger is None:
+            raise ValueError("existing_ledger_path is required for audit output")
+        ledger["summary"] = dict(summary)
+        if ledger_output_path is not None:
+            ledger_output_path.parent.mkdir(parents=True, exist_ok=True)
+            ledger_output_path.write_text(json.dumps(ledger, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        if summary_output_path is not None:
+            summary_output_path.parent.mkdir(parents=True, exist_ok=True)
+            write_summary(ledger, summary_output_path)
+    return summary
+
+
 def _extra_item_specs(catalog: dict[str, Any]) -> dict[str, dict[str, Any]]:
     specs: dict[str, dict[str, Any]] = {}
 
@@ -949,6 +1045,7 @@ def write_summary(ledger: dict[str, Any], path: Path) -> None:
         f"- Locked/read-only shops: {summary['locked_shop_count']}",
         f"- Hidden shops: {summary['hidden_shop_count']}",
         f"- Stock rows: {summary['stock_row_count']}",
+        f"- Period-source-excluded stock rows: {summary.get('excluded_stock_row_count', 0)}",
         f"- Live stock rows: {summary['live_stock_row_count']}",
         f"- Locked stock rows: {summary['locked_stock_row_count']}",
         f"- Hidden stock rows: {summary['hidden_stock_row_count']}",
@@ -984,10 +1081,28 @@ def main() -> None:
     parser.add_argument("--darkan-core-jar", type=Path, default=DEFAULT_DARKAN_CORE_JAR)
     parser.add_argument("--darkan-dependency-jar", type=Path, action="append", default=None)
     parser.add_argument("--items-2011", type=Path, default=DEFAULT_2011_ITEMS)
+    parser.add_argument("--existing-shop-data", type=Path, default=SHOP_DATA_PATH)
+    parser.add_argument("--existing-ledger", type=Path, default=LEDGER_PATH)
     parser.add_argument("--shop-data-out", type=Path, default=SHOP_DATA_PATH)
     parser.add_argument("--ledger-out", type=Path, default=LEDGER_PATH)
     parser.add_argument("--summary-out", type=Path, default=SUMMARY_PATH)
+    parser.add_argument(
+        "--stock-exclusions-only",
+        action="store_true",
+        help="rewrite only pinned generator-owned stock exclusions from the existing generated catalog",
+    )
     args = parser.parse_args()
+
+    if args.stock_exclusions_only:
+        summary = rewrite_stock_exclusions_from_generated(
+            args.existing_shop_data,
+            args.shop_data_out,
+            existing_ledger_path=args.existing_ledger,
+            ledger_output_path=args.ledger_out,
+            summary_output_path=args.summary_out,
+        )
+        print(json.dumps(summary, sort_keys=True))
+        return
 
     items = load_2011_items(args.items_2011)
     item_ids = set(collect_source_shop_item_ids(args.darkan_shops))

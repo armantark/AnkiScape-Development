@@ -281,6 +281,28 @@ class TestStoragePure(unittest.TestCase):
         # Version bumped
         self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION)
 
+    def test_future_schema_version_is_preserved(self):
+        migrated = migrate_loaded_data(
+            {
+                "config_version": CURRENT_CONFIG_VERSION + 7,
+                "inventory": {"Future item": 1},
+                "farming_exp": float("inf"),
+                "farming_level": float("nan"),
+                "farm_clock_minutes": float("nan"),
+                "farm_patches": {"future_patch": {"future": True}},
+                "pending_skill_exp_rewards": {"farming_exp": float("nan"), "summoning_exp": 250},
+            },
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["config_version"], CURRENT_CONFIG_VERSION + 7)
+        self.assertEqual(migrated["inventory"]["Future item"], 1)
+        self.assertEqual(migrated["farming_exp"], 0.0)
+        self.assertEqual(migrated["farming_level"], 1)
+        self.assertEqual(migrated["farm_clock_minutes"], 0)
+        self.assertEqual(migrated["farm_patches"]["future_patch"], {"future": True})
+        self.assertEqual(migrated["pending_skill_exp_rewards"], {"summoning_exp": 250.0})
+
     def test_migrate_preserves_existing_action_telemetry_rows(self):
         migrated = migrate_loaded_data(
             {
@@ -383,7 +405,9 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["runecrafting_exp"], 5100.0)
         self.assertEqual(migrated["attack_exp"], 1025.0)
         self.assertGreater(migrated["attack_level"], 1)
-        self.assertEqual(migrated["pending_skill_exp_rewards"], {"farming_exp": 250.0})
+        self.assertEqual(migrated["farming_exp"], 250.0)
+        self.assertGreater(migrated["farming_level"], 1)
+        self.assertEqual(migrated["pending_skill_exp_rewards"], {})
 
     def test_migrate_equipment_state_and_removes_owned_equipment(self):
         migrated = migrate_loaded_data(

@@ -19941,54 +19941,59 @@
           "visibility": "visible"
         },
         {
-          "disposition": "live",
+          "disposition": "excluded",
+          "exclusion_source": "Papa Mambo's Shop oldid 6393083",
           "id": "papa_mambos_shop:3:19897",
           "item_id": 19897,
           "item_name": "Erzille seed",
-          "lock_reason": "",
+          "lock_reason": "period_source_exclusion",
           "price_policy": "custom_buy_darkan_sell_price",
           "price_source": "Darkan shop JSON customPrice for buy; Darkan Shop.java getSellPrice for sell",
-          "visibility": "visible"
+          "visibility": "hidden"
         },
         {
-          "disposition": "live",
+          "disposition": "excluded",
+          "exclusion_source": "Papa Mambo's Shop oldid 6393083",
           "id": "papa_mambos_shop:4:19902",
           "item_id": 19902,
           "item_name": "Ugune seed",
-          "lock_reason": "",
+          "lock_reason": "period_source_exclusion",
           "price_policy": "custom_buy_darkan_sell_price",
           "price_source": "Darkan shop JSON customPrice for buy; Darkan Shop.java getSellPrice for sell",
-          "visibility": "visible"
+          "visibility": "hidden"
         },
         {
-          "disposition": "live",
+          "disposition": "excluded",
+          "exclusion_source": "Papa Mambo's Shop oldid 6393083",
           "id": "papa_mambos_shop:5:19907",
           "item_id": 19907,
           "item_name": "Argway seed",
-          "lock_reason": "",
+          "lock_reason": "period_source_exclusion",
           "price_policy": "custom_buy_darkan_sell_price",
           "price_source": "Darkan shop JSON customPrice for buy; Darkan Shop.java getSellPrice for sell",
-          "visibility": "visible"
+          "visibility": "hidden"
         },
         {
-          "disposition": "live",
+          "disposition": "excluded",
+          "exclusion_source": "Papa Mambo's Shop oldid 6393083",
           "id": "papa_mambos_shop:6:19912",
           "item_id": 19912,
           "item_name": "Shengo seed",
-          "lock_reason": "",
+          "lock_reason": "period_source_exclusion",
           "price_policy": "custom_buy_darkan_sell_price",
           "price_source": "Darkan shop JSON customPrice for buy; Darkan Shop.java getSellPrice for sell",
-          "visibility": "visible"
+          "visibility": "hidden"
         },
         {
-          "disposition": "live",
+          "disposition": "excluded",
+          "exclusion_source": "Papa Mambo's Shop oldid 6393083",
           "id": "papa_mambos_shop:7:19917",
           "item_id": 19917,
           "item_name": "Samaden seed",
-          "lock_reason": "",
+          "lock_reason": "period_source_exclusion",
           "price_policy": "custom_buy_darkan_sell_price",
           "price_source": "Darkan shop JSON customPrice for buy; Darkan Shop.java getSellPrice for sell",
-          "visibility": "visible"
+          "visibility": "hidden"
         },
         {
           "disposition": "live",
@@ -30251,16 +30256,17 @@
       "995": 267
     },
     "excluded_shop_count": 1,
+    "excluded_stock_row_count": 5,
     "hidden_shop_count": 1,
     "hidden_stock_row_count": 0,
-    "live_stock_row_count": 2695,
+    "live_stock_row_count": 2690,
     "locked_shop_count": 5,
     "locked_stock_row_count": 60,
     "player_sell_price_count": 6820,
     "runtime_shop_count": 273,
     "service_count": 0,
     "source_shop_count": 274,
-    "stock_row_count": 2776,
+    "stock_row_count": 2771,
     "vendor_action_count": 4,
     "visible_shop_count": 267
   },
