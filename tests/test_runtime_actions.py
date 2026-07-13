@@ -1164,35 +1164,6 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated Delrith"])
 
-    def test_quest_answer_resolves_merlins_crystal_mordred_before_stage_progress(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {},
-            "current_quest": "merlins_crystal",
-            "quests": {"merlins_crystal": {"started": True, "progress": 3, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
-            "quest_points": 0,
-            "pending_skill_exp_rewards": {},
-            "completed_achievements": [],
-            "attack_level": 50,
-            "strength_level": 50,
-            "defense_level": 50,
-            "constitution_level": 50,
-            "prayer_level": 1,
-        }
-
-        ok = handle_quest_answer(
-            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["merlins_crystal"]["progress"], 3)
-        self.assertFalse(player_data["quests"]["merlins_crystal"]["completed"])
-        self.assertEqual(player_data["quest_combat_encounters"], {"merlins_crystal": ["merlins_crystal_sir_mordred_39"]})
-        self.assertEqual(calls["saves"], 1)
-        self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Defeated Sir Mordred"])
-
     def test_quest_answer_resolves_style_aware_magic_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
         player_data = {
@@ -1230,70 +1201,6 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(calls["saves"], 1)
         self.assertEqual(calls["errors"], [])
         self.assertEqual(calls["activity"], ["Defeated H.A.M. mage"])
-
-    def test_quest_answer_resolves_split_golem_combat_before_stage_progress(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {},
-            "current_quest": "spirits_of_the_elid",
-            "quests": {"spirits_of_the_elid": {"started": True, "progress": 4, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
-            "quest_points": 0,
-            "pending_skill_exp_rewards": {},
-            "completed_achievements": [],
-            "attack_level": 90,
-            "strength_level": 90,
-            "defense_level": 90,
-            "constitution_level": 90,
-            "prayer_level": 1,
-        }
-
-        ok = handle_quest_answer(
-            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["spirits_of_the_elid"]["progress"], 4)
-        self.assertFalse(player_data["quests"]["spirits_of_the_elid"]["completed"])
-        self.assertEqual(
-            player_data["quest_combat_encounters"],
-            {"spirits_of_the_elid": ["spirits_of_the_elid_black_golem_75"]},
-        )
-        self.assertEqual(calls["saves"], 1)
-        self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Defeated Black golem"])
-
-    def test_quest_answer_resolves_identical_source_generated_combat_before_stage_progress(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {"Thread": 1, "Leather": 1},
-            "current_quest": "elemental_workshop_i",
-            "quests": {"elemental_workshop_i": {"started": True, "progress": 2, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
-            "quest_points": 0,
-            "pending_skill_exp_rewards": {},
-            "completed_achievements": [],
-            "attack_level": 40,
-            "strength_level": 40,
-            "defense_level": 40,
-            "constitution_level": 40,
-            "prayer_level": 1,
-        }
-
-        ok = handle_quest_answer(
-            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["elemental_workshop_i"]["progress"], 2)
-        self.assertFalse(player_data["quests"]["elemental_workshop_i"]["completed"])
-        self.assertEqual(
-            player_data["quest_combat_encounters"],
-            {"elemental_workshop_i": ["elemental_workshop_i_earth_elemental_35"]},
-        )
-        self.assertEqual(calls["saves"], 1)
-        self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Defeated Earth Elemental"])
 
     def test_quest_answer_resolves_beast_fallback_ranged_combat_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}
@@ -1336,38 +1243,6 @@ class TestRuntimeActions(unittest.TestCase):
         self.assertEqual(player_data["quest_combat_encounters"], {"toktz_ket_dill": ["toktz_ket_dill_lava_monster_47"]})
         self.assertEqual(calls["saves"], 2)
         self.assertEqual(calls["activity"], ["Defeated Lava monster", "Defeated Lava monster"])
-
-    def test_quest_answer_resolves_witchs_house_first_form_before_stage_progress(self):
-        calls = {"xp": [], "saves": 0, "errors": []}
-        player_data = {
-            "inventory": {},
-            "current_quest": "witchs_house",
-            "quests": {"witchs_house": {"started": True, "progress": 9, "completed": False}},
-            "quest_combat_config": {"resolver_enabled": True},
-            "quest_points": 0,
-            "pending_skill_exp_rewards": {},
-            "completed_achievements": [],
-            "attack_level": 60,
-            "strength_level": 60,
-            "defense_level": 60,
-            "constitution_level": 60,
-            "prayer_level": 1,
-        }
-
-        ok = handle_quest_answer(
-            _context(player_data, calls, random_values=_quest_combat_mid_rolls(), review_action_multiplier=10)
-        )
-
-        self.assertTrue(ok)
-        self.assertEqual(player_data["quests"]["witchs_house"]["progress"], 9)
-        self.assertFalse(player_data["quests"]["witchs_house"]["completed"])
-        self.assertEqual(
-            player_data["quest_combat_encounters"],
-            {"witchs_house": ["witchs_house_witchs_experiment_first_form"]},
-        )
-        self.assertEqual(calls["saves"], 1)
-        self.assertEqual(calls["errors"], [])
-        self.assertEqual(calls["activity"], ["Defeated Witch's experiment (Skavid form)"])
 
     def test_quest_answer_resolves_a_souls_bane_first_fear_reaper_before_stage_progress(self):
         calls = {"xp": [], "saves": 0, "errors": []}

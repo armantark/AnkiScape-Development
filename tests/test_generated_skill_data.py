@@ -39,7 +39,6 @@ class TestGeneratedSkillData(unittest.TestCase):
             generated = output_path.read_text(encoding="utf-8")
 
         self.assertEqual(generated, (ROOT / "smithing_data.py").read_text(encoding="utf-8"))
-        self.assertIn("id='repair_dragon_sq_shield'", generated)
 
     def test_equipment_generator_reproduces_checked_in_dragon_sq_shield_item_1187_block(self):
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape test-suite signal cleanup results</title>
+  <style>
+    :root {
+      --bg:#090d12; --panel:#121923; --panel2:#172231; --line:#26364a;
+      --text:#edf5ff; --muted:#91a2b8; --blue:#5aa2ff; --green:#51e19b;
+      --amber:#ffc857; --red:#ff7474; --violet:#b99cff; --radius:14px;
+    }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; color:var(--text); background:
+        radial-gradient(circle at 9% 4%, rgba(81,225,155,.12), transparent 31%),
+        radial-gradient(circle at 91% 7%, rgba(90,162,255,.14), transparent 29%),
+        var(--bg);
+      font:15px/1.55 Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    main { width:min(1160px, calc(100% - 30px)); margin:38px auto 72px; }
+    .mono,.badge,.label,.pill,.proof strong { font-family:ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .badge { display:inline-flex; gap:8px; align-items:center; padding:7px 11px; border:1px solid rgba(81,225,155,.42); border-radius:999px; color:#8cf0bc; background:rgba(81,225,155,.08); font-size:11px; letter-spacing:.09em; }
+    .badge::before { content:""; width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green); }
+    h1 { max-width:880px; margin:18px 0 10px; font-size:clamp(2.2rem,5.8vw,4.5rem); line-height:.98; letter-spacing:-.052em; }
+    .lede { max-width:850px; margin:0; color:var(--muted); font-size:18px; }
+    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin:30px 0; }
+    .metric,.card,.proof,.decision { border:1px solid var(--line); background:linear-gradient(145deg,rgba(23,34,49,.95),rgba(18,25,35,.95)); border-radius:var(--radius); }
+    .metric { padding:18px; }
+    .metric b { display:block; font-size:31px; letter-spacing:-.045em; }
+    .metric span,.label { color:var(--muted); font-size:10px; letter-spacing:.1em; text-transform:uppercase; }
+    .metric.good b { color:var(--green); }
+    .comparison { display:grid; grid-template-columns:1fr 54px 1fr; gap:12px; align-items:stretch; margin:0 0 18px; }
+    .side { padding:23px; border:1px solid var(--line); border-radius:var(--radius); background:rgba(18,25,35,.9); }
+    .side h2 { margin:7px 0 3px; font-size:30px; }
+    .side p { margin:0; color:var(--muted); }
+    .arrow { display:grid; place-items:center; color:var(--green); font-size:30px; }
+    .bar { height:9px; margin-top:18px; border-radius:99px; background:#202c3a; overflow:hidden; }
+    .bar i { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,var(--blue),var(--green)); }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; }
+    .card { padding:22px; }
+    .card h2 { margin:7px 0 9px; font-size:21px; }
+    .card p { margin:0; color:var(--muted); }
+    ul { margin:13px 0 0; padding-left:19px; }
+    li { margin:8px 0; }
+    .pill { display:inline-block; margin:12px 5px 0 0; padding:4px 7px; border-radius:6px; background:#202d3d; color:#b7c7dc; font-size:10px; }
+    .proofs { display:grid; grid-template-columns:repeat(2,1fr); gap:15px; margin-top:18px; }
+    .proof { padding:22px; position:relative; overflow:hidden; }
+    .proof::after { content:"✓"; position:absolute; right:18px; top:10px; color:rgba(81,225,155,.17); font-size:74px; font-weight:900; }
+    .proof h2 { margin:7px 0 16px; }
+    .proof strong { display:block; margin:7px 0; font-size:13px; font-weight:500; }
+    .proof em { color:var(--green); font-style:normal; }
+    .decision { margin-top:18px; padding:22px; border-color:rgba(255,200,87,.35); background:rgba(255,200,87,.045); }
+    .decision h2 { margin:6px 0 9px; }
+    .decision p { margin:0; color:#c5cfdd; }
+    .footer { margin-top:20px; padding:15px 17px; border-left:3px solid var(--blue); background:rgba(90,162,255,.055); color:#c7d4e5; }
+    code { color:#b9d5ff; overflow-wrap:anywhere; }
+    @media (max-width:800px) {
+      .metrics,.grid,.proofs { grid-template-columns:1fr; }
+      .comparison { grid-template-columns:1fr; }
+      .arrow { transform:rotate(90deg); min-height:38px; }
+      main { margin-top:24px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">CLEANUP VERIFIED · ISOLATED WORKTREE</span>
+  <h1>Less test mass.<br>More trustworthy signal.</h1>
+  <p class="lede">The suite no longer rewards raw count. Dead discovery shapes, source-spelling checks, redundant wrapper scenarios, and constant-copy methods were removed or folded while behavioral branches, undo contracts, migrations, real Qt interaction, and known failures stayed pinned.</p>
+
+  <section class="metrics" aria-label="Final metrics">
+    <div class="metric good"><b>0</b><span>hard audit issues</span></div>
+    <div class="metric"><b>5</b><span>reviewed clone groups</span></div>
+    <div class="metric"><b>−34</b><span>net discovered methods</span></div>
+    <div class="metric good"><b>2/2</b><span>full suites green</span></div>
+  </section>
+
+  <section class="comparison" aria-label="Before and after">
+    <article class="side">
+      <span class="label">Cadence-integrated base</span>
+      <h2>1,209 methods</h2>
+      <p>The plan's 1,198 baseline predates the eleven cadence tests that landed before this worktree was cut.</p>
+      <div class="bar"><i style="width:100%"></i></div>
+    </article>
+    <div class="arrow">→</div>
+    <article class="side">
+      <span class="label">Final signal set</span>
+      <h2>1,175 methods</h2>
+      <p>Five audit self-tests and one newly discovered JS behavior test are included. Forty old method slots were removed or folded.</p>
+      <div class="bar"><i style="width:97.2%"></i></div>
+    </article>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="label" style="color:var(--red)">Removed</span>
+      <h2>Tests that did not earn their cost</h2>
+      <ul>
+        <li>Two module-level functions that unittest never discovered.</li>
+        <li>A Python source-substring contract already covered by executable bridge tests.</li>
+        <li>A weaker generated-source substring assertion subsumed by exact output equality.</li>
+        <li>Repeated quest wrapper, runtime, widget, and undo scenarios with no new branch.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <span class="label" style="color:var(--green)">Preserved</span>
+      <h2>Coverage with distinct failure meaning</h2>
+      <ul>
+        <li>Named subtests retain every constant-varying scenario.</li>
+        <li>Five clone groups remain because they select distinct rendering/drop branches or expected-failure behavior.</li>
+        <li>Real package integration, pure mechanics, storage migration, undo, and offscreen Qt remain represented.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <span class="label" style="color:var(--blue)">Enforced</span>
+      <h2>A gate against regression-test slop</h2>
+      <p>The AST audit fails dead unittest shapes, assertion-free methods, direct file-text membership checks, and same-fixture exact duplicates. Normalized clones are surfaced for judgment instead of blindly rejected.</p>
+      <span class="pill">tools/audit_test_quality.py</span>
+      <span class="pill">tests/test_test_quality.py</span>
+    </article>
+
+    <article class="card">
+      <span class="label" style="color:var(--violet)">Isolated</span>
+      <h2>The cadence thread stayed untouched</h2>
+      <p>All cleanup work lives on <code>codex/test-signal-cleanup</code> in the dedicated <code>ankiscape_test_cleanup</code> worktree. Cadence-owned dirty Memory Bank files in the main checkout were not edited or staged.</p>
+    </article>
+  </section>
+
+  <section class="proofs" aria-label="Verification proof">
+    <article class="proof">
+      <span class="label">Pure suite · Homebrew Python</span>
+      <h2>1,175 executed</h2>
+      <strong><em>992 passed</em> · 180 skipped · 3 expected failures</strong>
+      <strong>33.740 seconds · exit 0</strong>
+    </article>
+    <article class="proof">
+      <span class="label">Real offscreen Qt</span>
+      <h2>1,175 executed</h2>
+      <strong><em>1,172 passed</em> · 0 skipped · 3 expected failures</strong>
+      <strong>451.104 seconds · exit 0</strong>
+    </article>
+  </section>
+
+  <section class="decision">
+    <span class="label" style="color:var(--amber)">Why five clones remain</span>
+    <h2>Similarity is a review prompt, not a deletion order.</h2>
+    <p>The retained groups distinguish quest summary variants, item versus action blockers, separate nested drop-engine branches, truncation versus mixed-blocker formatting, and a passing XP-ordering contract versus an intentional expected failure. Removing those would reduce signal.</p>
+  </section>
+
+  <p class="footer"><strong>Durable command:</strong> <code>/opt/homebrew/bin/python3 tools/audit_test_quality.py</code> · The policy and reporting rules are recorded in <code>memory-bank/test-quality-standard.md</code>.</p>
+</main>
+</body>
+</html>

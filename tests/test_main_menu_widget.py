@@ -2461,37 +2461,18 @@ class MainMenuWidgetTest(unittest.TestCase):
             ui.mw = orig_mw
 
     # ---- Stats / Bank / HUD registry-driven surfaces ----------------------
-    def test_stats_tab_has_fletching_and_shows_its_details(self) -> None:
-        btn = _find_tool_button(self.dialog, "Fletching")
-        btn.click()
-        QApplication.processEvents()
-        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
-        self.assertIn("Fletching Stats", labels)
-        self.assertIn("Fletching Level:", labels)
-
-    def test_stats_tab_has_firemaking_and_shows_its_details(self) -> None:
-        btn = _find_tool_button(self.dialog, "Firemaking")
-        btn.click()
-        QApplication.processEvents()
-        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
-        self.assertIn("Firemaking Stats", labels)
-        self.assertIn("Firemaking Level:", labels)
-
-    def test_stats_tab_has_fishing_and_shows_its_details(self) -> None:
-        btn = _find_tool_button(self.dialog, "Fishing")
-        btn.click()
-        QApplication.processEvents()
-        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
-        self.assertIn("Fishing Stats", labels)
-        self.assertIn("Fishing Level:", labels)
-
-    def test_stats_tab_has_runecrafting_and_shows_its_details(self) -> None:
-        btn = _find_tool_button(self.dialog, "Runecrafting")
-        btn.click()
-        QApplication.processEvents()
-        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
-        self.assertIn("Runecrafting Stats", labels)
-        self.assertIn("Runecrafting Level:", labels)
+    def test_stats_tab_shows_registered_skill_details(self) -> None:
+        for skill in ("Fletching", "Firemaking", "Fishing", "Runecrafting"):
+            with self.subTest(skill):
+                dialog = self._open(_make_player_data(), current_skill="Mining")
+                try:
+                    _find_tool_button(dialog, skill).click()
+                    QApplication.processEvents()
+                    labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
+                    self.assertIn(f"{skill} Stats", labels)
+                    self.assertIn(f"{skill} Level:", labels)
+                finally:
+                    dialog.deleteLater()
 
     def test_quests_tab_starts_rune_mysteries_via_quest_action(self) -> None:
         pd = _make_player_data()
@@ -2946,29 +2927,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         self.assertFalse(action.isEnabled())
         self.assertIn("Insect repellent x1", action.toolTip())
 
-    def test_quests_tab_allows_demon_slayer_source_backed_combat_gate_selection(self) -> None:
-        pd = _make_player_data()
-        pd["inventory"] = {"Silverlight": 1}
-        pd["current_quest"] = "demon_slayer"
-        pd["quests"]["demon_slayer"] = {"started": True, "progress": 7, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
-        pd["attack_level"] = 30
-        pd["strength_level"] = 30
-        pd["defense_level"] = 30
-        pd["constitution_level"] = 30
-        dialog = self._open(pd)
-
-        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Battle required: Delrith level 27"
-        self.assertIn(expected, labels)
-        action = dialog.findChild(QPushButton, "questAction_demon_slayer")
-        self.assertIsNotNone(action)
-        self.assertTrue(action.isEnabled())
-
-        action.click()
-        QApplication.processEvents()
-        self.assertIn("demon_slayer", self._quest_calls)
-
     def test_quests_tab_allows_merlins_crystal_mordred_combat_gate_selection(self) -> None:
         pd = _make_player_data()
         pd["current_quest"] = "merlins_crystal"
@@ -2990,29 +2948,6 @@ class MainMenuWidgetTest(unittest.TestCase):
         action.click()
         QApplication.processEvents()
         self.assertIn("merlins_crystal", self._quest_calls)
-
-    def test_quests_tab_allows_dragon_slayer_elvarg_combat_gate_selection(self) -> None:
-        pd = _make_player_data()
-        pd["inventory"] = {"Anti-dragon shield": 1}
-        pd["current_quest"] = "dragon_slayer"
-        pd["quests"]["dragon_slayer"] = {"started": True, "progress": 14, "completed": False}
-        pd["quest_combat_config"] = {"resolver_enabled": True}
-        pd["attack_level"] = 99
-        pd["strength_level"] = 99
-        pd["defense_level"] = 99
-        pd["constitution_level"] = 99
-        dialog = self._open(pd)
-
-        labels = [lbl.text() for lbl in dialog.findChildren(QLabel)]
-        expected = "Blocked: Battle required: Elvarg level 83"
-        self.assertIn(expected, labels)
-        action = dialog.findChild(QPushButton, "questAction_dragon_slayer")
-        self.assertIsNotNone(action)
-        self.assertTrue(action.isEnabled())
-
-        action.click()
-        QApplication.processEvents()
-        self.assertIn("dragon_slayer", self._quest_calls)
 
     def test_quests_tab_allows_identical_source_generated_combat_gate_selection(self) -> None:
         pd = _make_player_data()
@@ -4072,41 +4007,24 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fletching icon")
 
-    def test_hud_recognizes_firemaking_as_active_skill(self) -> None:
-        pd = _make_player_data()
-        pd["current_firemaking"] = "logs"
-        hud = self._ui.ReviewHUD(None)
-        hud.set_data(pd, "Firemaking")
-        self.assertTrue(
-            hud.title_lbl.text().startswith("Firemaking"),
-            f"HUD did not recognize Firemaking; shows {hud.title_lbl.text()!r}",
+    def test_hud_recognizes_targeted_skills(self) -> None:
+        cases = (
+            ("Firemaking", "current_firemaking", "logs", "Logs"),
+            ("Fishing", "current_fishing", "catch_crayfish", "Catch crayfish"),
+            ("Cooking", "current_cooking", "cook_shrimps", "Cook raw shrimps"),
         )
-        self.assertEqual(hud.target_lbl.text(), "Logs")
-        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Firemaking icon")
-
-    def test_hud_recognizes_fishing_as_active_skill(self) -> None:
-        pd = _make_player_data()
-        pd["current_fishing"] = "catch_crayfish"
-        hud = self._ui.ReviewHUD(None)
-        hud.set_data(pd, "Fishing")
-        self.assertTrue(
-            hud.title_lbl.text().startswith("Fishing"),
-            f"HUD did not recognize Fishing; shows {hud.title_lbl.text()!r}",
-        )
-        self.assertEqual(hud.target_lbl.text(), "Catch crayfish")
-        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fishing icon")
-
-    def test_hud_recognizes_cooking_as_active_skill(self) -> None:
-        pd = _make_player_data()
-        pd["current_cooking"] = "cook_shrimps"
-        hud = self._ui.ReviewHUD(None)
-        hud.set_data(pd, "Cooking")
-        self.assertTrue(
-            hud.title_lbl.text().startswith("Cooking"),
-            f"HUD did not recognize Cooking; shows {hud.title_lbl.text()!r}",
-        )
-        self.assertEqual(hud.target_lbl.text(), "Cook raw shrimps")
-        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Cooking icon")
+        for skill, target_key, target_id, target_label in cases:
+            with self.subTest(skill):
+                pd = _make_player_data()
+                pd[target_key] = target_id
+                hud = self._ui.ReviewHUD(None)
+                hud.set_data(pd, skill)
+                self.assertTrue(
+                    hud.title_lbl.text().startswith(skill),
+                    f"HUD did not recognize {skill}; shows {hud.title_lbl.text()!r}",
+                )
+                self.assertEqual(hud.target_lbl.text(), target_label)
+                self.assertFalse(hud.icon_lbl.pixmap().isNull(), f"HUD has no {skill} icon")
 
     # ---- Crafting/Utility rework surfaces ---------------------------------
     def _open_utility(self, dialog: "QDialog") -> "QTreeWidget":
