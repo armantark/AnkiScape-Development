@@ -64,10 +64,34 @@ them the meta.
 spread is the imbalance. Combat sits at 120 (50 ticks/review), the extreme
 outlier in the other direction.
 
-Corroborating detail: the skills the adapter *doesn't* distort independently
-cluster near **R ≈ 1,000–1,475** (Mining/iron 1,035; Cooking 1,359–1,410;
-Firemaking/magic 1,474). That is a second, unplanned line of evidence for
-`R = 1000`, arrived at without fitting anything.
+### Correction: there are TWO independent defects, not one
+
+An earlier draft of this ledger claimed the undistorted skills "cluster near
+R ≈ 1,000–1,475" and offered that as unplanned corroboration for `R = 1000`.
+**That was cherry-picked and it is withdrawn.** Writing the regression test forced
+the issue: Hunter implies **R = 281–833**, nowhere near the band.
+
+Hunter's *ordering* is fine — its rolls sit at 78–100%, where the adapter barely
+bites, and it passes the inversion test. But it still pays **2–4× too much per
+review**, because trap catches carry **dead time**: you lay a trap and wait.
+AnkiScape charges one review per catch and ignores the wait entirely.
+
+That is precisely the Thieving stall defect — *already live, in a shipped skill.*
+
+So the two defects are independent and a skill can fail either one alone:
+
+| Defect | Breaks | Cause | Victims |
+|---|---|---|---|
+| **Invented adapter** | *ordering* | `0.20 + 0.72·√p` inflates rare actions | Woodcutting, Fishing (Mining directionally) |
+| **Unmodelled dead time** | *rate* | one review per action, regardless of the wait | Hunter (traps), Thieving stalls (respawn), Combat (30s burst) |
+
+A skill can pass the ordering test and still be badly wrong on rate. Hunter is the
+proof, and it is the reason the ordering test alone is not a sufficient gate.
+
+What survives of the corroboration claim, stated honestly: among skills with
+*neither* defect, Mining/iron implies 1,035, Cooking 1,359–1,410 and Firemaking
+1,474. That is consistent with `R = 1000` and inconsistent with combat's 120, but
+it is three data points, not a cluster, and it must not be sold as more.
 
 ## Cooking and Firemaking are a different bug
 
