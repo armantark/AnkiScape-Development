@@ -2193,21 +2193,13 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12, "Clue scroll (easy)": 1})
 
-    def test_humanoid_drop_tables_reach_nested_minor_herbs(self):
-        cases = (
-            ("citizen", [258 / 1024, 0.0, 0.0]),
-            ("mugger", [218 / 1024, 0.0, 0.999999]),
-            ("thug", [75 / 128, 0.0, 0.999999, 0.999999]),
-            ("thief", [100 / 128, 0.0, 0.999999]),
-            ("goblin_level_11", [118 / 128, 0.0, 0.999999, 0.999999]),
-            ("al_kharid_warrior", [250 / 1024, 0.0, 0.999999]),
+    def test_citizen_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["citizen"],
+            _rng([258 / 1024, 0.0, 0.0]),
         )
-        for enemy_id, rolls in cases:
-            with self.subTest(enemy_id):
-                self.assertEqual(
-                    _combat_roll_drops(COMBAT_ENEMY_DATA[enemy_id], _rng(rolls)),
-                    {"Bones": 1, "Grimy guam": 1},
-                )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_low_level_humanoid_drop_rolls(self):
         monk_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["monk"], _rng([]))
@@ -2338,18 +2330,21 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(top_and_charm, {"Bones": 1, "Zamorak robe top": 1, "Green charm": 1})
         self.assertEqual(bottom_only, {"Bones": 1, "Zamorak robe bottom": 1})
 
-    def test_humanoid_quantity_range_drop_rolls(self):
-        cases = (
-            ("mugger", [0.0, 0.999999, 0.999999]),
-            ("thief", [4 / 128, 0.999999, 0.999999]),
-            ("al_kharid_warrior", [24 / 1024, 0.999999, 0.999999]),
+    def test_mugger_quantity_range_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["mugger"],
+            _rng([0.0, 0.999999, 0.999999]),
         )
-        for enemy_id, rolls in cases:
-            with self.subTest(enemy_id):
-                self.assertEqual(
-                    _combat_roll_drops(COMBAT_ENEMY_DATA[enemy_id], _rng(rolls)),
-                    {"Bones": 1, "Bronze bolts": 12},
-                )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12})
+
+    def test_mugger_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["mugger"],
+            _rng([218 / 1024, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_thug_drop_rolls_main_charms_and_tertiary_tables(self):
         drops = _combat_roll_drops(
@@ -2358,6 +2353,30 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_thug_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thug"],
+            _rng([75 / 128, 0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_thief_quantity_range_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thief"],
+            _rng([4 / 128, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12})
+
+    def test_thief_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["thief"],
+            _rng([100 / 128, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_guard_drop_rolls_quantity_range_medium_clue_and_charms(self):
         drops = _combat_roll_drops(
@@ -2370,17 +2389,13 @@ class CombatLogicTest(unittest.TestCase):
             {"Bones": 1, "Iron bolts": 12, "Clue scroll (medium)": 1, "Gold charm": 1},
         )
 
-    def test_humanoid_drop_tables_reach_nested_allotment_seeds(self):
-        cases = (
-            ("guard_sword", [120 / 146, 0.0, 0.0, 0.999999]),
-            ("farmer", [18 / 128, 0.0, 0.999999]),
+    def test_guard_drop_rolls_nested_allotment_seed_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["guard_sword"],
+            _rng([120 / 146, 0.0, 0.0, 0.999999]),
         )
-        for enemy_id, rolls in cases:
-            with self.subTest(enemy_id):
-                self.assertEqual(
-                    _combat_roll_drops(COMBAT_ENEMY_DATA[enemy_id], _rng(rolls)),
-                    {"Bones": 1, "Potato seed": 4},
-                )
+
+        self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
 
     def test_black_knight_drop_rolls_nested_seed_table_and_charms(self):
         drops = _combat_roll_drops(
@@ -2510,23 +2525,13 @@ class CombatLogicTest(unittest.TestCase):
 
         self.assertEqual(drops, {"Bones": 1, "Dragon spear": 1})
 
-    def test_low_level_enemy_drops_combine_main_charms_and_tertiary_tables(self):
-        cases = (
-            (
-                "barbarian",
-                {"Bones": 1, "Bronze hatchet": 1, "Gold charm": 1, "Clue scroll (easy)": 1},
-            ),
-            (
-                "goblin_level_2_unarmed",
-                {"Bones": 1, "Bronze sq shield": 1, "Gold charm": 1, "Clue scroll (easy)": 1},
-            ),
+    def test_barbarian_drop_rolls_include_main_charms_and_tertiary_tables(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["barbarian"],
+            _rng([0.0, 0.0, 0.0]),
         )
-        for enemy_id, expected in cases:
-            with self.subTest(enemy_id):
-                self.assertEqual(
-                    _combat_roll_drops(COMBAT_ENEMY_DATA[enemy_id], _rng([0.0, 0.0, 0.0])),
-                    expected,
-                )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze hatchet": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
 
     def test_barbarian_level_10_drop_rolls_include_tail_main_slot(self):
         drops = _combat_roll_drops(
@@ -2543,6 +2548,22 @@ class CombatLogicTest(unittest.TestCase):
         )
 
         self.assertEqual(drops, {"Bones": 1, "Bronze hatchet": 1, "Crimson charm": 1})
+
+    def test_goblin_level_2_drop_rolls_include_main_charms_and_tertiary_tables(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["goblin_level_2_unarmed"],
+            _rng([0.0, 0.0, 0.0]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze sq shield": 1, "Gold charm": 1, "Clue scroll (easy)": 1})
+
+    def test_higher_goblin_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["goblin_level_11"],
+            _rng([118 / 128, 0.0, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
 
     def test_hobgoblin_drop_rolls_nested_tables_and_charms(self):
         unarmed_drops = _combat_roll_drops(
@@ -2570,6 +2591,22 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(tokkul_drops, {"Tokkul": 2000})
         self.assertEqual(rare_drops, {"Onyx bolt tips": 4, "Tzhaar-ket-om": 1, "Obsidian charm": 2})
 
+    def test_al_kharid_warrior_drop_rolls_nested_minor_herb_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["al_kharid_warrior"],
+            _rng([250 / 1024, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Grimy guam": 1})
+
+    def test_farmer_drop_rolls_nested_allotment_seed_table(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["farmer"],
+            _rng([18 / 128, 0.0, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Potato seed": 4})
+
     def test_chaos_druid_drop_rolls_quantity_range_and_nested_tables(self):
         bolt_drops = _combat_roll_drops(
             COMBAT_ENEMY_DATA["chaos_druid"],
@@ -2587,6 +2624,14 @@ class CombatLogicTest(unittest.TestCase):
         self.assertEqual(bolt_drops, {"Bones": 1, "Mithril bolts": 12})
         self.assertEqual(herb_drops, {"Bones": 1, "Grimy guam": 1})
         self.assertEqual(gem_drops, {"Bones": 1, "Uncut sapphire": 1})
+
+    def test_al_kharid_warrior_quantity_range_drop_rolls(self):
+        drops = _combat_roll_drops(
+            COMBAT_ENEMY_DATA["al_kharid_warrior"],
+            _rng([24 / 1024, 0.999999, 0.999999]),
+        )
+
+        self.assertEqual(drops, {"Bones": 1, "Bronze bolts": 12})
 
     def test_scorpion_and_higher_spider_drop_rolls_use_source_tables(self):
         scorpion_drops = _combat_roll_drops(COMBAT_ENEMY_DATA["scorpion"], _rng([0.03]))

@@ -470,23 +470,15 @@ class TestStoragePure(unittest.TestCase):
             {"items": ["Iron sword"], "reviews_remaining": 5, "source": "combat_death"},
         )
 
-    def test_migrate_legacy_target_names_without_losing_inventory(self):
-        cases = (
-            ("mining", {"current_ore": "Iron ore", "inventory": {"Iron ore": 2}}, "current_ore", "iron", "Iron ore", 2),
-            (
-                "crafting",
-                {"current_craft": "Bow string", "inventory": {"Flax": 3}},
-                "current_craft",
-                "spin_flax_to_bow_string",
-                "Flax",
-                3,
-            ),
+    def test_migrate_legacy_mining_target_names(self):
+        migrated = migrate_loaded_data(
+            {"current_ore": "Iron ore", "inventory": {"Iron ore": 2}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
         )
-        for name, original, target_key, target_id, item_name, quantity in cases:
-            with self.subTest(name):
-                migrated = migrate_loaded_data(original, ORE_DATA, ITEM_DEFINITIONS)
-                self.assertEqual(migrated[target_key], target_id)
-                self.assertEqual(migrated["inventory"][item_name], quantity)
+
+        self.assertEqual(migrated["current_ore"], "iron")
+        self.assertEqual(migrated["inventory"]["Iron ore"], 2)
 
     def test_migrate_unknown_mining_target_to_default(self):
         migrated = migrate_loaded_data(
@@ -595,6 +587,15 @@ class TestStoragePure(unittest.TestCase):
         self.assertEqual(migrated["current_craft"], "")
         self.assertEqual(migrated["current_utility"], "make_soft_clay")
         self.assertEqual(migrated["inventory"]["Clay"], 4)
+
+    def test_migrate_legacy_crafting_target_names(self):
+        migrated = migrate_loaded_data(
+            {"current_craft": "Bow string", "inventory": {"Flax": 3}},
+            ORE_DATA,
+            ITEM_DEFINITIONS,
+        )
+        self.assertEqual(migrated["current_craft"], "spin_flax_to_bow_string")
+        self.assertEqual(migrated["inventory"]["Flax"], 3)
 
     def test_migrate_legacy_crafting_inventory_names(self):
         migrated = migrate_loaded_data(

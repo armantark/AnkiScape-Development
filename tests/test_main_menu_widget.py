@@ -2461,14 +2461,37 @@ class MainMenuWidgetTest(unittest.TestCase):
             ui.mw = orig_mw
 
     # ---- Stats / Bank / HUD registry-driven surfaces ----------------------
-    def test_stats_tab_shows_registered_skill_details(self) -> None:
-        for skill in ("Fletching", "Firemaking", "Fishing", "Runecrafting"):
-            with self.subTest(skill):
-                _find_tool_button(self.dialog, skill).click()
-                QApplication.processEvents()
-                labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
-                self.assertIn(f"{skill} Stats", labels)
-                self.assertIn(f"{skill} Level:", labels)
+    def test_stats_tab_has_fletching_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Fletching")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Fletching Stats", labels)
+        self.assertIn("Fletching Level:", labels)
+
+    def test_stats_tab_has_firemaking_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Firemaking")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Firemaking Stats", labels)
+        self.assertIn("Firemaking Level:", labels)
+
+    def test_stats_tab_has_fishing_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Fishing")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Fishing Stats", labels)
+        self.assertIn("Fishing Level:", labels)
+
+    def test_stats_tab_has_runecrafting_and_shows_its_details(self) -> None:
+        btn = _find_tool_button(self.dialog, "Runecrafting")
+        btn.click()
+        QApplication.processEvents()
+        labels = [lbl.text() for lbl in self.dialog.findChildren(QLabel)]
+        self.assertIn("Runecrafting Stats", labels)
+        self.assertIn("Runecrafting Level:", labels)
 
     def test_quests_tab_starts_rune_mysteries_via_quest_action(self) -> None:
         pd = _make_player_data()
@@ -4049,24 +4072,41 @@ class MainMenuWidgetTest(unittest.TestCase):
         )
         self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fletching icon")
 
-    def test_hud_recognizes_targeted_skills(self) -> None:
-        cases = (
-            ("Firemaking", "current_firemaking", "logs", "Logs"),
-            ("Fishing", "current_fishing", "catch_crayfish", "Catch crayfish"),
-            ("Cooking", "current_cooking", "cook_shrimps", "Cook raw shrimps"),
+    def test_hud_recognizes_firemaking_as_active_skill(self) -> None:
+        pd = _make_player_data()
+        pd["current_firemaking"] = "logs"
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Firemaking")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Firemaking"),
+            f"HUD did not recognize Firemaking; shows {hud.title_lbl.text()!r}",
         )
-        for skill, target_key, target_id, target_label in cases:
-            with self.subTest(skill):
-                pd = _make_player_data()
-                pd[target_key] = target_id
-                hud = self._ui.ReviewHUD(None)
-                hud.set_data(pd, skill)
-                self.assertTrue(
-                    hud.title_lbl.text().startswith(skill),
-                    f"HUD did not recognize {skill}; shows {hud.title_lbl.text()!r}",
-                )
-                self.assertEqual(hud.target_lbl.text(), target_label)
-                self.assertFalse(hud.icon_lbl.pixmap().isNull(), f"HUD has no {skill} icon")
+        self.assertEqual(hud.target_lbl.text(), "Logs")
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Firemaking icon")
+
+    def test_hud_recognizes_fishing_as_active_skill(self) -> None:
+        pd = _make_player_data()
+        pd["current_fishing"] = "catch_crayfish"
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Fishing")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Fishing"),
+            f"HUD did not recognize Fishing; shows {hud.title_lbl.text()!r}",
+        )
+        self.assertEqual(hud.target_lbl.text(), "Catch crayfish")
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Fishing icon")
+
+    def test_hud_recognizes_cooking_as_active_skill(self) -> None:
+        pd = _make_player_data()
+        pd["current_cooking"] = "cook_shrimps"
+        hud = self._ui.ReviewHUD(None)
+        hud.set_data(pd, "Cooking")
+        self.assertTrue(
+            hud.title_lbl.text().startswith("Cooking"),
+            f"HUD did not recognize Cooking; shows {hud.title_lbl.text()!r}",
+        )
+        self.assertEqual(hud.target_lbl.text(), "Cook raw shrimps")
+        self.assertFalse(hud.icon_lbl.pixmap().isNull(), "HUD has no Cooking icon")
 
     # ---- Crafting/Utility rework surfaces ---------------------------------
     def _open_utility(self, dialog: "QDialog") -> "QTreeWidget":

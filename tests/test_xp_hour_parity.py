@@ -85,10 +85,16 @@ class XpHourOrderingTest(unittest.TestCase):
 
     # --- Skills the adapter does not distort. Real regression guards. ---
 
-    def test_undistorted_skill_orderings_match_sourced_rates(self):
-        for skill in ("Mining", "Hunter", "Cooking"):
-            with self.subTest(skill):
-                self.assert_no_inversion(skill)
+    def test_mining_ordering_matches_sourced_rates(self):
+        self.assert_no_inversion("Mining")
+
+    def test_hunter_ordering_matches_sourced_rates(self):
+        # Hunter's catches roll at 78-100%, where sqrt(p) is nearly the identity.
+        self.assert_no_inversion("Hunter")
+
+    def test_cooking_ordering_matches_sourced_rates(self):
+        # Cooking's roll decides an outcome (burn), not a rate, and sits near 100%.
+        self.assert_no_inversion("Cooking")
 
     # --- Known inversions. These MUST fail until the cadence work lands. ---
 

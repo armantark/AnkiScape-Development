@@ -149,33 +149,24 @@ class TestLootFilter(unittest.TestCase):
 
 
 class TestProcessingPackAndAdvancedLayout(unittest.TestCase):
-    def test_pack_processing_inputs_respects_recipe_ratio_and_bank_supply(self):
-        cases = (
-            (
-                "even split",
-                {"Tin ore": 100, "Copper ore": 100},
-                {"Tin ore": 1, "Copper ore": 1},
-                {"Tin ore": 14, "Copper ore": 14},
-            ),
-            (
-                "scarce ingredient caps every input",
-                {"Tin ore": 3, "Copper ore": 100},
-                {"Tin ore": 1, "Copper ore": 1},
-                {"Tin ore": 3, "Copper ore": 3},
-            ),
-            (
-                "uneven recipe ratio",
-                {"Iron ore": 500, "Coal": 500},
-                {"Iron ore": 1, "Coal": 2},
-                {"Iron ore": 9, "Coal": 18},
-            ),
-        )
-        for name, bank, requirements, expected in cases:
-            with self.subTest(name):
-                self.assertEqual(
-                    pack_processing_inputs_pure(bank, requirements, 28, set()),
-                    expected,
-                )
+    def test_pack_processing_inputs_splits_evenly_capped_by_bank(self):
+        bank = {"Tin ore": 100, "Copper ore": 100}
+        packed = pack_processing_inputs_pure(bank, {"Tin ore": 1, "Copper ore": 1}, 28, set())
+        self.assertEqual(packed, {"Tin ore": 14, "Copper ore": 14})
+
+    def test_pack_processing_inputs_caps_by_scarce_bank_supply(self):
+        # Only 3 tin means only 3 smelts are possible, so carrying more than 3 copper
+        # would waste slots on a material that can never be used.
+        bank = {"Tin ore": 3, "Copper ore": 100}
+        packed = pack_processing_inputs_pure(bank, {"Tin ore": 1, "Copper ore": 1}, 28, set())
+        self.assertEqual(packed, {"Tin ore": 3, "Copper ore": 3})
+
+    def test_pack_processing_inputs_honours_the_recipe_ratio_not_an_even_split(self):
+        # Steel is 1 iron : 2 coal. An even 14/14 runs dry after 7 smelts and wastes
+        # 7 iron slots; the ratio-aware pack gets 9 smelts out of the same 28 slots.
+        bank = {"Iron ore": 500, "Coal": 500}
+        packed = pack_processing_inputs_pure(bank, {"Iron ore": 1, "Coal": 2}, 28, set())
+        self.assertEqual(packed, {"Iron ore": 9, "Coal": 18})
 
     def test_a_coal_bag_doubles_a_steel_smelting_trip(self):
         # The bag holds 27 coal in one slot, freeing slots for iron: 18 iron + 36 coal
