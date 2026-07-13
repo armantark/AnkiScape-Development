@@ -30,6 +30,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import logic_pure  # noqa: E402
+from combat_data import COMBAT_BURST_TICKS  # noqa: E402
 import cooking_data  # noqa: E402
 import firemaking_data  # noqa: E402
 import fishing_data  # noqa: E402
@@ -125,6 +126,23 @@ def measure_firemaking(level):
     return out, "n/a"
 
 
+def combat_review_rate():
+    """Combat's R is a definition, not a measurement — and that is the whole problem.
+
+    One review advances COMBAT_BURST_TICKS (50) game ticks. At 0.6s/tick that is
+    30 seconds, so 120 reviews buy one balancing-hour. Every other skill's R falls
+    out of dividing a sourced XP/hour by shipped XP/review, and lands near
+    1,000-1,475. Combat simply declares 120.
+
+    So a card spent on combat buys roughly ten times more game time than a card
+    spent on anything else. This needs no combat XP/hour source to prove: it is
+    pure tick-to-review conversion. (The engine itself is faithful — simulating
+    moss giants at 50 ticks/review yields ~37k XP/hr, an entirely plausible period
+    rate. The simulation is right; the exchange rate is wrong.)
+    """
+    return 3600.0 / (COMBAT_BURST_TICKS * 0.6)
+
+
 MEASURERS = {
     "Mining": measure_mining,
     "Woodcutting": measure_woodcutting,
@@ -203,7 +221,18 @@ def audit(level):
         print(f"implied R spans {lo[2]:,.0f} ({lo[0]}/{lo[1]}) to {hi[2]:,.0f} ({hi[0]}/{hi[1]}).")
         print(f"spread: {hi[2] / lo[2]:.1f}x  — every method should agree on R. "
               f"The spread IS the imbalance.")
-        print(f"\nreference: combat runs at 50 ticks/review = 120 reviews per balancing-hour.")
+        cr = combat_review_rate()
+        # Compare combat only against skills with NEITHER defect. Woodcutting's 188
+        # is a symptom, not a reference point.
+        clean = [r for r in all_R if r[0] not in ("Woodcutting", "Fishing", "Hunter")]
+        c_lo, c_hi = min(r[2] for r in clean), max(r[2] for r in clean)
+        print(f"\nCOMBAT: {COMBAT_BURST_TICKS} ticks/review DEFINES R = {cr:,.0f}.")
+        print(f"  Skills with NEITHER defect MEASURE R at {c_lo:,.0f}-{c_hi:,.0f}.")
+        print(f"  So one combat card buys {c_lo/cr:.1f}x-{c_hi/cr:.1f}x more game time "
+              f"than any other card.")
+        print(f"  The combat engine is faithful per unit of GAME TIME (moss giants at 50 "
+              f"ticks/review\n  yield ~37k xp/hr, a plausible period rate). It is the "
+              f"REVIEW conversion that is wrong.")
 
 
 if __name__ == "__main__":

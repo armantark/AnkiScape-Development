@@ -93,6 +93,35 @@ What survives of the corroboration claim, stated honestly: among skills with
 1,474. That is consistent with `R = 1000` and inconsistent with combat's 120, but
 it is three data points, not a cluster, and it must not be sold as more.
 
+## Combat, measured
+
+Combat's `R` is a **definition, not a measurement**, and that is the entire
+problem. One review advances `COMBAT_BURST_TICKS = 50` game ticks; at 0.6s/tick
+that is 30 seconds, so 120 reviews buy one balancing-hour. Every other skill's R
+is *derived* from a sourced rate. Combat simply declares its own.
+
+Simulating the shipped engine at 50 ticks/review, level 99, aggressive melee:
+
+| Target | XP/review | implied XP/hr at R=120 |
+|---|---|---|
+| Chicken | 152.8 | 18,331 |
+| Hill giant | 304.8 | 36,573 |
+| Moss giant | 309.8 | 37,172 |
+
+**The combat engine is faithful.** ~37k XP/hr on moss giants is an entirely
+plausible period rate; the simulation is not the bug. What is wrong is the
+*exchange rate*. Moss giants pay **309.8 XP/review** while iron powermining pays
+**32.2** — for essentially the same real XP/hour (~37k vs ~35k).
+
+So one combat card buys **5.5×–8.6×** more game time than a Mining card, and
+~11–12× more than a Cooking or Firemaking one. Roughly an order of magnitude.
+
+This needs **no combat XP/hour source at all** to establish. It is pure
+tick-to-review conversion: 50 ticks against everyone else's implied ~2–3.5. That
+is why it cannot be fixed later by lowering XP — XP/action is frozen by the parity
+contract, so cadence is the only lever, and cadence is the architectural decision
+under debate.
+
 ## Cooking and Firemaking are a different bug
 
 They call the same adapter, but their roll decides an **outcome** — does the food
