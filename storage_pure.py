@@ -3,6 +3,7 @@ import math
 from typing import Dict, Iterable, Optional, Any
 
 try:
+    from .cadence_kernel import default_cadence_kernel_state_pure, sanitize_cadence_kernel_state_pure
     from . import inventory_pure
     from .cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
     from .crafting_data import (
@@ -49,6 +50,7 @@ try:
         LEGACY_TREE_TARGETS,
     )
 except ImportError:
+    from cadence_kernel import default_cadence_kernel_state_pure, sanitize_cadence_kernel_state_pure
     import inventory_pure
     from cooking_data import DEFAULT_COOKING_TARGET, COOKING_TARGETS_BY_ID
     from crafting_data import (
@@ -95,7 +97,7 @@ except ImportError:
         LEGACY_TREE_TARGETS,
     )
 
-CURRENT_CONFIG_VERSION = 33
+CURRENT_CONFIG_VERSION = 34
 DEFAULT_UTILITY_ACTIVITY = "make_soft_clay"
 # Temporary Utility bridges retired on 2026-07-06 once their outputs became
 # live NPC shop stock (Feather, Fishing bait, and the Hunter gear bundle).
@@ -209,6 +211,7 @@ def default_player_data(ORE_DATA: Dict[str, Any], item_definitions: Optional[Ite
     data.update(inventory_pure.default_carried_state())
     data.update(default_shop_state_pure())
     data.update(default_farming_state_pure())
+    data["cadence_profiles"] = default_cadence_kernel_state_pure()
     return data
 
 
@@ -801,6 +804,10 @@ def migrate_loaded_data(
             data.setdefault(key, value)
         _migrate_plain_urn_item_stores(data)
         _migrate_ancient_gilded_target(data)
+    # v34: dormant route-keyed cadence residuals. The migration is additive;
+    # no live action reads or advances this state in Phase 1.
+    if loaded_config_version < 34:
+        data.setdefault("cadence_profiles", default_cadence_kernel_state_pure())
     # These defaults are also required for a new v30-shaped payload assembled
     # outside load_player_data (tests, imports, or a future alternate frontend).
     data.setdefault("current_magic", "low_alchemy")
@@ -826,6 +833,9 @@ def migrate_loaded_data(
     # invariant, not a schema migration; valid partial urns remain valid in bank.
     data.update(sanitize_urn_state_pure(data))
     data.update(sanitize_farming_state_pure(data))
+    data["cadence_profiles"] = sanitize_cadence_kernel_state_pure(
+        data.get("cadence_profiles")
+    )
     data.update(sanitize_combat_state_pure(data))
     combat_current_levels = data.get("combat_current_levels")
     if isinstance(combat_current_levels, dict) and "prayer" in combat_current_levels:

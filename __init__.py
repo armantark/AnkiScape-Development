@@ -75,6 +75,7 @@ from .logic_pure import (
     teleport_full_urn_pure,
 )
 from .construction_data import ROOM_DATA, SERVANT_DATA, HOUSE_STYLE_DATA
+from .cadence_kernel import sanitize_cadence_kernel_enabled_pure
 from .logic import level_up_check, check_achievements
 from .ui import (
     ExpPopup,
@@ -134,6 +135,7 @@ _MAX_REVIEW_UNDO_SNAPSHOTS = 50
 _MAX_URN_TELEPORT_UNDO_SNAPSHOTS = 50
 _URN_TELEPORT_UNDO_OPERATION = "Teleport training urn"
 _REVIEW_ACTION_MULTIPLIER_CONFIG_KEY = "ankiscape_review_action_multiplier"
+_CADENCE_KERNEL_CONFIG_KEY = "ankiscape_cadence_kernel"
 _LEGACY_XP_MULTIPLIER_CONFIG_KEY = "ankiscape_xp_multiplier"
 _REVIEW_FEEDBACK_CONTEXT = None
 
@@ -361,6 +363,16 @@ def _review_action_multiplier() -> int:
     except Exception:
         pass
     return 1
+
+
+def _cadence_kernel_enabled() -> bool:
+    try:
+        if mw and getattr(mw, 'col', None):
+            raw_value = mw.col.get_config(_CADENCE_KERNEL_CONFIG_KEY, False)
+            return sanitize_cadence_kernel_enabled_pure(raw_value)
+    except Exception:
+        pass
+    return False
 
 
 def _award_skill_exp(exp_key: str, base_exp: float) -> float:

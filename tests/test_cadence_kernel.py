@@ -1,0 +1,300 @@
+import copy
+import json
+import pickle
+import sys
+import types
+import unittest
+from collections import Counter
+
+from cadence_kernel import (
+    CAP_ONE_ACTION,
+    COMBAT_TICKS,
+    EMBEDDED_PROBABILITY,
+    PASSTHROUGH,
+    RATE_LIMITED,
+    R,
+    ActorLock,
+    CadenceProfile,
+    ResourceLock,
+    advance_cadence_pure,
+    default_cadence_profile_state_pure,
+    rate_limited_profile_pure,
+    sanitize_cadence_kernel_state_pure,
+    validate_overflow_policy_pure,
+)
+from constants import ORE_DATA
+from storage_pure import CURRENT_CONFIG_VERSION, migrate_loaded_data
+from tests.test_integration_smoke import (
+    _DummyCol,
+    _DummyMW,
+    _FakeReviewer,
+    _install_runtime_fakes,
+    _load_addon_as_package,
+)
+
+
+class TestCadenceKernelPure(unittest.TestCase):
+    def test_public_contract_declares_r_modes_and_lock_shapes(self):
+        self.assertEqual(R, 1000)
+        self.assertEqual(ResourceLock("gem_stall").resource_id, "gem_stall")
+        self.assertEqual(ActorLock("fight_1").actor_id, "fight_1")
+
+        passthrough = CadenceProfile("crafting", PASSTHROUGH)
+        state = default_cadence_profile_state_pure(opening_ready=False)
+        result = advance_cadence_pure(passthrough, state)
+        self.assertTrue(result.emitted)
+        self.assertEqual(result.state["assigned_reviews"], 1)
+        self.assertEqual(result.state["opportunities_emitted"], 1)
+
+    def test_gem_stall_emits_exactly_81_opportunities_in_4000_reviews(self):
+        profile = CadenceProfile("gem_stall", RATE_LIMITED, 81, 4000)
+        state = default_cadence_profile_state_pure(opening_ready=False)
+        emitted_at = []
+        for review_number in range(1, 4001):
+            result = advance_cadence_pure(profile, state)
+            state = result.state
+            if result.emitted:
+                emitted_at.append(review_number)
+
+        intervals = [current - previous for previous, current in zip([0] + emitted_at, emitted_at)]
+        self.assertEqual(len(emitted_at), 81)
+        self.assertEqual(Counter(intervals), Counter({49: 50, 50: 31}))
+        self.assertEqual(state["credit"], 0)
+        self.assertEqual(state["assigned_reviews"], 4000)
+        self.assertEqual(state["opportunities_emitted"], 81)
+
+    def test_switching_away_freezes_credit_and_switching_back_resumes_exactly(self):
+        active = CadenceProfile("active", RATE_LIMITED, 3, 10)
+        other = CadenceProfile("other", RATE_LIMITED, 7, 13)
+        active_state = default_cadence_profile_state_pure(opening_ready=False)
+        other_state = default_cadence_profile_state_pure(opening_ready=False)
+
+        for _ in range(4):
+            active_state = advance_cadence_pure(active, active_state).state
+        frozen = copy.deepcopy(active_state)
+        for _ in range(10_000):
+            other_state = advance_cadence_pure(other, other_state).state
+
+        self.assertEqual(active_state, frozen)
+        resumed = advance_cadence_pure(active, active_state).state
+
+        uninterrupted = default_cadence_profile_state_pure(opening_ready=False)
+        for _ in range(5):
+            uninterrupted = advance_cadence_pure(active, uninterrupted).state
+        self.assertEqual(resumed, uninterrupted)
+
+    def test_opening_ready_emits_immediately_once_and_never_regenerates(self):
+        profile = CadenceProfile("stall", RATE_LIMITED, 1, 5)
+        state = default_cadence_profile_state_pure(opening_ready=True)
+        emitted_at = []
+        for review_number in range(1, 21):
+            result = advance_cadence_pure(profile, state)
+            state = result.state
+            if result.emitted:
+                emitted_at.append(review_number)
+
+        self.assertEqual(emitted_at, [1, 6, 11, 16])
+        self.assertFalse(state["opening_ready"])
+
+    def test_round_robin_routes_produce_weighted_average_not_sum(self):
+        slow = CadenceProfile("slow", RATE_LIMITED, 1, 4)
+        fast = CadenceProfile("fast", RATE_LIMITED, 3, 4)
+        states = {
+            "slow": default_cadence_profile_state_pure(opening_ready=False),
+            "fast": default_cadence_profile_state_pure(opening_ready=False),
+        }
+        emitted = 0
+        for review_number in range(8000):
+            profile = slow if review_number % 2 == 0 else fast
+            result = advance_cadence_pure(profile, states[profile.profile_id])
+            states[profile.profile_id] = result.state
+            emitted += int(result.emitted)
+
+        self.assertEqual(emitted, 4000)
+        self.assertEqual(states["slow"]["opportunities_emitted"], 1000)
+        self.assertEqual(states["fast"]["opportunities_emitted"], 3000)
+        self.assertNotEqual(emitted, 8000)
+
+    def test_overflow_requires_cap_one_action_declaration(self):
+        with self.assertRaises(ValueError):
+            rate_limited_profile_pure("zero", 0)
+        with self.assertRaises(ValueError):
+            validate_overflow_policy_pure(1001)
+        with self.assertRaises(ValueError):
+            rate_limited_profile_pure("overflow", 1001)
+
+        capped = rate_limited_profile_pure(
+            "overflow",
+            1001,
+            overflow_policy=CAP_ONE_ACTION,
+        )
+        self.assertEqual(
+            (capped.increment_numerator, capped.threshold_denominator),
+            (1, 1),
+        )
+
+    def test_unimplemented_modes_are_declared_but_dormant(self):
+        state = default_cadence_profile_state_pure(opening_ready=False)
+        with self.assertRaises(ValueError):
+            advance_cadence_pure(
+                CadenceProfile("embedded", EMBEDDED_PROBABILITY, 3, 7),
+                state,
+            )
+        for mode in (EMBEDDED_PROBABILITY, COMBAT_TICKS):
+            with self.subTest(mode=mode):
+                with self.assertRaises(NotImplementedError):
+                    advance_cadence_pure(CadenceProfile(mode, mode), state)
+
+    def test_save_load_round_trip_preserves_exact_residual_and_never_float(self):
+        residual = {
+            "credit": 3973,
+            "opening_ready": False,
+            "assigned_reviews": 49,
+            "opportunities_emitted": 0,
+            "cadence_version": 1,
+        }
+        loaded = migrate_loaded_data(
+            {
+                "config_version": 33,
+                "inventory": {},
+                "cadence_profiles": {"gem_stall": residual},
+            },
+            ORE_DATA,
+        )
+        reloaded = migrate_loaded_data(json.loads(json.dumps(loaded)), ORE_DATA)
+
+        self.assertEqual(loaded["config_version"], CURRENT_CONFIG_VERSION)
+        self.assertEqual(reloaded["cadence_profiles"]["gem_stall"], residual)
+        self._assert_no_float(reloaded["cadence_profiles"])
+
+        sanitized = sanitize_cadence_kernel_state_pure(
+            {
+                "bad": {
+                    "credit": 1.5,
+                    "opening_ready": False,
+                    "assigned_reviews": 2.5,
+                    "opportunities_emitted": 3.5,
+                    "cadence_version": 1.5,
+                }
+            }
+        )
+        self._assert_no_float(sanitized)
+
+    def _assert_no_float(self, value):
+        self.assertNotIsInstance(value, float)
+        if isinstance(value, dict):
+            for nested in value.values():
+                self._assert_no_float(nested)
+        elif isinstance(value, (list, tuple)):
+            for nested in value:
+                self._assert_no_float(nested)
+
+
+class TestCadenceKernelIntegration(unittest.TestCase):
+    def setUp(self):
+        self._original_modules = dict(sys.modules)
+        _install_runtime_fakes()
+
+    def tearDown(self):
+        sys.modules.clear()
+        sys.modules.update(self._original_modules)
+
+    def test_config_flag_is_strict_and_defaults_off(self):
+        addon = _load_addon_as_package("ankiscape_cadence_config")
+        addon.mw = _DummyMW(_DummyCol())
+        self.assertFalse(addon._cadence_kernel_enabled())
+
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": True}))
+        self.assertTrue(addon._cadence_kernel_enabled())
+
+        addon.mw = _DummyMW(_DummyCol({"ankiscape_cadence_kernel": "true"}))
+        self.assertFalse(addon._cadence_kernel_enabled())
+
+    def test_review_undo_restores_exact_cadence_residual(self):
+        addon = _load_addon_as_package("ankiscape_cadence_undo")
+        initial = {
+            "credit": 3973,
+            "opening_ready": False,
+            "assigned_reviews": 49,
+            "opportunities_emitted": 0,
+            "cadence_version": 1,
+        }
+        addon.player_data = {"cadence_profiles": {"gem_stall": copy.deepcopy(initial)}}
+        addon.current_skill = "None"
+        addon.save_player_data = lambda: None
+        addon.ui.update_menu_visibility = lambda _skill: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon.update_farming_hud_badge = lambda _data, _callback: None
+        addon._refresh_skill_availability = lambda: None
+
+        before = addon._capture_player_data_snapshot()
+        addon.player_data["cadence_profiles"]["gem_stall"] = {
+            **initial,
+            "credit": 54,
+            "assigned_reviews": 50,
+            "opportunities_emitted": 1,
+        }
+        addon._remember_review_award_snapshot(before)
+        addon._on_state_did_undo(
+            types.SimpleNamespace(
+                operation="Answer Card",
+                changes=types.SimpleNamespace(study_queues=True, card=True),
+            )
+        )
+
+        self.assertEqual(addon.player_data["cadence_profiles"]["gem_stall"], initial)
+        self.assertEqual(addon._REVIEW_UNDO_STACK, [])
+
+    def test_flag_off_preserves_exact_outputs_and_rng_consumption(self):
+        absent_output, absent_rng = self._run_legacy_review(
+            "ankiscape_cadence_absent",
+            {},
+        )
+        off_output, off_rng = self._run_legacy_review(
+            "ankiscape_cadence_off",
+            {"ankiscape_cadence_kernel": False},
+        )
+
+        self.assertEqual(off_output, absent_output)
+        self.assertEqual(off_rng, absent_rng)
+
+    def _run_legacy_review(self, module_name, config):
+        addon = _load_addon_as_package(module_name)
+        kernel = sys.modules[f"{module_name}.cadence_kernel"]
+        kernel.advance_cadence_pure = lambda *_args, **_kwargs: self.fail(
+            "Phase 1 review dispatch must not call the dormant cadence kernel"
+        )
+        calls = {"xp": [], "gains": []}
+        addon.level_up_check = lambda _skill, _data: None
+        addon.check_achievements = lambda _data: None
+        addon.save_player_data = lambda: None
+        addon.update_review_hud = lambda _data, _skill: None
+        addon._refresh_skill_availability = lambda: None
+        addon.show_error_message = lambda _title, message: self.fail(message)
+        addon._show_exp = lambda value: calls["xp"].append(value)
+        addon._show_activity_gain = lambda value: calls["gains"].append(value)
+        addon.mw = _DummyMW(_DummyCol(config))
+        addon.player_data = {
+            "inventory": {},
+            "woodcutting_level": 1,
+            "woodcutting_exp": 0,
+            "current_tree": "tree",
+            "toolbelt": {"woodcutting": ["bronze_hatchet"]},
+            "completed_achievements": [],
+        }
+        addon.current_skill = "Woodcutting"
+        addon.card_turned = True
+        addon.answer_shown = True
+        addon.exp_awarded = False
+        addon.random.seed(20260713)
+
+        addon.on_answer_card(_FakeReviewer(), 4, lambda _self, _ease: "answered")
+        output_bytes = pickle.dumps(
+            {"player_data": addon.player_data, "calls": calls},
+            protocol=5,
+        )
+        return output_bytes, addon.random.getstate()
+
+
+if __name__ == "__main__":
+    unittest.main()
