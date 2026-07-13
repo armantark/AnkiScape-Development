@@ -96,8 +96,20 @@ THIEVING: dict[str, Rate] = {
     "wall_safe": Rate(20_000, 20_000, 70.0, 60, (), "Thieving training oldid 6393196 ('around 20k/h')"),
 }
 
+# Awaiting the Phase 0 harvest. Empty is not "no rates exist" — it is "not yet
+# looked for". A rate that IS looked for and genuinely absent gets recorded in
+# the provenance ledger as source_blocked, never silently omitted.
+FISHING: dict[str, Rate] = {}
+HUNTER: dict[str, Rate] = {}
+COOKING: dict[str, Rate] = {}
+FIREMAKING: dict[str, Rate] = {}
+
 BY_SKILL = {
     "Mining": MINING,
     "Woodcutting": WOODCUTTING,
+    "Fishing": FISHING,
+    "Hunter": HUNTER,
+    "Cooking": COOKING,
+    "Firemaking": FIREMAKING,
     "Thieving": THIEVING,
 }

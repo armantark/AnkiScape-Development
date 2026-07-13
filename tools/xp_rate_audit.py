@@ -30,6 +30,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import logic_pure  # noqa: E402
+import cooking_data  # noqa: E402
+import firemaking_data  # noqa: E402
+import fishing_data  # noqa: E402
+import hunter_data  # noqa: E402
 import mining_data  # noqa: E402
 import woodcutting_data  # noqa: E402
 from sourced_xp_rates import BY_SKILL  # noqa: E402
@@ -68,7 +72,71 @@ def measure_woodcutting(level):
     return out, axe.get("display_name", "?")
 
 
-MEASURERS = {"Mining": measure_mining, "Woodcutting": measure_woodcutting}
+def measure_fishing(level):
+    fish = fishing_data.fishing_fish_as_dict()
+    out = {}
+    for tid, spec in fish.items():
+        if spec.get("level", 1) > level:
+            continue
+        raw = logic_pure.fishing_source_roll_chance_pure(level, spec)
+        p = logic_pure.calculate_fishing_success_probability_pure(level, spec)
+        out[tid] = (spec.get("exp", 0.0), raw, p, spec.get("exp", 0.0) * p)
+    return out, "n/a"
+
+
+def measure_hunter(level):
+    targets = hunter_data.hunter_targets_as_dict()
+    out = {}
+    for tid, spec in targets.items():
+        if spec.get("level", 1) > level:
+            continue
+        raw = logic_pure.hunter_source_roll_chance_pure(level, spec)
+        p = logic_pure.calculate_hunter_success_probability_pure(level, spec)
+        out[tid] = (spec.get("exp", 0.0), raw, p, spec.get("exp", 0.0) * p)
+    return out, "n/a"
+
+
+# Cooking and Firemaking call the same adapter, but their roll is an OUTCOME
+# roll (burn / failed light), not a cadence roll. The adapter still distorts
+# them — it makes the player burn less than the period record — but the fix is
+# a different one, so they are graded separately and never mixed into the
+# implied-R spread.
+def measure_cooking(level):
+    targets = cooking_data.cooking_targets_as_dict()
+    out = {}
+    for tid, spec in targets.items():
+        if spec.get("level", 1) > level:
+            continue
+        raw = logic_pure.cooking_source_roll_chance_pure(level, spec)
+        p = logic_pure.calculate_cooking_success_probability_pure(level, spec)
+        out[tid] = (spec.get("exp", 0.0), raw, p, spec.get("exp", 0.0) * p)
+    return out, "n/a"
+
+
+def measure_firemaking(level):
+    targets = firemaking_data.firemaking_targets_as_dict()
+    out = {}
+    for tid, spec in targets.items():
+        if spec.get("level", 1) > level:
+            continue
+        raw = logic_pure.firemaking_source_roll_chance_pure(level, spec)
+        p = logic_pure.calculate_firemaking_success_probability_pure(level, spec)
+        out[tid] = (spec.get("exp", 0.0), raw, p, spec.get("exp", 0.0) * p)
+    return out, "n/a"
+
+
+MEASURERS = {
+    "Mining": measure_mining,
+    "Woodcutting": measure_woodcutting,
+    "Fishing": measure_fishing,
+    "Hunter": measure_hunter,
+    "Cooking": measure_cooking,
+    "Firemaking": measure_firemaking,
+}
+
+# Skills whose adapter roll decides an OUTCOME (burnt / failed to light) rather
+# than the rate of actions. Excluded from the implied-R spread.
+OUTCOME_ROLL_SKILLS = {"Cooking", "Firemaking"}
 
 
 def audit(level):
@@ -83,7 +151,8 @@ def audit(level):
             continue
 
         measured, tool = measurer(level)
-        print(f"\n{skill}  (best tool: {tool})")
+        kind = " — OUTCOME roll (burn/light), not a cadence roll" if skill in OUTCOME_ROLL_SKILLS else ""
+        print(f"\n{skill}  (best tool: {tool}){kind}")
         print(f"{'target':<14}{'xp/act':>8}{'raw p':>8}{'shipped p':>11}"
               f"{'xp/review':>11}{'base xp/hr':>16}{'implied R':>12}{'acts/hr':>10}")
         print("-" * 106)
@@ -99,7 +168,8 @@ def audit(level):
             base_lo, base_hi = rate.base_xp_hr()
             mid = (base_lo + base_hi) / 2
             R = mid / eff if eff else float("inf")
-            all_R.append((skill, tid, R))
+            if skill not in OUTCOME_ROLL_SKILLS:
+                all_R.append((skill, tid, R))
             rows.append((tid, eff, mid))
             src = f"{base_lo:,.0f}-{base_hi:,.0f}" if base_lo != base_hi else f"{base_lo:,.0f}"
             aph_hi = rate.actions_per_hour()[1]
