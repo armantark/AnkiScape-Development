@@ -169,6 +169,7 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 - Close every live-but-unobtainable material through authentic drops, ground spawns, shops, claims, quests, skills, activities, or transformations. Do not seed free items or fake recipe gates.
 - The source-backed Woodcutting nest → empty nest → crushed nest route is repaired and regression-covered.
 - Finish equipment requirements, special attacks, poison, charges/degradation, set effects, jewellery, consumables, and source-specific use actions without creating fake recipes.
+- **Content gap found by the XP/hour audit (2026-07-13): barehand butterfly catching is missing.** Hunter's `catch_black_warlock` implements only the butterfly-**net** variant (54 XP). The period game also has **barehand** catching at Hunter 95 for **650 XP/catch**, which the 2012 guide rates at **140,000 XP/hr** — the best Hunter training in the game (Hunter training, oldid 6549266). So the skill's actual endgame method does not exist here. Found because grading the net variant against the barehand rate produced a phantom inversion; see `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`. Expect the same class of gap wherever a skill's best period method is missing — the audit surfaces them for free.
 
 ### Achievement diaries, clues, collections, and one-time content
 
@@ -209,37 +210,54 @@ effective XP per review  ∝  real pre-EOC XP per hour
 Not XP per action. AnkiScape pays per review and therefore inherits XP-per-action
 unless something corrects it, but XP/hour is what Jagex actually balanced.
 
-**Why this is a small problem, not a sweep.** For any activity whose real
-duration is a fixed action cycle (swing pickaxe, roll for ore), real XP/hour
-*is* XP-per-action times the per-tick success roll — and that roll is exactly
-what the `low_chance`/`high_chance` pairs already encode. Gathering skills
-satisfy the invariant for free, without anyone having designed for it. Spot
-check: runite is `1/18` per `mining_data.py:249`, so ~7% at 99 and ~8.8 effective
-XP/review, landing near the real coal-vs-runite XP/hour ratio.
+**MEASURED, 2026-07-13.** This is no longer a hypothesis. `tools/xp_rate_audit.py`
+grades the *shipped* probability functions against pinned pre-EOC rates. Full
+analysis: `memory-bank/source-audits/xp-hour-provenance-ledger-2026-07-13.md`.
+Regression tests: `tests/test_xp_hour_parity.py` (3 `expectedFailure`s pinning the
+defects; they turn the suite red the moment they're fixed, forcing removal).
 
-**The invariant breaks only where the real activity has dead time that is not an
-action**: respawn waits, walking, banking, world-hopping. Everything except
-respawn is already implicitly abstracted away (we never charge for it). So the
-audit is: *find the families whose rate limiter is dead time rather than a roll.*
-Thieving stalls are the clearest case in the game — stall theft is 100% success
-with no roll, so with respawn unmodeled a gem stall would pay its full 160 XP
-every review. Naive respawn modeling inverts the skill (`XP ÷ respawn` makes the
-level-2 vegetable stall the best XP in Thieving and the level-75 gem stall the
-worst), because the real player world-hops rather than waiting. Thieving's
-answer, settled 2026-07-13, is the invented stall catch chance, anchored to
-real XP/hour ratios.
+**There are TWO independent defects, and a skill can have either alone.**
 
-**Deliverables:**
-- `tools/xp_rate_audit.py` — compute effective XP/review for every implemented
-  target from the data modules (base XP times the interpolated success roll at a
-  given level), and diff it against a table of sourced pre-EOC XP/hour rates.
-  Reusable forever; run it after every skill ships.
-- A sourced pre-EOC XP/hour table per skill (pinned wiki training guides,
-  Wayback captures for missing ones). Thieving's is being harvested now.
-- Flag every family whose rate limiter is dead time, and decide its correction
-  case by case. Do not apply a global fudge factor.
-- Preserve source base XP throughout. The correction always rides the roll or an
-  explicitly-recorded invention, never the XP value.
+| Defect | Breaks | Cause | Victims |
+|---|---|---|---|
+| Invented adapter | *ordering* | `0.20 + 0.72·√p` (`logic_pure.py:388`) inflates rare actions | Woodcutting, Fishing (Mining directionally) |
+| Unmodelled dead time | *rate* | one review per action, whatever the real wait | Hunter (traps), Thieving stalls (respawn), Combat (30s burst) |
+
+*Adapter.* Its damage scales with how rare the action is: near `p=1` the square
+root is nearly the identity, but a 6.3% action becomes 38%. In RuneScape a rare
+action is the signature of a **money** method — that is why it was made rare — so
+the adapter promotes exactly the content the period game made unattractive to
+train. Magic logs are our 2nd-best Woodcutting method and 2012's 2nd-worst.
+Sharks are our 3rd-best Fishing method and 2012's *worst* ("only 20k experience
+per hour"). Hunter and Cooking escape only because their rolls sit near certainty.
+
+*Dead time.* Already shipped, in **Hunter** — trap catches make you wait, and we
+charge one review per catch and ignore the wait. Hunter's ordering looks fine,
+which is why nobody noticed; its *rate* is 2–4× too generous. This was previously
+believed to be a Thieving-only problem that Thieving would be first to hit. It is
+not.
+
+*Combat.* Its `R` is a **definition, not a measurement**: 50 ticks/review = 30s =
+120 reviews/hour. Every other skill *derives* R from a sourced rate and lands near
+1,000–1,475. So one combat card buys **5.5×–8.6×** more game time than a Mining
+card. The engine itself is faithful (moss giants at 50 ticks/review yield ~37k
+XP/hr, a plausible period rate) — it is the *review conversion* that is wrong.
+**This cannot be fixed later by lowering XP**, because XP/action is frozen by the
+parity contract. Cadence is the only lever.
+
+**Do NOT naively model respawn as the fix.** `XP ÷ respawn` makes the level-2
+vegetable stall the best XP in Thieving and the level-75 gem stall the worst —
+the period E.P.S. column confirms the single-stall rates really do invert, because
+real players world-hop rather than wait.
+
+**Remaining deliverables:**
+- Sourced XP/hour + modifier provenance for the artisan skills (Smithing, Crafting,
+  Fletching, Runecrafting, Herblore, Construction, Magic, Prayer).
+- Preserve source base XP throughout. The correction always rides cadence or an
+  explicitly-recorded invention, **never** the XP value.
+- Every rate must declare what is baked into it (urns, gauntlets, familiars,
+  dropping). The F2P Mining guide quotes iron at 45k *with urns*; contract on that
+  and grant urns again and you land at 54k.
 
 ### Release readiness
 
