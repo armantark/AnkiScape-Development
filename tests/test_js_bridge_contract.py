@@ -1,26 +1,20 @@
-import os
-import io
-import importlib
+import unittest
 
 from injectors import build_reviewer_js, build_overview_js, build_deck_browser_js
 
 
-def test_injected_js_contains_open_menu_command():
-    icon = "data:image/png;base64,xxx"
-    for js in (
-        build_reviewer_js("left", icon),
-        build_overview_js("right", icon),
-        build_deck_browser_js(True, "right", icon),
-    ):
-        assert "ankiscape_open_menu" in js
+class TestJsBridgeContract(unittest.TestCase):
+    def test_every_injected_surface_can_open_the_menu(self):
+        icon = "data:image/png;base64,xxx"
+        surfaces = {
+            "reviewer": build_reviewer_js("left", icon),
+            "overview": build_overview_js("right", icon),
+            "deck_browser": build_deck_browser_js(True, "right", icon),
+        }
+        for surface, js in surfaces.items():
+            with self.subTest(surface):
+                self.assertIn("ankiscape_open_menu", js)
 
 
-def test_python_side_has_js_message_handler_present():
-    # Contract: we must have a webview js message hook that mentions ankiscape_open_menu
-    here = os.path.dirname(__file__)
-    root = os.path.abspath(os.path.join(here, os.pardir))
-    init_path = os.path.join(root, "__init__.py")
-    with io.open(init_path, "r", encoding="utf-8") as f:
-        content = f.read()
-    assert "webview_did_receive_js_message" in content
-    assert "ankiscape_open_menu" in content
+if __name__ == "__main__":
+    unittest.main()

@@ -2,6 +2,14 @@
 
 ## Current Focus
 
+Phase 1 of the cadence kernel is implemented in the working tree and deliberately
+uncommitted at the owner's request. `cadence_kernel.py` now owns the pure `R =
+1000` contract, exact residual scheduling, admission/overflow declarations, and
+lock shapes. Storage config v34 adds only the empty route-keyed
+`cadence_profiles` state; `ankiscape_cadence_kernel` is strict, off by default,
+and not read by review dispatch. No skill is routed through the kernel. The full
+suite is 1,209 tests with the existing 187 skips and three expected failures.
+
 The Prayer/altar/urn/passive/Herblore closure is implemented, fully certified, and committed on `main` at `300c7c5`. It extends the original Prayer ship with owned gilded-altar parity, all 26 pre-EOC training-urn tiers across six skills, target-carried Bonecrusher/Ectoplasmator behavior, direct full-urn teleport with an independent bounded Anki undo stack, exact high-tier standard-Prayer Defence gates, and distinct Bonemeal/Wyvern bonemeal storage identities.
 
 Use these as the live handoff sources:
@@ -39,6 +47,10 @@ The dated `completion-audit-2026-07-10.*` files remain historical snapshots; liv
 
 ## Decision Boundaries
 
+- Cadence Phase 1 is architecture only: do not route a skill until its later
+  migration phase, and preserve the off-path byte/RNG identity test.
+- Cadence residuals are integer-only per route. Inactive routes freeze, and the
+  whole `cadence_profiles` mapping rides the existing review snapshot/undo path.
 - Full pre-EOC cutoff: `2012-11-20`.
 - Do not re-grill Prayer, Magic, Construction, or Farming; their contracts are closed and implemented.
 - Do not collapse source IDs 4255 and 6810 into one storage key. The earlier gap-ledger conclusion is superseded by the closure audit.

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AnkiScape test-suite signal cleanup plan</title>
+  <style>
+    :root {
+      --bg: #0c0e12; --surface: #161a21; --surface-2: #1e232c;
+      --border: #2a3040; --text: #e8ecf4; --text-dim: #8b95a8;
+      --accent: #4f8cff; --accent-glow: rgba(79, 140, 255, 0.15);
+      --red: #ff5c5c; --green: #4ade80; --amber: #fbbf24;
+      --purple: #a78bfa; --radius: 12px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; color: var(--text); background:
+        radial-gradient(circle at 15% 0%, rgba(79,140,255,.12), transparent 34%),
+        radial-gradient(circle at 85% 18%, rgba(167,139,250,.09), transparent 28%),
+        var(--bg);
+      font: 15px/1.55 Outfit, Inter, ui-sans-serif, system-ui, sans-serif;
+    }
+    main { width: min(1180px, calc(100% - 32px)); margin: 42px auto 70px; }
+    .badge, .eyebrow, .tag, .metric span { font-family: "JetBrains Mono", ui-monospace, monospace; }
+    .badge { display: inline-block; padding: 6px 10px; border: 1px solid rgba(79,140,255,.45); border-radius: 999px; color: #91b7ff; background: var(--accent-glow); font-size: 11px; letter-spacing: .11em; }
+    h1 { max-width: 820px; margin: 18px 0 10px; font-size: clamp(2.1rem, 5vw, 4rem); line-height: 1.02; letter-spacing: -.045em; }
+    .lede { max-width: 830px; color: var(--text-dim); font-size: 17px; }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
+    .metric { padding: 18px; border: 1px solid var(--border); border-radius: var(--radius); background: rgba(22,26,33,.88); }
+    .metric strong { display: block; font-size: 28px; letter-spacing: -.04em; }
+    .metric span { color: var(--text-dim); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card { padding: 22px; border: 1px solid var(--border); border-radius: var(--radius); background: linear-gradient(145deg, rgba(30,35,44,.92), rgba(22,26,33,.92)); box-shadow: 0 16px 44px rgba(0,0,0,.18); }
+    .card h2 { margin: 7px 0 9px; font-size: 20px; }
+    .card p { margin: 0; color: var(--text-dim); }
+    .eyebrow { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+    .red { color: var(--red); } .amber { color: var(--amber); } .green { color: var(--green); } .purple { color: var(--purple); }
+    ul { margin: 14px 0 0; padding-left: 19px; }
+    li { margin: 8px 0; }
+    .tag { display: inline-block; margin: 12px 5px 0 0; padding: 4px 7px; border-radius: 6px; background: var(--surface-2); color: #aeb8ca; font-size: 10px; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 28px 0; }
+    .step { position: relative; min-height: 116px; padding: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+    .step b { display: grid; place-items: center; width: 27px; height: 27px; margin-bottom: 13px; border-radius: 7px; background: var(--accent); }
+    .step span { color: var(--text-dim); font-size: 13px; }
+    .guardrail { margin-top: 26px; padding: 22px; border: 1px solid rgba(74,222,128,.28); border-radius: var(--radius); background: rgba(74,222,128,.055); }
+    .guardrail h2 { margin: 0 0 12px; }
+    .checks { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px 22px; }
+    .check { display: flex; gap: 9px; color: var(--text-dim); }
+    .check::before { content: "✓"; color: var(--green); font-weight: 800; }
+    .note { margin-top: 22px; padding: 14px 16px; color: #cbd5e6; border-left: 3px solid var(--amber); background: rgba(251,191,36,.055); }
+    @media (max-width: 820px) { .metrics, .grid, .flow, .checks { grid-template-columns: 1fr; } main { margin-top: 24px; } }
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">PRE-IMPLEMENTATION CONTRACT</span>
+  <h1>Remove count inflation.<br>Keep the regression net.</h1>
+  <p class="lede">The cleanup is judged by signal, not by making the number smaller. A test stays when it owns a distinct behavior, boundary, historical contract, migration, or UI interaction. It goes when it is dead, text-only, duplicated without a new branch, or present mainly to make the suite look larger.</p>
+
+  <section class="metrics" aria-label="Baseline metrics">
+    <div class="metric"><strong>1,198</strong><span>discovered cases</span></div>
+    <div class="metric"><strong>59</strong><span>test modules</span></div>
+    <div class="metric"><strong>2</strong><span>dead test functions</span></div>
+    <div class="metric"><strong>68</strong><span>structural clone candidates</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="eyebrow red">Remove</span>
+      <h2>Tests that never prove behavior</h2>
+      <ul>
+        <li>Delete undiscovered pytest-style functions from the unittest suite.</li>
+        <li>Delete source-file substring checks that can pass on comments or dead code.</li>
+        <li>Delete assertions already subsumed by a stronger test at the same boundary.</li>
+      </ul>
+      <span class="tag">tests/test_js_bridge_contract.py</span>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow amber">Consolidate</span>
+      <h2>One behavior, one test, many scenarios</h2>
+      <p>Constant-only copies become table-driven subtests when setup, mutation, and assertions are the same. Distinct branches remain distinct methods even when their shapes happen to resemble one another.</p>
+      <span class="tag">test_combat_logic.py</span><span class="tag">test_main_menu_widget.py</span><span class="tag">test_runtime_actions.py</span>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow green">Protect</span>
+      <h2>Coverage that earns its maintenance cost</h2>
+      <ul>
+        <li>Pure behavior, state transitions, migrations, undo, and failure atomicity.</li>
+        <li>Runtime integration and real offscreen Qt widget interaction.</li>
+        <li>Source-backed catalog and asset integrity locks.</li>
+        <li>Expected-failure specifications for confirmed unresolved defects.</li>
+      </ul>
+    </article>
+
+    <article class="card">
+      <span class="eyebrow purple">Enforce</span>
+      <h2>Make slop mechanically visible</h2>
+      <p>Add a reusable audit that compares AST test definitions with unittest discovery, flags assertion-free cases, exact duplicates, and source-text inspection, and reports structural clones for review rather than blindly failing legitimate scenarios.</p>
+      <span class="tag">tools/audit_test_quality.py</span><span class="tag">tests/test_test_quality.py</span>
+    </article>
+  </section>
+
+  <section class="flow" aria-label="Implementation sequence">
+    <div class="step"><b>1</b><strong>Inventory</strong><br><span>Classify every automated smell with file and test identity.</span></div>
+    <div class="step"><b>2</b><strong>Prune</strong><br><span>Remove dead and text-only checks before refactoring live tests.</span></div>
+    <div class="step"><b>3</b><strong>Fold</strong><br><span>Consolidate only confirmed constant-copy scenarios into subtests.</span></div>
+    <div class="step"><b>4</b><strong>Certify</strong><br><span>Run quality audit, focused tests, full pure suite, and full offscreen Qt.</span></div>
+  </section>
+
+  <section class="guardrail">
+    <h2>Definition of done</h2>
+    <div class="checks">
+      <div class="check">Every test-shaped function is either discovered or explicitly marked as a helper.</div>
+      <div class="check">No test proves behavior by reading production source text.</div>
+      <div class="check">No exact duplicate test bodies remain.</div>
+      <div class="check">Every consolidated scenario remains visible as a named subtest.</div>
+      <div class="check">Known product defects remain pinned, not deleted to make output green.</div>
+      <div class="check">Pure and real offscreen Qt suites retain their prior behavioral coverage.</div>
+    </div>
+  </section>
+
+  <p class="note"><strong>Count is deliberately not a success metric.</strong> The final number may fall modestly or substantially; the proof is that named scenarios and meaningful boundaries remain while mechanically detectable slop reaches zero.</p>
+</main>
+</body>
+</html>

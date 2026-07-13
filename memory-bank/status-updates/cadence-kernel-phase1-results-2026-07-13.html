@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadence Kernel Phase 1 Results</title>
+  <style>
+    :root { --bg:#0c0e12; --surface:#161a21; --surface-2:#1e232c; --border:#2a3040; --text:#e8ecf4; --text-dim:#8b95a8; --accent:#4f8cff; --accent-glow:rgba(79,140,255,.15); --red:#ff5c5c; --green:#4ade80; --amber:#fbbf24; --purple:#a78bfa; --radius:12px; }
+    *{box-sizing:border-box} body{margin:0;color:var(--text);background:radial-gradient(circle at 18% 0,#143b2b 0,transparent 34%),var(--bg);font:15px/1.55 Outfit,Inter,system-ui,sans-serif}
+    main{width:min(1180px,calc(100% - 32px));margin:42px auto 72px}.mono,.badge,.label,.file,.meter span{font-family:"JetBrains Mono",ui-monospace,monospace}
+    .badge{display:inline-block;padding:6px 10px;border:1px solid #2d754c;border-radius:99px;color:#9bf0bb;background:rgba(74,222,128,.1);font-size:11px;text-transform:uppercase;letter-spacing:.09em}
+    h1{max-width:850px;margin:16px 0 8px;font-size:clamp(30px,5vw,52px);line-height:1.03;letter-spacing:-.035em}.lede{max-width:820px;color:var(--text-dim);font-size:17px}
+    .score{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:28px 0}.meter,.card,.panel{border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(145deg,rgba(30,35,44,.96),rgba(22,26,33,.94))}
+    .meter{padding:16px}.meter strong{display:block;font-size:26px}.meter span{color:var(--text-dim);font-size:10px;text-transform:uppercase;letter-spacing:.08em}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.card{padding:20px}.label{font-size:10px;color:var(--green);text-transform:uppercase;letter-spacing:.08em}.card h2{margin:4px 0 13px;font-size:19px}
+    .proof{display:flex;align-items:center;gap:8px;overflow:auto;padding:10px 0}.box{min-width:125px;padding:12px;border:1px solid var(--border);border-radius:9px;background:var(--surface-2);text-align:center}.box.off{color:#ffe0a0;border-color:#705c2d;background:#282318}.box.pass{color:#adf2c5;border-color:#326748;background:#17271e}.arrow{color:var(--text-dim);font-size:19px}
+    .rows{margin-top:4px}.row{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--border)}.row:last-child{border:0}.ok{width:22px;height:22px;display:grid;place-items:center;border-radius:6px;color:#07160d;background:var(--green);font-weight:900}.row b{display:block}.row small{color:var(--text-dim)}.value{color:#b8c2d6;font:11px ui-monospace,monospace}
+    .intervals{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin-top:14px}.tick{height:42px;display:grid;place-items:center;border-radius:6px;background:#252b36;color:#b8c2d6;font:10px ui-monospace,monospace}.tick.a{background:#28523a;color:#b9f8d0}.tick.b{background:#244267;color:#c3dcff}
+    .panel{margin-top:14px;padding:18px}.api{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.api div{padding:10px;border-radius:8px;background:var(--surface-2)}.api code{color:#b8d4ff}.api small{display:block;color:var(--text-dim);margin-top:2px}
+    .files{margin-top:14px}.file{display:inline-block;margin:3px;padding:4px 8px;border-radius:6px;color:#bec8dc;background:var(--surface-2);font-size:10px}
+    .none{margin-top:14px;padding:15px 18px;border-left:3px solid var(--green);background:rgba(74,222,128,.08);border-radius:0 10px 10px 0;color:#c7ead4}
+    @media(max-width:850px){.score{grid-template-columns:repeat(2,1fr)}.grid,.api{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main>
+  <span class="badge">Phase 1 complete · working tree</span>
+  <h1>The cadence kernel shipped dormant—and stayed invisible.</h1>
+  <p class="lede">The architecture now exists as a pure, persisted, undoable boundary. Every live skill still follows the pre-existing dispatcher, and the off-by-default flag changes neither output bytes nor RNG state.</p>
+
+  <section class="score" aria-label="Verification scorecard">
+    <div class="meter"><strong>1,209</strong><span>Full tests passing</span></div>
+    <div class="meter"><strong>+11</strong><span>Cadence tests</span></div>
+    <div class="meter"><strong>3</strong><span>Expected failures unchanged</span></div>
+    <div class="meter"><strong>0</strong><span>Skills routed</span></div>
+  </section>
+
+  <section class="grid">
+    <article class="card">
+      <span class="label">Escape hatch proven</span>
+      <h2>Byte and RNG identity</h2>
+      <div class="proof">
+        <div class="box">Successful review</div><span class="arrow">→</span>
+        <div class="box off">Flag OFF</div><span class="arrow">→</span>
+        <div class="box pass">Legacy dispatch only</div>
+      </div>
+      <p style="color:var(--text-dim)">A seeded Woodcutting review compares flag-absent and explicit-off runs as exact pickle bytes plus Python RNG state. The test also replaces the kernel step with a hard failure, proving dispatch never enters it.</p>
+    </article>
+
+    <article class="card">
+      <span class="label">Exact residual</span>
+      <h2>Gem stall: 81 / 4000</h2>
+      <div class="intervals" aria-label="Interval distribution">
+        <div class="tick a">49</div><div class="tick b">50</div><div class="tick a">49</div><div class="tick a">49</div><div class="tick b">50</div><div class="tick a">49</div><div class="tick b">50</div><div class="tick a">49</div><div class="tick a">49</div><div class="tick b">50</div>
+      </div>
+      <div class="rows">
+        <div class="row"><span class="ok">✓</span><div><b>Opportunities</b><small>Exact over one denominator period.</small></div><span class="value">81</span></div>
+        <div class="row"><span class="ok">✓</span><div><b>49-review intervals</b><small>Residual-derived, not scripted.</small></div><span class="value">50</span></div>
+        <div class="row"><span class="ok">✓</span><div><b>50-review intervals</b><small>Completes the 4,000-review period.</small></div><span class="value">31</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="label">Persistence boundary</span>
+      <h2>Save version 33 → 34</h2>
+      <div class="rows">
+        <div class="row"><span class="ok">✓</span><div><b>Additive top-level key</b><small>Empty until a later phase creates a route.</small></div><span class="value">cadence_profiles</span></div>
+        <div class="row"><span class="ok">✓</span><div><b>Five fields per profile</b><small>credit, opening, reviews, emissions, version.</small></div><span class="value">integer / bool</span></div>
+        <div class="row"><span class="ok">✓</span><div><b>Exact transaction undo</b><small>Uses the existing whole-player review snapshot.</small></div><span class="value">no new stack</span></div>
+      </div>
+    </article>
+
+    <article class="card">
+      <span class="label">Exploit gates</span>
+      <h2>Switching and overflow</h2>
+      <div class="rows">
+        <div class="row"><span class="ok">✓</span><div><b>Inactive profile freeze</b><small>10,000 reviews elsewhere preserve credit exactly.</small></div><span class="value">exact</span></div>
+        <div class="row"><span class="ok">✓</span><div><b>Round robin</b><small>Produces the weighted average, never summed rates.</small></div><span class="value">½, not 1</span></div>
+        <div class="row"><span class="ok">✓</span><div><b>Overflow validation</b><small>Above 1,000/hr requires cap_one_action and becomes 1/1.</small></div><span class="value">fail closed</span></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel">
+    <span class="label">Public API</span>
+    <h2 style="margin:5px 0 14px">cadence_kernel.py</h2>
+    <div class="api">
+      <div><code>CadenceProfile</code><small>Frozen per-route admission contract.</small></div>
+      <div><code>CadenceStepResult</code><small>Outcome, emission bit, and new state.</small></div>
+      <div><code>ResourceLock / ActorLock</code><small>Declared lock semantics, no runtime consumer yet.</small></div>
+      <div><code>advance_cadence_pure()</code><small>Passthrough and exact residual steps.</small></div>
+      <div><code>rate_limited_profile_pure()</code><small>Exact rational hourly-rate derivation and cap handling.</small></div>
+      <div><code>validate_*_pure()</code><small>Profile and overflow contract gates.</small></div>
+      <div><code>default_*_pure() / sanitize_*_pure()</code><small>Serializable route state and strict flag helpers.</small></div>
+      <div><code>R = 1000</code><small>The single reviews-per-balancing-hour constant.</small></div>
+    </div>
+    <div class="files" aria-label="Changed implementation files">
+      <span class="file">cadence_kernel.py</span><span class="file">storage_pure.py</span><span class="file">__init__.py</span><span class="file">tests/test_cadence_kernel.py</span><span class="file">memory-bank/*.md</span>
+    </div>
+  </section>
+
+  <div class="none"><strong>Contract deviations: none.</strong> Embedded probability and combat ticks are intentionally declared but raise <span class="mono">NotImplementedError</span>, exactly as Phase 1 permits; resource and actor locks are data-only, and no skill, adapter, Combat path, Thieving path, data module, or audit tool was changed.</div>
+</main>
+</body>
+</html>

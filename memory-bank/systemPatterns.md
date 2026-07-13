@@ -8,6 +8,10 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - `runtime_actions.py`: Anki-free runtime review-action handlers and handler-keyed can-start checks for the complete skill surfaces, unified Combat, Quests, and Utility/Activities. It mutates `player_data` through a callback/context contract supplied by `__init__.py`.
 - `constants.py`: item data, skill source data, image paths, XP table, and compatibility exports.
 - `logic_pure.py`: pure helpers for XP/level math, probabilities, crafting, Utility/Activities, mining, woodcutting, fishing, hunter, smithing, quests, claims, and runecrafting operations.
+- `cadence_kernel.py`: pure foreground-action cadence contracts. It declares
+  `R = 1000`, exact integer residual scheduling, four admission modes, overflow
+  validation, and resource/actor lock shapes. Phase 1 is dormant: no review
+  handler calls it.
 - `logic.py`: Anki-aware level-up and achievement checks plus probability wrappers.
 - `storage.py`: Anki config persistence.
 - `storage_pure.py`: default player shape and migrations.
@@ -40,6 +44,11 @@ The add-on is a small Python package loaded by Anki. It separates pure game cont
 - The backend registry preserves current flat save keys while centralizing skill identity. This is deliberate: Anki config is the stable boundary, so registry-driven defaults are safer than a nested save migration right now.
 - The item registry uses existing inventory storage names as `storage_key` values. Stable item IDs can support future UI/action metadata without breaking current saves.
 - Review dispatch now resolves an `action_registry.review_action_handler_key` before calling the matching `runtime_actions.py` handler. Thin public `on_<skill>_answer` wrappers remain for compatibility and direct tests. This keeps display names, save keys, Utility aliases, handler identity, and runtime mutation logic connected without requiring a large action-engine rewrite.
+- Cadence state is a route-keyed `player_data["cadence_profiles"]` mapping with
+  exactly five sanitized fields per route: `credit`, `opening_ready`,
+  `assigned_reviews`, `opportunities_emitted`, and `cadence_version`. Config v34
+  adds the mapping without rewriting existing state. Because review undo diffs
+  the complete `player_data`, cadence residuals require no separate undo stack.
 - Skill identity has two separate axes: `implemented` means a complete owned review surface, while `surface_state` is `complete`, `partial`, or `planned`; `trainable` covers complete and partial skills. Use `training_source` for partial cross-surface stats and `visible_in_skill_hub` to hide Attack, Constitution, Defence, Ranged, and Strength because they train only through Combat. Prayer and Magic are complete surfaces; Summoning remains planned.
 - Composite target choices must be committed atomically. Prayer stores stable material and UI-method identities, resolves them to the runtime target/mode pair in pure logic, validates the pair once, and clears hosted-search/owned-stint state only when that composite selection changes.
 - Target-carried passives are physical pack semantics, not global ownership flags. Bonecrusher, Ectoplasmator, and training urns activate only when the selected target's clamped carried view contains the relevant item; bank-only or other-target copies remain inert.

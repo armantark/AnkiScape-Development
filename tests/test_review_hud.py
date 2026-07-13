@@ -84,12 +84,10 @@ class TestCurrentTargetDisplayName(unittest.TestCase):
         out = current_target_display_name("Crafting", {"current_craft": "bogus_id"})
         self.assertEqual(out, "bogus_id")
 
-    def test_returns_none_for_skill_without_target(self):
-        # Combat skills have no selectable target -> label should hide.
-        self.assertIsNone(current_target_display_name("Attack", {}))
-
-    def test_returns_none_for_unknown_skill(self):
-        self.assertIsNone(current_target_display_name("Nonsense", {}))
+    def test_returns_none_when_no_target_contract_exists(self):
+        for skill in ("Attack", "Nonsense"):
+            with self.subTest(skill):
+                self.assertIsNone(current_target_display_name(skill, {}))
 
 
 class TestCombatAttackStyleTrainedSkills(unittest.TestCase):

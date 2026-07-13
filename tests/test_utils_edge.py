@@ -4,17 +4,12 @@ from utils import safe_deduct_from_inventory
 
 
 class TestInventoryUtilsEdgeCases(unittest.TestCase):
-    def test_zero_amount_no_change_success(self):
-        data = {"inventory": {"Ore": 2}}
-        ok = safe_deduct_from_inventory("Ore", 0, data)
-        self.assertTrue(ok)
-        self.assertEqual(data["inventory"]["Ore"], 2)
-
-    def test_exact_amount_reaches_zero(self):
-        data = {"inventory": {"Ore": 2}}
-        ok = safe_deduct_from_inventory("Ore", 2, data)
-        self.assertTrue(ok)
-        self.assertEqual(data["inventory"]["Ore"], 0)
+    def test_deduction_handles_zero_and_exact_amounts(self):
+        for amount, expected in ((0, 2), (2, 0)):
+            with self.subTest(amount=amount):
+                data = {"inventory": {"Ore": 2}}
+                self.assertTrue(safe_deduct_from_inventory("Ore", amount, data))
+                self.assertEqual(data["inventory"]["Ore"], expected)
 
     def test_missing_item_is_treated_as_zero(self):
         data = {"inventory": {}}
