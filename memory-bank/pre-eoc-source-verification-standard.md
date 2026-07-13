@@ -18,29 +18,114 @@ coverage when the historical pages cannot establish server behavior.
 - Prefer the nearest useful November 2012 wiki revision. An adjacent older
   pre-EOC revision is acceptable when no November revision exists.
 - If a concrete mechanic cannot be established from the evidence hierarchy,
-  mark it `source_blocked` and wait. Missing evidence is not permission to copy
-  current RS3, OSRS, a modern calculator/template, or an emulator guess.
+  mark it `source_blocked`. Missing evidence is never permission to invent
+  *content* — a target, item, reward, gate, or rate that the period record does
+  not attest. Content stays blocked and waits.
+- A `source_blocked` **hidden roll** is the one exception, and it is governed by
+  the provisional-calibration rule below. A skill cannot ship without a success
+  probability, and no period source states one for most skills, so "wait" would
+  park the game indefinitely.
 - The Darkan high-fidelity parity revamp is an acceptable dependency. Features
   that need its missing server behavior should remain parked rather than ship a
   plausible substitute.
 
+## Provisional Calibration of Blocked Rolls
+
+Amended 2026-07-13 by owner decision. Applies only to a **hidden probability**
+(a success roll, a catch chance, a multi-loot roll) — never to a level, XP
+value, item, loot set, quest gate, timer, or any other value a period source
+could have stated and did.
+
+A blocked roll may be parameterized provisionally when all four hold:
+
+1. The roll's *shape* is corroborated: at least two independent pre-EOC-lineage
+   implementations agree on the functional form (for Thieving, both Darkan and
+   game-main interpolate a low-level chance to a high-level chance across levels
+   1-99 and roll against a fixed integer ceiling).
+2. Every period-proven value around the roll ships exactly as attested. A
+   provisional roll never licenses a provisional level, XP, or drop.
+3. The parameters are pinned in the parity ledger as `provisional/<source>`,
+   with the exact source recorded, so a later Darkan or cache find replaces a
+   table rather than a design.
+4. No value derived this way is ever described, in code, comments, docs, or UI,
+   as historically closed.
+
+### Two different jobs: supplying a value versus corroborating one
+
+Keep these separate. Modern RuneScape may **corroborate** freely — a modern
+table that matches an emulator's table row-for-row is real evidence about that
+emulator, and costs nothing to consult. Modern RuneScape may **supply** a value
+only as a last resort, below every period-lineage source. The distinction is
+what lets a modern check improve a period answer without ever becoming one.
+
+Worked example (Thieving, 2026-07-13): OSRS's published pickpocket endpoints
+matched game-main's table exactly on eight independent rows and contradicted
+Darkan's on nearly all of them. The shipped values are **game-main's**, at
+tier 3 — OSRS supplied nothing. What it supplied was the proof that game-main's
+table is the trustworthy one and Darkan's is the invention.
+
+### Value-supply order for a blocked roll
+
+1. **Darkan, the caches, then game-main** — the ordinary search order above.
+   A roll that any period-lineage source states is not a calibration problem.
+2. **OSRS**, only where no period-lineage source has the row at all. OSRS forked
+   from a 2007 live backup, so for a mechanic that existed by 2007 and was never
+   reworked, its tables carry pre-EOC lineage — but check the target's OSRS
+   introduction *and* its update history before trusting a row. Jagex's May 2024
+   "Project Rebalance: Skilling" silently invalidated the Paladin, Gnome, and
+   Hero rates; content OSRS added after the fork (Prifddinas elves, Keldagrim)
+   never had period lineage at all.
+3. **RS3**, last and hostile by default: the post-EOC reworks are precisely what
+   the cutoff exists to exclude. Usable only to bound a value nothing else
+   touches, and only with the conflict recorded.
+4. **Estimation.** The floor. Reached only when no source at any tier — period,
+   emulator, or modern — has an analogue, typically because the period mechanic
+   was *positional* and AnkiScape has no location layer, so there is no number to
+   find because the game never had one. This is a design decision, not a sourcing
+   one. Record it in the audit's abstraction list as an explicit AnkiScape
+   invention, name the owner decision that authorized it, and keep the invention
+   as small as it can possibly be: prefer one global constant applied by a
+   sourced rule over a table of fabricated per-row values.
+
 ## Evidence Hierarchy
 
-1. **Literal pre-EOC RuneScape Wiki wikitext.** Resolve an exact `oldid`, verify
-   its timestamp through the MediaWiki revisions API, and read `prop=wikitext`.
-2. **Dated Wayback material.** Use it for official guides, update posts, pages
-   with missing/moved histories, and transcluded dependencies whose oldids were
-   not preserved.
-3. **Period cache/configuration evidence.** Use the dated OpenRS2 caches for
-   client-side identity and configuration: names and IDs, inventory/object/NPC
-   options, models, sprites, interfaces, CS2 scripts, varbits, and evidence that
-   an asset/config existed in that build.
-4. **Snapshot implementation evidence.** The local 2011Scape source can prove
-   unchanged rev-667 behavior. Fidelity-revamped Darkan can prove reconstructed
-   server behavior only after it is reconciled with the historical layers.
-5. **Research leads only.** Current RS3 pages, OSRS pages, and modern emulator
-   commits may locate questions or candidate values. They cannot independently
-   close parity.
+The hierarchy has two axes, and they are not the same thing. **Search order**
+says where to look first for a mechanic. **Corroboration** says what a value
+must still pass before it ships. Server behavior — rolls, timers, hidden state,
+loot weights — is almost never stated by the wiki, so hunting for it there first
+wastes the pass and tempts a fabricated reading of prose that never claimed the
+number. Go to the implementations first, then prove what you found.
+
+### Search order (owner-set)
+
+1. **Darkan.** The high-fidelity Nov-2012 restoration is the primary
+   reconstruction of server behavior. Record the exact path and commit.
+2. **The rev-727 cache.** Darkan's own cache base, so it is the configuration
+   layer that pairs with Darkan's code: names, IDs, options, varbits, CS2,
+   interfaces.
+3. **game-main (2011Scape, rev 667).** Independent implementation evidence;
+   valuable precisely because it was reconstructed separately from Darkan, so
+   agreement between the two is real corroboration and disagreement is a flag.
+4. **The remaining dated caches** (728, 729, 736, 741, 742). Use the newest for
+   the closest-to-cutoff state, and the spread when a date of introduction or a
+   configuration change matters.
+5. **The RuneScape Wiki**, at a pinned pre-cutoff `oldid`.
+
+### Corroboration gate (applies to every value, from any tier)
+
+Finding a value first does not close it. Cross-corroborate against at least one
+independent layer, and prefer a pinned pre-cutoff wiki revision as that check
+wherever the wiki states the value at all. An emulator can invent: Darkan's
+`pickDoor()` accumulates a `numbFingers` counter and hands out flat bonuses that
+appear in no period source, and its `checkTrapsChest` ignores traps entirely
+despite the name. Implementation evidence that survives no corroboration and
+conflicts with the period record is a lead, not a fact.
+
+Dated Wayback material stands in for the wiki where histories are missing or
+moved, and for official guides and update posts.
+
+Current RS3 pages, OSRS pages, and modern emulator commits locate questions and
+candidate values. They never independently close parity.
 
 No single source proves more than it contains. In particular, cache item
 existence does not prove obtainable gameplay, and wiki prose does not prove a

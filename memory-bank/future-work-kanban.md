@@ -80,11 +80,16 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
 
 - Abstract courses as checkpoint/lap state without player location; decide failures/damage, tickets/rewards, run-energy benefits, shortcuts as dependency gates, equipment, and UI.
 
-### Thieving
+### Thieving — grill IN PROGRESS 2026-07-13
 
-Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`.
+Labels: `DEEP GRILL` (closing), `SOURCE AUDIT`.
 
-- Cover pickpockets, stalls, chests, doors, success/stun/damage, loot tables, blackjacking/gloves, inventory/banking, quest gates, and target families.
+- Owner-settled so far: full-parity failure stake (a failed attempt costs the review, applies sourced damage to the shared combat lifepoint pool, and stuns, so the next review only clears the stun); a Thieving-scoped food loadout on the existing `combat_supply_loadout` substrate; a single "Fight back when caught" toggle (default off) governing both stall guards and blackjack thugs, where unchecked means you flee for one round of damage and checked means a real combat encounter; three casual controls total; targets are ordinary target rows like every other skill.
+- Scope: five engine-native loops — pickpocketing, stalls, chests, wall safes, blackjacking. Doors pending the source dossier.
+- **Pyramid Plunder is EXCLUDED from the skill** and belongs to the Activities program: it grants Strength and Runecrafting XP, gates on a Strength level, spawns a combat NPC, and sells artefacts for up to 12,500 coins (`PyramidPlunder.kt:110-147`, `SimonTempleton.kt:48-61`). Sorceress's Garden, the Rogues' Den maze, and the Thieves' Guild go with it. The Rogues' Den *wall safes* are separable and do ship.
+- The Feud ships with this build (gates blackjacking). Dorgesh-Kaan chests and Lletya elves ship gated and dark behind their quests.
+- Blocked rewards: rogue outfit (×1.025 XP, Rogues' Den maze only) and Ardougne cloak (achievement diaries). Both listed on their owning cards.
+- Source dossier in flight: `memory-bank/source-audits/thieving-source-dossier-2026-07-13.md`. Open question it must close: whether stalls have a per-attempt caught roll at all, and whether the *stall owner* can call you out independently of guards.
 
 ### Slayer
 
@@ -108,13 +113,24 @@ Labels: `DEEP GRILL`, `WAIT: DARKAN`, `SOURCE AUDIT`, `DEPENDENCY: ALL SKILLS/CO
 
 The local checkout was observed on `dev` at `55a7afa29`, 256 commits ahead of `origin/dev`, during an active restoration series. Treat it as moving research input until a stable milestone exists.
 
-### 194-quest fidelity program
+### 167 missing playable quests, plus fidelity for the 27 that exist
 
-Labels: `WAIT: DARKAN`, `SOURCE AUDIT`.
+Labels: `WAIT: DARKAN`, `SOURCE AUDIT`, `IMPLEMENT`.
 
-- The catalog and stage-gate engine are scaffolding, not completion.
-- Re-audit authentic stages, branches, items/transformations, combat, rewards, journals, unlocks, and missing-skill gates for every quest.
+- Sized honestly 2026-07-13: `quest_catalog_generated.py` carries all 194 pre-cutoff quests as metadata, but `quest_data.py` defines only **27 playable** `QuestDefinition`s. The other 167 exist as catalog rows and, in some cases, as loose id constants plus stage fragments — which reads like the quest is present when it is not. The Feud (`quest_data.py:84`), Death to the Dorgeshuun, and Mourning's End Part I are all in that half-present state.
+- Two distinct workstreams, do not conflate them: **build the 167 missing definitions**, and **re-audit the 27 that exist** for authentic stages, branches, item transformations, combat, rewards, journals, unlocks, and missing-skill gates.
+- Prioritise by what a quest unblocks. Skill grills surface these: Thieving alone needs The Feud (blackjacking), Death to the Dorgeshuun (Dorgesh-Kaan chests), and Mourning's End Part I (Lletya elves).
+- The Feud is being built as part of the Thieving expansion because it gates a core training method; it is the precedent, not an exception to the queue.
 - Wait for Darkan where historical sources cannot prove hidden transitions or combat definitions; never fill gaps from modern RS3/OSRS.
+
+### Complete pre-EOC bestiary
+
+Labels: `SOURCE AUDIT`, `IMPLEMENT`, `WAIT: DARKAN`.
+
+- Sized honestly 2026-07-13: `COMBAT_ENEMY_DATA` holds **130 enemies**; Darkan ships roughly **2,600 NPC combat definitions** under `data/npcs/combatdefs/`. Every attackable pre-cutoff NPC should exist.
+- This was previously only a bullet under the Combat card ("continue enemy breadth"), which badly understated it.
+- Skill work keeps discovering holes here — Thieving needs `market_guard` (present) for stall guards and the Menaphite thug (absent) for blackjacking, and Slayer will need the task-only roster wholesale.
+- Source from Darkan combatdefs reconciled against the dated caches for NPC identity/options, then a pinned wiki revision for levels and drops.
 
 ### Large special methods and activities
 
@@ -159,6 +175,9 @@ Labels: `SOURCE AUDIT`, `DEPENDENCY`, sometimes `WAIT: DARKAN`.
 Labels: `DEEP GRILL`, `SOURCE AUDIT`, `WAIT: DARKAN` where server state is hidden.
 
 - Build from generic achievements and Bank Claims; add diary regions/tasks/rewards, clue step/casket state, collection tracking, one-time rewards, and their UI/undo contracts.
+- **Grill seed (owner, 2026-07-13):** the owner has a rudimentary idea for diary rewards built on our existing *fabricated* achievements, which have no source backing. That tension — invented achievement tasks handing out authentic pre-cutoff reward items — is the central thing the grill has to resolve, and it cannot be resolved by sourcing alone.
+- `memory-bank/achievement-diary-item-grants-design.md` is still a stub. Until this grill closes, diary reward items have no acquisition route and must not ship.
+- **Blocked on this card:** the Ardougne cloak's Thieving bonus (Darkan gives +0.1 to the blackjack knock-out roll). Switch it on when diaries land rather than rediscovering it.
 
 ### Random events and timed world content
 
@@ -176,12 +195,51 @@ Labels: `PARKED`, `DEPENDENCY: SKILL/ITEM BREADTH`.
 - Core design is locked in `memory-bank/fake-grand-exchange-design.md`; do not re-grill it.
 - NPC shops are already live. Implement the GE after the skill/item universe is representative enough that prices, limits, and acquisition softness are meaningful.
 
-### Level 1-99 time and economy balance
+### Level 1-99 time and economy balance — the XP/hour invariant
 
 Labels: `PARKED`, `DEPENDENCY: ALL SKILLS/MAJOR METHODS`.
 
-- Preserve source base XP now.
-- After content breadth stabilizes, derive ordinary-efficient 2012 training-guide XP/hour envelopes and tune Anki pacing separately.
+**The invariant (owner-stated 2026-07-13).** One review is one unit of game
+time, so the quantity that must hold across the whole game is:
+
+```
+effective XP per review  ∝  real pre-EOC XP per hour
+```
+
+Not XP per action. AnkiScape pays per review and therefore inherits XP-per-action
+unless something corrects it, but XP/hour is what Jagex actually balanced.
+
+**Why this is a small problem, not a sweep.** For any activity whose real
+duration is a fixed action cycle (swing pickaxe, roll for ore), real XP/hour
+*is* XP-per-action times the per-tick success roll — and that roll is exactly
+what the `low_chance`/`high_chance` pairs already encode. Gathering skills
+satisfy the invariant for free, without anyone having designed for it. Spot
+check: runite is `1/18` per `mining_data.py:249`, so ~7% at 99 and ~8.8 effective
+XP/review, landing near the real coal-vs-runite XP/hour ratio.
+
+**The invariant breaks only where the real activity has dead time that is not an
+action**: respawn waits, walking, banking, world-hopping. Everything except
+respawn is already implicitly abstracted away (we never charge for it). So the
+audit is: *find the families whose rate limiter is dead time rather than a roll.*
+Thieving stalls are the clearest case in the game — stall theft is 100% success
+with no roll, so with respawn unmodeled a gem stall would pay its full 160 XP
+every review. Naive respawn modeling inverts the skill (`XP ÷ respawn` makes the
+level-2 vegetable stall the best XP in Thieving and the level-75 gem stall the
+worst), because the real player world-hops rather than waiting. Thieving's
+answer, settled 2026-07-13, is the invented stall catch chance, anchored to
+real XP/hour ratios.
+
+**Deliverables:**
+- `tools/xp_rate_audit.py` — compute effective XP/review for every implemented
+  target from the data modules (base XP times the interpolated success roll at a
+  given level), and diff it against a table of sourced pre-EOC XP/hour rates.
+  Reusable forever; run it after every skill ships.
+- A sourced pre-EOC XP/hour table per skill (pinned wiki training guides,
+  Wayback captures for missing ones). Thieving's is being harvested now.
+- Flag every family whose rate limiter is dead time, and decide its correction
+  case by case. Do not apply a global fudge factor.
+- Preserve source base XP throughout. The correction always rides the roll or an
+  explicitly-recorded invention, never the XP value.
 
 ### Release readiness
 

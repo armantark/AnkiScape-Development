@@ -1,0 +1,329 @@
+<title>AnkiScape — The Action/Time Model Decision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0c0e12;--surface:#161a21;--surface-2:#1e232c;--border:#2a3040;--text:#e8ecf4;--text-dim:#8b95a8;--accent:#4f8cff;--accent-glow:rgba(79,140,255,.15);--red:#ff5c5c;--green:#4ade80;--amber:#fbbf24;--purple:#a78bfa;--radius:12px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-weight:300;line-height:1.6;padding:40px 24px 80px}
+.wrap{max-width:1180px;margin:0 auto}
+code,.mono{font-family:'JetBrains Mono',monospace}
+.badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-glow);border:1px solid rgba(79,140,255,.3);padding:5px 12px;border-radius:99px}
+h1{font-weight:700;font-size:2.1rem;margin:18px 0 8px;letter-spacing:-.02em}
+.sub{color:var(--text-dim);font-size:.98rem;max-width:70ch;margin:0}
+h2{font-weight:700;font-size:1.15rem;margin:52px 0 6px;letter-spacing:-.01em}
+h2 .n{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:.85rem;margin-right:10px}
+.lede{color:var(--text-dim);font-size:.92rem;margin:0 0 20px;max-width:78ch}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}}
+.eq{background:#0a0c10;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--text);overflow-x:auto;white-space:pre}
+.bad{border-left-color:var(--red)}
+.good{border-left-color:var(--green)}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);font-weight:600;padding:8px 10px;border-bottom:1px solid var(--border)}
+td{padding:9px 10px;border-bottom:1px solid rgba(42,48,64,.5)}
+td.num{font-family:'JetBrains Mono',monospace;text-align:right}
+.tag{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:.62rem;background:var(--surface-2);border:1px solid var(--border);color:var(--text-dim);padding:2px 7px;border-radius:5px;margin:2px 3px 2px 0}
+.hit{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:8px;padding:13px 16px;margin-bottom:10px}
+.hit h4{margin:0 0 4px;font-size:.9rem;font-weight:700}
+.hit p{margin:0;color:var(--text-dim);font-size:.85rem}
+.hit.survived{border-left-color:var(--amber)}
+.hit.rejected{border-left-color:var(--text-dim);opacity:.6}
+.pill{font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;margin-left:8px;vertical-align:2px}
+.p-fatal{background:rgba(255,92,92,.15);color:var(--red)}
+.p-real{background:rgba(251,191,36,.15);color:var(--amber)}
+.p-no{background:rgba(139,149,168,.12);color:var(--text-dim)}
+/* playground */
+.pg{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+.slider-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-bottom:6px}
+.slider-row label{font-family:'JetBrains Mono',monospace;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);min-width:210px}
+input[type=range]{flex:1;min-width:220px;accent-color:var(--accent);height:4px}
+.rval{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:600;color:var(--accent);min-width:110px;text-align:right}
+.readouts{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:22px 0 6px}
+@media(max-width:900px){.readouts{grid-template-columns:1fr 1fr}}
+.ro{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.ro .k{font-family:'JetBrains Mono',monospace;font-size:.6rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);display:block;margin-bottom:4px}
+.ro .v{font-family:'JetBrains Mono',monospace;font-size:1.15rem;font-weight:600}
+.axiom-ok{color:var(--green)}.axiom-bad{color:var(--red)}
+.bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:3px}
+.bar i.over{background:var(--red)}
+.note{font-size:.8rem;color:var(--text-dim);border-top:1px solid var(--border);padding-top:12px;margin-top:16px}
+/* options */
+.opt{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column}
+.opt.rec{border-color:rgba(79,140,255,.5);box-shadow:0 0 0 1px rgba(79,140,255,.15),0 8px 30px -12px var(--accent-glow)}
+.opt h3{margin:10px 0 4px;font-size:1.02rem;font-weight:700}
+.opt .cost{font-family:'JetBrains Mono',monospace;font-size:.65rem;color:var(--text-dim);margin-bottom:12px}
+.opt p{font-size:.86rem;color:var(--text-dim);margin:0 0 12px}
+.opt ul{margin:0 0 14px;padding-left:18px;font-size:.83rem;color:var(--text-dim)}
+.opt li{margin-bottom:5px}
+.opt .foot{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);font-size:.8rem}
+.yes{color:var(--green)}.no{color:var(--red)}
+.q{background:linear-gradient(180deg,var(--surface),var(--surface-2));border:1px solid var(--border);border-left:3px solid var(--purple);border-radius:var(--radius);padding:22px 24px;margin-top:16px}
+.q h3{margin:0 0 10px;font-size:1.05rem;font-weight:700}
+.q p{margin:0 0 10px;font-size:.9rem;color:var(--text-dim)}
+</style>
+
+<div class="wrap">
+
+<span class="badge">Decision required · Pre-implementation · Blocks Thieving</span>
+<h1>One card, one action — or one card, one hour?</h1>
+<p class="sub">Thieving surfaced a contradiction that has been latent in AnkiScape since the beginning, and it cannot ship without you resolving it. Claude and GPT-5.6 Sol each attacked it independently as a TRIZ contradiction. Sol found a fatal flaw in Claude's answer. This is the fork.</p>
+
+<h2><span class="n">01</span>The contradiction</h2>
+<p class="lede">Stated crisply, in the form TRIZ requires — because if you can't state it crisply, you don't have a TRIZ problem.</p>
+<div class="grid2">
+  <div class="card">
+    <div class="eq">Improving  XP/HOUR PARITY
+degrades   ONE REVIEW = ONE ACTION
+
+...and improving the axiom
+degrades  parity.</div>
+    <p style="font-size:.86rem;color:var(--text-dim);margin:14px 0 0">RuneScape was balanced in <b style="color:var(--text)">XP per hour</b>. AnkiScape pays <b style="color:var(--text)">XP per action</b>. Those agree only if every action takes the same real time. Mostly they do (~3s), which is why pickpocketing already comes out correctly ordered. They diverge violently wherever <b style="color:var(--text)">dead time</b> exists — real seconds that elapse without being an action.</p>
+  </div>
+  <div class="card">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-dim);margin-bottom:10px">The Ideal Final Result</div>
+    <p style="font-size:.9rem;margin:0 0 12px">Every review visibly performs exactly one understandable action or attempt. Authentic XP is awarded unchanged. Sourced XP/hour ratios <i>emerge</i> from cadence. No clock, no conversion constant, and no hand-tuning is ever exposed.</p>
+    <p style="font-size:.86rem;color:var(--text-dim);margin:0">The time model eliminates itself — <b style="color:var(--text)">into the success roll that already exists.</b> In the real game, "this action is slow" and "this action's roll usually fails" are the same sentence. A runite rock is slow <i>because</i> the per-tick roll fails. <code>mining_data.py</code> has been silently doing duration modelling this whole time.</p>
+  </div>
+</div>
+
+<h2><span class="n">02</span>The formula — and why my first one was wrong</h2>
+<p class="lede">I proposed reconstructing the rate from respawn timers. Sol pointed out that we already <i>have</i> the sourced XP/hour, and reconstructing it from "roughly 2–3 seconds" discards better data. He's right, and it matters: the correct form makes the roll <b>derived from sources</b> rather than tuned by me.</p>
+<div class="grid2">
+  <div class="card">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--red);letter-spacing:.06em;margin-bottom:8px">CLAUDE'S PROPOSAL — REJECTED</div>
+    <div class="eq bad">p = min(1, action_seconds / respawn_seconds)</div>
+    <p style="font-size:.83rem;color:var(--text-dim);margin:12px 0 0">Reconstructs one possible <i>cause</i> of the rate, from two weak numbers, when the rate itself is sourced. And the <code>min(1, …)</code> silently caps the vegetable stall at 12,000 XP/hr when the wiki says 18,000 — hiding an impossible mapping instead of resolving it.</p>
+  </div>
+  <div class="card">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);letter-spacing:.06em;margin-bottom:8px">SOL'S FORM — ADOPTED</div>
+    <div class="eq good">actions_per_hour = sourced_XP_per_hour / XP_per_action
+actions_per_review = actions_per_hour / R</div>
+    <p style="font-size:.83rem;color:var(--text-dim);margin:12px 0 0">Both numerator and denominator are pinned to 2012 sources. The only free parameter in the entire game becomes <b style="color:var(--text)">R</b> — reviews per balancing-hour. One global dial. The invention budget goes to zero.</p>
+  </div>
+</div>
+
+<h2><span class="n">02b</span>The correction — Mining is already inverted</h2>
+<p class="lede">I told the owner in chat that gathering skills already satisfied XP/hour parity "for free", because their <code>low_chance</code>/<code>high_chance</code> rolls are period-authentic. <b style="color:var(--red)">That was wrong.</b> The rolls are not used raw. Every gathering skill routes them through an invented adapter, and the adapter inverts the skill.</p>
+
+<div class="card" style="border-left:3px solid var(--red)">
+  <div class="eq bad">logic_pure.py:388
+
+def normalize_review_success_probability_pure(source_chance, ...):
+    """Adapt source tick odds to one AnkiScape review-action roll."""
+    return min(cap, minimum + sqrt(source) * scale)
+
+REVIEW_SUCCESS_MINIMUM = 0.20   REVIEW_SUCCESS_SCALE = 0.72   REVIEW_SUCCESS_CAP = 0.95</div>
+  <p style="font-size:.88rem;color:var(--text-dim);margin:14px 0 16px">A 0.20 floor plus a square root massively inflates rare actions. Rare actions are exactly the ones whose real XP/hour is <i>bad</i> — that is <i>why</i> they're rare. So the adapter systematically over-rewards precisely the content the real game made unattractive. Shipped, live, in Mining, Woodcutting, Fishing and Hunter (<code>logic_pure.py:7343, 7409, 7488, 7643</code>).</p>
+
+  <table>
+    <thead><tr><th>Rock</th><th style="text-align:right">Level</th><th style="text-align:right">Raw p @99</th><th style="text-align:right">Adapted p</th><th style="text-align:right">XP / review</th><th>Reality</th></tr></thead>
+    <tbody>
+      <tr><td>Iron (powermining)</td><td class="num">15</td><td class="num">100%</td><td class="num">92%</td><td class="num" style="font-weight:600">32.2</td><td style="color:var(--green);font-size:.8rem">~35–45k XP/hr &mdash; the best mining XP in the game</td></tr>
+      <tr><td>Coal</td><td class="num">30</td><td class="num">39%</td><td class="num">65%</td><td class="num" style="font-weight:600">32.5</td><td style="font-size:.8rem;color:var(--text-dim)">&mdash;</td></tr>
+      <tr><td>Mithril</td><td class="num">55</td><td class="num">20%</td><td class="num">52%</td><td class="num" style="font-weight:600">41.5</td><td style="font-size:.8rem;color:var(--text-dim)">&mdash;</td></tr>
+      <tr><td><b>Runite</b></td><td class="num">85</td><td class="num">7%</td><td class="num">39%</td><td class="num" style="font-weight:700;color:var(--red)">48.9</td><td style="color:var(--red);font-size:.8rem">A <i>money</i> method. No pre-EOC guide even quotes its XP/hr &mdash; it's that bad.</td></tr>
+    </tbody>
+  </table>
+  <p class="note"><b style="color:var(--red)">Runite is currently the best XP in Mining and iron is the worst.</b> In the real game it is the reverse, by roughly 3&ndash;4&times;. This is the same class of defect as the gem stall &mdash; XP/review decoupled from XP/hour &mdash; and it is <b>already live</b>. The adapter is not malicious: it exists so a 7% action doesn't feel miserable in Anki. But the cadence kernel gets that for free and honestly &mdash; at R=1000 one review is six game ticks, so a 7% per-tick rock yields about 35% of the time <i>without inventing a curve</i>.</p>
+</div>
+
+<h2><span class="n">03</span>R is the whole game. Move it.</h2>
+<p class="lede">R is not a tuning constant. It is the exchange rate between a flashcard and a second of RuneScape — and because the axiom demands <code>actions_per_review ≤ 1</code>, <b>the axiom and the pace are the same dial.</b> Drag it and watch what the axiom actually costs.</p>
+
+<div class="pg">
+  <div class="slider-row">
+    <label for="R">R — reviews per balancing-hour</label>
+    <input type="range" id="R" min="60" max="2400" step="20" value="1000">
+    <span class="rval" id="Rv">1000</span>
+  </div>
+  <div class="readouts">
+    <div class="ro"><span class="k">Seconds of RuneScape per card</span><span class="v" id="secs">2.0s</span></div>
+    <div class="ro"><span class="k">Reviews to 99 (blackjacking)</span><span class="v" id="to99">86,900</span></div>
+    <div class="ro"><span class="k">Years to 99 @ 100 cards/day</span><span class="v" id="yrs">2.4</span></div>
+    <div class="ro"><span class="k">Axiom holds?</span><span class="v" id="axiom">YES</span></div>
+  </div>
+
+  <table style="margin-top:18px">
+    <thead><tr>
+      <th>Method</th><th style="text-align:right">Sourced XP/hr</th><th style="text-align:right">XP/action</th>
+      <th style="text-align:right">Actions / review</th><th style="width:120px">Cadence</th><th style="text-align:right">XP / review</th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+  <p class="note" id="verdict"></p>
+</div>
+
+<h2><span class="n">04</span>Sol's hits on my proposal</h2>
+<p class="lede">I asked it to attack, not to agree. Five landed; two I reject.</p>
+
+<div class="hit">
+  <h4>The <code>min(1, …)</code> cap hides an impossible mapping<span class="pill p-fatal">Fatal</span></h4>
+  <p>The vegetable stall does 1,800 successful steals/hour — <i>faster than one action per review at any sane R.</i> My cap silently swallowed the overflow. This is the hit that kills the proposal: it means the fastest stall in the game cannot be represented under the axiom unless R ≥ 1,800, and that choice drags the pace of the entire game with it.</p>
+</div>
+<div class="hit">
+  <h4>A memoryless roll is not a refractory cooldown<span class="pill p-real">Real</span></h4>
+  <p>A 180-second restock is deterministic. A geometric random variable is not. With p = 1/60 there's a 36.5% chance the stall is <i>still</i> unavailable after 60 attempts, and a 1.7% chance it's back instantly. Neither resembles a restock. Fix: deterministic cadence with fractional residuals — a gem theft due every 88.9 reviews alternates 88- and 89-review intervals. No second lottery on top of a rate we already know exactly.</p>
+</div>
+<div class="hit">
+  <h4>The stall-rotation exploit is unaddressed<span class="pill p-real">Real</span></h4>
+  <p>There is no location layer, so travel is free. If eighteen stalls each hold an independent cooldown, the player round-robins all of them and collects every one as it comes up — turning the throttle into a free XP buffet. This needs an explicit rule and I had not thought of it.</p>
+</div>
+<div class="hit">
+  <h4>Combat cannot be deferred, because XP is pinned<span class="pill p-fatal">Fatal</span></h4>
+  <p>Combat's 30-second burst pays roughly 8× what an equivalent hour of skilling pays. A later "rebalancing pass" <i>cannot fix it by lowering XP</i> — XP/action is frozen by the parity contract. The only lever is cadence, which is precisely the architectural decision I was proposing to postpone. Deferring it doesn't buy time; it just guarantees a migration.</p>
+</div>
+<div class="hit">
+  <h4>Double-charging the failure roll<span class="pill p-real">Real</span></h4>
+  <p>If availability and the theft-success roll are applied independently, the sourced rate gets suppressed twice. Availability must be calibrated against expected XP <i>per opportunity</i>, not per success.</p>
+</div>
+<div class="hit rejected">
+  <h4>"An empty stall isn't an action, it's a state observation"<span class="pill p-no">Rejected</span></h4>
+  <p>Mining has failed on ~93% of runite reviews since launch and nobody has ever called that a broken axiom. "You try the stall; it's bare" is an attempt with an outcome. The axiom always meant <i>one action or attempt</i> — Sol's own restatement concedes this.</p>
+</div>
+<div class="hit rejected">
+  <h4>Wall-clock simulation<span class="pill p-no">Rejected</span></h4>
+  <p>Sol's Candidate 2. Makes leaving Anki open progression-relevant and rewards slow reviewers. Destroys a more important axiom than the one it saves.</p>
+</div>
+
+<h2><span class="n">05</span>The fork</h2>
+<p class="lede">All three keep sourced XP untouched. They differ in what they're willing to spend.</p>
+<div class="grid3">
+
+  <div class="opt">
+    <span class="badge" style="color:var(--red);background:rgba(255,92,92,.12);border-color:rgba(255,92,92,.3)">Option A · Already what we're doing</span>
+    <h3>Thieving now, stalls approximate</h3>
+    <div class="cost">COST: 0 · DEBT: NOW FIVE SKILLS</div>
+    <p>Ship the availability roll as first proposed. Accept the cap, the variance, the rotation hole — and join Mining, Woodcutting, Fishing and Hunter, which are <i>already</i> inverted.</p>
+    <ul>
+      <li>Thieving ships this week</li>
+      <li class="no">Stalls knowingly ~50× wrong</li>
+      <li class="no">Combat stays ~15× over-rewarded</li>
+      <li class="no">Runite keeps out-earning iron</li>
+      <li class="no">A fifth broken skill on a stack of four</li>
+    </ul>
+    <div class="foot"><span class="no">Buys a week. The bill compounds.</span></div>
+  </div>
+
+  <div class="opt rec">
+    <span class="badge">Option B · Recommended</span>
+    <h3>Build the cadence kernel first</h3>
+    <div class="cost">COST: ONE WORKSTREAM · DEBT: 0</div>
+    <p>Sol's Candidate 4. One deterministic cadence layer between reviews and skills, with two kinds of state: a <b>resource lock</b> ("the stall is bare, you are free") and an <b>actor lock</b> ("you are still committed to this fight").</p>
+    <ul>
+      <li class="yes">Cadence derived from sourced XP/hour — nothing invented</li>
+      <li class="yes">Fixes combat's 8× in the same change</li>
+      <li class="yes">Thieving stalls become correct, not approximate</li>
+      <li class="yes">Every future skill lands on a correct foundation</li>
+      <li>Combat must expose internal events rather than one 50-tick payout</li>
+      <li>Re-verify the full 2,100-test baseline</li>
+    </ul>
+    <div class="foot"><span class="yes">Pay once, now, while Thieving is the forcing function.</span></div>
+  </div>
+
+  <div class="opt">
+    <span class="badge" style="color:var(--amber);background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.3)">Option C · Split</span>
+    <h3>Thieving minus stalls</h3>
+    <div class="cost">COST: LOW · DEBT: MEDIUM</div>
+    <p>Ship pickpocketing, blackjacking, chests, doors, wall safes now — every family whose rate limiter is a roll, not dead time. Hold stalls for the kernel.</p>
+    <ul>
+      <li class="yes">Nothing shipped is wrong</li>
+      <li class="yes">~80% of Thieving lands now</li>
+      <li class="no">Violates "all training sources should exist"</li>
+      <li class="no">Combat's 8× still unaddressed</li>
+    </ul>
+    <div class="foot">The honest compromise, if B is too much at once.</div>
+  </div>
+</div>
+
+<h2><span class="n">06</span>Settled between Claude and Sol — no decision needed from you</h2>
+<p class="lede">Two rounds of adversarial back-and-forth closed these. They are recorded so you can overrule any of them, not so you have to ratify them.</p>
+<div class="grid2">
+  <div class="card">
+    <h4 style="margin:0 0 10px;font-size:.95rem">✅ <code>R = 1000</code>, with two named caps</h4>
+    <p style="font-size:.85rem;color:var(--text-dim);margin:0">Sol opened at R≥1800 (nothing may be capped), I argued the modal action, and it conceded — <i>once you accept explicitly declared caps, nothing forces R to cover the fastest action.</i> Vegetable and baker's stalls declare <code>cap_one_action</code>; validation fails if a third overflow ever appears without one. If caps proliferate, reopen R.</p>
+  </div>
+  <div class="card">
+    <h4 style="margin:0 0 10px;font-size:.95rem">✅ Stall rotation: routes, not a free-for-all</h4>
+    <p style="font-size:.85rem;color:var(--text-dim);margin:0">I proposed rotation yields the <i>sum</i> of stall rates. Sol rejected it and is right: summing 18 sourced single-stall rates <b>invents an aggregate no source states</b>. Only the active route advances; inactive routes freeze. An <code>ardougne_stall_circuit</code> route may exist only if a period source gives its aggregate rate.</p>
+  </div>
+  <div class="card">
+    <h4 style="margin:0 0 10px;font-size:.95rem">✅ Catch fires <i>after</i> a successful theft</h4>
+    <p style="font-size:.85rem;color:var(--text-dim);margin:0">The sourced stall rate already assumes the theft succeeds. So the catch may deal damage, take coins, and log a counter — but it may <b>never</b> cancel XP, confiscate the loot, or consume a future review. One roll, not two: 15% if a guard applies, 5% if only the owner does.</p>
+  </div>
+  <div class="card">
+    <h4 style="margin:0 0 10px;font-size:.95rem">✅ Deterministic cadence, never a lottery</h4>
+    <p style="font-size:.85rem;color:var(--text-dim);margin:0">Integer residual accumulator, no floats persisted. The gem stall at 81/4000 emits thefts at exact 49- and 50-review intervals. Switching away freezes the residual; switching back resumes it. No dry streaks, no lucky doubles on a rate we already know exactly.</p>
+  </div>
+</div>
+
+<h2><span class="n">07</span>The one thing that is actually yours</h2>
+<div class="q">
+  <h3>This stopped being a Thieving question the moment I found the adapter.</h3>
+  <p>When I wrote the first draft of this page, the pitch was: "stalls need a fix, and combat is 15× off, so let's build the kernel while Thieving is the forcing function." That was already a decent argument. It is now a much blunter one.</p>
+  <p><b>Mining, Woodcutting, Fishing and Hunter are shipped, live, and inverted</b> — runite out-earns iron, when reality says the opposite by 3–4×. Combat pays ~15× an equivalent hour of skilling. Thieving's stalls would be wrong by ~50×. These are not three bugs; they are one bug, wearing three coats: <b>XP per review was never tied to XP per hour, and nothing in the codebase ever made it so.</b></p>
+  <p>So "Option A — ship it broken" is no longer really on the table, because <i>we are already shipping it broken</i>. The honest choice is between fixing it now, with Thieving as the forcing function and a full spec already written — or shipping a fifth broken skill on top of four, and paying for all five later.</p>
+  <p style="margin:0"><b style="color:var(--text)">What I need from you is not the mechanism — Sol and I have that.</b> It's the appetite. This is a real workstream: a cadence kernel, a combat engine split (persistent tick budget instead of one 50-tick burst), a save-schema migration, and re-verification of the 2,100-test baseline. That is not a Thieving-sized ask, and per your own rule I'm not going to pretend otherwise or start it on my own.</p>
+</div>
+
+</div>
+
+<script>
+const M=[
+ {n:"Menaphite blackjacking",h:270000,x:275,t:"pick"},
+ {n:"Dwarf trader",h:225000,x:556.5,t:"pick"},
+ {n:"Knight of Ardougne",h:180000,x:198,t:"pick"},
+ {n:"Gnome (triple loot)",h:150000,x:198.5,t:"pick"},
+ {n:"Master Farmer",h:85000,x:43,t:"pick"},
+ {n:"Vegetable stall",h:18000,x:10,t:"stall"},
+ {n:"Baker's stall",h:23040,x:16,t:"stall"},
+ {n:"Silver stall",h:6480,x:54,t:"stall"},
+ {n:"Gem stall",h:3240,x:160,t:"stall"},
+ {n:"Iron ore (powermining)",h:40000,x:35,t:"mine"},
+ {n:"Ivy (woodcutting)",h:80000,x:332.5,t:"mine"},
+ {n:"Magic logs",h:23500,x:250,t:"mine"},
+ {n:"Combat (30s burst)",h:200000,x:1667,t:"combat"}
+];
+const R=document.getElementById('R'),Rv=document.getElementById('Rv'),tb=document.getElementById('tb');
+const XP99=13034431;
+function fmt(n){return n>=1000?Math.round(n).toLocaleString():n.toFixed(n<10?2:1)}
+function draw(){
+  const r=+R.value; Rv.textContent=r;
+  let worst=0;
+  tb.innerHTML=M.map(m=>{
+    const aph=m.h/m.x, apr=aph/r, xpr=m.h/r;
+    if(apr>worst)worst=apr;
+    const cad = apr>=1 ? (apr>1.05?`<span style="color:var(--red)">${apr.toFixed(2)}× per review</span>`:`every review`)
+              : `1 per ${(1/apr).toFixed(apr<0.05?0:1)} reviews`;
+    const w=Math.min(100,apr*100);
+    return `<tr>
+      <td>${m.n}</td>
+      <td class="num" style="color:var(--text-dim)">${m.h.toLocaleString()}</td>
+      <td class="num" style="color:var(--text-dim)">${m.x}</td>
+      <td class="num">${apr.toFixed(3)}</td>
+      <td><div class="bar"><i class="${apr>1?'over':''}" style="width:${w}%"></i></div></td>
+      <td class="num" style="font-weight:600">${fmt(xpr)}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('secs').textContent=(3600/r).toFixed(1)+'s';
+  const bj=270000/r, n99=XP99/bj;
+  document.getElementById('to99').textContent=Math.round(n99).toLocaleString();
+  document.getElementById('yrs').textContent=(n99/100/365).toFixed(2);
+  const ax=document.getElementById('axiom');
+  if(worst<=1.001){ax.textContent='YES';ax.className='v axiom-ok'}
+  else{ax.textContent='BROKEN';ax.className='v axiom-bad'}
+  const v=document.getElementById('verdict');
+  const over=M.filter(m=>(m.h/m.x)/r>1.001).map(m=>m.n);
+  if(r>=1800){
+    v.innerHTML=`<b style="color:var(--green)">Universal parity at R=${r}.</b> Nothing is capped; every method gets its exact sourced rate. The price: one card buys only ${(3600/r).toFixed(1)}s of RuneScape and 99 Thieving costs ${Math.round(n99).toLocaleString()} reviews (~${(n99/100/365).toFixed(1)} yrs @100/day). <b>Sol's original position</b> — and it lets a level-2 cabbage stall set the pace of the entire game.`;
+  } else if(r>=900){
+    v.innerHTML=`<b style="color:var(--accent)">R=${r} — the settled answer.</b> ${over.length} method${over.length==1?'':'s'} overflow and must be <i>explicitly capped</i> at one action/review: <b>${over.join(', ')}</b>. Both are the fastest, lowest-level, shortest-lived methods in the game. In exchange the flagship (blackjacking, 0.98 actions/review) lands almost exactly on the axiom, and the game runs ${(1800/r).toFixed(1)}× faster — ${Math.round(n99).toLocaleString()} reviews to 99. <b>Sol conceded this on the second pass</b>: once you accept named, validated caps, nothing forces R to cover the fastest action.`;
+  } else {
+    v.innerHTML=`<b style="color:var(--red)">R=${r} is too low.</b> ${over.length} methods now overflow — the caps have stopped being two documented exceptions and have quietly become the model. Sol's rule: <i>if capped exceptions proliferate, reopen R.</i> You are past that line.`;
+  }
+}
+R.addEventListener('input',draw);draw();
+</script>
