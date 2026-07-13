@@ -312,6 +312,34 @@ reality:    ivy > willow > maple > oak > yew > magic</div>
   </table>
 </div>
 
+<h2><span class="n">06c</span>R, measured directly — and combat, measured</h2>
+<div class="grid2">
+  <div class="card" style="border-left:3px solid var(--green)">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);letter-spacing:.06em;margin-bottom:10px">R = 1000 · THREE INDEPENDENT SUPPORTS</div>
+    <p style="font-size:.86rem;color:var(--text-dim);margin:0 0 12px">The <b style="color:var(--text)">artisan</b> skills are deterministic — smithing a platebody, casting High Alchemy, offering a bone at a gilded altar cannot fail. No roll, no adapter, <i>nothing in the path</i>. So <code>sourced XP/hr ÷ XP/action</code> reads R directly.</p>
+    <table>
+      <thead><tr><th>Method</th><th style="text-align:right">XP/hr</th><th style="text-align:right">XP/act</th><th style="text-align:right">R</th></tr></thead>
+      <tbody>
+        <tr><td>Gilded altar, dragon bones</td><td class="num">230,000</td><td class="num">252</td><td class="num" style="font-weight:600">913</td></tr>
+        <tr><td>Dragonhide body</td><td class="num">186,000</td><td class="num">186</td><td class="num" style="font-weight:600">1,000</td></tr>
+        <tr><td>High Level Alchemy</td><td class="num">78,000</td><td class="num">65</td><td class="num" style="font-weight:600">1,200</td></tr>
+        <tr><td>Superheat mithril</td><td class="num">84,800</td><td class="num">53</td><td class="num">1,600</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:.83rem;color:var(--text-dim);margin:12px 0 0">High Alchemy isn't even inference — the 2012 page states the cast count: <i>"can be cast up to exactly 1200 times in one hour which adds up to 78,000 xp/hr"</i>.</p>
+    <p style="font-size:.85rem;margin:12px 0 0"><b>R = 1000 has three supports</b> — the 3.6s blackjack cycle, the overflow caps, and now the period record's own action rates. <b style="color:var(--red)">R = 1800 has none.</b> The one open Claude/Sol disagreement, settled on evidence neither had.</p>
+  </div>
+  <div class="card" style="border-left:3px solid var(--red)">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--red);letter-spacing:.06em;margin-bottom:10px">COMBAT — MEASURED, NOT ESTIMATED</div>
+    <div class="eq" style="font-size:.72rem">moss_giant   309.8 xp/review  ->  37,172 xp/hr @ R=120
+hill_giant   304.8 xp/review  ->  36,573 xp/hr @ R=120
+iron (mine)   32.2 xp/review  ->  ~35,000 xp/hr @ R=1035</div>
+    <p style="font-size:.86rem;color:var(--text-dim);margin:14px 0 12px"><b style="color:var(--text)">The combat engine is faithful.</b> 37k XP/hr on moss giants is a plausible period rate. The simulation is <i>not</i> the bug.</p>
+    <p style="font-size:.86rem;color:var(--text-dim);margin:0 0 12px">What's wrong is the <b style="color:var(--text)">exchange rate</b>. Moss giants pay 309.8 XP/review; iron pays 32.2 — for the <i>same</i> real hourly rate. One combat card buys <b style="color:var(--red)">5.5×–8.6×</b> more game time than any other card.</p>
+    <p style="font-size:.85rem;margin:0;padding:10px 12px;background:var(--surface-2);border-radius:6px">Combat's R = 120 is a <b>definition</b> (50 ticks × 0.6s). Every other skill's R is <b>derived</b>. Proving this needs <i>no combat XP/hour source at all</i> — it's pure tick-to-review conversion. Which is exactly why <b>it cannot be fixed later by lowering XP</b>: XP/action is frozen by the parity contract. Cadence is the only lever.</p>
+  </div>
+</div>
+
 <h2><span class="n">07</span>The one thing that is actually yours</h2>
 <div class="q">
   <h3>This stopped being a Thieving question the moment I found the adapter.</h3>

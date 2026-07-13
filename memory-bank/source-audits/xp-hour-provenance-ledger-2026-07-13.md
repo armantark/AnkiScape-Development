@@ -93,6 +93,44 @@ What survives of the corroboration claim, stated honestly: among skills with
 1,474. That is consistent with `R = 1000` and inconsistent with combat's 120, but
 it is three data points, not a cluster, and it must not be sold as more.
 
+## R, measured directly — the strongest evidence we have
+
+The **artisan** skills are deterministic. Smithing a platebody, casting High
+Alchemy, offering a bone at a gilded altar: none can fail. No roll, no adapter, no
+probability sits between the source rate and the action rate. So
+
+```
+sourced XP/hour  ÷  XP-per-action  =  actions/hour  =  R
+```
+
+is a **direct read**, with nothing in the path to distort it. This is better
+evidence for `R` than anything derived from a rolled skill.
+
+| Method | Sourced XP/hr | XP/action | **R** |
+|---|---|---|---|
+| Crafting: urns, Ardougne | 39,900 | 95 | 420 |
+| Prayer: gilded altar, dragon bones | 230,000 | 252 | **913** |
+| Crafting: dragonhide body (63) | 186,000 | 186 | **1,000** |
+| Magic: High Level Alchemy | 78,000 | 65 | **1,200** |
+| Magic: superheat mithril | 84,800 | 53 | 1,600 |
+| Crafting: elemental battlestaves | 220,000 | 100 | 2,200 |
+
+The middle sits at **913–1,600**. And the High Alchemy row is not even an
+inference — the period page states the cast count outright: *"can be cast up to
+exactly 1200 times in one hour which adds up to 78,000 xp/hr"* (High Level
+Alchemy, oldid 6587004).
+
+**`R = 1000` therefore has three independent supports:** the sourced 3.6-second
+blackjacking cycle, the overflow-cap argument, and the period record's own
+deterministic action rates. **`R = 1800` has none.** This was the one open
+disagreement between Claude and Sol, and it is now settled on evidence neither had
+at the time.
+
+**Deliberately excluded: fletching bolts.** Quoted at 250–560k XP/hr on 5–7 XP
+actions, implying **50,000–80,000 actions/hour**. The guide calls the method
+"click-intensive". That is a mouse rate, not a game constant, and reading it as one
+would be a category error. Recorded here rather than quietly dropped.
+
 ## Combat, measured
 
 Combat's `R` is a **definition, not a measurement**, and that is the entire
