@@ -85,8 +85,8 @@ def audit(level):
         measured, tool = measurer(level)
         print(f"\n{skill}  (best tool: {tool})")
         print(f"{'target':<14}{'xp/act':>8}{'raw p':>8}{'shipped p':>11}"
-              f"{'xp/review':>11}{'sourced xp/hr':>16}{'implied R':>12}")
-        print("-" * 96)
+              f"{'xp/review':>11}{'base xp/hr':>16}{'implied R':>12}{'acts/hr':>10}")
+        print("-" * 106)
 
         rows = []
         for tid, (xp, raw, p, eff) in sorted(measured.items(), key=lambda kv: -kv[1][3]):
@@ -95,13 +95,19 @@ def audit(level):
                 print(f"{tid:<14}{xp:>8.1f}{raw:>7.1%}{p:>11.1%}{eff:>11.1f}"
                       f"{'— no source —':>16}{'':>12}")
                 continue
-            lo, hi, _xp_src, _lvl, _cite = rate
-            mid = (lo + hi) / 2
+            # Strip modifiers already baked into the quote, or we double-count them.
+            base_lo, base_hi = rate.base_xp_hr()
+            mid = (base_lo + base_hi) / 2
             R = mid / eff if eff else float("inf")
             all_R.append((skill, tid, R))
             rows.append((tid, eff, mid))
-            src = f"{lo:,}-{hi:,}" if lo != hi else f"{lo:,}"
-            print(f"{tid:<14}{xp:>8.1f}{raw:>7.1%}{p:>11.1%}{eff:>11.1f}{src:>16}{R:>12,.0f}")
+            src = f"{base_lo:,.0f}-{base_hi:,.0f}" if base_lo != base_hi else f"{base_lo:,.0f}"
+            aph_hi = rate.actions_per_hour()[1]
+            flag = " OVERFLOW" if aph_hi > 1000 else ""
+            print(f"{tid:<14}{xp:>8.1f}{raw:>7.1%}{p:>11.1%}{eff:>11.1f}{src:>16}{R:>12,.0f}"
+                  f"{aph_hi:>10,.0f}{flag}")
+            if rate.includes:
+                print(f"{'':<14}  quote includes {', '.join(rate.includes)} — stripped before grading")
 
         # Ordering check: does AnkiScape agree with reality about what's best?
         if len(rows) >= 2:
