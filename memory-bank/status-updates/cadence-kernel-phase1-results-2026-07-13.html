@@ -24,12 +24,12 @@
 </head>
 <body>
 <main>
-  <span class="badge">Phase 1 complete · working tree</span>
+  <span class="badge">Phase 1 complete · verified checkpoint</span>
   <h1>The cadence kernel shipped dormant—and stayed invisible.</h1>
   <p class="lede">The architecture now exists as a pure, persisted, undoable boundary. Every live skill still follows the pre-existing dispatcher, and the off-by-default flag changes neither output bytes nor RNG state.</p>
 
   <section class="score" aria-label="Verification scorecard">
-    <div class="meter"><strong>1,209</strong><span>Full tests passing</span></div>
+    <div class="meter"><strong>1,209</strong><span>Full tests passing on main</span></div>
     <div class="meter"><strong>+11</strong><span>Cadence tests</span></div>
     <div class="meter"><strong>3</strong><span>Expected failures unchanged</span></div>
     <div class="meter"><strong>0</strong><span>Skills routed</span></div>
@@ -100,6 +100,7 @@
   </section>
 
   <div class="none"><strong>Contract deviations: none.</strong> Embedded probability and combat ticks are intentionally declared but raise <span class="mono">NotImplementedError</span>, exactly as Phase 1 permits; resource and actor locks are data-only, and no skill, adapter, Combat path, Thieving path, data module, or audit tool was changed.</div>
+  <div style="margin-top:14px;padding:15px 18px;border-left:3px solid var(--amber);background:rgba(251,191,36,.08);border-radius:0 10px 10px 0;color:#ead9ad"><strong>Shared-checkout note.</strong> A concurrent test-signal cleanup briefly shared this working tree and was extracted from <span class="mono">main</span> at <span class="mono">7f3c0a1</span>; it now lives on <span class="mono">codex/test-signal-cleanup</span> in its own worktree. It never touched the kernel, and <span class="mono">main</span>'s 1,209-test count is the cadence-only figure. One finding from it is worth re-landing there: <span class="mono">tests/test_js_bridge_contract.py</span> is written in pytest style in a <span class="mono">unittest discover</span> repository, so both of its tests collect as zero and have never once executed.</div>
 </main>
 </body>
 </html>

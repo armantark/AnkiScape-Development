@@ -2,13 +2,20 @@
 
 ## Current Focus
 
-Phase 1 of the cadence kernel is implemented in the working tree and deliberately
-uncommitted at the owner's request. `cadence_kernel.py` now owns the pure `R =
-1000` contract, exact residual scheduling, admission/overflow declarations, and
-lock shapes. Storage config v34 adds only the empty route-keyed
-`cadence_profiles` state; `ankiscape_cadence_kernel` is strict, off by default,
-and not read by review dispatch. No skill is routed through the kernel. The full
-suite is 1,209 tests with the existing 187 skips and three expected failures.
+Phase 1 of the cadence kernel is committed on `main` at `b45aff0`.
+`cadence_kernel.py` owns the pure `R = 1000` contract, exact residual
+scheduling, admission/overflow declarations, and lock shapes. Storage config v34
+adds only the empty route-keyed `cadence_profiles` state;
+`ankiscape_cadence_kernel` is strict, off by default, and not read by review
+dispatch. No skill is routed through the kernel. `main` runs 1,209 tests with
+187 skips and three expected failures.
+
+A concurrent test-signal cleanup briefly shared this checkout and was extracted
+at `7f3c0a1`; it now lives on the `codex/test-signal-cleanup` branch in its own
+worktree. It is unrelated to the cadence work and does not affect `main`'s
+counts. One finding from it is worth re-landing there: `tests/
+test_js_bridge_contract.py` is written in pytest style in a `unittest discover`
+repository, so both of its tests collect as zero and have never executed.
 
 The Prayer/altar/urn/passive/Herblore closure is implemented, fully certified, and committed on `main` at `300c7c5`. It extends the original Prayer ship with owned gilded-altar parity, all 26 pre-EOC training-urn tiers across six skills, target-carried Bonecrusher/Ectoplasmator behavior, direct full-urn teleport with an independent bounded Anki undo stack, exact high-tier standard-Prayer Defence gates, and distinct Bonemeal/Wyvern bonemeal storage identities.
 

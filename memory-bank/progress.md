@@ -4,7 +4,7 @@
 
 AnkiScape now has 15 complete skill surfaces, five partial Combat-trained skills, and five planned skills. Canonical live status is in `future-work-kanban.md`; the dated 2026-07-10 completion audit is a historical snapshot.
 
-Phase 1 of the cadence kernel is complete in the uncommitted working tree. It
+Phase 1 of the cadence kernel is complete on `main` at `b45aff0`. It
 adds a dormant pure scheduler, additive config-v34 route residuals, the strict
 off-by-default `ankiscape_cadence_kernel` flag, and exact save/load/undo and
 flag-off RNG/output regression coverage. No skill behavior is routed or changed.
@@ -70,8 +70,9 @@ The durable source/conflict record is `source-audits/prayer-altar-urn-passives-h
 ## Verification Baseline
 
 - Cadence Phase 1 targeted suite: 11 tests passing.
-- `python3 -m unittest discover -s tests -q`: 1,209 tests passing, 187 skips,
-  three expected failures.
+- `python3 -m unittest discover -s tests -q` on `main`: 1,209 tests passing, 187
+  skips, three expected failures. The concurrent test-signal cleanup was
+  extracted from `main` at `7f3c0a1` and does not affect this count.
 - Focused Prayer/passive/urn/logic/combat/Construction/runtime/storage/integration/Farming: 626 tests passing.
 - Independent backend audit superset: 663 tests passing.
 - `python3 run_tests.py`: 1,198 tests passing, 187 skips, 3 expected failures.
