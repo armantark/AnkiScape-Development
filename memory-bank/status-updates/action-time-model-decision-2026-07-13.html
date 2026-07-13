@@ -260,6 +260,37 @@ REVIEW_SUCCESS_MINIMUM = 0.20   REVIEW_SUCCESS_SCALE = 0.72   REVIEW_SUCCESS_CAP
   </div>
 </div>
 
+<h2><span class="n">06b</span>Measured, not argued — <code>tools/xp_rate_audit.py</code></h2>
+<p class="lede">The claims above are no longer rhetoric. The audit tool is committed (<code>9adc435</code>, <code>4fc2c00</code>), it grades the <i>shipped</i> probability functions rather than a reimplementation, and it strips modifiers that are baked into a quoted rate before comparing. It changed one of my own conclusions.</p>
+<div class="grid2">
+  <div class="card">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--green);letter-spacing:.06em;margin-bottom:8px">PROVEN — WOODCUTTING IS INVERTED</div>
+    <div class="eq" style="font-size:.72rem">AnkiScape:  ivy > magic > yew > maple > willow > oak
+reality:    ivy > willow > maple > oak > yew > magic</div>
+    <p style="font-size:.83rem;color:var(--text-dim);margin:12px 0 0"><b style="color:var(--text)">Magic logs are AnkiScape's 2nd-best WC training and reality's 2nd-worst</b> (17–30k XP/hr). Yew is inverted the same way. Those are the two classic <i>money</i> trees — the adapter turned them into the training meta.</p>
+  </div>
+  <div class="card">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.62rem;color:var(--amber);letter-spacing:.06em;margin-bottom:8px">WALKED BACK — MINING'S MAGNITUDE</div>
+    <p style="font-size:.86rem;margin:0 0 10px">I claimed Mining was inverted "3–4×". <b style="color:var(--amber)">I can't prove the magnitude.</b> No pre-cutoff guide states a runite XP/hour <i>at all</i> — it's discussed purely as a 300–600k coins/hr money method. And stripping urns from iron's quote drops its base below concentrated gold's, which flips Mining's sourced ordering.</p>
+    <p style="font-size:.83rem;color:var(--text-dim);margin:0">What survives is directional and still bad: the code pays <b style="color:var(--text)">runite 67.5 XP/review vs iron's 32.2</b>, while the guide calls iron "the fastest mining experience in the free game."</p>
+  </div>
+</div>
+<div class="card" style="margin-top:16px;border-left:3px solid var(--purple)">
+  <p style="font-size:.86rem;margin:0"><b>Sol's re-ordering of the work, and it disagrees with mine.</b> I assumed combat came early. It argues combat is <i>last</i> — it has the most call-boundary behaviour, so the kernel should survive Thieving and live gathering first. And a phase I hadn't planned comes <i>zeroth</i>:</p>
+  <table style="margin-top:14px">
+    <thead><tr><th>Phase</th><th>What</th><th style="width:60px">Size</th><th>Why here</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">0</td><td>Rate provenance + overflow ledger</td><td class="num">M</td><td style="font-size:.8rem;color:var(--text-dim)">Every rate declares what's baked into it. Skipping this contaminates every later phase. <i>Started — the audit tool is this phase.</i></td></tr>
+      <tr><td class="mono">1</td><td>Dormant kernel + storage schema</td><td class="num">M</td><td style="font-size:.8rem;color:var(--text-dim)">Nothing routed through it yet. No behaviour change.</td></tr>
+      <tr><td class="mono">2</td><td><b>Thieving as the greenfield canary</b></td><td class="num">L</td><td style="font-size:.8rem;color:var(--text-dim)">Not shipped yet ⇒ no save migration, no regression surface. The safest possible first consumer.</td></tr>
+      <tr><td class="mono">3</td><td>Shadow mode on the adapter skills</td><td class="num">S–M</td><td style="font-size:.8rem;color:var(--text-dim)">Compute proposed vs current <i>without mutating anything</i>. Proves the fix before risking it.</td></tr>
+      <tr><td class="mono">4</td><td>Mining migration</td><td class="num">L</td><td style="font-size:.8rem;color:var(--text-dim)">Remove <code>ratio × sqrt</code>. Six-tick rune-pick sim yields exactly 35,000 iron XP/1,000 reviews — landing on the sourced band with <i>no fitted constant</i>.</td></tr>
+      <tr><td class="mono">5</td><td>WC, Fishing, Hunter, Cooking, Firemaking</td><td class="num">M–L ea.</td><td style="font-size:.8rem;color:var(--text-dim)">One per release. Cooking is subtle — burning isn't dead time, it consumes input and makes an item.</td></tr>
+      <tr><td class="mono">6</td><td>Combat engine split</td><td class="num">L</td><td style="font-size:.8rem;color:var(--red)">Highest risk. Last, not first.</td></tr>
+    </tbody>
+  </table>
+</div>
+
 <h2><span class="n">07</span>The one thing that is actually yours</h2>
 <div class="q">
   <h3>This stopped being a Thieving question the moment I found the adapter.</h3>
